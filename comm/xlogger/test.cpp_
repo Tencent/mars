@@ -1,0 +1,78 @@
+/*
+ ============================================================================
+ ============================================================================
+ */
+
+#include "xlogger.h"
+
+void test()
+{
+    xinfo_function();
+    xinfo_scope("info scope");
+
+    xinfo2("old info");
+    xinfo2("old info=%0", 0);
+
+    xinfo2("info=1");
+    xinfo2(TSF("TSF info=1"));
+    xinfo2<<"<< info=1";
+
+    //error test
+//    xinfo2("info=1", __LINE__);
+    xinfo2(TSF("TSF info=1"), __LINE__);
+
+    xinfo2("info=%d", __LINE__);
+    xinfo2(TSF("TSF info=%0"), __LINE__);
+    xinfo2<<"<< info="<<__LINE__;
+
+    xinfo2_if(1<0);
+    xinfo2_if(1>0);
+
+    xinfo2_if(1>0, "if true info=2");
+    xinfo2_if(1<0, "if false info=2");
+    xinfo2_if(1>0, TSF("TSF if true info=2"));
+    xinfo2_if(1<0, TSF("TSF if false info=2"));
+    xinfo2_if(1>0)<<"<< if true info=2";
+    xinfo2_if(1<0)<<"<< if false info=2";
+
+    xinfo2_if(1>0, "if true info=%d", __LINE__);
+    xinfo2_if(1<0, "if false info=%d", __LINE__);
+    xinfo2_if(1>0, TSF("TSF if true info=%0"), __LINE__);
+    xinfo2_if(1<0, TSF("TSF if false info=%0"), __LINE__);
+    xinfo2_if(1>0)<<"<< if true info="<< __LINE__;
+    xinfo2_if(1<0)<<"<< if false info="<< __LINE__;
+
+    //error test
+    const char* error1 = "if true info=3";
+    const char* error2 = "if false info=3";
+    xinfo2_if(1>0, error1, __LINE__);
+    xinfo2_if(1<0, error2, __LINE__);
+    xinfo2_if(1>0, TSF("TSF if true info=3"), __LINE__);
+    xinfo2_if(1<0, TSF("TSF if false info=3"), __LINE__);
+
+    xinfo2_if(1>0)("() if true info=%d", __LINE__);
+    xinfo2_if(1<0)("() if false info=%d", __LINE__);
+    xinfo2_if(1>0)(TSF("() TSF if true info=%d"), __LINE__);
+    xinfo2_if(1<0)(TSF("() TSF if false info=%d"), __LINE__);
+
+    //error test
+    error1 = "if true info=4";
+    error2 = "if false info=4";
+    xinfo2_if(1>0) (error1, __LINE__);
+    xinfo2_if(1<0) (error2, __LINE__);
+    xinfo2_if(1>0) (TSF("TSF if true info=4"), __LINE__);
+    xinfo2_if(1<0) (TSF("TSF if false info=4"), __LINE__);
+
+    xassert(1>0);
+    xassert(1<0);
+
+    xassert(1>0, "assert true info=%d", __LINE__);
+    xassert(1<0, "assert false info=%d", __LINE__);
+
+    xassert(1>0, TSF("TSF assert true info=%0"), __LINE__);
+    xassert(1<0, TSF("TSF assert false info=%0"), __LINE__);
+
+    xassert(1>0)<<"<< assert true info="<< __LINE__;
+    xassert(1<0)<<"<< assert false info="<< __LINE__;
+
+}

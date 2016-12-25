@@ -1,0 +1,21 @@
+--style=google
+#-s2 --indent=spaces=2
+#--indent-namespaces
+#--indent-preproc-block
+--indent-preproc-define
+--indent-col1-comments
+--break-blocks 
+--pad-oper
+--pad-header 
+--unpad-paren
+--align-pointer=type
+--align-reference=type
+#--break-closing-brackets
+#--add-brackets
+#--add-one-line-brackets
+--keep-one-line-blocks
+--keep-one-line-statements
+--convert-tabs 
+#--remove-comment-prefix
+--lineend=linux
+

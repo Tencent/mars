@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9AE7D16D-ACBF-477E-857F-549EBB54A222}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>win32proj</RootNamespace>
+    <ProjectName>comm</ProjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib; $(ProjectDir)/../; $(ProjectDir)/../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib; $(ProjectDir)/../; $(ProjectDir)/../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\alarm.cc" />
+    <ClCompile Include="..\anr.cc" />
+    <ClCompile Include="..\assert\__assert.c" />
+    <ClCompile Include="..\autobuffer.cc" />
+    <ClCompile Include="..\basepacker.cc" />
+    <ClCompile Include="..\comm_frequency_limit.cc" />
+    <ClCompile Include="..\corepattern\coreservice_base.cc" />
+    <ClCompile Include="..\crypt\ibase64.cc" />
+    <ClCompile Include="..\crypt\pkcs7_padding.c" />
+    <ClCompile Include="..\dns\dns.cc" />
+    <ClCompile Include="..\http.cc" />
+    <ClCompile Include="..\md5.c" />
+    <ClCompile Include="..\memdbg.cc" />
+    <ClCompile Include="..\messagequeue\message_queue.cc" />
+    <ClCompile Include="..\messagequeue\message_queue_utils.cc" />
+    <ClCompile Include="..\mmap_util.cc" />
+    <ClCompile Include="..\network\getdnssvraddrs.cc" />
+    <ClCompile Include="..\network\getgateway.c" />
+    <ClCompile Include="..\ptrbuffer.cc" />
+    <ClCompile Include="..\singleton.cc" />
+    <ClCompile Include="..\socket\block_socket.cc" />
+    <ClCompile Include="..\socket\complexconnect.cc" />
+    <ClCompile Include="..\socket\local_ipstack.cc" />
+    <ClCompile Include="..\socket\socket_address.cc" />
+    <ClCompile Include="..\socket\tcpclient.cc" />
+    <ClCompile Include="..\socket\tcpclient_fsm.cc" />
+    <ClCompile Include="..\socket\tcpserver.cc" />
+    <ClCompile Include="..\socket\tcpserver_fsm.cc" />
+    <ClCompile Include="..\socket\udpclient.cc" />
+    <ClCompile Include="..\socket\udpserver.cc" />
+    <ClCompile Include="..\socket\unix_socket.cc" />
+    <ClCompile Include="..\strutil.cc" />
+    <ClCompile Include="..\tickcount.cc" />
+    <ClCompile Include="..\time_utils.c" />
+    <ClCompile Include="..\tinyxml2.cc" />
+    <ClCompile Include="..\windows\SocketSelect\socketselect2.cc" />
+    <ClCompile Include="..\windows\sys\time.c" />
+    <ClCompile Include="..\windows\TssGC.cpp" />
+    <ClCompile Include="..\windows\unistd.c" />
+    <ClCompile Include="..\windows\win32\NetUtil.cpp" />
+    <ClCompile Include="..\windows\win32\platform_comm.cpp" />
+    <ClCompile Include="..\windows\xlogger_threadinfo.cpp" />
+    <ClCompile Include="..\windows\zlib\adler32.c" />
+    <ClCompile Include="..\windows\zlib\compress.c" />
+    <ClCompile Include="..\windows\zlib\crc32.c" />
+    <ClCompile Include="..\windows\zlib\deflate.c" />
+    <ClCompile Include="..\windows\zlib\gzclose.c" />
+    <ClCompile Include="..\windows\zlib\gzlib.c" />
+    <ClCompile Include="..\windows\zlib\gzread.c" />
+    <ClCompile Include="..\windows\zlib\gzwrite.c" />
+    <ClCompile Include="..\windows\zlib\infback.c" />
+    <ClCompile Include="..\windows\zlib\inffast.c" />
+    <ClCompile Include="..\windows\zlib\inflate.c" />
+    <ClCompile Include="..\windows\zlib\inftrees.c" />
+    <ClCompile Include="..\windows\zlib\trees.c" />
+    <ClCompile Include="..\windows\zlib\uncompr.c" />
+    <ClCompile Include="..\windows\zlib\zutil.c" />
+    <ClCompile Include="..\xlogger\xloggerbase.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\adler32.h" />
+    <ClInclude Include="..\alarm.h" />
+    <ClInclude Include="..\anr.h" />
+    <ClInclude Include="..\assert\__assert.h" />
+    <ClInclude Include="..\autobuffer.h" />
+    <ClInclude Include="..\basepacker.h" />
+    <ClInclude Include="..\bootregister.h" />
+    <ClInclude Include="..\bootrun.h" />
+    <ClInclude Include="..\comm_frequency_limit.h" />
+    <ClInclude Include="..\compiler_util.h" />
+    <ClInclude Include="..\copy_wrapper.h" />
+    <ClInclude Include="..\corepattern\coreservice_base.h" />
+    <ClInclude Include="..\corepattern\service_base.h" />
+    <ClInclude Include="..\crypt\ibase64.h" />
+    <ClInclude Include="..\crypt\pkcs7_padding.h" />
+    <ClInclude Include="..\cxxnamespacefix.h" />
+    <ClInclude Include="..\debugger\spy_base.h" />
+    <ClInclude Include="..\dns\dns.h" />
+    <ClInclude Include="..\has_member.h" />
+    <ClInclude Include="..\http.h" />
+    <ClInclude Include="..\ini.h" />
+    <ClInclude Include="..\marcotoolkit.h" />
+    <ClInclude Include="..\md5.h" />
+    <ClInclude Include="..\memdbg.h" />
+    <ClInclude Include="..\messagequeue\message_queue.h" />
+    <ClInclude Include="..\messagequeue\message_queue_utils.h" />
+    <ClInclude Include="..\mmap_util.h" />
+    <ClInclude Include="..\network\getdnssvraddrs.h" />
+    <ClInclude Include="..\network\getgateway.h" />
+    <ClInclude Include="..\platform_comm.h" />
+    <ClInclude Include="..\ptrbuffer.h" />
+    <ClInclude Include="..\scope_recursion_limit.h" />
+    <ClInclude Include="..\singleton.h" />
+    <ClInclude Include="..\socket\block_socket.h" />
+    <ClInclude Include="..\socket\complexconnect.h" />
+    <ClInclude Include="..\socket\ipv6_address_utils.h" />
+    <ClInclude Include="..\socket\local_ipstack.h" />
+    <ClInclude Include="..\socket\socketselect.h" />
+    <ClInclude Include="..\socket\socket_address.h" />
+    <ClInclude Include="..\socket\tcpclient.h" />
+    <ClInclude Include="..\socket\tcpclient_fsm.h" />
+    <ClInclude Include="..\socket\tcpserver.h" />
+    <ClInclude Include="..\socket\tcpserver_fsm.h" />
+    <ClInclude Include="..\socket\tcp_fsm_handler.h" />
+    <ClInclude Include="..\socket\udpclient.h" />
+    <ClInclude Include="..\socket\udpserver.h" />
+    <ClInclude Include="..\socket\unix_socket.h" />
+    <ClInclude Include="..\strutil.h" />
+    <ClInclude Include="..\thread\atomic_oper.h" />
+    <ClInclude Include="..\thread\bind.h" />
+    <ClInclude Include="..\thread\condition.h" />
+    <ClInclude Include="..\thread\lock.h" />
+    <ClInclude Include="..\thread\mutex.h" />
+    <ClInclude Include="..\thread\mutexvector.h" />
+    <ClInclude Include="..\thread\runnable.h" />
+    <ClInclude Include="..\thread\spinlock.h" />
+    <ClInclude Include="..\thread\thread.h" />
+    <ClInclude Include="..\thread\tss.h" />
+    <ClInclude Include="..\tickcount.h" />
+    <ClInclude Include="..\time_utils.h" />
+    <ClInclude Include="..\tinyxml2.h" />
+    <ClInclude Include="..\verinfo.h" />
+    <ClInclude Include="..\windows\projdef.h" />
+    <ClInclude Include="..\windows\SocketSelect\SocketSelect.h" />
+    <ClInclude Include="..\windows\SocketSelect\socketselect2.h" />
+    <ClInclude Include="..\windows\sys\cdefs.h" />
+    <ClInclude Include="..\windows\sys\time.h" />
+    <ClInclude Include="..\windows\thread\condition.h" />
+    <ClInclude Include="..\windows\thread\lock.h" />
+    <ClInclude Include="..\windows\thread\thread.h" />
+    <ClInclude Include="..\windows\thread\tss.h" />
+    <ClInclude Include="..\windows\TssGC.h" />
+    <ClInclude Include="..\windows\unistd.h" />
+    <ClInclude Include="..\windows\win32\NetUtil.h" />
+    <ClInclude Include="..\windows\win32\winhttp.h" />
+    <ClInclude Include="..\windows\zlib\crc32.h" />
+    <ClInclude Include="..\windows\zlib\deflate.h" />
+    <ClInclude Include="..\windows\zlib\gzguts.h" />
+    <ClInclude Include="..\windows\zlib\inffast.h" />
+    <ClInclude Include="..\windows\zlib\inffixed.h" />
+    <ClInclude Include="..\windows\zlib\inflate.h" />
+    <ClInclude Include="..\windows\zlib\inftrees.h" />
+    <ClInclude Include="..\windows\zlib\trees.h" />
+    <ClInclude Include="..\windows\zlib\zconf.h" />
+    <ClInclude Include="..\windows\zlib\zlib.h" />
+    <ClInclude Include="..\windows\zlib\zutil.h" />
+    <ClInclude Include="..\xlogger\android_xlog.h" />
+    <ClInclude Include="..\xlogger\preprocessor.h" />
+    <ClInclude Include="..\xlogger\xlogger.h" />
+    <ClInclude Include="..\xlogger\xloggerbase.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\corepattern\ServiceImpl.inl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\debugger\spy.inl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\debugger\spy_impl_helper.inl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

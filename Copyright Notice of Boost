@@ -1,0 +1,289 @@
+Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
+Copyright (C) 2000, 2001 Stephen Cleary
+Copyright (C) 2001-2003 Douglas Gregor (gregod@cs.rpi.edu)
+Copyright (C) 2002 Brad King (brad.king@kitware.com)
+Copyright (C) 2003 Vesa Karvonen
+Copyright (C) 2003, 2008 Fernando Luis Cacciola Carballal
+Copyright (C) 2004 Peder Holt
+Copyright (C) 2004, 2005 Arkadiy Vertleyb
+Copyright (C) 2005 Arkadiy Vertleyb, Peder Holt
+Copyright (C) 2005 Igor Chesnokov, mailto:ichesnokov@gmail.com (VC 6.5,VC 7.1 + counter code)
+Copyright (C) 2005 Peder Holt
+Copyright (C) 2005-2007 Peder Holt (VC 7.0 + framework)
+Copyright (C) 2006 Arkadiy Vertleyb
+Copyright (C) 2006 Steven Watanabe (VC 8.0)
+Copyright (C) 2006 Tobias Schwinger
+Copyright (C) 2007 Peder Holt
+Copyright (C) 2007, 2008 Steven Watanabe, Joseph Gauterin, Niels Dekker
+Copyright (C) 2009-2012 Lorenzo Caminiti
+Copyright (C) 2010 Paul A. Bristow added Doxygen comments
+Copyright (C) 2010 Peder Holt
+Copyright (C) 2011-2013 Vicente J. Botet Escriba
+Copyright (C) 2013-2014 Vicente J. Botet Escriba
+Copyright (C) 2014 Agustin Berge
+Copyright (C) 2014 Ian Forbed
+Copyright (C) 2014, 2015 Andrzej Krzemienski
+Copyright (C) 2014-2015 Vicente J. Botet Escriba
+Copyright (C) Christof Meerwald 2003
+Copyright (C) Dan Watkins 2003
+Copyright (C) Douglas Gregor 2008
+Copyright (c) 2001 Darin Adler
+Copyright (c) 2001 David Abrahams
+Copyright (c) 2001 Peter Dimov and Multi Media Ltd
+Copyright (c) 2001 Ronald Garcia, Indiana University (garcia@osl.iu.edu)
+Copyright (c) 2001, 2002 Peter Dimov and Multi Media Ltd
+Copyright (c) 2001, 2002, 2003 Peter Dimov and Multi Media Ltd
+Copyright (c) 2001-2004 Peter Dimov and Multi Media Ltd
+Copyright (c) 2001-2008 Peter Dimov
+Copyright (c) 2002 Lars Gullik Bj�nnes <larsbj@lyx.org>
+Copyright (c) 2002 Peter Dimov and Multi Media Ltd
+Copyright (c) 2002 by Andrei Alexandrescu
+Copyright (c) 2002, 2003 Peter Dimov and Multi Media Ltd
+Copyright (c) 2002,2003, 2007 CrystalClear Software, Inc
+Copyright (c) 2002-2003 David Abrahams
+Copyright (c) 2002-2003 Eric Friedman
+Copyright (c) 2002-2003 Eric Friedman, Itay Maman
+Copyright (c) 2002-2006 CrystalClear Software, Inc
+Copyright (c) 2003 Daniel Frey
+Copyright (c) 2003 Howard Hinnant
+Copyright (c) 2003-2004, 2008 Gennaro Prota
+Copyright (c) 2003-2010 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+Copyright (c) 2005 Matthew Calabrese
+Copyright (c) 2006 Johan Rade
+Copyright (c) 2006 Michael van der Westhuizen
+Copyright (c) 2006 Piotr Wyderski
+Copyright (c) 2006 Tomas Puverle
+Copyright (c) 2006-2008 Johan Rade
+Copyright (c) 2006-2013 Emil Dotchevski and Reverge Studios, Inc
+Copyright (c) 2008 Frank Mori Hess
+Copyright (c) 2008 Michael Marcin
+Copyright (c) 2008-2009 Frank Mori Hess
+Copyright (c) 2009 Frank Mori Hess
+Copyright (c) 2009 Helge Bahmann
+Copyright (c) 2009 Phil Endecott
+Copyright (c) 2009, 2011 Helge Bahmann
+Copyright (c) 2009, Spirent Communications, Inc
+Copyright (c) 2010      Bryce Lelbach
+Copyright (c) 2010 Beman Dawes
+Copyright (c) 2010 Eric Jourdanneau, Joel Falcou
+Copyright (c) 2010 Helge Bahmann
+Copyright (c) 2010 Ilya Murav'jov
+Copyright (c) 2010 Nuovation System Designs, LLC
+Copyright (c) 2011 Emil Dotchevski
+Copyright (c) 2011 Helge Bahmann
+Copyright (c) 2012 - 2014 Andrey Semashev
+Copyright (c) 2012 Hartmut Kaiser
+Copyright (c) 2012 Tim Blechmann
+Copyright (c) 2012-2014 Antony Polukhin
+Copyright (c) 2012-2014 Glen Joseph Fernandes
+Copyright (c) 2013 John Maddock, Antony Polukhin
+Copyright (c) 2013 Tim Blechmann
+Copyright (c) 2013-2014 Andrey Semashev
+Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland
+Copyright (c) 2014 Glen Fernandes
+Copyright (c) 2014-2015 Antony Polukhin
+Copyright (c) 2015 Ion Gaztanaga
+Copyright (c) Marshall Clow 2008-2012
+Copyright (c) Microsoft Corporation 2014
+Copyright 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
+Copyright 1999-2003 Aleksey Gurtovoy
+Copyright 2000 Jeremy Siek (jsiek@lsc.nd.edu)
+Copyright 2000 John Maddock (john@johnmaddock.co.uk)
+Copyright 2001 Dietmar Kuehl
+Copyright 2001, 2003, 2004, 2012 Daryle Walker
+Copyright 2002 Aleksey Gurtovoy (agurtovoy@meta-comm.com)
+Copyright 2002 Rani Sharoni (rani_sharoni@hotmail.com) and Robert Ramey
+Copyright 2002 The Trustees of Indiana University
+Copyright 2002, 2005 Daryle Walker
+Copyright 2002-2009, 2014 Beman Dawes
+Copyright 2003 (c) The Trustees of Indiana University
+Copyright 2003-2007 Jonathan Turkanis
+Copyright 2003-2013 Joaquin M Lopez Munoz
+Copyright 2004 Eric Niebler
+Copyright 2004 Pavel Vozenilek
+Copyright 2005 Alexander Nasonov
+Copyright 2005 Ben Hutchings
+Copyright 2005 Eric Niebler
+Copyright 2005-2013 Peter Dimov
+Copyright 2005-2014 Daniel James
+Copyright 2005-7 Anthony Williams
+Copyright 2005-8 Anthony Williams
+Copyright 2006 Andy Tompkins
+Copyright 2006 Roland Schwarz
+Copyright 2006 Thorsten Ottosen
+Copyright 2006-7 Anthony Williams
+Copyright 2006-8 Anthony Williams
+Copyright 2007 Andy Tompkins
+Copyright 2007 Baruch Zilber
+Copyright 2007 Boris Gubenko
+Copyright 2007 David Deakins
+Copyright 2007 Roland Schwarz
+Copyright 2007, 2008 Steven Watanabe, Joseph Gauterin, Niels Dekker
+Copyright 2007-2010 Anthony Williams
+Copyright 2008 CodeRage, LLC (turkanis at coderage dot com)
+Copyright 2008-2009 Frank Mori Hess
+Copyright 2008-2009,2012 Vicente J. Botet Escriba
+Copyright 2009-2011 Frederic Bron
+Copyright 2009-2011 Frederic Bron, Robert Stewart, Steven Watanabe & Roman Perepelitsa
+Copyright 2009-2011 Vicente J. Botet Escriba
+Copyright 2009-2012 Anthony Williams
+Copyright 2009-2014 Neil Groves
+Copyright 2010 Andy Tompkins
+Copyright 2010 Daniel James
+Copyright 2010 Just Software Solutions Ltd http://www.justsoftwaresolutions.co.uk
+Copyright 2012 IBM Corp
+Copyright 2012 Vicente Botet
+Copyright 2013 Ruslan Baratov
+Copyright 2013 Tim Blechmann
+Copyright 2015 Andrey Semashev
+Copyright 2015 Peter Dimov
+Copyright Aaron W. LaFramboise, Roland Schwarz, Michael Glassford 2004
+Copyright Adam D. Walling 2012
+Copyright Aleksey Gurtovoy 2000-2008
+Copyright Alexander Nasonov & Paul A. Bristow 2006
+Copyright Alexander Nasonov, 2006-2010
+Copyright Andrey Semashev 2007 - 2013
+Copyright Andy Tompkins 2006
+Copyright Antony Polukhin, 2011-2014
+Copyright Arno Schoedl & Neil Groves 2009
+Copyright Artyom Beilis 2010
+Copyright Beman Dawes 1994, 2006, 2008
+Copyright Beman Dawes 1999-2003
+Copyright Beman Dawes 2002-2009
+Copyright Beman Dawes 2003, 2006, 2010
+Copyright Beman Dawes 2015
+Copyright Beman Dawes and Daryle Walker 1999
+Copyright Bill Kempf 2001
+Copyright Bill Kempf 2002
+Copyright Boris Gubenko 2006 - 2007
+Copyright Bruno Dutra 2015
+Copyright Bryce Lelbach 2010
+Copyright Bryce Lelbach 2011
+Copyright Charly Chevalier 2015
+Copyright Christoper Kohlhoff 2007
+Copyright Christopher Brown 2013
+Copyright Christopher Jefferson 2011
+Copyright Craig Henderson 2002
+Copyright Cray, Inc. 2013
+Copyright Daniel Walker 2006
+Copyright Daniel Walker 2007
+Copyright Daniel Walker, Eric Niebler, Michel Morin 2008-2012
+Copyright Daniel Wallin 2005
+Copyright Daniel Wallin 2006
+Copyright Daniel Wallin, David Abrahams 2005
+Copyright Daniel Wallin, David Abrahams 2010
+Copyright Darin Adler 2001 - 2002
+Copyright Daryle Walker 2001-2002
+Copyright Daryle Walker and Paul Moore 2001-2002
+Copyright Daryle Walker and Stephen Cleary 2001-2002
+Copyright Dave Abrahams and Daniel Walker 1999-2003
+Copyright Dave Abrahams, Steve Cleary, Beman Dawes,
+Copyright Dave Abrahams, Steve Cleary, Beman Dawes, Howard
+Copyright David Abrahams 2003-2004
+Copyright David Abrahams 2005
+Copyright David Abrahams 2006
+Copyright David Abrahams 2009
+Copyright David Abrahams, Daniel Wallin 2003
+Copyright David Abrahams, Daniel Wallin 2005
+Copyright David Abrahams, Jeremy Siek, Daryle Walker 1999-2001
+Copyright David Abrahams, Vicente Botet 2009
+Copyright Dietmar Kuehl 2001
+Copyright Douglas Gregor 2001-2006
+Copyright Douglas Gregor 2010
+Copyright Dustin Spicuzza 2009
+Copyright Edward Diener 2011,2013
+Copyright Edward Diener 2014
+Copyright Edward Diener 2015
+Copyright Edward Nevill + Oliver Kowalke 2015
+Copyright Emil Dotchevski 2007
+Copyright Eric Jourdanneau, Joel Falcou 2010
+Copyright Eric Niebler 2014
+Copyright Fernando Luis Cacciola Carballal 2000-2004
+Copyright Frank Mori Hess 2007-2010
+Copyright Franz Detro 2014
+Copyright Greg Colvin and Beman Dawes 1998, 1999
+Copyright Guillaume Melquiond 2002 - 2003
+Copyright Guillaume Melquiond 2003
+Copyright Howard Hinnant 2007-2010
+Copyright Hubert Holin and Daryle Walker 2001-2002
+Copyright Ion Gaztanaga  2014-2015
+Copyright Ion Gaztanaga 2005-2014
+Copyright Jaap Suter 2003
+Copyright Jan Langer 2002
+Copyright Jens Mauer 2001
+Copyright Jens Maurer 2000-2001
+Copyright Jens Maurer 2001 - 2003
+Copyright Jens Maurer 2006
+Copyright Jeremy Siek 2000
+Copyright Jeremy Siek 2001
+Copyright Jeremy Siek 2002
+Copyright Jeremy Siek and John R. Bandela 2001
+Copyright Jessica Hamilton 2014
+Copyright Jim Douglas 2005
+Copyright Joel Falcou 2015
+Copyright Johan Rade 2006
+Copyright John Maddock & Thorsten Ottosen 2005
+Copyright John Maddock 2000
+Copyright John Maddock 2001 - 2003
+Copyright John Maddock 2005-2008
+Copyright John Maddock 2010
+Copyright John Maddock 2011
+Copyright John Maddock 2015
+Copyright John Maddock and Steve Cleary 2000
+Copyright John R. Bandela 2001
+Copyright John maddock 1999
+Copyright Jonathan Graehl 2004
+Copyright Jorge Lodos 2008
+Copyright Kevlin Henney and Dave Abrahams 1999
+Copyright Kevlin Henney, 2000-2005
+Copyright Lie-Quan Lee 2001
+Copyright Markus Schoepflin 2002 - 2003
+Copyright Markus Schoepflin 2005
+Copyright Martin Husemann 2012
+Copyright Martin Wille 2003
+Copyright Mat Marcus, Jesse Jones and Adobe Systems Inc 2001
+Copyright Michael Glassford 2004
+Copyright Microsoft Corporation  2014
+Copyright Neil Groves & Thorsten Ottosen & Pavol Droba 2003-2004
+Copyright Neil Groves 2003-2004
+Copyright Neil Groves 2007
+Copyright Nicolai M. Josuttis 2001
+Copyright Nicolai M. Josuttis 2001,
+Copyright Noel Belcourt 2007
+Copyright Nuxi, https://nuxi.nl/ 2015
+Copyright Oliver Kowalke 2009
+Copyright Oliver Kowalke 2014
+Copyright Oliver Kowalke 2015
+Copyright Pablo Halpern 2009
+Copyright Paul A. Bristow 2006
+Copyright Paul A. Bristow 2007
+Copyright Paul A. Bristow 2011 (added changesign)
+Copyright Paul Mensonides 2002-2011
+Copyright Paul Moore 1999
+Copyright Pavol Droba 2002-2006
+Copyright Peter Dimov 2000-2003
+Copyright Peter Dimov and David Abrahams 2002
+Copyright Rani Sharoni 2003-2005
+Copyright Rene Rivera 2005
+Copyright Rene Rivera 2008-2015
+Copyright Sergue E. Leontiev 2013
+Copyright Shunsuke Sogame 2005-2006
+Copyright Stefan Slapeta 2004
+Copyright Steve Cleary, Beman Dawes, Howard Hinnant & John Maddock 2000-2005
+Copyright Steven Watanabe 2009
+Copyright Steven Watanabe 2010-2011
+Copyright Steven Watanabe 2014
+Copyright Synge Todo 2003
+Copyright Thomas Sailer 2013
+Copyright Thomas Witt    2002
+Copyright Thorsten Ottosen 2002-2003
+Copyright Thorsten Ottosen 2003-2006
+Copyright Thorsten Ottosen, 2009
+Copyright Thorsten Ottosen, Neil Groves 2006 - 2008
+Copyright Timmo Stange 2007
+Copyright Toon Knapen 2001 - 2003
+Copyright Vicente J. Botet Escriba 2008-2009,2012
+Copyright Vladimir Prus 2002
+Copyright Vladimir Prus 2004
+Copyright Yuriy Krasnoschek 2009
+Copyright:   2007-2008 CodeRage, LLC

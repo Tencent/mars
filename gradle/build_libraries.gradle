@@ -1,0 +1,42 @@
+def checkExecResult(execResult) {
+    if (execResult) {
+        if (execResult.getExitValue() != 0) {
+            throw new GradleException('Non-zero exit value: ' + execResult.getExitValue())
+        }
+
+    } else {
+        throw new GradleException('Returned a null execResult object')
+    }
+}
+
+task buildLibrariesForAndroid(type: Exec) {
+    workingDir '../'
+
+    def sdkDir = System.env.ANDROID_HOME
+    def ndkDir = System.env.ANDROID_NDK_HOME
+
+    if (rootProject.file("local.properties").exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        sdkDir = properties.getProperty('sdk.dir')
+        ndkDir = properties.getProperty('ndk.dir')
+    }
+
+    def path = System.env.PATH
+
+    def envMap = [
+            'ANDROID_HOME'    : sdkDir,
+            'ANDROID_NDK_HOME': ndkDir,
+            '_ARCH_'          : 'armeabi',
+            'PATH'            : ndkDir,
+    ]
+    environment envMap
+
+    print envMap
+
+    commandLine 'python', 'build_android.py', '2', 'armeabi'
+
+    doLast {
+        checkExecResult(execResult)
+    }
+} 

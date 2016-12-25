@@ -1,0 +1,80 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+    defaultConfig {
+        applicationId 'com.tencent.mars.sample'
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName '1.0.0'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    sourceSets {
+        main {
+            proto {
+                srcDir "src/main/proto"
+            }
+        }
+
+        chat {
+            java {
+                srcDir 'src/chat/java'
+                srcDir 'src/core/java'
+            }
+
+            res {
+                srcDir 'src/chat/res'
+                srcDir 'src/core/res'
+            }
+        }
+    }
+
+    productFlavors {
+        chat {
+            applicationId 'com.tencent.mars.sample'
+        }
+
+        core {
+            applicationId 'com.tencent.mars.sample'
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+}
+
+protobuf {
+    // Configure the protoc executable
+    protoc {
+        // Download from repositories
+        artifact = 'com.google.protobuf:protoc:3.0.0-alpha-3'
+    }
+}
+
+ext {
+    useLocalMarsWrapper = true
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:cardview-v7:23.1.1'
+    compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-4'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:support-v4:23.1.1'
+
+    if (useLocalMarsWrapper) {
+        compile project(':wrapper')
+
+    } else {
+        compile "com.tencent.mars.sample:mars-wrapper:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
+    }
+}

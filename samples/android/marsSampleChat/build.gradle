@@ -1,0 +1,46 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        mavenLocal()
+
+        maven {
+            url "http://maven.oa.com/nexus/content/repositories/jcenter"
+        }
+        maven {
+            url "http://maven.oa.com/nexus/content/repositories/android"
+        }
+        maven {
+            url 'http://maven.oa.com/nexus/content/repositories/thirdparty/'
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.6'
+    }
+}
+
+subprojects {
+    repositories {
+        mavenLocal()
+
+        maven {
+            url "http://maven.oa.com/nexus/content/repositories/jcenter"
+        }
+        maven {
+            url "http://maven.oa.com/nexus/content/repositories/android"
+        }
+        maven {
+            url 'http://maven.oa.com/nexus/content/repositories/thirdparty/'
+        }
+        maven {
+            url 'http://maven.oa.com/nexus/content/repositories/thirdparty-snapshots/'
+        }
+    }
+}
+
+ext {
+    GROUP = 'com.tencent.mars.sample'
+    VERSION_NAME = '0.2.0'
+    VERSION_NAME_SUFFIX = '-SNAPSHOT'
+}

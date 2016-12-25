@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B81E4487-DFE2-4F15-A2E0-240C3DA26459}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>stn</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\anti_avalanche.cc" />
+    <ClCompile Include="..\src\dynamic_timeout.cc" />
+    <ClCompile Include="..\src\flow_limit.cc" />
+    <ClCompile Include="..\src\frequency_limit.cc" />
+    <ClCompile Include="..\src\longlink.cc" />
+    <ClCompile Include="..\src\longlink_connect_monitor.cc" />
+    <ClCompile Include="..\src\longlink_identify_checker.cc" />
+    <ClCompile Include="..\src\longlink_speed_test.cc" />
+    <ClCompile Include="..\src\longlink_task_manager.cc" />
+    <ClCompile Include="..\src\netsource_timercheck.cc" />
+    <ClCompile Include="..\src\net_channel_factory.cc" />
+    <ClCompile Include="..\src\net_check_logic.cc" />
+    <ClCompile Include="..\src\net_core.cc" />
+    <ClCompile Include="..\src\net_source.cc" />
+    <ClCompile Include="..\src\shortlink.cc" />
+    <ClCompile Include="..\src\shortlink_task_manager.cc" />
+    <ClCompile Include="..\src\signalling_keeper.cc" />
+    <ClCompile Include="..\src\simple_ipport_sort.cc" />
+    <ClCompile Include="..\src\smart_heartbeat.cc" />
+    <ClCompile Include="..\src\socket_util.cc" />
+    <ClCompile Include="..\src\task_profile.cc" />
+    <ClCompile Include="..\src\timing_sync.cc" />
+    <ClCompile Include="..\src\traffic_statistics.cc" />
+    <ClCompile Include="..\src\zombie_task_manager.cc" />
+    <ClCompile Include="..\stn.cc" />
+    <ClCompile Include="..\stn_logic.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\dns_profile.h" />
+    <ClInclude Include="..\src\anti_avalanche.h" />
+    <ClInclude Include="..\src\dynamic_timeout.h" />
+    <ClInclude Include="..\src\flow_limit.h" />
+    <ClInclude Include="..\src\frequency_limit.h" />
+    <ClInclude Include="..\src\longlink.h" />
+    <ClInclude Include="..\src\longlink_connect_monitor.h" />
+    <ClInclude Include="..\src\longlink_identify_checker.h" />
+    <ClInclude Include="..\src\longlink_speed_test.h" />
+    <ClInclude Include="..\src\longlink_task_manager.h" />
+    <ClInclude Include="..\src\netsource_timercheck.h" />
+    <ClInclude Include="..\src\net_check_logic.h" />
+    <ClInclude Include="..\src\net_core.h" />
+    <ClInclude Include="..\src\net_source.h" />
+    <ClInclude Include="..\src\shortlink.h" />
+    <ClInclude Include="..\src\shortlink_task_manager.h" />
+    <ClInclude Include="..\src\signalling_keeper.h" />
+    <ClInclude Include="..\src\simple_ipport_sort.h" />
+    <ClInclude Include="..\src\smart_heartbeat.h" />
+    <ClInclude Include="..\src\socket_util.h" />
+    <ClInclude Include="..\src\special_ini.h" />
+    <ClInclude Include="..\src\timing_sync.h" />
+    <ClInclude Include="..\src\traffic_statistics.h" />
+    <ClInclude Include="..\src\zombie_task_manager.h" />
+    <ClInclude Include="..\stn.h" />
+    <ClInclude Include="..\stn_logic.h" />
+    <ClInclude Include="..\task_profile.h" />
+    <ClInclude Include="..\win32\win2C_Logic.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

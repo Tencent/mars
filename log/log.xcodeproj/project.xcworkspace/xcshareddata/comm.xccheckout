@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>1367AE78-A688-43A0-BBE9-D7F612022B8E</string>
+	<key>IDESourceControlProjectName</key>
+	<string>comm</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>455FD60F-AFF5-49EF-8B50-558C4DF85762</key>
+		<string>http://gz-svn.tencent.com/gzrd/gzrd_micromsg_rep/PublicComponent_proj</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>branches/4th_rb_from_trunk_20140609/log/comm.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>455FD60F-AFF5-49EF-8B50-558C4DF85762</key>
+		<string>../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>455FD60F-AFF5-49EF-8B50-558C4DF85762</key>
+		<string>http://gz-svn.tencent.com/gzrd/gzrd_micromsg_rep</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>http://gz-svn.tencent.com/gzrd/gzrd_micromsg_rep/PublicComponent_proj/branches/4th_rb_from_trunk_20140609/comm/comm.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>455FD60F-AFF5-49EF-8B50-558C4DF85762</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryBranchesRelativeLocationKey</key>
+			<string>PublicComponent_proj/branches</string>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlRepositoryTagsRelativeLocationKey</key>
+			<string>PublicComponent_proj/tags</string>
+			<key>IDESourceControlRepositoryTrunkRelativeLocationKey</key>
+			<string>PublicComponent_proj/trunk</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>455FD60F-AFF5-49EF-8B50-558C4DF85762</string>
+			<key>IDESourceControlWCCName</key>
+			<string>PublicComponent_proj</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,64 @@
+/*
+ *      Author: yerungui 
+ */
+
+#include <assert.h>
+
+#include "memdbg.h"
+
+void test_malloc_dbg_ok()
+{
+    void* p = malloc(100);
+    free(p);
+    p = NULL;
+}
+
+void test_calloc_dbg_ok()
+{
+    void* p = calloc(1, 100);
+    int i;
+    for (i=0; i<100; ++i)
+    {
+        if (*((char*)p+i)!=0)
+            assert(0);
+    }
+    free(p);
+    p = NULL;
+}
+
+void test_realloc_dbg_ok()
+{
+    void* p = NULL;
+    p = realloc(p, 100);
+    p = realloc(p, 200);
+    p = realloc(p, 50);
+    free(p);
+    p = NULL;
+}
+
+void test_malloc_dbg_leak()
+{
+    void* p = malloc(100);
+    p = NULL;
+}
+
+void test_calloc_dbg_leak()
+{
+    void* p = calloc(1, 100);
+    int i;
+    for (i=0; i<100; ++i)
+    {
+        if (*((char*)p+i)!=0)
+            assert(0);
+    }
+    p = NULL;
+}
+
+void test_realloc_dbg_leak()
+{
+    void* p = NULL;
+    p = realloc(p, 100);
+    p = realloc(p, 200);
+    p = realloc(p, 50);
+    p = NULL;
+}

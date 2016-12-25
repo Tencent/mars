@@ -1,0 +1,37 @@
+{
+global:
+	xlogger_Write;
+	xlogger_dump; 
+	xlogger_IsEnabledFor; 
+	xlogger_Assert; 
+	xlogger_AssertP; 
+	xlogger_pid;
+	xlogger_tid;
+	xlogger_maintid;
+	xlogger_SetLevel;
+	xlogger_SetAppender;
+    xlogger_VPrint;
+	
+	__xlogger_Level_impl;
+	__xlogger_SetLevel_impl;
+	__xlogger_IsEnabledFor_impl;
+	__xlogger_SetAppnder_impl;
+	__xlogger_AssertP_impl;
+	__xlogger_Assert_impl;
+	__xlogger_VPrint_impl;
+	__xlogger_Print_impl;
+	__xlogger_Write_impl;
+
+  
+  	*appender_*;
+	Java_*;
+	*LogLogic*;
+	*LogBuffer*;
+  
+ 	JNI_OnLoad; 
+ 	
+local:
+  _Z22appender_set_console_logb;
+  *;
+
+};

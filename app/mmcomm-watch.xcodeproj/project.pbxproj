@@ -1,0 +1,372 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		13635A031981F37600EED49B /* ActiveLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136359EB1981F37600EED49B /* ActiveLogic.cpp */; };
+		13635A041981F37600EED49B /* HttpRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136359ED1981F37600EED49B /* HttpRequest.cpp */; };
+		13635A051981F37600EED49B /* logic_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136359F01981F37600EED49B /* logic_utils.cpp */; };
+		13635A061981F37600EED49B /* MMNewGetDns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136359F31981F37600EED49B /* MMNewGetDns.cpp */; };
+		13635A071981F37600EED49B /* newdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136359F61981F37600EED49B /* newdns.cpp */; };
+		13635A081981F37600EED49B /* SocketUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136359F81981F37600EED49B /* SocketUtils.cpp */; };
+		13635A091981F37600EED49B /* MMStackReportBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136359FC1981F37600EED49B /* MMStackReportBase.cpp */; };
+		1392E92E1A834D890093185B /* MMFileReport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1392E92C1A834D890093185B /* MMFileReport.cpp */; };
+		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		136359EB1981F37600EED49B /* ActiveLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ActiveLogic.cpp; sourceTree = "<group>"; };
+		136359EC1981F37600EED49B /* ActiveLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveLogic.h; sourceTree = "<group>"; };
+		136359ED1981F37600EED49B /* HttpRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpRequest.cpp; sourceTree = "<group>"; };
+		136359EE1981F37600EED49B /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpRequest.h; sourceTree = "<group>"; };
+		136359EF1981F37600EED49B /* HttpUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpUtils.h; sourceTree = "<group>"; };
+		136359F01981F37600EED49B /* logic_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logic_utils.cpp; sourceTree = "<group>"; };
+		136359F11981F37600EED49B /* logic_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logic_utils.h; sourceTree = "<group>"; };
+		136359F21981F37600EED49B /* MMComm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMComm.h; sourceTree = "<group>"; };
+		136359F31981F37600EED49B /* MMNewGetDns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNewGetDns.cpp; sourceTree = "<group>"; };
+		136359F41981F37600EED49B /* MMNewGetDns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNewGetDns.h; sourceTree = "<group>"; };
+		136359F51981F37600EED49B /* MMStackReportBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMStackReportBase.h; sourceTree = "<group>"; };
+		136359F61981F37600EED49B /* newdns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = newdns.cpp; sourceTree = "<group>"; };
+		136359F71981F37600EED49B /* platform_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_logic.h; sourceTree = "<group>"; };
+		136359F81981F37600EED49B /* SocketUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketUtils.cpp; sourceTree = "<group>"; };
+		136359F91981F37600EED49B /* SocketUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketUtils.h; sourceTree = "<group>"; };
+		136359FA1981F37600EED49B /* SpecialINI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpecialINI.h; sourceTree = "<group>"; };
+		136359FC1981F37600EED49B /* MMStackReportBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMStackReportBase.cpp; sourceTree = "<group>"; };
+		136359FD1981F37600EED49B /* MMStackReportBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMStackReportBase.h; sourceTree = "<group>"; };
+		137FEC26197621A30055BFF6 /* newdnscfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = newdnscfg.h; sourceTree = "<group>"; };
+		1392E92C1A834D890093185B /* MMFileReport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMFileReport.cpp; sourceTree = "<group>"; };
+		1392E92D1A834D890093185B /* MMFileReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMFileReport.h; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libmmcomm-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmmcomm-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		136359EA1981F37600EED49B /* src */ = {
+			isa = PBXGroup;
+			children = (
+				1392E92C1A834D890093185B /* MMFileReport.cpp */,
+				1392E92D1A834D890093185B /* MMFileReport.h */,
+				136359EB1981F37600EED49B /* ActiveLogic.cpp */,
+				136359EC1981F37600EED49B /* ActiveLogic.h */,
+				136359ED1981F37600EED49B /* HttpRequest.cpp */,
+				136359EE1981F37600EED49B /* HttpRequest.h */,
+				136359EF1981F37600EED49B /* HttpUtils.h */,
+				136359F01981F37600EED49B /* logic_utils.cpp */,
+				136359F11981F37600EED49B /* logic_utils.h */,
+				136359F21981F37600EED49B /* MMComm.h */,
+				136359F31981F37600EED49B /* MMNewGetDns.cpp */,
+				136359F41981F37600EED49B /* MMNewGetDns.h */,
+				136359F51981F37600EED49B /* MMStackReportBase.h */,
+				136359F61981F37600EED49B /* newdns.cpp */,
+				136359F71981F37600EED49B /* platform_logic.h */,
+				136359F81981F37600EED49B /* SocketUtils.cpp */,
+				136359F91981F37600EED49B /* SocketUtils.h */,
+				136359FA1981F37600EED49B /* SpecialINI.h */,
+				136359FB1981F37600EED49B /* unix */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		136359FB1981F37600EED49B /* unix */ = {
+			isa = PBXGroup;
+			children = (
+				136359FC1981F37600EED49B /* MMStackReportBase.cpp */,
+				136359FD1981F37600EED49B /* MMStackReportBase.h */,
+			);
+			path = unix;
+			sourceTree = "<group>";
+		};
+		137FEC25197621A30055BFF6 /* cfg */ = {
+			isa = PBXGroup;
+			children = (
+				137FEC26197621A30055BFF6 /* newdnscfg.h */,
+			);
+			path = cfg;
+			sourceTree = "<group>";
+		};
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				136359EA1981F37600EED49B /* src */,
+				137FEC25197621A30055BFF6 /* cfg */,
+				3170A029177887B0004F5DDA /* Frameworks */,
+				3170A028177887B0004F5DDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3170A028177887B0004F5DDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3170A027177887B0004F5DDA /* libmmcomm-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A029177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3170A02A177887B0004F5DDA /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* mmcomm-watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "mmcomm-watch" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "mmcomm-watch";
+			productName = PublicComponent;
+			productReference = 3170A027177887B0004F5DDA /* libmmcomm-watch.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = Tencent;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "mmcomm-watch" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A028177887B0004F5DDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* mmcomm-watch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				13635A091981F37600EED49B /* MMStackReportBase.cpp in Sources */,
+				13635A071981F37600EED49B /* newdns.cpp in Sources */,
+				13635A051981F37600EED49B /* logic_utils.cpp in Sources */,
+				13635A061981F37600EED49B /* MMNewGetDns.cpp in Sources */,
+				13635A031981F37600EED49B /* ActiveLogic.cpp in Sources */,
+				13635A081981F37600EED49B /* SocketUtils.cpp in Sources */,
+				13635A041981F37600EED49B /* HttpRequest.cpp in Sources */,
+				1392E92E1A834D890093185B /* MMFileReport.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = watchos;
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = watchos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/mmcomm.dst;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					../comm/crypt,
+					../comm,
+					../openssl/export_include,
+					../log/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/mmcomm.dst;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					../comm/crypt,
+					../comm,
+					../openssl/export_include,
+					../log/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "mmcomm-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "mmcomm-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

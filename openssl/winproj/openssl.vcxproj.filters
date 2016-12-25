@@ -1,0 +1,987 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\..\aes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\asn1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\asn1_mac.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\asn1t.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\bio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\blowfish.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\bn.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\buffer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\comp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\conf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\conf_api.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\crypto.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\des.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\des_old.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\dh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\dsa.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\dso.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\dtls1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\e_os2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ebcdic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ecdh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ecdsa.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\engine.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\err.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\evp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\hmac.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\krb5_asn.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\kssl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\lhash.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\md4.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\md5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\modes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\obj_mac.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\objects.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ocsp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\..conf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\..v.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ossl_typ.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\pem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\pem2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\pkcs12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\pkcs7.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\pqueue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\rand.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\rc2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\rc4.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ripemd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\rsa.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\safestack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\sha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ssl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ssl2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ssl23.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ssl3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\stack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\symhacks.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\tls1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ts.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\txt_db.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ui.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\ui_compat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\x509.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\x509_vfy.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\..\x509v3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\export_include\aes_crypt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\export_include\ecdsa_verify.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\export_include\md5_digest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\export_include\rsa_crypt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\aes\aes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\aes\aes_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\asn1\asn1.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\asn1\asn1_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\asn1\asn1_mac.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\asn1\asn1t.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\asn1\charmap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\bio\bio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\bio\bio_lcl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\bn\bn.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\bn\bn_lcl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\bn\bn_prime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\buffer\buffer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ec\ec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ec\ec_lcl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ecdsa\ecdsa.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ecdsa\ecs_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\err\err.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\evp\evp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\evp\evp_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\lhash\lhash.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\md5\md5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\md5\md5_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\objects\obj_dat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\objects\obj_mac.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\objects\obj_xref.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\objects\objects.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\rand\rand.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\rand\rand_lcl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\rsa\rsa.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\rsa\rsa_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\sha\sha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\sha\sha_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\stack\safestack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\stack\stack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ui\ui.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ui\ui_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\cryptlib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\crypto.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\md32_common.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\o_str.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\o_time.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\..conf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\..v.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ossl_typ.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\symhacks.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\export\aes_crypt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\export\ecdsa_verify.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\export\md5_digest.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\export\rsa_crypt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_cbc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_cfb.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_core.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_ctr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_ecb.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_ige.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_misc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_ofb.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_wrap.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\aes\aes_x86core.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_bitstr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_bool.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_bytes.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_d2i_fp.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_dup.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_enum.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_gentm.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_i2d_fp.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_int.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_mbstr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_object.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_octet.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_print.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_set.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_strnid.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_time.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_type.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_utctm.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\a_utf8.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\ameth_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\asn1_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\asn1_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\asn1_par.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\asn_pack.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\bio_asn1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\bio_ndef.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\evp_asn1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\f_enum.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\f_int.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\f_string.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\p8_pkey.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\t_pkey.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\tasn_dec.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\tasn_enc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\tasn_fre.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\tasn_new.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\tasn_typ.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\tasn_utl.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\x_algor.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\x_attrib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\x_bignum.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\x_long.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\x_pubkey.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\b_dump.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\b_print.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bf_buff.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bf_lbuf.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bf_nbio.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bf_null.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bio_cb.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bio_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bio_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bss_bio.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bss_fd.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bss_file.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bss_log.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bss_mem.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bio\bss_null.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_add.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_asm.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_blind.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_const.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_ctx.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_depr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_div.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_exp.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_exp2.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_gcd.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_gf2m.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_kron.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_mod.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_mont.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_mpi.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_mul.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_nist.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_prime.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_print.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_rand.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_recp.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_shift.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_sqr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_sqrt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\bn_word.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\bn\vms-helper.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\buffer\buf_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\buffer\buffer.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec2_mult.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec2_smpl.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_ameth.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_asn1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_check.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_curve.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_cvt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_key.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_mult.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_pmeth.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ec_print.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ecp_mont.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ecp_nist.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ec\ecp_smpl.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdsa\ecs_asn1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdsa\ecs_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdsa\ecs_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdsa\ecs_ossl.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdsa\ecs_sign.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdsa\ecs_vrf.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\err\err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\bio_b64.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\bio_enc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\bio_md.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\bio_ok.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\digest.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\e_null.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\e_seed.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\encode.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\evp_enc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\evp_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\evp_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\m_dss.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\m_dss1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\m_ecdsa.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\m_null.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\m_sha1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\p_dec.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\p_enc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\p_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\p_open.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\p_seal.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\pmeth_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\lhash\lh_stats.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\lhash\lhash.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\md5\md5_dgst.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\md5\md5_one.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\modes\cbc128.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\modes\cfb128.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\modes\ctr128.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\modes\ofb128.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\objects\o_names.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\objects\obj_dat.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\objects\obj_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\objects\obj_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\objects\obj_xref.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\md_rand.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_egd.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_nw.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_os2.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_unix.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_vms.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\rand_win.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rand\randfile.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_ameth.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_asn1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_chk.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_depr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_eay.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_gen.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_none.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_null.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_oaep.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_pk1.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_pmeth.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_prn.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_pss.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_saos.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_sign.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_ssl.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\rsa\rsa_x931.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\sha\sha1_one.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\sha\sha1dgst.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\sha\sha256.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\sha\sha512.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\sha\sha_dgst.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\stack\stack.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\x509\x509_att.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\cpt_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\cryptlib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\cversion.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ex_data.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\mem.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\mem_clr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\mem_dbg.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\o_str.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\o_time.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\uid.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\PublicComponent.vcxproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,17 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tencent.mars.sample.wrapper">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application>
+        <service
+            android:name=".service.MarsServiceNative"
+            android:process=":marsservice" />
+
+        <receiver android:name="com.tencent.mars.BaseEvent$ConnectionReceiver"
+            android:process=":marsservice"/>
+    </application>
+</manifest>

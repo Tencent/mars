@@ -1,0 +1,275 @@
+
+#include <jni.h>
+
+#include "lock.h"
+#include "bind.h"
+#include "Thread.h"
+#include "mutex.h"
+#include "tss.h"
+#include "condition.h"
+
+#include <stdio.h>
+#include <sys/socket.h>
+
+#include <android/log.h>
+
+#include <string.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+
+/* ------------------绾跨▼娴嬭瘯鏁版嵁 begin----------------------*/
+//no argument function
+static void print() {
+    __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","print");
+}
+
+//unary function
+static void print1(int n) {
+    __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","print1");
+}
+
+//binary function
+static void print2(int m, int n) {
+    __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","print2");
+}
+
+//no argument functor
+struct PrintFunctor {
+    void operator()() const {
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","PrintFunctor");
+    }
+};
+
+//unary functor
+struct PrintFunctor1 {
+    typedef void result_type;
+    void operator()(int n) const {
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","PrintFunctor1");
+    }
+};
+
+//binary functor
+struct PrintFunctor2 {
+    typedef void result_type;
+    void operator()(int m, int n) const {
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","PrintFunctor2");
+    }
+};
+
+//inherited from Thread
+struct MyThread : public Thread {
+    virtual void run() {
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","MyThread");
+    }
+};
+
+//"implement" Runnable interface
+struct MyRunnable : public Runnable {
+    virtual void run() {
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","MyRunnable");
+    }
+};
+
+
+class SimpleClass {
+public:
+    void print() {
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s","TestClass.print");
+    }
+
+    void print(int i) {
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "%s(%d)","TestClass.print",i);
+    }
+};
+
+/* ------------------绾跨▼娴嬭瘯鏁版嵁 end----------------------*/
+
+/* ------------------tss娴嬭瘯鏁版嵁 begin----------------------*/
+Tss tss;
+
+void test() {
+
+    int* tmp = (int*)tss.get();
+    *tmp = (*tmp) * 100;
+    __android_log_print(ANDROID_LOG_DEBUG, "debug", "thread %d is running i锛�d", (*tmp) / 100, *tmp);
+}
+
+void testTss(int i) {
+    __android_log_print(ANDROID_LOG_DEBUG, "debug", "thread %d is running i锛�d", i, i);
+    tss.set((void *)&i);
+    test();
+}
+
+
+ /* ------------------tss娴嬭瘯鏁版嵁 end----------------------*/
+
+
+/* ------------------condition娴嬭瘯鏁版嵁 begin----------------------*/
+
+Condition condition;
+Mutex con_mutex;
+
+int con_i = 0;
+int con_j = 0;
+
+void con_test1(pthread_t id) {
+
+    ScopedLock con_sl(con_mutex,false);
+    while(con_i < 10) {
+        con_sl.lock();
+        con_i ++;
+        if(con_i ==10) {
+            condition.notifyOne();
+        }
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "con_test1 is running, thread:%ld, con_i: %d", id, con_i);
+
+
+        con_sl.unlock();
+        sleep(2);
+    }
+
+}
+
+void con_test2() {
+    ScopedLock con_sl(con_mutex, true);
+    while(con_i < 10) {
+        condition.wait(con_sl);
+        con_i += 10;
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "con_test2 is running, con_i:%d", con_i);
+    }
+
+}
+
+/** 濡傛灉鎵撳紑姝ゅ鐨勬敞閲婏紝闇�鎶婁笂闈on_test1 con_test2娉ㄩ噴璧锋潵锛屼互鍏峮otify浜掔浉骞叉壈
+void con_test3(pthread_t id) {
+    while(con_j < 10) {
+        con_j ++;
+        if(con_j ==10) {
+            condition.notify();
+        }
+        __android_log_print(ANDROID_LOG_DEBUG, "debug", "con_test3 is running, thread:%ld, con_j: %d", id, con_j);
+
+
+        sleep(1);
+    }
+}
+
+void con_test4(){
+
+    __android_log_print(ANDROID_LOG_DEBUG, "debug", "con_test4 is waiting");
+    condition.wait();
+    __android_log_print(ANDROID_LOG_DEBUG, "debug", "con_test4 is running");
+}**/
+/* ------------------condition娴嬭瘯鏁版嵁 end----------------------*/
+
+
+JNIEXPORT jint JNICALL Java_com_example_hellojni_HelloJni_test
+  (JNIEnv *env, jobject jobject) {
+
+/*******************绾跨▼娴嬭瘯 begin******************************/
+    //construct Thread with no argument function
+         Thread thread1(&print);
+
+         //construct Thread with unary function
+         Thread thread2(bind(&print1, 5));
+
+         //construct Thread with binary function
+         Thread thread3(bind(&print2, 1, 2));
+
+         //construct Thread with no argument functor
+         PrintFunctor f();
+         Thread thread4(f);
+
+         //construct Thread with unary functor
+         Thread thread5(bind(PrintFunctor1(), 5));
+
+         //construct Thread with binary functor
+         Thread thread6(bind(PrintFunctor2(), 1, 2));
+
+         MyThread thread7;
+
+         Thread thread8(new MyRunnable());
+
+         SimpleClass a;
+         Thread thread9(bind(&SimpleClass::print, a));
+
+
+         Thread thread10(bind(&SimpleClass::print, a, 5));
+
+
+         thread1.start();
+         __android_log_print(ANDROID_LOG_DEBUG, "debug", "thread1 id :%lu", thread1.id());
+         __android_log_print(ANDROID_LOG_DEBUG, "debug", "current thread id :%lu", ThreadUtil::currentThreadId());
+
+         thread2.start();
+         thread3.start();
+         thread4.start();
+         thread5.start();
+         thread6.start();
+         thread7.start();
+         thread8.start();
+         thread9.start();
+         thread10.start();
+
+         thread1.join();
+         thread2.join();
+         thread3.join();
+         thread4.join();
+         thread5.join();
+         thread6.join();
+         thread7.join();
+         thread8.join();
+         thread9.join();
+         thread10.join();
+
+/*******************绾跨▼娴嬭瘯 end******************************/
+
+/*******************閿佹祴璇�begin******************************/
+         Mutex m;
+         ScopedLock sk (m, true);
+         sk.unlock();
+         sk.lock();
+         sk.lock();
+/***********************閿佹祴璇�end**************************/
+
+/***********************tss娴嬭瘯 begin**************************/
+         int tss_a = 1;
+         int tss_b = 2;
+
+         Thread tss_thread1(bind(&testTss, tss_a));
+         Thread tss_thread2(bind(&testTss, tss_b));
+         tss_thread1.start();
+         tss_thread2.start();
+
+         tss_thread1.join();
+         tss_thread2.join();
+/***********************tss娴嬭瘯 end**************************/
+
+/***********************condition娴嬭瘯 begin**************************/
+
+         long con_tid1 = 1;
+         long con_tid2 = 2;
+//         long con_tid3 = 3;
+
+         Thread con_thread1(bind(&con_test1, con_tid1));
+         Thread con_thread2(bind(&con_test1, con_tid2));
+         Thread con_thread3(&con_test2);
+//         Thread con_thread4(bind(&con_test3, con_tid3));
+//         Thread con_thread5(&con_test4);
+         con_thread1.start();
+         con_thread2.start();
+         con_thread3.start();
+//         con_thread4.start();
+//         con_thread5.start();
+
+         con_thread1.join();
+         con_thread2.join();
+         con_thread3.join();
+//         con_thread4.join();
+//         con_thread5.join();
+
+/***********************condition娴嬭瘯 end**************************/
+         return 1;
+}
