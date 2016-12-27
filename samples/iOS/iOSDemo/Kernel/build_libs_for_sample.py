@@ -6,7 +6,7 @@ import glob
 import shutil
 
 
-MARS_OPEN_LIBRARIES_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0], "../../../../libraries")
+MARS_OPEN_LIBRARIES_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0], "../../../../mars/libraries")
 sys.path.append(MARS_OPEN_LIBRARIES_PATH)
 
 from build_apple import *

@@ -3,44 +3,51 @@
 buildscript {
     repositories {
         mavenLocal()
-
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/jcenter"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/android"
-        }
-        maven {
-            url 'http://maven.oa.com/nexus/content/repositories/thirdparty/'
-        }
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath "com.github.dcendents:android-maven-gradle-plugin:1.4.1"
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.6'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1"
     }
 }
 
 subprojects {
     repositories {
         mavenLocal()
-
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/jcenter"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/android"
-        }
-        maven {
-            url 'http://maven.oa.com/nexus/content/repositories/thirdparty/'
-        }
-        maven {
-            url 'http://maven.oa.com/nexus/content/repositories/thirdparty-snapshots/'
-        }
+        jcenter()
     }
 }
 
 ext {
     GROUP = 'com.tencent.mars.sample'
-    VERSION_NAME = '0.2.0'
-    VERSION_NAME_SUFFIX = '-SNAPSHOT'
+    VERSION_NAME_PREFIX = '1.1.2'
+    VERSION_NAME_SUFFIX = '' // '-SNAPSHOT'
+
+    minSdkVersion = 16
+    compileSdkVersion = 25
+    targetSdkVersion = compileSdkVersion
+    buildToolsVersion = '23.0.3'
+    javaVersion = JavaVersion.VERSION_1_7
+
+    VERSION_NAME = "${VERSION_NAME_PREFIX}${VERSION_NAME_SUFFIX}"
+
+    POM_PACKAGING = "pom"
+    POM_DESCRIPTION= "mars-wrapper"
+
+    POM_URL = "https://github.com/Tencent/mars"
+    POM_SCM_URL = "https://github.com/Tencent/mars.git"
+    POM_ISSUE_URL = 'https://github.com/Tencent/mars/issues'
+
+    POM_LICENCE_NAME = "MIT"
+    POM_LICENCE_URL = "https://opensource.org/licenses/MIT"
+    POM_LICENCE_DIST = "repo"
+
+    POM_DEVELOPER_ID="Tencent Wechat"
+    POM_DEVELOPER_NAME="Tencent Wechat, Inc."
+
+    BINTRAY_LICENCE= ['MIT']
+    BINTRAY_ORGANIZATION = "mars-open"
 }

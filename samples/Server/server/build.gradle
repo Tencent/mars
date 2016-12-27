@@ -1,8 +1,7 @@
 buildscript {
     repositories {
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/android"
-        }
+        mavenLocal()
+        jcenter()
     }
     dependencies {
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.3'

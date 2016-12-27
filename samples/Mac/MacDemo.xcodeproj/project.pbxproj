@@ -25,6 +25,7 @@
 		1FB576D81CE1D82100ADCF8C /* app_callback.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FB576D11CE1D82100ADCF8C /* app_callback.mm */; };
 		1FB576DA1CE1D82100ADCF8C /* longlink_packer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1FB576D41CE1D82100ADCF8C /* longlink_packer.cc */; };
 		1FB576DB1CE1D82100ADCF8C /* stn_callback.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FB576D71CE1D82100ADCF8C /* stn_callback.mm */; };
+		4B3C3E221E12111300351897 /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712711DE81ED300185734 /* mars.framework */; };
 		4BB712741DE81EF900185734 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712731DE81EF900185734 /* libz.tbd */; };
 		4BB712B81DE81FC100185734 /* Chat.pb.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB7127E1DE81FC100185734 /* Chat.pb.m */; };
 		4BB712B91DE81FC100185734 /* chat.proto in Resources */ = {isa = PBXBuildFile; fileRef = 4BB7127F1DE81FC100185734 /* chat.proto */; };
@@ -60,7 +61,6 @@
 		4BB712FD1DE822D300185734 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712FC1DE822D300185734 /* SystemConfiguration.framework */; };
 		4BB712FF1DE822DA00185734 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712FE1DE822DA00185734 /* CoreFoundation.framework */; };
 		4BB713121DE8254B00185734 /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB713111DE8254B00185734 /* libresolv.9.tbd */; };
-		4BB713131DE8264000185734 /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712711DE81ED300185734 /* mars.framework */; };
 		4BDBD1701E091571006C62F5 /* NetworkStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BDBD16F1E091571006C62F5 /* NetworkStatus.m */; };
 /* End PBXBuildFile section */
 
@@ -179,7 +179,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4BB713131DE8264000185734 /* mars.framework in Frameworks */,
+				4B3C3E221E12111300351897 /* mars.framework in Frameworks */,
 				4BB713121DE8254B00185734 /* libresolv.9.tbd in Frameworks */,
 				4BB712FF1DE822DA00185734 /* CoreFoundation.framework in Frameworks */,
 				4BB712FD1DE822D300185734 /* SystemConfiguration.framework in Frameworks */,
@@ -377,6 +377,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 557B21E61CC8ECC40076B9EE /* Build configuration list for PBXNativeTarget "MacDemo" */;
 			buildPhases = (
+				4B3C3DFF1E120B1000351897 /* Run Script - build mars */,
 				557B21CE1CC8ECC40076B9EE /* Sources */,
 				557B21CF1CC8ECC40076B9EE /* Frameworks */,
 				557B21D01CC8ECC40076B9EE /* Resources */,
@@ -436,6 +437,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4B3C3DFF1E120B1000351897 /* Run Script - build mars */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - build mars";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "BUILD_LIB_SCRIPT=${SRCROOT}/Kernel/build_libs_for_sample.py\n\npython $BUILD_LIB_SCRIPT\n\nif [[ $? -eq 1 ]]\nthen\nexit 1\nfi";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		557B21CE1CC8ECC40076B9EE /* Sources */ = {

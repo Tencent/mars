@@ -1,19 +1,7 @@
 buildscript {
     repositories {
         mavenLocal()
-
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/android"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/jcenter"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/thirdparty"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/thirdparty-snapshots"
-        }
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.2'
@@ -27,18 +15,6 @@ buildscript {
 allprojects {
     repositories {
         mavenLocal()
-
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/android"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/jcenter"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/thirdparty"
-        }
-        maven {
-            url "http://maven.oa.com/nexus/content/repositories/thirdparty-snapshots"
-        }
+        jcenter()
     }
 }

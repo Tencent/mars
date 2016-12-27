@@ -1,3 +1,17 @@
+/*
+* Tencent is pleased to support the open source community by making GAutomator available.
+* Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+*
+* Licensed under the MIT License (the "License"); you may not use this file except in 
+* compliance with the License. You may obtain a copy of the License at
+* http://opensource.org/licenses/MIT
+*
+* Unless required by applicable law or agreed to in writing, software distributed under the License is
+* distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+* either express or implied. See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 package com.tencent.mars.proxy;
 
 import com.tencent.mars.logicserver.ProxySession;
@@ -30,7 +44,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
 /**
- * Created by kirozhao on 16/2/2.
+ * Created by zhaoyuan on 16/2/2.
  */
 public class NetMsgHeaderHandler extends ChannelInboundHandlerAdapter {
 
@@ -42,8 +56,6 @@ public class NetMsgHeaderHandler extends ChannelInboundHandlerAdapter {
         CMD_PATH_MAP.put(Main.CmdID.CMD_ID_HELLO_VALUE, "mars/hello");
         CMD_PATH_MAP.put(Main.CmdID.CMD_ID_SEND_MESSAGE_VALUE, "/mars/sendmessage");
     }
-
-    private final static String TAG = "NetMsgHeaderHandler";
 
     private ConcurrentHashMap<ChannelHandlerContext, Long> linkTimeout = new ConcurrentHashMap<>();
     private ContextTimeoutChecker checker;
@@ -165,7 +177,7 @@ public class NetMsgHeaderHandler extends ChannelInboundHandlerAdapter {
 
         @Override
         public void run() {
-            logger.info(LogUtils.format("check longlink alive per 15 minutes."));
+            logger.info(LogUtils.format("check longlink alive per 15 minutes, " + this));
             for (ChannelHandlerContext context : linkTimeout.keySet()) {
                 if (System.currentTimeMillis() - linkTimeout.get(context) > 15 * 60 * 1000) {
                     TopicChats.getInstance().leftTopic(context);

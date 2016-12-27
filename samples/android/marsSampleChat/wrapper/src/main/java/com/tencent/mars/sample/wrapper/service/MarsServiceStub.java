@@ -1,35 +1,47 @@
+/*
+* Tencent is pleased to support the open source community by making GAutomator available.
+* Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+*
+* Licensed under the MIT License (the "License"); you may not use this file except in 
+* compliance with the License. You may obtain a copy of the License at
+* http://opensource.org/licenses/MIT
+*
+* Unless required by applicable law or agreed to in writing, software distributed under the License is
+* distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+* either express or implied. See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 package com.tencent.mars.sample.wrapper.service;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 
-import com.google.gson.Gson;
 import com.tencent.mars.app.AppLogic;
 import com.tencent.mars.sample.utils.print.BaseConstants;
-import com.tencent.mars.sample.wrapper.remote.MarsRecvCallBack;
+import com.tencent.mars.sample.wrapper.remote.MarsPushMessageFilter;
 import com.tencent.mars.sample.wrapper.remote.MarsService;
 import com.tencent.mars.sample.wrapper.remote.MarsTaskProperty;
 import com.tencent.mars.sample.wrapper.remote.MarsTaskWrapper;
 import com.tencent.mars.sdt.SdtLogic;
-import com.tencent.mars.sdt.SignalDetectResult;
 import com.tencent.mars.stn.StnLogic;
-import com.tencent.mars.stn.TaskProfile;
 import com.tencent.mars.xlog.Log;
+import com.tencent.mars.BaseEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Mars Task Wrapper implements
  */
-public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallBack, SdtLogic.ICallBack, AppLogic.ICallBack{
+public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallBack, SdtLogic.ICallBack, AppLogic.ICallBack {
 
     private static final String TAG = "Mars.Sample.MarsServiceStub";
 
@@ -43,7 +55,7 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
 
     private Context context;
 
-    private MarsRecvCallBack recvCallBack;
+    private ConcurrentLinkedQueue<MarsPushMessageFilter> filters = new ConcurrentLinkedQueue<>();
 
     private int clientVersion = 200;
 
@@ -122,15 +134,27 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
         }
     }
 
+
     @Override
-    public void setRecvCallBack(MarsRecvCallBack callBack) {
-        recvCallBack = callBack;
+    public void registerPushMessageFilter(MarsPushMessageFilter filter) throws RemoteException {
+        filters.remove(filter);
+        filters.add(filter);
+    }
+
+    @Override
+    public void unregisterPushMessageFilter(MarsPushMessageFilter filter) throws RemoteException {
+        filters.remove(filter);
     }
 
     @Override
     public void setAccountInfo(long uin, String userName) {
         accountInfo.uin = uin;
         accountInfo.userName = userName;
+    }
+
+    @Override
+    public void setForeground(int isForeground) {
+        BaseEvent.onForeground(isForeground == 1 ? true : false);
     }
 
     @Override
@@ -144,34 +168,27 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
 
     @Override
     public String[] onNewDns(String host) {
-        return new String[]{
-                "118.89.24.72"
-        };
+        // No default new dns support
+        return null;
     }
 
     @Override
     public void onPush(int cmdid, byte[] data) {
-        if (recvCallBack != null) {
+        for (MarsPushMessageFilter filter : filters) {
             try {
-                recvCallBack.onRecv(cmdid, data);
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (filter.onRecv(cmdid, data)) {
+                    break;
+                }
+
+            } catch (RemoteException e) {
+                //
             }
         }
     }
 
     @Override
     public void reportFlow(int wifiRecv, int wifiSend, int mobileRecv, int mobileSend) {
-
-        try {
-            if (recvCallBack != null) {
-                recvCallBack.onRecv(BaseConstants.FLOW_CMDID, String.format("%d,%d,%d,%d", wifiRecv, wifiSend, mobileRecv, mobileSend).getBytes(Charset.forName("UTF-8")));
-            }
-        }
-        catch (Exception e) {
-            Log.e(TAG, "report flow error %s", e.toString());
-        }
-
+        onPush(BaseConstants.FLOW_CMDID, String.format("%d,%d,%d,%d", wifiRecv, wifiSend, mobileRecv, mobileSend).getBytes(Charset.forName("UTF-8")));
     }
 
     @Override
@@ -236,8 +253,6 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
             return false;
         }
 
-        // Short link encode
-        Log.d(TAG, "encode for short link, body only");
         try {
             reqBuffer.write(wrapper.req2buf());
             return true;
@@ -270,42 +285,27 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
 
     @Override
     public void reportTaskProfile(String reportString) {
-        try {
-            if (recvCallBack != null) {
-                recvCallBack.onRecv(BaseConstants.CGIHISTORY_CMDID, reportString.getBytes(Charset.forName("UTF-8")));
-            }
-        }
-        catch (Exception e) {
-            Log.e(TAG, "task end report error %s", e.toString());
-        }
+        onPush(BaseConstants.CGIHISTORY_CMDID, reportString.getBytes(Charset.forName("UTF-8")));
     }
 
     @Override
     public void reportSignalDetectResults(String reportString) {
-        try {
-            if (recvCallBack != null) {
-                recvCallBack.onRecv(BaseConstants.SDTRESULT_CMDID, reportString.getBytes(Charset.forName("UTF-8")));
-            }
-        }
-        catch (Exception e) {
-            Log.e(TAG, "sdt result error %s", e.toString());
-        }
+        onPush(BaseConstants.SDTRESULT_CMDID, reportString.getBytes(Charset.forName("UTF-8")));
     }
 
     @Override
     public String getAppFilePath() {
-        if (null == context){
+        if (null == context) {
             return null;
         }
 
         try {
             File file = context.getFilesDir();
-            if(!file.exists()) {
+            if (!file.exists()) {
                 file.createNewFile();
             }
             return file.toString();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.e(TAG, "", e);
         }
 

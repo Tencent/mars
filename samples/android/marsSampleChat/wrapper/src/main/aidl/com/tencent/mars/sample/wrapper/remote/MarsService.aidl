@@ -4,7 +4,7 @@ package com.tencent.mars.sample.wrapper.remote;
 // Declare any non-default types here with import statements
 
 import com.tencent.mars.sample.wrapper.remote.MarsTaskWrapper;
-import com.tencent.mars.sample.wrapper.remote.MarsRecvCallBack;
+import com.tencent.mars.sample.wrapper.remote.MarsPushMessageFilter;
 
 interface MarsService {
 
@@ -12,7 +12,11 @@ interface MarsService {
 
     void cancel(MarsTaskWrapper taskWrapper);
 
-    void setRecvCallBack(MarsRecvCallBack recvCallBack);
+    void registerPushMessageFilter(MarsPushMessageFilter filter);
+
+    void unregisterPushMessageFilter(MarsPushMessageFilter filter);
 
     void setAccountInfo(in long uin, in String userName);
+
+    void setForeground(in int isForeground);
 }

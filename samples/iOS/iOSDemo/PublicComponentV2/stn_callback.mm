@@ -1,3 +1,15 @@
+// Tencent is pleased to support the open source community by making GAutomator available.
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+
+// Licensed under the MIT License (the "License"); you may not use this file except in 
+// compliance with the License. You may obtain a copy of the License at
+// http://opensource.org/licenses/MIT
+
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied. See the License for the specific language governing permissions and
+// limitations under the License.
+
 /** * created on : 2012-11-28 * author : yerungui, caoshaokun
  */
 #include "stn_callback.h"
@@ -37,6 +49,11 @@ std::vector<std::string> StnCallBack::OnNewDns(const std::string& _host) {
 }
 
 void StnCallBack::OnPush(int32_t _cmdid, const AutoBuffer& _msgpayload) {
+    if (_msgpayload.Length() > 0) {
+        NSData* recvData = [NSData dataWithBytes:(const void *) _msgpayload.Ptr() length:_msgpayload.Length()];
+        [[NetworkService sharedInstance] OnPushWithCmd:_cmdid data:recvData];
+    }
+    
 }
 
 bool StnCallBack::Req2Buf(int32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, int& _error_code, const int _channel_select) {

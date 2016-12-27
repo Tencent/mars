@@ -1,3 +1,17 @@
+/*
+* Tencent is pleased to support the open source community by making GAutomator available.
+* Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+*
+* Licensed under the MIT License (the "License"); you may not use this file except in 
+* compliance with the License. You may obtain a copy of the License at
+* http://opensource.org/licenses/MIT
+*
+* Unless required by applicable law or agreed to in writing, software distributed under the License is
+* distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+* either express or implied. See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 package com.tencent.mars.sample.wrapper.remote;
 
 import android.app.Service;
@@ -5,25 +19,20 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 
-import com.tencent.mars.Mars;
 import com.tencent.mars.app.AppLogic;
 import com.tencent.mars.xlog.Log;
 
-import java.util.Objects;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Mars Service Proxy for component callers
  * <p></p>
- * Created by kirozhao on 16/2/26.
+ * Created by zhaoyuan on 16/2/26.
  */
 public class MarsServiceProxy implements ServiceConnection {
 
@@ -36,9 +45,6 @@ public class MarsServiceProxy implements ServiceConnection {
 
     private LinkedBlockingQueue<MarsTaskWrapper> queue = new LinkedBlockingQueue<>();
 
-    private LinkedBlockingDeque<PushMessage> pushMessages = new LinkedBlockingDeque<>();
-    private Object syncQueueLock = new Object();
-
     public static final ConcurrentHashMap<String, Integer> GLOBAL_CMD_ID_MAP = new ConcurrentHashMap<>();
 
     private static Context gContext;
@@ -49,7 +55,25 @@ public class MarsServiceProxy implements ServiceConnection {
     private Worker worker;
     public AppLogic.AccountInfo accountInfo;
 
-    private NanoMarsRecvCallBack recvCallBack = new NanoMarsRecvCallBack();
+    private ConcurrentHashMap<Integer, PushMessageHandler> pushMessageHandlerHashMap = new ConcurrentHashMap<>();
+    private MarsPushMessageFilter filter = new MarsPushMessageFilter.Stub() {
+
+        @Override
+        public boolean onRecv(int cmdId, byte[] buffer) throws RemoteException {
+            PushMessageHandler handler = pushMessageHandlerHashMap.get(cmdId);
+            if (handler != null) {
+                Log.i(TAG, "processing push message, cmdid = %d", cmdId);
+                PushMessage message = new PushMessage(cmdId, buffer);
+                handler.process(message);
+                return true;
+
+            } else {
+                Log.i(TAG, "no push message listener set for cmdid = %d, just ignored", cmdId);
+            }
+
+            return false;
+        }
+    };
 
     private MarsServiceProxy() {
         worker = new Worker();
@@ -67,8 +91,15 @@ public class MarsServiceProxy implements ServiceConnection {
         gPackageName = (packageName == null ? context.getPackageName() : packageName);
         gClassName = SERVICE_DEFUALT_CLASSNAME;
 
-
         inst = new MarsServiceProxy();
+    }
+
+    public static void setOnPushMessageListener(int cmdId, PushMessageHandler pushMessageHandler) {
+        if (pushMessageHandler == null) {
+            inst.pushMessageHandlerHashMap.remove(cmdId);
+        } else {
+            inst.pushMessageHandlerHashMap.put(cmdId, pushMessageHandler);
+        }
     }
 
     public static void send(MarsTaskWrapper marsTaskWrapper) {
@@ -79,13 +110,32 @@ public class MarsServiceProxy implements ServiceConnection {
         inst.cancelSpecifiedTaskWrapper(marsTaskWrapper);
     }
 
+    public void setForeground(boolean isForeground) {
+        try {
+            if (service == null) {
+                Log.d(TAG, "try to bind remote mars service, packageName: %s, className: %s", gPackageName, gClassName);
+                Intent i = new Intent().setClassName(gPackageName, gClassName);
+                gContext.startService(i);
+                if (!gContext.bindService(i, inst, Service.BIND_AUTO_CREATE)) {
+                    Log.e(TAG, "remote mars service bind failed");
+                }
+
+                return;
+            }
+            service.setForeground(isForeground ? 1 : 0);
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         Log.d(TAG, "remote mars service connected");
 
         try {
             service = MarsService.Stub.asInterface(iBinder);
-            service.setRecvCallBack(recvCallBack);
+            service.registerPushMessageFilter(filter);
             service.setAccountInfo(accountInfo.uin, accountInfo.userName);
 
         } catch (Exception e) {
@@ -96,7 +146,8 @@ public class MarsServiceProxy implements ServiceConnection {
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         try {
-            service.setRecvCallBack(null);
+            service.unregisterPushMessageFilter(filter);
+
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -104,23 +155,6 @@ public class MarsServiceProxy implements ServiceConnection {
 
         // TODO: need reconnect ?
         Log.d(TAG, "remote mars service disconnected");
-    }
-
-    public PushMessage getPushMessage() {
-        return pushMessages.poll();
-    }
-
-    public void queueWait() {
-        synchronized (syncQueueLock) {
-            try {
-                if (pushMessages.isEmpty()) {
-                    syncQueueLock.wait();
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private void cancelSpecifiedTaskWrapper(MarsTaskWrapper marsTaskWrapper) {
@@ -180,8 +214,7 @@ public class MarsServiceProxy implements ServiceConnection {
             } catch (Exception e) { // RemoteExceptionHandler
                 e.printStackTrace();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
     }
@@ -192,25 +225,14 @@ public class MarsServiceProxy implements ServiceConnection {
         public void run() {
 
             while (true) {
-
                 inst.continueProcessTaskWrappers();
 
-            }
-
-        }
-
-    }
-
-    private class NanoMarsRecvCallBack extends MarsRecvCallBack.Stub {
-
-        @Override
-        public void onRecv(int cmdId, byte[] buffer) throws RemoteException {
-
-            pushMessages.offer(new PushMessage(cmdId, buffer));
-            synchronized (syncQueueLock) {
-                syncQueueLock.notify();
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    //
+                }
             }
         }
     }
-
 }

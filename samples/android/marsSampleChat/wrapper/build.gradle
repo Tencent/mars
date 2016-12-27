@@ -1,6 +1,9 @@
 apply plugin: 'maven'
 apply plugin: 'com.android.library'
 
+version rootProject.ext.VERSION_NAME
+group rootProject.ext.GROUP
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
@@ -19,11 +22,12 @@ android {
     }
 }
 
-apply from: "${rootDir}/gradle/push_maven_oa.gradle"
+apply from: "${rootDir}/gradle/android-artifacts.gradle"
+apply from: "bintray.gradle"
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-4'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile "com.tencent.mm.network:mars-core:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
+    compile "com.tencent.mars:mars-core:${VERSION_NAME}"
 }
