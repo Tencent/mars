@@ -102,7 +102,7 @@ static NetworkService * sharedSingleton = nil;
     mars::stn::MakesureLonglinkConnected();
 }
 
-- (void)destoryMars {
+- (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
 
@@ -130,8 +130,8 @@ static NetworkService * sharedSingleton = nil;
 
 
 // event reporting
-- (void)reportEvent_OnForground:(BOOL)isForground {
-    mars::baseevent::OnForeground(isForground);
+- (void)reportEvent_OnForeground:(BOOL)isForeground {
+    mars::baseevent::OnForeground(isForeground);
 }
 
 - (void)reportEvent_OnNetworkChange {

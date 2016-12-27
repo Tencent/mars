@@ -44,7 +44,7 @@
 - (void)setLongLinkAddress:(NSString *)string port:(const unsigned short)port debugIP:(NSString *)IP;
 - (void)setLongLinkAddress:(NSString *)string port:(const unsigned short)port;
 - (void)makesureLongLinkConnect;
-- (void)destoryMars;
+- (void)destroyMars;
 
 
 - (int)startTask:(CGITask *)task ForUI:(id<UINotifyDelegate>)delegateUI;
@@ -52,7 +52,7 @@
 
 
 // event reporting
-- (void)reportEvent_OnForground:(BOOL)isForground;
+- (void)reportEvent_OnForeground:(BOOL)isForeground;
 - (void)reportEvent_OnNetworkChange;
 
 // callbacks

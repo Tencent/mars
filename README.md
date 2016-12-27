@@ -232,10 +232,10 @@ Initialize STN before you use it:
 
 Firstly, you should call the setCalBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, the makesureLongLinkConnect can be called.
 
-If you want to Destroy STN or exit App:
+If you want to destroy STN or exit App:
 
 ```objc
-- (void)destoryMars {
+- (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
 ``` 
@@ -245,7 +245,7 @@ If you want to Destroy STN or exit App:
 When the App's state of background or foreground is changed:
 
 ```objc
-- (void)reportEvent_OnForground:(BOOL)isForground {
+- (void)reportEvent_OnForeground:(BOOL)isForeground {
     mars::baseevent::OnForeground(isForground);
 }
 ```
@@ -516,7 +516,7 @@ appender_close();
 需要释放 STN 或者退出程序时:
 
 ```objc
-- (void)destoryMars {
+- (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
 ``` 
@@ -526,8 +526,8 @@ appender_close();
 前后台切换时:
 
 ```objc
-- (void)reportEvent_OnForground:(BOOL)isForground {
-    mars::baseevent::OnForeground(isForground);
+- (void)reportEvent_OnForeground:(BOOL)isForeground {
+    mars::baseevent::OnForeground(isForeground);
 }
 ```
 

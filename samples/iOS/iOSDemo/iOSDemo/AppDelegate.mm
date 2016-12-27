@@ -54,11 +54,11 @@
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    [[NetworkService sharedInstance] reportEvent_OnForground:NO];
+    [[NetworkService sharedInstance] reportEvent_OnForeground:NO];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    [[NetworkService sharedInstance] reportEvent_OnForground:YES];
+    [[NetworkService sharedInstance] reportEvent_OnForeground:YES];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -67,7 +67,7 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     
-    [[NetworkService sharedInstance] destoryMars];
+    [[NetworkService sharedInstance] destroyMars];
     
     appender_close();
 }
