@@ -40,6 +40,7 @@
     [[NetworkService sharedInstance] setLongLinkAddress:@"localhost" port:8081];
     [[NetworkService sharedInstance] setShortLinkPort:8080];
 
+    [[NetworkService sharedInstance] reportEvent_OnForground:YES];
     [[NetworkService sharedInstance] makesureLongLinkConnect];
     [[NetworkStatus sharedInstance] Start:[NetworkService sharedInstance]];
 

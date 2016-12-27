@@ -104,9 +104,10 @@ StnLogic.setShortlinkSvrAddr(profile.shortLinkPort());
 StnLogic.setClientVersion(profile.productID());
 Mars.onCreate(true);
 
+BaseEvent.onForeground(true);
 StnLogic.makesureLongLinkConnected();
 ```
-Firstly, you should call the setCalBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, the makesureLongLinkConnect can be called.
+Firstly, you should call the setCalBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, onForeground and makesureLongLinkConnect can be called.
 
 Destroy STN or exit your app:
 
@@ -225,12 +226,16 @@ Initialize STN before you use it:
     mars::stn::SetLonglinkSvrAddr(ipAddress,ports);
 }
 
+- (void)reportEvent_OnForeground:(BOOL)isForeground {
+    mars::baseevent::OnForeground(isForground);
+}
+
 - (void)makesureLongLinkConnect {
     mars::stn::MakesureLonglinkConnected();
 }
 ```
 
-Firstly, you should call the setCalBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, the makesureLongLinkConnect can be called.
+Firstly, you should call the setCalBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, onForeground and makesureLongLinkConnect can be called.
 
 If you want to destroy STN or exit App:
 
@@ -380,11 +385,12 @@ StnLogic.setLonglinkSvrAddr(profile.longLinkHost(), profile.longLinkPorts());
 StnLogic.setShortlinkSvrAddr(profile.shortLinkPort());
 StnLogic.setClientVersion(profile.productID());
 Mars.onCreate(true);
+BaseEvent.onForeground(true);
 
 StnLogic.makesureLongLinkConnected();
 ```
 
-初始化顺序不一定要严格遵守上述代码的顺序，但在初始化时首先要调用 setCallBack 接口 (callback 文件的编写可以参考 demo)，再调用 Mars.init，最后再调用 makesureLongLinkConnect，中间顺序可以随意更改。
+初始化顺序不一定要严格遵守上述代码的顺序，但在初始化时首先要调用 setCallBack 接口 (callback 文件的编写可以参考 demo)，再调用 Mars.init，最后再调用onForeground 和 makesureLongLinkConnect，中间顺序可以随意更改。**注意：STN 默认是后台，所以初始化 STN 后需要主动调用一次**```BaseEvent.onForeground(true)```
 
 需要释放 STN 或者退出程序时:
 
@@ -505,12 +511,16 @@ appender_close();
     mars::stn::SetLonglinkSvrAddr(ipAddress,ports);
 }
 
+- (void)reportEvent_OnForeground:(BOOL)isForeground {
+    mars::baseevent::OnForeground(isForground);
+}
+
 - (void)makesureLongLinkConnect {
     mars::stn::MakesureLonglinkConnected();
 }
 ```
 
-初始化顺序不一定要严格遵守上述代码的顺序，但在初始化时首先要调用 setCallBack 接口 (callback 文件的编写可以参考 demo)，再调用 Mars.init，最后再调用 makesureLongLinkConnect，中间顺序可以随意更改。
+初始化顺序不一定要严格遵守上述代码的顺序，但在初始化时首先要调用 setCallBack 接口 (callback 文件的编写可以参考 demo)，再调用 Mars.init，最后再调用 onForeground 和 makesureLongLinkConnect，中间顺序可以随意更改。**注意：STN 默认是后台，所以初始化 STN 后需要主动调用一次**```BaseEvent.onForeground(true)```
 
 
 需要释放 STN 或者退出程序时:
@@ -548,7 +558,7 @@ appender_close();
 4. 联系我们.
 
 ## Contributing
-关于 contributing issues 或者 pull requests, 请参看 [Mars Contributing Guide](https://github.com/Tencent/mars/blob/master/CONTRIBUTING.md).
+关于 Mars 分支管理、issue 以及 pr 规范, 请阅读 [Mars Contributing Guide](https://github.com/Tencent/mars/blob/master/CONTRIBUTING.md).
 
 ## License
 Mars 使用的 MIT 协议，详细请参考[LICENSE](https://github.com/Tencent/mars/blob/master/LICENSE).

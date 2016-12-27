@@ -42,6 +42,7 @@
     [[NetworkService sharedInstance] setClientVersion:200];
     [[NetworkService sharedInstance] setLongLinkAddress:@"www.marsopen.cn" port:8081];
     [[NetworkService sharedInstance] setShortLinkPort:8080];
+    [[NetworkService sharedInstance] reportEvent_OnForeground:YES];
     [[NetworkService sharedInstance] makesureLongLinkConnect];
     
     [[NetworkStatus sharedInstance] Start:[NetworkService sharedInstance]];
