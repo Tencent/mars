@@ -37,3 +37,4 @@
 #define LOG_DEBUG(module, format, ...) LogInternal(kLevelDebug, module, __FILENAME__, __LINE__, __FUNCTION__, @"Debug:", format, ##__VA_ARGS__)
 
 static const char *kModuleViewController = "ViewController";
+static const char *kNetwork = "Network";

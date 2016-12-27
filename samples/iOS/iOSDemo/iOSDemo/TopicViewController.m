@@ -21,11 +21,13 @@
 #import "TopicViewController.h"
 
 #import "Chat.pb.h"
+#import "Messagepush.pb.h"
 
 #import "CGITask.h"
 #import "CommandID.h"
 #import "NetworkService.h"
 
+#import "Constants.h"
 #import "LogUtil.h"
 
 @interface TopicViewController ()
@@ -37,6 +39,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [[NetworkService sharedInstance] addPushObserver:self withCmdId:kPushMessageCmdId];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -66,8 +69,15 @@
     
     self->text = _textField.text;
     [_contentField setText:self->text];
-    
     [_textField setText:@""];
+}
+
+- (void)notifyPushMessage:(NSData*)pushData withCmdId:(int)cmdId {
+    MessagePush* messagePush = [MessagePush parseFromData:pushData];
+    if (messagePush != nil) {
+        NSString* recvtext = [NSString stringWithFormat:@"%@ : %@", messagePush.pb_from, messagePush.content];
+        [_recvContentField setText:recvtext];
+    }
 }
 
 @end

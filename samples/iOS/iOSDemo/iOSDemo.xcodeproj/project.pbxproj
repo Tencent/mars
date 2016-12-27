@@ -15,6 +15,8 @@
 		1F244E731DE6E831005D1BAC /* NetworkEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F244E721DE6E831005D1BAC /* NetworkEvent.m */; };
 		1F2671C51DD2BD05003F00A1 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F2671C31DD2BD05003F00A1 /* log_crypt.cc */; };
 		1F2671C81DD2C227003F00A1 /* shortlink_packer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F2671C61DD2C227003F00A1 /* shortlink_packer.cc */; };
+		1F7626C01E12B6D8000A4AE6 /* messagepush.proto in Resources */ = {isa = PBXBuildFile; fileRef = 1F7626BE1E12B6D8000A4AE6 /* messagepush.proto */; };
+		1F7626C91E12C080000A4AE6 /* Messagepush.pb.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F7626C81E12C080000A4AE6 /* Messagepush.pb.m */; };
 		1FAEF2341DEE81D1002F3AA6 /* LogUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FAEF2331DEE81D1002F3AA6 /* LogUtil.m */; };
 		1FAEF23D1DEEAA04002F3AA6 /* LogHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FAEF23C1DEEAA04002F3AA6 /* LogHelper.mm */; };
 		1FB576F61CE209A500ADCF8C /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FB576F51CE209A500ADCF8C /* AppDelegate.mm */; };
@@ -102,6 +104,12 @@
 		1F2671C41DD2BD05003F00A1 /* log_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
 		1F2671C61DD2C227003F00A1 /* shortlink_packer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shortlink_packer.cc; sourceTree = "<group>"; };
 		1F2671C71DD2C227003F00A1 /* shortlink_packer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shortlink_packer.h; sourceTree = "<group>"; };
+		1F7626BA1E12A9E9000A4AE6 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		1F7626BB1E12AA6C000A4AE6 /* PushNotifyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushNotifyDelegate.h; sourceTree = "<group>"; };
+		1F7626BE1E12B6D8000A4AE6 /* messagepush.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = messagepush.proto; sourceTree = "<group>"; };
+		1F7626C21E12BA6A000A4AE6 /* protobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = protobuf.framework; path = Proto/protobuf.framework; sourceTree = "<group>"; };
+		1F7626C71E12C080000A4AE6 /* Messagepush.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Messagepush.pb.h; sourceTree = "<group>"; };
+		1F7626C81E12C080000A4AE6 /* Messagepush.pb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Messagepush.pb.m; sourceTree = "<group>"; };
 		1FAEF2321DEE81D1002F3AA6 /* LogUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogUtil.h; sourceTree = "<group>"; };
 		1FAEF2331DEE81D1002F3AA6 /* LogUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogUtil.m; sourceTree = "<group>"; };
 		1FAEF23B1DEEAA04002F3AA6 /* LogHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogHelper.h; sourceTree = "<group>"; };
@@ -230,6 +238,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1F7626C11E12BA69000A4AE6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1F7626C21E12BA6A000A4AE6 /* protobuf.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		1FAEF21E1DEE7A39002F3AA6 /* Component */ = {
 			isa = PBXGroup;
 			children = (
@@ -253,6 +269,7 @@
 				1FB577151CE209A500ADCF8C /* iOSDemoUITests */,
 				1FB577241CE20BFE00ADCF8C /* PublicComponentV2 */,
 				1FB576EF1CE209A500ADCF8C /* Products */,
+				1F7626C11E12BA69000A4AE6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -288,6 +305,7 @@
 				1FB576FF1CE209A500ADCF8C /* LaunchScreen.storyboard */,
 				1FB577021CE209A500ADCF8C /* Info.plist */,
 				1FB576F11CE209A500ADCF8C /* Supporting Files */,
+				1F7626BA1E12A9E9000A4AE6 /* Constants.h */,
 			);
 			path = iOSDemo;
 			sourceTree = "<group>";
@@ -362,6 +380,7 @@
 				1FDE37DF1DE5DC7900CAC712 /* CGITask.mm */,
 				1F244EAE1DE717E8005D1BAC /* UINotifyDelegate.h */,
 				1F08C1531DE82FAB0098EB97 /* CommandID.h */,
+				1F7626BB1E12AA6C000A4AE6 /* PushNotifyDelegate.h */,
 			);
 			name = Bussiness;
 			sourceTree = "<group>";
@@ -369,6 +388,9 @@
 		1FDE37AF1DE5D27000CAC712 /* Proto */ = {
 			isa = PBXGroup;
 			children = (
+				1F7626C71E12C080000A4AE6 /* Messagepush.pb.h */,
+				1F7626C81E12C080000A4AE6 /* Messagepush.pb.m */,
+				1F7626BE1E12B6D8000A4AE6 /* messagepush.proto */,
 				1FF777391E0C0E0600411382 /* chat.proto */,
 				1FF7773A1E0C0E0600411382 /* main.proto */,
 				1FDE388D1DE6878200CAC712 /* ProtocolBuffers */,
@@ -547,6 +569,7 @@
 			files = (
 				1FF7773B1E0C0E0600411382 /* chat.proto in Resources */,
 				1FF7773C1E0C0E0600411382 /* main.proto in Resources */,
+				1F7626C01E12B6D8000A4AE6 /* messagepush.proto in Resources */,
 				1FB577011CE209A500ADCF8C /* LaunchScreen.storyboard in Resources */,
 				1FB576FE1CE209A500ADCF8C /* Assets.xcassets in Resources */,
 				1FB576FC1CE209A500ADCF8C /* Main.storyboard in Resources */,
@@ -595,6 +618,7 @@
 				1FDE38CC1DE6878200CAC712 /* MutableExtensionRegistry.m in Sources */,
 				1FDE38CE1DE6878200CAC712 /* ObjectivecDescriptor.pb.m in Sources */,
 				1FB5772E1CE20BFE00ADCF8C /* app_callback.mm in Sources */,
+				1F7626C91E12C080000A4AE6 /* Messagepush.pb.m in Sources */,
 				1FDE38C51DE6878200CAC712 /* Descriptor.pb.m in Sources */,
 				1FDE38C91DE6878200CAC712 /* Field.m in Sources */,
 				1FDE38D41DE6878200CAC712 /* Utilities.m in Sources */,
@@ -778,6 +802,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Kernel",
 					"$(PROJECT_DIR)/Kernel/MarsLib",
+					"$(PROJECT_DIR)/Proto",
 				);
 				INFOPLIST_FILE = iOSDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -798,6 +823,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Kernel",
 					"$(PROJECT_DIR)/Kernel/MarsLib",
+					"$(PROJECT_DIR)/Proto",
 				);
 				INFOPLIST_FILE = iOSDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

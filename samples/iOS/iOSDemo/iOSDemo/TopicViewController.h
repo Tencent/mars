@@ -21,8 +21,9 @@
 #import <UIKit/UIKit.h>
 
 #import "UINotifyDelegate.h"
+#import "PushNotifyDelegate.h"
 
-@interface TopicViewController : UIViewController<UINotifyDelegate> {
+@interface TopicViewController : UIViewController<UINotifyDelegate, PushNotifyDelegate> {
     NSString* text;
 }
 

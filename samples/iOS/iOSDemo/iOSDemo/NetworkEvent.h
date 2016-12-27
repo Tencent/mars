@@ -29,6 +29,7 @@ static const int SENDMSG = 3;
 @interface NetworkEvent : NSObject<NetworkDelegate> {
     NSMutableDictionary   *tasks;
     NSMutableDictionary* controllers;
+    NSMutableDictionary* pushrecvers;
 }
 
 @end
