@@ -7,7 +7,7 @@
 
 (中文版本请参看[这里](#mars_cn))
 
-Mars is a cross-platform infrastructure component developed by WeChat Mobile Team. 
+Mars is a cross-platform infrastructure component developed by WeChat Mobile Team.
 
 ![mars](https://github.com/WeMobileDev/article/blob/master/assets/mars/mars.png?raw=true)
 
@@ -25,7 +25,7 @@ Choose [Android](#android) or [iOS/OS X](#apple)
 
 ###<a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
-You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper if only sample is needed, while mars-core is preferred to be used in your app. 
+You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper if only sample is needed, while mars-core is preferred to be used in your app.
 
 #### <a name="wrapper">mars-wrapper</a>
 
@@ -129,7 +129,7 @@ If you add dependencies of mars-wrapper to your project, you just need initializ
 MarsServiceProxy.init(this, getMainLooper(),null);
 ```
 ************
-No matter which way of dependencies you used, you must pay attention to these. 
+No matter which way of dependencies you used, you must pay attention to these.
 
 The state (background or foreground) of app  is changed:
 
@@ -243,7 +243,7 @@ If you want to destroy STN or exit App:
 - (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
-``` 
+```
 
 ####<a name="even">Event Change</a>
 
@@ -529,7 +529,7 @@ appender_close();
 - (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
-``` 
+```
 
 ####<a name="even">Event Change</a>
 
