@@ -269,7 +269,33 @@ def main():
 			elif "3" == num:
 				return build_android_xlog_static_libs()
 			elif "4" == num:
-				return build_android_xlog_shared_libs()
+				if arch[0] == 'err':
+					return
+				elif arch[0] == 'all':
+					return build_android_xlog_shared_libs()
+				else:
+					if os.path.exists('mars_xlog_sdk/so_cache'):
+						shutil.rmtree('mars_xlog_sdk/so_cache', True)
+					os.mkdir('mars_xlog_sdk/so_cache')
+					for i in range(0, len(arch)):
+						global NDK_BUILD_CMD
+						NDK_BUILD_CMD = "ndk-build _ARCH_=" + arch[i] + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+						print(NDK_BUILD_CMD)
+						build_android_xlog_shared_libs()
+						if i != (len(arch)-1):
+							libs_dir = 'mars_xlog_sdk/so_cache/' + arch[i];
+							symbols_dir = 'mars_xlog_sdk/so_cache/symbol/' + arch[i];
+							os.mkdir('mars_xlog_sdk/so_cache/symbol/')
+							os.mkdir(libs_dir)
+							os.mkdir(symbols_dir)
+							for lib in glob.glob("mars_xlog_sdk/obj/local/" + arch[i] + "/*.so"):
+								shutil.copy(lib, symbols_dir)
+							for lib in glob.glob("mars_xlog_sdk/libs/" + arch[i] + "/*.so"):
+								shutil.copy(lib, libs_dir)
+					for i in range(0, len(arch)-1):
+						shutil.copytree('mars_xlog_sdk/so_cache/' + arch[i], 'mars_xlog_sdk/libs/' + arch[i])
+						shutil.copytree('mars_xlog_sdk/so_cache/symbol/' + arch[i], 'mars_xlog_sdk/obj/local/' + arch[i])
+					return
 			elif "5" ==num:
 				return 0
 			else:

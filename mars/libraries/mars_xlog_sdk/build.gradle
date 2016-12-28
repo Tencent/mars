@@ -43,3 +43,4 @@ dependencies {
 }
 
 apply from: "${rootDir}/gradle/build_xlog_libraries.gradle"
+apply from: "bintray.gradle"
