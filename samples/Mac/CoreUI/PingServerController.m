@@ -40,12 +40,12 @@
 }
 
 - (IBAction)onButtonClick:(id)sender {
-    CGITask *helloCGI = [[CGITask alloc] initAll:ChannelType_All AndCmdId:kSayHello AndCGIUri:@"/mars/hello" AndHost:@"localhost"];
+    CGITask *helloCGI = [[CGITask alloc] initAll:ChannelType_All AndCmdId:kSayHello AndCGIUri:@"/mars/hello" AndHost:@"www.marsopen.cn"];
     [[NetworkService sharedInstance] startTask:helloCGI ForUI:self];
 }
 
 - (NSData*)requestSendData {
-    HelloRequest* helloRequest = [[[[HelloRequest builder] setUser:@"caoshaokun"] setText:@"Hello world!"] build];
+    HelloRequest* helloRequest = [[[[HelloRequest builder] setUser:@"anonymous"] setText:@"Hello world!"] build];
     NSData* data = [helloRequest data];
     return data;
 }

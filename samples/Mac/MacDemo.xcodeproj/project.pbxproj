@@ -18,6 +18,8 @@
 		1F44893E1E0184F100FF3728 /* NetworkEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F4489311E0184F100FF3728 /* NetworkEvent.m */; };
 		1F44893F1E0184F100FF3728 /* PingServerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F4489331E0184F100FF3728 /* PingServerController.m */; };
 		1F4489401E0184F100FF3728 /* TopicViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F4489351E0184F100FF3728 /* TopicViewController.m */; };
+		1F7626CD1E13974A000A4AE6 /* Messagepush.pb.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F7626CB1E13974A000A4AE6 /* Messagepush.pb.m */; };
+		1F7626CE1E13974A000A4AE6 /* messagepush.proto in Resources */ = {isa = PBXBuildFile; fileRef = 1F7626CC1E13974A000A4AE6 /* messagepush.proto */; };
 		1FABA3031DE86CC900C9D1A4 /* CGITask.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FABA2FE1DE86CC900C9D1A4 /* CGITask.mm */; };
 		1FABA3041DE86CC900C9D1A4 /* NetworkService.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FABA3011DE86CC900C9D1A4 /* NetworkService.mm */; };
 		1FAEF2431DEEB1AB002F3AA6 /* LogHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FAEF2401DEEB1AB002F3AA6 /* LogHelper.mm */; };
@@ -83,6 +85,9 @@
 		1F4489331E0184F100FF3728 /* PingServerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PingServerController.m; sourceTree = "<group>"; };
 		1F4489341E0184F100FF3728 /* TopicViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TopicViewController.h; sourceTree = "<group>"; };
 		1F4489351E0184F100FF3728 /* TopicViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TopicViewController.m; sourceTree = "<group>"; };
+		1F7626CA1E13974A000A4AE6 /* Messagepush.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Messagepush.pb.h; sourceTree = "<group>"; };
+		1F7626CB1E13974A000A4AE6 /* Messagepush.pb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Messagepush.pb.m; sourceTree = "<group>"; };
+		1F7626CC1E13974A000A4AE6 /* messagepush.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = messagepush.proto; sourceTree = "<group>"; };
 		1FABA2FD1DE86CC900C9D1A4 /* CGITask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGITask.h; sourceTree = "<group>"; };
 		1FABA2FE1DE86CC900C9D1A4 /* CGITask.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CGITask.mm; sourceTree = "<group>"; };
 		1FABA2FF1DE86CC900C9D1A4 /* NetworkDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkDelegate.h; sourceTree = "<group>"; };
@@ -281,6 +286,9 @@
 		4BB7127C1DE81FC100185734 /* Proto */ = {
 			isa = PBXGroup;
 			children = (
+				1F7626CA1E13974A000A4AE6 /* Messagepush.pb.h */,
+				1F7626CB1E13974A000A4AE6 /* Messagepush.pb.m */,
+				1F7626CC1E13974A000A4AE6 /* messagepush.proto */,
 				4BB7127D1DE81FC100185734 /* Chat.pb.h */,
 				4BB7127E1DE81FC100185734 /* Chat.pb.m */,
 				4BB7127F1DE81FC100185734 /* chat.proto */,
@@ -430,6 +438,7 @@
 			files = (
 				4BB712B91DE81FC100185734 /* chat.proto in Resources */,
 				1F4489371E0184F100FF3728 /* Assets.xcassets in Resources */,
+				1F7626CE1E13974A000A4AE6 /* messagepush.proto in Resources */,
 				4BB712BB1DE81FC100185734 /* main.proto in Resources */,
 				1F44893B1E0184F100FF3728 /* Info.plist in Resources */,
 				1F4489381E0184F100FF3728 /* Main.storyboard in Resources */,
@@ -464,6 +473,7 @@
 				1FAEF2441DEEB1AB002F3AA6 /* LogUtil.m in Sources */,
 				4BB712C31DE81FC100185734 /* ExtendableMessageBuilder.m in Sources */,
 				1F44893E1E0184F100FF3728 /* NetworkEvent.m in Sources */,
+				1F7626CD1E13974A000A4AE6 /* Messagepush.pb.m in Sources */,
 				4BB712D01DE81FC100185734 /* Utilities.m in Sources */,
 				1F4489401E0184F100FF3728 /* TopicViewController.m in Sources */,
 				4BB712B81DE81FC100185734 /* Chat.pb.m in Sources */,

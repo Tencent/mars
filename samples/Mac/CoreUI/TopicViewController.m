@@ -38,7 +38,7 @@
 }
 
 -(NSData*)requestSendData {
-    SendMessageRequest* sendMsgRequest = [[[[[[SendMessageRequest builder] setFrom:@"caoshaokun"] setTo:@"all"] setText:self->text] setAccessToken:@"123456"] build];
+    SendMessageRequest* sendMsgRequest = [[[[[[[SendMessageRequest builder] setFrom:@"anonymous"] setTo:@"all"] setText:self->text] setAccessToken:@"123456"] setTopic:@"0"] build];
     NSData* data = [sendMsgRequest data];
     return data;
 }
@@ -53,7 +53,7 @@
 }
 
 - (IBAction)sendMessage:(id)sender {
-    CGITask *sendMsgCGI = [[CGITask alloc] initAll:ChannelType_ShortConn AndCmdId:kSendMsg AndCGIUri:@"/mars/sendmessage" AndHost:@"localhost"];
+    CGITask *sendMsgCGI = [[CGITask alloc] initAll:ChannelType_LongConn AndCmdId:kSendMsg AndCGIUri:@"/mars/sendmessage" AndHost:@"www.marsopen.cn"];
     [[NetworkService sharedInstance] startTask:sendMsgCGI ForUI:self];
     
     self->text = _textField.stringValue;

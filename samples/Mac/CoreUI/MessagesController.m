@@ -37,7 +37,7 @@
         [self setDoubleAction:NSSelectorFromString(@"doubleClick:")];
     }
     
-    CGITask *convlstCGI = [[CGITask alloc] initAll:ChannelType_ShortConn AndCmdId:kConvLst AndCGIUri:@"/mars/getconvlist" AndHost:@"localhost"];
+    CGITask *convlstCGI = [[CGITask alloc] initAll:ChannelType_ShortConn AndCmdId:kConvLst AndCGIUri:@"/mars/getconvlist" AndHost:@"www.marsopen.cn"];
     [[NetworkService sharedInstance] startTask:convlstCGI ForUI:self];
     
     return self;
