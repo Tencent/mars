@@ -68,7 +68,10 @@
     [[NetworkService sharedInstance] startTask:sendMsgCGI ForUI:self];
     
     self->text = _textField.text;
-    [_contentField setText:self->text];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_contentField setText:self->text];
+    });
     [_textField setText:@""];
 }
 
@@ -76,7 +79,11 @@
     MessagePush* messagePush = [MessagePush parseFromData:pushData];
     if (messagePush != nil) {
         NSString* recvtext = [NSString stringWithFormat:@"%@ : %@", messagePush.pb_from, messagePush.content];
-        [_recvContentField setText:recvtext];
+        dispatch_queue_t mainQueue = dispatch_get_main_queue();
+        dispatch_async(mainQueue, ^{
+             [_recvContentField setText:recvtext];
+        });
+       
     }
 }
 
