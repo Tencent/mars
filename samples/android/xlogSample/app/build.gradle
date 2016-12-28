@@ -22,12 +22,6 @@ android {
         }
     }
 
-    copy {
-        from "build/intermediates/exploded-aar/com.tencent.mm.network/mars-xlog/${VERSION_NAME}${VERSION_NAME_SUFFIX}/jni/armeabi/"
-        into "src/main/jni/export_include"
-
-    }
-
     externalNativeBuild {
 
         ndkBuild {
@@ -44,5 +38,5 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:23.1.1'
     testCompile 'junit:junit:4.12'
-    compile "com.tencent.mm.network:mars-xlog:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
+    compile "com.tencent.mars:mars-xlog:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
 }
