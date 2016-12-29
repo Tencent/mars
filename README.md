@@ -7,14 +7,14 @@
 
 (中文版本请参看[这里](#mars_cn))
 
-Mars is a cross-platform infrastructure component developed by WeChat Mobile Team. 
+Mars is a cross-platform infrastructure component developed by WeChat Mobile Team.
 
 ![mars](https://github.com/WeMobileDev/article/blob/master/assets/mars/mars.png?raw=true)
 
 * comm：common library, including socket, thread, message queue, coroutine, etc.
-* xlog：a reliable log component with high-performance.
+* Xlog：a reliable log component with high-performance.
 * SDT： a network detection component.
-* STN： a signalling network component, the major part of Mars.
+* STN： a signaling network component, the major part of Mars.
 
 ##Samples
 
@@ -25,7 +25,7 @@ Choose [Android](#android) or [iOS/OS X](#apple)
 
 ###<a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
-You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper if only sample is needed, while mars-core is preferred to be used in your app. 
+You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just wanna build a sample or demo, while mars-core is preferred to be used in your APP.
 
 #### <a name="wrapper">mars-wrapper</a>
 
@@ -53,7 +53,7 @@ If you read here, make sure you have added dependencies of mars-wrapper or mars-
 
 ####<a name="Xlog">Xlog Init</a>
 
-Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files is acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
+Initialize Xlog when your APP starts. Remember to use an exclusive folder to save the log files, no other files are acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
 
 When multiple processes is used in your app, make sure that each process owns its exclusive log file.
 
@@ -86,7 +86,7 @@ Log.appenderClose();
 
 ####<a name="STN">STN Init</a>
 
-If you add dependencies of mars-core to your project, you need initialize and uninitialized STN.  
+If you add dependencies of mars-core to your project, you need to initialize and release STN.  
 Initialize STN before you use it
 
 ```java
@@ -129,15 +129,15 @@ If you add dependencies of mars-wrapper to your project, you just need initializ
 MarsServiceProxy.init(this, getMainLooper(),null);
 ```
 ************
-No matter which way of dependencies you used, you must pay attention to these. 
+No matter which way of dependencies you used, you must pay attention to these.
 
-The state (background or foreground) of app  is changed:
+The state (background or foreground) of the APP is changed:
 
 ```java
 BaseEvent.onForeground(boolean);
 ```
 
-The account of app is changed:
+The account of the APP is changed:
 
 ```java
 StnLogic.reset();
@@ -156,7 +156,7 @@ Add mars.framework as a dependency of your project.
 
 ####<a name="Xlog">Xlog Init</a>
 
-Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files is acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
+Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files are acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
 
 ```cpp
 NSString* logPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingString:@"/log"];
@@ -243,7 +243,7 @@ If you want to destroy STN or exit App:
 - (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
-``` 
+```
 
 ####<a name="even">Event Change</a>
 
@@ -529,7 +529,7 @@ appender_close();
 - (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
-``` 
+```
 
 ####<a name="even">Event Change</a>
 
