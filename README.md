@@ -7,7 +7,7 @@
 
 (中文版本请参看[这里](#mars_cn))
 
-Mars is a cross-platform infrastructure component developed by WeChat Mobile Team. 
+Mars is a cross-platform infrastructure component developed by WeChat Mobile Team.
 It is proved to be effective by billions of Wechat users.
 
 1. Cross platform, easy to deploy if you are developing multi-platform or multi-business application.
@@ -18,20 +18,20 @@ It is proved to be effective by billions of Wechat users.
 ![mars](https://github.com/WeMobileDev/article/blob/master/assets/mars/mars.png?raw=true)
 
 * comm：common library, including socket, thread, message queue, coroutine, etc.
-* xlog：a reliable log component with high-performance.
+* Xlog：a reliable log component with high-performance.
 * SDT： a network detection component.
-* STN： a signalling network component, the major part of Mars.
+* STN： a signaling network component, the major part of Mars.
 
-##Samples
+## Samples
 
 Start with sample usage [here](https://github.com/Tencent/mars/wiki/Mars-sample-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
 
-##Getting started
+## Getting started
 Choose [Android](#android) or [iOS/OS X](#apple)
 
-###<a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
+### <a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
-You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper if only sample is needed, while mars-core is preferred to be used in your app. 
+You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just wanna build a sample or demo, while mars-core is preferred to be used in your APP.
 
 #### <a name="wrapper">mars-wrapper</a>
 
@@ -45,7 +45,7 @@ dependencies {
 
 **OR**
 
-####<a name="core">mars-core</a>
+#### <a name="core">mars-core</a>
 
 Add dependencies by adding the following lines to your app/build.gradle.
 
@@ -57,9 +57,9 @@ dependencies {
 
 If you read here, make sure you have added dependencies of mars-wrapper or mars-core.
 
-####<a name="Xlog">Xlog Init</a>
+#### <a name="Xlog">Xlog Init</a>
 
-Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files is acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
+Initialize Xlog when your APP starts. Remember to use an exclusive folder to save the log files, no other files are acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
 
 When multiple processes is used in your app, make sure that each process owns its exclusive log file.
 
@@ -90,9 +90,9 @@ Uninitialized Xlog when your app exits
 Log.appenderClose();
 ```
 
-####<a name="STN">STN Init</a>
+#### <a name="STN">STN Init</a>
 
-If you add dependencies of mars-core to your project, you need initialize and uninitialized STN.  
+If you add dependencies of mars-core to your project, you need to initialize and release STN.  
 Initialize STN before you use it
 
 ```java
@@ -121,7 +121,7 @@ Destroy STN or exit your app:
 Mars.onDestroy();
 ```
 
-####<a name="even">Event Change</a>
+#### <a name="even">Event Change</a>
 
 Network change:
 
@@ -135,15 +135,15 @@ If you add dependencies of mars-wrapper to your project, you just need initializ
 MarsServiceProxy.init(this, getMainLooper(),null);
 ```
 ************
-No matter which way of dependencies you used, you must pay attention to these. 
+No matter which way of dependencies you used, you must pay attention to these.
 
-The state (background or foreground) of app  is changed:
+The state (background or foreground) of the APP is changed:
 
 ```java
 BaseEvent.onForeground(boolean);
 ```
 
-The account of app is changed:
+The account of the APP is changed:
 
 ```java
 StnLogic.reset();
@@ -151,7 +151,7 @@ StnLogic.reset();
 
 If you want to modify the encryption algorithm of Xlog, the packer/unpacker of longlink/shortlink, or you want to define the other components by yourself, refer [here](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)
 
-###<a name="apple">[iOS/OS X](https://github.com/Tencent/mars/wiki/Mars-iOS%EF%BC%8FOS-X-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
+### <a name="apple">[iOS/OS X](https://github.com/Tencent/mars/wiki/Mars-iOS%EF%BC%8FOS-X-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 Compile
 
 ```
@@ -160,9 +160,9 @@ python build_apple.py
 
 Add mars.framework as a dependency of your project.
 
-####<a name="Xlog">Xlog Init</a>
+#### <a name="Xlog">Xlog Init</a>
 
-Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files is acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
+Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files are acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
 
 ```cpp
 NSString* logPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingString:@"/log"];
@@ -249,9 +249,9 @@ If you want to destroy STN or exit App:
 - (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
-``` 
+```
 
-####<a name="even">Event Change</a>
+#### <a name="even">Event Change</a>
 
 When the App's state of background or foreground is changed:
 
@@ -327,7 +327,7 @@ dependencies {
 
 **或者**
 
-####<a name="core">mars-core</a>
+#### <a name="core">mars-core</a>
 
 在 app/build.gradle 中添加 mars-core 的依赖：
 
@@ -339,7 +339,7 @@ dependencies {
 ```
 接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 的依赖
 
-####<a name="Xlog">Xlog Init</a>
+#### <a name="Xlog">Xlog Init</a>
 
 在程序启动加载 Xlog 后紧接着初始化 Xlog。但要注意如果你的程序使用了多进程，不要把多个进程的日志输出到同一个文件中，保证每个进程独享一个日志文件。而且保存 log 的目录请使用单独的目录，不要存放任何其他文件防止被 xlog 自动清理功能误删。
 
@@ -371,7 +371,7 @@ Log.setLogImp(new Xlog());
 Log.appenderClose();
 ```
 
-####<a name="STN">STN Init</a>
+#### <a name="STN">STN Init</a>
 
 如果你是把 mars-core 作为依赖加入到你的项目中的话，你需要显式的初始化和反初始化 STN
 
@@ -404,7 +404,7 @@ StnLogic.makesureLongLinkConnected();
 Mars.onDestroy();
 ```
 
-####<a name="even">Event Change</a>
+#### <a name="even">Event Change</a>
 
 网络切换时:
 
@@ -436,7 +436,7 @@ StnLogic.reset();
 如果你想修改 Xlog 的加密算法或者长短连的加解包部分甚至更改组件的其他部分，可以参考[这里]
 (https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)
 
-###<a name="apple">[iOS/OS X](https://github.com/Tencent/mars/wiki/Mars-iOS%EF%BC%8FOS-X-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
+### <a name="apple">[iOS/OS X](https://github.com/Tencent/mars/wiki/Mars-iOS%EF%BC%8FOS-X-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 编译
 
 ```
@@ -445,7 +445,7 @@ python build_apple.py
 
 把 mars.framework 作为依赖加入到你的项目中
 
-####<a name="Xlog">Xlog Init</a>
+#### <a name="Xlog">Xlog Init</a>
 
 在程序启动加载 Xlog 后紧接着初始化 Xlog。但要注意保存 log 的目录请使用单独的目录，不要存放任何其他文件防止被 xlog 自动清理功能误删。
 
@@ -475,7 +475,7 @@ appender_open(kAppednerAsync, [logPath UTF8String], "Test");
 appender_close();
 ```
 
-####<a name="STN">STN Init</a>
+#### <a name="STN">STN Init</a>
 
 在你用 STN 之前初始化：
 
@@ -535,9 +535,9 @@ appender_close();
 - (void)destroyMars {
     mars::baseevent::OnDestroy();
 }
-``` 
+```
 
-####<a name="even">Event Change</a>
+#### <a name="even">Event Change</a>
 
 前后台切换时:
 
