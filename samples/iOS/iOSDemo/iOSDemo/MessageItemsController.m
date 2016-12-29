@@ -94,7 +94,9 @@
     self->converSations = convlstResponse.list;
     LOG_INFO(kModuleViewController, @"recv conversation list, size: %lu", (unsigned long)[self->converSations count]);
     
-    [self.tableView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+    });
     
     return [self->converSations count] > 0 ? 0 : -1;
 
