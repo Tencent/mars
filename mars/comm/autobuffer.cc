@@ -14,6 +14,10 @@
 #include "autobuffer.h"
 #include <stdint.h>
 #include <stdlib.h>
+#ifndef _WIN32
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+#endif
 
 #include "comm/assert/__assert.h"
 
@@ -283,7 +287,7 @@ void AutoBuffer::__FitSize(size_t _len) {
         void* p = realloc(parray_, mallocsize);
 
         if (NULL == p) {
-            ASSERT2(p, "_len=%lld, m_nMallocUnitSize=%lld, nMallocSize=%lld, m_nCapacity=%lld",
+            ASSERT2(p, "_len=%" PRIu64 ", m_nMallocUnitSize=%" PRIu64 ", nMallocSize=%" PRIu64", m_nCapacity=%" PRIu64,
                     (uint64_t)_len, (uint64_t)malloc_unitsize_, (uint64_t)mallocsize, (uint64_t)capacity_);
             free(parray_);
         }
