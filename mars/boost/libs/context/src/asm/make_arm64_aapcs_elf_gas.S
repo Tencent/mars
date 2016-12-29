@@ -37,6 +37,7 @@
  *                                                     *
  *******************************************************/
 
+#if defined(__arm64__)
 .cpu    generic+fp+simd
 .text
 .align  2
@@ -69,3 +70,5 @@ finish:
 .size   make_fcontext,.-make_fcontext
 # Mark that we don't need executable stack.
 .section .note.GNU-stack,"",%progbits
+
+#endif

@@ -155,7 +155,7 @@ static void __anr_checker_thread() {
                 check_hit = true;
                 GetSignalCheckHit()(true);
                 xassert2(sg_check_heap.front().end_time <= clock_app_monotonic(),
-                         "end_time:%llu, now:%llu, anr_checker_size:%d, @%p", sg_check_heap.front().end_time, clock_app_monotonic(), (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr); //old logic is strict than new logic
+                         "end_time:%" PRIu64", now:%" PRIu64", anr_checker_size:%d, @%p", sg_check_heap.front().end_time, clock_app_monotonic(), (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr); //old logic is strict than new logic
             }
         } else {
             if(!sg_check_heap.empty()  && sg_check_heap.front().end_time <= clock_app_monotonic()) {
