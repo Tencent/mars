@@ -8,6 +8,12 @@
 (中文版本请参看[这里](#mars_cn))
 
 Mars is a cross-platform infrastructure component developed by WeChat Mobile Team. 
+It is proved to be effective by billions of Wechat users.
+
+1. Cross platform, easy to deploy if you are developing multi-platform or multi-business application.
+2. Suitable for small amount data transmission
+3. Mobile platform friendly, low power and traffic comsumption
+4. A network solution fit for mobile application
 
 ![mars](https://github.com/WeMobileDev/article/blob/master/assets/mars/mars.png?raw=true)
 
