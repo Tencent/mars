@@ -184,7 +184,7 @@ def build_android_mars_shared_libs(_path="mars_android_sdk"):
 
 def choose_android_mars_jni_arch():
 	platforms = ['armeabi', 'x86', 'mips', 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'mips64']
-	archnum = raw_input("Enter the architecture which would like to build, support multi-selection which should be separated by comma(','):\n1. armeabi.\n2. x86.\n3. mips.\n4. armeabi-v7a.\n5. arm64-v8a.\n6. x86_64.\n7. mips64.\n8. all.\n")
+	archnum = raw_input("Enter the architecture which would like to build, support multi-selection which should be separated by comma(','):\n1. armeabi.\n2. x86.\n3. mips.\n4. armeabi-v7a.\n5. arm64-v8a.\n6. x86_64.\n7. mips64.\n")
 	arr = []
 	if "8" == archnum:
 		arr.append('all')
