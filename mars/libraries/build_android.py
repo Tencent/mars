@@ -255,7 +255,8 @@ def main():
 						if i != (len(arch)-1):
 							libs_dir = 'mars_android_sdk/so_cache/' + arch[i];
 							symbols_dir = 'mars_android_sdk/so_cache/symbol/' + arch[i];
-							os.mkdir('mars_android_sdk/so_cache/symbol/')
+							if not os.path.exists('mars_android_sdk/so_cache/symbol/'):
+								os.mkdir('mars_android_sdk/so_cache/symbol/')
 							os.mkdir(libs_dir)
 							os.mkdir(symbols_dir)
 							for lib in glob.glob("mars_android_sdk/obj/local/" + arch[i] + "/*.so"):
@@ -285,7 +286,8 @@ def main():
 						if i != (len(arch)-1):
 							libs_dir = 'mars_xlog_sdk/so_cache/' + arch[i];
 							symbols_dir = 'mars_xlog_sdk/so_cache/symbol/' + arch[i];
-							os.mkdir('mars_xlog_sdk/so_cache/symbol/')
+							if not os.path.exists('mars_android_sdk/so_cache/symbol/'):
+								os.mkdir('mars_android_sdk/so_cache/symbol/')
 							os.mkdir(libs_dir)
 							os.mkdir(symbols_dir)
 							for lib in glob.glob("mars_xlog_sdk/obj/local/" + arch[i] + "/*.so"):

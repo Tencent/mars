@@ -42,6 +42,11 @@ bool StnCallBack::MakesureAuthed() {
     return true;
 }
 
+
+void StnCallBack::TrafficData(ssize_t _send, ssize_t _recv) {
+    xdebug2(TSF"send:%_, recv:%_", _send, _recv);
+}
+        
 std::vector<std::string> StnCallBack::OnNewDns(const std::string& _host) {
     std::vector<std::string> vector;
     vector.push_back("118.89.24.72");
