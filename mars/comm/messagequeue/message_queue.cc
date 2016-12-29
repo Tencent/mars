@@ -22,6 +22,10 @@
 #include <list>
 #include <string>
 #include <algorithm>
+#ifndef _WIN32
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+#endif
 
 #include "boost/bind.hpp"
 
@@ -231,7 +235,7 @@ void BreakMessageQueueRunloop(const MessageQueue_t&  _messagequeueid) {
     const MessageQueue_t& id = _messagequeueid;
 
     if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%llu", id);
+        ASSERT2(false, "%" PRIu64, id);
         return;
     }
 
@@ -246,7 +250,7 @@ MessageHandler_t InstallMessageHandler(const MessageHandler& _handler, bool _rec
     const MessageQueue_t& id = _messagequeueid;
 
     if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%llu", id);
+        ASSERT2(false, "%" PRIu64, id);
         return KNullHandler;
     }
 
@@ -282,7 +286,7 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
     const MessageQueue_t& id = _handlerid.queue;
 
     if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%llu", id);
+        ASSERT2(false, "%" PRIu64, id);
         return KNullPost;
     }
 
@@ -329,7 +333,7 @@ MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Mes
     const MessageQueue_t& id = _messagequeueid;
 
     if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%llu", id);
+        ASSERT2(false, "%" PRIu64, id);
         return KNullPost;
     }
 
@@ -472,7 +476,7 @@ bool CancelMessage(const MessagePost_t& _postid) {
     const MessageQueue_t& id = _postid.reg.queue;
 
     if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%llu", id);
+        ASSERT2(false, "%" PRIu64, id);
         return false;
     }
 
@@ -525,7 +529,7 @@ void CancelMessage(const MessageHandler_t& _handlerid, const MessageTitle_t& _ti
     const MessageQueue_t& id = _handlerid.queue;
 
     if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%llu", id);
+        ASSERT2(false, "%" PRIu64, id);
         return;
     }
 
@@ -721,7 +725,7 @@ void RunLoop::Run() {
 
             if (!isDebuggerPerforming())
 #endif
-                ASSERT2(0 >= anr_timeout || anr_timeout >= (int)(timeend - timestart), "anr_timeout:%d < cost:%llu, timestart:%llu, timeend:%llu", anr_timeout, timeend - timestart, timestart, timeend);
+                ASSERT2(0 >= anr_timeout || anr_timeout >= (int)(timeend - timestart), "anr_timeout:%d < cost:%" PRIu64", timestart:%" PRIu64", timeend:%" PRIu64, anr_timeout, timeend - timestart, timestart, timeend);
         }
 
         if (delmessage) {
