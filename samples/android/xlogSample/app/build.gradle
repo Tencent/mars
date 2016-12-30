@@ -22,6 +22,12 @@ android {
         }
     }
 
+    copy {
+        from "build/intermediates/exploded-aar/com.tencent.mars/mars-xlog/${VERSION_NAME}${VERSION_NAME_SUFFIX}/jni/armeabi/"
+        into "src/main/jni/export_include"
+
+    }
+
     externalNativeBuild {
 
         ndkBuild {

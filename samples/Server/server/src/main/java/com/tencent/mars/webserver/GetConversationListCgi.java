@@ -1,5 +1,5 @@
 /*
-* Tencent is pleased to support the open source community by making GAutomator available.
+* Tencent is pleased to support the open source community by making Mars available.
 * Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 *
 * Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -20,7 +20,9 @@ import com.tencent.mars.utils.LogUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -73,7 +75,7 @@ public class GetConversationListCgi {
 
             List<Main.Conversation> conversationList = null;
             if (request.getType() == Main.ConversationListRequest.FilterType.DEFAULT_VALUE) {
-                conversationList = new LinkedList<>();
+                conversationList = new LinkedList<Main.Conversation>();
 
                 for (String[] conv : conDetails) {
                     conversationList.add(Main.Conversation.newBuilder()
@@ -87,8 +89,10 @@ public class GetConversationListCgi {
             final Main.ConversationListResponse response = Main.ConversationListResponse.newBuilder()
                     .addAllList(conversationList).build();
 
-            final StreamingOutput stream = os -> {
-                os.write(response.toByteArray());
+            final StreamingOutput stream = new StreamingOutput() {
+                public void write(OutputStream os) throws IOException {
+                    response.writeTo(os);
+                }
             };
             return Response.ok(stream).build();
 

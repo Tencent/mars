@@ -1,5 +1,5 @@
 /*
-* Tencent is pleased to support the open source community by making GAutomator available.
+* Tencent is pleased to support the open source community by making Mars available.
 * Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 *
 * Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -19,7 +19,9 @@ import com.tencent.mars.utils.LogUtils;
 
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -53,8 +55,10 @@ public class SendMessageCgi {
                     .setTopic(request.getTopic())
                     .build();
 
-            final StreamingOutput stream = os -> {
-                os.write(response.toByteArray());
+            final StreamingOutput stream = new StreamingOutput() {
+                public void write(OutputStream os) throws IOException {
+                    response.writeTo(os);
+                }
             };
             return Response.ok(stream).build();
 

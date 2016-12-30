@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -251,10 +251,10 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
     }
     
     if (0 == error_ && _sel.Write_FD_ISSET(sock_)){
-        xinfo2(TSF"connected Rtt:%_, ", Rtt()) >> _log;
         end_connecttime_ = gettickcount();
         last_status_ = status_;
         status_ = EReadWrite;
+        xinfo2(TSF"connected Rtt:%_, ", Rtt()) >> _log;
         _OnConnected(Rtt());
         return;
     }
