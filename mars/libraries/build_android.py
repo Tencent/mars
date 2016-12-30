@@ -7,7 +7,7 @@ import glob
 
 from mars_utils import *
 
-NDK_BUILD_CMD = "ndk-build NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+NDK_BUILD_CMD = "ndk-build NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
 BUILD_XLOG_PATHS = ("openssl", "comm", "log")
 COPY_XLOG_FILES = {"../log/crypt/log_crypt.h": "jni/log_crypt.h",
                 "../log/crypt/decode_mars_log_file.py": "jni/decode_mars_log_file.py.rewriteme",
@@ -108,7 +108,7 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch=""):
     
     if _arch != "":
         global NDK_BUILD_CMD
-        NDK_BUILD_CMD = "ndk-build _ARCH_=" + _arch + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+        NDK_BUILD_CMD = "ndk-build _ARCH_=" + _arch + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
         print(NDK_BUILD_CMD)
 
     shutil.rmtree(libs_save_path, True)
@@ -184,10 +184,10 @@ def build_android_mars_shared_libs(_path="mars_android_sdk"):
 
 def choose_android_mars_jni_arch():
 	platforms = ['armeabi', 'x86', 'mips', 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'mips64']
-	archnum = raw_input("Enter the architecture which would like to build, support multi-selection which should be separated by comma(','):\n1. armeabi.\n2. x86.\n3. mips.\n4. armeabi-v7a.\n5. arm64-v8a.\n6. x86_64.\n7. mips64.\n8. exit.\n")
+	archnum = raw_input("Enter the architecture which would like to build, support multi-selection which should be separated by comma(','):\n1. armeabi.\n2. x86.\n3. mips.\n4. armeabi-v7a.\n5. arm64-v8a.\n6. x86_64.\n7. mips64.\n8. all.\n")
 	arr = []
 	if "8" == archnum:
-		arr.append('exit')
+		arr.append('all')
 	elif len(archnum) >= 3:
 		archs = archnum.split(',')
 		for i in range(0, len(archs)):
@@ -201,6 +201,7 @@ def choose_android_mars_jni_arch():
 			arr.append(platforms[int(archnum)-1])
 		else:
 			arr.append('err')
+	print(arr)
 	return arr
     
 def main():
@@ -215,7 +216,7 @@ def main():
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
                 global NDK_BUILD_CMD
-                NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+                NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
                 flag = 1
         else:
             num = raw_input("Enter menu:\n1. build mars static libs.\n2. build mars shared libs.\n3. build xlog static libs.\n4. build xlog shared libs.\n5. exit.\n")
@@ -240,14 +241,14 @@ def main():
 			elif "2" == num:
 				if arch[0] == 'err':
 					return
-				elif arch[0] == 'exit':
-					return
+				elif arch[0] == 'all':
+					return build_android_mars_shared_libs()
 				else:
 					if os.path.exists('mars_android_sdk/so_cache'):
 						shutil.rmtree('mars_android_sdk/so_cache', True)
 					os.mkdir('mars_android_sdk/so_cache')
 					for i in range(0, len(arch)):
-						NDK_BUILD_CMD = "ndk-build _ARCH_=" + arch[i] + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+						NDK_BUILD_CMD = "ndk-build _ARCH_=" + arch[i] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
 						print(NDK_BUILD_CMD)
 						build_android_mars_shared_libs()
 						if i != (len(arch)-1):
@@ -270,8 +271,8 @@ def main():
 			elif "4" == num:
 				if arch[0] == 'err':
 					return
-				elif arch[0] == 'exit':
-					return
+				elif arch[0] == 'all':
+					return build_android_xlog_shared_libs()
 				else:
 					if os.path.exists('mars_xlog_sdk/so_cache'):
 						shutil.rmtree('mars_xlog_sdk/so_cache', True)
