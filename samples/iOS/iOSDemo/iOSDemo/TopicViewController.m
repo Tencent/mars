@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -78,7 +78,10 @@
     [[NetworkService sharedInstance] startTask:sendMsgCGI ForUI:self];
     
     self->text = _textField.text;
-    [_contentField setText:self->text];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_contentField setText:self->text];
+    });
     [_textField setText:@""];
 }
 
@@ -86,7 +89,11 @@
     MessagePush* messagePush = [MessagePush parseFromData:pushData];
     if (messagePush != nil) {
         NSString* recvtext = [NSString stringWithFormat:@"%@ : %@", messagePush.pb_from, messagePush.content];
-        [_recvContentField setText:recvtext];
+        dispatch_queue_t mainQueue = dispatch_get_main_queue();
+        dispatch_async(mainQueue, ^{
+             [_recvContentField setText:recvtext];
+        });
+       
     }
 }
 

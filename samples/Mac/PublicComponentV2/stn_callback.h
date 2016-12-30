@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -41,6 +41,10 @@ public:
     static void Release();
     
     virtual bool MakesureAuthed();
+    
+    //流量统计
+    virtual void TrafficData(ssize_t _send, ssize_t _recv);
+    
     //底层询问上层该host对应的ip列表
     virtual std::vector<std::string> OnNewDns(const std::string& _host);
     //网络层收到push消息回调
