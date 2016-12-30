@@ -251,10 +251,10 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
     }
     
     if (0 == error_ && _sel.Write_FD_ISSET(sock_)){
-        xinfo2(TSF"connected Rtt:%_, ", Rtt()) >> _log;
         end_connecttime_ = gettickcount();
         last_status_ = status_;
         status_ = EReadWrite;
+        xinfo2(TSF"connected Rtt:%_, ", Rtt()) >> _log;
         _OnConnected(Rtt());
         return;
     }
