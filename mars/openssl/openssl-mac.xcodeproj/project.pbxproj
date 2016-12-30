@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4BB713021DE8231B00185734 /* Objc2C_Openssl_Logic.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4BB713011DE8231B00185734 /* Objc2C_Openssl_Logic.mm */; };
 		4BB7130C1DE8237600185734 /* gen_rsa_key_pair.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB713071DE8237600185734 /* gen_rsa_key_pair.cpp */; };
 		4BB7130D1DE8237600185734 /* openssl_multi_thread_support.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB713081DE8237600185734 /* openssl_multi_thread_support.cpp */; };
 		4BB7130E1DE8237600185734 /* pay_openssl_crypto_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB713091DE8237600185734 /* pay_openssl_crypto_util.cpp */; };
@@ -220,7 +219,6 @@
 		55D907FC1CC7BACF0076CBD9 /* uid.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D906D41CC7BACF0076CBD9 /* uid.c */; };
 		55D907FD1CC7BACF0076CBD9 /* x509_att.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D906D71CC7BACF0076CBD9 /* x509_att.c */; };
 		55D907FE1CC7BACF0076CBD9 /* aes_crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D906DC1CC7BACF0076CBD9 /* aes_crypt.c */; };
-		55D907FF1CC7BACF0076CBD9 /* iCoreCrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55D906DE1CC7BACF0076CBD9 /* iCoreCrypt.cpp */; };
 		55D908001CC7BACF0076CBD9 /* ecdh_crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D906DF1CC7BACF0076CBD9 /* ecdh_crypt.c */; };
 		55D908011CC7BACF0076CBD9 /* ecdsa_verify.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D906E01CC7BACF0076CBD9 /* ecdsa_verify.c */; };
 		55D908021CC7BACF0076CBD9 /* md5_digest.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D906E11CC7BACF0076CBD9 /* md5_digest.c */; };
@@ -240,7 +238,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4BB713011DE8231B00185734 /* Objc2C_Openssl_Logic.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Objc2C_Openssl_Logic.mm; sourceTree = "<group>"; };
 		4BB713031DE8234100185734 /* gen_rsa_key_pair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gen_rsa_key_pair.h; sourceTree = "<group>"; };
 		4BB713041DE8234100185734 /* openssl_multi_thread_support.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = openssl_multi_thread_support.h; sourceTree = "<group>"; };
 		4BB713051DE8234100185734 /* pay_openssl_crypto_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pay_openssl_crypto_util.h; sourceTree = "<group>"; };
@@ -521,7 +518,6 @@
 		55D906D81CC7BACF0076CBD9 /* x509_vfy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		55D906DA1CC7BACF0076CBD9 /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		55D906DC1CC7BACF0076CBD9 /* aes_crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aes_crypt.c; sourceTree = "<group>"; };
-		55D906DE1CC7BACF0076CBD9 /* iCoreCrypt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iCoreCrypt.cpp; sourceTree = "<group>"; };
 		55D906DF1CC7BACF0076CBD9 /* ecdh_crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ecdh_crypt.c; sourceTree = "<group>"; };
 		55D906E01CC7BACF0076CBD9 /* ecdsa_verify.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ecdsa_verify.c; sourceTree = "<group>"; };
 		55D906E11CC7BACF0076CBD9 /* md5_digest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = md5_digest.c; sourceTree = "<group>"; };
@@ -529,7 +525,6 @@
 		55D906E51CC7BACF0076CBD9 /* aes_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_crypt.h; sourceTree = "<group>"; };
 		55D906E71CC7BACF0076CBD9 /* ecdh_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecdh_crypt.h; sourceTree = "<group>"; };
 		55D906E81CC7BACF0076CBD9 /* ecdsa_verify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ecdsa_verify.h; sourceTree = "<group>"; };
-		55D906E91CC7BACF0076CBD9 /* iCoreCrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCoreCrypt.h; sourceTree = "<group>"; };
 		55D906EA1CC7BACF0076CBD9 /* md5_digest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = md5_digest.h; sourceTree = "<group>"; };
 		55D906EB1CC7BACF0076CBD9 /* rsa_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rsa_crypt.h; sourceTree = "<group>"; };
 		55D906EC1CC7BACF0076CBD9 /* rsa_private_decrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rsa_private_decrypt.h; sourceTree = "<group>"; };
@@ -615,21 +610,12 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
-				4BB713001DE8231B00185734 /* objc */,
 				55D905B41CC7BACF0076CBD9 /* crypto */,
 				55D906DB1CC7BACF0076CBD9 /* export */,
 				55D906E41CC7BACF0076CBD9 /* export_include */,
 				55D906ED1CC7BACF0076CBD9 /* include */,
 				55D9C0821CC7B1C90076CBD9 /* libopenssl.a */,
 			);
-			sourceTree = "<group>";
-		};
-		4BB713001DE8231B00185734 /* objc */ = {
-			isa = PBXGroup;
-			children = (
-				4BB713011DE8231B00185734 /* Objc2C_Openssl_Logic.mm */,
-			);
-			path = objc;
 			sourceTree = "<group>";
 		};
 		55D905B41CC7BACF0076CBD9 /* crypto */ = {
@@ -1122,7 +1108,6 @@
 				4BB713091DE8237600185734 /* pay_openssl_crypto_util.cpp */,
 				4BB7130A1DE8237600185734 /* rsa_pss_sha256.cpp */,
 				4BB7130B1DE8237600185734 /* test_rsa_pss_sha256.cpp */,
-				55D906DE1CC7BACF0076CBD9 /* iCoreCrypt.cpp */,
 			);
 			path = crypto;
 			sourceTree = "<group>";
@@ -1137,7 +1122,6 @@
 				55D906E51CC7BACF0076CBD9 /* aes_crypt.h */,
 				55D906E71CC7BACF0076CBD9 /* ecdh_crypt.h */,
 				55D906E81CC7BACF0076CBD9 /* ecdsa_verify.h */,
-				55D906E91CC7BACF0076CBD9 /* iCoreCrypt.h */,
 				55D906EA1CC7BACF0076CBD9 /* md5_digest.h */,
 				55D906EB1CC7BACF0076CBD9 /* rsa_crypt.h */,
 				55D906EC1CC7BACF0076CBD9 /* rsa_private_decrypt.h */,
@@ -1363,7 +1347,6 @@
 				55D908041CC7BACF0076CBD9 /* rsa_private_decrypt.c in Sources */,
 				55D907F91CC7BACF0076CBD9 /* sha512.c in Sources */,
 				55D908021CC7BACF0076CBD9 /* md5_digest.c in Sources */,
-				4BB713021DE8231B00185734 /* Objc2C_Openssl_Logic.mm in Sources */,
 				55D907CF1CC7BACF0076CBD9 /* cfb128.c in Sources */,
 				55D907D41CC7BACF0076CBD9 /* o_names.c in Sources */,
 				55D907841CC7BACF0076CBD9 /* bn_mpi.c in Sources */,
@@ -1465,7 +1448,6 @@
 				55D9073F1CC7BACF0076CBD9 /* a_enum.c in Sources */,
 				55D907501CC7BACF0076CBD9 /* asn1_par.c in Sources */,
 				55D907971CC7BACF0076CBD9 /* ec_ameth.c in Sources */,
-				55D907FF1CC7BACF0076CBD9 /* iCoreCrypt.cpp in Sources */,
 				55D9077B1CC7BACF0076CBD9 /* bn_err.c in Sources */,
 				55D907D01CC7BACF0076CBD9 /* ctr128.c in Sources */,
 				55D907691CC7BACF0076CBD9 /* bf_nbio.c in Sources */,
