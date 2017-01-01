@@ -16,11 +16,11 @@
 //  Created by yerungui on 13-4-4.
 //
 
-#include "comm/ptrbuffer.h"
+#include "mars/comm/ptrbuffer.h"
 
 #include <string.h>
 
-#include "comm/assert/__assert.h"
+#include "mars/comm/assert/__assert.h"
 
 const PtrBuffer KNullPtrBuffer(0, 0, 0);
 

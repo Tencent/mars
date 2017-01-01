@@ -12,7 +12,7 @@
 
 
 #ifdef _WIN32
-#include "windows/thread/tss.h"
+#include "mars/comm/windows/thread/tss.h"
 #else
-#include "unix/thread/tss.h"
+#include "mars/comm/unix/thread/tss.h"
 #endif
