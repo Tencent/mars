@@ -42,7 +42,7 @@ public:
 		char des[33] = {0};
 		MD5_sig_to_string((const char*)sig, des);
         
-		if(INI::Create(des)) {
+		if (INI::Create(des)) {
 			Set<std::string>("name", section);
 			return true;
 		}

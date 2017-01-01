@@ -38,8 +38,7 @@ namespace strutil
 
 
     
-std::string& URLEncode(const std::string& _url, std::string& _encode_url)
-{
+std::string& URLEncode(const std::string& _url, std::string& _encode_url) {
     std::string::const_iterator iter = _url.begin();
     
     char transferr[4] = {0};
@@ -220,11 +219,9 @@ ENDSWITH(std::wstring)
 SPLITTOKEN(std::string)
 SPLITTOKEN(std::wstring)
 
-std::string Hex2Str(const char* _str, unsigned int _len)
-{
+std::string Hex2Str(const char* _str, unsigned int _len) {
     std::string outstr="";
-    for(unsigned int i = 0; i< _len;i++)
-    {
+    for(unsigned int i = 0; i< _len;i++) {
         char tmp[8];
         memset(tmp,0,sizeof(tmp));
         snprintf(tmp,sizeof(tmp)-1,"%02x",(unsigned char)_str[i]);
@@ -235,19 +232,17 @@ std::string Hex2Str(const char* _str, unsigned int _len)
     return outstr;
 }
 
-std::string Str2Hex(const char* _str, unsigned int _len)
-{
+std::string Str2Hex(const char* _str, unsigned int _len) {
     char outbuffer[64];
     
     unsigned int outoffset = 0;
     const char * ptr = _str;
     unsigned int  length = _len/2;
     
-    if(length > sizeof(outbuffer))
+    if (length > sizeof(outbuffer))
         length = sizeof(outbuffer);
     
-    for(unsigned int i = 0; i< length;i++)
-    {
+    for(unsigned int i = 0; i< length;i++) {
         char tmp[4];
         
         memset(tmp,0,sizeof(tmp));
@@ -262,13 +257,13 @@ std::string Str2Hex(const char* _str, unsigned int _len)
     return ret;
 }
     
-unsigned int Str2UInt(const std::string& _str) //NOTE: make sure your parameters is Number(if U give "1234test", 1234 will be returned back.). code by zhoushaotao 20150527
-{
+unsigned int Str2UInt(const std::string& _str) { //NOTE: make sure your parameters is Number(if U give "1234test", 1234 will be returned back.). code by zhoushaotao 20150527
+
     std::stringstream str(_str.c_str());
     unsigned int  result = 0;
     str >> result;
     
-    if(str.fail() || str.bad()) return 0;
+    if (str.fail() || str.bad()) return 0;
     return result;
 }
 
@@ -279,16 +274,13 @@ unsigned int Str2UInt(const std::string& _str) //NOTE: make sure your parameters
 #elif defined(__APPLE__)
 #include <wchar.h>
 #else
-int  __attribute__((weak)) wcscasecmp(const wchar_t *s1, const wchar_t *s2)
-{
+int  __attribute__((weak)) wcscasecmp(const wchar_t *s1, const wchar_t *s2) {
 	wchar_t c1 = '\0', c2 = '\0';
 
-	for (; *s1; s1++, s2++)
-	{
+	for (; *s1; s1++, s2++) {
 		c1 = towlower(*s1);
 		c2 = towlower(*s2);
-		if (c1 != c2)
-		{
+		if (c1 != c2) {
 			return ((int)c1 - c2);
 		}
 	}
@@ -296,8 +288,7 @@ int  __attribute__((weak)) wcscasecmp(const wchar_t *s1, const wchar_t *s2)
 }
 #endif
 
-bool EqualsIgnoreCase(const std::string& str1, const std::string& str2)
-{
+bool EqualsIgnoreCase(const std::string& str1, const std::string& str2) {
 #ifdef _WIN32
 	return _stricmp(str1.c_str(), str2.c_str()) == 0;
 #else
@@ -305,8 +296,7 @@ bool EqualsIgnoreCase(const std::string& str1, const std::string& str2)
 #endif
 }
 
-bool EqualsIgnoreCase(const std::wstring& str1, const std::wstring& str2)
-{
+bool EqualsIgnoreCase(const std::wstring& str1, const std::wstring& str2) {
 #ifdef _WIN32
 	return _wcsicmp(str1.c_str(), str2.c_str()) == 0;
 #else

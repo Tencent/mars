@@ -29,16 +29,13 @@ ScopedJstring::ScopedJstring(JNIEnv* _env, jstring _jstr)
 : env_(_env)
 , jstr_((jstring)_env->NewLocalRef(_jstr))
 , char_(NULL)
-, jstr2char_(true)
-{
+, jstr2char_(true) {
     ASSERT(env_);
-    if (NULL == env_ || NULL == jstr_)
-    {
+    if (NULL == env_ || NULL == jstr_) {
         return;
     }
 
-    if (env_->ExceptionOccurred())
-    {
+    if (env_->ExceptionOccurred()) {
         return;
     }
 
@@ -49,17 +46,14 @@ ScopedJstring::ScopedJstring(JNIEnv* _env, const char* _char)
 : env_(_env)
 , jstr_(NULL)
 , char_(_char)
-, jstr2char_(false)
-{
+, jstr2char_(false) {
 
     ASSERT(env_);
-    if (NULL == env_ || NULL == _char)
-    {
+    if (NULL == env_ || NULL == _char) {
         return;
     }
 
-    if (env_->ExceptionOccurred())
-    {
+    if (env_->ExceptionOccurred()) {
         return;
     }
 
@@ -77,40 +71,32 @@ ScopedJstring::ScopedJstring(JNIEnv* _env, const char* _char)
     env_->DeleteLocalRef(strClass);
 }
 
-ScopedJstring::~ScopedJstring()
-{
-    if (NULL == env_ || NULL == jstr_ || NULL == char_)
-    {
+ScopedJstring::~ScopedJstring() {
+    if (NULL == env_ || NULL == jstr_ || NULL == char_) {
         return;
     }
 
-    if (env_->ExceptionOccurred())
-    {
+    if (env_->ExceptionOccurred()) {
         return;
     }
 
-    if (jstr2char_)
-    {
+    if (jstr2char_) {
         env_->ReleaseStringUTFChars(jstr_, char_);
     }
 
     env_->DeleteLocalRef(jstr_);
 }
 
-const char* ScopedJstring::GetChar() const
-{
-    if (env_->ExceptionOccurred())
-    {
+const char* ScopedJstring::GetChar() const {
+    if (env_->ExceptionOccurred()) {
         return NULL;
     }
 
     return char_;
 }
 
-jstring ScopedJstring::GetJstr() const
-{
-    if (env_->ExceptionOccurred())
-    {
+jstring ScopedJstring::GetJstr() const {
+    if (env_->ExceptionOccurred()) {
         return NULL;
     }
 

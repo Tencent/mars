@@ -45,7 +45,7 @@ public:
 
 private:
     void _Yield() {
-        if(pull_obj_ptr_ == NULL || !(*pull_obj_ptr_)) return;
+        if (pull_obj_ptr_ == NULL || !(*pull_obj_ptr_)) return;
         
         (*pull_obj_ptr_)();
     }
@@ -82,7 +82,7 @@ inline void Resume(const boost::intrusive_ptr<Wrapper>& _wrapper, int64_t _after
 }
     
 inline void Wait(int64_t _after = std::numeric_limits<int64_t>::max()) {
-    if(0 > _after) { return; }
+    if (0 > _after) { return; }
 
     Resume(RunningCoroutine(), _after);
     Yield();

@@ -375,10 +375,10 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
                  if (CAL_BIT_COUNT(l->records) != CAL_BIT_COUNT(r->records))
                      return CAL_BIT_COUNT(l->records) < CAL_BIT_COUNT(r->records);
                       
-                 if(l->last_fail_time != r->last_fail_time)
+                 if (l->last_fail_time != r->last_fail_time)
                      return l->last_fail_time < r->last_fail_time;
                   
-                 if(l->last_suc_time != r->last_suc_time)
+                 if (l->last_suc_time != r->last_suc_time)
                      return l->last_suc_time > r->last_suc_time;
                   
                   //random by std::random_shuffle(_items.begin(), _items.end());

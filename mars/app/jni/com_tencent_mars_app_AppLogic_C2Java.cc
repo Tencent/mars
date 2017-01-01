@@ -85,7 +85,7 @@ AccountInfo GetAccountInfo() {
 
 	info.uin = (long)uin;
 
-	if(username_jstr != NULL) {
+	if (username_jstr != NULL) {
 		info.username = ScopedJstring(env, username_jstr).GetChar();
 		env->DeleteLocalRef(username_jstr);
 	}
@@ -110,7 +110,7 @@ std::string GetUserName() {
 
  	env->DeleteLocalRef(ret_obj);
 
-     if(username_jstr != NULL) {
+     if (username_jstr != NULL) {
          const char* name = env->GetStringUTFChars(username_jstr, NULL);
          std::string user_name(name);
          env->ReleaseStringUTFChars(username_jstr, name);
@@ -121,8 +121,7 @@ std::string GetUserName() {
      }
 }
 
-std::string GetRecentUserName()
-{
+std::string GetRecentUserName() {
 	return GetUserName();
 }
 

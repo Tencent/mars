@@ -41,8 +41,7 @@ void ENABLE_ASSERT() { sg_enable_assert = 1;}
 void DISABLE_ASSERT() { sg_enable_assert = 0; }
 int IS_ASSERT_ENABLE() { return sg_enable_assert;}
 
-EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression)
-{
+EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression) {
     XLoggerInfo info= {0};
     char assertlog[4096] = {'\0'};
     int offset = 0;
@@ -65,8 +64,7 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
 
        xlogger_Write(&info, assertlog);
     
-    if (IS_ASSERT_ENABLE())
-    {
+    if (IS_ASSERT_ENABLE()) {
 #if defined(ANDROID) //&& (defined(DEBUG))
         raise(SIGTRAP);
         __assert2(_pfile, _line, _pfunc, _pexpression);
@@ -78,8 +76,7 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
     }
 }
 
-void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression, const char * _format, va_list _list)
-{
+void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression, const char * _format, va_list _list) {
     char assertlog[4096] = {'\0'};
     XLoggerInfo info= {kLevelFatal};
     int offset = 0;
@@ -103,8 +100,7 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
 
        xlogger_Write(&info, assertlog);
     
-    if (IS_ASSERT_ENABLE())
-    {
+    if (IS_ASSERT_ENABLE()) {
 #if defined(ANDROID) //&& (defined(DEBUG))
         raise(SIGTRAP);
         __assert2(_pfile, _line, _pfunc, _pexpression);
@@ -120,8 +116,7 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
     }
 }
 
-void __ASSERT2(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression, const char * _format, ...)
-{
+void __ASSERT2(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression, const char * _format, ...) {
     va_list valist;
     va_start(valist, _format);
     __ASSERTV2(_pfile, _line, _pfunc,  _pexpression,  _format, valist);

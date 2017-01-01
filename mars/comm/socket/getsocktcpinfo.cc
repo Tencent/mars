@@ -95,7 +95,7 @@ char* tcpinfo2str(struct tcp_info* _info, char* _info_str_buf, size_t _buf_len) 
     << "， tcpi_rcv_space=0x"               << std::hex << _info->tcpi_rcv_space
     << "， tcpi_total_retrans=0x"           << std::hex << _info->tcpi_total_retrans;
 #endif
-    if(ss.str().size()>_buf_len) {
+    if (ss.str().size()>_buf_len) {
         //buf overflow
         ASSERT(false);
     }

@@ -129,7 +129,7 @@ static void __anr_checker_thread() {
             //is_wait_timeout = (ETIMEDOUT==ret);
         } else {
             wait_timeout = (sg_check_heap.front().end_time - clock_app_monotonic());
-            if(wait_timeout<0) {
+            if (wait_timeout<0) {
                 xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"wait_timeout:%_, end_time:%_, used_cpu_time:%_, now:%_, anr_checker_size:%_", wait_timeout,
                       sg_check_heap.front().end_time, sg_check_heap.front().used_cpu_time, clock_app_monotonic(), sg_check_heap.size());
                 wait_timeout = 0;
@@ -158,7 +158,7 @@ static void __anr_checker_thread() {
                          "end_time:%" PRIu64", now:%" PRIu64", anr_checker_size:%d, @%p", sg_check_heap.front().end_time, clock_app_monotonic(), (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr); //old logic is strict than new logic
             }
         } else {
-            if(!sg_check_heap.empty()  && sg_check_heap.front().end_time <= clock_app_monotonic()) {
+            if (!sg_check_heap.empty()  && sg_check_heap.front().end_time <= clock_app_monotonic()) {
                 check_hit = true;
                 GetSignalCheckHit()(false);
             }

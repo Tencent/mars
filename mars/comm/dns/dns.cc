@@ -130,7 +130,7 @@ static void __GetIP() {
                 iter->result.push_back(ip);
             }
 
-            if(iter->result.empty()) {
+            if (iter->result.empty()) {
                 xgroup2_define(log_group);
                 std::vector<socket_address> dnssvraddrs;
                 getdnssvraddrs(dnssvraddrs);

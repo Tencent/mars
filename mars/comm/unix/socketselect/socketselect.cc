@@ -31,23 +31,19 @@
 
 SocketSelectBreaker::SocketSelectBreaker()
 : create_success_(true),
-broken_(false)
-{
+broken_(false) {
     ReCreate();
 }
 
-SocketSelectBreaker::~SocketSelectBreaker()
-{
+SocketSelectBreaker::~SocketSelectBreaker() {
     Close();
 }
 
-bool SocketSelectBreaker::IsCreateSuc() const
-{
+bool SocketSelectBreaker::IsCreateSuc() const {
     return create_success_;
 }
 
-bool SocketSelectBreaker::ReCreate()
-{
+bool SocketSelectBreaker::ReCreate() {
     pipes_[0] = -1;
     pipes_[1] = -1;
 
@@ -55,8 +51,7 @@ bool SocketSelectBreaker::ReCreate()
     Ret = pipe(pipes_);
     xassert2(-1 != Ret, "pipe errno=%d", errno);
 
-    if (Ret == -1)
-    {
+    if (Ret == -1) {
         pipes_[0] = -1;
         pipes_[1] = -1;
         create_success_ = false;
@@ -95,8 +90,7 @@ bool SocketSelectBreaker::ReCreate()
     return create_success_;
 }
 
-bool SocketSelectBreaker::Break()
-{
+bool SocketSelectBreaker::Break() {
     ScopedLock lock(mutex_);
 
     if (broken_) return true;
@@ -114,14 +108,12 @@ bool SocketSelectBreaker::Break()
     return broken_;
 }
 
-bool SocketSelectBreaker::Clear()
-{
+bool SocketSelectBreaker::Clear() {
     ScopedLock lock(mutex_);
     char dummy[128];
     int ret = (int)read(pipes_[0], dummy, sizeof(dummy));
 
-    if (ret < 0)
-    {
+    if (ret < 0) {
         xverbose2(TSF"Ret=%0", ret);
         return false;
     }
@@ -130,22 +122,19 @@ bool SocketSelectBreaker::Clear()
     return true;
 }
 
-void SocketSelectBreaker::Close()
-{
+void SocketSelectBreaker::Close() {
     broken_ =  true;
-    if(pipes_[1] >= 0)
+    if (pipes_[1] >= 0)
         close(pipes_[1]);
-    if(pipes_[0] >= 0)
+    if (pipes_[0] >= 0)
         close(pipes_[0]);
 }
 
-int SocketSelectBreaker::BreakerFD() const
-{
+int SocketSelectBreaker::BreakerFD() const {
     return pipes_[0];
 }
 
-bool SocketSelectBreaker::IsBreak() const
-{
+bool SocketSelectBreaker::IsBreak() const {
     return broken_;
 }
 
@@ -319,8 +308,7 @@ SocketSelect::SocketSelect(SocketSelectBreaker& _breaker, bool _autoclear)
 
 SocketSelect::~SocketSelect() {}
 
-void SocketSelect::PreSelect()
-{
+void SocketSelect::PreSelect() {
     vfds_.clear();
 
     int fd = breaker_.BreakerFD();
@@ -343,13 +331,11 @@ void SocketSelect::Consign(SocketSelect& _consignor) {
     vfds_.insert(vfds_.end(), _consignor.vfds_.begin(), _consignor.vfds_.end());
 }
 
-int SocketSelect::Select()
-{
+int SocketSelect::Select() {
     return Select(-1);
 }
 
-int SocketSelect::Select(int _msec)
-{
+int SocketSelect::Select(int _msec) {
     ret_ = poll(&vfds_[0], (nfds_t)vfds_.size(), _msec);
     if (0 > ret_) { errno_ = errno; }
     
@@ -394,8 +380,7 @@ bool SocketSelect::Report(SocketSelect& _consignor, int64_t _timeout) {
     return false;
 }
 
-void SocketSelect::Read_FD_SET(int _socket)
-{
+void SocketSelect::Read_FD_SET(int _socket) {
     for (size_t i = 0; i < vfds_.size(); i++){
         if (vfds_[i].fd == _socket){
             vfds_[i].events |= POLLIN|POLLERR;
@@ -410,8 +395,7 @@ void SocketSelect::Read_FD_SET(int _socket)
     vfds_.push_back(fditem);
 }
 
-void SocketSelect::Write_FD_SET(int _socket)
-{
+void SocketSelect::Write_FD_SET(int _socket) {
     for (size_t i = 0; i < vfds_.size(); i++){
         if (vfds_[i].fd == _socket){
             vfds_[i].events |= POLLOUT|POLLERR;
@@ -426,8 +410,7 @@ void SocketSelect::Write_FD_SET(int _socket)
     vfds_.push_back(fditem);
 }
 
-void SocketSelect::Exception_FD_SET(int _socket)
-{
+void SocketSelect::Exception_FD_SET(int _socket) {
     for (size_t i = 0; i < vfds_.size(); i++){
         if (vfds_[i].fd == _socket){
             vfds_[i].events |= POLLERR;
@@ -442,8 +425,7 @@ void SocketSelect::Exception_FD_SET(int _socket)
     vfds_.push_back(fditem);
 }
 
-int SocketSelect::Read_FD_ISSET(int _socket) const
-{
+int SocketSelect::Read_FD_ISSET(int _socket) const {
     for (size_t i = 0; i < vfds_.size(); i++){
         if (vfds_[i].fd == _socket)
             return vfds_[i].revents & (POLLIN|POLLHUP);
@@ -452,8 +434,7 @@ int SocketSelect::Read_FD_ISSET(int _socket) const
     return 0;
 }
 
-int SocketSelect::Write_FD_ISSET(int _socket) const
-{
+int SocketSelect::Write_FD_ISSET(int _socket) const {
     for (size_t i = 0; i < vfds_.size(); i++){
         if (vfds_[i].fd == _socket)
             return vfds_[i].revents & (POLLOUT);
@@ -462,8 +443,7 @@ int SocketSelect::Write_FD_ISSET(int _socket) const
     return 0;
 }
 
-int SocketSelect::Exception_FD_ISSET(int _socket) const
-{
+int SocketSelect::Exception_FD_ISSET(int _socket) const {
     for (size_t i = 0; i < vfds_.size(); i++){
         if (vfds_[i].fd == _socket)
             return vfds_[i].revents & (POLLERR|POLLNVAL);
@@ -472,14 +452,12 @@ int SocketSelect::Exception_FD_ISSET(int _socket) const
     return 0;
 }
 
-bool SocketSelect::IsException() const
-{
+bool SocketSelect::IsException() const {
     int breakfd = breaker_.BreakerFD();
     return Exception_FD_ISSET(breakfd);
 }
 
-bool SocketSelect::IsBreak() const
-{
+bool SocketSelect::IsBreak() const {
     int breakfd = breaker_.BreakerFD();
 
     for (size_t i = 0; i < vfds_.size(); i++){
@@ -490,13 +468,11 @@ bool SocketSelect::IsBreak() const
     return 0;
 }
 
-SocketSelectBreaker& SocketSelect::Breaker()
-{
+SocketSelectBreaker& SocketSelect::Breaker() {
     return breaker_;
 }
 
-int SocketSelect::Errno() const
-{
+int SocketSelect::Errno() const {
     return errno_;
 }
 #endif

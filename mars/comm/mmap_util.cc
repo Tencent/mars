@@ -38,7 +38,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         CloseMmapFile(_mmmap_file);
     }
     
-    if(_mmmap_file.is_open() && _mmmap_file.operator!()) {
+    if (_mmmap_file.is_open() && _mmmap_file.operator!()) {
         return false;
     }
 

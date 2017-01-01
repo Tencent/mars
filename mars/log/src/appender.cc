@@ -413,8 +413,7 @@ static void __closelogfile() {
     sg_logfile = NULL;
 }
 
-static void __log2file(const void* _data, size_t _len)
-{
+static void __log2file(const void* _data, size_t _len) {
 	if (NULL == _data || 0 == _len || sg_logdir.empty()) {
 		return;
 	}
@@ -437,7 +436,7 @@ static void __log2file(const void* _data, size_t _len)
 
     __make_logfilename(tv, sg_cache_logdir, sg_logfileprefix.c_str(), LOG_EXT, logcachefilepath , 1024);
     
-    if(boost::filesystem::exists(logcachefilepath) && __openlogfile(sg_cache_logdir)) {
+    if (boost::filesystem::exists(logcachefilepath) && __openlogfile(sg_cache_logdir)) {
         __writefile(_data, _len, sg_logfile);
         if (kAppednerAsync == sg_mode) {
             __closelogfile();
@@ -685,8 +684,7 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
 }
 
 
-static void get_mark_info(char* _info, size_t _infoLen)
-{
+static void get_mark_info(char* _info, size_t _infoLen) {
 	struct timeval tv;
 	gettimeofday(&tv, 0);
 	time_t sec = tv.tv_sec; 

@@ -104,17 +104,17 @@ int getdefaultgateway(struct in_addr * addr)
     FILE * f;
     char * p;
     f = fopen("/proc/net/route", "r");
-    if(!f)
+    if (!f)
         return FAILED;
     while(fgets(buf, sizeof(buf), f)) {
-        if(line > 0) {
+        if (line > 0) {
             p = buf;
             while(*p && !isspace(*p))
                 p++;
             while(*p && isspace(*p))
                 p++;
-            if(sscanf(p, "%lx%lx", &d, &g)==2) {
-                if(d == 0) { /* default */
+            if (sscanf(p, "%lx%lx", &d, &g)==2) {
+                if (d == 0) { /* default */
                 	addr->s_addr = (in_addr_t)g;
                     fclose(f);
                     return SUCCESS;
@@ -124,7 +124,7 @@ int getdefaultgateway(struct in_addr * addr)
         line++;
     }
     /* default route not found ! */
-    if(f)
+    if (f)
         fclose(f);
     return FAILED;
 }
@@ -158,12 +158,12 @@ int getdefaultgateway(struct in_addr * addr)
     struct sockaddr * sa_tab[RTAX_MAX];
     int i;
     int r = FAILED;
-    if(sysctl(mib, sizeof(mib)/sizeof(int), 0, &l, 0, 0) < 0) {
+    if (sysctl(mib, sizeof(mib)/sizeof(int), 0, &l, 0, 0) < 0) {
         return FAILED;
     }
-    if(l>0) {
+    if (l>0) {
         buf = malloc(l);
-        if(sysctl(mib, sizeof(mib)/sizeof(int), buf, &l, 0, 0) < 0) {
+        if (sysctl(mib, sizeof(mib)/sizeof(int), buf, &l, 0, 0) < 0) {
             free(buf);
             return FAILED;
         }
@@ -171,17 +171,17 @@ int getdefaultgateway(struct in_addr * addr)
             rt = (struct rt_msghdr *)p;
             sa = (struct sockaddr *)(rt + 1);
             for(i=0; i<RTAX_MAX; i++) {
-                if(rt->rtm_addrs & (1 << i)) {
+                if (rt->rtm_addrs & (1 << i)) {
                     sa_tab[i] = sa;
                     sa = (struct sockaddr *)((char *)sa + ROUNDUP(sa->sa_len));
                 } else {
                     sa_tab[i] = NULL;
                 }
             }
-            if( ((rt->rtm_addrs & (RTA_DST|RTA_GATEWAY)) == (RTA_DST|RTA_GATEWAY))
+            if ( ((rt->rtm_addrs & (RTA_DST|RTA_GATEWAY)) == (RTA_DST|RTA_GATEWAY))
               && sa_tab[RTAX_DST]->sa_family == AF_INET) {
 //              && sa_tab[RTAX_GATEWAY]->sa_family == AF_INET) {
-                if(((struct sockaddr_in *)sa_tab[RTAX_DST])->sin_addr.s_addr == 0) {
+                if (((struct sockaddr_in *)sa_tab[RTAX_DST])->sin_addr.s_addr == 0) {
                     *addr = ((struct sockaddr_in *)(sa_tab[RTAX_GATEWAY]))->sin_addr;
                     r = SUCCESS;
                     break;
@@ -205,12 +205,12 @@ int getdefaultgateway6(struct in6_addr * addr)
     struct sockaddr * sa_tab[RTAX_MAX];
     int i;
     int r = FAILED;
-    if(sysctl(mib, sizeof(mib)/sizeof(int), 0, &l, 0, 0) < 0) {
+    if (sysctl(mib, sizeof(mib)/sizeof(int), 0, &l, 0, 0) < 0) {
         return FAILED;
     }
-    if(l>0) {
+    if (l>0) {
         buf = malloc(l);
-        if(sysctl(mib, sizeof(mib)/sizeof(int), buf, &l, 0, 0) < 0) {
+        if (sysctl(mib, sizeof(mib)/sizeof(int), buf, &l, 0, 0) < 0) {
             free(buf);
             return FAILED;
         }
@@ -218,17 +218,17 @@ int getdefaultgateway6(struct in6_addr * addr)
             rt = (struct rt_msghdr *)p;
             sa = (struct sockaddr *)(rt + 1);
             for(i=0; i<RTAX_MAX; i++) {
-                if(rt->rtm_addrs & (1 << i)) {
+                if (rt->rtm_addrs & (1 << i)) {
                     sa_tab[i] = sa;
                     sa = (struct sockaddr *)((char *)sa + ROUNDUP(sa->sa_len));
                 } else {
                     sa_tab[i] = NULL;
                 }
             }
-            if( ((rt->rtm_addrs & (RTA_DST|RTA_GATEWAY)) == (RTA_DST|RTA_GATEWAY))
+            if ( ((rt->rtm_addrs & (RTA_DST|RTA_GATEWAY)) == (RTA_DST|RTA_GATEWAY))
                && sa_tab[RTAX_DST]->sa_family == AF_INET6) {
 //               && sa_tab[RTAX_GATEWAY]->sa_family == AF_INET6) {
-                if(IN6_IS_ADDR_UNSPECIFIED(&((struct sockaddr_in6 *)sa_tab[RTAX_DST])->sin6_addr)) {
+                if (IN6_IS_ADDR_UNSPECIFIED(&((struct sockaddr_in6 *)sa_tab[RTAX_DST])->sin6_addr)) {
                     *addr = ((struct sockaddr_in6 *)(sa_tab[RTAX_GATEWAY]))->sin6_addr;
                     r = SUCCESS;
                     break;
@@ -384,7 +384,7 @@ int getdefaultgateway(in_addr_t * addr)
     // It may be possible to simply enumerate the interface folders until we find one with a DhcpDefaultGateway value.
     // However, the technique used is the technique most cited on the web, and we assume it to be more correct.
     
-    if(ERROR_SUCCESS != RegOpenKeyEx(HKEY_LOCAL_MACHINE, // Open registry key or predifined key 
+    if (ERROR_SUCCESS != RegOpenKeyEx(HKEY_LOCAL_MACHINE, // Open registry key or predifined key 
                                      networkCardsPath,   // Name of registry subkey to open
                                      0,                  // Reserved - must be zero
                                      KEY_READ,           // Mask - desired access rights
@@ -394,7 +394,7 @@ int getdefaultgateway(in_addr_t * addr)
         return -1;
     }
     
-    if(ERROR_SUCCESS != RegOpenKeyEx(HKEY_LOCAL_MACHINE, // Open registry key or predefined key
+    if (ERROR_SUCCESS != RegOpenKeyEx(HKEY_LOCAL_MACHINE, // Open registry key or predefined key
                                      interfacesPath,     // Name of registry subkey to open
                                      0,                  // Reserved - must be zero
                                      KEY_READ,           // Mask - desired access rights
@@ -414,7 +414,7 @@ int getdefaultgateway(in_addr_t * addr)
     for(i = 0; i < numSubKeys && !done; i++)
     {
         keyNameLength = MAX_KEY_LENGTH;
-        if(ERROR_SUCCESS == RegEnumKeyEx(networkCardsKey, // Open registry key
+        if (ERROR_SUCCESS == RegEnumKeyEx(networkCardsKey, // Open registry key
                                          i,               // Index of subkey to retrieve
                                          keyName,         // Buffer that receives the name of the subkey
                                          &keyNameLength,  // Variable that receives the size of the above buffer
@@ -423,10 +423,10 @@ int getdefaultgateway(in_addr_t * addr)
                                          NULL,            // Variable that receives the size of the above buffer
                                          NULL))           // Variable that receives the last write time of subkey
         {
-            if(RegOpenKeyEx(networkCardsKey,  keyName, 0, KEY_READ, &networkCardKey) == ERROR_SUCCESS)
+            if (RegOpenKeyEx(networkCardsKey,  keyName, 0, KEY_READ, &networkCardKey) == ERROR_SUCCESS)
             {
                 keyValueLength = MAX_VALUE_LENGTH;
-                if(ERROR_SUCCESS == RegQueryValueEx(networkCardKey,   // Open registry key
+                if (ERROR_SUCCESS == RegQueryValueEx(networkCardKey,   // Open registry key
                                                     "ServiceName",    // Name of key to query
                                                     NULL,             // Reserved - must be NULL
                                                     &keyValueType,    // Receives value type
@@ -435,10 +435,10 @@ int getdefaultgateway(in_addr_t * addr)
                 {
                     //printf("keyValue: %s\n", keyValue);
                     
-                    if(RegOpenKeyEx(interfacesKey, keyValue, 0, KEY_READ, &interfaceKey) == ERROR_SUCCESS)
+                    if (RegOpenKeyEx(interfacesKey, keyValue, 0, KEY_READ, &interfaceKey) == ERROR_SUCCESS)
                     {
                         gatewayValueLength = MAX_VALUE_LENGTH;
-                        if(ERROR_SUCCESS == RegQueryValueEx(interfaceKey,         // Open registry key
+                        if (ERROR_SUCCESS == RegQueryValueEx(interfaceKey,         // Open registry key
                                                             "DhcpDefaultGateway", // Name of key to query
                                                             NULL,                 // Reserved - must be NULL
                                                             &gatewayValueType,    // Receives value type
@@ -446,7 +446,7 @@ int getdefaultgateway(in_addr_t * addr)
                                                             &gatewayValueLength)) // Receives value length in bytes
                         {
                             // Check to make sure it's a string
-                            if(gatewayValueType == REG_MULTI_SZ || gatewayValueType == REG_SZ)
+                            if (gatewayValueType == REG_MULTI_SZ || gatewayValueType == REG_SZ)
                             {
                                 //printf("gatewayValue: %s\n", gatewayValue);
                                 done = 1;
@@ -463,7 +463,7 @@ int getdefaultgateway(in_addr_t * addr)
     RegCloseKey(interfacesKey);
     RegCloseKey(networkCardsKey);
     
-    if(done)
+    if (done)
     {
         *addr = inet_addr(gatewayValue);
         return 0;

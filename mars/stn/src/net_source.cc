@@ -218,7 +218,7 @@ bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil
     lock.unlock();
 
  	std::vector<std::string> longlink_hosts = NetSource::GetLongLinkHosts();
- 	if(longlink_hosts.empty()) {
+ 	if (longlink_hosts.empty()) {
  		xerror2("longlink host empty.");
  		return false;
  	}
