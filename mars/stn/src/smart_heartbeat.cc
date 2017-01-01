@@ -93,7 +93,6 @@ void SmartHeartbeat::OnLongLinkDisconnect() {
     if (!current_net_heart_info_.is_stable_) {
 		xinfo2(TSF"%0 not stable last heart:%1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
 		return;
-	} else {
 	}
 
     current_net_heart_info_.success_curr_heart_count_ = 0;

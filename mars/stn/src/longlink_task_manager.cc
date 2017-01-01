@@ -358,7 +358,6 @@ void LongLinkTaskManager::__RunOnStartTask() {
 
         if (first->task.send_only) {
             __SingleRespHandle(first, kEctOK, 0, kTaskFailHandleNoError, longlink_->Profile());
-        } else {
         }
 
         ++sent_count;
