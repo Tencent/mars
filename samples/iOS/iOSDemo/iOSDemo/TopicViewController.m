@@ -58,7 +58,9 @@
 -(int)notifyUIWithResponse:(NSData*)responseData {
     SendMessageResponse *sendMsgResponse = [SendMessageResponse parseFromData:responseData];
     
-    [_recvContentField setText:sendMsgResponse.errMsg];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [_recvContentField setText:sendMsgResponse.errMsg];
+    });
     
     return sendMsgResponse.errCode == 0 ? 0 : -1;
 }
