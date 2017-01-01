@@ -7,7 +7,7 @@ import glob
 
 from mars_utils import *
 
-NDK_BUILD_CMD = "ndk-build NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+NDK_BUILD_CMD = "ndk-build NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
 BUILD_XLOG_PATHS = ("openssl", "comm", "log")
 COPY_XLOG_FILES = {"../log/crypt/log_crypt.h": "jni/log_crypt.h",
                 "../log/crypt/decode_mars_log_file.py": "jni/decode_mars_log_file.py.rewriteme",
@@ -108,7 +108,7 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch=""):
     
     if _arch != "":
         global NDK_BUILD_CMD
-        NDK_BUILD_CMD = "ndk-build _ARCH_=" + _arch + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+        NDK_BUILD_CMD = "ndk-build _ARCH_=" + _arch + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
         print(NDK_BUILD_CMD)
 
     shutil.rmtree(libs_save_path, True)
@@ -215,7 +215,7 @@ def main():
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
                 global NDK_BUILD_CMD
-                NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+                NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
                 flag = 1
         else:
             num = raw_input("Enter menu:\n1. build mars static libs.\n2. build mars shared libs.\n3. build xlog static libs.\n4. build xlog shared libs.\n5. exit.\n")
@@ -247,7 +247,7 @@ def main():
 						shutil.rmtree('mars_android_sdk/so_cache', True)
 					os.mkdir('mars_android_sdk/so_cache')
 					for i in range(0, len(arch)):
-						NDK_BUILD_CMD = "ndk-build _ARCH_=" + arch[i] + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+						NDK_BUILD_CMD = "ndk-build _ARCH_=" + arch[i] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
 						print(NDK_BUILD_CMD)
 						build_android_mars_shared_libs()
 						if i != (len(arch)-1):
@@ -277,7 +277,7 @@ def main():
 						shutil.rmtree('mars_xlog_sdk/so_cache', True)
 					os.mkdir('mars_xlog_sdk/so_cache')
 					for i in range(0, len(arch)):
-						NDK_BUILD_CMD = "ndk-build _ARCH_=" + arch[i] + " NDK_DEBUG=0 -j -B SDK=0 LIBPREFIX=mars -C "
+						NDK_BUILD_CMD = "ndk-build _ARCH_=" + arch[i] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
 						print(NDK_BUILD_CMD)
 						build_android_xlog_shared_libs()
 						if i != (len(arch)-1):
