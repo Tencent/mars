@@ -212,16 +212,16 @@ def main():
                 NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
                 flag = 1
         else:
-            num = raw_input("Enter menu:\n1. build mars static libs.\n2. build mars shared libs.\n3. build xlog static libs.\n4. build xlog shared libs.\n5. exit.\n")
+            num = raw_input("Enter menu:\n1. build mars shared libs.\n2. build mars static libs.\n3. build xlog static libs.\n4. build xlog shared libs.\n5. exit.\n")
             archs = choose_android_mars_jni_arch()
             if len(archs) == 0:
                 return
    		
         if flag == 1:
 	    if "1" == num:
-    		return build_android_mars_static_libs()
+    		return build_android_mars_shared_libs()
             elif "2" == num:
-	    	return build_android_mars_shared_libs()
+	    	return build_android_mars_static_libs()
 	    elif "3" == num:
 	    	return build_android_xlog_static_libs()
 	    elif "4" == num:
@@ -252,9 +252,9 @@ def main():
                 arch = archs[i]
 
                 if "1" == num:
-                    build_android_mars_static_libs(MARS_LIBS_PATH, arch)
-                elif "2" == num:
                     build_android_mars_shared_libs(MARS_LIBS_PATH, arch)
+                elif "2" == num:
+                    build_android_mars_static_libs(MARS_LIBS_PATH, arch)
 	        elif "3" == num:
 		    build_android_xlog_static_libs(XLOG_LIBS_PATH, arch)
 	        elif "4" == num:
@@ -280,7 +280,7 @@ def main():
                 for lib in glob.glob(symbols_des_dir + "/*.so"):
                     shutil.copy(lib, symbols_cache_dir)
 
-            if "1" == num or "3" == num:
+            if "2" == num or "3" == num:
                 return
 
             shutil.rmtree(SO_DES_DIR)
