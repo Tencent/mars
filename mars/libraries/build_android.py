@@ -31,7 +31,7 @@ COPY_MARS_FILES = {"../stn/proto/longlink_packer.h": "jni/longlink_packer.h",
                 }
 
 
-def build_android_xlog_static_libs(_path="mars_xlog_sdk", _arch=""):
+def build_android_xlog_static_libs(_path="mars_xlog_sdk", _arch="armeabi"):
     libs_save_path = _path + "/mars_libs"
     src_save_path = _path + "/"
 
@@ -186,10 +186,15 @@ def choose_android_mars_jni_arch():
     platforms = ['armeabi', 'x86', 'mips', 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'mips64']
     archnum = raw_input("Enter the architecture which would like to build:\n1. armeabi.\n2. x86.\n3. mips.\n4. armeabi-v7a.\n5. arm64-v8a.\n6. x86_64.\n7. mips64.\n8. exit.\n")
 
-    if archnum >= "1" and archnum <= str(len(platforms)):
-        return platforms[int(archnum)-1]            
-    else:
-        return None
+    arr = []
+    
+    archs = archnum.split(',')
+    for i in range(0, len(archs)):
+        if archs[i] >= "1" and archs[i] <= str(len(platforms)):
+            arr.append(platforms[int(archs[i])-1])
+
+    return arr
+
 
     
 def main():
@@ -198,7 +203,7 @@ def main():
 
     while True:
     	flag = 0
-    	arch = []
+    	archs = []
         if len(sys.argv) >=2 and len(sys.argv[1])==1 and sys.argv[1] >="1" and sys.argv[1] <="5":
             num = sys.argv[1]
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
@@ -208,10 +213,10 @@ def main():
                 flag = 1
         else:
             num = raw_input("Enter menu:\n1. build mars static libs.\n2. build mars shared libs.\n3. build xlog static libs.\n4. build xlog shared libs.\n5. exit.\n")
-            arch = choose_android_mars_jni_arch()
-            if not arch:
+            archs = choose_android_mars_jni_arch()
+            if len(archs) == 0:
                 return
-		
+   		
         if flag == 1:
 	    if "1" == num:
     		return build_android_mars_static_libs()
@@ -226,20 +231,65 @@ def main():
 	    else:
 		pass
         else:
-            if "1" == num:
-                return build_android_mars_static_libs(MARS_LIBS_PATH, arch)
-            elif "2" == num:
-                return build_android_mars_shared_libs(MARS_LIBS_PATH, arch)
 
-	    elif "3" == num:
-		return build_android_xlog_static_libs(XLOG_LIBS_PATH, arch)
-	    elif "4" == num:
-                return build_android_xlog_shared_libs(XLOG_LIBS_PATH, arch)
+            
+            if "1" == num or "2" == num:
+                sdk_path = MARS_LIBS_PATH
+            elif "3" == num or "4" == num:
+                sdk_path = XLOG_LIBS_PATH
+            else:
+                continue
 
-	    elif "5" ==num:
-                return 0
-	    else:
-		pass
+            SO_CACHE_DIR = sdk_path + "/so_cache/"
+            SO_SYMBOL_CACHE_DIR = sdk_path + "/so_cache/symbol/"
+            SO_DES_DIR = sdk_path + "/libs/"
+            SO_SYMBOL_DES_IR = sdk_path + "/obj/local/"
+
+
+            for i in range(0, len(archs)):
+                print "build %s" %(archs[i])
+
+                arch = archs[i]
+
+                if "1" == num:
+                    build_android_mars_static_libs(MARS_LIBS_PATH, arch)
+                elif "2" == num:
+                    build_android_mars_shared_libs(MARS_LIBS_PATH, arch)
+	        elif "3" == num:
+		    build_android_xlog_static_libs(XLOG_LIBS_PATH, arch)
+	        elif "4" == num:
+                    build_android_xlog_shared_libs(XLOG_LIBS_PATH, arch)
+
+	        elif "5" ==num:
+                    return 0
+	        else:
+		    return 0
+
+                libs_cache_dir = SO_CACHE_DIR + arch
+		symbols_cache_dir = SO_SYMBOL_CACHE_DIR + arch
+                libs_des_dir = SO_DES_DIR + arch
+                symbols_des_dir = SO_SYMBOL_DES_IR + arch
+
+		if not os.path.exists(libs_cache_dir):
+                    os.makedirs(libs_cache_dir)
+                if not os.path.exists(symbols_cache_dir):
+                    os.makedirs(symbols_cache_dir)
+
+                for lib in glob.glob(libs_des_dir + "/*.so"):
+                    shutil.copy(lib, libs_cache_dir)
+                for lib in glob.glob(symbols_des_dir + "/*.so"):
+                    shutil.copy(lib, symbols_cache_dir)
+
+
+            shutil.rmtree(SO_DES_DIR)
+            shutil.rmtree(SO_SYMBOL_DES_IR)
+            for i in range(0, len(archs)):
+                shutil.copytree(SO_CACHE_DIR + archs[i], SO_DES_DIR + archs[i])
+	        shutil.copytree(SO_SYMBOL_CACHE_DIR + archs[i], SO_SYMBOL_DES_IR + archs[i])
+
+            return
+
+
 
 if __name__ == "__main__":
     main()

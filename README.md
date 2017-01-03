@@ -158,7 +158,9 @@ Compile
 python build_apple.py
 ```
 
-Add mars.framework as a dependency of your project.
+1. Add mars.framework as a dependency of your project.
+2. Rename files with .rewriteme extension to .cc extension.
+3. Add header files and source files into your project.
 
 #### <a name="Xlog">Xlog Init</a>
 
@@ -443,7 +445,7 @@ StnLogic.reset();
 python build_apple.py
 ```
 
-把 mars.framework 作为依赖加入到你的项目中
+把 mars.framework 作为依赖加入到你的项目中，把和 mars.framework 同目录的后缀名为 rewriteme 的文件名删掉".rewriteme"和头文件一起加入到你的项目中。
 
 #### <a name="Xlog">Xlog Init</a>
 
