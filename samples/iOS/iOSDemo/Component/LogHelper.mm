@@ -50,8 +50,13 @@ static NSUInteger g_processID = 0;
     }
 }
 
-+ (BOOL)shouldLog:(int)level {
-    return YES;
++ (BOOL)shouldLog:(TLogLevel)level {
+    
+    if (level >= xlogger_Level()) {
+        return YES;
+    }
+    
+    return NO;
 }
 
 @end

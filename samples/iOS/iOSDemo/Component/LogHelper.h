@@ -27,7 +27,7 @@
 + (void)logWithLevel:(TLogLevel)logLevel moduleName:(const char*)moduleName fileName:(const char*)fileName lineNumber:(int)lineNumber funcName:(const char*)funcName message:(NSString *)message;
 + (void)logWithLevel:(TLogLevel)logLevel moduleName:(const char*)moduleName fileName:(const char*)fileName lineNumber:(int)lineNumber funcName:(const char*)funcName format:(NSString *)format, ...;
 
-+ (BOOL)shouldLog:(int)level;
++ (BOOL)shouldLog:(TLogLevel)level;
 
 @end
 
