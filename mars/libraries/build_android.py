@@ -280,6 +280,8 @@ def main():
                 for lib in glob.glob(symbols_des_dir + "/*.so"):
                     shutil.copy(lib, symbols_cache_dir)
 
+            if "1" == num or "3" == num:
+                return
 
             shutil.rmtree(SO_DES_DIR)
             shutil.rmtree(SO_SYMBOL_DES_IR)
