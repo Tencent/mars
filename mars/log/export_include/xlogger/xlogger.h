@@ -719,10 +719,10 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 																	 {0, 0}, -1, -1, -1};\ gettimeofday(&info.m_tv, NULL);\
 																	 XLOGGER_ROUTER_OUTPUT(__xlogger_c_write(&info, __VA_ARGS__),xlogger_Print(&info, __VA_ARGS__), __VA_ARGS__);}
 
-#define xlogger2_if(exp, level, tag, file, func, line, ...)    if ((!(exp) || !xlogger_IsEnabledFor(level)));
+#define xlogger2_if(exp, level, tag, file, func, line, ...)    if (!(exp) || !xlogger_IsEnabledFor(level));\
 																	else { XLoggerInfo info= {level, tag, file, func, line,\
 																		   {0, 0}, -1, -1, -1}; gettimeofday(&info.timeval, NULL);\
-																		   XLOGGER_ROUTER_OUTPUT(__xlogger_c_write(&info, __VA_ARGS__),xlogger_Print(&info, __VA_ARGS__), __VA_ARGS__);
+																		   XLOGGER_ROUTER_OUTPUT(__xlogger_c_write(&info, __VA_ARGS__),xlogger_Print(&info, __VA_ARGS__), __VA_ARGS__);}
 
 #define __xlogger_c_impl(level,  ...) 			xlogger2(level, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, __VA_ARGS__)
 #define __xlogger_c_impl_if(level, exp, ...) 	xlogger2_if(exp, level, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, __VA_ARGS__)
