@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -63,7 +63,7 @@ public:
         int32_t timeout = _timeout;
         
         __Before(timeout);
-        if(timeout != INT_MAX) {
+        if (timeout != INT_MAX) {
             selector_.Select(timeout);
         } else {
             selector_.Select();
@@ -111,7 +111,7 @@ private:
         while (iter != tasks_.end()) {
             TaskInfo& task = **iter;
             
-            if(selector_.Report(task.sel_, task.sel_.abs_timeout_.isValid()? -task.sel_.abs_timeout_.gettickspan():1)) {
+            if (selector_.Report(task.sel_, task.sel_.abs_timeout_.isValid()? -task.sel_.abs_timeout_.gettickspan():1)) {
                 iter = tasks_.erase(iter);
                 coroutine::Resume(task.wrapper_);
             } else {

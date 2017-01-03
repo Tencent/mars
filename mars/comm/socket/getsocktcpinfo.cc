@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -95,7 +95,7 @@ char* tcpinfo2str(struct tcp_info* _info, char* _info_str_buf, size_t _buf_len) 
     << "， tcpi_rcv_space=0x"               << std::hex << _info->tcpi_rcv_space
     << "， tcpi_total_retrans=0x"           << std::hex << _info->tcpi_total_retrans;
 #endif
-    if(ss.str().size()>_buf_len) {
+    if (ss.str().size()>_buf_len) {
         //buf overflow
         ASSERT(false);
     }

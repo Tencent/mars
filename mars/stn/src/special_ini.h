@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -42,7 +42,7 @@ public:
 		char des[33] = {0};
 		MD5_sig_to_string((const char*)sig, des);
         
-		if(INI::Create(des)) {
+		if (INI::Create(des)) {
 			Set<std::string>("name", section);
 			return true;
 		}

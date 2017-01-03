@@ -63,7 +63,7 @@ public:
         }
 		//set the socket to unblocked model
 		int ret = socket_set_nobio(fsocket);
-		if(ret != 0) {
+		if (ret != 0) {
 			errCode = socket_errno;
 			xerror2(TSF"nobio:%0", socket_strerror(errCode));
 			::socket_close(fsocket);
@@ -73,7 +73,7 @@ public:
 		//do connect
 		unsigned long lastTime = gettickcount();
 		int connectRet = connect(fsocket, (sockaddr*)&_addr, sizeof(_addr));
-		if(connectRet < 0 && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno))
+		if (connectRet < 0 && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno))
 		{
 			errCode = socket_errno;
 			xerror2(TSF"connect error, socket_errno:%0", socket_strerror(errCode));
@@ -81,7 +81,7 @@ public:
 			return INVALID_SOCKET;
 		}
         
-		if(connectRet != 0)
+		if (connectRet != 0)
 		{
             int intrCount = 0;
 			while(true)
@@ -91,24 +91,24 @@ public:
 				sel.Exception_FD_SET(fsocket);
                 
 	            int selectRet = -1;
-				if(timeoutInMs > 0)
+				if (timeoutInMs > 0)
 				{
 		            selectRet = sel.Select(timeoutInMs);
 				}
 				else
 					selectRet = sel.Select();
                 
-				if(selectRet == 0) {
+				if (selectRet == 0) {
 					errCode = socket_errno;
 					xerror2(TSF"connect timeout, use time:%0 ms to connect", (gettickcount() - lastTime));
 					::socket_close(fsocket);
 					return -2;
-				} else if(selectRet < 0) {
+				} else if (selectRet < 0) {
 					errCode = socket_errno;
 					xerror2(TSF"select errror, ret:%0, socket_errno:%1, use time:%2 ms",
                            selectRet, socket_strerror(errCode), (gettickcount() - lastTime));
                     
-					if(selectRet == -1 && EINTR == errCode && intrCount < 3)
+					if (selectRet == -1 && EINTR == errCode && intrCount < 3)
 					{
 						intrCount += 1;
 						continue;
@@ -116,25 +116,25 @@ public:
 					::socket_close(fsocket);
 					return INVALID_SOCKET;
 				}
-				if(sel.IsException())
+				if (sel.IsException())
 				{
 					errCode = errno;
 					xerror2(TSF"select breaker exception");
 					::socket_close(fsocket);
 					return INVALID_SOCKET;
 				}
-				if(sel.IsBreak())
+				if (sel.IsBreak())
 				{
 					xinfo2(TSF"Breaker INTR");
 					::socket_close(fsocket);
 					return INVALID_SOCKET;
 				}
-				if(sel.Exception_FD_ISSET(fsocket))
+				if (sel.Exception_FD_ISSET(fsocket))
 				{
 					int error = 0;
 					socklen_t len = sizeof(error);
 					ret = getsockopt(fsocket, SOL_SOCKET, SO_ERROR, &error, &len);
-					if(ret == 0)
+					if (ret == 0)
 					{
 						errCode = error;
 						xerror2(TSF"select socket exception error:%0", strerror(errCode));
@@ -146,7 +146,7 @@ public:
 					::socket_close(fsocket);
 					return INVALID_SOCKET;
 				}
-				if(!sel.Write_FD_ISSET(fsocket))
+				if (!sel.Write_FD_ISSET(fsocket))
 				{
 					errCode = errno;
 					xerror2(TSF"select return but not set, return:%0, errno:%1", selectRet, errno);
@@ -161,12 +161,12 @@ public:
 				socklen_t len = sizeof(addr);
 				memset(&addr, 0, sizeof(sockaddr));
 				int ret = getpeername(fsocket, &addr, &len);
-				if(ret != 0) {
+				if (ret != 0) {
 					errCode = socket_errno;
 					int error = 0;
 					len = sizeof(error);
 					ret = getsockopt(fsocket, SOL_SOCKET, SO_ERROR, &error, &len);
-					if(ret == 0)
+					if (ret == 0)
 					{
 						errCode = error;
 						xerror2(TSF"connect error:%0", socket_strerror(errCode));
@@ -195,7 +195,7 @@ public:
 		xverbose_function();
         xinfo2(TSF"writenWithNonBlock with Socket:%0, timeoutMs:%1, unSize:%2", fdSocket, timeoutMs, unSize);
 		xassert2(unSize > 0);
-		if(unSize == 0)
+		if (unSize == 0)
 		{
 			xwarn2(TSF"writen size == 0");
 			return kTcpSucc;
@@ -215,9 +215,9 @@ public:
 			sel.Exception_FD_SET(fdSocket);
             
 			unsigned long startMs = gettickcount();
-			if(timeoutMs > 0)
+			if (timeoutMs > 0)
 			{
-				if(costMs >= timeoutMs)
+				if (costMs >= timeoutMs)
 				{
 					errcode = -1;
 					return kTimeoutErr;
@@ -230,40 +230,40 @@ public:
 			else
 				ret = sel.Select();
             
-			if(ret == -1)
+			if (ret == -1)
 			{
 				errcode = errno;
 				xerror2(TSF"select return -1, error:%0", strerror(errcode));
-                if(EINTR == errcode && intrCount < 3)
+                if (EINTR == errcode && intrCount < 3)
                 {
                 	intrCount += 1;
                 	continue;
                 }
 				return kSelectErr;
 			}
-			if(ret == 0)
+			if (ret == 0)
 			{
 				xerror2(TSF"select timeout");
 				errcode = -1;
 				return kTimeoutErr;
 			}
-			if(sel.IsException())
+			if (sel.IsException())
 			{
 				xerror2(TSF"select pipe error");
 				errcode = errno;
 				return kPipeExp;
 			}
-			if(sel.IsBreak())
+			if (sel.IsBreak())
 			{
 				xwarn2(TSF"INTR by pipe");
 				return kPipeIntr;
 			}
-			if(sel.Exception_FD_ISSET(fdSocket))
+			if (sel.Exception_FD_ISSET(fdSocket))
 			{
 				int error = 0;
 				socklen_t len = sizeof(error);
 				ret = getsockopt(fdSocket, SOL_SOCKET, SO_ERROR, &error, &len);
-				if(ret == 0)
+				if (ret == 0)
 				{
 					errcode = error;
 					xerror2(TSF"select socket exception error:%0", strerror(errcode));
@@ -274,12 +274,12 @@ public:
                 
 				return kSelectExpErr;
 			}
-			if(sel.Write_FD_ISSET(fdSocket))
+			if (sel.Write_FD_ISSET(fdSocket))
 			{
 				ssize_t nwrite =::send(fdSocket, buff, remainLen, 0);
 				errcode = errno;		//never do other things after send, otherwise errno will change
 				xdebug2(TSF"sendWithNonBlock ::send return:%0", nwrite);
-				if(nwrite == 0 || (0 > nwrite && !IS_NOBLOCK_SEND_ERRNO(socket_errno)))
+				if (nwrite == 0 || (0 > nwrite && !IS_NOBLOCK_SEND_ERRNO(socket_errno)))
 				{
 					xerror2(TSF"sendWithNonBlock send <= 0, errno:%0", strerror(errcode));
 					return kSndRcvErr;
@@ -290,7 +290,7 @@ public:
 				buff += nwrite;
 				nSent += nwrite;
                 
-				if(nSent >= unSize)
+				if (nSent >= unSize)
 					return kTcpSucc;
                 
 				costMs += (gettickcount() - startMs);
@@ -316,10 +316,10 @@ public:
 	{
 	    xverbose_function();
 		xdebug2(TSF"readnWithNonBlock socket:%0, timeoutMs:%1", fdSocket, timeoutMs);
-		if(unSize == 0)
+		if (unSize == 0)
 			return kTcpSucc;
         if (timeoutMs == 0) timeoutMs = DEFAULT_TCP_RECV_TIMEOUT;
-		if((recvBuf.Capacity() - recvBuf.Length()) < unSize)
+		if ((recvBuf.Capacity() - recvBuf.Length()) < unSize)
 		{
 			recvBuf.AddCapacity(unSize);
 		}
@@ -338,9 +338,9 @@ public:
 			sel.Exception_FD_SET(fdSocket);
             
 			unsigned long startMs = gettickcount();
-			if(timeoutMs > 0)
+			if (timeoutMs > 0)
 			{
-				if(costMs >= timeoutMs)
+				if (costMs >= timeoutMs)
 				{
 					errcode = -1;
 					return kTimeoutErr;
@@ -352,40 +352,40 @@ public:
 			}
 			else
 				ret = sel.Select();
-			if(ret == -1)
+			if (ret == -1)
 			{
 				errcode = errno;
 				xerror2(TSF"select return -1, error:%0", strerror(errcode));
-				if(EINTR == errcode && intrCount < 3)
+				if (EINTR == errcode && intrCount < 3)
 				{
 					intrCount += 1;
 					continue;
 				}
 				return kSelectErr;
 			}
-			if(ret == 0)
+			if (ret == 0)
 			{
 				xerror2(TSF"select timeout");
 				errcode = -1;
 				return kTimeoutErr;
 			}
-			if(sel.IsException())
+			if (sel.IsException())
 			{
 				xerror2(TSF"select pipe exception");
 				errcode = errno;
 				return kPipeExp;
 			}
-			if(sel.IsBreak())
+			if (sel.IsBreak())
 			{
 				xwarn2(TSF"INTR by pipe");
 				return kPipeIntr;
 			}
-			if(sel.Exception_FD_ISSET(fdSocket))
+			if (sel.Exception_FD_ISSET(fdSocket))
 			{
 				int error = 0;
 				socklen_t len = sizeof(error);
 				ret = getsockopt(fdSocket, SOL_SOCKET, SO_ERROR, &error, &len);
-				if(ret == 0)
+				if (ret == 0)
 				{
 					errcode = error;
 					xerror2(TSF"select socket exception error:%0", strerror(errcode));
@@ -396,17 +396,17 @@ public:
                 
 				return kSelectExpErr;
 			}
-			if(sel.Read_FD_ISSET(fdSocket))
+			if (sel.Read_FD_ISSET(fdSocket))
 			{
 				ssize_t nrecv = ::recv(fdSocket, recvBuf.PosPtr(), length, 0);
 				errcode = errno;			//never do other things after recv, otherwise errno will be changed
 				xdebug2(TSF"readnWithNonBlock recv :%0", nrecv);
-				if(nrecv < 0)
+				if (nrecv < 0)
 				{
 					xerror2(TSF"readnWithNonBlock readn nrecv < 0, errno:%0", strerror(errcode));
 					return kSelectErr;
 				}
-				else if(nrecv == 0)
+				else if (nrecv == 0)
 				{
 					xinfo2(TSF"nrecv==0, socket close:%0", errno);
 					return kTcpNonErr;
@@ -414,7 +414,7 @@ public:
                 
 				recvBuf.Length(nrecv + recvBuf.Pos(), nrecv + recvBuf.Pos());
                 
-				if((recvBuf.Length() - oldLength) >= unSize)
+				if ((recvBuf.Length() - oldLength) >= unSize)
 				{
 					xdebug2(TSF"recvBuf.Length()=%0, oldLength=%1, unSize=%2",recvBuf.Length(), oldLength, unSize);
 					return kTcpNonErr;

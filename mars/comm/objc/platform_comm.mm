@@ -259,7 +259,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
         ifs = (id)CNCopySupportedInterfaces();
     }
 
-    if(ifs == nil) return false;
+    if (ifs == nil) return false;
         
     id info = nil;
     for (NSString *ifnam in ifs) {
@@ -268,15 +268,13 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
             break;
         }
             
-        if (nil!=info)
-        {
+        if (nil!=info) {
             CFRelease(info);
             info = nil;
         }
     }
         
-    if(info == nil)
-    {
+    if (info == nil) {
         CFRelease(ifs);
         return false;
     }

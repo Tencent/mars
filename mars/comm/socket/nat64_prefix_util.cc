@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -222,11 +222,11 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 #endif
 
 	bool ret = false;
-    if(error==0) {
+    if (error==0) {
     	for (res = res0; res; res = res->ai_next) {
     		char ip_buf[64] = {0};
 
-    		if(AF_INET6 == res->ai_family) {
+    		if (AF_INET6 == res->ai_family) {
 #ifdef __APPLE__
 				if (publiccomponent_GetSystemVersion() >= 9.2f) { //higher than iOS9.2
 					//copy all 16 bytes
@@ -315,11 +315,11 @@ bool  GetNetworkNat64Prefix(struct in6_addr& _nat64_prefix_in6) {
 #ifdef __APPLE__
 	}
 #endif
-    if(error==0) {
+    if (error==0) {
     	for (res = res0; res; res = res->ai_next) {
     		char ip_buf[64] = {0};
 
-    		if(AF_INET6 == res->ai_family) {
+    		if (AF_INET6 == res->ai_family) {
     			memcpy ( (char*)&(_nat64_prefix_in6.s6_addr32), (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr32), 12);
 
     			ret = true;

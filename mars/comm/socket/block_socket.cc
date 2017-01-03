@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -43,13 +43,13 @@ SOCKET  block_socket_connect(const socket_address& _address, SocketSelectBreaker
     }
     
     int ret = socket_set_nobio(sock);
-    if(ret != 0) {
+    if (ret != 0) {
         _errcode = socket_errno;
         ::socket_close(sock);
         return INVALID_SOCKET;
     }
     
-    if(::getNetInfo() == kWifi && socket_fix_tcp_mss(sock) < 0) {
+    if (::getNetInfo() == kWifi && socket_fix_tcp_mss(sock) < 0) {
 #ifdef ANDROID
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
@@ -57,7 +57,7 @@ SOCKET  block_socket_connect(const socket_address& _address, SocketSelectBreaker
     
     //connect
     ret = connect(sock, &_address.address(), _address.address_length());
-    if(ret != 0 && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno)) {
+    if (ret != 0 && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno)) {
         _errcode = socket_errno;
         ::socket_close(sock);
         return INVALID_SOCKET;
@@ -69,34 +69,34 @@ SOCKET  block_socket_connect(const socket_address& _address, SocketSelectBreaker
     sel.Exception_FD_SET(sock);
     
     ret = (_timeout >= 0) ? (sel.Select(_timeout)) : (sel.Select());
-    if(ret == 0) {
+    if (ret == 0) {
         _errcode = SOCKET_ERRNO(ETIMEDOUT);
         ::socket_close(sock);
         return INVALID_SOCKET;
-    } else if(ret < 0) {
+    } else if (ret < 0) {
         _errcode = sel.Errno();
         ::socket_close(sock);
         return INVALID_SOCKET;
     }
     
-    if(sel.IsException()) {
+    if (sel.IsException()) {
         _errcode = 0;
         ::socket_close(sock);
         return INVALID_SOCKET;
     }
-    if(sel.IsBreak()) {
+    if (sel.IsBreak()) {
         _errcode = 0;
         ::socket_close(sock);
         return INVALID_SOCKET;
     }
     
-    if(sel.Exception_FD_ISSET(sock)) {
+    if (sel.Exception_FD_ISSET(sock)) {
         _errcode = socket_error(sock);
         ::socket_close(sock);
         return INVALID_SOCKET;
     }
     
-    if(!sel.Write_FD_ISSET(sock)) {
+    if (!sel.Write_FD_ISSET(sock)) {
         _errcode = socket_error(sock);
         ::socket_close(sock);
         //        xassert2(false);
@@ -122,7 +122,7 @@ int block_socket_send(SOCKET _sock, const void* _buffer, size_t _len, SocketSele
     
     SocketSelect sel(_breaker);
     
-    while(true) {
+    while (true) {
         if (sent_len >= _len) {
             _errcode = 0;
             return (int)sent_len;
@@ -135,12 +135,12 @@ int block_socket_send(SOCKET _sock, const void* _buffer, size_t _len, SocketSele
                 : (sel.Select());
         cost_time = (int32_t)(gettickcount() - start);
         
-        if(ret < 0) {
+        if (ret < 0) {
             _errcode = sel.Errno();
             return -1;
         }
         
-        if(ret == 0) {
+        if (ret == 0) {
             _errcode = SOCKET_ERRNO(ETIMEDOUT);
             return (int)sent_len;
         }
@@ -150,14 +150,14 @@ int block_socket_send(SOCKET _sock, const void* _buffer, size_t _len, SocketSele
             return (int)sent_len;
         }
         
-        if(sel.Exception_FD_ISSET(_sock)) {
+        if (sel.Exception_FD_ISSET(_sock)) {
             _errcode = socket_error(_sock);
             return -1;
         }
         
-        if(sel.Write_FD_ISSET(_sock)) {
+        if (sel.Write_FD_ISSET(_sock)) {
             ssize_t nwrite =::send(_sock, (const char*)_buffer+sent_len, _len-sent_len, 0);
-            if(nwrite == 0 || (0 > nwrite && !IS_NOBLOCK_SEND_ERRNO(socket_errno))) {
+            if (nwrite == 0 || (0 > nwrite && !IS_NOBLOCK_SEND_ERRNO(socket_errno))) {
                 _errcode = socket_errno;
                 return -1;
             }
@@ -178,7 +178,7 @@ int block_socket_recv(SOCKET _sock, AutoBuffer& _buffer, size_t _max_size, Socke
     }
     
     SocketSelect sel(_breaker);
-    while(true) {
+    while (true) {
         if (recv_len >= _max_size){
             _buffer.Length(_buffer.Pos(), _buffer.Length()+recv_len);
             _errcode = 0;
@@ -199,12 +199,12 @@ int block_socket_recv(SOCKET _sock, AutoBuffer& _buffer, size_t _max_size, Socke
                 : (sel.Select());
         cost_time = (int32_t)(gettickcount() - start);
         
-        if(ret < 0) {
+        if (ret < 0) {
             _errcode = sel.Errno();
             return -1;
         }
         
-        if(ret == 0) {
+        if (ret == 0) {
             _errcode = SOCKET_ERRNO(ETIMEDOUT);
             _buffer.Length(_buffer.Pos(), _buffer.Length()+recv_len);
             return (int)recv_len;
@@ -216,12 +216,12 @@ int block_socket_recv(SOCKET _sock, AutoBuffer& _buffer, size_t _max_size, Socke
             return (int)recv_len;
         }
         
-        if(sel.Exception_FD_ISSET(_sock)) {
+        if (sel.Exception_FD_ISSET(_sock)) {
             _errcode = socket_error(_sock);
             return -1;
         }
         
-        if(sel.Read_FD_ISSET(_sock)) {
+        if (sel.Read_FD_ISSET(_sock)) {
             ssize_t nrecv = ::recv(_sock, _buffer.Ptr(_buffer.Length()+recv_len), _max_size-recv_len, 0);
             
             if (0 == nrecv) {

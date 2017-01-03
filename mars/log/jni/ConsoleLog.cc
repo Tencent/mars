@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -25,20 +25,16 @@
 
 
 //这里不能加日志，会导致循环调用
-void ConsoleLog(const XLoggerInfo* _info, const char* _log)
-{
+void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
 	char result_log[2048] = {0};
-    if (_info)
-    {
+    if (_info) {
         const char* filename = ExtractFileName(_info->filename);
         char strFuncName [128] = {0};
         ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
 
         snprintf(result_log,  sizeof(result_log), "[%s, %s, %d]:%s", filename, strFuncName, _info->line, _log?_log:"NULL==log!!!");
         __android_log_write(_info->level+2, _info->tag?_info->tag:"", (const char*)result_log);
-    }
-    else
-    {
+    } else {
     	snprintf(result_log,  sizeof(result_log) , "%s", _log?_log:"NULL==log!!!");
         __android_log_write(ANDROID_LOG_WARN, "", (const char*)result_log);
     }

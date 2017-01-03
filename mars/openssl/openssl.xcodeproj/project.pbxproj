@@ -277,8 +277,6 @@
 		3D9E9AC61CA129FB00AF0E43 /* rsa_private_decrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 3D9E9AC51CA129FB00AF0E43 /* rsa_private_decrypt.c */; };
 		3DA3246C1DF97C5800A5D1CB /* rsa_crypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3DA3246B1DF97C5800A5D1CB /* rsa_crypt.cpp */; };
 		3DB0F65F1D25587B009296A8 /* openssl_multi_thread_support.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0F65D1D25587B009296A8 /* openssl_multi_thread_support.cpp */; };
-		4FBCE3EC1A0B6AC10001F6FA /* iCoreCrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBCE3EB1A0B6AC10001F6FA /* iCoreCrypt.cpp */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
-		DC466C801AD51D5F001923AB /* Objc2C_Openssl_Logic.mm in Sources */ = {isa = PBXBuildFile; fileRef = DC466C7F1AD51D5F001923AB /* Objc2C_Openssl_Logic.mm */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -709,9 +707,6 @@
 		3DA3246B1DF97C5800A5D1CB /* rsa_crypt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rsa_crypt.cpp; sourceTree = "<group>"; };
 		3DB0F65B1D255864009296A8 /* openssl_multi_thread_support.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = openssl_multi_thread_support.h; sourceTree = "<group>"; };
 		3DB0F65D1D25587B009296A8 /* openssl_multi_thread_support.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = openssl_multi_thread_support.cpp; sourceTree = "<group>"; };
-		4FBCE3E91A0B6ABA0001F6FA /* iCoreCrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCoreCrypt.h; sourceTree = "<group>"; };
-		4FBCE3EB1A0B6AC10001F6FA /* iCoreCrypt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iCoreCrypt.cpp; sourceTree = "<group>"; };
-		DC466C7F1AD51D5F001923AB /* Objc2C_Openssl_Logic.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Objc2C_Openssl_Logic.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1221,7 +1216,6 @@
 				3D9E9AC01CA1299900AF0E43 /* gen_rsa_key_pair.h */,
 				3D9E9AC11CA1299900AF0E43 /* rsa_private_decrypt.h */,
 				3D9E9AC21CA1299900AF0E43 /* rsa_pss_sha256.h */,
-				4FBCE3E91A0B6ABA0001F6FA /* iCoreCrypt.h */,
 				13F0F965197557FD00F2C2B2 /* aes_crypt.h */,
 				13F0F966197557FD00F2C2B2 /* ecdh_crypt.h */,
 				13F0F967197557FD00F2C2B2 /* ecdsa_verify.h */,
@@ -1314,7 +1308,6 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
-				DC466C7E1AD51D34001923AB /* objc */,
 				13F0F841197557FC00F2C2B2 /* crypto */,
 				13F0F95C197557FD00F2C2B2 /* e_os.h */,
 				13F0F95D197557FD00F2C2B2 /* e_os2.h */,
@@ -1409,17 +1402,8 @@
 				3D9E9AC31CA129EC00AF0E43 /* gen_rsa_key_pair.cpp */,
 				3D18BD801C9BE25100853A83 /* rsa_pss_sha256.cpp */,
 				3D18BD821C9BE25100853A83 /* test_rsa_pss_sha256.cpp */,
-				4FBCE3EB1A0B6AC10001F6FA /* iCoreCrypt.cpp */,
 			);
 			path = crypto;
-			sourceTree = "<group>";
-		};
-		DC466C7E1AD51D34001923AB /* objc */ = {
-			isa = PBXGroup;
-			children = (
-				DC466C7F1AD51D5F001923AB /* Objc2C_Openssl_Logic.mm */,
-			);
-			path = objc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1626,7 +1610,6 @@
 				13F0FA68197557FD00F2C2B2 /* rsa_none.c in Sources */,
 				13F0F9E5197557FD00F2C2B2 /* bf_lbuf.c in Sources */,
 				3D115DC51C06C94900901098 /* m_md2.c in Sources */,
-				4FBCE3EC1A0B6AC10001F6FA /* iCoreCrypt.cpp in Sources */,
 				13F0F9F0197557FD00F2C2B2 /* bss_null.c in Sources */,
 				13F0F9D3197557FD00F2C2B2 /* f_int.c in Sources */,
 				13F0FA6B197557FD00F2C2B2 /* rsa_pk1.c in Sources */,
@@ -1718,7 +1701,6 @@
 				13F0F9CB197557FD00F2C2B2 /* asn1_err.c in Sources */,
 				13F0FA04197557FD00F2C2B2 /* bn_prime.c in Sources */,
 				3D115ECE1C06F22A00901098 /* xts128.c in Sources */,
-				DC466C801AD51D5F001923AB /* Objc2C_Openssl_Logic.mm in Sources */,
 				3D115DBD1C06C94900901098 /* e_rc4_hmac_md5.c in Sources */,
 				3D115DC31C06C94900901098 /* evp_pbe.c in Sources */,
 				13F0F9EF197557FD00F2C2B2 /* bss_mem.c in Sources */,

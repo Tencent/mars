@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -93,7 +93,6 @@ void SmartHeartbeat::OnLongLinkDisconnect() {
     if (!current_net_heart_info_.is_stable_) {
 		xinfo2(TSF"%0 not stable last heart:%1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
 		return;
-	} else {
 	}
 
     current_net_heart_info_.success_curr_heart_count_ = 0;

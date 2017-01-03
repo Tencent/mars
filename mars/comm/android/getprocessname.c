@@ -12,8 +12,7 @@
 #include <unistd.h>
 #include "assert/__assert.h"
 
-const char* getprocessname()
-{
+const char* getprocessname() {
     static char data[1024];
     static char *x = 0;
     FILE *fp = 0;
@@ -22,7 +21,7 @@ const char* getprocessname()
 
     sprintf(data, "/proc/%d/cmdline", getpid());
     fp = fopen(data, "r");
-    if(fp) {
+    if (fp) {
         x = fgets(data, 1024, fp);
         fclose(fp);
     }

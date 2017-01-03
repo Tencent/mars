@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -16,11 +16,11 @@
 //  Created by yerungui on 13-4-4.
 //
 
-#include "comm/ptrbuffer.h"
+#include "mars/comm/ptrbuffer.h"
 
 #include <string.h>
 
-#include "comm/assert/__assert.h"
+#include "mars/comm/assert/__assert.h"
 
 const PtrBuffer KNullPtrBuffer(0, 0, 0);
 

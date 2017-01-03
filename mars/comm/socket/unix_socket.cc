@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -23,8 +23,7 @@
 
 #ifndef _WIN32
 
-int socket_set_nobio(SOCKET fd)
-{
+int socket_set_nobio(SOCKET fd) {
     int ret = fcntl(fd, F_GETFL, 0);
     if(ret >= 0) {
         long flags = ret | O_NONBLOCK;
@@ -34,8 +33,7 @@ int socket_set_nobio(SOCKET fd)
     return ret;
 }
 #else
-int socket_set_nobio(SOCKET fd)
-{
+int socket_set_nobio(SOCKET fd) {
     static const int noblock = 1;
     return ioctlsocket(fd, FIONBIO, (u_long*)&noblock);
 }
@@ -51,8 +49,7 @@ typedef unsigned int uint32;
 typedef int int32;
 typedef unsigned short uint16;  // NOLINT
 typedef short int16;  // NOLINT
-static int socket_inet_pton4(const char *src, void *dst)
-{
+static int socket_inet_pton4(const char *src, void *dst) {
     static const char digits[] = "0123456789";
     int saw_digit, octets, ch;
     unsigned char tmp[NS_INADDRSZ], *tp;
@@ -191,8 +188,7 @@ static int socket_inet_pton6(const char* src, void* dst) {
   memcpy(dst, &an_addr, sizeof(an_addr));
   return 1;
 }
-int socket_inet_pton(int af, const char *src, void *dst)
-{
+int socket_inet_pton(int af, const char *src, void *dst) {
     switch (af) {
     case AF_INET :
         return socket_inet_pton4 (src, dst);
@@ -204,8 +200,7 @@ int socket_inet_pton(int af, const char *src, void *dst)
     }
 }
 
-static const char *inet_ntop_v4 (const void *src, char *dst, socklen_t size)
-{
+static const char *inet_ntop_v4 (const void *src, char *dst, socklen_t size) {
     const char digits[] = "0123456789";
     int i;
     struct in_addr *addr = (struct in_addr *)src;
@@ -311,8 +306,7 @@ static const char* inet_ntop_v6(const void* src, char* dst, socklen_t size) {
   }
   return dst;
 }
-const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int size)
-{
+const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int size) {
     switch (af) {
     case AF_INET :
         return inet_ntop_v4 (src, dst, size);
@@ -326,8 +320,7 @@ const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int s
 #endif
 
 //not support in windows
-int socket_set_tcp_mss(SOCKET sockfd, int size)
-{
+int socket_set_tcp_mss(SOCKET sockfd, int size) {
 #ifdef _WIN32
     return 0;
 #else
@@ -335,8 +328,7 @@ int socket_set_tcp_mss(SOCKET sockfd, int size)
 #endif
 }
 
-int socket_get_tcp_mss(SOCKET sockfd, int* size)
-{
+int socket_get_tcp_mss(SOCKET sockfd, int* size) {
 #ifdef _WIN32
     return 0;
 #else
@@ -347,19 +339,16 @@ int socket_get_tcp_mss(SOCKET sockfd, int* size)
 #endif
 }
 
-int socket_fix_tcp_mss(SOCKET sockfd)
-{
+int socket_fix_tcp_mss(SOCKET sockfd) {
     return socket_set_tcp_mss(sockfd, 1400);
 }
 
-int socket_disable_nagle(SOCKET sock, int nagle)
-{
+int socket_disable_nagle(SOCKET sock, int nagle) {
     return setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *)&nagle, sizeof(nagle));
 }
 
 
-int socket_error(SOCKET sock)
-{
+int socket_error(SOCKET sock) {
     int error = 0;
     socklen_t len = sizeof(error);
     if (0 != getsockopt(sock, SOL_SOCKET, SO_ERROR, &error, &len))
@@ -367,21 +356,18 @@ int socket_error(SOCKET sock)
     return error;
 }
 
-int socket_isnonetwork(int error)
-{
+int socket_isnonetwork(int error) {
     if (error==SOCKET_ERRNO(ENETDOWN)) return 1;
     if (error==SOCKET_ERRNO(ENETUNREACH)) return 1;
 
     return 0;
 }
 
-int socket_reuseaddr(SOCKET sock, int optval)
-{
+int socket_reuseaddr(SOCKET sock, int optval) {
     return setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval , sizeof(int));
 }
 
-int socket_get_nwrite(SOCKET _sock, int* _nwriteLen)
-{
+int socket_get_nwrite(SOCKET _sock, int* _nwriteLen) {
 #if defined(__APPLE__)
     socklen_t len = sizeof(int);
     return getsockopt(_sock, SOL_SOCKET, SO_NWRITE, _nwriteLen, &len);
@@ -393,8 +379,7 @@ int socket_get_nwrite(SOCKET _sock, int* _nwriteLen)
 #endif
 }
 
-int socket_get_nread(SOCKET _sock, int* _nreadLen)
-{
+int socket_get_nread(SOCKET _sock, int* _nreadLen) {
 #if defined(__APPLE__)
     socklen_t len = sizeof(int);
     return getsockopt(_sock, SOL_SOCKET, SO_NREAD, _nreadLen, &len);
@@ -407,8 +392,7 @@ int socket_get_nread(SOCKET _sock, int* _nreadLen)
 
 }
 
-int socket_nwrite(SOCKET _sock)
-{
+int socket_nwrite(SOCKET _sock) {
     int value = 0;
     int ret = socket_get_nwrite(_sock, &value);
 
@@ -416,8 +400,7 @@ int socket_nwrite(SOCKET _sock)
     else return ret;
 }
 
-int socket_nread(SOCKET _sock)
-{
+int socket_nread(SOCKET _sock) {
     int value = 0;
     int ret = socket_get_nread(_sock, &value);
 

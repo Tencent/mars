@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -23,18 +23,15 @@
 extern "C" {
 #endif
 
-__inline int shmget(key_t key, size_t size, int shmflg)
-{
+__inline int shmget(key_t key, size_t size, int shmflg) {
     return syscall(__NR_shmget, key, size, shmflg);
 }
 
-__inline int shmdt(const void* shmaddr)
-{
+__inline int shmdt(const void* shmaddr) {
     return syscall(__NR_shmdt, shmaddr);
 }
 
-__inline void* shmat(int shmid, const void* shmaddr, int shmflg)
-{
+__inline void* shmat(int shmid, const void* shmaddr, int shmflg) {
     return (void*)syscall(__NR_shmat, shmid, shmaddr, shmflg);
 }
 

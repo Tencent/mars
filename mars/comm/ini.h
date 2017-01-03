@@ -192,7 +192,7 @@ class INI {
             if ((line_length >= 2) && line[0] == '/' && line[1] == '/')
                 continue;
 
-            if(line[line_length-1] == '\n') {
+            if (line[line_length-1] == '\n') {
                 line[line_length-1] = '\0';
                 line_length -= 1;
             }
@@ -359,7 +359,7 @@ V INI::Get(const std::string& section, const std::string& key, const V& def) {
     std::stringstream strstream(keys->second);
     strstream >> result;
 
-    if(strstream.bad()) {
+    if (strstream.bad()) {
         ASSERT("strstream.bad()");
         return def;
     } else if (strstream.fail()) {

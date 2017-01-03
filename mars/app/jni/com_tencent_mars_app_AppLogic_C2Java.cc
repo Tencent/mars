@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -10,7 +10,7 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Tencent is pleased to support the open source community by making GAutomator available.
+// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
@@ -85,7 +85,7 @@ AccountInfo GetAccountInfo() {
 
 	info.uin = (long)uin;
 
-	if(username_jstr != NULL) {
+	if (username_jstr != NULL) {
 		info.username = ScopedJstring(env, username_jstr).GetChar();
 		env->DeleteLocalRef(username_jstr);
 	}
@@ -110,7 +110,7 @@ std::string GetUserName() {
 
  	env->DeleteLocalRef(ret_obj);
 
-     if(username_jstr != NULL) {
+     if (username_jstr != NULL) {
          const char* name = env->GetStringUTFChars(username_jstr, NULL);
          std::string user_name(name);
          env->ReleaseStringUTFChars(username_jstr, name);
@@ -121,8 +121,7 @@ std::string GetUserName() {
      }
 }
 
-std::string GetRecentUserName()
-{
+std::string GetRecentUserName() {
 	return GetUserName();
 }
 
