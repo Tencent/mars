@@ -193,7 +193,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
     snprintf(log, sizeof(log), "[%s][%s][%s, %s, %d][%s", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, strFuncName, _info->line, _log);
     
     
-    NSLog(@"%s", log);
+    NSLog(@"%@", [NSString stringWithUTF8String:log]);
 }
 
 bool isNetworkConnected()
