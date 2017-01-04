@@ -64,9 +64,11 @@ class LongLinkConnectObserver : public MComplexConnect {
     	connecting_index_[_index] = 1;
     }
     virtual void OnConnected(unsigned int _index, const socket_address& _addr, SOCKET _socket, int _error, int _rtt) {
-        if (0 == _error)
-        {}
-        else {
+        if (0 == _error) {
+            if (!OnShouldVerify(_index, _addr)) {
+                connecting_index_[_index] = 0;
+            }
+        } else {
             xwarn2(TSF"index:%_, connnet fail host:%_, iptype:%_", _index, ip_items_[_index].str_host, ip_items_[_index].source_type);
             xassert2(longlink_.fun_network_report_);
 
@@ -76,7 +78,10 @@ class LongLinkConnectObserver : public MComplexConnect {
         }
     }
 
-    virtual bool OnShouldVerify(unsigned int _index, const socket_address& _addr) { return true;}
+    virtual bool OnShouldVerify(unsigned int _index, const socket_address& _addr) {
+        return longlink_complexconnect_need_verify();
+    }
+    
     virtual bool OnVerifySend(unsigned int _index, const socket_address& _addr, SOCKET _socket, AutoBuffer& _buffer_send) {
         AutoBuffer body;
         longlink_noop_req_body(body);
