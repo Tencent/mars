@@ -370,9 +370,10 @@ bool NetCore::HasTask(uint32_t _taskid) const {
 
 #ifdef USE_LONG_LINK
     if (longlink_task_manager_->HasTask(_taskid)) return true;
+    if (zombie_task_manager_->HasTask(_taskid)) return true;
 #endif
     if (shortlink_task_manager_->HasTask(_taskid)) return true;
-    if (zombie_task_manager_->HasTask(_taskid)) return true;
+    
 	return false;
 }
 
@@ -605,7 +606,6 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status) {
 void NetCore::__ConnStatusCallBack() {
 
     int all_connstatus = 0;
-    int longlink_connstatus = longlink_task_manager_->LongLinkChannel().ConnectStatus();
 
     if (shortlink_try_flag_) {
 		if (shortlink_error_count_ >= kShortlinkErrTime) {
@@ -619,7 +619,9 @@ void NetCore::__ConnStatusCallBack() {
 		all_connstatus = kNetworkUnkown;
 	}
 
+    int longlink_connstatus = 0;
 #ifdef USE_LONG_LINK
+    longlink_connstatus = longlink_task_manager_->LongLinkChannel().ConnectStatus();
     switch (longlink_connstatus) {
 		case LongLink::kDisConnected:
 			return;

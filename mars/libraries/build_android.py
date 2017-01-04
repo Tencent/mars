@@ -202,8 +202,8 @@ def main():
         return
 
     while True:
-    	flag = 0
-    	archs = []
+        flag = 0
+        archs = []
         if len(sys.argv) >=2 and len(sys.argv[1])==1 and sys.argv[1] >="1" and sys.argv[1] <="5":
             num = sys.argv[1]
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
@@ -216,20 +216,20 @@ def main():
             archs = choose_android_mars_jni_arch()
             if len(archs) == 0:
                 return
-   		
+                
         if flag == 1:
-	    if "1" == num:
-    		return build_android_mars_shared_libs()
+            if "1" == num:
+                return build_android_mars_shared_libs()
             elif "2" == num:
-	    	return build_android_mars_static_libs()
-	    elif "3" == num:
-	    	return build_android_xlog_static_libs()
-	    elif "4" == num:
-		return build_android_xlog_shared_libs()
-	    elif "5" ==num:
-		return 0
-	    else:
-		pass
+                return build_android_mars_static_libs()
+            elif "3" == num:
+                return build_android_xlog_static_libs()
+            elif "4" == num:
+                return build_android_xlog_shared_libs()
+            elif "5" ==num:
+                return 0
+            else:
+                pass
         else:
 
             
@@ -255,22 +255,22 @@ def main():
                     build_android_mars_shared_libs(MARS_LIBS_PATH, arch)
                 elif "2" == num:
                     build_android_mars_static_libs(MARS_LIBS_PATH, arch)
-	        elif "3" == num:
-		    build_android_xlog_static_libs(XLOG_LIBS_PATH, arch)
-	        elif "4" == num:
+                elif "3" == num:
+                    build_android_xlog_static_libs(XLOG_LIBS_PATH, arch)
+                elif "4" == num:
                     build_android_xlog_shared_libs(XLOG_LIBS_PATH, arch)
 
-	        elif "5" ==num:
+                elif "5" ==num:
                     return 0
-	        else:
-		    return 0
+                else:
+                    return 0
 
                 libs_cache_dir = SO_CACHE_DIR + arch
-		symbols_cache_dir = SO_SYMBOL_CACHE_DIR + arch
+                symbols_cache_dir = SO_SYMBOL_CACHE_DIR + arch
                 libs_des_dir = SO_DES_DIR + arch
                 symbols_des_dir = SO_SYMBOL_DES_IR + arch
 
-		if not os.path.exists(libs_cache_dir):
+                if not os.path.exists(libs_cache_dir):
                     os.makedirs(libs_cache_dir)
                 if not os.path.exists(symbols_cache_dir):
                     os.makedirs(symbols_cache_dir)
@@ -283,11 +283,14 @@ def main():
             if "2" == num or "3" == num:
                 return
 
-            shutil.rmtree(SO_DES_DIR)
-            shutil.rmtree(SO_SYMBOL_DES_IR)
+
+            if os.path.exists(SO_DES_DIR):
+                shutil.rmtree(SO_DES_DIR)
+            if os.path.exists(SO_SYMBOL_DES_IR):
+                shutil.rmtree(SO_SYMBOL_DES_IR)
             for i in range(0, len(archs)):
                 shutil.copytree(SO_CACHE_DIR + archs[i], SO_DES_DIR + archs[i])
-	        shutil.copytree(SO_SYMBOL_CACHE_DIR + archs[i], SO_SYMBOL_DES_IR + archs[i])
+                shutil.copytree(SO_SYMBOL_CACHE_DIR + archs[i], SO_SYMBOL_DES_IR + archs[i])
 
             return
 
