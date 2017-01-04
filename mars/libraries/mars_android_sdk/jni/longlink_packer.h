@@ -43,4 +43,6 @@ uint32_t signal_keep_cmdid();
 void longlink_noop_req_body(AutoBuffer& _body);
 void longlink_noop_resp_body(AutoBuffer& _body);
 
+bool longlink_complexconnect_need_verify();
+
 #endif // STN_SRC_LONGLINKPACKER_H_

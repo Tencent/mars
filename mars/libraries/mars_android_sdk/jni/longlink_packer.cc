@@ -1,3 +1,15 @@
+// Tencent is pleased to support the open source community by making Mars available.
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+
+// Licensed under the MIT License (the "License"); you may not use this file except in 
+// compliance with the License. You may obtain a copy of the License at
+// http://opensource.org/licenses/MIT
+
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied. See the License for the specific language governing permissions and
+// limitations under the License.
+
 
 /*
  * longlink_packer.cc
@@ -17,11 +29,10 @@
 #include "comm/socket/unix_socket.h"
 #endif
 
-static uint16_t sg_client_version = 0;
+static uint32_t sg_client_version = 0;
 
 #pragma pack(push, 1)
-struct __STNetMsgXpHeader
-{
+struct __STNetMsgXpHeader {
     uint32_t    head_length;
     uint32_t    client_version;
     uint32_t    cmdid;
@@ -38,8 +49,7 @@ namespace stn {
 }
 }
 
-static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, size_t& _body_len)
-{
+static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, size_t& _body_len) {
     __STNetMsgXpHeader st = {0};
     if (_packed_len < sizeof(__STNetMsgXpHeader)) {
         _package_len = 0;
@@ -68,7 +78,6 @@ static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmd
 }
 
 void longlink_pack(uint32_t _cmdid, uint32_t _seq, const void* _raw, size_t _raw_len, AutoBuffer& _packed) {
-    
     __STNetMsgXpHeader st = {0};
     st.head_length = htonl(sizeof(__STNetMsgXpHeader));
     st.client_version = htonl(sg_client_version);
@@ -106,3 +115,5 @@ uint32_t longlink_noop_resp_cmdid() {return NOOP_CMDID;}
 uint32_t signal_keep_cmdid() {return SIGNALKEEP_CMDID;}
 void longlink_noop_req_body(AutoBuffer& _body) {}
 void longlink_noop_resp_body(AutoBuffer& _body) {}
+
+bool longlink_complexconnect_need_verify() {  return false; }

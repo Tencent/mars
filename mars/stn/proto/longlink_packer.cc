@@ -32,8 +32,7 @@
 static uint32_t sg_client_version = 0;
 
 #pragma pack(push, 1)
-struct __STNetMsgXpHeader
-{
+struct __STNetMsgXpHeader {
     uint32_t    head_length;
     uint32_t    client_version;
     uint32_t    cmdid;
@@ -50,8 +49,7 @@ namespace stn {
 }
 }
 
-static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, size_t& _body_len)
-{
+static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, size_t& _body_len) {
     __STNetMsgXpHeader st = {0};
     if (_packed_len < sizeof(__STNetMsgXpHeader)) {
         _package_len = 0;
@@ -79,8 +77,7 @@ static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmd
     return LONGLINK_UNPACK_OK;
 }
 
-void longlink_pack(uint32_t _cmdid, uint32_t _seq, const void* _raw, size_t _raw_len, AutoBuffer& _packed)
-{
+void longlink_pack(uint32_t _cmdid, uint32_t _seq, const void* _raw, size_t _raw_len, AutoBuffer& _packed) {
     __STNetMsgXpHeader st = {0};
     st.head_length = htonl(sizeof(__STNetMsgXpHeader));
     st.client_version = htonl(sg_client_version);
