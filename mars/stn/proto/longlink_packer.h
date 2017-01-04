@@ -39,6 +39,7 @@ int  longlink_unpack(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq
 //heartbeat signal to keep longlink network alive
 uint32_t longlink_noop_cmdid();
 uint32_t longlink_noop_resp_cmdid();
+uint32_t signal_keep_cmdid();
 void longlink_noop_req_body(AutoBuffer& _body);
 void longlink_noop_resp_body(AutoBuffer& _body);
 

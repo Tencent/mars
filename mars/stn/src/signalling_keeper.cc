@@ -35,8 +35,6 @@ using namespace mars::stn;
 static unsigned int g_period = 5 * 1000;  // ms
 static unsigned int g_keepTime = 20 *1000;  // ms
 
-static const unsigned int kSignallingCmdId = 243;
-
 
 SignallingKeeper::SignallingKeeper(const LongLink& _longlink, MessageQueue::MessageQueue_t _messagequeue_id, bool _use_UDP)
 :msgreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
@@ -132,13 +130,13 @@ void SignallingKeeper::__SendSignallingBuffer()
         {
             udp_client_.SetIpPort(ip_, port_);
             AutoBuffer buffer;
-            longlink_pack(kSignallingCmdId, 0, NULL, 0, buffer);
+            longlink_pack(signal_keep_cmdid(), 0, NULL, 0, buffer);
             udp_client_.SendAsync(buffer.Ptr(), buffer.Length());
         }
     } else {
         if (fun_send_signalling_buffer_)
         {
-            fun_send_signalling_buffer_(NULL, 0, kSignallingCmdId);
+            fun_send_signalling_buffer_(NULL, 0, signal_keep_cmdid());
         }
     }
 }
