@@ -32,7 +32,6 @@
 //
 #define DNS_TIMEOUT  (1)// s
 
-//if do not use newdns IP, comment the macro
 #define USE_LONG_LINK
 //task attribute max value
 #define DEF_TASK_TIME_OUT (60*1000)
