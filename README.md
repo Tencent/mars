@@ -294,7 +294,7 @@ Mars is under the MIT license. See the [LICENSE](https://github.com/Tencent/mars
 [![Release Version](https://img.shields.io/badge/release-1.1.3-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
 [![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.3-red.svg)](https://github.com/Tencent/mars/wiki)
-
+[![WeChat Approved](https://img.shields.io/badge/Platform-iOS | OS X | Android -brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 Mars 是微信官方的跨平台跨业务的终端基础组件。
 
