@@ -19,13 +19,15 @@
 #import <Foundation/Foundation.h>
 #import "LogUtil.h"
 
-
 typedef NS_ENUM(NSUInteger, XloggerType) {
-    
-    debug,
-    info,
-    warning,
-    error,
+    all = kLevelAll,
+    verbose = kLevelVerbose,
+    debug = kLevelDebug,
+    info = kLevelInfo,
+    warning = kLevelWarn,
+    error = kLevelError,
+    fatal = kLevelFatal,
+    none = kLevelNone
     
 };
 

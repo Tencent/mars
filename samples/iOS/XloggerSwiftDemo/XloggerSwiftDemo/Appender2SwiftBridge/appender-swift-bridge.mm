@@ -35,32 +35,12 @@
     
     // init xlog
     #if DEBUG
-    switch (debugLevel) {
-        case debug:
-            xlogger_SetLevel(kLevelDebug);
-        case info:
-            xlogger_SetLevel(kLevelInfo);
-        case warning:
-            xlogger_SetLevel(kLevelWarn);
-        case error:
-            xlogger_SetLevel(kLevelError);
-        default:
-            break;
-    }
+
+    xlogger_SetLevel((TLogLevel)debugLevel);
     appender_set_console_log(true);
     #else
-    switch (releaseLevel) {
-        case debug:
-            xlogger_SetLevel(kLevelDebug);
-        case info:
-            xlogger_SetLevel(kLevelInfo);
-        case warning:
-            xlogger_SetLevel(kLevelWarn);
-        case error:
-            xlogger_SetLevel(kLevelError);
-        default:
-            break;
-    }
+   
+    xlogger_SetLevel((TLogLevel)releaseLevel);
     appender_set_console_log(false);
     #endif
     appender_open(kAppednerAsync, [logPath UTF8String], prefix);

@@ -18,6 +18,7 @@ xcshareddata
 !/mars/boost/libs/
 /samples/iOS/iOSDemo/Kernel/MarsLib/
 /samples/iOS/iOSDemoXlog/Kernel/MarsLib/
+/samples/iOS/XloggerSwiftDemo/Kernel/MarsLib/
 /samples/Mac/Kernel/MarsLib/
 /samples/android/xlogSample/app/src/main/jni/export_include/*.so
 
