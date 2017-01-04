@@ -329,6 +329,7 @@
 					"KVCOMM=1",
 					"XLOGGER=1",
 					"DEBUG=1",
+					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -488,6 +489,7 @@
 					"KVCOMM=1",
 					"XLOGGER=1",
 					"NDEBUG=1",
+					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
