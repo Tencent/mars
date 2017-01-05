@@ -18,17 +18,18 @@ It is proved to be effective by billions of Wechat users.
 
 ![mars](https://github.com/WeMobileDev/article/blob/master/assets/mars/mars.png?raw=true)
 
-* comm：common library, including socket, thread, message queue, coroutine, etc.
-* Xlog：a reliable log component with high-performance.
-* SDT： a network detection component.
-* STN： a signaling network component, the major part of Mars.
+* comm: common library, including socket, thread, message queue, coroutine, etc.
+* Xlog: a reliable log component with high-performance.
+* SDT: a network detection component.
+* STN: a signaling network component, the major part of Mars.
 
 ## Samples
 
-Start with sample usage [here](https://github.com/Tencent/mars/wiki/Mars-sample-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
+Start with sample usage [here](https://github.com/Tencent/mars/wiki/Mars-sample-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E).
 
 ## Getting started
-Choose [Android](#android) or [iOS/OS X](#apple)
+
+Choose [Android](#android) or [iOS/OS X](#apple).
 
 ### <a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
@@ -273,6 +274,7 @@ Network change:
 ```
 
 ## Support
+
 Any problem?
 
 1. Learn more from [mars/sample](https://github.com/Tencent/mars/tree/master/samples).
@@ -281,9 +283,11 @@ Any problem?
 4. Contact us for help.
 
 ## Contributing
+
 For more information about contributing issues or pull requests, see our [Mars Contributing Guide](https://github.com/Tencent/mars/blob/master/CONTRIBUTING.md).
 
 ## License
+
 Mars is under the MIT license. See the [LICENSE](https://github.com/Tencent/mars/blob/master/LICENSE) file for details.
 
 
@@ -308,10 +312,11 @@ Mars 是微信官方的跨平台跨业务的终端基础组件。
 
 ##Samples
 
-sample 的使用请参考[这里](https://github.com/Tencent/mars/wiki/Mars-sample-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
+sample 的使用请参考[这里](https://github.com/Tencent/mars/wiki/Mars-sample-%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)。
 
 ##Getting started
-接入 [Android](#android) 或者 [iOS/OS X](#apple)
+
+接入 [Android](#android) 或者 [iOS/OS X](#apple)。
 
 ###<a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
@@ -399,7 +404,7 @@ BaseEvent.onForeground(true);
 StnLogic.makesureLongLinkConnected();
 ```
 
-初始化顺序不一定要严格遵守上述代码的顺序，但在初始化时首先要调用 setCallBack 接口 (callback 文件的编写可以参考 demo)，再调用 Mars.init，最后再调用onForeground 和 makesureLongLinkConnect，中间顺序可以随意更改。**注意：STN 默认是后台，所以初始化 STN 后需要主动调用一次**```BaseEvent.onForeground(true)```
+初始化顺序不一定要严格遵守上述代码的顺序，但在初始化时首先要调用 setCallBack 接口 (callback 文件的编写可以参考 demo)，再调用 Mars.init，最后再调用 onForeground 和 makesureLongLinkConnect，中间顺序可以随意更改。**注意：STN 默认是后台，所以初始化 STN 后需要主动调用一次**```BaseEvent.onForeground(true)```
 
 需要释放 STN 或者退出程序时:
 
@@ -559,15 +564,16 @@ appender_close();
 ```
 
 ## Support
+
 还有其他问题？
 
-1. 参看 [mars/sample](https://github.com/Tencent/mars/tree/master/samples).
-2. 阅读 [源码](https://github.com/Tencent/mars/tree/master).
-3. 阅读 [wiki](https://github.com/Tencent/mars/wiki) 或者 [FAQ](https://github.com/Tencent/mars/wiki/Mars-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
-4. 联系我们.
+1. 参看 [mars/sample](https://github.com/Tencent/mars/tree/master/samples)；
+2. 阅读 [源码](https://github.com/Tencent/mars/tree/master)；
+3. 阅读 [wiki](https://github.com/Tencent/mars/wiki) 或者 [FAQ](https://github.com/Tencent/mars/wiki/Mars-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)；
+4. 联系我们。
 
 ## Contributing
-关于 Mars 分支管理、issue 以及 pr 规范, 请阅读 [Mars Contributing Guide](https://github.com/Tencent/mars/blob/master/CONTRIBUTING.md).
+关于 Mars 分支管理、issue 以及 pr 规范，请阅读 [Mars Contributing Guide](https://github.com/Tencent/mars/blob/master/CONTRIBUTING.md)。
 
 ## License
-Mars 使用的 MIT 协议，详细请参考[LICENSE](https://github.com/Tencent/mars/blob/master/LICENSE).
+Mars 使用的 MIT 协议，详细请参考 [LICENSE](https://github.com/Tencent/mars/blob/master/LICENSE)。
