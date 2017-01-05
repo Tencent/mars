@@ -26,6 +26,7 @@
 
 @interface MessageItemsController : UITableViewController<UINotifyDelegate> {
     NSArray<Conversation*> * converSations;
+    ConversationListResponse *convlstResponse;
 }
 
 @end

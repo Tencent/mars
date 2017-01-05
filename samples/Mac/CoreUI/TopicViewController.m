@@ -44,7 +44,7 @@
 }
 
 
--(int)notifyUIWithResponse:(NSData*)responseData {
+-(int)onPostDecode:(NSData*)responseData {
     SendMessageResponse *sendMsgResponse = [SendMessageResponse parseFromData:responseData];
     
     [_recvTextField setStringValue:sendMsgResponse.errMsg];
@@ -60,6 +60,11 @@
     [_textField setStringValue:self->text];
     
     [_sendTextField setStringValue:@""];
+}
+
+- (int)onTaskEnd:(uint32_t)tid errType:(uint32_t)errtype errCode:(uint32_t)errcode {
+    
+    return 0;
 }
 
 @end

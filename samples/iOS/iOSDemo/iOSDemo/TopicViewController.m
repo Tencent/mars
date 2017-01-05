@@ -55,12 +55,8 @@
 }
 
 
--(int)notifyUIWithResponse:(NSData*)responseData {
+-(int)onPostDecode:(NSData*)responseData {
     SendMessageResponse *sendMsgResponse = [SendMessageResponse parseFromData:responseData];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [_recvContentField setText:sendMsgResponse.errMsg];
-    });
     
     return sendMsgResponse.errCode == 0 ? 0 : -1;
 }
@@ -87,6 +83,11 @@
         });
        
     }
+}
+
+- (int)onTaskEnd:(uint32_t)tid errType:(uint32_t)errtype errCode:(uint32_t)errcode {
+    
+    return 0;
 }
 
 @end

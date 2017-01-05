@@ -50,13 +50,18 @@
     return data;
 }
 
-- (int)notifyUIWithResponse:(NSData*)responseData {
+- (int)onPostDecode:(NSData*)responseData {
     HelloResponse* helloResponse = [HelloResponse parseFromData:responseData];
     if ([helloResponse hasErrmsg]) {
         LOG_INFO(kModuleViewController, @"hello response: %@", helloResponse.errmsg);
     }
     
     return helloResponse.retcode == 0 ? 0 : -1;
+}
+
+- (int)onTaskEnd:(uint32_t)tid errType:(uint32_t)errtype errCode:(uint32_t)errcode {
+    
+    return 0;
 }
 
 @end

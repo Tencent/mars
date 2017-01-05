@@ -24,7 +24,8 @@
 @protocol UINotifyDelegate <NSObject>
 
 @required -(NSData*)requestSendData;
-@required -(int)notifyUIWithResponse:(NSData*)responseData;
+@required -(int)onPostDecode:(NSData*)responseData;
+@required -(int)onTaskEnd:(uint32_t)tid errType:(uint32_t)errtype errCode:(uint32_t)errcode;
 
 @end
 

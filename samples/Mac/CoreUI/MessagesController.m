@@ -54,7 +54,7 @@
 - (nullable NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row {
     NSTableCellView *cellView = [tableView makeViewWithIdentifier:@"message" owner:self];
     
-    cellView.textField.stringValue = self->converSations[row].topic;
+    cellView.textField.stringValue = self->converSations[row].notice;
     
     return cellView;
 }
@@ -92,18 +92,20 @@
     return data;
 }
 
-- (int)notifyUIWithResponse:(NSData*)responseData {
+- (int)onPostDecode:(NSData*)responseData {
     ConversationListResponse *convlstResponse = [ConversationListResponse parseFromData:responseData];
     self->converSations = convlstResponse.list;
-    
     LOG_INFO(kModuleViewController, @"recv conversation list, size: %lu", (unsigned long)[self->converSations count]);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self reloadData];
-    });
     
     return [self->converSations count] > 0 ? 0 : -1;
     
+}
+
+- (int)onTaskEnd:(uint32_t)tid errType:(uint32_t)errtype errCode:(uint32_t)errcode {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self reloadData];
+    });
+    return 0;
 }
 
 @end

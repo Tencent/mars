@@ -20,6 +20,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import "Chat.pb.h"
+
 #import "UINotifyDelegate.h"
 #import "PushNotifyDelegate.h"
 

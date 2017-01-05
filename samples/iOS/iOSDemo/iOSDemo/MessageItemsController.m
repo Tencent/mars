@@ -23,8 +23,6 @@
 #import "TopicViewController.h"
 #import "LogUtil.h"
 
-#import "Main.pb.h"
-
 #import "CGITask.h"
 #import "CommandID.h"
 #import "NetworkService.h"
@@ -88,18 +86,22 @@
     return data;
 }
 
-- (int)notifyUIWithResponse:(NSData*)responseData {
-    
-    ConversationListResponse *convlstResponse = [ConversationListResponse parseFromData:responseData];
+- (int)onPostDecode:(NSData*)responseData {
+    convlstResponse = [ConversationListResponse parseFromData:responseData];
     self->converSations = convlstResponse.list;
     LOG_INFO(kModuleViewController, @"recv conversation list, size: %lu", (unsigned long)[self->converSations count]);
+    
+    return [self->converSations count] > 0 ? 0 : -1;
+
+}
+
+- (int)onTaskEnd:(uint32_t)tid errType:(uint32_t)errtype errCode:(uint32_t)errcode {
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.tableView reloadData];
     });
     
-    return [self->converSations count] > 0 ? 0 : -1;
-
+    return 0;
 }
 
 @end

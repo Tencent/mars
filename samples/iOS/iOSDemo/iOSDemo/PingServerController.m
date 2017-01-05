@@ -22,8 +22,6 @@
 
 #import "LogUtil.h"
 
-#import "Main.pb.h"
-
 #import "CGITask.h"
 #import "CommandID.h"
 #import "NetworkService.h"
@@ -55,13 +53,18 @@
     return data;
 }
 
-- (int)notifyUIWithResponse:(NSData*)responseData {
-    HelloResponse* helloResponse = [HelloResponse parseFromData:responseData];
+- (int)onPostDecode:(NSData*)responseData {
+    helloResponse = [HelloResponse parseFromData:responseData];
     if ([helloResponse hasErrmsg]) {
         LOG_INFO(kModuleViewController, @"recv hello response: %@", helloResponse.errmsg);
     }
     
     return helloResponse.retcode == 0 ? 0 : -1;
+}
+
+- (int)onTaskEnd:(uint32_t)tid errType:(uint32_t)errtype errCode:(uint32_t)errcode {
+    
+    return 0;
 }
 
 @end
