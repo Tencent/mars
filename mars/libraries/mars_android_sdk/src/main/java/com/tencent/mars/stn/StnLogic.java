@@ -90,7 +90,7 @@ public class StnLogic {
 
     public static final int INVALID_TASK_ID = -1;
 
-    // ErrCmdType
+    // STN callback errType
     public static final int ectOK = 0;
     public static final int ectFalse = 1;
     public static final int ectDial = 2;
@@ -101,6 +101,27 @@ public class StnLogic {
     public static final int ectEnDecode = 7;
     public static final int ectServer = 8;
     public static final int ectLocal = 9;
+
+    //STN callback errCode
+    public static final int FIRSTPKGTIMEOUT = -500;
+    public static final int PKGPKGTIMEOUT = -501;
+    public static final int READWRITETIMEOUT = -502;
+    public static final int TASKTIMEOUT = -503;
+
+    public static final int SOCKETNETWORKCHANGE = -10086;
+    public static final int SOCKETMAKESOCKETPREPARED = -10087;
+    public static final int SOCKETWRITENWITHNONBLOCK = -10088;
+    public static final int SOCKETREADONCE = -10089;
+    public static final int SOCKETSHUTDOWN = -10090;
+    public static final int SOCKETRECVERR = -10091;
+    public static final int SOCKETSENDERR = -10092;
+
+    public static final int HTTPSPLITHTTPHEADANDBODY = -10194;
+    public static final int HTTPPARSESTATUSLINE = -10195;
+
+    public static final int NETMSGXPHANDLEBUFFERERR = -10504;
+
+    public static final int DNSMAKESOCKETPREPARED = -10606;
 
     //reportConnectStatus
     //status
@@ -124,6 +145,8 @@ public class StnLogic {
     public static int RESP_FAIL_HANDLE_TASK_END = -14;
 
     public static int TASK_END_SUCCESS = 0;
+
+
 
     private static ICallBack callBack = null;
 

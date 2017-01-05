@@ -27,6 +27,7 @@ public class Xlog implements Log.LogImp {
 
 	public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix) {
 		if (isLoadLib) {
+			System.loadLibrary("stlport_shared");
 			System.loadLibrary("marsxlog");
 		}
 
