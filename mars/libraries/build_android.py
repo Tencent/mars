@@ -244,7 +244,8 @@ def main():
             SO_SYMBOL_CACHE_DIR = sdk_path + "/so_cache/symbol/"
             SO_DES_DIR = sdk_path + "/libs/"
             SO_SYMBOL_DES_IR = sdk_path + "/obj/local/"
-
+            if os.path.exists(SO_CACHE_DIR):
+                shutil.rmtree(SO_CACHE_DIR)
 
             for i in range(0, len(archs)):
                 print "build %s" %(archs[i])
@@ -282,7 +283,6 @@ def main():
 
             if "2" == num or "3" == num:
                 return
-
 
             if os.path.exists(SO_DES_DIR):
                 shutil.rmtree(SO_DES_DIR)
