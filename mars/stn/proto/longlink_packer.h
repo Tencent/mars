@@ -44,5 +44,6 @@ void longlink_noop_req_body(AutoBuffer& _body);
 void longlink_noop_resp_body(AutoBuffer& _body);
 
 bool longlink_complexconnect_need_verify();
+bool is_push_data(uint32_t _cmdid, uint32_t _taskid);
 
 #endif // STN_SRC_LONGLINKPACKER_H_

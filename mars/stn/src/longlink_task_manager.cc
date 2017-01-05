@@ -35,6 +35,7 @@
 #endif
 #include "mars/stn/config.h"
 #include "mars/stn/task_profile.h"
+#include "mars/stn/proto/longlink_packer.h"
 
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
@@ -505,10 +506,14 @@ void LongLinkTaskManager::__OnResponse(ErrCmdType _error_type, int _error_code, 
         return;
     }
     
+    if (is_push_data(_cmdid, _taskid)) {
+        return;
+    }
+    
     std::list<TaskProfile>::iterator it = __Locate(_taskid);
     
     if (lst_cmd_.end() == it) {
-        xwarn2_if(Task::kInvalidTaskID != _taskid, TSF"task no found task:%0, cmdid:%1, ect:%2, errcode:%3",
+        xwarn2(TSF"task no found task:%0, cmdid:%1, ect:%2, errcode:%3",
                   _taskid, _cmdid, _error_type, _error_code);
         return;
     }

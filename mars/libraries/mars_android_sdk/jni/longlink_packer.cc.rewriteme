@@ -105,15 +105,31 @@ int longlink_unpack(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq,
     return ret;
 }
 
-/**
- * nooping param
- */
+
 #define NOOP_CMDID 6
 #define SIGNALKEEP_CMDID 243
-uint32_t longlink_noop_cmdid() {return NOOP_CMDID;}
-uint32_t longlink_noop_resp_cmdid() {return NOOP_CMDID;}
-uint32_t signal_keep_cmdid() {return SIGNALKEEP_CMDID;}
+#define PUSH_DATA_TASKID 0
+
+uint32_t longlink_noop_cmdid() {
+    return NOOP_CMDID;
+}
+
+
+uint32_t longlink_noop_resp_cmdid() {
+    return NOOP_CMDID;
+}
+
+uint32_t signal_keep_cmdid() {
+    return SIGNALKEEP_CMDID;
+}
+
 void longlink_noop_req_body(AutoBuffer& _body) {}
 void longlink_noop_resp_body(AutoBuffer& _body) {}
 
-bool longlink_complexconnect_need_verify() {  return false; }
+bool longlink_complexconnect_need_verify() {  
+    return false;
+}
+
+bool is_push_data(uint32_t _cmdid, uint32_t _taskid) {
+    return PUSH_DATA_TASKID == _taskid;
+}

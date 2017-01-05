@@ -35,6 +35,7 @@
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/stn/config.h"
 #include "mars/stn/task_profile.h"
+#include "mars/stn/proto/longlink_packer.h"
 
 #include "net_source.h"
 #include "net_check_logic.h"
@@ -528,9 +529,9 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 #ifdef USE_LONG_LINK
 
 void NetCore::__OnPush(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _buf) {
-    xinfo2_if(0 == _taskid, TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _buf.Length());
-    
-    if (_taskid == Task::kInvalidTaskID) {
+
+    if (is_push_data(_cmdid, _taskid)) {
+        xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _buf.Length());
         push_preprocess_signal_(_cmdid, _buf);
         OnPush(_cmdid, _buf);
     }
