@@ -1,8 +1,20 @@
+// Tencent is pleased to support the open source community by making Mars available.
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+
+// Licensed under the MIT License (the "License"); you may not use this file except in 
+// compliance with the License. You may obtain a copy of the License at
+// http://opensource.org/licenses/MIT
+
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied. See the License for the specific language governing permissions and
+// limitations under the License.
+
 //
 //  log_crypt.cc
 //  mars-ext
 //
-//  Created by yanguoyue on 16/6/14.
+//  Created by garry on 16/6/14.
 //  Copyright © 2016年 Tencent. All rights reserved.
 //
 
@@ -14,7 +26,7 @@
 #include <time.h>
 
 static const char kMagicSyncStart = '\x03';
-static const char kMagicAsyncStart ='\x04';
+static const char kMagicAsyncStart ='\x05';
 static const char kMagicEnd  = '\0';
 
 static uint16_t __GetSeq(bool _is_async) {
@@ -299,7 +311,6 @@ void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, char
 void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len) {
     _output_len = std::min(_input_len, _output_len);
     memcpy(_output, _log_data, _output_len);
-    
 }
 
 bool LogCrypt::Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _raw_log_len) {

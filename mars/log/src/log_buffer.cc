@@ -124,10 +124,16 @@ bool LogBuffer::Write(const void* _data, size_t _length) {
     
     s_log_crypt->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len, crypt_buffer, crypt_buffer_len);
     
+    uint16_t single_log_len = crypt_buffer_len;
+    buff_.Write(&single_log_len, sizeof(single_log_len), before_len);
+    
+    before_len += sizeof(single_log_len);
     buff_.Write(crypt_buffer, crypt_buffer_len, before_len);
-    buff_.Length(before_len + crypt_buffer_len, before_len + crypt_buffer_len);
+    
+    before_len += crypt_buffer_len;
+    buff_.Length(before_len, before_len);
    
-    s_log_crypt->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)crypt_buffer_len);
+    s_log_crypt->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)crypt_buffer_len + sizeof(single_log_len));
 
     return true;
 }

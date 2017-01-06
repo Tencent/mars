@@ -26,7 +26,7 @@
 #include <time.h>
 
 static const char kMagicSyncStart = '\x03';
-static const char kMagicAsyncStart ='\x04';
+static const char kMagicAsyncStart ='\x05';
 static const char kMagicEnd  = '\0';
 
 static uint16_t __GetSeq(bool _is_async) {
@@ -311,7 +311,6 @@ void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, char
 void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len) {
     _output_len = std::min(_input_len, _output_len);
     memcpy(_output, _log_data, _output_len);
-    
 }
 
 bool LogCrypt::Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _raw_log_len) {
