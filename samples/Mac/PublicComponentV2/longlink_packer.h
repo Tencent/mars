@@ -43,6 +43,8 @@ uint32_t signal_keep_cmdid();
 void longlink_noop_req_body(AutoBuffer& _body);
 void longlink_noop_resp_body(AutoBuffer& _body);
 
+uint32_t longlink_noop_interval();
+
 bool longlink_complexconnect_need_verify();
 bool is_push_data(uint32_t _cmdid, uint32_t _taskid);
 

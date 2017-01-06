@@ -126,6 +126,10 @@ uint32_t signal_keep_cmdid() {
 void longlink_noop_req_body(AutoBuffer& _body) {}
 void longlink_noop_resp_body(AutoBuffer& _body) {}
 
+uint32_t longlink_noop_interval() {
+	return 0;
+}
+
 bool longlink_complexconnect_need_verify() {  
     return false;
 }

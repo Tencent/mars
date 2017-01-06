@@ -772,6 +772,10 @@ End:
 }
 
 void LongLink::__NotifySmartHeartbeatHeartReq(ConnectProfile& _profile, uint64_t _internal, uint64_t _actual_internal) {
+    if (longlink_noop_interval() > 0) {
+        return;
+    }
+    
     if (!smartheartbeat_) return;
     
 	NoopProfile noop_profile;
@@ -784,6 +788,10 @@ void LongLink::__NotifySmartHeartbeatHeartReq(ConnectProfile& _profile, uint64_t
 }
 
 void LongLink::__NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_timeout, ConnectProfile& _profile) {
+    if (longlink_noop_interval() > 0) {
+        return;
+    }
+    
     if (!smartheartbeat_) return;
     
 	if (!_profile.noop_profiles.empty()) {
@@ -796,11 +804,19 @@ void LongLink::__NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_tim
 }
 
 void LongLink::__NotifySmartHeartbeatJudgeMIUIStyle() {
+    if (longlink_noop_interval() > 0) {
+        return;
+    }
+    
     if (!smartheartbeat_) return;
 	smartheartbeat_->JudgeMIUIStyle();
 }
 
 void LongLink::__NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status) {
+    if (longlink_noop_interval() > 0) {
+        return;
+    }
+    
     if (!smartheartbeat_) return;
 
     switch (_status) {
@@ -819,6 +835,11 @@ void LongLink::__NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status) {
 }
 
 unsigned int LongLink::__GetNextHeartbeatInterval() {
+    
+    if (longlink_noop_interval() > 0) {
+        return longlink_noop_interval();
+    }
+    
     if (!smartheartbeat_) return MinHeartInterval;
     
     bool use_smartheart_beat  = false;
