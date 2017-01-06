@@ -8,7 +8,8 @@ import struct
 #import base64
 
 MAGIC_NO_COMPRESS_START = 0x03;
-MAGIC_COMPRESS_START = 0x05;
+MAGIC_COMPRESS_START = 0x04;
+MAGIC_COMPRESS_START1 = 0x05;
 
 MAGIC_END  = 0x00;
 
@@ -18,7 +19,7 @@ def IsGoodLogBuffer(_buffer, _offset, count):
 
     if _offset == len(_buffer): return (True, '')
 
-    if MAGIC_NO_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_START==_buffer[_offset]:
+    if MAGIC_NO_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_START1==_buffer[_offset]:
         headerLen = 1 + 2 + 1 + 1 + 4 + 4
     else:
         return (False, '_buffer[%d]:%d != MAGIC_NUM_START'%(_offset, _buffer[_offset]))
@@ -39,7 +40,7 @@ def GetLogStartPos(_buffer, _count):
     while True:
         if offset >= len(_buffer) : break
         
-        if MAGIC_NO_COMPRESS_START==_buffer[offset] or MAGIC_COMPRESS_START==_buffer[offset]: 
+        if MAGIC_NO_COMPRESS_START==_buffer[offset] or MAGIC_COMPRESS_START==_buffer[offset] or MAGIC_COMPRESS_START1==_buffer[offset]: 
             if IsGoodLogBuffer(_buffer, offset, _count)[0]: return offset
         offset+=1
         
@@ -58,7 +59,7 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
             _outbuffer.extend("[F]decode_log_file.py decode error len=%d, result:%s \n"%(fixpos, ret[1]))
             _offset += fixpos 
 
-    if MAGIC_NO_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_START==_buffer[_offset]:
+    if MAGIC_NO_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_START1==_buffer[_offset]:
         headerLen = 1 + 2 + 1 + 1 + 4 + 4
     else:
         _outbuffer.extend('in DecodeBuffer _buffer[%d]:%d != MAGIC_NUM_START'%(_offset, _buffer[_offset]))
@@ -82,8 +83,13 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
     tmpbuffer[:] = _buffer[_offset+headerLen:_offset+headerLen+length]
 
     try:
-        
+        decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
+
         if MAGIC_COMPRESS_START==_buffer[_offset]:
+	    tmpbuffer = decompressor.decompress(str(tmpbuffer))
+
+
+        elif MAGIC_COMPRESS_START1==_buffer[_offset]:
             decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
             decompress_data = bytearray()
             while len(tmpbuffer) > 0:
@@ -95,6 +101,8 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
 
 
             tmpbuffer = decompressor.decompress(str(decompress_data))
+        else:
+            pass
 
             # _outbuffer.extend('seq:%d, hour:%d-%d len:%d decompress:%d\n' %(seq, ord(begin_hour), ord(end_hour), length, len(tmpbuffer)))
     except Exception, e:
