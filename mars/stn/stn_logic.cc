@@ -180,7 +180,8 @@ void ClearTasks() {
 }
 
 void Reset() {
-	SINGLETON_RELEASE(NetCore);
+	xinfo2(TSF "stn reset");
+	NetCore::Singleton::Release();
 	NetCore::Singleton::Instance();
 }
 
