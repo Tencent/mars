@@ -1,0 +1,492 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		06A570D91A826C29001C4600 /* NetCheckTrafficMonitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 06A570D61A826C29001C4600 /* NetCheckTrafficMonitor.cpp */; };
+		131C11BA197627AC00A54920 /* DnsQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C119D197627AC00A54920 /* DnsQuery.cpp */; };
+		131C11BC197627AC00A54920 /* HttpQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11A2197627AC00A54920 /* HttpQuery.cpp */; };
+		131C11BD197627AC00A54920 /* MMNetBaseChecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11A5197627AC00A54920 /* MMNetBaseChecker.cpp */; };
+		131C11BE197627AC00A54920 /* MMNetCheckerService.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11A8197627AC00A54920 /* MMNetCheckerService.cpp */; };
+		131C11BF197627AC00A54920 /* MMNetDNSChecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11AE197627AC00A54920 /* MMNetDNSChecker.cpp */; };
+		131C11C0197627AC00A54920 /* MMNetHttpChecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11B0197627AC00A54920 /* MMNetHttpChecker.cpp */; };
+		131C11C1197627AC00A54920 /* MMNetPingChecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11B2197627AC00A54920 /* MMNetPingChecker.cpp */; };
+		131C11C2197627AC00A54920 /* PingQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11B5197627AC00A54920 /* PingQuery.cpp */; };
+		131C11C3197627AC00A54920 /* TcpQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C11B8197627AC00A54920 /* TcpQuery.cpp */; };
+		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+		3D71FC851A89D9290035C4CF /* NetcheckDispatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D71FC831A89D9290035C4CF /* NetcheckDispatcher.cpp */; };
+		4FCC5A461A4C093B00C20407 /* DnsCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A351A4C093B00C20407 /* DnsCheckLogic.cpp */; };
+		4FCC5A471A4C093B00C20407 /* HttpCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A371A4C093B00C20407 /* HttpCheckLogic.cpp */; };
+		4FCC5A481A4C093B00C20407 /* NetCheckObserverImp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A3A1A4C093B00C20407 /* NetCheckObserverImp.cpp */; };
+		4FCC5A491A4C093B00C20407 /* NewDnsCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A3C1A4C093B00C20407 /* NewDnsCheckLogic.cpp */; };
+		4FCC5A4A1A4C093B00C20407 /* PingCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A3E1A4C093B00C20407 /* PingCheckLogic.cpp */; };
+		4FCC5A4B1A4C093B00C20407 /* ReqBufferCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A401A4C093B00C20407 /* ReqBufferCheckLogic.cpp */; };
+		4FCC5A4C1A4C093B00C20407 /* TcpCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A421A4C093B00C20407 /* TcpCheckLogic.cpp */; };
+		4FCC5A4D1A4C093B00C20407 /* TracerouteCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A441A4C093B00C20407 /* TracerouteCheckLogic.cpp */; };
+		4FCC5A511A4C094C00C20407 /* TracerouteQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC5A4F1A4C094C00C20407 /* TracerouteQuery.cpp */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
+		6D360DEA197FEF7400B5CB5F /* MMNetNewDnsChecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6D360DE8197FEF7400B5CB5F /* MMNetNewDnsChecker.cpp */; };
+		6D360DED197FEF8000B5CB5F /* NewGetDnsQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6D360DEB197FEF8000B5CB5F /* NewGetDnsQuery.cpp */; };
+		6DA25C511980144E00E34761 /* MMNetTcpChecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6DA25C501980144E00E34761 /* MMNetTcpChecker.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		06A570D51A826C29001C4600 /* NetcheckKVReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetcheckKVReport.h; sourceTree = "<group>"; };
+		06A570D61A826C29001C4600 /* NetCheckTrafficMonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NetCheckTrafficMonitor.cpp; sourceTree = "<group>"; };
+		06A570D71A826C29001C4600 /* NetCheckTrafficMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetCheckTrafficMonitor.h; sourceTree = "<group>"; };
+		06A570D81A826C29001C4600 /* netcheker_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netcheker_logic.h; sourceTree = "<group>"; };
+		131C119D197627AC00A54920 /* DnsQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DnsQuery.cpp; sourceTree = "<group>"; };
+		131C119E197627AC00A54920 /* DnsQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DnsQuery.h; sourceTree = "<group>"; };
+		131C11A2197627AC00A54920 /* HttpQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpQuery.cpp; sourceTree = "<group>"; };
+		131C11A3197627AC00A54920 /* HttpQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpQuery.h; sourceTree = "<group>"; };
+		131C11A4197627AC00A54920 /* UrlParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UrlParser.h; sourceTree = "<group>"; };
+		131C11A5197627AC00A54920 /* MMNetBaseChecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetBaseChecker.cpp; sourceTree = "<group>"; };
+		131C11A6197627AC00A54920 /* MMNetBaseChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetBaseChecker.h; sourceTree = "<group>"; };
+		131C11A7197627AC00A54920 /* MMNetCheckCommDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetCheckCommDef.h; sourceTree = "<group>"; };
+		131C11A8197627AC00A54920 /* MMNetCheckerService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetCheckerService.cpp; sourceTree = "<group>"; };
+		131C11A9197627AC00A54920 /* MMNetCheckerService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetCheckerService.h; sourceTree = "<group>"; };
+		131C11AA197627AC00A54920 /* MMNetCheckReportBuilder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MMNetCheckReportBuilder.hpp; sourceTree = "<group>"; };
+		131C11AD197627AC00A54920 /* MMNetCheckSocketUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MMNetCheckSocketUtils.hpp; sourceTree = "<group>"; };
+		131C11AE197627AC00A54920 /* MMNetDNSChecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetDNSChecker.cpp; sourceTree = "<group>"; };
+		131C11AF197627AC00A54920 /* MMNetDNSChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetDNSChecker.h; sourceTree = "<group>"; };
+		131C11B0197627AC00A54920 /* MMNetHttpChecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetHttpChecker.cpp; sourceTree = "<group>"; };
+		131C11B1197627AC00A54920 /* MMNetHttpChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetHttpChecker.h; sourceTree = "<group>"; };
+		131C11B2197627AC00A54920 /* MMNetPingChecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetPingChecker.cpp; sourceTree = "<group>"; };
+		131C11B3197627AC00A54920 /* MMNetPingChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetPingChecker.h; sourceTree = "<group>"; };
+		131C11B5197627AC00A54920 /* PingQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PingQuery.cpp; sourceTree = "<group>"; };
+		131C11B6197627AC00A54920 /* PingQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PingQuery.h; sourceTree = "<group>"; };
+		131C11B8197627AC00A54920 /* TcpQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TcpQuery.cpp; sourceTree = "<group>"; };
+		131C11B9197627AC00A54920 /* TcpQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TcpQuery.h; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libnetchecker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnetchecker.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3D71FC831A89D9290035C4CF /* NetcheckDispatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NetcheckDispatcher.cpp; sourceTree = "<group>"; };
+		3D71FC841A89D9290035C4CF /* NetcheckDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetcheckDispatcher.h; sourceTree = "<group>"; };
+		4FCC5A341A4C093B00C20407 /* ComDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComDef.h; sourceTree = "<group>"; };
+		4FCC5A351A4C093B00C20407 /* DnsCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DnsCheckLogic.cpp; sourceTree = "<group>"; };
+		4FCC5A361A4C093B00C20407 /* DnsCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DnsCheckLogic.h; sourceTree = "<group>"; };
+		4FCC5A371A4C093B00C20407 /* HttpCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpCheckLogic.cpp; sourceTree = "<group>"; };
+		4FCC5A381A4C093B00C20407 /* HttpCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HttpCheckLogic.h; sourceTree = "<group>"; };
+		4FCC5A3A1A4C093B00C20407 /* NetCheckObserverImp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NetCheckObserverImp.cpp; sourceTree = "<group>"; };
+		4FCC5A3B1A4C093B00C20407 /* NetCheckObserverImp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetCheckObserverImp.h; sourceTree = "<group>"; };
+		4FCC5A3C1A4C093B00C20407 /* NewDnsCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewDnsCheckLogic.cpp; sourceTree = "<group>"; };
+		4FCC5A3D1A4C093B00C20407 /* NewDnsCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewDnsCheckLogic.h; sourceTree = "<group>"; };
+		4FCC5A3E1A4C093B00C20407 /* PingCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PingCheckLogic.cpp; sourceTree = "<group>"; };
+		4FCC5A3F1A4C093B00C20407 /* PingCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PingCheckLogic.h; sourceTree = "<group>"; };
+		4FCC5A401A4C093B00C20407 /* ReqBufferCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReqBufferCheckLogic.cpp; sourceTree = "<group>"; };
+		4FCC5A411A4C093B00C20407 /* ReqBufferCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReqBufferCheckLogic.h; sourceTree = "<group>"; };
+		4FCC5A421A4C093B00C20407 /* TcpCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TcpCheckLogic.cpp; sourceTree = "<group>"; };
+		4FCC5A431A4C093B00C20407 /* TcpCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TcpCheckLogic.h; sourceTree = "<group>"; };
+		4FCC5A441A4C093B00C20407 /* TracerouteCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TracerouteCheckLogic.cpp; sourceTree = "<group>"; };
+		4FCC5A451A4C093B00C20407 /* TracerouteCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TracerouteCheckLogic.h; sourceTree = "<group>"; };
+		4FCC5A4F1A4C094C00C20407 /* TracerouteQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TracerouteQuery.cpp; sourceTree = "<group>"; };
+		4FCC5A501A4C094C00C20407 /* TracerouteQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TracerouteQuery.h; sourceTree = "<group>"; };
+		6D360DE8197FEF7400B5CB5F /* MMNetNewDnsChecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetNewDnsChecker.cpp; sourceTree = "<group>"; };
+		6D360DE9197FEF7400B5CB5F /* MMNetNewDnsChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetNewDnsChecker.h; sourceTree = "<group>"; };
+		6D360DEB197FEF8000B5CB5F /* NewGetDnsQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewGetDnsQuery.cpp; sourceTree = "<group>"; };
+		6D360DEC197FEF8000B5CB5F /* NewGetDnsQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewGetDnsQuery.h; sourceTree = "<group>"; };
+		6DA25C4F198013F900E34761 /* MMNetTcpChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MMNetTcpChecker.h; sourceTree = "<group>"; };
+		6DA25C501980144E00E34761 /* MMNetTcpChecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetTcpChecker.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		131C119B197627AC00A54920 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				06A570D51A826C29001C4600 /* NetcheckKVReport.h */,
+				06A570D61A826C29001C4600 /* NetCheckTrafficMonitor.cpp */,
+				06A570D71A826C29001C4600 /* NetCheckTrafficMonitor.h */,
+				06A570D81A826C29001C4600 /* netcheker_logic.h */,
+				4FCC5A4E1A4C094C00C20407 /* TracerouteChecker */,
+				4FCC5A331A4C093B00C20407 /* NetCheckOnIPxx */,
+				6D360DE8197FEF7400B5CB5F /* MMNetNewDnsChecker.cpp */,
+				6D360DE9197FEF7400B5CB5F /* MMNetNewDnsChecker.h */,
+				131C119C197627AC00A54920 /* DnsChecker */,
+				131C11A1197627AC00A54920 /* HttpChecker */,
+				131C11A5197627AC00A54920 /* MMNetBaseChecker.cpp */,
+				131C11A6197627AC00A54920 /* MMNetBaseChecker.h */,
+				131C11A7197627AC00A54920 /* MMNetCheckCommDef.h */,
+				131C11A8197627AC00A54920 /* MMNetCheckerService.cpp */,
+				131C11A9197627AC00A54920 /* MMNetCheckerService.h */,
+				131C11AA197627AC00A54920 /* MMNetCheckReportBuilder.hpp */,
+				131C11AD197627AC00A54920 /* MMNetCheckSocketUtils.hpp */,
+				131C11AE197627AC00A54920 /* MMNetDNSChecker.cpp */,
+				131C11AF197627AC00A54920 /* MMNetDNSChecker.h */,
+				131C11B0197627AC00A54920 /* MMNetHttpChecker.cpp */,
+				131C11B1197627AC00A54920 /* MMNetHttpChecker.h */,
+				131C11B2197627AC00A54920 /* MMNetPingChecker.cpp */,
+				131C11B3197627AC00A54920 /* MMNetPingChecker.h */,
+				131C11B4197627AC00A54920 /* PingChecker */,
+				131C11B7197627AC00A54920 /* TcpChecker */,
+				6DA25C4F198013F900E34761 /* MMNetTcpChecker.h */,
+				6DA25C501980144E00E34761 /* MMNetTcpChecker.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		131C119C197627AC00A54920 /* DnsChecker */ = {
+			isa = PBXGroup;
+			children = (
+				6D360DEB197FEF8000B5CB5F /* NewGetDnsQuery.cpp */,
+				6D360DEC197FEF8000B5CB5F /* NewGetDnsQuery.h */,
+				131C119D197627AC00A54920 /* DnsQuery.cpp */,
+				131C119E197627AC00A54920 /* DnsQuery.h */,
+			);
+			path = DnsChecker;
+			sourceTree = "<group>";
+		};
+		131C11A1197627AC00A54920 /* HttpChecker */ = {
+			isa = PBXGroup;
+			children = (
+				131C11A2197627AC00A54920 /* HttpQuery.cpp */,
+				131C11A3197627AC00A54920 /* HttpQuery.h */,
+				131C11A4197627AC00A54920 /* UrlParser.h */,
+			);
+			path = HttpChecker;
+			sourceTree = "<group>";
+		};
+		131C11B4197627AC00A54920 /* PingChecker */ = {
+			isa = PBXGroup;
+			children = (
+				131C11B5197627AC00A54920 /* PingQuery.cpp */,
+				131C11B6197627AC00A54920 /* PingQuery.h */,
+			);
+			path = PingChecker;
+			sourceTree = "<group>";
+		};
+		131C11B7197627AC00A54920 /* TcpChecker */ = {
+			isa = PBXGroup;
+			children = (
+				131C11B8197627AC00A54920 /* TcpQuery.cpp */,
+				131C11B9197627AC00A54920 /* TcpQuery.h */,
+			);
+			path = TcpChecker;
+			sourceTree = "<group>";
+		};
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				131C119B197627AC00A54920 /* src */,
+				3170A029177887B0004F5DDA /* Frameworks */,
+				3170A028177887B0004F5DDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3170A028177887B0004F5DDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3170A027177887B0004F5DDA /* libnetchecker.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A029177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3170A02A177887B0004F5DDA /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4FCC5A331A4C093B00C20407 /* NetCheckOnIPxx */ = {
+			isa = PBXGroup;
+			children = (
+				3D71FC831A89D9290035C4CF /* NetcheckDispatcher.cpp */,
+				3D71FC841A89D9290035C4CF /* NetcheckDispatcher.h */,
+				4FCC5A341A4C093B00C20407 /* ComDef.h */,
+				4FCC5A351A4C093B00C20407 /* DnsCheckLogic.cpp */,
+				4FCC5A361A4C093B00C20407 /* DnsCheckLogic.h */,
+				4FCC5A371A4C093B00C20407 /* HttpCheckLogic.cpp */,
+				4FCC5A381A4C093B00C20407 /* HttpCheckLogic.h */,
+				4FCC5A3A1A4C093B00C20407 /* NetCheckObserverImp.cpp */,
+				4FCC5A3B1A4C093B00C20407 /* NetCheckObserverImp.h */,
+				4FCC5A3C1A4C093B00C20407 /* NewDnsCheckLogic.cpp */,
+				4FCC5A3D1A4C093B00C20407 /* NewDnsCheckLogic.h */,
+				4FCC5A3E1A4C093B00C20407 /* PingCheckLogic.cpp */,
+				4FCC5A3F1A4C093B00C20407 /* PingCheckLogic.h */,
+				4FCC5A401A4C093B00C20407 /* ReqBufferCheckLogic.cpp */,
+				4FCC5A411A4C093B00C20407 /* ReqBufferCheckLogic.h */,
+				4FCC5A421A4C093B00C20407 /* TcpCheckLogic.cpp */,
+				4FCC5A431A4C093B00C20407 /* TcpCheckLogic.h */,
+				4FCC5A441A4C093B00C20407 /* TracerouteCheckLogic.cpp */,
+				4FCC5A451A4C093B00C20407 /* TracerouteCheckLogic.h */,
+			);
+			path = NetCheckOnIPxx;
+			sourceTree = "<group>";
+		};
+		4FCC5A4E1A4C094C00C20407 /* TracerouteChecker */ = {
+			isa = PBXGroup;
+			children = (
+				4FCC5A4F1A4C094C00C20407 /* TracerouteQuery.cpp */,
+				4FCC5A501A4C094C00C20407 /* TracerouteQuery.h */,
+			);
+			path = TracerouteChecker;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* netchecker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "netchecker" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = netchecker;
+			productName = PublicComponent;
+			productReference = 3170A027177887B0004F5DDA /* libnetchecker.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = Tencent;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "netchecker" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A028177887B0004F5DDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* netchecker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FCC5A491A4C093B00C20407 /* NewDnsCheckLogic.cpp in Sources */,
+				131C11BA197627AC00A54920 /* DnsQuery.cpp in Sources */,
+				131C11C1197627AC00A54920 /* MMNetPingChecker.cpp in Sources */,
+				06A570D91A826C29001C4600 /* NetCheckTrafficMonitor.cpp in Sources */,
+				4FCC5A4C1A4C093B00C20407 /* TcpCheckLogic.cpp in Sources */,
+				6D360DEA197FEF7400B5CB5F /* MMNetNewDnsChecker.cpp in Sources */,
+				131C11BF197627AC00A54920 /* MMNetDNSChecker.cpp in Sources */,
+				131C11C2197627AC00A54920 /* PingQuery.cpp in Sources */,
+				131C11BC197627AC00A54920 /* HttpQuery.cpp in Sources */,
+				131C11BD197627AC00A54920 /* MMNetBaseChecker.cpp in Sources */,
+				4FCC5A4B1A4C093B00C20407 /* ReqBufferCheckLogic.cpp in Sources */,
+				131C11C3197627AC00A54920 /* TcpQuery.cpp in Sources */,
+				131C11BE197627AC00A54920 /* MMNetCheckerService.cpp in Sources */,
+				4FCC5A481A4C093B00C20407 /* NetCheckObserverImp.cpp in Sources */,
+				4FCC5A4A1A4C093B00C20407 /* PingCheckLogic.cpp in Sources */,
+				4FCC5A471A4C093B00C20407 /* HttpCheckLogic.cpp in Sources */,
+				4FCC5A4D1A4C093B00C20407 /* TracerouteCheckLogic.cpp in Sources */,
+				4FCC5A461A4C093B00C20407 /* DnsCheckLogic.cpp in Sources */,
+				4FCC5A511A4C094C00C20407 /* TracerouteQuery.cpp in Sources */,
+				6DA25C511980144E00E34761 /* MMNetTcpChecker.cpp in Sources */,
+				131C11C0197627AC00A54920 /* MMNetHttpChecker.cpp in Sources */,
+				6D360DED197FEF8000B5CB5F /* NewGetDnsQuery.cpp in Sources */,
+				3D71FC851A89D9290035C4CF /* NetcheckDispatcher.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					../comm,
+					../mmcomm/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7 arm64 x86_64 armv7k";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					../comm,
+					../mmcomm/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7 arm64 x86_64 armv7k";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "netchecker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "netchecker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

@@ -1,0 +1,312 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		13A2285B19755CB40035828E /* Objc2C_Comm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13A2285519755CB40035828E /* Objc2C_Comm.mm */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
+		13A2285C19755CB40035828E /* baseprj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13A2285719755CB40035828E /* baseprj.cpp */; };
+		13A2285D19755CB40035828E /* baseprjevent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13A2285919755CB40035828E /* baseprjevent.cpp */; };
+		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		13A2285519755CB40035828E /* Objc2C_Comm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Objc2C_Comm.mm; sourceTree = "<group>"; };
+		13A2285719755CB40035828E /* baseprj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = baseprj.cpp; sourceTree = "<group>"; };
+		13A2285819755CB40035828E /* baseprj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = baseprj.h; sourceTree = "<group>"; };
+		13A2285919755CB40035828E /* baseprjevent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = baseprjevent.cpp; sourceTree = "<group>"; };
+		13A2285A19755CB40035828E /* baseprjevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = baseprjevent.h; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libbaseprj-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libbaseprj-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		13A2285419755CB40035828E /* objc */ = {
+			isa = PBXGroup;
+			children = (
+				13A2285519755CB40035828E /* Objc2C_Comm.mm */,
+			);
+			path = objc;
+			sourceTree = "<group>";
+		};
+		13A2285619755CB40035828E /* src */ = {
+			isa = PBXGroup;
+			children = (
+				13A2285719755CB40035828E /* baseprj.cpp */,
+				13A2285819755CB40035828E /* baseprj.h */,
+				13A2285919755CB40035828E /* baseprjevent.cpp */,
+				13A2285A19755CB40035828E /* baseprjevent.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				13A2285419755CB40035828E /* objc */,
+				13A2285619755CB40035828E /* src */,
+				3170A029177887B0004F5DDA /* Frameworks */,
+				3170A028177887B0004F5DDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3170A028177887B0004F5DDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3170A027177887B0004F5DDA /* libbaseprj-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A029177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3170A02A177887B0004F5DDA /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* baseprj-watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "baseprj-watch" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "baseprj-watch";
+			productName = PublicComponent;
+			productReference = 3170A027177887B0004F5DDA /* libbaseprj-watch.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = Tencent;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "baseprj-watch" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A028177887B0004F5DDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* baseprj-watch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				13A2285B19755CB40035828E /* Objc2C_Comm.mm in Sources */,
+				13A2285D19755CB40035828E /* baseprjevent.cpp in Sources */,
+				13A2285C19755CB40035828E /* baseprj.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = watchos;
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = watchos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = ../comm;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = ../comm;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "baseprj-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "baseprj-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

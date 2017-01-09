@@ -1,0 +1,3320 @@
+From: <Saved by Blink>
+Subject: Artistic Style
+Date: Thu, 17 Jun 2015 08:28:04 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_FBC4_DD5122B8.5A568ECF"
+
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://astyle.sourceforge.net/astyle.html
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.=
+org/1999/xhtml"><head><meta charset=3D"windows-1252">
+    <title>Artistic Style</title>
+    <meta http-equiv=3D"Content-Language" content=3D"en-us">
+   =20
+    <meta name=3D"description" content=3D"Artistic Style is a source code i=
+ndenter, source code formatter, and source code beautifier
+          for the C, C++, C# and Java programming languages.">
+    <meta name=3D"keywords" content=3D"artistic style, astyle, source code =
+indenter, source code formatter, source code beautifier">
+    <link href=3D"http://astyle.sourceforge.net/favicon.ico" rel=3D"shortcu=
+t icon" type=3D"image/x-icon">
+    <link href=3D"http://astyle.sourceforge.net/styles.css" rel=3D"styleshe=
+et" type=3D"text/css">
+
+    <!--  the following styles are additions to styles.css -->
+
+    <style type=3D"text/css">
+        hr { margin-left: -0.4in; }
+
+        /* the following styles are for formatting code samples */
+        div.code { background: #D8D8FF; }
+        /* code */
+        p.code { margin-left: 0.3in; }
+        code { color: navy; }
+            code.title { font-size: larger; font-weight: bold; }
+        /* spans */
+        span.brace { color: red; }
+        span.comment { color: dimgray; font-style: italic; }
+        span.option { color: saddlebrown; }
+    </style>
+
+<style type=3D"text/css"></style></head>
+
+<body>
+
+    <h1>Artistic Style 2.05</h1>
+
+    <h2>
+        A Free, Fast, and Small Automatic Formatter<br>
+        for C, C++, C++/CLI, Objective&#8209;C, C#, and Java Source Code
+    </h2>
+
+    <h3 id=3D"Contents">Contents</h3>
+
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_General_Information">General&nbsp;Information</a>
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Quick_Start">Quick&nbsp;Start</a>
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Usage">Usage</a>
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Options">Options</a>
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Options_File">Options&nbsp;File</a>
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Disable_Formatting">Disable&nbsp;Formatting</a>
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Bracket_Style_Options">Bracket&nbsp;Style&nbsp;Options</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_default_bracket_style">default&nbsp;bracket&nbsp;style</a>&nbsp;&nbsp=
+;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dallman">style=3Dallman</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Djava">style=3Djava</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dkr">style=3Dkr</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dstroustrup">style=3Dstroustrup</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dwhitesmith">style=3Dwhitesmith</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dvtk">style=3Dvtk</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dbanner">style=3Dbanner</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dgnu">style=3Dgnu</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dlinux">style=3Dlinux</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dhorstmann">style=3Dhorstmann</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3D1tbs">style=3D1tbs</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dgoogle">style=3Dgoogle</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dpico">style=3Dpico</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_style=3Dlisp">style=3Dlisp</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Tab_Options">Tab&nbsp;Options</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_default_indent">default&nbsp;indent</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent=3Dspaces">indent=3Dspaces</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent=3Dtab">indent=3Dtab</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent=3Dforce-tab">indent=3Dforce&#8209;tab</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent=3Dforce-tab-x">--indent=3Dforce&#8209;tab&#8209;x</a>&nbsp;&nb=
+sp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Bracket_Modify_Options">Bracket&nbsp;Modify&nbsp;Options</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_attach_namespaces">attach&#8209;namespaces</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_attach_classes">attach&#8209;classes</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_attach_inlines">attach&#8209;inlines</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_attach-extern-c">attach&#8209;extern&#8209;c</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Indentation_Options">Indentation&nbsp;Options</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-classes">indent&#8209;classes</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-modifiers">indent&#8209;modifiers</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-switches">indent&#8209;switches</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-cases">indent&#8209;cases</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-namespaces">indent&#8209;namespaces</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-labels">indent&#8209;labels</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-preproc-block">indent&#8209;preproc&#8209;block</a>&nbsp;&nbsp=
+;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-preproc-define">indent&#8209;preproc&#8209;define</a>&nbsp;&nb=
+sp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-preproc-cond">indent&#8209;preproc&#8209;cond</a>&nbsp;&nbsp;&=
+nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_indent-col1-comments">indent&#8209;col1&#8209;comments</a>&nbsp;&nbsp=
+;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_min-conditional-indent">min&#8209;conditional&#8209;indent</a>&nbsp;&=
+nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_max-instatement-indent">max&#8209;instatement&#8209;indent</a>&nbsp;&=
+nbsp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Padding_Options">Padding&nbsp;Options</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_break-blocks">break&#8209;blocks</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_break-blocks=3Dall">break&#8209;blocks=3Dall</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-oper">pad&#8209;oper</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-paren">pad&#8209;paren</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-paren-out">pad&#8209;paren&#8209;out</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-first-paren-out">pad&#8209;first&#8209;paren&#8209;out</a>&nbsp;&=
+nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-paren-in">pad&#8209;paren&#8209;in</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-header">pad&#8209;header</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_unpad-paren">unpad&#8209;paren</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_delete-empty-lines">delete&#8209;empty&#8209;lines</a>&nbsp;&nbsp;&nb=
+sp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_fill-empty-lines">fill&#8209;empty&#8209;lines</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_align-pointer">align&#8209;pointer</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_align-reference">align&#8209;reference</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Formatting_Options">Formatting&nbsp;Options</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_break-closing-brackets">break&#8209;closing&#8209;brackets</a>&nbsp;&=
+nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_break-elseifs">break&#8209;elseifs</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_add-brackets">add&#8209;brackets</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_add-one-line-brackets">add&#8209;one&#8209;line&#8209;brackets</a>&nb=
+sp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_remove-brackets">remove&#8209;brackets</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_keep-one-line-blocks">keep&#8209;one&#8209;line&#8209;blocks</a>&nbsp=
+;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_keep-one-line-statements">keep&#8209;one&#8209;line&#8209;statements<=
+/a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_convert-tabs">convert&#8209;tabs</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_close-templates">close&#8209;templates</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_remove-comment-prefix">remove&#8209;comment&#8209;prefix</a>&nbsp;&nb=
+sp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_max-code-length">max&#8209;code&#8209;length</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_max-code-length">break&#8209;after&#8209;logical</a>&nbsp;&nbsp;&nbsp=
+;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_mode">mode</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Objective_C_Options">Objective&#8209;C&nbsp;Options</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_align-method-colon">align&#8209;method&#8209;colon</a>&nbsp;&nbsp;&nb=
+sp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-method-prefix">pad&#8209;method&#8209;prefix</a>&nbsp;&nbsp;&nbsp=
+;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_unpad-method-prefix">unpad&#8209;method&#8209;prefix</a>&nbsp;&nbsp;&=
+nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_pad-method-colon">pad&#8209;method&#8209;colon</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Other_Options">Other&nbsp;Options</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_suffix">suffix</a>&nbsp;&nbsp;&nbsp; <a class=3D"contents" href=3D"ht=
+tp://astyle.sourceforge.net/astyle.html#_suffix=3Dnone">suffix=3Dnone</a>&n=
+bsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_recursive">recursive</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_dry-run">dry-run</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_exclude">exclude</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_ignore-exclude-errors">ignore&#8209;exclude&#8209;errors</a>&nbsp;&nb=
+sp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_ignore-exclude-errors-x">ignore&#8209;exclude&#8209;errors&#8209;x</a=
+>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_errors-to-stdout">errors&#8209;to&#8209;stdout</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_preserve-date">preserve&#8209;date</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_verbose">verbose</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_formatted">formatted</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_quiet">quiet</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_lineend">lineend</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p class=3D"contents1">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_Command_Line_Only">Command&nbsp;Line&nbsp;Only</a>
+    </p>
+    <p class=3D"contents2">
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_options=3D">options</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_options=3Dnone">options=3Dnone</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_ascii">ascii</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_version">version</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_help">help</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_html">html</a>&nbsp;&nbsp;&nbsp;
+        <a class=3D"contents" href=3D"http://astyle.sourceforge.net/astyle.=
+html#_html=3D">html=3D</a>&nbsp;&nbsp;&nbsp;
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * *  General Information<  * * * * * * * * * =
+* * *  -->
+
+    <h3 id=3D"_General_Information">General Information</h3>
+
+    <h4>Line Endings</h4>
+
+    <p>
+        Line endings in the formatted file will be the same as the input fi=
+le. If there are mixed line endings the most
+        frequent occurrence will be used. There is also an option to specif=
+y or change the line endings.
+    </p>
+
+    <h4>File Type</h4>
+
+    <p>
+        Artistic Style will determine the file type from the file extension=
+. The extension ".java" indicates a Java file,
+        and ".cs" indicates a C# file. Everything else is a C type file (C,=
+ C++, C++/CLI, or Objective-C). If you are
+        using a non-standard file extension for Java or C#, use one of the =
+<code>--mode=3D</code> options.
+    </p>
+
+    <h4>Wildcards and Recursion</h4>
+
+    <p>
+        Artistic Style can process directories recursively. Wildcards (such=
+ as "*.cpp" or "*.c??") are processed internally.
+        If a shell is used it should pass the wildcards to Artistic Style i=
+nstead of resolving them first. For Linux use
+        double quotes around paths whose file name contains wildcards. For =
+Windows use double quotes around paths whose
+        file name contains spaces. The <a href=3D"http://astyle.sourceforge=
+.net/astyle.html#_recursive">recursive</a> option in the
+        <a href=3D"http://astyle.sourceforge.net/astyle.html#_Other_Options=
+">Other Options</a> section contains information on recursive processing.
+    </p>
+
+    <h4>File Names</h4>
+
+    <p>
+        When a file is formatted, the newly indented file retains the origi=
+nal file name. A copy of the original file
+        is created with an <code><strong>.orig</strong></code> appended to =
+the original file name. (This can be set to
+        a different string by the option <code>--suffix=3D</code>, or suppr=
+essed altogether by the options <code>-n</code>
+        or <code>--suffix=3Dnone</code>). Thus, after indenting <code><em>S=
+ourceFile.cpp</em></code> the indented file will
+        be named <code><em>SourceFile.cpp</em></code>, while the original p=
+re-indented file will be renamed to <code><em>SourceFile.cpp.orig</em></cod=
+e>.
+    </p>
+
+    <h4>Internationalization</h4>
+
+    <p>
+        Artistic Style has been internationalized to process files and dire=
+ctories in any language.
+    </p>
+    <p>
+        It has also been translated into several languages. The translation=
+ to use is determined from the User Locale
+        for Windows and the LANG environment variable for other systems. Th=
+e translation will be done automatically from
+        these settings. If no translation is available it will default to E=
+nglish. There is an ascii option to use English
+        instead of the system language.
+    </p>
+    <p>
+        The source code for the translations is at the end of ASLocalizer.c=
+pp in the form of an English&#8209;Translation
+        pair. If you make corrections to a translation, send the source as =
+a bug report and it will be included in the
+        next release.
+    </p>
+    <p>
+        To add a new language, add a new translation class to ASLocalizer.h=
+. Add the English&#8209;Translation pair to
+        the constructor in ASLocalizer.cpp. Update the WinLangCode array an=
+d add the language code to the function setTranslationClass().
+        The ASLocalizer.cpp program contains comments that give web pages f=
+or obtaining the LCIDs and language codes.
+        Send the source code as a bug report and it will be included in the=
+ next release.
+    </p>
+
+    <h4>Other Considerations</h4>
+
+    <p>
+        The names of special characters used in programming vary by region.=
+ The terminology used by Artistic Style,
+        followed by other common names, is<strong>:</strong>
+    </p>
+    <blockquote>
+        brackets { } &#8209; also called  braces, curly brackets, or curly =
+braces.<br>
+        parens ( ) &#8209; also called parentheses, brackets, round bracket=
+s, circle brackets, or soft brackets.<br>
+        block parens [ ] &#8209; also called brackets, square brackets, clo=
+sed brackets, or hard brackets.<br>
+        angle brackets &lt; &gt; &#8209; also called brackets, pointy brack=
+ets, triangular brackets, diamond brackets, tuples,
+        or chevrons.
+    </blockquote>
+    <p>
+        Artistic Style can format standard class library statements such as=
+ Open GL, wxWidgets, Qt, and MFC.
+    </p>
+    <p>
+        Embedded assembler language is formatted correctly. This includes e=
+xtended assembly and Microsoft specific assembler
+        lines and blocks.
+    </p>
+    <p>
+        Artistic Style can format embedded SQL statements. The SQL formatti=
+ng will be maintained as long as the standard
+        hanging indent format is used. If the "exec sql" statement is inden=
+ted more than the following statements, the
+        SQL will be aligned in a single column.
+    </p>
+    <p>
+        Unicode files encoded as UTF&#8209;16, both big and little endian, =
+will be formatted. The files must begin with
+        a byte order mark (BOM) to be recognized. Files encoded as UTF&#820=
+9;32 will be rejected. Some compilers do not
+        support these encodings. These files can be converted to UTF&#8209;=
+8 encoding with the program "iconv". There
+        are Linux and Windows versions available (the Windows version does =
+not seem to work for all encodings). A sample
+        command line is "iconv &#8209;f &nbsp;UTF&#8209;16 &#8209;t UTF&#82=
+09;8 &lt; filein.cpp &gt; fileout.cpp. Visual
+        Studio can convert the files from the "File &gt; Advanced Save Opti=
+ons" menu. Then select encoding "Unicode (UTF&#8209;8
+        with signature) - Codepage 65001". There are other development envi=
+ronments and text editors, such as SciTE, that
+        can convert files to UTF&#8209;8.
+    </p>
+    <p>
+        Embedded statements that are multiple-line and are NOT in a C-type =
+format, such as Python, are usually mal-formatted
+        (a C-type format has blocks enclosed by brackets and statements ter=
+minated by a semi-colon). Macros that define
+        functions may cause the following code to be mal-formatted because =
+the macro is missing the brackets and semi-colons
+        from the definition. If you have source code with these types of st=
+atements, exclude them with the
+        <a href=3D"http://astyle.sourceforge.net/astyle.html#_exclude">excl=
+ude=3D####</a> option described in the <a href=3D"http://astyle.sourceforge=
+.net/astyle.html#_Other_Options">Other Options</a> section.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * * *  Quick Start  * * * * * * * * * * * *=
+ * *  -->
+
+    <h3 id=3D"_Quick_Start">Quick Start</h3>
+
+    <p>
+        If you have never used Artistic Style there are a couple of ways to=
+ start.
+    </p>
+    <p>
+        One is to run it with no options at all. This will use the <a href=
+=3D"http://astyle.sourceforge.net/astyle.html#_default_bracket_style">defau=
+lt bracket
+            style</a>, 4 spaces per indent, and no formatting changes.  Thi=
+s will break the brackets for one
+        line blocks and will break one line statements. To change this use =
+the option
+        <a href=3D"http://astyle.sourceforge.net/astyle.html#_keep-one-line=
+-blocks">keep-one-line-blocks</a> and/or
+        <a href=3D"http://astyle.sourceforge.net/astyle.html#_keep-one-line=
+-statements">keep-one-line-statements</a> described in the
+        <a href=3D"http://astyle.sourceforge.net/astyle.html#_Formatting_Op=
+tions">Formatting Options</a> section
+    </p>
+    <p>
+        Another way is to use one of the bracket styles described in the <a=
+ href=3D"http://astyle.sourceforge.net/astyle.html#_Bracket_Style_Options">=
+Bracket Style
+            Options</a> section. Select one with a bracket formatting style=
+ you like. If no indentation option is set,
+        the default option of 4 spaces will be used. These options also bre=
+ak one line blocks and one line statements
+        as described above.
+    </p>
+    <p>
+        Once you are familiar with the options you can customize the format=
+ to your personal preference.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * * * *  Usage  * * * * * * * * * * * * * *=
+ *  -->
+
+    <h3 id=3D"_Usage">Usage</h3>
+
+    <p>
+        Artistic style is a console program that receives information from =
+the command line. The format of the command
+        line is:
+    </p>
+    <pre>astyle&nbsp; [OPTIONS]&nbsp; <em>SourceFile1&nbsp; SourceFile2&nbs=
+p; SourceFile3&nbsp; [ . . . ]</em>
+</pre>
+    <p>
+        The block parens [ ] indicate that more than one option or more tha=
+n one file name can be entered. They are NOT
+        actually included in the command. For the options format see the fo=
+llowing Options section.
+    </p>
+    <div class=3D"code">
+        <p>
+            &nbsp;&nbsp;Example to format a single file:
+        </p>
+        <pre>astyle  --style=3Dallman  /home/user/project/foo.cpp
+</pre>
+        <p>
+            &nbsp;&nbsp;Example to format all .cpp and .h files recursively=
+:
+        </p>
+        <pre>astyle  --style=3Dallman --recursive  /home/user/project/*.cpp=
+  /home/user/project/*.h
+</pre>
+    </div>
+    <p>
+        Another option will format a single file and change the name:
+    </p>
+    <pre>astyle&nbsp; [OPTIONS] &lt; <em>OriginalSourceFile</em> &gt; <em>B=
+eautifiedSourceFile</em>
+</pre>
+    <p>
+        This option can be used to display the formatted file without updat=
+ing:
+    </p>
+    <pre>astyle&nbsp; [OPTIONS] &lt; <em>OriginalSourceFile | less</em>
+</pre>
+    <p>
+        The <span style=3D"color: #0000a0">&lt;</span> and <span style=3D"c=
+olor: #0000a0">&gt;</span> characters are used
+        to redirect the files into standard input (cin) and out of standard=
+ output (cout) - don't forget them! With this
+        option only one file at a time can be formatted. Wildcards are not =
+recognized, there are no console messages,
+        and a backup is not created. On Windows the output will always have=
+ Windows line ends.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * * * *  Options  * * * * * * * * * * * * *=
+ * *  -->
+
+    <h3 id=3D"_Options">Options</h3>
+
+    <p>
+        Not specifying any options will result in the <a href=3D"http://ast=
+yle.sourceforge.net/astyle.html#_default_bracket_style">default bracket sty=
+le</a>,
+        4 spaces per indent, and no formatting changes.
+    </p>
+    <p>
+        Options may be written in two different ways.
+    </p>
+
+    <h4>Long options</h4>
+
+    <p>
+        These options start with '<strong>--</strong>', and must be written=
+ one at a time.<br>
+        (Example: '<code>--style=3Dallman --indent=3Dspaces=3D4</code>')
+    </p>
+
+    <h4>Short Options</h4>
+
+    <p>
+        These options start with a single '<strong>-</strong>', and may be =
+concatenated together.<br>
+        (Example: '<code>-bps4</code>' is the same as writing '<code>-b -p =
+-s4</code>'.)
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * * *  Options File  * * * * * * * * * * * =
+* * *  -->
+
+    <h3 id=3D"_Options_File">Options File</h3>
+
+    <p>
+        An OPTIONAL default options file may be used to supplement or repla=
+ce the command line options.&nbsp;
+    </p>
+    <ul>
+        <li>The command line options have precedence. If there is a conflic=
+t between a command line option and an option in
+            the default options file, the command line option will be used.
+        </li>
+        <li>Artistic Style looks for this file in the following locations (=
+in order):
+            <ol>
+                <li>the file indicated by the --options=3D command line opt=
+ion;</li>
+                <li>the file and directory indicated by the environment var=
+iable ARTISTIC_STYLE_OPTIONS (if it exists);</li>
+                <li>the file named .astylerc in the directory pointed to by=
+ the HOME environment variable (e.g. "$HOME/.astylerc"
+                    on Linux);
+                </li>
+                <li>the file named astylerc in the directory pointed to by =
+the USERPROFILE environment variable (e.g. "%USERPROFILE%\astylerc"
+                    on Windows).
+                </li>
+            </ol>
+        </li>
+        <li>This option file lookup can be disabled by specifying --options=
+=3Dnone on the command line.</li>
+        <li>Options may be set apart by new-lines, tabs, commas, or spaces.=
+</li>
+        <li>Long options in the options file may be written without the pre=
+ceding '--'.</li>
+        <li>Lines within the options file that begin with '#' are considere=
+d line-comments.</li>
+    </ul>
+    <p>
+        Example of a default options file:
+    </p>
+    <div class=3D"code">
+        <pre><span class=3D"comment"># this line is a comment</span>
+--style=3Dallman      <span class=3D"comment"># this is a line-end comment<=
+/span>
+<span class=3D"comment"># long options can be written without the preceding=
+ '--'</span>
+indent-switches     <span class=3D"comment"># cannot do this on the command=
+ line</span>
+<span class=3D"comment"># short options must have the preceding '-'</span>
+-t -p
+<span class=3D"comment"># short options can be concatenated together</span>
+-M60Ucv</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+
+    <hr>
+
+    <!--  * * * * * * * * * * * * *  Disable Formatting   * * * * * * * * *=
+ * * * *  -->
+
+    <h3 id=3D"_Disable_Formatting">
+        Disable Formatting
+    </h3>
+
+    <p>
+        Formatting and indenting can be disabled with comment tags inserted=
+ in the source code.
+    </p>
+
+    <h4>
+        Disable Block
+    </h4>
+
+    <p>
+        Blocks of code can be disabled using "off" and "on" tags. The tags =
+are included in the source
+        file as comments. The comment may be a C comment (/* ... */) or a C=
+++ line comment (//). The tag must be included
+        in a single line comment. If the comment exceeds one line the inden=
+t tag will be ignored. Additional information
+        can be included with the tag.
+    </p>
+    <p>
+        The beginning tag is "*INDENT-OFF*" and the ending tag is "*INDENT-=
+ON*".
+        They may be used anywhere in the program with the following conditi=
+on; parsing is partially disabled between the
+        tags. Disabling partial statements may result in incorrect formatti=
+ng after the ending tag. If this happens expand
+        the tags to include additional code.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            The following retains the format of a preprocessor define:
+        </p>
+        <pre><span class=3D"comment">// *INDENT-OFF*</span>
+#define FOO_DECLARE_int32_(name) \
+        FOO_API_ extern ::Int32 FOO_FLAG(name)
+<span class=3D"comment">// *INDENT-ON*</span></pre>
+    </div>
+
+    <h4>
+        Disable Line
+    </h4>
+
+    <p>
+        Artistic Style cannot always determine the usage of symbols with mo=
+re than one meaning. For example an asterisk
+        (*) can be multiplication, a pointer, or a pointer dereference. The=
+ "&amp;" and "&amp;&amp;"
+        symbols are a similar
+        problem.
+    </p>
+    <p>
+        If a symbol is being padded incorrectly, padding it manually may fi=
+x the problem. If it is still being
+        padded incorrectly, then disabling the formatting may be necessary.=
+ To avoid having to use the "disable block"
+        tags above, a single line disable is available.
+    </p>
+    <p>
+        A line-end comment tag "*NOPAD* will disable the "pad-oper", "align=
+-pointer", and "align-reference"
+        options. Parsing does NOT stop and all other formatting will be app=
+lied to the line. The tag applies to the
+        one line only.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            The following prevents the operator padding from changing:
+        </p>
+        <pre>size_t foo =3D (unsigned int) -1;  // *NOPAD*</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * *   Bracket Style Options    * * * * * * * =
+* * * * *  -->
+
+    <h3 id=3D"_Bracket_Style_Options">Bracket Style Options</h3>
+
+    <p>
+        Bracket Style options define the bracket style to use. All options =
+default to 4 spaces per indent, indented with
+        spaces.
+        By default, none of the styles indent namespaces. Other indentation=
+s are indicated in the individual style
+        description. All options will break the brackets for one line block=
+s and will break one line statements. To change
+        this
+        use the option <a href=3D"http://astyle.sourceforge.net/astyle.html=
+#_keep-one-line-blocks">keep-one-line-blocks</a> and/or <a href=3D"http://a=
+style.sourceforge.net/astyle.html#_keep-one-line-statements">
+            keep-one-line-statements</a> described in the <a href=3D"http:/=
+/astyle.sourceforge.net/astyle.html#_Formatting_Options">Formatting Options=
+</a> section
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_default_bracket_style">
+        <code class=3D"title">default bracket style</code><br>
+        If no bracket style is requested, the default bracket style will be=
+ used. The opening brackets are not changed
+        and the closing brackets will be broken from the preceding line. Th=
+ere are a few exceptions to this.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dallman">
+        <code class=3D"title">--style=3Dallman / --style=3Dbsd / --style=3D=
+break / -A1</code><br>
+        Allman style uses broken brackets.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>
+    if (isBar)
+    <span class=3D"brace">{</span>
+        bar();
+        return 1;
+    <span class=3D"brace">}</span>
+    else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Djava">
+        <code class=3D"title">--style=3Djava / --style=3Dattach / -A2</code=
+><br>
+        Java style uses attached brackets.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar) <span class=3D"brace">{</span>
+    if (isBar) <span class=3D"brace">{</span>
+        bar();
+        return 1;
+    <span class=3D"brace">}</span> else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dkr">
+        <code class=3D"title">--style=3Dkr / --style=3Dk&amp;r / --style=3D=
+k/r / -A3</code><br>
+        Kernighan &amp; Ritchie style uses linux brackets. Opening brackets=
+ are broken from namespaces, classes, and function
+        definitions. Brackets are attached to everything else including sta=
+tements within a function, arrays, structs,
+        and enums.
+    </p>
+    <p>
+        Using the k&amp;r option may cause problems because of the &amp;. T=
+his can be resolved by enclosing the k&amp;r
+        in quotes (e.g. &#8209;&#8209;style=3D"k&amp;r") or by using one of=
+ the alternates &#8209;&#8209;style=3Dkr or &#8209;&#8209;style=3Dk/r.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>
+    if (isBar) <span class=3D"brace">{</span>
+        bar();
+        return 1;
+    <span class=3D"brace">}</span> else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dstroustrup">
+        <code class=3D"title">--style=3Dstroustrup / -A4</code><br>
+        Stroustrup style uses stroustrup brackets. Brackets are broken from=
+ function definitions only. Brackets are attached
+        to everything else including namespaces, classes, and statements wi=
+thin a function, arrays, structs, and enums.
+        This style frequently is used with an indent of 5 spaces.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>
+    if (isBar) <span class=3D"brace">{</span>
+        bar();
+        return 1;
+    <span class=3D"brace">}</span> else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dwhitesmith">
+        <code class=3D"title">--style=3Dwhitesmith / -A5</code><br>
+        Whitesmith style uses broken, indented brackets. Switch blocks and =
+class blocks are indented to prevent a 'hanging
+        indent' with following case statements and C++ class modifiers (pub=
+lic, private, protected).&nbsp;
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+    <span class=3D"brace">{</span>
+    if (isBar)
+        <span class=3D"brace">{</span>
+        bar();
+        return 1;
+        <span class=3D"brace">}</span>
+    else
+        return 0;
+    <span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dvtk">
+        <code class=3D"title">--style=3Dvtk / -A15</code><br>
+        VTK (Visualization Toolkit) style uses broken, indented brackets, e=
+xcept for the opening bracket. Switch blocks
+        are indented to prevent a 'hanging indent' with following case stat=
+ements.&nbsp;
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>
+    if (isBar)
+        <span class=3D"brace">{</span>
+        bar();
+        return 1;
+        <span class=3D"brace">}</span>
+    else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dbanner">
+        <code class=3D"title">--style=3Dbanner / -A6</code><br>
+        Banner style uses attached, indented brackets. Switch blocks and cl=
+ass blocks are indented to prevent a 'hanging
+        indent' with following case statements and C++ class modifiers (pub=
+lic, private, protected).&nbsp;
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar) <span class=3D"brace">{</span>
+    if (isBar) <span class=3D"brace">{</span>
+        bar();
+        return 1;
+        <span class=3D"brace">}</span>
+    else
+        return 0;
+    <span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dgnu">
+        <code class=3D"title">--style=3Dgnu / -A7</code><br>
+        GNU style uses broken brackets and indented blocks. This style freq=
+uently is used with
+        an indent of 2 spaces.
+    </p>
+    <p>
+        Extra indentation is added to blocks <strong>within a function</str=
+ong>. The opening bracket for namespaces, classes,
+        and functions is not indented.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>
+    if (isBar)
+        <span class=3D"brace">{</span>
+            bar();
+            return 1;
+        <span class=3D"brace">}</span>
+    else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dlinux">
+        <code class=3D"title">--style=3Dlinux / --style=3Dknf / -A8</code><=
+br>
+        Linux style uses linux brackets. Opening brackets are broken from n=
+amespace, class, and function
+        definitions. Brackets are attached to everything else including sta=
+tements within a function, arrays, structs,
+        and enums. <strong>Minimum conditional indent</strong> is one-half =
+indent. If you want a different minimum conditional
+        indent use the K&amp;R style instead. This style works best with a =
+large indent. It frequently is used with an
+        indent of 8 spaces.
+    </p>
+    <p>
+        Also known as Kernel Normal Form (KNF) style, this is the style use=
+d in the Linux kernel.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>
+        if (isFoo) <span class=3D"brace">{</span>
+                bar();
+                return 1;
+        <span class=3D"brace">}</span> else
+                return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dhorstmann">
+        <code class=3D"title">--style=3Dhorstmann / -A9</code><br>
+        Horstmann style uses run-in brackets. Brackets are broken and allow=
+ run-in statements.
+        Switches are indented to allow a run-in to the opening switch block=
+. This style frequently is used with an indent
+        of 3 spaces.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>   if (isBar)
+    <span class=3D"brace">{</span>   bar();
+        return 1;
+    <span class=3D"brace">}</span>
+    else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3D1tbs">
+        <code class=3D"title">--style=3D1tbs / --style=3Dotbs / -A10</code>=
+<br>
+        "One True Brace Style" uses linux brackets and adds brackets to unb=
+racketed one line conditional
+        statements. Opening brackets are broken from namespaces, classes, a=
+nd function definitions. Brackets are attached
+        to everything else including statements within a function, arrays, =
+structs, and enums.&nbsp;
+    </p>
+    <p>
+        In the following example brackets have been added to the "<code>ret=
+urn 0;</code>" statement. The option
+        &#8209;&#8209;add&#8209;one&#8209;line&#8209;brackets can also be u=
+sed with this style.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>
+    if (isFoo) <span class=3D"brace">{</span>
+        bar();
+        return 1;
+    <span class=3D"brace">}</span> else <span class=3D"brace">{</span>
+        return 0;
+    <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dgoogle">
+        <code class=3D"title">--style=3Dgoogle / -A14</code><br>
+        Google style uses attached brackets and indented class access modif=
+iers.&nbsp;See the indent-modifiers
+        option for an example of the indented modifiers format. This style =
+frequently is used with an indent of 2 spaces.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar) <span class=3D"brace">{</span>
+    if (isBar) <span class=3D"brace">{</span>
+        bar();
+        return 1;
+    <span class=3D"brace">}</span> else
+        return 0;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dpico">
+        <code class=3D"title">--style=3Dpico / -A11</code><br>
+        Pico style uses run-in brackets and attached closing brackets. Open=
+ing brackets are broken
+        and allow run-in statements. The closing bracket is attached to the=
+ last line in the block. Switches are indented
+        to allow a run-in to the opening switch block. The style implies ke=
+ep-one-line-blocks and keep-one-line-statements.
+        If add-brackets is used they will be added as one-line brackets. Th=
+is style frequently is used with an indent
+        of 2 spaces.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar)
+<span class=3D"brace">{</span>   if (isBar)
+    <span class=3D"brace">{</span>   bar();
+        return 1; <span class=3D"brace">}</span>
+    else
+        return 0; <span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_style=3Dlisp">
+        <code class=3D"title">--style=3Dlisp / --style=3Dpython / -A12</cod=
+e><br>
+        Lisp style uses attached opening and closing brackets. Opening brac=
+kets are attached at the
+        end of the statement. The closing bracket is attached to the last l=
+ine in the block. The style implies keep-one-line-statements
+        but NOT keep-one-line-blocks. This style does not support one-line =
+brackets. If add-one-line-brackets is used
+        they will be added as multiple-line brackets.
+    </p>
+    <div class=3D"code">
+        <pre>int Foo(bool isBar) <span class=3D"brace">{</span>
+    if (isBar) <span class=3D"brace">{
+</span>        bar()
+        return 1; <span class=3D"brace">}
+ </span>   else
+        return 0; <span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * * * *   Tab Options  * * * * * * * * * * =
+* * * * * -->
+
+    <h3 id=3D"_Tab_Options">Tab Options</h3>
+
+    <p>
+        The following examples show whitespace characters. A space is indic=
+ated with a <strong>.</strong> (dot), a tab
+        is indicated by a &gt; (greater than).
+    </p>
+    <p id=3D"_default_indent">
+        <code class=3D"title">default indent</code><br>
+        If no indentation option is set, the default option of 4 spaces wil=
+l be used (e.g. <code>-s<span class=3D"option">4</span>
+            --indent=3Dspaces=3D<span class=3D"option">4</span>
+        </code>).
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            with default values:
+        </p>
+        <pre>void Foo() <span class=3D"brace">{</span>
+....if (isBar1
+............&amp;&amp; isBar2)    <span class=3D"comment">// indent of this=
+ line can be changed with min-conditional-indent</span>
+........bar();
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent=3Dspaces">
+        <code class=3D"title">--indent=3Dspaces / --indent=3Dspaces=3D<span=
+ class=3D"option">#</span> / -s<span class=3D"option">#</span></code><br>
+        Indent using # <strong>spaces</strong> per indent (e.g. <code>-s<sp=
+an class=3D"option">3</span></code> <code>--indent=3Dspaces=3D<span class=
+=3D"option">3</span>
+        </code>). # must be between 2 and 20. Not specifying # will result =
+in a default of
+        4 spaces per indent.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            with indent=3Dspaces=3D3
+        </p>
+        <pre>void Foo() <span class=3D"brace">{</span>
+...if (isBar1
+.........&amp;&amp; isBar2)    <span class=3D"comment">// indent of this li=
+ne can be changed with min-conditional-indent</span>
+......bar();
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent=3Dtab">
+        <code class=3D"title">--indent=3Dtab / --indent=3Dtab=3D<span class=
+=3D"option">#</span> / -t / -t<span class=3D"option">#</span></code><br>
+        Indent using <strong>tabs for indentation, and spaces for continuat=
+ion line alignment</strong>. This ensures that
+        the code is displayed correctly&nbsp; regardless of the viewer=92s =
+tab size. Treat each indent as # spaces
+        (e.g. <code>-t<span class=3D"option">6</span></code> / <code>--inde=
+nt=3Dtab=3D<span class=3D"option">6</span></code>).
+        # must be between 2 and 20. If no # is set, treats indents as 4 spa=
+ces.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            with indent=3Dtab:
+        </p>
+        <pre>void Foo() <span class=3D"brace">{</span>
+&gt;   if (isBar1
+&gt;   ........&amp;&amp; isBar2)    <span class=3D"comment">// indent of t=
+his line can be changed with min-conditional-indent</span>
+&gt;   &gt;   bar();
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            with style=3Dlinux, indent=3Dtab=3D8:
+        </p>
+        <pre>void Foo()
+<span class=3D"brace">{</span>
+&gt;       if (isBar1
+&gt;       ....&amp;&amp; isBar2)    <span class=3D"comment">// indent of t=
+his line can NOT be changed with style=3Dlinux</span>
+&gt;       &gt;       bar();
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent=3Dforce-tab">
+        <code class=3D"title">--indent=3Dforce-tab / --indent=3Dforce-tab=
+=3D<span class=3D"option">#</span> / -T / -T<span class=3D"option">#</span>=
+</code><br>
+        Indent using <strong>all tab</strong> characters, if possible. If a=
+ continuation line is not an even number of
+        tabs, spaces will be added at the end. Treat each tab as # spaces (=
+e.g. <code>-T<span class=3D"option">6</span></code>
+        / <code>--indent=3D<span lang=3D"en-us">force-</span>tab=3D<span cl=
+ass=3D"option">6</span></code>). # must be between
+        2 and 20. If no # is set, treats tabs as 4 spaces.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            with indent=3Dforce-tab:
+        </p>
+        <pre>void Foo() <span class=3D"brace">{</span>
+&gt;   if (isBar1
+&gt;   &gt;   &gt;   &amp;&amp; isBar2)    <span class=3D"comment">// inden=
+t of this line can be changed with min-conditional-indent</span>
+&gt;   &gt;   bar();
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent=3Dforce-tab-x">
+        <code class=3D"title">--indent=3Dforce-tab-x / --indent=3Dforce-tab=
+-x=3D<span class=3D"option">#</span> / -xT / -xT<span class=3D"option">#</s=
+pan>
+        </code><br>
+        This force-tab option allows the tab length to be set to a length t=
+hat is different than the indent length. This
+        may cause the indentation to be <strong>a mix of both tabs and spac=
+es.</strong> Tabs will be used to indent, if
+        possible. If a tab indent cannot be used, spaces will be used inste=
+ad.
+    </p>
+    <p>
+        This option sets the <strong>tab length.</strong> Treat each tab as=
+ # spaces (e.g. <code>-xT<span class=3D"option">6</span></code>
+        / <code>--indent=3D<span lang=3D"en-us">force-</span>tab-x=3D<span =
+class=3D"option">6</span></code>). # must be between
+        2 and 20. If no # is set, treats tabs as 8 spaces. To change the <s=
+trong>indent length</strong> from the default
+        of 4 spaces the option "indent=3Dforce-tab" must also be used.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            with indent=3Dforce-tab-x (default tab length of 8 and default =
+indent length of 4):
+        </p>
+        <pre>void Foo() <span class=3D"brace">{</span>
+....if (isBar1
+&gt;       ....&amp;&amp; isBar2)    <span class=3D"comment">// indent of t=
+his line can be changed with min-conditional-indent</span>
+&gt;       bar();
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * *   Bracket Modify Options   * * * * * * * =
+* * * * * -->
+
+    <h3 id=3D"_Bracket_Modify_Options">Bracket Modify Options</h3>
+
+    <p id=3D"_attach_namespaces">
+        <code class=3D"title">--attach-namespaces / -xn</code><br>
+        Attach brackets to a namespace statement. This is done regardless o=
+f the bracket style being used.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            the bracket is always attached to a namespace statement:
+        </p>
+        <pre>namespace FooName <span class=3D"brace">{</span>
+...
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_attach_classes">
+        <code class=3D"title">--attach-classes / -xc</code><br>
+        Attach brackets to a class statement. This is done regardless of th=
+e bracket style being used.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            the bracket is always attached to a class statement:
+        </p>
+        <pre>class FooClass <span class=3D"brace">{</span>
+...
+<span class=3D"brace">}</span>;
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_attach_inlines">
+        <code class=3D"title">--attach-inlines / -xl</code><br>
+        Attach brackets to class and struct inline function definitions. Th=
+is is not done for run-in type brackets (Horstmann
+        and Pico styles). This option is effective for C++ files only.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            all brackets are always attached to class and struct inline fun=
+ction definitions:
+        </p>
+        <pre>class FooClass
+<span class=3D"brace">{</span>
+    void Foo() <span class=3D"brace">{</span>
+    ...
+<span class=3D"brace">    }</span>
+<span class=3D"brace">}</span>;
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_attach-extern-c">
+        <code class=3D"title">--attach-extern-c / -xk</code><br>
+        Attach brackets to a bracketed extern "C" statement. This is done r=
+egardless of the bracket style being used.
+        This option is effective for C++ files only.
+    </p>
+    <p>
+        An extern "C" statement that is part of a function definition is fo=
+rmatted according to the requested bracket
+        style. Bracketed extern "C" statements are unaffected by the bracke=
+t style and this option is the only way to
+        change them.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            this option attaches brackets to a bracketed extern "C" stateme=
+nt:
+        </p>
+        <pre>#ifdef __cplusplus
+extern "C" <span class=3D"brace">{</span>
+#endif
+</pre>
+        <p class=3D"code">
+            but function definitions are formatted according to the request=
+ed bracket style:
+        </p>
+        <pre>extern "C" EXPORT void STDCALL Foo()
+<span class=3D"brace">{}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * *   Indentation Options  * * * * * * * * =
+* * * * *  -->
+
+    <h3 id=3D"_Indentation_Options">Indentation Options</h3>
+
+    <p id=3D"_indent-classes">
+        <code class=3D"title">--indent-classes / -C</code><br>
+        Indent '<code>class</code>' and '<code>struct</code>' blocks so tha=
+t the entire block is indented. The struct
+        blocks are indented only if an access modifier, '<code>public:</cod=
+e>', '<code>protected:</code>' or '<code>private:</code>',
+        is declared somewhere in the struct. This option is effective for C=
+++ files only.
+    </p>
+    <div class=3D"code">
+        <pre>class Foo
+<span class=3D"brace">{</span>
+public:
+    Foo();
+    virtual ~Foo();
+<span class=3D"brace">}</span>;
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>class Foo
+<span class=3D"brace">{</span>
+    public:
+        Foo();
+        virtual ~Foo();
+<span class=3D"brace">}</span>;
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-modifiers">
+        <code class=3D"title">--indent-modifiers / -xG</code><br>
+        Indent '<code>class</code>' and '<code>struct</code>' access modifi=
+ers, '<code>public:</code>', '<code>protected:</code>'
+        and '<code>private:</code>', one half indent. The rest of the class=
+ is not indented. This option is effective
+        for C++ files only. If used with indent&#8209;classes this option w=
+ill be ignored.
+    </p>
+    <div class=3D"code">
+        <pre>class Foo
+<span class=3D"brace">{</span>
+public:
+    Foo();
+    virtual ~Foo();
+<span class=3D"brace">}</span>;
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>class Foo
+<span class=3D"brace">{</span>
+  public:
+    Foo();
+    virtual ~Foo();
+<span class=3D"brace">}</span>;
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-switches">
+        <code class=3D"title">--indent-switches / -S</code><br>
+        Indent '<code>switch</code>' blocks so that the '<code>case X:</cod=
+e>' statements are indented in the <code>switch</code>
+        block. The entire case block is indented.
+    </p>
+    <div class=3D"code">
+        <pre>switch (foo)
+<span class=3D"brace">{</span>
+case 1:
+    a +=3D 1;
+    break;
+
+case 2:
+<span class=3D"brace">{</span>
+    a +=3D 2;
+    break;
+<span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>switch (foo)
+<span class=3D"brace">{</span>
+    case 1:
+        a +=3D 1;
+        break;
+
+    case 2:
+    <span class=3D"brace">{</span>
+        a +=3D 2;
+        break;
+    <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-cases">
+        <code class=3D"title">--indent-cases / -K</code><br>
+        Indent '<code>case X:</code>' blocks from the '<code>case X:</code>=
+' headers. Case statements not enclosed in
+        blocks are NOT indented.
+    </p>
+    <div class=3D"code">
+        <pre>switch (foo)
+<span class=3D"brace">{</span>
+    case 1:
+        a +=3D 1;
+        break;
+
+    case 2:
+    <span class=3D"brace">{</span>
+        a +=3D 2;
+        break;
+    <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>switch (foo)
+<span class=3D"brace">{</span>
+    case 1:
+        a +=3D 1;
+        break;
+
+    case 2:
+        <span class=3D"brace">{</span>
+            a +=3D 2;
+            break;
+        <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-namespaces">
+        <code class=3D"title">--indent-namespaces / -N</code><br>
+        Add extra indentation to namespace blocks. This option has no effec=
+t on Java files.
+    </p>
+    <div class=3D"code">
+        <pre>namespace foospace
+<span class=3D"brace">{</span>
+class Foo
+<span class=3D"brace">{</span>
+    public:
+        Foo();
+        virtual ~Foo();
+<span class=3D"brace">}</span>;
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>namespace foospace
+<span class=3D"brace">{</span>
+    class Foo
+    <span class=3D"brace">{</span>
+        public:
+            Foo();
+            virtual ~Foo();
+    <span class=3D"brace">}</span>;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-labels">
+        <code class=3D"title">--indent-labels / -L</code><br>
+        Add extra indentation to labels so they appear 1 indent less than t=
+he current indentation, rather than being flushed
+        to the left (the default).
+    </p>
+    <div class=3D"code">
+        <pre>void Foo() <span class=3D"brace">{</span>
+    while (isFoo) <span class=3D"brace">{</span>
+        if (isFoo)
+            goto error;
+        ...
+error:
+        ...
+        <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes (with indented 'error:'):
+        </p>
+        <pre>void Foo() <span class=3D"brace">{</span>
+    while (isFoo) <span class=3D"brace">{</span>
+        if (isFoo)
+            goto error;
+        ...=20
+    error:
+        ...
+        <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+
+    <p id=3D"_indent-preproc-block">
+        <code class=3D"title">--indent-preproc-block / -xW</code><br>
+        Indent preprocessor blocks at bracket level zero, and immediately w=
+ithin a namespace. There are restrictions on
+        what will be indented. Blocks within methods, classes, arrays, etc,=
+ will not be indented. Blocks containing brackets
+        or multi-line define statements will not be indented. Without this =
+option the preprocessor block is not indented.
+    </p>
+    <div class=3D"code">
+        <pre>#ifdef _WIN32
+#include &lt;windows.h&gt;
+#ifndef NO_EXPORT
+#define EXPORT
+#endif
+#endif
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>#ifdef _WIN32
+    #include &lt;windows.h&gt;
+    #ifndef NO_EXPORT
+        #define EXPORT
+    #endif
+#endif
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-preproc-define">
+        <code class=3D"title">--indent-preproc-define / -w</code><br>
+        Indent multi-line preprocessor definitions ending with a backslash.=
+ Should be used with --convert-tabs for proper
+        results. Does a pretty good job, but cannot perform miracles in obf=
+uscated preprocessor definitions. Without this
+        option the preprocessor statements remain unchanged.
+    </p>
+    <div class=3D"code">
+        <pre>#define Is_Bar(arg,a,b) \
+(Is_Foo((arg), (a)) \
+|| Is_Foo((arg), (b)))
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>#define Is_Bar(arg,a,b) \
+    (Is_Foo((arg), (a)) \
+     || Is_Foo((arg), (b)))
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-preproc-cond">
+        <code class=3D"title">--indent-preproc-cond / -xw</code><br>
+        Indent preprocessor conditional statements to the same level as the=
+ source code.
+    </p>
+    <div class=3D"code">
+        <pre>        isFoo =3D true;
+#ifdef UNICODE
+        text =3D wideBuff;
+#else
+        text =3D buff;
+#endif</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>        isFoo =3D true;
+        #ifdef UNICODE
+        text =3D wideBuff;
+        #else
+        text =3D buff;
+        #endif
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_indent-col1-comments">
+        <code class=3D"title">--indent-col1-comments / -Y</code><br>
+        Indent C++ comments beginning in column one. By default C++ comment=
+s beginning in column one are
+        assumed to be commented&#8209;out code and not indented. This optio=
+n will allow the comments to be indented with
+        the code.
+    </p>
+    <div class=3D"code">
+        <pre>void Foo()\n"
+<span class=3D"brace">{</span>
+<span class=3D"comment">// comment</span>
+    if (isFoo)
+        bar();
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>void Foo()\n"
+<span class=3D"brace">{</span>
+    <span class=3D"comment">// comment</span>
+    if (isFoo)
+        bar();
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_min-conditional-indent">
+        <code class=3D"title">--min-conditional-indent=3D<span class=3D"opt=
+ion">#</span> / -m<span class=3D"option">#</span></code><br>
+        Set the minimal indent that is added when a header is built of mult=
+iple lines. This indent helps to easily separate
+        the header from the command statements that follow. The value for <=
+span class=3D"option"><strong>#</strong></span>
+        indicates a <strong>number of indents</strong> and is a minimum val=
+ue. The indent may be greater to align with
+        the data on the previous line.<br>
+        The valid values are:<br>
+        0 - no minimal indent. The lines will be aligned with the paren on =
+the preceding line.<br>
+        1 - indent at least one additional indent.<br>
+        2 - indent at least two additional indents.<br>
+        3 - indent at least one-half an additional indent. This is intended=
+ for large indents (e.g. 8).<br>
+        The default value is <strong>2</strong>, two additional indents.
+    </p>
+    <div class=3D"code">
+        <pre><span class=3D"comment">// default setting makes this non-brac=
+keted code clear</span>
+if (a &lt; b
+        || c &gt; d)
+    foo++;
+
+<span class=3D"comment">// but creates an exaggerated indent in this bracke=
+ted code</span>
+if (a &lt; b
+        || c &gt; d)
+<span class=3D"brace">{</span>
+    foo++;
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes (when setting <strong><code>--min-conditional-indent=3D=
+<span class=3D"option">0</span></code></strong>):
+        </p>
+        <pre><span class=3D"comment">// setting makes this non-bracketed co=
+de less clear</span>
+if (a &lt; b
+    || c &gt; d)
+    foo++;
+
+<span class=3D"comment">// but makes this bracketed code clearer</span>
+if (a &lt; b
+    || c &gt; d)
+<span class=3D"brace">{</span>
+    foo++;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_max-instatement-indent">
+        <code class=3D"title">--max-instatement-indent=3D<span class=3D"opt=
+ion">#</span> / -M<span class=3D"option">#</span></code><br>
+        Set the &nbsp;maximum of <span class=3D"option">#</span> spaces to =
+indent a continuation line. The <span class=3D"option">
+            <strong>#</strong></span> indicates a number of columns and mus=
+t not be greater than <strong>120</strong>.
+        If no <span class=3D"option"><strong>#</strong></span> is set, the =
+default value of <strong>40</strong> will be
+        used. A maximum of less than two indent lengths will be ignored. Th=
+is option will prevent continuation lines from
+        extending too far to the right. Setting a larger value will allow t=
+he code to be extended further to the right.
+    </p>
+    <div class=3D"code">
+        <pre>fooArray[] =3D <span class=3D"brace">{</span> red,
+         green,
+         blue <span class=3D"brace">}</span>;
+
+fooFunction(barArg1,
+         barArg2,
+         barArg3);
+</pre>
+        <p class=3D"code">
+            becomes (with larger value):
+        </p>
+        <pre>fooArray[] =3D <span class=3D"brace">{</span> red,
+               green,
+               blue <span class=3D"brace">}</span>;
+
+fooFunction(barArg1,
+            barArg2,
+            barArg3);
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * *   Padding Options  * * * * * * * * * * =
+* * *  -->
+
+    <h3 id=3D"_Padding_Options">Padding Options</h3>
+
+    <p id=3D"_break-blocks">
+        <code class=3D"title">--break-blocks / -f</code><br>
+        Pad empty lines around header blocks (e.g. '<code>if</code>', '<cod=
+e>for</code>', '<code>while</code>'...).
+    </p>
+    <div class=3D"code">
+        <pre>isFoo =3D true;
+if (isFoo) <span class=3D"brace">{</span>
+    bar();
+<span class=3D"brace">}</span> else <span class=3D"brace">{</span>
+    anotherBar();
+<span class=3D"brace">}</span>
+isBar =3D false;
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>isFoo =3D true;
+
+if (isFoo) <span class=3D"brace">{</span>
+    bar();
+<span class=3D"brace">}</span> else <span class=3D"brace">{</span>
+    anotherBar();
+<span class=3D"brace">}</span>
+
+isBar =3D false;
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_break-blocks=3Dall">
+        <code class=3D"title">--break-blocks=3Dall / -F</code><br>
+        Pad empty lines around header blocks (e.g. '<code>if</code>', '<cod=
+e>for</code>', '<code>while</code>'...). Treat
+        closing header blocks (e.g. '<code>else</code>', '<code>catch</code=
+>') as stand-alone blocks.
+    </p>
+    <div class=3D"code">
+        <pre>isFoo =3D true;
+if (isFoo) <span class=3D"brace">{</span>
+    bar();
+<span class=3D"brace">}</span> else <span class=3D"brace">{</span>
+    anotherBar();
+<span class=3D"brace">}</span>
+isBar =3D false;
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>isFoo =3D true;
+
+if (isFoo) <span class=3D"brace">{</span>
+    bar();
+
+<span class=3D"brace">}</span> else <span class=3D"brace">{</span>
+    anotherBar();
+<span class=3D"brace">}</span>
+
+isBar =3D false;
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-oper">
+        <code class=3D"title">--pad-oper / -p </code>
+        <br>
+        Insert space padding around operators. Any end of line comments wil=
+l remain in the original column, if possible.
+        Note that there is no option to unpad. Once padded, they stay padde=
+d.
+    </p>
+    <div class=3D"code">
+        <pre>if (foo=3D=3D2)
+    a=3Dbar((b-c)*a,d--);
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (foo =3D=3D 2)
+    a =3D bar((b - c) * a, d--);
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-paren">
+        <code class=3D"title">--pad-paren / -P </code>
+        <br>
+        Insert space padding around parenthesis on both the <strong>outside=
+</strong> and the <strong>inside</strong>.
+        Any end of line comments will remain in the original column, if pos=
+sible.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo((a+2), b))
+    bar(a, b);
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if ( isFoo ( ( a+2 ), b ) )
+    bar ( a, b );
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-paren-out">
+        <code class=3D"title">--pad-paren-out / -d </code>
+        <br>
+        Insert space padding around parenthesis on the <strong>outside</str=
+ong> only. Parentheses that are empty will
+        not be padded. Any end of line comments will remain in the original=
+ column, if possible. This can be used with
+        unpad-paren below to remove unwanted spaces.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo((a+2), b))
+    bar(a, b);
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (isFoo ( (a+2), b) )
+    bar (a, b);
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-first-paren-out">
+        <code class=3D"title">--pad-first-paren-out / -xd </code>
+        <br>
+        Insert space padding around the <strong>first</strong> parenthesis =
+in a series on the <strong>outside</strong>
+        only. Parentheses that are empty will not be padded. Any end of lin=
+e comments will remain in the original column,
+        if possible. This can be used with unpad-paren below to remove unwa=
+nted spaces. If used with pad&#8209;paren or
+        pad&#8209;paren&#8209;out, this option will be ignored. If used wit=
+h pad&#8209;paren&#8209;in, the result will
+        be the same as pad&#8209;paren.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo((a+2), b))
+    bar(a, b);
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (isFoo ((a+2), b))
+    bar (a, b);
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-paren-in">
+        <code class=3D"title">--pad-paren-in / -D </code>
+        <br>
+        Insert space padding around parenthesis on the <strong>inside</stro=
+ng> only. Any end of line comments will remain
+        in the original column, if possible. This can be used with unpad-pa=
+ren below to remove unwanted spaces.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo((a+2), b))
+    bar(a, b);
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if ( isFoo( ( a+2 ), b ) )
+    bar( a, b );
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-header">
+        <code class=3D"title">--pad-header / -H </code>
+        <br>
+        Insert space padding between a header (e.g. '<code>if</code>', '<co=
+de>for</code>', '<code>while</code>'...)
+        and the following paren. Any end of line comments will remain in th=
+e original column, if possible. This can
+        be used with unpad-paren to remove unwanted spaces.
+    </p>
+    <div class=3D"code">
+        <pre>if(isFoo((a+2), b))
+    bar(a, b);</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (isFoo((a+2), b))
+    bar(a, b);
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_unpad-paren">
+        <code class=3D"title">--unpad-paren / -U </code>
+        <br>
+        Remove extra space padding around parenthesis on the inside and out=
+side. Any end of line comments will remain
+        in the original column, if possible. This option can be used in com=
+bination with the paren padding options <code>pad&#8209;paren</code>,
+        <code>pad&#8209;paren&#8209;out</code>, <code>pad&#8209;paren&#8209=
+;in</code>, and <code>pad&#8209;header</code>
+        above. Only padding that has not been requested by other options wi=
+ll be removed.
+    </p>
+    <p>
+        For example, if a source has parens padded on both the inside and o=
+utside, and you want inside only. You need
+        to use <code>unpad-paren</code> to remove the outside padding, and =
+<code>pad&#8209;paren&#8209;in</code> to retain
+        the inside padding. Using only <code>pad&#8209;paren&#8209;in</code=
+> would not remove the outside padding.
+    </p>
+    <div class=3D"code">
+        <pre>if ( isFoo( ( a+2 ), b ) )
+    bar ( a, b );
+</pre>
+        <p class=3D"code">
+            becomes (with no padding option requested):
+        </p>
+        <pre>if(isFoo((a+2), b))
+    bar(a, b);
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_delete-empty-lines">
+        <code class=3D"title">--delete-empty-lines / -xe</code><br>
+        Delete empty lines within a function or method. Empty lines outside=
+ of functions or methods are NOT deleted. If
+        used with break-blocks or break-blocks=3Dall it will delete all lin=
+es EXCEPT the lines added by the break-blocks
+        options.
+    </p>
+    <div class=3D"code">
+        <pre>void Foo()
+<span class=3D"brace">{</span>
+
+    foo1 =3D 1;
+
+    foo2 =3D 2;
+
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>void Foo()
+<span class=3D"brace">{</span>
+    foo1 =3D 1;
+    foo2 =3D 2;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_fill-empty-lines">
+        <code class=3D"title">--fill-empty-lines / -E</code><br>
+        Fill empty lines with the white space of the previous line.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_align-pointer">
+        <code class=3D"title">--align-pointer=3Dtype&nbsp;&nbsp; / -k1<br>
+            --align-pointer=3Dmiddle / -k2<br>
+            --align-pointer=3Dname&nbsp;&nbsp; / -k3
+        </code><br>
+        Attach a pointer or reference operator (*, &amp;, or ^) to either t=
+he variable type (left) or variable name (right),
+        or place it between the type and name (middle). The spacing between=
+ the type and name will be preserved, if possible.
+        This option is for C/C++, C++/CLI, and C# files. To format referenc=
+es separately use the following align-reference
+        option.
+    </p>
+    <div class=3D"code">
+        <pre>char* foo1;
+char &amp; foo2;
+String ^s1;</pre>
+        <p class=3D"code">
+            becomes (with align-pointer=3Dtype):
+        </p>
+        <pre>char* foo1;
+char&amp; foo2;
+String^ s1;</pre>
+    </div>
+    <div class=3D"code">
+        <pre>char* foo1;
+char &amp; foo2;
+String ^s1;</pre>
+        <p class=3D"code">
+            becomes (with align-pointer=3Dmiddle):
+        </p>
+        <pre>char * foo1;
+char &amp; foo2;
+String ^ s1;</pre>
+    </div>
+    <div class=3D"code">
+        <pre>char* foo1;
+char &amp; foo2;
+String ^s1;</pre>
+        <p class=3D"code">
+            becomes (with align-pointer=3Dname):
+        </p>
+        <pre>char *foo1;
+char &amp;foo2;
+String ^s1;</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_align-reference">
+        <code class=3D"title">--align-reference=3Dnone&nbsp;&nbsp; / -W0<br=
+>
+            --align-reference=3Dtype&nbsp;&nbsp; / -W1<br>
+            --align-reference=3Dmiddle / -W2<br>
+            --align-reference=3Dname&nbsp;&nbsp; / -W3
+        </code><br>
+        This option will align references separate from pointers. Pointers =
+are not changed by this option. If pointers
+        and references are to be aligned the same, use the previous align-p=
+ointer option. The option align-reference=3Dnone
+        will not change the reference alignment. The other options are the =
+same as for align-pointer. This option is for
+        C/C++, C++/CLI, and C# files.
+    </p>
+    <div class=3D"code">
+        <pre>char &amp;foo1;</pre>
+        <p class=3D"code">
+            becomes (with align-reference=3Dtype):
+        </p>
+        <pre>char&amp; foo1;</pre>
+    </div>
+    <div class=3D"code">
+        <pre>char&amp; foo2;</pre>
+        <p class=3D"code">
+            becomes (with align-reference=3Dmiddle):
+        </p>
+        <pre>char &amp; foo2;</pre>
+    </div>
+    <div class=3D"code">
+        <pre>char&amp; foo3;</pre>
+        <p class=3D"code">
+            becomes (with align-reference=3Dname):
+        </p>
+        <pre>char &amp;foo3;</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * *   Formatting Options  * * * * * * * * *=
+ * * * *  -->
+
+    <h3 id=3D"_Formatting_Options">Formatting Options</h3>
+
+    <p id=3D"_break-closing-brackets">
+        <code class=3D"title">--break-closing-brackets / -y </code>
+        <br>
+        When used with --style=3Djava, --style=3Dkr, --style=3Dstroustrup, =
+--style=3Dlinux, or --style=3D1tbs, this breaks closing
+        headers (e.g. 'else', 'catch', ...) from their immediately precedin=
+g closing brackets. Closing header brackets
+        are always broken with the other styles.
+    </p>
+    <div class=3D"code">
+        <pre>void Foo(bool isFoo) <span class=3D"brace">{</span>
+    if (isFoo) <span class=3D"brace">{</span>
+        bar();
+    <span class=3D"brace">}</span> else <span class=3D"brace">{</span>
+        anotherBar();
+    <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes (a broken 'else'):
+        </p>
+        <pre>void Foo(bool isFoo) <span class=3D"brace">{</span>
+    if (isFoo) <span class=3D"brace">{</span>
+        bar();
+    <span class=3D"brace">}</span>
+    else <span class=3D"brace">{</span>
+        anotherBar();
+    <span class=3D"brace">}</span>
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_break-elseifs">
+        <code class=3D"title">--break-elseifs / -e</code><br>
+        Break "else if" header combinations into separate lines. This optio=
+n has no effect if keep-one-line-statements
+        is used, the "else if" statements will remain as they are.
+    </p>
+    <p>
+        If this option is NOT used, "else if" header combinations will be p=
+laced on a single line.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo) <span class=3D"brace">{</span>
+    bar();
+<span class=3D"brace">}</span>
+else if (isFoo1()) <span class=3D"brace">{</span>
+    bar1();
+<span class=3D"brace">}</span>
+else if (isFoo2()) <span class=3D"brace">{</span>
+    bar2;
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (isFoo) <span class=3D"brace">{</span>
+    bar();
+<span class=3D"brace">}</span>
+else
+    if (isFoo1()) <span class=3D"brace">{</span>
+        bar1();
+    <span class=3D"brace">}</span>
+    else
+        if (isFoo2()) <span class=3D"brace">{</span>
+            bar2();
+        <span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_add-brackets">
+        <code class=3D"title">--add-brackets / -j </code>
+        <br>
+        Add brackets to unbracketed one line conditional statements (e.g. '=
+<code>if</code>', '<code>for</code>',
+        '<code>while</code>'...). The statement must be on a single line. T=
+he brackets will be added according to
+        the currently requested predefined style or bracket type. If no sty=
+le or bracket type is requested the brackets
+        will be attached. If --add-one-line-brackets is also used the resul=
+t will be one line brackets.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo)
+    isFoo =3D false;
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (isFoo) <span class=3D"brace">{</span>
+    isFoo =3D false;
+<span class=3D"brace">}</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_add-one-line-brackets">
+        <code class=3D"title">--add-one-line-brackets / -J </code>
+        <br>
+        Add one line brackets to unbracketed one line conditional statement=
+s (e.g. '<code>if</code>', '<code>for</code>',
+        '<code>while</code>'...). The statement must be on a single line. T=
+he option implies --keep-one-line-blocks and
+        will not break the one line blocks.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo)
+    isFoo =3D false;
+</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (isFoo)
+    <span class=3D"brace">{</span> isFoo =3D false; <span class=3D"brace">}=
+</span>
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_remove-brackets">
+        <code class=3D"title">--remove-brackets / -xj</code><br>
+        Remove brackets from conditional statements (e.g. '<code>if</code>'=
+, '<code>for</code>', '<code>while</code>'...).
+        The statement must be a single statement on a single line. If --add=
+-brackets or --add-one-line-brackets is also
+        used the result will be to add brackets. Brackets will not be remov=
+ed from "One True Brace Style", --style=3D1tbs.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo)
+<span class=3D"brace">{</span>
+    isFoo =3D false;
+<span class=3D"brace">}</span></pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (isFoo)
+    isFoo =3D false;
+</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_keep-one-line-blocks">
+        <code class=3D"title">--keep-one-line-blocks / -O </code>
+        <br>
+        Don't break one-line blocks.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo)
+<span class=3D"brace">{</span> isFoo =3D false; cout &lt;&lt; isFoo &lt;&lt=
+; endl; <span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            remains unchanged.
+        </p>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_keep-one-line-statements">
+        <code class=3D"title">--keep-one-line-statements / -o </code>
+        <br>
+        Don't break complex statements and multiple statements residing on =
+a single line.
+    </p>
+    <div class=3D"code">
+        <pre>if (isFoo)
+<span class=3D"brace">{</span>
+    isFoo =3D false; cout &lt;&lt; isFoo &lt;&lt; endl;
+<span class=3D"brace">}</span>
+</pre>
+        <p class=3D"code">
+            remains unchanged.
+        </p>
+        <pre>if (isFoo) DoBar();
+</pre>
+        <p class=3D"code">
+            remains unchanged.
+        </p>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_convert-tabs">
+        <code class=3D"title">--convert-tabs / -c</code><br>
+        Converts tabs into spaces in the non-indentation part of the
+        line. The number of spaces inserted will maintain the spacing of th=
+e tab. The current setting for spaces per tab
+        is used. It may not produce the expected results if convert-tabs is=
+ used when changing spaces per tab. Tabs are
+        not replaced in quotes.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_close-templates">
+        <code class=3D"title">--close-templates / -xy</code><br>
+        Closes whitespace in the angle brackets of template definitions. Cl=
+osing the ending angle brackets is now allowed
+        by the C++11 standard. Be sure your compiler supports this before m=
+aking the changes.
+    </p>
+    <div class=3D"code">
+        <pre>Stack&lt; int,List&lt; int &gt; &gt; stack1;</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>Stack&lt;int,List&lt;int&gt;&gt; stack1;</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_remove-comment-prefix">
+        <code class=3D"title">--remove-comment-prefix / -xp</code><br>
+        Remove the preceding '*' in a multi-line comment that begins a line=
+. A trailing '*', if present, is also removed.
+        Text that is less than one indent is indented to one indent. Text g=
+reater than one indent is not changed. Multi-line
+        comments that begin a line but without the preceding '*' are indent=
+ed to one indent for consistency. This can
+        slightly modify the indentation of commented out blocks of code. Li=
+nes containing all '*' are left unchanged.
+        Extra spacing is removed from the comment close '*/'.
+    </p>
+    <div class=3D"code">
+        <pre><em>/*
+ * comment line 1
+ * comment line 2
+ */</em></pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre><em>/*
+    comment line 1
+    comment line 2
+*/</em></pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_max-code-length">
+        <code class=3D"title">--max-code-length=3D<span class=3D"option">#<=
+/span>&nbsp;&nbsp; / -xC<span class=3D"option">#</span>
+            <br>
+            --break-after-logical / -xL</code><br>
+        The option max&#8209;code&#8209;length will break a line if the cod=
+e exceeds <span class=3D"option"><strong>#</strong></span>
+        characters. The valid values are 50 thru 200. Lines without logical=
+ conditionals will break on a logical conditional
+        (||, &amp;&amp;, ...), comma, paren, semicolon, or space.
+    </p>
+    <p>
+        Some code will not be broken, such as comments, quotes, and arrays.=
+ If used with keep&#8209;one&#8209;line&#8209;blocks
+        or add-one-line-brackets the blocks will NOT be broken. If used wit=
+h keep&#8209;one&#8209;line&#8209;statements
+        the statements will be broken at a semicolon if the line goes over =
+the maximum length. If there is no available
+        break point within the max code length, the line will be broken at =
+the first available break point after the max
+        code length.
+    </p>
+    <p>
+        By default logical conditionals will be placed first on the new lin=
+e. The option break&#8209;after&#8209;logical
+        will cause the logical conditionals to be placed last on the previo=
+us line. This option has no effect without
+        max&#8209;code&#8209;length.
+    </p>
+    <div class=3D"code">
+        <pre>if (thisVariable1 =3D=3D thatVariable1 || thisVariable2 =3D=3D=
+ thatVariable2 || thisVariable3 =3D=3D thatVariable3)
+    bar();</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>if (thisVariable1 =3D=3D thatVariable1
+        || thisVariable2 =3D=3D thatVariable2
+        || thisVariable3 =3D=3D thatVariable3)
+    bar();</pre>
+        <p class=3D"code">
+            becomes (with break&#8209;after&#8209;logical):
+        </p>
+        <pre>if (thisVariable1 =3D=3D thatVariable1 ||
+        thisVariable2 =3D=3D thatVariable2 ||
+        thisVariable3 =3D=3D thatVariable3)
+    bar();</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_mode">
+        <code class=3D"title">--mode=3Dc</code><br>
+        <code class=3D"title">--mode=3Dcs</code><br>
+        <code class=3D"title">--mode=3Djava</code><br>
+        Indent a C type, C#, or Java file. C type files are C, C++, C++/CLI=
+, and Objective-C.&nbsp; The option is usually
+        set from the file extension for each file. You can override the set=
+ting with this entry. It will be used for all
+        files regardless of the file extension. It allows the formatter to =
+identify language specific syntax such as C++
+        classes, templates, and keywords.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * * *   Objective-C Options  * * * * * * * * =
+* * * * *  -->
+
+    <h3 id=3D"_Objective_C_Options">Objective&#8209;C Options</h3>
+
+    <p>
+        Because of the longer indents sometimes needed for Objective&#8209;=
+C, the option "max-instatement-indent" may
+        need to be increased. If you are not getting the paren and square b=
+racket alignment you want, try increasing this
+        value. The option is described in the "Indentation Options" section=
+.
+    </p>
+    <p id=3D"_align-method-colon">
+        <code class=3D"title">--align-method-colon / -xM</code><br>
+        Align the colons in Objective&#8209;C method declarations. This opt=
+ion is effective for Objective&#8209;C
+        files only.
+    </p>
+    <div class=3D"code">
+        <pre>-(void)deleteKey:(id)key
+    atIndex:(int)index
+    ofNode:(Node*)node;</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>-(void)deleteKey:(id)key
+         atIndex:(int)index
+          ofNode:(Node*)node;</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-method-prefix">
+        <code class=3D"title">--pad-method-prefix / -xQ</code><br>
+        Insert space padding after the '-' or '+' Objective&#8209;C method =
+prefix. This will add exactly one space. Any
+        additional spaces will be deleted. This option is effective for Obj=
+ective&#8209;C files only.
+    </p>
+    <div class=3D"code">
+        <pre>-(void)foo1;
++(void)foo2;</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>- (void)foo1;
++ (void)foo2;</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_unpad-method-prefix">
+        <code class=3D"title">--unpad-method-prefix / -xR</code><br>
+        Remove all space padding after the '-' or '+' Objective&#8209;C met=
+hod prefix. If used with pad&#8209;method&#8209;prefix,
+        this option will be ignored. This option is effective for Objective=
+&#8209;C files only.
+    </p>
+    <div class=3D"code">
+        <pre>- (void)foo1;
++ (void)foo2;</pre>
+        <p class=3D"code">
+            becomes:
+        </p>
+        <pre>-(void)foo1;
++(void)foo2;</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <p id=3D"_pad-method-colon">
+        <code class=3D"title">--pad-method-colon=3Dnone&nbsp;&nbsp; / -xP0<=
+br>
+            --pad-method-colon=3Dall&nbsp;&nbsp;&nbsp; / -xP1<br>
+            --pad-method-colon=3Dafter&nbsp; / -xP2<br>
+            --pad-method-colon=3Dbefore / -xP3
+        </code><br>
+        Add or remove space padding before or after the colons in an Object=
+ive&#8209;C method call. These options will
+        pad exactly one space. Any additional spaces will be deleted. Colon=
+s immediately preceding a paren will not be
+        padded. This option is effective for Objective&#8209;C files only.
+    </p>
+    <div class=3D"code">
+        <p class=3D"code">
+            with pad-method-colon=3Dnone:
+        </p>
+        <pre>[node insertKey:key];</pre>
+        <p class=3D"code">
+            with pad-method-colon=3Dall:
+        </p>
+        <pre>[node insertKey : key];</pre>
+        <p class=3D"code">
+            with pad-method-colon=3Dafter:
+        </p>
+        <pre>[node insertKey: key];</pre>
+        <p class=3D"code">
+            with pad-method-colon=3Dbefore:
+        </p>
+        <pre>[node insertKey :key];</pre>
+    </div>
+    <p>
+        &nbsp;
+    </p>
+    <hr>
+
+    <!--  * * * * * * * * * * * *  Other Command Line Options  * * * * * * =
+* * * * * *  -->
+
+    <h3 id=3D"_Other_Options">Other Options</h3>
+
+    <p>
+        These are non-formatting options available for the command-line. Th=
+ey can also be included in an options file.
+    </p>
+
+    <p id=3D"_suffix">
+        <code class=3D"title">--suffix=3D<span class=3D"option">####</span>=
+</code><br>
+        Append the suffix #### instead of '.orig' to original file name (e.=
+g. <code>--suffix=3D<span class=3D"option">.bak</span></code>).
+        If this is to be a file extension, the dot '.' must be included. Ot=
+herwise the suffix will be appended to the
+        current file extension.
+    </p>
+    <p id=3D"_suffix=3Dnone">
+        <code class=3D"title">--suffix=3Dnone / -n</code><br>
+        Do not retain a backup of the original file. The original file is p=
+urged after it is formatted.
+    </p>
+    <p id=3D"_recursive">
+        <code class=3D"title">--recursive / -r / -R</code><br>
+        For each directory in the command line, process all subdirectories =
+recursively. When using the recursive option
+        the file name statement should contain a wildcard. Linux users shou=
+ld place the file path and name in double quotes
+        so the shell will not resolve the wildcards (e.g. "$HOME/src/*.cpp"=
+). Windows users should place the file path
+        and name in double quotes if the path or name contains spaces.
+    </p>
+    <p id=3D"_dry-run">
+        <code class=3D"title">--dry-run</code><br>
+        Perform a trial run with no changes made to the files. The report w=
+ill be output as usual.
+    </p>
+    <p id=3D"_exclude">
+        <code class=3D"title">--exclude=3D<span class=3D"option">####</span=
+></code><br>
+        Specify a file or sub directory #### to be excluded from processing=
+.&nbsp;
+    </p>
+    <p>
+        Excludes are matched from the end of the file path. An exclude opti=
+on of "templates" will exclude ALL directories
+        named "templates". An exclude option of "cpp/templates" will exclud=
+e ALL "cpp/templates" directories. You may
+        proceed backwards in the directory tree to exclude only the require=
+d directories.
+    </p>
+    <p>
+        Specific files may be excluded in the same manner. An exclude optio=
+n of "default.cpp" will exclude ALL files named
+        "default.cpp". An exclude option of "python/default.cpp" will exclu=
+de ALL files named "default.cpp" contained
+        in a "python" subdirectory. You may proceed backwards in the direct=
+ory tree to exclude only the required files.
+    </p>
+    <p>
+        Wildcards are NOT allowed. There may be more than one exclude state=
+ment. The file path and name may be placed
+        in double quotes (e.g. &#8209;&#8209;exclude=3D"foo&nbsp;bar.cpp").
+    </p>
+    <p id=3D"_ignore-exclude-errors">
+        <code class=3D"title">--ignore-exclude-errors / -i</code><br>
+        Allow processing to continue if there are errors in the "exclude=3D=
+###" options.<br>
+        This option lets the excludes for several projects be entered in a =
+single option file. This option may be placed
+        in the same option file as the excludes. It will display the unmatc=
+hed excludes. The following option will not
+        display the unmatched excludes.
+    </p>
+    <p id=3D"_ignore-exclude-errors-x">
+        <code class=3D"title">--ignore-exclude-errors-x / -xi</code><br>
+        <code class=3D"title"></code>Allow processing to continue if there =
+are errors in the "exclude=3D###" options.<br>
+        This option lets the excludes for several projects be entered in a =
+single option file. This option may be placed
+        in the same option file as the excludes. It will NOT display the un=
+matched excludes. The preceding option will
+        display the unmatched excludes.<br>
+    </p>
+    <p id=3D"_errors-to-stdout">
+        <code class=3D"title">--errors-to-stdout / -X</code><br>
+        Print errors to standard-output rather than to standard-error.<br>
+        This option should be helpful for systems/shells that do not have a=
+ separate output to standard-error, such as
+        in Windows95.
+    </p>
+    <p id=3D"_preserve-date">
+        <code class=3D"title">--preserve-date / -Z</code><br>
+        Preserve the original file's date and time modified. The time modif=
+ied will be changed a few micro seconds to
+        force the changed files to compile. This option is not effective if=
+ redirection is used to rename the input file.
+    </p>
+    <p id=3D"_verbose">
+        <code class=3D"title">--verbose / -v</code><br>
+        Verbose display mode. Display optional information, such as release=
+ number and statistical data.
+    </p>
+    <p id=3D"_formatted">
+        <code class=3D"title">--formatted / -Q</code><br>
+        Formatted files display mode. Display only the files that have been=
+ formatted. Do not display files that
+        are unchanged.
+    </p>
+    <p id=3D"_quiet">
+        <code class=3D"title">--quiet / -q</code><br>
+        Quiet display mode. Suppress all output except error messages.
+    </p>
+    <p id=3D"_lineend">
+        <code class=3D"title">--lineend=3Dwindows&nbsp;/ -z1<br>
+            --lineend=3Dlinux &nbsp; / -z2<br>
+            --lineend=3Dmacold&nbsp;&nbsp;/ -z3
+        </code><br>
+        Force use of the specified line end style. Valid options are window=
+s (CRLF), linux (LF), and macold (CR). MacOld
+        style is the format for Mac&nbsp;OS&nbsp;9 and earlier. OS&nbsp;X u=
+ses the Linux style. If one of these options
+        is not used the line ends will be determined automatically from the=
+ input file.
+    </p>
+    <p>
+        When <strong>redirection</strong> is used on Windows the output wil=
+l always have Windows line ends. This option
+        will be ignored.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr style=3D"margin-left: -0.4in;">
+
+    <!--  * * * * * * * * * * * *  Command-Line Options  * * * * * * * * * =
+* * *  -->
+
+    <h3 id=3D"_Command_Line_Only">Command Line Only</h3>
+
+    <p>These options are available for the command-line only. They are NOT =
+available in an options file.</p>
+    <p id=3D"_options=3D">
+        <code class=3D"title">--options=3D<span class=3D"option">####</span=
+></code><br>
+        Specify an options file #### to read and use. It must contain a fil=
+e path for the file. This will allow the file
+        name to be changed from astylerc or .astylerc.
+    </p>
+    <p id=3D"_options=3Dnone">
+        <code class=3D"title">--options=3Dnone</code><br>
+        Disable the default options file. Only the command-line parameters =
+will be used.
+    </p>
+    <p id=3D"_ascii">
+        <code class=3D"title">--ascii / -I</code><br>
+        The displayed output will be ascii characters only. The text will b=
+e displayed in English and numbers will not
+        be formatted. The short option must be by itself, it cannot be conc=
+atenated with other options.
+    </p>
+    <p id=3D"_version">
+        <code class=3D"title">--version / -V</code><br>
+        Print version number and quit. The short option must be by itself, =
+it cannot be concatenated with other options.
+    </p>
+    <p id=3D"_help">
+        <code class=3D"title">--help / -h / -?</code><br>
+        Print a help message and quit. The short option must be by itself, =
+it cannot be concatenated with other options.
+    </p>
+    <p id=3D"_html">
+        <code class=3D"title">--html / -!</code><br>
+        Open the HTML help
+        file "astyle.html" in the default browser and quit. The short optio=
+n must be by itself, it
+        cannot be concatenated with other options. The documentation must b=
+e installed in the standard install path (/usr/share/doc/astyle/html
+        for Linux or %PROGRAMFILES%\AStyle\doc for Windows). If installed t=
+o a different path use html=3D###.
+    </p>
+    <p id=3D"_html=3D">
+        <code class=3D"title">--html=3D<span class=3D"option">####</span></=
+code><br>
+        Open a HTML help file in the default browser using the file path ##=
+## and quit. A HTML file other than "astyle.help"
+        may be specified. The path may include a directory path and a file =
+name, or a file name only (e.g. html=3Dinstall.html).
+        If only a file name is used it is assumed to be in the standard ins=
+tall path (/usr/share/doc/astyle/html
+        for Linux or %PROGRAMFILES%\AStyle\doc for Windows). In both cases =
+the file name must include the html extension.
+        File paths containing spaces must be enclosed in quotes.
+    </p>
+    <p>
+        On Linux the HTML file is opened using the script "xdg-open" from t=
+he install package "xdg-utils". This should
+        be installed
+        by default on most distributions.
+    </p>
+    <p>
+        Any HTML file can be opened by this option. The files you are likel=
+y to need are astyle.html (the default), install.html,
+        and index.html.
+    </p>
+    <p>
+        &nbsp;
+    </p>
+    <hr style=3D"margin-left: -0.4in;">
+
+    <center class=3D"footer">
+        <table width=3D"100%">
+            <colgroup><col width=3D"30%">
+            <col width=3D"40%">
+            <col width=3D"30%">
+            </colgroup><tbody><tr>
+                <td align=3D"left">
+                    <a href=3D"http://www.gnu.org/copyleft/lesser.html">
+                        <img src=3D"http://www.gnu.org/graphics/lgplv3-88x3=
+1.png" alt=3D"">
+                    </a>
+                    <a href=3D"http://www.gnu.org/licenses/gpl.html">
+                        <img src=3D"http://www.gnu.org/graphics/gplv3-88x31=
+.png" alt=3D"">
+                    </a>
+                </td>
+                <td align=3D"center" style=3D"color: #0000A0; font-size: x-=
+large; font-weight: bold;">ENJOY !!!</td>
+                <td align=3D"right">
+                    <a href=3D"http://sourceforge.net/projects/astyle">
+                        <img src=3D"http://sflogo.sourceforge.net/sflogo.ph=
+p?group_id=3D2319&amp;type=3D15" alt=3D"">
+                    </a>
+                </td>
+            </tr>
+        </tbody></table>
+    </center>
+
+    <p>
+        &nbsp;
+    </p>
+    <p>
+        &nbsp;
+    </p>
+
+    <!-- Piwik -->
+
+   =20
+
+   =20
+
+   =20
+
+    <!-- End Piwik Tag -->
+
+
+
+
+
+</body><div></div></html>
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://astyle.sourceforge.net/styles.css
+
+body { margin: 0.5in 0.8in 0.5in 1.3in; background-color: white; }
+
+h1 { color: rgb(0, 0, 160); text-align: center; font-style: italic; margin-=
+top: 18pt; margin-left: -0.5in; }
+
+h2.large { color: rgb(0, 0, 160); text-align: center; font-size: x-large; m=
+argin-top: 0.4in; margin-left: -0.5in; }
+
+h2 { color: rgb(0, 0, 160); text-align: center; font-size: larger; margin-t=
+op: 0.4in; margin-left: -0.5in; }
+
+h3 { color: rgb(0, 0, 160); margin-top: 0.4in; margin-left: -0.4in; }
+
+h4 { color: rgb(0, 0, 160); }
+
+p.noindent { margin-left: -0.4in; }
+
+p.contents1 { font-size: 105%; margin: 0in; }
+
+p.contents2 { margin: 0in 0.4in; }
+
+a.contents:link, a.contents:visited { color: rgb(0, 0, 160); text-decoratio=
+n: none; }
+
+a.contents:hover { color: rgb(240, 0, 0); text-decoration: none; }
+
+a:link, a:visited { color: rgb(0, 0, 160); text-decoration: underline; }
+
+a:hover { color: rgb(240, 0, 0); text-decoration: underline; }
+
+center.footer { margin-left: -0.4in; margin-top: 0.25in; }
+
+h2.footer { font-size: x-large; margin-top: 0px; margin-left: 0px; }
+
+img { border: none; }
+
+pre { margin-left: 0.3in; color: navy; font-weight: bold; }
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: http://www.gnu.org/graphics/lgplv3-88x31.png
+
+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
+YrBRj/QAAAAASUVORK5CYII=
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: http://www.gnu.org/graphics/gplv3-88x31.png
+
+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
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: image/gif
+Content-Transfer-Encoding: base64
+Content-Location: http://sflogo.sourceforge.net/sflogo.php?group_id=2319&type=15
+
+R0lGODlhlgAoAPcAAPLx8P7+/v/+/vHv71ZWVvb29vn4+Pb19fj4+Pv5+fXz8/v7+/z8/FNSUqys
+rPj29qurq+Hh4VRUVKqqqoODg62trYuLi8fHx3x8fG1tbcTExPz7+6SkpJiYmNva2iwsLPPz8+Hf
+3+Pj493d3d7e3mZmZjo6OlhYWMfGxsPCwsLCweXj4/Hx8cjIyN3c3NnY2Kuqqt/e3p6enuvp6dzb
+24iHh0hIR9rZ2MXFxSUlJY2NjVBQUMbFxSsrK9PS0n9/f8TDw/f39x0dHerq6p+fn8LBwVZWVfLy
+8r+/v6WlpcnJyeDf3pmZmdTT0+Tj46yrq+bl5Le3t0ZGReTk5PDw715eXkZGRqurqsfFxdTU1Ojo
+6DIyMjo6ObOzs+fm5uPi47y7u8zLyr69vaCgoNvb23t7erCvrywsK9HR0EJCQtnY1+7t7ba1tezs
+7N3c3XFwb9LS0l1dXk9PTsHBwYaGhuvr683MzI+Pj8fHxnBwb3x7et/d3nh2dra2t2VlZsC/wKSk
+pe/v7zMzM9jY2Ofm5W5ube7u7nFxcc7OztHPz0BAP+zr6nNyctXV1aOjoubm5srKyp2dnUlJSbCw
+sMXExLi3uF9fX6ampXJycsnIyE9PUKWlprGvsKioqNza287NzWxsbHh3d9DQ0PX19bi4uOro6NfX
+19jX1319fUZGR9/d3bS0tM/Pz+Li4dbW1qWjpLa2tbW0tNTU00FBQFdXV6ampo2Li2VlZYKCg4CA
+gGBgX1VVVefn53V1dfPy8v///5KSkgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94
+cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1w
+bWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4w
+LWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4
+bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8
+cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2Jl
+LmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEu
+MC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAv
+MS4wLyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bXBNTTpP
+cmlnaW5hbERvY3VtZW50SUQ9InV1aWQ6NjVFNjM5MDY4NkNGMTFEQkE2RTJEODg3Q0VBQ0I0MDci
+IHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RDQxMDg4MzAyNEJEMTFFMDk4NDI4REE1Q0Y4MDEy
+MEIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RDQxMDg4MkYyNEJEMTFFMDk4NDI4REE1Q0Y4
+MDEyMEIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgSWxsdXN0cmF0b3IgQ1M0Ij4gPHhtcE1NOkRl
+cml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InV1aWQ6ZGE2MzgyYzItM2U4Ny0zNjQ0LTlkYzYt
+YjJmNDZjOTQwNmQxIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjAxODAxMTc0MDcyMDY4MTE4
+MkQyQzZGNjVENDk0Njg1Ii8+IDxkYzp0aXRsZT4gPHJkZjpBbHQ+IDxyZGY6bGkgeG1sOmxhbmc9
+IngtZGVmYXVsdCI+bG9nbzwvcmRmOmxpPiA8L3JkZjpBbHQ+IDwvZGM6dGl0bGU+IDwvcmRmOkRl
+c2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+
+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bF
+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
+trr1rXCNq1znSte62vWueM2rVQMCADs=
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://dbepggeogbaibhgnhhndojpepiihcmeb/pages/vomnibar.html
+
+<html><head><meta charset=3D"windows-1252">
+    <title>Vomnibar</title>
+   =20
+   =20
+   =20
+   =20
+   =20
+   =20
+   =20
+    <link rel=3D"stylesheet" type=3D"text/css" href=3D"chrome-extension://d=
+bepggeogbaibhgnhhndojpepiihcmeb/content_scripts/vimium.css">
+    <link rel=3D"stylesheet" type=3D"text/css" href=3D"chrome-extension://d=
+bepggeogbaibhgnhhndojpepiihcmeb/pages/vomnibar.css">
+  </head>
+  <body>
+    <div id=3D"vomnibar" class=3D"vimiumReset">
+      <div class=3D"vimiumReset vomnibarSearchArea">
+        <input type=3D"text" class=3D"vimiumReset">
+      </div>
+      <ul class=3D"vimiumReset"></ul>
+    </div>
+ =20
+
+</body></html>
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://dbepggeogbaibhgnhhndojpepiihcmeb/content_scripts/vimium.css
+
+.vimiumreset, div.vimiumreset, span.vimiumreset, table.vimiumreset, a.vimiu=
+mreset, a:visited.vimiumreset, a:link.vimiumreset, a:hover.vimiumreset, td.=
+vimiumreset, tr.vimiumreset { border: none; bottom: auto; box-shadow: none;=
+ color: black; cursor: auto; display: inline; float: none; font-family: 'He=
+lvetica Neue', Helvetica, Arial, sans-serif; font-size: inherit; font-style=
+: normal; font-variant: normal; font-weight: normal; height: auto; left: au=
+to; letter-spacing: 0px; line-height: 100%; margin: 0px; max-height: none; =
+max-width: none; min-height: 0px; min-width: 0px; opacity: 1; padding: 0px;=
+ position: static; right: auto; text-align: left; text-decoration: none; te=
+xt-indent: 0px; text-shadow: none; text-transform: none; top: auto; vertica=
+l-align: baseline; white-space: normal; width: auto; z-index: 2147483648; b=
+ackground: none; }
+
+div.internalvimiumhintmarker { position: absolute; display: block; top: -1p=
+x; left: -1px; white-space: nowrap; overflow: hidden; font-size: 11px; padd=
+ing: 1px 3px 0px; border: 1px solid rgb(195, 138, 34); border-radius: 3px; =
+box-shadow: rgba(0, 0, 0, 0.298039) 0px 3px 7px 0px; background: -webkit-gr=
+adient(linear, 0% 0%, 0% 100%, from(rgb(255, 247, 133)), to(rgb(255, 197, 6=
+6))); }
+
+div.internalvimiumhintmarker span { color: rgb(48, 37, 5); font-family: Hel=
+vetica, Arial, sans-serif; font-weight: bold; font-size: 11px; text-shadow:=
+ rgba(255, 255, 255, 0.6) 0px 1px 0px; }
+
+div.internalvimiumhintmarker > .matchingcharacter { color: rgb(212, 172, 58=
+); }
+
+div.internalvimiuminputhint { position: absolute; display: block; border: 1=
+px solid rgb(195, 138, 34); pointer-events: none; background-color: rgba(25=
+5, 247, 133, 0.298039); }
+
+div.internalvimiumselectedinputhint { border: 1px solid rgb(153, 51, 51) !i=
+mportant; background-color: rgba(255, 102, 102, 0.298039); }
+
+div.internalvimiumselectedinputhint span { color: white !important; }
+
+div#vimiumhelpdialog { opacity: 0.92; position: fixed; border: 2px solid rg=
+b(179, 179, 179); border-radius: 6px; padding: 8px 12px; width: 640px; max-=
+height: 85%; left: 50%; margin-left: -320px; top: 50px; -webkit-box-shadow:=
+ rgba(0, 0, 0, 0.4) 0px 0px 6px; overflow-y: auto; z-index: 2147483647; bac=
+kground-color: rgb(238, 238, 238); }
+
+div#vimiumhelpdialog a { color: blue; }
+
+div#vimiumtitle, div#vimiumtitle span, div#vimiumtitle * { font-size: 20px;=
+ }
+
+#vimiumtitle { display: block; line-height: 130%; }
+
+div.vimiumcolumn { width: 50%; float: left; font-size: 11px; line-height: 1=
+30%; }
+
+div.vimiumcolumn tr { display: table-row; }
+
+div.vimiumcolumn td { display: table-cell; font-size: 11px; line-height: 13=
+0%; }
+
+div.vimiumcolumn table, div.vimiumcolumn td, div.vimiumcolumn tr { padding:=
+ 0px; margin: 0px; }
+
+div.vimiumcolumn table { width: 100%; table-layout: auto; }
+
+div.vimiumcolumn td { vertical-align: top; padding: 1px; }
+
+div#vimiumhelpdialog div.vimiumcolumn tr > td:first-of-type { text-align: r=
+ight; font-weight: bold; color: rgb(47, 80, 142); white-space: nowrap; }
+
+div#vimiumhelpdialog div.vimiumcolumn tr > td:nth-of-type(3) { width: 100%;=
+ }
+
+div#vimiumhelpdialog div.vimiumdivider { display: block; height: 1px; width=
+: 92%; margin: 10px auto; background-color: rgb(154, 154, 154); }
+
+div#vimiumhelpdialog td.vimiumhelpsectiontitle { font-weight: bold; padding=
+-top: 3px; }
+
+div#vimiumhelpdialog div.commandname { font-family: 'courier new'; }
+
+div#vimiumhelpdialog div.advanced { display: none; }
+
+div#vimiumhelpdialog div.advanced td:nth-of-type(3) { color: rgb(85, 85, 85=
+); }
+
+div#vimiumhelpdialog a.closebutton { position: absolute; right: 7px; top: 5=
+px; font-family: 'courier new'; font-weight: bold; color: rgb(85, 85, 85); =
+text-decoration: none; padding-left: 10px; font-size: 20px; }
+
+div#vimiumhelpdialog a { text-decoration: underline; }
+
+div#vimiumhelpdialog .optionspage { position: absolute; display: block; fon=
+t-size: 11px; line-height: 130%; right: 60px; top: 8px; }
+
+div#vimiumhelpdialog a.closebutton:hover { color: black; -webkit-user-selec=
+t: none; }
+
+div#vimiumhelpdialogfooter { display: block; position: relative; }
+
+div#vimiumhelpdialogfooter * { font-size: 10px; }
+
+div#vimiumhelpdialogfooter .toggleadvancedcommands { position: absolute; ri=
+ght: 2px; top: -34px; }
+
+div.vimiumhud { display: block; position: fixed; bottom: 0px; color: black;=
+ height: auto; min-height: 13px; width: auto; max-width: 400px; min-width: =
+150px; text-align: left; padding: 3px 3px 2px; margin: 0px; border: 1px sol=
+id rgb(179, 179, 179); border-radius: 4px 4px 0px 0px; font-family: 'Lucida=
+ Grande', Arial, Sans; font-size: 12px; z-index: 2147483646; text-shadow: r=
+gb(255, 255, 255) 0px 1px 2px; line-height: 1; opacity: 0; background-color=
+: rgb(235, 235, 235); }
+
+div.vimiumhud span { display: none; }
+
+div.vimiumhud a:link, div.vimiumhud a:hover { color: blue; text-decoration:=
+ underline; background: transparent; }
+
+div.vimiumhud a:link.close-button { float: right; font-family: 'courier new=
+'; font-weight: bold; color: rgb(156, 154, 154); text-decoration: none; pad=
+ding-left: 10px; margin-top: -1px; font-size: 14px; }
+
+div.vimiumhud a.close-button:hover { color: rgb(51, 51, 51); cursor: defaul=
+t; -webkit-user-select: none; }
+
+body.vimiumfindmode ::selection { background: rgb(255, 150, 50); }
+
+iframe.vomnibarframe { padding: 0px; overflow: hidden; display: block; posi=
+tion: fixed; width: calc(80% + 20px); min-width: 400px; height: calc(100% -=
+ 70px); top: 70px; left: 50%; margin: 0px 0px 0px -40%; border: none; font-=
+family: sans-serif; z-index: 2147483645; background-color: transparent; }
+
+div#vimiumflash { box-shadow: rgb(65, 131, 196) 0px 0px 4px 2px; padding: 1=
+px; position: absolute; z-index: 2147483648; background-color: transparent;=
+ }
+
+iframe.vimiumuicomponenthidden { display: none; }
+
+iframe.vimiumuicomponentvisible { display: block; }
+
+iframe.vimiumuicomponentreactivated { border: 5px solid yellow; }
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://dbepggeogbaibhgnhhndojpepiihcmeb/pages/vomnibar.css
+
+#vomnibar ol, #vomnibar ul { list-style: none; display: none; }
+
+#vomnibar { display: block; position: fixed; width: calc(100% - 20px); top:=
+ 8px; left: 8px; font-family: sans-serif; text-align: left; border-radius: =
+4px; box-shadow: rgba(0, 0, 0, 0.8) 0px 2px 10px; border: 1px solid rgb(170=
+, 170, 170); z-index: 2147483646; background: rgb(241, 241, 241); }
+
+#vomnibar input { color: rgb(0, 0, 0); font-family: 'Helvetica Neue', Helve=
+tica, Arial, sans-serif; font-size: 20px; height: 34px; margin-bottom: 0px;=
+ padding: 4px; border-radius: 3px; border: 1px solid rgb(232, 232, 232); bo=
+x-shadow: rgb(68, 68, 68) 0px 0px 1px; width: 100%; outline: none; box-sizi=
+ng: border-box; background-color: white; }
+
+#vomnibar .vomnibarsearcharea { display: block; padding: 10px; border-radiu=
+s: 4px 4px 0px 0px; border-bottom-width: 1px; border-bottom-style: solid; b=
+order-bottom-color: rgb(198, 201, 206); background-color: rgb(241, 241, 241=
+); }
+
+#vomnibar ul { border-radius: 0px 0px 4px 4px; list-style: none; padding: 0=
+px 0px 10px; background-color: white; }
+
+#vomnibar li { border-bottom-width: 1px; border-bottom-style: solid; border=
+-bottom-color: rgb(221, 221, 221); line-height: 1.1em; padding: 7px 10px; f=
+ont-size: 16px; color: black; position: relative; display: list-item; margi=
+n: auto; }
+
+#vomnibar li:last-of-type { border-bottom-style: none; }
+
+#vomnibar li .vomnibartophalf, #vomnibar li .vomnibarbottomhalf { display: =
+block; overflow: hidden; }
+
+#vomnibar li .vomnibarbottomhalf { font-size: 15px; margin-top: 3px; paddin=
+g: 2px 0px; }
+
+#vomnibar li .vomnibaricon { padding-left: 20px; background-size: 16px; bac=
+kground-position-y: 50%; background-repeat: no-repeat; }
+
+#vomnibar li .vomnibarsource { color: rgb(119, 119, 119); margin-right: 4px=
+; }
+
+#vomnibar li .vomnibarrelevancy { position: absolute; right: 0px; top: 0px;=
+ padding: 5px; color: black; font-family: monospace; width: 100px; overflow=
+: hidden; background-color: white; }
+
+#vomnibar li .vomnibarurl { white-space: nowrap; color: rgb(34, 70, 132); }
+
+#vomnibar li .vomnibarmatch { font-weight: bold; color: black; }
+
+#vomnibar li em, #vomnibar li .vomnibartitle { color: black; margin-left: 4=
+px; font-weight: normal; }
+
+#vomnibar li em { font-style: italic; }
+
+#vomnibar li em .vomnibarmatch, #vomnibar li .vomnibartitle .vomnibarmatch =
+{ color: rgb(51, 51, 51); text-decoration: underline; }
+
+#vomnibar li.vomnibarselected { font-weight: normal; background-color: rgb(=
+187, 206, 233); }
+------=_NextPart_000_FBC4_DD5122B8.5A568ECF--

@@ -1,0 +1,659 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1F25BEE61CD363A800AC1003 /* stn_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F25BEE21CD363A800AC1003 /* stn_logic.cc */; };
+		1F25BEE71CD363A800AC1003 /* stn.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F25BEE41CD363A800AC1003 /* stn.cc */; };
+		4BB712611DE8190700185734 /* net_channel_factory.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB7125E1DE8190700185734 /* net_channel_factory.cc */; };
+		55D91B931CC7BE930076CBD9 /* anti_avalanche.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B551CC7BE930076CBD9 /* anti_avalanche.cc */; };
+		55D91B941CC7BE930076CBD9 /* dynamic_timeout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B571CC7BE930076CBD9 /* dynamic_timeout.cc */; };
+		55D91B951CC7BE930076CBD9 /* flow_limit.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B591CC7BE930076CBD9 /* flow_limit.cc */; };
+		55D91B961CC7BE930076CBD9 /* frequency_limit.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B5B1CC7BE930076CBD9 /* frequency_limit.cc */; };
+		55D91B981CC7BE930076CBD9 /* longlink.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B601CC7BE930076CBD9 /* longlink.cc */; };
+		55D91B991CC7BE930076CBD9 /* longlink_connect_monitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B621CC7BE930076CBD9 /* longlink_connect_monitor.cc */; };
+		55D91B9A1CC7BE930076CBD9 /* longlink_identify_checker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B641CC7BE930076CBD9 /* longlink_identify_checker.cc */; };
+		55D91B9B1CC7BE930076CBD9 /* longlink_speed_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B661CC7BE930076CBD9 /* longlink_speed_test.cc */; };
+		55D91B9D1CC7BE930076CBD9 /* longlink_task_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B6A1CC7BE930076CBD9 /* longlink_task_manager.cc */; };
+		55D91B9E1CC7BE930076CBD9 /* net_check_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B6C1CC7BE930076CBD9 /* net_check_logic.cc */; };
+		55D91B9F1CC7BE930076CBD9 /* net_core.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B6E1CC7BE930076CBD9 /* net_core.cc */; };
+		55D91BA01CC7BE930076CBD9 /* net_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B701CC7BE930076CBD9 /* net_source.cc */; };
+		55D91BA11CC7BE930076CBD9 /* netsource_timercheck.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B721CC7BE930076CBD9 /* netsource_timercheck.cc */; };
+		55D91BA21CC7BE930076CBD9 /* shortlink.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B741CC7BE930076CBD9 /* shortlink.cc */; };
+		55D91BA31CC7BE930076CBD9 /* shortlink_task_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B761CC7BE930076CBD9 /* shortlink_task_manager.cc */; };
+		55D91BA41CC7BE930076CBD9 /* signalling_keeper.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B781CC7BE930076CBD9 /* signalling_keeper.cc */; };
+		55D91BA51CC7BE930076CBD9 /* simple_ipport_sort.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B7A1CC7BE930076CBD9 /* simple_ipport_sort.cc */; };
+		55D91BA61CC7BE930076CBD9 /* smart_heartbeat.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B7C1CC7BE930076CBD9 /* smart_heartbeat.cc */; };
+		55D91BAA1CC7BE930076CBD9 /* task_profile.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B851CC7BE930076CBD9 /* task_profile.cc */; };
+		55D91BAB1CC7BE930076CBD9 /* timing_sync.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B871CC7BE930076CBD9 /* timing_sync.cc */; };
+		55D91BAD1CC7BE930076CBD9 /* zombie_task_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91B8B1CC7BE930076CBD9 /* zombie_task_manager.cc */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1F25BEE11CD363A800AC1003 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		1F25BEE21CD363A800AC1003 /* stn_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stn_logic.cc; sourceTree = "<group>"; };
+		1F25BEE31CD363A800AC1003 /* stn_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stn_logic.h; sourceTree = "<group>"; };
+		1F25BEE41CD363A800AC1003 /* stn.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stn.cc; sourceTree = "<group>"; };
+		1F25BEE51CD363A800AC1003 /* stn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stn.h; sourceTree = "<group>"; };
+		4BB7125E1DE8190700185734 /* net_channel_factory.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_channel_factory.cc; sourceTree = "<group>"; };
+		4BB7125F1DE8190700185734 /* net_channel_factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_channel_factory.h; sourceTree = "<group>"; };
+		4BB712601DE8190700185734 /* shortlink_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shortlink_interface.h; sourceTree = "<group>"; };
+		55D91B551CC7BE930076CBD9 /* anti_avalanche.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = anti_avalanche.cc; sourceTree = "<group>"; };
+		55D91B561CC7BE930076CBD9 /* anti_avalanche.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = anti_avalanche.h; sourceTree = "<group>"; };
+		55D91B571CC7BE930076CBD9 /* dynamic_timeout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dynamic_timeout.cc; sourceTree = "<group>"; };
+		55D91B581CC7BE930076CBD9 /* dynamic_timeout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dynamic_timeout.h; sourceTree = "<group>"; };
+		55D91B591CC7BE930076CBD9 /* flow_limit.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flow_limit.cc; sourceTree = "<group>"; };
+		55D91B5A1CC7BE930076CBD9 /* flow_limit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flow_limit.h; sourceTree = "<group>"; };
+		55D91B5B1CC7BE930076CBD9 /* frequency_limit.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = frequency_limit.cc; sourceTree = "<group>"; };
+		55D91B5C1CC7BE930076CBD9 /* frequency_limit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = frequency_limit.h; sourceTree = "<group>"; };
+		55D91B601CC7BE930076CBD9 /* longlink.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = longlink.cc; sourceTree = "<group>"; };
+		55D91B611CC7BE930076CBD9 /* longlink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = longlink.h; sourceTree = "<group>"; };
+		55D91B621CC7BE930076CBD9 /* longlink_connect_monitor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = longlink_connect_monitor.cc; sourceTree = "<group>"; };
+		55D91B631CC7BE930076CBD9 /* longlink_connect_monitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = longlink_connect_monitor.h; sourceTree = "<group>"; };
+		55D91B641CC7BE930076CBD9 /* longlink_identify_checker.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = longlink_identify_checker.cc; sourceTree = "<group>"; };
+		55D91B651CC7BE930076CBD9 /* longlink_identify_checker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = longlink_identify_checker.h; sourceTree = "<group>"; };
+		55D91B661CC7BE930076CBD9 /* longlink_speed_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = longlink_speed_test.cc; sourceTree = "<group>"; };
+		55D91B671CC7BE930076CBD9 /* longlink_speed_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = longlink_speed_test.h; sourceTree = "<group>"; };
+		55D91B6A1CC7BE930076CBD9 /* longlink_task_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = longlink_task_manager.cc; sourceTree = "<group>"; };
+		55D91B6B1CC7BE930076CBD9 /* longlink_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = longlink_task_manager.h; sourceTree = "<group>"; };
+		55D91B6C1CC7BE930076CBD9 /* net_check_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_check_logic.cc; sourceTree = "<group>"; };
+		55D91B6D1CC7BE930076CBD9 /* net_check_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_check_logic.h; sourceTree = "<group>"; };
+		55D91B6E1CC7BE930076CBD9 /* net_core.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_core.cc; sourceTree = "<group>"; };
+		55D91B6F1CC7BE930076CBD9 /* net_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_core.h; sourceTree = "<group>"; };
+		55D91B701CC7BE930076CBD9 /* net_source.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_source.cc; sourceTree = "<group>"; };
+		55D91B711CC7BE930076CBD9 /* net_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_source.h; sourceTree = "<group>"; };
+		55D91B721CC7BE930076CBD9 /* netsource_timercheck.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = netsource_timercheck.cc; sourceTree = "<group>"; };
+		55D91B731CC7BE930076CBD9 /* netsource_timercheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netsource_timercheck.h; sourceTree = "<group>"; };
+		55D91B741CC7BE930076CBD9 /* shortlink.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shortlink.cc; sourceTree = "<group>"; };
+		55D91B751CC7BE930076CBD9 /* shortlink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shortlink.h; sourceTree = "<group>"; };
+		55D91B761CC7BE930076CBD9 /* shortlink_task_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shortlink_task_manager.cc; sourceTree = "<group>"; };
+		55D91B771CC7BE930076CBD9 /* shortlink_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shortlink_task_manager.h; sourceTree = "<group>"; };
+		55D91B781CC7BE930076CBD9 /* signalling_keeper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = signalling_keeper.cc; sourceTree = "<group>"; };
+		55D91B791CC7BE930076CBD9 /* signalling_keeper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = signalling_keeper.h; sourceTree = "<group>"; };
+		55D91B7A1CC7BE930076CBD9 /* simple_ipport_sort.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simple_ipport_sort.cc; sourceTree = "<group>"; };
+		55D91B7B1CC7BE930076CBD9 /* simple_ipport_sort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simple_ipport_sort.h; sourceTree = "<group>"; };
+		55D91B7C1CC7BE930076CBD9 /* smart_heartbeat.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = smart_heartbeat.cc; sourceTree = "<group>"; };
+		55D91B7D1CC7BE930076CBD9 /* smart_heartbeat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = smart_heartbeat.h; sourceTree = "<group>"; };
+		55D91B801CC7BE930076CBD9 /* special_ini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = special_ini.h; sourceTree = "<group>"; };
+		55D91B851CC7BE930076CBD9 /* task_profile.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task_profile.cc; sourceTree = "<group>"; };
+		55D91B871CC7BE930076CBD9 /* timing_sync.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timing_sync.cc; sourceTree = "<group>"; };
+		55D91B881CC7BE930076CBD9 /* timing_sync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timing_sync.h; sourceTree = "<group>"; };
+		55D91B8B1CC7BE930076CBD9 /* zombie_task_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zombie_task_manager.cc; sourceTree = "<group>"; };
+		55D91B8C1CC7BE930076CBD9 /* zombie_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zombie_task_manager.h; sourceTree = "<group>"; };
+		55D9C0821CC7B1C90076CBD9 /* libstn.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libstn.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				1F25BEE11CD363A800AC1003 /* config.h */,
+				1F25BEE21CD363A800AC1003 /* stn_logic.cc */,
+				1F25BEE31CD363A800AC1003 /* stn_logic.h */,
+				1F25BEE41CD363A800AC1003 /* stn.cc */,
+				1F25BEE51CD363A800AC1003 /* stn.h */,
+				55D91B541CC7BE930076CBD9 /* src */,
+				55D9C0821CC7B1C90076CBD9 /* libstn.a */,
+			);
+			sourceTree = "<group>";
+		};
+		55D91B541CC7BE930076CBD9 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4BB7125E1DE8190700185734 /* net_channel_factory.cc */,
+				4BB7125F1DE8190700185734 /* net_channel_factory.h */,
+				4BB712601DE8190700185734 /* shortlink_interface.h */,
+				55D91B551CC7BE930076CBD9 /* anti_avalanche.cc */,
+				55D91B561CC7BE930076CBD9 /* anti_avalanche.h */,
+				55D91B571CC7BE930076CBD9 /* dynamic_timeout.cc */,
+				55D91B581CC7BE930076CBD9 /* dynamic_timeout.h */,
+				55D91B591CC7BE930076CBD9 /* flow_limit.cc */,
+				55D91B5A1CC7BE930076CBD9 /* flow_limit.h */,
+				55D91B5B1CC7BE930076CBD9 /* frequency_limit.cc */,
+				55D91B5C1CC7BE930076CBD9 /* frequency_limit.h */,
+				55D91B601CC7BE930076CBD9 /* longlink.cc */,
+				55D91B611CC7BE930076CBD9 /* longlink.h */,
+				55D91B621CC7BE930076CBD9 /* longlink_connect_monitor.cc */,
+				55D91B631CC7BE930076CBD9 /* longlink_connect_monitor.h */,
+				55D91B641CC7BE930076CBD9 /* longlink_identify_checker.cc */,
+				55D91B651CC7BE930076CBD9 /* longlink_identify_checker.h */,
+				55D91B661CC7BE930076CBD9 /* longlink_speed_test.cc */,
+				55D91B671CC7BE930076CBD9 /* longlink_speed_test.h */,
+				55D91B6A1CC7BE930076CBD9 /* longlink_task_manager.cc */,
+				55D91B6B1CC7BE930076CBD9 /* longlink_task_manager.h */,
+				55D91B6C1CC7BE930076CBD9 /* net_check_logic.cc */,
+				55D91B6D1CC7BE930076CBD9 /* net_check_logic.h */,
+				55D91B6E1CC7BE930076CBD9 /* net_core.cc */,
+				55D91B6F1CC7BE930076CBD9 /* net_core.h */,
+				55D91B701CC7BE930076CBD9 /* net_source.cc */,
+				55D91B711CC7BE930076CBD9 /* net_source.h */,
+				55D91B721CC7BE930076CBD9 /* netsource_timercheck.cc */,
+				55D91B731CC7BE930076CBD9 /* netsource_timercheck.h */,
+				55D91B741CC7BE930076CBD9 /* shortlink.cc */,
+				55D91B751CC7BE930076CBD9 /* shortlink.h */,
+				55D91B761CC7BE930076CBD9 /* shortlink_task_manager.cc */,
+				55D91B771CC7BE930076CBD9 /* shortlink_task_manager.h */,
+				55D91B781CC7BE930076CBD9 /* signalling_keeper.cc */,
+				55D91B791CC7BE930076CBD9 /* signalling_keeper.h */,
+				55D91B7A1CC7BE930076CBD9 /* simple_ipport_sort.cc */,
+				55D91B7B1CC7BE930076CBD9 /* simple_ipport_sort.h */,
+				55D91B7C1CC7BE930076CBD9 /* smart_heartbeat.cc */,
+				55D91B7D1CC7BE930076CBD9 /* smart_heartbeat.h */,
+				55D91B801CC7BE930076CBD9 /* special_ini.h */,
+				55D91B851CC7BE930076CBD9 /* task_profile.cc */,
+				55D91B871CC7BE930076CBD9 /* timing_sync.cc */,
+				55D91B881CC7BE930076CBD9 /* timing_sync.h */,
+				55D91B8B1CC7BE930076CBD9 /* zombie_task_manager.cc */,
+				55D91B8C1CC7BE930076CBD9 /* zombie_task_manager.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* stn */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "stn" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = stn;
+			productName = PublicComponent;
+			productReference = 55D9C0821CC7B1C90076CBD9 /* libstn.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = felixzhou;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "stn-mac" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A01E177887B0004F5DDA;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* stn */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				55D91BA61CC7BE930076CBD9 /* smart_heartbeat.cc in Sources */,
+				55D91B9F1CC7BE930076CBD9 /* net_core.cc in Sources */,
+				55D91B951CC7BE930076CBD9 /* flow_limit.cc in Sources */,
+				55D91B931CC7BE930076CBD9 /* anti_avalanche.cc in Sources */,
+				55D91BAA1CC7BE930076CBD9 /* task_profile.cc in Sources */,
+				1F25BEE71CD363A800AC1003 /* stn.cc in Sources */,
+				1F25BEE61CD363A800AC1003 /* stn_logic.cc in Sources */,
+				55D91BA01CC7BE930076CBD9 /* net_source.cc in Sources */,
+				55D91BAB1CC7BE930076CBD9 /* timing_sync.cc in Sources */,
+				55D91BA31CC7BE930076CBD9 /* shortlink_task_manager.cc in Sources */,
+				55D91B9E1CC7BE930076CBD9 /* net_check_logic.cc in Sources */,
+				55D91BAD1CC7BE930076CBD9 /* zombie_task_manager.cc in Sources */,
+				55D91B991CC7BE930076CBD9 /* longlink_connect_monitor.cc in Sources */,
+				55D91BA51CC7BE930076CBD9 /* simple_ipport_sort.cc in Sources */,
+				55D91B981CC7BE930076CBD9 /* longlink.cc in Sources */,
+				55D91B9B1CC7BE930076CBD9 /* longlink_speed_test.cc in Sources */,
+				4BB712611DE8190700185734 /* net_channel_factory.cc in Sources */,
+				55D91BA41CC7BE930076CBD9 /* signalling_keeper.cc in Sources */,
+				55D91B9A1CC7BE930076CBD9 /* longlink_identify_checker.cc in Sources */,
+				55D91B961CC7BE930076CBD9 /* frequency_limit.cc in Sources */,
+				55D91B941CC7BE930076CBD9 /* dynamic_timeout.cc in Sources */,
+				55D91B9D1CC7BE930076CBD9 /* longlink_task_manager.cc in Sources */,
+				55D91BA21CC7BE930076CBD9 /* shortlink.cc in Sources */,
+				55D91BA11CC7BE930076CBD9 /* netsource_timercheck.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx10.10;
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx10.10;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NETWORK=1",
+					"KVCOMM=1",
+					"XLOGGER=1",
+					"DEBUG=1",
+					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/src,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/comm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/comm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphoneos",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmjpeg/obj/local/armeabi",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/Release-iphoneos",
+					"$(PROJECT_DIR)/app/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphoneos",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/log/build/Release-iphoneos",
+					"$(PROJECT_DIR)/log/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphoneos",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/obj/local/armeabi",
+					"$(PROJECT_DIR)/mmjpeg/build/Release",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphoneos",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/Release-iphoneos",
+					"$(PROJECT_DIR)/sdt/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/Release-iphoneos",
+					"$(PROJECT_DIR)/smc/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/stn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/stn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/Release-iphoneos",
+					"$(PROJECT_DIR)/openssl/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/openssl/obj/local/armeabi",
+				);
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 x86_64";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NETWORK=1",
+					"KVCOMM=1",
+					"XLOGGER=1",
+					"NDEBUG=1",
+					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/src,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/comm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/comm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphoneos",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmjpeg/obj/local/armeabi",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/Release-iphoneos",
+					"$(PROJECT_DIR)/app/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphoneos",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/log/build/Release-iphoneos",
+					"$(PROJECT_DIR)/log/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphoneos",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/obj/local/armeabi",
+					"$(PROJECT_DIR)/mmjpeg/build/Release",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphoneos",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/Release-iphoneos",
+					"$(PROJECT_DIR)/sdt/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/Release-iphoneos",
+					"$(PROJECT_DIR)/smc/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/stn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/stn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/Release-iphoneos",
+					"$(PROJECT_DIR)/openssl/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/openssl/obj/local/armeabi",
+				);
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 x86_64";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "stn-mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "stn" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

@@ -1,0 +1,623 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1371BF9519791FD800E4C614 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1371BF9119791FD700E4C614 /* comm.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = comm;
+		};
+		1371BFA119791FE800E4C614 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1371BF9D19791FE800E4C614 /* log.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = log;
+		};
+		1371BFDB197920A100E4C614 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1371BF9D19791FE800E4C614 /* log.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = log;
+		};
+		1371BFDF197920A100E4C614 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1371BF9119791FD700E4C614 /* comm.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = comm;
+		};
+		1F37A3601C7E0B1100A9780B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F37A35C1C7E0B1100A9780B /* stn.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = stn;
+		};
+		1F37A3621C7E0B2000A9780B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F37A35C1C7E0B1100A9780B /* stn.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = stn;
+		};
+		1FD4FAB21C999CC200125228 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FD4FAAE1C999CC100125228 /* sdt.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = netchecker;
+		};
+		1FD4FAB41C999D2200125228 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1FD4FAAE1C999CC100125228 /* sdt.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = sdt;
+		};
+		5587E86A1C731962000009B4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55AC98BE1C72FFE7007F9F97 /* openssl.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = openssl;
+		};
+		55A8D1C91C8D5D4D0057DD59 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55A8D1C51C8D5D4C0057DD59 /* app.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = app;
+		};
+		55A8D1CF1C8D5D550057DD59 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55A8D1CB1C8D5D540057DD59 /* baseevent.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = baseevent;
+		};
+		55A8D1D11C8D5D5E0057DD59 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55A8D1CB1C8D5D540057DD59 /* baseevent.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = baseevent;
+		};
+		55A8D1D31C8D5D5E0057DD59 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55A8D1C51C8D5D4C0057DD59 /* app.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = app;
+		};
+		55AC98C21C72FFE7007F9F97 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55AC98BE1C72FFE7007F9F97 /* openssl.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = openssl;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1371BF9119791FD700E4C614 /* comm.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = comm.xcodeproj; path = comm/comm.xcodeproj; sourceTree = "<group>"; };
+		1371BF9D19791FE800E4C614 /* log.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = log.xcodeproj; path = log/log.xcodeproj; sourceTree = "<group>"; };
+		1F37A35C1C7E0B1100A9780B /* stn.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = stn.xcodeproj; path = stn/stn.xcodeproj; sourceTree = "<group>"; };
+		1FD4FAAE1C999CC100125228 /* sdt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sdt.xcodeproj; path = sdt/sdt.xcodeproj; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libmars-open-iphone.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmars-open-iphone.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		55A8D1C51C8D5D4C0057DD59 /* app.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = app.xcodeproj; path = app/app.xcodeproj; sourceTree = "<group>"; };
+		55A8D1CB1C8D5D540057DD59 /* baseevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = baseevent.xcodeproj; path = baseevent/baseevent.xcodeproj; sourceTree = "<group>"; };
+		55AC98BE1C72FFE7007F9F97 /* openssl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openssl.xcodeproj; path = openssl/openssl.xcodeproj; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1371BF9219791FD700E4C614 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1371BF9619791FD800E4C614 /* libcomm.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1371BF9E19791FE800E4C614 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1371BFA219791FE800E4C614 /* liblog.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1F37A35D1C7E0B1100A9780B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F37A3611C7E0B1100A9780B /* libstn.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1FD4FAAF1C999CC100125228 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1FD4FAB31C999CC200125228 /* libsdt.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				1FD4FAAE1C999CC100125228 /* sdt.xcodeproj */,
+				55A8D1CB1C8D5D540057DD59 /* baseevent.xcodeproj */,
+				55A8D1C51C8D5D4C0057DD59 /* app.xcodeproj */,
+				1F37A35C1C7E0B1100A9780B /* stn.xcodeproj */,
+				55AC98BE1C72FFE7007F9F97 /* openssl.xcodeproj */,
+				1371BF9D19791FE800E4C614 /* log.xcodeproj */,
+				1371BF9119791FD700E4C614 /* comm.xcodeproj */,
+				3170A029177887B0004F5DDA /* Frameworks */,
+				3170A028177887B0004F5DDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3170A028177887B0004F5DDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3170A027177887B0004F5DDA /* libmars-open-iphone.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A029177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3170A02A177887B0004F5DDA /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		55A8D1C61C8D5D4C0057DD59 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55A8D1CA1C8D5D4D0057DD59 /* libapp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		55A8D1CC1C8D5D540057DD59 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55A8D1D01C8D5D550057DD59 /* libbaseevent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		55AC98BF1C72FFE7007F9F97 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55AC98C31C72FFE7007F9F97 /* libopenssl.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* mars-open-iphone */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "mars-open-iphone" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+				1371BFE7197920A400E4C614 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1FD4FAB51C999D2200125228 /* PBXTargetDependency */,
+				55A8D1D21C8D5D5E0057DD59 /* PBXTargetDependency */,
+				55A8D1D41C8D5D5E0057DD59 /* PBXTargetDependency */,
+				1F37A3631C7E0B2000A9780B /* PBXTargetDependency */,
+				5587E86B1C731962000009B4 /* PBXTargetDependency */,
+				1371BFDC197920A100E4C614 /* PBXTargetDependency */,
+				1371BFE0197920A100E4C614 /* PBXTargetDependency */,
+			);
+			name = "mars-open-iphone";
+			productName = PublicComponent;
+			productReference = 3170A027177887B0004F5DDA /* libmars-open-iphone.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = Tencent;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "mars-open-iphone" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A028177887B0004F5DDA /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 55A8D1C61C8D5D4C0057DD59 /* Products */;
+					ProjectRef = 55A8D1C51C8D5D4C0057DD59 /* app.xcodeproj */;
+				},
+				{
+					ProductGroup = 55A8D1CC1C8D5D540057DD59 /* Products */;
+					ProjectRef = 55A8D1CB1C8D5D540057DD59 /* baseevent.xcodeproj */;
+				},
+				{
+					ProductGroup = 1371BF9219791FD700E4C614 /* Products */;
+					ProjectRef = 1371BF9119791FD700E4C614 /* comm.xcodeproj */;
+				},
+				{
+					ProductGroup = 1371BF9E19791FE800E4C614 /* Products */;
+					ProjectRef = 1371BF9D19791FE800E4C614 /* log.xcodeproj */;
+				},
+				{
+					ProductGroup = 55AC98BF1C72FFE7007F9F97 /* Products */;
+					ProjectRef = 55AC98BE1C72FFE7007F9F97 /* openssl.xcodeproj */;
+				},
+				{
+					ProductGroup = 1FD4FAAF1C999CC100125228 /* Products */;
+					ProjectRef = 1FD4FAAE1C999CC100125228 /* sdt.xcodeproj */;
+				},
+				{
+					ProductGroup = 1F37A35D1C7E0B1100A9780B /* Products */;
+					ProjectRef = 1F37A35C1C7E0B1100A9780B /* stn.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* mars-open-iphone */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		1371BF9619791FD800E4C614 /* libcomm.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libcomm.a;
+			remoteRef = 1371BF9519791FD800E4C614 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1371BFA219791FE800E4C614 /* liblog.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblog.a;
+			remoteRef = 1371BFA119791FE800E4C614 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1F37A3611C7E0B1100A9780B /* libstn.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libstn.a;
+			remoteRef = 1F37A3601C7E0B1100A9780B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1FD4FAB31C999CC200125228 /* libsdt.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsdt.a;
+			remoteRef = 1FD4FAB21C999CC200125228 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		55A8D1CA1C8D5D4D0057DD59 /* libapp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libapp.a;
+			remoteRef = 55A8D1C91C8D5D4D0057DD59 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		55A8D1D01C8D5D550057DD59 /* libbaseevent.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libbaseevent.a;
+			remoteRef = 55A8D1CF1C8D5D550057DD59 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		55AC98C31C72FFE7007F9F97 /* libopenssl.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libopenssl.a;
+			remoteRef = 55AC98C21C72FFE7007F9F97 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1371BFE7197920A400E4C614 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# not project dependency\nif [[ ${BUILT_PRODUCTS_DIR} == ${SRCROOT}* ]]\nthen\n    exit\nfi\n\nXCODE_PROJ_SUFFIX=\".xcodeproj\"\nBEGIN_REFER_SECTION=\"Begin PBXReferenceProxy section\"\nEND_REFER_SECTION=\"End PBXReferenceProxy section\"\nLIB_BEGIN=\"path = \"\nLIB_END=\";\"\n\ngetChildProjectFolder()\n{\n    is_filereference_section=false\n    i=0\n    \n    while read line\n    do\n        if [[ $line == *$END_REFER_SECTION* ]]\n        then\n            break\n        fi\n    \n    \n        if [[ $is_filereference_section == true && $line == *$LIB_BEGIN* ]]\n        then\n            line=${line#*\"$LIB_BEGIN\"}\n                libs[i]=${line%\"$LIB_END\"*}\n                let i=$i+1\n        fi\n        \n        if [[ $line == *$BEGIN_REFER_SECTION* ]]\n        then\n            is_filereference_section=true\n        fi\n        \n        \n    done < ${SRCROOT}/${PROJECT_NAME}${XCODE_PROJ_SUFFIX}/project.pbxproj\n    echo  ${libs[*]}\n}\n    \nchilder_project_libs=`getChildProjectFolder`\n\n\ncd ${BUILT_PRODUCTS_DIR}\n\nfiles=(`ls *.a`)\n\ncpu_info=`lipo -info libcomm.a`\ncpu_info=(${cpu_info#*\"are: \"})\ncurr_path=`pwd`\n\n\nfor ci in ${cpu_info[*]}\ndo\n    if [[ ! -d \"${BUILT_PRODUCTS_DIR}/$ci\" ]]\n    then\n        mkdir -p \"${BUILT_PRODUCTS_DIR}/$ci\"\n    fi\ndone\n\n\nfor ci in ${cpu_info[*]}\ndo\n    i=0\n    for f in ${files[*]}\n    do\n        if echo ${childer_project_libs[*]} | grep -w $f\n        then\n            lipo \"${BUILT_PRODUCTS_DIR}/\"$f -thin $ci -output \"${BUILT_PRODUCTS_DIR}/$ci/$f\"\n            \n            folder=${f%\".a\"}\n            if [[ ! -d \"${BUILT_PRODUCTS_DIR}/$ci/$folder\" ]]\n            then\n                mkdir -p \"${BUILT_PRODUCTS_DIR}/$ci/$folder\"\n            fi\n            cd \"${BUILT_PRODUCTS_DIR}/$ci/$folder\"\n            ar -x \"${BUILT_PRODUCTS_DIR}/$ci/$f\"\n            \n            for o in `ls \"${BUILT_PRODUCTS_DIR}/$ci/$folder\"/*.o`\n            do\n                obj_files[i]=$o\n                let i=$i+1\n            done\n        fi\n    done\n    \n    libtool -static -o ${BUILT_PRODUCTS_DIR}/$ci/${EXECUTABLE_NAME} ${obj_files[*]}\ndone\n\ni=0\nfor ci in ${cpu_info[*]}\ndo\n    cpu_executable_files[i]=${BUILT_PRODUCTS_DIR}/$ci/${EXECUTABLE_NAME}\n    let i=$i+1\ndone\n\nlipo -create ${cpu_executable_files[*]} -output ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME}\n\nfor ci in ${cpu_info[*]}\ndo\n    if [[ -d \"${BUILT_PRODUCTS_DIR}/$ci\" ]]\n    then\n        rm -rf \"${BUILT_PRODUCTS_DIR}/$ci\"\n    fi\ndone\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1371BFDC197920A100E4C614 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = log;
+			targetProxy = 1371BFDB197920A100E4C614 /* PBXContainerItemProxy */;
+		};
+		1371BFE0197920A100E4C614 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = comm;
+			targetProxy = 1371BFDF197920A100E4C614 /* PBXContainerItemProxy */;
+		};
+		1F37A3631C7E0B2000A9780B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = stn;
+			targetProxy = 1F37A3621C7E0B2000A9780B /* PBXContainerItemProxy */;
+		};
+		1FD4FAB51C999D2200125228 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = sdt;
+			targetProxy = 1FD4FAB41C999D2200125228 /* PBXContainerItemProxy */;
+		};
+		5587E86B1C731962000009B4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = openssl;
+			targetProxy = 5587E86A1C731962000009B4 /* PBXContainerItemProxy */;
+		};
+		55A8D1D21C8D5D5E0057DD59 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = baseevent;
+			targetProxy = 55A8D1D11C8D5D5E0057DD59 /* PBXContainerItemProxy */;
+		};
+		55A8D1D41C8D5D5E0057DD59 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = app;
+			targetProxy = 55A8D1D31C8D5D5E0057DD59 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"NDEBUG=1",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_DEBUG_INFORMATION_LEVEL = default;
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"DEBUG=1",
+					MACOS,
+					"asm=__asm",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					./protobuf/src,
+					./comm,
+					./openssl/include,
+					./openssl/crypto,
+					./openssl/export_include,
+					./utils/src,
+					./streamcdn/src,
+					./netchecker/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "mars-open-iphone";
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7 arm64 x86_64";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_DEBUG_INFORMATION_LEVEL = "line-tables-only";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"NDEBUG=1",
+					MACOS,
+					"asm=__asm",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					./protobuf/src,
+					./comm,
+					./openssl/include,
+					./openssl/crypto,
+					./openssl/export_include,
+					./utils/src,
+					./streamcdn/src,
+					./netchecker/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "mars-open-iphone";
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7 arm64 x86_64";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "mars-open-iphone" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "mars-open-iphone" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

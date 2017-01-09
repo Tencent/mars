@@ -1,0 +1,61 @@
+apply plugin: 'maven-publish'
+
+android {
+    compileOptions {
+        sourceCompatibility rootProject.ext.javaVersion
+        targetCompatibility rootProject.ext.javaVersion
+    }
+}
+
+version = version
+group = GROUP
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+    classpath += files(ext.androidJar)
+}
+
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+}
+
+artifacts {
+    archives androidSourcesJar
+    archives androidJavadocsJar
+}
+
+
+//for local maven test
+afterEvaluate { project ->
+    tasks.all { Task task ->
+        if (task.name.equalsIgnoreCase('publishMarsWrapperPublicationToMavenLocal')) {
+            task.dependsOn tasks.getByName('assemble')
+        }
+    }
+}
+
+publishing {
+    publications {
+        MarsWrapper(MavenPublication) {
+            groupId = group
+            artifactId = POM_ARTIFACT_ID
+            version = version
+            // Tell maven to prepare the generated "*.aar" file for publishing
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+//            artifact androidJavadocsJar
+        }
+    }
+}
+
+task buildAndPublishMarsWrapperToLocalMaven(dependsOn: ['build', 'publishMarsWrapperPublicationToMavenLocal']) {
+
+}
+//depend checkstyle
+//project.tasks.getByName("check").dependsOn tasks.getByName("checkstyle")

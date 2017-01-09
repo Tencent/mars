@@ -1,0 +1,628 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0616AB2D1B66810700BB79B0 /* MMCGIKeysMapping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0616AB2B1B66810700BB79B0 /* MMCGIKeysMapping.cpp */; };
+		06675A1B1B74A07B002648D6 /* MMKVcommCgiMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 06675A191B74A07B002648D6 /* MMKVcommCgiMgr.cpp */; };
+		134DEC2E197631D90055FA73 /* network_logic_empty_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBC0197631D90055FA73 /* network_logic_empty_impl.cpp */; };
+		134DEC2F197631D90055FA73 /* Objc2C_Logic.mm in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBC4197631D90055FA73 /* Objc2C_Logic.mm */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
+		134DEC31197631D90055FA73 /* GetDNS2Cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBC8197631D90055FA73 /* GetDNS2Cache.cpp */; };
+		134DEC32197631D90055FA73 /* IPPortData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBCA197631D90055FA73 /* IPPortData.cpp */; };
+		134DEC33197631D90055FA73 /* IPPortEvaluator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBCC197631D90055FA73 /* IPPortEvaluator.cpp */; };
+		134DEC34197631D90055FA73 /* IPPortSelector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBCE197631D90055FA73 /* IPPortSelector.cpp */; };
+		134DEC35197631D90055FA73 /* LongLinkIdentifyChecker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBD0197631D90055FA73 /* LongLinkIdentifyChecker.cpp */; };
+		134DEC36197631D90055FA73 /* LongLinkPacker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBD2197631D90055FA73 /* LongLinkPacker.cpp */; };
+		134DEC37197631D90055FA73 /* longlinksvrpush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBD4197631D90055FA73 /* longlinksvrpush.cpp */; };
+		134DEC38197631D90055FA73 /* MMAntiAvalanche.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBD6197631D90055FA73 /* MMAntiAvalanche.cpp */; };
+		134DEC3A197631D90055FA73 /* MMErrorLogReport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBDA197631D90055FA73 /* MMErrorLogReport.cpp */; };
+		134DEC3B197631D90055FA73 /* MMFlowLimit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBDC197631D90055FA73 /* MMFlowLimit.cpp */; };
+		134DEC3C197631D90055FA73 /* MMFrequencyLimit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBDE197631D90055FA73 /* MMFrequencyLimit.cpp */; };
+		134DEC3D197631D90055FA73 /* MMHostInfoLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBE0197631D90055FA73 /* MMHostInfoLogic.cpp */; };
+		134DEC3E197631D90055FA73 /* MMHostRedirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBE2197631D90055FA73 /* MMHostRedirect.cpp */; };
+		134DEC3F197631D90055FA73 /* MMIPxxLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBE5197631D90055FA73 /* MMIPxxLogic.cpp */; };
+		134DEC42197631D90055FA73 /* MMLongLink2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBEC197631D90055FA73 /* MMLongLink2.cpp */; };
+		134DEC43197631D90055FA73 /* MMLonglinkConnectMonitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBEE197631D90055FA73 /* MMLonglinkConnectMonitor.cpp */; };
+		134DEC44197631D90055FA73 /* MMLongLinkSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBF0197631D90055FA73 /* MMLongLinkSpeedTest.cpp */; };
+		134DEC45197631D90055FA73 /* MMLongLinkTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBF2197631D90055FA73 /* MMLongLinkTaskManager.cpp */; };
+		134DEC46197631D90055FA73 /* MMNetCheckLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBF4197631D90055FA73 /* MMNetCheckLogic.cpp */; };
+		134DEC47197631D90055FA73 /* MMNetCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBF7197631D90055FA73 /* MMNetCore.cpp */; };
+		134DEC48197631D90055FA73 /* CGITaskProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBFA197631D90055FA73 /* CGITaskProfiler.cpp */; };
+		134DEC49197631D90055FA73 /* LongLinkProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBFC197631D90055FA73 /* LongLinkProfiler.cpp */; };
+		134DEC4A197631D90055FA73 /* MMNetProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEBFE197631D90055FA73 /* MMNetProfiler.cpp */; };
+		134DEC4B197631D90055FA73 /* MMProfilerCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC01197631D90055FA73 /* MMProfilerCore.cpp */; };
+		134DEC4C197631D90055FA73 /* MMProfilerStorage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC03197631D90055FA73 /* MMProfilerStorage.cpp */; };
+		134DEC4D197631D90055FA73 /* NewDnsProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC05197631D90055FA73 /* NewDnsProfiler.cpp */; };
+		134DEC4E197631D90055FA73 /* ProfilerLogFlowMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC07197631D90055FA73 /* ProfilerLogFlowMgr.cpp */; };
+		134DEC4F197631D90055FA73 /* ShortLinkProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC09197631D90055FA73 /* ShortLinkProfiler.cpp */; };
+		134DEC50197631D90055FA73 /* MMNetSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC0B197631D90055FA73 /* MMNetSource.cpp */; };
+		134DEC51197631D90055FA73 /* MMNetSourceTimerCheck.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC0D197631D90055FA73 /* MMNetSourceTimerCheck.cpp */; };
+		134DEC52197631D90055FA73 /* MMNewSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC0F197631D90055FA73 /* MMNewSpeedTest.cpp */; };
+		134DEC53197631D90055FA73 /* MMOOB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC11197631D90055FA73 /* MMOOB.cpp */; };
+		134DEC54197631D90055FA73 /* MMShortLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC13197631D90055FA73 /* MMShortLink.cpp */; };
+		134DEC55197631D90055FA73 /* MMShortLinkTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC15197631D90055FA73 /* MMShortLinkTaskManager.cpp */; };
+		134DEC56197631D90055FA73 /* MMSmartHeartbeat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC17197631D90055FA73 /* MMSmartHeartbeat.cpp */; };
+		134DEC57197631D90055FA73 /* MMSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC19197631D90055FA73 /* MMSpeedTest.cpp */; };
+		134DEC59197631D90055FA73 /* MMTimingSync.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC1D197631D90055FA73 /* MMTimingSync.cpp */; };
+		134DEC5A197631D90055FA73 /* MMTrafficStatistics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC1F197631D90055FA73 /* MMTrafficStatistics.cpp */; };
+		134DEC5B197631D90055FA73 /* MMZombieTaskManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC21197631D90055FA73 /* MMZombieTaskManager.cpp */; };
+		134DEC5C197631D90055FA73 /* SendingBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC24197631D90055FA73 /* SendingBuffer.cpp */; };
+		134DEC5D197631D90055FA73 /* SignallingKeeper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC26197631D90055FA73 /* SignallingKeeper.cpp */; };
+		134DEC5E197631D90055FA73 /* SimpleIPPortSort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC28197631D90055FA73 /* SimpleIPPortSort.cpp */; };
+		134DEC5F197631D90055FA73 /* SpeedTestProtocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134DEC2B197631D90055FA73 /* SpeedTestProtocol.cpp */; };
+		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+		4F7F067B19ADF27800636CF6 /* IPSourceForSNS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7F067919ADF27800636CF6 /* IPSourceForSNS.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0616AB2B1B66810700BB79B0 /* MMCGIKeysMapping.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMCGIKeysMapping.cpp; sourceTree = "<group>"; };
+		0616AB2C1B66810700BB79B0 /* MMCGIKeysMapping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMCGIKeysMapping.h; sourceTree = "<group>"; };
+		06675A191B74A07B002648D6 /* MMKVcommCgiMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMKVcommCgiMgr.cpp; sourceTree = "<group>"; };
+		06675A1A1B74A07B002648D6 /* MMKVcommCgiMgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMKVcommCgiMgr.h; sourceTree = "<group>"; };
+		134DEBC0197631D90055FA73 /* network_logic_empty_impl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = network_logic_empty_impl.cpp; sourceTree = "<group>"; };
+		134DEBC1197631D90055FA73 /* networkcfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = networkcfg.h; sourceTree = "<group>"; };
+		134DEBC3197631D90055FA73 /* Objc2C_Logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Objc2C_Logic.h; sourceTree = "<group>"; };
+		134DEBC4197631D90055FA73 /* Objc2C_Logic.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Objc2C_Logic.mm; sourceTree = "<group>"; };
+		134DEBC8197631D90055FA73 /* GetDNS2Cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GetDNS2Cache.cpp; sourceTree = "<group>"; };
+		134DEBC9197631D90055FA73 /* GetDNS2Cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GetDNS2Cache.h; sourceTree = "<group>"; };
+		134DEBCA197631D90055FA73 /* IPPortData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPPortData.cpp; sourceTree = "<group>"; };
+		134DEBCB197631D90055FA73 /* IPPortData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPPortData.h; sourceTree = "<group>"; };
+		134DEBCC197631D90055FA73 /* IPPortEvaluator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPPortEvaluator.cpp; sourceTree = "<group>"; };
+		134DEBCD197631D90055FA73 /* IPPortEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPPortEvaluator.h; sourceTree = "<group>"; };
+		134DEBCE197631D90055FA73 /* IPPortSelector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPPortSelector.cpp; sourceTree = "<group>"; };
+		134DEBCF197631D90055FA73 /* IPPortSelector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPPortSelector.h; sourceTree = "<group>"; };
+		134DEBD0197631D90055FA73 /* LongLinkIdentifyChecker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LongLinkIdentifyChecker.cpp; sourceTree = "<group>"; };
+		134DEBD1197631D90055FA73 /* LongLinkIdentifyChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongLinkIdentifyChecker.h; sourceTree = "<group>"; };
+		134DEBD2197631D90055FA73 /* LongLinkPacker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LongLinkPacker.cpp; sourceTree = "<group>"; };
+		134DEBD3197631D90055FA73 /* LongLinkPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongLinkPacker.h; sourceTree = "<group>"; };
+		134DEBD4197631D90055FA73 /* longlinksvrpush.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = longlinksvrpush.cpp; sourceTree = "<group>"; };
+		134DEBD5197631D90055FA73 /* longlinksvrpush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = longlinksvrpush.h; sourceTree = "<group>"; };
+		134DEBD6197631D90055FA73 /* MMAntiAvalanche.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMAntiAvalanche.cpp; sourceTree = "<group>"; };
+		134DEBD7197631D90055FA73 /* MMAntiAvalanche.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMAntiAvalanche.h; sourceTree = "<group>"; };
+		134DEBDA197631D90055FA73 /* MMErrorLogReport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMErrorLogReport.cpp; sourceTree = "<group>"; };
+		134DEBDB197631D90055FA73 /* MMErrorLogReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMErrorLogReport.h; sourceTree = "<group>"; };
+		134DEBDC197631D90055FA73 /* MMFlowLimit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMFlowLimit.cpp; sourceTree = "<group>"; };
+		134DEBDD197631D90055FA73 /* MMFlowLimit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMFlowLimit.h; sourceTree = "<group>"; };
+		134DEBDE197631D90055FA73 /* MMFrequencyLimit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMFrequencyLimit.cpp; sourceTree = "<group>"; };
+		134DEBDF197631D90055FA73 /* MMFrequencyLimit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMFrequencyLimit.h; sourceTree = "<group>"; };
+		134DEBE0197631D90055FA73 /* MMHostInfoLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMHostInfoLogic.cpp; sourceTree = "<group>"; };
+		134DEBE1197631D90055FA73 /* MMHostInfoLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMHostInfoLogic.h; sourceTree = "<group>"; };
+		134DEBE2197631D90055FA73 /* MMHostRedirect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMHostRedirect.cpp; sourceTree = "<group>"; };
+		134DEBE3197631D90055FA73 /* MMHostRedirect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMHostRedirect.h; sourceTree = "<group>"; };
+		134DEBE4197631D90055FA73 /* MMIPxxFilePrefixConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMIPxxFilePrefixConstants.h; sourceTree = "<group>"; };
+		134DEBE5197631D90055FA73 /* MMIPxxLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMIPxxLogic.cpp; sourceTree = "<group>"; };
+		134DEBE6197631D90055FA73 /* MMIPxxLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMIPxxLogic.h; sourceTree = "<group>"; };
+		134DEBE7197631D90055FA73 /* MMKVReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMKVReport.h; sourceTree = "<group>"; };
+		134DEBEC197631D90055FA73 /* MMLongLink2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMLongLink2.cpp; sourceTree = "<group>"; };
+		134DEBED197631D90055FA73 /* MMLongLink2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMLongLink2.h; sourceTree = "<group>"; };
+		134DEBEE197631D90055FA73 /* MMLonglinkConnectMonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMLonglinkConnectMonitor.cpp; sourceTree = "<group>"; };
+		134DEBEF197631D90055FA73 /* MMLonglinkConnectMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMLonglinkConnectMonitor.h; sourceTree = "<group>"; };
+		134DEBF0197631D90055FA73 /* MMLongLinkSpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMLongLinkSpeedTest.cpp; sourceTree = "<group>"; };
+		134DEBF1197631D90055FA73 /* MMLongLinkSpeedTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMLongLinkSpeedTest.h; sourceTree = "<group>"; };
+		134DEBF2197631D90055FA73 /* MMLongLinkTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMLongLinkTaskManager.cpp; sourceTree = "<group>"; };
+		134DEBF3197631D90055FA73 /* MMLongLinkTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMLongLinkTaskManager.h; sourceTree = "<group>"; };
+		134DEBF4197631D90055FA73 /* MMNetCheckLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetCheckLogic.cpp; sourceTree = "<group>"; };
+		134DEBF5197631D90055FA73 /* MMNetCheckLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetCheckLogic.h; sourceTree = "<group>"; };
+		134DEBF6197631D90055FA73 /* MmNetComm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MmNetComm.h; sourceTree = "<group>"; };
+		134DEBF7197631D90055FA73 /* MMNetCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetCore.cpp; sourceTree = "<group>"; };
+		134DEBF8197631D90055FA73 /* MMNetCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetCore.h; sourceTree = "<group>"; };
+		134DEBFA197631D90055FA73 /* CGITaskProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGITaskProfiler.cpp; sourceTree = "<group>"; };
+		134DEBFB197631D90055FA73 /* CGITaskProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGITaskProfiler.h; sourceTree = "<group>"; };
+		134DEBFC197631D90055FA73 /* LongLinkProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LongLinkProfiler.cpp; sourceTree = "<group>"; };
+		134DEBFD197631D90055FA73 /* LongLinkProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongLinkProfiler.h; sourceTree = "<group>"; };
+		134DEBFE197631D90055FA73 /* MMNetProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetProfiler.cpp; sourceTree = "<group>"; };
+		134DEBFF197631D90055FA73 /* MMNetProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetProfiler.h; sourceTree = "<group>"; };
+		134DEC00197631D90055FA73 /* MMProfilerConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMProfilerConst.h; sourceTree = "<group>"; };
+		134DEC01197631D90055FA73 /* MMProfilerCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMProfilerCore.cpp; sourceTree = "<group>"; };
+		134DEC02197631D90055FA73 /* MMProfilerCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMProfilerCore.h; sourceTree = "<group>"; };
+		134DEC03197631D90055FA73 /* MMProfilerStorage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMProfilerStorage.cpp; sourceTree = "<group>"; };
+		134DEC04197631D90055FA73 /* MMProfilerStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMProfilerStorage.h; sourceTree = "<group>"; };
+		134DEC05197631D90055FA73 /* NewDnsProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewDnsProfiler.cpp; sourceTree = "<group>"; };
+		134DEC06197631D90055FA73 /* NewDnsProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewDnsProfiler.h; sourceTree = "<group>"; };
+		134DEC07197631D90055FA73 /* ProfilerLogFlowMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfilerLogFlowMgr.cpp; sourceTree = "<group>"; };
+		134DEC08197631D90055FA73 /* ProfilerLogFlowMgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfilerLogFlowMgr.h; sourceTree = "<group>"; };
+		134DEC09197631D90055FA73 /* ShortLinkProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShortLinkProfiler.cpp; sourceTree = "<group>"; };
+		134DEC0A197631D90055FA73 /* ShortLinkProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShortLinkProfiler.h; sourceTree = "<group>"; };
+		134DEC0B197631D90055FA73 /* MMNetSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetSource.cpp; sourceTree = "<group>"; };
+		134DEC0C197631D90055FA73 /* MMNetSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetSource.h; sourceTree = "<group>"; };
+		134DEC0D197631D90055FA73 /* MMNetSourceTimerCheck.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNetSourceTimerCheck.cpp; sourceTree = "<group>"; };
+		134DEC0E197631D90055FA73 /* MMNetSourceTimerCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNetSourceTimerCheck.h; sourceTree = "<group>"; };
+		134DEC0F197631D90055FA73 /* MMNewSpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMNewSpeedTest.cpp; sourceTree = "<group>"; };
+		134DEC10197631D90055FA73 /* MMNewSpeedTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMNewSpeedTest.h; sourceTree = "<group>"; };
+		134DEC11197631D90055FA73 /* MMOOB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMOOB.cpp; sourceTree = "<group>"; };
+		134DEC12197631D90055FA73 /* MMOOB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMOOB.h; sourceTree = "<group>"; };
+		134DEC13197631D90055FA73 /* MMShortLink.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMShortLink.cpp; sourceTree = "<group>"; };
+		134DEC14197631D90055FA73 /* MMShortLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMShortLink.h; sourceTree = "<group>"; };
+		134DEC15197631D90055FA73 /* MMShortLinkTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMShortLinkTaskManager.cpp; sourceTree = "<group>"; };
+		134DEC16197631D90055FA73 /* MMShortLinkTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMShortLinkTaskManager.h; sourceTree = "<group>"; };
+		134DEC17197631D90055FA73 /* MMSmartHeartbeat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMSmartHeartbeat.cpp; sourceTree = "<group>"; };
+		134DEC18197631D90055FA73 /* MMSmartHeartbeat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMSmartHeartbeat.h; sourceTree = "<group>"; };
+		134DEC19197631D90055FA73 /* MMSpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMSpeedTest.cpp; sourceTree = "<group>"; };
+		134DEC1A197631D90055FA73 /* MMSpeedTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMSpeedTest.h; sourceTree = "<group>"; };
+		134DEC1D197631D90055FA73 /* MMTimingSync.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMTimingSync.cpp; sourceTree = "<group>"; };
+		134DEC1E197631D90055FA73 /* MMTimingSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMTimingSync.h; sourceTree = "<group>"; };
+		134DEC1F197631D90055FA73 /* MMTrafficStatistics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMTrafficStatistics.cpp; sourceTree = "<group>"; };
+		134DEC20197631D90055FA73 /* MMTrafficStatistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMTrafficStatistics.h; sourceTree = "<group>"; };
+		134DEC21197631D90055FA73 /* MMZombieTaskManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMZombieTaskManager.cpp; sourceTree = "<group>"; };
+		134DEC22197631D90055FA73 /* MMZombieTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMZombieTaskManager.h; sourceTree = "<group>"; };
+		134DEC23197631D90055FA73 /* network_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network_logic.h; sourceTree = "<group>"; };
+		134DEC24197631D90055FA73 /* SendingBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SendingBuffer.cpp; sourceTree = "<group>"; };
+		134DEC25197631D90055FA73 /* SendingBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SendingBuffer.h; sourceTree = "<group>"; };
+		134DEC26197631D90055FA73 /* SignallingKeeper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SignallingKeeper.cpp; sourceTree = "<group>"; };
+		134DEC27197631D90055FA73 /* SignallingKeeper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignallingKeeper.h; sourceTree = "<group>"; };
+		134DEC28197631D90055FA73 /* SimpleIPPortSort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimpleIPPortSort.cpp; sourceTree = "<group>"; };
+		134DEC29197631D90055FA73 /* SimpleIPPortSort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleIPPortSort.h; sourceTree = "<group>"; };
+		134DEC2A197631D90055FA73 /* SocketConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketConstants.h; sourceTree = "<group>"; };
+		134DEC2B197631D90055FA73 /* SpeedTestProtocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpeedTestProtocol.cpp; sourceTree = "<group>"; };
+		134DEC2C197631D90055FA73 /* SpeedTestProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpeedTestProtocol.h; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libnetwork.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnetwork.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4F7F067919ADF27800636CF6 /* IPSourceForSNS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPSourceForSNS.cpp; sourceTree = "<group>"; };
+		4F7F067A19ADF27800636CF6 /* IPSourceForSNS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPSourceForSNS.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		134DEBBF197631D90055FA73 /* cfg */ = {
+			isa = PBXGroup;
+			children = (
+				134DEBC0197631D90055FA73 /* network_logic_empty_impl.cpp */,
+				134DEBC1197631D90055FA73 /* networkcfg.h */,
+			);
+			path = cfg;
+			sourceTree = "<group>";
+		};
+		134DEBC2197631D90055FA73 /* objc */ = {
+			isa = PBXGroup;
+			children = (
+				134DEBC3197631D90055FA73 /* Objc2C_Logic.h */,
+				134DEBC4197631D90055FA73 /* Objc2C_Logic.mm */,
+			);
+			path = objc;
+			sourceTree = "<group>";
+		};
+		134DEBC5197631D90055FA73 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4F7F067919ADF27800636CF6 /* IPSourceForSNS.cpp */,
+				4F7F067A19ADF27800636CF6 /* IPSourceForSNS.h */,
+				134DEBC8197631D90055FA73 /* GetDNS2Cache.cpp */,
+				134DEBC9197631D90055FA73 /* GetDNS2Cache.h */,
+				134DEBCA197631D90055FA73 /* IPPortData.cpp */,
+				134DEBCB197631D90055FA73 /* IPPortData.h */,
+				134DEBCC197631D90055FA73 /* IPPortEvaluator.cpp */,
+				134DEBCD197631D90055FA73 /* IPPortEvaluator.h */,
+				134DEBCE197631D90055FA73 /* IPPortSelector.cpp */,
+				134DEBCF197631D90055FA73 /* IPPortSelector.h */,
+				134DEBD0197631D90055FA73 /* LongLinkIdentifyChecker.cpp */,
+				134DEBD1197631D90055FA73 /* LongLinkIdentifyChecker.h */,
+				134DEBD2197631D90055FA73 /* LongLinkPacker.cpp */,
+				134DEBD3197631D90055FA73 /* LongLinkPacker.h */,
+				134DEBD4197631D90055FA73 /* longlinksvrpush.cpp */,
+				134DEBD5197631D90055FA73 /* longlinksvrpush.h */,
+				134DEBD6197631D90055FA73 /* MMAntiAvalanche.cpp */,
+				134DEBD7197631D90055FA73 /* MMAntiAvalanche.h */,
+				134DEBDA197631D90055FA73 /* MMErrorLogReport.cpp */,
+				134DEBDB197631D90055FA73 /* MMErrorLogReport.h */,
+				134DEBDC197631D90055FA73 /* MMFlowLimit.cpp */,
+				134DEBDD197631D90055FA73 /* MMFlowLimit.h */,
+				134DEBDE197631D90055FA73 /* MMFrequencyLimit.cpp */,
+				134DEBDF197631D90055FA73 /* MMFrequencyLimit.h */,
+				134DEBE0197631D90055FA73 /* MMHostInfoLogic.cpp */,
+				134DEBE1197631D90055FA73 /* MMHostInfoLogic.h */,
+				134DEBE2197631D90055FA73 /* MMHostRedirect.cpp */,
+				134DEBE3197631D90055FA73 /* MMHostRedirect.h */,
+				134DEBE4197631D90055FA73 /* MMIPxxFilePrefixConstants.h */,
+				134DEBE5197631D90055FA73 /* MMIPxxLogic.cpp */,
+				134DEBE6197631D90055FA73 /* MMIPxxLogic.h */,
+				134DEBE7197631D90055FA73 /* MMKVReport.h */,
+				134DEBEC197631D90055FA73 /* MMLongLink2.cpp */,
+				134DEBED197631D90055FA73 /* MMLongLink2.h */,
+				134DEBEE197631D90055FA73 /* MMLonglinkConnectMonitor.cpp */,
+				134DEBEF197631D90055FA73 /* MMLonglinkConnectMonitor.h */,
+				134DEBF0197631D90055FA73 /* MMLongLinkSpeedTest.cpp */,
+				134DEBF1197631D90055FA73 /* MMLongLinkSpeedTest.h */,
+				134DEBF2197631D90055FA73 /* MMLongLinkTaskManager.cpp */,
+				134DEBF3197631D90055FA73 /* MMLongLinkTaskManager.h */,
+				134DEBF4197631D90055FA73 /* MMNetCheckLogic.cpp */,
+				134DEBF5197631D90055FA73 /* MMNetCheckLogic.h */,
+				134DEBF6197631D90055FA73 /* MmNetComm.h */,
+				134DEBF7197631D90055FA73 /* MMNetCore.cpp */,
+				134DEBF8197631D90055FA73 /* MMNetCore.h */,
+				134DEBF9197631D90055FA73 /* MMNetProfiler */,
+				134DEC0B197631D90055FA73 /* MMNetSource.cpp */,
+				134DEC0C197631D90055FA73 /* MMNetSource.h */,
+				134DEC0D197631D90055FA73 /* MMNetSourceTimerCheck.cpp */,
+				134DEC0E197631D90055FA73 /* MMNetSourceTimerCheck.h */,
+				134DEC0F197631D90055FA73 /* MMNewSpeedTest.cpp */,
+				134DEC10197631D90055FA73 /* MMNewSpeedTest.h */,
+				134DEC11197631D90055FA73 /* MMOOB.cpp */,
+				134DEC12197631D90055FA73 /* MMOOB.h */,
+				134DEC13197631D90055FA73 /* MMShortLink.cpp */,
+				134DEC14197631D90055FA73 /* MMShortLink.h */,
+				134DEC15197631D90055FA73 /* MMShortLinkTaskManager.cpp */,
+				134DEC16197631D90055FA73 /* MMShortLinkTaskManager.h */,
+				134DEC17197631D90055FA73 /* MMSmartHeartbeat.cpp */,
+				134DEC18197631D90055FA73 /* MMSmartHeartbeat.h */,
+				134DEC19197631D90055FA73 /* MMSpeedTest.cpp */,
+				134DEC1A197631D90055FA73 /* MMSpeedTest.h */,
+				134DEC1D197631D90055FA73 /* MMTimingSync.cpp */,
+				134DEC1E197631D90055FA73 /* MMTimingSync.h */,
+				134DEC1F197631D90055FA73 /* MMTrafficStatistics.cpp */,
+				134DEC20197631D90055FA73 /* MMTrafficStatistics.h */,
+				134DEC21197631D90055FA73 /* MMZombieTaskManager.cpp */,
+				134DEC22197631D90055FA73 /* MMZombieTaskManager.h */,
+				134DEC23197631D90055FA73 /* network_logic.h */,
+				134DEC24197631D90055FA73 /* SendingBuffer.cpp */,
+				134DEC25197631D90055FA73 /* SendingBuffer.h */,
+				134DEC26197631D90055FA73 /* SignallingKeeper.cpp */,
+				134DEC27197631D90055FA73 /* SignallingKeeper.h */,
+				134DEC28197631D90055FA73 /* SimpleIPPortSort.cpp */,
+				134DEC29197631D90055FA73 /* SimpleIPPortSort.h */,
+				134DEC2A197631D90055FA73 /* SocketConstants.h */,
+				134DEC2B197631D90055FA73 /* SpeedTestProtocol.cpp */,
+				134DEC2C197631D90055FA73 /* SpeedTestProtocol.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		134DEBF9197631D90055FA73 /* MMNetProfiler */ = {
+			isa = PBXGroup;
+			children = (
+				06675A191B74A07B002648D6 /* MMKVcommCgiMgr.cpp */,
+				06675A1A1B74A07B002648D6 /* MMKVcommCgiMgr.h */,
+				0616AB2B1B66810700BB79B0 /* MMCGIKeysMapping.cpp */,
+				0616AB2C1B66810700BB79B0 /* MMCGIKeysMapping.h */,
+				134DEBFA197631D90055FA73 /* CGITaskProfiler.cpp */,
+				134DEBFB197631D90055FA73 /* CGITaskProfiler.h */,
+				134DEBFC197631D90055FA73 /* LongLinkProfiler.cpp */,
+				134DEBFD197631D90055FA73 /* LongLinkProfiler.h */,
+				134DEBFE197631D90055FA73 /* MMNetProfiler.cpp */,
+				134DEBFF197631D90055FA73 /* MMNetProfiler.h */,
+				134DEC00197631D90055FA73 /* MMProfilerConst.h */,
+				134DEC01197631D90055FA73 /* MMProfilerCore.cpp */,
+				134DEC02197631D90055FA73 /* MMProfilerCore.h */,
+				134DEC03197631D90055FA73 /* MMProfilerStorage.cpp */,
+				134DEC04197631D90055FA73 /* MMProfilerStorage.h */,
+				134DEC05197631D90055FA73 /* NewDnsProfiler.cpp */,
+				134DEC06197631D90055FA73 /* NewDnsProfiler.h */,
+				134DEC07197631D90055FA73 /* ProfilerLogFlowMgr.cpp */,
+				134DEC08197631D90055FA73 /* ProfilerLogFlowMgr.h */,
+				134DEC09197631D90055FA73 /* ShortLinkProfiler.cpp */,
+				134DEC0A197631D90055FA73 /* ShortLinkProfiler.h */,
+			);
+			path = MMNetProfiler;
+			sourceTree = "<group>";
+		};
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				134DEBBF197631D90055FA73 /* cfg */,
+				134DEBC2197631D90055FA73 /* objc */,
+				134DEBC5197631D90055FA73 /* src */,
+				3170A029177887B0004F5DDA /* Frameworks */,
+				3170A028177887B0004F5DDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3170A028177887B0004F5DDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3170A027177887B0004F5DDA /* libnetwork.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A029177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3170A02A177887B0004F5DDA /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* network */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "network" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = network;
+			productName = PublicComponent;
+			productReference = 3170A027177887B0004F5DDA /* libnetwork.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = Tencent;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "network" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A028177887B0004F5DDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* network */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				134DEC5E197631D90055FA73 /* SimpleIPPortSort.cpp in Sources */,
+				134DEC47197631D90055FA73 /* MMNetCore.cpp in Sources */,
+				134DEC56197631D90055FA73 /* MMSmartHeartbeat.cpp in Sources */,
+				134DEC4F197631D90055FA73 /* ShortLinkProfiler.cpp in Sources */,
+				134DEC4A197631D90055FA73 /* MMNetProfiler.cpp in Sources */,
+				134DEC48197631D90055FA73 /* CGITaskProfiler.cpp in Sources */,
+				134DEC45197631D90055FA73 /* MMLongLinkTaskManager.cpp in Sources */,
+				134DEC5F197631D90055FA73 /* SpeedTestProtocol.cpp in Sources */,
+				134DEC44197631D90055FA73 /* MMLongLinkSpeedTest.cpp in Sources */,
+				134DEC54197631D90055FA73 /* MMShortLink.cpp in Sources */,
+				134DEC3C197631D90055FA73 /* MMFrequencyLimit.cpp in Sources */,
+				134DEC5D197631D90055FA73 /* SignallingKeeper.cpp in Sources */,
+				134DEC31197631D90055FA73 /* GetDNS2Cache.cpp in Sources */,
+				134DEC37197631D90055FA73 /* longlinksvrpush.cpp in Sources */,
+				134DEC3E197631D90055FA73 /* MMHostRedirect.cpp in Sources */,
+				134DEC36197631D90055FA73 /* LongLinkPacker.cpp in Sources */,
+				4F7F067B19ADF27800636CF6 /* IPSourceForSNS.cpp in Sources */,
+				0616AB2D1B66810700BB79B0 /* MMCGIKeysMapping.cpp in Sources */,
+				134DEC43197631D90055FA73 /* MMLonglinkConnectMonitor.cpp in Sources */,
+				134DEC3F197631D90055FA73 /* MMIPxxLogic.cpp in Sources */,
+				134DEC3B197631D90055FA73 /* MMFlowLimit.cpp in Sources */,
+				06675A1B1B74A07B002648D6 /* MMKVcommCgiMgr.cpp in Sources */,
+				134DEC59197631D90055FA73 /* MMTimingSync.cpp in Sources */,
+				134DEC42197631D90055FA73 /* MMLongLink2.cpp in Sources */,
+				134DEC2E197631D90055FA73 /* network_logic_empty_impl.cpp in Sources */,
+				134DEC52197631D90055FA73 /* MMNewSpeedTest.cpp in Sources */,
+				134DEC46197631D90055FA73 /* MMNetCheckLogic.cpp in Sources */,
+				134DEC3D197631D90055FA73 /* MMHostInfoLogic.cpp in Sources */,
+				134DEC38197631D90055FA73 /* MMAntiAvalanche.cpp in Sources */,
+				134DEC50197631D90055FA73 /* MMNetSource.cpp in Sources */,
+				134DEC2F197631D90055FA73 /* Objc2C_Logic.mm in Sources */,
+				134DEC35197631D90055FA73 /* LongLinkIdentifyChecker.cpp in Sources */,
+				134DEC5C197631D90055FA73 /* SendingBuffer.cpp in Sources */,
+				134DEC51197631D90055FA73 /* MMNetSourceTimerCheck.cpp in Sources */,
+				134DEC57197631D90055FA73 /* MMSpeedTest.cpp in Sources */,
+				134DEC5B197631D90055FA73 /* MMZombieTaskManager.cpp in Sources */,
+				134DEC5A197631D90055FA73 /* MMTrafficStatistics.cpp in Sources */,
+				134DEC4D197631D90055FA73 /* NewDnsProfiler.cpp in Sources */,
+				134DEC33197631D90055FA73 /* IPPortEvaluator.cpp in Sources */,
+				134DEC32197631D90055FA73 /* IPPortData.cpp in Sources */,
+				134DEC53197631D90055FA73 /* MMOOB.cpp in Sources */,
+				134DEC4B197631D90055FA73 /* MMProfilerCore.cpp in Sources */,
+				134DEC49197631D90055FA73 /* LongLinkProfiler.cpp in Sources */,
+				134DEC4E197631D90055FA73 /* ProfilerLogFlowMgr.cpp in Sources */,
+				134DEC55197631D90055FA73 /* MMShortLinkTaskManager.cpp in Sources */,
+				134DEC3A197631D90055FA73 /* MMErrorLogReport.cpp in Sources */,
+				134DEC34197631D90055FA73 /* IPPortSelector.cpp in Sources */,
+				134DEC4C197631D90055FA73 /* MMProfilerStorage.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					../comm,
+					../comm/crypt,
+					../mmcomm/src,
+					../baseprj/src,
+					../netchecker/src,
+					../openssl/export_include,
+					../log/src,
+					../mmcomm,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7 arm64 x86_64 armv7k";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NDEBUG=1",
+					MACOS,
+					"XLOGGER_TAG='\"pubc_$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					../comm,
+					../comm/crypt,
+					../mmcomm/src,
+					../baseprj/src,
+					../netchecker/src,
+					../openssl/export_include,
+					../log/src,
+					../mmcomm,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 armv7 arm64 x86_64 armv7k";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "network" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "network" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

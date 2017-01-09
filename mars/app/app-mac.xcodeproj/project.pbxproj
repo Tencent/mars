@@ -1,0 +1,511 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1F25BF0F1CD3647300AC1003 /* app_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F25BF0C1CD3647300AC1003 /* app_logic.cc */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1F25BF0C1CD3647300AC1003 /* app_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = app_logic.cc; sourceTree = "<group>"; };
+		1F25BF0D1CD3647300AC1003 /* app_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app_logic.h; sourceTree = "<group>"; };
+		1F25BF0E1CD3647300AC1003 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app.h; sourceTree = "<group>"; };
+		55D9C0821CC7B1C90076CBD9 /* libapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				1F25BF0C1CD3647300AC1003 /* app_logic.cc */,
+				1F25BF0D1CD3647300AC1003 /* app_logic.h */,
+				1F25BF0E1CD3647300AC1003 /* app.h */,
+				55D9C0821CC7B1C90076CBD9 /* libapp.a */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* app */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "app" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = app;
+			productName = PublicComponent;
+			productReference = 55D9C0821CC7B1C90076CBD9 /* libapp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = felixzhou;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "app-mac" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A01E177887B0004F5DDA;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* app */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1F25BF0F1CD3647300AC1003 /* app_logic.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx10.10;
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx10.10;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NETWORK=1",
+					"KVCOMM=1",
+					"XLOGGER=1",
+					"DEBUG=1",
+					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/src,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/comm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/comm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphoneos",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmjpeg/obj/local/armeabi",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/Release-iphoneos",
+					"$(PROJECT_DIR)/app/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphoneos",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/log/build/Release-iphoneos",
+					"$(PROJECT_DIR)/log/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphoneos",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/obj/local/armeabi",
+					"$(PROJECT_DIR)/mmjpeg/build/Release",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphoneos",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/Release-iphoneos",
+					"$(PROJECT_DIR)/sdt/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/Release-iphoneos",
+					"$(PROJECT_DIR)/smc/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/stn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/stn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/Release-iphoneos",
+					"$(PROJECT_DIR)/openssl/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/openssl/obj/local/armeabi",
+				);
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 x86_64";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"NETWORK=1",
+					"KVCOMM=1",
+					"XLOGGER=1",
+					"NDEBUG=1",
+					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/src,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphoneos/comm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/comm/build/comm.build/Release-iphonesimulator/comm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/comm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/comm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphoneos/netchecker.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/netchecker/build/netchecker.build/Release-iphonesimulator/netchecker.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphoneos",
+					"$(PROJECT_DIR)/netchecker/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdntran/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdntran/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/streamcdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphoneos/streamcdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/streamcdn/build/streamcdn.build/Release-iphonesimulator/streamcdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphoneos/mmjpeg.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmjpeg/build/mmjpeg.build/Release-iphonesimulator/mmjpeg.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmjpeg/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmjpeg/obj/local/armeabi",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphoneos/app.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/app.build/Release-iphonesimulator/app.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/app/build/appcomm.build/Release-iphonesimulator/appcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/app/build/Release-iphoneos",
+					"$(PROJECT_DIR)/app/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphoneos/baseevent.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseevent.build/Release-iphonesimulator/baseevent.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphoneos/baseprj.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/baseevent/build/baseprj.build/Release-iphonesimulator/baseprj.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphoneos",
+					"$(PROJECT_DIR)/baseevent/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphoneos/cdn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdn.build/Release-iphonesimulator/cdn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphoneos/cdntran.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/cdn/build/cdntran.build/Release-iphonesimulator/cdntran.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/cdn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/cdn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphoneos/log.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/log/build/log.build/Release-iphonesimulator/log.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/log/build/Release-iphoneos",
+					"$(PROJECT_DIR)/log/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphoneos/magicbox.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/magicbox/build/magicbox.build/Release-iphonesimulator/magicbox.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphoneos",
+					"$(PROJECT_DIR)/magicbox/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphoneos/mmcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/mmcomm/build/mmcomm.build/Release-iphonesimulator/mmcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphoneos",
+					"$(PROJECT_DIR)/mmcomm/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/mmcomm/obj/local/armeabi",
+					"$(PROJECT_DIR)/mmjpeg/build/Release",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphoneos/protobuf.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/protobuf/build/protobuf.build/Release-iphonesimulator/protobuf.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphoneos",
+					"$(PROJECT_DIR)/protobuf/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/Release-iphoneos",
+					"$(PROJECT_DIR)/sdt/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphoneos/sdt.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/sdt/build/sdt.build/Release-iphonesimulator/sdt.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphoneos/kvcomm.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/kvcomm.build/Release-iphonesimulator/kvcomm.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/smc/build/Release-iphoneos",
+					"$(PROJECT_DIR)/smc/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphoneos/smc.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/smc/build/smc.build/Release-iphonesimulator/smc.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/stn/build/Release-iphoneos",
+					"$(PROJECT_DIR)/stn/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphoneos/stn.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/stn/build/stn.build/Release-iphonesimulator/stn.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/arm64",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphoneos/openssl.build/Objects-normal/armv7",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/i386",
+					"$(PROJECT_DIR)/openssl/build/openssl.build/Release-iphonesimulator/openssl.build/Objects-normal/x86_64",
+					"$(PROJECT_DIR)/openssl/build/Release-iphoneos",
+					"$(PROJECT_DIR)/openssl/build/Release-iphonesimulator",
+					"$(PROJECT_DIR)/openssl/obj/local/armeabi",
+				);
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
+				VALID_ARCHS = "i386 x86_64";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "app-mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{15EDF6FB-BBB4-4F3D-B40B-B706FA89F542}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>sdt</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(ProjectDir)/../src/tools;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\sdt_logic.cc" />
+    <ClCompile Include="..\src\activecheck\basechecker.cc" />
+    <ClCompile Include="..\src\activecheck\dnschecker.cc" />
+    <ClCompile Include="..\src\activecheck\httpchecker.cc" />
+    <ClCompile Include="..\src\activecheck\pingchecker.cc" />
+    <ClCompile Include="..\src\activecheck\tcpchecker.cc" />
+    <ClCompile Include="..\src\checkimpl\dnsquery.cc" />
+    <ClCompile Include="..\src\checkimpl\httpquery.cc" />
+    <ClCompile Include="..\src\checkimpl\pingquery.cc" />
+    <ClCompile Include="..\src\checkimpl\tcpquery.cc" />
+    <ClCompile Include="..\src\sdt_core.cc" />
+    <ClCompile Include="..\src\tools\netchecker_trafficmonitor.cc" />
+    <ClCompile Include="..\src\tools\netstat.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\constants.h" />
+    <ClInclude Include="..\sdt.h" />
+    <ClInclude Include="..\sdt_logic.h" />
+    <ClInclude Include="..\src\activecheck\basechecker.h" />
+    <ClInclude Include="..\src\activecheck\dnschecker.h" />
+    <ClInclude Include="..\src\activecheck\httpchecker.h" />
+    <ClInclude Include="..\src\activecheck\pingchecker.h" />
+    <ClInclude Include="..\src\activecheck\tcpchecker.h" />
+    <ClInclude Include="..\src\checkimpl\dnsquery.h" />
+    <ClInclude Include="..\src\checkimpl\httpquery.h" />
+    <ClInclude Include="..\src\checkimpl\pingquery.h" />
+    <ClInclude Include="..\src\checkimpl\tcpquery.h" />
+    <ClInclude Include="..\src\checkimpl\urlparser.h" />
+    <ClInclude Include="..\src\sdt_core.h" />
+    <ClInclude Include="..\src\tools\netstat.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,51 @@
+/*
+ ============================================================================
+ ============================================================================
+ */
+
+#include "xlogger.h"
+
+void test_for_c()
+{
+    xinfo2("info=1");
+//    xinfo2(TSF("TSF info=1"));
+//    xinfo2<<"<< info=1";
+
+    xinfo2("info=%d", __LINE__);
+//    xinfo2(TSF("TSF info=%0"), 2);
+//    xinfo2<<"<< info="<<2;
+
+//    xinfo2_if(1<0);
+//    xinfo2_if(1>0);
+
+    xinfo2_if(1>0, "if true info=%d", 3);
+    xinfo2_if(1<0, "if false info=%d", 3);
+
+    xinfo2_if(1>0, "if true info=");
+    xinfo2_if(1<0, "if false info");
+
+//    xinfo2_if(1>0, TSF("TSF if true info=%0"), 3);
+//    xinfo2_if(1<0, TSF("TSF if false info=%0"), 3);
+
+//    xinfo2_if(1>0)<<"<< if true info="<< 3;
+//    xinfo2_if(1<0)<<"<< if false info="<< 3;
+
+    const char* KNullString = "";
+    xassert(1>0, );
+
+    xassert(1>0, "assert true info");
+    xassert(1<0, "assert true info");
+
+    xassert(1>0, "assert true info=%d", __LINE__);
+    xassert(1<0, "assert false info=%d", __LINE__);
+
+//    xassert(1>0, "assert true info=4", 4);
+//    xassert(1<0, "assert false info=4", 4);
+
+//    xassert(1>0, TSF("TSF assert true info=%0"), 4);
+//    xassert(1<0, TSF("TSF assert false info=%0"), 4);
+
+//    xassert(1>0)<<"<< assert true info="<< 4;
+//    xassert(1<0)<<"<< assert false info="<< 4;
+
+}
