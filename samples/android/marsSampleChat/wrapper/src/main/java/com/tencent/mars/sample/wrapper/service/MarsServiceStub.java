@@ -233,7 +233,7 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
         }
 
         try {
-            wrapper.onTaskEnd();
+            wrapper.onTaskEnd(errType, errCode);
 
         } catch (RemoteException e) {
             e.printStackTrace();

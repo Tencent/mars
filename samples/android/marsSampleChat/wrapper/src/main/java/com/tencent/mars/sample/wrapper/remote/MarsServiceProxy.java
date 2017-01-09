@@ -161,7 +161,7 @@ public class MarsServiceProxy implements ServiceConnection {
         if (queue.remove(marsTaskWrapper)) {
             // Remove from queue, not exec yet, call MarsTaskWrapper::onTaskEnd
             try {
-                marsTaskWrapper.onTaskEnd();
+                marsTaskWrapper.onTaskEnd(-1, -1);
 
             } catch (RemoteException e) {
                 // Called in client, ignore RemoteException
