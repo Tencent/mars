@@ -72,13 +72,12 @@ public class TextMessageTask extends NanoMarsTaskWrapper<Chat.SendMessageRequest
     }
 
     @Override
-    public void onTaskEnd() {
+    public void onTaskEnd(int errType, int errCode) {
         if (callback == null) {
             callback = onError;
         }
 
         uiHandler.post(callback);
-        super.onTaskEnd();
     }
 
     public TextMessageTask onOK(Runnable onOK) {
