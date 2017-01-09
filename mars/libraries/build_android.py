@@ -248,7 +248,7 @@ def main():
                 shutil.rmtree(SO_CACHE_DIR)
 
             for i in range(0, len(archs)):
-                print "build %s" %(archs[i])
+                print ("build %s" %(archs[i]))
 
                 arch = archs[i]
 

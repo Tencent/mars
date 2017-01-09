@@ -110,7 +110,7 @@ def parse_as_git():
 
 def gen_revision_file(save_path, tag):
     now_path = os.path.dirname(os.path.abspath(__file__))
-    print now_path
+    print (now_path)
 
     # TRY AS SVN
     revision, path, url = parse_as_svn()
@@ -162,7 +162,7 @@ def gen_revision_file(save_path, tag):
 
     output += html
 
-    print ''.join(output.splitlines())
+    print (''.join(output.splitlines()))
 
 def get_revision(path):
 
