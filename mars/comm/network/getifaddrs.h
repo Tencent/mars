@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <string.h>
 
 struct ifaddrinfo_ipv4_t
 {

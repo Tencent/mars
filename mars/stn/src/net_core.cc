@@ -100,13 +100,6 @@ inline  static bool __ValidAndInitDefault(Task& _task, XLogger& _group) {
 
 static const int kShortlinkErrTime = 3;
 
-enum {
-    kCallFromLong,
-    kCallFromShort,
-    kCallFromZombie,
-};
-
-
 
 NetCore::NetCore()
     : messagequeue_creater_(true, XLOGGER_TAG)
@@ -220,8 +213,7 @@ NetCore::~NetCore() {
 #ifdef USE_LONG_LINK
     GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, signalling_keeper_, _1, _2, _3));
     
-    longlink_task_manager_->LongLinkChannel().SignalConnection.disconnect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
-    longlink_task_manager_->LongLinkChannel().SignalConnection.disconnect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
+    longlink_task_manager_->LongLinkChannel().SignalConnection.disconnect_all_slots();
     longlink_task_manager_->LongLinkChannel().broadcast_linkstatus_signal_.disconnect_all_slots();
 
     push_preprocess_signal_.disconnect_all_slots();
@@ -497,6 +489,12 @@ bool NetCore::LongLinkIsConnected() {
 }
 
 int NetCore::__CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime) {
+
+	if (task_callback_hook_ && 0 == task_callback_hook_(_from, _err_type, _err_code, _fail_handle, _task)) {
+		xwarn2(TSF"task_callback_hook let task return. taskid:%_, cgi%_.", _task.taskid, _task.cgi);
+		return 0;
+	}
+
     if (kEctOK == _err_type || kTaskFailHandleTaskEnd == _fail_handle)
     	return OnTaskEnd(_task.taskid, _task.user_context, _err_type, _err_code);
 

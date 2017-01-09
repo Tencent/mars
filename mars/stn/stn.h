@@ -44,6 +44,7 @@ public:
     
     static const int kChannelNormalStrategy = 0;
     static const int kChannelFastStrategy = 1;
+    static const int kChannelDisasterRecoveryStategy = 2;
     
     static const int kTaskPriorityHighest = 0;
     static const int kTaskPriority0 = 0;

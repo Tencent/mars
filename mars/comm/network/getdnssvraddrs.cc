@@ -58,9 +58,6 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
     res_ndestroy(&stat);
 }
 
-#elif defined WP8
-void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
-}
 #elif defined _WIN32
 #include <stdio.h>
 #include <windows.h>
@@ -86,5 +83,6 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
     return;
 }
 #else
-#error "no imp"
+void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
+}
 #endif

@@ -22,6 +22,7 @@
 #define STN_SRC_LONGLINK_PACKER_H_
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #define LONGLINK_UNPACK_CONTINUE (-2)
 #define LONGLINK_UNPACK_FALSE (-1)

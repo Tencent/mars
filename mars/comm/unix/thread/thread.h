@@ -373,8 +373,10 @@ class Thread {
         if (0 < strnlen((const char*)runableref->thread_name, sizeof(runableref->thread_name))) {
 #ifdef __APPLE__
             pthread_setname_np((const char*)runableref->thread_name);
-#else
+#elif defined(ANDROID)
             pthread_setname_np(runableref->tid, (const char*)runableref->thread_name);
+#else
+            
 #endif
         }
         
