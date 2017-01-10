@@ -19,20 +19,13 @@
 //
 
 #import <UIKit/UIKit.h>
-
-#import "Chat.pb.h"
-
+#import "Main.pbobjc.h"
 #import "UINotifyDelegate.h"
 #import "PushNotifyDelegate.h"
 
-@interface TopicViewController : UIViewController<UINotifyDelegate, PushNotifyDelegate> {
-    NSString* text;
-}
-
-@property NSString* topicName;
-
+@interface TopicViewController : UIViewController<UINotifyDelegate, PushNotifyDelegate>
+@property (nonatomic, strong) Conversation *conversation;
 @property (weak, nonatomic) IBOutlet UITextField *textField;
-@property (weak, nonatomic) IBOutlet UITextField *contentField;
-@property (weak, nonatomic) IBOutlet UITextField *recvContentField;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @end

@@ -1,5 +1,5 @@
+syntax = "proto2";
 package com.tencent.mars.sample.chat.proto;
-
 
 message MessagePush {
     required string topic = 1;

@@ -24,5 +24,7 @@
     
 }
 
+@property (nonatomic, copy) NSString *username;
+
 @end
 
