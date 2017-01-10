@@ -1,5 +1,5 @@
+syntax = "proto2";
 package com.tencent.mars.sample.proto;
-
 
 enum CmdID {
     CMD_ID_INVALID = -1;

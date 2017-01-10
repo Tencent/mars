@@ -25,6 +25,8 @@
 #import "CGITask.h"
 #import "CommandID.h"
 #import "NetworkService.h"
+#import "AppDelegate.h"
+#import "LoginViewController.h"
 
 @interface PingServerController ()
 
@@ -34,12 +36,16 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        UIStoryboard *sb= [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        LoginViewController *lvc = [sb instantiateViewControllerWithIdentifier:@"LoginViewController"];
+        [self.tabBarController presentViewController:lvc animated:YES completion:nil];
+    });
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (NSString *)username {
+    return [(AppDelegate *)[UIApplication sharedApplication].delegate username];
 }
 
 - (IBAction)onButtonClick:(id)sender forEvent:(UIEvent *)event {
@@ -48,14 +54,19 @@
 }
 
 - (NSData*)requestSendData {
-    HelloRequest* helloRequest = [[[[HelloRequest builder] setUser:@"caoshaokun"] setText:@"Hello world!"] build];
-    NSData* data = [helloRequest data];
+    HelloRequest *helloRequest = [HelloRequest new];
+    helloRequest.user = [self username];
+    helloRequest.text = @"Hello world";
+    NSData *data = [helloRequest data];
     return data;
 }
 
 - (int)onPostDecode:(NSData*)responseData {
-    helloResponse = [HelloResponse parseFromData:responseData];
+    helloResponse = [HelloResponse parseFromData:responseData error:nil];
     if ([helloResponse hasErrmsg]) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:helloResponse.errmsg preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:alert animated:YES completion:nil];
         LOG_INFO(kModuleViewController, @"recv hello response: %@", helloResponse.errmsg);
     }
     

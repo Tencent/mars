@@ -20,11 +20,11 @@
 
 #import <UIKit/UIKit.h>
 
-#import "Main.pb.h"
+#import "Main.pbobjc.h"
 
 #import "UINotifyDelegate.h"
 
-@interface PingServerController : UIViewController<UINotifyDelegate> {
+@interface PingServerController : UIViewController <UINotifyDelegate> {
     HelloResponse* helloResponse;
 }
 
