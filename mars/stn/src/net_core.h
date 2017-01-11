@@ -83,11 +83,11 @@ class NetCore {
     bool    LongLinkIsConnected();
     void    OnNetworkChange();
 
+    void	KeepSignal();
+    void	StopSignal();
+
 #ifdef USE_LONG_LINK
-    SignallingKeeper&    GetSignallingKeeper() {return *signalling_keeper_;}
     LongLinkTaskManager& GetLongLinkTaskManager() {return *longlink_task_manager_;}
-    NetSourceTimerCheck& GetNetSourceTimerCheck() {return *netsource_timercheck_;}
-    ShortLinkTaskManager& GetShortLinkTaskManager() {return *shortlink_task_manager_;}
 #endif
 
   private:

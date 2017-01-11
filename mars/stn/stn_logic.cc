@@ -231,13 +231,13 @@ void SetSignallingStrategy(long _period, long _keepTime) {
 
 void KeepSignalling() {
 #ifdef USE_LONG_LINK
-    STN_WEAK_CALL(GetSignallingKeeper().Keep());
+    STN_WEAK_CALL(KeepSignal());
 #endif
 }
 
 void StopSignalling() {
 #ifdef USE_LONG_LINK
-    STN_WEAK_CALL(GetSignallingKeeper().Stop());
+    STN_WEAK_CALL(StopSignal());
 #endif
 }
 

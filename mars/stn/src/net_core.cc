@@ -25,9 +25,12 @@
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
 
+#include "openssl/export_include/openssl_multi_thread_support.h"
+
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/messagequeue/message_queue.h"
+#include "mars/comm/network/netinfo_util.h"
 #include "mars/comm/socket/local_ipstack.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/singleton.h"
@@ -51,8 +54,7 @@
 
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
-#include "openssl/export_include/openssl_multi_thread_support.h"
-#include "comm/network/netinfo_util.h"
+
 using namespace mars::stn;
 using namespace mars::app;
 
@@ -441,6 +443,14 @@ void NetCore::OnNetworkChange() {
     shortlink_error_count_ = 0;
     
    ASYNC_BLOCK_END
+}
+
+void NetCore::KeepSignal() {
+	signalling_keeper_->Keep();
+}
+
+void NetCore::StopSignal() {
+	signalling_keeper_->Stop();
 }
 
 #ifdef USE_LONG_LINK
