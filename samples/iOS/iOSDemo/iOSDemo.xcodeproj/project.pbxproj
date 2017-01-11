@@ -635,7 +635,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		4B91BAC81DEDB1B700CFD83F /* Run Script - build mars */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			files = (
 			);
 			inputPaths = (
@@ -643,7 +643,7 @@
 			name = "Run Script - build mars";
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\nBUILD_LIB_SCRIPT=${SRCROOT}/Kernel/build_libs_for_sample.py\n\npython $BUILD_LIB_SCRIPT\n\nif [[ $? -eq 1 ]]\nthen\n    exit 1\nfi";
 		};
