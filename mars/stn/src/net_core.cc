@@ -451,6 +451,14 @@ void NetCore::OnNetworkChange() {
    ASYNC_BLOCK_END
 }
 
+void NetCore::KeepSignal() {
+	signalling_keeper_->Keep();
+}
+
+void NetCore::StopSignal() {
+	signalling_keeper_->Stop();
+}
+
 #ifdef USE_LONG_LINK
 #ifdef __APPLE__
 void NetCore::__ResetLongLink() {
