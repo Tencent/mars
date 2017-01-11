@@ -180,6 +180,11 @@ void TcpClient::__Run() {
 
     int ret = ::connect(socket_, (sockaddr*)&_addr, sizeof(_addr));
 
+    std::string local_ip = socket_address::getsockname(socket_).ip();
+    unsigned int local_port = socket_address::getsockname(socket_).port();
+
+    xinfo2(TSF"sock:%_, local_ip:%_, local_port:%_, svr_ip:%_, svr_port:%_", socket_, local_ip, local_port, ip_, port_);
+
     if (0 > ret && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno)) {
         xerror2("connect errno=%d", socket_errno);
         status_ = kTcpConnectingErr;
