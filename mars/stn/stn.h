@@ -220,8 +220,7 @@ extern bool Req2Buf(int32_t taskid,  void* const user_context, AutoBuffer& outbu
 extern int Buf2Resp(int32_t taskid, void* const user_context, const AutoBuffer& inbuffer, int& error_code, const int channel_select);
 //任务执行结束
 extern int  OnTaskEnd(int32_t taskid, void* const user_context, int error_type, int error_code);
-//上报流量数据
-extern void ReportFlow(int32_t wifi_recv, int32_t wifi_send, int32_t mobile_recv, int32_t mobile_send);
+
 //上报网络连接状态
 extern void ReportConnectStatus(int status, int longlink_status);
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2

@@ -55,8 +55,7 @@ public:
     virtual int Buf2Resp(int32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, int& _error_code, const int _channel_select);
     //任务执行结束
     virtual int  OnTaskEnd(int32_t _taskid, void* const _user_context, int _error_type, int _error_code);
-    //上报流量数据
-    virtual void ReportFlow(int32_t _wifi_recv, int32_t _wifi_send, int32_t _mobile_recv, int32_t _mobile_send);
+
     //上报网络连接状态
     virtual void ReportConnectStatus(int _status, int longlink_status);
     //长连信令校验 ECHECK_NOW, ECHECK_NEVER = 1, ECHECK_NEXT = 2
