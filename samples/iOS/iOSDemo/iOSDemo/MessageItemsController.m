@@ -72,23 +72,25 @@
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSString* topicName = converSations[indexPath.row].topic;
-    TopicViewController *topicControl = [[self storyboard]instantiateViewControllerWithIdentifier:@"Topic"];
-    topicControl.topicName = topicName;
+    Conversation *conversation = converSations[indexPath.row];
+    TopicViewController *topicControl = [[self storyboard] instantiateViewControllerWithIdentifier:@"Topic"];
+    topicControl.conversation = conversation;
     [[self navigationController] pushViewController:topicControl animated:YES];
 }
 
 - (NSData*)requestSendData {
     
-    ConversationListRequest* convlstRequest = [[[[ConversationListRequest builder] setType:0] setAccessToken:@"123456"] build];
-    NSData* data = [convlstRequest data];
+    ConversationListRequest *convlstRequest = [ConversationListRequest new];
+    convlstRequest.type = 0;
+    convlstRequest.accessToken = @"123456";
+    NSData *data = [convlstRequest data];
     
     return data;
 }
 
 - (int)onPostDecode:(NSData*)responseData {
-    convlstResponse = [ConversationListResponse parseFromData:responseData];
-    self->converSations = convlstResponse.list;
+    convlstResponse = [ConversationListResponse parseFromData:responseData error:nil];
+    self->converSations = convlstResponse.listArray;
     LOG_INFO(kModuleViewController, @"recv conversation list, size: %lu", (unsigned long)[self->converSations count]);
     
     return [self->converSations count] > 0 ? 0 : -1;

@@ -11,5 +11,6 @@
 
 
 static uint32_t kPushMessageCmdId = 10001;
+#define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
 
 #endif /* Constants_h */
