@@ -11,5 +11,5 @@ interface MarsTaskWrapper {
 
     int buf2resp(in byte[] buf);
 
-    void onTaskEnd();
+    void onTaskEnd(in int errType, in int errCode);
 }

@@ -51,8 +51,6 @@ namespace stn{
         virtual int Buf2Resp(int32_t taskid, void* const user_context, const AutoBuffer& inbuffer, int& error_code, const int channel_select) = 0;
         //任务执行结束
         virtual int  OnTaskEnd(int32_t taskid, void* const user_context, int error_type, int error_code) = 0;
-        //上报流量数据
-        virtual void ReportFlow(int32_t wifi_recv, int32_t wifi_send, int32_t mobile_recv, int32_t mobile_send) = 0;
 
         //上报网络连接状态
         virtual void ReportConnectStatus(int status, int longlink_status) = 0;

@@ -90,10 +90,6 @@ int  StnCallBack::OnTaskEnd(int32_t _taskid, void* const _user_context, int _err
 
 }
 
-void StnCallBack::ReportFlow(int32_t _wifi_recv, int32_t _wifi_send, int32_t _mobile_recv, int32_t _mobile_send) {
-    
-}
-
 void StnCallBack::ReportConnectStatus(int _status, int longlink_status) {
     
     switch (longlink_status) {

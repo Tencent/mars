@@ -220,7 +220,7 @@ public class ConversationActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTaskEnd() {
+            public void onTaskEnd(int errType, int errCode) {
                 runOnUiThread(new Runnable() {
 
                     @Override

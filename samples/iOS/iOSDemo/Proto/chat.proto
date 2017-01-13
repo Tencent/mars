@@ -1,5 +1,5 @@
+syntax = "proto2";
 package com.tencent.mars.sample.chat.proto;
-
 
 message SendMessageRequest {
     required string access_token = 1;
