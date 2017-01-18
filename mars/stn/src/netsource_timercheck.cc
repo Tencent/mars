@@ -181,6 +181,12 @@ bool NetSourceTimerCheck::__TryConnnect(const std::string& _host) {
     if (ip_vec.empty()) dns_util_.GetDNS().GetHostByName(_host, ip_vec);
     if (ip_vec.empty()) return false;
 
+    for (std::vector<std::string>::iterator iter = ip_vec.begin(); iter != ip_vec.end(); ++iter) {
+    	if (*iter == longlink_.Profile().ip) {
+    		return false;
+    	}
+    }
+
     std::vector<uint16_t> port_vec;
     NetSource::GetLonglinkPorts(port_vec);
 
