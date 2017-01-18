@@ -23,7 +23,7 @@
 
 #include "unix_socket.h"
 
-#include <string>
+#include <string.h>
 
 class socket_address {
 

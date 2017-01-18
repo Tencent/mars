@@ -24,9 +24,9 @@ APPLE_COPY_EXT_FILES = {"stn/proto/longlink_packer.h": "longlink_packer.h",
 WIN_COPY_EXT_FILES = {"stn/proto/longlink_packer.h": "longlink_packer.h",
         "stn/proto/stnproto_logic.h": "stnproto_logic.h",
         "stn/proto/longlink_packer.cc__": "longlink_packer.cc.rewriteme",
-        "comm/windows/projdef.h": "mars-open/comm/projdef.h",
-        "comm/windows/sys/cdefs.h": "mars-open/comm/sys/cdefs.h",
-        "comm/windows/sys/time.h": "mars-open/comm/sys/time.h"
+        "comm/windows/projdef.h": "mars/comm/projdef.h",
+        "comm/windows/sys/cdefs.h": "mars/comm/sys/cdefs.h",
+        "comm/windows/sys/time.h": "mars/comm/sys/time.h"
         }
 
 html_css = '''
@@ -196,7 +196,6 @@ def copy_files(src_path, dst_header_path, framework_path, ext_files, child_proje
             "openssl/export_include/aes_crypt.h": "openssl",
             "openssl/export_include/md5_digest.h": "openssl",
             "openssl/export_include/rsa_crypt.h": "openssl",
-            "openssl/export_include/iCoreCrypt.h": "openssl",
             "openssl/export_include/gen_rsa_key_pair.h":"openssl",
             "openssl/export_include/rsa_pss_sha256.h":"openssl",
             "openssl/export_include/ecdsa_verify.h":"openssl",

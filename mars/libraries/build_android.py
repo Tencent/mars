@@ -247,6 +247,11 @@ def main():
             if os.path.exists(SO_CACHE_DIR):
                 shutil.rmtree(SO_CACHE_DIR)
 
+            STATIC_CACHE_DIR = sdk_path + "/static_cache/"
+            STATIC_DES_DIR = sdk_path + "/mars_libs/"
+            if os.path.exists(STATIC_CACHE_DIR):
+                shutil.rmtree(STATIC_CACHE_DIR)
+
             for i in range(0, len(archs)):
                 print ("build %s" %(archs[i]))
 
@@ -266,31 +271,50 @@ def main():
                 else:
                     return 0
 
-                libs_cache_dir = SO_CACHE_DIR + arch
-                symbols_cache_dir = SO_SYMBOL_CACHE_DIR + arch
-                libs_des_dir = SO_DES_DIR + arch
-                symbols_des_dir = SO_SYMBOL_DES_IR + arch
+                if "1" == num or "4" == num:
+                    libs_cache_dir = SO_CACHE_DIR + arch
+                    symbols_cache_dir = SO_SYMBOL_CACHE_DIR + arch
+                    libs_des_dir = SO_DES_DIR + arch
+                    symbols_des_dir = SO_SYMBOL_DES_IR + arch
 
-                if not os.path.exists(libs_cache_dir):
-                    os.makedirs(libs_cache_dir)
-                if not os.path.exists(symbols_cache_dir):
-                    os.makedirs(symbols_cache_dir)
+                    if not os.path.exists(libs_cache_dir):
+                        os.makedirs(libs_cache_dir)
+                    if not os.path.exists(symbols_cache_dir):
+                        os.makedirs(symbols_cache_dir)
 
-                for lib in glob.glob(libs_des_dir + "/*.so"):
-                    shutil.copy(lib, libs_cache_dir)
-                for lib in glob.glob(symbols_des_dir + "/*.so"):
-                    shutil.copy(lib, symbols_cache_dir)
+                    for lib in glob.glob(libs_des_dir + "/*.so"):
+                        shutil.copy(lib, libs_cache_dir)
+                    for lib in glob.glob(symbols_des_dir + "/*.so"):
+                        shutil.copy(lib, symbols_cache_dir)
+
+                if "2" == num or "3" == num:
+                    sta_cache_dir = STATIC_CACHE_DIR + arch
+                    sta_des_dir = STATIC_DES_DIR + arch
+                        
+                    if not os.path.exists(sta_cache_dir):
+                        os.makedirs(sta_cache_dir)
+                    
+                    for lib in glob.glob(sta_des_dir + "/*"):
+                        if  os.path.isfile(lib):
+                            shutil.copy(lib, sta_cache_dir)
+                        else:
+                            for symbollib in glob.glob(sta_des_dir + "/symbols/*.so"):
+                                shutil.copytree(sta_des_dir + "/symbols", sta_cache_dir + "/symbols")
+
+            if "1" == num or "4" == num:
+                if os.path.exists(SO_DES_DIR):
+                    shutil.rmtree(SO_DES_DIR)
+                if os.path.exists(SO_SYMBOL_DES_IR):
+                    shutil.rmtree(SO_SYMBOL_DES_IR)
+                for i in range(0, len(archs)):
+                    shutil.copytree(SO_CACHE_DIR + archs[i], SO_DES_DIR + archs[i])
+                    shutil.copytree(SO_SYMBOL_CACHE_DIR + archs[i], SO_SYMBOL_DES_IR + archs[i])
 
             if "2" == num or "3" == num:
-                return
-
-            if os.path.exists(SO_DES_DIR):
-                shutil.rmtree(SO_DES_DIR)
-            if os.path.exists(SO_SYMBOL_DES_IR):
-                shutil.rmtree(SO_SYMBOL_DES_IR)
-            for i in range(0, len(archs)):
-                shutil.copytree(SO_CACHE_DIR + archs[i], SO_DES_DIR + archs[i])
-                shutil.copytree(SO_SYMBOL_CACHE_DIR + archs[i], SO_SYMBOL_DES_IR + archs[i])
+                if os.path.exists(STATIC_DES_DIR):
+                    shutil.rmtree(STATIC_DES_DIR)
+                for i in range(0, len(archs)):
+                    shutil.copytree(STATIC_CACHE_DIR + archs[i], STATIC_DES_DIR + archs[i])
 
             return
 

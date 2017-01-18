@@ -23,6 +23,9 @@
 
 #include "comm/autobuffer.h"
 #include "comm/socket/unix_socket.h"
+#include "comm/xlogger/xlogger.h"
+#include "comm/thread/mutex.h"
+#include "comm/thread/lock.h"
 
 class XLogger;
 class SocketSelect;
@@ -50,6 +53,17 @@ class TcpServerFSM {
     uint16_t Port() const;
     size_t SendBufLen() {return send_buf_.Length();}
     void Close(bool _notify = true);
+
+    bool WriteFDSet()
+    {
+    	ScopedLock lock (write_fd_set_mutex_);
+    	return is_write_fd_set_;
+    }
+    void WriteFDSet(bool _is_set) {
+    	xverbose_function(TSF"_is_set:%_, is_write_fd_set_:%_", _is_set, is_write_fd_set_);
+    	ScopedLock lock (write_fd_set_mutex_);
+    	is_write_fd_set_  = _is_set;
+    }
 
     virtual TSocketStatus PreSelect(SocketSelect& _sel, XLogger& _log);
     virtual TSocketStatus AfterSelect(SocketSelect& _sel, XLogger& _log);
@@ -80,6 +94,9 @@ class TcpServerFSM {
 
     AutoBuffer send_buf_;
     AutoBuffer recv_buf_;
+
+    bool is_write_fd_set_;
+    Mutex write_fd_set_mutex_;
 };
 
 #endif /* TcpServerFSM_H_ */

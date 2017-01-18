@@ -263,7 +263,7 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
         _alarm.Cancel();
         _alarm.Start(need_active_timeout ? (2* 1000) : (10 * 1000));
     } else {
-        xassert2(false, "send noop fail") >> _log;
+        xerror2("send noop fail");
     }
     
     return suc;
@@ -724,8 +724,7 @@ End:
             if (nwrite_size <= (maxnwrite + it->writelen)) {
                 xinfo2(TSF"taskid:%_, cmdid:%_, taskid:%_ ; ", it->taskid, it->cmdid, it->taskid) >> close_log;
                 break;
-            }
-            else {
+            } else {
                 maxnwrite += it->writelen;
                 xinfo2(TSF"taskid:%_, cmdid:%_, task_info:%_ ; ", it->taskid, it->cmdid, it->task_info) >> close_log;
             }
@@ -753,8 +752,7 @@ End:
 				xinfo2(TSF"taskid:%_, cmdid:%_, task_info:%_; ", taskid, cmdid, sent_taskids[taskid]) >> close_log;
 				if (LONGLINK_UNPACK_CONTINUE == unpackret || LONGLINK_UNPACK_FALSE == unpackret) {
 					break;
-				}
-				else {
+				} else {
 					sent_taskids.erase(taskid);
 					bufrecv.Move(-(int)(packlen));
 				}
@@ -766,7 +764,7 @@ End:
     struct tcp_info _info;
     if (getsocktcpinfo(_sock, &_info) == 0) {
     	char tcp_info_str[1024] = {0};
-    		xinfo2(TSF"task socket close getsocktcpinfo:%_", tcpinfo2str(&_info, tcp_info_str, sizeof(tcp_info_str))) >> close_log;
+        xinfo2(TSF"task socket close getsocktcpinfo:%_", tcpinfo2str(&_info, tcp_info_str, sizeof(tcp_info_str))) >> close_log;
     }
 #endif
 }
