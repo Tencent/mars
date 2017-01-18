@@ -102,8 +102,10 @@ bintray {
     publish = true
 
     pkg {
-        repo = 'maven'
-        userOrg = 'marsopen'
+//        repo = 'maven'
+//        userOrg = 'marsopen'
+        repo = 'mars'
+        userOrg= 'weixin210'
         name = PROJ_NAME
         desc = PROJ_DESCRIPTION
         websiteUrl = PROJ_WEBSITEURL

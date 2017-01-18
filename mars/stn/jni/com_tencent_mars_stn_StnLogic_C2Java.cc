@@ -305,27 +305,15 @@ bool OnLonglinkIdentifyResponse(const AutoBuffer& _response_buffer, const AutoBu
     return ret != 0;
 }
 
+DEFINE_FIND_STATIC_METHOD(KC2Java_trafficData, KC2Java, "trafficData", "(II)V")
 WEAK_FUNC void TrafficData(ssize_t _send, ssize_t _recv) {
-	int net_info = getNetInfo();
-		
-	if (kWifi == net_info) {
-		ReportFlow(_recv, _send, 0, 0);
-	}else if (kMobile == net_info) {
-		ReportFlow(0, 0, _recv, _send);
-	} else {
-	
-	}
-}
-
-DEFINE_FIND_STATIC_METHOD(KC2Java_reportFlowData, KC2Java, "reportFlow", "(IIII)V")
-void ReportFlow(const int _wifi_recv_data_size, const int _wifi_send_data_size, int _mobile_recv_data_size, int _mobile_send_data_size) {
-	xverbose2(TSF"wifiRecvDataSize:%0, wifiSendDataSize:%1, mobileRecvDataSize:%2, mobileSendDataSize:%3", _wifi_recv_data_size, _wifi_send_data_size, _mobile_recv_data_size, _mobile_send_data_size);
 
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
 
-	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportFlowData, (jint)_wifi_recv_data_size, (jint)_wifi_send_data_size, (jint)_mobile_recv_data_size, (jint)_mobile_send_data_size);
+	JNU_CallStaticMethodByMethodInfo(env, KC2Java_trafficData, (jint)_send, (jint)_recv);
+
 }
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_reportNetConnectInfo, KC2Java, "reportConnectStatus", "(II)V")

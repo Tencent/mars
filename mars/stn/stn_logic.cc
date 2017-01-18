@@ -286,11 +286,7 @@ void network_export_symbols_0(){}
 		xassert2(sg_callback != NULL);
 		return sg_callback->OnTaskEnd(taskid, user_context, error_type, error_code);
 	}
-	//上报流量数据
-	void ReportFlow(int32_t wifi_recv, int32_t wifi_send, int32_t mobile_recv, int32_t mobile_send) {
-		xassert2(sg_callback != NULL);
-		sg_callback->ReportFlow(wifi_recv, wifi_send, mobile_recv, mobile_send);
-	}
+
 	//上报网络连接状态
 	void ReportConnectStatus(int status, int longlink_status) {
 		xassert2(sg_callback != NULL);

@@ -196,7 +196,6 @@ def copy_files(src_path, dst_header_path, framework_path, ext_files, child_proje
             "openssl/export_include/aes_crypt.h": "openssl",
             "openssl/export_include/md5_digest.h": "openssl",
             "openssl/export_include/rsa_crypt.h": "openssl",
-            "openssl/export_include/iCoreCrypt.h": "openssl",
             "openssl/export_include/gen_rsa_key_pair.h":"openssl",
             "openssl/export_include/rsa_pss_sha256.h":"openssl",
             "openssl/export_include/ecdsa_verify.h":"openssl",

@@ -112,7 +112,7 @@ void DynamicTimeout::__StatusSwitch(std::string _cgi_uri, int _task_status) {
                 dyntime_latest_bigpkg_goodtime_ = gettickcount();
             }
         }
-        	break;
+        /* no break, next case*/
         case kDynTimeTaskMeetExpectTag:
         {
             if (dyntime_status_ == kEValuating) {

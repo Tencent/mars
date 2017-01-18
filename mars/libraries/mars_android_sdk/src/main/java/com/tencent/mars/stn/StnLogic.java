@@ -222,12 +222,10 @@ public class StnLogic {
 
         /**
          * 流量统计
-         * @param wifiRecv
-         * @param wifiSend
-         * @param mobileRecv
-         * @param mobileSend
+         * @param send
+         * @param recv
          */
-        void reportFlow(final int wifiRecv, final int wifiSend, final int mobileRecv, final int mobileSend);
+        void trafficData(final int send, final int recv);
 
         /**
          * 连接状态通知
@@ -492,18 +490,16 @@ public class StnLogic {
 
     /**
      * 上报信令消耗的流量
-     * @param wifiRecv
-     * @param wifiSend
-     * @param mobileRecv
-     * @param mobileSend
+     * @param send
+     * @param recv
      */
-    private static void reportFlow(final int wifiRecv, final int wifiSend, final int mobileRecv, final int mobileSend) {
+	private static void trafficData(final int send, final int recv) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return;
             }
-            callBack.reportFlow(wifiRecv, wifiSend, mobileRecv, mobileSend);
+            callBack.trafficData(send, recv);
         } catch (Exception e) {
             e.printStackTrace();
         }

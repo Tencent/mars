@@ -263,7 +263,7 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
         _alarm.Cancel();
         _alarm.Start(need_active_timeout ? (2* 1000) : (10 * 1000));
     } else {
-        xassert2(false, "send noop fail") >> _log;
+        xerror2("send noop fail");
     }
     
     return suc;
