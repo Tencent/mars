@@ -249,7 +249,8 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
                     for (; iter != sg_dnsinfo_vec.end(); ++iter) {
                     	xerror2(TSF"sg_info_vec[%_]:%_", i++, DNSInfoToString(*iter));
                     }
-                    //TODO 监控
+                    if (monitor_func_)
+                    	monitor_func_(kDNSThreadIDError);
             		xassert2(false, TSF"_host_name:%_, it->host_name:%_", _host_name, it->host_name);
             		return false;
             	}
