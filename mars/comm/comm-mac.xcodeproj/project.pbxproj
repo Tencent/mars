@@ -38,7 +38,7 @@
 		4B299C011CEF0AEA00E2315B /* boost_exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B299C001CEF0AEA00E2315B /* boost_exception.cc */; };
 		4B3C3E0A1E120D9400351897 /* netinfo_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B3C3E081E120D9400351897 /* netinfo_util.cc */; };
 		4B3C3E211E1210A100351897 /* complexconnect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B3C3E201E1210A100351897 /* complexconnect.cc */; };
-		4BB712531DE8149B00185734 /* socketselect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712511DE8149B00185734 /* socketselect.cc */; };
+		4B3D44411E36F11500F69213 /* socketselect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B3D443F1E36F11500F69213 /* socketselect.cc */; };
 		4BB712F71DE8229A00185734 /* loginfo_extract.c in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712F51DE8229A00185734 /* loginfo_extract.c */; };
 		55D917841CC7BD7A0076CBD9 /* message_queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D9093D1CC7BD760076CBD9 /* message_queue.cc */; };
 		55D917851CC7BD7A0076CBD9 /* message_queue_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D9093F1CC7BD760076CBD9 /* message_queue_utils.cc */; };
@@ -141,8 +141,8 @@
 		4B3C3E081E120D9400351897 /* netinfo_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = netinfo_util.cc; sourceTree = "<group>"; };
 		4B3C3E091E120D9400351897 /* netinfo_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netinfo_util.h; sourceTree = "<group>"; };
 		4B3C3E201E1210A100351897 /* complexconnect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = complexconnect.cc; sourceTree = "<group>"; };
-		4BB712511DE8149B00185734 /* socketselect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketselect.cc; sourceTree = "<group>"; };
-		4BB712521DE8149B00185734 /* socketselect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketselect.h; sourceTree = "<group>"; };
+		4B3D443F1E36F11500F69213 /* socketselect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketselect.cc; sourceTree = "<group>"; };
+		4B3D44401E36F11500F69213 /* socketselect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketselect.h; sourceTree = "<group>"; };
 		4BB712F51DE8229A00185734 /* loginfo_extract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loginfo_extract.c; sourceTree = "<group>"; };
 		4BB712F61DE8229A00185734 /* loginfo_extract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loginfo_extract.h; sourceTree = "<group>"; };
 		4BE038FE1DE7F0C70004CD84 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/CoreWLAN.framework; sourceTree = DEVELOPER_DIR; };
@@ -563,13 +563,13 @@
 			);
 			sourceTree = "<group>";
 		};
-		4BB712501DE8149B00185734 /* SocketSelect */ = {
+		4B3D443E1E36F11500F69213 /* socketselect */ = {
 			isa = PBXGroup;
 			children = (
-				4BB712511DE8149B00185734 /* socketselect.cc */,
-				4BB712521DE8149B00185734 /* socketselect.h */,
+				4B3D443F1E36F11500F69213 /* socketselect.cc */,
+				4B3D44401E36F11500F69213 /* socketselect.h */,
 			);
-			path = SocketSelect;
+			path = socketselect;
 			sourceTree = "<group>";
 		};
 		4BE038FD1DE7F0C70004CD84 /* Frameworks */ = {
@@ -761,7 +761,7 @@
 		55D90B0A1CC7BD770076CBD9 /* unix */ = {
 			isa = PBXGroup;
 			children = (
-				4BB712501DE8149B00185734 /* SocketSelect */,
+				4B3D443E1E36F11500F69213 /* socketselect */,
 				55D90B0E1CC7BD770076CBD9 /* thread */,
 			);
 			path = unix;
@@ -859,6 +859,7 @@
 				1F25BFDB1CD37AF500AC1003 /* utf8_codecvt_facet.cpp in Sources */,
 				4B0280831DE70343001721C0 /* http.cc in Sources */,
 				1F25BFDC1CD37AF500AC1003 /* windows_file_codecvt.cpp in Sources */,
+				4B3D44411E36F11500F69213 /* socketselect.cc in Sources */,
 				1F25BFDD1CD37AF500AC1003 /* windows_file_codecvt.hpp in Sources */,
 				1F25BFDE1CD37AF500AC1003 /* file_descriptor.cpp in Sources */,
 				1F25BFDF1CD37AF500AC1003 /* mapped_file.cpp in Sources */,
@@ -909,7 +910,6 @@
 				55D918501CC7BD7A0076CBD9 /* alarm.cc in Sources */,
 				55D9186E1CC7BD7A0076CBD9 /* platform_comm.mm in Sources */,
 				55D918531CC7BD7A0076CBD9 /* autobuffer.cc in Sources */,
-				4BB712531DE8149B00185734 /* socketselect.cc in Sources */,
 				55D918791CC7BD7A0076CBD9 /* tinyxml2.cc in Sources */,
 				55D9184C1CC7BD7A0076CBD9 /* getifaddrs.cc in Sources */,
 				55D918751CC7BD7A0076CBD9 /* strutil.cc in Sources */,
