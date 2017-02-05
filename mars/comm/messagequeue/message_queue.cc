@@ -33,6 +33,7 @@
 #include "comm/anr.h"
 #include "comm/messagequeue/message_queue.h"
 #include "comm/time_utils.h"
+#include "comm/xlogger/xlogger.h"
 #ifdef __APPLE__
 #include "comm/debugger/debugger_utils.h"
 #endif
@@ -630,6 +631,8 @@ void RunLoop::Run() {
         ScopedLock lock(sg_messagequeue_map_mutex);
         sg_messagequeue_map[id].lst_runloop_info.push_back(RunLoopInfo());
     }
+    
+    xinfo_function(TSF"messagequeue id:%_", id);
 
     while (true) {
         ScopedLock lock(sg_messagequeue_map_mutex);
@@ -766,7 +769,7 @@ void MessageQueueCreater::__ThreadRunloop() {
     lock.unlock();
     
     RunLoop().Run();
-    messagequeue_id_ = 0;
+    
 }
 
 MessageQueue_t MessageQueueCreater::GetMessageQueue() {
@@ -780,7 +783,8 @@ MessageQueue_t MessageQueueCreater::CreateMessageQueue() {
 
     if (0 != thread_.start()) { return KInvalidQueueID;}
     messagequeue_id_ = __CreateMessageQueueInfo(breaker_, thread_.tid());
-
+    xinfo2(TSF"create messageqeue id:%_", messagequeue_id_);
+    
     return messagequeue_id_;
 }
 

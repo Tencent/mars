@@ -93,7 +93,7 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
             decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
             decompress_data = bytearray()
             while len(tmpbuffer) > 0:
-                single_log_len = struct.unpack_from("H", tmpbuffer[0:2])[0]
+                single_log_len = struct.unpack_from("H", buffer(tmpbuffer, 0, 2))[0]
                 #decompress_data.extend(base64.decodestring(tmpbuffer[2:single_log_len+2]))
                 decompress_data.extend(tmpbuffer[2:single_log_len+2])
                 tmpbuffer[:] = tmpbuffer[single_log_len+2:len(tmpbuffer)]
