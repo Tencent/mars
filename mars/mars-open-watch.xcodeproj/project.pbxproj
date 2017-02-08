@@ -11,13 +11,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		1F59CE9E1E4B17CC003A69E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1F59CE9A1E4B17CC003A69E5 /* stn-watch.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3170A027177887B0004F5DDA;
-			remoteInfo = network;
-		};
 		1F59CEB31E4B17FC003A69E5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */;
@@ -45,34 +38,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 3170A027177887B0004F5DDA;
 			remoteInfo = "log-watch";
-		};
-		1F59CEBF1E4B17FC003A69E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1F59CEA31E4B17FC003A69E5 /* openssl-watch.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3170A027177887B0004F5DDA;
-			remoteInfo = "openssl-watch";
-		};
-		1F59CEC21E4B17FC003A69E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1F59CEA01E4B17FC003A69E5 /* sdt-watch.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3170A027177887B0004F5DDA;
-			remoteInfo = netchecker;
-		};
-		1F59D1F41E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1F59CEA01E4B17FC003A69E5 /* sdt-watch.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 3170A026177887B0004F5DDA;
-			remoteInfo = "sdt-watch";
-		};
-		1F59D1F61E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1F59CEA31E4B17FC003A69E5 /* openssl-watch.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 3170A026177887B0004F5DDA;
-			remoteInfo = "openssl-watch";
 		};
 		1F59D1F81E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -102,12 +67,19 @@
 			remoteGlobalIDString = 3170A026177887B0004F5DDA;
 			remoteInfo = "app-watch";
 		};
-		1F59D2001E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
+		1F59D7431E4B509F003A69E5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 1F59CE9A1E4B17CC003A69E5 /* stn-watch.xcodeproj */;
+			containerPortal = 1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = "openssl-watch";
+		};
+		1F59D7451E4B50A6003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = 3170A026177887B0004F5DDA;
-			remoteInfo = "stn-watch";
+			remoteInfo = "openssl-watch";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -124,13 +96,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1F59CE9A1E4B17CC003A69E5 /* stn-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "stn-watch.xcodeproj"; path = "stn/stn-watch.xcodeproj"; sourceTree = "<group>"; };
-		1F59CEA01E4B17FC003A69E5 /* sdt-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "sdt-watch.xcodeproj"; path = "sdt/sdt-watch.xcodeproj"; sourceTree = "<group>"; };
-		1F59CEA31E4B17FC003A69E5 /* openssl-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "openssl-watch.xcodeproj"; path = "openssl/openssl-watch.xcodeproj"; sourceTree = "<group>"; };
 		1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "log-watch.xcodeproj"; path = "log/log-watch.xcodeproj"; sourceTree = "<group>"; };
 		1F59CEA91E4B17FC003A69E5 /* comm-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "comm-watch.xcodeproj"; path = "comm/comm-watch.xcodeproj"; sourceTree = "<group>"; };
 		1F59CEAC1E4B17FC003A69E5 /* baseevent-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "baseevent-watch.xcodeproj"; path = "baseevent/baseevent-watch.xcodeproj"; sourceTree = "<group>"; };
 		1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "app-watch.xcodeproj"; path = "app/app-watch.xcodeproj"; sourceTree = "<group>"; };
+		1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "openssl-watch.xcodeproj"; path = "openssl/openssl-watch.xcodeproj"; sourceTree = "<group>"; };
 		3170A027177887B0004F5DDA /* libmars-open-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmars-open-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -147,30 +117,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1F59CE9B1E4B17CC003A69E5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				1F59CE9F1E4B17CC003A69E5 /* libnetwork.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		1F59CEA11E4B17FC003A69E5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				1F59CEC31E4B17FC003A69E5 /* libnetchecker.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		1F59CEA41E4B17FC003A69E5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				1F59CEC01E4B17FC003A69E5 /* libopenssl-watch.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		1F59CEA71E4B17FC003A69E5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -190,7 +136,7 @@
 		1F59CEAD1E4B17FC003A69E5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1F59CEB71E4B17FC003A69E5 /* libbaseprj-watch.a */,
+				1F59CEB71E4B17FC003A69E5 /* libbaseevent-watch.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -198,7 +144,15 @@
 		1F59CEB01E4B17FC003A69E5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1F59CEB41E4B17FC003A69E5 /* libmmcomm-watch.a */,
+				1F59CEB41E4B17FC003A69E5 /* libapp-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1F59D7401E4B509F003A69E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F59D7441E4B509F003A69E5 /* libopenssl-watch.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -206,13 +160,11 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
-				1F59CEA01E4B17FC003A69E5 /* sdt-watch.xcodeproj */,
-				1F59CEA31E4B17FC003A69E5 /* openssl-watch.xcodeproj */,
+				1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */,
 				1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */,
 				1F59CEA91E4B17FC003A69E5 /* comm-watch.xcodeproj */,
 				1F59CEAC1E4B17FC003A69E5 /* baseevent-watch.xcodeproj */,
 				1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */,
-				1F59CE9A1E4B17CC003A69E5 /* stn-watch.xcodeproj */,
 				3170A029177887B0004F5DDA /* Frameworks */,
 				3170A028177887B0004F5DDA /* Products */,
 			);
@@ -249,13 +201,11 @@
 			buildRules = (
 			);
 			dependencies = (
-				1F59D1F51E4B1AE8003A69E5 /* PBXTargetDependency */,
-				1F59D1F71E4B1AE8003A69E5 /* PBXTargetDependency */,
+				1F59D7461E4B50A6003A69E5 /* PBXTargetDependency */,
 				1F59D1F91E4B1AE8003A69E5 /* PBXTargetDependency */,
 				1F59D1FB1E4B1AE8003A69E5 /* PBXTargetDependency */,
 				1F59D1FD1E4B1AE8003A69E5 /* PBXTargetDependency */,
 				1F59D1FF1E4B1AE8003A69E5 /* PBXTargetDependency */,
-				1F59D2011E4B1AE8003A69E5 /* PBXTargetDependency */,
 			);
 			name = "mars-open-watch";
 			productName = PublicComponent;
@@ -299,16 +249,8 @@
 					ProjectRef = 1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */;
 				},
 				{
-					ProductGroup = 1F59CEA41E4B17FC003A69E5 /* Products */;
-					ProjectRef = 1F59CEA31E4B17FC003A69E5 /* openssl-watch.xcodeproj */;
-				},
-				{
-					ProductGroup = 1F59CEA11E4B17FC003A69E5 /* Products */;
-					ProjectRef = 1F59CEA01E4B17FC003A69E5 /* sdt-watch.xcodeproj */;
-				},
-				{
-					ProductGroup = 1F59CE9B1E4B17CC003A69E5 /* Products */;
-					ProjectRef = 1F59CE9A1E4B17CC003A69E5 /* stn-watch.xcodeproj */;
+					ProductGroup = 1F59D7401E4B509F003A69E5 /* Products */;
+					ProjectRef = 1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -319,21 +261,14 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		1F59CE9F1E4B17CC003A69E5 /* libnetwork.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libstn-watch.a";
-			remoteRef = 1F59CE9E1E4B17CC003A69E5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		1F59CEB41E4B17FC003A69E5 /* libmmcomm-watch.a */ = {
+		1F59CEB41E4B17FC003A69E5 /* libapp-watch.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libapp-watch.a";
 			remoteRef = 1F59CEB31E4B17FC003A69E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		1F59CEB71E4B17FC003A69E5 /* libbaseprj-watch.a */ = {
+		1F59CEB71E4B17FC003A69E5 /* libbaseevent-watch.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libbaseevent-watch.a";
@@ -354,18 +289,11 @@
 			remoteRef = 1F59CEBC1E4B17FC003A69E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		1F59CEC01E4B17FC003A69E5 /* libopenssl-watch.a */ = {
+		1F59D7441E4B509F003A69E5 /* libopenssl-watch.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = "libopenssl-watch.a";
-			remoteRef = 1F59CEBF1E4B17FC003A69E5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		1F59CEC31E4B17FC003A69E5 /* libnetchecker.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libsdt-watch.a";
-			remoteRef = 1F59CEC21E4B17FC003A69E5 /* PBXContainerItemProxy */;
+			remoteRef = 1F59D7431E4B509F003A69E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -398,16 +326,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		1F59D1F51E4B1AE8003A69E5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "sdt-watch";
-			targetProxy = 1F59D1F41E4B1AE8003A69E5 /* PBXContainerItemProxy */;
-		};
-		1F59D1F71E4B1AE8003A69E5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "openssl-watch";
-			targetProxy = 1F59D1F61E4B1AE8003A69E5 /* PBXContainerItemProxy */;
-		};
 		1F59D1F91E4B1AE8003A69E5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "log-watch";
@@ -428,10 +346,10 @@
 			name = "app-watch";
 			targetProxy = 1F59D1FE1E4B1AE8003A69E5 /* PBXContainerItemProxy */;
 		};
-		1F59D2011E4B1AE8003A69E5 /* PBXTargetDependency */ = {
+		1F59D7461E4B50A6003A69E5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = "stn-watch";
-			targetProxy = 1F59D2001E4B1AE8003A69E5 /* PBXContainerItemProxy */;
+			name = "openssl-watch";
+			targetProxy = 1F59D7451E4B50A6003A69E5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
