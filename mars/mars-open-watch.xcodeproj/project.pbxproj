@@ -322,21 +322,21 @@
 		1F59CE9F1E4B17CC003A69E5 /* libnetwork.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libnetwork.a;
+			path = "libstn-watch.a";
 			remoteRef = 1F59CE9E1E4B17CC003A69E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		1F59CEB41E4B17FC003A69E5 /* libmmcomm-watch.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = "libmmcomm-watch.a";
+			path = "libapp-watch.a";
 			remoteRef = 1F59CEB31E4B17FC003A69E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		1F59CEB71E4B17FC003A69E5 /* libbaseprj-watch.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = "libbaseprj-watch.a";
+			path = "libbaseevent-watch.a";
 			remoteRef = 1F59CEB61E4B17FC003A69E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -364,7 +364,7 @@
 		1F59CEC31E4B17FC003A69E5 /* libnetchecker.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libnetchecker.a;
+			path = "libsdt-watch.a";
 			remoteRef = 1F59CEC21E4B17FC003A69E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -544,7 +544,7 @@
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = all;
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
-				VALID_ARCHS = "i386 armv7 arm64 x86_64";
+				VALID_ARCHS = "i386 armv7k";
 			};
 			name = Debug;
 		};
@@ -598,7 +598,7 @@
 				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_STYLE = all;
 				SUPPORTED_PLATFORMS = "watchsimulator watchos";
-				VALID_ARCHS = "i386 armv7 arm64 x86_64";
+				VALID_ARCHS = "i386 armv7k";
 			};
 			name = Release;
 		};
