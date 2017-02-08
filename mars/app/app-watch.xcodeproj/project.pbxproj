@@ -7,9 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13A2285B19755CB40035828E /* Objc2C_Comm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13A2285519755CB40035828E /* Objc2C_Comm.mm */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
-		13A2285C19755CB40035828E /* baseprj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13A2285719755CB40035828E /* baseprj.cpp */; };
-		13A2285D19755CB40035828E /* baseprjevent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13A2285919755CB40035828E /* baseprjevent.cpp */; };
+		1F59D30C1E4B1B92003A69E5 /* app_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D3061E4B1B92003A69E5 /* app_logic.cc */; };
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
@@ -26,12 +24,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		13A2285519755CB40035828E /* Objc2C_Comm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Objc2C_Comm.mm; sourceTree = "<group>"; };
-		13A2285719755CB40035828E /* baseprj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = baseprj.cpp; sourceTree = "<group>"; };
-		13A2285819755CB40035828E /* baseprj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = baseprj.h; sourceTree = "<group>"; };
-		13A2285919755CB40035828E /* baseprjevent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = baseprjevent.cpp; sourceTree = "<group>"; };
-		13A2285A19755CB40035828E /* baseprjevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = baseprjevent.h; sourceTree = "<group>"; };
-		3170A027177887B0004F5DDA /* libbaseprj-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libbaseprj-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F59D3061E4B1B92003A69E5 /* app_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = app_logic.cc; sourceTree = "<group>"; };
+		1F59D3071E4B1B92003A69E5 /* app_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app_logic.h; sourceTree = "<group>"; };
+		1F59D3081E4B1B92003A69E5 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app.h; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libapp-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libapp-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -47,21 +43,9 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13A2285419755CB40035828E /* objc */ = {
+		1F59D3091E4B1B92003A69E5 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				13A2285519755CB40035828E /* Objc2C_Comm.mm */,
-			);
-			path = objc;
-			sourceTree = "<group>";
-		};
-		13A2285619755CB40035828E /* src */ = {
-			isa = PBXGroup;
-			children = (
-				13A2285719755CB40035828E /* baseprj.cpp */,
-				13A2285819755CB40035828E /* baseprj.h */,
-				13A2285919755CB40035828E /* baseprjevent.cpp */,
-				13A2285A19755CB40035828E /* baseprjevent.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -69,8 +53,10 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
-				13A2285419755CB40035828E /* objc */,
-				13A2285619755CB40035828E /* src */,
+				1F59D3061E4B1B92003A69E5 /* app_logic.cc */,
+				1F59D3071E4B1B92003A69E5 /* app_logic.h */,
+				1F59D3081E4B1B92003A69E5 /* app.h */,
+				1F59D3091E4B1B92003A69E5 /* src */,
 				3170A029177887B0004F5DDA /* Frameworks */,
 				3170A028177887B0004F5DDA /* Products */,
 			);
@@ -79,7 +65,7 @@
 		3170A028177887B0004F5DDA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3170A027177887B0004F5DDA /* libbaseprj-watch.a */,
+				3170A027177887B0004F5DDA /* libapp-watch.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +81,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3170A026177887B0004F5DDA /* baseprj-watch */ = {
+		3170A026177887B0004F5DDA /* app-watch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "baseprj-watch" */;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "app-watch" */;
 			buildPhases = (
 				3170A023177887B0004F5DDA /* Sources */,
 				3170A024177887B0004F5DDA /* Frameworks */,
@@ -107,9 +93,9 @@
 			);
 			dependencies = (
 			);
-			name = "baseprj-watch";
+			name = "app-watch";
 			productName = PublicComponent;
-			productReference = 3170A027177887B0004F5DDA /* libbaseprj-watch.a */;
+			productReference = 3170A027177887B0004F5DDA /* libapp-watch.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -121,7 +107,7 @@
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = Tencent;
 			};
-			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "baseprj-watch" */;
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "app-watch" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -133,7 +119,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3170A026177887B0004F5DDA /* baseprj-watch */,
+				3170A026177887B0004F5DDA /* app-watch */,
 			);
 		};
 /* End PBXProject section */
@@ -143,9 +129,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				13A2285B19755CB40035828E /* Objc2C_Comm.mm in Sources */,
-				13A2285D19755CB40035828E /* baseprjevent.cpp in Sources */,
-				13A2285C19755CB40035828E /* baseprj.cpp in Sources */,
+				1F59D30C1E4B1B92003A69E5 /* app_logic.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,7 +195,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				DSTROOT = /tmp/mmcomm.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
@@ -227,7 +211,12 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				HEADER_SEARCH_PATHS = ../comm;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;
 				ONLY_ACTIVE_ARCH = NO;
@@ -251,7 +240,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
-				DSTROOT = "/tmp/$(PROJECT_NAME).dst";
+				DSTROOT = /tmp/mmcomm.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
@@ -267,7 +256,12 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_UNUSED_FUNCTION = YES;
-				HEADER_SEARCH_PATHS = ../comm;
+				HEADER_SEARCH_PATHS = (
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;
 				ONLY_ACTIVE_ARCH = NO;
@@ -288,7 +282,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "baseprj-watch" */ = {
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "app-watch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3170A033177887B0004F5DDA /* Debug */,
@@ -297,7 +291,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "baseprj-watch" */ = {
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "app-watch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3170A036177887B0004F5DDA /* Debug */,
