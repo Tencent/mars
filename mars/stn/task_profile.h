@@ -22,7 +22,6 @@
 #define TASK_PROFILE_H_
 
 #include <list>
-#include <sstream>
 
 #include "boost/shared_ptr.hpp"
 
@@ -91,6 +90,7 @@ struct ConnectProfile {
         tryip_count = 0;
 
         local_ip.clear();
+        local_port = 0;
         ip_index = -1;
         
         disconn_time = 0;
@@ -125,6 +125,7 @@ struct ConnectProfile {
     std::string host;
     IPSourceType ip_type;
     std::string local_ip;
+    uint16_t local_port;
     int ip_index;
     
     uint64_t disconn_time;

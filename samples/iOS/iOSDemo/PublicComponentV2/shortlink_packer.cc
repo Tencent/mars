@@ -13,20 +13,26 @@
 /*
  * shortlink_packer.cc
  *
- *  Created on: 2016年3月15日
+ *  Created on: 2016-03-15
  *      Author: yanguoyue
  */
 
 #include "shortlink_packer.h"
+#include "mars/comm/http.h"
 
 
 using namespace http;
+namespace mars { namespace stn {
 
-void shortlink_pack(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, AutoBuffer& _out_buff) {
+shortlink_tracker* (*shortlink_tracker::Create)()
+=  []() { return new shortlink_tracker; };
+
+void (*shortlink_pack)(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _out_buff, shortlink_tracker* _tracker)
+= [](const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _out_buff, shortlink_tracker* _tracker) {
 
 	Builder req_builder(kRequest);
 	req_builder.Request().Method(RequestLine::kPost);
-	req_builder.Request().Version(kVersion_1_0);
+	req_builder.Request().Version(kVersion_1_1);
 
 	req_builder.Fields().HeaderFiled(HeaderFields::MakeAcceptAll());
 	req_builder.Fields().HeaderFiled(HeaderFields::KStringUserAgent, HeaderFields::KStringMicroMessenger);
@@ -45,7 +51,7 @@ void shortlink_pack(const std::string& _url, const std::map<std::string, std::st
 	req_builder.Request().Url(_url);
 	req_builder.HeaderToBuffer(_out_buff);
 	_out_buff.Write(_body.Ptr(), _body.Length());
-}
+};
 
-
+}}
 

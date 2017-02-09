@@ -26,7 +26,7 @@
 #include "mars/sdt/constants.h"
 #include "mars/sdt/sdt_logic.h"
 
-#include "checkimpl/httpquery.h"
+#include "sdt/src/checkimpl/httpquery.h"
 
 using namespace mars::sdt;
 

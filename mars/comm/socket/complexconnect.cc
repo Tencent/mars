@@ -34,7 +34,7 @@ namespace COMPLEX_CONNECT_NAMESPACE {
 #endif
     
 ComplexConnect::ComplexConnect(unsigned int _timeout, unsigned int _interval)
-    : timeout_(_timeout), interval_(_interval), error_interval_(_interval), max_connect_(3), trycount_(0), index_(-1), errcode_(0)
+    : timeout_(_timeout), interval_(_interval), error_interval_(_interval), max_connect_(2), trycount_(0), index_(-1), errcode_(0)
     , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0)
 {}
 
@@ -132,7 +132,7 @@ class ConnectCheckFSM : public TcpClientFSM {
 static bool __isconnecting(const ConnectCheckFSM* _ref) { return NULL != _ref && INVALID_SOCKET != _ref->Socket(); }
 }
 
-SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketSelectBreaker& _breaker, MComplexConnect* _observer) {
+SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketBreaker& _breaker, MComplexConnect* _observer) {
     trycount_ = 0;
     index_ = -1;
     errcode_ = 0;
@@ -244,6 +244,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
 
+                errcode_ = vecsocketfsm[i]->Error();
                 vecsocketfsm[i]->Close();
                 delete vecsocketfsm[i];
                 vecsocketfsm[i] = NULL;
@@ -255,6 +256,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
 
+                errcode_ = vecsocketfsm[i]->Error();
                 vecsocketfsm[i]->Close();
                 delete vecsocketfsm[i];
                 vecsocketfsm[i] = NULL;

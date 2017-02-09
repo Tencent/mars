@@ -100,6 +100,7 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
         } else {
             // default value
+            interval += random() % (20);
         }
     }
 
@@ -156,11 +157,11 @@ bool LongLinkConnectMonitor::NetworkChange() {
     return 0 == __IntervalConnect(kNetworkChangeConnect);
 }
 
-unsigned long LongLinkConnectMonitor::__IntervalConnect(int _type) {
+uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
-    unsigned long interval =  __Interval(_type, activelogic_) * 1000;
-    unsigned long posttime = gettickcount() - longlink_.Profile().dns_time;
+    uint64_t interval =  __Interval(_type, activelogic_) * 1000;
+    uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
 
     if (posttime >= interval) {
         bool newone = false;
@@ -173,9 +174,9 @@ unsigned long LongLinkConnectMonitor::__IntervalConnect(int _type) {
     }
 }
 
-unsigned long  LongLinkConnectMonitor::__AutoIntervalConnect() {
+uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
     alarm_.Cancel();
-    unsigned long remain = __IntervalConnect(kLongLinkConnect);
+    uint64_t remain = __IntervalConnect(kLongLinkConnect);
 
     if (0 == remain) return remain;
 

@@ -53,8 +53,11 @@ class AutoBuffer {
     void Write(const off_t& _pos, const char* const _val)
     { Write(_pos, _val, strlen(_val));}
 
+    void Write(const AutoBuffer& _buffer);
     void Write(const void* _pbuffer, size_t _len);
+    void Write(off_t& _pos, const AutoBuffer& _buffer);
     void Write(off_t& _pos, const void* _pbuffer, size_t _len);
+    void Write(const off_t& _pos, const AutoBuffer& _buffer);
     void Write(const off_t& _pos, const void* _pbuffer, size_t _len);
     void Write(TSeek _seek, const void* _pbuffer, size_t _len);
 

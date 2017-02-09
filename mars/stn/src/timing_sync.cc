@@ -42,7 +42,7 @@ static int GetAlarmTime(bool _is_actived)
 {
     int time = 0;
     //todo
-    if (_is_actived && !IsLogoned())
+    if (_is_actived && !::GetAccountInfo().is_logoned)
     {
         time = UNLOGIN_SYNC_INTERVAL;
     }

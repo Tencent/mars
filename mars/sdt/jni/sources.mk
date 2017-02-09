@@ -11,6 +11,10 @@ include $(LOCAL_PATH)/../../mk_template/util.mk
 
 LOCAL_CFLAGS += -fvisibility=hidden
 
+SRC := $(wildcard $(TEMP_LOCAL_PATH)/*.cc)
+SRC := $(SRC:$(LOCAL_PATH)/%=%)
+LOCAL_SRC_FILES += $(SRC)
+
 SRC := $(wildcard $(TEMP_LOCAL_PATH)/../*.cc)
 SRC := $(SRC:$(LOCAL_PATH)/%=%)
 LOCAL_SRC_FILES += $(SRC)

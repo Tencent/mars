@@ -29,7 +29,7 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/socket_address.h"
 
-#include "netchecker_trafficmonitor.h"
+#include "sdt/src/tools/netchecker_trafficmonitor.h"
 
 #define TRAFFIC_LIMIT_RET_CODE (INT_MIN)
 #define DNS_PORT (53)

@@ -39,7 +39,6 @@ std::string& ToUpper(std::string& str);
 
 bool StartsWith(const std::string& str, const std::string& substr);
 bool EndsWith(const std::string& str, const std::string& substr);
-bool EqualsIgnoreCase(const std::string& str1, const std::string& str2);
 
 std::vector<std::string>& SplitToken(const std::string& str,
                                      const std::string& delimiters, std::vector<std::string>& ss);
@@ -53,7 +52,6 @@ std::wstring& Trim(std::wstring& str);
 
 bool StartsWith(const std::wstring& str, const std::wstring& substr);
 bool EndsWith(const std::wstring& str, const std::wstring& substr);
-bool EqualsIgnoreCase(const std::wstring& str1, const std::wstring& str2);
 
 std::wstring& ToLower(std::wstring& str);
 std::wstring& ToUpper(std::wstring& str);
@@ -62,13 +60,14 @@ std::vector<std::wstring>& SplitToken(const std::wstring& str,
                                       const std::wstring& delimiters, std::vector<std::wstring>& ss);
 
 // Tokenizer class
-inline std::string default_delimiters(std::string) {return " \t\n\r";}
-inline std::wstring default_delimiters(std::wstring) {return L" \t\n\r";}
-
+template<class T> struct default_delimiters {};
+template<> struct default_delimiters<std::string>  { static const char* value() { return " \t\n\r;:,.?";} };
+template<> struct default_delimiters<std::wstring> { static const wchar_t* value() { return L" \t\n\r;:,.?";}};
+    
 template<class T>
 class Tokenizer {
   public:
-    Tokenizer(const T& str, const T& delimiters = default_delimiters(T()))
+    Tokenizer(const T& str, const T& delimiters = default_delimiters<T>::value())
         : offset_(0), string_(str),  delimiters_(delimiters) {}
 
     void Reset() {offset_ = 0;}
@@ -135,7 +134,6 @@ template<typename T1, typename T2> bool MergeToken(const T1& begin, const T1& en
 std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
 
-unsigned int Str2UInt(const std::string& _str);
 std::string ReplaceChar(const char* const input_str, char be_replaced='@', char replace_with='.');
 }
 

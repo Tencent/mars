@@ -20,6 +20,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved)
     
     if (0 != pthread_key_create(&g_env_key, __DetachCurrentThread)) {
         __android_log_print(ANDROID_LOG_ERROR, "MicroMsg", "create g_env_key fail");
+        return(-1);
     }
     
     ScopeJEnv jenv(jvm);
@@ -29,8 +30,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved)
     LoadClass(jenv.GetEnv());
     LoadStaticMethod(jenv.GetEnv());
     LoadMethod(jenv.GetEnv());
-    
-    std::vector<JniOnload_t>& ref = BootRegister_Container<JniOnload_t>() ;
+
+    std::vector<JniOnload_t>& ref = BOOT_REGISTER_CONTAINER<JniOnload_t>() ;
     for (std::vector<JniOnload_t>::const_iterator it= ref.begin(); it!=ref.end(); ++it)
     {
     	it->func(jvm, reserved);

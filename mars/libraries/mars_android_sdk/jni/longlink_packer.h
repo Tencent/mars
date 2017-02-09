@@ -12,7 +12,7 @@
 
 
 /*
- * longlink_packer.cpp
+ * longlink_packer.h
  *
  *  Created on: 2012-7-18
  *      Author: yerungui
@@ -28,25 +28,64 @@
 #define LONGLINK_UNPACK_FALSE (-1)
 #define LONGLINK_UNPACK_OK (0)
 
+//for HTTP2
+#define LONGLINK_UNPACK_STREAM_END LONGLINK_UNPACK_OK
+#define LONGLINK_UNPACK_STREAM_PACKAGE (1)
+
 #ifndef __cplusplus
 #error "support cpp only"
 #endif
 
 class AutoBuffer;
 
-void longlink_pack(uint32_t _cmdid, uint32_t _seq, const void* _raw, size_t _raw_len, AutoBuffer& _packed);
-int  longlink_unpack(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body);
+namespace mars {
+    namespace stn {
+    
+class longlink_tracker {
+public:
+    static longlink_tracker* (*Create)();
+    
+public:
+    virtual ~longlink_tracker(){};
+};
+
+/**
+ * package the request data
+ * _cmdid: business identifier
+ * _seq: task id
+ * _raw: business send buffer
+ * _packed: business send buffer + request header
+ */
+extern void (*longlink_pack)(uint32_t _cmdid, uint32_t _seq, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _packed, longlink_tracker* _tracker);
+
+/**
+ * unpackage the response data
+ * _packed: data received from server
+ * _cmdid: business identifier
+ * _seq: task id
+ * _package_len:
+ * _body: business receive buffer
+ * return: 0 if unpackage succ
+ */
+extern int  (*longlink_unpack)(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body, AutoBuffer& _extension, longlink_tracker* _tracker);
 
 //heartbeat signal to keep longlink network alive
-uint32_t longlink_noop_cmdid();
-uint32_t longlink_noop_resp_cmdid();
-uint32_t signal_keep_cmdid();
-void longlink_noop_req_body(AutoBuffer& _body);
-void longlink_noop_resp_body(AutoBuffer& _body);
+extern uint32_t (*longlink_noop_cmdid)();
+extern bool  (*longlink_noop_isresp)(uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
+extern uint32_t (*signal_keep_cmdid)();
+extern void (*longlink_noop_req_body)(AutoBuffer& _body, AutoBuffer& _extend);
+extern void (*longlink_noop_resp_body)(const AutoBuffer& _body, const AutoBuffer& _extend);
 
-uint32_t longlink_noop_interval();
+extern uint32_t (*longlink_noop_interval)();
 
-bool longlink_complexconnect_need_verify();
-bool is_push_data(uint32_t _cmdid, uint32_t _taskid);
+extern bool (*longlink_complexconnect_need_verify)();
 
+/**
+ * return: whether the received data is pushing from server or not
+ */
+extern bool  (*longlink_ispush)(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
+extern bool  (*longlink_identify_isresp)(uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
+
+}
+}
 #endif // STN_SRC_LONGLINKPACKER_H_
