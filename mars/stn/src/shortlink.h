@@ -78,7 +78,6 @@ class ShortLink : public ShortLinkInterface {
     AutoBuffer                      send_extend_;
     
     boost::scoped_ptr<shortlink_tracker> tracker_;
-	int                             status_code_;
 };
         
 }}
