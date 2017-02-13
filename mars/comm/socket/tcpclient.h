@@ -94,7 +94,7 @@ class TcpClient {
     MTcpEvent& event_;
 
     SOCKET socket_;
-    bool have_read_date_;
+    bool have_read_data_;
     bool will_disconnect_;
     int writedbufid_;
     std::list<AutoBuffer*> lst_buffer_;
