@@ -35,7 +35,7 @@
 
 TcpClient::TcpClient(const char* _ip, uint16_t _port, MTcpEvent& _event, int _timeout)
     : ip_(strdup(_ip)) , port_(_port) , event_(_event)
-    , socket_(INVALID_SOCKET) , have_read_date_(false) , will_disconnect_(false) , writedbufid_(0)
+    , socket_(INVALID_SOCKET) , have_read_data_(false) , will_disconnect_(false) , writedbufid_(0)
     , thread_(boost::bind(&TcpClient::__RunThread, this))
     , timeout_(_timeout), status_(kTcpInit) {
     if (!pipe_.IsCreateSuc()) status_ = kTcpInitErr;
@@ -92,7 +92,7 @@ void TcpClient::DisconnectAndWait() {
 bool TcpClient::HaveDataRead() const {
     if (kTcpConnected != status_) return false;
 
-    return have_read_date_;
+    return have_read_data_;
 }
 
 ssize_t TcpClient::Read(void* _buf, unsigned int _len) {
@@ -102,7 +102,7 @@ ssize_t TcpClient::Read(void* _buf, unsigned int _len) {
     ScopedLock lock(read_disconnect_mutex_);
     ssize_t ret = recv(socket_, (char*)_buf, _len, 0);
 
-    have_read_date_ = false;
+    have_read_data_ = false;
     __SendBreak();
 
     return ret;
@@ -240,7 +240,7 @@ void TcpClient::__Run() {
         select_readwrite.PreSelect();
         select_readwrite.Exception_FD_SET(socket_);
 
-        if (!have_read_date_) select_readwrite.Read_FD_SET(socket_);
+        if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
 
         {
             ScopedLock lock(write_mutex_);
@@ -286,12 +286,12 @@ void TcpClient::__Run() {
             ret = (int)recv(socket_, &buf_test, 1, MSG_PEEK);
 
             if (0 < ret) {
-                have_read_date_ = true;
+                have_read_data_ = true;
 
                 lock.unlock();
                 event_.OnRead();
             } else if (0 == ret) {
-                have_read_date_ = false;
+                have_read_data_ = false;
                 status_ = kTcpDisConnected;
                 lock.unlock();
                 event_.OnDisConnect(true);

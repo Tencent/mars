@@ -180,7 +180,6 @@
 		13E9F2DA19754DE5007591EC /* strutil.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = strutil.cc; sourceTree = "<group>"; };
 		13E9F2DB19754DE5007591EC /* strutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strutil.h; sourceTree = "<group>"; };
 		13E9F2DD19754DE5007591EC /* atomic_oper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomic_oper.h; sourceTree = "<group>"; };
-		13E9F2DE19754DE5007591EC /* bind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bind.h; sourceTree = "<group>"; };
 		13E9F2DF19754DE5007591EC /* condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = condition.h; sourceTree = "<group>"; };
 		13E9F2E019754DE5007591EC /* lock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lock.h; sourceTree = "<group>"; };
 		13E9F2E119754DE5007591EC /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -446,7 +445,6 @@
 			isa = PBXGroup;
 			children = (
 				13E9F2DD19754DE5007591EC /* atomic_oper.h */,
-				13E9F2DE19754DE5007591EC /* bind.h */,
 				13E9F2DF19754DE5007591EC /* condition.h */,
 				13E9F2E019754DE5007591EC /* lock.h */,
 				13E9F2E119754DE5007591EC /* mutex.h */,

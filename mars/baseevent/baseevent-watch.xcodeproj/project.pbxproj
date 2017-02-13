@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1F59D1F11E4B1ADA003A69E5 /* appender.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D1ED1E4B1ADA003A69E5 /* appender.cc */; };
-		1F59D1F21E4B1ADA003A69E5 /* formater.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D1EE1E4B1ADA003A69E5 /* formater.cc */; };
-		1F59D1F31E4B1ADA003A69E5 /* log_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D1EF1E4B1ADA003A69E5 /* log_buffer.cc */; };
+		1F59D3031E4B1B74003A69E5 /* active_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D3001E4B1B74003A69E5 /* active_logic.cc */; };
+		1F59D3041E4B1B74003A69E5 /* baseprj.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D3011E4B1B74003A69E5 /* baseprj.cc */; };
+		1F59D3051E4B1B74003A69E5 /* baseprjevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D3021E4B1B74003A69E5 /* baseprjevent.cc */; };
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
@@ -26,12 +26,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1F59D1ED1E4B1ADA003A69E5 /* appender.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = appender.cc; sourceTree = "<group>"; };
-		1F59D1EE1E4B1ADA003A69E5 /* formater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formater.cc; sourceTree = "<group>"; };
-		1F59D1EF1E4B1ADA003A69E5 /* log_buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_buffer.cc; sourceTree = "<group>"; };
-		1F59D1F01E4B1ADA003A69E5 /* log_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_buffer.h; sourceTree = "<group>"; };
-		1F59D3631E4B1BE8003A69E5 /* appender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = appender.h; sourceTree = "<group>"; };
-		3170A027177887B0004F5DDA /* liblog-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblog-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F59D2FB1E4B1B74003A69E5 /* active_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = active_logic.h; sourceTree = "<group>"; };
+		1F59D2FC1E4B1B74003A69E5 /* base_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_logic.h; sourceTree = "<group>"; };
+		1F59D2FD1E4B1B74003A69E5 /* baseevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = baseevent.h; sourceTree = "<group>"; };
+		1F59D2FE1E4B1B74003A69E5 /* baseprjevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = baseprjevent.h; sourceTree = "<group>"; };
+		1F59D3001E4B1B74003A69E5 /* active_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = active_logic.cc; sourceTree = "<group>"; };
+		1F59D3011E4B1B74003A69E5 /* baseprj.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = baseprj.cc; sourceTree = "<group>"; };
+		1F59D3021E4B1B74003A69E5 /* baseprjevent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = baseprjevent.cc; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libbaseevent-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libbaseevent-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -47,13 +49,12 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1F59D1EC1E4B1ADA003A69E5 /* src */ = {
+		1F59D2FF1E4B1B74003A69E5 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				1F59D1ED1E4B1ADA003A69E5 /* appender.cc */,
-				1F59D1EE1E4B1ADA003A69E5 /* formater.cc */,
-				1F59D1EF1E4B1ADA003A69E5 /* log_buffer.cc */,
-				1F59D1F01E4B1ADA003A69E5 /* log_buffer.h */,
+				1F59D3001E4B1B74003A69E5 /* active_logic.cc */,
+				1F59D3011E4B1B74003A69E5 /* baseprj.cc */,
+				1F59D3021E4B1B74003A69E5 /* baseprjevent.cc */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -61,8 +62,11 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
-				1F59D3631E4B1BE8003A69E5 /* appender.h */,
-				1F59D1EC1E4B1ADA003A69E5 /* src */,
+				1F59D2FB1E4B1B74003A69E5 /* active_logic.h */,
+				1F59D2FC1E4B1B74003A69E5 /* base_logic.h */,
+				1F59D2FD1E4B1B74003A69E5 /* baseevent.h */,
+				1F59D2FE1E4B1B74003A69E5 /* baseprjevent.h */,
+				1F59D2FF1E4B1B74003A69E5 /* src */,
 				3170A029177887B0004F5DDA /* Frameworks */,
 				3170A028177887B0004F5DDA /* Products */,
 			);
@@ -71,7 +75,7 @@
 		3170A028177887B0004F5DDA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3170A027177887B0004F5DDA /* liblog-watch.a */,
+				3170A027177887B0004F5DDA /* libbaseevent-watch.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,9 +91,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3170A026177887B0004F5DDA /* log-watch */ = {
+		3170A026177887B0004F5DDA /* baseevent-watch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "log-watch" */;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "baseevent-watch" */;
 			buildPhases = (
 				3170A023177887B0004F5DDA /* Sources */,
 				3170A024177887B0004F5DDA /* Frameworks */,
@@ -99,9 +103,9 @@
 			);
 			dependencies = (
 			);
-			name = "log-watch";
+			name = "baseevent-watch";
 			productName = PublicComponent;
-			productReference = 3170A027177887B0004F5DDA /* liblog-watch.a */;
+			productReference = 3170A027177887B0004F5DDA /* libbaseevent-watch.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -113,7 +117,7 @@
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = Tencent;
 			};
-			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "log-watch" */;
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "baseevent-watch" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -125,7 +129,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3170A026177887B0004F5DDA /* log-watch */,
+				3170A026177887B0004F5DDA /* baseevent-watch */,
 			);
 		};
 /* End PBXProject section */
@@ -135,9 +139,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F59D1F11E4B1ADA003A69E5 /* appender.cc in Sources */,
-				1F59D1F21E4B1ADA003A69E5 /* formater.cc in Sources */,
-				1F59D1F31E4B1ADA003A69E5 /* log_buffer.cc in Sources */,
+				1F59D3051E4B1B74003A69E5 /* baseprjevent.cc in Sources */,
+				1F59D3031E4B1B74003A69E5 /* active_logic.cc in Sources */,
+				1F59D3041E4B1B74003A69E5 /* baseprj.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,8 +225,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					$SOURCE_ROOT/,
-					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../comm,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -266,8 +270,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
 					$SOURCE_ROOT/,
-					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../comm,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -290,7 +294,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "log-watch" */ = {
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "baseevent-watch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3170A033177887B0004F5DDA /* Debug */,
@@ -299,7 +303,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "log-watch" */ = {
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "baseevent-watch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3170A036177887B0004F5DDA /* Debug */,

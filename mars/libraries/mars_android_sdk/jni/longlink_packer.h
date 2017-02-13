@@ -83,6 +83,10 @@ extern bool (*longlink_complexconnect_need_verify)();
 /**
  * return: whether the received data is pushing from server or not
  */
+
+/**
+ * return: whether the received data is pushing from server or not
+ */
 extern bool  (*longlink_ispush)(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 extern bool  (*longlink_identify_isresp)(uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
 
