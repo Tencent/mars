@@ -75,6 +75,7 @@ class LongLinkConnectObserver : public MComplexConnect {
         } else {
             xwarn2(TSF"index:%_, connnet fail host:%_, iptype:%_", _index, ip_items_[_index].str_host, ip_items_[_index].source_type);
             xassert2(longlink_.fun_network_report_);
+            connecting_index_[_index] = 0;
 
             if (longlink_.fun_network_report_) {
                 longlink_.fun_network_report_(__LINE__, kEctSocket, _error, _addr.ip(), _addr.port());
@@ -95,6 +96,9 @@ class LongLinkConnectObserver : public MComplexConnect {
     }
 
     virtual bool OnVerifyRecv(unsigned int _index, const socket_address& _addr, SOCKET _socket, const AutoBuffer& _buffer_recv) {
+        
+        connecting_index_[_index] = 0;
+        
         uint32_t cmdid = 0;
         uint32_t  taskid = Task::kInvalidTaskID;
         size_t pack_len = 0;
@@ -104,6 +108,9 @@ class LongLinkConnectObserver : public MComplexConnect {
 
         if (LONGLINK_UNPACK_OK != ret) {
             xerror2(TSF"0>ret, index:%_, sock:%_, %_, ret:%_, cmdid:%_, taskid:%_, pack_len:%_, recv_len:%_", _index, _socket, _addr.url(), ret, cmdid, taskid, pack_len, _buffer_recv.Length());
+            if (longlink_.fun_network_report_) {
+                longlink_.fun_network_report_(__LINE__, kEctSocket, SOCKET_ERRNO(EBADMSG), _addr.ip(), _addr.port());
+            }
             return false;
         }
 
@@ -111,7 +118,6 @@ class LongLinkConnectObserver : public MComplexConnect {
             xwarn2(TSF"index:%_, sock:%_, %_, ret:%_, cmdid:%_, taskid:%_, pack_len:%_, recv_len:%_", _index, _socket, _addr.url(), ret, cmdid, taskid, pack_len, _buffer_recv.Length());
         }
 
-        connecting_index_[_index] = 0;
         return true;
     }
     char connecting_index_[32];
