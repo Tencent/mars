@@ -65,7 +65,7 @@
 #include <openssl/rand.h>
 #include <openssl/x509.h>
 #include <openssl/pem.h>
-//#include <openssl/pkcs12.h>
+#include <openssl/pkcs12.h>
 #include "asn1_locl.h"
 #ifndef OPENSSL_NO_DES
 # include <openssl/des.h>
@@ -84,43 +84,49 @@ int pem_check_suffix(const char *pem_str, const char *suffix);
 
 int PEM_def_callback(char *buf, int num, int w, void *key)
 {
-//#ifdef OPENSSL_NO_FP_API
+#ifdef OPENSSL_NO_FP_API
     /*
      * We should not ever call the default callback routine from windows.
      */
     PEMerr(PEM_F_PEM_DEF_CALLBACK, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
     return (-1);
-//#else
-//    int i, j;
-//    const char *prompt;
-//    if (key) {
-//        i = strlen(key);
-//        i = (i > num) ? num : i;
-//        memcpy(buf, key, i);
-//        return (i);
-//    }
-//
-//    prompt = EVP_get_pw_prompt();
-//    if (prompt == NULL)
-//        prompt = "Enter PEM pass phrase:";
-//
-//    for (;;) {
-//        i = EVP_read_pw_string_min(buf, MIN_LENGTH, num, prompt, w);
-//        if (i != 0) {
-//            PEMerr(PEM_F_PEM_DEF_CALLBACK, PEM_R_PROBLEMS_GETTING_PASSWORD);
-//            memset(buf, 0, (unsigned int)num);
-//            return (-1);
-//        }
-//        j = strlen(buf);
-//        if (j < MIN_LENGTH) {
-//            fprintf(stderr,
-//                    "phrase is too short, needs to be at least %d chars\n",
-//                    MIN_LENGTH);
-//        } else
-//            break;
-//    }
-//    return (j);
-//#endif
+#else
+    int i, j;
+    const char *prompt;
+    if (key) {
+        i = strlen(key);
+        i = (i > num) ? num : i;
+        memcpy(buf, key, i);
+        return (i);
+    }
+
+    prompt = EVP_get_pw_prompt();
+    if (prompt == NULL)
+        prompt = "Enter PEM pass phrase:";
+
+    for (;;) {
+        /*
+         * We assume that w == 0 means decryption,
+         * while w == 1 means encryption
+         */
+        int min_len = w ? MIN_LENGTH : 0;
+
+        i = EVP_read_pw_string_min(buf, min_len, num, prompt, w);
+        if (i != 0) {
+            PEMerr(PEM_F_PEM_DEF_CALLBACK, PEM_R_PROBLEMS_GETTING_PASSWORD);
+            memset(buf, 0, (unsigned int)num);
+            return (-1);
+        }
+        j = strlen(buf);
+        if (min_len && j < min_len) {
+            fprintf(stderr,
+                    "phrase is too short, needs to be at least %d chars\n",
+                    min_len);
+        } else
+            break;
+    }
+    return (j);
+#endif
 }
 
 void PEM_proc_type(char *buf, int type)
@@ -160,6 +166,7 @@ void PEM_dek_info(char *buf, const char *type, int len, char *str)
     buf[j + i * 2] = '\n';
     buf[j + i * 2 + 1] = '\0';
 }
+
 #ifndef OPENSSL_NO_FP_API
 void *PEM_ASN1_read(d2i_of_void *d2i, const char *name, FILE *fp, void **x,
                     pem_password_cb *cb, void *u)
@@ -228,6 +235,10 @@ static int check_pem(const char *nm, const char *name)
         }
         return 0;
     }
+    /* If reading DH parameters handle X9.42 DH format too */
+    if (!strcmp(nm, PEM_STRING_DHXPARAMS) &&
+        !strcmp(name, PEM_STRING_DHPARAMS))
+        return 1;
 
     /* Permit older strings */
 
@@ -343,7 +354,7 @@ int PEM_ASN1_write_bio(i2d_of_void *i2d, const char *name, BIO *bp,
 
     if (enc != NULL) {
         objstr = OBJ_nid2sn(EVP_CIPHER_nid(enc));
-        if (objstr == NULL) {
+        if (objstr == NULL || EVP_CIPHER_iv_length(enc) == 0) {
             PEMerr(PEM_F_PEM_ASN1_WRITE_BIO, PEM_R_UNSUPPORTED_CIPHER);
             goto err;
         }
@@ -382,7 +393,7 @@ int PEM_ASN1_write_bio(i2d_of_void *i2d, const char *name, BIO *bp,
         }
         RAND_add(data, i, 0);   /* put in the RSA key. */
         OPENSSL_assert(enc->iv_len <= (int)sizeof(iv));
-        if (RAND_pseudo_bytes(iv, enc->iv_len) < 0) /* Generate a salt */
+        if (RAND_bytes(iv, enc->iv_len) <= 0) /* Generate a salt */
             goto err;
         /*
          * The 'iv' is used as the iv and as a salt.  It is NOT taken from
@@ -434,7 +445,7 @@ int PEM_ASN1_write_bio(i2d_of_void *i2d, const char *name, BIO *bp,
 int PEM_do_header(EVP_CIPHER_INFO *cipher, unsigned char *data, long *plen,
                   pem_password_cb *callback, void *u)
 {
-    int i, j, o, klen;
+    int i = 0, j, o, klen;
     long len;
     EVP_CIPHER_CTX ctx;
     unsigned char key[EVP_MAX_KEY_LENGTH];
@@ -471,8 +482,9 @@ int PEM_do_header(EVP_CIPHER_INFO *cipher, unsigned char *data, long *plen,
     EVP_CIPHER_CTX_cleanup(&ctx);
     OPENSSL_cleanse((char *)buf, sizeof(buf));
     OPENSSL_cleanse((char *)key, sizeof(key));
-    j += i;
-    if (!o) {
+    if (o)
+        j += i;
+    else {
         PEMerr(PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT);
         return (0);
     }
@@ -573,8 +585,8 @@ static int load_iv(char **fromp, unsigned char *to, int num)
 }
 
 #ifndef OPENSSL_NO_FP_API
-int PEM_write(FILE *fp, char *name, char *header, unsigned char *data,
-              long len)
+int PEM_write(FILE *fp, const char *name, const char *header,
+              const unsigned char *data, long len)
 {
     BIO *b;
     int ret;
@@ -590,8 +602,8 @@ int PEM_write(FILE *fp, char *name, char *header, unsigned char *data,
 }
 #endif
 
-int PEM_write_bio(BIO *bp, const char *name, char *header,
-                  unsigned char *data, long len)
+int PEM_write_bio(BIO *bp, const char *name, const char *header,
+                  const unsigned char *data, long len)
 {
     int nlen, n, i, j, outl;
     unsigned char *buf = NULL;

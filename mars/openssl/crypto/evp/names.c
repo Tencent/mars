@@ -61,7 +61,7 @@
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/x509.h>
-extern void OPENSSL_init(void);
+
 int EVP_add_cipher(const EVP_CIPHER *c)
 {
     int r;

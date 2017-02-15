@@ -161,7 +161,7 @@ typedef struct tagCURSORINFO {
 #  define CURSOR_SHOWING     0x00000001
 # endif                         /* CURSOR_SHOWING */
 
-# if !defined(OPENSSL_SYS_WINCE) && !UWP
+# if !defined(OPENSSL_SYS_WINCE)
 typedef BOOL(WINAPI *CRYPTACQUIRECONTEXTW) (HCRYPTPROV *, LPCWSTR, LPCWSTR,
                                             DWORD, DWORD);
 typedef BOOL(WINAPI *CRYPTGENRANDOM) (HCRYPTPROV, DWORD, BYTE *);
@@ -202,8 +202,8 @@ int RAND_poll(void)
     HCRYPTPROV hProvider = 0;
     DWORD w;
     int good = 0;
-#if UWP
-#elif defined(OPENSSL_SYS_WINCE)
+
+# if defined(OPENSSL_SYS_WINCE)
 #  if defined(_WIN32_WCE) && _WIN32_WCE>=300
     /*
      * Even though MSDN says _WIN32_WCE>=210, it doesn't seem to be available
@@ -564,12 +564,10 @@ int RAND_poll(void)
 
     /* timer data */
     readtimer();
-	
+
     /* memory usage statistics */
-#if !UWP
     GlobalMemoryStatus(&m);
     RAND_add(&m, sizeof(m), 1);
-#endif
 
     /* process ID */
     w = GetCurrentProcessId();
@@ -627,7 +625,6 @@ void RAND_screen(void)
     readscreen();
 }
 
-
 /* feed timing information to the PRNG */
 static void readtimer(void)
 {
@@ -652,52 +649,17 @@ static void readtimer(void)
 #  define have_tsc 0
 # endif
 
+    if (have_perfc) {
+        if (QueryPerformanceCounter(&l) == 0)
+            have_perfc = 0;
+        else
+            RAND_add(&l, sizeof(l), 0);
+    }
 
-
-# if !defined(UWP)
-	if (have_perfc) {
-		if (QueryPerformanceCounter(&l) == 0)
-			have_perfc = 0;
-		else
-			RAND_add(&l, sizeof(l), 0);
-	}
-
-	if (!have_tsc && !have_perfc) {
-
-		w = GetTickCount();
-		RAND_add(&w, sizeof(w), 0);
-	} 
-#else
-	//uwp , use QueryPerformanceCounter and GetSystemTimeAsFileTime, add by andrewu
-#include <time.h>
-
-	unsigned int nEntropyCount = 0;
-	for (unsigned int i = 0; i < ENTROPY_NEEDED; ++i)
-	{
-
-		if (QueryPerformanceCounter(&l) != 0)
-		{
-			RAND_add(&l, sizeof(l), 1);
-			nEntropyCount += 1;
-		}
-		else {
-			break;
-		}
-	}
-
-	int nTimeEntropy = 0;
-	if (nEntropyCount < ENTROPY_NEEDED)
-	{
-		nTimeEntropy = ENTROPY_NEEDED - nTimeEntropy;
-	}
-
-	FILETIME ft;
-	GetSystemTimeAsFileTime(&ft);
-	w = ft.dwLowDateTime;
-	RAND_add(&w, sizeof(w), (double)nTimeEntropy);
-
-
-#endif
+    if (!have_tsc && !have_perfc) {
+        w = GetTickCount();
+        RAND_add(&w, sizeof(w), 0);
+    }
 }
 
 /* feed screen contents to PRNG */
@@ -720,11 +682,9 @@ static void readtimer(void)
 
 static void readscreen(void)
 {
-# if !defined(OPENSSL_SYS_WINCE) && !defined(OPENSSL_SYS_WIN32_CYGWIN) && !UWP
+# if !defined(OPENSSL_SYS_WINCE) && !defined(OPENSSL_SYS_WIN32_CYGWIN)
     HDC hScrDC;                 /* screen DC */
-    HDC hMemDC;                 /* memory DC */
     HBITMAP hBitmap;            /* handle for our bitmap */
-    HBITMAP hOldBitmap;         /* handle for previous bitmap */
     BITMAP bm;                  /* bitmap properties */
     unsigned int size;          /* size of bitmap */
     char *bmbits;               /* contents of bitmap */
@@ -732,13 +692,13 @@ static void readscreen(void)
     int h;                      /* screen height */
     int y;                      /* y-coordinate of screen lines to grab */
     int n = 16;                 /* number of screen lines to grab at a time */
+    BITMAPINFOHEADER bi;        /* info about the bitmap */
 
     if (check_winnt() && OPENSSL_isservice() > 0)
         return;
 
-    /* Create a screen DC and a memory DC compatible to screen DC */
-    hScrDC = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
-    hMemDC = CreateCompatibleDC(hScrDC);
+    /* Get a reference to the screen DC */
+    hScrDC = GetDC(NULL);
 
     /* Get screen resolution */
     w = GetDeviceCaps(hScrDC, HORZRES);
@@ -747,12 +707,21 @@ static void readscreen(void)
     /* Create a bitmap compatible with the screen DC */
     hBitmap = CreateCompatibleBitmap(hScrDC, w, n);
 
-    /* Select new bitmap into memory DC */
-    hOldBitmap = SelectObject(hMemDC, hBitmap);
-
     /* Get bitmap properties */
     GetObject(hBitmap, sizeof(BITMAP), (LPSTR) & bm);
     size = (unsigned int)bm.bmWidthBytes * bm.bmHeight * bm.bmPlanes;
+
+    bi.biSize = sizeof(BITMAPINFOHEADER);
+    bi.biWidth = bm.bmWidth;
+    bi.biHeight = bm.bmHeight;
+    bi.biPlanes = bm.bmPlanes;
+    bi.biBitCount = bm.bmBitsPixel;
+    bi.biCompression = BI_RGB;
+    bi.biSizeImage = 0;
+    bi.biXPelsPerMeter = 0;
+    bi.biYPelsPerMeter = 0;
+    bi.biClrUsed = 0;
+    bi.biClrImportant = 0;
 
     bmbits = OPENSSL_malloc(size);
     if (bmbits) {
@@ -760,11 +729,9 @@ static void readscreen(void)
         for (y = 0; y < h - n; y += n) {
             unsigned char md[MD_DIGEST_LENGTH];
 
-            /* Bitblt screen DC to memory DC */
-            BitBlt(hMemDC, 0, 0, w, n, hScrDC, 0, y, SRCCOPY);
-
-            /* Copy bitmap bits from memory DC to bmbits */
-            GetBitmapBits(hBitmap, size, bmbits);
+            /* Copy the bits of the current line range into the buffer */
+            GetDIBits(hScrDC, hBitmap, y, n,
+                      bmbits, (BITMAPINFO *) & bi, DIB_RGB_COLORS);
 
             /* Get the hash of the bitmap */
             MD(bmbits, size, md);
@@ -776,13 +743,9 @@ static void readscreen(void)
         OPENSSL_free(bmbits);
     }
 
-    /* Select old bitmap back into memory DC */
-    hBitmap = SelectObject(hMemDC, hOldBitmap);
-
     /* Clean up */
     DeleteObject(hBitmap);
-    DeleteDC(hMemDC);
-    DeleteDC(hScrDC);
+    ReleaseDC(NULL, hScrDC);
 # endif                         /* !OPENSSL_SYS_WINCE */
 }
 
