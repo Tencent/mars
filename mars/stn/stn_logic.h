@@ -30,6 +30,11 @@
 #include "mars/stn/stn.h"
 
 namespace mars{
+
+namespace comm {
+class ProxyInfo;
+}
+    
 namespace stn{
     //callback interface
     class Callback
@@ -122,6 +127,8 @@ namespace stn{
     void MakesureLonglinkConnected();
     
     bool LongLinkIsConnected();
+    
+    bool LongLinkProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info);
 
     // noop is used to keep longlink conected
     // get noop taskid

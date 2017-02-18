@@ -52,6 +52,9 @@ class SmartHeartbeat;
 
 
 namespace mars {
+    namespace comm {
+        class ProxyInfo;
+    }
     namespace stn {
 
 struct LongLinkSendData {
@@ -133,6 +136,7 @@ class LongLink {
     bool    SendWhenNoData(const unsigned char* _pbuf, size_t _len, uint32_t _cmdid, uint32_t _taskid);
     bool    Stop(uint32_t _taskid);
 
+    bool            LongLinkProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info);
     bool            MakeSureConnected(bool* _newone = NULL);
     void            Disconnect(TDisconnectInternalCode _scene);
     TLongLinkStatus ConnectStatus() const;
@@ -176,6 +180,7 @@ class LongLink {
 
     NetSource::DnsUtil              dns_util_;
     SocketSelectBreaker             connectbreak_;
+    SocketSelectBreaker             testproxybreak_;
     TLongLinkStatus                 connectstatus_;
     ConnectProfile                  conn_profile_;
     TDisconnectInternalCode         disconnectinternalcode_;

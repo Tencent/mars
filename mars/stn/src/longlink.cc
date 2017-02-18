@@ -28,6 +28,7 @@
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/comm_data.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/local_ipstack.h"
 #include "mars/comm/socket/complexconnect.h"
@@ -140,6 +141,7 @@ LongLink::LongLink(NetSource& _netsource, MessageQueue::MessageQueue_t _messageq
 {}
 
 LongLink::~LongLink() {
+    testproxybreak_.Break();
     Disconnect(kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
@@ -187,6 +189,67 @@ bool LongLink::__Send(const unsigned char* _pbuf, size_t _len, uint32_t _cmdid, 
     lstsenddata_.back().task_info = _task_info;
 
     readwritebreak_.Break();
+    return true;
+}
+
+bool LongLink::LongLinkProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info) {
+    xinfo_function(TSF"type:%_ host:%_ ip:%_:%_ username:%_", _proxy_info.type, _proxy_info.host, _proxy_info.ip, _proxy_info.port, _proxy_info.username);
+    
+    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
+    
+    std::vector<IPPortItem> ip_items;
+    std::vector<socket_address> vecaddr;
+    netsource_.GetLongLinkItems(ip_items, dns_util_);
+    
+    for (unsigned int i = 0; i < ip_items.size(); ++i) {
+        if (mars::comm::kProxyNone == _proxy_info.type) {
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(isnat64));
+        } else {
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port));
+        }
+    }
+    
+    if (vecaddr.empty()) {
+        xerror2("task socket close sock:-1 vecaddr empty");
+        return false;
+    }
+    
+    socket_address* proxy_addr = NULL;
+    
+    if (mars::comm::kProxyNone != _proxy_info.type) {
+        xassert2(!_proxy_info.ip.empty() || !_proxy_info.host.empty());
+        std::string proxy_ip = _proxy_info.ip;
+        if (_proxy_info.ip.empty() && !_proxy_info.host.empty()) {
+            std::vector<std::string> ips;
+            if (dns_util_.GetDNS().GetHostByName(_proxy_info.host, ips)) {
+                proxy_ip = ips.front();
+            } else {
+                xwarn2(TSF"dns %_ error", _proxy_info.host);
+                return false;
+            }
+        }
+        proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(isnat64));
+    }
+    
+    LongLinkConnectObserver connect_observer(*this, ip_items);
+    ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);
+    
+    SOCKET sock = com_connect.ConnectImpatient(vecaddr, testproxybreak_, &connect_observer, _proxy_info.type, proxy_addr, _proxy_info.username, _proxy_info.password);
+    
+    if (proxy_addr != NULL) {
+        delete proxy_addr;
+    }
+    
+    if (INVALID_SOCKET == sock) {
+        xwarn2(TSF"test proxy connect fail sock:-1, costtime:%0", com_connect.TotalCost());
+        return false;
+    }
+    
+    xassert2(0 <= com_connect.Index() && (unsigned int)com_connect.Index() < ip_items.size());
+    xinfo2(TSF"test proxy connect suc sock:%_, net:%_", sock, ::getNetInfo());
+
+    socket_close(sock);
+    
     return true;
 }
 
@@ -402,12 +465,17 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::vector<socket_address> vecaddr;
 
     netsource_.GetLongLinkItems(ip_items, dns_util_);
-    xinfo2(TSF"task socket dns ip:%_", NetSource::DumpTable(ip_items));
+    mars::comm::ProxyInfo proxy_info = mars::app::GetLongLinkProxyInfo();
+    xinfo2(TSF"task socket dns ip:%_ proxytype:%_", NetSource::DumpTable(ip_items), proxy_info.type);
     
     bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
     
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
-        vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(isnat64));
+        if (mars::comm::kProxyNone == proxy_info.type) {
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(isnat64));
+        } else {
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port));
+        }
     }
     
     if (vecaddr.empty()) {
@@ -426,11 +494,33 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.dns_endtime = ::gettickcount();
     __UpdateProfile(_conn_profile);
     
+
+    socket_address* proxy_addr = NULL;
+    
+    if (mars::comm::kProxyNone != proxy_info.type) {
+        xassert2(!proxy_info.ip.empty() || !proxy_info.host.empty());
+        std::string proxy_ip = proxy_info.ip;
+        if (proxy_info.ip.empty() && !proxy_info.host.empty()) {
+            std::vector<std::string> ips;
+            if (dns_util_.GetDNS().GetHostByName(proxy_info.host, ips)) {
+                proxy_ip = ips.front();
+            } else {
+                xwarn2(TSF"dns %_ error", proxy_info.host);
+                return false;
+            }
+        }
+        proxy_addr = &((new socket_address(proxy_ip.c_str(), proxy_info.port))->v4tov6_address(isnat64));
+    }
+    
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
     
     LongLinkConnectObserver connect_observer(*this, ip_items);
     ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);
-    SOCKET sock = com_connect.ConnectImpatient(vecaddr, connectbreak_, &connect_observer);
+
+    SOCKET sock = com_connect.ConnectImpatient(vecaddr, connectbreak_, &connect_observer, proxy_info.type, proxy_addr, proxy_info.username, proxy_info.password);
+    if (NULL == proxy_addr) {
+        delete proxy_addr;
+    }
     
     _conn_profile.conn_time = gettickcount();
     _conn_profile.conn_errcode = com_connect.ErrorCode();

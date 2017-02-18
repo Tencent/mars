@@ -23,6 +23,8 @@
 #include <string>
 #include <stdint.h>
 
+#include "mars/comm/comm_data.h"
+
 namespace mars {
 namespace app {
 
@@ -37,6 +39,7 @@ struct DeviceInfo {
 	std::string devicetype;
 };
     
+extern mars::comm::ProxyInfo GetLongLinkProxyInfo();
 extern std::string GetAppFilePath();
 extern AccountInfo GetAccountInfo();
 extern std::string GetUserName();

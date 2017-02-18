@@ -35,6 +35,7 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/comm/comm_data.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/stn/config.h"
 #include "mars/stn/task_profile.h"
@@ -494,6 +495,13 @@ void NetCore::MakeSureLongLinkConnect() {
 bool NetCore::LongLinkIsConnected() {
 #ifdef USE_LONG_LINK
     return LongLink::kConnected == longlink_task_manager_->LongLinkChannel().ConnectStatus();
+#endif
+    return false;
+}
+
+bool NetCore::LongLinkProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info) {
+#ifdef USE_LONG_LINK
+    return longlink_task_manager_->LongLinkChannel().LongLinkProxyIsAvailable(_proxy_info);
 #endif
     return false;
 }

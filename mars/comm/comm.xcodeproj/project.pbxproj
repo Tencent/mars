@@ -266,6 +266,7 @@
 		4B299BE01CEF063600E2315B /* boost_exception.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = boost_exception.cc; sourceTree = "<group>"; };
 		4B5697691DAF6B38001CB37C /* loginfo_extract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loginfo_extract.c; sourceTree = "<group>"; };
 		4B56976A1DAF6B38001CB37C /* loginfo_extract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loginfo_extract.h; sourceTree = "<group>"; };
+		4BA235231E56A432002B769D /* comm_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comm_data.h; sourceTree = "<group>"; };
 		4BDBD1781E094FFE006C62F5 /* netinfo_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = netinfo_util.cc; sourceTree = "<group>"; };
 		4BDBD1791E094FFE006C62F5 /* netinfo_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netinfo_util.h; sourceTree = "<group>"; };
 		4F516B731A19F3B20006EC9D /* getifaddrs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getifaddrs.cc; sourceTree = "<group>"; };
@@ -725,6 +726,7 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				4BA235231E56A432002B769D /* comm_data.h */,
 				F1F050FD1E08E56E007DB6DB /* coroutine */,
 				1FDCDCA11DAA70B700ADAE56 /* http.cc */,
 				1FDCDCA21DAA70B700ADAE56 /* http.h */,

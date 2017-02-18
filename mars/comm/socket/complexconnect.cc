@@ -20,13 +20,21 @@
 
 #include "complexconnect.h"
 
+#ifndef _WIN32
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+#endif
+
 #include <algorithm>
 
 #include "comm/xlogger/xlogger.h"
 #include "comm/socket/socketselect.h"
 #include "comm/socket/tcpclient_fsm.h"
 #include "comm/socket/socket_address.h"
+#include "comm/http.h"
+#include "comm/comm_data.h"
 #include "comm/time_utils.h"
+#include "comm/crypt/ibase64.h"
 #include "comm/platform_comm.h"
 
 #ifdef COMPLEX_CONNECT_NAMESPACE
@@ -60,57 +68,62 @@ class ConnectCheckFSM : public TcpClientFSM {
   public:
     enum TCheckStatus {
         ECheckInit,
+        
+        EProxySelectSucc,
+        EProxyConnectReqSend,
+        EProxyConnectSucc,
+        
         ECheckOK,
         ECheckFail,
     };
 
     ConnectCheckFSM(const socket_address& _addr, unsigned int _connect_timeout, unsigned int _index, MComplexConnect* _observer)
-        : TcpClientFSM(_addr.address()), m_connect_timeout(_connect_timeout), m_index(_index), m_observer(_observer), m_checkfintime(0) {
-        m_check_status = (m_observer && m_observer->OnShouldVerify(m_index, addr_)) ? ECheckInit : ECheckOK;
+        : TcpClientFSM(_addr.address()), connect_timeout_(_connect_timeout), index_(_index), observer_(_observer), checkfintime_(0) {
+        check_status_ = (_observer && _observer->OnShouldVerify(_index, addr_)) ? ECheckInit : ECheckOK;
     }
 
-    TCheckStatus CheckStatus() const { return m_check_status;}
-    int TotalRtt() const { return int(m_checkfintime - start_connecttime_);}
+    TCheckStatus CheckStatus() const { return check_status_;}
+    int TotalRtt() const { return int(checkfintime_ - start_connecttime_);}
 
   protected:
-    virtual void _OnCreate() { if (m_observer) m_observer->OnCreated(m_index, addr_, sock_);}
-    virtual void _OnConnect() { if (m_observer) m_observer->OnConnect(m_index, addr_, sock_);}
+    virtual void _OnCreate() { if (observer_) observer_->OnCreated(index_, addr_, sock_);}
+    virtual void _OnConnect() { if (observer_) observer_->OnConnect(index_, addr_, sock_);}
     virtual void _OnConnected(int _rtt) {
-        m_checkfintime = ::gettickcount();
+        checkfintime_ = ::gettickcount();
 
-        if (!m_observer) return;
+        if (!observer_) return;
 
-        m_observer->OnConnected(m_index, addr_, sock_, 0, _rtt);
+        observer_->OnConnected(index_, addr_, sock_, 0, _rtt);
 
         if (ECheckOK == CheckStatus()) {
             return;
         }
 
-        if (!m_observer->OnVerifySend(m_index, addr_, sock_, send_buf_)) {
-            m_check_status = ECheckFail;
+        if (!observer_->OnVerifySend(index_, addr_, sock_, send_buf_)) {
+            check_status_ = ECheckFail;
         }
     }
 
     virtual void _OnRecv(AutoBuffer& _recv_buff, ssize_t _recv_len) {
-        if (!m_observer) return;
+        if (!observer_) return;
 
         if (ECheckOK == CheckStatus()) return;
 
-        m_check_status = m_observer->OnVerifyRecv(m_index, addr_, sock_, recv_buf_) ? ECheckOK : ECheckFail;
-        m_checkfintime = gettickcount();
+        check_status_ = observer_->OnVerifyRecv(index_, addr_, sock_, recv_buf_) ? ECheckOK : ECheckFail;
+        checkfintime_ = gettickcount();
     }
 
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) {}
 
     virtual void _OnClose(TSocketStatus _status, int _error, bool _userclose) {
-        m_checkfintime = gettickcount();
+        checkfintime_ = gettickcount();
 
-        if (m_observer && !_userclose) {
+        if (observer_ && !_userclose) {
             if (EConnecting == _status) {
-                m_observer->OnConnected(m_index, addr_, sock_, _error, TotalRtt());
+                observer_->OnConnected(index_, addr_, sock_, _error, TotalRtt());
             } else if (EReadWrite == _status && SOCKET_ERRNO(ETIMEDOUT) == _error) {
-                m_checkfintime = gettickcount();
-                m_observer->OnVerifyTimeout((int)(m_checkfintime - end_connecttime_));
+                checkfintime_ = gettickcount();
+                observer_->OnVerifyTimeout((int)(checkfintime_ - end_connecttime_));
             }
         }
     }
@@ -118,21 +131,129 @@ class ConnectCheckFSM : public TcpClientFSM {
     virtual int ConnectTimeout() const {return (int)(start_connecttime_ + ConnectAbsTimeout() - gettickcount());}
     virtual int ReadWriteTimeout() const {return (int)(end_connecttime_ + ReadWriteAbsTimeout() - gettickcount());}
 
-    virtual int ConnectAbsTimeout() const { return m_connect_timeout; }
+    virtual int ConnectAbsTimeout() const { return connect_timeout_; }
     virtual int ReadWriteAbsTimeout() const { return std::max(1000, std::min(6 * Rtt(), ConnectAbsTimeout() - Rtt()));}
 
   protected:
-    const unsigned int m_connect_timeout;
-    const unsigned int m_index;
-    MComplexConnect* m_observer;
-    TCheckStatus m_check_status;
-    uint64_t m_checkfintime;
+    const unsigned int connect_timeout_;
+    const unsigned int index_;
+    MComplexConnect* observer_;
+    TCheckStatus check_status_;
+    uint64_t checkfintime_;
+};
+    
+    
+class ConnectHttpTunelCheckFSM : public ConnectCheckFSM {
+public:
+    ConnectHttpTunelCheckFSM(const socket_address& _destaddr, const socket_address* _proxy_addr, const std::string& _proxy_username,
+                             const std::string& _proxy_pwd, unsigned int _connect_timeout, unsigned int _index, MComplexConnect* _observer)
+    : ConnectCheckFSM(*_proxy_addr, _connect_timeout,_index,_observer), destaddr_(_destaddr), username_(_proxy_username), password_(_proxy_pwd){
+        check_status_ = ECheckInit;
+        xinfo2(TSF"proxy info:%_:%_ username:%_", _proxy_addr->ip(), _proxy_addr->port(), username_);
+    }
+    
+protected:
+    virtual void _OnConnected(int _rtt) {
+        checkfintime_ = ::gettickcount();
+        
+        if (!observer_) return;
+        
+        observer_->OnConnected(index_, addr_, sock_, 0, _rtt);
+        
+        if (ECheckOK == CheckStatus()) {
+            return;
+        }
+        request_send_ = true;
+        check_status_ = EProxySelectSucc;
+    }
+    
+    virtual void _OnRecv(AutoBuffer& _recv_buff, ssize_t _recv_len) {
+        if (!observer_) return;
+        if (ECheckOK == CheckStatus()) return;
+        if (check_status_ == EProxyConnectReqSend) {
+
+            http::Parser parser;
+            http::Parser::TRecvStatus parse_status = parser.Recv(_recv_buff.Ptr(), _recv_buff.Length());
+
+            if (parse_status != http::Parser::kEnd) {
+                xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
+                return;
+            }
+            
+            if (200 == parser.Status().StatusCode()) {
+                check_status_ = (observer_ && observer_->OnShouldVerify(index_, addr_)) ? EProxyConnectSucc : ECheckOK;
+                request_send_ = true;
+                _recv_buff.Reset();
+            } else {
+                xwarn2(TSF"proxy status code:%_, proxy info:%_:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port());
+                check_status_ = ECheckFail;
+            }
+            
+        } else if (check_status_ == EProxyConnectSucc) {
+            check_status_ = observer_->OnVerifyRecv(index_, destaddr_, sock_, _recv_buff) ? ECheckOK : ECheckFail;
+            checkfintime_ = gettickcount();
+        } else {
+            xassert2(false, "status:%d", check_status_);
+        }
+        
+    }
+    
+    virtual void _OnRequestSend(AutoBuffer& _send_buff){
+        if (check_status_ == EProxySelectSucc) {
+            
+            char ip_port[64] = {0};
+            snprintf(ip_port, sizeof(ip_port), "%s:%" PRIu16, destaddr_.ip(), destaddr_.port());
+            http::Builder req_builder(http::kRequest);
+            req_builder.Request().Method(http::RequestLine::kConnect);
+            req_builder.Request().Url(ip_port);
+            req_builder.Request().Version(http::kVersion_1_1);
+            req_builder.Fields().HeaderFiled(http::HeaderFields::KStringHost, ip_port);
+            req_builder.Fields().HeaderFiled(http::HeaderFields::kStringProxyConnection, "keep-alive");
+            req_builder.Fields().HeaderFiled(http::HeaderFields::KStringUserAgent, http::HeaderFields::KStringMicroMessenger);
+            
+            if (!username_.empty() && !password_.empty()) {
+                std::string account_info = username_ + ":" + password_;
+                size_t dstlen = modp_b64_encode_len(account_info.length());
+                
+                char* dstbuf = (char*)malloc(dstlen);
+                memset(dstbuf, 0, dstlen);
+                
+                int retsize = Comm::EncodeBase64((unsigned char*)account_info.c_str(), (unsigned char*)dstbuf, (int)account_info.length());
+                dstbuf[retsize] = '\0';
+                
+                char auth_info[1024] = {0};
+                snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
+
+                req_builder.Fields().HeaderFiled(http::HeaderFields::kStringProxyAuthorization, auth_info);
+            }
+            
+            req_builder.HeaderToBuffer(_send_buff);
+
+            check_status_ = EProxyConnectReqSend;
+        } else if (check_status_ == EProxyConnectSucc) {
+            _send_buff.Reset();
+            bool verifySucc = observer_->OnVerifySend(index_, destaddr_, sock_, _send_buff);
+            if (!verifySucc) {
+                check_status_ = ECheckFail;
+            }
+        } else {
+            xassert2(false, "status:%d", check_status_);
+        }
+    }
+    
+protected:
+    const socket_address& destaddr_;
+    std::string username_;
+    std::string password_;
+
 };
 
 static bool __isconnecting(const ConnectCheckFSM* _ref) { return NULL != _ref && INVALID_SOCKET != _ref->Socket(); }
 }
 
-SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketSelectBreaker& _breaker, MComplexConnect* _observer) {
+SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketSelectBreaker& _breaker, MComplexConnect* _observer,
+                                            mars::comm::ProxyType _proxy_type, const socket_address* _proxy_addr,
+                                            const std::string& _proxy_username, const std::string& _proxy_pwd) {
     trycount_ = 0;
     index_ = -1;
     errcode_ = 0;
@@ -153,7 +274,13 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     for (unsigned int i = 0; i < _vecaddr.size(); ++i) {
         xinfo2(TSF"complex.conn %_", _vecaddr[i].url());
 
-        ConnectCheckFSM* ic = new ConnectCheckFSM(_vecaddr[i], timeout_, i, _observer);
+        ConnectCheckFSM* ic = NULL;
+        if (mars::comm::kProxyHttp == _proxy_type) {
+            ic = new ConnectHttpTunelCheckFSM(_vecaddr[i], _proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
+        } else {
+            ic = new ConnectCheckFSM(_vecaddr[i], timeout_, i, _observer);
+        }
+
         vecsocketfsm.push_back(ic);
     }
 

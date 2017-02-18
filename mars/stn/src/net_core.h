@@ -40,6 +40,10 @@
 class NetSourceTimerCheck;
 
 namespace mars {
+    namespace comm {
+        class ProxyInfo;
+    }
+    
     namespace stn {
 
 class NetSource;
@@ -81,6 +85,7 @@ class NetCore {
 
     void    MakeSureLongLinkConnect();
     bool    LongLinkIsConnected();
+    bool    LongLinkProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info);
     void    OnNetworkChange();
 
     void	KeepSignal();
