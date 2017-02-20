@@ -485,6 +485,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         return INVALID_SOCKET;
     }
     
+    _conn_profile.proxy_type = proxy_info.type;
     _conn_profile.ip_items = ip_items;
     _conn_profile.host = ip_items[0].str_host;
     _conn_profile.ip_type = ip_items[0].source_type;
