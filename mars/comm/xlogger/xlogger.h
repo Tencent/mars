@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <sys/cdefs.h>
 
-#include "../string_cast.h"
+#include "mars/comm/string_cast.h"
 #include "xloggerbase.h"
 #include "preprocessor.h"
 

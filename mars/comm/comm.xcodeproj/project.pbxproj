@@ -262,6 +262,8 @@
 		4B299BE01CEF063600E2315B /* boost_exception.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = boost_exception.cc; sourceTree = "<group>"; };
 		4B5697691DAF6B38001CB37C /* loginfo_extract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loginfo_extract.c; sourceTree = "<group>"; };
 		4B56976A1DAF6B38001CB37C /* loginfo_extract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loginfo_extract.h; sourceTree = "<group>"; };
+		4BA2353C1E5AA11C002B769D /* move_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = move_wrapper.h; sourceTree = "<group>"; };
+		4BA2353D1E5AA11C002B769D /* string_cast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_cast.h; sourceTree = "<group>"; };
 		4BAD95171E482C680036A589 /* socketbreaker.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketbreaker.cc; sourceTree = "<group>"; };
 		4BAD95181E482C680036A589 /* socketbreaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketbreaker.h; sourceTree = "<group>"; };
 		4BAD95191E482C680036A589 /* socketpoll.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketpoll.cc; sourceTree = "<group>"; };
@@ -716,6 +718,8 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				4BA2353C1E5AA11C002B769D /* move_wrapper.h */,
+				4BA2353D1E5AA11C002B769D /* string_cast.h */,
 				F1F050FD1E08E56E007DB6DB /* coroutine */,
 				1FDCDCA11DAA70B700ADAE56 /* http.cc */,
 				1FDCDCA21DAA70B700ADAE56 /* http.h */,
