@@ -45,8 +45,8 @@ class LongLinkConnectMonitor {
     boost::function<void ()> fun_longlink_reset_;
 
   private:
-    unsigned long  __IntervalConnect(int _type);
-    unsigned long  __AutoIntervalConnect();
+    uint64_t  __IntervalConnect(int _type);
+    uint64_t  __AutoIntervalConnect();
 
   private:
     void __OnSignalForeground(bool _isforeground);

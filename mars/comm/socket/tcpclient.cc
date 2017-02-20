@@ -172,9 +172,9 @@ void TcpClient::__Run() {
 #endif
     }
 
-    if (0 != socket_ipv6only(socket_, 0)){
-        xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno));
-    }
+#ifdef _WIN32
+    if (0 != socket_ipv6only(socket_, 0)){ xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno)); }
+#endif
     
     xerror2_if(0 != socket_set_nobio(socket_), TSF"socket_set_nobio:%_, %_", socket_errno, socket_strerror(socket_errno));
 

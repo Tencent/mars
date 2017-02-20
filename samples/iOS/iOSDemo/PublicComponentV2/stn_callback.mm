@@ -53,15 +53,15 @@ std::vector<std::string> StnCallBack::OnNewDns(const std::string& _host) {
     return vector;
 }
 
-void StnCallBack::OnPush(int32_t _cmdid, const AutoBuffer& _msgpayload) {
-    if (_msgpayload.Length() > 0) {
-        NSData* recvData = [NSData dataWithBytes:(const void *) _msgpayload.Ptr() length:_msgpayload.Length()];
+void StnCallBack::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    if (_body.Length() > 0) {
+        NSData* recvData = [NSData dataWithBytes:(const void *) _body.Ptr() length:_body.Length()];
         [[NetworkService sharedInstance] OnPushWithCmd:_cmdid data:recvData];
     }
     
 }
 
-bool StnCallBack::Req2Buf(int32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, int& _error_code, const int _channel_select) {
+bool StnCallBack::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select) {
     NSData* requestData =  [[NetworkService sharedInstance] Request2BufferWithTaskID:_taskid userContext:_user_context];
     if (requestData == nil) {
         requestData = [[NSData alloc] init];
@@ -71,7 +71,7 @@ bool StnCallBack::Req2Buf(int32_t _taskid, void* const _user_context, AutoBuffer
     return requestData.length > 0;
 }
 
-int StnCallBack::Buf2Resp(int32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, int& _error_code, const int _channel_select) {
+int StnCallBack::Buf2Resp(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
     
     int handle_type = mars::stn::kTaskFailHandleNormal;
     NSData* responseData = [NSData dataWithBytes:(const void *) _inbuffer.Ptr() length:_inbuffer.Length()];
@@ -84,7 +84,7 @@ int StnCallBack::Buf2Resp(int32_t _taskid, void* const _user_context, const Auto
     return handle_type;
 }
 
-int  StnCallBack::OnTaskEnd(int32_t _taskid, void* const _user_context, int _error_type, int _error_code) {
+int StnCallBack::OnTaskEnd(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) {
     
     return (int)[[NetworkService sharedInstance] OnTaskEndWithTaskID:_taskid userContext:_user_context errType:_error_type errCode:_error_code];
 
@@ -126,9 +126,6 @@ void StnCallBack::RequestSync() {
 
 }
         
-bool StnCallBack::IsLogoned() {
-    return true;
-}
         
     }
 }

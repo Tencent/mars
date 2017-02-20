@@ -20,7 +20,6 @@
 
 #include "dynamic_timeout.h"
 
-#include <sstream>
 #include <string>
 
 #include "mars/comm/time_utils.h"

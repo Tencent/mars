@@ -118,7 +118,7 @@ class PingQuery {
     struct sockaddr          sendaddr_;
     struct sockaddr            recvaddr_;
     Alarm                   alarm_;
-    SocketSelectBreaker     readwrite_breaker_;
+    SocketBreaker     readwrite_breaker_;
 #endif
     NetCheckTrafficMonitor* traffic_monitor_;
 };

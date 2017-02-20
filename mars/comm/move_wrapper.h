@@ -11,11 +11,10 @@
 // limitations under the License.
 
 //
-//  copy_wrapper.h
+//  move_wrapper.h
 //  comm
 //
-//  Created by Ray on 13-10-17.
-//  Copyright (c) 2013 zhoushaotao. All rights reserved.
+//  Created by yerungui on 13-10-17.
 //
 
 #ifndef COMM_COPY_WRAPPER_H_
@@ -41,34 +40,34 @@ class copy_wrapper_helper_ref {
 };
 
 template<class S, class D = S>
-class copy_wrapper {
+class move_wrapper {
   public:
     typedef S SRC;
     typedef D DST;
 
-    copy_wrapper(S& t)
+    move_wrapper(S& t)
     { copy_wrapper_helper<S>::copy_constructor(m_t, t); }
 
-    copy_wrapper(const S& t)
+    move_wrapper(const S& t)
     { copy_wrapper_helper<S>::copy_constructor(m_t, t); }
 
-    ~copy_wrapper()
+    ~move_wrapper()
     { copy_wrapper_helper<S>::destructor(m_t);}
 
-    copy_wrapper& operator=(copy_wrapper& _ref) {
+    move_wrapper& operator=(move_wrapper& _ref) {
         copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t);
         return *this;
     }
 
-    copy_wrapper& operator=(const copy_wrapper& _ref) {
+    move_wrapper& operator=(const move_wrapper& _ref) {
         copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t);
         return *this;
     }
 
-    copy_wrapper(copy_wrapper& _ref)
+    move_wrapper(move_wrapper& _ref)
     { copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t); }
 
-    copy_wrapper(const copy_wrapper& _ref)
+    move_wrapper(const move_wrapper& _ref)
     { copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t); }
 
     operator D& () { return copy_wrapper_helper_ref<S, D>::ref(m_t); }

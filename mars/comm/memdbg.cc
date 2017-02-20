@@ -25,12 +25,12 @@
 #include <stdio.h>
 #include <assert.h>
 #include <vector>
-#include <sstream>
 
 #ifdef ANDROID
 #include <unistd.h>
 #include "comm/android/callstack.h"
 #endif
+#include "mars/comm/xlogger/xlogger.h"
 
 enum TMemoryType {
     ECType = 0,
@@ -79,7 +79,7 @@ static void __DeleteLogAlloc(void* _p, const char* _filename, int _line, const c
     for (std::vector<CrtMem>::iterator it = gs_CrtMemRoot.begin(); it != gs_CrtMemRoot.end(); ++it) {
         if (_p == it->_crtMemAddr) {
             if (_type != it->_crtMemoryType) {
-                std::stringstream strstream;
+                XMessage strstream;
                 strstream << "\n[" << it->_crtFileName << ", " << it->_crtLine << ", " << it->_crtFuncName << "]"
                           << "alloc type is: " << gs_typename[it->_crtMemoryType] << "\n"
                           << "[" << _filename << ", " << _line << ", " << _func << "]"
@@ -90,7 +90,7 @@ static void __DeleteLogAlloc(void* _p, const char* _filename, int _line, const c
                 std::string str_stack = callstack.Format("dealloc type error stack dump", "memdbg");
                 strstream << str_stack;
 #endif
-                __ASSERT(__FILE__, __LINE__, __FUNCTION__, strstream.str().c_str());
+                __ASSERT(__FILE__, __LINE__, __FUNCTION__, strstream.String().c_str());
             }
 
             gs_CrtMemRoot.erase(it);
@@ -202,7 +202,7 @@ extern "C" void DumpMemoryLeaks(void (* _pfunoutput)(const char*)) {
         return;
     }
 
-    std::stringstream strstream;
+    XMessage strstream;
     strstream << "Detected memory leaks!\n";
     strstream << "<--------------------------------Dumping objects-------------------------------->\n";
 
@@ -227,7 +227,7 @@ extern "C" void DumpMemoryLeaks(void (* _pfunoutput)(const char*)) {
     }
 
     strstream << "<--------------------------------Dump end----------------------------------->\n";
-    _pfunoutput(strstream.str().c_str());
+    _pfunoutput(strstream.String().c_str());
 #else
     _pfunoutput("Notice memdbg isn't running, because \"NO DEBUG\" was defined");
 #endif

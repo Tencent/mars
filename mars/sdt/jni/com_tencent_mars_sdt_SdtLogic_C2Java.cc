@@ -19,7 +19,6 @@
 
 #include <jni.h>
 #include <vector>
-#include <sstream>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/xlogger/xlogger.h"
@@ -37,14 +36,15 @@ namespace mars {
 namespace sdt {
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_reportSignalDetectResults, KC2Java, "reportSignalDetectResults", "(Ljava/lang/String;)V")
-WEAK_FUNC void ReportNetCheckResult(std::vector<CheckResultProfile>& _check_results) {
+void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
+= [](const std::vector<CheckResultProfile>& _check_results) {
 	xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
 
-	std::stringstream check_results_str;
+	XMessage check_results_str;
 	check_results_str << "{";
 	check_results_str << "\"details\":[";
 	std::vector<CheckResultProfile>::const_iterator iter = _check_results.begin();
@@ -75,7 +75,7 @@ WEAK_FUNC void ReportNetCheckResult(std::vector<CheckResultProfile>& _check_resu
 	}
 	check_results_str << "]}";
 
-	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportSignalDetectResults, ScopedJstring(env, check_results_str.str().c_str()).GetJstr());
-}
+	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportSignalDetectResults, ScopedJstring(env, check_results_str.String().c_str()).GetJstr());
+};
 
 }}

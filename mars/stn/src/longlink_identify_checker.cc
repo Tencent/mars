@@ -23,19 +23,17 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
 
+#include "stn/proto/longlink_packer.h"
+
 using namespace mars::stn;
 
 LongLinkIdentifyChecker::LongLinkIdentifyChecker()
 :has_checked_(false)
 , cmd_id_(0)
 , taskid_(0)
-{
-}
+{ }
 
-LongLinkIdentifyChecker::~LongLinkIdentifyChecker()
-{
-}
-
+LongLinkIdentifyChecker::~LongLinkIdentifyChecker() { }
 
 bool LongLinkIdentifyChecker::GetIdentifyBuffer(AutoBuffer &_buffer, uint32_t &_cmdid)
 {
@@ -71,24 +69,17 @@ bool LongLinkIdentifyChecker::GetIdentifyBuffer(AutoBuffer &_buffer, uint32_t &_
     return false;
 }
 
-void LongLinkIdentifyChecker::SetSeq(uint32_t  _taskid)
-{
-    taskid_ = _taskid;
+void LongLinkIdentifyChecker::SetID(uint32_t  _taskid) { taskid_ = _taskid;}
+
+bool LongLinkIdentifyChecker::IsIdentifyResp(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _buffer, const AutoBuffer& _extend) const {
+    return longlink_identify_isresp(taskid_, _cmdid, _taskid, _buffer, _extend);
 }
 
-bool LongLinkIdentifyChecker::IsIdentifyResp(uint32_t _taskid)
-{
-    if (taskid_ == _taskid && taskid_ != 0) return true;
-    return false;
-}
-
-bool LongLinkIdentifyChecker::OnIdentifyResp(AutoBuffer& _buffer)
-{
+bool LongLinkIdentifyChecker::OnIdentifyResp(AutoBuffer& _buffer) {
     xinfo2(TSF"identifycheck(synccheck) resp");
     bool ret = ::OnLonglinkIdentifyResponse(_buffer, hash_code_buffer_);
     taskid_ = 0;
-    if (ret)
-    {
+    if (ret) {
         has_checked_ = true;
         return true;
     }
@@ -96,8 +87,7 @@ bool LongLinkIdentifyChecker::OnIdentifyResp(AutoBuffer& _buffer)
 }
 
 
-void LongLinkIdentifyChecker::Reset()
-{
+void LongLinkIdentifyChecker::Reset() {
     has_checked_ = false;
     taskid_ = 0;
     cmd_id_ = 0;

@@ -37,7 +37,7 @@ LOCAL_LDLIBS += -llog -lz
 #LOCAL_CFLAGS += -Wno-unused-parameter -Wno-missing-field-initializers 
 #LOCAL_CFLAGS +=  -fdata-sections
 LOCAL_LDFLAGS += -Wl,--gc-sections,--version-script=../../log/jni/export.exp 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. $(LOCAL_PATH)/../../..
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. $(LOCAL_PATH)/../../.. $(LOCAL_PATH)/../../../..
 
 include $(LOCAL_PATH)/define_macros.mk
 

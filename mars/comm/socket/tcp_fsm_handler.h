@@ -24,7 +24,7 @@
 #include "comm/xlogger/xlogger.h"
 
 template<class InputIterator>
-bool TcpFSMHandler(InputIterator _first, InputIterator _last, SocketSelectBreaker& _breaker, bool _select_anyway)
+bool TcpFSMHandler(InputIterator _first, InputIterator _last, SocketBreaker& _breaker, bool _select_anyway)
 {
 	xverbose_function();
     xgroup2_define(group);
@@ -73,7 +73,7 @@ bool TcpFSMHandler(InputIterator _first, InputIterator _last, SocketSelectBreake
 }
 
 template<class InputIterator>
-void TcpFSMHandlerRunloop(InputIterator _first, InputIterator _last, SocketSelectBreaker& _breaker, bool _select_anyway)
+void TcpFSMHandlerRunloop(InputIterator _first, InputIterator _last, SocketBreaker& _breaker, bool _select_anyway)
 {
     xinfo_function();
 

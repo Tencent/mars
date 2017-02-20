@@ -23,7 +23,6 @@
 
 #include <boost/bind.hpp>
 #include "messagequeue/message_queue.h"
-#include "messagequeue/message_queue_utils.h"
 
 #ifdef ANDROID
 #include "android/wakeuplock.h"

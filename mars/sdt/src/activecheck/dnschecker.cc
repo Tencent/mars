@@ -25,7 +25,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/sdt/constants.h"
 
-#include "checkimpl/dnsquery.h"
+#include "sdt/src/checkimpl/dnsquery.h"
 
 using namespace mars::sdt;
 

@@ -24,7 +24,6 @@
 #include "boost/function.hpp"
 
 #include "mars/comm/messagequeue/message_queue.h"
-#include "mars/comm/messagequeue/message_queue_utils.h"
 #include "mars/comm/socket/udpclient.h"
 
 #include "longlink.h"
@@ -48,7 +47,7 @@ class SignallingKeeper: IAsyncUdpClientEvent {
     virtual void OnDataGramRead(UdpClient* _this, void* _buf, size_t _len);
     virtual void OnDataSent(UdpClient* _this);
   public:
-    boost::function<unsigned int (const unsigned char* _buf, int _len, int anCmdID)> fun_send_signalling_buffer_;
+    boost::function<unsigned int (const AutoBuffer&, const AutoBuffer&, int)> fun_send_signalling_buffer_;
 
   private:
     void __SendSignallingBuffer();
