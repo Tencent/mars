@@ -316,9 +316,9 @@ sample 的使用请参考[这里](https://github.com/Tencent/mars/wiki/Mars-samp
 
 ##Getting started
 
-接入 [Android](#android) 或者 [iOS/OS X](#apple)。
+接入 [Android](#android_cn) 或者 [iOS/OS X](#apple_cn)。
 
-###<a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
+###<a name="android_cn">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
 gradle 接入我们提供了两种接入方式：[mars-wrapper](#wrapper) 或者 [mars-core](#core)。如果你只是想做个 sample 推荐使用 mars-wrapper，可以快速开发；但是如果你想把 mars 用到你的 app 中的话，推荐使用 mars-core，可定制性更高。
 
@@ -444,7 +444,7 @@ StnLogic.reset();
 如果你想修改 Xlog 的加密算法或者长短连的加解包部分甚至更改组件的其他部分，可以参考[这里]
 (https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)
 
-### <a name="apple">[iOS/OS X](https://github.com/Tencent/mars/wiki/Mars-iOS%EF%BC%8FOS-X-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
+### <a name="apple_cn">[iOS/OS X](https://github.com/Tencent/mars/wiki/Mars-iOS%EF%BC%8FOS-X-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 编译
 
 ```
