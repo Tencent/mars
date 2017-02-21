@@ -238,7 +238,7 @@ protected:
             req_builder.HeaderToBuffer(_send_buff);
             check_status_ = EProxyHttpTunelConnSvrReq;
         } else if (check_status_ == EProxyConnSvrSucc) {
-            _send_buff.Reset();
+            _send_buff.Length(0, 0);
             bool verifySucc = observer_->OnVerifySend(index_, destaddr_, sock_, _send_buff);
             if (!verifySucc) {
                 check_status_ = ECheckFail;
@@ -307,7 +307,7 @@ protected:
                 xwarn2("auth method not support:%d", method);
                 check_status_ = ECheckFail;
             }
-            recv_buf_.Reset();
+            recv_buf_.Length(0, 0);
         } else if(check_status_ == EProxySocks5AuthReq) {
             if (_recv_buff.Length() < 2) {
                 xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
@@ -324,9 +324,26 @@ protected:
             
             check_status_ = EProxySocks5AuthSucc;
             request_send_ = true;
-            recv_buf_.Reset();
+            recv_buf_.Length(0, 0);
         } else if (check_status_ == EProxySocks5ConnSvrReq) {
-            if (_recv_buff.Length() < 2) {
+            if (_recv_buff.Length() < 4) {
+                xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
+                return;
+            }
+            
+            uint8_t atyp = ((uint8_t*)_recv_buff.Ptr())[3];
+            
+            if (kSocksATYPIPv4 == atyp && _recv_buff.Length() < 6+4) {
+                xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
+                return;
+            }
+            
+            if (kSocksATYPHost == atyp && _recv_buff.Length() < 6+1+((uint8_t*)_recv_buff.Ptr())[4]) {
+                xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
+                return;
+            }
+            
+            if (kSocksATYPIPv6 == atyp && _recv_buff.Length() < 6+16) {
                 xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
                 return;
             }
@@ -343,7 +360,7 @@ protected:
             check_status_ = (observer_ && observer_->OnShouldVerify(index_, destaddr_)) ? EProxyConnSvrSucc : ECheckOK;
             checkfintime_ = gettickcount();
             request_send_ = true;
-            recv_buf_.Reset();
+            recv_buf_.Length(0, 0);
         } else if (check_status_ == EProxyConnSvrSucc) {
             check_status_ = observer_->OnVerifyRecv(index_, destaddr_, sock_, _recv_buff) ? ECheckOK : ECheckFail;
             checkfintime_ = gettickcount();
@@ -354,28 +371,31 @@ protected:
     
     virtual void _OnRequestSend(AutoBuffer& _send_buff){
         if (check_status_ == EConnProxySucc) {
-           // uint8_t socks5_greet_data[] = {kSocks5Version, kSockstNAuthMethos, (username_.empty()||password_.empty())?kSocks5NoAuth:kSocks5UsrNamePwdAuth};
-            uint8_t socks5_greet_data[] = {kSocks5Version, kSockstNAuthMethos, kSocks5NoAuth};
-            _send_buff.Reset();
+            uint8_t socks5_greet_data[] = {kSocks5Version, kSockstNAuthMethos, (username_.empty()||password_.empty())?kSocks5NoAuth:kSocks5UsrNamePwdAuth};
+            _send_buff.Length(0, 0);
             _send_buff.Write(socks5_greet_data, sizeof(socks5_greet_data));
             check_status_ = EProxySocks5GreetReq;
         } else if (check_status_ == EProxySocks5GreepSucc) {
-            if (username_.empty() || password_.empty() || username_.size() > CHAR_MAX || password_.size() > CHAR_MAX) {
+            if (username_.empty() || password_.empty() || username_.size() > UINT8_MAX || password_.size() > UINT8_MAX) {
                 xwarn2(TSF"username/password error:%_ %_", username_.size(), password_.size());
                 check_status_ = ECheckFail;
                 return;
             }
-            _send_buff.Reset();
-            _send_buff.Write(kSocks5AuthVersion, sizeof(kSocks5AuthVersion));
-            _send_buff.Write((uint8_t)username_.size(), 1);
+            _send_buff.Length(0, 0);
+            uint8_t ver = kSocks5AuthVersion;
+            _send_buff.Write(&ver, sizeof(ver));
+            
+            uint8_t len = username_.size();
+            _send_buff.Write(&len, 1);
             _send_buff.Write(username_.c_str(), username_.size());
-            _send_buff.Write((uint8_t)password_.size(), 1);
+            len = password_.size();
+            _send_buff.Write(&len, 1);
             _send_buff.Write(password_.c_str(), password_.size());
             check_status_ = EProxySocks5AuthReq;
         } else if (check_status_ == EProxySocks5AuthSucc) {
             uint8_t head_data[] = {kSocks5Version, kSocks5ConnectCmd, kSocks5RsvVal, kSocksATYPIPv4};
-            _send_buff.Reset();
-            _send_buff.Write(head_data, 4);
+            _send_buff.Length(0, 0);
+            _send_buff.Write(head_data, sizeof(head_data));
             
             uint32_t net_addr = inet_addr(destaddr_.ip());
             _send_buff.Write(&net_addr, sizeof(net_addr));
@@ -408,6 +428,8 @@ private:
     static const uint8_t kSocks5ConnectCmd = 0x01;
     static const uint8_t kSocks5RsvVal = 0x00;
     static const uint8_t kSocksATYPIPv4 = 0x01;
+    static const uint8_t kSocksATYPHost = 0x03;
+    static const uint8_t kSocksATYPIPv6 = 0x04;
 };
 
 
