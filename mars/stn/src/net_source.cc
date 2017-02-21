@@ -143,7 +143,12 @@ void NetSource::SetLongLink(const std::vector<std::string>& _hosts, const std::v
 	xinfo2(TSF"debugip:%_", _debugip) >> addr_print;
 
     sg_longlink_debugip = _debugip;
-    sg_longlink_hosts = _hosts;
+    if (!_hosts.empty()) {
+    	sg_longlink_hosts = _hosts;
+    }
+    else {
+    	xerror2(TSF"host list should not be empty");
+    }
 	sg_longlink_ports = _ports;
 }
 
