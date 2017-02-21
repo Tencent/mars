@@ -30,7 +30,7 @@ namespace mars {
 enum ProxyType {
     kProxyNone = 0,
     kProxyHttp,
-    kProxySocket,
+    kProxySocks5,
 };
         
 class ProxyInfo {
