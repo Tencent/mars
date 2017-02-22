@@ -165,7 +165,7 @@ class HeaderFields {
 
     bool ContentRange(int* start, int* end, int* total);
 
-    const std::string ToStrig() const;
+    const std::string ToString() const;
 
   private:
     std::map<const std::string, std::string, less> headers_;
