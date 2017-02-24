@@ -223,7 +223,7 @@ def main():
         return
 
     while True:
-        flag = 0
+        global WITH_SCRIPT
         archs = []
         if len(sys.argv) >=2 and len(sys.argv[1])==1 and sys.argv[1] >="1" and sys.argv[1] <="5":
             num = sys.argv[1]
@@ -231,16 +231,14 @@ def main():
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
                 global NDK_BUILD_CMD
                 NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars -C "
-                global WITH_SCRIPT
                 WITH_SCRIPT = 1
-                flag = 1
         else:
             num = raw_input("Enter menu:\n1. build mars shared libs.\n2. build mars static libs.\n3. build xlog static libs.\n4. build xlog shared libs.\n5. exit.\n")
             archs = choose_android_mars_jni_arch()
             if len(archs) == 0:
                 return
                 
-        if flag == 1:
+        if WITH_SCRIPT == 1:
             if "1" == num:
                 return build_android_mars_shared_libs()
             elif "2" == num:
