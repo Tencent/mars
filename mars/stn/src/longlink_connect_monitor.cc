@@ -200,7 +200,9 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
 }
 
 void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
-    __AutoIntervalConnect();
+    if (_isactive) {
+        __AutoIntervalConnect();
+    }
 }
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status) {
