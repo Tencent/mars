@@ -34,7 +34,7 @@ using namespace mars::app;
 
 #define ACTIVE_SYNC_INTERVAL (90*1000)
 #define UNLOGIN_SYNC_INTERVAL (4*60*1000)
-#define INACTIVE_SYNC_INTERVAL (30*60*1000)
+#define INACTIVE_SYNC_INTERVAL (10*60*1000)
 #define NONET_SALT_RATE  (3)
 
 
