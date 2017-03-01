@@ -31,7 +31,7 @@
 
 // Heartbeart Range
 #define MinHeartInterval (4  * 60 * 1000 + 30 * 1000)   // 4.5 minute
-#define MaxHeartInterval (14 * 60 * 1000 + 50 * 1000)   // 14 minute 50 seconds
+#define MaxHeartInterval (9 * 60 * 1000 + 50 * 1000)   // 9 minute 50 seconds
 
 // Heartbeat Step
 #define HeartStep (60 * 1000)      // try to increse current heartbeat by HeartStep
