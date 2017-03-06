@@ -25,6 +25,7 @@
 #include <inttypes.h>
 #endif
 
+
 #include <algorithm>
 
 #include "comm/xlogger/xlogger.h"
@@ -338,7 +339,7 @@ protected:
                 return;
             }
             
-            if (kSocksATYPHost == atyp && _recv_buff.Length() < 6+1+((uint8_t*)_recv_buff.Ptr())[4]) {
+            if (kSocksATYPHost == atyp && _recv_buff.Length() < (size_t)(6+1+((uint8_t*)_recv_buff.Ptr())[4])) {
                 xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
                 return;
             }
@@ -365,7 +366,7 @@ protected:
             check_status_ = observer_->OnVerifyRecv(index_, destaddr_, sock_, _recv_buff) ? ECheckOK : ECheckFail;
             checkfintime_ = gettickcount();
         } else {
-            xassert2(false, "socks5 proxy checkfsm status:%_", check_status_);
+            xassert2(false, "socks5 proxy checkfsm status:%d", check_status_);
         }
     }
     
@@ -376,7 +377,7 @@ protected:
             _send_buff.Write(socks5_greet_data, sizeof(socks5_greet_data));
             check_status_ = EProxySocks5GreetReq;
         } else if (check_status_ == EProxySocks5GreepSucc) {
-            if (username_.empty() || password_.empty() || username_.size() > UINT8_MAX || password_.size() > UINT8_MAX) {
+            if (username_.empty() || password_.empty() || username_.size() > 255 || password_.size() > 255) {
                 xwarn2(TSF"username/password error:%_ %_", username_.size(), password_.size());
                 check_status_ = ECheckFail;
                 return;
@@ -409,7 +410,7 @@ protected:
                 check_status_ = ECheckFail;
             }
         } else {
-            xassert2(false, "socks5 proxy checkfsm status:%_", check_status_);
+            xassert2(false, "socks5 proxy checkfsm status:%d", check_status_);
         }
     }
 
