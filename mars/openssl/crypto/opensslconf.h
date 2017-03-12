@@ -139,8 +139,8 @@ extern "C" {
 
 #if !(defined(VMS) || defined(__VMS)) /* VMS uses logical names instead */
 #if defined(HEADER_CRYPTLIB_H) && !defined(OPENSSLDIR)
-#define ENGINESDIR "/Users/elviswu/Desktop/compile_android_openssl/android-18/lib/engines"
-#define OPENSSLDIR "/Users/elviswu/Desktop/compile_android_openssl/android-18"
+#define ENGINESDIR "./android-21/lib/engines"
+#define OPENSSLDIR "./android-21/./android-21"
 #endif
 #endif
 

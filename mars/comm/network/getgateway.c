@@ -471,5 +471,9 @@ int getdefaultgateway(in_addr_t * addr)
     
     return -1;
 }
+
+int getdefaultgateway6(struct in6_addr * addr) {
+	return FAILED;
+}
 #endif /* #ifdef USE_WIN32_CODE */
 
