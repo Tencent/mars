@@ -363,6 +363,7 @@ static void __move_old_files(const std::string& _src_path, const std::string& _d
     
     struct timeval tv;
     gettimeofday(&tv, NULL);
+    char logfilepath[1024] = {0};
     
     boost::filesystem::directory_iterator end_iter;
     for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
@@ -371,7 +372,6 @@ static void __move_old_files(const std::string& _src_path, const std::string& _d
             continue;
         }
         
-        char logfilepath[1024] = {0};
         __make_logfilename(tv, _dest_path, sg_logfileprefix.c_str(), LOG_EXT, logfilepath , 1024);
         
         if (!__append_file(iter->path().string(), logfilepath)) {
@@ -379,6 +379,7 @@ static void __move_old_files(const std::string& _src_path, const std::string& _d
         }
         
         boost::filesystem::remove(iter->path());
+        memset(logfilepath, 0, sizeof(logfilepath));
     }
 }
 
