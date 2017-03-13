@@ -20,6 +20,8 @@
 #ifndef MARS_BASELOGIC_H_
 #define MARS_BASELOGIC_H_
 
+#include <stdint.h>
+
 namespace mars{
 namespace baseevent{
     void OnCreate();
@@ -28,6 +30,7 @@ namespace baseevent{
     void OnExceptionCrash();
     void OnForeground(bool _isforeground);
     void OnNetworkChange();
+    void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
 }
 }
 

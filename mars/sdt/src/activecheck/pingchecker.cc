@@ -25,7 +25,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/sdt/constants.h"
 
-#include "checkimpl/pingquery.h"
+#include "sdt/src/checkimpl/pingquery.h"
 
 using namespace mars::sdt;
 

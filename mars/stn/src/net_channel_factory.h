@@ -25,29 +25,28 @@
 
 #include "mars/comm/messagequeue/message_queue.h"
 
-class ActiveLogic;
 
 namespace mars {
 namespace stn {
 
+struct Task;
 class LongLink;
 class NetSource;
 class ShortLinkInterface;
 
 namespace ShortLinkChannelFactory {
 
-ShortLinkInterface* Create(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const std::vector<std::string>& _host_list,
-					const std::string& _url, const int _taskid, bool _use_proxy);
+extern ShortLinkInterface* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy);
 
-void Destory(ShortLinkInterface* _short_link_channel);
+extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 
 }
 
 namespace LongLinkChannelFactory {
 
-LongLink* Create(NetSource& _netsource,	MessageQueue::MessageQueue_t _messagequeueid);
+extern LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource);
 
-void Destory(LongLink* _long_link_channel);
+extern void (*Destory)(LongLink* _long_link_channel);
 
 }
 

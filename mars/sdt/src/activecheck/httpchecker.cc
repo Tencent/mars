@@ -26,7 +26,7 @@
 #include "mars/sdt/constants.h"
 #include "mars/sdt/sdt_logic.h"
 
-#include "checkimpl/httpquery.h"
+#include "sdt/src/checkimpl/httpquery.h"
 
 using namespace mars::sdt;
 
@@ -76,6 +76,11 @@ void HttpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     		profile.url.append(sg_netcheck_cgi.c_str());
     		uint64_t start_time = gettickcount();
     		std::string errmsg;
+            
+            if (!strutil::StartsWith(profile.url, "http://")) {
+                profile.url = std::string("http://") + profile.url;
+            }
+            
     		int ret = SendHttpQuery(profile.url, profile.status_code, errmsg, _check_request.total_timeout);
     		uint64_t cost_time = gettickcount() - start_time;
     		profile.rtt = cost_time;

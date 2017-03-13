@@ -25,7 +25,7 @@
 #include "mars/comm/bootrun.h"
 #include "mars/sdt/constants.h"
 
-#include "sdt_core.h"
+#include "sdt/src/sdt_core.h"
 
 namespace mars {
 namespace sdt {
@@ -78,9 +78,10 @@ void SetCallBack(Callback* const callback) {
 
 #ifndef ANDROID
 
-WEAK_FUNC void ReportNetCheckResult(std::vector<CheckResultProfile>& _check_results) {
+void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
+= [](const std::vector<CheckResultProfile>& _check_results) {
 
-}
+};
 
 #endif
 

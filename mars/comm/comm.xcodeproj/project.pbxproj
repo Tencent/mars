@@ -20,7 +20,6 @@
 		13E9F32A19754DE6007591EC /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2B319754DE5007591EC /* md5.c */; };
 		13E9F32B19754DE6007591EC /* memdbg.cc in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2B519754DE5007591EC /* memdbg.cc */; };
 		13E9F32C19754DE6007591EC /* message_queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2B819754DE5007591EC /* message_queue.cc */; };
-		13E9F32D19754DE6007591EC /* message_queue_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2BA19754DE5007591EC /* message_queue_utils.cc */; };
 		13E9F32E19754DE6007591EC /* getgateway.c in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2BD19754DE5007591EC /* getgateway.c */; };
 		13E9F32F19754DE6007591EC /* objc_timer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2C219754DE5007591EC /* objc_timer.mm */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
 		13E9F33019754DE6007591EC /* platform_comm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2C319754DE5007591EC /* platform_comm.mm */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
@@ -33,7 +32,6 @@
 		13E9F33819754DE6007591EC /* tcpclient.cc in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2D619754DE5007591EC /* tcpclient.cc */; };
 		13E9F33A19754DE6007591EC /* strutil.cc in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2DA19754DE5007591EC /* strutil.cc */; };
 		13E9F33B19754DE6007591EC /* tinyxml2.cc in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2E819754DE5007591EC /* tinyxml2.cc */; };
-		13E9F33C19754DE6007591EC /* socketselect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2EC19754DE6007591EC /* socketselect.cc */; };
 		13E9F33D19754DE6007591EC /* time_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2F519754DE6007591EC /* time_utils.c */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
 		13E9F33E19754DE6007591EC /* xloggerbase.c in Sources */ = {isa = PBXBuildFile; fileRef = 13E9F2FC19754DE6007591EC /* xloggerbase.c */; };
 		1F14CAFD1D93EA33003FCE73 /* nat64_prefix_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F14CAFB1D93EA33003FCE73 /* nat64_prefix_util.cc */; };
@@ -69,6 +67,9 @@
 		425BA5811A14AD0600073A45 /* tickcount.cc in Sources */ = {isa = PBXBuildFile; fileRef = 425BA57F1A14AD0600073A45 /* tickcount.cc */; };
 		4B299BE21CEF063600E2315B /* boost_exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B299BE01CEF063600E2315B /* boost_exception.cc */; };
 		4B56976B1DAF6B38001CB37C /* loginfo_extract.c in Sources */ = {isa = PBXBuildFile; fileRef = 4B5697691DAF6B38001CB37C /* loginfo_extract.c */; };
+		4BAD951D1E482C680036A589 /* socketbreaker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BAD95171E482C680036A589 /* socketbreaker.cc */; };
+		4BAD951E1E482C680036A589 /* socketpoll.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BAD95191E482C680036A589 /* socketpoll.cc */; };
+		4BAD951F1E482C680036A589 /* socketselect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BAD951B1E482C680036A589 /* socketselect.cc */; };
 		4BDBD17A1E094FFE006C62F5 /* netinfo_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BDBD1781E094FFE006C62F5 /* netinfo_util.cc */; };
 		4F516B751A19F3B20006EC9D /* getifaddrs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F516B731A19F3B20006EC9D /* getifaddrs.cc */; };
 		4FC0D7CF19A3681B00E8CB6E /* tcpclient_fsm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4FC0D7CD19A3681B00E8CB6E /* tcpclient_fsm.cc */; };
@@ -128,7 +129,6 @@
 		13E9F28219754DE5007591EC /* comm_frequency_limit.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = comm_frequency_limit.cc; sourceTree = "<group>"; };
 		13E9F28319754DE5007591EC /* comm_frequency_limit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comm_frequency_limit.h; sourceTree = "<group>"; };
 		13E9F28419754DE5007591EC /* compiler_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler_util.h; sourceTree = "<group>"; };
-		13E9F28519754DE5007591EC /* copy_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = copy_wrapper.h; sourceTree = "<group>"; };
 		13E9F28719754DE5007591EC /* coreservice_base.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = coreservice_base.cc; sourceTree = "<group>"; };
 		13E9F28819754DE5007591EC /* coreservice_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coreservice_base.h; sourceTree = "<group>"; };
 		13E9F28919754DE5007591EC /* service_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = service_base.h; sourceTree = "<group>"; };
@@ -153,8 +153,6 @@
 		13E9F2B619754DE5007591EC /* memdbg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memdbg.h; sourceTree = "<group>"; };
 		13E9F2B819754DE5007591EC /* message_queue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message_queue.cc; sourceTree = "<group>"; };
 		13E9F2B919754DE5007591EC /* message_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_queue.h; sourceTree = "<group>"; };
-		13E9F2BA19754DE5007591EC /* message_queue_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message_queue_utils.cc; sourceTree = "<group>"; };
-		13E9F2BB19754DE5007591EC /* message_queue_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_queue_utils.h; sourceTree = "<group>"; };
 		13E9F2BD19754DE5007591EC /* getgateway.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = getgateway.c; sourceTree = "<group>"; };
 		13E9F2BE19754DE5007591EC /* getgateway.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = getgateway.h; sourceTree = "<group>"; };
 		13E9F2C019754DE5007591EC /* ip_icmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ip_icmp.h; sourceTree = "<group>"; };
@@ -193,8 +191,6 @@
 		13E9F2E719754DE5007591EC /* tss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tss.h; sourceTree = "<group>"; };
 		13E9F2E819754DE5007591EC /* tinyxml2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml2.cc; sourceTree = "<group>"; };
 		13E9F2E919754DE6007591EC /* tinyxml2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinyxml2.h; sourceTree = "<group>"; };
-		13E9F2EC19754DE6007591EC /* socketselect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketselect.cc; sourceTree = "<group>"; };
-		13E9F2ED19754DE6007591EC /* socketselect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketselect.h; sourceTree = "<group>"; };
 		13E9F2EF19754DE6007591EC /* condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = condition.h; sourceTree = "<group>"; };
 		13E9F2F019754DE6007591EC /* lock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lock.h; sourceTree = "<group>"; };
 		13E9F2F119754DE6007591EC /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mutex.h; sourceTree = "<group>"; };
@@ -266,6 +262,14 @@
 		4B299BE01CEF063600E2315B /* boost_exception.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = boost_exception.cc; sourceTree = "<group>"; };
 		4B5697691DAF6B38001CB37C /* loginfo_extract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loginfo_extract.c; sourceTree = "<group>"; };
 		4B56976A1DAF6B38001CB37C /* loginfo_extract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loginfo_extract.h; sourceTree = "<group>"; };
+		4BA2353C1E5AA11C002B769D /* move_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = move_wrapper.h; sourceTree = "<group>"; };
+		4BA2353D1E5AA11C002B769D /* string_cast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_cast.h; sourceTree = "<group>"; };
+		4BAD95171E482C680036A589 /* socketbreaker.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketbreaker.cc; sourceTree = "<group>"; };
+		4BAD95181E482C680036A589 /* socketbreaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketbreaker.h; sourceTree = "<group>"; };
+		4BAD95191E482C680036A589 /* socketpoll.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketpoll.cc; sourceTree = "<group>"; };
+		4BAD951A1E482C680036A589 /* socketpoll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketpoll.h; sourceTree = "<group>"; };
+		4BAD951B1E482C680036A589 /* socketselect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketselect.cc; sourceTree = "<group>"; };
+		4BAD951C1E482C680036A589 /* socketselect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketselect.h; sourceTree = "<group>"; };
 		4BDBD1781E094FFE006C62F5 /* netinfo_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = netinfo_util.cc; sourceTree = "<group>"; };
 		4BDBD1791E094FFE006C62F5 /* netinfo_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netinfo_util.h; sourceTree = "<group>"; };
 		4F516B731A19F3B20006EC9D /* getifaddrs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getifaddrs.cc; sourceTree = "<group>"; };
@@ -364,8 +368,6 @@
 			children = (
 				13E9F2B819754DE5007591EC /* message_queue.cc */,
 				13E9F2B919754DE5007591EC /* message_queue.h */,
-				13E9F2BA19754DE5007591EC /* message_queue_utils.cc */,
-				13E9F2BB19754DE5007591EC /* message_queue_utils.h */,
 			);
 			path = messagequeue;
 			sourceTree = "<group>";
@@ -461,19 +463,10 @@
 		13E9F2EA19754DE6007591EC /* unix */ = {
 			isa = PBXGroup;
 			children = (
-				13E9F2EB19754DE6007591EC /* SocketSelect */,
+				4BAD95161E482C680036A589 /* socket */,
 				13E9F2EE19754DE6007591EC /* thread */,
 			);
 			path = unix;
-			sourceTree = "<group>";
-		};
-		13E9F2EB19754DE6007591EC /* SocketSelect */ = {
-			isa = PBXGroup;
-			children = (
-				13E9F2EC19754DE6007591EC /* socketselect.cc */,
-				13E9F2ED19754DE6007591EC /* socketselect.h */,
-			);
-			path = SocketSelect;
 			sourceTree = "<group>";
 		};
 		13E9F2EE19754DE6007591EC /* thread */ = {
@@ -725,6 +718,8 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				4BA2353C1E5AA11C002B769D /* move_wrapper.h */,
+				4BA2353D1E5AA11C002B769D /* string_cast.h */,
 				F1F050FD1E08E56E007DB6DB /* coroutine */,
 				1FDCDCA11DAA70B700ADAE56 /* http.cc */,
 				1FDCDCA21DAA70B700ADAE56 /* http.h */,
@@ -752,7 +747,6 @@
 				13E9F28219754DE5007591EC /* comm_frequency_limit.cc */,
 				13E9F28319754DE5007591EC /* comm_frequency_limit.h */,
 				13E9F28419754DE5007591EC /* compiler_util.h */,
-				13E9F28519754DE5007591EC /* copy_wrapper.h */,
 				13E9F28619754DE5007591EC /* corepattern */,
 				13E9F29719754DE5007591EC /* crypt */,
 				13E9F2A119754DE5007591EC /* debugger */,
@@ -801,6 +795,19 @@
 				3170A02A177887B0004F5DDA /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4BAD95161E482C680036A589 /* socket */ = {
+			isa = PBXGroup;
+			children = (
+				4BAD95171E482C680036A589 /* socketbreaker.cc */,
+				4BAD95181E482C680036A589 /* socketbreaker.h */,
+				4BAD95191E482C680036A589 /* socketpoll.cc */,
+				4BAD951A1E482C680036A589 /* socketpoll.h */,
+				4BAD951B1E482C680036A589 /* socketselect.cc */,
+				4BAD951C1E482C680036A589 /* socketselect.h */,
+			);
+			path = socket;
 			sourceTree = "<group>";
 		};
 		F138F5FC1DF0109E00546CBB /* context */ = {
@@ -953,6 +960,7 @@
 				1F25BF871CD376F100AC1003 /* codecvt_error_category.cpp in Sources */,
 				1F25BF881CD376F100AC1003 /* operations.cpp in Sources */,
 				1F25BF891CD376F100AC1003 /* path.cpp in Sources */,
+				4BAD951D1E482C680036A589 /* socketbreaker.cc in Sources */,
 				1F25BF8A1CD376F100AC1003 /* path_traits.cpp in Sources */,
 				F138F6B31DF014DA00546CBB /* ontop_arm_aapcs_macho_gas.S in Sources */,
 				1F25BF8B1CD376F100AC1003 /* portability.cpp in Sources */,
@@ -981,6 +989,7 @@
 				13E9F32B19754DE6007591EC /* memdbg.cc in Sources */,
 				1FA3D5A71C86DFFB00B9BEFD /* local_ipstack.cc in Sources */,
 				1FDCDCA31DAA70B700ADAE56 /* http.cc in Sources */,
+				4BAD951F1E482C680036A589 /* socketselect.cc in Sources */,
 				4FCB62DB1A30802600E57EE0 /* basepacker.cc in Sources */,
 				13E9F33819754DE6007591EC /* tcpclient.cc in Sources */,
 				13E9F33D19754DE6007591EC /* time_utils.c in Sources */,
@@ -991,6 +1000,7 @@
 				4F516B751A19F3B20006EC9D /* getifaddrs.cc in Sources */,
 				13E9F31A19754DE6007591EC /* coreservice_base.cc in Sources */,
 				F138F6A51DF0119A00546CBB /* jump_arm64_aapcs_macho_gas.S in Sources */,
+				4BAD951E1E482C680036A589 /* socketpoll.cc in Sources */,
 				13E9F33119754DE6007591EC /* Reachability.mm in Sources */,
 				1FA3D6331C89758400B9BEFD /* __assert.c in Sources */,
 				13E9F33519754DE6007591EC /* ptrbuffer.cc in Sources */,
@@ -1012,13 +1022,11 @@
 				1F5ADF571CA440370022E41D /* mmap_util.cc in Sources */,
 				F138F6D01DF016BD00546CBB /* ontop_i386_sysv_macho_gas.S in Sources */,
 				13E9F30119754DE6007591EC /* autobuffer.cc in Sources */,
-				13E9F32D19754DE6007591EC /* message_queue_utils.cc in Sources */,
 				13E9F33A19754DE6007591EC /* strutil.cc in Sources */,
 				4FC0D7D219A4898100E8CB6E /* anr.cc in Sources */,
 				F138F6A41DF0119A00546CBB /* jump_arm_aapcs_macho_gas.S in Sources */,
 				13E9F30019754DE6007591EC /* alarm.cc in Sources */,
 				425BA5811A14AD0600073A45 /* tickcount.cc in Sources */,
-				13E9F33C19754DE6007591EC /* socketselect.cc in Sources */,
 				13E9F32719754DE6007591EC /* testspy.cc in Sources */,
 				F138F69C1DF0109E00546CBB /* stack_traits.cpp in Sources */,
 				F1C0DAFE19C862DF0056DE44 /* udpserver.cc in Sources */,

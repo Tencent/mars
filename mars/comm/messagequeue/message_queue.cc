@@ -121,17 +121,26 @@ private:
 };
     
 struct MessageQueueContent {
-public:
-    MessageQueueContent(): breakflag(false), anr_timeout(-1) {}
+    MessageQueueContent(): breakflag(false) {}
+
+#if defined(ANDROID)
+    MessageQueueContent(const MessageQueueContent&): breakflag(false) { /*ASSERT(false);*/ }
+#endif
 
     MessageHandler_t invoke_reg;
     bool breakflag;
     boost::shared_ptr<RunloopCond> breaker;
     std::list<MessageWrapper*> lst_message;
     std::list<HandlerWrapper*> lst_handler;
-    int anr_timeout;
     
     std::list<RunLoopInfo> lst_runloop_info;
+    
+private:
+    void operator=(const MessageQueueContent&);
+    
+#if !defined(ANDROID)
+    MessageQueueContent(const MessageQueueContent&);
+#endif
 };
 
 #define sg_messagequeue_map_mutex messagequeue_map_mutex()
@@ -172,14 +181,15 @@ thread_tid  MessageQueue2TID(MessageQueue_t _id) {
     return (thread_tid)id;
 }
 
-void WaitForRuningLockEnd(const MessagePost_t&  _message) {
+void WaitForRunningLockEnd(const MessagePost_t&  _message) {
     if (Handler2Queue(Post2Handler(_message)) == CurrentThreadMessageQueue()) return;
 
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = Handler2Queue(Post2Handler(_message));
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return;
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return;
+    MessageQueueContent& content = pos->second;
     
     if (content.lst_runloop_info.empty()) return;
     
@@ -192,14 +202,15 @@ void WaitForRuningLockEnd(const MessagePost_t&  _message) {
     runing_cond->wait(lock);
 }
 
-void WaitForRuningLockEnd(const MessageQueue_t&  _messagequeueid) {
+void WaitForRunningLockEnd(const MessageQueue_t&  _messagequeueid) {
     if (_messagequeueid == CurrentThreadMessageQueue()) return;
 
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _messagequeueid;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return;
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return;
+    MessageQueueContent& content = pos->second;
 
     if (content.lst_runloop_info.empty()) return;
     if (KNullPost == content.lst_runloop_info.front().runing_message_id) return;
@@ -208,14 +219,15 @@ void WaitForRuningLockEnd(const MessageQueue_t&  _messagequeueid) {
     runing_cond->wait(lock);
 }
 
-void WaitForRuningLockEnd(const MessageHandler_t&  _handler) {
+void WaitForRunningLockEnd(const MessageHandler_t&  _handler) {
     if (Handler2Queue(_handler) == CurrentThreadMessageQueue()) return;
 
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = Handler2Queue(_handler);
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) { return; }
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) { return; }
+    MessageQueueContent& content = pos->second;
     if (content.lst_runloop_info.empty()) return;
 
     for(auto& i : content.lst_runloop_info) {
@@ -235,13 +247,14 @@ void BreakMessageQueueRunloop(const MessageQueue_t&  _messagequeueid) {
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _messagequeueid;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%" PRIu64, id);
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
+        ASSERT2(false, "%llu", (unsigned long long)id);
         return;
     }
 
-    sg_messagequeue_map[id].breakflag = true;
-    sg_messagequeue_map[id].breaker->Notify(lock);
+    pos->second.breakflag = true;
+    pos->second.breaker->Notify(lock);
 }
 
 MessageHandler_t InstallMessageHandler(const MessageHandler& _handler, bool _recvbroadcast, const MessageQueue_t& _messagequeueid) {
@@ -250,13 +263,14 @@ MessageHandler_t InstallMessageHandler(const MessageHandler& _handler, bool _rec
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _messagequeueid;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
-        ASSERT2(false, "%" PRIu64, id);
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
+        ASSERT2(false, "%llu", (unsigned long long)id);
         return KNullHandler;
     }
 
     HandlerWrapper* handler = new HandlerWrapper(_handler, _recvbroadcast, _messagequeueid, __MakeSeq());
-    sg_messagequeue_map[id].lst_handler.push_back(handler);
+    pos->second.lst_handler.push_back(handler);
     return handler->reg;
 }
 
@@ -269,9 +283,10 @@ void UnInstallMessageHandler(const MessageHandler_t& _handlerid) {
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _handlerid.queue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return;
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return;
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     for (std::list<HandlerWrapper*>::iterator it = content.lst_handler.begin(); it != content.lst_handler.end(); ++it) {
         if (_handlerid == (*it)->reg) {
@@ -286,12 +301,13 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _handlerid.queue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
         ASSERT2(false, "%" PRIu64, id);
         return KNullPost;
     }
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, __MakeSeq());
 
@@ -304,9 +320,10 @@ MessagePost_t SingletonMessage(bool _replace, const MessageHandler_t& _handlerid
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _handlerid.queue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return KNullPost;
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return KNullPost;
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     MessagePost_t post_id;
 
@@ -333,12 +350,13 @@ MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Mes
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _messagequeueid;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
         ASSERT2(false, "%" PRIu64, id);
         return KNullPost;
     }
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     MessageHandler_t reg;
     reg.queue = _messagequeueid;
@@ -375,9 +393,10 @@ MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _handlerid.queue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return KNullPost;
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return KNullPost;
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, __MakeSeq());
 
@@ -405,8 +424,9 @@ bool WaitMessage(const MessagePost_t& _message) {
 
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = Handler2Queue(Post2Handler(_message));
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return false;
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return false;
+    MessageQueueContent& content = pos->second;
 
     auto find_it = std::find_if(content.lst_message.begin(), content.lst_message.end(),
                                 [&_message](const MessageWrapper * const &_v) {
@@ -450,8 +470,9 @@ bool FoundMessage(const MessagePost_t& _message) {
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = Handler2Queue(Post2Handler(_message));
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return false;
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return false;
+    MessageQueueContent& content = pos->second;
     if (content.lst_runloop_info.empty()) return false;
 
     auto find_it = std::find_if(content.lst_runloop_info.begin(), content.lst_runloop_info.end(),
@@ -476,12 +497,13 @@ bool CancelMessage(const MessagePost_t& _postid) {
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _postid.reg.queue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
         ASSERT2(false, "%" PRIu64, id);
         return false;
     }
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     for (std::list<MessageWrapper*>::iterator it = content.lst_message.begin(); it != content.lst_message.end(); ++it) {
         if (_postid == (*it)->postid) {
@@ -503,12 +525,13 @@ void CancelMessage(const MessageHandler_t& _handlerid) {
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _handlerid.queue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
         //        ASSERT2(false, "%lu", id);
         return;
     }
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     for (std::list<MessageWrapper*>::iterator it = content.lst_message.begin(); it != content.lst_message.end();) {
         if (_handlerid == (*it)->postid.reg) {
@@ -529,12 +552,13 @@ void CancelMessage(const MessageHandler_t& _handlerid, const MessageTitle_t& _ti
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _handlerid.queue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
         ASSERT2(false, "%" PRIu64, id);
         return;
     }
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
 
     for (std::list<MessageWrapper*>::iterator it = content.lst_message.begin(); it != content.lst_message.end();) {
         if (_handlerid == (*it)->postid.reg && _title == (*it)->message.title) {
@@ -546,31 +570,33 @@ void CancelMessage(const MessageHandler_t& _handlerid, const MessageTitle_t& _ti
     }
 }
     
-const Message& RuningMessage() {
+const Message& RunningMessage() {
     MessageQueue_t id = (MessageQueue_t)ThreadUtil::currentthreadid();
     ScopedLock lock(sg_messagequeue_map_mutex);
     
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) {
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
         return KNullMessage;
     }
     
-    MessageQueueContent& content = sg_messagequeue_map[id];
-    return *(content.lst_runloop_info.back().runing_message);
+    Message* runing_message = pos->second.lst_runloop_info.back().runing_message;
+    return runing_message? *runing_message: KNullMessage;
 }
     
-MessagePost_t RuningMessageID() {
+MessagePost_t RunningMessageID() {
     MessageQueue_t id = (MessageQueue_t)ThreadUtil::currentthreadid();
-    return RuningMessageID(id);
+    return RunningMessageID(id);
 }
 
-MessagePost_t RuningMessageID(const MessageQueue_t& _id) {
+MessagePost_t RunningMessageID(const MessageQueue_t& _id) {
     ScopedLock lock(sg_messagequeue_map_mutex);
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(_id)) {
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(_id);
+    if (sg_messagequeue_map.end() == pos) {
         return KNullPost;
     }
 
-    MessageQueueContent& content = sg_messagequeue_map[_id];
+    MessageQueueContent& content = pos->second;
     return content.lst_runloop_info.back().runing_message_id;
 }
 
@@ -584,7 +610,7 @@ MessageHandler_t InstallAsyncHandler(const MessageQueue_t& id) {
 }
     
 
-static MessageQueue_t __CreateMessageQueueInfo(boost::shared_ptr<RunloopCond>& _breaker, thread_tid _tid, int _anr_timeout = 10*60*1000) {
+static MessageQueue_t __CreateMessageQueueInfo(boost::shared_ptr<RunloopCond>& _breaker, thread_tid _tid) {
     ScopedLock lock(sg_messagequeue_map_mutex);
 
     MessageQueue_t id = (MessageQueue_t)_tid;
@@ -594,12 +620,10 @@ static MessageQueue_t __CreateMessageQueueInfo(boost::shared_ptr<RunloopCond>& _
         HandlerWrapper* handler = new HandlerWrapper(&__AsyncInvokeHandler, false, id, __MakeSeq());
         content.lst_handler.push_back(handler);
         content.invoke_reg = handler->reg;
-        content.anr_timeout = _anr_timeout;
         if (_breaker)
             content.breaker = _breaker;
         else
             content.breaker = boost::make_shared<Cond>();
-        content.breakflag = false;
     }
 
     return id;
@@ -609,8 +633,9 @@ static void __ReleaseMessageQueueInfo() {
 
     MessageQueue_t id = (MessageQueue_t)ThreadUtil::currentthreadid();
 
-    if (sg_messagequeue_map.end() != sg_messagequeue_map.find(id)) {
-        MessageQueueContent& content = sg_messagequeue_map[id];
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() != pos) {
+        MessageQueueContent& content = pos->second;
 
         for (std::list<MessageWrapper*>::iterator it = content.lst_message.begin(); it != content.lst_message.end(); ++it) {
             delete(*it);
@@ -641,6 +666,8 @@ void RunLoop::Run() {
         content.lst_runloop_info.back().runing_message = NULL;
         content.lst_runloop_info.back().runing_handler.clear();
         content.lst_runloop_info.back().runing_cond->notifyAll(lock);
+        
+        if (duty_func_) duty_func_();
 
         if ((content.breakflag || (breaker_func_ && breaker_func_()))) {
             content.lst_runloop_info.pop_back();
@@ -716,11 +743,11 @@ void RunLoop::Run() {
 
         content.lst_runloop_info.back().runing_message_id = messagewrapper->postid;
         content.lst_runloop_info.back().runing_message = &messagewrapper->message;
-        int anr_timeout = content.anr_timeout;
+        int64_t anr_timeout = messagewrapper->message.anr_timeout;
         lock.unlock();
 
         for (std::list<HandlerWrapper>::iterator it = fit_handler.begin(); it != fit_handler.end(); ++it) {
-            SCOPE_ANR_AUTO(anr_timeout);
+            SCOPE_ANR_AUTO((int)anr_timeout);
             uint64_t timestart = ::clock_app_monotonic();
             (*it).handler(messagewrapper->postid, messagewrapper->message);
             uint64_t timeend = ::clock_app_monotonic();
@@ -728,7 +755,7 @@ void RunLoop::Run() {
 
             if (!isDebuggerPerforming())
 #endif
-                ASSERT2(0 >= anr_timeout || anr_timeout >= (int)(timeend - timestart), "anr_timeout:%d < cost:%" PRIu64", timestart:%" PRIu64", timeend:%" PRIu64, anr_timeout, timeend - timestart, timestart, timeend);
+                ASSERT2(0 >= anr_timeout || anr_timeout >= (int64_t)(timeend - timestart), "anr_timeout:%" PRId64 " < cost:%" PRIu64", timestart:%" PRIu64", timeend:%" PRIu64, anr_timeout, timeend - timestart, timestart, timeend);
         }
 
         if (delmessage) {
@@ -740,9 +767,10 @@ void RunLoop::Run() {
 boost::shared_ptr<RunloopCond> RunloopCond::CurrentCond() {
     ScopedLock lock(sg_messagequeue_map_mutex);
     MessageQueue_t id = (MessageQueue_t)ThreadUtil::currentthreadid();
-    
-    if (sg_messagequeue_map.end() != sg_messagequeue_map.find(id)) {
-        MessageQueueContent& content = sg_messagequeue_map[id];
+
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() != pos) {
+        MessageQueueContent& content = pos->second;
         return content.breaker;
     } else {
         return boost::shared_ptr<RunloopCond>();
@@ -797,6 +825,10 @@ void MessageQueueCreater::CancelAndWait() {
     thread_.join();
 }
 
+MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, thread_tid _tid) {
+    return(__CreateMessageQueueInfo(_breaker, _tid));
+}
+
 MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, const char* _messagequeue_name) {
     
     SpinLock* sp = new SpinLock;
@@ -822,7 +854,7 @@ void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id
     if (KInvalidQueueID == _messagequeue_id) return;
     
     BreakMessageQueueRunloop(_messagequeue_id);
-    WaitForRuningLockEnd(_messagequeue_id);
+    WaitForRunningLockEnd(_messagequeue_id);
     ThreadUtil::join((thread_tid)_messagequeue_id);
 }
 
@@ -848,10 +880,30 @@ MessageHandler_t DefAsyncInvokeHandler(const MessageQueue_t& _messagequeue) {
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _messagequeue;
 
-    if (sg_messagequeue_map.end() == sg_messagequeue_map.find(id)) return KNullHandler;
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) return KNullHandler;
 
-    MessageQueueContent& content = sg_messagequeue_map[id];
+    MessageQueueContent& content = pos->second;
     return content.invoke_reg;
 }
 
+ScopeRegister::ScopeRegister(const MessageHandler_t& _reg)
+: m_reg(new MessageHandler_t(_reg)) {}
+
+ScopeRegister::~ScopeRegister() {
+    Cancel();
+    delete m_reg;
+}
+
+const MessageHandler_t& ScopeRegister::Get() const
+{return *m_reg;}
+
+void ScopeRegister::Cancel() const {
+    UnInstallMessageHandler(*m_reg);
+    CancelMessage(*m_reg);
+}
+void ScopeRegister::CancelAndWait() const {
+    Cancel();
+    WaitForRunningLockEnd(*m_reg);
+}
 }  // namespace MessageQueue

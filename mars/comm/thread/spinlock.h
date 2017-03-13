@@ -126,12 +126,12 @@ public:
 
      bool lock()
      {
-         register unsigned int pause_count = initial_pause;
+         /*register*/ unsigned int pause_count = initial_pause; //'register' storage class specifier is deprecated and incompatible with C++1z
          while (!trylock())
          {
              if (pause_count < max_pause)
              {
-                 for (register unsigned int i = 0; i < pause_count; ++i)
+                 for (/*register*/ unsigned int i = 0; i < pause_count; ++i) //'register' storage class specifier is deprecated and incompatible with C++1z
                  {
                      cpu_relax();
                  }

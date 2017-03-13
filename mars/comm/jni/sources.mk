@@ -106,7 +106,7 @@ SRC := $(wildcard $(TEMP_LOCAL_PATH)/coroutine/*.cc)
 SRC := $(SRC:$(LOCAL_PATH)/%=%)
 LOCAL_SRC_FILES += $(SRC)
 
-SRC := $(wildcard $(TEMP_LOCAL_PATH)/unix/socketselect/*.cc)
+SRC := $(wildcard $(TEMP_LOCAL_PATH)/unix/socket/*.cc)
 SRC := $(SRC:$(LOCAL_PATH)/%=%)
 LOCAL_SRC_FILES += $(SRC)
 

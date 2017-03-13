@@ -67,7 +67,7 @@ ActiveLogic::~ActiveLogic()
 {
     xinfo_function();
 	MessageQueue::CancelMessage(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()), (MessageQueue::MessageTitle_t)this);
-	MessageQueue::WaitForRuningLockEnd(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()));
+	MessageQueue::WaitForRunningLockEnd(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()));
 }
 
 void ActiveLogic::OnForeground(bool _isforeground)

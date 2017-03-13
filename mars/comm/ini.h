@@ -27,8 +27,8 @@
 
 #include <map>
 #include <string>
-#include <sstream>
 
+#include "string_cast.h"
 #include "assert/__assert.h"
 
 inline bool VerifyName(const std::string& _name) {
@@ -126,9 +126,7 @@ class INI {
             return false;
         }
 
-        std::stringstream strstream;
-        strstream << value;
-        std::string svalue = strstream.str();
+        std::string svalue = string_cast(value).str();
 
         if (BUFFER_SIZE < key.size() + svalue.size() + 1) {
             ASSERT2(false, "%lu", (long unsigned int)(key.size() + svalue.size()));
@@ -355,22 +353,11 @@ V INI::Get(const std::string& section, const std::string& key, const V& def) {
 
     if (keys->second.empty()) return def;
 
-    V result;
-    std::stringstream strstream(keys->second);
-    strstream >> result;
-
-    if (strstream.bad()) {
-        ASSERT("strstream.bad()");
-        return def;
-    } else if (strstream.fail()) {
-        ASSERT("strstream.fail()");
-        return def;
-    } else if (strstream.good() || strstream.eof()) {
-        return result;
-    } else {
-        ASSERT("unkown error");
-        return def;
-    }
+    //V result;
+    
+    number_cast<V> cast(keys->second.c_str());
+    if (cast.valid()) return cast;
+    return def;
 }
 
 template<> inline
