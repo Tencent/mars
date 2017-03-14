@@ -310,7 +310,7 @@ extern "C" {
 #  define ossl_ssize_t long
 # endif
 
-# if defined(NeXT) || defined(OPENSSL_SYS_NEWS4) || defined(OPENSSL_SYS_SUNOS) || defined(WIN32)
+# if defined(NeXT) || defined(OPENSSL_SYS_NEWS4) || defined(OPENSSL_SYS_SUNOS)
 #  define ssize_t int
 # endif
 

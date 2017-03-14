@@ -4,89 +4,30 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
-
-#define OPENSSL_THREADS
-
-#ifdef __x86_64__
-#define OPENSSL_NO_INLINE_ASM
-#endif
-
 /* OpenSSL was configured with the following options: */
 #ifndef OPENSSL_DOING_MAKEDEPEND
-#define OPENSSL_NO_CMS
-#define NO_WINDOWS_BRAINDEATH
-#define OPENSSL_NO_ENGINE
-#define OPENSSL_NO_ERR
-//#define OPENSSL_NO_RSA
-#define OPENSSL_NO_DH
-#define OPENSSL_NO_DSA
-#define OPENSSL_NO_LHASH
 
-#define L_ENDIAN
-#define ZLIB
-//#define OPENSSL_FIPS
-#define OPENSSL_NO_BF
-#define OPENSSL_NO_CAST
-#define OPENSSL_NO_CAMELLIA
-#define OPENSSL_NO_DES
-#define OPENSSL_NO_GOST
-#define OPENSSL_NO_IDEA
-#define OPENSSL_NO_RC2
-#define OPENSSL_NO_RC4
-#define OPENSSL_NO_RC5
-#define OPENSSL_NO_SEED
-#define OPENSSL_NO_MD2
-#define OPENSSL_NO_MD4
-#define OPENSSL_NO_MDC2
-#define OPENSSL_NO_RIPEMD
-#define OPENSSL_NO_WHIRLPOOL
-#define OPENSSL_NO_DH
-#define OPENSSL_NO_DSA
-//#define OPENSSL_NO_ECDH /* For support ECDH, open by renlibin. */
-#define OPENSSL_NO_EC2M
-#define OPENSSL_NO_EC_NISTP_64_GCC_128
-#define OPENSSL_NO_COMP
-#define OPENSSL_NO_LHASH
-#define OPENSSL_NO_STACK
-#define OPENSSL_NO_ERR
-//#define OPENSSL_NO_LOCKING
-#define OPENSSL_NO_KRB4
-#define OPENSSL_NO_STATIC_ENGINE
-#define OPENSSL_NO_ENGINE
-#define OPENSSL_NO_HW
-#define OPENSSL_NO_GMP
-#define OPENSSL_NO_RFC3779
-#define OPENSSL_NO_TLSEXT
-#define OPENSSL_NO_PSK
-#define OPENSSL_NO_SRP
-#define OPENSSL_NO_CMS
-#define OPENSSL_NO_CAPIENG
-#define OPENSSL_NO_SSL2
-#define OPENSSL_NO_JPAKE
-#define OPENSSL_NO_NEXTPROTONEG
-#define NO_WINDOWS_BRAINDEATH
-#define OPENSSL_NO_SOCK
-//#define OPENSSL_NO_HMAC
-#define OPENSSL_IMPLEMENTS_strncasecmp
 
-#ifndef OPENSSL_NO_CAST
-# define OPENSSL_NO_CAST
+#ifndef OPENSSL_NO_COMP
+# define OPENSSL_NO_COMP
 #endif
-
 #ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
 # define OPENSSL_NO_EC_NISTP_64_GCC_128
 #endif
+#ifndef OPENSSL_NO_ENGINE
+# define OPENSSL_NO_ENGINE
+#endif
 #ifndef OPENSSL_NO_GMP
 # define OPENSSL_NO_GMP
-#endif
-#ifndef OPENSSL_NO_IDEA
-# define OPENSSL_NO_IDEA
 #endif
 #ifndef OPENSSL_NO_JPAKE
 # define OPENSSL_NO_JPAKE
 #endif
 #ifndef OPENSSL_NO_KRB5
 # define OPENSSL_NO_KRB5
+#endif
+#ifndef OPENSSL_NO_LIBUNBOUND
+# define OPENSSL_NO_LIBUNBOUND
 #endif
 #ifndef OPENSSL_NO_MD2
 # define OPENSSL_NO_MD2
@@ -97,17 +38,17 @@ extern "C" {
 #ifndef OPENSSL_NO_RFC3779
 # define OPENSSL_NO_RFC3779
 #endif
-#ifndef OPENSSL_NO_SEED
-# define OPENSSL_NO_SEED
-#endif
-#ifndef OPENSSL_NO_SHA0
-# define OPENSSL_NO_SHA0
-#endif
-#ifndef OPENSSL_NO_WHRLPOOL
-# define OPENSSL_NO_WHRLPOOL
-#endif
 #ifndef OPENSSL_NO_SCTP
 # define OPENSSL_NO_SCTP
+#endif
+#ifndef OPENSSL_NO_SSL_TRACE
+# define OPENSSL_NO_SSL_TRACE
+#endif
+#ifndef OPENSSL_NO_SSL2
+# define OPENSSL_NO_SSL2
+#endif
+#ifndef OPENSSL_NO_SSL3
+# define OPENSSL_NO_SSL3
 #endif
 #ifndef OPENSSL_NO_STORE
 # define OPENSSL_NO_STORE
@@ -115,11 +56,20 @@ extern "C" {
 #ifndef OPENSSL_NO_UNIT_TEST
 # define OPENSSL_NO_UNIT_TEST
 #endif
+#ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+# define OPENSSL_NO_WEAK_SSL_CIPHERS
+#endif
 
 #endif /* OPENSSL_DOING_MAKEDEPEND */
 
-#ifndef OPENSSL_NO_DYNAMIC_ENGINE
-# define OPENSSL_NO_DYNAMIC_ENGINE
+#ifndef OPENSSL_THREADS
+# define OPENSSL_THREADS
+#endif
+#ifndef OPENSSL_NO_HW
+# define OPENSSL_NO_HW
+#endif
+#ifndef OPENSSL_NO_STATIC_ENGINE
+# define OPENSSL_NO_STATIC_ENGINE
 #endif
 
 /* The OPENSSL_NO_* macros are also defined as NO_* if the application
@@ -127,45 +77,15 @@ extern "C" {
    who haven't had the time to do the appropriate changes in their
    applications.  */
 #ifdef OPENSSL_ALGORITHM_DEFINES
-# if defined(OPENSSL_NO_CAST) && !defined(NO_CAST)
-#  define NO_CAST
-# endif
-# if defined(OPENSSL_NO_GMP) && !defined(NO_GMP)
-#  define NO_GMP
-# endif
-# if defined(OPENSSL_NO_IDEA) && !defined(NO_IDEA)
-#  define NO_IDEA
-# endif
-# if defined(OPENSSL_NO_JPAKE) && !defined(NO_JPAKE)
-#  define NO_JPAKE
-# endif
-# if defined(OPENSSL_NO_KRB5) && !defined(NO_KRB5)
-#  define NO_KRB5
-# endif
-# if defined(OPENSSL_NO_MD2) && !defined(NO_MD2)
-#  define NO_MD2
-# endif
-# if defined(OPENSSL_NO_RC5) && !defined(NO_RC5)
-#  define NO_RC5
-# endif
-# if defined(OPENSSL_NO_RFC3779) && !defined(NO_RFC3779)
-#  define NO_RFC3779
-# endif
-# if defined(OPENSSL_NO_SEED) && !defined(NO_SEED)
-#  define NO_SEED
-# endif
-# if defined(OPENSSL_NO_SHA0) && !defined(NO_SHA0)
-#  define NO_SHA0
-# endif
-# if defined(OPENSSL_NO_STORE) && !defined(NO_STORE)
-#  define NO_STORE
-# endif
-# if defined(OPENSSL_NO_WHRLPOOL) && !defined(NO_WHRLPOOL)
-#  define NO_WHRLPOOL
+# if defined(OPENSSL_NO_COMP) && !defined(NO_COMP)
+#  define NO_COMP
 # endif
 # if defined(OPENSSL_NO_EC_NISTP_64_GCC_128) && !defined(NO_EC_NISTP_64_GCC_128)
 #  define NO_EC_NISTP_64_GCC_128
 # endif
+# if defined(OPENSSL_NO_ENGINE) && !defined(NO_ENGINE)
+#  define NO_ENGINE
+# endif
 # if defined(OPENSSL_NO_GMP) && !defined(NO_GMP)
 #  define NO_GMP
 # endif
@@ -174,6 +94,9 @@ extern "C" {
 # endif
 # if defined(OPENSSL_NO_KRB5) && !defined(NO_KRB5)
 #  define NO_KRB5
+# endif
+# if defined(OPENSSL_NO_LIBUNBOUND) && !defined(NO_LIBUNBOUND)
+#  define NO_LIBUNBOUND
 # endif
 # if defined(OPENSSL_NO_MD2) && !defined(NO_MD2)
 #  define NO_MD2
@@ -187,13 +110,27 @@ extern "C" {
 # if defined(OPENSSL_NO_SCTP) && !defined(NO_SCTP)
 #  define NO_SCTP
 # endif
+# if defined(OPENSSL_NO_SSL_TRACE) && !defined(NO_SSL_TRACE)
+#  define NO_SSL_TRACE
+# endif
+# if defined(OPENSSL_NO_SSL2) && !defined(NO_SSL2)
+#  define NO_SSL2
+# endif
+# if defined(OPENSSL_NO_SSL3) && !defined(NO_SSL3)
+#  define NO_SSL3
+# endif
 # if defined(OPENSSL_NO_STORE) && !defined(NO_STORE)
 #  define NO_STORE
 # endif
 # if defined(OPENSSL_NO_UNIT_TEST) && !defined(NO_UNIT_TEST)
 #  define NO_UNIT_TEST
 # endif
+# if defined(OPENSSL_NO_WEAK_SSL_CIPHERS) && !defined(NO_WEAK_SSL_CIPHERS)
+#  define NO_WEAK_SSL_CIPHERS
+# endif
 #endif
+
+#define OPENSSL_CPUID_OBJ
 
 /* crypto/opensslconf.h.in */
 
@@ -202,8 +139,8 @@ extern "C" {
 
 #if !(defined(VMS) || defined(__VMS)) /* VMS uses logical names instead */
 #if defined(HEADER_CRYPTLIB_H) && !defined(OPENSSLDIR)
-#define ENGINESDIR "/usr/local/ssl/lib/engines"
-#define OPENSSLDIR "/usr/local/ssl"
+#define ENGINESDIR "./android-21/lib/engines"
+#define OPENSSLDIR "./android-21/./android-21"
 #endif
 #endif
 
@@ -211,9 +148,6 @@ extern "C" {
 #define OPENSSL_UNISTD <unistd.h>
 
 #undef OPENSSL_EXPORT_VAR_AS_FUNCTION
-#ifdef _WIN32
-#define OPENSSL_EXPORT_VAR_AS_FUNCTION
-#endif
 
 #if defined(HEADER_IDEA_H) && !defined(IDEA_INT)
 #define IDEA_INT unsigned int
@@ -237,14 +171,14 @@ extern "C" {
  * - Intel P6 because partial register stalls are very expensive;
  * - elder Alpha because it lacks byte load/store instructions;
  */
-#define RC4_INT unsigned int
+#define RC4_INT unsigned char
 #endif
 #if !defined(RC4_CHUNK)
 /*
  * This enables code handling data aligned at natural CPU word
  * boundary. See crypto/rc4/rc4_enc.c for further details.
  */
-#undef RC4_CHUNK
+#define RC4_CHUNK unsigned long
 #endif
 #endif
 
@@ -252,13 +186,13 @@ extern "C" {
 /* If this is set to 'unsigned int' on a DEC Alpha, this gives about a
  * %20 speed up (longs are 8 bytes, int's are 4). */
 #ifndef DES_LONG
-#define DES_LONG unsigned long
+#define DES_LONG unsigned int
 #endif
 #endif
 
 #if defined(HEADER_BN_H) && !defined(CONFIG_HEADER_BN_H)
 #define CONFIG_HEADER_BN_H
-#undef BN_LLONG
+#define BN_LLONG
 
 /* Should we define BN_DIV2W here? */
 
@@ -277,7 +211,7 @@ extern "C" {
 
 #if defined(HEADER_BF_LOCL_H) && !defined(CONFIG_HEADER_BF_LOCL_H)
 #define CONFIG_HEADER_BF_LOCL_H
-#undef BF_PTR
+#define BF_PTR
 #endif /* HEADER_BF_LOCL_H */
 
 #if defined(HEADER_DES_LOCL_H) && !defined(CONFIG_HEADER_DES_LOCL_H)
@@ -301,13 +235,13 @@ extern "C" {
 #endif
 
 #if defined(DES_RISC1) && defined(DES_RISC2)
-YOU SHOULD NOT HAVE BOTH DES_RISC1 AND DES_RISC2 DEFINED!!!!!
+#error YOU SHOULD NOT HAVE BOTH DES_RISC1 AND DES_RISC2 DEFINED!!!!!
 #endif
 
 /* Unroll the inner loop, this sometimes helps, sometimes hinders.
  * Very mucy CPU dependant */
 #ifndef DES_UNROLL
-#undef DES_UNROLL
+#define DES_UNROLL
 #endif
 
 /* These default values were supplied by
@@ -320,7 +254,7 @@ YOU SHOULD NOT HAVE BOTH DES_RISC1 AND DES_RISC2 DEFINED!!!!!
    optimization options.  Older Sparc's work better with only UNROLL, but
    there's no way to tell at compile time what it is you're running on */
  
-#if defined( sun )		/* Newer Sparc's */
+#if defined( __sun ) || defined ( sun )		/* Newer Sparc's */
 #  define DES_PTR
 #  define DES_RISC1
 #  define DES_UNROLL

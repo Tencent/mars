@@ -60,6 +60,10 @@
 #include "cryptlib.h"
 #include <openssl/evp.h>
 #include <openssl/objects.h>
+#ifdef OPENSSL_FIPS
+# include <openssl/fips.h>
+# include "evp_locl.h"
+#endif
 
 int EVP_CIPHER_param_to_asn1(EVP_CIPHER_CTX *c, ASN1_TYPE *type)
 {
@@ -67,9 +71,24 @@ int EVP_CIPHER_param_to_asn1(EVP_CIPHER_CTX *c, ASN1_TYPE *type)
 
     if (c->cipher->set_asn1_parameters != NULL)
         ret = c->cipher->set_asn1_parameters(c, type);
-    else if (c->cipher->flags & EVP_CIPH_FLAG_DEFAULT_ASN1)
-        ret = EVP_CIPHER_set_asn1_iv(c, type);
-    else
+    else if (c->cipher->flags & EVP_CIPH_FLAG_DEFAULT_ASN1) {
+        switch (EVP_CIPHER_CTX_mode(c)) {
+        case EVP_CIPH_WRAP_MODE:
+            if (EVP_CIPHER_CTX_nid(c) == NID_id_smime_alg_CMS3DESwrap)
+                ASN1_TYPE_set(type, V_ASN1_NULL, NULL);
+            ret = 1;
+            break;
+
+        case EVP_CIPH_GCM_MODE:
+        case EVP_CIPH_CCM_MODE:
+        case EVP_CIPH_XTS_MODE:
+            ret = -1;
+            break;
+
+        default:
+            ret = EVP_CIPHER_set_asn1_iv(c, type);
+        }
+    } else
         ret = -1;
     return (ret);
 }
@@ -80,9 +99,24 @@ int EVP_CIPHER_asn1_to_param(EVP_CIPHER_CTX *c, ASN1_TYPE *type)
 
     if (c->cipher->get_asn1_parameters != NULL)
         ret = c->cipher->get_asn1_parameters(c, type);
-    else if (c->cipher->flags & EVP_CIPH_FLAG_DEFAULT_ASN1)
-        ret = EVP_CIPHER_get_asn1_iv(c, type);
-    else
+    else if (c->cipher->flags & EVP_CIPH_FLAG_DEFAULT_ASN1) {
+        switch (EVP_CIPHER_CTX_mode(c)) {
+
+        case EVP_CIPH_WRAP_MODE:
+            ret = 1;
+            break;
+
+        case EVP_CIPH_GCM_MODE:
+        case EVP_CIPH_CCM_MODE:
+        case EVP_CIPH_XTS_MODE:
+            ret = -1;
+            break;
+
+        default:
+            ret = EVP_CIPHER_get_asn1_iv(c, type);
+            break;
+        }
+    } else
         ret = -1;
     return (ret);
 }
@@ -200,12 +234,22 @@ const EVP_CIPHER *EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX *ctx)
 
 unsigned long EVP_CIPHER_flags(const EVP_CIPHER *cipher)
 {
+#ifdef OPENSSL_FIPS
+    const EVP_CIPHER *fcipher;
+    fcipher = evp_get_fips_cipher(cipher);
+    if (fcipher && fcipher->flags & EVP_CIPH_FLAG_FIPS)
+        return cipher->flags | EVP_CIPH_FLAG_FIPS;
+#endif
     return cipher->flags;
 }
 
 unsigned long EVP_CIPHER_CTX_flags(const EVP_CIPHER_CTX *ctx)
 {
+#ifdef OPENSSL_FIPS
+    return EVP_CIPHER_flags(ctx->cipher);
+#else
     return ctx->cipher->flags;
+#endif
 }
 
 void *EVP_CIPHER_CTX_get_app_data(const EVP_CIPHER_CTX *ctx)
@@ -272,8 +316,40 @@ int EVP_MD_size(const EVP_MD *md)
     return md->md_size;
 }
 
+#ifdef OPENSSL_FIPS
+
+const EVP_MD *evp_get_fips_md(const EVP_MD *md)
+{
+    int nid = EVP_MD_type(md);
+    if (nid == NID_dsa)
+        return FIPS_evp_dss1();
+    else if (nid == NID_dsaWithSHA)
+        return FIPS_evp_dss();
+    else if (nid == NID_ecdsa_with_SHA1)
+        return FIPS_evp_ecdsa();
+    else
+        return FIPS_get_digestbynid(nid);
+}
+
+const EVP_CIPHER *evp_get_fips_cipher(const EVP_CIPHER *cipher)
+{
+    int nid = cipher->nid;
+    if (nid == NID_undef)
+        return FIPS_evp_enc_null();
+    else
+        return FIPS_get_cipherbynid(nid);
+}
+
+#endif
+
 unsigned long EVP_MD_flags(const EVP_MD *md)
 {
+#ifdef OPENSSL_FIPS
+    const EVP_MD *fmd;
+    fmd = evp_get_fips_md(md);
+    if (fmd && fmd->flags & EVP_MD_FLAG_FIPS)
+        return md->flags | EVP_MD_FLAG_FIPS;
+#endif
     return md->flags;
 }
 

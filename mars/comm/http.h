@@ -135,6 +135,7 @@ class HeaderFields {
     static std::pair<const std::string, std::string> MakeConnectionKeepalive();
     static std::pair<const std::string, std::string> MakeAcceptAll();
     static std::pair<const std::string, std::string> MakeAcceptEncodingDefalte();
+    static std::pair<const std::string, std::string> MakeAcceptEncodingGzip();
     static std::pair<const std::string, std::string> MakeCacheControlNoCache();
     static std::pair<const std::string, std::string> MakeContentTypeOctetStream();
 
