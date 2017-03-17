@@ -150,18 +150,6 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
 
             tmpbuffer = decompressor.decompress(str(decompress_data))
 
-        elif False:
-            svr = pyelliptic.ECC(curve='prime256v1')
-            client = pyelliptic.ECC(curve='prime256v1')
-            client.pubkey_x = str(buffer(_buffer, _offset+headerLen-crypt_key_len, crypt_key_len/2))
-            client.pubkey_y = str(buffer(_buffer, _offset+headerLen-crypt_key_len/2, crypt_key_len/2))
-
-            svr.privkey = binascii.unhexlify(PRIV_KEY)
-            tea_key = svr.get_ecdh_key(client.get_pubkey())
-
-            tmpbuffer = tea_decrypt(tmpbuffer, tea_key)
-            tmpbuffer = decompressor.decompress(str(tmpbuffer))
-
         else:
             pass
 

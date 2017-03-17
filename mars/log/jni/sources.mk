@@ -24,6 +24,20 @@ SRC := $(LOCAL_PATH)/../../comm/xlogger/xloggerbase.c
 SRC := $(SRC:$(LOCAL_PATH)/%=%)
 LOCAL_SRC_FILES += $(SRC)
 
+SRC := $(wildcard $(TEMP_LOCAL_PATH)/../crypt/log_crypt.cc)
+SRC := $(SRC:$(LOCAL_PATH)/%=%)
+LOCAL_SRC_FILES += $(SRC)
+
+
+ifeq ($(XLOG_CRYPT),1)
+SRC := $(wildcard $(TEMP_LOCAL_PATH)/../crypt/log_crypt_ecdh.cc)
+SRC := $(SRC:$(LOCAL_PATH)/%=%)
+LOCAL_SRC_FILES += $(SRC)
+
+
+LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../../../mars/openssl/include/
+
+endif
 
 LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../ $(TEMP_LOCAL_PATH)/../src $(TEMP_LOCAL_PATH)/../../ $(TEMP_LOCAL_PATH)/../../../
 LOCAL_LDFLAGS += -Wl,--version-script=$(TEMP_LOCAL_PATH)/export.exp

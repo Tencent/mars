@@ -10,6 +10,8 @@
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
 		4B243A5A1CC101B4006A490F /* appender.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B243A581CC101B4006A490F /* appender.cc */; };
 		4B243A5B1CC101B4006A490F /* formater.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B243A591CC101B4006A490F /* formater.cc */; };
+		4B5CA0DB1E6D497D00EBC1A6 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B5CA0D91E6D497D00EBC1A6 /* log_crypt.cc */; };
+		4B5CA0FD1E6D8F2E00EBC1A6 /* log_crypt_ecdh.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B5CA0FB1E6D8F2E00EBC1A6 /* log_crypt_ecdh.cc */; };
 		4BAD09871D34CE8A006BC5B0 /* log_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BAD09851D34CE8A006BC5B0 /* log_buffer.cc */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +33,10 @@
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4B243A581CC101B4006A490F /* appender.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = appender.cc; sourceTree = "<group>"; };
 		4B243A591CC101B4006A490F /* formater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formater.cc; sourceTree = "<group>"; };
+		4B5CA0D91E6D497D00EBC1A6 /* log_crypt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt.cc; sourceTree = "<group>"; };
+		4B5CA0DA1E6D497D00EBC1A6 /* log_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
+		4B5CA0FB1E6D8F2E00EBC1A6 /* log_crypt_ecdh.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt_ecdh.cc; sourceTree = "<group>"; };
+		4B5CA0FC1E6D8F2E00EBC1A6 /* log_crypt_ecdh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt_ecdh.h; sourceTree = "<group>"; };
 		4BAD09851D34CE8A006BC5B0 /* log_buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_buffer.cc; sourceTree = "<group>"; };
 		4BAD09861D34CE8A006BC5B0 /* log_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_buffer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,6 +67,7 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				4B5CA0D71E6D497D00EBC1A6 /* crypt */,
 				1F25B31E1CD337E700AC1003 /* appender.h */,
 				13811790197552A70007B832 /* src */,
 				3170A029177887B0004F5DDA /* Frameworks */,
@@ -82,6 +89,17 @@
 				3170A02A177887B0004F5DDA /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4B5CA0D71E6D497D00EBC1A6 /* crypt */ = {
+			isa = PBXGroup;
+			children = (
+				4B5CA0FB1E6D8F2E00EBC1A6 /* log_crypt_ecdh.cc */,
+				4B5CA0FC1E6D8F2E00EBC1A6 /* log_crypt_ecdh.h */,
+				4B5CA0D91E6D497D00EBC1A6 /* log_crypt.cc */,
+				4B5CA0DA1E6D497D00EBC1A6 /* log_crypt.h */,
+			);
+			path = crypt;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -136,8 +154,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4BAD09871D34CE8A006BC5B0 /* log_buffer.cc in Sources */,
+				4B5CA0FD1E6D8F2E00EBC1A6 /* log_crypt_ecdh.cc in Sources */,
 				4B243A5A1CC101B4006A490F /* appender.cc in Sources */,
 				4B243A5B1CC101B4006A490F /* formater.cc in Sources */,
+				4B5CA0DB1E6D497D00EBC1A6 /* log_crypt.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,6 +237,7 @@
 					"DEBUG=1",
 					MACOS,
 					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
+					"XLOG_CRYPT=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -227,6 +248,7 @@
 					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../../,
 					$SOURCE_ROOT/../comm,
+					$SOURCE_ROOT/../openssl/include,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;
@@ -264,6 +286,7 @@
 					"NDEBUG=1",
 					MACOS,
 					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
+					"XLOG_CRYPT=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -274,6 +297,7 @@
 					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../../,
 					$SOURCE_ROOT/../comm,
+					$SOURCE_ROOT/../openssl/include,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;

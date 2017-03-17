@@ -35,35 +35,26 @@
 #endif
 
 
-LogCrypt* LogBuffer::s_log_crypt =  new LogCrypt();
-
 bool LogBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg) {
-    return s_log_crypt->GetPeriodLogs(_log_path, _begin_hour, _end_hour, _begin_pos, _end_pos, _err_msg);
+    return LogCrypt::GetPeriodLogs(_log_path, _begin_hour, _end_hour, _begin_pos, _end_pos, _err_msg);
 }
 
-
-bool LogBuffer::Write(const void* _data, size_t _inputlen, void* _output, size_t& _len) {
-    if (NULL == _data || NULL == _output || 0 == _inputlen || _len <= (size_t) s_log_crypt->GetHeaderLen()) {
-        return false;
-    }
-    
-    s_log_crypt->CryptSyncLog((char*)_data, _inputlen, (char*)_output, _len);
-    
-    return true;
-}
-
-LogBuffer::LogBuffer(void* _pbuffer, size_t _len, bool _isCompress)
-: is_compress_(_isCompress) {
+LogBuffer::LogBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey)
+: is_compress_(_isCompress), log_crypt_(new LogCrypt(_pubkey)), remain_nocrypt_len_(0) {
     buff_.Attach(_pbuffer, _len);
     __Fix();
 
-    memset(&cstream_, 0, sizeof(cstream_));
+    if (is_compress_) {
+        memset(&cstream_, 0, sizeof(cstream_));
+    }
 }
 
 LogBuffer::~LogBuffer() {
-    if (Z_NULL != cstream_.state) {
+    if (is_compress_ && Z_NULL != cstream_.state) {
         deflateEnd(&cstream_);
     }
+    
+    delete log_crypt_;
 }
 
 PtrBuffer& LogBuffer::GetData() {
@@ -73,11 +64,11 @@ PtrBuffer& LogBuffer::GetData() {
 
 void LogBuffer::Flush(AutoBuffer& _buff) {
     
-    if (Z_NULL != cstream_.state) {
+    if (is_compress_ && Z_NULL != cstream_.state) {
         deflateEnd(&cstream_);
     }
 
-    if (s_log_crypt->GetLogLen((char*)buff_.Ptr(), buff_.Length()) == 0){
+    if (log_crypt_->GetLogLen((char*)buff_.Ptr(), buff_.Length()) == 0){
         __Clear();
         return;
     }
@@ -87,6 +78,15 @@ void LogBuffer::Flush(AutoBuffer& _buff) {
     __Clear();
 }
 
+bool LogBuffer::Write(const void* _data, size_t _inputlen, void* _output, size_t& _len) {
+    if (NULL == _data || NULL == _output || 0 == _inputlen || _len <= (size_t) log_crypt_->GetHeaderLen()) {
+        return false;
+    }
+    
+    log_crypt_->CryptSyncLog((char*)_data, _inputlen, (char*)_output, _len);
+    
+    return true;
+}
 
 bool LogBuffer::Write(const void* _data, size_t _length) {
     if (NULL == _data || 0 == _length) {
@@ -120,20 +120,17 @@ bool LogBuffer::Write(const void* _data, size_t _length) {
 
     char crypt_buffer[4096] = {0};
     size_t crypt_buffer_len = sizeof(crypt_buffer);
+    before_len -= remain_nocrypt_len_;
     
+    log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len + remain_nocrypt_len_, crypt_buffer, crypt_buffer_len, remain_nocrypt_len_);
     
-    s_log_crypt->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len, crypt_buffer, crypt_buffer_len);
-    
-    uint16_t single_log_len = crypt_buffer_len;
-    buff_.Write(&single_log_len, sizeof(single_log_len), before_len);
-    
-    before_len += sizeof(single_log_len);
+
     buff_.Write(crypt_buffer, crypt_buffer_len, before_len);
     
     before_len += crypt_buffer_len;
     buff_.Length(before_len, before_len);
    
-    s_log_crypt->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)crypt_buffer_len + sizeof(single_log_len));
+    log_crypt_->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)(crypt_buffer_len - remain_nocrypt_len_));
 
     return true;
 }
@@ -153,31 +150,33 @@ bool LogBuffer::__Reset() {
         
     }
     
-    s_log_crypt->SetHeaderInfo((char*)buff_.Ptr(), is_compress_);
-    buff_.Length(s_log_crypt->GetHeaderLen(), s_log_crypt->GetHeaderLen());
+    log_crypt_->SetHeaderInfo((char*)buff_.Ptr(), is_compress_);
+    buff_.Length(log_crypt_->GetHeaderLen(), log_crypt_->GetHeaderLen());
 
     return true;
 }
 
 void LogBuffer::__Flush() {
-    assert(buff_.Length() >= s_log_crypt->GetHeaderLen());
+    assert(buff_.Length() >= log_crypt_->GetHeaderLen());
     
-    s_log_crypt->UpdateLogHour((char*)buff_.Ptr());
-    s_log_crypt->SetTailerInfo((char*)buff_.Ptr() + buff_.Length());
-    buff_.Length(buff_.Length() + s_log_crypt->GetTailerLen(), buff_.Length() + s_log_crypt->GetTailerLen());
+    log_crypt_->UpdateLogHour((char*)buff_.Ptr());
+    log_crypt_->SetTailerInfo((char*)buff_.Ptr() + buff_.Length());
+    buff_.Length(buff_.Length() + log_crypt_->GetTailerLen(), buff_.Length() + log_crypt_->GetTailerLen());
 
 }
 
 void LogBuffer::__Clear() {
     memset(buff_.Ptr(), 0, buff_.MaxLength());
     buff_.Length(0, 0);
+    remain_nocrypt_len_ = 0;
 }
 
 
 void LogBuffer::__Fix() {
     uint32_t raw_log_len = 0;
-    if (s_log_crypt->Fix((char*)buff_.Ptr(), buff_.Length(), is_compress_, raw_log_len)) {
-        buff_.Length(raw_log_len + s_log_crypt->GetHeaderLen(), raw_log_len + s_log_crypt->GetHeaderLen());
+    bool is_compress = false;
+    if (log_crypt_->Fix((char*)buff_.Ptr(), buff_.Length(), is_compress, raw_log_len)) {
+        buff_.Length(raw_log_len + log_crypt_->GetHeaderLen(), raw_log_len + log_crypt_->GetHeaderLen());
     } else {
         buff_.Length(0, 0);
     }

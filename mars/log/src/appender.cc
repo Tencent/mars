@@ -317,7 +317,7 @@ static bool __writefile(const void* _data, size_t _len, FILE* _file) {
 
         char tmp[256] = {0};
         size_t len = sizeof(tmp);
-        LogBuffer::Write(err_log, strnlen(err_log, sizeof(err_log)), tmp, len);
+        sg_log_buff->Write(err_log, strnlen(err_log, sizeof(err_log)), tmp, len);
 
         fwrite(tmp, len, 1, _file);
 
@@ -391,7 +391,7 @@ static bool __openlogfile(const std::string& _log_dir) {
         snprintf(log, sizeof(log), "[F][ last log file:%s from %s to %s, time_diff:%ld, tick_diff:%" PRIu64 "\n", s_last_file_path, last_time_str, now_time_str, now_time-s_last_time, now_tick-s_last_tick);
         char tmp[2 * 1024] = {0};
         size_t len = sizeof(tmp);
-        LogBuffer::Write(log, strnlen(log, sizeof(log)), tmp, len);
+        sg_log_buff->Write(log, strnlen(log, sizeof(log)), tmp, len);
         __writefile(tmp, len, sg_logfile);
     }
 
@@ -493,7 +493,7 @@ static void __writetips2file(const char* _tips_format, ...) {
     char tmp[8 * 1024] = {0};
     size_t len = sizeof(tmp);
     
-    LogBuffer::Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp, len);
+    sg_log_buff->Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp, len);
     
     __log2file(tmp, len);
 }
@@ -525,7 +525,7 @@ static void __appender_sync(const XLoggerInfo* _info, const char* _log) {
 
     char buffer_crypt[16 * 1024] = {0};
     size_t len = 16 * 1024;
-    if (!LogBuffer::Write(log.Ptr(), log.Length(), buffer_crypt, len))   return;
+    if (!sg_log_buff->Write(log.Ptr(), log.Length(), buffer_crypt, len))   return;
 
     __log2file(buffer_crypt, len);
 }
@@ -694,7 +694,7 @@ static void get_mark_info(char* _info, size_t _infoLen) {
 	snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
 }
 
-void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix) {
+void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key) {
 	assert(_dir);
 	assert(_nameprefix);
     
@@ -720,11 +720,11 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, true);
+        sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _pub_key);
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        sg_log_buff = new LogBuffer(buffer, kBufferBlockLength, true);
+        sg_log_buff = new LogBuffer(buffer, kBufferBlockLength, true, _pub_key);
         use_mmap = false;
     }
 
@@ -780,7 +780,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
 }
 
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix) {
+void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix, const char* _pub_key) {
     assert(!_cachedir.empty());
     assert(!_logdir.empty());
     assert(_nameprefix);
@@ -795,7 +795,7 @@ void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir,
         Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
     }
 
-    appender_open(_mode, _logdir.c_str(), _nameprefix);
+    appender_open(_mode, _logdir.c_str(), _nameprefix, _pub_key);
 
 }
 
