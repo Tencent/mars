@@ -122,8 +122,8 @@ class Thread {
 
   public:
     template<class T>
-    explicit Thread(const T& op, const char* _thread_name = NULL)
-        : runable_ref_(NULL) {
+    explicit Thread(const T& op, const char* _thread_name = NULL, bool _outside_join = false)
+        : runable_ref_(NULL), outside_join_(_outside_join) {
         runable_ref_ = new RunnableReference(detail::transform(op));
         ScopedSpinLock lock(runable_ref_->splock);
         runable_ref_->AddRef();
@@ -133,8 +133,8 @@ class Thread {
         if (_thread_name) strncpy(runable_ref_->thread_name, _thread_name, sizeof(runable_ref_->thread_name));
     }
 
-    Thread(const char* _thread_name = NULL)
-        : runable_ref_(NULL) {
+    Thread(const char* _thread_name = NULL, bool _outside_join = false)
+        : runable_ref_(NULL), outside_join_(_outside_join) {
         runable_ref_ = new RunnableReference(NULL);
         ScopedSpinLock lock(runable_ref_->splock);
         runable_ref_->AddRef();
@@ -162,7 +162,7 @@ class Thread {
 
         ASSERT(runable_ref_->target);
         runable_ref_->isended = false;
-        runable_ref_->isjoined = false;
+        runable_ref_->isjoined = outside_join_;
         runable_ref_->AddRef();
 
         int ret =  pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine, runable_ref_);
@@ -191,8 +191,8 @@ class Thread {
         runable_ref_->target = detail::transform(op);
 
         runable_ref_->isended = false;
-        runable_ref_->isjoined = false;
-        runable_ref_->AddRef(); //add thread ref
+        runable_ref_->isjoined = outside_join_;
+        runable_ref_->AddRef();
 
         int ret =  pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine, runable_ref_);
         ASSERT(0 == ret);
@@ -215,7 +215,7 @@ class Thread {
 
         ASSERT(runable_ref_->target);
         runable_ref_->condtime.cancelAnyWayNotify();
-        runable_ref_->isjoined = false;
+        runable_ref_->isjoined = outside_join_;
         runable_ref_->isended = false;
         runable_ref_->aftertime = after;
         runable_ref_->iscanceldelaystart = false;
@@ -251,7 +251,7 @@ class Thread {
         ASSERT(runable_ref_->target);
         runable_ref_->condtime.cancelAnyWayNotify();
         runable_ref_->isended = false;
-        runable_ref_->isjoined = false;
+        runable_ref_->isjoined = outside_join_;
         runable_ref_->iscanceldelaystart = false;
         runable_ref_->aftertime = after;
         runable_ref_->periodictime = periodic;
@@ -282,6 +282,7 @@ class Thread {
     int join() const {
         int ret = 0;
         ScopedSpinLock lock(runable_ref_->splock);
+        ASSERT(!outside_join_);
         ASSERT(!runable_ref_->isjoined);
 
         if (tid() == ThreadUtil::currentthreadid()) return EDEADLK;
@@ -296,15 +297,6 @@ class Thread {
         return ret;
     }
     
-    void outside_join() const {
-        ScopedSpinLock lock(runable_ref_->splock);
-        ASSERT(!runable_ref_->isjoined);
-        ASSERT(!isruning());
-        if (runable_ref_->isjoined || isruning()) return;
-        
-        runable_ref_->isjoined = true;
-    }
-
     int kill(int sig) const {
         ScopedSpinLock lock(runable_ref_->splock);
 
@@ -464,6 +456,7 @@ class Thread {
   private:
     RunnableReference*  runable_ref_;
     pthread_attr_t attr_;
+    bool outside_join_;
 };
 
 
