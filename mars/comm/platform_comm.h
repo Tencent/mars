@@ -23,7 +23,9 @@
 
 #include <string>
 
+#ifdef ADNROID 
 #include "mars/comm/thread/mutex.h"
+#endif
 
 #ifndef __cplusplus
 #error "C++ only"

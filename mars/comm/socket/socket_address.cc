@@ -351,10 +351,16 @@ socket_address& socket_address::v4tonat64_address() {
 }
 
 socket_address& socket_address::v4tov6_address(bool _nat64) {
-    if (_nat64)
-        return v4tonat64_address();
-    else
-        return v4tov4mapped_address();
+	if (_nat64)
+		return v4tonat64_address();
+	else
+	{
+#ifdef WIN32
+		return *this;
+#else
+		return v4tov4mapped_address();
+#endif
+	}
 
 }
 

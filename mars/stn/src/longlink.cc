@@ -109,7 +109,7 @@ class LongLinkConnectObserver : public MComplexConnect {
         if (LONGLINK_UNPACK_OK != ret) {
             xerror2(TSF"0>ret, index:%_, sock:%_, %_, ret:%_, cmdid:%_, taskid:%_, pack_len:%_, recv_len:%_", _index, _socket, _addr.url(), ret, cmdid, taskid, pack_len, _buffer_recv.Length());
             if (longlink_.fun_network_report_) {
-                longlink_.fun_network_report_(__LINE__, kEctSocket, SOCKET_ERRNO(EBADMSG), _addr.ip(), _addr.port());
+                longlink_.fun_network_report_(__LINE__, kEctSocket, EBADMSG, _addr.ip(), _addr.port());
             }
             return false;
         }
@@ -620,7 +620,9 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             
             free(vecwrite);
 #else
-            ssize_t writelen = ::send(_sock, lstsenddata_.begin()->data.PosPtr(), lstsenddata_.begin()->data.PosLength(), 0);
+
+            //ssize_t writelen = ::send(_sock, lstsenddata_.begin()->data.PosPtr(), lstsenddata_.begin()->data.PosLength(), 0);
+			ssize_t writelen = ::send(_sock, lstsenddata_.begin()->second->PosPtr(), lstsenddata_.begin()->second->PosLength(), 0);
 #endif
             
             if (0 == writelen || (0 > writelen && !IS_NOBLOCK_SEND_ERRNO(socket_errno))) {

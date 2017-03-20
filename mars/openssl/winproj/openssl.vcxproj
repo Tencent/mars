@@ -41,8 +41,6 @@
     <ClInclude Include="..\crypto\objects\obj_dat.h" />
     <ClInclude Include="..\crypto\objects\obj_mac.h" />
     <ClInclude Include="..\crypto\objects\obj_xref.h" />
-    <ClInclude Include="..\crypto\..conf.h" />
-    <ClInclude Include="..\crypto\..v.h" />
     <ClInclude Include="..\crypto\ossl_typ.h" />
     <ClInclude Include="..\crypto\o_str.h" />
     <ClInclude Include="..\crypto\o_time.h" />
@@ -61,71 +59,7 @@
     <ClInclude Include="..\export_include\ecdsa_verify.h" />
     <ClInclude Include="..\export_include\md5_digest.h" />
     <ClInclude Include="..\export_include\rsa_crypt.h" />
-    <ClInclude Include="..\include\..\aes.h" />
-    <ClInclude Include="..\include\..\asn1.h" />
-    <ClInclude Include="..\include\..\asn1t.h" />
-    <ClInclude Include="..\include\..\asn1_mac.h" />
-    <ClInclude Include="..\include\..\bio.h" />
-    <ClInclude Include="..\include\..\blowfish.h" />
-    <ClInclude Include="..\include\..\bn.h" />
-    <ClInclude Include="..\include\..\buffer.h" />
-    <ClInclude Include="..\include\..\comp.h" />
-    <ClInclude Include="..\include\..\conf.h" />
-    <ClInclude Include="..\include\..\conf_api.h" />
-    <ClInclude Include="..\include\..\crypto.h" />
-    <ClInclude Include="..\include\..\des.h" />
-    <ClInclude Include="..\include\..\des_old.h" />
-    <ClInclude Include="..\include\..\dh.h" />
-    <ClInclude Include="..\include\..\dsa.h" />
-    <ClInclude Include="..\include\..\dso.h" />
-    <ClInclude Include="..\include\..\dtls1.h" />
-    <ClInclude Include="..\include\..\ebcdic.h" />
-    <ClInclude Include="..\include\..\ec.h" />
-    <ClInclude Include="..\include\..\ecdh.h" />
-    <ClInclude Include="..\include\..\ecdsa.h" />
-    <ClInclude Include="..\include\..\engine.h" />
-    <ClInclude Include="..\include\..\err.h" />
-    <ClInclude Include="..\include\..\evp.h" />
     <ClInclude Include="..\include\..\e_os2.h" />
-    <ClInclude Include="..\include\..\hmac.h" />
-    <ClInclude Include="..\include\..\krb5_asn.h" />
-    <ClInclude Include="..\include\..\kssl.h" />
-    <ClInclude Include="..\include\..\lhash.h" />
-    <ClInclude Include="..\include\..\md4.h" />
-    <ClInclude Include="..\include\..\md5.h" />
-    <ClInclude Include="..\include\..\modes.h" />
-    <ClInclude Include="..\include\..\objects.h" />
-    <ClInclude Include="..\include\..\obj_mac.h" />
-    <ClInclude Include="..\include\..\ocsp.h" />
-    <ClInclude Include="..\include\..\..conf.h" />
-    <ClInclude Include="..\include\..\..v.h" />
-    <ClInclude Include="..\include\..\ossl_typ.h" />
-    <ClInclude Include="..\include\..\pem.h" />
-    <ClInclude Include="..\include\..\pem2.h" />
-    <ClInclude Include="..\include\..\pkcs12.h" />
-    <ClInclude Include="..\include\..\pkcs7.h" />
-    <ClInclude Include="..\include\..\pqueue.h" />
-    <ClInclude Include="..\include\..\rand.h" />
-    <ClInclude Include="..\include\..\rc2.h" />
-    <ClInclude Include="..\include\..\rc4.h" />
-    <ClInclude Include="..\include\..\ripemd.h" />
-    <ClInclude Include="..\include\..\rsa.h" />
-    <ClInclude Include="..\include\..\safestack.h" />
-    <ClInclude Include="..\include\..\sha.h" />
-    <ClInclude Include="..\include\..\ssl.h" />
-    <ClInclude Include="..\include\..\ssl2.h" />
-    <ClInclude Include="..\include\..\ssl23.h" />
-    <ClInclude Include="..\include\..\ssl3.h" />
-    <ClInclude Include="..\include\..\stack.h" />
-    <ClInclude Include="..\include\..\symhacks.h" />
-    <ClInclude Include="..\include\..\tls1.h" />
-    <ClInclude Include="..\include\..\ts.h" />
-    <ClInclude Include="..\include\..\txt_db.h" />
-    <ClInclude Include="..\include\..\ui.h" />
-    <ClInclude Include="..\include\..\ui_compat.h" />
-    <ClInclude Include="..\include\..\x509.h" />
-    <ClInclude Include="..\include\..\x509v3.h" />
-    <ClInclude Include="..\include\..\x509_vfy.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\crypto\aes\aes_cbc.c" />
@@ -333,27 +267,26 @@
     <ClCompile Include="..\export\aes_crypt.c" />
     <ClCompile Include="..\export\ecdsa_verify.c" />
     <ClCompile Include="..\export\md5_digest.c" />
-    <ClCompile Include="..\export\rsa_crypt.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\PublicComponent.vcxproj" />
+    <ClCompile Include="..\export\rsa_private_decrypt.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AC5A11F4-A357-4C92-B72C-F9ED2C38FD94}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>..</RootNamespace>
+    <WindowsTargetPlatformVersion>
+    </WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -368,11 +301,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
-    <OutDir>$(Configuration)\</OutDir>
+    <IncludePath>..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
+    <ExcludePath>$(ExcludePath)</ExcludePath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -382,10 +318,11 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

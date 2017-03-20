@@ -19,7 +19,7 @@
 
 #include "comm/network/getifaddrs.h"
 
-#if !UWP
+#if (!UWP && !WIN32)
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <net/if.h>
@@ -195,6 +195,13 @@ bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _
     return !_addrs.empty();
 }
 #else
+#ifdef WIN32
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#include "../socket/unix_socket.h"
+#pragma comment(lib, "wsock32.lib")
+#endif // WIN32
+
 bool getifaddrs_ipv4(std::vector<ifaddrinfo_ipv4_t>& _addrs){
 	return false;
 }
@@ -208,7 +215,52 @@ bool getifaddrs_ipv4_lan(ifaddrinfo_ipv4_t& _addr) {
 }
 
 bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
-	return false;
+	ULONG outBufLen = 0;
+	GetAdaptersAddresses(AF_INET, 0, NULL, NULL, &outBufLen);
+
+	PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+	GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen);
+
+	PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
+	PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
+	LPSOCKADDR addr = NULL;
+	pCurrAddresses = pAddresses;
+
+	ifaddrinfo_ipv4_t addr_t;
+	while (pCurrAddresses)
+	{
+		if (pCurrAddresses->OperStatus != IfOperStatusUp)
+		{
+			pCurrAddresses = pCurrAddresses->Next;
+			continue;
+		}
+		pUnicast = pCurrAddresses->FirstUnicastAddress;
+
+		while (pUnicast)
+		{
+			addr = pUnicast->Address.lpSockaddr;
+			if (addr->sa_family == AF_INET && pCurrAddresses->IfType != MIB_IF_TYPE_LOOPBACK)
+			{
+				sockaddr_in  *sa_in = (sockaddr_in *)addr;
+				char* strIP = ::inet_ntoa((sa_in->sin_addr));
+				addr_t.ifa_name = strIP;
+				addr_t.ifa_ip = sa_in->sin_addr.S_un.S_addr;
+				socket_inet_ntop(sa_in->sin_family, &(sa_in->sin_addr), addr_t.ip, sizeof(addr_t.ip));
+				if (pCurrAddresses->IfType == IF_TYPE_IEEE80211)
+				{
+					_addrs.insert(_addrs.begin(), addr_t);
+				}
+				else
+				{
+					_addrs.push_back(addr_t);
+				}
+			}
+			pUnicast = pUnicast->Next;
+		}
+		pCurrAddresses = pCurrAddresses->Next;
+	}
+	free(pAddresses);
+	return !_addrs.empty();
 }
 
 bool getifaddrs_ipv4_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {

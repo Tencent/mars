@@ -84,6 +84,10 @@
 #include <openssl/crypto.h>
 
 #include "e_os.h"
+#ifdef WIN32
+#define ssize_t int
+#endif // WIN32
+
 
 /* VxWorks defines SSIZE_MAX with an empty value causing compile errors */
 #if defined(OPENSSL_SYS_VXWORKS)

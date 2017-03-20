@@ -7,7 +7,7 @@
 //Based on an exception_ptr implementation by Anthony Williams.
 
 #ifdef BOOST_NO_EXCEPTIONS
-#error This file requires exception handling to be enabled.
+//#error This file requires exception handling to be enabled.
 #endif
 
 #include <boost/exception/detail/clone_current_exception.hpp>

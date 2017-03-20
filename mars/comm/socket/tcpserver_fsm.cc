@@ -32,13 +32,21 @@ TcpServerFSM::TcpServerFSM(SOCKET _socket)
     xerror2_if(0 > getpeername(sock_, (sockaddr*)&addr_, &addr_len), TSF"getpeername:%_, %_", socket_errno, socket_strerror(socket_errno));
 
     memset(ip_, 0, sizeof(ip_));
-    inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+#ifdef WIN32
+	socket_inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+#else
+	inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+#endif // WIN32
 }
 
 TcpServerFSM::TcpServerFSM(SOCKET _socket, const sockaddr_in& _addr)
     : status_(kAccept), sock_(_socket), addr_(_addr) , is_write_fd_set_(false){
     memset(ip_, 0, sizeof(ip_));
-    inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+#ifdef WIN32
+	socket_inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+#else
+	inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+#endif // WIN32
 }
 
 TcpServerFSM::~TcpServerFSM() {

@@ -14,19 +14,20 @@
     <ProjectGuid>{B81E4487-DFE2-4F15-A2E0-240C3DA26459}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>stn</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>
+    </WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -41,10 +42,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/Mars/mars/mars/comm;$(SolutionDir)/Mars/mars/mars/comm/windows;$(SolutionDir)/Mars/mars;$(SolutionDir)/Mars/mars/mars;$(ProjectDir)/../;$(ProjectDir)/../src;$(SolutionDir)/Mars/mars/mars/openssl/include;$(SolutionDir)/Mars/mars/mars/openssl/export_include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
+    <TargetName>Mars</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/Mars/mars;$(SolutionDir)/Mars/mars/mars;$(SolutionDir)/Mars/mars/mars/comm/;$(SolutionDir)/Mars/mars/mars/comm/windows;$(SolutionDir)/Mars/mars/mars/comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(SolutionDir)/Mars/mars/mars/openssl/include;$(SolutionDir)/Mars/mars/mars/openssl/export_include;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
+    <TargetName>Mars</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -54,11 +59,26 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ProgramDataBaseFileName>$(IntDir)Mars.pdb</ProgramDataBaseFileName>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <Lib />
+    <Lib>
+      <OutputFile>$(OutDir)Mars$(TargetExt)</OutputFile>
+    </Lib>
+    <Lib>
+      <AdditionalDependencies>app.lib;baseevent.lib;log.lib;boost.lib;magicbox.lib;protobuf.lib;mm-ext.lib;sdt-ext.lib;sdt.lib;smc.lib;cdn.lib;comm.lib;lan_cs.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\lib\</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -71,6 +91,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,11 +99,18 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>app.lib;baseevent.lib;log.lib;boost.lib;magicbox.lib;protobuf.lib;mm-ext.lib;sdt-ext.lib;sdt.lib;smc.lib;cdn.lib;comm.lib;lan_cs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)Mars$(TargetExt)</OutputFile>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\openssl\export\crypto\gen_rsa_key_pair.cpp" />
+    <ClCompile Include="..\..\openssl\export\crypto\rsa_crypt.cpp" />
     <ClCompile Include="..\src\anti_avalanche.cc" />
     <ClCompile Include="..\src\dynamic_timeout.cc" />
     <ClCompile Include="..\src\flow_limit.cc" />
@@ -102,10 +130,8 @@
     <ClCompile Include="..\src\signalling_keeper.cc" />
     <ClCompile Include="..\src\simple_ipport_sort.cc" />
     <ClCompile Include="..\src\smart_heartbeat.cc" />
-    <ClCompile Include="..\src\socket_util.cc" />
     <ClCompile Include="..\src\task_profile.cc" />
     <ClCompile Include="..\src\timing_sync.cc" />
-    <ClCompile Include="..\src\traffic_statistics.cc" />
     <ClCompile Include="..\src\zombie_task_manager.cc" />
     <ClCompile Include="..\stn.cc" />
     <ClCompile Include="..\stn_logic.cc" />
@@ -123,10 +149,12 @@
     <ClInclude Include="..\src\longlink_speed_test.h" />
     <ClInclude Include="..\src\longlink_task_manager.h" />
     <ClInclude Include="..\src\netsource_timercheck.h" />
+    <ClInclude Include="..\src\net_channel_factory.h" />
     <ClInclude Include="..\src\net_check_logic.h" />
     <ClInclude Include="..\src\net_core.h" />
     <ClInclude Include="..\src\net_source.h" />
     <ClInclude Include="..\src\shortlink.h" />
+    <ClInclude Include="..\src\shortlink_interface.h" />
     <ClInclude Include="..\src\shortlink_task_manager.h" />
     <ClInclude Include="..\src\signalling_keeper.h" />
     <ClInclude Include="..\src\simple_ipport_sort.h" />
@@ -139,7 +167,6 @@
     <ClInclude Include="..\stn.h" />
     <ClInclude Include="..\stn_logic.h" />
     <ClInclude Include="..\task_profile.h" />
-    <ClInclude Include="..\win32\win2C_Logic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

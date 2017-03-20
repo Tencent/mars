@@ -114,6 +114,25 @@ class ThreadUtil {
 #endif
     }
 
+	static void join (thread_tid _tid) {
+	
+#ifdef USED_BOOST_THREAD_LIB
+	#error "todo"
+#else
+	HANDLE handler = OpenThread(THREAD_ALL_ACCESS, FALSE, _tid);
+	if (NULL == handler) {
+		ASSERT(false);
+		return;
+	}
+	thrd_t thrd;
+	thrd._Hnd = &handler;
+	thrd._Id = _tid;
+	thread_handler th = &thrd;
+	join(th);
+	CloseHandle(handler);
+#endif
+	}
+
     static void detach(thread_handler& pth) {
         if (pth == NULL)
             return ;
@@ -199,14 +218,14 @@ class Thread {
 
   public:
     template<class T>
-    explicit Thread(const T& op, size_t _stacksize = 0)
+    explicit Thread(const T& op, const char* _thread_name = NULL)
         : m_runableref(NULL) {
         m_runableref = new RunnableReference(detail::transform(op));
         ScopedSpinLock lock(m_runableref->splock);
         m_runableref->AddRef();
     }
 
-    Thread(size_t _stacksize = 0)
+    Thread(const char* _thread_name = NULL)
         : m_runableref(NULL) {
         m_runableref = new RunnableReference(NULL);
         ScopedSpinLock lock(m_runableref->splock);
@@ -349,6 +368,15 @@ class Thread {
             // thrd_join(m_runableref->tid, 0);
         }
     }
+
+	void outside_join() const {
+		ScopedSpinLock lock(m_runableref->splock);
+		ASSERT(!m_runableref->isjoined);
+		ASSERT(!isruning());
+		if (m_runableref->isjoined || isruning()) return;
+
+		m_runableref->isjoined = true;
+	}
 
     int kill(int /*sig*/) const;
     //  {

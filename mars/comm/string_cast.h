@@ -20,8 +20,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <inttypes.h>
+
+
+#ifndef _WIN32
+#define __STDC_FORMAT_MACROS
 #include <strings.h>
+#endif
+#include <inttypes.h>
 
 #include <limits>
 #include <string>
@@ -70,6 +75,7 @@ char* string_cast_itoa(const T& value, char* result, uint8_t base = 10, bool upp
     }
     return result;
 }
+
 
 #define string_cast_hex(value) string_cast(value, 16)
 #define string_cast_oct(value) string_cast(value, 8)

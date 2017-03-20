@@ -218,6 +218,27 @@ ENDSWITH(std::wstring)
 SPLITTOKEN(std::string)
 SPLITTOKEN(std::wstring)
 
+#ifdef WIN32
+std::wstring ToWString(const std::string& str)
+{
+	std::wstring result;
+
+	UINT charset = CP_UTF8;
+	int count = ::MultiByteToWideChar(charset, 0, (char*)str.data(), str.length(), NULL, 0);
+	if (count <= 0) {
+		return result;
+	}
+
+	wchar_t* wszRet = (wchar_t*)malloc(sizeof(wchar_t) * (count + 1));
+	wszRet[count] = L'\0';
+	::MultiByteToWideChar(charset, 0, (char*)str.data(), str.length(), wszRet, count);
+
+	result.assign(wszRet, count);
+	free(wszRet);
+	return result;
+}
+#endif
+
 std::string Hex2Str(const char* _str, unsigned int _len) {
     std::string outstr="";
     for(unsigned int i = 0; i< _len;i++) {
