@@ -4,7 +4,7 @@
 [![Release Version](https://img.shields.io/badge/release-1.1.4-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
 [![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.4-red.svg)](https://github.com/Tencent/mars/wiki)
-[![WeChat Approved](https://img.shields.io/badge/Platform-iOS | OS X | Android -brightgreen.svg)](https://github.com/Tencent/mars/wiki)
+[![WeChat Approved](https://img.shields.io/badge/Platform-%20iOS%20%7C%20OS%20X%20%7C%20Android%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 (中文版本请参看[这里](#mars_cn))
 
