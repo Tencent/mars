@@ -69,7 +69,7 @@ protobuf {
 }
 
 ext {
-    useLocalMarsWrapper = true
+    useLocalMarsWrapper = true // Changed to true is better for sample development.
 }
 
 dependencies {

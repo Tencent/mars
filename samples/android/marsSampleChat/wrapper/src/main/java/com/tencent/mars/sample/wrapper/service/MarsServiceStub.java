@@ -18,6 +18,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 
+import com.tencent.mars.BaseEvent;
 import com.tencent.mars.app.AppLogic;
 import com.tencent.mars.sample.utils.print.BaseConstants;
 import com.tencent.mars.sample.wrapper.remote.MarsPushMessageFilter;
@@ -27,7 +28,6 @@ import com.tencent.mars.sample.wrapper.remote.MarsTaskWrapper;
 import com.tencent.mars.sdt.SdtLogic;
 import com.tencent.mars.stn.StnLogic;
 import com.tencent.mars.xlog.Log;
-import com.tencent.mars.BaseEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Mars Task Wrapper implements
+ * Mars Task Wrapper implements.
  */
 public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallBack, SdtLogic.ICallBack, AppLogic.ICallBack {
 

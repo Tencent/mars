@@ -15,9 +15,8 @@
 package com.tencent.mars.sample.wrapper.remote;
 
 /**
- *
  * Constants for Mars Task properties
- *
+ * <p></p>
  * Created by zhaoyuan on 16/2/29.
  */
 public final class MarsTaskProperty {

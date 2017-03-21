@@ -35,7 +35,7 @@ ext {
     VERSION_NAME = "${VERSION_NAME_PREFIX}${VERSION_NAME_SUFFIX}"
 
     POM_PACKAGING = "pom"
-    POM_DESCRIPTION= "mars-wrapper"
+    POM_DESCRIPTION = "mars-wrapper"
 
     POM_URL = "https://github.com/Tencent/mars"
     POM_SCM_URL = "https://github.com/Tencent/mars.git"
@@ -45,9 +45,9 @@ ext {
     POM_LICENCE_URL = "https://opensource.org/licenses/MIT"
     POM_LICENCE_DIST = "repo"
 
-    POM_DEVELOPER_ID="Tencent Wechat"
-    POM_DEVELOPER_NAME="Tencent Wechat, Inc."
+    POM_DEVELOPER_ID = "Tencent Wechat"
+    POM_DEVELOPER_NAME = "Tencent Wechat, Inc."
 
-    BINTRAY_LICENCE= ['MIT']
+    BINTRAY_LICENCE = ['MIT']
     BINTRAY_ORGANIZATION = "mars-open"
 }

@@ -13,10 +13,7 @@ import com.tencent.mars.xlog.Log;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.TimeUnit;
-
 /**
- *
  * Created by zhaoyuan on 2017/3/20.
  */
 @RunWith(AndroidJUnit4.class)

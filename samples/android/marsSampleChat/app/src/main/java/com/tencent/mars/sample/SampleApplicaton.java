@@ -32,11 +32,9 @@ import com.tencent.mars.sample.wrapper.service.MarsServiceProfileFactory;
 import com.tencent.mars.xlog.Log;
 import com.tencent.mars.xlog.Xlog;
 
-import java.io.File;
 import java.util.Random;
 
 /**
- *
  * Created by zhaoyuan on 16/1/18.
  */
 public class SampleApplicaton extends Application {
@@ -46,7 +44,7 @@ public class SampleApplicaton extends Application {
     private static Context context;
 
     public static AppLogic.AccountInfo accountInfo = new AppLogic.AccountInfo(
-            new Random(System.currentTimeMillis()/1000).nextInt(), "anonymous");
+            new Random(System.currentTimeMillis() / 1000).nextInt(), "anonymous");
 
     public static volatile boolean hasSetUserName = false;
 
@@ -100,18 +98,16 @@ public class SampleApplicaton extends Application {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (BuildConfig.DEBUG) {
                 Xlog.setConsoleLogOpen(true);
-            }
-            else {
+            } else {
                 Xlog.setConsoleLogOpen(false);
             }
             Log.setLogImp(new Xlog());
-        }
-        else {
+        } else {
             int pid = android.os.Process.myPid();
             String processName = null;
-            ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningAppProcessInfo appProcess : am.getRunningAppProcesses()){
-                if(appProcess.pid == pid){
+            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningAppProcessInfo appProcess : am.getRunningAppProcesses()) {
+                if (appProcess.pid == pid) {
                     processName = appProcess.processName;
                     break;
                 }
@@ -120,7 +116,7 @@ public class SampleApplicaton extends Application {
             final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
             final String logPath = SDCARD + "/marssample/log";
 
-            String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":")+1));
+            String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
 
             if (BuildConfig.DEBUG) {
                 Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName);

@@ -123,18 +123,17 @@ public class MarsServiceProxy implements ServiceConnection {
                 return;
             }
             service.setForeground(isForeground ? 1 : 0);
-        }
-        catch (RemoteException e) {
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+    public void onServiceConnected(ComponentName componentName, IBinder binder) {
         Log.d(TAG, "remote mars service connected");
 
         try {
-            service = MarsService.Stub.asInterface(iBinder);
+            service = MarsService.Stub.asInterface(binder);
             service.registerPushMessageFilter(filter);
             service.setAccountInfo(accountInfo.uin, accountInfo.userName);
 
@@ -217,8 +216,9 @@ public class MarsServiceProxy implements ServiceConnection {
             } catch (Exception e) { // RemoteExceptionHandler
                 e.printStackTrace();
             }
-        } catch (Exception e) {
 
+        } catch (Exception e) {
+            //
         }
     }
 

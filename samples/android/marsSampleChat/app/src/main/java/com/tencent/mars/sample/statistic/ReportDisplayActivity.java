@@ -14,17 +14,16 @@
 
 package com.tencent.mars.sample.statistic;
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.tencent.mars.sample.R;
 import com.tencent.mars.sample.wrapper.remote.MarsServiceProxy;
-import com.tencent.mars.xlog.Log;
 
 import utils.bindsimple.BindSimple;
 import utils.bindsimple.BindView;
@@ -34,12 +33,12 @@ public class ReportDisplayActivity extends AppCompatActivity implements RadioGro
     public static String TAG = ReportDisplayActivity.class.getSimpleName();
 
     @BindView(R.id.main_sheet)
-    RadioGroup mMainSheet;
+    RadioGroup mainSheet;
 
     @BindView(R.id.display_toolbar)
-    Toolbar mToolbar;
+    Toolbar toolbar;
 
-    FragmentManager mFragmentManager;
+    FragmentManager fragmentManager;
 
     FlowReportFragment flowReportFragment;
     SdtReportFragment sdtReportFragment;
@@ -51,16 +50,16 @@ public class ReportDisplayActivity extends AppCompatActivity implements RadioGro
         setContentView(R.layout.activity_report_display);
         BindSimple.bind(this);
 
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);  //是否显示显示返回箭头
         getSupportActionBar().setDisplayShowTitleEnabled(false); //是否显示标题
 
-        mFragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
 
-        ((RadioButton)mMainSheet.getChildAt(0)).setChecked(true);
-        onCheckedChanged(mMainSheet, 1);
+        ((RadioButton) mainSheet.getChildAt(0)).setChecked(true);
+        onCheckedChanged(mainSheet, 1);
 
-        mMainSheet.setOnCheckedChangeListener(this);
+        mainSheet.setOnCheckedChangeListener(this);
     }
 
     @Override
@@ -76,16 +75,15 @@ public class ReportDisplayActivity extends AppCompatActivity implements RadioGro
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        FragmentTransaction fragmentTrans = mFragmentManager.beginTransaction();
+        FragmentTransaction fragmentTrans = fragmentManager.beginTransaction();
         hideFragments(fragmentTrans);
-        int id = (checkedId%3 == 0 ? 3 : (checkedId%3));
+        int id = (checkedId % 3 == 0 ? 3 : (checkedId % 3));
         switch (id) {
             case 1:
                 if (taskReportFragment == null) {
                     taskReportFragment = new TaskReportFragment();
                     fragmentTrans.add(R.id.dis_ll_fragment, taskReportFragment);
-                }
-                else {
+                } else {
                     fragmentTrans.show(taskReportFragment);
                 }
                 break;
@@ -93,8 +91,7 @@ public class ReportDisplayActivity extends AppCompatActivity implements RadioGro
                 if (flowReportFragment == null) {
                     flowReportFragment = new FlowReportFragment();
                     fragmentTrans.add(R.id.dis_ll_fragment, flowReportFragment);
-                }
-                else {
+                } else {
                     fragmentTrans.show(flowReportFragment);
                 }
                 break;
@@ -102,8 +99,7 @@ public class ReportDisplayActivity extends AppCompatActivity implements RadioGro
                 if (sdtReportFragment == null) {
                     sdtReportFragment = new SdtReportFragment();
                     fragmentTrans.add(R.id.dis_ll_fragment, sdtReportFragment);
-                }
-                else {
+                } else {
                     fragmentTrans.show(sdtReportFragment);
                 }
                 break;

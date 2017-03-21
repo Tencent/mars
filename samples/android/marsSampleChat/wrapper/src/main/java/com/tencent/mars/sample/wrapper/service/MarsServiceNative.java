@@ -78,7 +78,9 @@ public class MarsServiceNative extends Service implements MarsService {
     }
 
     @Override
-    public void setForeground(int isForeground) {stub.setForeground(isForeground);}
+    public void setForeground(int isForeground) {
+        stub.setForeground(isForeground);
+    }
 
     @Override
     public IBinder asBinder() {
@@ -118,7 +120,7 @@ public class MarsServiceNative extends Service implements MarsService {
 
         // Leave Mars
         Mars.onDestroy();
-//        ContentDistributionNetwork.onDestroy();
+        // ContentDistributionNetwork.onDestroy();
 
         Log.d(TAG, "mars service native destroyed");
         super.onDestroy();
