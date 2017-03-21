@@ -53,13 +53,13 @@ public class MarsServiceNative extends Service implements MarsService {
     }
 
     @Override
-    public void send(MarsTaskWrapper taskWrapper, Bundle taskProperties) throws RemoteException {
-        stub.send(taskWrapper, taskProperties);
+    public int send(MarsTaskWrapper taskWrapper, Bundle taskProperties) throws RemoteException {
+        return stub.send(taskWrapper, taskProperties);
     }
 
     @Override
-    public void cancel(MarsTaskWrapper taskWrapper) throws RemoteException {
-        stub.cancel(taskWrapper);
+    public void cancel(int taskID) throws RemoteException {
+        stub.cancel(taskID);
     }
 
     @Override

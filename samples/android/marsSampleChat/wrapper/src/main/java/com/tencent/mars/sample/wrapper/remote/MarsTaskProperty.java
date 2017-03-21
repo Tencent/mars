@@ -31,4 +31,5 @@ public final class MarsTaskProperty {
     public static final String OPTIONS_CMD_ID = "cmd_id";
     public static final String OPTIONS_CHANNEL_SHORT_SUPPORT = "short_support";
     public static final String OPTIONS_CHANNEL_LONG_SUPPORT = "long_support";
+    public static final String OPTIONS_TASK_ID = "task_id";
 }
