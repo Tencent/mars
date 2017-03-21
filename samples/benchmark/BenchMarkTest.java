@@ -12,7 +12,7 @@
 * limitations under the License.
 */
 
-package com.tencent.mars.sample;
+//package com.tencent.mars.sample;
 
 import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.squareup.okhttp.MediaType;
