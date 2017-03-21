@@ -60,7 +60,6 @@ const in6_addr in6addr_nat64_init = IN6ADDR_NAT64_INIT;
 
 #define s6_addr8    u.Byte
 #define	s6_addr16   u.Word
-#define	s6_addr32   u.Word //TODO:fix me u.DWord
 
 inline void IN6_SET_ADDR_NAT64(in6_addr* a6, const in_addr* a4) {
 	*a6 = in6addr_nat64_init;
