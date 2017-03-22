@@ -96,11 +96,7 @@ void TcpServer::StopAndWait() {
 
 void TcpServer::__ListenThread() {
     char ip[16] = {0};
-#ifdef WIN32
 	socket_inet_ntop(AF_INET, &(bind_addr_.sin_addr), ip, sizeof(ip));
-#else
-	inet_ntop(AF_INET, &(bind_addr_.sin_addr), ip, sizeof(ip));
-#endif // WIN32
 
     xgroup2_define(break_group);
 

@@ -100,9 +100,7 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
         } else {
             // default value
-#ifndef WIN32
-			interval += random() % (20);
-#endif // !WIN32       
+			interval += rand() % (20);
         }
     }
 

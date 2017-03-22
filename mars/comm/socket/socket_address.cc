@@ -162,7 +162,7 @@ bool socket_address::fix_current_nat64_addr() {
 			
 			xdebug2(TSF"ret =%_, ip_=%_, nat64_v6_addr = %_", ret, ip_, strutil::Hex2Str((char*)&(nat64_v6_addr.s6_addr16), 16));
 			if (ret) {
-				memcpy ((char*)&(addr_.in6.sin6_addr.s6_addr16), (char*)&(nat64_v6_addr.s6_addr16), 16);
+				memcpy ((char*)&(addr_.in6.sin6_addr.s6_addr32), (char*)&(nat64_v6_addr.s6_addr32), 16);
 				socket_inet_ntop(AF_INET6, &(addr_.in6.sin6_addr), ip_, sizeof(ip_));
 				//-----把ip_转为更易读的v6 ip形式---//
 				if (0==strncasecmp(kWellKnownNat64Prefix, ip_, 9)) {
