@@ -176,4 +176,11 @@ DeviceInfo GetDeviceInfo() {
 	return s_info;
 }
 
+
+mars::comm::ProxyInfo GetLongLinkProxyInfo() {
+    return mars::comm::ProxyInfo();
+}
+
+
+
 }}

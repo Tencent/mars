@@ -143,6 +143,8 @@ class HeaderFields {
     static const char* const KStringUserAgent;
     static const char* const KStringCacheControl;
     static const char* const KStringConnection;
+    static const char* const kStringProxyConnection;
+    static const char* const kStringProxyAuthorization;
     static const char* const KStringContentType;
     static const char* const KStringContentLength;
     static const char* const KStringTransferEncoding;

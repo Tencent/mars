@@ -178,6 +178,13 @@ bool (*LongLinkIsConnected)()
     STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
     return connected;
 };
+    
+bool (*LongLinkProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info)
+= [](const mars::comm::ProxyInfo& _proxy_info) {
+    bool available = false;
+    STN_WEAK_CALL_RETURN(LongLinkProxyIsAvailable(_proxy_info), available);
+    return available;
+};
 
 //void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
 // {
