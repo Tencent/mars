@@ -61,7 +61,7 @@ class ZombieTaskManager {
     void __TimerChecker();
 
   private:
-    MessageQueue::ScopeRegister m_asyncreg;
+    MessageQueue::ScopeRegister asyncreg_;
     std::list<ZombieTask> lsttask_;
     uint64_t net_core_last_start_task_time_;
 };

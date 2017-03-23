@@ -46,6 +46,11 @@ struct dnsinfo {
     int status;
 };
 
+static std::string DNSInfoToString(const struct dnsinfo& _info) {
+	XMessage msg;
+	msg(TSF"info:%@p, threadid:%_, dns:@%p, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
+	return msg.Message();
+}
 static std::vector<dnsinfo> sg_dnsinfo_vec;
 static Condition sg_condition;
 static Mutex sg_mutex;
@@ -231,12 +236,24 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
             }
 
             if (kGetIPSuc == it->status) {
-                ips = it->result;
+            	if (_host_name==it->host_name) {
+					ips = it->result;
 
-                if (_breaker) _breaker->dnsstatus = NULL;
+					if (_breaker) _breaker->dnsstatus = NULL;
 
-                sg_dnsinfo_vec.erase(it);
-                return true;
+					sg_dnsinfo_vec.erase(it);
+					return true;
+            	} else {
+                    std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
+                    int i = 0;
+                    for (; iter != sg_dnsinfo_vec.end(); ++iter) {
+                    	xerror2(TSF"sg_info_vec[%_]:%_", i++, DNSInfoToString(*iter));
+                    }
+                    if (monitor_func_)
+                    	monitor_func_(kDNSThreadIDError);
+            		xassert2(false, TSF"_host_name:%_, it->host_name:%_", _host_name, it->host_name);
+            		return false;
+            	}
             }
 
             if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
