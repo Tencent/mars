@@ -40,11 +40,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)/Mars/mars/mars/comm/windows;$(SolutionDir)/Mars/mars/mars/comm;$(SolutionDir)/Mars/mars/mars;$(SolutionDir)/Mars/mars;$(ProjectDir)/../;$(ProjectDir)/../src;$(ProjectDir)/../src/tools;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)/Mars/mars;$(SolutionDir)/Mars/mars/mars;$(SolutionDir)/Mars/mars/mars/comm;$(SolutionDir)/Mars/mars/mars/comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(ProjectDir)/../src/tools;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -57,6 +57,7 @@
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../;$(ProjectDir)../;$(ProjectDir)../../;$(ProjectDir)../../comm/windows/;$(ProjectDir)../../comm/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -75,6 +76,7 @@
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../;$(ProjectDir)../;$(ProjectDir)../../;$(ProjectDir)../../comm/windows/;$(ProjectDir)../../comm/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

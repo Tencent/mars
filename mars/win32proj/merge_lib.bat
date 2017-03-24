@@ -3,7 +3,7 @@ setlocal ENABLEEXTENSIONS
 
 if "%1" == "" goto PROMPT
 if "%2" == "" goto PROMPT
-set LIB_LIST=(app.lib baseevent.lib log.lib boost.lib  protobuf.lib mm-ext.lib sdt-ext.lib sdt.lib smc.lib stn.lib std.lib cdn.lib)
+set LIB_LIST=(app.lib baseevent.lib log.lib boost.lib sdt.lib stn.lib openssl.lib)
 set COMM_LIB=comm.lib
 set DST_LIB= %1
 set LIB_PATH= %2
