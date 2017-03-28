@@ -88,6 +88,14 @@ void TcpServer::StopAndWait() {
         breaker_.ReCreate();
     }
 
+    if (INVALID_SOCKET != listen_sock_)
+    {
+#ifdef WIN32
+		shutdown(listen_sock_, SD_BOTH);
+#endif
+        socket_close(listen_sock_);
+		listen_sock_ = INVALID_SOCKET;
+	}
     lock.unlock();
 
     if (thread_.isruning())
@@ -143,6 +151,7 @@ void TcpServer::__ListenThread() {
         observer_.OnCreate(this);
 
         while (true) {
+#ifndef WIN32
             SocketSelect sel(breaker_);
             sel.PreSelect();
             sel.Exception_FD_SET(listen_sock_);
@@ -174,6 +183,7 @@ void TcpServer::__ListenThread() {
                 xerror2(TSF"socket unreadable but break by unknown") >> break_group;
                 break;
             }
+#endif
 
             struct sockaddr_in client_addr = {0};
 
