@@ -14,7 +14,6 @@
 
 package com.tencent.mars.sample.statistic;
 
-import java.util.List;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
@@ -24,6 +23,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.List;
 
 /**
  * Created by caoshaokun on 16/12/21.
@@ -83,34 +84,40 @@ public class StatisticsAdapter extends BaseAdapter {
         }
     }
 
-    static public class TableRow {
+    static class TableRow {
         private TableCell[] cell;
+
         public TableRow(TableCell[] cell) {
             this.cell = cell;
         }
+
         public int getSize() {
             return cell.length;
         }
+
         public TableCell getCellValue(int index) {
-            if (index >= cell.length)
+            if (index >= cell.length) {
                 return null;
+            }
             return cell[index];
         }
     }
 
 
-    static public class TableCell {
-        static public final int STRING = 0;
-        static public final int IMAGE = 1;
+    static class TableCell {
+        public static final int STRING = 0;
+        public static final int IMAGE = 1;
         public Object value;
         public int width;
         public int height;
         private int type;
+
         public TableCell(int width, int height, int type) {
             this.width = width;
             this.height = height;
             this.type = type;
         }
+
         public TableCell(Object value, int width, int height, int type) {
             this.value = value;
             this.width = width;

@@ -614,7 +614,7 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status) {
 
 void NetCore::__ConnStatusCallBack() {
 
-    int all_connstatus = 0;
+    int all_connstatus = kNetworkUnavailable;
 
     if (shortlink_try_flag_) {
 		if (shortlink_error_count_ >= kShortlinkErrTime) {

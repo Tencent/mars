@@ -16,7 +16,6 @@ package com.tencent.mars.sample.wrapper.remote;
 
 import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.MessageNano;
-
 import com.tencent.mars.sample.utils.print.MemoryDump;
 import com.tencent.mars.stn.StnLogic;
 import com.tencent.mars.xlog.Log;
