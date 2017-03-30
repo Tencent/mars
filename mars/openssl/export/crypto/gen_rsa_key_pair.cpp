@@ -2,7 +2,7 @@
  * GenRsaKeyPair.c
  *
  *  Created on: 2016年3月21日
- *      Author: elviswu
+ *      Author: wutianqiang
  */
 #include "../../export_include/gen_rsa_key_pair.h"
 #include <string.h>

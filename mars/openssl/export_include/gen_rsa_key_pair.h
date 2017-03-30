@@ -2,7 +2,7 @@
  * GenRsaKeyPair.h
  *
  *  Created on: 2016年3月21日
- *      Author: elviswu
+ *      Author: wutianqiang
  */
 
 #ifndef EXPORT_CRYPTO_GENRSAKEYPAIR_H_

@@ -27,26 +27,25 @@ enum
 };
     
 int rsa_public_encrypt(const unsigned char* pInput, unsigned int uiInputLen
-	, unsigned char** ppOutput, unsigned int* uiOutputLen
-	, const char* pPublicKeyN, const char* pPublicKeyE);
+		, unsigned char** ppOutput, unsigned int* uiOutputLen
+		, const char* pPublicKeyN, const char* pPublicKeyE);
 
 int rsa_public_decrypt(const unsigned char* pInput, unsigned int uiInputLen
-	, unsigned char** ppOutput, unsigned int* uiOutputLen
-	, const char* pPublicKeyN, const char* pPublicKeyE);
+		, unsigned char** ppOutput, unsigned int* uiOutputLen
+		, const char* pPublicKeyN, const char* pPublicKeyE);
 
 int rsa_public_encrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
-	, unsigned char** ppOutput, unsigned int* uiOutputLen
-	, const char* pPemPubKey, unsigned int pemPubKeyLen);
-
+        , unsigned char** ppOutput, unsigned int* uiOutputLen
+        , const char* pPemPubKey, unsigned int pemPubKeyLen);
+    
 int rsa_public_decrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
-	, unsigned char** ppOutput, unsigned int* uiOutputLen
-	, const char* pPemPubKey, unsigned int pemPubKeyLen);
-
+        , unsigned char** ppOutput, unsigned int* uiOutputLen
+        , const char* pPemPubKey, unsigned int pemPubKeyLen);
+    
 
 int rsa_private_decrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
-	, unsigned char** ppOutput, unsigned int* uiOutputLen
-	, const char* pPemPriKey, unsigned int pemPriKeyLen);
-
+        , unsigned char** ppOutput, unsigned int* uiOutputLen
+        , const char* pPemPriKey, unsigned int pemPriKeyLen);
 #ifdef __cplusplus
 }
 #endif

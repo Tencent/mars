@@ -2,7 +2,8 @@
  * rsa_encrypt.c
  *
  *  Created on: 2013-7-16
- *      Author: astrozhou
+ *      Author: zhouzhijie
+        modify: wutianqiang
  */
 
 #include <string.h>
@@ -237,7 +238,7 @@ int rsa_private_decrypt(unsigned char** _out, unsigned int* _outlen,  const unsi
     
     return 0;
 }
-#include "xlogger/xlogger.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "openssl/evp.h"
 #include "openssl/rsa.h"
 #include "openssl/pem.h"
