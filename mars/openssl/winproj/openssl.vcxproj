@@ -67,6 +67,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>..\..\..\;..\..\comm;..\..\comm\windows;..\..\;..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
@@ -92,6 +93,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)MicroMsgWin\lib\

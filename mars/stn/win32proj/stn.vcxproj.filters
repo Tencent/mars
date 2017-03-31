@@ -90,12 +90,6 @@
     <ClCompile Include="..\src\net_channel_factory.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\openssl\export\crypto\rsa_crypt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\openssl\export\crypto\gen_rsa_key_pair.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\anti_avalanche.h">

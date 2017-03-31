@@ -92,7 +92,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\openssl\export\crypto\openssl_multi_thread_support.cpp" />
     <ClCompile Include="..\alarm.cc" />
     <ClCompile Include="..\anr.cc" />
     <ClCompile Include="..\assert\__assert.c" />
