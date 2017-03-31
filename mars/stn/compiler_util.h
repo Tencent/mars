@@ -10,29 +10,25 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 /*
- * baseprj.h
+ * compiler_util.h
  *
- *  Created on: 2014-7-7
- *      Author: yerungui
+ *  Created on: 2017-3-28
+ *      Author: jehoochen
  */
 
-#ifndef MARS_BASELOGIC_H_
-#define MARS_BASELOGIC_H_
+#ifndef STN_COMPILER_UTIL_H_
+#define STN_COMPILER_UTIL_H_
 
-#include <stdint.h>
-#include "mars/baseevent/compiler_util.h"
+#if defined(_MSC_VER) && defined(MARS_USE_DLLS)
+#ifdef MARS_STN_EXPORTS
+#define MARS_STN_EXPORT __declspec(dllexport)
+#else
+#define MARS_STN_EXPORT __declspec(dllimport)
+#endif
+#else
+#define MARS_STN_EXPORT
+#endif
 
-namespace mars{
-namespace baseevent{
-    MARS_BASEEVENT_EXPORT void OnCreate();
-    MARS_BASEEVENT_EXPORT void OnDestroy();
-    MARS_BASEEVENT_EXPORT void OnSingalCrash(int _sig);
-    MARS_BASEEVENT_EXPORT void OnExceptionCrash();
-    MARS_BASEEVENT_EXPORT void OnForeground(bool _isforeground);
-    MARS_BASEEVENT_EXPORT void OnNetworkChange();
-    MARS_BASEEVENT_EXPORT void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
-}
-}
-
-#endif /* MARS_BASELOGIC_H_ */
+#endif /* STN_COMPILER_UTIL_H_ */

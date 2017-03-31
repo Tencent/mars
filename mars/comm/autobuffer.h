@@ -17,8 +17,9 @@
 
 #include <sys/types.h>
 #include <string.h>
+#include "compiler_util.h"
 
-class AutoBuffer {
+class MARS_COMMON_EXPORT AutoBuffer {
   public:
     enum TSeek {
         ESeekStart,

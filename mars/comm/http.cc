@@ -31,6 +31,10 @@ static const char* const KStringSpace = " ";
 static const char* const KStringCRLF = "\r\n";
 static const char* const KStringColon = ":";
 
+bool less::operator()(const std::string& __x, const std::string& __y) const {
+    return 0 > strcasecmp(__x.c_str(), __y.c_str());
+}
+
 inline char* string_strnstr(const char* src, const char* sfind, int pos1) {
     xassert2(src != NULL && sfind != NULL);
 

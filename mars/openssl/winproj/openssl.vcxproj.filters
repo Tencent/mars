@@ -162,6 +162,24 @@
     <ClInclude Include="..\crypto\symhacks.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\crypto\hmac\hmac.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ecdh\ecdh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\ecdh\ech_locl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\pem\pem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\pem\pem2.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypto\pkcs12\pkcs12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\export\aes_crypt.c">
@@ -198,9 +216,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\crypto\aes\aes_wrap.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\crypto\aes\aes_x86core.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\crypto\asn1\a_bitstr.c">
@@ -780,6 +795,81 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\export\rsa_private_decrypt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\export\ecdh_crypt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\hmac\hm_ameth.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\hmac\hm_pmeth.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\hmac\hmac.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\names.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\evp_pbe.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\x_sig.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdh\ech_err.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdh\ech_key.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdh\ech_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\ecdh\ech_ossl.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\o_init.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\pmeth_fn.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\pmeth_gn.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\pem\pem_all.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\pem\pem_lib.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\pem\pem_oth.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\pem\pem_pkey.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\m_md5.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\evp_key.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\evp_pkey.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\pkcs12\p12_decr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\pkcs12\p12_p8d.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\asn1\d2i_pr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypto\evp\m_sigver.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

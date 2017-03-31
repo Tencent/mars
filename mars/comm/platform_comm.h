@@ -31,6 +31,7 @@
 #error "C++ only"
 #endif
 
+#include "mars/comm/compiler_util.h"
 
 
 bool getProxyInfo(int& _port, std::string& _str_proxy, const std::string& _host = "");
@@ -186,7 +187,7 @@ struct RadioAccessNetworkInfo {
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
 
 unsigned int getSignal(bool isWifi);
-bool isNetworkConnected();
+MARS_COMMON_EXPORT bool isNetworkConnected();
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 

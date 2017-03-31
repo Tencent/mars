@@ -29,8 +29,7 @@
 namespace http {
 
 struct less {
-    bool operator()(const std::string& __x, const std::string& __y) const
-    { return 0 > strcasecmp(__x.c_str(), __y.c_str()); }
+	bool operator()(const std::string& __x, const std::string& __y) const;
 };
 
 enum THttpVersion {

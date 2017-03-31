@@ -23,6 +23,7 @@
 #include <string>
 
 #include "mars/app/app.h"
+#include "mars/app/compiler_util.h"
 #include "mars/comm/comm_data.h"
 
 class AutoBuffer;
@@ -30,7 +31,7 @@ class AutoBuffer;
 namespace mars {
 namespace app {
 
-	class Callback {
+	class MARS_APP_EXPORT Callback {
 	public:
 		virtual ~Callback() {};
         
@@ -46,7 +47,7 @@ namespace app {
 
 	};
 
-	void SetCallback(Callback* const callback);
+	MARS_APP_EXPORT void SetCallback(Callback* const callback);
 }}
 
 

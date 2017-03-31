@@ -23,6 +23,7 @@
 
 #include <string>
 #include <vector>
+#include "compiler_util.h"
 
 enum TAppenderMode
 {
@@ -30,16 +31,16 @@ enum TAppenderMode
     kAppednerSync,
 };
 
-void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix);
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix);
-void appender_flush();
-void appender_flush_sync();
-void appender_close();
-void appender_setmode(TAppenderMode _mode);
-bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
-bool appender_get_current_log_path(char* _log_path, unsigned int _len);
-bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len);
-void appender_set_console_log(bool _is_open);
+MARS_LOG_EXPORT void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix);
+MARS_LOG_EXPORT void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix);
+MARS_LOG_EXPORT void appender_flush();
+MARS_LOG_EXPORT void appender_flush_sync();
+MARS_LOG_EXPORT void appender_close();
+MARS_LOG_EXPORT void appender_setmode(TAppenderMode _mode);
+MARS_LOG_EXPORT bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
+MARS_LOG_EXPORT bool appender_get_current_log_path(char* _log_path, unsigned int _len);
+MARS_LOG_EXPORT bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len);
+MARS_LOG_EXPORT void appender_set_console_log(bool _is_open);
 
 
 #endif /* APPENDER_H_ */

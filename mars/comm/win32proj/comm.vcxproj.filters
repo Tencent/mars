@@ -201,9 +201,6 @@
     <ClCompile Include="..\socket\nat64_prefix_util.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\openssl\export\crypto\openssl_multi_thread_support.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\assert\__assert.h">

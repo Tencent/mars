@@ -21,10 +21,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 #ifndef _WIN32
 #define __STDC_FORMAT_MACROS
 #include <strings.h>
+#else
+#include "projdef.h"
 #endif
 #include <inttypes.h>
 

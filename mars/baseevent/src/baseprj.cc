@@ -18,6 +18,7 @@
  */
 
 #include "mars/baseevent/baseprjevent.h"
+#include "mars/baseevent/base_logic.h"
 
 #include "mars/comm/compiler_util.h"
 #include "mars/comm/bootregister.h"
@@ -26,7 +27,7 @@
 
 namespace mars{
     namespace baseevent{
-        
+
         void OnCreate()
         {
             GetSignalOnCreate()();
