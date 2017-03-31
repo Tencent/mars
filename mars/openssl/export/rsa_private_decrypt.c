@@ -1,4 +1,4 @@
-
+#if 0
 #include <stdlib.h>
 #include <string.h>
 
@@ -116,7 +116,7 @@ void ras_keypair_freekey(RSA* _key)
 	RSA_free(_key);
 }
 
-int rsa_private_decrypt(void** _out, size_t* _outlen,  const void* _in, size_t _inlen, RSA* _key)
+int rsa_private_decrypt(unsigned char** _out, unsigned int* _outlen,  const unsigned char* _in, unsigned int _inlen, RSA* _key)
 {
 	if(!_in || !_key || _inlen < 8 || _inlen % 8 != 0) { return __LINE__; }
 
@@ -125,24 +125,25 @@ int rsa_private_decrypt(void** _out, size_t* _outlen,  const void* _in, size_t _
 	// load priv key
 	RSA *Rsa = _key;
 	if (!Rsa) { return __LINE__; }
-	size_t iKeySize = (size_t)RSA_size(Rsa);
+	unsigned int iKeySize = (unsigned int)RSA_size(Rsa);
 
 	// decrypt
-	unsigned char *pcPlainBuf = (unsigned char *)OPENSSL_malloc( _inlen );
+    unsigned char *pcPlainBuf = (unsigned char*)calloc(_inlen, sizeof(unsigned char));
+    if (!pcPlainBuf) { return __LINE__; }
 	int iPlainSize = 0;
 	if (_inlen > (unsigned int)iKeySize)
 	{
-		size_t iBlockCnt = _inlen / iKeySize;
+		unsigned int iBlockCnt = _inlen / iKeySize;
 
-		size_t iPos = 0;
-		size_t i = 0;
+		unsigned int iPos = 0;
+		unsigned int i = 0;
 		for (i = 0; i < iBlockCnt; ++i)
 		{
-			size_t iBlockSize = 0;
+			unsigned int iBlockSize = 0;
 			ret = RSA_private_decrypt( iKeySize, (const unsigned char*)_in + i * iKeySize, pcPlainBuf + iPos, Rsa, RSA_PKCS1_PADDING );
 			if (ret < 1)
 			{
-				OPENSSL_free(pcPlainBuf);
+				free(pcPlainBuf);
 				return __LINE__;
 
 			}
@@ -153,19 +154,20 @@ int rsa_private_decrypt(void** _out, size_t* _outlen,  const void* _in, size_t _
 	}
 	else
 	{
-		ret = RSA_private_decrypt( iKeySize,  (const unsigned char*)_in, pcPlainBuf, Rsa, RSA_PKCS1_PADDING);
+        ret = RSA_private_decrypt( iKeySize,  (const unsigned char*)_in, pcPlainBuf, Rsa, RSA_PKCS1_PADDING);
 
 		if (ret < 1)
 		{
-			OPENSSL_free(pcPlainBuf);
+			free(pcPlainBuf);
 			return __LINE__;
 		}
-
+       
 		iPlainSize = ret;
 	}
 
 	*_out =  pcPlainBuf;
-    *_outlen = (size_t)iPlainSize;
-
-	return 0;
+    *_outlen = (unsigned int)iPlainSize;
+    
+    return 0;
 }
+#endif

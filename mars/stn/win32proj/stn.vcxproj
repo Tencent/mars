@@ -114,9 +114,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\openssl\export\crypto\gen_rsa_key_pair.cpp" />
-    <ClCompile Include="..\..\openssl\export\crypto\openssl_multi_thread_support.cpp" />
-    <ClCompile Include="..\..\openssl\export\crypto\rsa_crypt.cpp" />
     <ClCompile Include="..\src\anti_avalanche.cc" />
     <ClCompile Include="..\src\dynamic_timeout.cc" />
     <ClCompile Include="..\src\flow_limit.cc" />
@@ -143,8 +140,6 @@
     <ClCompile Include="..\stn_logic.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\openssl\export_include\openssl_multi_thread_support.h" />
-    <ClInclude Include="..\..\openssl\export_include\rsa_crypt.h" />
     <ClInclude Include="..\compiler_util.h" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\dns_profile.h" />

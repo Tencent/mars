@@ -135,13 +135,13 @@ public:
             return;
         }
         
-        if (value_ < std::numeric_limits<T>::min()) {
-            value_ = std::numeric_limits<T>::min();
+        if (value_ <( std::numeric_limits<T>::min)()) {
+            value_ =( std::numeric_limits<T>::min)();
             vaild_ = false;
             return;
         }
-        if (std::numeric_limits<T>::max() < value_) {
-            value_ = std::numeric_limits<T>::max();
+        if ((std::numeric_limits<T>::max)() < value_) {
+            value_ = (std::numeric_limits<T>::max)();
             vaild_ = false;
             return;
         }
@@ -172,13 +172,13 @@ public:
             vaild_ = false;
             return;
         }
-        if (value_ < std::numeric_limits<T>::min()) {
-            value_ = std::numeric_limits<T>::min();
+        if (value_ <( std::numeric_limits<T>::min)()) {
+            value_ =( std::numeric_limits<T>::min)();
             vaild_ = false;
             return;
         }
-        if (std::numeric_limits<T>::max() < value_) {
-            value_ = std::numeric_limits<T>::max();
+        if ((std::numeric_limits<T>::max)() < value_) {
+            value_ = (std::numeric_limits<T>::max)();
             vaild_ = false;
             return;
         }

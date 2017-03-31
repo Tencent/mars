@@ -90,15 +90,6 @@
     <ClCompile Include="..\src\net_channel_factory.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\openssl\export\crypto\gen_rsa_key_pair.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\openssl\export\crypto\openssl_multi_thread_support.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\openssl\export\crypto\rsa_crypt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\anti_avalanche.h">
@@ -192,12 +183,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\compiler_util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\openssl\export_include\openssl_multi_thread_support.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\openssl\export_include\rsa_crypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
