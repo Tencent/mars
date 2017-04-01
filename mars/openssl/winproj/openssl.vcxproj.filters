@@ -74,5 +74,8 @@
     <ClInclude Include="..\export_include\rsa_pss_sha256.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\export_include\compiler_util.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

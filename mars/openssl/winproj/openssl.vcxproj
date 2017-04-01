@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\export_include\aes_crypt.h" />
+    <ClInclude Include="..\export_include\compiler_util.h" />
     <ClInclude Include="..\export_include\ecdh_crypt.h" />
     <ClInclude Include="..\export_include\ecdsa_verify.h" />
     <ClInclude Include="..\export_include\gen_rsa_key_pair.h" />
@@ -65,12 +66,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\..\..\;..\..\comm;..\..\comm\windows;..\..\;..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\;..\crypto\evp;..\crypto\asn1;..\include\..;..\crypto;..\export_include;..\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
     <ExcludePath>$(ExcludePath)</ExcludePath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
@@ -81,9 +82,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MARS_OPENSSL_EXPORTS;MARS_USE_DLLS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;$(ProjectDir)..\..\..\;$(ProjectDir)..\..\comm;$(ProjectDir)..\..\comm\windows;$(ProjectDir)..\..\;$(ProjectDir)..\;$(ProjectDir)..\crypto\evp;$(ProjectDir)..\crypto\asn1;$(ProjectDir)..\crypto;$(ProjectDir)..\export_include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -109,8 +110,8 @@ xcopy /y $(OutDir)$(TargetName).pdb  $(SolutionDir)MicroMsgWin\lib\
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MARS_OPENSSL_EXPORTS;MARS_USE_DLLS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;$(ProjectDir)..\..\..\;$(ProjectDir)..\..\comm;$(ProjectDir)..\..\comm\windows;$(ProjectDir)..\..\;$(ProjectDir)..\;$(ProjectDir)..\crypto\evp;$(ProjectDir)..\crypto\asn1;$(ProjectDir)..\crypto;$(ProjectDir)..\export_include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>

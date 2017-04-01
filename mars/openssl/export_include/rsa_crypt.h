@@ -7,7 +7,7 @@
 
 #ifndef RSA_ENCRYPT_H_
 #define RSA_ENCRYPT_H_
-#include "mars/stn/compiler_util.h"
+#include "compiler_util.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,7 +26,7 @@ enum
     CRYPT_ERR_LOAD_RSA_PRIVATE_KEY = 9,
 };
     
-MARS_STN_EXPORT int rsa_public_encrypt(const unsigned char* pInput, unsigned int uiInputLen
+MARS_OPENSSL_EXPORT int rsa_public_encrypt(const unsigned char* pInput, unsigned int uiInputLen
 		, unsigned char** ppOutput, unsigned int* uiOutputLen
 		, const char* pPublicKeyN, const char* pPublicKeyE);
 
