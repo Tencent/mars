@@ -29,8 +29,9 @@ namespace mars {
         
 enum ProxyType {
     kProxyNone = 0,
-    kProxyHttp,
+    kProxyHttpTunel,
     kProxySocks5,
+    kProxyHttp,
 };
         
 class ProxyInfo {
@@ -38,6 +39,10 @@ public:
     ProxyInfo():ProxyInfo(kProxyNone, "", "", 0, "", ""){}
     ProxyInfo(ProxyType _type, const std::string& _host, const std::string& _ip, uint16_t _port, const std::string& _username, const std::string& _password)
     :type(_type), host(_host), ip(_ip), port(_port), username(_username), password(_password){}
+    
+    bool IsValid() const {
+        return kProxyNone == type || ((!ip.empty() || !host.empty()) && port > 0);
+    }
     
 public:
     ProxyType type;

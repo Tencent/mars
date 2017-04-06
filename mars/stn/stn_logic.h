@@ -127,7 +127,7 @@ namespace stn{
     
 	MARS_STN_EXPORT extern bool (*LongLinkIsConnected)();
     
-	MARS_STN_EXPORT extern bool (*LongLinkProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info);
+    MARS_STN_EXPORT extern bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host);
 
     // noop is used to keep longlink conected
     // get noop taskid

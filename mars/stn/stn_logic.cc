@@ -39,6 +39,7 @@
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
+#include "proxy_test.h"
 
 namespace mars {
 namespace stn {
@@ -179,11 +180,10 @@ bool (*LongLinkIsConnected)()
     return connected;
 };
     
-bool (*LongLinkProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info)
-= [](const mars::comm::ProxyInfo& _proxy_info) {
-    bool available = false;
-    STN_WEAK_CALL_RETURN(LongLinkProxyIsAvailable(_proxy_info), available);
-    return available;
+bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host)
+= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host){
+    
+    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host);
 };
 
 //void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)

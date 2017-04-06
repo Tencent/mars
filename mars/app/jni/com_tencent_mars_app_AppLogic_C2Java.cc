@@ -177,7 +177,7 @@ DeviceInfo GetDeviceInfo() {
 }
 
 
-mars::comm::ProxyInfo GetLongLinkProxyInfo() {
+mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {
     return mars::comm::ProxyInfo();
 }
 

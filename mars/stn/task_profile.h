@@ -139,7 +139,7 @@ struct ConnectProfile {
     std::vector<NoopProfile> noop_profiles;
 
     boost::shared_ptr<ProfileExtension> extension_ptr;
-    mars::comm::ProxyType proxy_type;
+    mars::comm::ProxyInfo proxy_info;
 };
 
         

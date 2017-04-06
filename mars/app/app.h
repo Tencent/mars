@@ -40,7 +40,7 @@ struct DeviceInfo {
 	std::string devicetype;
 };
     
-extern mars::comm::ProxyInfo GetLongLinkProxyInfo();
+extern mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 extern std::string GetAppFilePath();
 extern AccountInfo GetAccountInfo();
 extern std::string GetUserName();

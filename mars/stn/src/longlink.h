@@ -126,7 +126,6 @@ class LongLink {
     bool    SendWhenNoData(const AutoBuffer& _body, const AutoBuffer& _extension, uint32_t _cmdid, uint32_t _taskid);
     bool    Stop(uint32_t _taskid);
 
-	bool            LongLinkProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info);
     bool            MakeSureConnected(bool* _newone = NULL);
     void            Disconnect(TDisconnectInternalCode _scene);
     TLongLinkStatus ConnectStatus() const;

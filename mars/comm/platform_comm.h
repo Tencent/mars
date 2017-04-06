@@ -31,11 +31,6 @@
 #error "C++ only"
 #endif
 
-#include "mars/comm/compiler_util.h"
-
-
-bool getProxyInfo(int& _port, std::string& _str_proxy, const std::string& _host = "");
-
 enum NetType {
     kNoNet = -1,
     kWifi = 1,

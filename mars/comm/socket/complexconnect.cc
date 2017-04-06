@@ -74,7 +74,7 @@ class ConnectCheckFSM : public TcpClientFSM {
         
         EProxyHttpTunelConnSvrReq,
         EProxySocks5GreetReq,
-        EProxySocks5GreepSucc,
+        EProxySocks5GreetSucc,
         EProxySocks5AuthReq,
         EProxySocks5AuthSucc,
         EProxySocks5ConnSvrReq,
@@ -153,20 +153,20 @@ class ConnectCheckFSM : public TcpClientFSM {
     
 class ConnectHttpTunelCheckFSM : public ConnectCheckFSM {
 public:
-    ConnectHttpTunelCheckFSM(const socket_address& _destaddr, const socket_address* _proxy_addr, const std::string& _proxy_username,
+    ConnectHttpTunelCheckFSM(const socket_address& _destaddr, const socket_address& _proxy_addr, const std::string& _proxy_username,
                              const std::string& _proxy_pwd, unsigned int _connect_timeout, unsigned int _index, MComplexConnect* _observer)
-    : ConnectCheckFSM(*_proxy_addr, _connect_timeout,_index,_observer), destaddr_(_destaddr), username_(_proxy_username), password_(_proxy_pwd){
+    : ConnectCheckFSM(_proxy_addr, _connect_timeout,_index,_observer), destaddr_(_destaddr), username_(_proxy_username), password_(_proxy_pwd){
         check_status_ = ECheckInit;
-        xinfo2(TSF"http tunel proxy info:%_:%_ username:%_", _proxy_addr->ip(), _proxy_addr->port(), username_);
+        xinfo2(TSF"http tunel proxy info:%_:%_ username:%_", _proxy_addr.ip(), _proxy_addr.port(), username_);
     }
     
 protected:
     virtual void _OnConnected(int _rtt) {
         checkfintime_ = ::gettickcount();
         
-        if (!observer_) return;
-        
-        observer_->OnConnected(index_, addr_, sock_, 0, _rtt);
+        if (observer_) {
+            observer_->OnConnected(index_, addr_, sock_, 0, _rtt);
+        }
         
         if (ECheckOK == CheckStatus()) {
             return;
@@ -176,7 +176,6 @@ protected:
     }
     
     virtual void _OnRecv(AutoBuffer& _recv_buff, ssize_t _recv_len) {
-        if (!observer_) return;
         if (ECheckOK == CheckStatus()) return;
         if (check_status_ == EProxyHttpTunelConnSvrReq) {
 
@@ -199,7 +198,7 @@ protected:
             }
             
         } else if (check_status_ == EProxyConnSvrSucc) {
-            check_status_ = observer_->OnVerifyRecv(index_, destaddr_, sock_, _recv_buff) ? ECheckOK : ECheckFail;
+            check_status_ = (observer_ && observer_->OnVerifyRecv(index_, destaddr_, sock_, _recv_buff)) ? ECheckOK : ECheckFail;
             checkfintime_ = gettickcount();
         } else {
             xassert2(false, "status:%d", check_status_);
@@ -259,20 +258,20 @@ protected:
 class ConnectSocks5CheckFSM : public ConnectCheckFSM {
 public:
     
-    ConnectSocks5CheckFSM(const socket_address& _destaddr, const socket_address* _proxy_addr, const std::string& _proxy_username,
+    ConnectSocks5CheckFSM(const socket_address& _destaddr, const socket_address& _proxy_addr, const std::string& _proxy_username,
                           const std::string& _proxy_pwd, unsigned int _connect_timeout, unsigned int _index, MComplexConnect* _observer)
-    : ConnectCheckFSM(*_proxy_addr, _connect_timeout,_index,_observer), destaddr_(_destaddr), username_(_proxy_username), password_(_proxy_pwd){
+    : ConnectCheckFSM(_proxy_addr, _connect_timeout,_index,_observer), destaddr_(_destaddr), username_(_proxy_username), password_(_proxy_pwd){
         check_status_ = ECheckInit;
-        xinfo2(TSF"socks5 proxy info:%_:%_ username:%_", _proxy_addr->ip(), _proxy_addr->port(), username_);
+        xinfo2(TSF"socks5 proxy info:%_:%_ username:%_", _proxy_addr.ip(), _proxy_addr.port(), username_);
     }
     
 protected:
     virtual void _OnConnected(int _rtt) {
         checkfintime_ = ::gettickcount();
         
-        if (!observer_) return;
-        
-        observer_->OnConnected(index_, addr_, sock_, 0, _rtt);
+        if (observer_) {
+            observer_->OnConnected(index_, addr_, sock_, 0, _rtt);
+        }
         
         if (ECheckOK == CheckStatus()) {
             return;
@@ -282,7 +281,6 @@ protected:
     }
     
     virtual void _OnRecv(AutoBuffer& _recv_buff, ssize_t _recv_len) {
-        if (!observer_) return;
         if (ECheckOK == CheckStatus()) return;
         if (check_status_ == EProxySocks5GreetReq) {
             
@@ -302,7 +300,7 @@ protected:
                 check_status_ = EProxySocks5AuthSucc;
                 request_send_ = true;
             } else if (kSocks5UsrNamePwdAuth == method) { //USERNAME/PASSWORD
-                check_status_ = EProxySocks5GreepSucc;
+                check_status_ = EProxySocks5GreetSucc;
                 request_send_ = true;
             } else {
                 xwarn2("auth method not support:%d", method);
@@ -363,7 +361,7 @@ protected:
             request_send_ = true;
             recv_buf_.Length(0, 0);
         } else if (check_status_ == EProxyConnSvrSucc) {
-            check_status_ = observer_->OnVerifyRecv(index_, destaddr_, sock_, _recv_buff) ? ECheckOK : ECheckFail;
+            check_status_ = (observer_ && observer_->OnVerifyRecv(index_, destaddr_, sock_, _recv_buff)) ? ECheckOK : ECheckFail;
             checkfintime_ = gettickcount();
         } else {
             xassert2(false, "socks5 proxy checkfsm status:%d", check_status_);
@@ -376,7 +374,7 @@ protected:
             _send_buff.Length(0, 0);
             _send_buff.Write(socks5_greet_data, sizeof(socks5_greet_data));
             check_status_ = EProxySocks5GreetReq;
-        } else if (check_status_ == EProxySocks5GreepSucc) {
+        } else if (check_status_ == EProxySocks5GreetSucc) {
             if (username_.empty() || password_.empty() || username_.size() > 255 || password_.size() > 255) {
                 xwarn2(TSF"username/password error:%_ %_", username_.size(), password_.size());
                 check_status_ = ECheckFail;
@@ -406,7 +404,7 @@ protected:
             check_status_ = EProxySocks5ConnSvrReq;
             
         } else if (check_status_ == EProxyConnSvrSucc) {
-            if (!observer_->OnVerifySend(index_, destaddr_, sock_, send_buf_)) {
+            if (observer_ && !observer_->OnVerifySend(index_, destaddr_, sock_, send_buf_)) {
                 check_status_ = ECheckFail;
             }
         } else {
@@ -438,7 +436,7 @@ static bool __isconnecting(const ConnectCheckFSM* _ref) { return NULL != _ref &&
 }
 
 SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketBreaker& _breaker, MComplexConnect* _observer,
-                                            mars::comm::ProxyType _proxy_type, const socket_address* _proxy_addr,
+                                            mars::comm::ProxyType _proxy_type, const std::vector<socket_address>* _proxy_addr,
                                             const std::string& _proxy_username, const std::string& _proxy_pwd) {
     trycount_ = 0;
     index_ = -1;
@@ -451,6 +449,11 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         xwarn2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
         return INVALID_SOCKET;
     }
+    
+    if ((mars::comm::kProxyHttpTunel == _proxy_type || mars::comm::kProxySocks5 == _proxy_type) && _proxy_addr->size() != _vecaddr.size()) {
+        xerror2(TSF"_proxy_addr->size():%_ != _vecaddr.size():%_", _proxy_addr->size(), _vecaddr.size());
+        return INVALID_SOCKET;
+    }
 
     xinfo2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
     
@@ -461,10 +464,10 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         xinfo2(TSF"complex.conn %_", _vecaddr[i].url());
 
         ConnectCheckFSM* ic = NULL;
-        if (mars::comm::kProxyHttp == _proxy_type) {
-            ic = new ConnectHttpTunelCheckFSM(_vecaddr[i], _proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
+        if (mars::comm::kProxyHttpTunel == _proxy_type) {
+            ic = new ConnectHttpTunelCheckFSM(_vecaddr[i], (*_proxy_addr)[i], _proxy_username, _proxy_pwd, timeout_, i, _observer);
         } else if (mars::comm::kProxySocks5 == _proxy_type) {
-            ic = new ConnectSocks5CheckFSM(_vecaddr[i], _proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
+            ic = new ConnectSocks5CheckFSM(_vecaddr[i], (*_proxy_addr)[i], _proxy_username, _proxy_pwd, timeout_, i, _observer);
         } else {
             ic = new ConnectCheckFSM(_vecaddr[i], timeout_, i, _observer);
         }

@@ -27,16 +27,14 @@
 
 #include "openssl/export_include/openssl_multi_thread_support.h"
 
-
+#include "mars/app/app.h"
+#include "mars/baseevent/active_logic.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/network/netinfo_util.h"
 #include "mars/comm/socket/local_ipstack.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/platform_comm.h"
-#include "mars/comm/comm_data.h"
-#include "mars/app/app.h"
-#include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/stn/config.h"
 #include "mars/stn/task_profile.h"
@@ -56,6 +54,7 @@
 
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
+
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -505,13 +504,6 @@ void NetCore::MakeSureLongLinkConnect() {
 bool NetCore::LongLinkIsConnected() {
 #ifdef USE_LONG_LINK
     return LongLink::kConnected == longlink_task_manager_->LongLinkChannel().ConnectStatus();
-#endif
-    return false;
-}
-
-bool NetCore::LongLinkProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info) {
-#ifdef USE_LONG_LINK
-    return longlink_task_manager_->LongLinkChannel().LongLinkProxyIsAvailable(_proxy_info);
 #endif
     return false;
 }
