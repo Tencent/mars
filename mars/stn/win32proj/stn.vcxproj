@@ -128,6 +128,7 @@
     <ClCompile Include="..\src\net_check_logic.cc" />
     <ClCompile Include="..\src\net_core.cc" />
     <ClCompile Include="..\src\net_source.cc" />
+    <ClCompile Include="..\src\proxy_test.cc" />
     <ClCompile Include="..\src\shortlink.cc" />
     <ClCompile Include="..\src\shortlink_task_manager.cc" />
     <ClCompile Include="..\src\signalling_keeper.cc" />
@@ -157,6 +158,7 @@
     <ClInclude Include="..\src\net_check_logic.h" />
     <ClInclude Include="..\src\net_core.h" />
     <ClInclude Include="..\src\net_source.h" />
+    <ClInclude Include="..\src\proxy_test.h" />
     <ClInclude Include="..\src\shortlink.h" />
     <ClInclude Include="..\src\shortlink_interface.h" />
     <ClInclude Include="..\src\shortlink_task_manager.h" />

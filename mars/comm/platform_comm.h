@@ -27,6 +27,8 @@
 #include "mars/comm/thread/mutex.h"
 #endif
 
+#include "mars/comm/compiler_util.h"
+
 #ifndef __cplusplus
 #error "C++ only"
 #endif

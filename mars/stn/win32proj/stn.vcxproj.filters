@@ -90,6 +90,9 @@
     <ClCompile Include="..\src\net_channel_factory.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\proxy_test.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\anti_avalanche.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\compiler_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\proxy_test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -39,7 +39,7 @@
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
-#include "proxy_test.h"
+#include "stn/src/proxy_test.h"
 
 namespace mars {
 namespace stn {
