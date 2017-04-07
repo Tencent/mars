@@ -256,7 +256,7 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval(bool& _use_smart_heartbeat
     _use_smart_heartbeat = false;
     ScopedLock lock(_mutex_);
 
-    if (SINGLETON_STRONG(ActiveLogic)->IsActive() || success_heart_count_ < NetStableTestCount || current_net_heart_info_.net_detail_.empty()
+    if (ActiveLogic::Singleton::Instance()->IsActive() || success_heart_count_ < NetStableTestCount || current_net_heart_info_.net_detail_.empty()
             || __IsMIUIStyle()) {
         //        xdebug2(TSF"getNextHeartbeatInterval use MinHeartInterval. success_heart_count_=%0",success_heart_count_);
         last_heart_ = MinHeartInterval;

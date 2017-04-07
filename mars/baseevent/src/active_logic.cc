@@ -29,7 +29,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 
 static void onForeground(bool _isforeground) {
-    SINGLETON_STRONG(ActiveLogic)->OnForeground(_isforeground);
+    ActiveLogic::Singleton::Instance()->OnForeground(_isforeground);
 }
 
 static void __initbind_baseprjevent() {

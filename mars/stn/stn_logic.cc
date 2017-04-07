@@ -68,7 +68,7 @@ static void onCreate() {
 #endif
 
     xinfo2(TSF"stn oncreate");
-    SINGLETON_STRONG(ActiveLogic);
+    ActiveLogic::Singleton::Instance();
     NetCore::Singleton::Instance();
 
 }
@@ -78,6 +78,7 @@ static void onDestroy() {
 
     NetCore::Singleton::Release();
     SINGLETON_RELEASE_ALL();
+    ActiveLogic::Singleton::Release();
 }
 
 static void onSingalCrash(int _sig) {
