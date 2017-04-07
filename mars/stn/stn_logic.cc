@@ -112,9 +112,8 @@ static void __initbind_baseprjevent() {
 #ifdef ANDROID
 	mars::baseevent::addLoadModule(kLibName);
 #endif
-
     GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnDestroy().connect(&onDestroy);
+    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
     GetSignalOnNetworkChange().connect(&onNetworkChange);
