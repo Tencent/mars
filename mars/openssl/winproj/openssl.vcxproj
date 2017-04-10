@@ -82,7 +82,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>MARS_OPENSSL_EXPORTS;MARS_USE_DLLS;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;$(ProjectDir)..\..\..\;$(ProjectDir)..\..\comm;$(ProjectDir)..\..\comm\windows;$(ProjectDir)..\..\;$(ProjectDir)..\;$(ProjectDir)..\crypto\evp;$(ProjectDir)..\crypto\asn1;$(ProjectDir)..\crypto;$(ProjectDir)..\export_include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -110,7 +110,7 @@ xcopy /y $(OutDir)$(TargetName).pdb  $(SolutionDir)MicroMsgWin\lib\
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>MARS_OPENSSL_EXPORTS;MARS_USE_DLLS;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;$(ProjectDir)..\..\..\;$(ProjectDir)..\..\comm;$(ProjectDir)..\..\comm\windows;$(ProjectDir)..\..\;$(ProjectDir)..\;$(ProjectDir)..\crypto\evp;$(ProjectDir)..\crypto\asn1;$(ProjectDir)..\crypto;$(ProjectDir)..\export_include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
