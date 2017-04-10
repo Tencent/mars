@@ -18,10 +18,12 @@
 #ifndef STRING_CAST_H_
 #define STRING_CAST_H_
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include <strings.h>
+#include <string.h>
 
 #include <limits>
 #include <string>
