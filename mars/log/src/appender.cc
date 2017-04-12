@@ -720,11 +720,11 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, true);
+        sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, false);
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        sg_log_buff = new LogBuffer(buffer, kBufferBlockLength, true);
+        sg_log_buff = new LogBuffer(buffer, kBufferBlockLength, false);
         use_mmap = false;
     }
 
