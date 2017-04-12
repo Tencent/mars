@@ -30,7 +30,7 @@ namespace coroutine {
 
 /* SocketSelect Start */
     
-struct TaskInfo {
+class TaskInfo {
 public:
     TaskInfo(boost::intrusive_ptr<Wrapper> _wrapper, SocketSelect& _sel)
     :wrapper_(_wrapper), sel_(_sel) {

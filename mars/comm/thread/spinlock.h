@@ -126,12 +126,12 @@ public:
 
      bool lock()
      {
-         register unsigned int pause_count = initial_pause;
+         unsigned int pause_count = initial_pause;
          while (!trylock())
          {
              if (pause_count < max_pause)
              {
-                 for (register unsigned int i = 0; i < pause_count; ++i)
+                 for (unsigned int i = 0; i < pause_count; ++i)
                  {
                      cpu_relax();
                  }
