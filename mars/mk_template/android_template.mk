@@ -52,7 +52,8 @@ LOCAL_STATIC_LIBRARIES += $(call sort-libraries,$(call filter-static-libraries,$
 LOCAL_SHARED_LIBRARIES += $(call sort-libraries,$(LOCAL_EXPORT_SHARED_LIBRARIES))
 #LOCAL_STATIC_LIBRARIES += $(LOCAL_EXPORT_STATIC_LIBRARIES)
 #LOCAL_SHARED_LIBRARIES += $ $(LOCAL_EXPORT_SHARED_LIBRARIES)  
-LOCAL_LDLIBS    += $(SELF_LOCAL_EXPORT_LDLIBS)
+LOCAL_EXPORT_LDLIBS    += $(SELF_LOCAL_EXPORT_LDLIBS)
+LOCAL_LDLIBS    += $(SELF_LOCAL_LDLIBS)
 
 unique = $(if $1,$(firstword $1) $(call uniq,$(filter-out $(firstword $1),$1)))
 LOCAL_C_INCLUDES := $(call unique,$(abspath $(LOCAL_C_INCLUDES)))
