@@ -77,6 +77,9 @@ public class ConversationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        checkPermission();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
@@ -265,7 +268,7 @@ public class ConversationActivity extends AppCompatActivity {
         switch (requestCode) {
             case Constants.STORAGE_REQUESTCODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    SampleApplicaton.openXlog();
+                  //  SampleApplicaton.openXlog();
 
                 } else {
                     //

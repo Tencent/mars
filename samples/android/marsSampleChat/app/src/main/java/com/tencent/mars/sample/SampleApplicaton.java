@@ -14,13 +14,10 @@
 
 package com.tencent.mars.sample;
 
-import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 
 import com.tencent.mars.app.AppLogic;
 import com.tencent.mars.sample.core.ActivityEvent;
@@ -93,41 +90,35 @@ public class SampleApplicaton extends Application {
 
     }
 
-    public static void openXlog() {
+    public static  void openXlog() {
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (BuildConfig.DEBUG) {
-                Xlog.setConsoleLogOpen(true);
-            } else {
-                Xlog.setConsoleLogOpen(false);
+        int pid = android.os.Process.myPid();
+        String processName = null;
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo appProcess : am.getRunningAppProcesses()) {
+            if (appProcess.pid == pid) {
+                processName = appProcess.processName;
+                break;
             }
-            Log.setLogImp(new Xlog());
-        } else {
-            int pid = android.os.Process.myPid();
-            String processName = null;
-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningAppProcessInfo appProcess : am.getRunningAppProcesses()) {
-                if (appProcess.pid == pid) {
-                    processName = appProcess.processName;
-                    break;
-                }
-            }
-
-            final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
-            final String logPath = SDCARD + "/marssample/log";
-
-            String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
-
-            if (BuildConfig.DEBUG) {
-                Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName);
-                Xlog.setConsoleLogOpen(true);
-            } else {
-                Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName);
-                Xlog.setConsoleLogOpen(false);
-            }
-            Log.setLogImp(new Xlog());
         }
 
+        if (processName == null) {
+            return;
+        }
+
+        final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
+        final String logPath = SDCARD + "/marssample/log";
+
+        String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
+
+        if (BuildConfig.DEBUG) {
+            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName);
+            Xlog.setConsoleLogOpen(true);
+        } else {
+            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName);
+            Xlog.setConsoleLogOpen(false);
+        }
+        Log.setLogImp(new Xlog());
     }
 
     public static Context getContext() {
