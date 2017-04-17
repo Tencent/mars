@@ -329,7 +329,7 @@ void TcpClient::__Run() {
                     double cost_sec = ((double)round_tick.gettickspan())/1000;
                     xverbose2(TSF"debug:send_len:%_ bytes, cost_sec:%_ seconds", send_len_bytes, cost_sec);
                     if (cost_sec > 0.0 &&send_len_bytes/cost_sec < 20*1024) {
-                        xwarn2(TSF"send speed slow:%_ bytes/sec, send_len:%_ bytes, cost_sec:%_ seconds", send_len_bytes/cost_sec, send_len_bytes, cost_sec);
+                        xwarn2(TSF"send speed slow:%_ bytes/sec, send_len:%_ bytes, send buf len:%_, cost_sec:%_ seconds", send_len_bytes/cost_sec, send_len_bytes, len-buf.Pos(), cost_sec);
                     }
                 }
             } else {
