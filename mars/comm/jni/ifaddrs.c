@@ -147,11 +147,6 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
             struct nlmsghdr *l_hdr;
             for(l_hdr = (struct nlmsghdr *)l_buffer; NLMSG_OK(l_hdr, (unsigned int)l_read); l_hdr = (struct nlmsghdr *)NLMSG_NEXT(l_hdr, l_read))
             {
-                if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
-                {
-                    continue;
-                }
-                
                 if(l_hdr->nlmsg_type == NLMSG_DONE)
                 {
                     *p_done = 1;
@@ -555,11 +550,6 @@ static int interpretLinks(int p_socket, NetlinkList *p_netlinkList, struct ifadd
         struct nlmsghdr *l_hdr;
         for(l_hdr = p_netlinkList->m_data; NLMSG_OK(l_hdr, l_nlsize); l_hdr = NLMSG_NEXT(l_hdr, l_nlsize))
         {
-            if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
-            {
-                continue;
-            }
-            
             if(l_hdr->nlmsg_type == NLMSG_DONE)
             {
                 break;
@@ -587,11 +577,6 @@ static int interpretAddrs(int p_socket, NetlinkList *p_netlinkList, struct ifadd
         struct nlmsghdr *l_hdr;
         for(l_hdr = p_netlinkList->m_data; NLMSG_OK(l_hdr, l_nlsize); l_hdr = NLMSG_NEXT(l_hdr, l_nlsize))
         {
-            if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
-            {
-                continue;
-            }
-            
             if(l_hdr->nlmsg_type == NLMSG_DONE)
             {
                 break;
