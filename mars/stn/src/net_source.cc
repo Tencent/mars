@@ -192,7 +192,7 @@ std::string& NetSource::GetLongLinkDebugIP() {
 	return sg_longlink_debugip;
 }
 
-static std::string& GetShortLinkDebugIP() {
+std::string& NetSource::GetShortLinkDebugIP() {
     ScopedLock lock(sg_ip_mutex);
     return sg_shortlink_debugip;
 }
