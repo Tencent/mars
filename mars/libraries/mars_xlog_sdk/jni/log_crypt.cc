@@ -283,30 +283,30 @@ bool LogCrypt::GetPeriodLogs(const char* const _log_path, int _begin_hour, int _
     return ret;
 }
 
-
 void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len) {
-    uint16_t seq = __GetSeq(false);
-    uint32_t len = std::min(_input_len, _output_len - GetHeaderLen() - GetTailerLen());
+//    uint16_t seq = __GetSeq(false);
+//    uint32_t len = std::min(_input_len, _output_len - GetHeaderLen() - GetTailerLen());
     
-    memcpy(_output + GetHeaderLen(), _log_data, len);
-    _output[GetHeaderLen() + len] = kMagicEnd;
-    _output[0] = kMagicSyncStart;
+    memcpy(_output, _log_data, _input_len);
+//    _output[GetHeaderLen() + len] = kMagicEnd;
+//    _output[0] = kMagicSyncStart;
     
-    memcpy(_output + 1, &seq, sizeof(seq));
+//    memcpy(_output + 1, &seq, sizeof(seq));
     
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    time_t sec = tv.tv_sec;
-    tm tm_tmp = *localtime((const time_t*)&sec);
+//    struct timeval tv;
+//    gettimeofday(&tv, 0);
+//    time_t sec = tv.tv_sec;
+//    tm tm_tmp = *localtime((const time_t*)&sec);
     
-    char hour = (char)tm_tmp.tm_hour;
+//    char hour = (char)tm_tmp.tm_hour;
     
-    memcpy(_output+3, &hour, sizeof(hour));
-    memcpy(_output+4, &hour, sizeof(hour));
-    memcpy(_output+5, &len, sizeof(len));
+//    memcpy(_output+3, &hour, sizeof(hour));
+//    memcpy(_output+4, &hour, sizeof(hour));
+//    memcpy(_output+5, &len, sizeof(len));
     
-    _output_len = GetHeaderLen() + GetTailerLen() + len;
+    _output_len = _input_len;
 }
+
 
 void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len) {
     _output_len = std::min(_input_len, _output_len);

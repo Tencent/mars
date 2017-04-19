@@ -36,7 +36,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
         __android_log_write(_info->level+2, _info->tag?_info->tag:"", (const char*)result_log);
     } else {
     	snprintf(result_log,  sizeof(result_log) , "%s", _log?_log:"NULL==log!!!");
-        __android_log_write(ANDROID_LOG_WARN, "", (const char*)result_log);
+        __android_log_write(ANDROID_LOG_WARN, "fxiaoke", (const char*)result_log);
     }
     
 }

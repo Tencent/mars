@@ -77,10 +77,10 @@ void LogBuffer::Flush(AutoBuffer& _buff) {
         deflateEnd(&cstream_);
     }
 
-    if (s_log_crypt->GetLogLen((char*)buff_.Ptr(), buff_.Length()) == 0){
-        __Clear();
-        return;
-    }
+//    if (s_log_crypt->GetLogLen((char*)buff_.Ptr(), buff_.Length()) == 0){
+//        __Clear();
+//        return;
+//    }
     
     __Flush();
     _buff.Write(buff_.Ptr(), buff_.Length());
@@ -115,9 +115,13 @@ bool LogBuffer::Write(const void* _data, size_t _length) {
         write_len = avail_out - cstream_.avail_out;
     } else {
         buff_.Write(_data, _length);
+		before_len += _length;
+		buff_.Length(before_len, before_len);
+
+		write_len += 1;//useless , only for compile
     }
     
-
+/*
     char crypt_buffer[4096] = {0};
     size_t crypt_buffer_len = sizeof(crypt_buffer);
     
@@ -134,9 +138,12 @@ bool LogBuffer::Write(const void* _data, size_t _length) {
     buff_.Length(before_len, before_len);
    
     s_log_crypt->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)crypt_buffer_len + sizeof(single_log_len));
-
+*/
     return true;
 }
+
+
+
 
 bool LogBuffer::__Reset() {
     
@@ -153,8 +160,8 @@ bool LogBuffer::__Reset() {
         
     }
     
-    s_log_crypt->SetHeaderInfo((char*)buff_.Ptr(), is_compress_);
-    buff_.Length(s_log_crypt->GetHeaderLen(), s_log_crypt->GetHeaderLen());
+    //s_log_crypt->SetHeaderInfo((char*)buff_.Ptr(), is_compress_);
+    //buff_.Length(s_log_crypt->GetHeaderLen(), s_log_crypt->GetHeaderLen());
 
     return true;
 }
@@ -162,9 +169,9 @@ bool LogBuffer::__Reset() {
 void LogBuffer::__Flush() {
     assert(buff_.Length() >= s_log_crypt->GetHeaderLen());
     
-    s_log_crypt->UpdateLogHour((char*)buff_.Ptr());
-    s_log_crypt->SetTailerInfo((char*)buff_.Ptr() + buff_.Length());
-    buff_.Length(buff_.Length() + s_log_crypt->GetTailerLen(), buff_.Length() + s_log_crypt->GetTailerLen());
+    //s_log_crypt->UpdateLogHour((char*)buff_.Ptr());
+    //s_log_crypt->SetTailerInfo((char*)buff_.Ptr() + buff_.Length());
+    //buff_.Length(buff_.Length() + s_log_crypt->GetTailerLen(), buff_.Length() + s_log_crypt->GetTailerLen());
 
 }
 
@@ -175,12 +182,12 @@ void LogBuffer::__Clear() {
 
 
 void LogBuffer::__Fix() {
-    uint32_t raw_log_len = 0;
-    if (s_log_crypt->Fix((char*)buff_.Ptr(), buff_.Length(), is_compress_, raw_log_len)) {
-        buff_.Length(raw_log_len + s_log_crypt->GetHeaderLen(), raw_log_len + s_log_crypt->GetHeaderLen());
-    } else {
+    //uint32_t raw_log_len = 0;
+    //if (s_log_crypt->Fix((char*)buff_.Ptr(), buff_.Length(), is_compress_, raw_log_len)) {
+    //    buff_.Length(raw_log_len + s_log_crypt->GetHeaderLen(), raw_log_len + s_log_crypt->GetHeaderLen());
+    //} else {
         buff_.Length(0, 0);
-    }
+    //}
 
 }
 
