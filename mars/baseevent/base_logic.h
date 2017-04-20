@@ -21,17 +21,16 @@
 #define MARS_BASELOGIC_H_
 
 #include <stdint.h>
-#include "mars/baseevent/compiler_util.h"
 
 namespace mars{
 namespace baseevent{
-    MARS_BASEEVENT_EXPORT void OnCreate();
-    MARS_BASEEVENT_EXPORT void OnDestroy();
-    MARS_BASEEVENT_EXPORT void OnSingalCrash(int _sig);
-    MARS_BASEEVENT_EXPORT void OnExceptionCrash();
-    MARS_BASEEVENT_EXPORT void OnForeground(bool _isforeground);
-    MARS_BASEEVENT_EXPORT void OnNetworkChange();
-    MARS_BASEEVENT_EXPORT void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
+    void OnCreate();
+    void OnDestroy();
+    void OnSingalCrash(int _sig);
+    void OnExceptionCrash();
+    void OnForeground(bool _isforeground);
+    void OnNetworkChange();
+    void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
 }
 }
 

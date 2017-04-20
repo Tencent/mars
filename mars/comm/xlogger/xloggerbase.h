@@ -23,7 +23,6 @@
 #include <time.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include "mars/comm/compiler_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,23 +52,23 @@ typedef struct XLoggerInfo_t {
     intmax_t maintid;
 } XLoggerInfo;
 
-MARS_COMMON_EXPORT extern intmax_t xlogger_pid();
-MARS_COMMON_EXPORT extern intmax_t xlogger_tid();
-MARS_COMMON_EXPORT extern intmax_t xlogger_maintid();
+extern intmax_t xlogger_pid();
+extern intmax_t xlogger_tid();
+extern intmax_t xlogger_maintid();
 typedef void (*xlogger_appender_t)(const XLoggerInfo* _info, const char* _log);
-MARS_COMMON_EXPORT extern const char* xlogger_dump(const void* _dumpbuffer, size_t _len);
+extern const char* xlogger_dump(const void* _dumpbuffer, size_t _len);
 
-MARS_COMMON_EXPORT TLogLevel   xlogger_Level();
-MARS_COMMON_EXPORT void xlogger_SetLevel(TLogLevel _level);
-MARS_COMMON_EXPORT int  xlogger_IsEnabledFor(TLogLevel _level);
+TLogLevel   xlogger_Level();
+void xlogger_SetLevel(TLogLevel _level);
+int  xlogger_IsEnabledFor(TLogLevel _level);
 xlogger_appender_t xlogger_SetAppender(xlogger_appender_t _appender);
 
 // no level filter
 #ifdef __GNUC__
 __attribute__((__format__(printf, 3, 4)))
 #endif
-MARS_COMMON_EXPORT void        xlogger_AssertP(const XLoggerInfo* _info, const char* _expression, const char* _format, ...);
-MARS_COMMON_EXPORT void        xlogger_Assert(const XLoggerInfo* _info, const char* _expression, const char* _log);
+void        xlogger_AssertP(const XLoggerInfo* _info, const char* _expression, const char* _format, ...);
+void        xlogger_Assert(const XLoggerInfo* _info, const char* _expression, const char* _log);
 #ifdef __GNUC__
 __attribute__((__format__(printf, 2, 0)))
 #endif
@@ -77,8 +76,8 @@ void        xlogger_VPrint(const XLoggerInfo* _info, const char* _format, va_lis
 #ifdef __GNUC__
 __attribute__((__format__(printf, 2, 3)))
 #endif
-MARS_COMMON_EXPORT void        xlogger_Print(const XLoggerInfo* _info, const char* _format, ...);
-MARS_COMMON_EXPORT void        xlogger_Write(const XLoggerInfo* _info, const char* _log);
+void        xlogger_Print(const XLoggerInfo* _info, const char* _format, ...);
+void        xlogger_Write(const XLoggerInfo* _info, const char* _log);
 
 #ifdef __cplusplus
 }

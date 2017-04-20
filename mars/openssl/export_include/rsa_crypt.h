@@ -26,24 +26,24 @@ enum
     CRYPT_ERR_LOAD_RSA_PRIVATE_KEY = 9,
 };
     
-MARS_OPENSSL_EXPORT int rsa_public_encrypt(const unsigned char* pInput, unsigned int uiInputLen
+int rsa_public_encrypt(const unsigned char* pInput, unsigned int uiInputLen
 		, unsigned char** ppOutput, unsigned int* uiOutputLen
 		, const char* pPublicKeyN, const char* pPublicKeyE);
 
-MARS_OPENSSL_EXPORT int rsa_public_decrypt(const unsigned char* pInput, unsigned int uiInputLen
+int rsa_public_decrypt(const unsigned char* pInput, unsigned int uiInputLen
 		, unsigned char** ppOutput, unsigned int* uiOutputLen
 		, const char* pPublicKeyN, const char* pPublicKeyE);
 
-MARS_OPENSSL_EXPORT int rsa_public_encrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
+int rsa_public_encrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
         , unsigned char** ppOutput, unsigned int* uiOutputLen
         , const char* pPemPubKey, unsigned int pemPubKeyLen);
     
-MARS_OPENSSL_EXPORT int rsa_public_decrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
+int rsa_public_decrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
         , unsigned char** ppOutput, unsigned int* uiOutputLen
         , const char* pPemPubKey, unsigned int pemPubKeyLen);
     
 
-MARS_OPENSSL_EXPORT int rsa_private_decrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
+int rsa_private_decrypt_pemkey(const unsigned char* pInput, unsigned int uiInputLen
         , unsigned char** ppOutput, unsigned int* uiOutputLen
         , const char* pPemPriKey, unsigned int pemPriKeyLen);
 #ifdef __cplusplus

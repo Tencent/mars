@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "mars/comm/autobuffer.h"
-#include "mars/stn/compiler_util.h"
 
 namespace mars{
     namespace stn{
@@ -36,7 +35,7 @@ namespace mars{
 struct TaskProfile;
 struct DnsProfile;
 
-struct MARS_STN_EXPORT Task {
+struct Task {
 public:
     //channel type
     static const int kChannelShort = 0x1;

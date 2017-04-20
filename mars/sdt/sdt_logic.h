@@ -21,24 +21,23 @@
 #define SDT_INTERFACE_SDT_LOGIC_H_
 
 #include "mars/sdt/sdt.h"
-#include "mars/sdt/compiler_util.h"
 
 namespace mars {
 namespace sdt {
 
-	class MARS_SDT_EXPORT Callback
+	class Callback
 	{
 	public:
 		virtual ~Callback() {};
 	};
 
-	MARS_SDT_EXPORT void SetCallBack(Callback* const callback);
+	void SetCallBack(Callback* const callback);
 
-	MARS_SDT_EXPORT void SetHttpNetcheckCGI(std::string cgi);
+	void SetHttpNetcheckCGI(std::string cgi);
 
 	//active netcheck interface
-	MARS_SDT_EXPORT void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
-	MARS_SDT_EXPORT void CancelActiveCheck();
+	void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
+	void CancelActiveCheck();
 
 }}
 

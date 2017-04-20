@@ -25,7 +25,7 @@ typedef enum{
     kKey2048Bits= 2048,
 }RSAKeyBits;
 
-MARS_OPENSSL_EXPORT GenRsaKeyResult generate_rsa_key_pair(char* _pem_public_key_buf, const size_t _public_key_buf_len,
+GenRsaKeyResult generate_rsa_key_pair(char* _pem_public_key_buf, const size_t _public_key_buf_len,
 								char* _pem_private_key_buf, const size_t _private_key_buf_len, RSAKeyBits _key_bits=kKey1024Bits);
 
 

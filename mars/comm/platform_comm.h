@@ -27,7 +27,6 @@
 #include "mars/comm/thread/mutex.h"
 #endif
 
-#include "mars/comm/compiler_util.h"
 
 #ifndef __cplusplus
 #error "C++ only"
@@ -184,7 +183,7 @@ struct RadioAccessNetworkInfo {
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
 
 unsigned int getSignal(bool isWifi);
-MARS_COMMON_EXPORT bool isNetworkConnected();
+bool isNetworkConnected();
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 

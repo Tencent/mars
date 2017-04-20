@@ -28,7 +28,6 @@
 
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
-#include "mars/stn/compiler_util.h"
 
 namespace mars{
 
@@ -38,7 +37,7 @@ class ProxyInfo;
     
 namespace stn{
     //callback interface
-    class MARS_STN_EXPORT Callback
+    class Callback
     {
     public:
     	virtual ~Callback() {}
@@ -70,7 +69,7 @@ namespace stn{
         
     };
 
-    MARS_STN_EXPORT void SetCallback(Callback* const callback);
+    void SetCallback(Callback* const callback);
     
 
 //    extern void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports);
@@ -78,60 +77,60 @@ namespace stn{
     
 
     // 'host' will be ignored when 'debugip' is not empty.
-	MARS_STN_EXPORT extern void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
+	extern void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
     
     // 'task.host' will be ignored when 'debugip' is not empty.
-	MARS_STN_EXPORT extern void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip);
+	extern void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip);
     
     // setting debug ip address for the corresponding host
-	MARS_STN_EXPORT extern void (*SetDebugIP)(const std::string& host, const std::string& ip);
+	extern void (*SetDebugIP)(const std::string& host, const std::string& ip);
     
     // setting backup iplist for the corresponding host
     // if debugip is not empty, iplist will be ignored.
     // iplist will be used when newdns/dns ip is not available.
-	MARS_STN_EXPORT extern void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist);
+	extern void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist);
     
 
     // async function.
-	MARS_STN_EXPORT extern void (*StartTask)(const Task& task);
+	extern void (*StartTask)(const Task& task);
     
     // sync function
-	MARS_STN_EXPORT extern void (*StopTask)(uint32_t taskid);
+	extern void (*StopTask)(uint32_t taskid);
     
     // check whether task's list has the task or not.
-	MARS_STN_EXPORT extern bool (*HasTask)(uint32_t taskid);
+	extern bool (*HasTask)(uint32_t taskid);
 
     // reconnect longlink and redo all task
     // when you change svr ip, you must call this function.
-	MARS_STN_EXPORT extern void (*RedoTasks)();
+	extern void (*RedoTasks)();
     
     // stop and clear all task
-	MARS_STN_EXPORT extern void (*ClearTasks)();
+	extern void (*ClearTasks)();
     
     // the same as ClearTasks(), but also reinitialize network.
-	MARS_STN_EXPORT extern void (*Reset)();
+	extern void (*Reset)();
     
     //setting signalling's parameters.
     //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
-	MARS_STN_EXPORT extern void (*SetSignallingStrategy)(long period, long keeptime);
+	extern void (*SetSignallingStrategy)(long period, long keeptime);
 
     // used to keep longlink active
     // keep signnaling once 'period' and last 'keeptime'
-	MARS_STN_EXPORT extern void (*KeepSignalling)();
+	extern void (*KeepSignalling)();
     
 
-	MARS_STN_EXPORT extern void (*StopSignalling)();
+	extern void (*StopSignalling)();
     
     // connect quickly if longlink is not connected.
-	MARS_STN_EXPORT extern void (*MakesureLonglinkConnected)();
+	extern void (*MakesureLonglinkConnected)();
     
-	MARS_STN_EXPORT extern bool (*LongLinkIsConnected)();
+	extern bool (*LongLinkIsConnected)();
     
-    MARS_STN_EXPORT extern bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host);
+    extern bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host);
 
     // noop is used to keep longlink conected
     // get noop taskid
-	MARS_STN_EXPORT extern uint32_t (*getNoopTaskID)();
+	extern uint32_t (*getNoopTaskID)();
 }}
 
 #endif /* MARS_STN_LOGIC_H_ */
