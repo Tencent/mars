@@ -312,6 +312,7 @@ const char* const KStringClose = "close";
 const char* const KStringKeepalive = "Keep-Alive";
 const char* const KStringAcceptAll = "*/*";
 const char* const KStringAcceptEncodingDefalte = "defalte";
+const char* const KStringAcceptEncodingGzip = "gzip";
 const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
 
@@ -340,7 +341,9 @@ std::pair<const std::string, std::string> HeaderFields::MakeAcceptAll() {
 std::pair<const std::string, std::string> HeaderFields::MakeAcceptEncodingDefalte() {
     return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingDefalte);
 }
-
+std::pair<const std::string, std::string> HeaderFields::MakeAcceptEncodingGzip() {
+    return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingGzip);
+}
 std::pair<const std::string, std::string> HeaderFields::MakeCacheControlNoCache() {
     return std::make_pair(KStringCacheControl, KStringNoCache);
 }
@@ -435,7 +438,7 @@ bool HeaderFields::ContentRange(int* start, int* end, int* total) {
     return false;
 }
 
-const std::string HeaderFields::ToStrig() const {
+const std::string HeaderFields::ToString() const {
     if (headers_.empty()) return "";
 
     std::string str;
@@ -577,7 +580,7 @@ bool Builder::HeaderToBuffer(AutoBuffer& _header) {
 
     if (firstline.empty()) return false;
 
-    const std::string strheaders = headfields_.ToStrig();
+    const std::string strheaders = headfields_.ToString();
 
     if (strheaders.empty()) return false;
 
@@ -588,21 +591,21 @@ bool Builder::HeaderToBuffer(AutoBuffer& _header) {
 }
 
 bool Builder::HttpToBuffer(AutoBuffer& _http) {
-    if (!HeaderToBuffer(_http)) return false;
 
     if (blockbody_) {
         if (blockbody_->Length() > 0) {
             headfields_.MakeContentLength((int)blockbody_->Length());
-
-            if (!blockbody_->FillData(_http)) return false;
+            if (!HeaderToBuffer(_http) || !blockbody_->FillData(_http)) return false;
         }
 
     } else if (streambody_) {
+    		headfields_.MakeTransferEncodingChunked();
+    		if (!HeaderToBuffer(_http)) return false;
         if (streambody_->HaveData()) {
             if (!streambody_->Data(_http)) return false;
         }
-
-        headfields_.MakeTransferEncodingChunked();
+    } else {
+    		return HeaderToBuffer(_http);
     }
 
     return true;
@@ -632,7 +635,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
     xassert2(_buffer);
     
     if (NULL == _buffer || 0 == _length) {
-        xwarn2(TSF"Recv(%_, %_), status:%_", _buffer, _length, recvstatus_);
+        xwarn2(TSF"Recv(%_, %_), status:%_", NULL==_buffer?"NULL":_buffer, _length, recvstatus_);
         return recvstatus_;
     }
     

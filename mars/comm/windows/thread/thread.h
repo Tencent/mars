@@ -218,15 +218,15 @@ class Thread {
 
   public:
     template<class T>
-    explicit Thread(const T& op, const char* _thread_name = NULL)
-        : m_runableref(NULL) {
+    explicit Thread(const T& op, const char* _thread_name = NULL, bool _outside_join = false)
+        : m_runableref(NULL), outside_join_(_outside_join) {
         m_runableref = new RunnableReference(detail::transform(op));
         ScopedSpinLock lock(m_runableref->splock);
         m_runableref->AddRef();
     }
 
-    Thread(const char* _thread_name = NULL)
-        : m_runableref(NULL) {
+    Thread(const char* _thread_name = NULL, bool _outside_join = false)
+        : m_runableref(NULL), outside_join_(_outside_join) {
         m_runableref = new RunnableReference(NULL);
         ScopedSpinLock lock(m_runableref->splock);
         m_runableref->AddRef();
@@ -245,6 +245,7 @@ class Thread {
         if (isruning())return 0;
 
         m_runableref->isended = false;
+		m_runableref->isjoined = outside_join_;
         m_runableref->AddRef();
 
         // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine, (void*)m_runableref);
@@ -273,6 +274,7 @@ class Thread {
         m_runableref->target = detail::transform(op);
 
         m_runableref->isended = false;
+		m_runableref->isjoined = outside_join_;
         m_runableref->AddRef();
 
         // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine, (void*)m_runableref);
@@ -297,6 +299,7 @@ class Thread {
         m_runableref->condtime.cancelAnyWayNotify();
         m_runableref->iscanceldelaystart = false;
         m_runableref->isended = false;
+		m_runableref->isjoined = outside_join_;
         m_runableref->aftertime = after;
         m_runableref->AddRef();
 
@@ -330,6 +333,7 @@ class Thread {
         m_runableref->condtime.cancelAnyWayNotify();
         m_runableref->iscanceldelaystart = false;
         m_runableref->isended = false;
+		m_runableref->isjoined = outside_join_;
         m_runableref->aftertime = after;
         m_runableref->periodictime = periodic;
         m_runableref->AddRef();
@@ -368,15 +372,6 @@ class Thread {
             // thrd_join(m_runableref->tid, 0);
         }
     }
-
-	void outside_join() const {
-		ScopedSpinLock lock(m_runableref->splock);
-		ASSERT(!m_runableref->isjoined);
-		ASSERT(!isruning());
-		if (m_runableref->isjoined || isruning()) return;
-
-		m_runableref->isjoined = true;
-	}
 
     int kill(int /*sig*/) const;
     //  {
@@ -475,6 +470,7 @@ class Thread {
     Thread& operator=(const Thread&);
   private:
     RunnableReference*  m_runableref;
+	bool outside_join_;
 };
 
 

@@ -18,6 +18,7 @@
 #ifndef STRING_CAST_H_
 #define STRING_CAST_H_
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -28,6 +29,7 @@
 #include "projdef.h"
 #endif
 #include <inttypes.h>
+#include <string.h>
 
 #include <limits>
 #include <string>

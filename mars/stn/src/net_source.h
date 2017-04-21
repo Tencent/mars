@@ -73,6 +73,7 @@ class NetSource {
     //set debug ip
     static void SetDebugIP(const std::string& _host, const std::string& _ip);
     static std::string& GetLongLinkDebugIP();
+    static std::string& GetShortLinkDebugIP();
     
     static void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 

@@ -27,7 +27,7 @@
 #include "thread/thread.h"
 #include "platform_comm.h"
 #include "socket_address.h"
-
+#include "mars/comm/tickcount.h"
 
 #ifdef _WIN32
 #define strdup _strdup
@@ -239,7 +239,9 @@ void TcpClient::__Run() {
         SocketSelect select_readwrite(pipe_, true);
         select_readwrite.PreSelect();
         select_readwrite.Exception_FD_SET(socket_);
-
+        
+        tickcount_t round_tick(true);
+        
         if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
 
         {
@@ -321,7 +323,15 @@ void TcpClient::__Run() {
                     return;
                 }
 
-                if (0 < send_len) buf.Seek(send_len, AutoBuffer::ESeekCur);
+                if (0 < send_len){
+                    buf.Seek(send_len, AutoBuffer::ESeekCur);
+                    double send_len_bytes = (double)send_len;
+                    double cost_sec = ((double)round_tick.gettickspan())/1000;
+                    xverbose2(TSF"debug:send_len:%_ bytes, cost_sec:%_ seconds", send_len_bytes, cost_sec);
+                    if (cost_sec > 0.0 &&send_len_bytes/cost_sec < 20*1024) {
+                        xwarn2(TSF"send speed slow:%_ bytes/sec, send_len:%_ bytes, send buf len:%_, cost_sec:%_ seconds", send_len_bytes/cost_sec, send_len_bytes, len-buf.Pos(), cost_sec);
+                    }
+                }
             } else {
                 delete lst_buffer_.front();
                 lst_buffer_.pop_front();

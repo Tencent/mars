@@ -89,10 +89,8 @@
 #endif
 #include "comm/network/getgateway.h"
 
-#ifndef WIN32
 #define SUCCESS (0)
 #define FAILED  (-1)
-#endif
 
 typedef uint32_t in_addr_t;
 #ifdef USE_PROC_NET_ROUTE
@@ -471,11 +469,9 @@ int getdefaultgateway(in_addr_t * addr)
     
     return -1;
 }
-#ifdef WIN32
-int getdefaultgateway6(struct in6_addr * addr) {
-	return -1;
-}
-#endif // WIN32
 
+int getdefaultgateway6(struct in6_addr * addr) {
+	return FAILED;
+}
 #endif /* #ifdef USE_WIN32_CODE */
 

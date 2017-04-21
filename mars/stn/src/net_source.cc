@@ -152,6 +152,11 @@ std::string& NetSource::GetLongLinkDebugIP() {
 	return sg_longlink_debugip;
 }
 
+std::string& NetSource::GetShortLinkDebugIP() {
+    ScopedLock lock(sg_ip_mutex);
+    return sg_shortlink_debugip;
+}
+
 void NetSource::SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports) {
     sg_lowpriority_longlink_ports = _lowpriority_longlink_ports;
 }

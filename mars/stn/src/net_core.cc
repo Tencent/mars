@@ -107,18 +107,18 @@ static const int kShortlinkErrTime = 3;
 NetCore::NetCore()
     : messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
-    , net_source_(new NetSource(*SINGLETON_STRONG(ActiveLogic)))
+    , net_source_(new NetSource(*ActiveLogic::Singleton::Instance()))
     , netcheck_logic_(new NetCheckLogic())
-    , anti_avalanche_(new AntiAvalanche(SINGLETON_STRONG(ActiveLogic)->IsActive()))
+    , anti_avalanche_(new AntiAvalanche(ActiveLogic::Singleton::Instance()->IsActive()))
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
 #ifdef USE_LONG_LINK
     , zombie_task_manager_(new ZombieTaskManager(messagequeue_creater_.GetMessageQueue()))
-    , longlink_task_manager_(new LongLinkTaskManager(*net_source_, *SINGLETON_STRONG(ActiveLogic), *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
+    , longlink_task_manager_(new LongLinkTaskManager(*net_source_, *ActiveLogic::Singleton::Instance(), *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , signalling_keeper_(new SignallingKeeper(longlink_task_manager_->LongLinkChannel(), messagequeue_creater_.GetMessageQueue()))
-    , netsource_timercheck_(new NetSourceTimerCheck(net_source_, *SINGLETON_STRONG(ActiveLogic), longlink_task_manager_->LongLinkChannel(), messagequeue_creater_.GetMessageQueue()))
-    , timing_sync_(new TimingSync(*SINGLETON_STRONG(ActiveLogic)))
+    , netsource_timercheck_(new NetSourceTimerCheck(net_source_, *ActiveLogic::Singleton::Instance(), longlink_task_manager_->LongLinkChannel(), messagequeue_creater_.GetMessageQueue()))
+    , timing_sync_(new TimingSync(*ActiveLogic::Singleton::Instance()))
 #endif
     , shortlink_try_flag_(false) {
     xwarn2(TSF"publiccomponent version: %0 %1", __DATE__, __TIME__);
@@ -161,7 +161,7 @@ NetCore::NetCore()
                    
     xinfo_function();
 
-    SINGLETON_STRONG(ActiveLogic)->SignalActive.connect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
+    ActiveLogic::Singleton::Instance()->SignalActive.connect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
 
 
 #ifdef USE_LONG_LINK
@@ -208,7 +208,7 @@ NetCore::NetCore()
 NetCore::~NetCore() {
     xinfo_function();
 
-    SINGLETON_STRONG(ActiveLogic)->SignalActive.disconnect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
+    ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
     asyncreg_.Cancel();
 
 
@@ -290,9 +290,9 @@ void NetCore::StartTask(const Task& _task) {
 #ifdef USE_LONG_LINK
 
     if (LongLink::kConnected != longlink_task_manager_->LongLinkChannel().ConnectStatus()
-            && (Task::kChannelLong & task.channel_select) && SINGLETON_STRONG(ActiveLogic)->IsForeground()
+            && (Task::kChannelLong & task.channel_select) && ActiveLogic::Singleton::Instance()->IsForeground()
 
-            && (15 * 60 * 1000 >= gettickcount() - SINGLETON_STRONG(ActiveLogic)->LastForegroundChangeTime()))
+            && (15 * 60 * 1000 >= gettickcount() - ActiveLogic::Singleton::Instance()->LastForegroundChangeTime()))
         longlink_task_manager_->getLongLinkConnectMonitor().MakeSureConnected();
 
 #endif
