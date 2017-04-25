@@ -29,7 +29,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 
 static void onForeground(bool _isforeground) {
-    SINGLETON_STRONG(ActiveLogic)->OnForeground(_isforeground);
+    ActiveLogic::Singleton::Instance()->OnForeground(_isforeground);
 }
 
 static void __initbind_baseprjevent() {
@@ -38,16 +38,7 @@ static void __initbind_baseprjevent() {
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
-#ifdef ANDROID
 #define INACTIVE_TIMEOUT (10*60*1000) //ms
-#elif defined Q_OS_BLACKBERRY
-#define INACTIVE_TIMEOUT (10*60*1000) //ms
-#elif defined _WIN32
-#define INACTIVE_TIMEOUT (10*60*1000) //ms
-#else
-#define INACTIVE_TIMEOUT (10*60*1000) //ms
-#endif
-
 
 ActiveLogic::ActiveLogic()
 : isforeground_(false), isactive_(true)

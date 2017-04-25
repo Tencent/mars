@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <netinet/in.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
-
+#include "mars/comm/assert/__assert.h"
 typedef struct NetlinkList
 {
     struct NetlinkList *m_next;
@@ -147,8 +147,9 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
             struct nlmsghdr *l_hdr;
             for(l_hdr = (struct nlmsghdr *)l_buffer; NLMSG_OK(l_hdr, (unsigned int)l_read); l_hdr = (struct nlmsghdr *)NLMSG_NEXT(l_hdr, l_read))
             {
-                if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
+                if((pid_t)l_hdr->nlmsg_pid != l_pid && (int)l_hdr->nlmsg_seq != p_socket)
                 {
+                    ASSERT2(0, "l_pid:%d, nlmsg_pid:%d, p_socket:%d, nlmsg_seq:%d", l_pid, (pid_t)l_hdr->nlmsg_pid, p_socket, (int)l_hdr->nlmsg_seq);
                     continue;
                 }
                 
@@ -555,8 +556,9 @@ static int interpretLinks(int p_socket, NetlinkList *p_netlinkList, struct ifadd
         struct nlmsghdr *l_hdr;
         for(l_hdr = p_netlinkList->m_data; NLMSG_OK(l_hdr, l_nlsize); l_hdr = NLMSG_NEXT(l_hdr, l_nlsize))
         {
-            if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
+            if((pid_t)l_hdr->nlmsg_pid != l_pid && (int)l_hdr->nlmsg_seq != p_socket)
             {
+                ASSERT2(0, "l_pid:%d, nlmsg_pid:%d, p_socket:%d, nlmsg_seq:%d", l_pid, (pid_t)l_hdr->nlmsg_pid, p_socket, (int)l_hdr->nlmsg_seq);
                 continue;
             }
             
@@ -587,8 +589,9 @@ static int interpretAddrs(int p_socket, NetlinkList *p_netlinkList, struct ifadd
         struct nlmsghdr *l_hdr;
         for(l_hdr = p_netlinkList->m_data; NLMSG_OK(l_hdr, l_nlsize); l_hdr = NLMSG_NEXT(l_hdr, l_nlsize))
         {
-            if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
+            if((pid_t)l_hdr->nlmsg_pid != l_pid && (int)l_hdr->nlmsg_seq != p_socket)
             {
+                ASSERT2(0, "l_pid:%d, nlmsg_pid:%d, p_socket:%d, nlmsg_seq:%d", l_pid, (pid_t)l_hdr->nlmsg_pid, p_socket, (int)l_hdr->nlmsg_seq);
                 continue;
             }
             

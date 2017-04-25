@@ -832,8 +832,8 @@ MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<Runl
 MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, const char* _messagequeue_name) {
     
     SpinLock* sp = new SpinLock;
-    Thread thread(boost::bind(&__ThreadNewRunloop, sp), _messagequeue_name);
-    thread.outside_join();
+    Thread thread(boost::bind(&__ThreadNewRunloop, sp), _messagequeue_name, true);
+//    thread.outside_join();
     ScopedSpinLock lock(*sp);
 
     if (0 != thread.start()) {
