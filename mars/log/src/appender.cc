@@ -69,7 +69,7 @@
 
 #include "log_buffer.h"
 
-#define LOG_EXT "xlog"
+#define LOG_EXT "dat"
 
 extern void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log);
 extern void ConsoleLog(const XLoggerInfo* _info, const char* _log);
@@ -716,7 +716,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     tick.gettickcount();
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.dat", sg_cache_logdir.empty()?_dir:sg_cache_logdir.c_str(), _nameprefix);
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap2", sg_cache_logdir.empty()?_dir:sg_cache_logdir.c_str(), _nameprefix);
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
