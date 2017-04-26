@@ -67,6 +67,27 @@ def get_child_project(project_path):
     file.close()
     return (folders, projects)
 
+def link_openssl(output_lib_path, cpu_folder):
+    #split .a by cpu arch
+    openssl_lib_folder = os.path.join(LIBRARIES_PATH, "../openssl/openssl_lib_iOS")
+    os.system("mkdir %s/%s"%(openssl_lib_folder, cpu_folder))
+    os.system("lipo  %s/libcrypto.a -thin %s -output %s/%s/libcrypto.a"% (openssl_lib_folder, cpu_folder, openssl_lib_folder, cpu_folder))
+    os.system("lipo  %s/libssl.a -thin %s -output %s/%s/libssl.a"% (openssl_lib_folder, cpu_folder, openssl_lib_folder, cpu_folder))
+    #split .a to .o
+    old_path = os.getcwd()
+    cur_path = "%s/%s" % (openssl_lib_folder, cpu_folder)
+    os.chdir(cur_path)
+    os.system("ar -x %s/%s/libcrypto.a" % (openssl_lib_folder, cpu_folder))
+    os.system("ar -x %s/%s/libssl.a" % (openssl_lib_folder, cpu_folder))
+    os.chdir(old_path)
+    
+    if not os.path.isfile(output_lib_path):
+        os.system("ar -cur %s %s/%s/*.o 2>/dev/null" %(output_lib_path, openssl_lib_folder, cpu_folder))
+    else:
+        os.system("ar -q %s %s/%s/*.o 2>/dev/null" %(output_lib_path, openssl_lib_folder, cpu_folder))
+    
+    os.system("rm -rf %s/%s" % (openssl_lib_folder, cpu_folder))
+
 def build_apple(project, save_path):
     gen_revision_file(save_path, save_path)
 
@@ -131,6 +152,8 @@ def build_apple(project, save_path):
                     os.system("ar -cur %s %s/%s/*.o 2>/dev/null" %(cpu_lib_path, obj_folders, cpu_folder))
                 else:
                     os.system("ar -q %s %s/%s/*.o 2>/dev/null" %(cpu_lib_path, obj_folders, cpu_folder))
+                if cf=="openssl":
+                    link_openssl(cpu_lib_path, cpu_folder)
 
 
     framework_path = save_path + "/" + project.framework_name
