@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D9C4F681EAF4557002346D5 /* rsa_crypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D9C4F671EAF4557002346D5 /* rsa_crypt.cpp */; };
+		3D9C4F791EAF471E002346D5 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D9C4F771EAF471E002346D5 /* libcrypto.a */; };
+		3D9C4F7A1EAF471E002346D5 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D9C4F781EAF471E002346D5 /* libssl.a */; };
 		4BB7130C1DE8237600185734 /* gen_rsa_key_pair.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB713071DE8237600185734 /* gen_rsa_key_pair.cpp */; };
 		4BB7130D1DE8237600185734 /* openssl_multi_thread_support.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB713081DE8237600185734 /* openssl_multi_thread_support.cpp */; };
 		4BB7130E1DE8237600185734 /* pay_openssl_crypto_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB713091DE8237600185734 /* pay_openssl_crypto_util.cpp */; };
@@ -32,6 +35,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3D9C4F671EAF4557002346D5 /* rsa_crypt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rsa_crypt.cpp; sourceTree = "<group>"; };
+		3D9C4F6A1EAF4586002346D5 /* camellia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = camellia.h; sourceTree = "<group>"; };
+		3D9C4F6B1EAF4586002346D5 /* cast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cast.h; sourceTree = "<group>"; };
+		3D9C4F6C1EAF4586002346D5 /* cmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmac.h; sourceTree = "<group>"; };
+		3D9C4F6D1EAF4586002346D5 /* cms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cms.h; sourceTree = "<group>"; };
+		3D9C4F6E1EAF4586002346D5 /* idea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idea.h; sourceTree = "<group>"; };
+		3D9C4F6F1EAF4586002346D5 /* mdc2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdc2.h; sourceTree = "<group>"; };
+		3D9C4F701EAF4586002346D5 /* seed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = seed.h; sourceTree = "<group>"; };
+		3D9C4F711EAF4586002346D5 /* srp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = srp.h; sourceTree = "<group>"; };
+		3D9C4F721EAF4586002346D5 /* srtp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = srtp.h; sourceTree = "<group>"; };
+		3D9C4F731EAF4586002346D5 /* whrlpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whrlpool.h; sourceTree = "<group>"; };
+		3D9C4F741EAF469D002346D5 /* e_os.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = e_os.h; sourceTree = "<group>"; };
+		3D9C4F751EAF469D002346D5 /* e_os2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = e_os2.h; sourceTree = "<group>"; };
+		3D9C4F771EAF471E002346D5 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = openssl_lib_iOS/libcrypto.a; sourceTree = "<group>"; };
+		3D9C4F781EAF471E002346D5 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = openssl_lib_iOS/libssl.a; sourceTree = "<group>"; };
 		4BB713031DE8234100185734 /* gen_rsa_key_pair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gen_rsa_key_pair.h; sourceTree = "<group>"; };
 		4BB713041DE8234100185734 /* openssl_multi_thread_support.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = openssl_multi_thread_support.h; sourceTree = "<group>"; };
 		4BB713051DE8234100185734 /* pay_openssl_crypto_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pay_openssl_crypto_util.h; sourceTree = "<group>"; };
@@ -117,7 +135,7 @@
 		55D9072D1CC7BACF0076CBD9 /* x509.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509.h; sourceTree = "<group>"; };
 		55D9072E1CC7BACF0076CBD9 /* x509_vfy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		55D9072F1CC7BACF0076CBD9 /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
-		55D9C0821CC7B1C90076CBD9 /* libopenssl.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libopenssl.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		55D9C0821CC7B1C90076CBD9 /* libopenssl.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libopenssl.a; path = /Users/elviswu/elvis_workspace/mmnet/mars/mars/openssl/build/Debug/libopenssl.a; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +143,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D9C4F791EAF471E002346D5 /* libcrypto.a in Frameworks */,
+				3D9C4F7A1EAF471E002346D5 /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,11 +154,22 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				3D9C4F741EAF469D002346D5 /* e_os.h */,
+				3D9C4F751EAF469D002346D5 /* e_os2.h */,
 				55D906DB1CC7BACF0076CBD9 /* export */,
 				55D906E41CC7BACF0076CBD9 /* export_include */,
 				55D906ED1CC7BACF0076CBD9 /* include */,
-				55D9C0821CC7B1C90076CBD9 /* libopenssl.a */,
+				3D9C4F761EAF471D002346D5 /* Frameworks */,
 			);
+			sourceTree = "<group>";
+		};
+		3D9C4F761EAF471D002346D5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3D9C4F771EAF471E002346D5 /* libcrypto.a */,
+				3D9C4F781EAF471E002346D5 /* libssl.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		55D906DB1CC7BACF0076CBD9 /* export */ = {
@@ -157,6 +188,7 @@
 		55D906DD1CC7BACF0076CBD9 /* crypto */ = {
 			isa = PBXGroup;
 			children = (
+				3D9C4F671EAF4557002346D5 /* rsa_crypt.cpp */,
 				4BB713071DE8237600185734 /* gen_rsa_key_pair.cpp */,
 				4BB713081DE8237600185734 /* openssl_multi_thread_support.cpp */,
 				4BB713091DE8237600185734 /* pay_openssl_crypto_util.cpp */,
@@ -194,6 +226,16 @@
 		55D906EE1CC7BACF0076CBD9 /* openssl */ = {
 			isa = PBXGroup;
 			children = (
+				3D9C4F6A1EAF4586002346D5 /* camellia.h */,
+				3D9C4F6B1EAF4586002346D5 /* cast.h */,
+				3D9C4F6C1EAF4586002346D5 /* cmac.h */,
+				3D9C4F6D1EAF4586002346D5 /* cms.h */,
+				3D9C4F6E1EAF4586002346D5 /* idea.h */,
+				3D9C4F6F1EAF4586002346D5 /* mdc2.h */,
+				3D9C4F701EAF4586002346D5 /* seed.h */,
+				3D9C4F711EAF4586002346D5 /* srp.h */,
+				3D9C4F721EAF4586002346D5 /* srtp.h */,
+				3D9C4F731EAF4586002346D5 /* whrlpool.h */,
 				55D906EF1CC7BACF0076CBD9 /* aes.h */,
 				55D906F01CC7BACF0076CBD9 /* asn1.h */,
 				55D906F11CC7BACF0076CBD9 /* asn1_mac.h */,
@@ -315,6 +357,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				55D908011CC7BACF0076CBD9 /* ecdsa_verify.c in Sources */,
+				3D9C4F681EAF4557002346D5 /* rsa_crypt.cpp in Sources */,
 				55D908001CC7BACF0076CBD9 /* ecdh_crypt.c in Sources */,
 				55D907FE1CC7BACF0076CBD9 /* aes_crypt.c in Sources */,
 				4BB7130F1DE8237600185734 /* rsa_pss_sha256.cpp in Sources */,
@@ -534,6 +577,7 @@
 					"$(PROJECT_DIR)/openssl/build/Release-iphoneos",
 					"$(PROJECT_DIR)/openssl/build/Release-iphonesimulator",
 					"$(PROJECT_DIR)/openssl/obj/local/armeabi",
+					"$(PROJECT_DIR)/openssl_lib_iOS",
 				);
 				MACH_O_TYPE = staticlib;
 				ONLY_ACTIVE_ARCH = NO;
@@ -695,6 +739,7 @@
 					"$(PROJECT_DIR)/openssl/build/Release-iphoneos",
 					"$(PROJECT_DIR)/openssl/build/Release-iphonesimulator",
 					"$(PROJECT_DIR)/openssl/obj/local/armeabi",
+					"$(PROJECT_DIR)/openssl_lib_iOS",
 				);
 				MACH_O_TYPE = staticlib;
 				ONLY_ACTIVE_ARCH = NO;
