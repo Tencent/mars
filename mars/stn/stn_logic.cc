@@ -34,26 +34,17 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/platform_comm.h"
-#include "mars/boost/signals2.hpp"
-#include "stn/src/net_core.h"//一定要放这里，Mac os 编译
-#include "stn/src/net_source.h"
-#include "stn/src/signalling_keeper.h"
-#include "stn/src/proxy_test.h"
+#include "mars/comm/compiler_util.h"
 
-#ifdef WIN32
-#include <locale>
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
-#endif
+#include "net_core.h"//一定要放这里，Mac os 编译
+#include "net_source.h"
+#include "signalling_keeper.h"
 
 namespace mars {
 namespace stn {
 
 static Callback* sg_callback = NULL;
 static const std::string kLibName = "stn";
-
-boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
-boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
 
 #define STN_WEAK_CALL(func) \
     boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
@@ -62,17 +53,9 @@ boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::st
         return;\
     }\
     stn_ptr->func
-    
-#define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
-        xwarn2(TSF"stn uncreate");\
-        return false;\
-    }\
-    stn_ptr->func;\
-    return true
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
+    \
 	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (stn_ptr) \
     {\
@@ -85,7 +68,7 @@ static void onCreate() {
 #endif
 
     xinfo2(TSF"stn oncreate");
-    ActiveLogic::Singleton::Instance();
+    SINGLETON_STRONG(ActiveLogic);
     NetCore::Singleton::Instance();
 
 }
@@ -95,9 +78,6 @@ static void onDestroy() {
 
     NetCore::Singleton::Release();
     SINGLETON_RELEASE_ALL();
-    
-    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
-    // ActiveLogic::Singleton::Release();
 }
 
 static void onSingalCrash(int _sig) {
@@ -108,8 +88,24 @@ static void onExceptionCrash() {
     appender_close();
 }
 
+    
 static void onNetworkChange() {
+#ifdef __APPLE__
+    FlushReachability();
+#endif
+#ifdef ANDROID
+    g_NetInfo = 0;
 
+    ScopedLock lock(g_net_mutex);
+    g_wifi_info.ssid.clear();
+    g_wifi_info.bssid.clear();
+    g_sim_info.isp_code.clear();
+    g_sim_info.isp_name.clear();
+    g_apn_info.nettype = kNoNet -1;
+    g_apn_info.sub_nettype = 0;
+    g_apn_info.extra_info.clear();
+    lock.unlock();
+#endif
     STN_WEAK_CALL(OnNetworkChange());
 }
     
@@ -120,26 +116,23 @@ static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) 
         return;
     }
     
-    if (0 == strcmp(_tag, XLOGGER_TAG)) {
+    if (NULL != XLOGGER_TAG && 0 == strcmp(_tag, XLOGGER_TAG)) {
         TrafficData(_send, _recv);
     }
 }
 
-static void __initbind_baseprjevent() {
 
-#ifdef WIN32
-	boost::filesystem::path::imbue(std::locale(std::locale(), new boost::filesystem::detail::utf8_codecvt_facet));
-#endif
+static void __initbind_baseprjevent() {
 
 #ifdef ANDROID
 	mars::baseevent::addLoadModule(kLibName);
 #endif
+
     GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
+    GetSignalOnDestroy().connect(&onDestroy);
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
-
+    GetSignalOnNetworkChange().connect(&onNetworkChange);
     
 #ifndef XLOGGER_TAG
 #error "not define XLOGGER_TAG"
@@ -150,230 +143,192 @@ static void __initbind_baseprjevent() {
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
     
+void Callback::TrafficData(ssize_t _send, ssize_t _recv) {
+    xassert2(false);
+}
+    
+std::vector<std::string> Callback::OnNewDns(const std::string& host) {
+    xassert2(false);
+    std::vector<std::string> host_info;
+    return host_info;
+}
+
 void SetCallback(Callback* const callback) {
 	sg_callback = callback;
 }
 
-bool (*StartTask)(const Task& _task)
-= [](const Task& _task) {
-    STN_RETURN_WEAK_CALL(StartTask(_task));
-};
+void StartTask (const Task& _task) {
+    STN_WEAK_CALL(StartTask(_task));
+}
 
-void (*StopTask)(uint32_t _taskid)
-= [](uint32_t _taskid) {
+void StopTask(int _taskid) {
     STN_WEAK_CALL(StopTask(_taskid));
-};
+}
 
-bool (*HasTask)(uint32_t _taskid)
-= [](uint32_t _taskid) {
+bool HasTask(int _taskid) {
 	bool has_task = false;
 	STN_WEAK_CALL_RETURN(HasTask(_taskid), has_task);
 	return has_task;
-};
+}
 
-void (*RedoTasks)()
-= []() {
+void RedoTasks() {
    STN_WEAK_CALL(RedoTasks());
-};
+}
 
-void (*ClearTasks)()
-= []() {
+void ClearTasks() {
    STN_WEAK_CALL(ClearTasks());
-};
+}
 
-void (*Reset)()
-= []() {
+void Reset() {
 	xinfo2(TSF "stn reset");
 	NetCore::Singleton::Release();
 	NetCore::Singleton::Instance();
-};
+}
 
-void (*MakesureLonglinkConnected)()
-= []() {
+void MakesureLonglinkConnected() {
     xinfo2(TSF "make sure longlink connect");
    STN_WEAK_CALL(MakeSureLongLinkConnect());
-};
-
-bool (*LongLinkIsConnected)()
-= []() {
+}
+    
+bool LongLinkIsConnected(){
     bool connected = false;
     STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
     return connected;
-};
-    
-bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
-= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
-    
-    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
-};
+}
 
-//void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
-// {
-//	SetLonglinkSvrAddr(host, ports, "");
-//};
+void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports) {
+	SetLonglinkSvrAddr(host, ports, "");
+}
 
-
-void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip)
-= [](const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
+void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
 	std::vector<std::string> hosts;
 	if (!host.empty()) {
 		hosts.push_back(host);
 	}
 	NetSource::SetLongLink(hosts, ports, debugip);
-};
+}
 
-//void SetShortlinkSvrAddr(const uint16_t port)
-//{
-//	NetSource::SetShortlink(port, "");
-//};
+void SetShortlinkSvrAddr(const uint16_t port) {
+	NetSource::SetShortlink(port, "");
+}
     
-void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip)
-= [](const uint16_t port, const std::string& debugip) {
+void SetShortlinkSvrAddr(const uint16_t port, const std::string& debugip) {
 	NetSource::SetShortlink(port, debugip);
-};
+}
 
-void (*SetDebugIP)(const std::string& host, const std::string& ip)
-= [](const std::string& host, const std::string& ip) {
+void SetDebugIP(const std::string& host, const std::string& ip) {
 	NetSource::SetDebugIP(host, ip);
-};
+}
     
-void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist)
-= [](const std::string& host, const std::vector<std::string>& iplist) {
+void SetBackupIPs(const std::string& host, const std::vector<std::string>& iplist) {
 	NetSource::SetBackupIPs(host, iplist);
-};
+}
 
-void (*SetSignallingStrategy)(long _period, long _keepTime)
-= [](long _period, long _keepTime) {
+
+void SetSignallingStrategy(long _period, long _keepTime) {
     SignallingKeeper::SetStrategy((unsigned int)_period, (unsigned int)_keepTime);
-};
+}
 
-void (*KeepSignalling)()
-= []() {
+void KeepSignalling() {
 #ifdef USE_LONG_LINK
     STN_WEAK_CALL(KeepSignal());
 #endif
-};
+}
 
-void (*StopSignalling)()
-= []() {
+void StopSignalling() {
 #ifdef USE_LONG_LINK
     STN_WEAK_CALL(StopSignal());
 #endif
-};
+}
 
-uint32_t (*getNoopTaskID)()
-= []() {
+uint32_t getNoopTaskID() {
 	return Task::kNoopTaskID;
-};
+}
 
 void network_export_symbols_0(){}
 
 #ifndef ANDROID
 	//callback functions
-bool (*MakesureAuthed)()
-= []() {
-	xassert2(sg_callback != NULL);
-	return sg_callback->MakesureAuthed();
-};
-
-// 流量统计
-void (*TrafficData)(ssize_t _send, ssize_t _recv)
-= [](ssize_t _send, ssize_t _recv) {
-    xassert2(sg_callback != NULL);
-    return sg_callback->TrafficData(_send, _recv);
-};
-
-//底层询问上层该host对应的ip列表
-std::vector<std::string> (*OnNewDns)(const std::string& host)
-= [](const std::string& host) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->OnNewDns(host);
-};
-
-//网络层收到push消息回调
-void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
-	xassert2(sg_callback != NULL);
-	sg_callback->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
-};
-//底层获取task要发送的数据
-bool (*Req2Buf)(uint32_t taskid,  void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select)
-= [](uint32_t taskid,  void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->Req2Buf(taskid, user_context, outbuffer, extend, error_code, channel_select);
-};
-//底层回包返回给上层解析
-int (*Buf2Resp)(uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select)
-= [](uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->Buf2Resp(taskid, user_context, inbuffer, extend, error_code, channel_select);
-};
-//任务执行结束
-int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, int error_type, int error_code)
-= [](uint32_t taskid, void* const user_context, int error_type, int error_code) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->OnTaskEnd(taskid, user_context, error_type, error_code);
- };
-
-//上报网络连接状态
-void (*ReportConnectStatus)(int status, int longlink_status)
-= [](int status, int longlink_status) {
-	xassert2(sg_callback != NULL);
-	sg_callback->ReportConnectStatus(status, longlink_status);
-};
-
-void (*OnLongLinkStatusChange)(int _status)
-= [](int _status) {
-    xassert2(sg_callback != NULL);
-    sg_callback->OnLongLinkStatusChange(_status);
-};
-void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
-= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
-    xassert2(sg_callback != NULL);
-    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
-    sg_callback->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
-};
+	bool MakesureAuthed() {
+		xassert2(sg_callback != NULL);
+		return sg_callback->MakesureAuthed();
+	}
     
-void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
-= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    xassert2(sg_callback != NULL);
-    SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-    sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-};
-//长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-int  (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid)
-= [](AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->GetLonglinkIdentifyCheckBuffer(identify_buffer, buffer_hash, cmdid);
-};
-//长连信令校验回包
-bool (*OnLonglinkIdentifyResponse)(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash)
-= [](const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->OnLonglinkIdentifyResponse(response_buffer, identify_buffer_hash);
-};
+    // 流量统计 
+    WEAK_FUNC void TrafficData(ssize_t _send, ssize_t _recv) {
+        xassert2(sg_callback != NULL);
+        return sg_callback->TrafficData(_send, _recv);
+    }
+    
+	//底层询问上层该host对应的ip列表 
+	WEAK_FUNC std::vector<std::string> OnNewDns(const std::string& host) {
+		xassert2(sg_callback != NULL);
+		return sg_callback->OnNewDns(host);
+	}
+    
+	//网络层收到push消息回调 
+	void OnPush(int32_t cmdid, const AutoBuffer& msgpayload) {
+		xassert2(sg_callback != NULL);
+		sg_callback->OnPush(cmdid, msgpayload);
+	}
+	//底层获取task要发送的数据 
+	bool Req2Buf(int32_t taskid,  void* const user_context, AutoBuffer& outbuffer, int& error_code, const int channel_select) {
+		xassert2(sg_callback != NULL);
+		return sg_callback->Req2Buf(taskid, user_context, outbuffer, error_code, channel_select);
+	}
+	//底层回包返回给上层解析 
+	int Buf2Resp(int32_t taskid, void* const user_context, const AutoBuffer& inbuffer, int& error_code, const int channel_select) {
+		xassert2(sg_callback != NULL);
+		return sg_callback->Buf2Resp(taskid, user_context, inbuffer, error_code, channel_select);
+	}
+	//任务执行结束 
+	int  OnTaskEnd(int32_t taskid, void* const user_context, int error_type, int error_code) {
+		xassert2(sg_callback != NULL);
+		return sg_callback->OnTaskEnd(taskid, user_context, error_type, error_code);
+	}
 
-void (*RequestSync)() 
-= []() {
-	xassert2(sg_callback != NULL);
-	sg_callback->RequestSync();
-};
+	//上报网络连接状态 
+	void ReportConnectStatus(int status, int longlink_status) {
+		xassert2(sg_callback != NULL);
+		sg_callback->ReportConnectStatus(status, longlink_status);
+	}
 
-void (*RequestNetCheckShortLinkHosts)(std::vector<std::string>& _hostlist)
-= [](std::vector<std::string>& _hostlist) {
-};
+	//长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
+	int  GetLonglinkIdentifyCheckBuffer(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
+		xassert2(sg_callback != NULL);
+		return sg_callback->GetLonglinkIdentifyCheckBuffer(identify_buffer, buffer_hash, cmdid);
+	}
+	//长连信令校验回包 
+	bool OnLonglinkIdentifyResponse(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
+		xassert2(sg_callback != NULL);
+		return sg_callback->OnLonglinkIdentifyResponse(response_buffer, identify_buffer_hash);
+	}
 
-void (*ReportTaskProfile)(const TaskProfile& _task_profile)
-= [](const TaskProfile& _task_profile) {
-};
+	void RequestSync() {
+		xassert2(sg_callback != NULL);
+		sg_callback->RequestSync();
+	}
 
-void (*ReportTaskLimited)(int _check_type, const Task& _task, unsigned int& _param)
-= [](int _check_type, const Task& _task, unsigned int& _param) {
-};
+	bool IsLogoned() {
+		xassert2(sg_callback != NULL);
+		return sg_callback->IsLogoned();
+	}
 
-void (*ReportDnsProfile)(const DnsProfile& _dns_profile)
-= [](const DnsProfile& _dns_profile) {
-};
+	WEAK_FUNC void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
+
+	}
+
+	WEAK_FUNC void ReportTaskProfile(const TaskProfile& _task_profile) {
+
+	}
+
+	WEAK_FUNC void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
+
+	}
+
+	WEAK_FUNC void ReportDnsProfile(const DnsProfile& _dns_profile) {
+
+	}
 #endif
 
 }

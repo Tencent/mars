@@ -75,7 +75,7 @@ class ThreadUtil {
 #endif
     }
 
-    static bool isruning(thread_tid /*_id*/);
+	static bool isruning(thread_tid _id/*_id*/);
     //{
     //    ASSERT(false);
     //    return false;
@@ -103,6 +103,11 @@ class ThreadUtil {
 #endif
     }
 
+	static int join(thread_tid _id) {
+		
+		return 0;
+	}
+
     static void join(thread_handler& pth) {
         if (pth == NULL)
             return ;
@@ -113,25 +118,6 @@ class ThreadUtil {
         thrd_join(*pth, 0);
 #endif
     }
-
-	static void join (thread_tid _tid) {
-	
-#ifdef USED_BOOST_THREAD_LIB
-	#error "todo"
-#else
-	HANDLE handler = OpenThread(THREAD_ALL_ACCESS, FALSE, _tid);
-	if (NULL == handler) {
-		ASSERT(false);
-		return;
-	}
-	thrd_t thrd;
-	thrd._Hnd = &handler;
-	thrd._Id = _tid;
-	thread_handler th = &thrd;
-	join(th);
-	CloseHandle(handler);
-#endif
-	}
 
     static void detach(thread_handler& pth) {
         if (pth == NULL)
@@ -164,9 +150,11 @@ class Thread {
             : target(_target), count(0), isjoined(false), isended(true) ,
               aftertime(UINT_MAX), periodictime(UINT_MAX), iscanceldelaystart(false)
             , isinthread(false), killsig(0) {
-            // tid._Hnd = 0;
-            // tid._Id = 0;
-            m_th = NULL;
+             tid._Hnd = 0;
+             tid._Id = 0;
+			 m_th = NULL;
+
+			 memset(thread_name, 0, sizeof(thread_name));
             // ASSERT(target);
         }
 
@@ -203,7 +191,7 @@ class Thread {
       public:
         Runnable* target;
         int count;
-        // thrd_t tid;
+        thrd_t tid;
         thread_handler m_th;
         bool isjoined;
         bool isended;
@@ -214,28 +202,52 @@ class Thread {
         SpinLock splock;
         bool isinthread; 
         int killsig;
+		char thread_name[128];
     };
 
   public:
-    template<class T>
-    explicit Thread(const T& op, const char* _thread_name = NULL, bool _outside_join = false)
-        : m_runableref(NULL), outside_join_(_outside_join) {
-        m_runableref = new RunnableReference(detail::transform(op));
-        ScopedSpinLock lock(m_runableref->splock);
-        m_runableref->AddRef();
-    }
+  
 
-    Thread(const char* _thread_name = NULL, bool _outside_join = false)
-        : m_runableref(NULL), outside_join_(_outside_join) {
-        m_runableref = new RunnableReference(NULL);
-        ScopedSpinLock lock(m_runableref->splock);
-        m_runableref->AddRef();
-    }
+	template<class T>
+	explicit Thread(const T& op, const char* _thread_name = NULL)//???andrewu add
+		: m_runableref(NULL) {
+
+
+
+		m_runableref = new RunnableReference(detail::transform(op));
+		ScopedSpinLock lock(m_runableref->splock);
+		m_runableref->AddRef();
+
+		if (_thread_name) strncpy(m_runableref->thread_name, _thread_name, sizeof(m_runableref->thread_name));
+
+	}
+
+
+	Thread(const char* _thread_name = NULL)
+		: m_runableref(NULL) {
+		m_runableref = new RunnableReference(NULL);
+		ScopedSpinLock lock(m_runableref->splock);
+		m_runableref->AddRef();
+
+		if (_thread_name) strncpy(m_runableref->thread_name, _thread_name, sizeof(m_runableref->thread_name));
+	}
+
+
 
     virtual ~Thread() {
         ScopedSpinLock lock(m_runableref->splock);
         m_runableref->RemoveRef(lock);
     }
+
+	void outside_join() const {//??? andrewu add
+		ScopedSpinLock lock(m_runableref->splock);
+		ASSERT(!m_runableref->isjoined);
+		ASSERT(!isruning());
+		if (m_runableref->isjoined || isruning()) return;
+
+		m_runableref->isjoined = true;
+	}
+
 
     int start(bool* _newone = NULL) {
         ScopedSpinLock lock(m_runableref->splock);
@@ -245,10 +257,9 @@ class Thread {
         if (isruning())return 0;
 
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
         m_runableref->AddRef();
 
-        // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine, (void*)m_runableref);
+
         int ret = ThreadUtil::createThread(m_runableref->m_th, &start_routine, (void*)m_runableref);
         ASSERT(thrd_success == ret);
 
@@ -274,10 +285,8 @@ class Thread {
         m_runableref->target = detail::transform(op);
 
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
         m_runableref->AddRef();
 
-        // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine, (void*)m_runableref);
         int ret = ThreadUtil::createThread(m_runableref->m_th, &start_routine, (void*)m_runableref);
         ASSERT(thrd_success == ret);
 
@@ -299,11 +308,9 @@ class Thread {
         m_runableref->condtime.cancelAnyWayNotify();
         m_runableref->iscanceldelaystart = false;
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
         m_runableref->aftertime = after;
         m_runableref->AddRef();
 
-        // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine_after, (void*)m_runableref);
         int ret = ThreadUtil::createThread(m_runableref->m_th, &start_routine_after, (void*)m_runableref);
         ASSERT(thrd_success == ret);
 
@@ -333,12 +340,10 @@ class Thread {
         m_runableref->condtime.cancelAnyWayNotify();
         m_runableref->iscanceldelaystart = false;
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
         m_runableref->aftertime = after;
         m_runableref->periodictime = periodic;
         m_runableref->AddRef();
 
-        // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine_periodic, (void*)m_runableref);
         int ret = ThreadUtil::createThread(m_runableref->m_th, &start_routine_periodic, (void*)m_runableref);
         ASSERT(thrd_success == ret);
 
@@ -368,7 +373,7 @@ class Thread {
         if (isruning()) {
             m_runableref->isjoined = true;
             lock.unlock();
-            ThreadUtil::join(m_runableref->m_th);
+            ThreadUtil::join((m_runableref->m_th));
             // thrd_join(m_runableref->tid, 0);
         }
     }
@@ -470,7 +475,6 @@ class Thread {
     Thread& operator=(const Thread&);
   private:
     RunnableReference*  m_runableref;
-	bool outside_join_;
 };
 
 

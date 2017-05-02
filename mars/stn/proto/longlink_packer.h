@@ -28,26 +28,11 @@
 #define LONGLINK_UNPACK_FALSE (-1)
 #define LONGLINK_UNPACK_OK (0)
 
-//for HTTP2
-#define LONGLINK_UNPACK_STREAM_END LONGLINK_UNPACK_OK
-#define LONGLINK_UNPACK_STREAM_PACKAGE (1)
-
 #ifndef __cplusplus
 #error "support cpp only"
 #endif
 
 class AutoBuffer;
-
-namespace mars {
-    namespace stn {
-    
-class longlink_tracker {
-public:
-    static longlink_tracker* (*Create)();
-    
-public:
-    virtual ~longlink_tracker(){};
-};
 
 /**
  * package the request data
@@ -56,7 +41,7 @@ public:
  * _raw: business send buffer
  * _packed: business send buffer + request header
  */
-extern void (*longlink_pack)(uint32_t _cmdid, uint32_t _seq, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _packed, longlink_tracker* _tracker);
+void longlink_pack(uint32_t _cmdid, uint32_t _seq, const void* _raw, size_t _raw_len, AutoBuffer& _packed);
 
 /**
  * unpackage the response data
@@ -67,25 +52,27 @@ extern void (*longlink_pack)(uint32_t _cmdid, uint32_t _seq, const AutoBuffer& _
  * _body: business receive buffer
  * return: 0 if unpackage succ
  */
-extern int  (*longlink_unpack)(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body, AutoBuffer& _extension, longlink_tracker* _tracker);
+int  longlink_unpack(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body);
 
 //heartbeat signal to keep longlink network alive
-extern uint32_t (*longlink_noop_cmdid)();
-extern bool  (*longlink_noop_isresp)(uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
-extern uint32_t (*signal_keep_cmdid)();
-extern void (*longlink_noop_req_body)(AutoBuffer& _body, AutoBuffer& _extend);
-extern void (*longlink_noop_resp_body)(const AutoBuffer& _body, const AutoBuffer& _extend);
+uint32_t longlink_noop_cmdid();
+uint32_t longlink_noop_resp_cmdid();
+uint32_t signal_keep_cmdid();
+void longlink_noop_req_body(AutoBuffer& _body);
+void longlink_noop_resp_body(AutoBuffer& _body);
 
-extern uint32_t (*longlink_noop_interval)();
+uint32_t longlink_noop_interval();
 
-extern bool (*longlink_complexconnect_need_verify)();
+bool longlink_complexconnect_need_verify();
 
 /**
  * return: whether the received data is pushing from server or not
  */
-extern bool  (*longlink_ispush)(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
-extern bool  (*longlink_identify_isresp)(uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
+bool is_push_data(uint32_t _cmdid, uint32_t _taskid);
 
-}
+namespace mars {
+	namespace stn {
+		void SetClientVersion(uint32_t _client_version);
+	}
 }
 #endif // STN_SRC_LONGLINKPACKER_H_

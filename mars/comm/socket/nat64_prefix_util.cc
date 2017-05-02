@@ -24,7 +24,7 @@
 #include "xlogger/xlogger.h"
 #include "strutil.h"
 #include "platform_comm.h"
-#include "mars/comm/network/getaddrinfo_with_timeout.h"
+#include "ipv6_address_utils.h"//???andrewu just compile pass  
 
 static const uint8_t kWellKnownV4Addr1[4] = {192, 0, 0, 170};
 static const uint8_t kWellKnownV4Addr2[4] = {192, 0, 0, 171};
@@ -212,13 +212,12 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 
 	char v4_ip[16] = {0};
 	socket_inet_ntop(AF_INET, &_v4_addr, v4_ip, sizeof(v4_ip));
-    bool is_timeout = false;
 #ifdef __APPLE__
 	if (publiccomponent_GetSystemVersion() >= 9.2f) {//higher than iOS9.2
-		error = getaddrinfo_with_timeout(v4_ip, NULL, &hints, &res0, is_timeout, 2000);
+		error = getaddrinfo(v4_ip, NULL, &hints, &res0);
 	} else {//lower than iOS9.2 or other platform
 #endif
-		error = getaddrinfo_with_timeout("ipv4only.arpa", NULL, &hints, &res0, is_timeout, 2000);
+		error = getaddrinfo("ipv4only.arpa", NULL, &hints, &res0);
 #ifdef __APPLE__
 	}
 #endif
@@ -232,7 +231,7 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 #ifdef __APPLE__
 				if (publiccomponent_GetSystemVersion() >= 9.2f) { //higher than iOS9.2
 					//copy all 16 bytes
-					memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr32), 16);
+					memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr16), 16);
 					ret = true;
 					break;
 				} else { //lower than iOS9.2 or other platform
@@ -240,11 +239,7 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 
 	    			if (IsNat64AddrValid((struct in6_addr*)&(((sockaddr_in6*)res->ai_addr)->sin6_addr))) {
 						ReplaceNat64WithV4IP((struct in6_addr*)&(((sockaddr_in6*)res->ai_addr)->sin6_addr) , &_v4_addr);
-#ifdef WIN32
-                        memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).u), 16);
-#else
 						memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr16), 16);
-#endif
 						const char* ip_str = socket_inet_ntop(AF_INET6, &_v6_addr, ip_buf, sizeof(ip_buf));
 						xdebug2(TSF"AF_INET6 v4_ip=%_, nat64 ip_str = %_", v4_ip, ip_str);
 		    			ret = true;
@@ -269,11 +264,11 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 
     	}
     } else {
-        xerror2(TSF" getaddrinfo error = %_, res0:@%_", error, res0);
+    	xerror2(TSF"getaddrinfo error = %_", error);
     	ret = false;
     }
-    if (NULL != res0)
-        freeaddrinfo(res0);
+
+    freeaddrinfo(res0);
     return ret;
 
 }
@@ -326,11 +321,8 @@ bool  GetNetworkNat64Prefix(struct in6_addr& _nat64_prefix_in6) {
     		char ip_buf[64] = {0};
 
     		if (AF_INET6 == res->ai_family) {
-#ifdef WIN32
-                memcpy ( (char*)&(_nat64_prefix_in6.u), (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).u), 12);
-#else
     			memcpy ( (char*)&(_nat64_prefix_in6.s6_addr16), (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr16), 12);
-#endif
+
     			ret = true;
     			break;
 
@@ -345,12 +337,11 @@ bool  GetNetworkNat64Prefix(struct in6_addr& _nat64_prefix_in6) {
 
     	}
     } else {
-    	xerror2(TSF" getaddrinfo error = %_, res0:@%_", error, res0);
+    	xerror2(TSF" getaddrinfo error = %_", error);
     	ret = false;
     }
 
-    if (NULL != res0)
-        freeaddrinfo(res0);
+    freeaddrinfo(res0);
     return ret;
 }
 

@@ -68,15 +68,8 @@ private:
 #ifdef __powerpc__
 #include "../../arch/powerpc/include/uapi/asm/unistd.h"
 #endif
-
-#if defined(_WIN32)
-#if defined(_MSC_VER) && _MSC_VER >= 1310 && ( defined(_M_ARM) )
-	extern "C" void YieldProcessor();
-#else
-	extern "C" void _mm_pause();
-#endif
-#endif
-
+extern "C" void _mm_pause();
+extern "C" void YieldProcessor();
 static inline void cpu_relax() {
 
 #if defined(__arc__) || defined(__mips__) || defined(__arm__) || defined(__powerpc__)
@@ -132,12 +125,12 @@ public:
 
      bool lock()
      {
-         /*register*/ unsigned int pause_count = initial_pause; //'register' storage class specifier is deprecated and incompatible with C++1z
+         register unsigned int pause_count = initial_pause;
          while (!trylock())
          {
              if (pause_count < max_pause)
              {
-                 for (/*register*/ unsigned int i = 0; i < pause_count; ++i) //'register' storage class specifier is deprecated and incompatible with C++1z
+                 for (register unsigned int i = 0; i < pause_count; ++i)
                  {
                      cpu_relax();
                  }

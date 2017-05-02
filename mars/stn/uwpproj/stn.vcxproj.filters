@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>48fb146a-56ea-4f38-8368-132ddcc25690</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\anti_avalanche.cc" />
+    <ClCompile Include="..\src\dynamic_timeout.cc" />
+    <ClCompile Include="..\src\flow_limit.cc" />
+    <ClCompile Include="..\src\frequency_limit.cc" />
+    <ClCompile Include="..\src\longlink.cc" />
+    <ClCompile Include="..\src\longlink_connect_monitor.cc" />
+    <ClCompile Include="..\src\longlink_identify_checker.cc" />
+    <ClCompile Include="..\src\longlink_speed_test.cc" />
+    <ClCompile Include="..\src\longlink_task_manager.cc" />
+    <ClCompile Include="..\src\net_channel_factory.cc" />
+    <ClCompile Include="..\src\net_check_logic.cc" />
+    <ClCompile Include="..\src\net_core.cc" />
+    <ClCompile Include="..\src\net_source.cc" />
+    <ClCompile Include="..\src\netsource_timercheck.cc" />
+    <ClCompile Include="..\src\shortlink.cc" />
+    <ClCompile Include="..\src\shortlink_task_manager.cc" />
+    <ClCompile Include="..\src\signalling_keeper.cc" />
+    <ClCompile Include="..\src\simple_ipport_sort.cc" />
+    <ClCompile Include="..\src\smart_heartbeat.cc" />
+    <ClCompile Include="..\src\task_profile.cc" />
+    <ClCompile Include="..\src\timing_sync.cc" />
+    <ClCompile Include="..\src\zombie_task_manager.cc" />
+    <ClCompile Include="..\stn_logic.cc" />
+    <ClCompile Include="..\stn.cc" />
+    <ClCompile Include="..\proto\shortlink_packer.cc" />
+    <ClCompile Include="..\proto\longlink_packer.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\anti_avalanche.h" />
+    <ClInclude Include="..\src\dynamic_timeout.h" />
+    <ClInclude Include="..\src\flow_limit.h" />
+    <ClInclude Include="..\src\frequency_limit.h" />
+    <ClInclude Include="..\src\longlink.h" />
+    <ClInclude Include="..\src\longlink_connect_monitor.h" />
+    <ClInclude Include="..\src\longlink_identify_checker.h" />
+    <ClInclude Include="..\src\longlink_speed_test.h" />
+    <ClInclude Include="..\src\longlink_task_manager.h" />
+    <ClInclude Include="..\src\net_channel_factory.h" />
+    <ClInclude Include="..\src\net_check_logic.h" />
+    <ClInclude Include="..\src\net_core.h" />
+    <ClInclude Include="..\src\net_source.h" />
+    <ClInclude Include="..\src\netsource_timercheck.h" />
+    <ClInclude Include="..\src\shortlink.h" />
+    <ClInclude Include="..\src\shortlink_interface.h" />
+    <ClInclude Include="..\src\shortlink_task_manager.h" />
+    <ClInclude Include="..\src\signalling_keeper.h" />
+    <ClInclude Include="..\src\simple_ipport_sort.h" />
+    <ClInclude Include="..\src\smart_heartbeat.h" />
+    <ClInclude Include="..\src\special_ini.h" />
+    <ClInclude Include="..\src\timing_sync.h" />
+    <ClInclude Include="..\src\zombie_task_manager.h" />
+  </ItemGroup>
+</Project>
