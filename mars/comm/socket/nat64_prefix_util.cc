@@ -24,6 +24,7 @@
 #include "xlogger/xlogger.h"
 #include "strutil.h"
 #include "platform_comm.h"
+#include "ipv6_address_utils.h"//???andrewu just compile pass  
 
 static const uint8_t kWellKnownV4Addr1[4] = {192, 0, 0, 170};
 static const uint8_t kWellKnownV4Addr2[4] = {192, 0, 0, 171};
@@ -230,7 +231,7 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 #ifdef __APPLE__
 				if (publiccomponent_GetSystemVersion() >= 9.2f) { //higher than iOS9.2
 					//copy all 16 bytes
-					memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr32), 16);
+					memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr16), 16);
 					ret = true;
 					break;
 				} else { //lower than iOS9.2 or other platform
@@ -238,7 +239,7 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 
 	    			if (IsNat64AddrValid((struct in6_addr*)&(((sockaddr_in6*)res->ai_addr)->sin6_addr))) {
 						ReplaceNat64WithV4IP((struct in6_addr*)&(((sockaddr_in6*)res->ai_addr)->sin6_addr) , &_v4_addr);
-						memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr32), 16);
+						memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr16), 16);
 						const char* ip_str = socket_inet_ntop(AF_INET6, &_v6_addr, ip_buf, sizeof(ip_buf));
 						xdebug2(TSF"AF_INET6 v4_ip=%_, nat64 ip_str = %_", v4_ip, ip_str);
 		    			ret = true;
@@ -320,7 +321,7 @@ bool  GetNetworkNat64Prefix(struct in6_addr& _nat64_prefix_in6) {
     		char ip_buf[64] = {0};
 
     		if (AF_INET6 == res->ai_family) {
-    			memcpy ( (char*)&(_nat64_prefix_in6.s6_addr32), (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr32), 12);
+    			memcpy ( (char*)&(_nat64_prefix_in6.s6_addr16), (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr16), 12);
 
     			ret = true;
     			break;

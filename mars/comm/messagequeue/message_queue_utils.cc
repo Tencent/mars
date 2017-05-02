@@ -16,7 +16,8 @@
 //
 //  Created by yerungui on 14-5-21.
 //
-
+//
+#include "boost/utility/result_of.hpp"
 #include "comm/messagequeue/message_queue.h"
 #include "comm/messagequeue/message_queue_utils.h"
 

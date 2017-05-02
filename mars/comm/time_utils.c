@@ -135,7 +135,7 @@ uint64_t gettickcount() {//todoyy
     return 0;
 }
 
-#elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
+#elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP
 
 #include "unistd.h"
 #include <stdint.h>

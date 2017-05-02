@@ -34,7 +34,9 @@
 #endif
 
 static const char kWellKnownNat64Prefix[] = {'6', '4', ':','f', 'f', '9', 'b', ':', ':', '\0'};
-
+#if UWP
+CONST IN6_ADDR in6addr_v4mappedprefix;
+#endif
 socket_address::socket_address(const char* _url) {
     char ip_s[40] = {0};
     uint16_t port_u = 0;
@@ -130,7 +132,12 @@ void  socket_address::__init(const sockaddr* _addr) {
 			strncpy(ip_, kWellKnownNat64Prefix, 9);
 			sockaddr_in addr = { 0 };
 			addr.sin_family = AF_INET;
-			addr.sin_addr.s_addr = addr_.in6.sin6_addr.s6_addr32[3];
+#ifdef WIN32
+            addr.sin_addr.s_addr = *((in_addr_t*)&(addr_.in6.sin6_addr.u.Byte[12]));
+#else
+            addr.sin_addr.s_addr = addr_.in6.sin6_addr.s6_addr32[3];
+#endif
+
 			socket_inet_ntop(addr.sin_family, &(addr.sin_addr), ip_+9, sizeof(ip_)-9);
 		} else {
 			socket_inet_ntop(addr.sin6_family, &(addr.sin6_addr), ip_, sizeof(ip_));
@@ -150,16 +157,27 @@ bool socket_address::fix_current_nat64_addr() {
 		//更新addr_, ip_, url_
 //		if (is_update) {
 			in6_addr nat64_v6_addr;
-			ret = ConvertV4toNat64V6(*(struct in_addr*)(&(addr_.in6.sin6_addr.s6_addr32[3])), nat64_v6_addr);
-			xdebug2(TSF"ret =%_, ip_=%_, nat64_v6_addr = %_", ret, ip_, strutil::Hex2Str((char*)&(nat64_v6_addr.s6_addr32), 16));
+#ifdef WIN32
+            ret = ConvertV4toNat64V6(*(struct in_addr*)(&(addr_.in6.sin6_addr.u.Byte[12])), nat64_v6_addr);
+#else
+            ret = ConvertV4toNat64V6(*(struct in_addr*)(&(addr_.in6.sin6_addr.s6_addr32[3])), nat64_v6_addr);
+#endif
+        
+            xdebug2(TSF"ret =%_, ip_=%_, nat64_v6_addr = %_", ret, ip_, strutil::Hex2Str((char*)&(nat64_v6_addr.s6_addr16), 16));
+
 			if (ret) {
-				memcpy ((char*)&(addr_.in6.sin6_addr.s6_addr32), (char*)&(nat64_v6_addr.s6_addr32), 16);
+				memcpy ((char*)&(addr_.in6.sin6_addr.s6_addr16), (char*)&(nat64_v6_addr.s6_addr16), 16);
 				socket_inet_ntop(AF_INET6, &(addr_.in6.sin6_addr), ip_, sizeof(ip_));
 				//-----把ip_转为更易读的v6 ip形式---//
 				if (0==strncasecmp(kWellKnownNat64Prefix, ip_, 9)) {
 					sockaddr_in addr_v4 = { 0 };
 					addr_v4.sin_family = AF_INET;
-					addr_v4.sin_addr.s_addr = addr_.in6.sin6_addr.s6_addr32[3];
+#ifdef WIN32
+                    addr_v4.sin_addr.s_addr = *((in_addr_t*)&(addr_.in6.sin6_addr.u.Byte[12]));
+#else
+                    addr_v4.sin_addr.s_addr = addr_.in6.sin6_addr.s6_addr32[3];
+#endif
+
 					socket_inet_ntop(addr_v4.sin_family, &(addr_v4.sin_addr), ip_+9, sizeof(ip_)-9);
 				}
 				//-----------------------------//
@@ -354,8 +372,12 @@ socket_address& socket_address::v4tov6_address(bool _nat64) {
     if (_nat64)
         return v4tonat64_address();
     else
-        return v4tov4mapped_address();
 
+#ifdef  WIN32
+		return *this;
+#else
+		return v4tov4mapped_address();
+#endif //  WIN32
 }
 
 socket_address socket_address::getsockname(SOCKET _sock) {

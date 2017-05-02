@@ -78,5 +78,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#if !_WIN64
 typedef SSIZE_T ssize_t;
+#endif
 

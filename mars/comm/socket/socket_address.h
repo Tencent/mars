@@ -80,7 +80,7 @@ class socket_address {
         struct sockaddr_in  in;
         struct sockaddr_in6 in6;
     }                   addr_;
-    char                ip_[64];
+    char                ip_[96];
     char                url_[128];
 };
 

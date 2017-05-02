@@ -68,7 +68,8 @@ private:
 #ifdef __powerpc__
 #include "../../arch/powerpc/include/uapi/asm/unistd.h"
 #endif
-
+extern "C" void _mm_pause();
+extern "C" void YieldProcessor();
 static inline void cpu_relax() {
 
 #if defined(__arc__) || defined(__mips__) || defined(__arm__) || defined(__powerpc__)
@@ -82,10 +83,8 @@ static inline void cpu_relax() {
 
 #elif defined(_WIN32)
 #if defined(_MSC_VER) && _MSC_VER >= 1310 && ( defined(_M_ARM) )
-	extern "C" void YieldProcessor();
 	YieldProcessor();
 #else
-	extern "C" void _mm_pause();
 	_mm_pause();
 #endif
 #endif
