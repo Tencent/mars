@@ -1,0 +1,134 @@
+﻿<Page
+    x:Class="UWPDemo.ui.ChatPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UWPDemo.ui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="MessageComeDataTemplate">
+            <Grid HorizontalAlignment="Left"  Margin="0,5,0,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock Text="{Binding From}" Foreground="LightGray" MaxLines="1" MaxWidth="100"></TextBlock>
+                    <TextBlock Text="{Binding Date}"  Foreground="LightGray" Margin="10,0,0,0"></TextBlock>
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Grid.Column="0" Width="40" Height="40" Source="/Assets/DefaultHead.png" Stretch="UniformToFill" VerticalAlignment="Top" ></Image>
+
+                    <Border Grid.Column="2" MinHeight="40" CornerRadius="3" Background="#ffffff" BorderBrush="#e3e3e3" BorderThickness="1,1,1,1" MaxWidth="300" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Message}" Margin="15,10,15,10" TextWrapping="Wrap" VerticalAlignment="Center"></TextBlock>
+                    </Border>
+
+                    <Grid Grid.Column="1" Height="40" VerticalAlignment="Top">
+                        <Image  Width="7" Height="19" Source="/Assets/Chat_FriendBubble.png"  Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,-1,0"></Image>
+                    </Grid>
+
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+
+        <DataTemplate x:Key="MessageSelfDataTemplate">
+            <Grid HorizontalAlignment="Right"  Margin="0,5,0,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,5">
+                    <TextBlock Text="{Binding Date}" Foreground="LightGray" Margin="0,0,10,0"></TextBlock>
+                    <TextBlock Text="{Binding From}"  Foreground="LightGray" MaxLines="1" MaxWidth="100"></TextBlock>
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" MinHeight="40" CornerRadius="3" Background="#9eea6a" BorderThickness="0,0,0,0" MaxWidth="300" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Message}" Margin="15,10,15,10" TextWrapping="Wrap" VerticalAlignment="Center"></TextBlock>
+                    </Border>
+
+                    <Grid Grid.Column="1" Height="40" VerticalAlignment="Top">
+                        <Image  Width="7" Height="19" Source="/Assets/Chat_MyselfBubble.png"  Stretch="Fill" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="-1,0,10,0"></Image>
+                    </Grid>
+
+                    <Image Grid.Column="2" Width="40" Height="40" Source="/Assets/DefaultHead.png" Stretch="UniformToFill" VerticalAlignment="Top" ></Image>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid Background="#f7f7f7">
+
+        <Grid x:Name="chatPage">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*" x:Name="rowChat"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Height="40">
+                <TextBlock x:Name="titleText" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"></TextBlock>
+            </Grid>
+
+            <Rectangle Grid.Row="1"  Height="1" Fill="#eaeaea" VerticalAlignment="Top"/>
+
+            <Grid Grid.Row="2">
+                <ScrollViewer  x:Name="chatScrollViewer">
+                    <ListView x:Name="chatListView" ContainerContentChanging="chatListView_ContainerContentChanging" ItemsSource="{Binding ChatMsgListBinding}" SelectionMode="None" IsItemClickEnabled="False">
+                    <ListView.ItemTemplateSelector>
+                        <local:MessageDataTemplateSelector messageComeDataTemplate="{StaticResource MessageComeDataTemplate}"  
+                              messageSelfDataTemplate="{StaticResource MessageSelfDataTemplate}" />
+                    </ListView.ItemTemplateSelector>
+
+                    <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <Grid Background="{TemplateBinding Background}">
+                                                <ContentPresenter
+                                                    Content="{TemplateBinding Content}"
+                                                    Margin="{TemplateBinding Padding}" />
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
+                </ScrollViewer>
+            </Grid>
+
+            <Rectangle Grid.Row="3"  Height="1" Fill="#eaeaea" VerticalAlignment="Top"/>
+
+            <TextBox Grid.Row="4" x:Name="inputText" BorderThickness="0,0,0,0" AcceptsReturn="False" KeyDown="inputText_KeyDown"  GotFocus="inputText_GotFocus" LostFocus="inputText_LostFocus" TextWrapping="Wrap" Height="60" ScrollViewer.VerticalScrollBarVisibility="Auto" Background="#f7f7f7"/>
+
+            <Grid Grid.Row="5" Height="35" x:Name="bottom">
+                <Button  x:Name="sendBtn" Click="sendBtn_Click" BorderThickness="1,1,1,1" BorderBrush="#e3e3e3" Background="#ffffff" HorizontalAlignment="Right" VerticalAlignment="Top" Content="Send" Width="70" Height="30" Margin="0,0,10,0"></Button>
+            </Grid>
+            
+        </Grid>
+    </Grid>
+</Page>
