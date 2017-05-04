@@ -37,6 +37,7 @@
 #endif
 
 void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
+/*
     static const char* levelStrings[] = {
         "V",
         "D",  // debug
@@ -45,7 +46,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         "E",  // error
         "F"  // fatal
     };
-
+*/
     assert((unsigned int)_log.Pos() == _log.Length());
 
     static int error_count = 0;
@@ -67,7 +68,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         assert(false);
         return;
     }
-
+/*
     if (NULL != _info) {
         const char* filename = ExtractFileName(_info->filename);
         char strFuncName [128] = {0};
@@ -102,6 +103,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
 
         assert((unsigned int)_log.Pos() == _log.Length());
     }
+*/
 
     if (NULL != _logbody) {
         // in android 64bit, in strnlen memchr,  const unsigned char*  end = p + n;  > 4G!!!!! in stack array
