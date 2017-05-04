@@ -226,13 +226,12 @@ void LongLinkTaskManager::__RunOnTimeout() {
                         first->task.taskid, first->transfer_profile.last_receive_pkg_time / 1000, ((kMobile != getNetInfo()) ? kWifiPackageInterval : kGPRSPackageInterval) / 1000);
                 socket_timeout_code = kEctLongPkgPkgTimeout;
             }
-        }
-
-
-        if (first->running_id && 0 < first->transfer_profile.start_send_time && cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.read_write_timeout) {
-            xerror2(TSF"task read-write timeout, taskid:%_, , nStartSendTime=%_, nReadWriteTimeOut=%_",
-                    first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.read_write_timeout / 1000);
-            socket_timeout_code = kEctLongReadWriteTimeout;
+            
+            if (cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.read_write_timeout) {
+                xerror2(TSF"task read-write timeout, taskid:%_, , nStartSendTime=%_, nReadWriteTimeOut=%_",
+                        first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.read_write_timeout / 1000);
+                socket_timeout_code = kEctLongReadWriteTimeout;
+            }
         }
 
         if (cur_time - first->start_task_time >= first->task_timeout) {
