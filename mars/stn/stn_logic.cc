@@ -179,10 +179,10 @@ bool (*LongLinkIsConnected)()
     return connected;
 };
     
-bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host)
-= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host){
+bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
+= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
     
-    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host);
+    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
 };
 
 //void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
