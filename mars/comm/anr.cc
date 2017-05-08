@@ -128,10 +128,10 @@ static void __anr_checker_thread() {
             sg_cond.wait(lock);
             //is_wait_timeout = (ETIMEDOUT==ret);
         } else {
-            wait_timeout = (sg_check_heap.front().end_time - clock_app_monotonic());
+            wait_timeout = iOS_style? (sg_check_heap.front().timeout - sg_check_heap.front().used_cpu_time) : (sg_check_heap.front().end_time - clock_app_monotonic());
             if (wait_timeout<0) {
-                xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"wait_timeout:%_, end_time:%_, used_cpu_time:%_, now:%_, anr_checker_size:%_", wait_timeout,
-                      sg_check_heap.front().end_time, sg_check_heap.front().used_cpu_time, clock_app_monotonic(), sg_check_heap.size());
+                xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"wait_timeout:%_, end_time:%_, used_cpu_time:%_, timeout:%_ now:%_, iOS_style：%_, anr_checker_size:%_", wait_timeout,
+                      sg_check_heap.front().end_time, sg_check_heap.front().used_cpu_time, sg_check_heap.front().timeout, iOS_style, clock_app_monotonic(), sg_check_heap.size());
                 wait_timeout = 0;
             }
             wait_timeout = std::min(wait_timeout, kEachRoundSleepTime);
