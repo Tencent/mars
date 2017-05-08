@@ -49,15 +49,15 @@ ProxyTest::~ProxyTest() {
 
 }
 
-bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const std::string& _host) {
-    xinfo_function(TSF"type:%_ host:%_ ip:%_:%_ username:%_ test_host:%_", _proxy_info.type, _proxy_info.host, _proxy_info.ip, _proxy_info.port, _proxy_info.username, _host);
+bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const std::string& _host, const std::vector<std::string>& _hardcode_ips) {
+    xinfo_function(TSF"type:%_ host:%_ ip:%_:%_ username:%_ test_host:%_ hardcode_ip:%_", _proxy_info.type, _proxy_info.host, _proxy_info.ip, _proxy_info.port, _proxy_info.username, _host, _hardcode_ips.empty()?"": _hardcode_ips.front());
     
-    if (!_proxy_info.IsValid() || _host.empty()) {
+    if (!_proxy_info.IsValid() ||( _host.empty() && _hardcode_ips.empty())) {
         xerror2(TSF"parameter is invalid");
         return false;
     }
     
-    SOCKET sock = __Connect(_proxy_info, _host);
+    SOCKET sock = __Connect(_proxy_info, _host, _hardcode_ips);
     if (INVALID_SOCKET == sock) {
         return false;
     }
@@ -72,14 +72,8 @@ bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const 
 
 }
 
-SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std::string& _host) {
+SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std::string& _host, const std::vector<std::string>& _hardcode_ips) {
     NetSource::DnsUtil dns_util_;
-    
-    std::vector<std::string> test_ips;
-    if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
-        xwarn2(TSF"dns test_host error, host:%_", _host);
-        return INVALID_SOCKET;
-    }
     
     std::vector<std::string> proxy_ips;
     if (mars::comm::kProxyNone != _proxy_info.type) {
@@ -101,6 +95,15 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
             vecaddr.push_back(socket_address(proxy_ips[i].c_str(), _proxy_info.port).v4tov6_address(isnat64));
         }
     } else {
+		std::vector<std::string> test_ips;
+		if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
+			xwarn2(TSF"dns test_host error, host:%_", _host);
+			if (_hardcode_ips.empty()) {
+				return INVALID_SOCKET;
+			}
+			test_ips = _hardcode_ips;
+		}
+
         for (size_t i = 0; i < test_ips.size(); ++i) {
             if (mars::comm::kProxyNone == _proxy_info.type) {
                 vecaddr.push_back(socket_address(test_ips[i].c_str(), TEST_PORT).v4tov6_address(isnat64));
@@ -147,7 +150,7 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
     std::map<std::string, std::string> headers;
     headers[http::HeaderFields::KStringHost] = _host;
     
-    if (!_proxy_info.username.empty() && !_proxy_info.password.empty()) {
+    if (_proxy_info.IsValid() && mars::comm::kProxyHttp == _proxy_info.type && !_proxy_info.username.empty() && !_proxy_info.password.empty()) {
         std::string account_info = _proxy_info.username + ":" + _proxy_info.password;
         size_t dstlen = modp_b64_encode_len(account_info.length());
         

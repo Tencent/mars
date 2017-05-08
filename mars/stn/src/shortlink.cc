@@ -313,6 +313,23 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	std::map<std::string, std::string> headers;
 	headers[http::HeaderFields::KStringHost] = _conn_profile.host;
+
+	if (_conn_profile.proxy_info.IsValid() && mars::comm::kProxyHttp == _conn_profile.proxy_info.type
+		&& !_conn_profile.proxy_info.username.empty() && !_conn_profile.proxy_info.password.empty()) {
+		std::string account_info = _conn_profile.proxy_info.username + ":" + _conn_profile.proxy_info.password;
+		size_t dstlen = modp_b64_encode_len(account_info.length());
+
+		char* dstbuf = (char*)malloc(dstlen);
+		memset(dstbuf, 0, dstlen);
+
+		int retsize = Comm::EncodeBase64((unsigned char*)account_info.c_str(), (unsigned char*)dstbuf, (int)account_info.length());
+		dstbuf[retsize] = '\0';
+
+		char auth_info[1024] = { 0 };
+		snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
+		headers[http::HeaderFields::kStringProxyAuthorization] = auth_info;
+	}
+
 	AutoBuffer out_buff;
 
 	shortlink_pack(url, headers, send_body_, send_extend_, out_buff, tracker_.get());
