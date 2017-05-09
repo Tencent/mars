@@ -193,7 +193,7 @@ protected:
                 checkfintime_ = gettickcount();
                 _recv_buff.Reset();
             } else {
-                xwarn2(TSF"proxy status code:%_, proxy info:%_:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port());
+				xwarn2(TSF"proxy error, proxy status code:%_, proxy info:%_:%_ resp:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port(), xdump(_recv_buff.Ptr(), _recv_buff.Length()));
                 check_status_ = ECheckFail;
             }
             
@@ -436,7 +436,7 @@ static bool __isconnecting(const ConnectCheckFSM* _ref) { return NULL != _ref &&
 }
 
 SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketBreaker& _breaker, MComplexConnect* _observer,
-                                            mars::comm::ProxyType _proxy_type, const std::vector<socket_address>* _proxy_addr,
+                                            mars::comm::ProxyType _proxy_type, const socket_address* _proxy_addr,
                                             const std::string& _proxy_username, const std::string& _proxy_pwd) {
     trycount_ = 0;
     index_ = -1;
@@ -447,11 +447,6 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
     if (_vecaddr.empty()) {
         xwarn2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
-        return INVALID_SOCKET;
-    }
-    
-    if ((mars::comm::kProxyHttpTunel == _proxy_type || mars::comm::kProxySocks5 == _proxy_type) && _proxy_addr->size() != _vecaddr.size()) {
-        xerror2(TSF"_proxy_addr->size():%_ != _vecaddr.size():%_", _proxy_addr->size(), _vecaddr.size());
         return INVALID_SOCKET;
     }
 
@@ -465,9 +460,9 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
         ConnectCheckFSM* ic = NULL;
         if (mars::comm::kProxyHttpTunel == _proxy_type) {
-            ic = new ConnectHttpTunelCheckFSM(_vecaddr[i], (*_proxy_addr)[i], _proxy_username, _proxy_pwd, timeout_, i, _observer);
+            ic = new ConnectHttpTunelCheckFSM(_vecaddr[i], *_proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
         } else if (mars::comm::kProxySocks5 == _proxy_type) {
-            ic = new ConnectSocks5CheckFSM(_vecaddr[i], (*_proxy_addr)[i], _proxy_username, _proxy_pwd, timeout_, i, _observer);
+            ic = new ConnectSocks5CheckFSM(_vecaddr[i], *_proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
         } else {
             ic = new ConnectCheckFSM(_vecaddr[i], timeout_, i, _observer);
         }
