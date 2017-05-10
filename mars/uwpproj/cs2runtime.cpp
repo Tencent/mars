@@ -36,7 +36,7 @@ bool mars::MarsRuntimeComponent::Init(ICallback_Comm ^ callBackForRuntime)
 }
 
 
-void mars::MarsRuntimeComponent::onCreate()
+void mars::MarsRuntimeComponent::OnCreate()
 {
 	mars::baseevent::OnCreate();
 }
@@ -222,24 +222,24 @@ bool mars::StnComponent::LongLinkIsConnected()
 	return stn::LongLinkIsConnected();
 }
 
-uint32 mars::StnComponent::getNoopTaskID()
+uint32 mars::StnComponent::GetNoopTaskID()
 {
 	return stn::getNoopTaskID();
 }
 
-void mars::LogComponent::appender_open_(TAppenderModeRuntime _mode, Platform::String ^ _dir, Platform::String ^ _nameprefix)
+void mars::LogComponent::AppenderOpen(TAppenderModeRuntime _mode, Platform::String ^ _dir, Platform::String ^ _nameprefix)
 {
 	string stdStrDir; 
 	String2stdstring(stdStrDir, _dir);
 
 
 	string stdStrNameprefix;
-	String2stdstring(stdStrNameprefix, _dir);
+	String2stdstring(stdStrNameprefix, _nameprefix);
 
 	appender_open((TAppenderMode)_mode, stdStrDir.c_str(), stdStrNameprefix.c_str());
 }
 
-void mars::LogComponent::appender_open_with_cache_(TAppenderModeRuntime _mode, Platform::String ^ _cachedir, Platform::String ^ _logdir, Platform::String ^ _nameprefix)
+void mars::LogComponent::AppenderOpenWithCache(TAppenderModeRuntime _mode, Platform::String ^ _cachedir, Platform::String ^ _logdir, Platform::String ^ _nameprefix)
 {
 
 	string stdStrCache;
@@ -254,27 +254,27 @@ void mars::LogComponent::appender_open_with_cache_(TAppenderModeRuntime _mode, P
 	appender_open_with_cache((TAppenderMode)_mode, stdStrCache, stdStrDir, stdStrPrefix.c_str());
 }
 
-void mars::LogComponent::appender_flush_()
+void mars::LogComponent::AppenderFlush()
 {
 	appender_flush();
 }
 
-void mars::LogComponent::appender_flush_sync_()
+void mars::LogComponent::AppenderFlushSync()
 {
 	appender_flush_sync();
 }
 
-void mars::LogComponent::appender_close_()
+void mars::LogComponent::AppenderClose()
 {
 	appender_close();
 }
 
-void mars::LogComponent::appender_setmode_(TAppenderModeRuntime _mode)
+void mars::LogComponent::AppenderSetMode(TAppenderModeRuntime _mode)
 {
 	appender_setmode((TAppenderMode)_mode);
 }
 
-bool mars::LogComponent::appender_getfilepath_from_timespan_(int _timespan, Platform::String ^ _prefix, const Platform::Array<Platform::String^>^ _filepath_vec)
+bool mars::LogComponent::AppenderGetFilePathFromTimeSpan(int _timespan, Platform::String ^ _prefix, const Platform::Array<Platform::String^>^ _filepath_vec)
 {
 	string stdStrPrefix;
 	String2stdstring(stdStrPrefix, _prefix);
@@ -287,7 +287,7 @@ bool mars::LogComponent::appender_getfilepath_from_timespan_(int _timespan, Plat
 }
 
 
-LogGetPathRet^ mars::LogComponent::appender_get_current_log_path_()
+LogGetPathRet^ mars::LogComponent::AppenderGetCurrentLogPath()
 {
 	LogGetPathRet^ retInfo = ref new LogGetPathRet();
 
@@ -305,7 +305,7 @@ LogGetPathRet^ mars::LogComponent::appender_get_current_log_path_()
 	return retInfo;
 }
 
-LogGetPathRet^ mars::LogComponent::appender_get_current_log_cache_path_()
+LogGetPathRet^ mars::LogComponent::AppenderGetCurrentLogCachePath()
 {
 	LogGetPathRet^ retInfo = ref new LogGetPathRet();
 
@@ -323,14 +323,52 @@ LogGetPathRet^ mars::LogComponent::appender_get_current_log_cache_path_()
 	return retInfo;
 }
 
-void mars::LogComponent::appender_set_console_log_(bool _is_open)
+void mars::LogComponent::AppenderSetConsoleLog(bool _is_open)
 {
 	return appender_set_console_log(_is_open);
 }
 
-void mars::LogComponent::setLogLevel(int level)
+void mars::LogComponent::SetLogLevel(TLogLevelRuntime _level)
 {
-	xlogger_SetLevel((TLogLevel)level);
+	xlogger_SetLevel((TLogLevel)_level);
+}
+
+TLogLevelRuntime mars::LogComponent::GetLogLevel()
+{
+	return (TLogLevelRuntime)xlogger_Level();
+}
+
+void mars::LogComponent::LogWrite(TLogLevelRuntime _level, Platform::String^ _tag, Platform::String^ _filename, Platform::String^ _funcname, int _line, intmax_t _pid, intmax_t _tid, intmax_t _maintid, Platform::String^ _log)
+{
+	if (!xlogger_IsEnabledFor((TLogLevel)_level)) {
+		return;
+	}
+
+	XLoggerInfo xlog_info;
+	gettimeofday(&xlog_info.timeval, NULL);
+	xlog_info.level = (TLogLevel)_level;
+	xlog_info.line = _line;
+	xlog_info.pid = _pid;
+	xlog_info.tid = _tid;
+	xlog_info.maintid = _maintid;
+
+	string stdStrTag;
+	String2stdstring(stdStrTag, _tag);
+
+	string stdStrFileName;
+	String2stdstring(stdStrFileName, _filename);
+
+	string stdFuncName;
+	String2stdstring(stdFuncName, _funcname);
+
+	string stdStrLog;
+	String2stdstring(stdStrLog, _log);
+
+	xlog_info.tag = stdStrTag.c_str();
+	xlog_info.filename = stdStrFileName.c_str();
+	xlog_info.func_name = stdFuncName.c_str();
+
+	xlogger_Write(&xlog_info, stdStrLog.size() == 0 ? "NULL == log" : stdStrLog.c_str());
 }
 
 

@@ -27,8 +27,6 @@
 
 namespace mars {
 	
-
-
 		public ref struct AccountInfoRet sealed
 		{
 			property uint64 uin;
@@ -65,7 +63,6 @@ namespace mars {
 
 		};
 
-
 		public enum class LonglinkCheckType { ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2 };
 		public ref struct GetLonglinkIdentifyRet sealed
 		{
@@ -74,7 +71,6 @@ namespace mars {
 			property int32 cmdid;
 			property LonglinkCheckType nRet;
 		};
-
 
 		public ref struct ProxyInfo sealed
 		{
@@ -89,45 +85,45 @@ namespace mars {
 			property Platform::String^ bssid;
 		};
 
-		public ref struct RuntimeNewNetInterfaceInfo sealed
+		public ref struct CurRadioAccessNetworkInfo sealed
 		{
-			property int netType;
-
-			property int ispCode;
-			property Platform::String^ ispName;
-
-			property int interfaceType;
-			property int interfaceSubType;
-			property Platform::String^ interfaceName;
-
+			property Platform::String^ radio_access_network;
 		};
 
+		public ref struct CurSIMInfo sealed
+		{
+			property Platform::String^ isp_code;
+			property Platform::String^ isp_name;
+		};
 
+		public ref struct CurAPNInfo sealed
+		{
+			property int nettype;
+			property int sub_nettype;
+			property Platform::String^ extra_info;
+		};
 
 		public interface class ICallback_Comm
 		{
 			////////////////////////stn callback
 			bool MakesureAuthed();
-
-			//流量统计
+			//流量统计 
 			void TrafficData(int _send, int _recv);
-
-			//底层询问上层该host对应的ip列表
+			//底层询问上层该host对应的ip列表 
 			Platform::Array<Platform::String^>^ OnNewDns(Platform::String^ host);
-			//网络层收到push消息回调
+			//网络层收到push消息回调 
 			void OnPush(int cmdid, const Platform::Array<uint8>^ msgpayload);
-			//底层获取task要发送的数据
+			//底层获取task要发送的数据 
 			Req2BufRet^ Req2Buf(int taskid, int user_context, int error_code, int channel_select);
-			//底层回包返回给上层解析
+			//底层回包返回给上层解析 
 			Buf2RespRet^ Buf2Resp(int taskid, int user_context, const Platform::Array<uint8>^ inbuffer, int error_code, int channel_select);
-			//任务执行结束
+			//任务执行结束 
 			int  OnTaskEnd(int taskid, int user_context, int error_type, int error_code);
-
-			//上报网络连接状态
+			//上报网络连接状态 
 			void ReportConnectStatus(int status, int longlink_status);
-			//长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2
+			//长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2 
 			GetLonglinkIdentifyRet^  GetLonglinkIdentifyCheckBuffer();
-			//长连信令校验回包
+			//长连信令校验回包 
 			bool OnLonglinkIdentifyResponse(const Platform::Array<uint8>^ response_buffer, const Platform::Array<uint8>^ identify_buffer_hash);
 
 			void RequestSync();
@@ -138,24 +134,26 @@ namespace mars {
 
 
 			////////////////////////platfrom comm callback
-			ProxyInfo^ getProxyInfo();
-			int getNetInfo();
-			CurWifiInfo^ getCurWifiInfo();
+			ProxyInfo^ GetProxyInfo();
 
-			bool isNetworkConnected();
+			int GetNetInfo();
 
+			CurRadioAccessNetworkInfo^ GetCurRadioAccessNetworkInfo();
 
+			CurWifiInfo^ GetCurWifiInfo();
 
-			int getStatisticsNetType();
+			CurSIMInfo^ GetCurSIMInfo();
 
-			unsigned int getSignal(bool bIsWifi/*isWifi*/);
-			RuntimeNewNetInterfaceInfo^ getNewNetInferfaceInfo();
+			CurAPNInfo^ GetAPNInfo();
+
+			unsigned int GetSignal(bool bIsWifi);
+
+			bool IsNetworkConnected();	
 
 			void ConsoleLog(int logLevel, Platform::String^ tag, Platform::String^ filename, Platform::String^ funcname, int line, Platform::String^ log);
 			//////////////////////
 
 			//////////////////////////app callback
-
 			Platform::String^ GetAppFilePath();
 
 			AccountInfoRet^ GetAccountInfo();
@@ -164,14 +162,6 @@ namespace mars {
 
 			DeviceInfoRet^ GetDeviceInfo();
 			//////////////////////////
-
-
-			//bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
-			//bool getCurSIMInfo(SIMInfo& _sim_info);
-			//bool getAPNInfo(APNInfo& info);
-			/*unsigned int getSignal(bool isWifi);
-			bool isNetworkConnected();
-			bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);*/
 
 		};
 
@@ -183,31 +173,12 @@ namespace mars {
 			void SetCallback(ICallback_Comm^ _callback);
 			ICallback_Comm^ GetCallBack();
 
-			//bool startAlarm(int id, int after);
-			//bool stopAlarm(int id);
-
-			//int getNetInfo();
-			//int getStatisticsNetType();
-
-			//ProxyInfo^ getProxyInfo();
-			//bool isNetworkConnected();
-			//unsigned int getSignal(bool bIsWifi/*isWifi*/);
-			//CurWifiInfo^ getCurWifiInfo();
-			//RuntimeNewNetInterfaceInfo^ getNewNetInferfaceInfo();
-
-			//void ConsoleLog(int logLevel, Platform::String^ tag, Platform::String^ filename, Platform::String^ funcname, int line, Platform::String^ log);
-
 		private:
 			Runtime2Cs_Comm(void);
-
 
 		private:
 			static Runtime2Cs_Comm^ instance;
 			ICallback_Comm^ m_callback;
 		};
-
-
-
-	
 }
 

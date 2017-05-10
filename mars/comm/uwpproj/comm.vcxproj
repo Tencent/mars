@@ -304,6 +304,7 @@
     <ClInclude Include="..\time_utils.h" />
     <ClInclude Include="..\tinyxml2.h" />
     <ClInclude Include="..\UWP\boost\filesystem.hpp" />
+    <ClInclude Include="..\UWP\boost\path.hpp" />
     <ClInclude Include="..\UWP\projdefUWP.h" />
     <ClInclude Include="..\UWP\zlib\crc32.h" />
     <ClInclude Include="..\UWP\zlib\deflate.h" />
@@ -316,6 +317,7 @@
     <ClInclude Include="..\UWP\zlib\zconf.h" />
     <ClInclude Include="..\UWP\zlib\zlib.h" />
     <ClInclude Include="..\UWP\zlib\zutil.h" />
+    <ClInclude Include="..\xlogger\loginfo_extract.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\app\app_logic.cc" />
@@ -506,6 +508,13 @@
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
     </ClCompile>
     <ClCompile Include="..\UWP\zlib\zutil.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\xlogger\loginfo_extract.c">
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
       <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>

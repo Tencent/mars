@@ -19,7 +19,7 @@ bool getProxyInfo(int& _port, std::string& _str_proxy, const std::string& _host)
 		return false;
 	}
 
-	ProxyInfo^ proxy = callback->getProxyInfo();
+	ProxyInfo^ proxy = callback->GetProxyInfo();
 	if (nullptr == proxy)
 	{
 		return false;
@@ -38,27 +38,47 @@ int getNetInfo()
 
 	if (nullptr == callback) return -1;
 
-	return callback->getNetInfo();
+	return callback->GetNetInfo();
 }
 
-
-
-bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info)//???
+bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info)
 {
-	return false;
+	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+
+	if (nullptr == callback) return false;
+
+	CurRadioAccessNetworkInfo^ info = callback->GetCurRadioAccessNetworkInfo();
+	if (info == nullptr)
+		return false;
+	_info.radio_access_network = String2stdstring(info->radio_access_network);
+	return true;
 }
 
 bool getCurWifiInfo(WifiInfo& wifiInfo)
 {
-	wifiInfo.ssid = "unkown";
+	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+
+	if (nullptr == callback) return false;
+
+	CurWifiInfo^ wifi = callback->GetCurWifiInfo();
+	if (wifi == nullptr)
+		return false;
+	wifiInfo.ssid = String2stdstring(wifi->ssid);
+	wifiInfo.bssid = String2stdstring(wifi->bssid);
 	return true;
 }
 
-
 bool getCurSIMInfo(SIMInfo& simInfo)
 {
-	simInfo.isp_code = "0";
-	simInfo.isp_name = "unkown";
+	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+
+	if (nullptr == callback) return false;
+
+	CurSIMInfo^ sim = callback->GetCurSIMInfo();
+	if (sim == nullptr)
+		return false;
+	simInfo.isp_code = String2stdstring(sim->isp_code);
+	simInfo.isp_name = String2stdstring(sim->isp_name);
 	return true;
 }
 
@@ -69,16 +89,15 @@ bool getAPNInfo(APNInfo& apninfo)
 
 	if (nullptr == callback) return false;
 
-	RuntimeNewNetInterfaceInfo^ newinfo = callback->getNewNetInferfaceInfo();
+	CurAPNInfo^ newinfo = callback->GetAPNInfo();
 	if (newinfo == nullptr)
 		return false;
-	apninfo.nettype = newinfo->interfaceType;
-	apninfo.sub_nettype = newinfo->interfaceSubType;
-	apninfo.extra_info = String2stdstring(newinfo->interfaceName);
+	apninfo.nettype = newinfo->nettype;
+	apninfo.sub_nettype = newinfo->sub_nettype;
+	apninfo.extra_info = String2stdstring(newinfo->extra_info);
 
 	return true;
 }
-
 
 unsigned int getSignal(bool bIsWifi/*isWifi*/)
 {
@@ -86,7 +105,7 @@ unsigned int getSignal(bool bIsWifi/*isWifi*/)
 
 	if (nullptr == callback) return 0;
 
-	return callback->getSignal(bIsWifi);
+	return callback->GetSignal(bIsWifi);
 }
 
 bool isNetworkConnected()
@@ -95,23 +114,16 @@ bool isNetworkConnected()
 
 	if (nullptr == callback) return false;
 
-
-	return callback->isNetworkConnected();
+	return callback->IsNetworkConnected();
 
 }
-
-
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip)//???
 {
 	return false;
 }
 
-
-void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log)//???
-{
-}
-void ConsoleLog(const XLoggerInfo* _info, const char* _log)//???
+void ConsoleLog(const XLoggerInfo* _info, const char* _log) 
 {
 	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 	if(_info == NULL)
@@ -126,9 +138,9 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)//???
 	{
 		if (_log != NULL)
 		{
-			Platform::String^ tag = stdstring2String(_info->tag);
-			Platform::String^ filename = stdstring2String(_info->filename);
-			Platform::String^ funcname = stdstring2String(_info->func_name);
+			Platform::String^ tag = stdstring2String(_info->tag == NULL ? "" : _info->tag);
+			Platform::String^ filename = stdstring2String(_info->filename == NULL ? "" : _info->filename);
+			Platform::String^ funcname = stdstring2String(_info->func_name == NULL ? "" : _info->func_name);
 			Platform::String^ log = stdstring2String(_log);
 			callback->ConsoleLog(_info->level, tag, filename, funcname, _info->line, log);
 		}
