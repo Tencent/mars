@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace UWPDemo.marsComponent
 {
@@ -12,7 +13,7 @@ namespace UWPDemo.marsComponent
         static public void Init()
         {
             MarsRuntimeComponent.Init(new MarsCallback());
-            MarsRuntimeComponent.onCreate();
+            MarsRuntimeComponent.OnCreate();
             MarsRuntimeComponent.OnForeground(true);
 
             StnComponent.SetClientVersion(200);
@@ -20,10 +21,10 @@ namespace UWPDemo.marsComponent
             StnComponent.SetShortlinkSvrAddr(8080);
             StnComponent.MakesureLonglinkConnected();
 
-            LogComponent.appender_open_(TAppenderModeRuntime.kAppednerSync, "/marslog.txt", "sample");
-            LogComponent.appender_set_console_log_(true);
-            LogComponent.setLogLevel(0);
-
+            LogComponent.AppenderOpen(TAppenderModeRuntime.kAppednerSync, ApplicationData.Current.LocalFolder.Path + "\\log", "sample");
+            LogComponent.AppenderSetConsoleLog(true);
+            LogComponent.SetLogLevel(TLogLevelRuntime.kLevelDebug);
+            //LogComponent.LogWrite(TLogLevelRuntime.kLevelDebug, "uwp sample", "", "", 0, 0, 0, 0, "test log");
         }
     }
 }

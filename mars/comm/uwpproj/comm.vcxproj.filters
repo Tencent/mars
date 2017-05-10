@@ -82,6 +82,7 @@
     <ClCompile Include="..\UWP\zlib\zutil.c" />
     <ClCompile Include="..\UWP\SocketSelect\socketselect2.cc" />
     <ClCompile Include="..\socket\unix_socket.cc" />
+    <ClCompile Include="..\xlogger\loginfo_extract.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\boost\libs\date_time\src\gregorian\greg_names.hpp" />
@@ -150,6 +151,8 @@
     <ClInclude Include="..\UWP\zlib\zconf.h" />
     <ClInclude Include="..\UWP\zlib\zlib.h" />
     <ClInclude Include="..\UWP\zlib\zutil.h" />
+    <ClInclude Include="..\xlogger\loginfo_extract.h" />
+    <ClInclude Include="..\UWP\boost\path.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\boost\libs\context\src\asm\jump_arm_aapcs_pe_armasm.asm" />

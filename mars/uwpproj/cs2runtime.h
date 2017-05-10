@@ -29,13 +29,12 @@
 namespace mars
 {
 
-	
 	public ref class MarsRuntimeComponent sealed
 	{
 
 	public:
 		static bool Init(ICallback_Comm^ callBackForRuntime);
-		static void onCreate();
+		static void OnCreate();
 		static void OnDestroy();
 		static void OnSingalCrash(int _sig);
 		static void OnExceptionCrash();
@@ -43,35 +42,8 @@ namespace mars
 		static void OnNetworkChange();
 	};
 
-
-
 #pragma region stn 
 
-	////channel type
-	//static const int kChannelShort = 0x1;
-	//static const int kChannelLong = 0x2;
-	//static const int kChannelBoth = 0x3;
-
-	//static const int kChannelNormalStrategy = 0;
-	//static const int kChannelFastStrategy = 1;
-
-	//static const int kTaskPriorityHighest = 0;
-	//static const int kTaskPriority0 = 0;
-	//static const int kTaskPriority1 = 1;
-	//static const int kTaskPriority2 = 2;
-	//static const int kTaskPriority3 = 3;
-	//static const int kTaskPriorityNormal = 3;
-	//static const int kTaskPriority4 = 4;
-	//static const int kTaskPriority5 = 5;
-	//static const int kTaskPriorityLowest = 5;
-
-	//static const uint32_t kInvalidTaskID = 0;
-	//static const uint32_t kNoopTaskID = 0xFFFFFFFF;
-	//static const uint32_t kLongLinkIdentifyCheckerTaskID = 0xFFFFFFFE;
-	//static const uint32_t kSignallingKeeperTaskID = 0xFFFFFFFD;
-
-
-	//Task();
 	public ref struct  TaskRuntime sealed {
 
 		//require
@@ -105,13 +77,13 @@ namespace mars
 	public:
 
 		static void SetClientVersion(uint32 ver);
-		static void SetShortlinkSvrAddr(uint16 port);
-		static void SetLonglinkSvrAddr(Platform::String^ host, const Platform::Array<uint16>^ ports);
 
+		static void SetShortlinkSvrAddr(uint16 port);
+
+		static void SetLonglinkSvrAddr(Platform::String^ host, const Platform::Array<uint16>^ ports);
 
 		// 'host' will be ignored when 'debugip' is not empty.
 		static void SetLonglinkSvrAddr(Platform::String^ host, const Platform::Array<uint16>^ ports, Platform::String^ debugip);
-
 
 		// 'task.host' will be ignored when 'debugip' is not empty.
 		static void SetShortlinkSvrAddr(uint16 port, Platform::String^ debugip);
@@ -123,8 +95,6 @@ namespace mars
 		// if debugip is not empty, iplist will be ignored.
 		// iplist will be used when newdns/dns ip is not available.
 		static void SetBackupIPs(Platform::String^ host, const Platform::Array<Platform::String^>^ iplist);
-
-
 
 		static void StartTask(TaskRuntime^ task);
 
@@ -152,7 +122,6 @@ namespace mars
 		// keep signnaling once 'period' and last 'keeptime'
 		static void KeepSignalling();
 
-
 		static void StopSignalling();
 
 		// connect quickly if longlink is not connected.
@@ -162,7 +131,7 @@ namespace mars
 
 		// noop is used to keep longlink conected
 		// get noop taskid
-		static uint32 getNoopTaskID();
+		static uint32 GetNoopTaskID();
 	};
 #pragma endregion
 
@@ -174,21 +143,34 @@ namespace mars
 	};
 
 	public enum class TAppenderModeRuntime { kAppednerAsync = 0, kAppednerSync = 1 };
+	
+	public enum class TLogLevelRuntime {
+		kLevelAll = 0,
+		kLevelVerbose = 0,
+		kLevelDebug,    // Detailed information on the flow through the system.
+		kLevelInfo,     // Interesting runtime events (startup/shutdown), should be conservative and keep to a minimum.
+		kLevelWarn,     // Other runtime situations that are undesirable or unexpected, but not necessarily "wrong".
+		kLevelError,    // Other runtime errors or unexpected conditions.
+		kLevelFatal,    // Severe errors that cause premature termination.
+		kLevelNone,     // Special level used to disable all log messages.
+	};
+
 	public ref class LogComponent sealed
 	{
 	public:
-		static void appender_open_(TAppenderModeRuntime _mode, Platform::String^ _dir, Platform::String^ _nameprefix);
-		static void appender_open_with_cache_(TAppenderModeRuntime _mode, Platform::String^ _cachedir, Platform::String^ _logdir, Platform::String^ _nameprefix);
-		static void appender_flush_();
-		static void appender_flush_sync_();
-		static void appender_close_();
-		static void appender_setmode_(TAppenderModeRuntime _mode);
-		static bool appender_getfilepath_from_timespan_(int _timespan, Platform::String^ _prefix, const Platform::Array<Platform::String^>^ _filepath_vec);
-		static LogGetPathRet^ appender_get_current_log_path_();
-		static LogGetPathRet^ appender_get_current_log_cache_path_();
-		static void appender_set_console_log_(bool _is_open);
-		static void setLogLevel(int level);
-
+		static void AppenderOpen(TAppenderModeRuntime _mode, Platform::String^ _dir, Platform::String^ _nameprefix);
+		static void AppenderOpenWithCache(TAppenderModeRuntime _mode, Platform::String^ _cachedir, Platform::String^ _logdir, Platform::String^ _nameprefix);
+		static void AppenderFlush();
+		static void AppenderFlushSync();
+		static void AppenderClose();
+		static void AppenderSetMode(TAppenderModeRuntime _mode);
+		static bool AppenderGetFilePathFromTimeSpan(int _timespan, Platform::String^ _prefix, const Platform::Array<Platform::String^>^ _filepath_vec);
+		static LogGetPathRet^ AppenderGetCurrentLogPath();
+		static LogGetPathRet^ AppenderGetCurrentLogCachePath();
+		static void AppenderSetConsoleLog(bool _is_open);
+		static void SetLogLevel(TLogLevelRuntime _level);
+		static TLogLevelRuntime GetLogLevel();
+		static void LogWrite(TLogLevelRuntime _level, Platform::String^ _tag, Platform::String^ _filename, Platform::String^ _funcname, int _line, intmax_t _pid, intmax_t _tid, intmax_t _maintid, Platform::String^ _log);
 	};
 #pragma endregion
 
@@ -199,9 +181,6 @@ namespace mars
 		static void SetHttpNetcheckCGI(Platform::String^ cgi);
 	};
 #pragma endregion
-
-
-
 
 }
 

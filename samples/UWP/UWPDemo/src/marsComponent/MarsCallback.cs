@@ -12,18 +12,6 @@ using Windows.Storage;
 namespace UWPDemo.marsComponent
 {
 
-    public enum LogLevel
-    {
-        kLevelAll = 0,
-        kLevelVerbose = 0,
-        kLevelDebug,    // Detailed information on the flow through the system.
-        kLevelInfo,     // Interesting runtime events (startup/shutdown), should be conservative and keep to a minimum.
-        kLevelWarn,     // Other runtime situations that are undesirable or unexpected, but not necessarily "wrong".
-        kLevelError,    // Other runtime errors or unexpected conditions.
-        kLevelFatal,    // Severe errors that cause premature termination.
-        kLevelNone,     // Special level used to disable all log messages.
-    }
-
     public class MarsCallback : ICallback_Comm
     {
 
@@ -35,7 +23,7 @@ namespace UWPDemo.marsComponent
         static readonly int NETTYPE_NON = -1;
         static readonly int NETTYPE_NOT_WIFI = 0;
         static readonly int NETTYPE_WIFI = 1;
-        //static readonly int NETTYPE_WAP = 2;
+        static readonly int NETTYPE_WAP = 2;
         static readonly int NETTYPE_2G = 3;
         static readonly int NETTYPE_3G = 4;
         static readonly int NETTYPE_4G = 5;
@@ -100,7 +88,6 @@ namespace UWPDemo.marsComponent
 
         public string GetAppFilePath()
         {
-            
             return ApplicationData.Current.LocalFolder.Path;
         }
 
@@ -118,14 +105,6 @@ namespace UWPDemo.marsComponent
             return output;
         }
 
-        public CurWifiInfo getCurWifiInfo()
-        {
-            CurWifiInfo info = new CurWifiInfo();
-            info.bssid = "";
-            info.ssid = "";
-            return info;
-        }
-
         public DeviceInfoRet GetDeviceInfo()
         {
             return new DeviceInfoRet();
@@ -139,18 +118,7 @@ namespace UWPDemo.marsComponent
             return ret;
         }
 
-        public int getNetInfo()
-        {
-            return EWifi;
-        }
-
-        public RuntimeNewNetInterfaceInfo getNewNetInferfaceInfo()
-        {
-            RuntimeNewNetInterfaceInfo info = new RuntimeNewNetInterfaceInfo();
-            return info;
-        }
-
-        public ProxyInfo getProxyInfo()
+        public ProxyInfo GetProxyInfo()
         {
             ProxyInfo proxy = new ProxyInfo();
             proxy._host = "";
@@ -159,22 +127,54 @@ namespace UWPDemo.marsComponent
             return proxy;
         }
 
-        public uint getSignal(bool bIsWifi)
+        public int GetNetInfo()
+        {
+            return EWifi;
+        }
+
+        public CurRadioAccessNetworkInfo GetCurRadioAccessNetworkInfo()
+        {
+            CurRadioAccessNetworkInfo info = new CurRadioAccessNetworkInfo();
+            info.radio_access_network = "LTE";
+            return info;
+        }
+
+        public CurWifiInfo GetCurWifiInfo()
+        {
+            CurWifiInfo info = new CurWifiInfo();
+            info.bssid = "no_ssid_wifi";
+            info.ssid = "no_ssid_wifi";
+            return info;
+        }
+
+        public CurSIMInfo GetCurSIMInfo()
+        {
+            CurSIMInfo info = new CurSIMInfo();
+            info.isp_code = "0";
+            info.isp_name = "unknown";
+            return info;
+        }
+
+        public CurAPNInfo GetAPNInfo()
+        {
+            CurAPNInfo info = new CurAPNInfo();
+            info.nettype = 0;
+            info.sub_nettype = 0;
+            info.extra_info = "";
+            return info;
+        }
+
+        public uint GetSignal(bool bIsWifi)
         {
             return 1;
         }
 
-        public int getStatisticsNetType()
-        {
-            return 0;
-        }
-
-        public bool IsLogoned()
+        public bool IsNetworkConnected()
         {
             return true;
         }
 
-        public bool isNetworkConnected()
+        public bool IsLogoned()
         {
             return true;
         }

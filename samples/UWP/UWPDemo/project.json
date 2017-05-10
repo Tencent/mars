@@ -2,7 +2,7 @@
   "dependencies": {
     "Google.ProtocolBuffers": "2.4.1.555",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
-    "Tencent.marsUWP": "1.1.1"
+    "Tencent.marsUWP": "1.1.2"
   },
   "frameworks": {
     "uap10.0": {}

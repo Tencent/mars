@@ -19,7 +19,7 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define stricmp _stricmp
-#define XLOGGER_TAG "uwplog"
+#define XLOGGER_TAG "mars"
 #define PRIu64       "llu" //???
 
 typedef long ssize_t;

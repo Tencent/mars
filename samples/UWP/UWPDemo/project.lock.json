@@ -1889,7 +1889,7 @@
           }
         }
       },
-      "Tencent.marsUWP/1.1.1": {
+      "Tencent.marsUWP/1.1.2": {
         "type": "package",
         "runtimeTargets": {
           "runtimes/win10-arm/native/mars.dll": {
@@ -3672,7 +3672,7 @@
           "lib/netcore50/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "Tencent.marsUWP/1.1.1": {
+      "Tencent.marsUWP/1.1.2": {
         "type": "package",
         "native": {
           "runtimes/win10-arm/native/mars.dll": {},
@@ -5390,7 +5390,7 @@
           "runtimes/win8-aot/lib/netcore50/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "Tencent.marsUWP/1.1.1": {
+      "Tencent.marsUWP/1.1.2": {
         "type": "package",
         "native": {
           "runtimes/win10-arm/native/mars.dll": {},
@@ -7160,7 +7160,7 @@
           "lib/netcore50/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "Tencent.marsUWP/1.1.1": {
+      "Tencent.marsUWP/1.1.2": {
         "type": "package",
         "native": {
           "runtimes/win10-x64/native/mars.dll": {},
@@ -8878,7 +8878,7 @@
           "runtimes/win8-aot/lib/netcore50/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "Tencent.marsUWP/1.1.1": {
+      "Tencent.marsUWP/1.1.2": {
         "type": "package",
         "native": {
           "runtimes/win10-x64/native/mars.dll": {},
@@ -10648,7 +10648,7 @@
           "lib/netcore50/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "Tencent.marsUWP/1.1.1": {
+      "Tencent.marsUWP/1.1.2": {
         "type": "package",
         "native": {
           "runtimes/win10-x86/native/mars.dll": {},
@@ -12366,7 +12366,7 @@
           "runtimes/win8-aot/lib/netcore50/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "Tencent.marsUWP/1.1.1": {
+      "Tencent.marsUWP/1.1.2": {
         "type": "package",
         "native": {
           "runtimes/win10-x86/native/mars.dll": {},
@@ -15701,11 +15701,11 @@
         "runtimes/win8-aot/lib/netcore50/System.Xml.XmlSerializer.dll"
       ]
     },
-    "Tencent.marsUWP/1.1.1": {
-      "sha512": "BT9/bIL8CHzjgRx3oxHvQcC3fKsokf9knVkjUM18YW8m5TN0vFSQRvw1eXBw4LyAcqCsJ6BA1AgJMqp7jXHs7g==",
+    "Tencent.marsUWP/1.1.2": {
+      "sha512": "fbi+w6GFGWB3XaURlVLr0CHgNHE/fP3SUevw17QqhGYQ86vFF/VKUam3jKZqn13q2V3hvJqCJAhjJC0jYN2gFQ==",
       "type": "package",
       "files": [
-        "Tencent.marsUWP.1.1.1.nupkg.sha512",
+        "Tencent.marsUWP.1.1.2.nupkg.sha512",
         "Tencent.marsUWP.nuspec",
         "build/uap10.0/Tencent.marsUWP.targets",
         "build/uap10.0/arm/mars.winmd",
@@ -15724,7 +15724,7 @@
     "": [
       "Google.ProtocolBuffers >= 2.4.1.555",
       "Microsoft.NETCore.UniversalWindowsPlatform >= 5.1.0",
-      "Tencent.marsUWP >= 1.1.1"
+      "Tencent.marsUWP >= 1.1.2"
     ],
     "UAP,Version=v10.0": []
   }
