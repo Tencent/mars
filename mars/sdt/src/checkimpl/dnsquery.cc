@@ -233,7 +233,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
     FreeAll(answers);
     xinfo2(TSF"close fd in dnsquery,sock=%0", sock);
     ::socket_close(sock);
-    return ret;  //* 查询DNS服务器超时
+    return ret;  //* 查询DNS服务器超时 
 }
 
 int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeout /*ms*/, const char* _dnsserver) {

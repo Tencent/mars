@@ -70,4 +70,9 @@ bool longlink_complexconnect_need_verify();
  */
 bool is_push_data(uint32_t _cmdid, uint32_t _taskid);
 
+namespace mars {
+	namespace stn {
+		void SetClientVersion(uint32_t _client_version);
+	}
+}
 #endif // STN_SRC_LONGLINKPACKER_H_

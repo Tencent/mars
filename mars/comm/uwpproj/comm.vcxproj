@@ -1,0 +1,552 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{308748c2-6675-44bd-998d-763c1c943b65}</ProjectGuid>
+    <Keyword>StaticLibrary</Keyword>
+    <RootNamespace>comm</RootNamespace>
+    <DefaultLanguage>zh-CN</DefaultLanguage>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <AppContainerApplication>true</AppContainerApplication>
+    <ApplicationType>Windows Store</ApplicationType>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.10240.0</WindowsTargetPlatformMinVersion>
+    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)\bin\lib\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\build\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)\bin\lib\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\build\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)\bin\lib\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\build\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)\bin\lib\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\build\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)\bin\lib\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\build\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(SolutionDir)\bin\lib\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\build\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>NOMINMAX;_WINRT_DLL;WP8;BOOST_THREAD_WIN32_HAS_GET_TICK_COUNT_64;BOOST_NO_ANSI_APIS;UNICODE;WP_PLATFORM;WIN32;WIN32_PLATFORM;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;BOOST_LITTLE_ENDIAN;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>28204</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\UWP;..\..\..\;..\..\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>..\UWP\projdefUWP.h</ForcedIncludeFiles>
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>NOMINMAX;_WINRT_DLL;WP8;BOOST_THREAD_WIN32_HAS_GET_TICK_COUNT_64;BOOST_NO_ANSI_APIS;UNICODE;WP_PLATFORM;WIN32;WIN32_PLATFORM;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;BOOST_LITTLE_ENDIAN;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>28204</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\UWP;..\..\..\;..\..\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>..\UWP\projdefUWP.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>NOMINMAX;_WINRT_DLL;WP8;BOOST_THREAD_WIN32_HAS_GET_TICK_COUNT_64;BOOST_NO_ANSI_APIS;UNICODE;WP_PLATFORM;WIN32;WIN32_PLATFORM;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;BOOST_LITTLE_ENDIAN;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>28204</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\UWP;..\..\..\;..\..\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>..\UWP\projdefUWP.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>NOMINMAX;_WINRT_DLL;WP8;BOOST_THREAD_WIN32_HAS_GET_TICK_COUNT_64;BOOST_NO_ANSI_APIS;UNICODE;WP_PLATFORM;WIN32;WIN32_PLATFORM;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;BOOST_LITTLE_ENDIAN;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>28204</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\UWP;..\..\..\;..\..\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>..\UWP\projdefUWP.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>NOMINMAX;_WINRT_DLL;WP8;BOOST_THREAD_WIN32_HAS_GET_TICK_COUNT_64;BOOST_NO_ANSI_APIS;UNICODE;WP_PLATFORM;WIN32;WIN32_PLATFORM;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;BOOST_LITTLE_ENDIAN;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>28204</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\UWP;..\..\..\;..\..\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>..\UWP\projdefUWP.h</ForcedIncludeFiles>
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PreprocessorDefinitions>NOMINMAX;_WINRT_DLL;WP8;BOOST_THREAD_WIN32_HAS_GET_TICK_COUNT_64;BOOST_NO_ANSI_APIS;UNICODE;WP_PLATFORM;WIN32;WIN32_PLATFORM;_WINSOCK_DEPRECATED_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;BOOST_LITTLE_ENDIAN;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>28204</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\UWP;..\..\..\;..\..\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>..\UWP\projdefUWP.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\boost\libs\date_time\src\gregorian\greg_names.hpp" />
+    <ClInclude Include="..\adler32.h" />
+    <ClInclude Include="..\alarm.h" />
+    <ClInclude Include="..\anr.h" />
+    <ClInclude Include="..\assert\__assert.h" />
+    <ClInclude Include="..\autobuffer.h" />
+    <ClInclude Include="..\basepacker.h" />
+    <ClInclude Include="..\bootregister.h" />
+    <ClInclude Include="..\bootrun.h" />
+    <ClInclude Include="..\comm_frequency_limit.h" />
+    <ClInclude Include="..\compiler_util.h" />
+    <ClInclude Include="..\copy_wrapper.h" />
+    <ClInclude Include="..\coroutine\coroutine.h" />
+    <ClInclude Include="..\coroutine\coro_socket.h" />
+    <ClInclude Include="..\crypt\ibase64.h" />
+    <ClInclude Include="..\crypt\pkcs7_padding.h" />
+    <ClInclude Include="..\dns\dns.h" />
+    <ClInclude Include="..\has_member.h" />
+    <ClInclude Include="..\http.h" />
+    <ClInclude Include="..\ini.h" />
+    <ClInclude Include="..\marcotoolkit.h" />
+    <ClInclude Include="..\md5.h" />
+    <ClInclude Include="..\memdbg.h" />
+    <ClInclude Include="..\messagequeue\message_queue.h" />
+    <ClInclude Include="..\messagequeue\message_queue_utils.h" />
+    <ClInclude Include="..\mmap_util.h" />
+    <ClInclude Include="..\network\getdnssvraddrs.h" />
+    <ClInclude Include="..\network\netinfo_util.h" />
+    <ClInclude Include="..\platform_comm.h" />
+    <ClInclude Include="..\projdef.h" />
+    <ClInclude Include="..\ptrbuffer.h" />
+    <ClInclude Include="..\scope_recursion_limit.h" />
+    <ClInclude Include="..\singleton.h" />
+    <ClInclude Include="..\socket\block_socket.h" />
+    <ClInclude Include="..\socket\complexconnect.h" />
+    <ClInclude Include="..\socket\getsocktcpinfo.h" />
+    <ClInclude Include="..\socket\ipv6_address_utils.h" />
+    <ClInclude Include="..\socket\local_ipstack.h" />
+    <ClInclude Include="..\socket\nat64_prefix_util.h" />
+    <ClInclude Include="..\socket\socketselect.h" />
+    <ClInclude Include="..\socket\socket_address.h" />
+    <ClInclude Include="..\socket\tcpclient.h" />
+    <ClInclude Include="..\socket\tcpclient_fsm.h" />
+    <ClInclude Include="..\socket\tcpserver.h" />
+    <ClInclude Include="..\socket\tcpserver_fsm.h" />
+    <ClInclude Include="..\socket\tcp_fsm_handler.h" />
+    <ClInclude Include="..\socket\udpclient.h" />
+    <ClInclude Include="..\socket\udpserver.h" />
+    <ClInclude Include="..\socket\unix_socket.h" />
+    <ClInclude Include="..\strutil.h" />
+    <ClInclude Include="..\tickcount.h" />
+    <ClInclude Include="..\time_utils.h" />
+    <ClInclude Include="..\tinyxml2.h" />
+    <ClInclude Include="..\UWP\boost\filesystem.hpp" />
+    <ClInclude Include="..\UWP\boost\path.hpp" />
+    <ClInclude Include="..\UWP\projdefUWP.h" />
+    <ClInclude Include="..\UWP\zlib\crc32.h" />
+    <ClInclude Include="..\UWP\zlib\deflate.h" />
+    <ClInclude Include="..\UWP\zlib\gzguts.h" />
+    <ClInclude Include="..\UWP\zlib\inffast.h" />
+    <ClInclude Include="..\UWP\zlib\inffixed.h" />
+    <ClInclude Include="..\UWP\zlib\inflate.h" />
+    <ClInclude Include="..\UWP\zlib\inftrees.h" />
+    <ClInclude Include="..\UWP\zlib\trees.h" />
+    <ClInclude Include="..\UWP\zlib\zconf.h" />
+    <ClInclude Include="..\UWP\zlib\zlib.h" />
+    <ClInclude Include="..\UWP\zlib\zutil.h" />
+    <ClInclude Include="..\xlogger\loginfo_extract.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\app\app_logic.cc" />
+    <ClCompile Include="..\..\boost\libs\atomic\src\lockpool.cpp" />
+    <ClCompile Include="..\..\boost\libs\context\src\execution_context.cpp" />
+    <ClCompile Include="..\..\boost\libs\context\src\windows\stack_traits.cpp" />
+    <ClCompile Include="..\..\boost\libs\coroutine\src\detail\coroutine_context.cpp" />
+    <ClCompile Include="..\..\boost\libs\coroutine\src\exceptions.cpp" />
+    <ClCompile Include="..\..\boost\libs\date_time\src\gregorian\date_generators.cpp" />
+    <ClCompile Include="..\..\boost\libs\date_time\src\gregorian\gregorian_types.cpp" />
+    <ClCompile Include="..\..\boost\libs\date_time\src\gregorian\greg_month.cpp" />
+    <ClCompile Include="..\..\boost\libs\date_time\src\gregorian\greg_weekday.cpp" />
+    <ClCompile Include="..\..\boost\libs\date_time\src\posix_time\posix_time_types.cpp" />
+    <ClCompile Include="..\..\boost\libs\exception\src\clone_current_exception_non_intrusive.cpp" />
+    <ClCompile Include="..\..\boost\libs\iostreams\src\mapped_file.cpp" />
+    <ClCompile Include="..\..\boost\libs\smart_ptr\src\sp_collector.cpp" />
+    <ClCompile Include="..\..\boost\libs\smart_ptr\src\sp_debug_hooks.cpp" />
+    <ClCompile Include="..\..\boost\libs\system\src\error_code.cpp" />
+    <ClCompile Include="..\..\boost\libs\thread\src\future.cpp" />
+    <ClCompile Include="..\..\boost\libs\thread\src\tss_null.cpp" />
+    <ClCompile Include="..\..\boost\libs\thread\src\win32\tss_dll.cpp" />
+    <ClCompile Include="..\alarm.cc" />
+    <ClCompile Include="..\anr.cc" />
+    <ClCompile Include="..\assert\__assert.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\autobuffer.cc" />
+    <ClCompile Include="..\basepacker.cc" />
+    <ClCompile Include="..\boost_exception.cc" />
+    <ClCompile Include="..\comm_frequency_limit.cc" />
+    <ClCompile Include="..\crypt\ibase64.cc" />
+    <ClCompile Include="..\dns\dns.cc" />
+    <ClCompile Include="..\http.cc" />
+    <ClCompile Include="..\md5.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\memdbg.cc" />
+    <ClCompile Include="..\messagequeue\message_queue.cc" />
+    <ClCompile Include="..\messagequeue\message_queue_utils.cc" />
+    <ClCompile Include="..\mmap_util.cc" />
+    <ClCompile Include="..\network\getdnssvraddrs.cc" />
+    <ClCompile Include="..\network\netinfo_util.cc" />
+    <ClCompile Include="..\ptrbuffer.cc" />
+    <ClCompile Include="..\singleton.cc" />
+    <ClCompile Include="..\socket\block_socket.cc" />
+    <ClCompile Include="..\socket\complexconnect.cc" />
+    <ClCompile Include="..\socket\local_ipstack.cc" />
+    <ClCompile Include="..\socket\nat64_prefix_util.cc" />
+    <ClCompile Include="..\socket\socket_address.cc" />
+    <ClCompile Include="..\socket\tcpclient.cc" />
+    <ClCompile Include="..\socket\tcpclient_fsm.cc" />
+    <ClCompile Include="..\socket\tcpserver.cc" />
+    <ClCompile Include="..\socket\tcpserver_fsm.cc" />
+    <ClCompile Include="..\socket\udpclient.cc" />
+    <ClCompile Include="..\socket\udpserver.cc" />
+    <ClCompile Include="..\socket\unix_socket.cc" />
+    <ClCompile Include="..\strutil.cc" />
+    <ClCompile Include="..\tickcount.cc" />
+    <ClCompile Include="..\time_utils.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\tinyxml2.cc" />
+    <ClCompile Include="..\UWP\SocketSelect\socketselect2.cc" />
+    <ClCompile Include="..\UWP\sys\time.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\unistd.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\uwp_compatible.cpp" />
+    <ClCompile Include="..\UWP\xlogger_threadinfo.cpp" />
+    <ClCompile Include="..\UWP\zlib\adler32.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\compress.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\crc32.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\deflate.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\gzclose.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\gzlib.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\gzread.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\gzwrite.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\infback.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\inffast.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\inflate.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\inftrees.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\trees.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\uncompr.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\UWP\zlib\zutil.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\xlogger\loginfo_extract.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="..\xlogger\xloggerbase.c">
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsWinRT>
+      <CompileAsWinRT Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsWinRT>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\boost\libs\context\src\asm\jump_arm_aapcs_pe_armasm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\jump_i386_ms_pe_gas.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\jump_i386_ms_pe_masm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\jump_x86_64_ms_pe_gas.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\jump_x86_64_ms_pe_masm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\make_arm_aapcs_pe_armasm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\make_i386_ms_pe_gas.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\make_i386_ms_pe_masm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\make_x86_64_ms_pe_gas.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\make_x86_64_ms_pe_masm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\ontop_arm_aapcs_pe_armasm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\ontop_i386_ms_pe_gas.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\ontop_i386_ms_pe_masm.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\ontop_x86_64_ms_pe_gas.asm" />
+    <None Include="..\..\boost\libs\context\src\asm\ontop_x86_64_ms_pe_masm.asm" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

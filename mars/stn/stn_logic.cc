@@ -254,40 +254,40 @@ void network_export_symbols_0(){}
 		return sg_callback->MakesureAuthed();
 	}
     
-    // 流量统计
+    // 流量统计 
     WEAK_FUNC void TrafficData(ssize_t _send, ssize_t _recv) {
         xassert2(sg_callback != NULL);
         return sg_callback->TrafficData(_send, _recv);
     }
     
-	//底层询问上层该host对应的ip列表
+	//底层询问上层该host对应的ip列表 
 	WEAK_FUNC std::vector<std::string> OnNewDns(const std::string& host) {
 		xassert2(sg_callback != NULL);
 		return sg_callback->OnNewDns(host);
 	}
     
-	//网络层收到push消息回调
+	//网络层收到push消息回调 
 	void OnPush(int32_t cmdid, const AutoBuffer& msgpayload) {
 		xassert2(sg_callback != NULL);
 		sg_callback->OnPush(cmdid, msgpayload);
 	}
-	//底层获取task要发送的数据
+	//底层获取task要发送的数据 
 	bool Req2Buf(int32_t taskid,  void* const user_context, AutoBuffer& outbuffer, int& error_code, const int channel_select) {
 		xassert2(sg_callback != NULL);
 		return sg_callback->Req2Buf(taskid, user_context, outbuffer, error_code, channel_select);
 	}
-	//底层回包返回给上层解析
+	//底层回包返回给上层解析 
 	int Buf2Resp(int32_t taskid, void* const user_context, const AutoBuffer& inbuffer, int& error_code, const int channel_select) {
 		xassert2(sg_callback != NULL);
 		return sg_callback->Buf2Resp(taskid, user_context, inbuffer, error_code, channel_select);
 	}
-	//任务执行结束
+	//任务执行结束 
 	int  OnTaskEnd(int32_t taskid, void* const user_context, int error_type, int error_code) {
 		xassert2(sg_callback != NULL);
 		return sg_callback->OnTaskEnd(taskid, user_context, error_type, error_code);
 	}
 
-	//上报网络连接状态
+	//上报网络连接状态 
 	void ReportConnectStatus(int status, int longlink_status) {
 		xassert2(sg_callback != NULL);
 		sg_callback->ReportConnectStatus(status, longlink_status);
@@ -298,7 +298,7 @@ void network_export_symbols_0(){}
 		xassert2(sg_callback != NULL);
 		return sg_callback->GetLonglinkIdentifyCheckBuffer(identify_buffer, buffer_hash, cmdid);
 	}
-	//长连信令校验回包
+	//长连信令校验回包 
 	bool OnLonglinkIdentifyResponse(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
 		xassert2(sg_callback != NULL);
 		return sg_callback->OnLonglinkIdentifyResponse(response_buffer, identify_buffer_hash);

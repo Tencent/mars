@@ -210,35 +210,35 @@ extern bool MakesureAuthed();
 //流量统计
 extern void TrafficData(ssize_t _send, ssize_t _recv);
         
-//底层询问上层该host对应的ip列表
+//底层询问上层该host对应的ip列表 
 extern std::vector<std::string> OnNewDns(const std::string& host);
-//网络层收到push消息回调
+//网络层收到push消息回调 
 extern void OnPush(int32_t cmdid, const AutoBuffer& msgpayload);
-//底层获取task要发送的数据
+//底层获取task要发送的数据 
 extern bool Req2Buf(int32_t taskid,  void* const user_context, AutoBuffer& outbuffer, int& error_code, const int channel_select);
-//底层回包返回给上层解析
+//底层回包返回给上层解析 
 extern int Buf2Resp(int32_t taskid, void* const user_context, const AutoBuffer& inbuffer, int& error_code, const int channel_select);
-//任务执行结束
+//任务执行结束 
 extern int  OnTaskEnd(int32_t taskid, void* const user_context, int error_type, int error_code);
 
-//上报网络连接状态
+//上报网络连接状态 
 extern void ReportConnectStatus(int status, int longlink_status);
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 extern int  GetLonglinkIdentifyCheckBuffer(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid);
-//长连信令校验回包
+//长连信令校验回包 
 extern bool OnLonglinkIdentifyResponse(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash);
 
 extern void RequestSync();
-//验证是否已登录
+//验证是否已登录 
 extern bool IsLogoned();
 
-//底层询问上层http网络检查的域名列表
+//底层询问上层http网络检查的域名列表 
 extern void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
-//底层向上层上报cgi执行结果
+//底层向上层上报cgi执行结果 
 extern void ReportTaskProfile(const TaskProfile& _task_profile);
-//底层通知上层cgi命中限制
+//底层通知上层cgi命中限制 
 extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
-//底层上报域名dns结果
+//底层上报域名dns结果 
 extern void ReportDnsProfile(const DnsProfile& _dns_profile);
         
 }}

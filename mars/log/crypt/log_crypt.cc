@@ -25,6 +25,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <algorithm>
+
 
 static const char kMagicSyncStart = '\x03';
 static const char kMagicAsyncStart ='\x05';
