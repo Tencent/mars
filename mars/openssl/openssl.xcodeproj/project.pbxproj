@@ -14,6 +14,7 @@
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
 		3D18BD831C9BE25100853A83 /* rsa_pss_sha256.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D18BD801C9BE25100853A83 /* rsa_pss_sha256.cpp */; };
 		3D18BD841C9BE25100853A83 /* test_rsa_pss_sha256.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D18BD821C9BE25100853A83 /* test_rsa_pss_sha256.cpp */; };
+		3D1E95861EC450D300F6EA03 /* ecdh_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D1E95851EC450D300F6EA03 /* ecdh_util.cpp */; };
 		3D3ECA001E76877C00349BBE /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D3EC9FE1E76877C00349BBE /* libcrypto.a */; };
 		3D3ECA011E76877C00349BBE /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D3EC9FF1E76877C00349BBE /* libssl.a */; };
 		3D9E9AC41CA129EC00AF0E43 /* gen_rsa_key_pair.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D9E9AC31CA129EC00AF0E43 /* gen_rsa_key_pair.cpp */; };
@@ -113,6 +114,8 @@
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		3D18BD801C9BE25100853A83 /* rsa_pss_sha256.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rsa_pss_sha256.cpp; sourceTree = "<group>"; };
 		3D18BD821C9BE25100853A83 /* test_rsa_pss_sha256.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_rsa_pss_sha256.cpp; sourceTree = "<group>"; };
+		3D1E95851EC450D300F6EA03 /* ecdh_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ecdh_util.cpp; sourceTree = "<group>"; };
+		3D1E95871EC450F200F6EA03 /* ecdh_util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecdh_util.h; sourceTree = "<group>"; };
 		3D3EC9F41E76871900349BBE /* camellia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camellia.h; path = crypto/camellia/camellia.h; sourceTree = SOURCE_ROOT; };
 		3D3EC9F51E76871900349BBE /* cast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cast.h; path = crypto/cast/cast.h; sourceTree = SOURCE_ROOT; };
 		3D3EC9F61E76871900349BBE /* cmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cmac.h; path = crypto/cmac/cmac.h; sourceTree = SOURCE_ROOT; };
@@ -174,6 +177,7 @@
 				13F0F967197557FD00F2C2B2 /* ecdsa_verify.h */,
 				13F0F968197557FD00F2C2B2 /* md5_digest.h */,
 				13F0F969197557FD00F2C2B2 /* rsa_crypt.h */,
+				3D1E95871EC450F200F6EA03 /* ecdh_util.h */,
 			);
 			path = export_include;
 			sourceTree = "<group>";
@@ -305,6 +309,7 @@
 				3D9E9AC31CA129EC00AF0E43 /* gen_rsa_key_pair.cpp */,
 				3D18BD801C9BE25100853A83 /* rsa_pss_sha256.cpp */,
 				3D18BD821C9BE25100853A83 /* test_rsa_pss_sha256.cpp */,
+				3D1E95851EC450D300F6EA03 /* ecdh_util.cpp */,
 			);
 			path = crypto;
 			sourceTree = "<group>";
@@ -369,6 +374,7 @@
 				3D18BD831C9BE25100853A83 /* rsa_pss_sha256.cpp in Sources */,
 				13F0FA7E197557FD00F2C2B2 /* md5_digest.c in Sources */,
 				3DB0F65F1D25587B009296A8 /* openssl_multi_thread_support.cpp in Sources */,
+				3D1E95861EC450D300F6EA03 /* ecdh_util.cpp in Sources */,
 				3D9E9AC61CA129FB00AF0E43 /* rsa_private_decrypt.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
