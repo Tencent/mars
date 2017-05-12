@@ -10,17 +10,20 @@ enum CmdID {
     CMD_ID_CONVERSATION_LIST = 4;
     CMD_ID_JOINTOPIC = 5;
     CMD_ID_LEFTTOPIC = 7;
+    CMD_ID_HELLO2 = 8;
 }
 
 message HelloRequest {
     required string user = 1;
     required string text = 2;
+    optional bytes dump_content = 3;
 }
 
 
 message HelloResponse {
     required int32 retcode = 1;
     optional string errmsg = 2;
+    optional bytes dump_content = 3;
 }
 
 message Conversation {

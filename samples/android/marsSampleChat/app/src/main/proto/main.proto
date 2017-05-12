@@ -1,3 +1,4 @@
+syntax = "proto2";
 package com.tencent.mars.sample.proto;
 
 
@@ -15,12 +16,14 @@ enum CmdID {
 message HelloRequest {
     required string user = 1;
     required string text = 2;
+    optional bytes dump_content = 3;
 }
 
 
 message HelloResponse {
     required int32 retcode = 1;
     optional string errmsg = 2;
+    optional bytes dump_content = 3;
 }
 
 message Conversation {

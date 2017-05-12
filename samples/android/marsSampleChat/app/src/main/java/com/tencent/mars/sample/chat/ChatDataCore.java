@@ -33,14 +33,14 @@ import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ChatDataCore extends  Observable{
+public class ChatDataCore extends Observable {
 
     public static String TAG = ChatActivity.class.getSimpleName();
 
     private static ChatDataCore inst = new ChatDataCore();
 
     private BroadcastReceiver receiver = new RecvMessageReceiver();
-    private ConcurrentHashMap<String, List<ChatMsgEntity> >  mDataArrays = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ChatMsgEntity>> dataArrays = new ConcurrentHashMap<>();
 
     public static ChatDataCore getInstance() {
         return inst;
@@ -59,11 +59,12 @@ public class ChatDataCore extends  Observable{
 
     public List<ChatMsgEntity> getTopicDatas(String topic) {
         synchronized (this) {
-            if (!mDataArrays.containsKey(topic))
-                mDataArrays.put(topic, new ArrayList<ChatMsgEntity>());
+            if (!dataArrays.containsKey(topic)) {
+                dataArrays.put(topic, new ArrayList<ChatMsgEntity>());
+            }
         }
 
-        return mDataArrays.get(topic);
+        return dataArrays.get(topic);
     }
 
     public void addData(String topic, ChatMsgEntity entity) {
@@ -73,7 +74,7 @@ public class ChatDataCore extends  Observable{
     }
 
     /**
-     * 发送消息时，获取当前事件
+     * 发送消息时，获取当前事件.
      *
      * @return 当前时间
      */
@@ -94,15 +95,16 @@ public class ChatDataCore extends  Observable{
                 String text = intent.getStringExtra("msgcontent");
 
                 synchronized (this) {
-                    if (!mDataArrays.containsKey(topic))
-                        mDataArrays.put(topic, new ArrayList<ChatMsgEntity>());
+                    if (!dataArrays.containsKey(topic)) {
+                        dataArrays.put(topic, new ArrayList<ChatMsgEntity>());
+                    }
 
                     ChatMsgEntity entity = new ChatMsgEntity();
                     entity.setName(from);
                     entity.setDate(getDate());
                     entity.setMessage(text);
                     entity.setMsgType(true);
-                    mDataArrays.get(topic).add(entity);
+                    dataArrays.get(topic).add(entity);
                 }
 
                 setChanged();

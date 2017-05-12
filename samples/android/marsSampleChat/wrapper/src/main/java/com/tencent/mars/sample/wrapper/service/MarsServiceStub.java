@@ -18,6 +18,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 
+import com.tencent.mars.BaseEvent;
 import com.tencent.mars.app.AppLogic;
 import com.tencent.mars.sample.utils.print.BaseConstants;
 import com.tencent.mars.sample.wrapper.remote.MarsPushMessageFilter;
@@ -27,7 +28,6 @@ import com.tencent.mars.sample.wrapper.remote.MarsTaskWrapper;
 import com.tencent.mars.sdt.SdtLogic;
 import com.tencent.mars.stn.StnLogic;
 import com.tencent.mars.xlog.Log;
-import com.tencent.mars.BaseEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Mars Task Wrapper implements
+ * Mars Task Wrapper implements.
  */
 public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallBack, SdtLogic.ICallBack, AppLogic.ICallBack {
 
@@ -67,10 +67,9 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
     private static final int FIXED_HEADER_SKIP = 4 + 2 + 2 + 4 + 4;
 
     private static Map<Integer, MarsTaskWrapper> TASK_ID_TO_WRAPPER = new ConcurrentHashMap<>();
-    private static Map<MarsTaskWrapper, Integer> WRAPPER_TO_TASK_ID = new ConcurrentHashMap<>();
 
     @Override
-    public void send(final MarsTaskWrapper taskWrapper, Bundle taskProperties) throws RemoteException {
+    public int send(final MarsTaskWrapper taskWrapper, Bundle taskProperties) throws RemoteException {
         final StnLogic.Task _task = new StnLogic.Task(StnLogic.Task.EShort, 0, "", null);
 
         // Set host & cgi path
@@ -103,7 +102,6 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
         }
 
         TASK_ID_TO_WRAPPER.put(_task.taskID, taskWrapper);
-        WRAPPER_TO_TASK_ID.put(taskWrapper, _task.taskID);
 
         // Send
         Log.i(TAG, "now start task with id %d", _task.taskID);
@@ -114,24 +112,15 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
         } else {
             Log.e(TAG, "stn task start failed with id %d", _task.taskID);
         }
+
+        return _task.taskID;
     }
 
     @Override
-    public void cancel(MarsTaskWrapper taskWrapper) throws RemoteException {
-        if (taskWrapper == null) {
-            Log.e(TAG, "cannot cancel null wrapper");
-            return;
-        }
-
-        final Integer taskID = WRAPPER_TO_TASK_ID.remove(taskWrapper);
-        if (taskID == null) {
-            Log.w(TAG, "cancel null taskID wrapper");
-
-        } else {
-            Log.d(TAG, "cancel wrapper with taskID=%d using stn stop", taskID);
-            StnLogic.stopTask(taskID);
-            TASK_ID_TO_WRAPPER.remove(taskID); // TODO: check return
-        }
+    public void cancel(int taskID) throws RemoteException {
+        Log.d(TAG, "cancel wrapper with taskID=%d using stn stop", taskID);
+        StnLogic.stopTask(taskID);
+        TASK_ID_TO_WRAPPER.remove(taskID); // TODO: check return
     }
 
 
@@ -154,7 +143,7 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
 
     @Override
     public void setForeground(int isForeground) {
-        BaseEvent.onForeground(isForeground == 1 ? true : false);
+        BaseEvent.onForeground(isForeground == 1);
     }
 
     @Override
@@ -238,8 +227,6 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
         } catch (RemoteException e) {
             e.printStackTrace();
 
-        } finally {
-            WRAPPER_TO_TASK_ID.remove(wrapper); // onTaskEnd will be called only once for each task
         }
 
         return 0;

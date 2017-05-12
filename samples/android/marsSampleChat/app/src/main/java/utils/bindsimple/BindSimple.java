@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
  */
 public class BindSimple {
 
-    private final String TAG = "BindSimple";
+    private static final String TAG = "BindSimple";
 
     public static void bind(Activity context) {
 
