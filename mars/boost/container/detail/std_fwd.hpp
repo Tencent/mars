@@ -36,7 +36,7 @@ template<class T1, class T2>
 struct pair;
 
 template<class T>
-struct char_traits;
+class char_traits;
 
 struct input_iterator_tag;
 struct forward_iterator_tag;
