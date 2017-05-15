@@ -1015,3 +1015,27 @@ bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std:
     }
     return true;
 }
+
+bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec) {
+    if (sg_logdir.empty()) return false;
+    
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    tv.tv_sec -= _timespan * (24 * 60 * 60);
+    
+    char log_path[2048] = {0};
+    __make_logfilename(tv, sg_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
+    
+    _filepath_vec.push_back(log_path);
+    
+    if (sg_cache_logdir.empty()) {
+        return true;
+    }
+    
+    memset(log_path, 0, sizeof(log_path));
+    __make_logfilename(tv, sg_cache_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
+    
+    _filepath_vec.push_back(log_path);
+    
+    return true;
+}
