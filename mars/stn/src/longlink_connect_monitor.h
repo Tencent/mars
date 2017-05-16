@@ -23,6 +23,7 @@
 
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
+#include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/alarm.h"
 
 #include "longlink.h"
@@ -66,6 +67,7 @@ class LongLinkConnectMonitor {
     LongLinkConnectMonitor& operator=(const LongLinkConnectMonitor&);
 
   private:
+    MessageQueue::ScopeRegister     asyncreg_;
     ActiveLogic& activelogic_;
     LongLink& longlink_;
     Alarm         alarm_;

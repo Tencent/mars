@@ -39,7 +39,7 @@ public class MarsServiceProxy implements ServiceConnection {
     private static final String TAG = "Mars.Sample.MarsServiceProxy";
 
     // public static final String SERVICE_ACTION = "BIND_MARS_SERVICE";
-    public static final String SERVICE_DEFUALT_CLASSNAME = "com.tencent.mars.sample.wrapper.service.MarsServiceNative";
+    public static final String SERVICE_DEFAULT_CLASSNAME = "com.tencent.mars.sample.wrapper.service.MarsServiceNative";
 
     private MarsService service = null;
 
@@ -89,7 +89,7 @@ public class MarsServiceProxy implements ServiceConnection {
         gContext = context.getApplicationContext();
 
         gPackageName = (packageName == null ? context.getPackageName() : packageName);
-        gClassName = SERVICE_DEFUALT_CLASSNAME;
+        gClassName = SERVICE_DEFAULT_CLASSNAME;
 
         inst = new MarsServiceProxy();
     }
@@ -123,18 +123,17 @@ public class MarsServiceProxy implements ServiceConnection {
                 return;
             }
             service.setForeground(isForeground ? 1 : 0);
-        }
-        catch (RemoteException e) {
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+    public void onServiceConnected(ComponentName componentName, IBinder binder) {
         Log.d(TAG, "remote mars service connected");
 
         try {
-            service = MarsService.Stub.asInterface(iBinder);
+            service = MarsService.Stub.asInterface(binder);
             service.registerPushMessageFilter(filter);
             service.setAccountInfo(accountInfo.uin, accountInfo.userName);
 
@@ -172,7 +171,7 @@ public class MarsServiceProxy implements ServiceConnection {
         } else {
             // Already sent to remote service, need to cancel it
             try {
-                service.cancel(marsTaskWrapper);
+                service.cancel(marsTaskWrapper.getProperties().getInt(MarsTaskProperty.OPTIONS_TASK_ID));
 
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -209,13 +208,17 @@ public class MarsServiceProxy implements ServiceConnection {
                     taskWrapper.getProperties().putInt(MarsTaskProperty.OPTIONS_CMD_ID, globalCmdID);
                     Log.i(TAG, "overwrite cmdID with global cmdID Map: %s -> %d", cgiPath, globalCmdID);
                 }
-                service.send(taskWrapper, taskWrapper.getProperties());
+
+                final int taskID = service.send(taskWrapper, taskWrapper.getProperties());
+                // NOTE: Save taskID to taskWrapper here
+                taskWrapper.getProperties().putInt(MarsTaskProperty.OPTIONS_TASK_ID, taskID);
 
             } catch (Exception e) { // RemoteExceptionHandler
                 e.printStackTrace();
             }
-        } catch (Exception e) {
 
+        } catch (Exception e) {
+            //
         }
     }
 

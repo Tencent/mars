@@ -44,182 +44,176 @@ import utils.bindsimple.BindSimple;
 import utils.bindsimple.BindView;
 
 @ActivityEventConnection(connect = ActivityEvent.Connect.ChatActivity)
-public class ChatActivity extends AppCompatActivity implements Observer{
+public class ChatActivity extends AppCompatActivity implements Observer {
 
-	public static String TAG = ChatActivity.class.getSimpleName();
+    public static String TAG = ChatActivity.class.getSimpleName();
 
-	@BindView(R.id.btn_send)
-	private Button mBtnSend;// 发送btn
+    @BindView(R.id.btn_send)
+    private Button btnSend;// 发送btn
 
-	@BindView(R.id.et_sendmessage)
-	private EditText mEditTextContent;
+    @BindView(R.id.et_sendmessage)
+    private EditText editTextContent;
 
-	@BindView(R.id.main_toolbar)
-	Toolbar mMainToolbar;
+    @BindView(R.id.main_toolbar)
+    Toolbar mainToolbar;
 
-	@BindView(R.id.title_text)
-	TextView titleText;
+    @BindView(R.id.title_text)
+    TextView titleText;
 
-	@BindView(R.id.chat_content)
-	private ListView mListView;
+    @BindView(R.id.chat_content)
+    private ListView listView;
 
-	private String topicName;
+    private String topicName;
 
-	private ChatMsgViewAdapter mAdapter;// 消息视图的Adapter
+    private ChatMsgViewAdapter adapter;// 消息视图的Adapter
 
-	/**
-	 *
-	 * @param savedInstanceState
-     */
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_chat);
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-		BindSimple.bind(this);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        BindSimple.bind(this);
 
-		setSupportActionBar(mMainToolbar);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(false);  //是否显示显示返回箭头
-		getSupportActionBar().setDisplayShowTitleEnabled(false); //是否显示标题
+        setSupportActionBar(mainToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);  //是否显示显示返回箭头
+        getSupportActionBar().setDisplayShowTitleEnabled(false); //是否显示标题
 
-		Intent intent = this.getIntent();
-		if (intent != null) {
-			topicName = intent.getStringExtra("conversation_id");
-			titleText.setText(intent.getStringExtra("notice"));
-		}
-		else {
-			titleText.setText("Mars Sample");
-		}
+        Intent intent = this.getIntent();
+        if (intent != null) {
+            topicName = intent.getStringExtra("conversation_id");
+            titleText.setText(intent.getStringExtra("notice"));
+        } else {
+            titleText.setText("Mars Sample");
+        }
 
-		mAdapter = new ChatMsgViewAdapter(this, ChatDataCore.getInstance().getTopicDatas(topicName));
-		mListView.setAdapter(mAdapter);
-		mListView.setSelection(mAdapter.getCount() - 1);
+        adapter = new ChatMsgViewAdapter(this, ChatDataCore.getInstance().getTopicDatas(topicName));
+        listView.setAdapter(adapter);
+        listView.setSelection(adapter.getCount() - 1);
 
-		ChatDataCore.getInstance().addObserver(this);
+        ChatDataCore.getInstance().addObserver(this);
 
-		mBtnSend.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onClickBtnSend();
-			}
-		});
+        btnSend.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickBtnSend();
+            }
+        });
 
-		mBtnSend.setClickable(false);
-		mEditTextContent.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        btnSend.setClickable(false);
+        editTextContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-			}
+            }
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (s.length() > 0) {
-					mBtnSend.setClickable(true);
-				}
-				else {
-					mBtnSend.setClickable(false);
-				}
-			}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    btnSend.setClickable(true);
+                } else {
+                    btnSend.setClickable(false);
+                }
+            }
 
-			@Override
-			public void afterTextChanged(Editable s) {
+            @Override
+            public void afterTextChanged(Editable s) {
 
-			}
-		});
+            }
+        });
 
-		if(!SampleApplicaton.hasSetUserName) {
-			final EditText editText = new EditText(this);
-			editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
-			final AlertDialog d = new AlertDialog.Builder(this)
-					.setTitle("首次进入话题请输入昵称")
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setView(editText)
-					.setPositiveButton("确定", null).create();
-			d.setOnShowListener(new DialogInterface.OnShowListener() {
-				@Override
-				public void onShow(DialogInterface dialog) {
-					Button b = d.getButton(AlertDialog.BUTTON_POSITIVE);
-					b.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							String nick = editText.getText().toString();
-							if (nick.length() > 0 && !nick.trim().equals("")) {
-								SampleApplicaton.accountInfo.userName = nick.trim();
-								SampleApplicaton.hasSetUserName = true;
-							} else {
-								return;
-							}
+        if (!SampleApplicaton.hasSetUserName) {
+            final EditText editText = new EditText(this);
+            editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(12)});
+            final AlertDialog d = new AlertDialog.Builder(this)
+                    .setTitle("首次进入话题请输入昵称")
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setView(editText)
+                    .setPositiveButton("确定", null).create();
+            d.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    Button b = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                    b.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            String nick = editText.getText().toString();
+                            if (nick.length() > 0 && !nick.trim().equals("")) {
+                                SampleApplicaton.accountInfo.userName = nick.trim();
+                                SampleApplicaton.hasSetUserName = true;
+                            } else {
+                                return;
+                            }
 
-							d.dismiss();
-						}
-					});
-				}
-			});
-			d.show();
-		}
-	}
+                            d.dismiss();
+                        }
+                    });
+                }
+            });
+            d.show();
+        }
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		MarsServiceProxy.inst.setForeground(true);
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+        MarsServiceProxy.inst.setForeground(true);
+    }
 
-	public void onPause() {
-		super.onPause();
-		MarsServiceProxy.inst.setForeground(false);
-	}
+    public void onPause() {
+        super.onPause();
+        MarsServiceProxy.inst.setForeground(false);
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		ChatDataCore.getInstance().deleteObserver(this);
-		//leftTopic(topicName);
-	}
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ChatDataCore.getInstance().deleteObserver(this);
+        //leftTopic(topicName);
+    }
 
-	@Override
-	public void update(Observable o, Object arg) {
-		mAdapter.notifyDataSetChanged();
-		mListView.setSelection(mListView.getCount() - 1);
-	}
+    @Override
+    public void update(Observable o, Object arg) {
+        adapter.notifyDataSetChanged();
+        listView.setSelection(listView.getCount() - 1);
+    }
 
-	public void onClickBtnSend() {
+    public void onClickBtnSend() {
 
-		final String message = mEditTextContent.getText().toString();
-		if (message.length() <= 0 || message.trim().equals("")) {
-			new AlertDialog.Builder(this)
-					.setTitle("不能输入空消息")
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setPositiveButton("确定", null).show();
-			mEditTextContent.setText("");
-			return;
-		}
+        final String message = editTextContent.getText().toString();
+        if (message.length() <= 0 || message.trim().equals("")) {
+            new AlertDialog.Builder(this)
+                    .setTitle("不能输入空消息")
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setPositiveButton("确定", null).show();
+            editTextContent.setText("");
+            return;
+        }
 
-		// Sending using local service proxy
+        // Sending using local service proxy
 
-		ChatMsgEntity entity = new ChatMsgEntity();
-		entity.setName(SampleApplicaton.accountInfo.userName);
-		entity.setDate(ChatDataCore.getDate());
-		entity.setMessage(message);
-		entity.setMsgType(false);
-		ChatDataCore.getInstance().addData(topicName, entity);
+        ChatMsgEntity entity = new ChatMsgEntity();
+        entity.setName(SampleApplicaton.accountInfo.userName);
+        entity.setDate(ChatDataCore.getDate());
+        entity.setMessage(message);
+        entity.setMsgType(false);
+        ChatDataCore.getInstance().addData(topicName, entity);
 
-		mEditTextContent.setText("");
+        editTextContent.setText("");
 
-		MarsServiceProxy.send(new TextMessageTask(topicName, message)
-				.onOK(new Runnable() {
+        MarsServiceProxy.send(new TextMessageTask(topicName, message)
+                .onOK(new Runnable() {
 
-					@Override
-					public void run() {
+                    @Override
+                    public void run() {
 
-					}
+                    }
 
-				}).onError(new Runnable() {
+                }).onError(new Runnable() {
 
-					@Override
-					public void run() {
-					}
+                    @Override
+                    public void run() {
+                    }
 
-				}));
-	}
+                }));
+    }
 
 }

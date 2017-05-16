@@ -14,13 +14,10 @@
 
 package com.tencent.mars.sample;
 
-import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 
 import com.tencent.mars.app.AppLogic;
 import com.tencent.mars.sample.core.ActivityEvent;
@@ -32,11 +29,9 @@ import com.tencent.mars.sample.wrapper.service.MarsServiceProfileFactory;
 import com.tencent.mars.xlog.Log;
 import com.tencent.mars.xlog.Xlog;
 
-import java.io.File;
 import java.util.Random;
 
 /**
- *
  * Created by zhaoyuan on 16/1/18.
  */
 public class SampleApplicaton extends Application {
@@ -46,7 +41,7 @@ public class SampleApplicaton extends Application {
     private static Context context;
 
     public static AppLogic.AccountInfo accountInfo = new AppLogic.AccountInfo(
-            new Random(System.currentTimeMillis()/1000).nextInt(), "anonymous");
+            new Random(System.currentTimeMillis() / 1000).nextInt(), "anonymous");
 
     public static volatile boolean hasSetUserName = false;
 
@@ -95,43 +90,35 @@ public class SampleApplicaton extends Application {
 
     }
 
-    public static void openXlog() {
+    public static  void openXlog() {
 
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (BuildConfig.DEBUG) {
-                Xlog.setConsoleLogOpen(true);
+        int pid = android.os.Process.myPid();
+        String processName = null;
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo appProcess : am.getRunningAppProcesses()) {
+            if (appProcess.pid == pid) {
+                processName = appProcess.processName;
+                break;
             }
-            else {
-                Xlog.setConsoleLogOpen(false);
-            }
-            Log.setLogImp(new Xlog());
-        }
-        else {
-            int pid = android.os.Process.myPid();
-            String processName = null;
-            ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-            for (ActivityManager.RunningAppProcessInfo appProcess : am.getRunningAppProcesses()){
-                if(appProcess.pid == pid){
-                    processName = appProcess.processName;
-                    break;
-                }
-            }
-
-            final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
-            final String logPath = SDCARD + "/marssample/log";
-
-            String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":")+1));
-
-            if (BuildConfig.DEBUG) {
-                Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName);
-                Xlog.setConsoleLogOpen(true);
-            } else {
-                Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName);
-                Xlog.setConsoleLogOpen(false);
-            }
-            Log.setLogImp(new Xlog());
         }
 
+        if (processName == null) {
+            return;
+        }
+
+        final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
+        final String logPath = SDCARD + "/marssample/log";
+
+        String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
+
+        if (BuildConfig.DEBUG) {
+            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName);
+            Xlog.setConsoleLogOpen(true);
+        } else {
+            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName);
+            Xlog.setConsoleLogOpen(false);
+        }
+        Log.setLogImp(new Xlog());
     }
 
     public static Context getContext() {
