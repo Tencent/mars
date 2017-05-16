@@ -249,7 +249,7 @@ void BreakMessageQueueRunloop(const MessageQueue_t&  _messagequeueid) {
 
     std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
     if (sg_messagequeue_map.end() == pos) {
-        ASSERT2(false, "%llu", (unsigned long long)id);
+        //ASSERT2(false, "%llu", (unsigned long long)id);
         return;
     }
 
@@ -819,8 +819,10 @@ MessageQueue_t MessageQueueCreater::CreateMessageQueue() {
 void MessageQueueCreater::CancelAndWait() {
     ScopedLock lock(messagequeue_mutex_);
 
-    if (KInvalidQueueID != messagequeue_id_) BreakMessageQueueRunloop(messagequeue_id_);
-
+    if (KInvalidQueueID == messagequeue_id_) return;
+    
+    BreakMessageQueueRunloop(messagequeue_id_);
+    messagequeue_id_ = KInvalidQueueID;
     lock.unlock();
     thread_.join();
 }
