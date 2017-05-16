@@ -20,11 +20,13 @@
 
 
 #import "UINotifyDelegate.h"
+#import "PushNotifyDelegate.h"
 
 @class CGITask;
 
 @protocol NetworkDelegate <NSObject>
 
+@required - (void)addPushObserver:(id<PushNotifyDelegate>)observer withCmdId:(int)cmdId;
 @required - (void)addObserver:(id<UINotifyDelegate>)observer forKey:(NSString *)key;
 @required - (void)addCGITasks:(CGITask*)cgiTask forKey:(NSString *)key;
 

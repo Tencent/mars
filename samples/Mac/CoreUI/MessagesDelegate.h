@@ -1,5 +1,5 @@
 // Tencent is pleased to support the open source community by making Mars available.
-// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+// Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
 // compliance with the License. You may obtain a copy of the License at
@@ -11,26 +11,18 @@
 // limitations under the License.
 
 //
-//  TopicViewController.h
-//  iOSDemo
+//  MessagesDelegate.h
+//  mactest
 //
-//  Created by caoshaokun on 16/11/25.
-//  Copyright © 2016年 caoshaokun. All rights reserved.
+//  Created by chenzihao on 17/05/15.
+//  Copyright © 2017年 chenzihao. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 
-#import "UINotifyDelegate.h"
 #import "Main.pb.h"
-#import "../Bussiness/PushNotifyDelegate.h"
 
-@interface TopicViewController : NSViewController<UINotifyDelegate, PushNotifyDelegate> {
-    NSString* text;
-}
 
-@property (weak) IBOutlet NSTextField *textField;
-@property NSTextView *recvTextView;
-
--(void)setHostController:(NSViewController*)controller;
+@protocol MessagesDelegate
 -(void)setConversation:(Conversation*)conversation;
 @end

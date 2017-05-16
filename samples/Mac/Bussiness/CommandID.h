@@ -24,5 +24,6 @@
 static const int kSayHello = 1;
 static const int kConvLst = 2;
 static const int kSendMsg = 3;
+static const int kPushMessageCmdId = 10001;
 
 #endif /* CommandID_h */

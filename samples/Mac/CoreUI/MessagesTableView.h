@@ -11,26 +11,25 @@
 // limitations under the License.
 
 //
-//  TopicViewController.h
-//  iOSDemo
+//  MessagesTableView.h
+//  mactest
 //
-//  Created by caoshaokun on 16/11/25.
+//  Created by caoshaokun on 16/11/28.
 //  Copyright © 2016年 caoshaokun. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 
-#import "UINotifyDelegate.h"
 #import "Main.pb.h"
-#import "../Bussiness/PushNotifyDelegate.h"
 
-@interface TopicViewController : NSViewController<UINotifyDelegate, PushNotifyDelegate> {
-    NSString* text;
+#import "NetworkDelegate.h"
+#import "UINotifyDelegate.h"
+#import "MessagesDelegate.h"
+
+@interface MessagesTableView : NSTableView<UINotifyDelegate, NSTableViewDelegate, NSTableViewDataSource> {
+    NSArray<Conversation*> * converSations;
 }
 
-@property (weak) IBOutlet NSTextField *textField;
-@property NSTextView *recvTextView;
+@property (nullable, weak) id <MessagesDelegate> messagesDelegate;
 
--(void)setHostController:(NSViewController*)controller;
--(void)setConversation:(Conversation*)conversation;
 @end
