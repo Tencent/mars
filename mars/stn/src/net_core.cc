@@ -234,6 +234,8 @@ NetCore::~NetCore() {
     delete anti_avalanche_;
     delete netcheck_logic_;
     delete net_source_;
+    
+    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
 
 void NetCore::__Release(NetCore* _instance) {

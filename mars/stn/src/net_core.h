@@ -66,6 +66,8 @@ class NetCore {
     boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
 
   public:
+    MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
+    
     void    StartTask(const Task& _task);
     void    StopTask(uint32_t _taskid);
     bool    HasTask(uint32_t _taskid) const;
