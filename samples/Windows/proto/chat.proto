@@ -1,0 +1,25 @@
+syntax = "proto2";
+package com.tencent.mars.sample.chat.proto;
+
+message SendMessageRequest {
+    required string access_token = 1;
+    required string from = 2;
+    required string to = 3;
+    required string text = 4;
+    required string topic = 5;
+}
+
+
+message SendMessageResponse {
+
+    enum Error {
+        ERR_OK = 0;
+        ERR_SYS = -1;
+    }
+
+    required int32 err_code = 1;
+    required string err_msg = 2;
+    required string from = 3;
+    required string text = 4;
+    required string topic = 5;
+}
