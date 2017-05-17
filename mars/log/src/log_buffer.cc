@@ -42,12 +42,12 @@ bool LogBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _end_h
 }
 
 
-bool LogBuffer::Write(const void* _data, size_t _inputlen, void* _output, size_t& _len) {
-    if (NULL == _data || NULL == _output || 0 == _inputlen || _len <= (size_t) s_log_crypt->GetHeaderLen()) {
+bool LogBuffer::Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff) {
+    if (NULL == _data || 0 == _inputlen) {
         return false;
     }
     
-    s_log_crypt->CryptSyncLog((char*)_data, _inputlen, (char*)_output, _len);
+    s_log_crypt->CryptSyncLog((char*)_data, _inputlen, _out_buff);
     
     return true;
 }
@@ -117,23 +117,20 @@ bool LogBuffer::Write(const void* _data, size_t _length) {
         buff_.Write(_data, _length);
     }
     
-
-    char crypt_buffer[4096] = {0};
-    size_t crypt_buffer_len = sizeof(crypt_buffer);
     
+    AutoBuffer out_buffer;
+    s_log_crypt->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len, out_buffer);
     
-    s_log_crypt->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len, crypt_buffer, crypt_buffer_len);
-    
-    uint16_t single_log_len = crypt_buffer_len;
+    uint16_t single_log_len = out_buffer.Length();
     buff_.Write(&single_log_len, sizeof(single_log_len), before_len);
     
     before_len += sizeof(single_log_len);
-    buff_.Write(crypt_buffer, crypt_buffer_len, before_len);
+    buff_.Write(out_buffer.Ptr(), out_buffer.Length(), before_len);
     
-    before_len += crypt_buffer_len;
+    before_len += out_buffer.Length();
     buff_.Length(before_len, before_len);
    
-    s_log_crypt->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)crypt_buffer_len + sizeof(single_log_len));
+    s_log_crypt->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)out_buffer.Length() + sizeof(single_log_len));
 
     return true;
 }
