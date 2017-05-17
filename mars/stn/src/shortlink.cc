@@ -190,22 +190,22 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         }
     }
     
-    std::vector<std::string> proxy_ips;
+	std::string proxy_ip;
     if (use_proxy && mars::comm::kProxyNone != _conn_profile.proxy_info.type) {
+		std::vector<std::string> proxy_ips;
         if (_conn_profile.proxy_info.ip.empty() && !_conn_profile.proxy_info.host.empty()) {
             if (!dns_util_.GetDNS().GetHostByName(_conn_profile.proxy_info.host, proxy_ips) || proxy_ips.empty()) {
                 xwarn2(TSF"dns %_ error", _conn_profile.proxy_info.host);
                 return false;
             }
+			proxy_ip = proxy_ips.front();
         } else {
-            proxy_ips.push_back(_conn_profile.proxy_info.ip);
+			proxy_ip = _conn_profile.proxy_info.ip;
         }
     }
     
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
-        for (size_t i = 0; i < proxy_ips.size(); ++i) {
-            vecaddr.push_back(socket_address(proxy_ips[i].c_str(), _conn_profile.proxy_info.port).v4tov6_address(isnat64));
-        }
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(isnat64));
     } else {
         for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
             if (!use_proxy || mars::comm::kProxyNone == _conn_profile.proxy_info.type) {
@@ -216,15 +216,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         }
     }
     
-    std::vector<socket_address>* proxy_addr = NULL;
+	socket_address* proxy_addr = NULL;
     if (use_proxy && (mars::comm::kProxyHttpTunel == _conn_profile.proxy_info.type || mars::comm::kProxySocks5 == _conn_profile.proxy_info.type)) {
-        proxy_addr = new std::vector<socket_address>();
-        
-        for (auto iter = proxy_ips.begin(); iter != proxy_ips.end(); ++iter) {
-            proxy_addr->push_back(socket_address(iter->c_str(), _conn_profile.proxy_info.port).v4tov6_address(isnat64));
-        }
-        
-        vecaddr.size() > proxy_addr->size() ? vecaddr.resize(proxy_addr->size(), socket_address("")) : proxy_addr->resize(vecaddr.size(), socket_address(""));
+		proxy_addr = &((new socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port))->v4tov6_address(isnat64));
         _conn_profile.ip_type = kIPSourceProxy;
     }
 

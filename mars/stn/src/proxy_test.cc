@@ -75,15 +75,17 @@ bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const 
 SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std::string& _host, const std::vector<std::string>& _hardcode_ips) {
     NetSource::DnsUtil dns_util_;
     
-    std::vector<std::string> proxy_ips;
+	std::string proxy_ip;
     if (mars::comm::kProxyNone != _proxy_info.type) {
         if (!_proxy_info.ip.empty()) {
-            proxy_ips.push_back(_proxy_info.ip);
+            proxy_ip = _proxy_info.ip;
         } else {
+			std::vector<std::string> proxy_ips;
             if (!dns_util_.GetDNS().GetHostByName(_proxy_info.host, proxy_ips) || proxy_ips.empty()) {
                 xwarn2(TSF"dns proxy host error, host:%_", _proxy_info.host);
                 return INVALID_SOCKET;
             }
+			proxy_ip = proxy_ips.front();
         }
     }
     
@@ -91,9 +93,7 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     std::vector<socket_address> vecaddr;
     
     if (mars::comm::kProxyHttp == _proxy_info.type) {
-        for (size_t i = 0; i < proxy_ips.size(); ++i) {
-            vecaddr.push_back(socket_address(proxy_ips[i].c_str(), _proxy_info.port).v4tov6_address(isnat64));
-        }
+		vecaddr.push_back(socket_address(proxy_ip.c_str(), _proxy_info.port).v4tov6_address(isnat64));
     } else {
 		std::vector<std::string> test_ips;
 		if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
@@ -119,15 +119,10 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
         return INVALID_SOCKET;
     }
     
-    std::vector<socket_address>* proxy_addr = NULL;
+    socket_address* proxy_addr = NULL;
     
     if (mars::comm::kProxyNone != _proxy_info.type && mars::comm::kProxyHttp != _proxy_info.type) {
-        proxy_addr = new std::vector<socket_address>();
-        for (auto iter = proxy_ips.begin(); iter != proxy_ips.end(); ++iter) {
-            proxy_addr->push_back(socket_address(proxy_ips.front().c_str(), _proxy_info.port).v4tov6_address(isnat64));
-        }
-        
-        vecaddr.size() > proxy_addr->size() ? vecaddr.resize(proxy_addr->size(), socket_address("")) : proxy_addr->resize(vecaddr.size(), socket_address(""));
+		proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(isnat64));
     }
     
     ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);

@@ -454,11 +454,9 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.dns_endtime = ::gettickcount();
     __UpdateProfile(_conn_profile);
     
-
-    std::vector<socket_address>* proxy_addr = NULL;
+    socket_address* proxy_addr = NULL;
     
     if (use_proxy) {
-        proxy_addr = new std::vector<socket_address>();
         std::string proxy_ip = proxy_info.ip;
         if (proxy_info.ip.empty() && !proxy_info.host.empty()) {
             std::vector<std::string> ips;
@@ -467,14 +465,12 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
                 return false;
             }
             
-            for (auto iter = ips.begin(); iter != ips.end(); ++iter) {
-                proxy_addr->push_back(socket_address(iter->c_str(), proxy_info.port).v4tov6_address(isnat64));
-            }
+			proxy_addr = &((new socket_address(ips.front().c_str(), proxy_info.port))->v4tov6_address(isnat64));
+
         } else {
-            proxy_addr->push_back(socket_address(proxy_ip.c_str(), proxy_info.port).v4tov6_address(isnat64));
+			proxy_addr = &((new socket_address(proxy_ip.c_str(), proxy_info.port))->v4tov6_address(isnat64));
         }
         
-        vecaddr.size() > proxy_addr->size() ? vecaddr.resize(proxy_addr->size(), socket_address("")) : proxy_addr->resize(vecaddr.size(), socket_address(""));
         _conn_profile.ip_type = kIPSourceProxy;
 
     }

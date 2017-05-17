@@ -23,7 +23,7 @@
 
 #include <string>
 
-#ifdef ADNROID 
+#ifdef ANDROID 
 #include "mars/comm/thread/mutex.h"
 #endif
 
