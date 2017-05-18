@@ -636,7 +636,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
     
     if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
         
-        headerbuf_.Write(_buffer, std::min(_length, 4096ul));
+        headerbuf_.Write(_buffer, std::min(_length, (size_t)4096));
         
         const char* pszbuf = (const char*)headerbuf_.Ptr();
         size_t length = headerbuf_.Length();
@@ -828,7 +828,7 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
 
     if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
         
-        headerbuf_.Write(_recv_buffer.Ptr(), std::min(_recv_buffer.Length(), 4096ul));
+        headerbuf_.Write(_recv_buffer.Ptr(), std::min(_recv_buffer.Length(), (size_t)4096));
         
         const char* pszbuf = (const char*)headerbuf_.Ptr();
         size_t length = headerbuf_.Length();
