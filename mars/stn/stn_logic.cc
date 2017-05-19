@@ -293,6 +293,16 @@ void (*ReportConnectStatus)(int status, int longlink_status)
 	xassert2(sg_callback != NULL);
 	sg_callback->ReportConnectStatus(status, longlink_status);
 };
+    
+void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
+
+};
+    
+void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+
+};
 
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 int  (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid)

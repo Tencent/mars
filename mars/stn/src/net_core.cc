@@ -563,6 +563,7 @@ void NetCore::__OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateLongLinkInfo(longlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
+    OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 
     if (kEctOK == _err_type) zombie_task_manager_->RedoTasks();
 
@@ -575,6 +576,7 @@ void NetCore::__OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err
     if (kEctLocal == _err_type) return;
 
     net_source_->ReportLongIP(_err_type == kEctOK, _ip, _port);
+
 }
 #endif
 
@@ -583,6 +585,7 @@ void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _er
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateShortLinkInfo(shortlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
+    OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 
     shortlink_try_flag_ = true;
 
@@ -607,6 +610,7 @@ void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _er
     if (kEctLocal == _err_type) return;
 
     net_source_->ReportShortIP(_err_type == kEctOK, _ip, _host, _port);
+
 }
 
 
