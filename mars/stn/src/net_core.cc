@@ -162,7 +162,7 @@ NetCore::NetCore()
                    
     xinfo_function();
 
-    ActiveLogic::Singleton::Instance()->SignalActive.connect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
+    ActiveLogic::Singleton::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
 
 #ifdef USE_LONG_LINK
@@ -209,7 +209,7 @@ NetCore::NetCore()
 NetCore::~NetCore() {
     xinfo_function();
 
-    ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
+    ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
 
 
@@ -234,6 +234,8 @@ NetCore::~NetCore() {
     delete anti_avalanche_;
     delete netcheck_logic_;
     delete net_source_;
+    
+    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
 
 void NetCore::__Release(NetCore* _instance) {
@@ -710,6 +712,14 @@ void NetCore::__OnTimerCheckSuc() {
     
 #endif
 
+}
+
+void NetCore::__OnSignalActive(bool _isactive) {
+    ASYNC_BLOCK_START
+    
+    anti_avalanche_->OnSignalActive(_isactive);
+    
+    ASYNC_BLOCK_END
 }
 
 VARIABLE_IS_NOT_USED static int export_openssl_mt_var = export_openssl_mutithread_support();
