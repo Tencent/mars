@@ -30,9 +30,9 @@ public class MainService implements PushMessageHandler {
 
     private LinkedBlockingQueue<PushMessage> pushMessages = new LinkedBlockingQueue<>();
 
-    private BusinessHandler[] handlers = new BusinessHandler[]{
-            new MessageHandler(),
-            new StatisticHandler()
+    private BusinessHandler[] handlers = new BusinessHandler[] {
+        new MessageHandler(),
+        new StatisticHandler()
     };
 
     public MainService() {

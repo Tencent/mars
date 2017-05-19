@@ -78,15 +78,16 @@ void LogBuffer::Flush(AutoBuffer& _buff) {
     __Clear();
 }
 
-bool LogBuffer::Write(const void* _data, size_t _inputlen, void* _output, size_t& _len) {
-    if (NULL == _data || NULL == _output || 0 == _inputlen || _len <= (size_t) log_crypt_->GetHeaderLen()) {
+bool LogBuffer::Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff) {
+    if (NULL == _data || 0 == _inputlen) {
         return false;
     }
     
-    log_crypt_->CryptSyncLog((char*)_data, _inputlen, (char*)_output, _len);
+    log_crypt_->CryptSyncLog((char*)_data, _inputlen, _out_buff);
     
     return true;
 }
+
 
 bool LogBuffer::Write(const void* _data, size_t _length) {
     if (NULL == _data || 0 == _length) {
@@ -117,20 +118,16 @@ bool LogBuffer::Write(const void* _data, size_t _length) {
         buff_.Write(_data, _length);
     }
     
-
-    char crypt_buffer[4096] = {0};
-    size_t crypt_buffer_len = sizeof(crypt_buffer);
     before_len -= remain_nocrypt_len_;
+    AutoBuffer out_buffer;
+    log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len, out_buffer, remain_nocrypt_len_);
     
-    log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len + remain_nocrypt_len_, crypt_buffer, crypt_buffer_len, remain_nocrypt_len_);
+    buff_.Write(out_buffer.Ptr(), out_buffer.Length(), before_len);
     
-
-    buff_.Write(crypt_buffer, crypt_buffer_len, before_len);
-    
-    before_len += crypt_buffer_len;
+    before_len += out_buffer.Length();
     buff_.Length(before_len, before_len);
    
-    log_crypt_->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)(crypt_buffer_len - remain_nocrypt_len_));
+    log_crypt_->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)(out_buffer.Length() - remain_nocrypt_len_));
 
     return true;
 }

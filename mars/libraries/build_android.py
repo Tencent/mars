@@ -8,6 +8,7 @@ import glob
 from mars_utils import *
 
 NDK_BUILD_CMD = "ndk-build _ARCH_=%s NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars %s -C "
+WITH_SCRIPT = 0
 MARS_LIBS_PATH = "mars_android_sdk"
 XLOG_LIBS_PATH = "mars_xlog_sdk"
 
@@ -35,7 +36,7 @@ def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _flag
     shutil.rmtree(libs_save_path + "/" + _arch, True)
     for i in range(0, len(BUILD_XLOG_PATHS)):
         shutil.rmtree("../" + BUILD_XLOG_PATHS[i] + "/libs/", True)
-        shutil.rmtree("../" + BUILD_MARS_PATHS[i] + "/obj", True)
+        shutil.rmtree("../" + BUILD_XLOG_PATHS[i] + "/obj", True)
 
 
     gen_revision_file(libs_save_path, libs_save_path)
@@ -43,8 +44,12 @@ def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _flag
     for i in range(0, len(BUILD_XLOG_PATHS)):
         if not os.path.exists("../" + BUILD_XLOG_PATHS[i] + "/jni"):
             continue
-        if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + "../" + BUILD_XLOG_PATHS[i]):
-            return -1
+        if WITH_SCRIPT == 0:
+            if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + "../" + BUILD_XLOG_PATHS[i]):
+                return -1
+        else:
+            if 0 != os.system(NDK_BUILD_CMD + "../" + BUILD_XLOG_PATHS[i]):
+                return -1
 
 
     for i in range(len(BUILD_XLOG_PATHS)-1, -1, -1):
@@ -89,8 +94,12 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _f
     for i in range(0, len(BUILD_MARS_PATHS)):
         if not os.path.exists("../" + BUILD_MARS_PATHS[i] + "/jni"):
             continue
-        if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + "../" + BUILD_MARS_PATHS[i]):
-            return -1
+        if WITH_SCRIPT == 0:
+            if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + "../" + BUILD_MARS_PATHS[i]):
+                return -1
+        else:
+            if 0 != os.system(NDK_BUILD_CMD + "../" + BUILD_MARS_PATHS[i]):
+                            return -1
 
 
     for i in range(len(BUILD_MARS_PATHS)-1, -1, -1):
@@ -141,13 +150,18 @@ def build_android_mars_shared_libs(_path="mars_android_sdk", _arch="armeabi", _f
     shutil.rmtree(_path + "/libs", True)
     shutil.rmtree(_path + "/obj", True)
 
-    if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + _path):
-        print("build fail!!!")
-        return -1
+
+    if WITH_SCRIPT == 0:
+        if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + _path):
+            print("build fail!!!")
+            return -1
+    else:
+        if 0 != os.system(NDK_BUILD_CMD + _path):
+                    print("build fail!!!")
+                    return -1
 
     for lib in glob.glob("%s/mars_libs/%s/symbols/*.so" %(_path, _arch)):
         shutil.copy(lib, "%s/obj/local/%s/" %(_path, _arch))
-
     print("build succeed!")
     return 0
 
@@ -170,20 +184,20 @@ def main():
         return
 
     while True:
-        flag = 0
+        global WITH_SCRIPT
         archs = []
         if len(sys.argv) >=2 and len(sys.argv[1])==1 and sys.argv[1] >="1" and sys.argv[1] <="5":
             num = sys.argv[1]
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
-                flag = 1
+                WITH_SCRIPT = 1
         else:
             num = raw_input("Enter menu:\n1. build mars shared libs.\n2. build mars static libs.\n3. build xlog shared lib with crypt.\n4. exit.\n")
             archs = choose_android_mars_jni_arch()
             if len(archs) == 0:
                 return
                 
-        if flag == 1:
+        if WITH_SCRIPT == 1:
             if "1" == num:
                 return build_android_mars_shared_libs(_arch=sys.argv[2])
             elif "2" == num:

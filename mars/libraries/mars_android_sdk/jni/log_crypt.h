@@ -23,6 +23,9 @@
 #include <stdint.h>
 #include <string>
 
+#include "mars/comm/autobuffer.h"
+
+
 class LogCrypt {
 public:
     LogCrypt(const char* _pubkey);
@@ -48,8 +51,8 @@ public:
     void SetHeaderInfo(char* _data, bool _is_async);
     void SetTailerInfo(char* _data);
 
-    void CryptSyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len);
-    void CryptAsyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len, size_t& _remain_nocrypt_len);
+    void CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff);
+    void CryptAsyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff, size_t& _remain_nocrypt_len);
     
     bool Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _raw_log_len);
     

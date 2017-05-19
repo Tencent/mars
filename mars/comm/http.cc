@@ -609,6 +609,7 @@ bool Builder::HttpToBuffer(AutoBuffer& _http) {
 // implement of Parser
 Parser::Parser(BodyReceiver* _body, bool _manage)
     : recvstatus_(kStart)
+    , response_header_ready_(false)
     , csmode_(kRespond)
     , headfields_()
     , bodyreceiver_(_body)
@@ -631,6 +632,22 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
     if (NULL == _buffer || 0 == _length) {
         xwarn2(TSF"Recv(%_, %_), status:%_", NULL==_buffer?"NULL":_buffer, _length, recvstatus_);
         return recvstatus_;
+    }
+    
+    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
+        
+        headerbuf_.Write(_buffer, std::min(_length, (size_t)4096));
+        
+        const char* pszbuf = (const char*)headerbuf_.Ptr();
+        size_t length = headerbuf_.Length();
+    
+        if (length > 4){
+            char* pos = string_strnstr(pszbuf, "\r\n\r\n", (int)length);
+            if (pos != NULL){
+                headerbuf_.Length(0, pos - pszbuf + 4);
+                response_header_ready_ = true;
+            }
+        }
     }
     
     recvbuf_.Write(_buffer, _length);
@@ -677,6 +694,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                 }
                 
                 recvstatus_ = kHeaderFields;
+                headerbuf_.Write(recvbuf_.Ptr(), firstlinelength);
                 recvbuf_.Move(- firstlinelength);
             }
                 break;
@@ -704,6 +722,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                 }
                 
                 recvstatus_ = kBody;
+                headerbuf_.Write(recvbuf_.Ptr(), headerslength);
                 recvbuf_.Move(-headerslength);
             }
                 break;
@@ -807,6 +826,21 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
         return recvstatus_;
     }
 
+    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
+        
+        headerbuf_.Write(_recv_buffer.Ptr(), std::min(_recv_buffer.Length(), (size_t)4096));
+        
+        const char* pszbuf = (const char*)headerbuf_.Ptr();
+        size_t length = headerbuf_.Length();
+        
+        if (length > 4){
+            char* pos = string_strnstr(pszbuf, "\r\n\r\n", (int)length);
+            if (pos != NULL){
+                headerbuf_.Length(0, pos - pszbuf + 4);
+                response_header_ready_ = true;
+            }
+        }
+    }
 
     while (true) {
         switch (recvstatus_) {
@@ -1006,6 +1040,9 @@ const BodyReceiver& Parser::Body() const {
     return *bodyreceiver_;
 }
 
+const AutoBuffer& Parser::HeaderBuffer() const{
+    return headerbuf_;
+}
 
 bool Parser::FirstLineReady() const {
     return kFirstLineError < recvstatus_;

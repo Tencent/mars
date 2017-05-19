@@ -107,9 +107,11 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
     return interval;
 }
 
+#define AYNC_HANDLER asyncreg_.Get()
 
 LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id)
-    : activelogic_(_activelogic), longlink_(_longlink), alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this), _id)
+    : asyncreg_(MessageQueue::InstallAsyncHandler(_id))
+    , activelogic_(_activelogic), longlink_(_longlink), alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this), _id)
     , status_(LongLink::kDisConnected)
     , last_connect_time_(0)
     , last_connect_net_type_(kNoNet)
@@ -128,6 +130,7 @@ LongLinkConnectMonitor::~LongLinkConnectMonitor() {
     longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
     activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
     activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+    asyncreg_.CancelAndWait();
 }
 
 bool LongLinkConnectMonitor::MakeSureConnected() {
@@ -186,6 +189,7 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 }
 
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
+    ASYNC_BLOCK_START
 #ifdef __APPLE__
 
     if (_isForeground) {
@@ -198,10 +202,13 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
 
 #endif
     __AutoIntervalConnect();
+    ASYNC_BLOCK_END
 }
 
 void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
+    ASYNC_BLOCK_START
     __AutoIntervalConnect();
+    ASYNC_BLOCK_END
 }
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status) {

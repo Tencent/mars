@@ -390,82 +390,59 @@ bool LogCrypt::GetPeriodLogs(const char* const _log_path, int _begin_hour, int _
 }
 
 
-void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len) {
- /*   uint16_t seq = __GetSeq(false);
-  
-    
-    memcpy(_output + GetHeaderLen(), _log_data, len);
-    _output[GetHeaderLen() + len] = kMagicEnd;
-    _output[0] = kMagicSyncStart;
-    
-    memcpy(_output + 1, &seq, sizeof(seq));
-    
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    time_t sec = tv.tv_sec;
-    tm tm_tmp = *localtime((const time_t*)&sec);
-    
-    char hour = (char)tm_tmp.tm_hour;
-    
-    memcpy(_output+3, &hour, sizeof(hour));
-    memcpy(_output+4, &hour, sizeof(hour));
-    memcpy(_output+5, &len, sizeof(len));
-    
-    _output_len = GetHeaderLen() + GetTailerLen() + len;*/
-    
-    SetHeaderInfo(_output, false);
+void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff) {
+	_out_buff.AllocWrite(GetHeaderLen() + GetTailerLen() + _input_len);
+
+    SetHeaderInfo((char*)_out_buff.Ptr(), false);
     
     uint32_t header_len = GetHeaderLen();
-    uint32_t tailer_len = GetTailerLen();
     
-    uint32_t len = std::min(_input_len, _output_len - header_len - tailer_len);
-    UpdateLogLen(_output, len);
+    UpdateLogLen((char*)_out_buff.Ptr(), (uint32_t)_input_len);
     
-    _output_len = header_len + tailer_len + len;
-    SetTailerInfo(_output + header_len + len);
+    SetTailerInfo((char*)_out_buff.Ptr() + _input_len + header_len);
     
     if (!is_crypt_) {
-        memcpy(_output + header_len, _log_data, len);
+        memcpy((char*)_out_buff.Ptr() + header_len, _log_data, _input_len);
         return;
     }
 
 #ifndef XLOG_NO_CRYPT
     uint32_t tmp[2] = {0};
-    size_t cnt = len / TEA_BLOCK_LEN;
-    size_t remain_len = len % TEA_BLOCK_LEN;
+    size_t cnt = _input_len / TEA_BLOCK_LEN;
+    size_t remain_len = _input_len % TEA_BLOCK_LEN;
     
     for (size_t i = 0; i < cnt; ++i) {
         memcpy(tmp, _log_data + i * TEA_BLOCK_LEN, TEA_BLOCK_LEN);
         __TeaEncrypt(tmp, tea_key_);
-        memcpy(_output + header_len + i * TEA_BLOCK_LEN, tmp, TEA_BLOCK_LEN);
+        memcpy((char*)_out_buff.Ptr() + header_len + i * TEA_BLOCK_LEN, tmp, TEA_BLOCK_LEN);
     }
 
-    memcpy(_output + header_len + len - remain_len, _log_data + len - remain_len, remain_len);
+    memcpy((char*)_out_buff.Ptr() + header_len + _input_len - remain_len, _log_data + _input_len - remain_len, remain_len);
 #endif
 
 }
 
-void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len, size_t& _remain_nocrypt_len) {
+void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff, size_t& _remain_nocrypt_len) {
     
-    _output_len = std::min(_input_len, _output_len);
+	_out_buff.AllocWrite(_input_len);
     
     if (!is_crypt_) {
-        memcpy(_output, _log_data, _output_len);
+        memcpy(_out_buff.Ptr(), _log_data, _input_len);
         _remain_nocrypt_len = 0;
         return;
     }
  #ifndef XLOG_NO_CRYPT
     uint32_t tmp[2] = {0};
-    size_t cnt = _output_len / TEA_BLOCK_LEN;
-    _remain_nocrypt_len = _output_len % TEA_BLOCK_LEN;
+    size_t cnt = _input_len / TEA_BLOCK_LEN;
+	_remain_nocrypt_len = _input_len % TEA_BLOCK_LEN;
     
     for (size_t i = 0; i < cnt; ++i) {
         memcpy(tmp, _log_data + i * TEA_BLOCK_LEN, TEA_BLOCK_LEN);
         __TeaEncrypt(tmp, tea_key_);
-        memcpy(_output + i * TEA_BLOCK_LEN, tmp, TEA_BLOCK_LEN);
+        memcpy((char*)_out_buff.Ptr() + i * TEA_BLOCK_LEN, tmp, TEA_BLOCK_LEN);
     }
     
-    memcpy(_output + _output_len - _remain_nocrypt_len, _log_data + _output_len - _remain_nocrypt_len, _remain_nocrypt_len);
+    memcpy((char*)_out_buff.Ptr() + _input_len - _remain_nocrypt_len, _log_data + _input_len - _remain_nocrypt_len, _remain_nocrypt_len);
 #endif
 }
 

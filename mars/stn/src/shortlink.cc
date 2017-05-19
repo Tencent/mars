@@ -406,7 +406,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
 	_conn_profile.disconn_errcode = _status;
 	__UpdateProfile(_conn_profile);
 
-    xassert2(!breaker_.IsBreak());
+ //   xassert2(!breaker_.IsBreak());
 
     if (kEctOK != _errType) {
         xassert2(func_network_report);

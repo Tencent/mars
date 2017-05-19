@@ -19,7 +19,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Main.pb.h"
 
 @interface DemoEntryController : NSViewController
 
+
+-(void)setConversation:(Conversation*)conversation;
 @end

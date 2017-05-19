@@ -186,13 +186,13 @@ void NetSource::SetDebugIP(const std::string& _host, const std::string& _ip) {
 	}
 }
 
-std::string& NetSource::GetLongLinkDebugIP() {
+const std::string& NetSource::GetLongLinkDebugIP() {
 	ScopedLock lock(sg_ip_mutex);
 
 	return sg_longlink_debugip;
 }
 
-std::string& NetSource::GetShortLinkDebugIP() {
+const std::string& NetSource::GetShortLinkDebugIP() {
     ScopedLock lock(sg_ip_mutex);
     return sg_shortlink_debugip;
 }
@@ -206,7 +206,7 @@ void NetSource::SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpri
  * longlink functions
  *
  */
-std::vector<std::string>& NetSource::GetLongLinkHosts() {
+const std::vector<std::string>& NetSource::GetLongLinkHosts() {
     ScopedLock lock(sg_ip_mutex);
 	return sg_longlink_hosts;
 }

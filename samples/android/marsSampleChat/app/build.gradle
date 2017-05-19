@@ -20,6 +20,8 @@ android {
         targetSdkVersion 16
         versionCode 1
         versionName '1.0.0'
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -67,7 +69,7 @@ protobuf {
 }
 
 ext {
-    useLocalMarsWrapper = false
+    useLocalMarsWrapper = true // Changed to true is better for sample development.
 }
 
 dependencies {
@@ -83,4 +85,7 @@ dependencies {
     } else {
         compile "com.tencent.mars:mars-wrapper:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
     }
+
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
 }

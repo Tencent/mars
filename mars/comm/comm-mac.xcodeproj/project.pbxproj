@@ -40,7 +40,7 @@
 		4B3C3E211E1210A100351897 /* complexconnect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B3C3E201E1210A100351897 /* complexconnect.cc */; };
 		4BA235641E5AB6E1002B769D /* socketbreaker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BA2355E1E5AB6E1002B769D /* socketbreaker.cc */; };
 		4BA235651E5AB6E1002B769D /* socketpoll.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BA235601E5AB6E1002B769D /* socketpoll.cc */; };
-		4BA235661E5AB6E1002B769D /* socketselect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BA235621E5AB6E1002B769D /* socketselect.cc */; };
+		4BB712531DE8149B00185734 /* socketselect.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712511DE8149B00185734 /* socketselect.cc */; };
 		4BB712F71DE8229A00185734 /* loginfo_extract.c in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712F51DE8229A00185734 /* loginfo_extract.c */; };
 		55D917841CC7BD7A0076CBD9 /* message_queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D9093D1CC7BD760076CBD9 /* message_queue.cc */; };
 		55D918241CC7BD7A0076CBD9 /* mmap_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D90A141CC7BD770076CBD9 /* mmap_util.cc */; };
@@ -148,8 +148,8 @@
 		4BA2355F1E5AB6E1002B769D /* socketbreaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketbreaker.h; sourceTree = "<group>"; };
 		4BA235601E5AB6E1002B769D /* socketpoll.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketpoll.cc; sourceTree = "<group>"; };
 		4BA235611E5AB6E1002B769D /* socketpoll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketpoll.h; sourceTree = "<group>"; };
-		4BA235621E5AB6E1002B769D /* socketselect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketselect.cc; sourceTree = "<group>"; };
-		4BA235631E5AB6E1002B769D /* socketselect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketselect.h; sourceTree = "<group>"; };
+		4BB712511DE8149B00185734 /* socketselect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socketselect.cc; sourceTree = "<group>"; };
+		4BB712521DE8149B00185734 /* socketselect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socketselect.h; sourceTree = "<group>"; };
 		4BB712F51DE8229A00185734 /* loginfo_extract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loginfo_extract.c; sourceTree = "<group>"; };
 		4BB712F61DE8229A00185734 /* loginfo_extract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loginfo_extract.h; sourceTree = "<group>"; };
 		4BE038FE1DE7F0C70004CD84 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/CoreWLAN.framework; sourceTree = DEVELOPER_DIR; };
@@ -568,15 +568,15 @@
 			);
 			sourceTree = "<group>";
 		};
-		4BA2355D1E5AB6E1002B769D /* socket */ = {
+		4BB712501DE8149B00185734 /* SocketSelect */ = {
 			isa = PBXGroup;
 			children = (
 				4BA2355E1E5AB6E1002B769D /* socketbreaker.cc */,
 				4BA2355F1E5AB6E1002B769D /* socketbreaker.h */,
 				4BA235601E5AB6E1002B769D /* socketpoll.cc */,
 				4BA235611E5AB6E1002B769D /* socketpoll.h */,
-				4BA235621E5AB6E1002B769D /* socketselect.cc */,
-				4BA235631E5AB6E1002B769D /* socketselect.h */,
+				4BB712511DE8149B00185734 /* socketselect.cc */,
+				4BB712521DE8149B00185734 /* socketselect.h */,
 			);
 			path = socket;
 			sourceTree = "<group>";
@@ -768,7 +768,7 @@
 		55D90B0A1CC7BD770076CBD9 /* unix */ = {
 			isa = PBXGroup;
 			children = (
-				4BA2355D1E5AB6E1002B769D /* socket */,
+				4BB712501DE8149B00185734 /* SocketSelect */,
 				55D90B0E1CC7BD770076CBD9 /* thread */,
 			);
 			path = unix;
@@ -867,6 +867,7 @@
 				1F25BFDB1CD37AF500AC1003 /* utf8_codecvt_facet.cpp in Sources */,
 				4B0280831DE70343001721C0 /* http.cc in Sources */,
 				1F25BFDC1CD37AF500AC1003 /* windows_file_codecvt.cpp in Sources */,
+				4B3D44411E36F11500F69213 /* socketselect.cc in Sources */,
 				1F25BFDD1CD37AF500AC1003 /* windows_file_codecvt.hpp in Sources */,
 				1F25BFDE1CD37AF500AC1003 /* file_descriptor.cpp in Sources */,
 				1F25BFDF1CD37AF500AC1003 /* mapped_file.cpp in Sources */,

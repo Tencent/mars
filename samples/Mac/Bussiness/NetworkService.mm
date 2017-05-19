@@ -170,6 +170,11 @@ static NetworkService * sharedSingleton = nil;
     [_delegate OnConnectionStatusChange:status longConnStatus:longConnStatus];
 }
 
+- (void)addPushObserver:(id<PushNotifyDelegate>)observer withCmdId:(int)cmdId {
+    [_delegate addPushObserver:observer withCmdId:cmdId];
+}
+
+
 #pragma mark NetworkStatusDelegate
 -(void) ReachabilityChange:(UInt32)uiFlags {
     

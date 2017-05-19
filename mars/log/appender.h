@@ -23,6 +23,7 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 enum TAppenderMode
 {
@@ -37,9 +38,17 @@ void appender_flush_sync();
 void appender_close();
 void appender_setmode(TAppenderMode _mode);
 bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
+bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
 bool appender_get_current_log_path(char* _log_path, unsigned int _len);
 bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len);
 void appender_set_console_log(bool _is_open);
+
+/*
+ * By default, all logs will write to one file everyday. You can split logs to multi-file by changing max_file_size.
+ * 
+ * @param _max_byte_size    Max byte size of single log file, default is 0, meaning do not split.
+ */
+void appender_set_max_file_size(uint64_t _max_byte_size);
 
 
 #endif /* APPENDER_H_ */

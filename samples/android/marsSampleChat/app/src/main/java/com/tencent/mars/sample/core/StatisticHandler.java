@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * Created by caoshaokun on 16/12/21.
  */
-public class StatisticHandler extends BusinessHandler{
+public class StatisticHandler extends BusinessHandler {
 
     public static String TAG = StatisticHandler.class.getSimpleName();
 
@@ -46,20 +46,17 @@ public class StatisticHandler extends BusinessHandler{
     public boolean handleRecvMessage(PushMessage pushMessage) {
         try {
             switch (pushMessage.cmdId) {
-                case BaseConstants.CGIHISTORY_CMDID:
-                {
+                case BaseConstants.CGIHISTORY_CMDID: {
                     Gson gson = new Gson();
                     TaskProfile profile = gson.fromJson(new String(pushMessage.buffer, Charset.forName("UTF-8")), TaskProfile.class);
                     taskHistory.add(profile);
                 }
                 return true;
-                case BaseConstants.CONNSTATUS_CMDID:
-                {
+                case BaseConstants.CONNSTATUS_CMDID: {
 
                 }
                 return true;
-                case BaseConstants.FLOW_CMDID:
-                {
+                case BaseConstants.FLOW_CMDID: {
                     String flowStr = new String(pushMessage.buffer, Charset.forName("UTF-8"));
                     String[] flowsizes = flowStr.split(",");
                     wifiRecvFlow += Integer.valueOf(flowsizes[0]);
@@ -68,8 +65,7 @@ public class StatisticHandler extends BusinessHandler{
                     mobileSendFlow += Integer.valueOf(flowsizes[3]);
                 }
                 return true;
-                case BaseConstants.SDTRESULT_CMDID:
-                {
+                case BaseConstants.SDTRESULT_CMDID: {
                     Gson gson = new Gson();
                     SignalDetectResult profile = gson.fromJson(new String(pushMessage.buffer, Charset.forName("UTF-8")), SignalDetectResult.class);
                     sdtResults.add(profile);
@@ -78,8 +74,7 @@ public class StatisticHandler extends BusinessHandler{
                 default:
                     break;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.e(TAG, "handle pushMessage failed, %s", e);
         }
 

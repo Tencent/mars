@@ -41,7 +41,7 @@ public:
     PtrBuffer& GetData();
     
     void Flush(AutoBuffer& _buff);
-    bool Write(const void* _data, size_t _inputlen, void* _output, size_t& _len);
+    bool Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff);
     bool Write(const void* _data, size_t _length);
 
 private:
