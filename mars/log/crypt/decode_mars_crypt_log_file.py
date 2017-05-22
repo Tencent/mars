@@ -126,7 +126,11 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
     try:
         decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
 
-        if MAGIC_NO_COMPRESS_START1==_buffer[_offset] or MAGIC_COMPRESS_START2==_buffer[_offset]:
+        if MAGIC_NO_COMPRESS_START1==_buffer[_offset]:
+            pass
+        
+        elif MAGIC_COMPRESS_START2==_buffer[_offset]:
+            #print "ecdh"
             svr = pyelliptic.ECC(curve='prime256v1')
             client = pyelliptic.ECC(curve='prime256v1')
             client.pubkey_x = str(buffer(_buffer, _offset+headerLen-crypt_key_len, crypt_key_len/2))
@@ -136,9 +140,7 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
             tea_key = svr.get_ecdh_key(client.get_pubkey())
 
             tmpbuffer = tea_decrypt(tmpbuffer, tea_key)
-
-            if MAGIC_COMPRESS_START2==_buffer[_offset]:
-                tmpbuffer = decompressor.decompress(str(tmpbuffer))
+            tmpbuffer = decompressor.decompress(str(tmpbuffer))
         elif MAGIC_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_NO_CRYPT_START==_buffer[_offset]:
             tmpbuffer = decompressor.decompress(str(tmpbuffer))
         elif MAGIC_COMPRESS_START1==_buffer[_offset]:

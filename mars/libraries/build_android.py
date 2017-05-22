@@ -48,7 +48,7 @@ def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_
             if 0 != os.system(NDK_BUILD_CMD %(_arch, _lib_prefix, _flag) + "../" + BUILD_XLOG_PATHS[i]):
                 return -1
         else:
-            if 0 != os.system(NDK_BUILD_CMD + "../" + BUILD_XLOG_PATHS[i]):
+            if 0 != os.system(NDK_BUILD_CMD %(_lib_prefix, _flag) + "../" + BUILD_XLOG_PATHS[i]):
                 return -1
 
 
@@ -98,7 +98,7 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _l
             if 0 != os.system(NDK_BUILD_CMD %(_arch, _lib_prefix, _flag) + "../" + BUILD_MARS_PATHS[i]):
                 return -1
         else:
-            if 0 != os.system(NDK_BUILD_CMD + "../" + BUILD_MARS_PATHS[i]):
+            if 0 != os.system(NDK_BUILD_CMD %(_lib_prefix, _flag) + "../" + BUILD_MARS_PATHS[i]):
                 return -1
 
 
@@ -143,7 +143,7 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _l
 
 def build_android_mars_shared_libs(_path="mars_android_sdk", _arch="armeabi", _lib_prefix="mars", _flag=""):
 
-    if 0 != build_android_mars_static_libs(_path, _arch, _flag):
+    if 0 != build_android_mars_static_libs(_path, _arch, _lib_prefix, _flag):
         print("build static libs fail!!!")
         return -1
 
@@ -156,7 +156,7 @@ def build_android_mars_shared_libs(_path="mars_android_sdk", _arch="armeabi", _l
             print("build fail!!!")
             return -1
     else:
-        if 0 != os.system(NDK_BUILD_CMD + _path):
+        if 0 != os.system(NDK_BUILD_CMD %(_lib_prefix, _flag) + _path):
             print("build fail!!!")
             return -1
 
@@ -190,6 +190,8 @@ def main():
             num = sys.argv[1]
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
+                global NDK_BUILD_CMD
+                NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=%s %s -C "
                 WITH_SCRIPT = 1
         else:
             num = raw_input("Enter menu:\n1. build mars shared libs.\n2. build mars static libs.\n3. build xlog shared lib with crypt.\n4. exit.\n")

@@ -98,8 +98,6 @@ static bool Hex2Buffer(const char* _str, size_t _len, unsigned char* _buffer) {
 #include <android/log.h>
 LogCrypt::LogCrypt(const char* _pubkey): seq_(0), is_crypt_(false) {
     
-struct timeval tpstart,tpend;
- gettimeofday(&tpstart,NULL);
 #if XLOG_CRYPT
     const static size_t PUB_KEY_LEN = 64;
     const static int NID = NID_X9_62_prime256v1;
@@ -147,10 +145,7 @@ struct timeval tpstart,tpend;
     OPENSSL_free(client_pubkey_y);
     OPENSSL_free(client_prikey);
 #endif
-gettimeofday(&tpend,NULL);
-    long timeuse = (tpend.tv_sec - tpstart.tv_sec) * 1000  + (tpend.tv_usec-tpstart.tv_usec)/1000;
-    long b = timeuse;
-    __android_log_print(ANDROID_LOG_INFO, "garryyan", "ecdh use:%ld", b);
+    
 }
 
 /*
