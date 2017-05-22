@@ -305,7 +305,7 @@ const char* const KStringChunked = "chunked";
 const char* const KStringClose = "close";
 const char* const KStringKeepalive = "Keep-Alive";
 const char* const KStringAcceptAll = "*/*";
-const char* const KStringAcceptEncodingDefalte = "defalte";
+const char* const KStringAcceptEncodingDeflate = "deflate";
 const char* const KStringAcceptEncodingGzip = "gzip";
 const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
@@ -333,7 +333,7 @@ std::pair<const std::string, std::string> HeaderFields::MakeAcceptAll() {
 }
 
 std::pair<const std::string, std::string> HeaderFields::MakeAcceptEncodingDefalte() {
-    return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingDefalte);
+    return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingDeflate);
 }
 std::pair<const std::string, std::string> HeaderFields::MakeAcceptEncodingGzip() {
     return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingGzip);
