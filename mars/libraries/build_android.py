@@ -7,7 +7,7 @@ import glob
 
 from mars_utils import *
 
-NDK_BUILD_CMD = "ndk-build _ARCH_=%s NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=mars %s -C "
+NDK_BUILD_CMD = "ndk-build _ARCH_=%s NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=%s %s -C "
 WITH_SCRIPT = 0
 MARS_LIBS_PATH = "mars_android_sdk"
 XLOG_LIBS_PATH = "mars_xlog_sdk"
@@ -28,7 +28,7 @@ COPY_MARS_FILES = {"../stn/proto/longlink_packer.h": "jni/longlink_packer.h",
                 }
 
 
-def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _flag="XLOG_CRYPT=1"):
+def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag="XLOG_CRYPT=1"):
     libs_save_path = _path + "/mars_libs"
     src_save_path = _path + "/"
 
@@ -45,7 +45,7 @@ def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _flag
         if not os.path.exists("../" + BUILD_XLOG_PATHS[i] + "/jni"):
             continue
         if WITH_SCRIPT == 0:
-            if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + "../" + BUILD_XLOG_PATHS[i]):
+            if 0 != os.system(NDK_BUILD_CMD %(_arch, _lib_prefix, _flag) + "../" + BUILD_XLOG_PATHS[i]):
                 return -1
         else:
             if 0 != os.system(NDK_BUILD_CMD + "../" + BUILD_XLOG_PATHS[i]):
@@ -79,7 +79,7 @@ def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _flag
     return 0
 
 
-def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _flag="XLOG_CRYPT=1"):
+def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _lib_prefix="mars", _flag=""):
     libs_save_path = _path + "/mars_libs"
     src_save_path = _path + "/"
     
@@ -95,11 +95,11 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _f
         if not os.path.exists("../" + BUILD_MARS_PATHS[i] + "/jni"):
             continue
         if WITH_SCRIPT == 0:
-            if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + "../" + BUILD_MARS_PATHS[i]):
+            if 0 != os.system(NDK_BUILD_CMD %(_arch, _lib_prefix, _flag) + "../" + BUILD_MARS_PATHS[i]):
                 return -1
         else:
             if 0 != os.system(NDK_BUILD_CMD + "../" + BUILD_MARS_PATHS[i]):
-                            return -1
+                return -1
 
 
     for i in range(len(BUILD_MARS_PATHS)-1, -1, -1):
@@ -141,7 +141,7 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _f
     print("build succeed!")
     return 0
 
-def build_android_mars_shared_libs(_path="mars_android_sdk", _arch="armeabi", _flag="XLOG_CRYPT=1"):
+def build_android_mars_shared_libs(_path="mars_android_sdk", _arch="armeabi", _lib_prefix="mars", _flag=""):
 
     if 0 != build_android_mars_static_libs(_path, _arch, _flag):
         print("build static libs fail!!!")
@@ -152,13 +152,13 @@ def build_android_mars_shared_libs(_path="mars_android_sdk", _arch="armeabi", _f
 
 
     if WITH_SCRIPT == 0:
-        if 0 != os.system(NDK_BUILD_CMD %(_arch, _flag) + _path):
+        if 0 != os.system(NDK_BUILD_CMD %(_arch, _lib_prefix, _flag) + _path):
             print("build fail!!!")
             return -1
     else:
         if 0 != os.system(NDK_BUILD_CMD + _path):
-                    print("build fail!!!")
-                    return -1
+            print("build fail!!!")
+            return -1
 
     for lib in glob.glob("%s/mars_libs/%s/symbols/*.so" %(_path, _arch)):
         shutil.copy(lib, "%s/obj/local/%s/" %(_path, _arch))

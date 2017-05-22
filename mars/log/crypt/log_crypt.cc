@@ -95,6 +95,7 @@ static bool Hex2Buffer(const char* _str, size_t _len, unsigned char* _buffer) {
 }
 #endif
 
+#include <android/log.h>
 LogCrypt::LogCrypt(const char* _pubkey): seq_(0), is_crypt_(false) {
     
 #if XLOG_CRYPT
@@ -144,11 +145,11 @@ LogCrypt::LogCrypt(const char* _pubkey): seq_(0), is_crypt_(false) {
     OPENSSL_free(client_pubkey_y);
     OPENSSL_free(client_prikey);
 #endif
-
+    
 }
 
 /*
- * |magic start(char)|seq(uint16_t)|begin hour(char)|end hour(char)|length(uint32_t)|crypt key(uint32_t)|
+ * |magic start(char)|seq(uint16_t)|begin hour(char)|end hour(char)|length(uint32_t)|crypt key(char*64)|
  */
 
 uint32_t LogCrypt::GetHeaderLen() {
@@ -401,13 +402,13 @@ void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, Auto
     
     SetTailerInfo((char*)_out_buff.Ptr() + _input_len + header_len);
     
-    if (!is_crypt_) {
+  //  if (!is_crypt_) {
         memcpy((char*)_out_buff.Ptr() + header_len, _log_data, _input_len);
-        return;
-    }
+    //    return;
+    //}
 
 #ifndef XLOG_NO_CRYPT
-    uint32_t tmp[2] = {0};
+ /*   uint32_t tmp[2] = {0};
     size_t cnt = _input_len / TEA_BLOCK_LEN;
     size_t remain_len = _input_len % TEA_BLOCK_LEN;
     
@@ -417,7 +418,7 @@ void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, Auto
         memcpy((char*)_out_buff.Ptr() + header_len + i * TEA_BLOCK_LEN, tmp, TEA_BLOCK_LEN);
     }
 
-    memcpy((char*)_out_buff.Ptr() + header_len + _input_len - remain_len, _log_data + _input_len - remain_len, remain_len);
+    memcpy((char*)_out_buff.Ptr() + header_len + _input_len - remain_len, _log_data + _input_len - remain_len, remain_len);*/
 #endif
 
 }
@@ -431,7 +432,7 @@ void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, Aut
         _remain_nocrypt_len = 0;
         return;
     }
- #ifndef XLOG_NO_CRYPT
+#ifndef XLOG_NO_CRYPT
     uint32_t tmp[2] = {0};
     size_t cnt = _input_len / TEA_BLOCK_LEN;
 	_remain_nocrypt_len = _input_len % TEA_BLOCK_LEN;

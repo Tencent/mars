@@ -119,15 +119,17 @@ bool LogBuffer::Write(const void* _data, size_t _length) {
     }
     
     before_len -= remain_nocrypt_len_;
+    
     AutoBuffer out_buffer;
-    log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len, out_buffer, remain_nocrypt_len_);
+    size_t last_remain_len = remain_nocrypt_len_;
+    log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len + remain_nocrypt_len_, out_buffer, remain_nocrypt_len_);
     
     buff_.Write(out_buffer.Ptr(), out_buffer.Length(), before_len);
     
     before_len += out_buffer.Length();
     buff_.Length(before_len, before_len);
    
-    log_crypt_->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)(out_buffer.Length() - remain_nocrypt_len_));
+    log_crypt_->UpdateLogLen((char*)buff_.Ptr(), (uint32_t)(out_buffer.Length() - last_remain_len));
 
     return true;
 }
