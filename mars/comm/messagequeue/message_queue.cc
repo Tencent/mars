@@ -303,7 +303,7 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
 
     std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
     if (sg_messagequeue_map.end() == pos) {
-        ASSERT2(false, "%" PRIu64, id);
+        //ASSERT2(false, "%" PRIu64, id);
         return KNullPost;
     }
 
