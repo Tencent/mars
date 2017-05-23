@@ -58,7 +58,7 @@ enum {
 
 class NetCore {
   public:
-    SINGLETON_INTRUSIVE(NetCore, new NetCore, NetCore::__Release);
+    SINGLETON_INTRUSIVE(NetCore, new NetCore, delete);
 
   public:
     boost::function<void (Task& _task)> task_process_hook_;

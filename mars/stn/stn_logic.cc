@@ -55,7 +55,6 @@ static const std::string kLibName = "stn";
     stn_ptr->func
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-    \
 	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (stn_ptr) \
     {\
@@ -89,7 +88,6 @@ static void onExceptionCrash() {
     appender_close();
 }
 
-    
 static void onNetworkChange() {
 
     STN_WEAK_CALL(OnNetworkChange());
@@ -117,7 +115,8 @@ static void __initbind_baseprjevent() {
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(&onNetworkChange);
+    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+
     
 #ifndef XLOGGER_TAG
 #error "not define XLOGGER_TAG"
