@@ -285,15 +285,17 @@ bool LogCrypt::GetPeriodLogs(const char* const _log_path, int _begin_hour, int _
 }
 
 
-void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len) {
-    uint16_t seq = __GetSeq(false);
-    uint32_t len = std::min(_input_len, _output_len - GetHeaderLen() - GetTailerLen());
+void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff) {
+	_out_buff.AllocWrite(GetHeaderLen() + GetTailerLen() + _input_len);
     
-    memcpy(_output + GetHeaderLen(), _log_data, len);
-    _output[GetHeaderLen() + len] = kMagicEnd;
-    _output[0] = kMagicSyncStart;
+	uint16_t seq = __GetSeq(false);
+    uint32_t len = _input_len;
     
-    memcpy(_output + 1, &seq, sizeof(seq));
+    memcpy((char*)_out_buff.Ptr() + GetHeaderLen(), _log_data, len);
+    ((char*)_out_buff.Ptr())[GetHeaderLen() + len] = kMagicEnd;
+    ((char*)_out_buff.Ptr())[0] = kMagicSyncStart;
+    
+    memcpy((char*)_out_buff.Ptr() + 1, &seq, sizeof(seq));
     
     struct timeval tv;
     gettimeofday(&tv, 0);
@@ -302,16 +304,18 @@ void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, char
     
     char hour = (char)tm_tmp.tm_hour;
     
-    memcpy(_output+3, &hour, sizeof(hour));
-    memcpy(_output+4, &hour, sizeof(hour));
-    memcpy(_output+5, &len, sizeof(len));
+    memcpy((char*)_out_buff.Ptr()+3, &hour, sizeof(hour));
+    memcpy((char*)_out_buff.Ptr()+4, &hour, sizeof(hour));
+    memcpy((char*)_out_buff.Ptr()+5, &len, sizeof(len));
     
-    _output_len = GetHeaderLen() + GetTailerLen() + len;
+    _out_buff.Length(GetHeaderLen() + GetTailerLen() + _input_len, GetHeaderLen() + GetTailerLen() + _input_len);
 }
 
-void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len) {
-    _output_len = std::min(_input_len, _output_len);
-    memcpy(_output, _log_data, _output_len);
+void LogCrypt::CryptAsyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff) {
+	_out_buff.AllocWrite(_input_len);
+    
+	memcpy(_out_buff.Ptr(), _log_data, _input_len);
+	_out_buff.Length(_input_len, _input_len);
 }
 
 bool LogCrypt::Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _raw_log_len) {
