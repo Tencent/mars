@@ -54,6 +54,11 @@
     HelloResponse* helloResponse = [HelloResponse parseFromData:responseData];
     if ([helloResponse hasErrmsg]) {
         LOG_INFO(kModuleViewController, @"hello response: %@", helloResponse.errmsg);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert setMessageText:helloResponse.errmsg];
+            [alert runModal];
+        });
     }
     
     return helloResponse.retcode == 0 ? 0 : -1;

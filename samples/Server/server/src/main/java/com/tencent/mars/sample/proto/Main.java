@@ -45,6 +45,10 @@ public final class Main {
      * <code>CMD_ID_LEFTTOPIC = 7;</code>
      */
     CMD_ID_LEFTTOPIC(7, 7),
+    /**
+     * <code>CMD_ID_HELLO2 = 8;</code>
+     */
+    CMD_ID_HELLO2(8, 8),
     ;
 
     /**
@@ -79,6 +83,10 @@ public final class Main {
      * <code>CMD_ID_LEFTTOPIC = 7;</code>
      */
     public static final int CMD_ID_LEFTTOPIC_VALUE = 7;
+    /**
+     * <code>CMD_ID_HELLO2 = 8;</code>
+     */
+    public static final int CMD_ID_HELLO2_VALUE = 8;
 
 
     public final int getNumber() { return value; }
@@ -93,6 +101,7 @@ public final class Main {
         case 4: return CMD_ID_CONVERSATION_LIST;
         case 5: return CMD_ID_JOINTOPIC;
         case 7: return CMD_ID_LEFTTOPIC;
+        case 8: return CMD_ID_HELLO2;
         default: return null;
       }
     }
@@ -175,6 +184,15 @@ public final class Main {
      */
     com.google.protobuf.ByteString
         getTextBytes();
+
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    boolean hasDumpContent();
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    com.google.protobuf.ByteString getDumpContent();
   }
   /**
    * Protobuf type {@code com.tencent.mars.sample.proto.HelloRequest}
@@ -238,6 +256,11 @@ public final class Main {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
               text_ = bs;
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              dumpContent_ = input.readBytes();
               break;
             }
           }
@@ -364,9 +387,25 @@ public final class Main {
       }
     }
 
+    public static final int DUMP_CONTENT_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString dumpContent_;
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    public boolean hasDumpContent() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    public com.google.protobuf.ByteString getDumpContent() {
+      return dumpContent_;
+    }
+
     private void initFields() {
       user_ = "";
       text_ = "";
+      dumpContent_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -395,6 +434,9 @@ public final class Main {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getTextBytes());
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, dumpContent_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -411,6 +453,10 @@ public final class Main {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, getTextBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, dumpContent_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -533,6 +579,8 @@ public final class Main {
         bitField0_ = (bitField0_ & ~0x00000001);
         text_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
+        dumpContent_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -569,6 +617,10 @@ public final class Main {
           to_bitField0_ |= 0x00000002;
         }
         result.text_ = text_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.dumpContent_ = dumpContent_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -594,6 +646,9 @@ public final class Main {
           bitField0_ |= 0x00000002;
           text_ = other.text_;
           onChanged();
+        }
+        if (other.hasDumpContent()) {
+          setDumpContent(other.getDumpContent());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -782,6 +837,41 @@ public final class Main {
         return this;
       }
 
+      private com.google.protobuf.ByteString dumpContent_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public boolean hasDumpContent() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public com.google.protobuf.ByteString getDumpContent() {
+        return dumpContent_;
+      }
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public Builder setDumpContent(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        dumpContent_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public Builder clearDumpContent() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        dumpContent_ = getDefaultInstance().getDumpContent();
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:com.tencent.mars.sample.proto.HelloRequest)
     }
 
@@ -819,6 +909,15 @@ public final class Main {
      */
     com.google.protobuf.ByteString
         getErrmsgBytes();
+
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    boolean hasDumpContent();
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    com.google.protobuf.ByteString getDumpContent();
   }
   /**
    * Protobuf type {@code com.tencent.mars.sample.proto.HelloResponse}
@@ -881,6 +980,11 @@ public final class Main {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
               errmsg_ = bs;
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              dumpContent_ = input.readBytes();
               break;
             }
           }
@@ -980,9 +1084,25 @@ public final class Main {
       }
     }
 
+    public static final int DUMP_CONTENT_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString dumpContent_;
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    public boolean hasDumpContent() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bytes dump_content = 3;</code>
+     */
+    public com.google.protobuf.ByteString getDumpContent() {
+      return dumpContent_;
+    }
+
     private void initFields() {
       retcode_ = 0;
       errmsg_ = "";
+      dumpContent_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1007,6 +1127,9 @@ public final class Main {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getErrmsgBytes());
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, dumpContent_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -1023,6 +1146,10 @@ public final class Main {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, getErrmsgBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, dumpContent_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1145,6 +1272,8 @@ public final class Main {
         bitField0_ = (bitField0_ & ~0x00000001);
         errmsg_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
+        dumpContent_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -1181,6 +1310,10 @@ public final class Main {
           to_bitField0_ |= 0x00000002;
         }
         result.errmsg_ = errmsg_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.dumpContent_ = dumpContent_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1204,6 +1337,9 @@ public final class Main {
           bitField0_ |= 0x00000002;
           errmsg_ = other.errmsg_;
           onChanged();
+        }
+        if (other.hasDumpContent()) {
+          setDumpContent(other.getDumpContent());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1340,6 +1476,41 @@ public final class Main {
   }
   bitField0_ |= 0x00000002;
         errmsg_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString dumpContent_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public boolean hasDumpContent() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public com.google.protobuf.ByteString getDumpContent() {
+        return dumpContent_;
+      }
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public Builder setDumpContent(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        dumpContent_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes dump_content = 3;</code>
+       */
+      public Builder clearDumpContent() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        dumpContent_ = getDefaultInstance().getDumpContent();
         onChanged();
         return this;
       }
@@ -3571,21 +3742,22 @@ public final class Main {
   static {
     java.lang.String[] descriptorData = {
       "\n\nmain.proto\022\035com.tencent.mars.sample.pr" +
-      "oto\"*\n\014HelloRequest\022\014\n\004user\030\001 \002(\t\022\014\n\004tex" +
-      "t\030\002 \002(\t\"0\n\rHelloResponse\022\017\n\007retcode\030\001 \002(" +
-      "\005\022\016\n\006errmsg\030\002 \001(\t\";\n\014Conversation\022\r\n\005top" +
-      "ic\030\001 \002(\t\022\016\n\006notice\030\002 \002(\t\022\014\n\004name\030\003 \002(\t\"\204" +
-      "\001\n\027ConversationListRequest\022\024\n\014access_tok" +
-      "en\030\001 \002(\t\022\014\n\004type\030\002 \002(\005\"E\n\nFilterType\022\013\n\007" +
-      "DEFAULT\020\000\022\007\n\003ALL\020\001\022\013\n\007NEAR_BY\020\002\022\013\n\007FRIEN" +
-      "DS\020\003\022\007\n\003HOT\020\004\"U\n\030ConversationListRespons" +
-      "e\0229\n\004list\030\001 \003(\0132+.com.tencent.mars.sampl",
-      "e.proto.Conversation*\276\001\n\005CmdID\022\033\n\016CMD_ID" +
-      "_INVALID\020\377\377\377\377\377\377\377\377\377\001\022\022\n\016CMD_ID_UNKNOWN\020\000\022" +
-      "\020\n\014CMD_ID_HELLO\020\001\022\017\n\013CMD_ID_AUTH\020\002\022\027\n\023CM" +
-      "D_ID_SEND_MESSAGE\020\003\022\034\n\030CMD_ID_CONVERSATI" +
-      "ON_LIST\020\004\022\024\n\020CMD_ID_JOINTOPIC\020\005\022\024\n\020CMD_I" +
-      "D_LEFTTOPIC\020\007"
+      "oto\"@\n\014HelloRequest\022\014\n\004user\030\001 \002(\t\022\014\n\004tex" +
+      "t\030\002 \002(\t\022\024\n\014dump_content\030\003 \001(\014\"F\n\rHelloRe" +
+      "sponse\022\017\n\007retcode\030\001 \002(\005\022\016\n\006errmsg\030\002 \001(\t\022" +
+      "\024\n\014dump_content\030\003 \001(\014\";\n\014Conversation\022\r\n" +
+      "\005topic\030\001 \002(\t\022\016\n\006notice\030\002 \002(\t\022\014\n\004name\030\003 \002" +
+      "(\t\"\204\001\n\027ConversationListRequest\022\024\n\014access" +
+      "_token\030\001 \002(\t\022\014\n\004type\030\002 \002(\005\"E\n\nFilterType" +
+      "\022\013\n\007DEFAULT\020\000\022\007\n\003ALL\020\001\022\013\n\007NEAR_BY\020\002\022\013\n\007F" +
+      "RIENDS\020\003\022\007\n\003HOT\020\004\"U\n\030ConversationListRes",
+      "ponse\0229\n\004list\030\001 \003(\0132+.com.tencent.mars.s" +
+      "ample.proto.Conversation*\321\001\n\005CmdID\022\033\n\016CM" +
+      "D_ID_INVALID\020\377\377\377\377\377\377\377\377\377\001\022\022\n\016CMD_ID_UNKNOW" +
+      "N\020\000\022\020\n\014CMD_ID_HELLO\020\001\022\017\n\013CMD_ID_AUTH\020\002\022\027" +
+      "\n\023CMD_ID_SEND_MESSAGE\020\003\022\034\n\030CMD_ID_CONVER" +
+      "SATION_LIST\020\004\022\024\n\020CMD_ID_JOINTOPIC\020\005\022\024\n\020C" +
+      "MD_ID_LEFTTOPIC\020\007\022\021\n\rCMD_ID_HELLO2\020\010"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3604,13 +3776,13 @@ public final class Main {
     internal_static_com_tencent_mars_sample_proto_HelloRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_tencent_mars_sample_proto_HelloRequest_descriptor,
-        new java.lang.String[] { "User", "Text", });
+        new java.lang.String[] { "User", "Text", "DumpContent", });
     internal_static_com_tencent_mars_sample_proto_HelloResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_com_tencent_mars_sample_proto_HelloResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_tencent_mars_sample_proto_HelloResponse_descriptor,
-        new java.lang.String[] { "Retcode", "Errmsg", });
+        new java.lang.String[] { "Retcode", "Errmsg", "DumpContent", });
     internal_static_com_tencent_mars_sample_proto_Conversation_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_com_tencent_mars_sample_proto_Conversation_fieldAccessorTable = new

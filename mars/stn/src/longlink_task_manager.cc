@@ -459,7 +459,7 @@ void LongLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type, int _err_
     }
     
     lastbatcherrortime_ = ::gettickcount();
-
+    
     if (kEctLocal != _err_type &&  !lst_cmd_.empty()) {
         retry_interval_ = DEF_TASK_RETRY_INTERNAL;
     }
@@ -471,7 +471,9 @@ void LongLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type, int _err_
     }
     
     if (kTaskFailHandleDefault == _fail_handle) {
-        longlink_->Disconnect(LongLink::kDecodeErr);
+        if (kEctDns != _err_type && kEctSocket != _err_type) {  // not longlink callback
+            longlink_->Disconnect(LongLink::kDecodeErr);
+        }
         MessageQueue::CancelMessage(asyncreg_.Get(), 0);
     }
     

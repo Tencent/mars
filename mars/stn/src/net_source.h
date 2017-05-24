@@ -72,13 +72,13 @@ class NetSource {
     static void SetBackupIPs(const std::string& _host, const std::vector<std::string>& _ips);
     //set debug ip
     static void SetDebugIP(const std::string& _host, const std::string& _ip);
-    static std::string& GetLongLinkDebugIP();
-    static std::string& GetShortLinkDebugIP();
+    static const std::string& GetLongLinkDebugIP();
+    static const std::string& GetShortLinkDebugIP();
     
     static void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 
     static void GetLonglinkPorts(std::vector<uint16_t>& _ports);
-    static std::vector<std::string>& GetLongLinkHosts();
+    static const std::vector<std::string>& GetLongLinkHosts();
     static uint16_t GetShortLinkPort();
     
     static void GetBackupIPs(std::string _host, std::vector<std::string>& _iplist);

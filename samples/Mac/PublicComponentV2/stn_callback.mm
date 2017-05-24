@@ -52,6 +52,10 @@ std::vector<std::string> StnCallBack::OnNewDns(const std::string& _host) {
 }
 
 void StnCallBack::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    if (_body.Length() > 0) {
+        NSData* recvData = [NSData dataWithBytes:(const void *) _body.Ptr() length:_body.Length()];
+        [[NetworkService sharedInstance] OnPushWithCmd:_cmdid data:recvData];
+    }
 }
 
 bool StnCallBack::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select) {

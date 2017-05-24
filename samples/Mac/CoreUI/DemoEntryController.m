@@ -19,8 +19,14 @@
 //
 
 #import "DemoEntryController.h"
+#import "TopicViewController.h"
+#import "MessagesController.h"
 
-@interface DemoEntryController ()
+@interface DemoEntryController () {
+    NSTabViewController* _tabviewController;
+    MessagesController* _messageController;
+    TopicViewController* _topicController;
+}
 
 @end
 
@@ -30,5 +36,30 @@
     [super viewDidLoad];
     // Do view setup here.
 }
+-(void)prepareForSegue:(NSStoryboardSegue *)segue sender:(id)sender {
+    if(![segue.destinationController isKindOfClass:[NSTabViewController class]])return;
+    _tabviewController = segue.destinationController;
+    for(NSViewController* childController in _tabviewController.childViewControllers) {
+        if([childController isKindOfClass:[MessagesController class]]) {
+            _messageController = (MessagesController*)childController;
+            if(_messageController)[_messageController setHostController:self];
+        }
+        else if([childController isKindOfClass:[TopicViewController class]]) {
+            _topicController = (TopicViewController*)childController;
+            if(_topicController)[_topicController setHostController:self];
+        }
+    }
+    _tabviewController.selectedTabViewItemIndex = 0;
+    [_tabviewController removeChildViewControllerAtIndex:2];
+}
 
+-(void)setConversation:(Conversation*)conversation {
+    if(!_tabviewController || !_messageController || !_topicController)
+        return;
+    [_tabviewController removeChildViewControllerAtIndex:1];
+    [_topicController setConversation:conversation];
+    [_tabviewController addChildViewController:_topicController];
+    _tabviewController.selectedTabViewItemIndex = 1;
+    
+}
 @end

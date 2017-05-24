@@ -8,9 +8,9 @@ import com.tencent.mars.sample.wrapper.remote.MarsPushMessageFilter;
 
 interface MarsService {
 
-    void send(MarsTaskWrapper taskWrapper, in Bundle taskProperties);
+    int send(MarsTaskWrapper taskWrapper, in Bundle taskProperties);
 
-    void cancel(MarsTaskWrapper taskWrapper);
+    void cancel(int taskID);
 
     void registerPushMessageFilter(MarsPushMessageFilter filter);
 

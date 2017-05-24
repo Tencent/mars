@@ -26,7 +26,6 @@ import android.widget.ListView;
 import com.tencent.mars.sample.R;
 import com.tencent.mars.sample.core.StatisticHandler;
 import com.tencent.mars.stn.TaskProfile;
-import com.tencent.mars.xlog.Log;
 
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -34,15 +33,15 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * Created by caoshaokun on 16/12/21.
  */
-public class TaskReportFragment extends Fragment{
+public class TaskReportFragment extends Fragment {
 
     public static String TAG = TaskReportFragment.class.getSimpleName();
 
-    String[] tableTitles = new String[] {
-            "task", "success", "cost", "trycount", "channel"
+    String[] tableTitles = new String[]{
+        "task", "success", "cost", "trycount", "channel"
     };
 
-    private ListView mListView;
+    private ListView listView;
     private StatisticsAdapter adapter;
 
     public static final int LISTHEIGHT = 100;
@@ -70,11 +69,11 @@ public class TaskReportFragment extends Fragment{
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mListView = (ListView)getActivity().findViewById(R.id.taskprofile_listview);
+        listView = (ListView) getActivity().findViewById(R.id.taskprofile_listview);
 
         initData(StatisticHandler.taskHistory);
         adapter = new StatisticsAdapter(this.getActivity(), table);
-        mListView.setAdapter(adapter);
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -89,7 +88,7 @@ public class TaskReportFragment extends Fragment{
 
     private void initData(LinkedBlockingDeque<TaskProfile> taskHistory) {
         StatisticsAdapter.TableCell[] titles = new StatisticsAdapter.TableCell[5];
-        int width = getActivity().getWindowManager().getDefaultDisplay().getWidth()/titles.length;
+        int width = getActivity().getWindowManager().getDefaultDisplay().getWidth() / titles.length;
         for (int i = 0; i < titles.length; i++) {
             titles[i] = new StatisticsAdapter.TableCell(tableTitles[i], width, LISTHEIGHT, StatisticsAdapter.TableCell.STRING);
         }
@@ -97,7 +96,7 @@ public class TaskReportFragment extends Fragment{
 
         for (TaskProfile profile : taskHistory) {
             StatisticsAdapter.TableCell[] cells = new StatisticsAdapter.TableCell[5];
-            cells[0] = new StatisticsAdapter.TableCell(String.valueOf(profile.cgi.substring(profile.cgi.lastIndexOf("/")+1)), width, LISTHEIGHT, StatisticsAdapter.TableCell.STRING);
+            cells[0] = new StatisticsAdapter.TableCell(String.valueOf(profile.cgi.substring(profile.cgi.lastIndexOf("/") + 1)), width, LISTHEIGHT, StatisticsAdapter.TableCell.STRING);
             cells[1] = new StatisticsAdapter.TableCell((profile.errCode == 0 && profile.errType == 0) ? "true " : "false", width, LISTHEIGHT, StatisticsAdapter.TableCell.STRING);
             cells[2] = new StatisticsAdapter.TableCell((profile.endTaskTime - profile.startTaskTime) + "ms", width, LISTHEIGHT, StatisticsAdapter.TableCell.STRING);
             cells[3] = new StatisticsAdapter.TableCell(String.valueOf(profile.historyNetLinkers.length), width, LISTHEIGHT, StatisticsAdapter.TableCell.STRING);

@@ -20,8 +20,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Activity event connection
- *
+ * Activity event connection.
+ * <p></p>
  * Created by zhaoyuan on 16/3/1.
  */
 @Retention(RetentionPolicy.RUNTIME)
