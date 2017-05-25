@@ -719,12 +719,11 @@ static void __DetectFun(bool _iOS_style, mars::comm::check_content& _content, Me
         return;
     }
     
-    
     __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
               _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
 #ifdef ANDROID
     __FATAL_ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s",
-                    _timeout, _tid, clock_app_monotonic() - _start_time, gettickcount() - _start_tickcount, _used_cpu_time, _iOS_style?"true":"false");
+                    _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style?"true":"false");
 #endif
 }
     
