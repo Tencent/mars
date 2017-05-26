@@ -21,23 +21,19 @@ COPY_MARS_FILES = {"../stn/proto/longlink_packer.h": "jni/longlink_packer.h",
                "../stn/proto/shortlink_packer.h": "jni/shortlink_packer.h",
                 "../stn/proto/longlink_packer.cc": "jni/longlink_packer.cc.rewriteme",
                 "../stn/proto/shortlink_packer.cc": "jni/shortlink_packer.cc.rewriteme",
-                "../log/crypt/log_crypt.h": "jni/log_crypt.h",
-                "../log/crypt/log_crypt.cc": "jni/log_crypt.cc.rewriteme",
-                "../log/crypt/decode_mars_log_file.py": "jni/decode_mars_log_file.py.rewriteme",
                 "../mk_template/JNI_OnLoad.cpp": "jni/JNI_OnLoad.cc"
                 }
 
 
-def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag="XLOG_CRYPT=1"):
+def build_android_xlog_static_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag="XLOG_CRYPT=1"):
     libs_save_path = _path + "/mars_libs"
     src_save_path = _path + "/"
 
 
-    shutil.rmtree(libs_save_path + "/" + _arch, True)
+    shutil.rmtree(libs_save_path, True)
     for i in range(0, len(BUILD_XLOG_PATHS)):
-        shutil.rmtree("../" + BUILD_XLOG_PATHS[i] + "/libs/", True)
+        shutil.rmtree("../" + BUILD_XLOG_PATHS[i] + "/mars_libs", True)
         shutil.rmtree("../" + BUILD_XLOG_PATHS[i] + "/obj", True)
-
 
     gen_revision_file(libs_save_path, libs_save_path)
 
@@ -63,21 +59,47 @@ def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_
 
             cpu_libs = os.path.join(libs_save_path, f)
             cpu_symbols = os.path.join(cpu_libs, "symbols")
-            
+            #print cpu_libs, cpu_symbols
             if not os.path.exists(cpu_libs):
                 os.makedirs(cpu_libs)
             if not os.path.exists(cpu_symbols):
                 os.makedirs(cpu_symbols)
 
             for lib in glob.glob("../" + BUILD_XLOG_PATHS[i] + "/libs/" + f + "/*.so"):
-                shutil.copy(lib, cpu_libs)            
+                shutil.copy(lib, cpu_libs)
+            for lib in glob.glob("../" + BUILD_XLOG_PATHS[i] + "/obj/local/" + f + "/*.a"):
+                shutil.copy(lib, cpu_libs)
+            
             for lib in glob.glob("../" + BUILD_XLOG_PATHS[i] + "/obj/local/" + f + "/*.so"):
                 shutil.copy(lib, cpu_symbols)
 
 
-    print("build succeed! Result directory:%s" %(_path))
+    print("build succeed!")
     return 0
 
+def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag="XLOG_CRYPT=1"):
+
+    if 0 != build_android_xlog_static_libs(_path, _arch, _lib_prefix, _flag):
+        print("build static libs fail!!!")
+        return -1
+
+
+    shutil.rmtree(_path + "/libs", True)
+    shutil.rmtree(_path + "/obj", True)
+
+
+    if WITH_SCRIPT == 0:
+        if 0 != os.system(NDK_BUILD_CMD %(_arch, _lib_prefix, _flag) + _path):
+            print("build fail!!!")
+            return -1
+    else:
+        if 0 != os.system(NDK_BUILD_CMD %(_lib_prefix, _flag) + _path):
+            print("build fail!!!")
+            return -1
+
+
+    print("build succeed!")
+    return 0
 
 def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _lib_prefix="mars", _flag=""):
     libs_save_path = _path + "/mars_libs"
@@ -104,11 +126,13 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _l
 
     for i in range(len(BUILD_MARS_PATHS)-1, -1, -1):
         if not os.path.exists("../" + BUILD_MARS_PATHS[i] + "/jni"):
+            print "c1"
             continue
         
         files = os.listdir("../" + BUILD_MARS_PATHS[i] + "/libs")
         for f in files:
             if os.path.isfile(f):
+                print "c2"
                 continue
 
             cpu_libs = os.path.join(libs_save_path, f)
@@ -122,7 +146,9 @@ def build_android_mars_static_libs(_path="mars_android_sdk", _arch="armeabi", _l
                 if os.path.isfile(lib):
                     shutil.copy(lib, cpu_libs)
             for lib in glob.glob("../" + BUILD_MARS_PATHS[i] + "/obj/local/" + f + "/*.a"):
+                print lib, cpu_libs
                 if os.path.isfile(lib):
+                    print "copy"
                     shutil.copy(lib, cpu_libs)
             
             for lib in glob.glob("../" + BUILD_MARS_PATHS[i] + "/obj/local/" + f + "/*.so"):
