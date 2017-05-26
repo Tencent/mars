@@ -296,7 +296,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
     for (unsigned int i = 0; i < vecsocketfsm.size(); ++i) {
         if (NULL != vecsocketfsm[i]) {
-            vecsocketfsm[i]->Close();
+            vecsocketfsm[i]->Close(false);
             delete vecsocketfsm[i];
             vecsocketfsm[i] = NULL;
         }
