@@ -657,8 +657,8 @@ static void __ReleaseMessageQueueInfo() {
 
     
 const static int kMQCallANRId = 110;
-const static long kWaitANRTimeout = 5 * 1000;
-static void __ANRAssert(bool _iOS_style, mars::comm::check_content& _content, MessageQueue_t _mq_id) {
+const static long kWaitANRTimeout = 2 * 1000;
+static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageQueue_t _mq_id) {
     
     __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
               _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
@@ -684,8 +684,8 @@ static void __ANRCheackCallback(bool _iOS_style, const mars::comm::check_content
         if (thread->isruning()) {
             xinfo2(TSF"misjudge anr, timeout:%_, tid:%_, runing time:%_, real time:%_, used_cpu_time:%_, mqid:%_", _content.timeout,
                    _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, mq_id);
+            thread->cancel_after();
         }
-        thread->cancel_after();
     }, MessageQueue::InstallAsyncHandler(mq_id));
 }
     
