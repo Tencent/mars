@@ -471,57 +471,6 @@ bool WaitMessage(const MessagePost_t& _message) {
 
     return true;
 }
-    
-static int __WaitMessage(const MessagePost_t& _message, long _millisecond) {
-    bool is_in_mq = Handler2Queue(Post2Handler(_message)) == CurrentThreadMessageQueue();
-    
-    int ret = -1;
-    
-    ScopedLock lock(sg_messagequeue_map_mutex);
-    const MessageQueue_t& id = Handler2Queue(Post2Handler(_message));
-    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
-    if (sg_messagequeue_map.end() == pos) return ret;
-    MessageQueueContent& content = pos->second;
-    
-    auto find_it = std::find_if(content.lst_message.begin(), content.lst_message.end(),
-                                [&_message](const MessageWrapper * const &_v) {
-                                    return _message == _v->postid;
-                                });
-    
-    if (find_it == content.lst_message.end()) {
-        auto find_it = std::find_if(content.lst_runloop_info.begin(), content.lst_runloop_info.end(),
-                                    [&_message](const RunLoopInfo& _v){ return _message == _v.runing_message_id; });
-        
-        if (find_it != content.lst_runloop_info.end()) {
-            if (is_in_mq) return ret;
-            
-            boost::shared_ptr<Condition> runing_cond = find_it->runing_cond;
-            ret = runing_cond->wait(lock, _millisecond);
-        }
-    } else {
-        
-        if (is_in_mq) {
-            lock.unlock();
-            RunLoop( [&_message](){
-                MessageQueueContent& content = sg_messagequeue_map[Handler2Queue(Post2Handler(_message))];
-                return content.lst_message.end() == std::find_if(content.lst_message.begin(), content.lst_message.end(),
-                                                                 [&_message](const MessageWrapper *  const &_v) {
-                                                                     return _message == _v->postid;
-                                                                 });
-            }).Run();
-            
-            ret = 0;
-            
-        } else {
-            if (!((*find_it)->wait_end_cond))(*find_it)->wait_end_cond = boost::make_shared<Condition>();
-            
-            boost::shared_ptr<Condition> wait_end_cond = (*find_it)->wait_end_cond;
-            ret = wait_end_cond->wait(lock, _millisecond);
-        }
-    }
-    
-    return ret;
-}
 
 bool FoundMessage(const MessagePost_t& _message) {
     ScopedLock lock(sg_messagequeue_map_mutex);
@@ -709,15 +658,7 @@ static void __ReleaseMessageQueueInfo() {
     
 const static int kMQCallANRId = 110;
 const static long kWaitANRTimeout = 5 * 1000;
-static void __DetectFun(bool _iOS_style, mars::comm::check_content& _content, MessageQueue_t _mq_id) {
-
-    MessagePost_t mp = MessageQueue::AsyncInvoke([]() {}, MessageQueue::InstallAsyncHandler(_mq_id));
-    int ret = __WaitMessage(mp, kWaitANRTimeout);
-    if (ret == 0) {
-        xinfo2(TSF"misjudge anr, timeout:%_, tid:%_, runing time:%_, real time:%_, used_cpu_time:%_", _content.timeout,
-               _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time);
-        return;
-    }
+static void __ANRAssert(bool _iOS_style, mars::comm::check_content& _content, MessageQueue_t _mq_id) {
     
     __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
               _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
@@ -736,15 +677,23 @@ static void __ANRCheackCallback(bool _iOS_style, const mars::comm::check_content
     MessageQueue_t mq_id = *((MessageQueue_t*)_content.extra_info);
     xinfo2(TSF"%_ %_", _content.call_id, mq_id);
     
-    Thread thread(boost::bind(__DetectFun, _iOS_style, _content, mq_id));
-    thread.start();
+    boost::shared_ptr<Thread> thread(new Thread(boost::bind(__ANRAssert, _iOS_style, _content, mq_id)));
+    thread->start_after(kWaitANRTimeout);
+    
+    MessageQueue::AsyncInvoke([=]() {
+        if (thread->isruning()) {
+            xinfo2(TSF"misjudge anr, timeout:%_, tid:%_, runing time:%_, real time:%_, used_cpu_time:%_, mqid:%_", _content.timeout,
+                   _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, mq_id);
+        }
+        thread->cancel_after();
+    }, MessageQueue::InstallAsyncHandler(mq_id));
 }
     
 static void __RgisterANRCheckCallback() {
-    GetSignalCheckHit().connect(boost::bind(&__ANRCheackCallback, _1, _2));
+    GetSignalCheckHit().connect(5, boost::bind(&__ANRCheackCallback, _1, _2));
 }
 static void __UnregisterANRCheckCallback() {
-    GetSignalCheckHit().disconnect(boost::bind(&__ANRCheackCallback, _1, _2));
+    GetSignalCheckHit().disconnect(5);
 }
     
 BOOT_RUN_STARTUP(__RgisterANRCheckCallback);
