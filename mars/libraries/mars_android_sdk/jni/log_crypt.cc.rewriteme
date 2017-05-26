@@ -95,7 +95,6 @@ static bool Hex2Buffer(const char* _str, size_t _len, unsigned char* _buffer) {
 }
 #endif
 
-#include <android/log.h>
 LogCrypt::LogCrypt(const char* _pubkey): seq_(0), is_crypt_(false) {
     
 #if XLOG_CRYPT

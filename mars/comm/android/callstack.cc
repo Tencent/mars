@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <sstream>
 #include "callstack.h"
+#include "comm/thread/lock.h"
 
 // #define HAVE_DLADDR 1
 
@@ -213,7 +214,7 @@ class MapInfo {
     }
 
     mapinfo* getMapInfoList() {
-        //        Mutex::Autolock _l(mLock);
+        ScopedLock _l(mLock);
         if (milist == 0) {
             char data[1024];
             FILE* fp;
@@ -237,7 +238,7 @@ class MapInfo {
         return milist;
     }
     mapinfo*    milist;
-    //    Mutex       mLock;
+    Mutex       mLock;
     static MapInfo sMapInfo;
 
   public:
