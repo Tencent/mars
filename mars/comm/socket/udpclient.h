@@ -72,7 +72,7 @@ class UdpClient {
     struct sockaddr_in addr_;
     IAsyncUdpClientEvent* event_;
 
-    SocketSelectBreaker breaker_;
+    SocketBreaker breaker_;
     SocketSelect selector_;
     Thread* thread_;
 

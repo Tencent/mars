@@ -259,7 +259,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
             if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
                 if (_breaker) _breaker->dnsstatus = NULL;
 
-                xinfo2(TSF "dns get ip status:%_", it->status);
+                xinfo2(TSF "dns get ip status:%_ host:%_", it->status, it->host_name);
                 sg_dnsinfo_vec.erase(it);
                 return false;
             }
@@ -289,7 +289,6 @@ void DNS::Cancel(const std::string& _host_name) {
 
         if (info.host_name.compare(_host_name) == 0 && info.dns == this) {
             info.status = kGetIPCancel;
-            break;
         }
     }
 

@@ -20,20 +20,20 @@
 
 #include "shortlink.h"
 
-#include <sstream>
-
 #include "boost/bind.hpp"
 
-#include "mars/app/app.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/complexconnect.h"
 #include "mars/comm/socket/unix_socket.h"
 #include "mars/comm/socket/socket_address.h"
 #include "mars/comm/socket/local_ipstack.h"
 #include "mars/comm/socket/block_socket.h"
-#include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/strutil.h"
 #include "mars/comm/time_utils.h"
+#include "mars/comm/http.h"
 #include "mars/comm/platform_comm.h"
+
+#include "mars/app/app.h"
 #include "mars/baseevent/baseprjevent.h"
 
 #if defined(__ANDROID__) || defined(__APPLE__)
@@ -48,6 +48,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace http;
 
 static unsigned int KBufferSize = 8 * 1024;
 
@@ -56,7 +57,7 @@ namespace stn{
 
 class ShortLinkConnectObserver : public MComplexConnect {
   public:
-    ShortLinkConnectObserver(ShortLink& _shortlink): shortlink_(_shortlink), index_(-1), rtt_(0), last_err_(-1) {
+    ShortLinkConnectObserver(ShortLink& _shortlink): shortlink_(_shortlink), rtt_(0), last_err_(-1) {
         memset(ConnectingIndex, 0, sizeof(ConnectingIndex));
     };
 
@@ -67,10 +68,7 @@ class ShortLinkConnectObserver : public MComplexConnect {
     virtual void OnConnected(unsigned int _index, const socket_address& _addr, SOCKET _socket, int _error, int _rtt) {
         ConnectingIndex[_index] = 0;
 
-        if (0 == _error) {
-            xassert2(-1 == index_, "index_:%d", index_);
-            index_ = _index;
-        } else {
+        if (0 != _error) {
             xassert2(shortlink_.func_network_report);
 
             if (_index < shortlink_.Profile().ip_items.size())
@@ -83,7 +81,6 @@ class ShortLinkConnectObserver : public MComplexConnect {
         }
     }
 
-    int Index() const {return index_;}
     int LastErrorCode() const {return last_err_;}
     int Rtt() const {return rtt_;}
 
@@ -95,7 +92,6 @@ class ShortLinkConnectObserver : public MComplexConnect {
 
   private:
     ShortLink& shortlink_;
-    int index_;
     int rtt_;
     int last_err_;
 };
@@ -103,38 +99,35 @@ class ShortLinkConnectObserver : public MComplexConnect {
 }}
 ///////////////////////////////////////////////////////////////////////////////////////
 
-ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const std::vector<std::string>& _host_list, const std::string& _url, const int _taskid, bool _use_proxy)
+ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 	, net_source_(_netsource)
+	, task_(_task)
 	, thread_(boost::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
-	, taskid_(_taskid)
-    , url_(_url), use_proxy_(_use_proxy)
-    , status_code_(-1)
+    , use_proxy_(_use_proxy)
+    , tracker_(shortlink_tracker::Create())
     {
     xdebug2(XTHIS);
     xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
-    shortlink_hosts_ = _host_list;
-    if (shortlink_hosts_.empty())  shortlink_hosts_.push_back("");
-    conn_profile_.host = shortlink_hosts_.front();
 }
 
 ShortLink::~ShortLink() {
-    xinfo_function(TSF"taskid:%_, cgi:%_, @%_", taskid_, url_, this);
+    xinfo_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
 }
 
-void ShortLink::SendRequest(AutoBuffer& _buf_req) {
+void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
     xverbose_function();
     xdebug2(XTHIS)(TSF"bufReq.size:%_", _buf_req.Length());
     send_body_.Attach(_buf_req);
-
+    send_extend_.Attach(_buffer_extend);
     thread_.start();
 }
 
 void ShortLink::__Run() {
-    xmessage2_define(message, TSF"taskid:%_, cgi:%_, @%_", taskid_, url_, this);
-    xinfo_function(TSF"%_, net:%_, body:%_", message.String(), getNetInfo(), buf_body_.Length());
+    xmessage2_define(message, TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
+    xinfo_function(TSF"%_, net:%_", message.String(), getNetInfo());
 
     ConnectProfile conn_profile;
 	getCurrNetLabel(conn_profile.net_type);
@@ -159,22 +152,22 @@ void ShortLink::__Run() {
 
 
 SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
-    xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", taskid_, url_, this);
+    xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
     std::vector<socket_address> vecaddr;
 
     _conn_profile.dns_time = ::gettickcount();
     __UpdateProfile(_conn_profile);
 
-    _conn_profile.host = shortlink_hosts_.front();
-
-    if (use_proxy_ && net_source_.GetShortLinkProxyInfo(_conn_profile.port, _conn_profile.ip, shortlink_hosts_)) {
+    if (!task_.shortlink_host_list.empty())_conn_profile.host = task_.shortlink_host_list.front();
+    
+    if (use_proxy_ && net_source_.GetShortLinkProxyInfo(_conn_profile.port, _conn_profile.ip, task_.shortlink_host_list)) {
     	_conn_profile.ip_type = kIPSourceProxy;
         IPPortItem item = {_conn_profile.ip, net_source_.GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
         _conn_profile.ip_items.push_back(item);
         __UpdateProfile(_conn_profile);
     } else {
-        if (net_source_.GetShortLinkItems(shortlink_hosts_, _conn_profile.ip_items, dns_util_)) {
+        if (net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_)) {
         	_conn_profile.host = _conn_profile.ip_items[0].str_host;
         	_conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
         	_conn_profile.ip = _conn_profile.ip_items[0].str_ip;
@@ -192,7 +185,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
-        __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile);
+        __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile, false);
         return INVALID_SOCKET;
     }
 
@@ -207,48 +200,46 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
 
-
-    uint64_t startconnecttime = ::gettickcount();
     ShortLinkConnectObserver connect_observer(*this);
+    ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval);
+    SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer);
 
-    SOCKET sock = ComplexConnect(kShortlinkConnTimeout, kShortlinkConnInterval).ConnectImpatient(vecaddr, breaker_, &connect_observer);
-
-    _conn_profile.conn_errcode = connect_observer.LastErrorCode();
-    _conn_profile.conn_rtt = connect_observer.Rtt();
-    _conn_profile.ip_index = connect_observer.Index();
+    _conn_profile.conn_rtt = conn.IndexRtt();
+    _conn_profile.ip_index = conn.Index();
+    _conn_profile.conn_cost = conn.TotalCost();
     __UpdateProfile(_conn_profile);
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());
+        _conn_profile.conn_errcode = conn.ErrorCode();
 
         if (!breaker_.IsBreak()) {
             __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
         }
         else {
-        	_conn_profile.disconn_errtype = kEctCanceled;
+        	_conn_profile.disconn_errtype = kEctCanceld;
         	__UpdateProfile(_conn_profile);
         }
 
         return INVALID_SOCKET;
     }
 
-    xassert2(0 <= connect_observer.Index() && (unsigned int)connect_observer.Index() < _conn_profile.ip_items.size());
+    xassert2(0 <= conn.Index() && (unsigned int)conn.Index() < _conn_profile.ip_items.size());
 
-    for (int i = 0; i < connect_observer.Index(); ++i) {
+    for (int i = 0; i < conn.Index(); ++i) {
         if (1 == connect_observer.ConnectingIndex[i])
             func_network_report(__LINE__, kEctSocket, SOCKET_ERRNO(ETIMEDOUT), _conn_profile.ip_items[i].str_ip, _conn_profile.ip_items[i].str_host, _conn_profile.ip_items[i].port);
     }
 
-    _conn_profile.host = _conn_profile.ip_items[connect_observer.Index()].str_host;
-    _conn_profile.ip_type = _conn_profile.ip_items[connect_observer.Index()].source_type;
-    _conn_profile.ip = _conn_profile.ip_items[connect_observer.Index()].str_ip;
-    _conn_profile.conn_cost = gettickspan(startconnecttime);
+    _conn_profile.host = _conn_profile.ip_items[conn.Index()].str_host;
+    _conn_profile.ip_type = _conn_profile.ip_items[conn.Index()].source_type;
+    _conn_profile.ip = _conn_profile.ip_items[conn.Index()].str_ip;
     _conn_profile.conn_time = gettickcount();
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
+    _conn_profile.local_port = socket_address::getsockname(sock).port();
     __UpdateProfile(_conn_profile);
 
-
-    xinfo2(TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, iptype:%_, net:%_", sock, message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
+    xinfo2(TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, net:%_", sock, message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
 
 
 //    struct linger so_linger;
@@ -260,21 +251,21 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 }
 
 void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, ConnectProfile& _conn_profile) {
-	xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", taskid_, url_, this);
+	xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
     std::string url;
     if (kIPSourceProxy==_conn_profile.ip_type) {
         url +="http://";
         url += _conn_profile.host;
     }
-	url += url_;
+	url += task_.cgi;
 
 
 	std::map<std::string, std::string> headers;
 	headers[http::HeaderFields::KStringHost] = _conn_profile.host;
 	AutoBuffer out_buff;
 
-	shortlink_pack(url, headers, send_body_,  out_buff);
+	shortlink_pack(url, headers, send_body_, send_extend_, out_buff, tracker_.get());
 
 	// send request
 	xgroup2_define(group_send);
@@ -284,7 +275,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	if (send_ret < 0) {
 		xerror2(TSF"Send Request Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
-		__OnResponse(kEctSocket, (_err_code == 0) ? kEctSocketWritenWithNonBlock : _err_code, buf_body_, _conn_profile, false);
+		__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketWritenWithNonBlock : _err_code, _conn_profile, true);
 		return;
 	}
     
@@ -304,9 +295,12 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	xinfo2(TSF"task socket recv sock:%_,  %_, ", _socket, message.String()) >> group_recv;
 
 	//recv response
+    AutoBuffer body;
 	AutoBuffer recv_buf;
+	AutoBuffer extension;
+    int        status_code = -1;
 	off_t recv_pos = 0;
-    http::MemoryBodyReceiver* receiver = new http::MemoryBodyReceiver(buf_body_);
+	MemoryBodyReceiver* receiver = new MemoryBodyReceiver(body);
 	http::Parser parser(receiver, true);
 
 	while (true) {
@@ -314,25 +308,23 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 		if (recv_ret < 0) {
 			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-			__OnResponse(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, buf_body_, _conn_profile, socket_nwrite(_socket) == 0);
+			__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, _conn_profile, true);
 			break;
 		}
 
 		if (breaker_.IsBreak()) {
 			xinfo2(TSF"user cancel, nread:%_, nwrite:%_", socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-        	_conn_profile.disconn_errtype = kEctCanceled;
+        	_conn_profile.disconn_errtype = kEctCanceld;
 			break;
 		}
 
 		if (recv_ret == 0 && SOCKET_ERRNO(ETIMEDOUT) == _err_code) {
 			xerror2(TSF"read timeout error:(%_,%_), nread:%_, nwrite:%_ ", _err_code, strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-//			__OnResponse(kEctSocket, kEctSocketRecvErr, buf_body_, _conn_profile, socket_nwrite(_socket) == 0);
-//			break;
             continue;
 		}
 		if (recv_ret == 0) {
 			xerror2(TSF"remote disconnect, nread:%_, nwrite:%_", _err_code, strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-			__OnResponse(kEctSocket,  kEctSocketShutdown, buf_body_, _conn_profile, socket_nwrite(_socket) == 0);
+			__RunResponseError(kEctSocket, kEctSocketShutdown, _conn_profile, true);
 			break;
 		}
 
@@ -344,34 +336,34 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			recv_pos = recv_buf.Pos();
 		}
 
-        http::Parser::TRecvStatus parse_status = parser.Recv(recv_buf.Ptr(recv_buf.Length() - recv_ret), recv_ret);
+		Parser::TRecvStatus parse_status = parser.Recv(recv_buf.Ptr(recv_buf.Length() - recv_ret), recv_ret);
         if (parser.FirstLineReady()) {
-            status_code_ = parser.Status().StatusCode();
+            status_code = parser.Status().StatusCode();
         }
 
 		if (parse_status == http::Parser::kFirstLineError) {
 			xerror2(TSF"http head not receive yet,but socket closed, length:%0, nread:%_, nwrite:%_ ", recv_buf.Length(), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-			__OnResponse(kEctHttp, kEctHttpParseStatusLine, buf_body_, _conn_profile, socket_nwrite(_socket) == 0);
+			__RunResponseError(kEctHttp, kEctHttpParseStatusLine, _conn_profile, true);
 			break;
 		}
 		else if (parse_status == http::Parser::kHeaderFieldsError) {
 			xerror2(TSF"parse http head failed, but socket closed, length:%0, nread:%_, nwrite:%_ ", recv_buf.Length(), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-			__OnResponse(kEctHttp, kEctHttpSplitHttpHeadAndBody, buf_body_, _conn_profile);
+			__RunResponseError(kEctHttp, kEctHttpSplitHttpHeadAndBody, _conn_profile, true);
 			break;
 		}
 		else if (parse_status == http::Parser::kBodyError) {
-			xerror2(TSF"content_length_ != buf_body_.Lenght(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
-			__OnResponse(kEctHttp, kEctHttpSplitHttpHeadAndBody, buf_body_, _conn_profile);
+			xerror2(TSF"content_length_ != body.Lenght(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
+			__RunResponseError(kEctHttp, kEctHttpSplitHttpHeadAndBody, _conn_profile, true);
 			break;
 		}
 		else if (parse_status == http::Parser::kEnd) {
-			if (status_code_ != 200) {
-				xerror2(TSF"@%0, status_code_ != 200, code:%1, http dump:%2 \n headers size:%3", this, status_code_, xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
-				__OnResponse(kEctHttp, status_code_, buf_body_, _conn_profile);
+			if (status_code != 200) {
+				xerror2(TSF"@%0, status_code != 200, code:%1, http dump:%2 \n headers size:%3", this, status_code, xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
+				__RunResponseError(kEctHttp, status_code, _conn_profile, true);
 			}
 			else {
 				xinfo2(TSF"@%0, headers size:%_, ", this, parser.Fields().GetHeaders().size()) >> group_recv;
-				__OnResponse(kEctOK, status_code_, buf_body_, _conn_profile);
+				__OnResponse(kEctOK, status_code, body, extension, _conn_profile, true);
 			}
 			break;
 		}
@@ -398,17 +390,18 @@ void ShortLink::__UpdateProfile(const ConnectProfile& _conn_profile) {
 	conn_profile_ = _conn_profile;
 }
 
-void ShortLink::__RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _conn_profile, bool _isreport) {
+void ShortLink::__RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _conn_profile, bool _report) {
     AutoBuffer buf;
-    __OnResponse(_type, _errcode, buf, _conn_profile, false, _isreport);
+    AutoBuffer extension;
+    __OnResponse(_type, _errcode, buf, extension, _conn_profile, _report);
 }
 
-void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body, ConnectProfile& _conn_profile, bool _cancelRetry, bool _report) {
+void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body, AutoBuffer& _extension, ConnectProfile& _conn_profile, bool _report) {
 	_conn_profile.disconn_errtype = _errType;
 	_conn_profile.disconn_errcode = _status;
 	__UpdateProfile(_conn_profile);
 
-    xassert2(!breaker_.IsBreak());
+ //   xassert2(!breaker_.IsBreak());
 
     if (kEctOK != _errType) {
         xassert2(func_network_report);
@@ -416,7 +409,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
         if (_report) func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
     }
 
-    OnResponse(this, _errType, _status, _body, _cancelRetry, _conn_profile);
+    OnResponse(this, _errType, _status, _body, _extension, -1 != _conn_profile.ip_index, _conn_profile);
 }
 
 void ShortLink::__CancelAndWaitWorkerThread() {

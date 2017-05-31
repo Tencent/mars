@@ -24,8 +24,8 @@
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/socket/socketselect.h"
 
-#include "tools/netchecker_socketutils.hpp"
-#include "tools/netchecker_trafficmonitor.h"
+#include "sdt/src/tools/netchecker_socketutils.hpp"
+#include "sdt/src/tools/netchecker_trafficmonitor.h"
 
 using namespace mars::sdt;
 

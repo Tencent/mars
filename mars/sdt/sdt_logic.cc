@@ -25,7 +25,7 @@
 #include "mars/comm/bootrun.h"
 #include "mars/sdt/constants.h"
 
-#include "sdt_core.h"
+#include "sdt/src/sdt_core.h"
 
 namespace mars {
 namespace sdt {
@@ -58,7 +58,7 @@ static void __initbind_baseprjevent() {
 	mars::baseevent::addLoadModule(kLibName);
 #endif
 	GetSignalOnCreate().connect(&onCreate);
-	GetSignalOnDestroy().connect(&onDestroy);
+	GetSignalOnDestroy().connect(5, &onDestroy);
 }
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
@@ -78,9 +78,10 @@ void SetCallBack(Callback* const callback) {
 
 #ifndef ANDROID
 
-WEAK_FUNC void ReportNetCheckResult(std::vector<CheckResultProfile>& _check_results) {
+void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
+= [](const std::vector<CheckResultProfile>& _check_results) {
 
-}
+};
 
 #endif
 

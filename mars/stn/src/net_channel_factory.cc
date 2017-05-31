@@ -31,31 +31,34 @@ namespace stn {
 
 namespace ShortLinkChannelFactory {
 
-WEAK_FUNC ShortLinkInterface* Create(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const std::vector<std::string>& _host_list,
-					const std::string& _url, const int _taskid, bool _use_proxy) {
+    
+ShortLinkInterface* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy)
+= [](const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy) -> ShortLinkInterface* {
 	xdebug2(TSF"use weak func Create");
-	return new ShortLink(_messagequeueid, _netsource, _host_list, _url, _taskid, _use_proxy);
-}
-
-WEAK_FUNC void Destory(ShortLinkInterface* _short_link_channel) {
-	delete _short_link_channel;
-	_short_link_channel = NULL;
-}
-
+	return new ShortLink(_messagequeueid, _netsource, _task, _use_proxy);
+};
+    
+void (*Destory)(ShortLinkInterface* _short_link_channel)
+= [](ShortLinkInterface* _short_link_channel) {
+    delete _short_link_channel;
+    _short_link_channel = NULL;
+};
+    
 }
 
 namespace LongLinkChannelFactory {
 
-WEAK_FUNC LongLink* Create(NetSource& _netsource, MessageQueue::MessageQueue_t _messagequeueid) {
-	return new LongLink(_netsource, _messagequeueid);
-}
+LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource)
+= [](const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource) {
+	return new LongLink(_messagequeueid, _netsource);
+};
 
-WEAK_FUNC void Destory(LongLink* _long_link_channel) {
+void (*Destory)(LongLink* _long_link_channel)
+= [](LongLink* _long_link_channel) {
 	delete _long_link_channel;
 	_long_link_channel = NULL;
-}
+};
 
 }
-
 }
 }

@@ -21,28 +21,20 @@
 #ifndef STN_SRC_NET_CORE_H_
 #define STN_SRC_NET_CORE_H_
 
-#include "mars/comm/autobuffer.h"
-
-#include "mars/comm/thread/mutex.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/messagequeue/message_queue.h"
-#include "mars/comm/messagequeue/message_queue_utils.h"
-#include "mars/stn/config.h"
+
 #include "mars/stn/stn.h"
-
-#include "netsource_timercheck.h"
-#include "net_check_logic.h"
-
+#include "mars/stn/config.h"
 #ifdef USE_LONG_LINK
-#include "longlink.h"
+#include "mars/stn/src/longlink.h"
 #endif
-
-class NetSourceTimerCheck;
 
 namespace mars {
     namespace stn {
 
 class NetSource;
+
     
 class ShortLinkTaskManager;
         
@@ -50,6 +42,7 @@ class ShortLinkTaskManager;
 class LongLinkTaskManager;
 class TimingSync;
 class ZombieTaskManager;
+class NetSourceTimerCheck;
 #endif
         
 class SignallingKeeper;
@@ -78,6 +71,7 @@ class NetCore {
     bool    HasTask(uint32_t _taskid) const;
     void    ClearTasks();
     void    RedoTasks();
+    void    RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
 
     void    MakeSureLongLinkConnect();
     bool    LongLinkIsConnected();
@@ -87,7 +81,7 @@ class NetCore {
     void	StopSignal();
 
 #ifdef USE_LONG_LINK
-    LongLinkTaskManager& GetLongLinkTaskManager() {return *longlink_task_manager_;}
+    LongLink& Longlink();
 #endif
 
   private:
@@ -98,12 +92,10 @@ class NetCore {
   private:
     int     __CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime);
     void    __OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);
-    void    __OnSessionTimeout(int _err_code, uint32_t _src_taskid);
 
     void    __OnShortLinkResponse(int _status_code);
 
 #ifdef USE_LONG_LINK
-    void    __OnPush(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _buf);
     void    __OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     void    __OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status);
     void    __ResetLongLink();

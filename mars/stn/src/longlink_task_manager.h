@@ -27,7 +27,6 @@
 #include "boost/function.hpp"
 
 #include "mars/comm/messagequeue/message_queue.h"
-#include "mars/comm/messagequeue/message_queue_utils.h"
 #include "mars/comm/alarm.h"
 #include "mars/stn/stn.h"
 
@@ -52,10 +51,9 @@ class LongLinkConnectMonitor;
 
 class LongLinkTaskManager {
   public:
-    boost::function<void (uint32_t _taskid, uint32_t _cmdid, const AutoBuffer& _buf)> fun_notify_;
     boost::function<int (ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
 
-    boost::function<void (int _err_code, uint32_t _src_taskid)> fun_notify_session_timeout_;
+    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid)> fun_notify_retry_all_tasks;
     boost::function<void (int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
     boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
 
@@ -68,8 +66,7 @@ class LongLinkTaskManager {
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
     void RedoTasks();
-
-    void OnSessionTimeout(int _err_code, uint32_t _src_taskid);
+    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
 
     LongLink& LongLinkChannel() { return *longlink_; }
     LongLinkConnectMonitor& getLongLinkConnectMonitor() { return *longlinkconnectmon_; }
@@ -79,7 +76,7 @@ class LongLinkTaskManager {
 
   private:
     // from ILongLinkObserver
-    void __OnResponse(ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, const ConnectProfile& _connect_profile);
+    void __OnResponse(ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);
     void __OnSend(uint32_t _taskid);
     void __OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize);
     void __SignalConnection(LongLink::TLongLinkStatus _connect_status);
@@ -88,7 +85,6 @@ class LongLinkTaskManager {
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __Reset();
     void __BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const ConnectProfile& _connect_profile, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile);
 

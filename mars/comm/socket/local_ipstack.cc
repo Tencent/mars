@@ -172,7 +172,7 @@ bool two_addrs_on_one_interface(sockaddr* first_addr, sockaddr* second_addr) {
 }
 
 TLocalIPStack __local_ipstack_detect(std::string& _log) {
-    XMessage detail(_log);
+    XMessage detail;
     detail("local_ipstack_detect ");
 #ifdef __APPLE__
     in6_addr addr6_gateway = {0};

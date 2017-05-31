@@ -21,26 +21,17 @@
 #ifndef stn_config_h
 #define stn_config_h
 
-/**
- * nooping param
- */
-//#define NOOP_CMDID_REQ 6
-//#define NOOP_DUMMY_SEQ 1
-//#define NOOP_CHECK_SEQ (0xFFFFFFFF)
-//#define NOOP_CMDID_RESP 6
 
-//
-#define DNS_TIMEOUT  (1)// s
-
+//if do not use newdns IP, comment the macro
 #define USE_LONG_LINK
 //task attribute max value
-#define DEF_TASK_TIME_OUT (60*1000)
+#define DEF_TASK_TIME_OUT (40*1000)
 #define DEF_TASK_RETRY_COUNT (1)
 #define DEF_TASK_RETRY_INTERNAL (1 * 1000)
 
 // Heartbeart Range
 #define MinHeartInterval (4  * 60 * 1000 + 30 * 1000)   // 4.5 minute
-#define MaxHeartInterval (14 * 60 * 1000 + 50 * 1000)   // 14 minute 50 seconds
+#define MaxHeartInterval (9 * 60 * 1000 + 50 * 1000)   // 9 minute 50 seconds
 
 // Heartbeat Step
 #define HeartStep (60 * 1000)      // try to increse current heartbeat by HeartStep
@@ -54,11 +45,11 @@
 const static unsigned int kBaseFirstPackageWifiTimeout = 12*1000;
 const static unsigned int kBaseFirstPackageGPRSTimeout = 15*1000;
 
-const static unsigned int kMaxFirstPackageWifiTimeout = 25*1000;
-const static unsigned int kMaxFirstPackageGPRSTimeout = 35*1000;
+const static unsigned int kMaxFirstPackageWifiTimeout = 22*1000;
+const static unsigned int kMaxFirstPackageGPRSTimeout = 30*1000;
 
-const static unsigned int kGPRSMinRate = 3*1024;
-const static unsigned int kWifiMinRate = 10*1024;
+const static unsigned int kGPRSMinRate = 4*1024;
+const static unsigned int kWifiMinRate = 12*1024;
 
 const static unsigned int kWifiPackageInterval = 8*1000;
 const static unsigned int kGPRSPackageInterval = 12*1000;

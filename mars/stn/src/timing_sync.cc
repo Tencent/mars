@@ -34,7 +34,7 @@ using namespace mars::app;
 
 #define ACTIVE_SYNC_INTERVAL (90*1000)
 #define UNLOGIN_SYNC_INTERVAL (4*60*1000)
-#define INACTIVE_SYNC_INTERVAL (30*60*1000)
+#define INACTIVE_SYNC_INTERVAL (10*60*1000)
 #define NONET_SALT_RATE  (3)
 
 
@@ -42,7 +42,7 @@ static int GetAlarmTime(bool _is_actived)
 {
     int time = 0;
     //todo
-    if (_is_actived && !IsLogoned())
+    if (_is_actived && !::GetAccountInfo().is_logoned)
     {
         time = UNLOGIN_SYNC_INTERVAL;
     }

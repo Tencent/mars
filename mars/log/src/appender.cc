@@ -421,11 +421,10 @@ static bool __writefile(const void* _data, size_t _len, FILE* _file) {
         char err_log[256] = {0};
         snprintf(err_log, sizeof(err_log), "\nwrite file error:%d\n", err);
 
-        char tmp[256] = {0};
-        size_t len = sizeof(tmp);
-        LogBuffer::Write(err_log, strnlen(err_log, sizeof(err_log)), tmp, len);
+        AutoBuffer tmp_buff;
+        LogBuffer::Write(err_log, strnlen(err_log, sizeof(err_log)), tmp_buff);
 
-        fwrite(tmp, len, 1, _file);
+        fwrite(tmp_buff.Ptr(), tmp_buff.Length(), 1, _file);
 
         return false;
     }
@@ -495,10 +494,10 @@ static bool __openlogfile(const std::string& _log_dir) {
 
         char log[1024] = {0};
         snprintf(log, sizeof(log), "[F][ last log file:%s from %s to %s, time_diff:%ld, tick_diff:%" PRIu64 "\n", s_last_file_path, last_time_str, now_time_str, now_time-s_last_time, now_tick-s_last_tick);
-        char tmp[2 * 1024] = {0};
-        size_t len = sizeof(tmp);
-        LogBuffer::Write(log, strnlen(log, sizeof(log)), tmp, len);
-        __writefile(tmp, len, sg_logfile);
+
+        AutoBuffer tmp_buff;
+        LogBuffer::Write(log, strnlen(log, sizeof(log)), tmp_buff);
+        __writefile(tmp_buff.Ptr(), tmp_buff.Length(), sg_logfile);
     }
 
     memcpy(s_last_file_path, logfilepath, sizeof(s_last_file_path));
@@ -596,12 +595,10 @@ static void __writetips2file(const char* _tips_format, ...) {
     vsnprintf(tips_info, sizeof(tips_info), _tips_format, ap);
     va_end(ap);
 
-    char tmp[8 * 1024] = {0};
-    size_t len = sizeof(tmp);
+    AutoBuffer tmp_buff;
+    LogBuffer::Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp_buff);
     
-    LogBuffer::Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp, len);
-    
-    __log2file(tmp, len);
+    __log2file(tmp_buff.Ptr(), tmp_buff.Length());
 }
 
 static void __async_log_thread() {
@@ -629,11 +626,10 @@ static void __appender_sync(const XLoggerInfo* _info, const char* _log) {
     PtrBuffer log(temp, 0, sizeof(temp));
     log_formater(_info, _log, log);
 
-    char buffer_crypt[16 * 1024] = {0};
-    size_t len = 16 * 1024;
-    if (!LogBuffer::Write(log.Ptr(), log.Length(), buffer_crypt, len))   return;
+    AutoBuffer tmp_buff;
+    if (!LogBuffer::Write(log.Ptr(), log.Length(), tmp_buff))   return;
 
-    __log2file(buffer_crypt, len);
+    __log2file(tmp_buff.Ptr(), tmp_buff.Length());
 }
 
 static void __appender_async(const XLoggerInfo* _info, const char* _log) {
@@ -1013,5 +1009,29 @@ bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std:
     if (!sg_cache_logdir.empty()) {
         __get_filepaths_from_timeval(tv, sg_cache_logdir, _prefix, LOG_EXT, _filepath_vec);
     }
+    return true;
+}
+
+bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec) {
+    if (sg_logdir.empty()) return false;
+    
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    tv.tv_sec -= _timespan * (24 * 60 * 60);
+    
+    char log_path[2048] = {0};
+    __make_logfilename(tv, sg_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
+    
+    _filepath_vec.push_back(log_path);
+    
+    if (sg_cache_logdir.empty()) {
+        return true;
+    }
+    
+    memset(log_path, 0, sizeof(log_path));
+    __make_logfilename(tv, sg_cache_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
+    
+    _filepath_vec.push_back(log_path);
+    
     return true;
 }

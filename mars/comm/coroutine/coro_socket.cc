@@ -32,30 +32,30 @@ namespace coroutine {
     
 struct TaskInfo {
 public:
-    TaskInfo(boost::intrusive_ptr<Wrapper> _wrapper, SocketSelect& _sel)
-    :wrapper_(_wrapper), sel_(_sel) {
-    }
+    TaskInfo(boost::intrusive_ptr<Wrapper> _wrapper, ::SocketPoll& _poll)
+    :wrapper_(_wrapper), poll_(_poll) { }
 
 public:
     boost::intrusive_ptr<Wrapper> wrapper_;
-    SocketSelect& sel_;
+    ::SocketPoll& poll_;
+    tickcount_t abs_timeout_;
 };
 
-class CoroutineSelect {
+class Multiplexing {
 public:
-    CoroutineSelect()
-    : selector_(breaker_, true)
+    Multiplexing()
+    : poll_(breaker_, true)
     {}
     
 public:
-    void Select(TaskInfo& _task) {
+    void Add(TaskInfo& _task) {
         ScopedLock lock(mutex_);
         tasks_.push_back(&_task);
-        selector_.Breaker().Break();
+        poll_.Breaker().Break();
     }
     
-    SocketSelectBreaker& Breaeker() {
-        return selector_.Breaker();
+    ::SocketBreaker& Breaeker() {
+        return poll_.Breaker();
     }
     
     void Run(int32_t _timeout) {
@@ -63,33 +63,29 @@ public:
         int32_t timeout = _timeout;
         
         __Before(timeout);
-        if (timeout != INT_MAX) {
-            selector_.Select(timeout);
-        } else {
-            selector_.Select();
-        }
+        poll_.Poll(timeout);
         __After();
     }
     
 private:
-    CoroutineSelect(const CoroutineSelect&);
-    void operator=(const CoroutineSelect&);
+    Multiplexing(const Multiplexing&);
+    void operator=(const Multiplexing&);
     
 private:
     
     void __Before(int32_t &_timeout) {
         
-        selector_.PreSelect();
+        poll_.ClearEvent();
         ScopedLock lock(mutex_);
         
         for (auto& i: tasks_) {
             TaskInfo& task = *i;
             xverbose2(TSF"task in, id:%_", &task);
-            selector_.Consign(task.sel_);
+            poll_.Consign(task.poll_);
             
-            if (!task.sel_.abs_timeout_.isValid()) continue;
+            if (!task.abs_timeout_.isValid()) continue;
             
-            tickcountdiff_t diff = -task.sel_.abs_timeout_.gettickspan();
+            tickcountdiff_t diff = -task.abs_timeout_.gettickspan();
             if (diff <= 0) {
                 _timeout = 0;
                 continue;
@@ -111,91 +107,92 @@ private:
         while (iter != tasks_.end()) {
             TaskInfo& task = **iter;
             
-            if (selector_.Report(task.sel_, task.sel_.abs_timeout_.isValid()? -task.sel_.abs_timeout_.gettickspan():1)) {
+            if(poll_.ConsignReport(task.poll_, task.abs_timeout_.isValid()? -task.abs_timeout_.gettickspan():1)) {
                 iter = tasks_.erase(iter);
                 coroutine::Resume(task.wrapper_);
             } else {
                 ++iter;
             }
-            
         }
     }
     
 private:
     Mutex                                   mutex_;
-    SocketSelectBreaker                     breaker_;
-    ::SocketSelect                          selector_;
+    ::SocketBreaker                         breaker_;
+    ::SocketPoll                            poll_;
     std::list<TaskInfo*>                    tasks_;
 };
 
-SocketSelect::SocketSelect(SocketSelectBreaker& _breaker)
-    : ::SocketSelect(_breaker, false) {}
+static void __Coro_Poll(int _msec, ::SocketPoll& _socket_poll) {
     
-int SocketSelect::Select(int _msec) {
-    
-    if (0 < _msec) {
-        abs_timeout_.gettickcount();
-        abs_timeout_ += _msec;
-    }
-    
-    SocketSelectBreaker breaker;
-    ::SocketSelect selector(breaker);
-    selector.PreSelect();
-    selector.Consign(*this);
-    int ret = selector.Select(0);
+    ::SocketBreaker breaker;
+    ::SocketPoll selector(breaker);
+    selector.Consign(_socket_poll);
+    int ret = selector.Poll(0);
     
     if (0 != ret) {
-        selector.Report(*this, 1);
-        return ret_;
+        selector.ConsignReport(_socket_poll, 1);
+        return;
     }
     
     boost::shared_ptr<mq::RunloopCond> cond = mq::RunloopCond::CurrentCond();
-    TaskInfo task(coroutine::RunningCoroutine(), *this);
+    TaskInfo task(coroutine::RunningCoroutine(), _socket_poll);
+    if (0 <= _msec) { task.abs_timeout_.gettickcount() += _msec;};
     
     //messagequeue for coro select
-    if (cond && cond->type() == boost::typeindex::type_id<RunloopCond>()) {
-        static_cast<RunloopCond*>(cond.get())->Select(task);
+    if (cond && cond->type() == boost::typeindex::type_id<coroutine::RunloopCond>()) {
+        static_cast<coroutine::RunloopCond*>(cond.get())->Add(task);
         coroutine::Yield();
-        return ret_;
+        return;
     }
     
     //new thread for coro select
-    static CoroutineSelect s_corotine_select;
+    static Multiplexing s_multiplexing;
     static Thread s_thread([&](){
         while (true) {
-            s_corotine_select.Run(10*60*1000);
+            s_multiplexing.Run(10*60*1000);
         }
-    }, XLOGGER_TAG"::coro_select");
+    }, XLOGGER_TAG"::coro_multiplexing");
     s_thread.start();
-    s_corotine_select.Select(task);
+    s_multiplexing.Add(task);
     coroutine::Yield();
-    return ret_;
+    return;
+}
+    
+int SocketSelect::Select(int _msec) {
+    __Coro_Poll(_msec, Poll());
+    return Ret();
+}
+    
+int SocketPoll::Poll(int _msec) {
+    __Coro_Poll(_msec, *this);
+    return Ret();
 }
 
 /* SocketSelect End */
 
-RunloopCond::RunloopCond():coroutine_select(new CoroutineSelect) {}
-RunloopCond::~RunloopCond() { delete coroutine_select;}
+RunloopCond::RunloopCond():multiplexing_(new Multiplexing) {}
+RunloopCond::~RunloopCond() { delete multiplexing_;}
     
-void RunloopCond::Select(TaskInfo& _task) {
-    coroutine_select->Select(_task);
+void RunloopCond::Add(TaskInfo& _task) {
+    multiplexing_->Add(_task);
 }
     
 const boost::typeindex::type_info& RunloopCond::type() const {
-        return boost::typeindex::type_id<RunloopCond>().type_info();
+    return boost::typeindex::type_id<coroutine::RunloopCond>().type_info();
 }
     
 void RunloopCond::Wait(ScopedLock& _lock, long _millisecond) {
     ASSERT(_lock.islocked());
-    coroutine_select->Breaeker().Clear();
+    multiplexing_->Breaeker().Clear();
     _lock.unlock();
-    coroutine_select->Run(int32_t(_millisecond));
+    multiplexing_->Run(int32_t(_millisecond));
     _lock.lock();
 }
     
 void RunloopCond::Notify(ScopedLock& _lock) {
     ASSERT(_lock.islocked());
-    coroutine_select->Breaeker().Break();
+    multiplexing_->Breaeker().Break();
 }
     
 #define SocketSelect coroutine::SocketSelect

@@ -135,6 +135,7 @@ class HeaderFields {
     static std::pair<const std::string, std::string> MakeConnectionKeepalive();
     static std::pair<const std::string, std::string> MakeAcceptAll();
     static std::pair<const std::string, std::string> MakeAcceptEncodingDefalte();
+    static std::pair<const std::string, std::string> MakeAcceptEncodingGzip();
     static std::pair<const std::string, std::string> MakeCacheControlNoCache();
     static std::pair<const std::string, std::string> MakeContentTypeOctetStream();
 
@@ -165,7 +166,7 @@ class HeaderFields {
 
     bool ContentRange(int* start, int* end, int* total);
 
-    const std::string ToStrig() const;
+    const std::string ToString() const;
 
   private:
     std::map<const std::string, std::string, less> headers_;
@@ -315,6 +316,7 @@ class Parser {
     bool FirstLineReady() const;
     const RequestLine& Request() const;
     const StatusLine& Status() const;
+    const AutoBuffer& HeaderBuffer() const;
 
     bool FieldsReady() const;
     HeaderFields& Fields();
@@ -331,7 +333,9 @@ class Parser {
 
   private:
     TRecvStatus recvstatus_;
-    AutoBuffer    recvbuf_;
+    AutoBuffer  recvbuf_;
+    AutoBuffer  headerbuf_;
+    bool response_header_ready_;
     TCsMode csmode_;
 
     StatusLine statusline_;

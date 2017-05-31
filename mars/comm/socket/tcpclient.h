@@ -104,7 +104,7 @@ class TcpClient {
     mutable Mutex read_disconnect_mutex_;
     Mutex connect_mutex_;
 
-    SocketSelectBreaker pipe_;
+    SocketBreaker pipe_;
 
     int timeout_;
     volatile TTcpStatus status_;

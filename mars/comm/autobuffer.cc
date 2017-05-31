@@ -74,14 +74,27 @@ void AutoBuffer::AddCapacity(size_t _len) {
     __FitSize(Capacity() + _len);
 }
 
+void AutoBuffer::Write(const AutoBuffer& _buffer) {
+    Write(_buffer.Ptr(), _buffer.Length());
+}
+
 void AutoBuffer::Write(const void* _pbuffer, size_t _len) {
     Write(Pos(), _pbuffer, _len);
     Seek(_len, ESeekCur);
 }
 
+void AutoBuffer::Write(off_t& _pos, const AutoBuffer& _buffer) {
+    Write((const off_t&) _pos, _buffer.Ptr(), _buffer.Length());
+    _pos += _buffer.Length();
+}
+
 void AutoBuffer::Write(off_t& _pos, const void* _pbuffer, size_t _len) {
     Write((const off_t&) _pos,  _pbuffer,  _len);
     _pos += _len;
+}
+
+void AutoBuffer::Write(const off_t& _pos, const AutoBuffer& _buffer) {
+    Write((const off_t&) _pos, _buffer.Ptr(), _buffer.Length());
 }
 
 void AutoBuffer::Write(const off_t& _pos, const void* _pbuffer, size_t _len) {

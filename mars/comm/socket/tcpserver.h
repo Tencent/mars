@@ -68,7 +68,7 @@ class TcpServer {
     SOCKET                 listen_sock_;
     sockaddr_in         bind_addr_;
     const int             backlog_;
-    SocketSelectBreaker breaker_;
+    SocketBreaker breaker_;
 };
 
 #endif /* TcpServer_H_ */

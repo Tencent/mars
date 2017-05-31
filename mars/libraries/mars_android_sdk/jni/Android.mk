@@ -26,8 +26,16 @@ include $(PREBUILT_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 
-LOCAL_MODULE := crypto
-LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libcrypto.a
+LOCAL_MODULE := openssl_crypto
+LOCAL_SRC_FILES := ../../../openssl/openssl_lib_android/libcrypto.a
+
+include $(PREBUILT_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+
+
+LOCAL_MODULE := crypto_wrapper
+LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libcryptowrapper.a
 
 include $(PREBUILT_STATIC_LIBRARY)
 
@@ -67,7 +75,7 @@ LOCAL_LDLIBS += -llog -lz
 #LOCAL_CFLAGS += -Wno-unused-parameter -Wno-missing-field-initializers
 #LOCAL_CFLAGS +=  -fdata-sections
 LOCAL_LDFLAGS += -Wl,--gc-sections,--version-script=../../log/jni/export.exp 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. $(LOCAL_PATH)/../../..
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. $(LOCAL_PATH)/../../.. $(LOCAL_PATH)/../../../..
 
 include $(LOCAL_PATH)/define_macros.mk
 
@@ -82,7 +90,7 @@ LOCAL_MODULE := marsstn
 
 LOCAL_SRC_FILES := shortlink_packer.cc longlink_packer.cc JNI_OnLoad.cc import.cc
 
-LOCAL_STATIC_LIBRARIES += stn sdt appcomm baseevent comm crypto mmjpeg jpeg_static
+LOCAL_STATIC_LIBRARIES += stn sdt appcomm baseevent crypto_wrapper comm openssl_crypto mmjpeg jpeg_static
 LOCAL_SHARED_LIBRARIES += marsxlog
 
 LOCAL_LDLIBS += -llog -lz -ljnigraphics 
@@ -92,7 +100,7 @@ LOCAL_LDLIBS += -llog -lz -ljnigraphics
 #LOCAL_CFLAGS +=  -fdata-sections
 #LOCAL_CFLAGS +=  -fvisibility=hidden
 LOCAL_LDFLAGS += -Wl,--gc-sections,--version-script=jni/export.exp
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. $(LOCAL_PATH)/../../..
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. $(LOCAL_PATH)/../../.. $(LOCAL_PATH)/../../../..
 
 include $(LOCAL_PATH)/define_macros.mk
 

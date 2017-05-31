@@ -13,23 +13,30 @@
 /*
  * shortlink_packer.h
  *
- *  Created on: 2016年3月15日
+ *  Created on: 2016-03-15
  *      Author: yanguoyue
  */
 
 #ifndef SRC_SHORTLINK_PACKER_H_
 #define SRC_SHORTLINK_PACKER_H_
 
-#ifdef __APPLE__
-#include "mars/comm/http.h"
-#else
-#include "comm/http.h"
-#endif
-
-using namespace http;
+#include <string>
+#include <map>
 
 class AutoBuffer;
 
-void shortlink_pack(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, AutoBuffer& _out_buff);
+namespace mars { namespace stn {
+
+class shortlink_tracker {
+public:
+    static shortlink_tracker* (*Create)();
+    
+public:
+    virtual ~shortlink_tracker(){};
+};
+    
+extern void (*shortlink_pack)(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _out_buff, shortlink_tracker* _tracker);
+
+}}
 
 #endif /* SRC_SHORTLINK_PACKER_H_ */

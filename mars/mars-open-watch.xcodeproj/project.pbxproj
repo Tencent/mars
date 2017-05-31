@@ -1,0 +1,547 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1F59CEB31E4B17FC003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = "mmcomm-watch";
+		};
+		1F59CEB61E4B17FC003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEAC1E4B17FC003A69E5 /* baseevent-watch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = "baseprj-watch";
+		};
+		1F59CEB91E4B17FC003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEA91E4B17FC003A69E5 /* comm-watch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = "comm-watch";
+		};
+		1F59CEBC1E4B17FC003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = "log-watch";
+		};
+		1F59D1F81E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = "log-watch";
+		};
+		1F59D1FA1E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEA91E4B17FC003A69E5 /* comm-watch.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = "comm-watch";
+		};
+		1F59D1FC1E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEAC1E4B17FC003A69E5 /* baseevent-watch.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = "baseevent-watch";
+		};
+		1F59D1FE1E4B1AE8003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = "app-watch";
+		};
+		1F59D7431E4B509F003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3170A027177887B0004F5DDA;
+			remoteInfo = "openssl-watch";
+		};
+		1F59D7451E4B50A6003A69E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = "openssl-watch";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3170A025177887B0004F5DDA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "log-watch.xcodeproj"; path = "log/log-watch.xcodeproj"; sourceTree = "<group>"; };
+		1F59CEA91E4B17FC003A69E5 /* comm-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "comm-watch.xcodeproj"; path = "comm/comm-watch.xcodeproj"; sourceTree = "<group>"; };
+		1F59CEAC1E4B17FC003A69E5 /* baseevent-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "baseevent-watch.xcodeproj"; path = "baseevent/baseevent-watch.xcodeproj"; sourceTree = "<group>"; };
+		1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "app-watch.xcodeproj"; path = "app/app-watch.xcodeproj"; sourceTree = "<group>"; };
+		1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "openssl-watch.xcodeproj"; path = "openssl/openssl-watch.xcodeproj"; sourceTree = "<group>"; };
+		3170A027177887B0004F5DDA /* libmars-open-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmars-open-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3170A024177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1F59CEA71E4B17FC003A69E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F59CEBD1E4B17FC003A69E5 /* liblog-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1F59CEAA1E4B17FC003A69E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F59CEBA1E4B17FC003A69E5 /* libcomm-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1F59CEAD1E4B17FC003A69E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F59CEB71E4B17FC003A69E5 /* libbaseevent-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1F59CEB01E4B17FC003A69E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F59CEB41E4B17FC003A69E5 /* libapp-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1F59D7401E4B509F003A69E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F59D7441E4B509F003A69E5 /* libopenssl-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A01E177887B0004F5DDA = {
+			isa = PBXGroup;
+			children = (
+				1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */,
+				1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */,
+				1F59CEA91E4B17FC003A69E5 /* comm-watch.xcodeproj */,
+				1F59CEAC1E4B17FC003A69E5 /* baseevent-watch.xcodeproj */,
+				1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */,
+				3170A029177887B0004F5DDA /* Frameworks */,
+				3170A028177887B0004F5DDA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3170A028177887B0004F5DDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3170A027177887B0004F5DDA /* libmars-open-watch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3170A029177887B0004F5DDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3170A02A177887B0004F5DDA /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3170A026177887B0004F5DDA /* mars-open-watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "mars-open-watch" */;
+			buildPhases = (
+				3170A023177887B0004F5DDA /* Sources */,
+				3170A024177887B0004F5DDA /* Frameworks */,
+				3170A025177887B0004F5DDA /* CopyFiles */,
+				1371BFE7197920A400E4C614 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1F59D7461E4B50A6003A69E5 /* PBXTargetDependency */,
+				1F59D1F91E4B1AE8003A69E5 /* PBXTargetDependency */,
+				1F59D1FB1E4B1AE8003A69E5 /* PBXTargetDependency */,
+				1F59D1FD1E4B1AE8003A69E5 /* PBXTargetDependency */,
+				1F59D1FF1E4B1AE8003A69E5 /* PBXTargetDependency */,
+			);
+			name = "mars-open-watch";
+			productName = PublicComponent;
+			productReference = 3170A027177887B0004F5DDA /* libmars-open-watch.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3170A01F177887B0004F5DDA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = Tencent;
+			};
+			buildConfigurationList = 3170A022177887B0004F5DDA /* Build configuration list for PBXProject "mars-open-watch" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3170A01E177887B0004F5DDA;
+			productRefGroup = 3170A028177887B0004F5DDA /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 1F59CEB01E4B17FC003A69E5 /* Products */;
+					ProjectRef = 1F59CEAF1E4B17FC003A69E5 /* app-watch.xcodeproj */;
+				},
+				{
+					ProductGroup = 1F59CEAD1E4B17FC003A69E5 /* Products */;
+					ProjectRef = 1F59CEAC1E4B17FC003A69E5 /* baseevent-watch.xcodeproj */;
+				},
+				{
+					ProductGroup = 1F59CEAA1E4B17FC003A69E5 /* Products */;
+					ProjectRef = 1F59CEA91E4B17FC003A69E5 /* comm-watch.xcodeproj */;
+				},
+				{
+					ProductGroup = 1F59CEA71E4B17FC003A69E5 /* Products */;
+					ProjectRef = 1F59CEA61E4B17FC003A69E5 /* log-watch.xcodeproj */;
+				},
+				{
+					ProductGroup = 1F59D7401E4B509F003A69E5 /* Products */;
+					ProjectRef = 1F59D73F1E4B509F003A69E5 /* openssl-watch.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				3170A026177887B0004F5DDA /* mars-open-watch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		1F59CEB41E4B17FC003A69E5 /* libapp-watch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libapp-watch.a";
+			remoteRef = 1F59CEB31E4B17FC003A69E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1F59CEB71E4B17FC003A69E5 /* libbaseevent-watch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libbaseevent-watch.a";
+			remoteRef = 1F59CEB61E4B17FC003A69E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1F59CEBA1E4B17FC003A69E5 /* libcomm-watch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libcomm-watch.a";
+			remoteRef = 1F59CEB91E4B17FC003A69E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1F59CEBD1E4B17FC003A69E5 /* liblog-watch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "liblog-watch.a";
+			remoteRef = 1F59CEBC1E4B17FC003A69E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1F59D7441E4B509F003A69E5 /* libopenssl-watch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libopenssl-watch.a";
+			remoteRef = 1F59D7431E4B509F003A69E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1371BFE7197920A400E4C614 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# not project dependency\nif [[ ${BUILT_PRODUCTS_DIR} == ${SRCROOT}* ]]\nthen\nexit\nfi\n\necho \"GOGOGOGOGO\"\n\nXCODE_PROJ_SUFFIX=\".xcodeproj\"\nBEGIN_REFER_SECTION=\"Begin PBXReferenceProxy section\"\nEND_REFER_SECTION=\"End PBXReferenceProxy section\"\nLIB_BEGIN=\"path = \"\nLIB_END=\";\"\n\ngetChildProjectFolder()\n{\n    is_filereference_section=false\n    i=0\n    \n    while read line\n    do\n    if [[ $line == *$END_REFER_SECTION* ]]\n    then\n    break\n    fi\n    \n    \n    if [[ $is_filereference_section == true && $line == *$LIB_BEGIN* ]]\n    then\n    line=${line#*\"$LIB_BEGIN\"}\n        libs[i]=${line%\"$LIB_END\"*}\n        let i=$i+1\n        fi\n        \n        if [[ $line == *$BEGIN_REFER_SECTION* ]]\n        then\n        is_filereference_section=true\n        fi\n        \n        \n        done < ${SRCROOT}/${PROJECT_NAME}${XCODE_PROJ_SUFFIX}/project.pbxproj\n        echo  ${libs[*]}\n    }\n    \n    childer_project_libs=`getChildProjectFolder`\n    \n    \n    cd ${BUILT_PRODUCTS_DIR}\n    echo ${BUILT_PRODUCTS_DIR}\n    files=(`ls *.a`)\n    \n    curr_path=`pwd`\n    \n    echo \"FFFF\"\n    \n    i=0\n    for f in ${files[*]}\n    do\n    if echo ${childer_project_libs[*]} | grep -w $f\n    then\n    folder=${f%\".a\"}\n    if [[ ! -d \"${BUILT_PRODUCTS_DIR}/$folder\" ]]\n    then\n    mkdir -p \"${BUILT_PRODUCTS_DIR}/$folder\"\n    fi\n    \n    cd \"${BUILT_PRODUCTS_DIR}/$folder\"\n    ar -x \"${BUILT_PRODUCTS_DIR}/$f\"\n    \n    echo \"HHHHHH\"\n    \n    for o in `ls \"${BUILT_PRODUCTS_DIR}/$folder\"/*.o`\n                                                 do\n                                                 obj_files[i]=$o\n                                                 let i=$i+1\n                                                 done\n                                                 fi\n                                                 done\n                                                 \n                                                 echo \"IIIIII\"\n                                                 libtool -static -o ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_NAME} ${obj_files[*]}\n                                                 \n                                                 for f in ${files[*]}\n                                                 do\n                                                 folder=${f%\".a\"}\n                                                 if [[ -d \"${BUILT_PRODUCTS_DIR}/$folder\" ]]\n                                                 then\n                                                 rm -rf \"${BUILT_PRODUCTS_DIR}/$folder\"\n                                                 fi\n                                                 done\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3170A023177887B0004F5DDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1F59D1F91E4B1AE8003A69E5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "log-watch";
+			targetProxy = 1F59D1F81E4B1AE8003A69E5 /* PBXContainerItemProxy */;
+		};
+		1F59D1FB1E4B1AE8003A69E5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "comm-watch";
+			targetProxy = 1F59D1FA1E4B1AE8003A69E5 /* PBXContainerItemProxy */;
+		};
+		1F59D1FD1E4B1AE8003A69E5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "baseevent-watch";
+			targetProxy = 1F59D1FC1E4B1AE8003A69E5 /* PBXContainerItemProxy */;
+		};
+		1F59D1FF1E4B1AE8003A69E5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "app-watch";
+			targetProxy = 1F59D1FE1E4B1AE8003A69E5 /* PBXContainerItemProxy */;
+		};
+		1F59D7461E4B50A6003A69E5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "openssl-watch";
+			targetProxy = 1F59D7451E4B50A6003A69E5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3170A033177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Debug;
+		};
+		3170A034177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"NDEBUG=1",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Release;
+		};
+		3170A036177887B0004F5DDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_DEBUG_INFORMATION_LEVEL = default;
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"DEBUG=1",
+					MACOS,
+					"asm=__asm",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					./protobuf/src,
+					./comm,
+					./openssl/include,
+					./openssl/crypto,
+					./openssl/export_include,
+					./utils/src,
+					./streamcdn/src,
+					./netchecker/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "mars-open-watch";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Debug;
+		};
+		3170A037177887B0004F5DDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_DEBUG_INFORMATION_LEVEL = "line-tables-only";
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				DSTROOT = /tmp/PublicComponent.dst;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KVCOMM=1",
+					"NDEBUG=1",
+					MACOS,
+					"asm=__asm",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = (
+					./protobuf/src,
+					./comm,
+					./openssl/include,
+					./openssl/crypto,
+					./openssl/export_include,
+					./utils/src,
+					./streamcdn/src,
+					./netchecker/src,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fno-exceptions",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "mars-open-watch";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = all;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos";
+				VALID_ARCHS = "i386 armv7k";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3170A022177887B0004F5DDA /* Build configuration list for PBXProject "mars-open-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A033177887B0004F5DDA /* Debug */,
+				3170A034177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "mars-open-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3170A036177887B0004F5DDA /* Debug */,
+				3170A037177887B0004F5DDA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3170A01F177887B0004F5DDA /* Project object */;
+}

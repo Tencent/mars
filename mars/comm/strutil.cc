@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <algorithm>
-#include <sstream>
 
 #include "comm/xlogger/xlogger.h"
 
@@ -257,52 +256,6 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
     return ret;
 }
     
-unsigned int Str2UInt(const std::string& _str) { //NOTE: make sure your parameters is Number(if U give "1234test", 1234 will be returned back.). code by zhoushaotao 20150527
-
-    std::stringstream str(_str.c_str());
-    unsigned int  result = 0;
-    str >> result;
-    
-    if (str.fail() || str.bad()) return 0;
-    return result;
-}
-
-#ifdef _WIN32
-#include <string.h>
-#include <stdio.h>
-#include <locale.h>
-#elif defined(__APPLE__)
-#include <wchar.h>
-#else
-int  __attribute__((weak)) wcscasecmp(const wchar_t *s1, const wchar_t *s2) {
-	wchar_t c1 = '\0', c2 = '\0';
-
-	for (; *s1; s1++, s2++) {
-		c1 = towlower(*s1);
-		c2 = towlower(*s2);
-		if (c1 != c2) {
-			return ((int)c1 - c2);
-		}
-	}
-	return (-*s2);
-}
-#endif
-
-bool EqualsIgnoreCase(const std::string& str1, const std::string& str2) {
-#ifdef _WIN32
-	return _stricmp(str1.c_str(), str2.c_str()) == 0;
-#else
-	return strcasecmp(str1.c_str(), str2.c_str()) == 0;
-#endif
-}
-
-bool EqualsIgnoreCase(const std::wstring& str1, const std::wstring& str2) {
-#ifdef _WIN32
-	return _wcsicmp(str1.c_str(), str2.c_str()) == 0;
-#else
-	return wcscasecmp(str1.c_str(), str2.c_str()) == 0;
-#endif
-}
 
 std::string ReplaceChar(const char* const input_str, char be_replaced, char replace_with) {
 	std::string output_str(input_str);

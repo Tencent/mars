@@ -444,10 +444,4 @@ int OpenSslCryptoUtil::EcdsaVerify(const unsigned char* public_key, size_t publi
 
 }
 
-//gzrd_Lib_CPP_Version_ID--start
-#ifndef GZRD_SVN_ATTR
-#define GZRD_SVN_ATTR "0"
-#endif
-static char gzrd_Lib_CPP_Version_ID[] __attribute__((used))="$HeadURL: http://scm-gy.tencent.com/gzrd/gzrd_mail_rep/mmtenpay_proj/trunk/mmtenpay/mmpaybasic/mmpaycert/lib/pay_openssl_crypto_util.cpp $ $Id: pay_openssl_crypto_util.cpp 1571612 2016-04-20 08:27:29Z crestxu $ " GZRD_SVN_ATTR "__file__";
-// gzrd_Lib_CPP_Version_ID--end
 

@@ -36,7 +36,7 @@ public:
     
 public:
     static bool GetPeriodLogs(const char* _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg);
-    static bool Write(const void* _data, size_t _inputlen, void* _output, size_t& _len);
+    static bool Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff);
 
 public:
     PtrBuffer& GetData();

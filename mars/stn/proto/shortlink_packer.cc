@@ -18,11 +18,17 @@
  */
 
 #include "shortlink_packer.h"
+#include "mars/comm/http.h"
 
 
 using namespace http;
+namespace mars { namespace stn {
 
-void shortlink_pack(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, AutoBuffer& _out_buff) {
+shortlink_tracker* (*shortlink_tracker::Create)()
+=  []() { return new shortlink_tracker; };
+
+void (*shortlink_pack)(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _out_buff, shortlink_tracker* _tracker)
+= [](const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _out_buff, shortlink_tracker* _tracker) {
 
 	Builder req_builder(kRequest);
 	req_builder.Request().Method(RequestLine::kPost);
@@ -45,7 +51,7 @@ void shortlink_pack(const std::string& _url, const std::map<std::string, std::st
 	req_builder.Request().Url(_url);
 	req_builder.HeaderToBuffer(_out_buff);
 	_out_buff.Write(_body.Ptr(), _body.Length());
-}
+};
 
-
+}}
 

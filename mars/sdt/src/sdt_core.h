@@ -25,7 +25,6 @@
 #include <vector>
 #include <list>
 
-#include "mars/comm/messagequeue/message_queue_utils.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/thread/mutex.h"

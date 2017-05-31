@@ -72,12 +72,13 @@ class NetSource {
     static void SetBackupIPs(const std::string& _host, const std::vector<std::string>& _ips);
     //set debug ip
     static void SetDebugIP(const std::string& _host, const std::string& _ip);
-    static std::string& GetLongLinkDebugIP();
+    static const std::string& GetLongLinkDebugIP();
+    static const std::string& GetShortLinkDebugIP();
     
     static void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 
     static void GetLonglinkPorts(std::vector<uint16_t>& _ports);
-    static std::vector<std::string>& GetLongLinkHosts();
+    static const std::vector<std::string>& GetLongLinkHosts();
     static uint16_t GetShortLinkPort();
     
     static void GetBackupIPs(std::string _host, std::vector<std::string>& _iplist);
@@ -93,7 +94,7 @@ class NetSource {
     bool GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
 
     // for short link
-    bool GetShortLinkItems(std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
+    bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
 
     void ClearCache();
 
@@ -110,13 +111,13 @@ class NetSource {
   private:
     void __ClearShortLinkProxyInfo();
     
-    bool __HasShortLinkDebugIP(std::vector<std::string> _hostlist);
+    bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
     
     bool __GetLonglinkDebugIPPort(std::vector<IPPortItem>& _ipport_items);
-    bool __GetShortlinkDebugIPPort(std::vector<std::string> _hostlist, std::vector<IPPortItem>& _ipport_items);
+    bool __GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items);
 
-    void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items, std::vector<std::string> _hostlist, DnsUtil& _dns_util, bool _islonglink);
-    size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink);
+    void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const std::vector<std::string>& _hostlist, DnsUtil& _dns_util, bool _islonglink);
+    size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string& _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink);
 
   private:
     ActiveLogic&        active_logic_;

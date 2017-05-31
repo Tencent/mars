@@ -7,11 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13811799197552A70007B832 /* Objc2C_LogLogic.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1381178F197552A70007B832 /* Objc2C_LogLogic.mm */; settings = {COMPILER_FLAGS = "-fvisibility=default"; }; };
-		1381179A197552A70007B832 /* appender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13811791197552A70007B832 /* appender.cpp */; };
-		1381179B197552A70007B832 /* formater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13811793197552A70007B832 /* formater.cpp */; };
-		1381179C197552A70007B832 /* MMLogLogic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13811795197552A70007B832 /* MMLogLogic.cpp */; };
-		13C0E30B1B6A00E000D76856 /* XorBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13C0E3091B6A00E000D76856 /* XorBuffer.cpp */; };
+		1F59D1F11E4B1ADA003A69E5 /* appender.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D1ED1E4B1ADA003A69E5 /* appender.cc */; };
+		1F59D1F21E4B1ADA003A69E5 /* formater.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D1EE1E4B1ADA003A69E5 /* formater.cc */; };
+		1F59D1F31E4B1ADA003A69E5 /* log_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F59D1EF1E4B1ADA003A69E5 /* log_buffer.cc */; };
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
@@ -28,14 +26,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1381178F197552A70007B832 /* Objc2C_LogLogic.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Objc2C_LogLogic.mm; sourceTree = "<group>"; };
-		13811791197552A70007B832 /* appender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = appender.cpp; sourceTree = "<group>"; };
-		13811792197552A70007B832 /* appender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = appender.h; sourceTree = "<group>"; };
-		13811793197552A70007B832 /* formater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formater.cpp; sourceTree = "<group>"; };
-		13811795197552A70007B832 /* MMLogLogic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MMLogLogic.cpp; sourceTree = "<group>"; };
-		13811796197552A70007B832 /* MMLogLogic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMLogLogic.h; sourceTree = "<group>"; };
-		13C0E3091B6A00E000D76856 /* XorBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XorBuffer.cpp; sourceTree = "<group>"; };
-		13C0E30A1B6A00E000D76856 /* XorBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XorBuffer.h; sourceTree = "<group>"; };
+		1F59D1ED1E4B1ADA003A69E5 /* appender.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = appender.cc; sourceTree = "<group>"; };
+		1F59D1EE1E4B1ADA003A69E5 /* formater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formater.cc; sourceTree = "<group>"; };
+		1F59D1EF1E4B1ADA003A69E5 /* log_buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_buffer.cc; sourceTree = "<group>"; };
+		1F59D1F01E4B1ADA003A69E5 /* log_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_buffer.h; sourceTree = "<group>"; };
+		1F59D3631E4B1BE8003A69E5 /* appender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = appender.h; sourceTree = "<group>"; };
 		3170A027177887B0004F5DDA /* liblog-watch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "liblog-watch.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -52,41 +47,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1381178E197552A70007B832 /* objc */ = {
+		1F59D1EC1E4B1ADA003A69E5 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				1381178F197552A70007B832 /* Objc2C_LogLogic.mm */,
-			);
-			path = objc;
-			sourceTree = "<group>";
-		};
-		13811790197552A70007B832 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				13C0E3091B6A00E000D76856 /* XorBuffer.cpp */,
-				13C0E30A1B6A00E000D76856 /* XorBuffer.h */,
-				13811791197552A70007B832 /* appender.cpp */,
-				13811792197552A70007B832 /* appender.h */,
-				13811793197552A70007B832 /* formater.cpp */,
-				13811794197552A70007B832 /* loglogic */,
+				1F59D1ED1E4B1ADA003A69E5 /* appender.cc */,
+				1F59D1EE1E4B1ADA003A69E5 /* formater.cc */,
+				1F59D1EF1E4B1ADA003A69E5 /* log_buffer.cc */,
+				1F59D1F01E4B1ADA003A69E5 /* log_buffer.h */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		13811794197552A70007B832 /* loglogic */ = {
-			isa = PBXGroup;
-			children = (
-				13811795197552A70007B832 /* MMLogLogic.cpp */,
-				13811796197552A70007B832 /* MMLogLogic.h */,
-			);
-			path = loglogic;
 			sourceTree = "<group>";
 		};
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
-				1381178E197552A70007B832 /* objc */,
-				13811790197552A70007B832 /* src */,
+				1F59D3631E4B1BE8003A69E5 /* appender.h */,
+				1F59D1EC1E4B1ADA003A69E5 /* src */,
 				3170A029177887B0004F5DDA /* Frameworks */,
 				3170A028177887B0004F5DDA /* Products */,
 			);
@@ -159,11 +135,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1381179A197552A70007B832 /* appender.cpp in Sources */,
-				1381179C197552A70007B832 /* MMLogLogic.cpp in Sources */,
-				1381179B197552A70007B832 /* formater.cpp in Sources */,
-				13C0E30B1B6A00E000D76856 /* XorBuffer.cpp in Sources */,
-				13811799197552A70007B832 /* Objc2C_LogLogic.mm in Sources */,
+				1F59D1F11E4B1ADA003A69E5 /* appender.cc in Sources */,
+				1F59D1F21E4B1ADA003A69E5 /* formater.cc in Sources */,
+				1F59D1F31E4B1ADA003A69E5 /* log_buffer.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,8 +220,10 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
-					../comm,
-					../comm/crypt,
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;
@@ -289,8 +265,10 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				HEADER_SEARCH_PATHS = (
-					../comm,
-					../comm/crypt,
+					$SOURCE_ROOT/,
+					$SOURCE_ROOT/../,
+					$SOURCE_ROOT/../../,
+					$SOURCE_ROOT/../comm,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;

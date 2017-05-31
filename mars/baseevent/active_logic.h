@@ -24,10 +24,12 @@
 
 #include "mars/comm/alarm.h"
 #include "mars/comm/thread/mutex.h"
+#include "mars/comm/singleton.h"
 
 class ActiveLogic
 {
 public:
+    SINGLETON_INTRUSIVE(ActiveLogic, new ActiveLogic, delete);
     boost::signals2::signal<void (bool _isForeground)> SignalForeground;
     boost::signals2::signal<void (bool _isactive)> SignalActive;
 

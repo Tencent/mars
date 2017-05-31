@@ -41,7 +41,7 @@ CoreServiceBase::~CoreServiceBase() {
 }
 
 void CoreServiceBase::__StartupCreater() {
-    std::vector<ServiceRegister>& svrreg = BootRegister_Container<ServiceRegister>();
+    std::vector<ServiceRegister>& svrreg = BOOT_REGISTER_CONTAINER<ServiceRegister>();
     std::vector<ServiceRegister> veccreater;
 
     for (std::vector<ServiceRegister>::iterator it = svrreg.begin(); it != svrreg.end(); ++it) {
@@ -57,7 +57,7 @@ void CoreServiceBase::__StartupCreater() {
 void CoreServiceBase::__FirstGetCreater(const std::string& _servicename) {
     if (m_services.end() != m_services.find(_servicename)) return;
 
-    std::vector<ServiceRegister>& svrreg = BootRegister_Container<ServiceRegister>();
+    std::vector<ServiceRegister>& svrreg = BOOT_REGISTER_CONTAINER<ServiceRegister>();
     std::vector<ServiceRegister> veccreater;
 
     for (std::vector<ServiceRegister>::iterator it = svrreg.begin(); it != svrreg.end(); ++it) {
@@ -72,7 +72,7 @@ void CoreServiceBase::__FirstGetCreater(const std::string& _servicename) {
 
 
 void CoreServiceBase::__Creater(std::vector<ServiceRegister>& _vec) {
-    std::vector<ServiceRegister>& svrreg = BootRegister_Container<ServiceRegister>();
+    std::vector<ServiceRegister>& svrreg = BOOT_REGISTER_CONTAINER<ServiceRegister>();
     std::set<std::string> servicedepend;
 
     for (std::vector<ServiceRegister>::iterator it = _vec.begin(); it != _vec.end(); ++it) {

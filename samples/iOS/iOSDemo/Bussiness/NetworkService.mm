@@ -80,7 +80,7 @@ static NetworkService * sharedSingleton = nil;
 }
 
 - (void)setShortLinkPort:(const unsigned short)port {
-    mars::stn::SetShortlinkSvrAddr(port);
+    mars::stn::SetShortlinkSvrAddr(port, "");
 }
 
 - (void)setLongLinkAddress:(NSString *)string port:(const unsigned short)port debugIP:(NSString *)IP {
@@ -95,7 +95,7 @@ static NetworkService * sharedSingleton = nil;
     std::string ipAddress([string UTF8String]);
     std::vector<uint16_t> ports;
     ports.push_back(port);
-    mars::stn::SetLonglinkSvrAddr(ipAddress,ports);
+    mars::stn::SetLonglinkSvrAddr(ipAddress, ports, "");
 }
 
 - (void)makesureLongLinkConnect {
@@ -128,7 +128,7 @@ static NetworkService * sharedSingleton = nil;
 }
 
 - (void)stopTask:(NSInteger)taskID {
-    mars::stn::StopTask((int32_t)taskID);
+    mars::stn::StopTask((uint32_t)taskID);
 }
 
 
