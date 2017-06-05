@@ -46,6 +46,13 @@
 			remoteGlobalIDString = 3170A027177887B0004F5DDA;
 			remoteInfo = openssl;
 		};
+		4B62E4011EE55215001524EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B29951D1E741016005AC019 /* openssl.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3170A026177887B0004F5DDA;
+			remoteInfo = openssl;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -99,9 +106,9 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				1371BF9119791FD700E4C614 /* comm.xcodeproj */,
 				4B29951D1E741016005AC019 /* openssl.xcodeproj */,
 				1371BF9D19791FE800E4C614 /* log.xcodeproj */,
-				1371BF9119791FD700E4C614 /* comm.xcodeproj */,
 				3170A029177887B0004F5DDA /* Frameworks */,
 				3170A028177887B0004F5DDA /* Products */,
 			);
@@ -146,6 +153,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4B62E4021EE55215001524EC /* PBXTargetDependency */,
 				1371BFDC197920A100E4C614 /* PBXTargetDependency */,
 				1371BFE0197920A100E4C614 /* PBXTargetDependency */,
 			);
@@ -255,6 +263,11 @@
 			isa = PBXTargetDependency;
 			name = comm;
 			targetProxy = 1371BFDF197920A100E4C614 /* PBXContainerItemProxy */;
+		};
+		4B62E4021EE55215001524EC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = openssl;
+			targetProxy = 4B62E4011EE55215001524EC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
