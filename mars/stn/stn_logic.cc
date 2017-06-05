@@ -77,7 +77,9 @@ static void onDestroy() {
 
     NetCore::Singleton::Release();
     SINGLETON_RELEASE_ALL();
-    ActiveLogic::Singleton::Release();
+    
+    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
+    // ActiveLogic::Singleton::Release();
 }
 
 static void onSingalCrash(int _sig) {
