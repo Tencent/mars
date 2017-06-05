@@ -1,9 +1,9 @@
 ## Mars
 
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/Tencent/mars/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-1.1.6-red.svg)](https://github.com/Tencent/mars/releases)
+[![Release Version](https://img.shields.io/badge/release-1.1.9-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
-[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.6-red.svg)](https://github.com/Tencent/mars/wiki)
+[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.9-red.svg)](https://github.com/Tencent/mars/wiki)
 [![WeChat Approved](https://img.shields.io/badge/Platform-%20iOS%20%7C%20OS%20X%20%7C%20Android(ndk11c)%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 (中文版本请参看[这里](#mars_cn))
@@ -41,7 +41,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.1.5'
+    compile 'com.tencent.mars:mars-wrapper:1.1.6'
 }
 ```
 
@@ -53,7 +53,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.1.6'
+    compile 'com.tencent.mars:mars-core:1.1.9'
 }
 ```
 
@@ -295,9 +295,9 @@ Mars is under the MIT license. See the [LICENSE](https://github.com/Tencent/mars
 ## <a name="mars_cn">Mars</a>
 
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/Tencent/mars/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-1.1.4-red.svg)](https://github.com/Tencent/mars/releases)
+[![Release Version](https://img.shields.io/badge/release-1.1.9-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
-[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.4-red.svg)](https://github.com/Tencent/mars/wiki)
+[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.9-red.svg)](https://github.com/Tencent/mars/wiki)
 [![WeChat Approved](https://img.shields.io/badge/Platform-%20iOS%20%7C%20OS%20X%20%7C%20Android%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 Mars 是微信官方的跨平台跨业务的终端基础组件。
@@ -329,7 +329,7 @@ gradle 接入我们提供了两种接入方式：[mars-wrapper](#wrapper) 或者
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.1.5'
+    compile 'com.tencent.mars:mars-wrapper:1.1.6'
 }
 ```
 
@@ -342,7 +342,7 @@ dependencies {
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.1.6'
+    compile 'com.tencent.mars:mars-core:1.1.9'
 }
 ```
 接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 的依赖
