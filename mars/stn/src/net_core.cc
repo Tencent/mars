@@ -25,8 +25,6 @@
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
 
-#include "openssl/export_include/openssl_multi_thread_support.h"
-
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/network/netinfo_util.h"
@@ -712,4 +710,3 @@ void NetCore::__OnTimerCheckSuc() {
 
 }
 
-VARIABLE_IS_NOT_USED static int export_openssl_mt_var = export_openssl_mutithread_support();
