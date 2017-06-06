@@ -25,7 +25,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#if XLOG_CRYPT
+#ifndef XLOG_NO_CRYPT
 #include "openssl/obj_mac.h"
 #include "openssl/crypto.h"
 #include "log_crypt_ecdh.h"
@@ -69,7 +69,7 @@ static uint16_t __GetSeq(bool _is_async) {
     return s_seq;
 }
 
-#if XLOG_CRYPT
+#ifndef XLOG_NO_CRYPT
 static bool Hex2Buffer(const char* _str, size_t _len, unsigned char* _buffer) {
     
     if (NULL == _str || _len ==0 || _len % 2 != 0) {
@@ -97,7 +97,7 @@ static bool Hex2Buffer(const char* _str, size_t _len, unsigned char* _buffer) {
 
 LogCrypt::LogCrypt(const char* _pubkey): seq_(0), is_crypt_(false) {
     
-#if XLOG_CRYPT
+#ifndef XLOG_NO_CRYPT
     const static size_t PUB_KEY_LEN = 64;
     const static int NID = NID_X9_62_prime256v1;
     

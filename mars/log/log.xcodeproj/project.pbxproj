@@ -237,7 +237,6 @@
 					"DEBUG=1",
 					MACOS,
 					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
-					"XLOG_CRYPT=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -286,7 +285,6 @@
 					"NDEBUG=1",
 					MACOS,
 					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
-					"XLOG_CRYPT=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
