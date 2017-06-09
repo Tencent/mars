@@ -84,7 +84,7 @@ class SmartHeartbeat {
 
   private:
     bool is_wait_heart_response_;
-    unsigned int xiaomi_style_count_;
+    
 
     unsigned int success_heart_count_;  // the total success heartbeat based on single alive TCP, And heartbeat interval can be different.
     unsigned int last_heart_;
@@ -93,6 +93,14 @@ class SmartHeartbeat {
     Mutex _mutex_;
 
     SpecialINI ini_;
+
+	uint64_t pre_last_alarm_tick_;
+	uint64_t last_alarm_tick_;
+
+	unsigned int xiaomi_style_count_;
+	unsigned int xiaomi_style_heart_time_;
+	unsigned int xiaomi_style_maxheart_fail_count_;
+	unsigned int xiaomi_style_maxheart_sucesss_count_;
 };
 
 #endif // STN_SRC_SMART_HEARTBEAT_H_
