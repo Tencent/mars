@@ -37,7 +37,7 @@
  *                                                     *
  *******************************************************/
 
-#if defined(__arm64__)
+#if defined(__aarch64__)
 .cpu    generic+fp+simd
 .text
 .align  2
