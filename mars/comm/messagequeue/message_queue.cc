@@ -686,7 +686,7 @@ static void __ANRCheackCallback(bool _iOS_style, const mars::comm::check_content
                    _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, mq_id);
             thread->cancel_after();
         }
-    }, MessageQueue::InstallAsyncHandler(mq_id));
+    }, MessageQueue::DefAsyncInvokeHandler(mq_id));
 }
     
 static void __RgisterANRCheckCallback() {
@@ -874,7 +874,9 @@ void MessageQueueCreater::CancelAndWait() {
     BreakMessageQueueRunloop(messagequeue_id_);
     messagequeue_id_ = KInvalidQueueID;
     lock.unlock();
-    thread_.join();
+    if(ThreadUtil::currentthreadid() != thread_.tid()) {
+        thread_.join();
+    }
 }
 
 MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, thread_tid _tid) {

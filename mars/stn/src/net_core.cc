@@ -449,11 +449,15 @@ void NetCore::OnNetworkChange() {
 }
 
 void NetCore::KeepSignal() {
+    ASYNC_BLOCK_START
 	signalling_keeper_->Keep();
+    ASYNC_BLOCK_END
 }
 
 void NetCore::StopSignal() {
+    ASYNC_BLOCK_START
 	signalling_keeper_->Stop();
+    ASYNC_BLOCK_END
 }
 
 #ifdef USE_LONG_LINK
@@ -500,7 +504,9 @@ void NetCore::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, 
 
 void NetCore::MakeSureLongLinkConnect() {
 #ifdef USE_LONG_LINK
+    ASYNC_BLOCK_START
     longlink_task_manager_->LongLinkChannel().MakeSureConnected();
+    ASYNC_BLOCK_END
 #endif
 }
 
