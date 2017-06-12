@@ -97,9 +97,8 @@
       <AdditionalDependencies>libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(OutDir)$(TargetName)$(TargetExt)  $(SolutionDir)MicroMsgWin\lib\
-xcopy /y $(OutDir)$(TargetName).pdb  $(SolutionDir)MicroMsgWin\lib\
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -121,7 +120,8 @@ xcopy /y $(OutDir)$(TargetName).pdb  $(SolutionDir)MicroMsgWin\lib\
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy  $(TargetDir)$(TargetName).lib  $(SolutionDir)Release\lib</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

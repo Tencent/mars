@@ -36,14 +36,6 @@
       <Project>{b81e4487-dfe2-4f15-a2e0-240c3da26459}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\libraries\mars_android_sdk\jni\longlink_packer.cc" />
-    <ClCompile Include="..\libraries\mars_android_sdk\jni\shortlink_packer.cc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\libraries\mars_android_sdk\jni\longlink_packer.h" />
-    <ClInclude Include="..\libraries\mars_android_sdk\jni\shortlink_packer.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E81FA611-DAB9-46B0-B9AD-F3DAC0ACE641}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
