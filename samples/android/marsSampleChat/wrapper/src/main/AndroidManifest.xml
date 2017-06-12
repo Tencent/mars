@@ -11,7 +11,8 @@
             android:name=".service.MarsServiceNative"
             android:process=":marsservice" />
 
-        <receiver android:name="com.tencent.mars.BaseEvent$ConnectionReceiver"
-            android:process=":marsservice"/>
+        <receiver
+            android:name="com.tencent.mars.BaseEvent$ConnectionReceiver"
+            android:process=":marsservice" />
     </application>
 </manifest>

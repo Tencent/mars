@@ -25,16 +25,16 @@
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
 
-#include "openssl/export_include/openssl_multi_thread_support.h"
 
-#include "mars/app/app.h"
-#include "mars/baseevent/active_logic.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/network/netinfo_util.h"
 #include "mars/comm/socket/local_ipstack.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/platform_comm.h"
+
+#include "mars/app/app.h"
+#include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/stn/config.h"
 #include "mars/stn/task_profile.h"
@@ -54,7 +54,6 @@
 
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
-
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -617,7 +616,7 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status) {
 
 void NetCore::__ConnStatusCallBack() {
 
-    int all_connstatus = 0;
+    int all_connstatus = kNetworkUnavailable;
 
     if (shortlink_try_flag_) {
 		if (shortlink_error_count_ >= kShortlinkErrTime) {
@@ -711,4 +710,3 @@ void NetCore::__OnTimerCheckSuc() {
 
 }
 
-VARIABLE_IS_NOT_USED static int export_openssl_mt_var = export_openssl_mutithread_support();

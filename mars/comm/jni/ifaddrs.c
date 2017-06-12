@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <netinet/in.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
-
+#include "mars/comm/assert/__assert.h"
 typedef struct NetlinkList
 {
     struct NetlinkList *m_next;
@@ -143,12 +143,21 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
         }
         if(l_read >= 0)
         {
-            pid_t l_pid = getpid();
+            struct sockaddr_nl local_addr;
+            memset(&local_addr, 0, sizeof(local_addr));
+            socklen_t addr_len = sizeof(local_addr);
+            if (getsockname(p_socket, (struct sockaddr*)&local_addr, &addr_len) < 0) {
+                ASSERT2(0, "cannot getsockname line:%d", __LINE__);
+                free(l_buffer);
+                return NULL;
+            }
+            pid_t l_pid = local_addr.nl_pid;
             struct nlmsghdr *l_hdr;
             for(l_hdr = (struct nlmsghdr *)l_buffer; NLMSG_OK(l_hdr, (unsigned int)l_read); l_hdr = (struct nlmsghdr *)NLMSG_NEXT(l_hdr, l_read))
             {
                 if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
                 {
+                    ASSERT2(0, "l_pid:%d, nlmsg_pid:%d, p_socket:%d, nlmsg_seq:%d", l_pid, (pid_t)l_hdr->nlmsg_pid, p_socket, (int)l_hdr->nlmsg_seq);
                     continue;
                 }
                 
@@ -548,7 +557,14 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
 static int interpretLinks(int p_socket, NetlinkList *p_netlinkList, struct ifaddrs **p_resultList)
 {
     int l_numLinks = 0;
-    pid_t l_pid = getpid();
+	struct sockaddr_nl local_addr;
+	memset(&local_addr, 0, sizeof(local_addr));
+	socklen_t addr_len = sizeof(local_addr);
+	if (getsockname(p_socket, (struct sockaddr*)&local_addr, &addr_len) < 0) {
+		ASSERT2(0, "cannot getsockname line:%d", __LINE__);
+		return -1;
+	}
+	pid_t l_pid = local_addr.nl_pid;
     for(; p_netlinkList; p_netlinkList = p_netlinkList->m_next)
     {
         unsigned int l_nlsize = p_netlinkList->m_size;
@@ -557,6 +573,7 @@ static int interpretLinks(int p_socket, NetlinkList *p_netlinkList, struct ifadd
         {
             if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
             {
+                ASSERT2(0, "l_pid:%d, nlmsg_pid:%d, p_socket:%d, nlmsg_seq:%d", l_pid, (pid_t)l_hdr->nlmsg_pid, p_socket, (int)l_hdr->nlmsg_seq);
                 continue;
             }
             
@@ -580,7 +597,14 @@ static int interpretLinks(int p_socket, NetlinkList *p_netlinkList, struct ifadd
 
 static int interpretAddrs(int p_socket, NetlinkList *p_netlinkList, struct ifaddrs **p_resultList, int p_numLinks)
 {
-    pid_t l_pid = getpid();
+	struct sockaddr_nl local_addr;
+	memset(&local_addr, 0, sizeof(local_addr));
+	socklen_t addr_len = sizeof(local_addr);
+	if (getsockname(p_socket, (struct sockaddr*)&local_addr, &addr_len) < 0) {
+	    ASSERT2(0, "cannot getsockname line:%d", __LINE__);
+	    return -1;
+	}
+	pid_t l_pid = local_addr.nl_pid;
     for(; p_netlinkList; p_netlinkList = p_netlinkList->m_next)
     {
         unsigned int l_nlsize = p_netlinkList->m_size;
@@ -589,6 +613,7 @@ static int interpretAddrs(int p_socket, NetlinkList *p_netlinkList, struct ifadd
         {
             if((pid_t)l_hdr->nlmsg_pid != l_pid || (int)l_hdr->nlmsg_seq != p_socket)
             {
+                ASSERT2(0, "l_pid:%d, nlmsg_pid:%d, p_socket:%d, nlmsg_seq:%d", l_pid, (pid_t)l_hdr->nlmsg_pid, p_socket, (int)l_hdr->nlmsg_seq);
                 continue;
             }
             

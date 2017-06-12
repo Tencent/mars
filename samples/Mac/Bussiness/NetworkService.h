@@ -46,7 +46,7 @@
 - (void)makesureLongLinkConnect;
 - (void)destoryMars;
 
-
+- (void)addPushObserver:(id<PushNotifyDelegate>)observer withCmdId:(int)cmdId;
 - (int)startTask:(CGITask *)task ForUI:(id<UINotifyDelegate>)delegateUI;
 - (void)stopTask:(NSInteger)taskID;
 

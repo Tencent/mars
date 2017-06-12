@@ -104,6 +104,8 @@ static bool sg_consolelog_open = true;
 static bool sg_consolelog_open = false;
 #endif
 
+static uint64_t sg_max_file_size = 0; // 0, will not split log file.
+
 static void __async_log_thread();
 static Thread sg_thread_async(&__async_log_thread);
 
@@ -134,18 +136,117 @@ class ScopeErrno {
 
 }
 
-static void __make_logfilename(const timeval& _tv, const std::string& _logdir, const char* _prefix, const std::string& _fileext, char* _filepath, unsigned int _len) {
+static std::string __make_logfilenameprefix(const timeval& _tv, const char* _prefix) {
     time_t sec = _tv.tv_sec;
     tm tcur = *localtime((const time_t*)&sec);
-
-    std::string logfilepath = _logdir;
-    logfilepath += "/";
-    logfilepath += _prefix;
+    
     char temp [64] = {0};
     snprintf(temp, 64, "_%d%02d%02d", 1900 + tcur.tm_year, 1 + tcur.tm_mon, tcur.tm_mday);
-    logfilepath += temp;
+    
+    std::string filenameprefix = _prefix;
+    filenameprefix += temp;
+    
+    return filenameprefix;
+}
+
+static void __get_filenames_by_prefix(const std::string& _logdir, const std::string& _fileprefix, const std::string& _fileext, std::vector<std::string>& _filename_vec) {
+    
+    boost::filesystem::path path(_logdir);
+    if (!boost::filesystem::is_directory(path)) {
+        return;
+    }
+    
+    boost::filesystem::directory_iterator end_iter;
+    std::string filename;
+    
+    for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
+        if (boost::filesystem::is_regular_file(iter->status())) {
+            filename = iter->path().filename().string();
+            if (strutil::StartsWith(filename, _fileprefix) && strutil::EndsWith(filename, _fileext)) {
+                _filename_vec.push_back(filename);
+            }
+        }
+    }
+}
+
+static void __get_filepaths_from_timeval(const timeval& _tv, const std::string& _logdir, const char* _prefix, const std::string& _fileext, std::vector<std::string>& _filepath_vec) {
+    
+    std::string fileprefix = __make_logfilenameprefix(_tv, _prefix);
+    std::vector<std::string> filename_vec;
+    __get_filenames_by_prefix(_logdir, fileprefix, _fileext, filename_vec);
+    
+    for (std::vector<std::string>::iterator iter = filename_vec.begin(); iter != filename_vec.end(); ++ iter) {
+        _filepath_vec.push_back(_logdir + "/" + (*iter));
+    }
+}
+
+static bool __string_compare_greater(const std::string& s1, const std::string& s2) {
+    if (s1.length() == s2.length()) {
+        return s1 > s2;
+    }
+    return s1.length() > s2.length();
+}
+
+static long __get_next_fileindex(const std::string& _fileprefix, const std::string& _fileext) {
+    
+    std::vector<std::string> filename_vec;
+    __get_filenames_by_prefix(sg_logdir, _fileprefix, _fileext, filename_vec);
+    if (!sg_cache_logdir.empty()) {
+        __get_filenames_by_prefix(sg_cache_logdir, _fileprefix, _fileext, filename_vec);
+    }
+    
+    long index = 0; // long is enought to hold all indexes in one day.
+    if (filename_vec.empty()) {
+        return index;
+    }
+    // high -> low
+    std::sort(filename_vec.begin(), filename_vec.end(), __string_compare_greater);
+    std::string last_filename = *(filename_vec.begin());
+    std::size_t ext_pos = last_filename.rfind("." + _fileext);
+    std::size_t index_len = ext_pos - _fileprefix.length();
+    if (index_len > 0) {
+        std::string index_str = last_filename.substr(_fileprefix.length(), index_len);
+        if (strutil::StartsWith(index_str, "_")) {
+            index_str = index_str.substr(1);
+        }
+        index = atol(index_str.c_str());
+    }
+    
+    uint64_t filesize = 0;
+    std::string logfilepath = sg_logdir + "/" + last_filename;
+    if (boost::filesystem::exists(logfilepath)) {
+        filesize += boost::filesystem::file_size(logfilepath);
+    }
+    if (!sg_cache_logdir.empty()) {
+        logfilepath = sg_cache_logdir + "/" + last_filename;
+        if (boost::filesystem::exists(logfilepath)) {
+            filesize += boost::filesystem::file_size(logfilepath);
+        }
+    }
+    return (filesize > sg_max_file_size) ? index + 1 : index;
+}
+
+static void __make_logfilename(const timeval& _tv, const std::string& _logdir, const char* _prefix, const std::string& _fileext, char* _filepath, unsigned int _len) {
+    
+    long index = 0;
+    std::string logfilenameprefix = __make_logfilenameprefix(_tv, _prefix);
+    if (sg_max_file_size > 0) {
+        index = __get_next_fileindex(logfilenameprefix, _fileext);
+    }
+    
+    std::string logfilepath = _logdir;
+    logfilepath += "/";
+    logfilepath += logfilenameprefix;
+    
+    if (index > 0) {
+        char temp[24] = {0};
+        snprintf(temp, 24, "_%ld", index);
+        logfilepath += temp;
+    }
+    
     logfilepath += ".";
     logfilepath += _fileext;
+    
     strncpy(_filepath, logfilepath.c_str(), _len - 1);
     _filepath[_len - 1] = '\0';
 }
@@ -260,20 +361,25 @@ static void __move_old_files(const std::string& _src_path, const std::string& _d
     
     ScopedLock lock_file(sg_mutex_log_file);
     
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    char logfilepath[1024] = {0};
+    
     boost::filesystem::directory_iterator end_iter;
     for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
         
-        if (!strutil::StartsWith(iter->path().string(), _nameprefix) || !strutil::EndsWith(iter->path().string(), LOG_EXT)) {
+        if (!strutil::StartsWith(iter->path().filename().string(), _nameprefix) || !strutil::EndsWith(iter->path().string(), LOG_EXT)) {
             continue;
         }
         
-        std::string des_file_name = _dest_path + "/" + iter->path().filename().string();
+        __make_logfilename(tv, _dest_path, sg_logfileprefix.c_str(), LOG_EXT, logfilepath , 1024);
         
-        if (!__append_file(iter->path().string(), des_file_name)) {
+        if (!__append_file(iter->path().string(), logfilepath)) {
             break;
         }
         
         boost::filesystem::remove(iter->path());
+        memset(logfilepath, 0, sizeof(logfilepath));
     }
 }
 
@@ -315,11 +421,10 @@ static bool __writefile(const void* _data, size_t _len, FILE* _file) {
         char err_log[256] = {0};
         snprintf(err_log, sizeof(err_log), "\nwrite file error:%d\n", err);
 
-        char tmp[256] = {0};
-        size_t len = sizeof(tmp);
-        LogBuffer::Write(err_log, strnlen(err_log, sizeof(err_log)), tmp, len);
+        AutoBuffer tmp_buff;
+        LogBuffer::Write(err_log, strnlen(err_log, sizeof(err_log)), tmp_buff);
 
-        fwrite(tmp, len, 1, _file);
+        fwrite(tmp_buff.Ptr(), tmp_buff.Length(), 1, _file);
 
         return false;
     }
@@ -389,10 +494,10 @@ static bool __openlogfile(const std::string& _log_dir) {
 
         char log[1024] = {0};
         snprintf(log, sizeof(log), "[F][ last log file:%s from %s to %s, time_diff:%ld, tick_diff:%" PRIu64 "\n", s_last_file_path, last_time_str, now_time_str, now_time-s_last_time, now_tick-s_last_tick);
-        char tmp[2 * 1024] = {0};
-        size_t len = sizeof(tmp);
-        LogBuffer::Write(log, strnlen(log, sizeof(log)), tmp, len);
-        __writefile(tmp, len, sg_logfile);
+
+        AutoBuffer tmp_buff;
+        LogBuffer::Write(log, strnlen(log, sizeof(log)), tmp_buff);
+        __writefile(tmp_buff.Ptr(), tmp_buff.Length(), sg_logfile);
     }
 
     memcpy(s_last_file_path, logfilepath, sizeof(s_last_file_path));
@@ -490,12 +595,10 @@ static void __writetips2file(const char* _tips_format, ...) {
     vsnprintf(tips_info, sizeof(tips_info), _tips_format, ap);
     va_end(ap);
 
-    char tmp[8 * 1024] = {0};
-    size_t len = sizeof(tmp);
+    AutoBuffer tmp_buff;
+    LogBuffer::Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp_buff);
     
-    LogBuffer::Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp, len);
-    
-    __log2file(tmp, len);
+    __log2file(tmp_buff.Ptr(), tmp_buff.Length());
 }
 
 static void __async_log_thread() {
@@ -523,11 +626,10 @@ static void __appender_sync(const XLoggerInfo* _info, const char* _log) {
     PtrBuffer log(temp, 0, sizeof(temp));
     log_formater(_info, _log, log);
 
-    char buffer_crypt[16 * 1024] = {0};
-    size_t len = 16 * 1024;
-    if (!LogBuffer::Write(log.Ptr(), log.Length(), buffer_crypt, len))   return;
+    AutoBuffer tmp_buff;
+    if (!LogBuffer::Write(log.Ptr(), log.Length(), tmp_buff))   return;
 
-    __log2file(buffer_crypt, len);
+    __log2file(tmp_buff.Ptr(), tmp_buff.Length());
 }
 
 static void __appender_async(const XLoggerInfo* _info, const char* _log) {
@@ -888,6 +990,10 @@ void appender_set_console_log(bool _is_open) {
     sg_consolelog_open = _is_open;
 }
 
+void appender_set_max_file_size(uint64_t _max_byte_size) {
+    sg_max_file_size = _max_byte_size;
+}
+
 void appender_setExtraMSg(const char* _msg, unsigned int _len) {
     sg_log_extra_msg = std::string(_msg, _len);
 }
@@ -899,19 +1005,33 @@ bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std:
     gettimeofday(&tv, NULL);
     tv.tv_sec -= _timespan * (24 * 60 * 60);
 
-    char log_path[2048] = { 0 };
+    __get_filepaths_from_timeval(tv, sg_logdir, _prefix, LOG_EXT, _filepath_vec);
+    if (!sg_cache_logdir.empty()) {
+        __get_filepaths_from_timeval(tv, sg_cache_logdir, _prefix, LOG_EXT, _filepath_vec);
+    }
+    return true;
+}
+
+bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec) {
+    if (sg_logdir.empty()) return false;
+    
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    tv.tv_sec -= _timespan * (24 * 60 * 60);
+    
+    char log_path[2048] = {0};
     __make_logfilename(tv, sg_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
-
+    
     _filepath_vec.push_back(log_path);
-
+    
     if (sg_cache_logdir.empty()) {
         return true;
     }
-
+    
     memset(log_path, 0, sizeof(log_path));
     __make_logfilename(tv, sg_cache_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
-
+    
     _filepath_vec.push_back(log_path);
-
+    
     return true;
 }

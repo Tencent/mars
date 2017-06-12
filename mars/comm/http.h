@@ -317,6 +317,7 @@ class Parser {
     bool FirstLineReady() const;
     const RequestLine& Request() const;
     const StatusLine& Status() const;
+    const AutoBuffer& HeaderBuffer() const;
 
     bool FieldsReady() const;
     HeaderFields& Fields();
@@ -333,7 +334,9 @@ class Parser {
 
   private:
     TRecvStatus recvstatus_;
-    AutoBuffer    recvbuf_;
+    AutoBuffer  recvbuf_;
+    AutoBuffer  headerbuf_;
+    bool response_header_ready_;
     TCsMode csmode_;
 
     StatusLine statusline_;

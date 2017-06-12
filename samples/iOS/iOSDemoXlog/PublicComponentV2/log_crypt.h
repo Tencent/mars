@@ -14,7 +14,7 @@
 //  log_crypt.h
 //  mars-ext
 //
-//  Created by garry on 16/6/14.
+//  Created by yanguoyue on 16/6/14.
 //  Copyright © 2016年 Tencent. All rights reserved.
 //
 
@@ -23,6 +23,9 @@
 
 #include <stdint.h>
 #include <string>
+
+#include "mars/comm/autobuffer.h"
+
 
 class LogCrypt {
 public:
@@ -48,8 +51,8 @@ public:
     
     bool GetPeriodLogs(const char* const _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg);
     
-    void CryptSyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len);
-    void CryptAsyncLog(const char* const _log_data, size_t _input_len, char* _output, size_t& _output_len);
+    void CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff);
+    void CryptAsyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff);
     
     bool Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _raw_log_len);
     

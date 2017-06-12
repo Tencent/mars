@@ -116,8 +116,8 @@ static void __anr_checker_thread() {
         ScopedLock lock(sg_mutex);
 
     	uint64_t round_tick_start = clock_app_monotonic();
-    	uint64_t use_cpu_time_1 = (uint64_t)(((double)clock()/CLOCKS_PER_SEC)*1000); //ms
-
+        clock_t use_cpu_clock_1 = clock();
+    	uint64_t use_cpu_time_1 = (uint64_t)(((double)use_cpu_clock_1/CLOCKS_PER_SEC)*1000); //ms
         if (sg_exit) return;
 
         int64_t wait_timeout = 0;
@@ -128,10 +128,10 @@ static void __anr_checker_thread() {
             sg_cond.wait(lock);
             //is_wait_timeout = (ETIMEDOUT==ret);
         } else {
-            wait_timeout = (sg_check_heap.front().end_time - clock_app_monotonic());
+            wait_timeout = iOS_style? (sg_check_heap.front().timeout - sg_check_heap.front().used_cpu_time) : (sg_check_heap.front().end_time - clock_app_monotonic());
             if (wait_timeout<0) {
-                xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"wait_timeout:%_, end_time:%_, used_cpu_time:%_, now:%_, anr_checker_size:%_", wait_timeout,
-                      sg_check_heap.front().end_time, sg_check_heap.front().used_cpu_time, clock_app_monotonic(), sg_check_heap.size());
+                xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"wait_timeout:%_, end_time:%_, used_cpu_time:%_, timeout:%_ now:%_, iOS_style：%_, anr_checker_size:%_", wait_timeout,
+                      sg_check_heap.front().end_time, sg_check_heap.front().used_cpu_time, sg_check_heap.front().timeout, iOS_style, clock_app_monotonic(), sg_check_heap.size());
                 wait_timeout = 0;
             }
             wait_timeout = std::min(wait_timeout, kEachRoundSleepTime);
@@ -141,13 +141,19 @@ static void __anr_checker_thread() {
         }
 
         int64_t round_tick_elapse = clock_app_monotonic()-round_tick_start;
-        uint64_t use_cpu_time_2 = (uint64_t)(((double)clock()/CLOCKS_PER_SEC) * 1000); //ms
+        clock_t use_cpu_clock_2 = clock();
+        uint64_t use_cpu_time_2 = (uint64_t)(((double)use_cpu_clock_2/CLOCKS_PER_SEC) * 1000); //ms
         if (is_wait_timeout && round_tick_elapse > (wait_timeout+kTimeDeviation)) {
             xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"now:%_, round_tick_start:%_, round_tick_elapse:%_, wait_timeout:%_, round cputime:%_, anr_checker_size:%_", clock_app_monotonic(), round_tick_start, round_tick_elapse, wait_timeout, use_cpu_time_2-use_cpu_time_1, sg_check_heap.size());
             iOS_style = true;
         }
         for (std::vector<check_content>::iterator it = sg_check_heap.begin(); it != sg_check_heap.end(); ++it) {
-            it->used_cpu_time += (use_cpu_time_2-use_cpu_time_1);
+            if (use_cpu_time_2>=use_cpu_time_1) {
+                it->used_cpu_time += (use_cpu_time_2-use_cpu_time_1);
+            } else {
+                xassert2(false, TSF"use_cpu_time_2:%_, use_cpu_time_1:%_, use_cpu_clock_2:%_, use_cpu_clock_1:%_, CLOCKS_PER_SEC:%_", use_cpu_time_2, use_cpu_time_1,
+                         use_cpu_clock_2, use_cpu_clock_1, CLOCKS_PER_SEC);
+            }
         }
         bool check_hit = false;
         if (iOS_style) {

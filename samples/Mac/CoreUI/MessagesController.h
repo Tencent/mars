@@ -1,5 +1,5 @@
 // Tencent is pleased to support the open source community by making Mars available.
-// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+// Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
 // compliance with the License. You may obtain a copy of the License at
@@ -14,8 +14,8 @@
 //  MessagesController.h
 //  mactest
 //
-//  Created by caoshaokun on 16/11/28.
-//  Copyright © 2016年 caoshaokun. All rights reserved.
+//  Created by chenzihao on 17/05/15.
+//  Copyright © 2017年 chenzihao. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
@@ -24,9 +24,11 @@
 
 #import "NetworkDelegate.h"
 #import "UINotifyDelegate.h"
+#import "MessagesDelegate.h"
 
-@interface MessagesController : NSTableView<UINotifyDelegate, NSTableViewDelegate, NSTableViewDataSource> {
-    NSArray<Conversation*> * converSations;
+@interface MessagesController : NSViewController<MessagesDelegate> {
 }
 
+-(void)setHostController:(NSViewController*)controller;
+-(void)setConversation:(Conversation*)conversation;
 @end

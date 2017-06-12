@@ -57,7 +57,7 @@ namespace stn{
 
 class ShortLinkConnectObserver : public MComplexConnect {
   public:
-    ShortLinkConnectObserver(ShortLink& _shortlink): shortlink_(_shortlink), index_(-1), rtt_(0), last_err_(-1) {
+    ShortLinkConnectObserver(ShortLink& _shortlink): shortlink_(_shortlink), rtt_(0), last_err_(-1) {
         memset(ConnectingIndex, 0, sizeof(ConnectingIndex));
     };
 
@@ -68,10 +68,7 @@ class ShortLinkConnectObserver : public MComplexConnect {
     virtual void OnConnected(unsigned int _index, const socket_address& _addr, SOCKET _socket, int _error, int _rtt) {
         ConnectingIndex[_index] = 0;
 
-        if (0 == _error) {
-            xassert2(-1 == index_, "index_:%d", index_);
-            index_ = _index;
-        } else {
+        if (0 != _error) {
             xassert2(shortlink_.func_network_report);
 
             if (_index < shortlink_.Profile().ip_items.size())
@@ -84,7 +81,6 @@ class ShortLinkConnectObserver : public MComplexConnect {
         }
     }
 
-    int Index() const {return index_;}
     int LastErrorCode() const {return last_err_;}
     int Rtt() const {return rtt_;}
 
@@ -96,7 +92,6 @@ class ShortLinkConnectObserver : public MComplexConnect {
 
   private:
     ShortLink& shortlink_;
-    int index_;
     int rtt_;
     int last_err_;
 };
@@ -462,7 +457,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
 	_conn_profile.disconn_errcode = _status;
 	__UpdateProfile(_conn_profile);
 
-    xassert2(!breaker_.IsBreak());
+ //   xassert2(!breaker_.IsBreak());
 
     if (kEctOK != _errType) {
         xassert2(func_network_report);

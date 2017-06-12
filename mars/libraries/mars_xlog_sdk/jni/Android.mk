@@ -11,12 +11,12 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := crypto
-LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libcrypto.a
+#LOCAL_MODULE := crypto
+#LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libcrypto.a
 
-include $(PREBUILT_STATIC_LIBRARY)
+#include $(PREBUILT_STATIC_LIBRARY)
 
-include $(CLEAR_VARS)
+#include $(CLEAR_VARS)
 
 LOCAL_MODULE := static_xlog
 LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libmarsxlog.a

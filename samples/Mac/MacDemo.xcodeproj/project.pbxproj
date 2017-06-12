@@ -64,6 +64,7 @@
 		4BB712FF1DE822DA00185734 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712FE1DE822DA00185734 /* CoreFoundation.framework */; };
 		4BB713121DE8254B00185734 /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB713111DE8254B00185734 /* libresolv.9.tbd */; };
 		4BDBD1701E091571006C62F5 /* NetworkStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BDBD16F1E091571006C62F5 /* NetworkStatus.m */; };
+		9ABF6F9E1EC98F69006A99C8 /* MessagesTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ABF6F9D1EC98F69006A99C8 /* MessagesTableView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -177,6 +178,10 @@
 		4BDBD16E1E091571006C62F5 /* NetworkStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkStatus.h; sourceTree = "<group>"; };
 		4BDBD16F1E091571006C62F5 /* NetworkStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkStatus.m; sourceTree = "<group>"; };
 		557B21D21CC8ECC40076B9EE /* MacDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ABF6F9C1EC98F69006A99C8 /* MessagesTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessagesTableView.h; sourceTree = "<group>"; };
+		9ABF6F9D1EC98F69006A99C8 /* MessagesTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessagesTableView.m; sourceTree = "<group>"; };
+		9ABF6F9F1EC9A367006A99C8 /* MessagesDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessagesDelegate.h; sourceTree = "<group>"; };
+		9ABF6FA11EC9E3A3006A99C8 /* PushNotifyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushNotifyDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,8 +216,11 @@
 				1F44892B1E0184F100FF3728 /* DemoEntryController.m */,
 				1F44892C1E0184F100FF3728 /* Info.plist */,
 				1F44892D1E0184F100FF3728 /* main.mm */,
+				9ABF6F9F1EC9A367006A99C8 /* MessagesDelegate.h */,
 				1F44892E1E0184F100FF3728 /* MessagesController.h */,
 				1F44892F1E0184F100FF3728 /* MessagesController.m */,
+				9ABF6F9C1EC98F69006A99C8 /* MessagesTableView.h */,
+				9ABF6F9D1EC98F69006A99C8 /* MessagesTableView.m */,
 				1F4489301E0184F100FF3728 /* NetworkEvent.h */,
 				1F4489311E0184F100FF3728 /* NetworkEvent.m */,
 				1F4489321E0184F100FF3728 /* PingServerController.h */,
@@ -279,6 +287,7 @@
 				1FABA3001DE86CC900C9D1A4 /* NetworkService.h */,
 				1FABA3011DE86CC900C9D1A4 /* NetworkService.mm */,
 				1FABA3021DE86CC900C9D1A4 /* UINotifyDelegate.h */,
+				9ABF6FA11EC9E3A3006A99C8 /* PushNotifyDelegate.h */,
 			);
 			path = Bussiness;
 			sourceTree = "<group>";
@@ -498,6 +507,7 @@
 				1FABA3041DE86CC900C9D1A4 /* NetworkService.mm in Sources */,
 				4BB712CA1DE81FC100185734 /* ObjectivecDescriptor.pb.m in Sources */,
 				4BB712CE1DE81FC100185734 /* UnknownFieldSet.m in Sources */,
+				9ABF6F9E1EC98F69006A99C8 /* MessagesTableView.m in Sources */,
 				1F44893F1E0184F100FF3728 /* PingServerController.m in Sources */,
 				4BB712C01DE81FC100185734 /* ConcreteExtensionField.m in Sources */,
 				4BB712CD1DE81FC100185734 /* TextFormat.m in Sources */,
