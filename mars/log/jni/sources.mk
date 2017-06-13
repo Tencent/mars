@@ -30,14 +30,15 @@ LOCAL_SRC_FILES += $(SRC)
 
 
 ifneq ($(XLOG_NO_CRYPT),1)
-SRC := $(wildcard $(TEMP_LOCAL_PATH)/../crypt/log_crypt_ecdh.cc)
+SRC := $(wildcard $(TEMP_LOCAL_PATH)/../crypt/micro-ecc-master/uECC.c)
 SRC := $(SRC:$(LOCAL_PATH)/%=%)
 LOCAL_SRC_FILES += $(SRC)
 
-
-LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../../../mars/openssl/include/
+LOCAL_ARM_MODE := arm
 
 endif
 
 LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../ $(TEMP_LOCAL_PATH)/../src $(TEMP_LOCAL_PATH)/../../ $(TEMP_LOCAL_PATH)/../../../
 LOCAL_LDFLAGS += -Wl,--version-script=$(TEMP_LOCAL_PATH)/export.exp
+
+

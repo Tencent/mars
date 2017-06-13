@@ -39,20 +39,6 @@
 			remoteGlobalIDString = 3170A026177887B0004F5DDA;
 			remoteInfo = comm;
 		};
-		4B2995211E741016005AC019 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4B29951D1E741016005AC019 /* openssl.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3170A027177887B0004F5DDA;
-			remoteInfo = openssl;
-		};
-		4B62E4011EE55215001524EC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4B29951D1E741016005AC019 /* openssl.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 3170A026177887B0004F5DDA;
-			remoteInfo = openssl;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -72,7 +58,6 @@
 		1371BF9D19791FE800E4C614 /* log.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = log.xcodeproj; path = log/log.xcodeproj; sourceTree = "<group>"; };
 		3170A027177887B0004F5DDA /* libmars-log-iphone.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmars-log-iphone.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		4B29951D1E741016005AC019 /* openssl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openssl.xcodeproj; path = openssl/openssl.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,7 +92,6 @@
 			isa = PBXGroup;
 			children = (
 				1371BF9119791FD700E4C614 /* comm.xcodeproj */,
-				4B29951D1E741016005AC019 /* openssl.xcodeproj */,
 				1371BF9D19791FE800E4C614 /* log.xcodeproj */,
 				3170A029177887B0004F5DDA /* Frameworks */,
 				3170A028177887B0004F5DDA /* Products */,
@@ -130,14 +114,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4B29951E1E741016005AC019 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				4B2995221E741016005AC019 /* libopenssl.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -153,7 +129,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4B62E4021EE55215001524EC /* PBXTargetDependency */,
 				1371BFDC197920A100E4C614 /* PBXTargetDependency */,
 				1371BFE0197920A100E4C614 /* PBXTargetDependency */,
 			);
@@ -190,10 +165,6 @@
 					ProductGroup = 1371BF9E19791FE800E4C614 /* Products */;
 					ProjectRef = 1371BF9D19791FE800E4C614 /* log.xcodeproj */;
 				},
-				{
-					ProductGroup = 4B29951E1E741016005AC019 /* Products */;
-					ProjectRef = 4B29951D1E741016005AC019 /* openssl.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
@@ -215,13 +186,6 @@
 			fileType = archive.ar;
 			path = liblog.a;
 			remoteRef = 1371BFA119791FE800E4C614 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		4B2995221E741016005AC019 /* libopenssl.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libopenssl.a;
-			remoteRef = 4B2995211E741016005AC019 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -263,11 +227,6 @@
 			isa = PBXTargetDependency;
 			name = comm;
 			targetProxy = 1371BFDF197920A100E4C614 /* PBXContainerItemProxy */;
-		};
-		4B62E4021EE55215001524EC /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = openssl;
-			targetProxy = 4B62E4011EE55215001524EC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -11,16 +11,6 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
-ifneq ($(XLOG_NO_CRYPT),1)
-
-LOCAL_MODULE := openssl_crypto
-LOCAL_SRC_FILES := ../../../../../mars/mars/openssl/openssl_lib_android/libcrypto.a
-
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-
-endif
 
 LOCAL_MODULE := static_xlog
 LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libmarsxlog.a
@@ -33,9 +23,6 @@ LOCAL_MODULE := marsxlog
 LOCAL_SRC_FILES := JNI_OnLoad.cc import.cc
 LOCAL_STATIC_LIBRARIES += static_xlog comm
 
-ifneq ($(XLOG_NO_CRYPT),1)
-LOCAL_STATIC_LIBRARIES += openssl_crypto
-endif
 
 LOCAL_LDLIBS += -llog -lz
 include $(LOCAL_PATH)/../../../mk_template/flags.mk

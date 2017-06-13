@@ -26,9 +26,7 @@
 #include <stdio.h>
 
 #ifndef XLOG_NO_CRYPT
-#include "openssl/obj_mac.h"
-#include "openssl/crypto.h"
-#include "log_crypt_ecdh.h"
+#include "micro-ecc-master/uECC.h"
 #endif
 
 static const char kMagicSyncStart = '\x06';
@@ -99,8 +97,7 @@ LogCrypt::LogCrypt(const char* _pubkey): seq_(0), is_crypt_(false) {
     
 #ifndef XLOG_NO_CRYPT
     const static size_t PUB_KEY_LEN = 64;
-    const static int NID = NID_X9_62_prime256v1;
-    
+
     if (NULL == _pubkey || PUB_KEY_LEN * 2 != strnlen(_pubkey, 256)) {
         return;
     }
@@ -111,38 +108,20 @@ LogCrypt::LogCrypt(const char* _pubkey): seq_(0), is_crypt_(false) {
         return;
     }
     
-    unsigned char* client_pubkey_x = NULL;
-    unsigned char* client_pubkey_y = NULL;
-    unsigned char* client_prikey = NULL;
+    uint8_t client_pri[32] = {0};
+    if (0 == uECC_make_key((uint8_t*)client_pubkey_, client_pri, uECC_secp256k1())) {
+        return;
+    }
     
-    do {
-        int client_pubkey_x_len = 0;
-        int clinet_pubkey_y_len = 0;
-        int client_prikey_len = 0;
-        
-        if (!mars::log::GenEcdhKeyPair(NID, &client_pubkey_x, client_pubkey_x_len, &client_pubkey_y, clinet_pubkey_y_len, &client_prikey, client_prikey_len)) {
-            break;
-        }
-        
-        unsigned char ecdh_key[32] = {0};
+    uint8_t ecdh_key[32] = {0};
+    if (0 == uECC_shared_secret(svr_pubkey, client_pri, ecdh_key, uECC_secp256k1())) {
+        return;
+    }
+    
+    memcpy(tea_key_, ecdh_key, sizeof(tea_key_));
 
-        if (!mars::log::GetEcdhKey(NID, client_prikey, client_prikey_len, svr_pubkey, PUB_KEY_LEN/2, svr_pubkey + PUB_KEY_LEN/2, PUB_KEY_LEN/2, ecdh_key)) {
-            break;
-        }
-        
-        if (sizeof(client_pubkey_) != client_pubkey_x_len + clinet_pubkey_y_len) {
-            break;
-        }
-        
-        memcpy(tea_key_, ecdh_key, sizeof(tea_key_));
-        memcpy(client_pubkey_, client_pubkey_x, client_pubkey_x_len);
-        memcpy(client_pubkey_ + client_pubkey_x_len, client_pubkey_y, clinet_pubkey_y_len);
-        is_crypt_ = true;
-    } while (false);
-    
-    OPENSSL_free(client_pubkey_x);
-    OPENSSL_free(client_pubkey_y);
-    OPENSSL_free(client_prikey);
+    is_crypt_ = true;
+
 #endif
     
 }

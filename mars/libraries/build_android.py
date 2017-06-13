@@ -13,7 +13,7 @@ MARS_LIBS_PATH = "mars_android_sdk"
 XLOG_LIBS_PATH = "mars_xlog_sdk"
 
 
-BUILD_XLOG_PATHS = ("openssl", "comm", "log")
+BUILD_XLOG_PATHS = ("comm", "log")
 
 BUILD_MARS_PATHS = ("openssl", "comm", "baseevent", "log", "app", "sdt", "stn")
 
@@ -25,7 +25,7 @@ COPY_MARS_FILES = {"../stn/proto/longlink_packer.h": "jni/longlink_packer.h",
                 }
 
 
-def build_android_xlog_static_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag="XLOG_CRYPT=1"):
+def build_android_xlog_static_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag=""):
     libs_save_path = _path + "/mars_libs"
     src_save_path = _path + "/"
 
@@ -77,7 +77,7 @@ def build_android_xlog_static_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_
     print("build succeed!")
     return 0
 
-def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag="XLOG_CRYPT=1"):
+def build_android_xlog_shared_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_prefix="mars", _flag=""):
 
     if 0 != build_android_xlog_static_libs(_path, _arch, _lib_prefix, _flag):
         print("build static libs fail!!!")

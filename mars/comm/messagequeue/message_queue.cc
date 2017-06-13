@@ -669,7 +669,7 @@ static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _conte
 }
     
 
-static void __ANRCheackCallback(bool _iOS_style, const mars::comm::check_content& _content) {
+static void __ANRCheckCallback(bool _iOS_style, const mars::comm::check_content& _content) {
     if (kMQCallANRId != _content.call_id) {
         return;
     }
@@ -690,7 +690,7 @@ static void __ANRCheackCallback(bool _iOS_style, const mars::comm::check_content
 }
     
 static void __RgisterANRCheckCallback() {
-    GetSignalCheckHit().connect(5, boost::bind(&__ANRCheackCallback, _1, _2));
+    GetSignalCheckHit().connect(5, boost::bind(&__ANRCheckCallback, _1, _2));
 }
 static void __UnregisterANRCheckCallback() {
     GetSignalCheckHit().disconnect(5);
