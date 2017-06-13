@@ -20,11 +20,11 @@
 #include "socket/unix_socket.h"
 
 class SocketSelect;
-class SocketSelectBreaker {
+class SocketBreaker {
     friend SocketSelect;
   public:
-    SocketSelectBreaker();
-    ~SocketSelectBreaker();
+	  SocketBreaker();
+    ~SocketBreaker();
 
     bool IsCreateSuc() const;
     bool ReCreate();
@@ -38,8 +38,8 @@ class SocketSelectBreaker {
     WSAEVENT BreakerFD() const;
 
   private:
-    SocketSelectBreaker(const SocketSelectBreaker&);
-    SocketSelectBreaker& operator=(const SocketSelectBreaker&);
+	  SocketBreaker(const SocketBreaker&);
+	  SocketBreaker& operator=(const SocketBreaker&);
 
   private:
     Mutex m_mutex;
@@ -51,7 +51,7 @@ class SocketSelectBreaker {
 
 class SocketSelect {
   public:
-    SocketSelect(SocketSelectBreaker& _breaker, bool _autoclear = false);
+    SocketSelect(SocketBreaker& _breaker, bool _autoclear = false);
     ~SocketSelect();
 
     void PreSelect();
@@ -71,7 +71,7 @@ class SocketSelect {
     bool IsBreak() const;
     bool IsException() const;
 
-    SocketSelectBreaker& Breaker();
+	SocketBreaker& Breaker();
 
   private:
     SocketSelect(const SocketSelect&);
@@ -79,7 +79,7 @@ class SocketSelect {
 
   private:
     const bool autoclear_;
-    SocketSelectBreaker& breaker_;
+	SocketBreaker& breaker_;
     bool m_broken;
 
     std::map<SOCKET, int> m_filter_map;

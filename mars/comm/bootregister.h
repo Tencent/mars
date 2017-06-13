@@ -16,7 +16,6 @@
 #define COMM_BOOTREGISTER_H_
 
 #include <vector>
-#include "mars/comm/compiler_util.h"
 
 template <typename T>
 std::vector<T>& BOOT_REGISTER_CONTAINER()

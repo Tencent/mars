@@ -23,15 +23,14 @@
 
 #include <string>
 
+#ifdef ANDROID 
 #include "mars/comm/thread/mutex.h"
+#endif
+
 
 #ifndef __cplusplus
 #error "C++ only"
 #endif
-
-
-
-bool getProxyInfo(int& _port, std::string& _str_proxy, const std::string& _host = "");
 
 enum NetType {
     kNoNet = -1,

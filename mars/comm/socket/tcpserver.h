@@ -68,6 +68,7 @@ class TcpServer {
     SOCKET                 listen_sock_;
     sockaddr_in         bind_addr_;
     const int             backlog_;
+
     SocketBreaker breaker_;
 };
 

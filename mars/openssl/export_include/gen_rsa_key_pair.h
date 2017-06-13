@@ -11,7 +11,7 @@
 #ifdef __cplusplus
 extern "C"{
 #endif
-
+#include "compiler_util.h"
 #include <stddef.h>
 typedef enum {
 	kBufNotEnough,

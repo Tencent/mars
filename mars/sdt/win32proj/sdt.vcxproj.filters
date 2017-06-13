@@ -33,9 +33,6 @@
     <ClCompile Include="..\src\checkimpl\httpquery.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\tools\netstat.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\activecheck\pingchecker.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

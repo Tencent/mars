@@ -100,7 +100,7 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
         } else {
             // default value
-            interval += random() % (20);
+			interval += rand() % (20);
         }
     }
 
