@@ -22,8 +22,8 @@ MAGIC_END = 0x00
 
 lastseq = 0
 
-PRIV_KEY = "30342cac7e3ce636f3b633febd9f96260f67c12287c8cbf00e1a43392b6d57a8"
-PUB_KEY = "41a3af3c8a67664b94882a25d6111b5320edc534f37659537d8ddf7c293197d67174a338be8dbabe6e7963999708d3f34bd580cc0c00e60012b57c4a424f2d02"
+PRIV_KEY = "145aa7717bf9745b91e9569b80bbf1eedaa6cc6cd0e26317d810e35710f44cf8"
+PUB_KEY = "572d1e2710ae5fbca54c76a382fdd44050b3a675cb2bf39feebe85ef63d947aff0fa4943f1112e8b6af34bebebbaefa1a0aae055d9259b89a1858f7cc9af9df1"
 
 def tea_decipher(v, k):
     op = 0xffffffffL
@@ -130,9 +130,8 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
             pass
         
         elif MAGIC_COMPRESS_START2==_buffer[_offset]:
-            #print "ecdh"
-            svr = pyelliptic.ECC(curve='prime256v1')
-            client = pyelliptic.ECC(curve='prime256v1')
+            svr = pyelliptic.ECC(curve='secp256k1')
+            client = pyelliptic.ECC(curve='secp256k1')
             client.pubkey_x = str(buffer(_buffer, _offset+headerLen-crypt_key_len, crypt_key_len/2))
             client.pubkey_y = str(buffer(_buffer, _offset+headerLen-crypt_key_len/2, crypt_key_len/2))
 

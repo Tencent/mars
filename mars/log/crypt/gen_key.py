@@ -2,7 +2,7 @@ from binascii import hexlify, unhexlify
 
 import pyelliptic
 
-CURVE = 'prime256v1'
+CURVE = 'secp256k1'
 
 svr = pyelliptic.ECC(curve=CURVE)
 
