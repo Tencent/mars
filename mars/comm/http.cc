@@ -21,7 +21,9 @@
 
 #include <cstddef>
 #include <stdlib.h>
-
+#ifdef WIN32
+#include <algorithm>
+#endif //WIN32
 #include "comm/strutil.h"
 #include "comm/xlogger/xlogger.h"
 
