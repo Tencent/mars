@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in
+// Licensed under the MIT License (the "License"); you may not use this file except in 
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -12,7 +12,7 @@
 
 
 /*
- * longlink_packer.cpp
+ * longlink_packer.h
  *
  *  Created on: 2012-7-18
  *      Author: yerungui
@@ -40,7 +40,7 @@ class AutoBuffer;
 
 namespace mars {
     namespace stn {
-        
+    
 class longlink_tracker {
 public:
     static longlink_tracker* (*Create)();
@@ -85,7 +85,7 @@ extern bool (*longlink_complexconnect_need_verify)();
  */
 extern bool  (*longlink_ispush)(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 extern bool  (*longlink_identify_isresp)(uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
-        
-    }
+
+}
 }
 #endif // STN_SRC_LONGLINKPACKER_H_

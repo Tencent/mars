@@ -17,6 +17,7 @@
 
 #include <sys/types.h>
 #include <string.h>
+#include "compiler_util.h"
 
 class AutoBuffer {
   public:

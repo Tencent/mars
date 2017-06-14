@@ -14,19 +14,18 @@
     <ProjectGuid>{15EDF6FB-BBB4-4F3D-B40B-B706FA89F542}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>sdt</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -41,10 +40,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(ProjectDir)/../src/tools;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -54,6 +55,9 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../;$(ProjectDir)../;$(ProjectDir)../../;$(ProjectDir)../../comm/windows/;$(ProjectDir)../../comm/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -71,6 +75,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../;$(ProjectDir)../;$(ProjectDir)../../;$(ProjectDir)../../comm/windows/;$(ProjectDir)../../comm/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,7 +101,6 @@
     <ClCompile Include="..\src\checkimpl\tcpquery.cc" />
     <ClCompile Include="..\src\sdt_core.cc" />
     <ClCompile Include="..\src\tools\netchecker_trafficmonitor.cc" />
-    <ClCompile Include="..\src\tools\netstat.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\constants.h" />

@@ -89,3 +89,7 @@ xcshareddata
 .autotools
 .cproject
 .project
+*.lib
+*.pdb
+mars/win32proj/Debug/mars.lastbuildstate
+mars/win32proj/Debug/mars.unsuccessfulbuild

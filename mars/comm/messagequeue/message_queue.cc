@@ -822,6 +822,11 @@ void MessageQueueCreater::CancelAndWait() {
     if (KInvalidQueueID != messagequeue_id_) BreakMessageQueueRunloop(messagequeue_id_);
 
     lock.unlock();
+
+	if (thread_.tid() == ThreadUtil::currentthreadid()) {
+		return;
+	}
+
     thread_.join();
 }
 
@@ -848,14 +853,14 @@ MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<Runl
 MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(const char* _messagequeue_name) {
     return CreateNewMessageQueue(boost::shared_ptr<RunloopCond>(), _messagequeue_name);
 }
-    
-void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id){
-    
-    if (KInvalidQueueID == _messagequeue_id) return;
-    
-    BreakMessageQueueRunloop(_messagequeue_id);
-    WaitForRunningLockEnd(_messagequeue_id);
-    ThreadUtil::join((thread_tid)_messagequeue_id);
+
+void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id) {
+
+	if (KInvalidQueueID == _messagequeue_id) return;
+
+	BreakMessageQueueRunloop(_messagequeue_id);
+	WaitForRunningLockEnd(_messagequeue_id);
+	ThreadUtil::join((thread_tid)_messagequeue_id);
 }
 
 void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {

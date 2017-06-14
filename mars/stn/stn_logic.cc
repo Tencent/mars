@@ -34,11 +34,11 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/platform_comm.h"
-#include "mars/comm/compiler_util.h"
 
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
+#include "stn/src/proxy_test.h"
 
 namespace mars {
 namespace stn {
@@ -177,6 +177,12 @@ bool (*LongLinkIsConnected)()
     bool connected = false;
     STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
     return connected;
+};
+    
+bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
+= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
+    
+    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
 };
 
 //void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)

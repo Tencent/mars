@@ -58,6 +58,9 @@ inline bool IN6_IS_ADDR_NAT64(const in6_addr* a6) {
 #define	IN6ADDR_NAT64_INIT {{{ 0x00, 0x64, 0xff, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }}}
 const in6_addr in6addr_nat64_init = IN6ADDR_NAT64_INIT;
 
+#define s6_addr8    u.Byte
+#define	s6_addr16   u.Word
+
 inline void IN6_SET_ADDR_NAT64(in6_addr* a6, const in_addr* a4) {
 	*a6 = in6addr_nat64_init;
 	a6->s6_bytes[12] = ((CONST UCHAR *) a4)[0];

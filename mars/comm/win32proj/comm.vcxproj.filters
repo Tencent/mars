@@ -105,9 +105,6 @@
     <ClCompile Include="..\mmap_util.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\messagequeue\message_queue_utils.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\windows\win32\NetUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -187,6 +184,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\http.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\getifaddrs.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\network\netinfo_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xlogger\loginfo_extract.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\boost_exception.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\socket\nat64_prefix_util.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -459,6 +471,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\http.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\getifaddrs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\netinfo_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

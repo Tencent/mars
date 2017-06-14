@@ -72,16 +72,10 @@
     <ClCompile Include="..\src\smart_heartbeat.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\socket_util.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\task_profile.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\timing_sync.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\traffic_statistics.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\zombie_task_manager.cc">
@@ -94,6 +88,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\net_channel_factory.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\proxy_test.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,9 +161,6 @@
     <ClInclude Include="..\src\traffic_statistics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\win32\win2C_Logic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\zombie_task_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -183,6 +177,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\task_profile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\net_channel_factory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\shortlink_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\compiler_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\proxy_test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

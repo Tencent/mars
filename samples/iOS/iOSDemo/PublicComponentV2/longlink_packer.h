@@ -12,7 +12,7 @@
 
 
 /*
- * longlink_packer.cpp
+ * longlink_packer.h
  *
  *  Created on: 2012-7-18
  *      Author: yerungui

@@ -9,6 +9,7 @@
 
 #include <windows.h>
 #include <stdint.h>
+#include "comm/xlogger/xloggerbase.h"
 
 
 extern "C"

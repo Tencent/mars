@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "unix_socket.h"
+#include "comm_data.h"
 
 class SocketBreaker;
 class socket_address;
@@ -57,7 +58,9 @@ class ComplexConnect {
     ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, unsigned int _error_interval /*ms*/, unsigned int _max_connect);
     ~ComplexConnect();
 
-    SOCKET ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketBreaker& _breaker, MComplexConnect* _observer = NULL);
+    SOCKET ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketBreaker& _breaker, MComplexConnect* _observer = NULL,
+                            mars::comm::ProxyType _proxy_type = mars::comm::kProxyNone, const socket_address* _proxy_addr = NULL,
+                            const std::string& _proxy_username = "", const std::string& _proxy_pwd = "");
 
     unsigned int TryCount() const { return trycount_;}
     int Index() const { return index_;}

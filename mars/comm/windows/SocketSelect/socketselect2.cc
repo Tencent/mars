@@ -48,21 +48,21 @@ static void __WOULDBLOCK(SOCKET _sock, bool _block) {
     __SO_RCVTIMEO(_sock, (ret & (~0x1)) + _block);
 }
 
-SocketSelectBreaker::SocketSelectBreaker()
+SocketBreaker::SocketBreaker()
     : m_broken(false)
     , m_create_success(true), m_exception(0) {
     ReCreate();
 }
 
-SocketSelectBreaker::~SocketSelectBreaker() {
+SocketBreaker::~SocketBreaker() {
     Close();
 }
 
-bool SocketSelectBreaker::IsCreateSuc() const {
+bool SocketBreaker::IsCreateSuc() const {
     return m_create_success;
 }
 
-bool SocketSelectBreaker::ReCreate() {
+bool SocketBreaker::ReCreate() {
     m_event = WSACreateEvent();
     m_create_success = WSA_INVALID_EVENT != m_event;
     ASSERT2(m_create_success, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
@@ -71,11 +71,11 @@ bool SocketSelectBreaker::ReCreate() {
     return m_create_success;
 }
 
-bool SocketSelectBreaker::IsBreak() const {
+bool SocketBreaker::IsBreak() const {
     return m_broken;
 }
 
-bool SocketSelectBreaker::Break() {
+bool SocketBreaker::Break() {
     ScopedLock lock(m_mutex);
     bool ret = WSASetEvent(m_event);
     ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
@@ -86,7 +86,7 @@ bool SocketSelectBreaker::Break() {
     return m_broken;
 }
 
-bool SocketSelectBreaker::Clear() {
+bool SocketBreaker::Clear() {
     ScopedLock lock(m_mutex);
 
     if (!m_broken) return true;
@@ -101,7 +101,7 @@ bool SocketSelectBreaker::Clear() {
     return ret;
 }
 
-void SocketSelectBreaker::Close() {
+void SocketBreaker::Close() {
     bool ret = WSACloseEvent(m_event);
     ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
     m_exception = WSAGetLastError();
@@ -109,12 +109,12 @@ void SocketSelectBreaker::Close() {
     m_broken = true;
 }
 
-WSAEVENT SocketSelectBreaker::BreakerFD() const {
+WSAEVENT SocketBreaker::BreakerFD() const {
     return m_event;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SocketSelect::SocketSelect(SocketSelectBreaker& _breaker, bool _autoclear)
+SocketSelect::SocketSelect(SocketBreaker& _breaker, bool _autoclear)
     : autoclear_(_autoclear), breaker_(_breaker), m_broken(false), errno_(0) {
     // inital FD
     FD_ZERO(&writefd_);
@@ -332,7 +332,7 @@ bool SocketSelect::IsBreak() const {
     return m_broken;
 }
 
-SocketSelectBreaker& SocketSelect::Breaker() {
+SocketBreaker& SocketSelect::Breaker() {
     return breaker_;
 }
 

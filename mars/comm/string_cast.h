@@ -21,8 +21,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <inttypes.h>
+
+#ifndef _WIN32
+#define __STDC_FORMAT_MACROS
 #include <strings.h>
+#else
+#include "projdef.h"
+#endif
+#include <inttypes.h>
 #include <string.h>
 
 #include <limits>
@@ -72,6 +78,7 @@ char* string_cast_itoa(const T& value, char* result, uint8_t base = 10, bool upp
     }
     return result;
 }
+
 
 #define string_cast_hex(value) string_cast(value, 16)
 #define string_cast_oct(value) string_cast(value, 8)
@@ -130,13 +137,13 @@ public:
             return;
         }
         
-        if (value_ < std::numeric_limits<T>::min()) {
-            value_ = std::numeric_limits<T>::min();
+        if (value_ <( std::numeric_limits<T>::min)()) {
+            value_ =( std::numeric_limits<T>::min)();
             vaild_ = false;
             return;
         }
-        if (std::numeric_limits<T>::max() < value_) {
-            value_ = std::numeric_limits<T>::max();
+        if ((std::numeric_limits<T>::max)() < value_) {
+            value_ = (std::numeric_limits<T>::max)();
             vaild_ = false;
             return;
         }
@@ -167,13 +174,13 @@ public:
             vaild_ = false;
             return;
         }
-        if (value_ < std::numeric_limits<T>::min()) {
-            value_ = std::numeric_limits<T>::min();
+        if (value_ <( std::numeric_limits<T>::min)()) {
+            value_ =( std::numeric_limits<T>::min)();
             vaild_ = false;
             return;
         }
-        if (std::numeric_limits<T>::max() < value_) {
-            value_ = std::numeric_limits<T>::max();
+        if ((std::numeric_limits<T>::max)() < value_) {
+            value_ = (std::numeric_limits<T>::max)();
             vaild_ = false;
             return;
         }
