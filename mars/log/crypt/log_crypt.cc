@@ -40,7 +40,7 @@ const static int TEA_BLOCK_LEN = 8;
 
 static void __TeaEncrypt (uint32_t* v, uint32_t* k) {
     uint32_t v0=v[0], v1=v[1], sum=0, i;
-    uint32_t delta=0x9e3779b9;
+    const static uint32_t delta=0x9e3779b9;
     uint32_t k0=k[0], k1=k[1], k2=k[2], k3=k[3];
     for (i=0; i < 16; i++) {
         sum += delta;
