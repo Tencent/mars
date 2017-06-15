@@ -32,6 +32,7 @@
 		4B07F3201C4F8F0700FD1B8D /* zombie_task_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B07F30E1C4F8F0700FD1B8D /* zombie_task_manager.cc */; };
 		4BA323A61C4FA889009B26F5 /* net_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BA323A41C4FA889009B26F5 /* net_source.cc */; };
 		4F85ED521CA934EF0039267F /* task_profile.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F85ED511CA934EF0039267F /* task_profile.cc */; };
+		553AE7A61EF27CE700FB8732 /* proxy_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 553AE7A51EF27CE700FB8732 /* proxy_test.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -100,6 +101,7 @@
 		4BA323A51C4FA889009B26F5 /* net_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_source.h; sourceTree = "<group>"; };
 		4F85ED511CA934EF0039267F /* task_profile.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task_profile.cc; sourceTree = "<group>"; };
 		4FC680101CAE601600A28E2A /* special_ini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = special_ini.h; sourceTree = "<group>"; };
+		553AE7A51EF27CE700FB8732 /* proxy_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = proxy_test.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 		134DEBC5197631D90055FA73 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				553AE7A51EF27CE700FB8732 /* proxy_test.cc */,
 				1FCE8FF61D479D18002DB759 /* net_channel_factory.cc */,
 				1FCE8FF71D479D18002DB759 /* net_channel_factory.h */,
 				1FCE8FF51D479D08002DB759 /* shortlink_interface.h */,
@@ -253,6 +256,7 @@
 				4B07F3101C4F8F0700FD1B8D /* longlink_connect_monitor.cc in Sources */,
 				4B07F2E11C4F8E7A00FD1B8D /* dynamic_timeout.cc in Sources */,
 				4B07F3191C4F8F0700FD1B8D /* netsource_timercheck.cc in Sources */,
+				553AE7A61EF27CE700FB8732 /* proxy_test.cc in Sources */,
 				4B07F2E31C4F8E7A00FD1B8D /* flow_limit.cc in Sources */,
 				1F25B3301CD33BEC00AC1003 /* stn.cc in Sources */,
 				1F25B32F1CD33BEC00AC1003 /* stn_logic.cc in Sources */,
