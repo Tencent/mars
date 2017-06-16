@@ -270,9 +270,9 @@ bool SmartHeartbeat::__IsMIUIStyle() {
     return xiaomi_style_count_ >= 3;
 }
 
-unsigned int SmartHeartbeat::GetNextHeartbeatInterval(bool& _use_smart_heartbeat) {  // bIsUseSmartBeat is add by andrewu for stat
+unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type) {  // bIsUseSmartBeat is add by andrewu for stat
     // xinfo_function();
-    _use_smart_heartbeat = false;
+	_smartheart_beat_type = kNoSmartHeartBeat;
     ScopedLock lock(_mutex_);
 
 	if (__IsMIUIStyle() && pre_last_alarm_tick_ != 0) {
@@ -292,6 +292,8 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval(bool& _use_smart_heartbeat
 			last_heart_ += alarm_tick_span;
 		}
 		xinfo2(TSF"AlarmInfo: is_miui curTime:%_, lastTick:%_, preTick:%_, last_heart_:%_", cur_alarm_tick, last_alarm_tick_, pre_last_alarm_tick_, last_heart_);
+		if (xiaomi_style_heart_time_ == MinHeartInterval)_smartheart_beat_type = kDozeModeMinHeart;
+		else _smartheart_beat_type = kDozeModeHeart2;
 		return last_heart_;
 	}
 
@@ -301,7 +303,7 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval(bool& _use_smart_heartbeat
         return MinHeartInterval;
     }
 
-    _use_smart_heartbeat = true;
+	_smartheart_beat_type = kSmartHeartBeat;
 
     unsigned int heart = current_net_heart_info_.cur_heart_;
 

@@ -46,7 +46,7 @@ class XLogger;
 class WakeUpLock;
 
 class SmartHeartbeat;
-
+typedef enum TSmartHeartBeatType;
 
 namespace mars {
     namespace comm {
@@ -108,7 +108,6 @@ class LongLink {
         kLinkCheckError = 10018,
         kTimeCheckSucc = 10019,
     };
-
   public:
     boost::signals2::signal<void (TLongLinkStatus _connectStatus)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
@@ -150,15 +149,16 @@ class LongLink {
     virtual void     __Run();
     virtual SOCKET   __RunConnect(ConnectProfile& _conn_profile);
     virtual void     __RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile);
-    
+	virtual void       __ReportSmartHeartNoop(unsigned int _interval, TSmartHeartBeatType _smartheart_beat_type);
+	virtual void       __ReportSmartHeartNoopStatus(bool _success, bool _fail_of_timeout);
   protected:
     
-    uint32_t   __GetNextHeartbeatInterval();
+    uint32_t   __GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type);
     void       __NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status);
     void       __NotifySmartHeartbeatHeartReq(ConnectProfile& _profile, uint64_t _internal, uint64_t _actual_internal);
     void       __NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_timeout, ConnectProfile& _profile);
     void       __NotifySmartHeartbeatJudgeMIUIStyle();
-
+	
   protected:
     MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      netsource_;

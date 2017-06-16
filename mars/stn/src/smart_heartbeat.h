@@ -33,6 +33,12 @@ enum HeartbeatReportType {
     kReportTypeCompute            = 1,        // report info of compute smart heartbeat
     kReportTypeSuccRate           = 2,    // report succuss rate when smart heartbeat is stabled
 };
+enum TSmartHeartBeatType {
+	kNoSmartHeartBeat = 0,
+	kSmartHeartBeat,
+	kDozeModeMinHeart,
+	kDozeModeHeart2,
+};
 
 class SmartHeartbeat;
 
@@ -68,7 +74,7 @@ class SmartHeartbeat {
     void OnLongLinkEstablished();
     void OnLongLinkDisconnect();
     void OnHeartResult(bool _sucess, bool _fail_of_timeout);
-    unsigned int GetNextHeartbeatInterval(bool& _use_smart_heartbeat);   // bIsUseSmartBeat is add by andrewu for stat
+    unsigned int GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type);   // bIsUseSmartBeat is add by andrewu for stat
 
     // MIUI align alarm response at Times of five minutes, We should  handle this case specailly.
     void JudgeMIUIStyle();
