@@ -79,6 +79,7 @@ static TAppenderMode sg_mode = kAppednerAsync;
 static std::string sg_logdir;
 static std::string sg_cache_logdir;
 static std::string sg_logfileprefix;
+static std::string sg_pub_key;
 
 static Mutex sg_mutex_log_file;
 static FILE* sg_logfile = NULL;
@@ -249,6 +250,19 @@ static void __make_logfilename(const timeval& _tv, const std::string& _logdir, c
     
     strncpy(_filepath, logfilepath.c_str(), _len - 1);
     _filepath[_len - 1] = '\0';
+}
+
+static std::string& __get_mmap_filepath(const std::string& _cachedir, const std::string& _logdir, const std::string& _nameprefix) {
+    static std::string s_mmap_filepath;
+    if (!s_mmap_filepath.empty()) {
+        return s_mmap_filepath;
+    }
+    
+    char mmap_file_path[1024] = {0};
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap2", _cachedir.empty()?_logdir.c_str():_cachedir.c_str(), _nameprefix.c_str());
+
+    s_mmap_filepath = mmap_file_path;
+    return s_mmap_filepath;
 }
 
 static void __del_files(const std::string& _forder_path) {
@@ -635,6 +649,21 @@ static void __appender_sync(const XLoggerInfo* _info, const char* _log) {
 static void __appender_async(const XLoggerInfo* _info, const char* _log) {
     ScopedLock lock(sg_mutex_buffer_async);
     if (NULL == sg_log_buff) return;
+    
+    if (sg_mmmap_file.is_open() && !sg_mmmap_file.operator!()
+        && !boost::filesystem::exists(__get_mmap_filepath(sg_cache_logdir, sg_logdir, sg_logfileprefix))) {
+        
+        __writetips2file("[F]mmap file is deleted! recreate it.");
+        CloseMmapFile(sg_mmmap_file);
+        delete sg_log_buff;
+        
+        if (OpenMmapFile(__get_mmap_filepath(sg_cache_logdir, sg_logdir, sg_logfileprefix).c_str(), kBufferBlockLength, sg_mmmap_file))  {
+            sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, sg_pub_key.c_str());
+        } else {
+            char* buffer = new char[kBufferBlockLength];
+            sg_log_buff = new LogBuffer(buffer, kBufferBlockLength, true, sg_pub_key.c_str());
+        }
+    }
 
     char temp[16*1024] = {0};       //tell perry,ray if you want modify size.
     PtrBuffer log_buff(temp, 0, sizeof(temp));
@@ -817,11 +846,8 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     
     tick.gettickcount();
 
-    char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap2", sg_cache_logdir.empty()?_dir:sg_cache_logdir.c_str(), _nameprefix);
-
     bool use_mmap = false;
-    if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
+    if (OpenMmapFile(__get_mmap_filepath(sg_cache_logdir, _dir, _nameprefix).c_str(), kBufferBlockLength, sg_mmmap_file))  {
         sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _pub_key);
         use_mmap = true;
     } else {
@@ -842,6 +868,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 	ScopedLock lock(sg_mutex_log_file);
 	sg_logdir = _dir;
 	sg_logfileprefix = _nameprefix;
+    sg_pub_key = _pub_key;
 	sg_log_close = false;
 	appender_setmode(_mode);
     lock.unlock();
