@@ -653,7 +653,7 @@ static void __appender_async(const XLoggerInfo* _info, const char* _log) {
     if (sg_mmmap_file.is_open() && !sg_mmmap_file.operator!()
         && !boost::filesystem::exists(__get_mmap_filepath(sg_cache_logdir, sg_logdir, sg_logfileprefix))) {
         
-        __writetips2file("[F]mmap file is deleted! recreate it.");
+        __writetips2file("[F]mmap file is deleted! recreate it.\n");
         CloseMmapFile(sg_mmmap_file);
         delete sg_log_buff;
         
