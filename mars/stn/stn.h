@@ -161,6 +161,8 @@ enum {
     kEctSocketShutdown = -10090,
     kEctSocketRecvErr = -10091,
     kEctSocketSendErr = -10092,
+    kEctSocketNoopTimeout = -10093,
+    kEctSocketNoopAlarmTooLate = -10094,
 
     kEctHttpSplitHttpHeadAndBody = -10194,
     kEctHttpParseStatusLine = -10195,
