@@ -55,7 +55,6 @@ static const std::string kLibName = "stn";
     stn_ptr->func
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-    \
 	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (stn_ptr) \
     {\
@@ -78,7 +77,9 @@ static void onDestroy() {
 
     NetCore::Singleton::Release();
     SINGLETON_RELEASE_ALL();
-    ActiveLogic::Singleton::Release();
+    
+    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
+    // ActiveLogic::Singleton::Release();
 }
 
 static void onSingalCrash(int _sig) {
@@ -89,7 +90,6 @@ static void onExceptionCrash() {
     appender_close();
 }
 
-    
 static void onNetworkChange() {
 
     STN_WEAK_CALL(OnNetworkChange());
@@ -117,7 +117,8 @@ static void __initbind_baseprjevent() {
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(&onNetworkChange);
+    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+
     
 #ifndef XLOGGER_TAG
 #error "not define XLOGGER_TAG"
@@ -298,6 +299,16 @@ void (*ReportConnectStatus)(int status, int longlink_status)
 = [](int status, int longlink_status) {
 	xassert2(sg_callback != NULL);
 	sg_callback->ReportConnectStatus(status, longlink_status);
+};
+    
+void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
+
+};
+    
+void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+
 };
 
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2

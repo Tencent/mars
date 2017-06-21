@@ -26,8 +26,8 @@
 #include <time.h>
 #include <stdio.h>
 
-static const char kMagicSyncStart = '\x03';
-static const char kMagicAsyncStart ='\x05';
+static const char kMagicSyncStart = '\x06';
+static const char kMagicAsyncStart ='\x07';
 static const char kMagicEnd  = '\0';
 
 static uint16_t __GetSeq(bool _is_async) {
@@ -48,7 +48,7 @@ static uint16_t __GetSeq(bool _is_async) {
 }
 
 /*
- * |magic start(char)|seq(uint16_t)|begin hour(char)|end hour(char)|length(uint32_t)|crypt key(uint32_t)|
+ * |magic start(char)|seq(uint16_t)|begin hour(char)|end hour(char)|length(uint32_t)|crypt key(char)*64|
  */
 
 uint32_t LogCrypt::GetHeaderLen() {

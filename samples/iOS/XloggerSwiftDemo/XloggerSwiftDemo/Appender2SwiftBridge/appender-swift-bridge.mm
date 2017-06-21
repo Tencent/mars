@@ -43,7 +43,7 @@
     xlogger_SetLevel((TLogLevel)releaseLevel);
     appender_set_console_log(false);
     #endif
-    appender_open(kAppednerAsync, [logPath UTF8String], prefix);
+    appender_open(kAppednerAsync, [logPath UTF8String], prefix, "");
     
 }
 
