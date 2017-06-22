@@ -52,8 +52,8 @@ static const char* const kKeyNetType         = "netType";
 
 SmartHeartbeat::SmartHeartbeat(): is_wait_heart_response_(false), success_heart_count_(0), last_heart_(MinHeartInterval),
     ini_(mars::app::GetAppFilePath() + "/" + kFileName, false),
-	pre_last_alarm_tick_(0), last_alarm_tick_(0), xiaomi_style_count_(0), xiaomi_style_heart_time_(MinHeartInterval)
-	, xiaomi_style_maxheart_fail_count_(0), xiaomi_style_maxheart_sucesss_count_(0) {
+	pre_last_alarm_tick_(0), last_alarm_tick_(0), doze_style_count_(0), doze_style_heart_time_(MinHeartInterval)
+	, doze_style_maxheart_fail_count_(0), doze_style_maxheart_sucesss_count_(0) {
     xinfo_function();
     ini_.Parse();
 }
@@ -65,7 +65,7 @@ SmartHeartbeat::~SmartHeartbeat() {
 void SmartHeartbeat::OnHeartbeatStart() {
     xverbose_function();
 
-    if (__IsMIUIStyle())
+    if (__IsDozeStyle())
         return;
 
     ScopedLock lock(_mutex_);
@@ -86,7 +86,7 @@ void SmartHeartbeat::OnLongLinkDisconnect() {
     if (is_wait_heart_response_)
         OnHeartResult(false, false);
 
-	if (__IsMIUIStyle())
+	if (__IsDozeStyle())
 		return;
 
     ScopedLock lock(_mutex_);
@@ -108,24 +108,24 @@ void SmartHeartbeat::OnLongLinkDisconnect() {
 void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
     xdebug2(TSF"heart result:%0, %1", _sucess, _fail_of_timeout);
 
-	if (__IsMIUIStyle()) {
+	if (__IsDozeStyle()) {
 		ScopedLock lock(_mutex_);
 		if (_sucess) {
 			success_heart_count_++;
-			if (xiaomi_style_heart_time_ == MaxHeartInterval) {
-				xiaomi_style_maxheart_sucesss_count_++;
+			if (doze_style_heart_time_ == MaxHeartInterval) {
+				doze_style_maxheart_sucesss_count_++;
 			}
 			else if (success_heart_count_ >= NetStableTestCount) {
-				if (xiaomi_style_maxheart_fail_count_ <= 2 || xiaomi_style_maxheart_fail_count_ + xiaomi_style_maxheart_fail_count_ < xiaomi_style_maxheart_sucesss_count_) {
-					xiaomi_style_heart_time_ = MaxHeartInterval;
+				if (doze_style_maxheart_fail_count_ <= 2 || doze_style_maxheart_fail_count_*2 < doze_style_maxheart_sucesss_count_) {
+					doze_style_heart_time_ = MaxHeartInterval;
 				}
 			}
 		}
 		else {
-			if (xiaomi_style_heart_time_ == MaxHeartInterval) {
-				xiaomi_style_maxheart_fail_count_++;
+			if (doze_style_heart_time_ == MaxHeartInterval) {
+				doze_style_maxheart_fail_count_++;
 			}
-			xiaomi_style_heart_time_ = MinHeartInterval;
+			doze_style_heart_time_ = MinHeartInterval;
 		}
 		return;
 	}
@@ -233,50 +233,59 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
 
 #define MAX_JUDGE_TIMES (10)
 
-void SmartHeartbeat::JudgeMIUIStyle() {
+void SmartHeartbeat::JudgeDozeStyle() {
+    
+    if(ActiveLogic::Singleton::Instance()->IsActive())  return;
+    
     if (last_alarm_tick_ == 0) {
         last_alarm_tick_ = gettickcount();
         return;
     }
 
-	int64_t span = gettickspan(last_alarm_tick_);
-	
-    if (span < 10000)    // for case the same alarm
-        return;
-	xinfo2(TSF"AlarmInfo: miui span:%_,pre_span:%_,%_,%_, pre_last:%_,last:%_",  span, last_alarm_tick_ - pre_last_alarm_tick_, xiaomi_style_count_, current_net_heart_info_.is_stable_?"true":"false", pre_last_alarm_tick_, last_alarm_tick_);
+    pre_last_alarm_tick_ = last_alarm_tick_;
+    last_alarm_tick_ = ::gettickcount();
+    
+	int64_t span = gettickspan(pre_last_alarm_tick_);
+    if (span < 10000)   return;// for case the same alarm
+    if(std::abs(span - last_heart_) < 10000)    return; //exact alarm
+    
+	xinfo2(TSF"AlarmInfo: doze span:%_,pre_span:%_,%_,%_, pre_last:%_,last:%_",  span, last_alarm_tick_ - pre_last_alarm_tick_, doze_style_count_, current_net_heart_info_.is_stable_?"true":"false", pre_last_alarm_tick_, last_alarm_tick_);
 
-	pre_last_alarm_tick_ = last_alarm_tick_;
-	last_alarm_tick_ = ::gettickcount();
 
     if ((span % 300000) <= 10000 || (300000 - (span % 300000)) <= 10000) {  // judge if curTime is times of five minutes, 10 seconds as the max offset
-        xiaomi_style_count_++;
-        xinfo2(TSF"m_xiaomiStyleCount++ %0", xiaomi_style_count_);
+        doze_style_count_++;
+        xinfo2(TSF"m_dozeStyleCount++ %0", doze_style_count_);
 
-        if (!current_net_heart_info_.is_stable_ && xiaomi_style_count_ >= 3) {
-            xinfo2(TSF"judgeMIUIStyle: is MIUIStyle. xiaomiCount = %0 ", xiaomi_style_count_);
+        if (!current_net_heart_info_.is_stable_ && doze_style_count_ >= 3) {
+            xinfo2(TSF"JudgeDozeStyle: is Doze Style. dozeCount = %0 ", doze_style_count_);
             current_net_heart_info_.is_stable_ = true;
             __SaveINI();
         }
     } else {
-        xiaomi_style_count_ = 0;
-		xiaomi_style_maxheart_sucesss_count_ = 0;
-		xiaomi_style_maxheart_fail_count_ = 0;
-		xiaomi_style_heart_time_ = MinHeartInterval;
+        doze_style_count_ = 0;
+		doze_style_maxheart_sucesss_count_ = 0;
+		doze_style_maxheart_fail_count_ = 0;
+		doze_style_heart_time_ = MinHeartInterval;
     }
 }
 
 
-bool SmartHeartbeat::__IsMIUIStyle() {
-    return xiaomi_style_count_ >= 3;
+bool SmartHeartbeat::__IsDozeStyle() {
+    return doze_style_count_ >= 3;
 }
 
 unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type) {  // bIsUseSmartBeat is add by andrewu for stat
     // xinfo_function();
 	_smartheart_beat_type = kNoSmartHeartBeat;
     ScopedLock lock(_mutex_);
+    
+    if(ActiveLogic::Singleton::Instance()->IsActive()) {
+        last_heart_ = MinHeartInterval;
+        return MinHeartInterval;
+    }
 
-	if (__IsMIUIStyle() && pre_last_alarm_tick_ != 0) {
-		last_heart_ = xiaomi_style_heart_time_;
+	if (__IsDozeStyle() && pre_last_alarm_tick_ != 0) {
+		last_heart_ = doze_style_heart_time_;
 		int64_t cur_alarm_tick = gettickcount();
 		int64_t alarm_tick_span = last_alarm_tick_ - pre_last_alarm_tick_;
 		if (alarm_tick_span > 300000) alarm_tick_span = 300000;
@@ -291,13 +300,13 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smar
 		if (alarm_tick_span - next_alarm_tick_span < 180000) {
 			last_heart_ += alarm_tick_span;
 		}
-		xinfo2(TSF"AlarmInfo: is_miui curTime:%_, lastTick:%_, preTick:%_, last_heart_:%_", cur_alarm_tick, last_alarm_tick_, pre_last_alarm_tick_, last_heart_);
-		if (xiaomi_style_heart_time_ == MinHeartInterval)_smartheart_beat_type = kDozeModeMinHeart;
+		xinfo2(TSF"AlarmInfo: is_Doze curTime:%_, lastTick:%_, preTick:%_, last_heart_:%_", cur_alarm_tick, last_alarm_tick_, pre_last_alarm_tick_, last_heart_);
+		if (doze_style_heart_time_ == MinHeartInterval)_smartheart_beat_type = kDozeModeMinHeart;
 		else _smartheart_beat_type = kDozeModeHeart2;
 		return last_heart_;
 	}
 
-    if (ActiveLogic::Singleton::Instance()->IsActive() || success_heart_count_ < NetStableTestCount || current_net_heart_info_.net_detail_.empty()) {
+    if (success_heart_count_ < NetStableTestCount || current_net_heart_info_.net_detail_.empty()) {
         //        xdebug2(TSF"getNextHeartbeatInterval use MinHeartInterval. success_heart_count_=%0",success_heart_count_);
         last_heart_ = MinHeartInterval;
         return MinHeartInterval;

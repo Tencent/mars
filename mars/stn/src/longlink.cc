@@ -348,7 +348,7 @@ void LongLink::__UpdateProfile(const ConnectProfile& _conn_profile) {
 
 void LongLink::__OnAlarm() {
     readwritebreak_.Break();
-    __NotifySmartHeartbeatJudgeMIUIStyle();
+    __NotifySmartHeartbeatJudgeDozeStyle();
 #ifdef ANDROID
     wakelock_->Lock(3 * 1000);
 #endif
@@ -877,13 +877,13 @@ void LongLink::__NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_tim
 	if (smartheartbeat_) smartheartbeat_->OnHeartResult(_succes, _fail_of_timeout);
 }
 
-void LongLink::__NotifySmartHeartbeatJudgeMIUIStyle() {
+void LongLink::__NotifySmartHeartbeatJudgeDozeStyle() {
     if (longlink_noop_interval() > 0) {
         return;
     }
     
     if (!smartheartbeat_) return;
-	smartheartbeat_->JudgeMIUIStyle();
+	smartheartbeat_->JudgeDozeStyle();
 }
 
 void LongLink::__NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status) {

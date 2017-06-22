@@ -157,7 +157,7 @@ class LongLink {
     void       __NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status);
     void       __NotifySmartHeartbeatHeartReq(ConnectProfile& _profile, uint64_t _internal, uint64_t _actual_internal);
     void       __NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_timeout, ConnectProfile& _profile);
-    void       __NotifySmartHeartbeatJudgeMIUIStyle();
+    void       __NotifySmartHeartbeatJudgeDozeStyle();
 	
   protected:
     MessageQueue::ScopeRegister     asyncreg_;

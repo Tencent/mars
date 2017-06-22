@@ -77,12 +77,12 @@ class SmartHeartbeat {
     unsigned int GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type);   // bIsUseSmartBeat is add by andrewu for stat
 
     // MIUI align alarm response at Times of five minutes, We should  handle this case specailly.
-    void JudgeMIUIStyle();
+    void JudgeDozeStyle();
 
   private:
     void __DumpHeartInfo();
 
-    bool __IsMIUIStyle();
+    bool __IsDozeStyle();
 
     void __LimitINISize();
     void __LoadINI();
@@ -103,10 +103,10 @@ class SmartHeartbeat {
 	uint64_t pre_last_alarm_tick_;
 	uint64_t last_alarm_tick_;
 
-	unsigned int xiaomi_style_count_;
-	unsigned int xiaomi_style_heart_time_;
-	unsigned int xiaomi_style_maxheart_fail_count_;
-	unsigned int xiaomi_style_maxheart_sucesss_count_;
+	unsigned int doze_style_count_;
+	unsigned int doze_style_heart_time_;
+	unsigned int doze_style_maxheart_fail_count_;
+	unsigned int doze_style_maxheart_sucesss_count_;
 };
 
 #endif // STN_SRC_SMART_HEARTBEAT_H_
