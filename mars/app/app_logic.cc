@@ -42,6 +42,10 @@ void SetCallback(Callback* const callback) {
 }
 
 #ifndef ANDROID
+    mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {
+        xassert2(sg_callback != NULL);
+        return sg_callback->GetProxyInfo(_host);
+    }
 
     std::string GetAppFilePath() {
         xassert2(sg_callback != NULL);

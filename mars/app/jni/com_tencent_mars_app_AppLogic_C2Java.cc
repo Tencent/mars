@@ -176,4 +176,11 @@ DeviceInfo GetDeviceInfo() {
 	return s_info;
 }
 
+
+mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {
+    return mars::comm::ProxyInfo();
+}
+
+
+
 }}

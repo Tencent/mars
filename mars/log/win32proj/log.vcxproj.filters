@@ -24,7 +24,10 @@
     <ClCompile Include="..\src\formater.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\loglogic\log_logic.cc">
+    <ClCompile Include="..\src\log_buffer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypt\log_crypt.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -33,6 +36,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\interface\log_logic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\log_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\compiler_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

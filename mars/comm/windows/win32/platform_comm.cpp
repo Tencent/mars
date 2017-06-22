@@ -36,6 +36,9 @@ unsigned int getSignal(bool isWifi) {
     return (unsigned int)0;
 }
 
+bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
+	return false;
+}
 
 bool isNetworkConnected() {
     return isNetworkConnectedImpl();

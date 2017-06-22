@@ -11,12 +11,6 @@ include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := crypto
-LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libcrypto.a
-
-include $(PREBUILT_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
 
 LOCAL_MODULE := static_xlog
 LOCAL_SRC_FILES := $(MARS_LIBS_PATH)/$(TARGET_ARCH_ABI)/libmarsxlog.a
@@ -28,8 +22,9 @@ include $(LOCAL_PATH)/../../../mk_template/flags.mk
 
 LOCAL_MODULE := marsxlog
 
-LOCAL_SRC_FILES := JNI_OnLoad.cc log_crypt.cc import.cc
+LOCAL_SRC_FILES := JNI_OnLoad.cc import.cc
 LOCAL_STATIC_LIBRARIES += static_xlog comm
+
 
 LOCAL_LDLIBS += -llog -lz
 #LOCAL_CPPFLAGS += -frtti

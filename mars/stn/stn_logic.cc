@@ -34,11 +34,11 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/platform_comm.h"
-#include "mars/comm/compiler_util.h"
 
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
+#include "stn/src/proxy_test.h"
 
 namespace mars {
 namespace stn {
@@ -55,7 +55,6 @@ static const std::string kLibName = "stn";
     stn_ptr->func
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-    \
 	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (stn_ptr) \
     {\
@@ -78,7 +77,9 @@ static void onDestroy() {
 
     NetCore::Singleton::Release();
     SINGLETON_RELEASE_ALL();
-    ActiveLogic::Singleton::Release();
+    
+    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
+    // ActiveLogic::Singleton::Release();
 }
 
 static void onSingalCrash(int _sig) {
@@ -89,7 +90,6 @@ static void onExceptionCrash() {
     appender_close();
 }
 
-    
 static void onNetworkChange() {
 
     STN_WEAK_CALL(OnNetworkChange());
@@ -117,7 +117,8 @@ static void __initbind_baseprjevent() {
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(&onNetworkChange);
+    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+
     
 #ifndef XLOGGER_TAG
 #error "not define XLOGGER_TAG"
@@ -177,6 +178,12 @@ bool (*LongLinkIsConnected)()
     bool connected = false;
     STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
     return connected;
+};
+    
+bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
+= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
+    
+    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
 };
 
 //void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
@@ -292,6 +299,16 @@ void (*ReportConnectStatus)(int status, int longlink_status)
 = [](int status, int longlink_status) {
 	xassert2(sg_callback != NULL);
 	sg_callback->ReportConnectStatus(status, longlink_status);
+};
+    
+void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
+
+};
+    
+void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+
 };
 
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2

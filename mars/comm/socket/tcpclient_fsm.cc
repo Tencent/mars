@@ -302,7 +302,6 @@ void TcpClientFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log)
         if (request_send_ && 0 == send_buf_.Length()) {
             request_send_ = false;
             _OnRequestSend(send_buf_);
-            xassert2(0 == send_buf_.Length());
         }
 
         ssize_t ret = send(sock_, send_buf_.Ptr(), send_buf_.Length(), 0);
