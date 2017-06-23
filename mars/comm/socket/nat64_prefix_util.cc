@@ -343,11 +343,12 @@ bool  GetNetworkNat64Prefix(struct in6_addr& _nat64_prefix_in6) {
 
     	}
     } else {
-    	xerror2(TSF" getaddrinfo error = %_", error);
+    	xerror2(TSF" getaddrinfo error = %_, res0:@%_", error, res0);
     	ret = false;
     }
 
-    freeaddrinfo(res0);
+    if (NULL == res0)
+        freeaddrinfo(res0);
     return ret;
 }
 
