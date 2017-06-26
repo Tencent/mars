@@ -38,6 +38,7 @@
 #include "mars/app/app.h"
 
 #include "mars/stn/config.h"
+#include <algorithm>
 
 #define KV_KEY_SMARTHEART 11249
 
@@ -49,11 +50,11 @@ static const char* const kKeyCurHeart        = "curHeart";
 static const char* const kKeyFailHeartCount  = "failHeartCount";
 static const char* const kKeyStable          = "stable";
 static const char* const kKeyNetType         = "netType";
+static const char* const kKeyHeartType       = "hearttype";
 
 SmartHeartbeat::SmartHeartbeat(): is_wait_heart_response_(false), success_heart_count_(0), last_heart_(MinHeartInterval),
-    ini_(mars::app::GetAppFilePath() + "/" + kFileName, false),
-	pre_last_alarm_tick_(0), last_alarm_tick_(0), doze_style_count_(0), doze_style_heart_time_(MinHeartInterval)
-	, doze_style_maxheart_fail_count_(0), doze_style_maxheart_sucesss_count_(0) {
+    ini_(mars::app::GetAppFilePath() + "/" + kFileName, false)
+    , doze_mode_count_(0), normal_mode_count_(0), noop_start_tick_(false) {
     xinfo_function();
     ini_.Parse();
 }
@@ -65,138 +66,93 @@ SmartHeartbeat::~SmartHeartbeat() {
 void SmartHeartbeat::OnHeartbeatStart() {
     xverbose_function();
 
-    if (__IsDozeStyle())
-        return;
-
-    ScopedLock lock(_mutex_);
+    noop_start_tick_.gettickcount();
     is_wait_heart_response_ = true;
 }
 
 void SmartHeartbeat::OnLongLinkEstablished() {
     xdebug_function();
     __LoadINI();
-    ScopedLock lock(_mutex_);
     success_heart_count_ = 0;
 }
 
 void SmartHeartbeat::OnLongLinkDisconnect() {
     xinfo_function();
 
-    
-    if (is_wait_heart_response_)
-        OnHeartResult(false, false);
-
-	if (__IsDozeStyle())
-		return;
-
-    ScopedLock lock(_mutex_);
-
-    is_wait_heart_response_ = false;
+    OnHeartResult(false, false);
 
     if (!current_net_heart_info_.is_stable_) {
 		xinfo2(TSF"%0 not stable last heart:%1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
 		return;
 	}
 
-    current_net_heart_info_.success_curr_heart_count_ = 0;
-    success_heart_count_ = 0;
+    current_net_heart_info_.succ_heart_count_ = 0;
     last_heart_ = MinHeartInterval;
 }
 
 #define ONE_DAY_SECONEDS (24 * 60 * 60)
 
 void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
-    xdebug2(TSF"heart result:%0, %1", _sucess, _fail_of_timeout);
-
-	if (__IsDozeStyle()) {
-		ScopedLock lock(_mutex_);
-		if (_sucess) {
-			success_heart_count_++;
-			if (doze_style_heart_time_ == MaxHeartInterval) {
-				doze_style_maxheart_sucesss_count_++;
-			}
-			else if (success_heart_count_ >= NetStableTestCount) {
-				if (doze_style_maxheart_fail_count_ <= 2 || doze_style_maxheart_fail_count_*2 < doze_style_maxheart_sucesss_count_) {
-					doze_style_heart_time_ = MaxHeartInterval;
-				}
-			}
-		}
-		else {
-			if (doze_style_heart_time_ == MaxHeartInterval) {
-				doze_style_maxheart_fail_count_++;
-			}
-			doze_style_heart_time_ = MinHeartInterval;
-		}
-		return;
-	}
-
-    ScopedLock lock(_mutex_);
-    xassert2(!current_net_heart_info_.net_detail_.empty(), "something wrong,net_detail_ shoudn't be NULL");
+    if(!is_wait_heart_response_)
+        return;
     
-    if (current_net_heart_info_.net_detail_.empty()) return;
-
+    xdebug2(TSF"heart result:%0, timeout:%1", _sucess, _fail_of_timeout);
     is_wait_heart_response_ = false;
+
+    xassert2(!current_net_heart_info_.net_detail_.empty(), "something wrong,net_detail_ shoudn't be NULL");
+    if (current_net_heart_info_.net_detail_.empty()) return;
+    if(_sucess) success_heart_count_ += 1;
+    if (success_heart_count_ < NetStableTestCount) return;
     
-    if (_sucess) {
-        success_heart_count_++;
-        if (current_net_heart_info_.is_stable_) {
-            if (success_heart_count_ >= NetStableTestCount) {
-                
-                // has reach the Max value, no need to try bigger.
-                if (current_net_heart_info_.cur_heart_ >= MaxHeartInterval - SuccessStep) {
-                    return;
-                }
-                
-                time_t cur_time = time(NULL);
-                struct tm cur_TM = *localtime(&cur_time);
-                
-                // heart info changed recently,Don't need probe
-                // probe bigger heart on Wednesday
-                if ((cur_time - current_net_heart_info_.last_modify_time_) >= ONE_DAY_SECONEDS && cur_TM.tm_wday == 2) {
-                    xinfo2(TSF"__TryProbeBiggerHeart. curHeart=%0  ", current_net_heart_info_.cur_heart_);
-                    current_net_heart_info_.cur_heart_ += SuccessStep;
-                    current_net_heart_info_.success_curr_heart_count_ = 0;
-                    current_net_heart_info_.is_stable_ = false;
-                    current_net_heart_info_.fail_heart_count_ = 0;
-                    __SaveINI();
-                }
-            }
-            return;
+    if (_sucess && current_net_heart_info_.is_stable_) {
+        // has reach the Max value, no need to try bigger.
+        if (current_net_heart_info_.cur_heart_ >= MaxHeartInterval - SuccessStep)   return;
+        
+        time_t cur_time = time(NULL);
+        // heart info changed recently,Don't need probe
+        // probe bigger heart on Wednesday
+        if ((cur_time - current_net_heart_info_.last_modify_time_) >= 7*ONE_DAY_SECONEDS) {
+            xinfo2(TSF"tryProbeBiggerHeart. curHeart=%0  ", current_net_heart_info_.cur_heart_);
+            current_net_heart_info_.cur_heart_ += SuccessStep;
+            current_net_heart_info_.succ_heart_count_ = 0;
+            current_net_heart_info_.is_stable_ = false;
+            current_net_heart_info_.fail_heart_count_ = 0;
+            __SaveINI();
         }
-    }
-
-
-    if (last_heart_ != current_net_heart_info_.cur_heart_) {
-        xinfo2(TSF"dynamic heart stop by some reason");
         return;
     }
 
-    if (success_heart_count_ < NetStableTestCount) return;
+    if (last_heart_ != current_net_heart_info_.cur_heart_) {
+        xdebug2(TSF"last heart & cur_heart not match, ignore");
+        return;
+    }
     
     if (_sucess) {
-        current_net_heart_info_.success_curr_heart_count_++;
-        
-        if (current_net_heart_info_.cur_heart_ >= MaxHeartInterval) {
-            current_net_heart_info_.cur_heart_ = MaxHeartInterval - SuccessStep;
-            current_net_heart_info_.success_curr_heart_count_ = 0;
-            current_net_heart_info_.is_stable_ = true;
-            xinfo2(TSF"%0 find the smart heart interval = %1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
-        } else {
-            if (current_net_heart_info_.success_curr_heart_count_ >= BaseSuccCount) {
-                unsigned int old_heart = current_net_heart_info_.cur_heart_;
-                current_net_heart_info_.cur_heart_ += HeartStep;
-                
-                if (current_net_heart_info_.cur_heart_ > MaxHeartInterval) {
-                    current_net_heart_info_.cur_heart_ = MaxHeartInterval;
-                }
-                
-                current_net_heart_info_.success_curr_heart_count_ = 0;
-                xinfo2(TSF"Increace curHeart from %0 to %1", old_heart, current_net_heart_info_.cur_heart_);
-            } else
-                xdebug2(TSF"current succ count<3, curr:%0", current_net_heart_info_.success_curr_heart_count_);
-        }
+        current_net_heart_info_.succ_heart_count_++;
         current_net_heart_info_.fail_heart_count_ = 0;
         
+        if(current_net_heart_info_.succ_heart_count_ >= BaseSuccCount) {
+            if (current_net_heart_info_.cur_heart_ >= (MaxHeartInterval - SuccessStep)) {
+                //already max, make stable
+                current_net_heart_info_.cur_heart_ = MaxHeartInterval - SuccessStep;
+                current_net_heart_info_.succ_heart_count_ = 0;
+                current_net_heart_info_.is_stable_ = true;
+                current_net_heart_info_.heart_type_ = __IsDozeStyle() ? kDozeModeHeart : kSmartHeartBeat;
+                xinfo2(TSF"%0 find the smart heart interval = %1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
+            } else {
+                current_net_heart_info_.succ_heart_count_ = 0;
+                
+                unsigned int old_heart = current_net_heart_info_.cur_heart_;
+                if(__IsDozeStyle()) {
+                    current_net_heart_info_.cur_heart_ = MaxHeartInterval - SuccessStep;
+                } else {
+                    current_net_heart_info_.cur_heart_ += HeartStep;
+                    current_net_heart_info_.cur_heart_ = std::min((unsigned int)(MaxHeartInterval - SuccessStep), current_net_heart_info_.cur_heart_);
+                }
+                
+                xinfo2(TSF"increace curHeart from %_ to %_", old_heart, current_net_heart_info_.cur_heart_);
+            }
+        }
     } else {
         if (last_heart_ == MinHeartInterval) return;
         
@@ -205,23 +161,24 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
         if (current_net_heart_info_.fail_heart_count_ >= MaxHeartFailCount) {
             if (current_net_heart_info_.is_stable_) {
                 current_net_heart_info_.cur_heart_ = MinHeartInterval;
-                current_net_heart_info_.success_curr_heart_count_ = 0;
+                current_net_heart_info_.succ_heart_count_ = 0;
                 current_net_heart_info_.is_stable_ = false;
                 current_net_heart_info_.fail_heart_count_  = 0;
-                xinfo2(TSF"in stable sate,can't use old value to Keep TCP alive, restart __AdaptiveComputing");
+                xinfo2(TSF"in stable sate,can't use old value to Keep TCP alive");
             } else {
-                if (current_net_heart_info_.cur_heart_ - HeartStep - SuccessStep > MinHeartInterval) {
+                if(__IsDozeStyle()) {
+                    current_net_heart_info_.cur_heart_ = MinHeartInterval;
+                } else if ((current_net_heart_info_.cur_heart_ - HeartStep - SuccessStep) > MinHeartInterval) {
                     current_net_heart_info_.cur_heart_ = current_net_heart_info_.cur_heart_ - HeartStep - SuccessStep;
                 } else {
                     current_net_heart_info_.cur_heart_ = MinHeartInterval;
                 }
                 
-                current_net_heart_info_.success_curr_heart_count_ = 0;
+                current_net_heart_info_.succ_heart_count_ = 0;
                 current_net_heart_info_.fail_heart_count_ = 0;
-                
                 current_net_heart_info_.is_stable_ = true;
-                
-                xinfo2(TSF"finsh AdaptiveComputing choose the proper value %0", current_net_heart_info_.cur_heart_);
+                current_net_heart_info_.heart_type_ = __IsDozeStyle() ? kDozeModeHeart : kSmartHeartBeat;
+                xinfo2(TSF"finish choose the proper value %0", current_net_heart_info_.cur_heart_);
             }
         }
     }
@@ -236,75 +193,31 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
 void SmartHeartbeat::JudgeDozeStyle() {
     
     if(ActiveLogic::Singleton::Instance()->IsActive())  return;
+    if(!noop_start_tick_.isValid()) return;
     
-    if (last_alarm_tick_ == 0) {
-        last_alarm_tick_ = gettickcount();
-        return;
-    }
-
-    pre_last_alarm_tick_ = last_alarm_tick_;
-    last_alarm_tick_ = ::gettickcount();
-    
-	int64_t span = gettickspan(pre_last_alarm_tick_);
-    if (span < 10000)   return;// for case the same alarm
-    if(std::abs(span - last_heart_) < 10000)    return; //exact alarm
-    
-	xinfo2(TSF"AlarmInfo: doze span:%_,pre_span:%_,%_,%_, pre_last:%_,last:%_",  span, last_alarm_tick_ - pre_last_alarm_tick_, doze_style_count_, current_net_heart_info_.is_stable_?"true":"false", pre_last_alarm_tick_, last_alarm_tick_);
-
-
-    if ((span % 300000) <= 10000 || (300000 - (span % 300000)) <= 10000) {  // judge if curTime is times of five minutes, 10 seconds as the max offset
-        doze_style_count_++;
-        xinfo2(TSF"m_dozeStyleCount++ %0", doze_style_count_);
-
-        if (!current_net_heart_info_.is_stable_ && doze_style_count_ >= 3) {
-            xinfo2(TSF"JudgeDozeStyle: is Doze Style. dozeCount = %0 ", doze_style_count_);
-            current_net_heart_info_.is_stable_ = true;
-            __SaveINI();
-        }
+    if(std::abs(noop_start_tick_.gettickspan() - last_heart_) >= 20*1000) {
+        doze_mode_count_++;
+        normal_mode_count_ = std::max(normal_mode_count_-1, 0);
     } else {
-        doze_style_count_ = 0;
-		doze_style_maxheart_sucesss_count_ = 0;
-		doze_style_maxheart_fail_count_ = 0;
-		doze_style_heart_time_ = MinHeartInterval;
+        normal_mode_count_++;
+        doze_mode_count_ = std::max(doze_mode_count_-1, 0);
     }
+    noop_start_tick_ = tickcount_t(false);
 }
 
 
 bool SmartHeartbeat::__IsDozeStyle() {
-    return doze_style_count_ >= 3;
+    return doze_mode_count_ > (2*normal_mode_count_);
 }
 
-unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type) {  // bIsUseSmartBeat is add by andrewu for stat
+unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type) {  // 
     // xinfo_function();
 	_smartheart_beat_type = kNoSmartHeartBeat;
-    ScopedLock lock(_mutex_);
     
     if(ActiveLogic::Singleton::Instance()->IsActive()) {
         last_heart_ = MinHeartInterval;
         return MinHeartInterval;
     }
-
-	if (__IsDozeStyle() && pre_last_alarm_tick_ != 0) {
-		last_heart_ = doze_style_heart_time_;
-		int64_t cur_alarm_tick = gettickcount();
-		int64_t alarm_tick_span = last_alarm_tick_ - pre_last_alarm_tick_;
-		if (alarm_tick_span > 300000) alarm_tick_span = 300000;
-		int64_t next_alarm_tick = last_alarm_tick_ + alarm_tick_span;
-		int64_t next_alarm_tick_span = cur_alarm_tick + last_heart_ - next_alarm_tick;
-		
-		while (next_alarm_tick_span > alarm_tick_span) {
-			next_alarm_tick_span -= alarm_tick_span;
-			next_alarm_tick += alarm_tick_span;
-		}
-		last_heart_ = next_alarm_tick - 30000 - cur_alarm_tick;
-		if (alarm_tick_span - next_alarm_tick_span < 180000) {
-			last_heart_ += alarm_tick_span;
-		}
-		xinfo2(TSF"AlarmInfo: is_Doze curTime:%_, lastTick:%_, preTick:%_, last_heart_:%_", cur_alarm_tick, last_alarm_tick_, pre_last_alarm_tick_, last_heart_);
-		if (doze_style_heart_time_ == MinHeartInterval)_smartheart_beat_type = kDozeModeMinHeart;
-		else _smartheart_beat_type = kDozeModeHeart2;
-		return last_heart_;
-	}
 
     if (success_heart_count_ < NetStableTestCount || current_net_heart_info_.net_detail_.empty()) {
         //        xdebug2(TSF"getNextHeartbeatInterval use MinHeartInterval. success_heart_count_=%0",success_heart_count_);
@@ -312,20 +225,16 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smar
         return MinHeartInterval;
     }
 
-	_smartheart_beat_type = kSmartHeartBeat;
-
-    unsigned int heart = current_net_heart_info_.cur_heart_;
-
-    if (heart < MinHeartInterval || heart > MaxHeartInterval) {
-        xassert2(false, "shouldn't be here,  smaller than min heart:%d", heart);
-        current_net_heart_info_.cur_heart_ = MinHeartInterval;
-        current_net_heart_info_.success_curr_heart_count_ = 0;
-
-        current_net_heart_info_.is_stable_ = false;
-        __SaveINI();
-    }
-
     last_heart_ = current_net_heart_info_.cur_heart_;
+    xassert2((last_heart_ < MaxHeartInterval && last_heart_ >= MinHeartInterval), "heart value invalid");
+
+    if(__IsDozeStyle() && current_net_heart_info_.heart_type_ != kDozeModeHeart && last_heart_ != (MaxHeartInterval - SuccessStep)) {
+        last_heart_ = MinHeartInterval;
+    }
+    if(last_heart_ >= MaxHeartInterval || last_heart_ < MinHeartInterval) {
+        last_heart_ = MinHeartInterval;
+    }
+    _smartheart_beat_type = current_net_heart_info_.heart_type_;
     return last_heart_;
 }
 
@@ -346,12 +255,12 @@ void SmartHeartbeat::__LoadINI() {
     current_net_heart_info_.net_type_ = net_type;
 
     if (ini_.Select(net_info)) {
-        
         current_net_heart_info_.last_modify_time_ = ini_.Get(kKeyModifyTime, current_net_heart_info_.last_modify_time_);
         current_net_heart_info_.cur_heart_ = ini_.Get(kKeyCurHeart, current_net_heart_info_.cur_heart_);
         current_net_heart_info_.fail_heart_count_ = ini_.Get(kKeyFailHeartCount, current_net_heart_info_.fail_heart_count_);
         current_net_heart_info_.is_stable_ = ini_.Get(kKeyStable, current_net_heart_info_.is_stable_);
         current_net_heart_info_.net_type_ = ini_.Get(kKeyNetType, current_net_heart_info_.net_type_);
+        current_net_heart_info_.heart_type_ = (TSmartHeartBeatType)ini_.Get(kKeyHeartType, 0);
         
         xassert2(net_type == current_net_heart_info_.net_type_, "cur:%d, INI:%d", net_type, current_net_heart_info_.net_type_);
         
@@ -434,16 +343,18 @@ void SmartHeartbeat::__SaveINI() {
     ini_.Set(kKeyFailHeartCount, current_net_heart_info_.fail_heart_count_);
     ini_.Set(kKeyStable, current_net_heart_info_.is_stable_);
     ini_.Set(kKeyNetType, current_net_heart_info_.net_type_);
+    ini_.Set(kKeyHeartType, current_net_heart_info_.heart_type_);
     ini_.Save();
 }
 
 void SmartHeartbeat::__DumpHeartInfo() {
-    xinfo2(TSF"SmartHeartbeat Info last_heart_:%0,successHeartCount:%1, currSuccCount:%2", last_heart_, success_heart_count_, current_net_heart_info_.success_curr_heart_count_);
+    xinfo2(TSF"SmartHeartbeat Info last_heart_:%0,successHeartCount:%1, currSuccCount:%2", last_heart_, success_heart_count_, current_net_heart_info_.succ_heart_count_);
 
     if (!current_net_heart_info_.net_detail_.empty()) {
-        xinfo2(TSF"currentNetHeartInfo detail:%0,curHeart:%1,isStable:%2,failcount:%3,modifyTime:%4",
+        xinfo2(TSF"currentNetHeartInfo detail:%0,curHeart:%1,isStable:%2,failcount:%3,modifyTime:%4,type:%5",
                current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_, current_net_heart_info_.is_stable_,
-               current_net_heart_info_.fail_heart_count_, current_net_heart_info_.last_modify_time_);
+               current_net_heart_info_.fail_heart_count_, current_net_heart_info_.last_modify_time_
+               ,(int)current_net_heart_info_.heart_type_);
     }
 }
 
@@ -460,8 +371,7 @@ void NetHeartbeatInfo::Clear() {
     net_type_ = kNoNet;
     last_modify_time_ = 0;
     cur_heart_ = MinHeartInterval;
-    fail_heart_count_ = 0;
+    succ_heart_count_ = fail_heart_count_ = 0;
+    heart_type_ = kNoSmartHeartBeat;
     is_stable_ = false;
-    
-    success_curr_heart_count_ = 0;
 }

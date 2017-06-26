@@ -23,8 +23,8 @@
 
 #include <string>
 
-#include "mars/comm/thread/mutex.h"
 #include "mars/comm/singleton.h"
+#include "mars/comm/tickcount.h"
 #include "mars/stn/config.h"
 
 #include "special_ini.h"
@@ -36,8 +36,7 @@ enum HeartbeatReportType {
 enum TSmartHeartBeatType {
 	kNoSmartHeartBeat = 0,
 	kSmartHeartBeat,
-	kDozeModeMinHeart,
-	kDozeModeHeart2,
+	kDozeModeHeart,
 };
 
 class SmartHeartbeat;
@@ -56,11 +55,12 @@ class NetHeartbeatInfo {
     int net_type_;
 
     unsigned int cur_heart_;
+    TSmartHeartBeatType heart_type_;
     bool is_stable_;
-    unsigned int fail_heart_count_;  // accumulated failed counts on curHeart
     time_t last_modify_time_;
 
-    unsigned int success_curr_heart_count_;
+    unsigned int fail_heart_count_;  // accumulated failed counts on curHeart
+    unsigned int succ_heart_count_;
 
     friend class SmartHeartbeat;
 };
@@ -91,22 +91,15 @@ class SmartHeartbeat {
   private:
     bool is_wait_heart_response_;
     
-
     unsigned int success_heart_count_;  // the total success heartbeat based on single alive TCP, And heartbeat interval can be different.
     unsigned int last_heart_;
     NetHeartbeatInfo current_net_heart_info_;
 
-    Mutex _mutex_;
-
     SpecialINI ini_;
-
-	uint64_t pre_last_alarm_tick_;
-	uint64_t last_alarm_tick_;
-
-	unsigned int doze_style_count_;
-	unsigned int doze_style_heart_time_;
-	unsigned int doze_style_maxheart_fail_count_;
-	unsigned int doze_style_maxheart_sucesss_count_;
+    
+    int doze_mode_count_;
+    int normal_mode_count_;
+    tickcount_t noop_start_tick_;
 };
 
 #endif // STN_SRC_SMART_HEARTBEAT_H_

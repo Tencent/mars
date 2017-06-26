@@ -40,13 +40,13 @@
 
 #include "mars/stn/src/net_source.h"
 #include "mars/stn/src/longlink_identify_checker.h"
+#include "mars/stn/src/smart_heartbeat.h"
 
 class AutoBuffer;
 class XLogger;
 class WakeUpLock;
 
 class SmartHeartbeat;
-typedef enum TSmartHeartBeatType;
 
 namespace mars {
     namespace comm {

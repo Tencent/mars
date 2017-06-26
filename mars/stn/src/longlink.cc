@@ -348,7 +348,6 @@ void LongLink::__UpdateProfile(const ConnectProfile& _conn_profile) {
 
 void LongLink::__OnAlarm() {
     readwritebreak_.Break();
-    __NotifySmartHeartbeatJudgeDozeStyle();
 #ifdef ANDROID
     wakelock_->Lock(3 * 1000);
 #endif
@@ -624,6 +623,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
         
         if (nooping && alarmnooptimeout.Status() == Alarm::kOnAlarm) {
             xerror2(TSF"task socket close sock:%0, noop timeout, nread:%_, nwrite:%_", _sock, socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
+            __NotifySmartHeartbeatJudgeDozeStyle();
             _errtype = kEctSocket;
             _errcode = kEctSocketRecvErr;
             goto End;
