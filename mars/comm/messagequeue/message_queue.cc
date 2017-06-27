@@ -688,7 +688,7 @@ static void __ANRCheckCallback(bool _iOS_style, const mars::comm::check_content&
         }
     }, MessageQueue::DefAsyncInvokeHandler(mq_id));
 }
-    
+#ifndef _WIN32    
 static void __RgisterANRCheckCallback() {
     GetSignalCheckHit().connect(5, boost::bind(&__ANRCheckCallback, _1, _2));
 }
@@ -698,7 +698,7 @@ static void __UnregisterANRCheckCallback() {
     
 BOOT_RUN_STARTUP(__RgisterANRCheckCallback);
 BOOT_RUN_EXIT(__UnregisterANRCheckCallback);
-
+#endif
 void RunLoop::Run() {
     MessageQueue_t id = CurrentThreadMessageQueue();
     ASSERT(0 != id);
