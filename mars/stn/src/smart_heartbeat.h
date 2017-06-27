@@ -57,7 +57,7 @@ class NetHeartbeatInfo {
 //    NetHeartbeatInfo(const NetHeartbeatInfo&);
 //    NetHeartbeatInfo& operator=(const NetHeartbeatInfo&);
     
-  private:
+  public:
     std::string net_detail_;
     int net_type_;
 
