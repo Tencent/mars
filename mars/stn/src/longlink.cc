@@ -566,12 +566,10 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             
             first_noop_sent = true;
 
-			TSmartHeartBeatType smartheart_beat_type = kNoSmartHeartBeat;
-            uint64_t noop_interval = __GetNextHeartbeatInterval(smartheart_beat_type);
+            uint64_t noop_interval = __GetNextHeartbeatInterval();
             xinfo2(TSF" last:(%_,%_), next:%_", last_noop_interval, last_noop_actual_interval, noop_interval) >> noop_xlog;
             alarmnoopinterval.Cancel();
             alarmnoopinterval.Start((int)noop_interval);
-			__ReportSmartHeartNoop(noop_interval, smartheart_beat_type);
         }
         
         if (nooping && (alarmnooptimeout.Status() == Alarm::kInit || alarmnooptimeout.Status() == Alarm::kCancel)) {
@@ -669,12 +667,9 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             
             if (0 > writelen) writelen = 0;
             
-			TSmartHeartBeatType smartheart_beat_type = kNoSmartHeartBeat;
-            unsigned long long noop_interval = __GetNextHeartbeatInterval(smartheart_beat_type);
+            unsigned long long noop_interval = __GetNextHeartbeatInterval();
             alarmnoopinterval.Cancel();
             alarmnoopinterval.Start((int)noop_interval);
-			__ReportSmartHeartNoop(noop_interval, smartheart_beat_type);
-            
             
             xinfo2(TSF"all send:%_, count:%_, ", writelen, lstsenddata_.size()) >> xlog_group;
             
@@ -873,7 +868,6 @@ void LongLink::__NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_tim
 		noop_profile.noop_cost = ::gettickcount() - noop_profile.noop_starttime;
         noop_profile.success = _succes;
 	}
-	__ReportSmartHeartNoopStatus(_succes, _fail_of_timeout);
 	if (smartheartbeat_) smartheartbeat_->OnHeartResult(_succes, _fail_of_timeout);
 }
 
@@ -908,21 +902,13 @@ void LongLink::__NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status) {
     }
 }
 
-unsigned int LongLink::__GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type) {
-    _smartheart_beat_type = kNoSmartHeartBeat;
+unsigned int LongLink::__GetNextHeartbeatInterval() {
     if (longlink_noop_interval() > 0) {
         return longlink_noop_interval();
     }
     
     if (!smartheartbeat_) return MinHeartInterval;
     
-    return smartheartbeat_->GetNextHeartbeatInterval(_smartheart_beat_type);
+    return smartheartbeat_->GetNextHeartbeatInterval();
 }
 
-
-void LongLink::__ReportSmartHeartNoop(unsigned int _interval, TSmartHeartBeatType _smartheart_beat_type) {
-
-}
-
-void LongLink::__ReportSmartHeartNoopStatus(bool _success, bool _fail_of_timeout) {
-}

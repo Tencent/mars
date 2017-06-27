@@ -40,7 +40,6 @@
 
 #include "mars/stn/src/net_source.h"
 #include "mars/stn/src/longlink_identify_checker.h"
-#include "mars/stn/src/smart_heartbeat.h"
 
 class AutoBuffer;
 class XLogger;
@@ -149,11 +148,9 @@ class LongLink {
     virtual void     __Run();
     virtual SOCKET   __RunConnect(ConnectProfile& _conn_profile);
     virtual void     __RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile);
-	virtual void       __ReportSmartHeartNoop(unsigned int _interval, TSmartHeartBeatType _smartheart_beat_type);
-	virtual void       __ReportSmartHeartNoopStatus(bool _success, bool _fail_of_timeout);
   protected:
     
-    uint32_t   __GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type);
+    uint32_t   __GetNextHeartbeatInterval();
     void       __NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status);
     void       __NotifySmartHeartbeatHeartReq(ConnectProfile& _profile, uint64_t _internal, uint64_t _actual_internal);
     void       __NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_timeout, ConnectProfile& _profile);

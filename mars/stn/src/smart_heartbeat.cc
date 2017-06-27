@@ -194,6 +194,7 @@ void SmartHeartbeat::JudgeDozeStyle() {
     
     if(ActiveLogic::Singleton::Instance()->IsActive())  return;
     if(!noop_start_tick_.isValid()) return;
+    if(kMobile != ::getNetInfo())   return;
     
     if(std::abs(noop_start_tick_.gettickspan() - last_heart_) >= 20*1000) {
         doze_mode_count_++;
@@ -207,12 +208,11 @@ void SmartHeartbeat::JudgeDozeStyle() {
 
 
 bool SmartHeartbeat::__IsDozeStyle() {
-    return doze_mode_count_ > (2*normal_mode_count_);
+    return ((doze_mode_count_ > (2*normal_mode_count_)) && kMobile == ::getNetInfo());
 }
 
-unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type) {  // 
+unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //
     // xinfo_function();
-	_smartheart_beat_type = kNoSmartHeartBeat;
     
     if(ActiveLogic::Singleton::Instance()->IsActive()) {
         last_heart_ = MinHeartInterval;
@@ -234,7 +234,6 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval(TSmartHeartBeatType& _smar
     if(last_heart_ >= MaxHeartInterval || last_heart_ < MinHeartInterval) {
         last_heart_ = MinHeartInterval;
     }
-    _smartheart_beat_type = current_net_heart_info_.heart_type_;
     return last_heart_;
 }
 

@@ -74,7 +74,7 @@ class SmartHeartbeat {
     void OnLongLinkEstablished();
     void OnLongLinkDisconnect();
     void OnHeartResult(bool _sucess, bool _fail_of_timeout);
-    unsigned int GetNextHeartbeatInterval(TSmartHeartBeatType& _smartheart_beat_type);   // bIsUseSmartBeat is add by andrewu for stat
+    unsigned int GetNextHeartbeatInterval();   // bIsUseSmartBeat is add by andrewu for stat
 
     // MIUI align alarm response at Times of five minutes, We should  handle this case specailly.
     void JudgeDozeStyle();
