@@ -61,6 +61,7 @@ class NetHeartbeatInfo {
 
     unsigned int fail_heart_count_;  // accumulated failed counts on curHeart
     unsigned int succ_heart_count_;
+    unsigned int min_heart_fail_count_;
 
     friend class SmartHeartbeat;
 };

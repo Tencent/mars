@@ -51,6 +51,7 @@ static const char* const kKeyFailHeartCount  = "failHeartCount";
 static const char* const kKeyStable          = "stable";
 static const char* const kKeyNetType         = "netType";
 static const char* const kKeyHeartType       = "hearttype";
+static const char* const kKeyMinHeartFail    = "minheartfail";
 
 SmartHeartbeat::SmartHeartbeat(): is_wait_heart_response_(false), success_heart_count_(0), last_heart_(MinHeartInterval),
     ini_(mars::app::GetAppFilePath() + "/" + kFileName, false)
@@ -260,6 +261,7 @@ void SmartHeartbeat::__LoadINI() {
         current_net_heart_info_.is_stable_ = ini_.Get(kKeyStable, current_net_heart_info_.is_stable_);
         current_net_heart_info_.net_type_ = ini_.Get(kKeyNetType, current_net_heart_info_.net_type_);
         current_net_heart_info_.heart_type_ = (TSmartHeartBeatType)ini_.Get(kKeyHeartType, 0);
+        current_net_heart_info_.min_heart_fail_count_ = ini_.Get(kKeyMinHeartFail, 0);
         
         xassert2(net_type == current_net_heart_info_.net_type_, "cur:%d, INI:%d", net_type, current_net_heart_info_.net_type_);
         
@@ -343,6 +345,7 @@ void SmartHeartbeat::__SaveINI() {
     ini_.Set(kKeyStable, current_net_heart_info_.is_stable_);
     ini_.Set(kKeyNetType, current_net_heart_info_.net_type_);
     ini_.Set(kKeyHeartType, current_net_heart_info_.heart_type_);
+    ini_.Set(kKeyMinHeartFail, current_net_heart_info_.min_heart_fail_count_);
     ini_.Save();
 }
 
@@ -350,10 +353,10 @@ void SmartHeartbeat::__DumpHeartInfo() {
     xinfo2(TSF"SmartHeartbeat Info last_heart_:%0,successHeartCount:%1, currSuccCount:%2", last_heart_, success_heart_count_, current_net_heart_info_.succ_heart_count_);
 
     if (!current_net_heart_info_.net_detail_.empty()) {
-        xinfo2(TSF"currentNetHeartInfo detail:%0,curHeart:%1,isStable:%2,failcount:%3,modifyTime:%4,type:%5",
+        xinfo2(TSF"currentNetHeartInfo detail:%0,curHeart:%1,isStable:%2,failcount:%3,modifyTime:%4,type:%5,min_fail:%6",
                current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_, current_net_heart_info_.is_stable_,
                current_net_heart_info_.fail_heart_count_, current_net_heart_info_.last_modify_time_
-               ,(int)current_net_heart_info_.heart_type_);
+               ,(int)current_net_heart_info_.heart_type_, current_net_heart_info_.min_heart_fail_count_);
     }
 }
 
@@ -370,7 +373,7 @@ void NetHeartbeatInfo::Clear() {
     net_type_ = kNoNet;
     last_modify_time_ = 0;
     cur_heart_ = MinHeartInterval;
-    succ_heart_count_ = fail_heart_count_ = 0;
+    succ_heart_count_ = fail_heart_count_ = min_heart_fail_count_ = 0;
     heart_type_ = kNoSmartHeartBeat;
     is_stable_ = false;
 }
