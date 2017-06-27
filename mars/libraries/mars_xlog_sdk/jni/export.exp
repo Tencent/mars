@@ -1,9 +1,0 @@
-{
-global:
-	Java_*;
- 	JNI_OnLoad; 
- 	
-local:
-  *;
-
-};

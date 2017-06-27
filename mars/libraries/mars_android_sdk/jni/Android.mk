@@ -66,7 +66,7 @@ include $(LOCAL_PATH)/../../../mk_template/flags.mk
 
 LOCAL_MODULE := marsxlog
 
-LOCAL_SRC_FILES := JNI_OnLoad.cc log_crypt.cc import.cc
+LOCAL_SRC_FILES := JNI_OnLoad.cc import.cc
 LOCAL_STATIC_LIBRARIES += static_xlog comm
 
 LOCAL_LDLIBS += -llog -lz
@@ -82,6 +82,7 @@ include $(LOCAL_PATH)/define_macros.mk
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
+
 
 include $(LOCAL_PATH)/../../../mk_template/flags.mk
 

@@ -79,11 +79,11 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 NetSource::NetSource(ActiveLogic& _active_logic)
 	: active_logic_(_active_logic)
 {
-    xdebug_function();
+    xinfo_function();
 }
 
 NetSource::~NetSource() {
-    xdebug_function();
+    xinfo_function();
 }
 
 /**

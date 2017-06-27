@@ -10,6 +10,15 @@
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
 		4B243A5A1CC101B4006A490F /* appender.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B243A581CC101B4006A490F /* appender.cc */; };
 		4B243A5B1CC101B4006A490F /* formater.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B243A591CC101B4006A490F /* formater.cc */; };
+		4B5CA0DB1E6D497D00EBC1A6 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B5CA0D91E6D497D00EBC1A6 /* log_crypt.cc */; };
+		4B97EE421EEE6D3A00C9109A /* asm_arm.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE221EEE6D3A00C9109A /* asm_arm.inc */; };
+		4B97EE431EEE6D3A00C9109A /* asm_arm_mult_square.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE231EEE6D3A00C9109A /* asm_arm_mult_square.inc */; };
+		4B97EE441EEE6D3A00C9109A /* asm_arm_mult_square_umaal.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE241EEE6D3A00C9109A /* asm_arm_mult_square_umaal.inc */; };
+		4B97EE451EEE6D3A00C9109A /* asm_avr.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE251EEE6D3A00C9109A /* asm_avr.inc */; };
+		4B97EE461EEE6D3A00C9109A /* asm_avr_mult_square.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE261EEE6D3A00C9109A /* asm_avr_mult_square.inc */; };
+		4B97EE471EEE6D3A00C9109A /* curve-specific.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE271EEE6D3A00C9109A /* curve-specific.inc */; };
+		4B97EE481EEE6D3A00C9109A /* platform-specific.inc in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE2F1EEE6D3A00C9109A /* platform-specific.inc */; };
+		4B97EE4E1EEE6D3A00C9109A /* uECC.c in Sources */ = {isa = PBXBuildFile; fileRef = 4B97EE3F1EEE6D3A00C9109A /* uECC.c */; };
 		4BAD09871D34CE8A006BC5B0 /* log_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BAD09851D34CE8A006BC5B0 /* log_buffer.cc */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +40,19 @@
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4B243A581CC101B4006A490F /* appender.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = appender.cc; sourceTree = "<group>"; };
 		4B243A591CC101B4006A490F /* formater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formater.cc; sourceTree = "<group>"; };
+		4B5CA0D91E6D497D00EBC1A6 /* log_crypt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt.cc; sourceTree = "<group>"; };
+		4B5CA0DA1E6D497D00EBC1A6 /* log_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
+		4B97EE221EEE6D3A00C9109A /* asm_arm.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = asm_arm.inc; sourceTree = "<group>"; };
+		4B97EE231EEE6D3A00C9109A /* asm_arm_mult_square.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = asm_arm_mult_square.inc; sourceTree = "<group>"; };
+		4B97EE241EEE6D3A00C9109A /* asm_arm_mult_square_umaal.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = asm_arm_mult_square_umaal.inc; sourceTree = "<group>"; };
+		4B97EE251EEE6D3A00C9109A /* asm_avr.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = asm_avr.inc; sourceTree = "<group>"; };
+		4B97EE261EEE6D3A00C9109A /* asm_avr_mult_square.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = asm_avr_mult_square.inc; sourceTree = "<group>"; };
+		4B97EE271EEE6D3A00C9109A /* curve-specific.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = "curve-specific.inc"; sourceTree = "<group>"; };
+		4B97EE2F1EEE6D3A00C9109A /* platform-specific.inc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.pascal; path = "platform-specific.inc"; sourceTree = "<group>"; };
+		4B97EE3E1EEE6D3A00C9109A /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		4B97EE3F1EEE6D3A00C9109A /* uECC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uECC.c; sourceTree = "<group>"; };
+		4B97EE401EEE6D3A00C9109A /* uECC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uECC.h; sourceTree = "<group>"; };
+		4B97EE411EEE6D3A00C9109A /* uECC_vli.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uECC_vli.h; sourceTree = "<group>"; };
 		4BAD09851D34CE8A006BC5B0 /* log_buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_buffer.cc; sourceTree = "<group>"; };
 		4BAD09861D34CE8A006BC5B0 /* log_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_buffer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,6 +83,7 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				4B5CA0D71E6D497D00EBC1A6 /* crypt */,
 				1F25B31E1CD337E700AC1003 /* appender.h */,
 				13811790197552A70007B832 /* src */,
 				3170A029177887B0004F5DDA /* Frameworks */,
@@ -82,6 +105,34 @@
 				3170A02A177887B0004F5DDA /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4B5CA0D71E6D497D00EBC1A6 /* crypt */ = {
+			isa = PBXGroup;
+			children = (
+				4B97EE1E1EEE6D3A00C9109A /* micro-ecc-master */,
+				4B5CA0D91E6D497D00EBC1A6 /* log_crypt.cc */,
+				4B5CA0DA1E6D497D00EBC1A6 /* log_crypt.h */,
+			);
+			path = crypt;
+			sourceTree = "<group>";
+		};
+		4B97EE1E1EEE6D3A00C9109A /* micro-ecc-master */ = {
+			isa = PBXGroup;
+			children = (
+				4B97EE221EEE6D3A00C9109A /* asm_arm.inc */,
+				4B97EE231EEE6D3A00C9109A /* asm_arm_mult_square.inc */,
+				4B97EE241EEE6D3A00C9109A /* asm_arm_mult_square_umaal.inc */,
+				4B97EE251EEE6D3A00C9109A /* asm_avr.inc */,
+				4B97EE261EEE6D3A00C9109A /* asm_avr_mult_square.inc */,
+				4B97EE271EEE6D3A00C9109A /* curve-specific.inc */,
+				4B97EE2F1EEE6D3A00C9109A /* platform-specific.inc */,
+				4B97EE3E1EEE6D3A00C9109A /* types.h */,
+				4B97EE3F1EEE6D3A00C9109A /* uECC.c */,
+				4B97EE401EEE6D3A00C9109A /* uECC.h */,
+				4B97EE411EEE6D3A00C9109A /* uECC_vli.h */,
+			);
+			path = "micro-ecc-master";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -135,9 +186,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B97EE431EEE6D3A00C9109A /* asm_arm_mult_square.inc in Sources */,
+				4B97EE481EEE6D3A00C9109A /* platform-specific.inc in Sources */,
 				4BAD09871D34CE8A006BC5B0 /* log_buffer.cc in Sources */,
 				4B243A5A1CC101B4006A490F /* appender.cc in Sources */,
+				4B97EE4E1EEE6D3A00C9109A /* uECC.c in Sources */,
+				4B97EE421EEE6D3A00C9109A /* asm_arm.inc in Sources */,
+				4B97EE471EEE6D3A00C9109A /* curve-specific.inc in Sources */,
+				4B97EE461EEE6D3A00C9109A /* asm_avr_mult_square.inc in Sources */,
+				4B97EE441EEE6D3A00C9109A /* asm_arm_mult_square_umaal.inc in Sources */,
+				4B97EE451EEE6D3A00C9109A /* asm_avr.inc in Sources */,
 				4B243A5B1CC101B4006A490F /* formater.cc in Sources */,
+				4B5CA0DB1E6D497D00EBC1A6 /* log_crypt.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +287,7 @@
 					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../../,
 					$SOURCE_ROOT/../comm,
+					$SOURCE_ROOT/../openssl/include,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;
@@ -274,6 +335,7 @@
 					$SOURCE_ROOT/../,
 					$SOURCE_ROOT/../../,
 					$SOURCE_ROOT/../comm,
+					$SOURCE_ROOT/../openssl/include,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MACH_O_TYPE = staticlib;

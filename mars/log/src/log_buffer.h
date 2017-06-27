@@ -31,18 +31,17 @@ class LogCrypt;
 
 class LogBuffer {
 public:
-    LogBuffer(void* _pbuffer, size_t _len, bool _is_compress);
+    LogBuffer(void* _pbuffer, size_t _len, bool _is_compress, const char* _pubkey);
     ~LogBuffer();
     
 public:
     static bool GetPeriodLogs(const char* _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg);
-    static bool Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff);
 
 public:
     PtrBuffer& GetData();
     
-
     void Flush(AutoBuffer& _buff);
+    bool Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff);
     bool Write(const void* _data, size_t _length);
 
 private:
@@ -58,7 +57,8 @@ private:
     bool is_compress_;
     z_stream cstream_;
     
-    static class LogCrypt* s_log_crypt;
+    class LogCrypt* log_crypt_;
+    size_t remain_nocrypt_len_;
 
 };
 
