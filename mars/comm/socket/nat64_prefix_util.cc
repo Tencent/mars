@@ -267,11 +267,12 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 
     	}
     } else {
-    	xerror2(TSF"getaddrinfo error = %_", error);
+    	xerror2(TSF"getaddrinfo error = %_, res0:@%_", error, res0);
     	ret = false;
     }
 
-    freeaddrinfo(res0);
+    if (NULL != res0)
+        freeaddrinfo(res0);
     return ret;
 
 }
