@@ -10,6 +10,15 @@
 		4BB7125D1DE818D000185734 /* log_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB7125B1DE818D000185734 /* log_buffer.cc */; };
 		55D91ACC1CC7BDDB0076CBD9 /* appender.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91AC41CC7BDDB0076CBD9 /* appender.cc */; };
 		55D91ACD1CC7BDDB0076CBD9 /* formater.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D91AC51CC7BDDB0076CBD9 /* formater.cc */; };
+		9A721EED1EFD2B7000189718 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EDD1EFD2B4400189718 /* log_crypt.cc */; };
+		9A721EEE1EFD2B7000189718 /* asm_arm.inc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EE01EFD2B4400189718 /* asm_arm.inc */; };
+		9A721EEF1EFD2B7000189718 /* asm_arm_mult_square.inc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EE11EFD2B4400189718 /* asm_arm_mult_square.inc */; };
+		9A721EF01EFD2B7000189718 /* asm_arm_mult_square_umaal.inc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EE21EFD2B4400189718 /* asm_arm_mult_square_umaal.inc */; };
+		9A721EF11EFD2B7000189718 /* asm_avr.inc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EE31EFD2B4400189718 /* asm_avr.inc */; };
+		9A721EF21EFD2B7000189718 /* asm_avr_mult_square.inc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EE41EFD2B4400189718 /* asm_avr_mult_square.inc */; };
+		9A721EF31EFD2B7000189718 /* curve-specific.inc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EE51EFD2B4400189718 /* curve-specific.inc */; };
+		9A721EF41EFD2B7000189718 /* platform-specific.inc in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EE71EFD2B4400189718 /* platform-specific.inc */; };
+		9A721EF51EFD2B7000189718 /* uECC.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A721EEA1EFD2B4400189718 /* uECC.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +40,19 @@
 		55D91AC41CC7BDDB0076CBD9 /* appender.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = appender.cc; sourceTree = "<group>"; };
 		55D91AC51CC7BDDB0076CBD9 /* formater.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formater.cc; sourceTree = "<group>"; };
 		55D9C0821CC7B1C90076CBD9 /* liblog.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblog.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A721EDD1EFD2B4400189718 /* log_crypt.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt.cc; sourceTree = "<group>"; };
+		9A721EDE1EFD2B4400189718 /* log_crypt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
+		9A721EE01EFD2B4400189718 /* asm_arm.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = asm_arm.inc; sourceTree = "<group>"; };
+		9A721EE11EFD2B4400189718 /* asm_arm_mult_square.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = asm_arm_mult_square.inc; sourceTree = "<group>"; };
+		9A721EE21EFD2B4400189718 /* asm_arm_mult_square_umaal.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = asm_arm_mult_square_umaal.inc; sourceTree = "<group>"; };
+		9A721EE31EFD2B4400189718 /* asm_avr.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = asm_avr.inc; sourceTree = "<group>"; };
+		9A721EE41EFD2B4400189718 /* asm_avr_mult_square.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = asm_avr_mult_square.inc; sourceTree = "<group>"; };
+		9A721EE51EFD2B4400189718 /* curve-specific.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = "curve-specific.inc"; sourceTree = "<group>"; };
+		9A721EE71EFD2B4400189718 /* platform-specific.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; path = "platform-specific.inc"; sourceTree = "<group>"; };
+		9A721EE91EFD2B4400189718 /* types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		9A721EEA1EFD2B4400189718 /* uECC.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = uECC.c; sourceTree = "<group>"; };
+		9A721EEB1EFD2B4400189718 /* uECC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = uECC.h; sourceTree = "<group>"; };
+		9A721EEC1EFD2B4400189718 /* uECC_vli.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = uECC_vli.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				1F25BEF11CD3640000AC1003 /* appender.h */,
+				9A721ED91EFD2B4400189718 /* crypt */,
 				55D91AC31CC7BDDB0076CBD9 /* src */,
 				55D9C0821CC7B1C90076CBD9 /* liblog.a */,
 			);
@@ -62,6 +85,34 @@
 				55D91AC51CC7BDDB0076CBD9 /* formater.cc */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		9A721ED91EFD2B4400189718 /* crypt */ = {
+			isa = PBXGroup;
+			children = (
+				9A721EDD1EFD2B4400189718 /* log_crypt.cc */,
+				9A721EDE1EFD2B4400189718 /* log_crypt.h */,
+				9A721EDF1EFD2B4400189718 /* micro-ecc-master */,
+			);
+			path = crypt;
+			sourceTree = "<group>";
+		};
+		9A721EDF1EFD2B4400189718 /* micro-ecc-master */ = {
+			isa = PBXGroup;
+			children = (
+				9A721EE01EFD2B4400189718 /* asm_arm.inc */,
+				9A721EE11EFD2B4400189718 /* asm_arm_mult_square.inc */,
+				9A721EE21EFD2B4400189718 /* asm_arm_mult_square_umaal.inc */,
+				9A721EE31EFD2B4400189718 /* asm_avr.inc */,
+				9A721EE41EFD2B4400189718 /* asm_avr_mult_square.inc */,
+				9A721EE51EFD2B4400189718 /* curve-specific.inc */,
+				9A721EE71EFD2B4400189718 /* platform-specific.inc */,
+				9A721EE91EFD2B4400189718 /* types.h */,
+				9A721EEA1EFD2B4400189718 /* uECC.c */,
+				9A721EEB1EFD2B4400189718 /* uECC.h */,
+				9A721EEC1EFD2B4400189718 /* uECC_vli.h */,
+			);
+			path = "micro-ecc-master";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -115,6 +166,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A721EED1EFD2B7000189718 /* log_crypt.cc in Sources */,
+				9A721EEE1EFD2B7000189718 /* asm_arm.inc in Sources */,
+				9A721EEF1EFD2B7000189718 /* asm_arm_mult_square.inc in Sources */,
+				9A721EF01EFD2B7000189718 /* asm_arm_mult_square_umaal.inc in Sources */,
+				9A721EF11EFD2B7000189718 /* asm_avr.inc in Sources */,
+				9A721EF21EFD2B7000189718 /* asm_avr_mult_square.inc in Sources */,
+				9A721EF31EFD2B7000189718 /* curve-specific.inc in Sources */,
+				9A721EF41EFD2B7000189718 /* platform-specific.inc in Sources */,
+				9A721EF51EFD2B7000189718 /* uECC.c in Sources */,
 				55D91ACC1CC7BDDB0076CBD9 /* appender.cc in Sources */,
 				55D91ACD1CC7BDDB0076CBD9 /* formater.cc in Sources */,
 				4BB7125D1DE818D000185734 /* log_buffer.cc in Sources */,
