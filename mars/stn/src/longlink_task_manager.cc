@@ -207,6 +207,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
 
     uint64_t cur_time = ::gettickcount();
     int socket_timeout_code = 0;
+    uint32_t src_taskid = Task::kInvalidTaskID;
     bool istasktimeout = false;
 
     while (first != last) {
@@ -218,6 +219,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
                 xerror2(TSF"task first-pkg timeout taskid:%_,  nStartSendTime=%_, nfirstpkgtimeout=%_",
                         first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.first_pkg_timeout / 1000);
                 socket_timeout_code = kEctLongFirstPkgTimeout;
+                src_taskid = first->task.taskid;
                 __SetLastFailedStatus(first);
             }
 
@@ -225,12 +227,14 @@ void LongLinkTaskManager::__RunOnTimeout() {
                 xerror2(TSF"task pkg-pkg timeout, taskid:%_, nLastRecvTime=%_, pkg-pkg timeout=%_",
                         first->task.taskid, first->transfer_profile.last_receive_pkg_time / 1000, ((kMobile != getNetInfo()) ? kWifiPackageInterval : kGPRSPackageInterval) / 1000);
                 socket_timeout_code = kEctLongPkgPkgTimeout;
+                src_taskid = first->task.taskid;
             }
             
             if (cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.read_write_timeout) {
                 xerror2(TSF"task read-write timeout, taskid:%_, , nStartSendTime=%_, nReadWriteTimeOut=%_",
                         first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.read_write_timeout / 1000);
                 socket_timeout_code = kEctLongReadWriteTimeout;
+                src_taskid = first->task.taskid;
             }
         }
 
@@ -244,11 +248,11 @@ void LongLinkTaskManager::__RunOnTimeout() {
 
     if (0 != socket_timeout_code) {
         dynamic_timeout_.CgiTaskStatistic("", kDynTimeTaskFailedPkgLen, 0);
-        __BatchErrorRespHandle(kEctNetMsgXP, socket_timeout_code, kTaskFailHandleDefault, Task::kInvalidTaskID, longlink_->Profile());
+        __BatchErrorRespHandle(kEctNetMsgXP, socket_timeout_code, kTaskFailHandleDefault, src_taskid, longlink_->Profile());
         xassert2(fun_notify_network_err_);
         fun_notify_network_err_(__LINE__, kEctNetMsgXP, socket_timeout_code, longlink_->Profile().ip,  longlink_->Profile().port);
     } else if (istasktimeout) {
-        __BatchErrorRespHandle(kEctNetMsgXP, kEctLongTaskTimeout, kTaskFailHandleDefault, Task::kInvalidTaskID, longlink_->Profile());
+        __BatchErrorRespHandle(kEctNetMsgXP, kEctLongTaskTimeout, kTaskFailHandleDefault, src_taskid, longlink_->Profile());
     }
 }
 
