@@ -347,7 +347,7 @@ bool  GetNetworkNat64Prefix(struct in6_addr& _nat64_prefix_in6) {
     	ret = false;
     }
 
-    if (NULL == res0)
+    if (NULL != res0)
         freeaddrinfo(res0);
     return ret;
 }
