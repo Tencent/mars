@@ -67,10 +67,8 @@ void DynamicTimeout::CgiTaskStatistic(std::string _cgi_uri, unsigned int _total_
 				task_status = kDynTimeTaskBigPkgMeetExpectTag;
 			}
         }
-        else if (_total_size > kDynTimeBigPackageLen) {
-			if (_cost_time <= bigger_pkg_costtime) {
-				task_status = kDynTimeTaskBiggerPkgMeetExpectTag;
-			}
+        else if (_cost_time <= bigger_pkg_costtime) {
+			task_status = kDynTimeTaskBiggerPkgMeetExpectTag;
         }
         /*else {
             task_status = DYNTIME_TASK_NORMAL_TAG;
