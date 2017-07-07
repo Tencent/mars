@@ -145,7 +145,7 @@ unsigned int LongLinkTaskManager::GetTasksContinuousFailCount() {
 }
 
 void LongLinkTaskManager::RedoTasks() {
-    xdebug_function();
+    xinfo_function();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();

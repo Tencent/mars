@@ -385,7 +385,7 @@ void NetCore::ClearTasks() {
 
 void NetCore::OnNetworkChange() {
     
-    ASYNC_BLOCK_START
+    SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
 
@@ -441,7 +441,6 @@ void NetCore::OnNetworkChange() {
     shortlink_try_flag_ = false;
     shortlink_error_count_ = 0;
     
-   ASYNC_BLOCK_END
 }
 
 void NetCore::KeepSignal() {
