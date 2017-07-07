@@ -18,6 +18,7 @@
 #include "assert/__assert.h"
 #include "thread/mutex.h"
 #include "thread/spinlock.h"
+#include "unistd.h"
 
 template <typename MutexType>
 class BaseScopedLock {

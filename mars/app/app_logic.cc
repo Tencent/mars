@@ -31,13 +31,16 @@
 
 #include "mars/app/app_logic.h"
 
+#ifdef __APPLE__
 #include <TargetConditionals.h>
+#endif
 
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/thread.h"
+#include "mars/comm/time_utils.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/baseevent/baseprjevent.h"
 
@@ -125,7 +128,7 @@ void SetCallback(Callback* const callback) {
         
 #if !TARGET_OS_IPHONE
         mars::comm::ProxyInfo proxy_info;
-        sg_callback->GetProxyInfo(_host, proxy_info)
+        sg_callback->GetProxyInfo(_host, proxy_info);
         return proxy_info;
 #endif
         

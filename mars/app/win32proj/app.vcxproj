@@ -60,7 +60,7 @@
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../../;$(ProjectDir)../../comm/windows/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../comm/;$(ProjectDir)../../;$(ProjectDir)../../../;$(ProjectDir)../../comm/windows/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -79,7 +79,7 @@
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../../;$(ProjectDir)../../comm/windows/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../comm/;$(ProjectDir)../../;$(ProjectDir)../../../;$(ProjectDir)../../comm/windows/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
