@@ -34,7 +34,7 @@ namespace app {
 	public:
 		virtual ~Callback() {};
         
-        virtual mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) { return mars::comm::ProxyInfo(); }
+        virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
 
         virtual std::string GetAppFilePath() = 0;
         
