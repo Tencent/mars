@@ -52,17 +52,23 @@ void DynamicTimeout::CgiTaskStatistic(std::string _cgi_uri, unsigned int _total_
         unsigned int big_pkg_costtime = kMobile != getNetInfo() ? kDynTimeBigPackageWifiCosttime : kDynTimeBigPackageGPRSCosttime;
         unsigned int bigger_pkg_costtime = kMobile != getNetInfo() ? kDynTimeBiggerPackageWifiCosttime : kDynTimeBiggerPackageGPRSCosttime;
         
-        if (_total_size < kDynTimeSmallPackageLen && _cost_time <= small_pkg_costtime) {
-            task_status = kDynTimeTaskMeetExpectTag;
+        if (_total_size < kDynTimeSmallPackageLen) {
+			if (_cost_time <= small_pkg_costtime) {
+				task_status = kDynTimeTaskMeetExpectTag;
+			}
         }
-        else if (_total_size <= kDynTimeMiddlePackageLen && _cost_time <= middle_pkg_costtime) {
-            task_status = kDynTimeTaskMidPkgMeetExpectTag;
+        else if (_total_size <= kDynTimeMiddlePackageLen) {
+			if (_cost_time <= middle_pkg_costtime) {
+				task_status = kDynTimeTaskMidPkgMeetExpectTag;
+			}
         }
-        else if (_total_size <= kDynTimeBigPackageLen && _cost_time <= big_pkg_costtime) {
-            task_status = kDynTimeTaskBigPkgMeetExpectTag;
+        else if (_total_size <= kDynTimeBigPackageLen ) {
+			if (_cost_time <= big_pkg_costtime) {
+				task_status = kDynTimeTaskBigPkgMeetExpectTag;
+			}
         }
-        else if (_total_size > kDynTimeBigPackageLen && _cost_time <= bigger_pkg_costtime) {
-            task_status = kDynTimeTaskBiggerPkgMeetExpectTag;
+        else if (_cost_time <= bigger_pkg_costtime) {
+			task_status = kDynTimeTaskBiggerPkgMeetExpectTag;
         }
         /*else {
             task_status = DYNTIME_TASK_NORMAL_TAG;
