@@ -189,6 +189,7 @@ def copy_files(src_path, dst_header_path, framework_path, ext_files, child_proje
             "comm/time_utils.h": "comm",
             "comm/strutil.h": "comm",
             "comm/string_cast.h": "comm",
+            "comm/comm_data.h": "comm",
             "stn/stn.h": "stn",
             "stn/stn_logic.h": "stn",
             "baseevent/base_logic.h": "baseevent",
