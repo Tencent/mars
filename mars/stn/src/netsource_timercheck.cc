@@ -79,7 +79,7 @@ NetSourceTimerCheck::~NetSourceTimerCheck() {
 
 void NetSourceTimerCheck::CancelConnect() {
 	RETURN_NETCORE_SYNC2ASYNC_FUNC(boost::bind(&NetSourceTimerCheck::CancelConnect, this));
-    xdebug_function();
+    xinfo_function();
 
     if (!thread_.isruning()) {
         return;

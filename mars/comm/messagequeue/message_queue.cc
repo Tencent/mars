@@ -659,6 +659,10 @@ static void __ReleaseMessageQueueInfo() {
 const static int kMQCallANRId = 110;
 const static long kWaitANRTimeout = 5 * 1000;
 static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageQueue_t _mq_id) {
+    if(MessageQueue2TID(_mq_id) == 0) {
+        xwarn2(TSF"messagequeue already destroy:%_", _mq_id);
+        return;
+    }
     
     __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
               _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
