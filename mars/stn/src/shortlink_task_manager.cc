@@ -433,7 +433,7 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 }
 
 void ShortLinkTaskManager::RedoTasks() {
-    xdebug_function();
+    xinfo_function();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();

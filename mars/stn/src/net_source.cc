@@ -456,7 +456,7 @@ void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const st
 }
 
 void NetSource::ClearCache() {
-    xverbose_function();
+    xinfo_function();
     ipportstrategy_.InitHistory2BannedList(true);
 }
 
