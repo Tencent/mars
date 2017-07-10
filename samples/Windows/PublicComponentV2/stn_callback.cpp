@@ -11,7 +11,7 @@
 // limitations under the License.
 
 /*
-*  stn_callback.cc
+*  stn_callback.cpp
 *
 *  Created on: 2017-7-7
 *      Author: chenzihao

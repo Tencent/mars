@@ -28,9 +28,9 @@ WIN_COPY_EXT_FILES = {"stn/proto/longlink_packer.h": "longlink_packer.h",
         "log/crypt/log_crypt.h": "log_crypt.h",
         "stn/proto/shortlink_packer.h": "shortlink_packer.h",
         "stn/proto/shortlink_packer.cc": "shortlink_packer.cc.rewriteme",
-        "comm/windows/projdef.h": "mars/comm/windows/projdef.h",
-        "comm/windows/sys/cdefs.h": "mars/comm/windows/sys/cdefs.h",
-        "comm/windows/sys/time.h": "mars/comm/windows/sys/time.h"
+        "comm/windows/projdef.h": "include/comm/windows/projdef.h",
+        "comm/windows/sys/cdefs.h": "include/comm/windows/sys/cdefs.h",
+        "comm/windows/sys/time.h": "include/comm/windows/sys/time.h"
         }
 
 html_css = '''
