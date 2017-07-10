@@ -29,7 +29,7 @@ Start with sample usage [here](https://github.com/Tencent/mars/wiki/Mars-sample-
 
 ## Getting started
 
-Choose [Android](#android) or [iOS/OS X](#apple).
+Choose [Android](#android) or [iOS/OS X](#apple) or [Windows](#windows).
 
 ### <a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
@@ -273,6 +273,88 @@ Network change:
 }
 ```
 
+### <a name="windows">[Windows](https://github.com/Tencent/mars/wiki/Mars-Windows-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
+Install Visual Studio 2015.
+
+Compile
+```python
+python build_for_win32.py
+```
+
+1. Add mars.lib as a dependency of your project.
+2. Rename files with .rewriteme extension to .cc extension.
+3. Add header files and source files into your project.
+
+#### <a name="Xlog">Xlog Init</a>
+
+Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files are acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
+
+```cpp
+std::string logPath = ""; //use your log path
+std::string pubKey = ""; //use you pubkey for log encrypt
+
+// init xlog
+#if DEBUG
+xlogger_SetLevel(kLevelDebug);
+appender_set_console_log(true);
+#else
+xlogger_SetLevel(kLevelInfo);
+appender_set_console_log(false);
+#endif
+appender_open(kAppednerAsync, logPath.c_str(), "Test", pubKey.c_str());
+```
+
+Uninitialized xlog before your app exits
+
+
+```cpp
+appender_close();
+```
+
+#### <a name="STN">STN Init</a>
+
+Initialize STN before you use it:
+
+```cpp
+void setShortLinkDebugIP(const std::string& _ip, unsigned short _port)
+{
+	mars::stn::SetShortlinkSvrAddr(_port, _ip);
+}
+void setShortLinkPort(unsigned short _port)
+{
+	mars::stn::SetShortlinkSvrAddr(_port, "");
+}
+void setLongLinkAddress(const std::string& _ip, unsigned short _port, const std::string& _debug_ip)
+{
+	vector<uint16_t> ports;
+	ports.push_back(_port);
+	mars::stn::SetLonglinkSvrAddr(_ip, ports, _debug_ip);
+}
+
+void Init()
+{
+	mars::stn::SetCallback(mars::stn::StnCallBack::Instance());
+	mars::app::SetCallback(mars::app::AppCallBack::Instance());
+	mars::baseevent::OnCreate();
+	
+	//todo
+	//mars::stn::SetClientVersion(version);
+	//setShortLinkDebugIP(...)
+	//setLongLinkAddress(...)
+	
+	mars::baseevent::OnForeground(true);
+	mars::stn::MakesureLonglinkConnected();
+}
+```
+
+Firstly, you should call the setCalBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, onForeground and makesureLongLinkConnect can be called.
+
+If you want to destroy STN or exit App:
+
+```cpp
+mars::baseevent::OnDestroy();
+```
+
 ## Support
 
 Any problem?
@@ -316,7 +398,7 @@ sample 的使用请参考[这里](https://github.com/Tencent/mars/wiki/Mars-samp
 
 ## Getting started
 
-接入 [Android](#android_cn) 或者 [iOS/OS X](#apple_cn)。
+接入 [Android](#android_cn) 或者 [iOS/OS X](#apple_cn) 或者 [Windows](#windows_cn) 。
 
 ### <a name="android_cn">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
@@ -560,6 +642,86 @@ appender_close();
 - (void)reportEvent_OnNetworkChange {
     mars::baseevent::OnNetworkChange();
 }
+```
+### <a name="windows_cn">[Windows](https://github.com/Tencent/mars/wiki/Mars-Windows-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
+安装Visual Studio 2015
+
+编译
+
+```python
+python build_for_win32.py
+```
+
+把 mars.lib作为依赖加入到你的项目中，把和 mars.lib 同目录的后缀名为 rewriteme 的文件名删掉".rewriteme"和头文件一起加入到你的项目中。
+
+#### <a name="Xlog">Xlog Init</a>
+
+在程序启动加载 Xlog 后紧接着初始化 Xlog。但要注意保存 log 的目录请使用单独的目录，不要存放任何其他文件防止被 xlog 自动清理功能误删。
+
+```cpp
+std::string logPath = ""; //use your log path
+std::string pubKey = ""; //use you pubkey for log encrypt
+
+// init xlog
+#if DEBUG
+xlogger_SetLevel(kLevelDebug);
+appender_set_console_log(true);
+#else
+xlogger_SetLevel(kLevelInfo);
+appender_set_console_log(false);
+#endif
+appender_open(kAppednerAsync, logPath.c_str(), "Test", pubKey.c_str());
+```
+
+在程序退出前反初始化 Xlog
+
+```cpp
+appender_close();
+```
+
+#### <a name="STN">STN Init</a>
+
+在你用 STN 之前初始化：
+
+```cpp
+void setShortLinkDebugIP(const std::string& _ip, unsigned short _port)
+{
+	mars::stn::SetShortlinkSvrAddr(_port, _ip);
+}
+void setShortLinkPort(unsigned short _port)
+{
+	mars::stn::SetShortlinkSvrAddr(_port, "");
+}
+void setLongLinkAddress(const std::string& _ip, unsigned short _port, const std::string& _debug_ip)
+{
+	vector<uint16_t> ports;
+	ports.push_back(_port);
+	mars::stn::SetLonglinkSvrAddr(_ip, ports, _debug_ip);
+}
+
+void Init()
+{
+	mars::stn::SetCallback(mars::stn::StnCallBack::Instance());
+	mars::app::SetCallback(mars::app::AppCallBack::Instance());
+	mars::baseevent::OnCreate();
+	
+	//todo
+	//mars::stn::SetClientVersion(version);
+	//setShortLinkDebugIP(...)
+	//setLongLinkAddress(...)
+	
+	mars::baseevent::OnForeground(true);
+	mars::stn::MakesureLonglinkConnected();
+}
+```
+
+初始化顺序不一定要严格遵守上述代码的顺序，但在初始化时首先要调用 setCallBack 接口 (callback 文件的编写可以参考 demo)，再调用 Mars.init，最后再调用 onForeground 和 makesureLongLinkConnect，中间顺序可以随意更改。**注意：STN 默认是后台，所以初始化 STN 后需要主动调用一次**```BaseEvent.onForeground(true)```
+
+
+需要释放 STN 或者退出程序时:
+
+```cpp
+mars::baseevent::OnDestroy();
 ```
 
 ## Support
