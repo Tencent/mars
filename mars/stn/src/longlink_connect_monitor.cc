@@ -140,7 +140,7 @@ bool LongLinkConnectMonitor::MakeSureConnected() {
 
 bool LongLinkConnectMonitor::NetworkChange() {
     xinfo_function();
-#if 0//def __APPLE__
+#ifdef __APPLE__
     __StopTimer();
 
     do {
