@@ -39,7 +39,7 @@ def build_win32_impl(save_path, cfg_folder, cfg):
         
     shutil.copy(PROJECT_PATH + cfg_folder + "/lib/" + LIB_NAME, lib_save_path)
         
-    copy_files(RELATIVE_PATH, save_path + "/include", save_path, WIN_COPY_EXT_FILES)
+    copy_files(RELATIVE_PATH, save_path + "/include/mars", save_path, WIN_COPY_EXT_FILES)
 
 def build_win32(save_path):
     vs_tool_dir = os.getenv("VS140COMNTOOLS")
