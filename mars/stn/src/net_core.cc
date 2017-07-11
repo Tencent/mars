@@ -483,6 +483,7 @@ void NetCore::RedoTasks() {
 #ifdef USE_LONG_LINK
     longlink_task_manager_->LongLinkChannel().Disconnect(LongLink::kReset);
     longlink_task_manager_->RedoTasks();
+    zombie_task_manager_->RedoTasks();
 #endif
     shortlink_task_manager_->RedoTasks();
     
