@@ -122,7 +122,7 @@ NetCore::NetCore()
     , shortlink_try_flag_(false) {
     xwarn2(TSF"publiccomponent version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
-    xinfo2(TSF"netcore messagequeue_id=%_", messagequeue_creater_.GetMessageQueue());
+    xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
 
     std::string printinfo;
 

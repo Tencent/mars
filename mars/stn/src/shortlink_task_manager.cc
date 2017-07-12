@@ -54,7 +54,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout
     , wakeup_lock_(new WakeUpLock())
 #endif
 {
-    xinfo_function();
+    xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     xinfo2(TSF"ShortLinkTaskManager messagequeue_id=%_", MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
 

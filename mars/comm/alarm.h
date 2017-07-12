@@ -23,6 +23,7 @@
 
 #include <boost/bind.hpp>
 #include "messagequeue/message_queue.h"
+#include "comm/xlogger/xlogger.h"
 
 #ifdef ANDROID
 #include "android/wakeuplock.h"
@@ -50,7 +51,9 @@ class Alarm {
 #ifdef ANDROID
         , wakelock_(NULL)
 #endif
-    {}
+    {
+        xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
+    }
 
     template<class T>
     explicit Alarm(const T& _op, const MessageQueue::MessageQueue_t& _id)
@@ -64,7 +67,9 @@ class Alarm {
 #ifdef ANDROID
         , wakelock_(NULL)
 #endif
-    {}
+    {
+        xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
+    }
 
     virtual ~Alarm() {
         Cancel();

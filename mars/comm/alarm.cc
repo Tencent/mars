@@ -23,7 +23,6 @@
 #include "comm/assert/__assert.h"
 #include "comm/thread/lock.h"
 #include "comm/time_utils.h"
-#include "comm/xlogger/xlogger.h"
 
 #include "comm/platform_comm.h"
 
