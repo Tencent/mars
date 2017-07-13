@@ -85,7 +85,8 @@ void HTTPDetector::CancelAndWait() {
     ScopedLock lock(mutex_);
     dns_.Cancel(dns_breaker_);
     breaker_.Break();
-    worker_thread_.join();
+    if (worker_thread_.isruning())
+        worker_thread_.join();
 }
 
 void HTTPDetector::__Run() {
