@@ -436,7 +436,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::string netInfo;
     getCurrNetLabel(netInfo );
     bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect_log(log);//local_ipstack_detect();
-    xinfo2(TSF"elviswu ipstack log:%_, netInfo:%_", log, netInfo);
+    xinfo2_if(isnat64, TSF"ipstack log:%_, netInfo:%_", log, netInfo);
+    
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
         if (use_proxy) {
             vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port));
