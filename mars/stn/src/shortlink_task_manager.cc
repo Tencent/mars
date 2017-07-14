@@ -576,7 +576,10 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
 void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     if (!_running_id) return;
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-    ShortLinkChannelFactory::Destory(p_shortlink);
+    Thread thread([=] () {
+        ShortLinkChannelFactory::Destory(p_shortlink);
+    });
+    thread.start();
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;
 }
