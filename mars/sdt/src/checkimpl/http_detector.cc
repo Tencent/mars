@@ -246,7 +246,13 @@ void HTTPDetector::__Detect() {
     result_.http_send_req_cost_ = detect_tick.gettickspan();
     result_.http_req_packet_size_ = send_ret;
     xassert2(send_ret == req_buffer.Length());
-    
+    remain_timeout -= result_.http_send_req_cost_;
+    if (remain_timeout<=0) {
+        xwarn2(TSF"@%_ HTTPDetect timeout, http_send_req_cost_:%_, total_timeout:%_", this, result_.http_send_req_cost_, req_.total_timeout_);
+        result_.logic_error_msg_.append("HTTPDetect total timeout after send req.");
+        return;
+    }
+    detect_tick.gettickcount();
     //recv response
     err_code = -1;
     AutoBuffer body;
@@ -260,6 +266,14 @@ void HTTPDetector::__Detect() {
     bool is_first_recv_packet = true;
     result_.http_recv_resp_time_ = GetCurTimeStr();
     while (true) {
+        remain_timeout -= detect_tick.gettickspan();
+        if (remain_timeout<=0) {
+            xwarn2(TSF"@%_ HTTPDetect timeout, span:%_, total_timeout:%_", this, (int64_t)detect_tick.gettickspan(), req_.total_timeout_);
+            result_.logic_error_msg_.append("HTTPDetect total timeout when recv resp.");
+            return;
+        }
+        detect_tick.gettickcount();
+        
         int recv_ret = block_socket_recv(sock, recv_buf, 8 * 1024, breaker_, err_code, 5000);
         if (recv_ret < 0) {
             xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", strerror(err_code), socket_nread(sock), socket_nwrite(sock));
