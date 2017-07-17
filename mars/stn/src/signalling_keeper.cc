@@ -45,7 +45,7 @@ SignallingKeeper::SignallingKeeper(const LongLink& _longlink, MessageQueue::Mess
 , udp_client_(ip_, port_, this)
 , use_UDP_(_use_UDP)
 {
-    xinfo2(TSF"SignallingKeeper messagequeue_id=%_", MessageQueue::Handler2Queue(msgreg_.Get()));
+    xinfo2(TSF"SignallingKeeper messagequeue_id=%_, handler:(%_,%_)", MessageQueue::Handler2Queue(msgreg_.Get()), msgreg_.Get().queue, msgreg_.Get().seq);
 }
 
 SignallingKeeper::~SignallingKeeper()

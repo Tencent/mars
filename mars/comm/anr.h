@@ -25,6 +25,10 @@
 
 #include "mars/boost/signals2.hpp"
 
+#if !defined(ANDROID) && !defined(__APPLE__)
+#define ANR_CHECK_DISABLE
+#endif
+
 namespace mars {
     namespace comm {
         struct check_content {

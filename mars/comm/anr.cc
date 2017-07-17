@@ -37,10 +37,6 @@
 #include "android/fatal_assert.h"
 #endif
 
-#if !defined(ANDROID) && !defined(__APPLE__)
-#define ANR_CHECK_DISABLE
-#endif
-
 #ifndef ANR_CHECK_DISABLE
 
 using namespace mars::comm;

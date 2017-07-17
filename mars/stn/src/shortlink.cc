@@ -107,7 +107,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     {
-    xdebug2(XTHIS);
+    xinfo2(TSF"%_, handler:(%_,%_)",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq);
     xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
 }
 

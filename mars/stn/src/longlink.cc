@@ -143,7 +143,9 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , smartheartbeat_(NULL)
     , wakelock_(NULL)
 #endif
-{}
+{
+    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+}
 
 LongLink::~LongLink() {
     testproxybreak_.Break();
