@@ -268,4 +268,31 @@ std::string ReplaceChar(const char* const input_str, char be_replaced, char repl
 	}
 	return output_str;
 }
+
+std::string ToStr(int _i) {
+	char buf[128] = {0};
+	snprintf(buf, sizeof(buf), "%d", _i);
+	return std::string(buf);
+}
+std::string ToStr(unsigned int _u) {
+	char buf[128] = {0};
+	snprintf(buf, sizeof(buf), "%u", _u);
+	return std::string(buf);
+}
+std::string ToStr(long _l) {
+	char buf[128] = {0};
+	snprintf(buf, sizeof(buf), "%ld", _l);
+	return std::string(buf);
+}
+std::string ToStr(unsigned long _ul) {
+	char buf[128] = {0};
+	snprintf(buf, sizeof(buf), "%lu", _ul);
+	return std::string(buf);
+}
+std::string ToStr(unsigned long long _ull) {
+	char buf[128] = {0};
+	snprintf(buf, sizeof(buf), "%llu", _ull);
+	return std::string(buf);
+}
+
 }

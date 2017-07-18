@@ -17,6 +17,7 @@
 #include "mars/comm/http.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/tickcount.h"
+#include "mars/comm/strutil.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/block_socket.h"
 #include "mars/comm/socket/complexconnect.h"
@@ -49,7 +50,6 @@ static std::string GetCurTimeStr() {
 #endif
     return std::string(temp_time);
 }
-
 
 HTTPDetector::HTTPDetector(const HTTPDetectReq& _req)
 : req_(_req)
@@ -171,7 +171,7 @@ void HTTPDetector::__Detect() {
         } else {
             xerror2(TSF"@%_ GetHostByName error， remain_timeout：%_", this, remain_timeout);
             if (result_.dns_cost_>=remain_timeout) {
-                result_.dns_errmsg_.append(std::string("GetHostByName timeout, set timeout:")+std::to_string(remain_timeout)+"ms");
+                result_.dns_errmsg_.append(std::string("GetHostByName timeout, set timeout:")+strutil::ToStr(remain_timeout)+"ms");
             } else {
                 result_.dns_errmsg_.append("GetHostByName error;");
             }
@@ -245,7 +245,7 @@ void HTTPDetector::__Detect() {
     }
     result_.http_send_req_cost_ = detect_tick.gettickspan();
     result_.http_req_packet_size_ = send_ret;
-    xassert2(send_ret == req_buffer.Length());
+    xassert2(send_ret == (int)req_buffer.Length());
     remain_timeout -= result_.http_send_req_cost_;
     if (remain_timeout<=0) {
         xwarn2(TSF"@%_ HTTPDetect timeout, http_send_req_cost_:%_, total_timeout:%_", this, result_.http_send_req_cost_, req_.total_timeout_);
@@ -259,7 +259,7 @@ void HTTPDetector::__Detect() {
     AutoBuffer recv_buf;
     AutoBuffer extension;
     int        status_code = -1;
-    off_t recv_pos = 0;
+   // off_t recv_pos = 0;
     MemoryBodyReceiver* receiver = new MemoryBodyReceiver(body);
     http::Parser parser(receiver, true);
     detect_tick.gettickcount();
@@ -300,7 +300,7 @@ void HTTPDetector::__Detect() {
         
         if (recv_ret > 0) {
             xinfo2(TSF"recv len:%_ ", recv_ret);
-            recv_pos = recv_buf.Pos();
+            //recv_pos = recv_buf.Pos();
             if (is_first_recv_packet) {
                 is_first_recv_packet = false;
                 result_.first_packet_cost_ = detect_tick.gettickspan();

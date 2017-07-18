@@ -135,6 +135,12 @@ std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
 
 std::string ReplaceChar(const char* const input_str, char be_replaced='@', char replace_with='.');
+
+std::string ToStr(int _i);
+std::string ToStr(unsigned int _u);
+std::string ToStr(long _l);
+std::string ToStr(unsigned long _ul);
+std::string ToStr(unsigned long long _ull);
 }
 
 #endif	// COMM_STRUTIL_H_
