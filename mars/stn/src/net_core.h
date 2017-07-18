@@ -84,6 +84,12 @@ class NetCore {
     void	KeepSignal();
     void	StopSignal();
 
+    ShortLinkTaskManager* GetShortLinkTaskManager();
+#ifdef USE_LONG_LINK
+    LongLinkTaskManager* GetLongLinkTaskManager();
+#endif
+    void AddServerBan(const std::string& _ip);
+    
 #ifdef USE_LONG_LINK
     LongLink& Longlink();
 #endif

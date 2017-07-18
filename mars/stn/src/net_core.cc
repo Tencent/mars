@@ -728,3 +728,16 @@ void NetCore::__OnSignalActive(bool _isactive) {
     ASYNC_BLOCK_END
 }
 
+void NetCore::AddServerBan(const std::string& _ip) {
+    net_source_->AddServerBan(_ip);
+}
+
+ShortLinkTaskManager* NetCore::GetShortLinkTaskManager() {
+    return shortlink_task_manager_;
+}
+
+#ifdef USE_LONG_LINK
+LongLinkTaskManager* NetCore::GetLongLinkTaskManager() {
+    return longlink_task_manager_;
+}
+#endif
