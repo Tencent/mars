@@ -272,7 +272,7 @@ def main():
                 else:
                     return 0
 
-                if "1" == num:
+                if "1" == num or "3" == num:
                     libs_cache_dir = SO_CACHE_DIR + arch
                     symbols_cache_dir = SO_SYMBOL_CACHE_DIR + arch
                     libs_des_dir = SO_DES_DIR + arch
@@ -291,7 +291,7 @@ def main():
                         shutil.copy(lib, symbols_cache_dir)
 
 
-            if "1" == num:
+            if "1" == num or "3" == num:
                 if os.path.exists(SO_DES_DIR):
                     shutil.rmtree(SO_DES_DIR)
                 if os.path.exists(SO_SYMBOL_DES_IR):
