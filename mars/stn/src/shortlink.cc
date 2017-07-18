@@ -292,16 +292,31 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, ConnectProfile& _conn_profile) {
 	xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
-    std::string url;
-    if (kIPSourceProxy==_conn_profile.ip_type) {
-        url +="http://";
-        url += _conn_profile.host;
-    }
+	std::string url;
+	std::map<std::string, std::string> headers;
+#ifdef WIN32
+	std::string replaceHost = _conn_profile.host;
+	if (kIPSourceProxy == _conn_profile.ip_type) {
+		url += "http://";
+		url += _conn_profile.host;
+	}
+	else
+	{
+		replaceHost = _conn_profile.ip.empty() ? _conn_profile.host : _conn_profile.ip;
+	}
 	url += task_.cgi;
 
+	headers[http::HeaderFields::KStringHost] = replaceHost;
+	headers["X-Online-Host"] = replaceHost;
+#else
+	if (kIPSourceProxy == _conn_profile.ip_type) {
+		url += "http://";
+		url += _conn_profile.host;
+	}
+	url += task_.cgi;
 
-	std::map<std::string, std::string> headers;
 	headers[http::HeaderFields::KStringHost] = _conn_profile.host;
+#endif // WIN32
 
 	if (_conn_profile.proxy_info.IsValid() && mars::comm::kProxyHttp == _conn_profile.proxy_info.type
 		&& !_conn_profile.proxy_info.username.empty() && !_conn_profile.proxy_info.password.empty()) {
