@@ -295,19 +295,17 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	std::string url;
 	std::map<std::string, std::string> headers;
 #ifdef WIN32
-	std::string replaceHost = _conn_profile.host;
+	std::string replace_host = _conn_profile.host;
 	if (kIPSourceProxy == _conn_profile.ip_type) {
 		url += "http://";
 		url += _conn_profile.host;
-	}
-	else
-	{
-		replaceHost = _conn_profile.ip.empty() ? _conn_profile.host : _conn_profile.ip;
+	} else {
+		replace_host = _conn_profile.ip.empty() ? _conn_profile.host : _conn_profile.ip;
 	}
 	url += task_.cgi;
 
-	headers[http::HeaderFields::KStringHost] = replaceHost;
-	headers["X-Online-Host"] = replaceHost;
+	headers[http::HeaderFields::KStringHost] = replace_host;
+	headers["X-Online-Host"] = replace_host;
 #else
 	if (kIPSourceProxy == _conn_profile.ip_type) {
 		url += "http://";
