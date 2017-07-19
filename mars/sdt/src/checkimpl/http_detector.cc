@@ -18,6 +18,7 @@
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/tickcount.h"
 #include "mars/comm/strutil.h"
+#include "mars/comm/string_cast.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/block_socket.h"
 #include "mars/comm/socket/complexconnect.h"
@@ -171,7 +172,7 @@ void HTTPDetector::__Detect() {
         } else {
             xerror2(TSF"@%_ GetHostByName error， remain_timeout：%_", this, remain_timeout);
             if (result_.dns_cost_>=remain_timeout) {
-                result_.dns_errmsg_.append(std::string("GetHostByName timeout, set timeout:")+strutil::ToStr(remain_timeout)+"ms");
+                result_.dns_errmsg_.append(std::string("GetHostByName timeout, set timeout:")+string_cast(remain_timeout).str()+"ms");
             } else {
                 result_.dns_errmsg_.append("GetHostByName error;");
             }
