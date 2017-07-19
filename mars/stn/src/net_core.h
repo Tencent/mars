@@ -68,6 +68,8 @@ class NetCore {
 
   public:
     MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
+    NetSource& GetNetSourceRef() {return *net_source_;}
+    
     void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
     
     void    StartTask(const Task& _task);

@@ -20,6 +20,8 @@
 		1FBBDE4F1D49BBC000D6FF99 /* sdt_core.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1FBBDE4D1D49BBC000D6FF99 /* sdt_core.cc */; };
 		1FBBDE531D49BBD600D6FF99 /* netchecker_trafficmonitor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1FBBDE511D49BBD600D6FF99 /* netchecker_trafficmonitor.cc */; };
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+		3D72590A1F170F80008A0851 /* http_detector.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3D7259081F170F80008A0851 /* http_detector.cc */; };
+		3DBD45091F1E38CE00A7F0B2 /* base_netinfo_query.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3DBD45071F1E38CE00A7F0B2 /* base_netinfo_query.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -65,6 +67,10 @@
 		3170A027177887B0004F5DDA /* libsdt.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsdt.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		3D23EDCA1DA92D63002C9A92 /* http_url_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http_url_parser.h; path = checkimpl/http_url_parser.h; sourceTree = "<group>"; };
+		3D7259081F170F80008A0851 /* http_detector.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = http_detector.cc; path = checkimpl/http_detector.cc; sourceTree = "<group>"; };
+		3D7259091F170F80008A0851 /* http_detector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http_detector.h; path = checkimpl/http_detector.h; sourceTree = "<group>"; };
+		3DBD45071F1E38CE00A7F0B2 /* base_netinfo_query.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = base_netinfo_query.cc; path = checkimpl/base_netinfo_query.cc; sourceTree = "<group>"; };
+		3DBD45081F1E38CE00A7F0B2 /* base_netinfo_query.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base_netinfo_query.h; path = checkimpl/base_netinfo_query.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +117,10 @@
 		1F1363211C9BDCD600DA1A05 /* checkimpl */ = {
 			isa = PBXGroup;
 			children = (
+				3DBD45071F1E38CE00A7F0B2 /* base_netinfo_query.cc */,
+				3DBD45081F1E38CE00A7F0B2 /* base_netinfo_query.h */,
+				3D7259081F170F80008A0851 /* http_detector.cc */,
+				3D7259091F170F80008A0851 /* http_detector.h */,
 				3D23EDCA1DA92D63002C9A92 /* http_url_parser.h */,
 				1F1363221C9BDCE300DA1A05 /* dnsquery.cc */,
 				1F1363231C9BDCE300DA1A05 /* dnsquery.h */,
@@ -223,6 +233,8 @@
 				1F1363201C9BDCD200DA1A05 /* tcpchecker.cc in Sources */,
 				1F25A9251CD31A3F00AC1003 /* sdt_logic.cc in Sources */,
 				1F13631F1C9BDCD200DA1A05 /* pingchecker.cc in Sources */,
+				3DBD45091F1E38CE00A7F0B2 /* base_netinfo_query.cc in Sources */,
+				3D72590A1F170F80008A0851 /* http_detector.cc in Sources */,
 				1F13632F1C9BDCE300DA1A05 /* pingquery.cc in Sources */,
 				1F13631B1C9BDCD200DA1A05 /* basechecker.cc in Sources */,
 				1FBBDE531D49BBD600D6FF99 /* netchecker_trafficmonitor.cc in Sources */,
@@ -306,7 +318,7 @@
 					MACOS,
 					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -354,7 +366,7 @@
 					MACOS,
 					"XLOGGER_TAG='\"mars::$(PROJECT_NAME)\"'",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_UNUSED_FUNCTION = YES;
