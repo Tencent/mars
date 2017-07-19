@@ -143,7 +143,9 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , smartheartbeat_(NULL)
     , wakelock_(NULL)
 #endif
-{}
+{
+    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+}
 
 LongLink::~LongLink() {
     testproxybreak_.Break();
@@ -427,7 +429,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     netsource_.GetLongLinkItems(ip_items, dns_util_);
     mars::comm::ProxyInfo proxy_info = mars::app::GetProxyInfo("");
-    bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type;
+    bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type && netsource_.GetLongLinkDebugIP().empty();
     xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", NetSource::DumpTable(ip_items), proxy_info.type, use_proxy);
     
     bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();

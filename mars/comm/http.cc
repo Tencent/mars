@@ -701,9 +701,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                     return recvstatus_;
                 }
                 
-                recvstatus_ = kHeaderFields;
                 headerbuf_.Write(recvbuf_.Ptr(), firstlinelength);
-                recvbuf_.Move(- firstlinelength);
                 // HTTP/1.1 4.7 Unauthorized\r\n\r\n
                 char* pos_2crlf = string_strnstr(pBuf, "\r\n\r\n", (int)recvbuf_.Length());
                 if (NULL != pos_2crlf && pos_2crlf == pos) {

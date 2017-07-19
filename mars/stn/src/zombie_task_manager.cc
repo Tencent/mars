@@ -44,7 +44,9 @@ static bool __compare_task(const ZombieTask& first, const ZombieTask& second)
 
 ZombieTaskManager::ZombieTaskManager(MessageQueue::MessageQueue_t _messagequeueid)
 		: asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
-		, net_core_last_start_task_time_(gettickcount()) {}
+		, net_core_last_start_task_time_(gettickcount()) {
+            xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+        }
 
 ZombieTaskManager::~ZombieTaskManager()
 {
@@ -112,6 +114,7 @@ void ZombieTaskManager::ClearTasks()
 
 void ZombieTaskManager::RedoTasks()
 {
+    xinfo_function();
     __StartTask();
 }
 
