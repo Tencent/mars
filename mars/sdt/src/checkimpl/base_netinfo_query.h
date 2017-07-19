@@ -23,7 +23,7 @@ class BaseNetInfo {
     std::string ToString() const;
     
     int nettype() const {return nettype_;}
-    TLocalIPStack ip_stack() {return ip_stack_;}
+    TLocalIPStack ip_stack() const {return ip_stack_;}
     std::string detail_nettype_info() const {return detail_nettype_info_;}
     std::string ipstack_detect_info() const {return ipstack_detect_info_;}
     std::string net_gateway_info() const {return net_gateway_info_;}
