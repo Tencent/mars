@@ -24,6 +24,9 @@
     <ClInclude Include="..\app_logic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\compiler_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\app_logic.cc">

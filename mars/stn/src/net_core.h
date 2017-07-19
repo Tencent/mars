@@ -31,6 +31,7 @@
 #endif
 
 namespace mars {
+    
     namespace stn {
 
 class NetSource;
@@ -58,7 +59,7 @@ enum {
 
 class NetCore {
   public:
-    SINGLETON_INTRUSIVE(NetCore, new NetCore, NetCore::__Release);
+    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
 
   public:
     boost::function<void (Task& _task)> task_process_hook_;
@@ -66,6 +67,9 @@ class NetCore {
     boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
 
   public:
+    MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
+    void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
+    
     void    StartTask(const Task& _task);
     void    StopTask(uint32_t _taskid);
     bool    HasTask(uint32_t _taskid) const;
@@ -103,6 +107,8 @@ class NetCore {
     
     void    __ConnStatusCallBack();
     void    __OnTimerCheckSuc();
+    
+    void    __OnSignalActive(bool _isactive);
 
   private:
     NetCore(const NetCore&);

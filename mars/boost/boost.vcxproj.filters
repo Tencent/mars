@@ -6635,9 +6635,6 @@
     <ClCompile Include="libs\thread\src\future.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="libs\thread\src\tss_null.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="libs\thread\src\win32\thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -6645,6 +6642,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="libs\thread\src\win32\tss_pe.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="libs\iostreams\src\mapped_file.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,7 +7,6 @@
 
 #ifndef RSA_ENCRYPT_H_
 #define RSA_ENCRYPT_H_
-
 #ifdef __cplusplus
 extern "C" {
 #endif

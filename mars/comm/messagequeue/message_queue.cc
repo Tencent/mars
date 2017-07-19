@@ -33,10 +33,16 @@
 #include "comm/anr.h"
 #include "comm/messagequeue/message_queue.h"
 #include "comm/time_utils.h"
+#include "comm/bootrun.h"
 #include "comm/xlogger/xlogger.h"
 #ifdef __APPLE__
 #include "comm/debugger/debugger_utils.h"
 #endif
+
+#ifdef ANDROID
+#include "android/fatal_assert.h"
+#endif
+
 #undef min
 
 namespace MessageQueue {
@@ -249,7 +255,7 @@ void BreakMessageQueueRunloop(const MessageQueue_t&  _messagequeueid) {
 
     std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
     if (sg_messagequeue_map.end() == pos) {
-        ASSERT2(false, "%llu", (unsigned long long)id);
+        //ASSERT2(false, "%llu", (unsigned long long)id);
         return;
     }
 
@@ -303,7 +309,7 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
 
     std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
     if (sg_messagequeue_map.end() == pos) {
-        ASSERT2(false, "%" PRIu64, id);
+        //ASSERT2(false, "%" PRIu64, id);
         return KNullPost;
     }
 
@@ -649,6 +655,55 @@ static void __ReleaseMessageQueueInfo() {
     }
 }
 
+    
+const static int kMQCallANRId = 110;
+const static long kWaitANRTimeout = 5 * 1000;
+static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageHandler_t _mq_id) {
+    if(MessageQueue2TID(_mq_id.queue) == 0) {
+        xwarn2(TSF"messagequeue already destroy, handler:(%_,%_)", _mq_id.queue, _mq_id.seq);
+        return;
+    }
+    
+    __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
+              _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
+#ifdef ANDROID
+    __FATAL_ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s",
+                    _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style?"true":"false");
+#endif
+}
+    
+
+static void __ANRCheckCallback(bool _iOS_style, const mars::comm::check_content& _content) {
+    if (kMQCallANRId != _content.call_id) {
+        return;
+    }
+    
+    MessageHandler_t mq_id = *((MessageHandler_t*)_content.extra_info);
+    xinfo2(TSF"anr check content:%_, handler:(%_,%_)", _content.call_id, mq_id.queue, mq_id.seq);
+    
+    boost::shared_ptr<Thread> thread(new Thread(boost::bind(__ANRAssert, _iOS_style, _content, mq_id)));
+    thread->start_after(kWaitANRTimeout);
+    
+    MessageQueue::AsyncInvoke([=]() {
+        if (thread->isruning()) {
+            xinfo2(TSF"misjudge anr, timeout:%_, tid:%_, runing time:%_, real time:%_, used_cpu_time:%_, handler:(%_,%_)", _content.timeout,
+                   _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, mq_id.queue, mq_id.seq);
+            thread->cancel_after();
+        }
+    }, MessageQueue::DefAsyncInvokeHandler(mq_id.queue));
+}
+#ifndef ANR_CHECK_DISABLE
+
+static void __RgisterANRCheckCallback() {
+    GetSignalCheckHit().connect(5, boost::bind(&__ANRCheckCallback, _1, _2));
+}
+static void __UnregisterANRCheckCallback() {
+    GetSignalCheckHit().disconnect(5);
+}
+    
+BOOT_RUN_STARTUP(__RgisterANRCheckCallback);
+BOOT_RUN_EXIT(__UnregisterANRCheckCallback);
+#endif
 void RunLoop::Run() {
     MessageQueue_t id = CurrentThreadMessageQueue();
     ASSERT(0 != id);
@@ -747,7 +802,7 @@ void RunLoop::Run() {
         lock.unlock();
 
         for (std::list<HandlerWrapper>::iterator it = fit_handler.begin(); it != fit_handler.end(); ++it) {
-            SCOPE_ANR_AUTO((int)anr_timeout);
+            SCOPE_ANR_AUTO((int)anr_timeout, kMQCallANRId, &(*it).reg);
             uint64_t timestart = ::clock_app_monotonic();
             (*it).handler(messagewrapper->postid, messagewrapper->message);
             uint64_t timeend = ::clock_app_monotonic();
@@ -819,10 +874,14 @@ MessageQueue_t MessageQueueCreater::CreateMessageQueue() {
 void MessageQueueCreater::CancelAndWait() {
     ScopedLock lock(messagequeue_mutex_);
 
-    if (KInvalidQueueID != messagequeue_id_) BreakMessageQueueRunloop(messagequeue_id_);
-
+    if (KInvalidQueueID == messagequeue_id_) return;
+    
+    BreakMessageQueueRunloop(messagequeue_id_);
+    messagequeue_id_ = KInvalidQueueID;
     lock.unlock();
-    thread_.join();
+    if(ThreadUtil::currentthreadid() != thread_.tid()) {
+        thread_.join();
+    }
 }
 
 MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, thread_tid _tid) {
@@ -848,14 +907,14 @@ MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<Runl
 MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(const char* _messagequeue_name) {
     return CreateNewMessageQueue(boost::shared_ptr<RunloopCond>(), _messagequeue_name);
 }
-    
-void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id){
-    
-    if (KInvalidQueueID == _messagequeue_id) return;
-    
-    BreakMessageQueueRunloop(_messagequeue_id);
-    WaitForRunningLockEnd(_messagequeue_id);
-    ThreadUtil::join((thread_tid)_messagequeue_id);
+
+void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id) {
+
+	if (KInvalidQueueID == _messagequeue_id) return;
+
+	BreakMessageQueueRunloop(_messagequeue_id);
+	WaitForRunningLockEnd(_messagequeue_id);
+	ThreadUtil::join((thread_tid)_messagequeue_id);
 }
 
 void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {

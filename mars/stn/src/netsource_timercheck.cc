@@ -49,7 +49,7 @@ NetSourceTimerCheck::NetSourceTimerCheck(NetSource* _net_source, ActiveLogic& _a
     , longlink_(_longlink)
 	, asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id)){
     xassert2(breaker_.IsCreateSuc(), "create breaker fail");
-
+        xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     frequency_limit_ = new CommFrequencyLimit(kMaxSpeedTestCount, kIntervalTime);
 
     active_connection_ = _active_logic.SignalActive.connect(boost::bind(&NetSourceTimerCheck::__OnActiveChanged, this, _1));
@@ -79,7 +79,7 @@ NetSourceTimerCheck::~NetSourceTimerCheck() {
 
 void NetSourceTimerCheck::CancelConnect() {
 	RETURN_NETCORE_SYNC2ASYNC_FUNC(boost::bind(&NetSourceTimerCheck::CancelConnect, this));
-    xdebug_function();
+    xinfo_function();
 
     if (!thread_.isruning()) {
         return;
@@ -247,6 +247,8 @@ bool NetSourceTimerCheck::__TryConnnect(const std::string& _host) {
 }
 
 void NetSourceTimerCheck::__OnActiveChanged(bool _is_active) {
+    ASYNC_BLOCK_START
+    
     xdebug2(TSF"_is_active:%0", _is_active);
 
     if (_is_active) {
@@ -254,4 +256,6 @@ void NetSourceTimerCheck::__OnActiveChanged(bool _is_active) {
     } else {
     	__StopCheck();
     }
+    
+    ASYNC_BLOCK_END
 }

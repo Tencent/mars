@@ -6,8 +6,8 @@
  */
 #include "openssl_multi_thread_support.h"
 #include "openssl/crypto.h"
-#include "thread/mutex.h"
-#include "comm/xlogger/xlogger.h"
+#include "mars/comm/thread/mutex.h"
+#include "mars/comm/xlogger/xlogger.h"
 static Mutex** mutex_start = NULL;
 static long* lock_count = NULL;
 

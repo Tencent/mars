@@ -32,8 +32,8 @@
 #include "mars/comm/time_utils.h"
 #include "mars/comm/http.h"
 #include "mars/comm/platform_comm.h"
-
 #include "mars/app/app.h"
+#include "mars/comm/crypt/ibase64.h"
 #include "mars/baseevent/baseprjevent.h"
 
 #if defined(__ANDROID__) || defined(__APPLE__)
@@ -107,7 +107,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     {
-    xdebug2(XTHIS);
+    xinfo2(TSF"%_, handler:(%_,%_)",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq);
     xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
 }
 
@@ -159,9 +159,18 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.dns_time = ::gettickcount();
     __UpdateProfile(_conn_profile);
 
-    if (!task_.shortlink_host_list.empty())_conn_profile.host = task_.shortlink_host_list.front();
+    if (!task_.shortlink_host_list.empty()) _conn_profile.host = task_.shortlink_host_list.front();
     
-    if (use_proxy_ && net_source_.GetShortLinkProxyInfo(_conn_profile.port, _conn_profile.ip, task_.shortlink_host_list)) {
+    if (use_proxy_) {
+        _conn_profile.proxy_info = mars::app::GetProxyInfo(_conn_profile.host);
+    }
+    
+    bool use_proxy = use_proxy_ && _conn_profile.proxy_info.IsValid();
+    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
+
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
+        _conn_profile.ip = _conn_profile.proxy_info.ip;
+        _conn_profile.port = _conn_profile.proxy_info.port;
     	_conn_profile.ip_type = kIPSourceProxy;
         IPPortItem item = {_conn_profile.ip, net_source_.GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
         _conn_profile.ip_items.push_back(item);
@@ -175,13 +184,40 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         	__UpdateProfile(_conn_profile);
         }
     }
+    
+	std::string proxy_ip;
+    if (use_proxy && mars::comm::kProxyNone != _conn_profile.proxy_info.type) {
+		std::vector<std::string> proxy_ips;
+        if (_conn_profile.proxy_info.ip.empty() && !_conn_profile.proxy_info.host.empty()) {
+            if (!dns_util_.GetDNS().GetHostByName(_conn_profile.proxy_info.host, proxy_ips) || proxy_ips.empty()) {
+                xwarn2(TSF"dns %_ error", _conn_profile.proxy_info.host);
+                return false;
+            }
+			proxy_ip = proxy_ips.front();
+        } else {
+			proxy_ip = _conn_profile.proxy_info.ip;
+        }
+    }
+    
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(isnat64));
+    } else {
+        for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
+            if (!use_proxy || mars::comm::kProxyNone == _conn_profile.proxy_info.type) {
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.port).v4tov6_address(isnat64));
+            } else {
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.port));
+            }
+        }
+    }
+    
+	socket_address* proxy_addr = NULL;
+    if (use_proxy && (mars::comm::kProxyHttpTunel == _conn_profile.proxy_info.type || mars::comm::kProxySocks5 == _conn_profile.proxy_info.type)) {
+		proxy_addr = &((new socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port))->v4tov6_address(isnat64));
+        _conn_profile.ip_type = kIPSourceProxy;
+    }
 
     xinfo2(TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items));
-
-    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
-    for (unsigned int i = 0; i < _conn_profile.ip_items.size(); ++i) {
-        vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.port).v4tov6_address(isnat64));
-    }
 
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
@@ -201,12 +237,15 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
 
     ShortLinkConnectObserver connect_observer(*this);
-    ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval);
-    SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer);
+	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval);
+
+    SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
+    delete proxy_addr;
 
     _conn_profile.conn_rtt = conn.IndexRtt();
     _conn_profile.ip_index = conn.Index();
     _conn_profile.conn_cost = conn.TotalCost();
+
     __UpdateProfile(_conn_profile);
 
     if (INVALID_SOCKET == sock) {
@@ -263,6 +302,23 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	std::map<std::string, std::string> headers;
 	headers[http::HeaderFields::KStringHost] = _conn_profile.host;
+
+	if (_conn_profile.proxy_info.IsValid() && mars::comm::kProxyHttp == _conn_profile.proxy_info.type
+		&& !_conn_profile.proxy_info.username.empty() && !_conn_profile.proxy_info.password.empty()) {
+		std::string account_info = _conn_profile.proxy_info.username + ":" + _conn_profile.proxy_info.password;
+		size_t dstlen = modp_b64_encode_len(account_info.length());
+
+		char* dstbuf = (char*)malloc(dstlen);
+		memset(dstbuf, 0, dstlen);
+
+		int retsize = Comm::EncodeBase64((unsigned char*)account_info.c_str(), (unsigned char*)dstbuf, (int)account_info.length());
+		dstbuf[retsize] = '\0';
+
+		char auth_info[1024] = { 0 };
+		snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
+		headers[http::HeaderFields::kStringProxyAuthorization] = auth_info;
+	}
+
 	AutoBuffer out_buff;
 
 	shortlink_pack(url, headers, send_body_, send_extend_, out_buff, tracker_.get());

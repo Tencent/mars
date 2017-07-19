@@ -29,8 +29,7 @@
 namespace http {
 
 struct less {
-    bool operator()(const std::string& __x, const std::string& __y) const
-    { return 0 > strcasecmp(__x.c_str(), __y.c_str()); }
+	bool operator()(const std::string& __x, const std::string& __y) const;
 };
 
 enum THttpVersion {
@@ -144,6 +143,8 @@ class HeaderFields {
     static const char* const KStringUserAgent;
     static const char* const KStringCacheControl;
     static const char* const KStringConnection;
+    static const char* const kStringProxyConnection;
+    static const char* const kStringProxyAuthorization;
     static const char* const KStringContentType;
     static const char* const KStringContentLength;
     static const char* const KStringTransferEncoding;

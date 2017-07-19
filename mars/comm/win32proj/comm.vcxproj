@@ -15,19 +15,20 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>win32proj</RootNamespace>
     <ProjectName>comm</ProjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>
+    </WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -42,10 +43,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib; $(ProjectDir)/../; $(ProjectDir)/../src;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib; $(ProjectDir)/../; $(ProjectDir)/../src;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -53,8 +56,11 @@
       </PrecompiledHeader>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;WIN32_PLATFORM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../;$(ProjectDir)../../../;$(ProjectDir)../windows/;$(ProjectDir)../</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -69,9 +75,11 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;WIN32_PLATFORM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../;$(ProjectDir)../../../;$(ProjectDir)../windows/;$(ProjectDir)../;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -89,6 +97,7 @@
     <ClCompile Include="..\assert\__assert.c" />
     <ClCompile Include="..\autobuffer.cc" />
     <ClCompile Include="..\basepacker.cc" />
+    <ClCompile Include="..\boost_exception.cc" />
     <ClCompile Include="..\comm_frequency_limit.cc" />
     <ClCompile Include="..\corepattern\coreservice_base.cc" />
     <ClCompile Include="..\crypt\ibase64.cc" />
@@ -98,15 +107,17 @@
     <ClCompile Include="..\md5.c" />
     <ClCompile Include="..\memdbg.cc" />
     <ClCompile Include="..\messagequeue\message_queue.cc" />
-    <ClCompile Include="..\messagequeue\message_queue_utils.cc" />
     <ClCompile Include="..\mmap_util.cc" />
     <ClCompile Include="..\network\getdnssvraddrs.cc" />
     <ClCompile Include="..\network\getgateway.c" />
+    <ClCompile Include="..\network\getifaddrs.cc" />
+    <ClCompile Include="..\network\netinfo_util.cc" />
     <ClCompile Include="..\ptrbuffer.cc" />
     <ClCompile Include="..\singleton.cc" />
     <ClCompile Include="..\socket\block_socket.cc" />
     <ClCompile Include="..\socket\complexconnect.cc" />
     <ClCompile Include="..\socket\local_ipstack.cc" />
+    <ClCompile Include="..\socket\nat64_prefix_util.cc" />
     <ClCompile Include="..\socket\socket_address.cc" />
     <ClCompile Include="..\socket\tcpclient.cc" />
     <ClCompile Include="..\socket\tcpclient_fsm.cc" />
@@ -141,6 +152,7 @@
     <ClCompile Include="..\windows\zlib\trees.c" />
     <ClCompile Include="..\windows\zlib\uncompr.c" />
     <ClCompile Include="..\windows\zlib\zutil.c" />
+    <ClCompile Include="..\xlogger\loginfo_extract.c" />
     <ClCompile Include="..\xlogger\xloggerbase.c" />
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +185,8 @@
     <ClInclude Include="..\mmap_util.h" />
     <ClInclude Include="..\network\getdnssvraddrs.h" />
     <ClInclude Include="..\network\getgateway.h" />
+    <ClInclude Include="..\network\getifaddrs.h" />
+    <ClInclude Include="..\network\netinfo_util.h" />
     <ClInclude Include="..\platform_comm.h" />
     <ClInclude Include="..\ptrbuffer.h" />
     <ClInclude Include="..\scope_recursion_limit.h" />

@@ -237,9 +237,6 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
 }
 
 TLocalIPStack local_ipstack_detect() {
-#ifdef ANDROID
-	return ELocalIPStack_IPv4;
-#endif
     std::string log;
     return __local_ipstack_detect(log);
 }

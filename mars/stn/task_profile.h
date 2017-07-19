@@ -26,6 +26,7 @@
 #include "boost/shared_ptr.hpp"
 
 #include "mars/comm/time_utils.h"
+#include "mars/comm/comm_data.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/config.h"
 
@@ -138,6 +139,7 @@ struct ConnectProfile {
     std::vector<NoopProfile> noop_profiles;
 
     boost::shared_ptr<ProfileExtension> extension_ptr;
+    mars::comm::ProxyInfo proxy_info;
 };
 
         

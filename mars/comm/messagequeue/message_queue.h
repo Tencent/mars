@@ -29,7 +29,11 @@
 #include "boost/static_assert.hpp"
 #include "boost/utility/result_of.hpp"
 #include "boost/type_traits/is_same.hpp"
-#endif
+#else 
+#ifdef WIN32
+#include "boost/utility/result_of.hpp"
+#endif // DEBUG
+#endif 
 
 #include "mars/comm/thread/thread.h"
 

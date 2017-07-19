@@ -28,6 +28,7 @@
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/comm_data.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/local_ipstack.h"
 #include "mars/comm/socket/complexconnect.h"
@@ -40,14 +41,10 @@
 #if defined(__ANDROID__) || defined(__APPLE__)
 #include "mars/comm/socket/getsocktcpinfo.h"
 #endif
-#ifdef ANDROID
-#include "comm/android/wakeuplock.h"
-#endif
 
 #include "mars/stn/config.h"
 
 #include "proto/longlink_packer.h"
-#include "net_source.h"
 #include "smart_heartbeat.h"
 
 #define AYNC_HANDLER  asyncreg_.Get()
@@ -109,7 +106,7 @@ class LongLinkConnectObserver : public MComplexConnect {
         if (LONGLINK_UNPACK_OK != ret) {
             xerror2(TSF"0>ret, index:%_, sock:%_, %_, ret:%_, cmdid:%_, taskid:%_, pack_len:%_, recv_len:%_", _index, _socket, _addr.url(), ret, cmdid, taskid, pack_len, _buffer_recv.Length());
             if (longlink_.fun_network_report_) {
-                longlink_.fun_network_report_(__LINE__, kEctSocket, SOCKET_ERRNO(EBADMSG), _addr.ip(), _addr.port());
+                longlink_.fun_network_report_(__LINE__, kEctSocket, EBADMSG, _addr.ip(), _addr.port());
             }
             return false;
         }
@@ -146,9 +143,12 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , smartheartbeat_(NULL)
     , wakelock_(NULL)
 #endif
-{}
+{
+    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+}
 
 LongLink::~LongLink() {
+    testproxybreak_.Break();
     Disconnect(kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
@@ -208,6 +208,8 @@ bool LongLink::Stop(uint32_t _taskid) {
 
     return false;
 }
+
+
 
 bool LongLink::MakeSureConnected(bool* _newone) {
     if (_newone) *_newone = false;
@@ -280,7 +282,10 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
     
     if (suc) {
         _alarm.Cancel();
-        _alarm.Start(need_active_timeout ? (2* 1000) : (10 * 1000));
+        _alarm.Start(need_active_timeout ? (2* 1000) : (5 * 1000));
+#ifdef ANDROID
+        wakelock_->Lock(5 * 1000);
+#endif
     } else {
         xerror2("send noop fail");
     }
@@ -348,8 +353,8 @@ void LongLink::__UpdateProfile(const ConnectProfile& _conn_profile) {
 
 void LongLink::__OnAlarm() {
     readwritebreak_.Break();
-    __NotifySmartHeartbeatJudgeMIUIStyle();
 #ifdef ANDROID
+    __NotifySmartHeartbeatJudgeMIUIStyle();
     wakelock_->Lock(3 * 1000);
 #endif
 }
@@ -423,12 +428,18 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::vector<socket_address> vecaddr;
 
     netsource_.GetLongLinkItems(ip_items, dns_util_);
-    xinfo2(TSF"task socket dns ip:%_", NetSource::DumpTable(ip_items));
+    mars::comm::ProxyInfo proxy_info = mars::app::GetProxyInfo("");
+    bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type && netsource_.GetLongLinkDebugIP().empty();
+    xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", NetSource::DumpTable(ip_items), proxy_info.type, use_proxy);
     
     bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
     
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
-        vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(isnat64));
+        if (use_proxy) {
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port));
+        } else {
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(isnat64));
+        }
     }
     
     if (vecaddr.empty()) {
@@ -438,6 +449,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         return INVALID_SOCKET;
     }
     
+    _conn_profile.proxy_info = proxy_info;
     _conn_profile.ip_items = ip_items;
     _conn_profile.host = ip_items[0].str_host;
     _conn_profile.ip_type = ip_items[0].source_type;
@@ -447,12 +459,36 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.dns_endtime = ::gettickcount();
     __UpdateProfile(_conn_profile);
     
+    socket_address* proxy_addr = NULL;
+    
+    if (use_proxy) {
+        std::string proxy_ip = proxy_info.ip;
+        if (proxy_info.ip.empty() && !proxy_info.host.empty()) {
+            std::vector<std::string> ips;
+            if (!dns_util_.GetDNS().GetHostByName(proxy_info.host, ips) || ips.empty()) {
+                xwarn2(TSF"dns %_ error", proxy_info.host);
+                return false;
+            }
+            
+			proxy_addr = &((new socket_address(ips.front().c_str(), proxy_info.port))->v4tov6_address(isnat64));
+
+        } else {
+			proxy_addr = &((new socket_address(proxy_ip.c_str(), proxy_info.port))->v4tov6_address(isnat64));
+        }
+        
+        _conn_profile.ip_type = kIPSourceProxy;
+
+    }
+    
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
     
     LongLinkConnectObserver connect_observer(*this, ip_items);
     ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);
-    SOCKET sock = com_connect.ConnectImpatient(vecaddr, connectbreak_, &connect_observer);
-    
+
+    SOCKET sock = com_connect.ConnectImpatient(vecaddr, connectbreak_, &connect_observer, proxy_info.type, proxy_addr, proxy_info.username, proxy_info.password);
+
+    delete proxy_addr;
+ 
     _conn_profile.conn_time = gettickcount();
     _conn_profile.conn_errcode = com_connect.ErrorCode();
     _conn_profile.conn_rtt = com_connect.IndexRtt();
@@ -620,7 +656,9 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             
             free(vecwrite);
 #else
-            ssize_t writelen = ::send(_sock, lstsenddata_.begin()->data.PosPtr(), lstsenddata_.begin()->data.PosLength(), 0);
+
+            //ssize_t writelen = ::send(_sock, lstsenddata_.begin()->data.PosPtr(), lstsenddata_.begin()->data.PosLength(), 0);
+			ssize_t writelen = ::send(_sock, lstsenddata_.begin()->second->PosPtr(), lstsenddata_.begin()->second->PosLength(), 0);
 #endif
             
             if (0 == writelen || (0 > writelen && !IS_NOBLOCK_SEND_ERRNO(socket_errno))) {
@@ -837,7 +875,7 @@ void LongLink::__NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_tim
         noop_profile.success = _succes;
 	}
 
-	if (smartheartbeat_) smartheartbeat_->OnHeartResult(_succes, _fail_of_timeout);
+	smartheartbeat_->OnHeartResult(_succes, _fail_of_timeout);
 }
 
 void LongLink::__NotifySmartHeartbeatJudgeMIUIStyle() {

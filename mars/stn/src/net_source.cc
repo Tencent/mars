@@ -59,46 +59,6 @@ static std::map< std::string, std::string > sg_host_debugip_mapping;
 
 static Mutex sg_ip_mutex;
 
-static Mutex sg_slproxymutex;
-static Thread sg_slproxyThread(XLOGGER_TAG"::proxy");
-static std::string sg_slproxyip = "";
-static uint16_t sg_slproxyport = 0;
-static uint64_t sg_slproxytimetick = gettickcount();
-static int sg_slproxycount = 0;
-
-static void __GetProxyInfo(uint64_t _timetick, std::string _host) {
-    xinfo_function(TSF"_timetick:%_, _host:%_", _timetick, _host);
-
-    int tmp_port = 0;
-    std::string tmp_proxy;
-
-    if (!::getProxyInfo(tmp_port, tmp_proxy, _host.empty() ? "" : "http://" + _host)) {
-        ScopedLock lock(sg_slproxymutex);
-
-        if (sg_slproxytimetick != _timetick) return;
-
-        ++sg_slproxycount;
-        return;
-    }
-
-    ScopedLock lock(sg_slproxymutex);
-
-    if (sg_slproxytimetick != _timetick) return;
-
-    ++sg_slproxycount;
-
-    if (tmp_proxy.empty() || 0 == tmp_port) return;
-
-    static DNS s_dns;
-    std::vector<std::string> result;
-    s_dns.GetHostByName(tmp_proxy, result);
-
-    if (result.empty()) return;
-
-    sg_slproxyip = result.front();
-    sg_slproxyport = (uint16_t)tmp_port;
-}
-
 NetSource::DnsUtil::DnsUtil():
 new_dns_(OnNewDns) {
 }
@@ -119,11 +79,11 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 NetSource::NetSource(ActiveLogic& _active_logic)
 	: active_logic_(_active_logic)
 {
-    xdebug_function();
+    xinfo_function();
 }
 
 NetSource::~NetSource() {
-    xdebug_function();
+    xinfo_function();
 }
 
 /**
@@ -495,45 +455,8 @@ void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const st
     ipportstrategy_.Update(_ip, _port, _is_success);
 }
 
-/**
- * use proxy
- */
-bool NetSource::GetShortLinkProxyInfo(uint16_t& _port, std::string& _ipproxy, const std::vector<std::string>& _hostlist) {
-    if (__HasShortLinkDebugIP(_hostlist)) return false;
-    
-#ifdef ANDROID
-
-    if (kMobile != getNetInfo()) return false;
-
-#endif
-
-    ScopedLock lock(sg_slproxymutex, false);
-
-    if (!lock.timedlock(500)) return false;
-
-    if (sg_slproxycount < 3 || (5 * 1000) > gettickspan(sg_slproxytimetick)) {
-        sg_slproxyThread.start(boost::bind(&__GetProxyInfo, sg_slproxytimetick, _hostlist.empty() ? "" : _hostlist.front()));
-    }
-
-
-    if (sg_slproxyip.empty() || 0 == sg_slproxyport) return false;
-
-    _ipproxy = sg_slproxyip;
-    _port = (unsigned int)sg_slproxyport;
-    return true;
-}
-
-void NetSource::__ClearShortLinkProxyInfo() {
-    ScopedLock lock(sg_slproxymutex);
-    sg_slproxyip = "";
-    sg_slproxyport = 0;
-    sg_slproxycount = 0;
-    sg_slproxytimetick = ::gettickcount();
-}
-
 void NetSource::ClearCache() {
-    xverbose_function();
-    __ClearShortLinkProxyInfo();
+    xinfo_function();
     ipportstrategy_.InitHistory2BannedList(true);
 }
 
