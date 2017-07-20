@@ -22,11 +22,15 @@ APPLE_COPY_EXT_FILES = {"stn/proto/longlink_packer.h": "longlink_packer.h",
         }
         
 WIN_COPY_EXT_FILES = {"stn/proto/longlink_packer.h": "longlink_packer.h",
+        "stn/proto/longlink_packer.cc": "longlink_packer.cc.rewriteme",
         "stn/proto/stnproto_logic.h": "stnproto_logic.h",
-        "stn/proto/longlink_packer.cc__": "longlink_packer.cc.rewriteme",
-        "comm/windows/projdef.h": "mars/comm/projdef.h",
-        "comm/windows/sys/cdefs.h": "mars/comm/sys/cdefs.h",
-        "comm/windows/sys/time.h": "mars/comm/sys/time.h"
+        "log/crypt/log_crypt.cc": "log_crypt.cc.rewriteme",
+        "log/crypt/log_crypt.h": "log_crypt.h",
+        "stn/proto/shortlink_packer.h": "shortlink_packer.h",
+        "stn/proto/shortlink_packer.cc": "shortlink_packer.cc.rewriteme",
+        "comm/windows/projdef.h": "include/mars/comm/windows/projdef.h",
+        "comm/windows/sys/cdefs.h": "include/mars/comm/windows/sys/cdefs.h",
+        "comm/windows/sys/time.h": "include/mars/comm/windows/sys/time.h"
         }
 
 html_css = '''
@@ -185,6 +189,7 @@ def copy_files(src_path, dst_header_path, framework_path, ext_files, child_proje
             "comm/time_utils.h": "comm",
             "comm/strutil.h": "comm",
             "comm/string_cast.h": "comm",
+            "comm/comm_data.h": "comm",
             "stn/stn.h": "stn",
             "stn/stn_logic.h": "stn",
             "baseevent/base_logic.h": "baseevent",
