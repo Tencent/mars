@@ -581,18 +581,16 @@ void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     p_shortlink = NULL;
 }
 
-
-const TaskProfile* ShortLinkTaskManager::GetTaskProfile(uint32_t _taskid) const{
+ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const{
     std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
     
     while (first != last) {
         if (_taskid == first->task.taskid) {
-            return &(*first);
+            return ((ShortLinkInterface*)(first->running_id))->Profile();
         }
         ++first;
     }
-    
-    return nullptr;
+    return ConnectProfile();
 }
 

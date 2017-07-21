@@ -65,7 +65,7 @@ class ShortLinkTaskManager {
 
     unsigned int GetTasksContinuousFailCount();
 
-    const TaskProfile* GetTaskProfile(uint32_t _taskid) const;
+    ConnectProfile GetConnectProfile(uint32_t _taskid) const;
   private:
     void __RunLoop();
     void __RunOnTimeout();

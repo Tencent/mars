@@ -732,12 +732,14 @@ void NetCore::AddServerBan(const std::string& _ip) {
     net_source_->AddServerBan(_ip);
 }
 
-ShortLinkTaskManager* NetCore::GetShortLinkTaskManager() {
-    return shortlink_task_manager_;
-}
-
+ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select) {
+    if (_channel_select == Task::kChannelShort) {
+        return shortlink_task_manager_->GetConnectProfile(_taskid);
+    }
 #ifdef USE_LONG_LINK
-LongLinkTaskManager* NetCore::GetLongLinkTaskManager() {
-    return longlink_task_manager_;
-}
+    else if (_channel_select == Task::kChannelLong) {
+        return longlink_task_manager_->LongLinkChannel().Profile();
+    }
 #endif
+    return ConnectProfile();
+}
