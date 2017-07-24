@@ -71,7 +71,7 @@ class LongLinkConnectObserver : public MComplexConnect {
             }
         } else {
             xwarn2(TSF"index:%_, connnet fail host:%_, iptype:%_", _index, ip_items_[_index].str_host, ip_items_[_index].source_type);
-            xassert2(longlink_.fun_network_report_);
+            //xassert2(longlink_.fun_network_report_);
             connecting_index_[_index] = 0;
 
             if (longlink_.fun_network_report_) {
@@ -143,7 +143,9 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , smartheartbeat_(NULL)
     , wakelock_(NULL)
 #endif
-{}
+{
+    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+}
 
 LongLink::~LongLink() {
     testproxybreak_.Break();
@@ -298,7 +300,8 @@ bool LongLink::__NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, A
         xinfo2(TSF"end noop synccheck");
         is_noop = true;
         if (identifychecker_.OnIdentifyResp(_buf)) {
-            fun_network_report_(__LINE__, kEctOK, 0, _profile.ip, _profile.port);
+            if (fun_network_report_)
+                fun_network_report_(__LINE__, kEctOK, 0, _profile.ip, _profile.port);
         }
     }
     
@@ -324,8 +327,9 @@ void LongLink::__RunResponseError(ErrCmdType _error_type, int _error_code, Conne
 
     AutoBuffer buf;
     AutoBuffer extension;
-    OnResponse(_error_type, _error_code, 0, Task::kInvalidTaskID, buf, extension, _profile);
-    xassert2(fun_network_report_);
+    if (OnResponse)
+        OnResponse(_error_type, _error_code, 0, Task::kInvalidTaskID, buf, extension, _profile);
+    //xassert2(fun_network_report_);
 
     if (_networkreport && fun_network_report_) fun_network_report_(__LINE__, _error_type, _error_code, _profile.ip, _profile.port);
 }
@@ -427,10 +431,14 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     netsource_.GetLongLinkItems(ip_items, dns_util_);
     mars::comm::ProxyInfo proxy_info = mars::app::GetProxyInfo("");
-    bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type;
+    bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type && netsource_.GetLongLinkDebugIP().empty();
     xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", NetSource::DumpTable(ip_items), proxy_info.type, use_proxy);
     
-    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
+    std::string log;
+    std::string netInfo;
+    getCurrNetLabel(netInfo );
+    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect_log(log);//local_ipstack_detect();
+    xinfo2_if(isnat64, TSF"ipstack log:%_, netInfo:%_", log, netInfo);
     
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
         if (use_proxy) {
@@ -682,7 +690,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             auto it = lstsenddata_.begin();
             
             while (it != lstsenddata_.end() && 0 < writelen) {
-                if (0 == it->second->Pos()) OnSend(it->first.taskid);
+                if (0 == it->second->Pos() && OnSend) OnSend(it->first.taskid);
                 
                 if ((size_t)writelen >= it->second->PosLength()) {
                     xinfo2(TSF"sub send taskid:%_, cmdid:%_, %_, len(S:%_, %_/%_), ", it->first.taskid, it->first.cmdid, it->first.cgi, it->second->PosLength(), it->second->PosLength(), it->second->Length()) >> xlog_group;
@@ -749,7 +757,8 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 lastrecvtime_.gettickcount();
                 
                 if (LONGLINK_UNPACK_CONTINUE == unpackret) {
-                    OnRecv(taskid, bufrecv.Length(), packlen);
+                    if (OnRecv)
+                        OnRecv(taskid, bufrecv.Length(), packlen);
                     break;
                 }
                 
@@ -772,9 +781,11 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                          TSF"unpackret: %_", unpackret);
                 
                 if (LONGLINK_UNPACK_STREAM_PACKAGE == unpackret) {
-                    OnRecv(taskid, packlen, packlen);
+                    if (OnRecv)
+                        OnRecv(taskid, packlen, packlen);
                 } else if (!__NoopResp(cmdid, taskid, stream_resp.stream, stream_resp.extension, alarmnooptimeout, nooping, _profile)) {
-                    OnResponse(kEctOK, 0, cmdid, taskid, stream_resp.stream, stream_resp.extension, _profile);
+                    if (OnResponse)
+                        OnResponse(kEctOK, 0, cmdid, taskid, stream_resp.stream, stream_resp.extension, _profile);
 					sent_taskids.erase(taskid);
                 }
             }

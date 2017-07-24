@@ -658,7 +658,11 @@ static void __ReleaseMessageQueueInfo() {
     
 const static int kMQCallANRId = 110;
 const static long kWaitANRTimeout = 5 * 1000;
-static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageQueue_t _mq_id) {
+static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageHandler_t _mq_id) {
+    if(MessageQueue2TID(_mq_id.queue) == 0) {
+        xwarn2(TSF"messagequeue already destroy, handler:(%_,%_)", _mq_id.queue, _mq_id.seq);
+        return;
+    }
     
     __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
               _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
@@ -674,21 +678,22 @@ static void __ANRCheckCallback(bool _iOS_style, const mars::comm::check_content&
         return;
     }
     
-    MessageQueue_t mq_id = *((MessageQueue_t*)_content.extra_info);
-    xinfo2(TSF"%_ %_", _content.call_id, mq_id);
+    MessageHandler_t mq_id = *((MessageHandler_t*)_content.extra_info);
+    xinfo2(TSF"anr check content:%_, handler:(%_,%_)", _content.call_id, mq_id.queue, mq_id.seq);
     
     boost::shared_ptr<Thread> thread(new Thread(boost::bind(__ANRAssert, _iOS_style, _content, mq_id)));
     thread->start_after(kWaitANRTimeout);
     
     MessageQueue::AsyncInvoke([=]() {
         if (thread->isruning()) {
-            xinfo2(TSF"misjudge anr, timeout:%_, tid:%_, runing time:%_, real time:%_, used_cpu_time:%_, mqid:%_", _content.timeout,
-                   _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, mq_id);
+            xinfo2(TSF"misjudge anr, timeout:%_, tid:%_, runing time:%_, real time:%_, used_cpu_time:%_, handler:(%_,%_)", _content.timeout,
+                   _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, mq_id.queue, mq_id.seq);
             thread->cancel_after();
         }
-    }, MessageQueue::DefAsyncInvokeHandler(mq_id));
+    }, MessageQueue::DefAsyncInvokeHandler(mq_id.queue));
 }
-    
+#ifndef ANR_CHECK_DISABLE
+
 static void __RgisterANRCheckCallback() {
     GetSignalCheckHit().connect(5, boost::bind(&__ANRCheckCallback, _1, _2));
 }
@@ -698,7 +703,7 @@ static void __UnregisterANRCheckCallback() {
     
 BOOT_RUN_STARTUP(__RgisterANRCheckCallback);
 BOOT_RUN_EXIT(__UnregisterANRCheckCallback);
-
+#endif
 void RunLoop::Run() {
     MessageQueue_t id = CurrentThreadMessageQueue();
     ASSERT(0 != id);
@@ -797,7 +802,7 @@ void RunLoop::Run() {
         lock.unlock();
 
         for (std::list<HandlerWrapper>::iterator it = fit_handler.begin(); it != fit_handler.end(); ++it) {
-            SCOPE_ANR_AUTO((int)anr_timeout, kMQCallANRId, &id);
+            SCOPE_ANR_AUTO((int)anr_timeout, kMQCallANRId, &(*it).reg);
             uint64_t timestart = ::clock_app_monotonic();
             (*it).handler(messagewrapper->postid, messagewrapper->message);
             uint64_t timeend = ::clock_app_monotonic();

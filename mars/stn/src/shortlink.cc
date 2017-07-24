@@ -107,7 +107,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     {
-    xdebug2(XTHIS);
+    xinfo2(TSF"%_, handler:(%_,%_)",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq);
     xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
 }
 
@@ -168,7 +168,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     bool use_proxy = use_proxy_ && _conn_profile.proxy_info.IsValid();
     bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
 
-    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;
     	_conn_profile.ip_type = kIPSourceProxy;

@@ -57,7 +57,7 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
     , wakeup_lock_(new WakeUpLock())
 #endif
 {
-    xinfo_function();
+    xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     longlink_->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
     longlink_->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink_->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7);
@@ -145,7 +145,7 @@ unsigned int LongLinkTaskManager::GetTasksContinuousFailCount() {
 }
 
 void LongLinkTaskManager::RedoTasks() {
-    xdebug_function();
+    xinfo_function();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
