@@ -164,14 +164,29 @@ DeviceInfo GetDeviceInfo() {
 
 	if (NULL != devicename_jstr) {
 		ScopedJstring scoped_jstr(env, devicename_jstr);
-		s_info.devicename = std::string(scoped_jstr.GetChar(), env->GetStringUTFLength(devicename_jstr));
+		
+		jsize len = env->GetStringUTFLength(devicename_jstr);
+		if (len > 512) {
+			xwarn2(TSF "string too long:%_", len);
+			s_info.devicename = "Devicename_hardcode";
+		} else {
+			s_info.devicename = std::string(scoped_jstr.GetChar(), len);
+		}
+		
 		env->DeleteLocalRef(devicename_jstr);
 	}
 
 	jstring devicetype_jstr = (jstring)JNU_GetField(env, ret_obj, "devicetype", "Ljava/lang/String;").l;
 	if (NULL != devicetype_jstr) {
 		ScopedJstring scoped_jstr(env, devicetype_jstr);
-		s_info.devicetype = std::string(scoped_jstr.GetChar(), env->GetStringUTFLength(devicetype_jstr));
+
+		jsize len = env->GetStringUTFLength(devicetype_jstr);
+		if (len > 512) {
+			xwarn2(TSF "string too long:%_", len);
+			s_info.devicetype = "Devicetype_hardcode";
+		} else {
+			s_info.devicetype = std::string(scoped_jstr.GetChar(), len);
+		}
 		env->DeleteLocalRef(devicetype_jstr);
 	}
 
