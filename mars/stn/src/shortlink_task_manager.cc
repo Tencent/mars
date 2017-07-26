@@ -580,11 +580,7 @@ void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     p_shortlink->OnResponse = NULL;
     p_shortlink->OnSend = NULL;
     p_shortlink->OnRecv = NULL;
-    
-    Thread thread([=] () {
-        ShortLinkChannelFactory::Destory(p_shortlink);
-    });
-    thread.start();
+    ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;
 }
