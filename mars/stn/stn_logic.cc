@@ -255,46 +255,46 @@ bool (*MakesureAuthed)()
 	return sg_callback->MakesureAuthed();
 };
 
-// 流量统计
+// 流量统计 
 void (*TrafficData)(ssize_t _send, ssize_t _recv)
 = [](ssize_t _send, ssize_t _recv) {
     xassert2(sg_callback != NULL);
     return sg_callback->TrafficData(_send, _recv);
 };
 
-//底层询问上层该host对应的ip列表
+//底层询问上层该host对应的ip列表 
 std::vector<std::string> (*OnNewDns)(const std::string& host)
 = [](const std::string& host) {
 	xassert2(sg_callback != NULL);
 	return sg_callback->OnNewDns(host);
 };
 
-//网络层收到push消息回调
+//网络层收到push消息回调 
 void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
 = [](uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
 	xassert2(sg_callback != NULL);
 	sg_callback->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 };
-//底层获取task要发送的数据
+//底层获取task要发送的数据 
 bool (*Req2Buf)(uint32_t taskid,  void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select)
 = [](uint32_t taskid,  void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select) {
 	xassert2(sg_callback != NULL);
 	return sg_callback->Req2Buf(taskid, user_context, outbuffer, extend, error_code, channel_select);
 };
-//底层回包返回给上层解析
+//底层回包返回给上层解析 
 int (*Buf2Resp)(uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select)
 = [](uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
 	xassert2(sg_callback != NULL);
 	return sg_callback->Buf2Resp(taskid, user_context, inbuffer, extend, error_code, channel_select);
 };
-//任务执行结束
+//任务执行结束 
 int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, int error_type, int error_code)
 = [](uint32_t taskid, void* const user_context, int error_type, int error_code) {
 	xassert2(sg_callback != NULL);
 	return sg_callback->OnTaskEnd(taskid, user_context, error_type, error_code);
  };
 
-//上报网络连接状态
+//上报网络连接状态 
 void (*ReportConnectStatus)(int status, int longlink_status)
 = [](int status, int longlink_status) {
 	xassert2(sg_callback != NULL);

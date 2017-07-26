@@ -209,7 +209,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
         dns = (struct DNS_HEADER*)recv_buf;   // 指向recv_buf的header
         ReadRecvAnswer(recv_buf, dns, reader, answers);
 
-        // 把查询到的IP放入返回参数_ipinfo结构体中
+        // 把查询到的IP放入返回参数_ipinfo结构体中 
         int answer_count = std::min(SOCKET_MAX_IP_COUNT, (int)ntohs(dns->ans_count));
         _ipinfo->size = 0;
 
@@ -233,7 +233,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
     FreeAll(answers);
     xinfo2(TSF"close fd in dnsquery,sock=%0", sock);
     ::socket_close(sock);
-    return ret;  //* 查询DNS服务器超时
+    return ret;  //* 查询DNS服务器超时 
 }
 
 int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeout /*ms*/, const char* _dnsserver) {
