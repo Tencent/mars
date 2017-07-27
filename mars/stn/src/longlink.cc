@@ -282,10 +282,7 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
     
     if (suc) {
         _alarm.Cancel();
-        _alarm.Start(need_active_timeout ? (2* 1000) : (5 * 1000));
-#ifdef ANDROID
-        wakelock_->Lock(5 * 1000);
-#endif
+        _alarm.Start(need_active_timeout ? (2* 1000) : (10 * 1000));
     } else {
         xerror2("send noop fail");
     }
@@ -356,7 +353,6 @@ void LongLink::__UpdateProfile(const ConnectProfile& _conn_profile) {
 void LongLink::__OnAlarm() {
     readwritebreak_.Break();
 #ifdef ANDROID
-    __NotifySmartHeartbeatJudgeMIUIStyle();
     wakelock_->Lock(3 * 1000);
 #endif
 }
@@ -577,7 +573,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             }
             
             first_noop_sent = true;
-            
+
             uint64_t noop_interval = __GetNextHeartbeatInterval();
             xinfo2(TSF" last:(%_,%_), next:%_", last_noop_interval, last_noop_actual_interval, noop_interval) >> noop_xlog;
             alarmnoopinterval.Cancel();
@@ -633,6 +629,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
         
         if (nooping && alarmnooptimeout.Status() == Alarm::kOnAlarm) {
             xerror2(TSF"task socket close sock:%0, noop timeout, nread:%_, nwrite:%_", _sock, socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
+            __NotifySmartHeartbeatJudgeDozeStyle();
             _errtype = kEctSocket;
             _errcode = kEctSocketRecvErr;
             goto End;
@@ -681,7 +678,6 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             unsigned long long noop_interval = __GetNextHeartbeatInterval();
             alarmnoopinterval.Cancel();
             alarmnoopinterval.Start((int)noop_interval);
-            
             
             xinfo2(TSF"all send:%_, count:%_, ", writelen, lstsenddata_.size()) >> xlog_group;
             
@@ -794,7 +790,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
     
     
 End:
-    if (nooping) __NotifySmartHeartbeatHeartResult(false, false, _profile);
+    if (nooping) __NotifySmartHeartbeatHeartResult(false, (_errcode == kEctSocketRecvErr), _profile);
         
     std::string netInfo;
     getCurrNetLabel(netInfo );
@@ -883,17 +879,16 @@ void LongLink::__NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_tim
 		noop_profile.noop_cost = ::gettickcount() - noop_profile.noop_starttime;
         noop_profile.success = _succes;
 	}
-
-	smartheartbeat_->OnHeartResult(_succes, _fail_of_timeout);
+	if (smartheartbeat_) smartheartbeat_->OnHeartResult(_succes, _fail_of_timeout);
 }
 
-void LongLink::__NotifySmartHeartbeatJudgeMIUIStyle() {
+void LongLink::__NotifySmartHeartbeatJudgeDozeStyle() {
     if (longlink_noop_interval() > 0) {
         return;
     }
     
     if (!smartheartbeat_) return;
-	smartheartbeat_->JudgeMIUIStyle();
+	smartheartbeat_->JudgeDozeStyle();
 }
 
 void LongLink::__NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status) {
@@ -919,13 +914,12 @@ void LongLink::__NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status) {
 }
 
 unsigned int LongLink::__GetNextHeartbeatInterval() {
-    
     if (longlink_noop_interval() > 0) {
         return longlink_noop_interval();
     }
     
     if (!smartheartbeat_) return MinHeartInterval;
     
-    bool use_smartheart_beat  = false;
-    return smartheartbeat_->GetNextHeartbeatInterval(use_smartheart_beat);
+    return smartheartbeat_->GetNextHeartbeatInterval();
 }
+
