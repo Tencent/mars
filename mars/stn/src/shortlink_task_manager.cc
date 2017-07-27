@@ -576,10 +576,6 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
 void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     if (!_running_id) return;
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-    p_shortlink->func_network_report = NULL;
-    p_shortlink->OnResponse = NULL;
-    p_shortlink->OnSend = NULL;
-    p_shortlink->OnRecv = NULL;
     ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;
