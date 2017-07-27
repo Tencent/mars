@@ -46,7 +46,6 @@
 		1F08C14F1DE8238E0098EB97 /* PingServerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F08C14E1DE8238E0098EB97 /* PingServerController.m */; };
 		1F08C1561DE841D90098EB97 /* TopicViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F08C1551DE841D90098EB97 /* TopicViewController.m */; };
 		1F244E731DE6E831005D1BAC /* NetworkEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F244E721DE6E831005D1BAC /* NetworkEvent.m */; };
-		1F2671C51DD2BD05003F00A1 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F2671C31DD2BD05003F00A1 /* log_crypt.cc */; };
 		1F2671C81DD2C227003F00A1 /* shortlink_packer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F2671C61DD2C227003F00A1 /* shortlink_packer.cc */; };
 		1FAEF2341DEE81D1002F3AA6 /* LogUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FAEF2331DEE81D1002F3AA6 /* LogUtil.m */; };
 		1FAEF23D1DEEAA04002F3AA6 /* LogHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FAEF23C1DEEAA04002F3AA6 /* LogHelper.mm */; };
@@ -181,8 +180,6 @@
 		1F244E721DE6E831005D1BAC /* NetworkEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkEvent.m; sourceTree = "<group>"; };
 		1F244EAE1DE717E8005D1BAC /* UINotifyDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = UINotifyDelegate.h; path = Bussiness/UINotifyDelegate.h; sourceTree = "<group>"; };
 		1F26718B1DD2B115003F00A1 /* mars.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mars.framework; path = Kernel/MarsLib/mars.framework; sourceTree = "<group>"; };
-		1F2671C31DD2BD05003F00A1 /* log_crypt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt.cc; sourceTree = "<group>"; };
-		1F2671C41DD2BD05003F00A1 /* log_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
 		1F2671C61DD2C227003F00A1 /* shortlink_packer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shortlink_packer.cc; sourceTree = "<group>"; };
 		1F2671C71DD2C227003F00A1 /* shortlink_packer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shortlink_packer.h; sourceTree = "<group>"; };
 		1F7626BA1E12A9E9000A4AE6 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
@@ -434,8 +431,6 @@
 			children = (
 				1F2671C61DD2C227003F00A1 /* shortlink_packer.cc */,
 				1F2671C71DD2C227003F00A1 /* shortlink_packer.h */,
-				1F2671C31DD2BD05003F00A1 /* log_crypt.cc */,
-				1F2671C41DD2BD05003F00A1 /* log_crypt.h */,
 				1FB577251CE20BFE00ADCF8C /* app_callback.h */,
 				1FB577261CE20BFE00ADCF8C /* app_callback.mm */,
 				1FB577291CE20BFE00ADCF8C /* longlink_packer.cc */,
@@ -665,7 +660,6 @@
 				1FB577311CE20BFE00ADCF8C /* stn_callback.mm in Sources */,
 				1F08C1491DE822700098EB97 /* MessageItemsController.m in Sources */,
 				029F91CE1E251214000CA522 /* GPBCodedOutputStream.m in Sources */,
-				1F2671C51DD2BD05003F00A1 /* log_crypt.cc in Sources */,
 				029F91DD1E251214000CA522 /* Type.pbobjc.m in Sources */,
 				029F91C71E251214000CA522 /* Any.pbobjc.m in Sources */,
 				029F91CD1E251214000CA522 /* GPBCodedInputStream.m in Sources */,

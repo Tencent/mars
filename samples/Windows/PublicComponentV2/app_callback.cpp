@@ -1,5 +1,5 @@
 // Tencent is pleased to support the open source community by making Mars available.
-// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+// Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
 // compliance with the License. You may obtain a copy of the License at
@@ -10,12 +10,12 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-//
-//  appcomm_callback.mm
-//  MPApp
-//
-//  Created by yanguoyue on 16/3/3.
-//  Copyright © 2016年 tencent. All rights reserved.
+/*
+*  app_callback.cpp
+*
+*  Created on: 2017-7-7
+*      Author: chenzihao
+*/
 //
 #include "app_callback.h"
 

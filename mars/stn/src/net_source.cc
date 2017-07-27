@@ -177,7 +177,7 @@ void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
 }
 
 bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util) {
-    
+    xinfo_function();
     ScopedLock lock(sg_ip_mutex);
 
     if (__GetLonglinkDebugIPPort(_ipport_items)) {

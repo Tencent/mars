@@ -657,7 +657,7 @@ static void __ReleaseMessageQueueInfo() {
 
     
 const static int kMQCallANRId = 110;
-const static long kWaitANRTimeout = 5 * 1000;
+const static long kWaitANRTimeout = 15 * 1000;
 static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageHandler_t _mq_id) {
     if(MessageQueue2TID(_mq_id.queue) == 0) {
         xwarn2(TSF"messagequeue already destroy, handler:(%_,%_)", _mq_id.queue, _mq_id.seq);
