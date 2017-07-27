@@ -530,6 +530,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
         // select error
         if (ret < 0) {
+            errcode_ = sel.Errno();
             xerror2(TSF"sel ret:(%_, %_, %_), @%_", ret, sel.Errno(), socket_strerror(sel.Errno()), this);
             break;
         }
@@ -557,6 +558,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
 
+                errcode_ = vecsocketfsm[i]->Error();
                 vecsocketfsm[i]->Close();
                 delete vecsocketfsm[i];
                 vecsocketfsm[i] = NULL;
@@ -568,6 +570,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
 
+                errcode_ = vecsocketfsm[i]->Error();
                 vecsocketfsm[i]->Close();
                 delete vecsocketfsm[i];
                 vecsocketfsm[i] = NULL;
@@ -579,6 +582,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
 
+                errcode_ = vecsocketfsm[i]->Error();
                 xinfo2(TSF"index:%_, sock:%_, suc ConnectImpatient:%_:%_, RTT:(%_, %_), @%_", i, vecsocketfsm[i]->Socket(),
                        vecsocketfsm[i]->IP(), vecsocketfsm[i]->Port(), vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), this);
                 retsocket = vecsocketfsm[i]->Socket();
