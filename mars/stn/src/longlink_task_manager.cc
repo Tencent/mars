@@ -511,7 +511,11 @@ void LongLinkTaskManager::__OnResponse(ErrCmdType _error_type, int _error_code, 
     
     if (kEctOK == _error_type && ::longlink_ispush(_cmdid, _taskid, body, extension))  {
         xinfo2(TSF"task push seq:%_, cmdid:%_, len:(%_, %_)", _taskid, _cmdid, body->Length(), extension->Length());
-        OnPush(_connect_profile.start_time, _cmdid, _taskid, body, extension);
+        
+        if (fun_on_push_)
+            fun_on_push_(_connect_profile.start_time, _cmdid, _taskid, body, extension);
+        else
+            xassert2(false);
         return;
     }
     

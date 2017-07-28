@@ -178,7 +178,8 @@ NetCore::NetCore()
 
     longlink_task_manager_->LongLinkChannel().SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
     longlink_task_manager_->LongLinkChannel().SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
-
+    
+    longlink_task_manager_->fun_on_push_ = boost::bind(&NetCore::__OnPush, this, _1, _2, _3, _4, _5);
 #ifdef __APPLE__
     longlink_task_manager_->getLongLinkConnectMonitor().fun_longlink_reset_ = boost::bind(&NetCore::__ResetLongLink, this);
 #endif
@@ -552,14 +553,11 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 
 #ifdef USE_LONG_LINK
 
-//void NetCore::__OnPush(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _buf) {
-//
-//    if (is_push_data(_cmdid, _taskid)) {
-//        xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _buf.Length());
-//        push_preprocess_signal_(_cmdid, _buf);
-//        OnPush(_cmdid, _buf);
-//    }
-//}
+void NetCore::__OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _body.Length());
+    push_preprocess_signal_(_cmdid, _body);
+    OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+}
 
 void NetCore::__OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnLongLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _port));
