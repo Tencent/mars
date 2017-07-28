@@ -252,7 +252,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
         xassert2(fun_notify_network_err_);
         fun_notify_network_err_(__LINE__, kEctNetMsgXP, socket_timeout_code, longlink_->Profile().ip,  longlink_->Profile().port);
     } else if (istasktimeout) {
-        __BatchErrorRespHandle(kEctNetMsgXP, kEctLongTaskTimeout, kTaskFailHandleDefault, src_taskid, longlink_->Profile());
+        __BatchErrorRespHandle(kEctNetMsgXP, kEctLocalTaskTimeout, kTaskFailHandleDefault, src_taskid, longlink_->Profile());
     }
 }
 
