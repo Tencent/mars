@@ -526,7 +526,9 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
 
         _it->end_task_time = ::gettickcount();
         _it->err_type = _err_type;
+        _it->transfer_profile.error_type = _err_type;
         _it->err_code = errcode;
+        _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
         ReportTaskProfile(*_it);
 
@@ -547,6 +549,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     (TSF"cgi:%_, taskid:%_, worker:%_", _it->task.cgi, _it->task.taskid,(void*) _it->running_id);
 
     _it->remain_retry_count--;
+    _it->transfer_profile.error_type = _err_type;
+    _it->transfer_profile.error_code = _err_code;
 
     __DeleteShortLink(_it->running_id);
     _it->PushHistory();

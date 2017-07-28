@@ -418,6 +418,8 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         _it->end_task_time = ::gettickcount();
         _it->err_code = errcode;
         _it->err_type = _err_type;
+        _it->transfer_profile.error_type = _err_type;
+        _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
         ReportTaskProfile(*_it);
 
@@ -432,6 +434,8 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     (TSF"cgi:%_, taskid:%_, tid:%_", _it->task.cgi, _it->task.taskid, _connect_profile.tid);
 
     _it->remain_retry_count--;
+    _it->transfer_profile.error_type = _err_type;
+    _it->transfer_profile.error_code = _err_code;
     _it->PushHistory();
     _it->InitSendParam();
     

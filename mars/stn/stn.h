@@ -141,7 +141,7 @@ enum {
     kEctLongFirstPkgTimeout = -500,
     kEctLongPkgPkgTimeout = -501,
     kEctLongReadWriteTimeout = -502,
-    kEctLongTaskTimeout = -503,
+   // kEctLongTaskTimeout = -503,
 };
 
 // -600 ~ -500
@@ -149,7 +149,7 @@ enum {
     kEctHttpFirstPkgTimeout = -500,
     kEctHttpPkgPkgTimeout = -501,
     kEctHttpReadWriteTimeout = -502,
-    kEctHttpTaskTimeout = -503,
+  //  kEctHttpTaskTimeout = -503,
 };
 
 // -20000 ~ -10000
