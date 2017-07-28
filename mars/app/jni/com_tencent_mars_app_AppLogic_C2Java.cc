@@ -37,6 +37,8 @@
 #include "mars/comm/jni/util/var_cache.h"
 #include "mars/comm/jni/util/scope_jenv.h"
 #include "mars/comm/jni/util/comm_function.h"
+#include "mars/comm/thread/mutex.h"
+#include "mars/comm/thread/lock.h"
 
 #include "mars/app/app.h"
 
@@ -162,16 +164,14 @@ DeviceInfo GetDeviceInfo() {
 
 	jstring devicename_jstr = (jstring)JNU_GetField(env, ret_obj, "devicename", "Ljava/lang/String;").l;
 
+	static Mutex mutex;
+	ScopedLock lock(mutex);
+
 	if (NULL != devicename_jstr) {
 		ScopedJstring scoped_jstr(env, devicename_jstr);
 		
 		jsize len = env->GetStringUTFLength(devicename_jstr);
-		if (len > 512) {
-			xwarn2(TSF "string too long:%_", len);
-			s_info.devicename = "Devicename_hardcode";
-		} else {
-			s_info.devicename = std::string(scoped_jstr.GetChar(), len);
-		}
+		s_info.devicename = std::string(scoped_jstr.GetChar(), len);
 		
 		env->DeleteLocalRef(devicename_jstr);
 	}
@@ -181,12 +181,8 @@ DeviceInfo GetDeviceInfo() {
 		ScopedJstring scoped_jstr(env, devicetype_jstr);
 
 		jsize len = env->GetStringUTFLength(devicetype_jstr);
-		if (len > 512) {
-			xwarn2(TSF "string too long:%_", len);
-			s_info.devicetype = "Devicetype_hardcode";
-		} else {
-			s_info.devicetype = std::string(scoped_jstr.GetChar(), len);
-		}
+		s_info.devicetype = std::string(scoped_jstr.GetChar(), len);
+		
 		env->DeleteLocalRef(devicetype_jstr);
 	}
 
