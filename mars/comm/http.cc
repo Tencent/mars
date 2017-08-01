@@ -362,6 +362,10 @@ void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
 void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& _headerfield) {
     headers_.insert(_headerfield);
 }
+    
+void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
+    headers_[_headerfield.first] = _headerfield.second;
+}
 
 void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
     headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
