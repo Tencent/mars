@@ -110,7 +110,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
     if(_sucess) success_heart_count_ += 1;
     if (success_heart_count_ < NetStableTestCount) {
         current_net_heart_info_.min_heart_fail_count_ = _sucess ? 0 : (current_net_heart_info_.min_heart_fail_count_ + 1);
-        if(report_smart_heart_ && current_net_heart_info_.min_heart_fail_count_ >= 20 && ::isNetworkConnected()) {
+        if(report_smart_heart_ && current_net_heart_info_.min_heart_fail_count_ >= 6 && ::isNetworkConnected()) {
             report_smart_heart_(kActionBadNetwork, current_net_heart_info_, false);
             current_net_heart_info_.min_heart_fail_count_ = 0;
         }
@@ -184,7 +184,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
                 current_net_heart_info_.succ_heart_count_ = 0;
                 current_net_heart_info_.is_stable_ = false;
                 if(report_smart_heart_)
-                    report_smart_heart_(kActionReCalc, current_net_heart_info_, false);
+                    report_smart_heart_(kActionReCalc, current_net_heart_info_, true);
                 //first report, then set fail count
                 current_net_heart_info_.fail_heart_count_  = 0;
                 xinfo2(TSF"in stable sate,can't use old value to Keep TCP alive");
