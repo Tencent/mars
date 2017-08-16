@@ -362,6 +362,10 @@ void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
 void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& _headerfield) {
     headers_.insert(_headerfield);
 }
+    
+void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
+    headers_[_headerfield.first] = _headerfield.second;
+}
 
 void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
     headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
@@ -799,9 +803,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                         
                         if (int(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
                             appendlen = int(recvbuf_.Length());
-                        else
+                        else {
+                            xwarn2(TSF"recv len bigger than contentlen, (%_, %_, %_)", recvbuf_.Length(), bodyreceiver_->Length(), contentLength);
                             appendlen = contentLength - int(bodyreceiver_->Length());
-                        
+                        }
                         
                         bodyreceiver_->AppendData(recvbuf_.Ptr(), (size_t)appendlen);
                         recvbuf_.Move(-appendlen);

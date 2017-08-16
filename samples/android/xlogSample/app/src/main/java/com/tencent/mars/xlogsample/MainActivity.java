@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         String logPath = Environment.getExternalStorageDirectory().getPath() + "/logsample/xlog";
         Log.d("test", logPath);
         Xlog.setConsoleLogOpen(true);
-        Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, "", logPath, "LOGSAMPLE");
+        Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, "", logPath, "LOGSAMPLE", "");
 
 
         TextView tv = (TextView) findViewById(R.id.sample_text);

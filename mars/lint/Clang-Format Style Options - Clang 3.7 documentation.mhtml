@@ -1,0 +1,1867 @@
+From: <Saved by Blink>
+Subject: Clang-Format Style Options ? Clang 3.7 documentation
+Date: Thu, 17 Jun 2015 08:27:53 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_45FD_DE7C85C9.AE4CE561"
+
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.=
+org/1999/xhtml"><head><meta charset=3D"UTF-8">
+   =20
+   =20
+    <title>Clang-Format Style Options =E2=80=94 Clang 3.7 documentation</ti=
+tle>
+   =20
+    <link rel=3D"stylesheet" href=3D"http://clang.llvm.org/docs/_static/hai=
+ku.css" type=3D"text/css">
+    <link rel=3D"stylesheet" href=3D"http://clang.llvm.org/docs/_static/pyg=
+ments.css" type=3D"text/css">
+    <link rel=3D"stylesheet" href=3D"http://clang.llvm.org/docs/_static/pri=
+nt.css" type=3D"text/css">
+   =20
+    <style type=3D"text/css"></style>
+   =20
+   =20
+   =20
+   =20
+   =20
+    <link rel=3D"top" title=3D"Clang 3.7 documentation" href=3D"http://clan=
+g.llvm.org/docs/index.html">
+    <link rel=3D"next" title=3D"=E2=80=9CClang=E2=80=9D CFE Internals Manua=
+l" href=3D"http://clang.llvm.org/docs/InternalsManual.html">
+    <link rel=3D"prev" title=3D"ClangFormat" href=3D"http://clang.llvm.org/=
+docs/ClangFormat.html">=20
+  <style type=3D"text/css">.MathJax_Hover_Frame {border-radius: .25em; -web=
+kit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: =
+.25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A=
+; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A;=
+ border: 1px solid #A6D ! important; display: inline-block; position: absol=
+ute}
+.MathJax_Hover_Arrow {position: absolute; width: 15px; height: 11px; cursor=
+: pointer}
+</style><style type=3D"text/css">#MathJax_About {position: fixed; left: 50%=
+; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; ba=
+ckground-color: #DDDDDD; color: black; cursor: default; font-family: messag=
+e-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform:=
+ none; line-height: normal; letter-spacing: normal; word-spacing: normal; w=
+ord-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-ra=
+dius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-b=
+order-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: =
+0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-s=
+hadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dro=
+pshadow(OffX=3D2, OffY=3D2, Color=3D'gray', Positive=3D'true')}
+.MathJax_Menu {position: absolute; background-color: white; color: black; w=
+idth: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: def=
+ault; font: menu; text-align: left; text-indent: 0; text-transform: none; l=
+ine-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap=
+: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 1=
+0px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shado=
+w: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter:=
+ progid:DXImageTransform.Microsoft.dropshadow(OffX=3D2, OffY=3D2, Color=3D'=
+gray', Positive=3D'true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; color: #666666}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_Menu_Close {position: absolute; width: 31px; height: 31px; top: -1=
+5px; left: -15px}
+</style><style type=3D"text/css">.MathJax_Preview .MJXc-math {color: inheri=
+t!important}
+</style><style type=3D"text/css">#MathJax_Zoom {position: absolute; backgro=
+und-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: =
+.5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: =
+normal; text-align: left; text-indent: 0; text-transform: none; line-height=
+: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; =
+white-space: nowrap; float: none; box-shadow: 5px 5px 15px #AAAAAA; -webkit=
+-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -=
+khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Mic=
+rosoft.dropshadow(OffX=3D2, OffY=3D2, Color=3D'gray', Positive=3D'true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; di=
+splay: inline-block; width: 100%; height: 100%; border: 0; padding: 0; marg=
+in: 0; background-color: white; opacity: 0; filter: alpha(opacity=3D0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; w=
+idth: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; =
+display: inline-block; border: 0; padding: 0; margin: 0; background-color: =
+white; opacity: 0; filter: alpha(opacity=3D0)}
+</style><style type=3D"text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-col=
+or: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-in=
+dex: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-ind=
+ex: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type=3D"text/css">.MJXc-script {font-size: .8em}
+.MJXc-right {-webkit-transform-origin: right; -moz-transform-origin: right;=
+ -ms-transform-origin: right; -o-transform-origin: right; transform-origin:=
+ right}
+.MJXc-bold {font-weight: bold}
+.MJXc-italic {font-style: italic}
+.MJXc-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,=
+serif}
+.MJXc-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGenera=
+l,serif}
+.MJXc-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGenera=
+l,serif}
+.MJXc-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGen=
+eral,serif}
+.MJXc-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGen=
+eral,serif}
+.MJXc-largeop {font-size: 150%}
+.MJXc-largeop.MJXc-int {vertical-align: -.2em}
+.MJXc-math {display: inline-block; line-height: 1.2; text-indent: 0; font-f=
+amily: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; bord=
+er-collapse: collapse}
+.MJXc-display {display: block; text-align: center; margin: 1em 0}
+.MJXc-math span {display: inline-block}
+.MJXc-box {display: block!important; text-align: center}
+.MJXc-box:after {content: " "}
+.MJXc-rule {display: block!important; margin-top: .1em}
+.MJXc-char {display: block!important}
+.MJXc-mo {margin: 0 .15em}
+.MJXc-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXc-denom {display: inline-table!important; width: 100%}
+.MJXc-denom > * {display: table-row!important}
+.MJXc-surd {vertical-align: top}
+.MJXc-surd > * {display: block!important}
+.MJXc-script-box > *  {display: table!important; height: 50%}
+.MJXc-script-box > * > * {display: table-cell!important; vertical-align: to=
+p}
+.MJXc-script-box > *:last-child > * {vertical-align: bottom}
+.MJXc-script-box > * > * > * {display: block!important}
+.MJXc-mphantom {visibility: hidden}
+.MJXc-munderover {display: inline-table!important}
+.MJXc-over {display: inline-block!important; text-align: center}
+.MJXc-over > * {display: block!important}
+.MJXc-munderover > * {display: table-row!important}
+.MJXc-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXc-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXc-mtr {display: table-row!important}
+.MJXc-mtd {display: table-cell!important; text-align: center; padding: .5em=
+ 0 0 .5em}
+.MJXc-mtr > .MJXc-mtd:first-child {padding-left: 0}
+.MJXc-mtr:first-child > .MJXc-mtd {padding-top: 0}
+.MJXc-mlabeledtr {display: table-row!important}
+.MJXc-mlabeledtr > .MJXc-mtd:first-child {padding-left: 0}
+.MJXc-mlabeledtr:first-child > .MJXc-mtd {padding-top: 0}
+.MJXc-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid =
+#CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXc-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -m=
+s-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXc-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -m=
+s-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXc-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -m=
+s-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXc-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -m=
+s-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXc-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -m=
+s-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXc-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -m=
+s-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXc-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -m=
+s-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXc-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -m=
+s-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXc-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -m=
+s-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXc-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -m=
+s-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_CHTML .noError {vertical-align: ; font-size: 90%; text-align: left=
+; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+  <body><div id=3D"MathJax_Message" style=3D"display: none;"></div>
+      <div class=3D"header"><h1 class=3D"heading"><a href=3D"http://clang.l=
+lvm.org/docs/index.html">
+          <span>Clang 3.7 documentation</span></a></h1>
+        <h2 class=3D"heading"><span>Clang-Format Style Options</span></h2>
+      </div>
+      <div class=3D"topnav">
+     =20
+        <p>
+        =C2=AB&nbsp;&nbsp;<a href=3D"http://clang.llvm.org/docs/ClangFormat=
+.html">ClangFormat</a>
+        &nbsp;&nbsp;::&nbsp;&nbsp;
+        <a class=3D"uplink" href=3D"http://clang.llvm.org/docs/index.html">=
+Contents</a>
+        &nbsp;&nbsp;::&nbsp;&nbsp;
+        <a href=3D"http://clang.llvm.org/docs/InternalsManual.html">=E2=80=
+=9CClang=E2=80=9D CFE Internals Manual</a>&nbsp;&nbsp;=C2=BB
+        </p>
+
+      </div>
+      <div class=3D"content">
+       =20
+       =20
+  <div class=3D"section" id=3D"clang-format-style-options">
+<h1>Clang-Format Style Options<a class=3D"headerlink" href=3D"http://clang.=
+llvm.org/docs/ClangFormatStyleOptions.html#clang-format-style-options" titl=
+e=3D"Permalink to this headline">=C2=B6</a></h1>
+<p><a class=3D"reference internal" href=3D"http://clang.llvm.org/docs/Clang=
+FormatStyleOptions.html"><em>Clang-Format Style Options</em></a> describes =
+configurable formatting style options
+supported by <a class=3D"reference internal" href=3D"http://clang.llvm.org/=
+docs/LibFormat.html"><em>LibFormat</em></a> and <a class=3D"reference inter=
+nal" href=3D"http://clang.llvm.org/docs/ClangFormat.html"><em>ClangFormat</=
+em></a>.</p>
+<p>When using <strong class=3D"program">clang-format</strong> command line =
+utility or
+<tt class=3D"docutils literal"><span class=3D"pre">clang::format::reformat(=
+...)</span></tt> functions from code, one can either use one of
+the predefined styles (LLVM, Google, Chromium, Mozilla, WebKit) or create a
+custom style by configuring specific style options.</p>
+<div class=3D"section" id=3D"configuring-style-with-clang-format">
+<h2>Configuring Style with clang-format<a class=3D"headerlink" href=3D"http=
+://clang.llvm.org/docs/ClangFormatStyleOptions.html#configuring-style-with-=
+clang-format" title=3D"Permalink to this headline">=C2=B6</a></h2>
+<p><strong class=3D"program">clang-format</strong> supports two ways to pro=
+vide custom style options:
+directly specify style configuration in the <tt class=3D"docutils literal">=
+<span class=3D"pre">-style=3D</span></tt> command line option or
+use <tt class=3D"docutils literal"><span class=3D"pre">-style=3Dfile</span>=
+</tt> and put style configuration in the <tt class=3D"docutils literal"><sp=
+an class=3D"pre">.clang-format</span></tt> or
+<tt class=3D"docutils literal"><span class=3D"pre">_clang-format</span></tt=
+> file in the project directory.</p>
+<p>When using <tt class=3D"docutils literal"><span class=3D"pre">-style=3Df=
+ile</span></tt>, <strong class=3D"program">clang-format</strong> for each i=
+nput file will
+try to find the <tt class=3D"docutils literal"><span class=3D"pre">.clang-f=
+ormat</span></tt> file located in the closest parent directory
+of the input file. When the standard input is used, the search is started f=
+rom
+the current directory.</p>
+<p>The <tt class=3D"docutils literal"><span class=3D"pre">.clang-format</sp=
+an></tt> file uses YAML format:</p>
+<div class=3D"highlight-yaml"><div class=3D"highlight"><pre><span class=3D"=
+l-Scalar-Plain">key1</span><span class=3D"p-Indicator">:</span> <span class=
+=3D"l-Scalar-Plain">value1</span>
+<span class=3D"l-Scalar-Plain">key2</span><span class=3D"p-Indicator">:</sp=
+an> <span class=3D"l-Scalar-Plain">value2</span>
+<span class=3D"c1"># A comment.</span>
+<span class=3D"nn">...</span>
+</pre></div>
+</div>
+<p>The configuration file can consist of several sections each having diffe=
+rent
+<tt class=3D"docutils literal"><span class=3D"pre">Language:</span></tt> pa=
+rameter denoting the programming language this section of the
+configuration is targeted at. See the description of the <strong>Language</=
+strong> option
+below for the list of supported languages. The first section may have no
+language set, it will set the default style options for all lanugages.
+Configuration sections for specific language will override options set in t=
+he
+default section.</p>
+<p>When <strong class=3D"program">clang-format</strong> formats a file, it =
+auto-detects the language using
+the file name. When formatting standard input or a file that doesn=E2=80=99=
+t have the
+extension corresponding to its language, <tt class=3D"docutils literal"><sp=
+an class=3D"pre">-assume-filename=3D</span></tt> option can be
+used to override the file name <strong class=3D"program">clang-format</stro=
+ng> uses to detect the
+language.</p>
+<p>An example of a configuration file for multiple languages:</p>
+<div class=3D"highlight-yaml"><div class=3D"highlight"><pre><span class=3D"=
+nn">---</span>
+<span class=3D"c1"># We'll use defaults from the LLVM style, but with 4 col=
+umns indentation.</span>
+<span class=3D"l-Scalar-Plain">BasedOnStyle</span><span class=3D"p-Indicato=
+r">:</span> <span class=3D"l-Scalar-Plain">LLVM</span>
+<span class=3D"l-Scalar-Plain">IndentWidth</span><span class=3D"p-Indicator=
+">:</span> <span class=3D"l-Scalar-Plain">4</span>
+<span class=3D"nn">---</span>
+<span class=3D"l-Scalar-Plain">Language</span><span class=3D"p-Indicator">:=
+</span> <span class=3D"l-Scalar-Plain">Cpp</span>
+<span class=3D"c1"># Force pointers to the type for C++.</span>
+<span class=3D"l-Scalar-Plain">DerivePointerAlignment</span><span class=3D"=
+p-Indicator">:</span> <span class=3D"l-Scalar-Plain">false</span>
+<span class=3D"l-Scalar-Plain">PointerAlignment</span><span class=3D"p-Indi=
+cator">:</span> <span class=3D"l-Scalar-Plain">Left</span>
+<span class=3D"nn">---</span>
+<span class=3D"l-Scalar-Plain">Language</span><span class=3D"p-Indicator">:=
+</span> <span class=3D"l-Scalar-Plain">JavaScript</span>
+<span class=3D"c1"># Use 100 columns for JS.</span>
+<span class=3D"l-Scalar-Plain">ColumnLimit</span><span class=3D"p-Indicator=
+">:</span> <span class=3D"l-Scalar-Plain">100</span>
+<span class=3D"nn">---</span>
+<span class=3D"l-Scalar-Plain">Language</span><span class=3D"p-Indicator">:=
+</span> <span class=3D"l-Scalar-Plain">Proto</span>
+<span class=3D"c1"># Don't format .proto files.</span>
+<span class=3D"l-Scalar-Plain">DisableFormat</span><span class=3D"p-Indicat=
+or">:</span> <span class=3D"l-Scalar-Plain">true</span>
+<span class=3D"nn">...</span>
+</pre></div>
+</div>
+<p>An easy way to get a valid <tt class=3D"docutils literal"><span class=3D=
+"pre">.clang-format</span></tt> file containing all configuration
+options of a certain predefined style is:</p>
+<div class=3D"highlight-console"><div class=3D"highlight"><pre><span class=
+=3D"go">clang-format -style=3Dllvm -dump-config &gt; .clang-format</span>
+</pre></div>
+</div>
+<p>When specifying configuration in the <tt class=3D"docutils literal"><spa=
+n class=3D"pre">-style=3D</span></tt> option, the same configuration
+is applied for all input files. The format of the configuration is:</p>
+<div class=3D"highlight-console"><div class=3D"highlight"><pre><span class=
+=3D"go">-style=3D'{key1: value1, key2: value2, ...}'</span>
+</pre></div>
+</div>
+</div>
+<div class=3D"section" id=3D"disabling-formatting-on-a-piece-of-code">
+<h2>Disabling Formatting on a Piece of Code<a class=3D"headerlink" href=3D"=
+http://clang.llvm.org/docs/ClangFormatStyleOptions.html#disabling-formattin=
+g-on-a-piece-of-code" title=3D"Permalink to this headline">=C2=B6</a></h2>
+<p>Clang-format understands also special comments that switch formatting in=
+ a
+delimited range. The code between a comment <tt class=3D"docutils literal">=
+<span class=3D"pre">//</span> <span class=3D"pre">clang-format</span> <span=
+ class=3D"pre">off</span></tt> or
+<tt class=3D"docutils literal"><span class=3D"pre">/*</span> <span class=3D=
+"pre">clang-format</span> <span class=3D"pre">off</span> <span class=3D"pre=
+">*/</span></tt> up to a comment <tt class=3D"docutils literal"><span class=
+=3D"pre">//</span> <span class=3D"pre">clang-format</span> <span class=3D"p=
+re">on</span></tt> or
+<tt class=3D"docutils literal"><span class=3D"pre">/*</span> <span class=3D=
+"pre">clang-format</span> <span class=3D"pre">on</span> <span class=3D"pre"=
+>*/</span></tt> will not be formatted. The comments themselves
+will be formatted (aligned) normally.</p>
+<div class=3D"highlight-c++"><div class=3D"highlight"><pre><span class=3D"k=
+t">int</span> <span class=3D"n">formatted_code</span><span class=3D"p">;</s=
+pan>
+<span class=3D"c1">// clang-format off</span>
+    <span class=3D"kt">void</span>    <span class=3D"n">unformatted_code</s=
+pan>  <span class=3D"p">;</span>
+<span class=3D"c1">// clang-format on</span>
+<span class=3D"kt">void</span> <span class=3D"n">formatted_code_again</span=
+><span class=3D"p">;</span>
+</pre></div>
+</div>
+</div>
+<div class=3D"section" id=3D"configuring-style-in-code">
+<h2>Configuring Style in Code<a class=3D"headerlink" href=3D"http://clang.l=
+lvm.org/docs/ClangFormatStyleOptions.html#configuring-style-in-code" title=
+=3D"Permalink to this headline">=C2=B6</a></h2>
+<p>When using <tt class=3D"docutils literal"><span class=3D"pre">clang::for=
+mat::reformat(...)</span></tt> functions, the format is specified
+by supplying the <a class=3D"reference external" href=3D"http://clang.llvm.=
+org/doxygen/structclang_1_1format_1_1FormatStyle.html">clang::format::Forma=
+tStyle</a>
+structure.</p>
+</div>
+<div class=3D"section" id=3D"configurable-format-style-options">
+<h2>Configurable Format Style Options<a class=3D"headerlink" href=3D"http:/=
+/clang.llvm.org/docs/ClangFormatStyleOptions.html#configurable-format-style=
+-options" title=3D"Permalink to this headline">=C2=B6</a></h2>
+<p>This section lists the supported style options. Value type is specified =
+for
+each option. For enumeration types possible values are specified both as a =
+C++
+enumeration member (with a prefix, e.g. <tt class=3D"docutils literal"><spa=
+n class=3D"pre">LS_Auto</span></tt>), and as a value usable in
+the configuration (without a prefix: <tt class=3D"docutils literal"><span c=
+lass=3D"pre">Auto</span></tt>).</p>
+<dl class=3D"docutils">
+<dt><strong>BasedOnStyle</strong> (<tt class=3D"docutils literal"><span cla=
+ss=3D"pre">string</span></tt>)</dt>
+<dd><p class=3D"first">The style used for all options not specifically set =
+in the configuration.</p>
+<p>This option is supported only in the <strong class=3D"program">clang-for=
+mat</strong> configuration
+(both within <tt class=3D"docutils literal"><span class=3D"pre">-style=3D'{=
+...}'</span></tt> and the <tt class=3D"docutils literal"><span class=3D"pre=
+">.clang-format</span></tt> file).</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">LLVM</span></tt>
+A style complying with the <a class=3D"reference external" href=3D"http://l=
+lvm.org/docs/CodingStandards.html">LLVM coding standards</a></li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">Google</span></tt>
+A style complying with <a class=3D"reference external" href=3D"http://googl=
+e-styleguide.googlecode.com/svn/trunk/cppguide.xml">Google=E2=80=99s C++ st=
+yle guide</a></li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">Chromium</span></tt>
+A style complying with <a class=3D"reference external" href=3D"http://www.c=
+hromium.org/developers/coding-style">Chromium=E2=80=99s style guide</a></li=
+>
+<li><tt class=3D"docutils literal"><span class=3D"pre">Mozilla</span></tt>
+A style complying with <a class=3D"reference external" href=3D"https://deve=
+loper.mozilla.org/en-US/docs/Developer_Guide/Coding_Style">Mozilla=E2=80=99=
+s style guide</a></li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">WebKit</span></tt>
+A style complying with <a class=3D"reference external" href=3D"http://www.w=
+ebkit.org/coding/coding-style.html">WebKit=E2=80=99s style guide</a></li>
+</ul>
+</dd>
+</dl>
+<dl class=3D"docutils">
+<dt><strong>AccessModifierOffset</strong> (<tt class=3D"docutils literal"><=
+span class=3D"pre">int</span></tt>)</dt>
+<dd>The extra indent or outdent of access modifiers, e.g. <tt class=3D"docu=
+tils literal"><span class=3D"pre">public:</span></tt>.</dd>
+<dt><strong>AlignAfterOpenBracket</strong> (<tt class=3D"docutils literal">=
+<span class=3D"pre">bool</span></tt>)</dt>
+<dd><p class=3D"first">If <tt class=3D"docutils literal"><span class=3D"pre=
+">true</span></tt>, horizontally aligns arguments after an open bracket.</p=
+>
+<p class=3D"last">This applies to round brackets (parentheses), angle brack=
+ets and square
+brackets. This will result in formattings like
+code
+someLongFunction(argument1,
+argument2);
+endcode</p>
+</dd>
+<dt><strong>AlignConsecutiveAssignments</strong> (<tt class=3D"docutils lit=
+eral"><span class=3D"pre">bool</span></tt>)</dt>
+<dd><p class=3D"first">If <tt class=3D"docutils literal"><span class=3D"pre=
+">true</span></tt>, aligns consecutive assignments.</p>
+<p class=3D"last">This will align the assignment operators of consecutive l=
+ines. This
+will result in formattings like
+code
+int aaaa =3D 12;
+int b    =3D 23;
+int ccc  =3D 23;
+endcode</p>
+</dd>
+<dt><strong>AlignEscapedNewlinesLeft</strong> (<tt class=3D"docutils litera=
+l"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ aligns escaped newlines as far left as possible.
+Otherwise puts them into the right-most column.</dd>
+<dt><strong>AlignOperands</strong> (<tt class=3D"docutils literal"><span cl=
+ass=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ horizontally align operands of binary and ternary
+expressions.</dd>
+<dt><strong>AlignTrailingComments</strong> (<tt class=3D"docutils literal">=
+<span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ aligns trailing comments.</dd>
+<dt><strong>AllowAllParametersOfDeclarationOnNextLine</strong> (<tt class=
+=3D"docutils literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>Allow putting all parameters of a function declaration onto
+the next line even if <tt class=3D"docutils literal"><span class=3D"pre">Bi=
+nPackParameters</span></tt> is <tt class=3D"docutils literal"><span class=
+=3D"pre">false</span></tt>.</dd>
+<dt><strong>AllowShortBlocksOnASingleLine</strong> (<tt class=3D"docutils l=
+iteral"><span class=3D"pre">bool</span></tt>)</dt>
+<dd><p class=3D"first">Allows contracting simple braced statements to a sin=
+gle line.</p>
+<p class=3D"last">E.g., this allows <tt class=3D"docutils literal"><span cl=
+ass=3D"pre">if</span> <span class=3D"pre">(a)</span> <span class=3D"pre">{<=
+/span> <span class=3D"pre">return;</span> <span class=3D"pre">}</span></tt>=
+ to be put on a single line.</p>
+</dd>
+<dt><strong>AllowShortCaseLabelsOnASingleLine</strong> (<tt class=3D"docuti=
+ls literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ short case labels will be contracted to a single line.</dd>
+<dt><strong>AllowShortFunctionsOnASingleLine</strong> (<tt class=3D"docutil=
+s literal"><span class=3D"pre">ShortFunctionStyle</span></tt>)</dt>
+<dd><p class=3D"first">Dependent on the value, <tt class=3D"docutils litera=
+l"><span class=3D"pre">int</span> <span class=3D"pre">f()</span> <span clas=
+s=3D"pre">{</span> <span class=3D"pre">return</span> <span class=3D"pre">0;=
+</span> <span class=3D"pre">}</span></tt> can be put
+on a single line.</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">SFS_None</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">None=
+</span></tt>)
+Never merge functions into a single line.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">SFS_Empty</span></tt=
+> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Emp=
+ty</span></tt>)
+Only merge empty functions.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">SFS_Inline</span></t=
+t> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">In=
+line</span></tt>)
+Only merge functions defined inside a class. Implies =E2=80=9Cempty=E2=80=
+=9D.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">SFS_All</span></tt> =
+(in configuration: <tt class=3D"docutils literal"><span class=3D"pre">All</=
+span></tt>)
+Merge all functions fitting on a single line.</li>
+</ul>
+</dd>
+<dt><strong>AllowShortIfStatementsOnASingleLine</strong> (<tt class=3D"docu=
+tils literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ <tt class=3D"docutils literal"><span class=3D"pre">if</span> <span class=
+=3D"pre">(a)</span> <span class=3D"pre">return;</span></tt> can be put on a=
+ single
+line.</dd>
+<dt><strong>AllowShortLoopsOnASingleLine</strong> (<tt class=3D"docutils li=
+teral"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ <tt class=3D"docutils literal"><span class=3D"pre">while</span> <span clas=
+s=3D"pre">(true)</span> <span class=3D"pre">continue;</span></tt> can be pu=
+t on a
+single line.</dd>
+<dt><strong>AlwaysBreakAfterDefinitionReturnType</strong> (<tt class=3D"doc=
+utils literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd><p class=3D"first">If <tt class=3D"docutils literal"><span class=3D"pre=
+">true</span></tt>, always break after function definition return types.</p=
+>
+<p class=3D"last">More truthfully called =E2=80=98break before the identifi=
+er following the type
+in a function definition=E2=80=99. PenaltyReturnTypeOnItsOwnLine becomes
+irrelevant.</p>
+</dd>
+<dt><strong>AlwaysBreakBeforeMultilineStrings</strong> (<tt class=3D"docuti=
+ls literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ always break before multiline string literals.</dd>
+<dt><strong>AlwaysBreakTemplateDeclarations</strong> (<tt class=3D"docutils=
+ literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ always break after the <tt class=3D"docutils literal"><span class=3D"pre">=
+template&lt;...&gt;</span></tt> of a
+template declaration.</dd>
+<dt><strong>BinPackArguments</strong> (<tt class=3D"docutils literal"><span=
+ class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">false</span></tt>=
+, a function call=E2=80=99s arguments will either be all on the
+same line or will have one line each.</dd>
+<dt><strong>BinPackParameters</strong> (<tt class=3D"docutils literal"><spa=
+n class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">false</span></tt>=
+, a function declaration=E2=80=99s or function definition=E2=80=99s
+parameters will either all be on the same line or will have one line each.<=
+/dd>
+<dt><strong>BreakBeforeBinaryOperators</strong> (<tt class=3D"docutils lite=
+ral"><span class=3D"pre">BinaryOperatorStyle</span></tt>)</dt>
+<dd><p class=3D"first">The way to wrap binary operators.</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">BOS_None</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">None=
+</span></tt>)
+Break after operators.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">BOS_NonAssignment</s=
+pan></tt> (in configuration: <tt class=3D"docutils literal"><span class=3D"=
+pre">NonAssignment</span></tt>)
+Break before operators that aren=E2=80=99t assignments.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">BOS_All</span></tt> =
+(in configuration: <tt class=3D"docutils literal"><span class=3D"pre">All</=
+span></tt>)
+Break before operators.</li>
+</ul>
+</dd>
+<dt><strong>BreakBeforeBraces</strong> (<tt class=3D"docutils literal"><spa=
+n class=3D"pre">BraceBreakingStyle</span></tt>)</dt>
+<dd><p class=3D"first">The brace breaking style to use.</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">BS_Attach</span></tt=
+> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Att=
+ach</span></tt>)
+Always attach braces to surrounding context.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">BS_Linux</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Linu=
+x</span></tt>)
+Like <tt class=3D"docutils literal"><span class=3D"pre">Attach</span></tt>,=
+ but break before braces on function, namespace and
+class definitions.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">BS_Stroustrup</span>=
+</tt> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre"=
+>Stroustrup</span></tt>)
+Like <tt class=3D"docutils literal"><span class=3D"pre">Attach</span></tt>,=
+ but break before function definitions, and =E2=80=98else=E2=80=99.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">BS_Allman</span></tt=
+> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">All=
+man</span></tt>)
+Always break before braces.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">BS_GNU</span></tt> (=
+in configuration: <tt class=3D"docutils literal"><span class=3D"pre">GNU</s=
+pan></tt>)
+Always break before braces and add an extra level of indentation to
+braces of control statements, not to those of class, function
+or other definitions.</li>
+</ul>
+</dd>
+<dt><strong>BreakBeforeTernaryOperators</strong> (<tt class=3D"docutils lit=
+eral"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ ternary operators will be placed after line breaks.</dd>
+<dt><strong>BreakConstructorInitializersBeforeComma</strong> (<tt class=3D"=
+docutils literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>Always break constructor initializers before commas and align
+the commas with the colon.</dd>
+<dt><strong>ColumnLimit</strong> (<tt class=3D"docutils literal"><span clas=
+s=3D"pre">unsigned</span></tt>)</dt>
+<dd><p class=3D"first">The column limit.</p>
+<p class=3D"last">A column limit of <tt class=3D"docutils literal"><span cl=
+ass=3D"pre">0</span></tt> means that there is no column limit. In this case=
+,
+clang-format will respect the input=E2=80=99s line breaking decisions withi=
+n
+statements unless they contradict other rules.</p>
+</dd>
+<dt><strong>CommentPragmas</strong> (<tt class=3D"docutils literal"><span c=
+lass=3D"pre">std::string</span></tt>)</dt>
+<dd>A regular expression that describes comments with special meaning,
+which should not be split into lines or otherwise changed.</dd>
+<dt><strong>ConstructorInitializerAllOnOneLineOrOnePerLine</strong> (<tt cl=
+ass=3D"docutils literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If the constructor initializers don=E2=80=99t fit on a line, put each
+initializer on its own line.</dd>
+<dt><strong>ConstructorInitializerIndentWidth</strong> (<tt class=3D"docuti=
+ls literal"><span class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The number of characters to use for indentation of constructor
+initializer lists.</dd>
+<dt><strong>ContinuationIndentWidth</strong> (<tt class=3D"docutils literal=
+"><span class=3D"pre">unsigned</span></tt>)</dt>
+<dd>Indent width for line continuations.</dd>
+<dt><strong>Cpp11BracedListStyle</strong> (<tt class=3D"docutils literal"><=
+span class=3D"pre">bool</span></tt>)</dt>
+<dd><p class=3D"first">If <tt class=3D"docutils literal"><span class=3D"pre=
+">true</span></tt>, format braced lists as best suited for C++11 braced
+lists.</p>
+<p>Important differences:
+- No spaces inside the braced list.
+- No line break before the closing brace.
+- Indentation with the continuation indent, not with the block indent.</p>
+<p class=3D"last">Fundamentally, C++11 braced lists are formatted exactly l=
+ike function
+calls would be formatted in their place. If the braced list follows a name
+(e.g. a type or variable name), clang-format formats as if the <tt class=3D=
+"docutils literal"><span class=3D"pre">{}</span></tt> were
+the parentheses of a function call with that name. If there is no name,
+a zero-length name is assumed.</p>
+</dd>
+<dt><strong>DerivePointerAlignment</strong> (<tt class=3D"docutils literal"=
+><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ analyze the formatted file for the most common
+alignment of &amp; and *. <tt class=3D"docutils literal"><span class=3D"pre=
+">PointerAlignment</span></tt> is then used only as fallback.</dd>
+<dt><strong>DisableFormat</strong> (<tt class=3D"docutils literal"><span cl=
+ass=3D"pre">bool</span></tt>)</dt>
+<dd>Disables formatting at all.</dd>
+<dt><strong>ExperimentalAutoDetectBinPacking</strong> (<tt class=3D"docutil=
+s literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd><p class=3D"first">If <tt class=3D"docutils literal"><span class=3D"pre=
+">true</span></tt>, clang-format detects whether function calls and
+definitions are formatted with one parameter per line.</p>
+<p>Each call can be bin-packed, one-per-line or inconclusive. If it is
+inconclusive, e.g. completely on one line, but a decision needs to be
+made, clang-format analyzes whether there are other bin-packed cases in
+the input file and act accordingly.</p>
+<p class=3D"last">NOTE: This is an experimental flag, that might go away or=
+ be renamed. Do
+not use this in config files, etc. Use at your own risk.</p>
+</dd>
+<dt><strong>ForEachMacros</strong> (<tt class=3D"docutils literal"><span cl=
+ass=3D"pre">std::vector&lt;std::string&gt;</span></tt>)</dt>
+<dd><p class=3D"first">A vector of macros that should be interpreted as for=
+each loops
+instead of as function calls.</p>
+<p>These are expected to be macros of the form:
+code
+FOREACH(&lt;variable-declaration&gt;, ...)
+&lt;loop-body&gt;
+endcode</p>
+<p class=3D"last">For example: BOOST_FOREACH.</p>
+</dd>
+<dt><strong>IndentCaseLabels</strong> (<tt class=3D"docutils literal"><span=
+ class=3D"pre">bool</span></tt>)</dt>
+<dd><p class=3D"first">Indent case labels one level from the switch stateme=
+nt.</p>
+<p class=3D"last">When <tt class=3D"docutils literal"><span class=3D"pre">f=
+alse</span></tt>, use the same indentation level as for the switch statemen=
+t.
+Switch statement body is always indented one level more than case labels.</=
+p>
+</dd>
+<dt><strong>IndentWidth</strong> (<tt class=3D"docutils literal"><span clas=
+s=3D"pre">unsigned</span></tt>)</dt>
+<dd>The number of columns to use for indentation.</dd>
+<dt><strong>IndentWrappedFunctionNames</strong> (<tt class=3D"docutils lite=
+ral"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>Indent if a function definition or declaration is wrapped after the
+type.</dd>
+<dt><strong>KeepEmptyLinesAtTheStartOfBlocks</strong> (<tt class=3D"docutil=
+s literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If true, empty lines at the start of blocks are kept.</dd>
+<dt><strong>Language</strong> (<tt class=3D"docutils literal"><span class=
+=3D"pre">LanguageKind</span></tt>)</dt>
+<dd><p class=3D"first">Language, this format style is targeted at.</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">LK_None</span></tt> =
+(in configuration: <tt class=3D"docutils literal"><span class=3D"pre">None<=
+/span></tt>)
+Do not use.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">LK_Cpp</span></tt> (=
+in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Cpp</s=
+pan></tt>)
+Should be used for C, C++, ObjectiveC, ObjectiveC++.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">LK_Java</span></tt> =
+(in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Java<=
+/span></tt>)
+Should be used for Java.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">LK_JavaScript</span>=
+</tt> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre"=
+>JavaScript</span></tt>)
+Should be used for JavaScript.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">LK_Proto</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Prot=
+o</span></tt>)
+Should be used for Protocol Buffers
+(<a class=3D"reference external" href=3D"https://developers.google.com/prot=
+ocol-buffers/">https://developers.google.com/protocol-buffers/</a>).</li>
+</ul>
+</dd>
+<dt><strong>MaxEmptyLinesToKeep</strong> (<tt class=3D"docutils literal"><s=
+pan class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The maximum number of consecutive empty lines to keep.</dd>
+<dt><strong>NamespaceIndentation</strong> (<tt class=3D"docutils literal"><=
+span class=3D"pre">NamespaceIndentationKind</span></tt>)</dt>
+<dd><p class=3D"first">The indentation used for namespaces.</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">NI_None</span></tt> =
+(in configuration: <tt class=3D"docutils literal"><span class=3D"pre">None<=
+/span></tt>)
+Don=E2=80=99t indent in namespaces.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">NI_Inner</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Inne=
+r</span></tt>)
+Indent only in inner namespaces (nested in other namespaces).</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">NI_All</span></tt> (=
+in configuration: <tt class=3D"docutils literal"><span class=3D"pre">All</s=
+pan></tt>)
+Indent in all namespaces.</li>
+</ul>
+</dd>
+<dt><strong>ObjCBlockIndentWidth</strong> (<tt class=3D"docutils literal"><=
+span class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The number of characters to use for indentation of ObjC blocks.</dd>
+<dt><strong>ObjCSpaceAfterProperty</strong> (<tt class=3D"docutils literal"=
+><span class=3D"pre">bool</span></tt>)</dt>
+<dd>Add a space after <tt class=3D"docutils literal"><span class=3D"pre">@p=
+roperty</span></tt> in Objective-C, i.e. use
+<tt class=3D"docutils literal"><span class=3D"pre">\@property</span> <span =
+class=3D"pre">(readonly)</span></tt> instead of <tt class=3D"docutils liter=
+al"><span class=3D"pre">\@property(readonly)</span></tt>.</dd>
+<dt><strong>ObjCSpaceBeforeProtocolList</strong> (<tt class=3D"docutils lit=
+eral"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>Add a space in front of an Objective-C protocol list, i.e. use
+<tt class=3D"docutils literal"><span class=3D"pre">Foo</span> <span class=
+=3D"pre">&lt;Protocol&gt;</span></tt> instead of <tt class=3D"docutils lite=
+ral"><span class=3D"pre">Foo&lt;Protocol&gt;</span></tt>.</dd>
+<dt><strong>PenaltyBreakBeforeFirstCallParameter</strong> (<tt class=3D"doc=
+utils literal"><span class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The penalty for breaking a function call after =E2=80=9Ccall(=E2=80=9D.=
+</dd>
+<dt><strong>PenaltyBreakComment</strong> (<tt class=3D"docutils literal"><s=
+pan class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The penalty for each line break introduced inside a comment.</dd>
+<dt><strong>PenaltyBreakFirstLessLess</strong> (<tt class=3D"docutils liter=
+al"><span class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The penalty for breaking before the first <tt class=3D"docutils literal=
+"><span class=3D"pre">&lt;&lt;</span></tt>.</dd>
+<dt><strong>PenaltyBreakString</strong> (<tt class=3D"docutils literal"><sp=
+an class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The penalty for each line break introduced inside a string literal.</dd=
+>
+<dt><strong>PenaltyExcessCharacter</strong> (<tt class=3D"docutils literal"=
+><span class=3D"pre">unsigned</span></tt>)</dt>
+<dd>The penalty for each character outside of the column limit.</dd>
+<dt><strong>PenaltyReturnTypeOnItsOwnLine</strong> (<tt class=3D"docutils l=
+iteral"><span class=3D"pre">unsigned</span></tt>)</dt>
+<dd>Penalty for putting the return type of a function onto its own
+line.</dd>
+<dt><strong>PointerAlignment</strong> (<tt class=3D"docutils literal"><span=
+ class=3D"pre">PointerAlignmentStyle</span></tt>)</dt>
+<dd><p class=3D"first">Pointer and reference alignment style.</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">PAS_Left</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Left=
+</span></tt>)
+Align pointer to the left.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">PAS_Right</span></tt=
+> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Rig=
+ht</span></tt>)
+Align pointer to the right.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">PAS_Middle</span></t=
+t> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Mi=
+ddle</span></tt>)
+Align pointer in the middle.</li>
+</ul>
+</dd>
+<dt><strong>SpaceAfterCStyleCast</strong> (<tt class=3D"docutils literal"><=
+span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ a space may be inserted after C style casts.</dd>
+<dt><strong>SpaceBeforeAssignmentOperators</strong> (<tt class=3D"docutils =
+literal"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">false</span></tt>=
+, spaces will be removed before assignment operators.</dd>
+<dt><strong>SpaceBeforeParens</strong> (<tt class=3D"docutils literal"><spa=
+n class=3D"pre">SpaceBeforeParensOptions</span></tt>)</dt>
+<dd><p class=3D"first">Defines in which cases to put a space before opening=
+ parentheses.</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">SBPO_Never</span></t=
+t> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Ne=
+ver</span></tt>)
+Never put a space before opening parentheses.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">SBPO_ControlStatemen=
+ts</span></tt> (in configuration: <tt class=3D"docutils literal"><span clas=
+s=3D"pre">ControlStatements</span></tt>)
+Put a space before opening parentheses only after control statement
+keywords (<tt class=3D"docutils literal"><span class=3D"pre">for/if/while..=
+.</span></tt>).</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">SBPO_Always</span></=
+tt> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">A=
+lways</span></tt>)
+Always put a space before opening parentheses, except when it=E2=80=99s
+prohibited by the syntax rules (in function-like macro definitions) or
+when determined by other style rules (after unary operators, opening
+parentheses, etc.)</li>
+</ul>
+</dd>
+<dt><strong>SpaceInEmptyParentheses</strong> (<tt class=3D"docutils literal=
+"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ spaces may be inserted into =E2=80=98()=E2=80=99.</dd>
+<dt><strong>SpacesBeforeTrailingComments</strong> (<tt class=3D"docutils li=
+teral"><span class=3D"pre">unsigned</span></tt>)</dt>
+<dd><p class=3D"first">The number of spaces before trailing line comments
+(<tt class=3D"docutils literal"><span class=3D"pre">//</span></tt> - commen=
+ts).</p>
+<p class=3D"last">This does not affect trailing block comments (<tt class=
+=3D"docutils literal"><span class=3D"pre">/**/</span></tt> - comments) as t=
+hose
+commonly have different usage patterns and a number of special cases.</p>
+</dd>
+<dt><strong>SpacesInAngles</strong> (<tt class=3D"docutils literal"><span c=
+lass=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ spaces will be inserted after =E2=80=98&lt;=E2=80=99 and before =E2=80=98&=
+gt;=E2=80=99 in
+template argument lists</dd>
+<dt><strong>SpacesInCStyleCastParentheses</strong> (<tt class=3D"docutils l=
+iteral"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ spaces may be inserted into C style casts.</dd>
+<dt><strong>SpacesInContainerLiterals</strong> (<tt class=3D"docutils liter=
+al"><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ spaces are inserted inside container literals (e.g.
+ObjC and Javascript array and dict literals).</dd>
+<dt><strong>SpacesInParentheses</strong> (<tt class=3D"docutils literal"><s=
+pan class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ spaces will be inserted after =E2=80=98(=E2=80=98 and before =E2=80=98)=E2=
+=80=99.</dd>
+<dt><strong>SpacesInSquareBrackets</strong> (<tt class=3D"docutils literal"=
+><span class=3D"pre">bool</span></tt>)</dt>
+<dd>If <tt class=3D"docutils literal"><span class=3D"pre">true</span></tt>,=
+ spaces will be inserted after =E2=80=98[=E2=80=98 and before =E2=80=98]=E2=
+=80=99.</dd>
+<dt><strong>Standard</strong> (<tt class=3D"docutils literal"><span class=
+=3D"pre">LanguageStandard</span></tt>)</dt>
+<dd><p class=3D"first">Format compatible with this standard, e.g. use
+<tt class=3D"docutils literal"><span class=3D"pre">A&lt;A&lt;int&gt;</span>=
+ <span class=3D"pre">&gt;</span></tt> instead of <tt class=3D"docutils lite=
+ral"><span class=3D"pre">A&lt;A&lt;int&gt;&gt;</span></tt> for LS_Cpp03.</p=
+>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">LS_Cpp03</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Cpp0=
+3</span></tt>)
+Use C++03-compatible syntax.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">LS_Cpp11</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Cpp1=
+1</span></tt>)
+Use features of C++11 (e.g. <tt class=3D"docutils literal"><span class=3D"p=
+re">A&lt;A&lt;int&gt;&gt;</span></tt> instead of
+<tt class=3D"docutils literal"><span class=3D"pre">A&lt;A&lt;int&gt;</span>=
+ <span class=3D"pre">&gt;</span></tt>).</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">LS_Auto</span></tt> =
+(in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Auto<=
+/span></tt>)
+Automatic detection based on the input.</li>
+</ul>
+</dd>
+<dt><strong>TabWidth</strong> (<tt class=3D"docutils literal"><span class=
+=3D"pre">unsigned</span></tt>)</dt>
+<dd>The number of columns used for tab stops.</dd>
+<dt><strong>UseTab</strong> (<tt class=3D"docutils literal"><span class=3D"=
+pre">UseTabStyle</span></tt>)</dt>
+<dd><p class=3D"first">The way to use tab characters in the resulting file.=
+</p>
+<p>Possible values:</p>
+<ul class=3D"last simple">
+<li><tt class=3D"docutils literal"><span class=3D"pre">UT_Never</span></tt>=
+ (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Neve=
+r</span></tt>)
+Never use tab.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">UT_ForIndentation</s=
+pan></tt> (in configuration: <tt class=3D"docutils literal"><span class=3D"=
+pre">ForIndentation</span></tt>)
+Use tabs only for indentation.</li>
+<li><tt class=3D"docutils literal"><span class=3D"pre">UT_Always</span></tt=
+> (in configuration: <tt class=3D"docutils literal"><span class=3D"pre">Alw=
+ays</span></tt>)
+Use tabs whenever we need to fill whitespace that spans at least from
+one tab stop to the next one.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class=3D"section" id=3D"examples">
+<h2>Examples<a class=3D"headerlink" href=3D"http://clang.llvm.org/docs/Clan=
+gFormatStyleOptions.html#examples" title=3D"Permalink to this headline">=C2=
+=B6</a></h2>
+<p>A style similar to the <a class=3D"reference external" href=3D"https://w=
+ww.kernel.org/doc/Documentation/CodingStyle">Linux Kernel style</a>:</p>
+<div class=3D"highlight-yaml"><div class=3D"highlight"><pre><span class=3D"=
+l-Scalar-Plain">BasedOnStyle</span><span class=3D"p-Indicator">:</span> <sp=
+an class=3D"l-Scalar-Plain">LLVM</span>
+<span class=3D"l-Scalar-Plain">IndentWidth</span><span class=3D"p-Indicator=
+">:</span> <span class=3D"l-Scalar-Plain">8</span>
+<span class=3D"l-Scalar-Plain">UseTab</span><span class=3D"p-Indicator">:</=
+span> <span class=3D"l-Scalar-Plain">Always</span>
+<span class=3D"l-Scalar-Plain">BreakBeforeBraces</span><span class=3D"p-Ind=
+icator">:</span> <span class=3D"l-Scalar-Plain">Linux</span>
+<span class=3D"l-Scalar-Plain">AllowShortIfStatementsOnASingleLine</span><s=
+pan class=3D"p-Indicator">:</span> <span class=3D"l-Scalar-Plain">false</sp=
+an>
+<span class=3D"l-Scalar-Plain">IndentCaseLabels</span><span class=3D"p-Indi=
+cator">:</span> <span class=3D"l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>The result is (imagine that tabs are used for indentation here):</p>
+<div class=3D"highlight-c++"><div class=3D"highlight"><pre><span class=3D"k=
+t">void</span> <span class=3D"nf">test</span><span class=3D"p">()</span>
+<span class=3D"p">{</span>
+        <span class=3D"k">switch</span> <span class=3D"p">(</span><span cla=
+ss=3D"n">x</span><span class=3D"p">)</span> <span class=3D"p">{</span>
+        <span class=3D"k">case</span> <span class=3D"mi">0</span>:
+        <span class=3D"k">case</span> <span class=3D"mi">1</span>:
+                <span class=3D"n">do_something</span><span class=3D"p">();<=
+/span>
+                <span class=3D"k">break</span><span class=3D"p">;</span>
+        <span class=3D"k">case</span> <span class=3D"mi">2</span>:
+                <span class=3D"n">do_something_else</span><span class=3D"p"=
+>();</span>
+                <span class=3D"k">break</span><span class=3D"p">;</span>
+        <span class=3D"nl">default:</span>
+                <span class=3D"k">break</span><span class=3D"p">;</span>
+        <span class=3D"p">}</span>
+        <span class=3D"k">if</span> <span class=3D"p">(</span><span class=
+=3D"n">condition</span><span class=3D"p">)</span>
+                <span class=3D"n">do_something_completely_different</span><=
+span class=3D"p">();</span>
+
+        <span class=3D"k">if</span> <span class=3D"p">(</span><span class=
+=3D"n">x</span> <span class=3D"o">=3D=3D</span> <span class=3D"n">y</span><=
+span class=3D"p">)</span> <span class=3D"p">{</span>
+                <span class=3D"n">q</span><span class=3D"p">();</span>
+        <span class=3D"p">}</span> <span class=3D"k">else</span> <span clas=
+s=3D"k">if</span> <span class=3D"p">(</span><span class=3D"n">x</span> <spa=
+n class=3D"o">&gt;</span> <span class=3D"n">y</span><span class=3D"p">)</sp=
+an> <span class=3D"p">{</span>
+                <span class=3D"n">w</span><span class=3D"p">();</span>
+        <span class=3D"p">}</span> <span class=3D"k">else</span> <span clas=
+s=3D"p">{</span>
+                <span class=3D"n">r</span><span class=3D"p">();</span>
+        <span class=3D"p">}</span>
+<span class=3D"p">}</span>
+</pre></div>
+</div>
+<p>A style similar to the default Visual Studio formatting style:</p>
+<div class=3D"highlight-yaml"><div class=3D"highlight"><pre><span class=3D"=
+l-Scalar-Plain">UseTab</span><span class=3D"p-Indicator">:</span> <span cla=
+ss=3D"l-Scalar-Plain">Never</span>
+<span class=3D"l-Scalar-Plain">IndentWidth</span><span class=3D"p-Indicator=
+">:</span> <span class=3D"l-Scalar-Plain">4</span>
+<span class=3D"l-Scalar-Plain">BreakBeforeBraces</span><span class=3D"p-Ind=
+icator">:</span> <span class=3D"l-Scalar-Plain">Allman</span>
+<span class=3D"l-Scalar-Plain">AllowShortIfStatementsOnASingleLine</span><s=
+pan class=3D"p-Indicator">:</span> <span class=3D"l-Scalar-Plain">false</sp=
+an>
+<span class=3D"l-Scalar-Plain">IndentCaseLabels</span><span class=3D"p-Indi=
+cator">:</span> <span class=3D"l-Scalar-Plain">false</span>
+<span class=3D"l-Scalar-Plain">ColumnLimit</span><span class=3D"p-Indicator=
+">:</span> <span class=3D"l-Scalar-Plain">0</span>
+</pre></div>
+</div>
+<p>The result is:</p>
+<div class=3D"highlight-c++"><div class=3D"highlight"><pre><span class=3D"k=
+t">void</span> <span class=3D"nf">test</span><span class=3D"p">()</span>
+<span class=3D"p">{</span>
+    <span class=3D"k">switch</span> <span class=3D"p">(</span><span class=
+=3D"n">suffix</span><span class=3D"p">)</span>
+    <span class=3D"p">{</span>
+    <span class=3D"k">case</span> <span class=3D"mi">0</span>:
+    <span class=3D"k">case</span> <span class=3D"mi">1</span>:
+        <span class=3D"n">do_something</span><span class=3D"p">();</span>
+        <span class=3D"k">break</span><span class=3D"p">;</span>
+    <span class=3D"k">case</span> <span class=3D"mi">2</span>:
+        <span class=3D"n">do_something_else</span><span class=3D"p">();</sp=
+an>
+        <span class=3D"k">break</span><span class=3D"p">;</span>
+    <span class=3D"nl">default:</span>
+        <span class=3D"k">break</span><span class=3D"p">;</span>
+    <span class=3D"p">}</span>
+    <span class=3D"k">if</span> <span class=3D"p">(</span><span class=3D"n"=
+>condition</span><span class=3D"p">)</span>
+        <span class=3D"n">do_somthing_completely_different</span><span clas=
+s=3D"p">();</span>
+
+    <span class=3D"k">if</span> <span class=3D"p">(</span><span class=3D"n"=
+>x</span> <span class=3D"o">=3D=3D</span> <span class=3D"n">y</span><span c=
+lass=3D"p">)</span>
+    <span class=3D"p">{</span>
+        <span class=3D"n">q</span><span class=3D"p">();</span>
+    <span class=3D"p">}</span>
+    <span class=3D"k">else</span> <span class=3D"k">if</span> <span class=
+=3D"p">(</span><span class=3D"n">x</span> <span class=3D"o">&gt;</span> <sp=
+an class=3D"n">y</span><span class=3D"p">)</span>
+    <span class=3D"p">{</span>
+        <span class=3D"n">w</span><span class=3D"p">();</span>
+    <span class=3D"p">}</span>
+    <span class=3D"k">else</span>
+    <span class=3D"p">{</span>
+        <span class=3D"n">r</span><span class=3D"p">();</span>
+    <span class=3D"p">}</span>
+<span class=3D"p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class=3D"bottomnav">
+     =20
+        <p>
+        =C2=AB&nbsp;&nbsp;<a href=3D"http://clang.llvm.org/docs/ClangFormat=
+.html">ClangFormat</a>
+        &nbsp;&nbsp;::&nbsp;&nbsp;
+        <a class=3D"uplink" href=3D"http://clang.llvm.org/docs/index.html">=
+Contents</a>
+        &nbsp;&nbsp;::&nbsp;&nbsp;
+        <a href=3D"http://clang.llvm.org/docs/InternalsManual.html">=E2=80=
+=9CClang=E2=80=9D CFE Internals Manual</a>&nbsp;&nbsp;=C2=BB
+        </p>
+
+      </div>
+
+    <div class=3D"footer">
+        =C2=A9 Copyright 2007-2014, The Clang Team.
+      Created using <a href=3D"http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+ =20
+</body><div></div></html>
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://clang.llvm.org/docs/basic.css
+
+div.clearer { clear: both; }
+
+div.related { width: 100%; font-size: 90%; }
+
+div.related h3 { display: none; }
+
+div.related ul { margin: 0px; padding: 0px 0px 0px 10px; list-style: none; =
+}
+
+div.related li { display: inline; }
+
+div.related li.right { float: right; margin-right: 5px; }
+
+div.sphinxsidebarwrapper { padding: 10px 5px 0px 10px; }
+
+div.sphinxsidebar { float: left; width: 230px; margin-left: -100%; font-siz=
+e: 90%; }
+
+div.sphinxsidebar ul { list-style: none; }
+
+div.sphinxsidebar ul ul, div.sphinxsidebar ul.want-points { margin-left: 20=
+px; list-style: square; }
+
+div.sphinxsidebar ul ul { margin-top: 0px; margin-bottom: 0px; }
+
+div.sphinxsidebar form { margin-top: 10px; }
+
+div.sphinxsidebar input { border: 1px solid rgb(152, 219, 204); font-family=
+: sans-serif; font-size: 1em; }
+
+div.sphinxsidebar #searchbox input[type=3D"text"] { width: 170px; }
+
+div.sphinxsidebar #searchbox input[type=3D"submit"] { width: 30px; }
+
+img { border: 0px; }
+
+ul.search { margin: 10px 0px 0px 20px; padding: 0px; }
+
+ul.search li { padding: 5px 0px 5px 20px; background-image: url(http://clan=
+g.llvm.org/docs/_static/file.png); background-position: 0px 7px; background=
+-repeat: no-repeat; }
+
+ul.search li a { font-weight: bold; }
+
+ul.search li div.context { color: rgb(136, 136, 136); margin: 2px 0px 0px 3=
+0px; text-align: left; }
+
+ul.keywordmatches li.goodmatch a { font-weight: bold; }
+
+table.contentstable { width: 90%; }
+
+table.contentstable p.biglink { line-height: 150%; }
+
+a.biglink { font-size: 1.3em; }
+
+span.linkdescr { font-style: italic; padding-top: 5px; font-size: 90%; }
+
+table.indextable { width: 100%; }
+
+table.indextable td { text-align: left; vertical-align: top; }
+
+table.indextable dl, table.indextable dd { margin-top: 0px; margin-bottom: =
+0px; }
+
+table.indextable tr.pcap { height: 10px; }
+
+table.indextable tr.cap { margin-top: 10px; background-color: rgb(242, 242,=
+ 242); }
+
+img.toggler { margin-right: 3px; margin-top: 3px; cursor: pointer; }
+
+div.modindex-jumpbox { border-top-width: 1px; border-top-style: solid; bord=
+er-top-color: rgb(221, 221, 221); border-bottom-width: 1px; border-bottom-s=
+tyle: solid; border-bottom-color: rgb(221, 221, 221); margin: 1em 0px; padd=
+ing: 0.4em; }
+
+div.genindex-jumpbox { border-top-width: 1px; border-top-style: solid; bord=
+er-top-color: rgb(221, 221, 221); border-bottom-width: 1px; border-bottom-s=
+tyle: solid; border-bottom-color: rgb(221, 221, 221); margin: 1em 0px; padd=
+ing: 0.4em; }
+
+a.headerlink { visibility: hidden; }
+
+h1:hover > a.headerlink, h2:hover > a.headerlink, h3:hover > a.headerlink, =
+h4:hover > a.headerlink, h5:hover > a.headerlink, h6:hover > a.headerlink, =
+dt:hover > a.headerlink { visibility: visible; }
+
+div.body p.caption { text-align: inherit; }
+
+div.body td { text-align: left; }
+
+.field-list ul { padding-left: 1em; }
+
+.first { margin-top: 0px !important; }
+
+p.rubric { margin-top: 30px; font-weight: bold; }
+
+img.align-left, .figure.align-left, object.align-left { clear: left; float:=
+ left; margin-right: 1em; }
+
+img.align-right, .figure.align-right, object.align-right { clear: right; fl=
+oat: right; margin-left: 1em; }
+
+img.align-center, .figure.align-center, object.align-center { display: bloc=
+k; margin-left: auto; margin-right: auto; }
+
+.align-left { text-align: left; }
+
+.align-center { text-align: center; }
+
+.align-right { text-align: right; }
+
+div.sidebar { margin: 0px 0px 0.5em 1em; border: 1px solid rgb(221, 221, 18=
+7); padding: 7px 7px 0px; width: 40%; float: right; background-color: rgb(2=
+55, 255, 238); }
+
+p.sidebar-title { font-weight: bold; }
+
+div.topic { border: 1px solid rgb(204, 204, 204); padding: 7px 7px 0px; mar=
+gin: 10px 0px; }
+
+p.topic-title { font-size: 1.1em; font-weight: bold; margin-top: 10px; }
+
+div.admonition { margin-top: 10px; margin-bottom: 10px; padding: 7px; }
+
+div.admonition dt { font-weight: bold; }
+
+div.admonition dl { margin-bottom: 0px; }
+
+p.admonition-title { margin: 0px 10px 5px 0px; font-weight: bold; }
+
+div.body p.centered { text-align: center; margin-top: 25px; }
+
+table.docutils { border: 0px; border-collapse: collapse; }
+
+table.docutils td, table.docutils th { padding: 1px 8px 1px 5px; border-wid=
+th: 0px 0px 1px; border-bottom-style: solid; border-bottom-color: rgb(170, =
+170, 170); }
+
+table.field-list td, table.field-list th { border: 0px !important; }
+
+table.footnote td, table.footnote th { border: 0px !important; }
+
+th { text-align: left; padding-right: 5px; }
+
+table.citation { border-left-style: solid; border-left-width: 1px; border-l=
+eft-color: gray; margin-left: 1px; }
+
+table.citation td { border-bottom-style: none; }
+
+ol.arabic { list-style: decimal; }
+
+ol.loweralpha { list-style: lower-alpha; }
+
+ol.upperalpha { list-style: upper-alpha; }
+
+ol.lowerroman { list-style: lower-roman; }
+
+ol.upperroman { list-style: upper-roman; }
+
+dl { margin-bottom: 15px; }
+
+dd p { margin-top: 0px; }
+
+dd ul, dd table { margin-bottom: 10px; }
+
+dd { margin-top: 3px; margin-bottom: 10px; margin-left: 30px; }
+
+dt:target, .highlighted { background-color: rgb(251, 229, 78); }
+
+dl.glossary dt { font-weight: bold; font-size: 1.1em; }
+
+.field-list ul { margin: 0px; padding-left: 1em; }
+
+.field-list p { margin: 0px; }
+
+.refcount { color: rgb(0, 102, 0); }
+
+.optional { font-size: 1.3em; }
+
+.versionmodified { font-style: italic; }
+
+.system-message { padding: 5px; border: 3px solid red; background-color: rg=
+b(255, 221, 170); }
+
+.footnote:target { background-color: rgb(255, 255, 170); }
+
+.line-block { display: block; margin-top: 1em; margin-bottom: 1em; }
+
+.line-block .line-block { margin-top: 0px; margin-bottom: 0px; margin-left:=
+ 1.5em; }
+
+.guilabel, .menuselection { font-family: sans-serif; }
+
+.accelerator { text-decoration: underline; }
+
+.classifier { font-style: oblique; }
+
+abbr, acronym { border-bottom-style: dotted; border-bottom-width: 1px; curs=
+or: help; }
+
+pre { overflow-x: auto; overflow-y: hidden; }
+
+td.linenos pre { padding: 5px 0px; border: 0px; color: rgb(170, 170, 170); =
+background-color: transparent; }
+
+table.highlighttable { margin-left: 0.5em; }
+
+table.highlighttable td { padding: 0px 0.5em; }
+
+tt.descname { font-weight: bold; font-size: 1.2em; background-color: transp=
+arent; }
+
+tt.descclassname { background-color: transparent; }
+
+tt.xref, a tt { font-weight: bold; background-color: transparent; }
+
+h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt { background-color: transparent; }
+
+.viewcode-link { float: right; }
+
+.viewcode-back { float: right; font-family: sans-serif; }
+
+div.viewcode-block:target { margin: -1px -10px; padding: 0px 10px; }
+
+img.math { vertical-align: middle; }
+
+div.body div.math p { text-align: center; }
+
+span.eqno { float: right; }
+
+@media print {=20
+  div.document, div.documentwrapper, div.bodywrapper { width: 100%; margin:=
+ 0px !important; }
+  div.sphinxsidebar, div.related, div.footer, #top-link { display: none; }
+}
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: http://clang.llvm.org/docs/_static/bg-page.png
+
+iVBORw0KGgoAAAANSUhEUgAAAAwAAABoCAIAAABKcob8AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAALEwAACxMBAJqcGAAAAAd0SU1FB9kIFxAKEhEr+RIAAAAzSURBVEjH7dCxDQAgDASxgNh/1Vc2
+YASoI1/t6laSerXrIwiCIAiCIAiCJqDT3T5Bk9EFa2wGchmkF9cAAAAASUVORK5CYII=
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: http://clang.llvm.org/docs/_static/bullet_orange.png
+
+iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAMAAADXEh96AAAAYFBMVEXgfir/zJP/u23gqX/37OX/
+nDf/3rX/wYL3uX//2KvviCr/xYv/vHr/tG7/y4X+8eXqhSr/oTz/xYb/4bz/v3T/9Ojjqn////8A
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAACU4p+EAAAAAWJLR0QfBQ0QvQAAAAlwSFlzAAAASAAAAEgA
+RslrPgAAAAl2cEFnAAAABgAAAAYAldH5kgAAAC9JREFUCNcFwQkCABAIBMB1hpCE/z/VDC6rkoDZ
+ci9Qm8c1pHr8Bqi7PR6kLIT4ASUEAZoGJjvOAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDEwLTAxLTA3
+VDEyOjQ5OjA2KzAxOjAwOpF5yAAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxMC0wMS0wN1QxMjo0OTow
+NiswMTowMEvMwXQAAAAASUVORK5CYII=
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://clang.llvm.org/docs/_static/haiku.css
+
+@import url("basic.css");
+
+html { margin: 0px; padding: 0px; background: url(http://clang.llvm.org/doc=
+s/_static/bg-page.png) 0% 0% repeat-x rgb(255, 255, 255); }
+
+body { line-height: 1.5; margin: auto; padding: 0px; font-family: 'DejaVu S=
+ans', Arial, Helvetica, sans-serif; min-width: 59em; max-width: 70em; color=
+: rgb(51, 51, 51); }
+
+div.footer { padding: 8px; font-size: 11px; text-align: center; letter-spac=
+ing: 0.5px; }
+
+a:link { font-weight: bold; text-decoration: none; color: rgb(220, 60, 1); =
+}
+
+a:visited { font-weight: bold; text-decoration: none; color: rgb(137, 38, 1=
+); }
+
+a:hover, a:active { text-decoration: underline; color: rgb(255, 69, 0); }
+
+h1 a:hover, a:active { text-decoration: none; color: rgb(12, 55, 98); }
+
+h2 a:hover, a:active { text-decoration: none; color: rgb(12, 55, 98); }
+
+h3 a:hover, a:active { text-decoration: none; color: rgb(12, 55, 98); }
+
+h4 a:hover, a:active { text-decoration: none; color: rgb(12, 55, 98); }
+
+a.headerlink { color: rgb(167, 206, 56); padding-left: 5px; }
+
+a.headerlink:hover { color: rgb(167, 206, 56); }
+
+div.content { margin: 20px 40px 50px; font-size: 0.9em; }
+
+div.header { position: relative; left: 0px; top: 0px; height: 85px; padding=
+: 0px 40px; }
+
+div.header h1 { font-size: 1.6em; font-weight: normal; letter-spacing: 1px;=
+ color: rgb(12, 55, 98); border: 0px; margin: 0px; padding-top: 15px; }
+
+div.header h1 a { font-weight: normal; color: rgb(12, 55, 98); }
+
+div.header h2 { font-size: 1.3em; font-weight: normal; letter-spacing: 1px;=
+ text-transform: uppercase; color: rgb(170, 170, 170); border: 0px; margin-=
+top: -3px; padding: 0px; }
+
+div.header img.rightlogo { float: right; }
+
+div.title { font-size: 1.3em; font-weight: bold; color: rgb(12, 55, 98); bo=
+rder-bottom-style: dotted; border-bottom-width: thin; border-bottom-color: =
+rgb(224, 224, 224); margin-bottom: 25px; }
+
+div.topnav { }
+
+div.topnav p { margin: 0px 40px; text-align: right; font-size: 0.8em; }
+
+div.bottomnav { background: rgb(238, 238, 238); }
+
+div.bottomnav p { margin-right: 40px; text-align: right; font-size: 0.8em; =
+}
+
+a.uplink { font-weight: normal; }
+
+table.index { margin: 0px 0px 30px 30px; padding: 1px; border: 1px dotted r=
+gb(224, 224, 224); }
+
+table.index tr.heading { text-align: center; font-weight: bold; font-size: =
+1.1em; background-color: rgb(224, 224, 224); }
+
+table.index tr.index { background-color: rgb(238, 238, 238); }
+
+table.index td { padding: 5px 20px; }
+
+table.index a:link, table.index a:visited { font-weight: normal; text-decor=
+ation: none; color: rgb(220, 60, 1); }
+
+table.index a:hover, table.index a:active { text-decoration: underline; col=
+or: rgb(255, 69, 0); }
+
+div.admonition { border-radius: 10px; border: thin dotted rgb(220, 220, 220=
+); padding: 10px 15px; margin-bottom: 15px; margin-top: 15px; }
+
+div.note { padding: 10px 15px 10px 80px; min-height: 42px; background: url(=
+http://clang.llvm.org/docs/_static/alert_info_32.png) 15px 15px no-repeat r=
+gb(228, 255, 222); }
+
+div.warning { padding: 10px 15px 10px 80px; min-height: 42px; background: u=
+rl(http://clang.llvm.org/docs/_static/alert_warning_32.png) 15px 15px no-re=
+peat rgb(255, 251, 198); }
+
+div.seealso { background: rgb(228, 255, 222); }
+
+h1 { font-size: 1.3em; font-weight: bold; color: rgb(12, 55, 98); border-bo=
+ttom-style: dotted; border-bottom-width: thin; border-bottom-color: rgb(224=
+, 224, 224); margin-top: 30px; }
+
+h2 { font-size: 1.2em; font-weight: normal; color: rgb(12, 55, 98); border-=
+bottom-style: dotted; border-bottom-width: thin; border-bottom-color: rgb(2=
+24, 224, 224); margin-top: 30px; }
+
+h3 { font-size: 1.1em; font-weight: normal; color: rgb(12, 55, 98); margin-=
+top: 30px; }
+
+h4 { font-size: 1em; font-weight: normal; color: rgb(12, 55, 98); margin-to=
+p: 30px; }
+
+p { text-align: justify; }
+
+p.last { margin-bottom: 0px; }
+
+ol { padding-left: 20px; }
+
+ul { padding-left: 5px; margin-top: 3px; }
+
+li { line-height: 1.3; }
+
+div.content ul > li { list-style-image: none; list-style-type: none; paddin=
+g: 0px 0px 0px 1.666em; margin-bottom: 3px; background: url(http://clang.ll=
+vm.org/docs/_static/bullet_orange.png) 0% 0.45em no-repeat scroll transpare=
+nt; }
+
+td { vertical-align: top; }
+
+tt { font-size: 1em; font-family: monospace; background-color: rgb(226, 226=
+, 226); }
+
+pre { border: thin dotted rgb(12, 55, 98); margin: 0px 0px 12px; padding: 0=
+.8em; background-color: rgb(240, 240, 240); }
+
+hr { border-width: 1px 0px 0px; border-top-style: solid; border-top-color: =
+rgb(204, 204, 204); margin-bottom: 10px; margin-top: 20px; }
+
+@media print {=20
+  .noprint { display: none; }
+  acronym[title]::after { font-size: small; content: ' (' attr(title) ')'; =
+font-style: italic; }
+  acronym { border: none; }
+  div.topnav, div.bottomnav, div.header, table.index { display: none; }
+  div.content { margin: 0px; padding: 0px; }
+  html { background: rgb(255, 255, 255); }
+}
+
+.viewcode-back { font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif; =
+}
+
+div.viewcode-block:target { border-top-width: 1px; border-top-style: solid;=
+ border-top-color: rgb(170, 204, 153); border-bottom-width: 1px; border-bot=
+tom-style: solid; border-bottom-color: rgb(170, 204, 153); margin: -1px -12=
+px; padding: 0px 12px; background-color: rgb(244, 222, 191); }
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://clang.llvm.org/docs/_static/pygments.css
+
+.highlight .hll { background-color: rgb(255, 255, 204); }
+
+.highlight { background: rgb(240, 240, 240); }
+
+.highlight .c { color: rgb(96, 160, 176); font-style: italic; }
+
+.highlight .err { border: 1px solid rgb(255, 0, 0); }
+
+.highlight .k { color: rgb(0, 112, 32); font-weight: bold; }
+
+.highlight .o { color: rgb(102, 102, 102); }
+
+.highlight .cm { color: rgb(96, 160, 176); font-style: italic; }
+
+.highlight .cp { color: rgb(0, 112, 32); }
+
+.highlight .c1 { color: rgb(96, 160, 176); font-style: italic; }
+
+.highlight .cs { color: rgb(96, 160, 176); background-color: rgb(255, 240, =
+240); }
+
+.highlight .gd { color: rgb(160, 0, 0); }
+
+.highlight .ge { font-style: italic; }
+
+.highlight .gr { color: rgb(255, 0, 0); }
+
+.highlight .gh { color: rgb(0, 0, 128); font-weight: bold; }
+
+.highlight .gi { color: rgb(0, 160, 0); }
+
+.highlight .go { color: rgb(136, 136, 136); }
+
+.highlight .gp { color: rgb(198, 93, 9); font-weight: bold; }
+
+.highlight .gs { font-weight: bold; }
+
+.highlight .gu { color: rgb(128, 0, 128); font-weight: bold; }
+
+.highlight .gt { color: rgb(0, 68, 221); }
+
+.highlight .kc { color: rgb(0, 112, 32); font-weight: bold; }
+
+.highlight .kd { color: rgb(0, 112, 32); font-weight: bold; }
+
+.highlight .kn { color: rgb(0, 112, 32); font-weight: bold; }
+
+.highlight .kp { color: rgb(0, 112, 32); }
+
+.highlight .kr { color: rgb(0, 112, 32); font-weight: bold; }
+
+.highlight .kt { color: rgb(144, 32, 0); }
+
+.highlight .m { color: rgb(64, 160, 112); }
+
+.highlight .s { color: rgb(64, 112, 160); }
+
+.highlight .na { color: rgb(64, 112, 160); }
+
+.highlight .nb { color: rgb(0, 112, 32); }
+
+.highlight .nc { color: rgb(14, 132, 181); font-weight: bold; }
+
+.highlight .no { color: rgb(96, 173, 213); }
+
+.highlight .nd { color: rgb(85, 85, 85); font-weight: bold; }
+
+.highlight .ni { color: rgb(213, 85, 55); font-weight: bold; }
+
+.highlight .ne { color: rgb(0, 112, 32); }
+
+.highlight .nf { color: rgb(6, 40, 126); }
+
+.highlight .nl { color: rgb(0, 32, 112); font-weight: bold; }
+
+.highlight .nn { color: rgb(14, 132, 181); font-weight: bold; }
+
+.highlight .nt { color: rgb(6, 40, 115); font-weight: bold; }
+
+.highlight .nv { color: rgb(187, 96, 213); }
+
+.highlight .ow { color: rgb(0, 112, 32); font-weight: bold; }
+
+.highlight .w { color: rgb(187, 187, 187); }
+
+.highlight .mf { color: rgb(64, 160, 112); }
+
+.highlight .mh { color: rgb(64, 160, 112); }
+
+.highlight .mi { color: rgb(64, 160, 112); }
+
+.highlight .mo { color: rgb(64, 160, 112); }
+
+.highlight .sb { color: rgb(64, 112, 160); }
+
+.highlight .sc { color: rgb(64, 112, 160); }
+
+.highlight .sd { color: rgb(64, 112, 160); font-style: italic; }
+
+.highlight .s2 { color: rgb(64, 112, 160); }
+
+.highlight .se { color: rgb(64, 112, 160); font-weight: bold; }
+
+.highlight .sh { color: rgb(64, 112, 160); }
+
+.highlight .si { color: rgb(112, 160, 208); font-style: italic; }
+
+.highlight .sx { color: rgb(198, 93, 9); }
+
+.highlight .sr { color: rgb(35, 83, 136); }
+
+.highlight .s1 { color: rgb(64, 112, 160); }
+
+.highlight .ss { color: rgb(81, 121, 24); }
+
+.highlight .bp { color: rgb(0, 112, 32); }
+
+.highlight .vc { color: rgb(187, 96, 213); }
+
+.highlight .vg { color: rgb(187, 96, 213); }
+
+.highlight .vi { color: rgb(187, 96, 213); }
+
+.highlight .il { color: rgb(64, 160, 112); }
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://clang.llvm.org/docs/_static/print.css
+
+
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://dbepggeogbaibhgnhhndojpepiihcmeb/pages/vomnibar.html
+
+<html><head><meta charset=3D"windows-1252">
+    <title>Vomnibar</title>
+   =20
+   =20
+   =20
+   =20
+   =20
+   =20
+   =20
+    <link rel=3D"stylesheet" type=3D"text/css" href=3D"chrome-extension://d=
+bepggeogbaibhgnhhndojpepiihcmeb/content_scripts/vimium.css">
+    <link rel=3D"stylesheet" type=3D"text/css" href=3D"chrome-extension://d=
+bepggeogbaibhgnhhndojpepiihcmeb/pages/vomnibar.css">
+  </head>
+  <body>
+    <div id=3D"vomnibar" class=3D"vimiumReset">
+      <div class=3D"vimiumReset vomnibarSearchArea">
+        <input type=3D"text" class=3D"vimiumReset">
+      </div>
+      <ul class=3D"vimiumReset"></ul>
+    </div>
+ =20
+
+</body></html>
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://dbepggeogbaibhgnhhndojpepiihcmeb/content_scripts/vimium.css
+
+.vimiumreset, div.vimiumreset, span.vimiumreset, table.vimiumreset, a.vimiu=
+mreset, a:visited.vimiumreset, a:link.vimiumreset, a:hover.vimiumreset, td.=
+vimiumreset, tr.vimiumreset { border: none; bottom: auto; box-shadow: none;=
+ color: black; cursor: auto; display: inline; float: none; font-family: 'He=
+lvetica Neue', Helvetica, Arial, sans-serif; font-size: inherit; font-style=
+: normal; font-variant: normal; font-weight: normal; height: auto; left: au=
+to; letter-spacing: 0px; line-height: 100%; margin: 0px; max-height: none; =
+max-width: none; min-height: 0px; min-width: 0px; opacity: 1; padding: 0px;=
+ position: static; right: auto; text-align: left; text-decoration: none; te=
+xt-indent: 0px; text-shadow: none; text-transform: none; top: auto; vertica=
+l-align: baseline; white-space: normal; width: auto; z-index: 2147483648; b=
+ackground: none; }
+
+div.internalvimiumhintmarker { position: absolute; display: block; top: -1p=
+x; left: -1px; white-space: nowrap; overflow: hidden; font-size: 11px; padd=
+ing: 1px 3px 0px; border: 1px solid rgb(195, 138, 34); border-radius: 3px; =
+box-shadow: rgba(0, 0, 0, 0.298039) 0px 3px 7px 0px; background: -webkit-gr=
+adient(linear, 0% 0%, 0% 100%, from(rgb(255, 247, 133)), to(rgb(255, 197, 6=
+6))); }
+
+div.internalvimiumhintmarker span { color: rgb(48, 37, 5); font-family: Hel=
+vetica, Arial, sans-serif; font-weight: bold; font-size: 11px; text-shadow:=
+ rgba(255, 255, 255, 0.6) 0px 1px 0px; }
+
+div.internalvimiumhintmarker > .matchingcharacter { color: rgb(212, 172, 58=
+); }
+
+div.internalvimiuminputhint { position: absolute; display: block; border: 1=
+px solid rgb(195, 138, 34); pointer-events: none; background-color: rgba(25=
+5, 247, 133, 0.298039); }
+
+div.internalvimiumselectedinputhint { border: 1px solid rgb(153, 51, 51) !i=
+mportant; background-color: rgba(255, 102, 102, 0.298039); }
+
+div.internalvimiumselectedinputhint span { color: white !important; }
+
+div#vimiumhelpdialog { opacity: 0.92; position: fixed; border: 2px solid rg=
+b(179, 179, 179); border-radius: 6px; padding: 8px 12px; width: 640px; max-=
+height: 85%; left: 50%; margin-left: -320px; top: 50px; -webkit-box-shadow:=
+ rgba(0, 0, 0, 0.4) 0px 0px 6px; overflow-y: auto; z-index: 2147483647; bac=
+kground-color: rgb(238, 238, 238); }
+
+div#vimiumhelpdialog a { color: blue; }
+
+div#vimiumtitle, div#vimiumtitle span, div#vimiumtitle * { font-size: 20px;=
+ }
+
+#vimiumtitle { display: block; line-height: 130%; }
+
+div.vimiumcolumn { width: 50%; float: left; font-size: 11px; line-height: 1=
+30%; }
+
+div.vimiumcolumn tr { display: table-row; }
+
+div.vimiumcolumn td { display: table-cell; font-size: 11px; line-height: 13=
+0%; }
+
+div.vimiumcolumn table, div.vimiumcolumn td, div.vimiumcolumn tr { padding:=
+ 0px; margin: 0px; }
+
+div.vimiumcolumn table { width: 100%; table-layout: auto; }
+
+div.vimiumcolumn td { vertical-align: top; padding: 1px; }
+
+div#vimiumhelpdialog div.vimiumcolumn tr > td:first-of-type { text-align: r=
+ight; font-weight: bold; color: rgb(47, 80, 142); white-space: nowrap; }
+
+div#vimiumhelpdialog div.vimiumcolumn tr > td:nth-of-type(3) { width: 100%;=
+ }
+
+div#vimiumhelpdialog div.vimiumdivider { display: block; height: 1px; width=
+: 92%; margin: 10px auto; background-color: rgb(154, 154, 154); }
+
+div#vimiumhelpdialog td.vimiumhelpsectiontitle { font-weight: bold; padding=
+-top: 3px; }
+
+div#vimiumhelpdialog div.commandname { font-family: 'courier new'; }
+
+div#vimiumhelpdialog div.advanced { display: none; }
+
+div#vimiumhelpdialog div.advanced td:nth-of-type(3) { color: rgb(85, 85, 85=
+); }
+
+div#vimiumhelpdialog a.closebutton { position: absolute; right: 7px; top: 5=
+px; font-family: 'courier new'; font-weight: bold; color: rgb(85, 85, 85); =
+text-decoration: none; padding-left: 10px; font-size: 20px; }
+
+div#vimiumhelpdialog a { text-decoration: underline; }
+
+div#vimiumhelpdialog .optionspage { position: absolute; display: block; fon=
+t-size: 11px; line-height: 130%; right: 60px; top: 8px; }
+
+div#vimiumhelpdialog a.closebutton:hover { color: black; -webkit-user-selec=
+t: none; }
+
+div#vimiumhelpdialogfooter { display: block; position: relative; }
+
+div#vimiumhelpdialogfooter * { font-size: 10px; }
+
+div#vimiumhelpdialogfooter .toggleadvancedcommands { position: absolute; ri=
+ght: 2px; top: -34px; }
+
+div.vimiumhud { display: block; position: fixed; bottom: 0px; color: black;=
+ height: auto; min-height: 13px; width: auto; max-width: 400px; min-width: =
+150px; text-align: left; padding: 3px 3px 2px; margin: 0px; border: 1px sol=
+id rgb(179, 179, 179); border-radius: 4px 4px 0px 0px; font-family: 'Lucida=
+ Grande', Arial, Sans; font-size: 12px; z-index: 2147483646; text-shadow: r=
+gb(255, 255, 255) 0px 1px 2px; line-height: 1; opacity: 0; background-color=
+: rgb(235, 235, 235); }
+
+div.vimiumhud span { display: none; }
+
+div.vimiumhud a:link, div.vimiumhud a:hover { color: blue; text-decoration:=
+ underline; background: transparent; }
+
+div.vimiumhud a:link.close-button { float: right; font-family: 'courier new=
+'; font-weight: bold; color: rgb(156, 154, 154); text-decoration: none; pad=
+ding-left: 10px; margin-top: -1px; font-size: 14px; }
+
+div.vimiumhud a.close-button:hover { color: rgb(51, 51, 51); cursor: defaul=
+t; -webkit-user-select: none; }
+
+body.vimiumfindmode ::selection { background: rgb(255, 150, 50); }
+
+iframe.vomnibarframe { padding: 0px; overflow: hidden; display: block; posi=
+tion: fixed; width: calc(80% + 20px); min-width: 400px; height: calc(100% -=
+ 70px); top: 70px; left: 50%; margin: 0px 0px 0px -40%; border: none; font-=
+family: sans-serif; z-index: 2147483645; background-color: transparent; }
+
+div#vimiumflash { box-shadow: rgb(65, 131, 196) 0px 0px 4px 2px; padding: 1=
+px; position: absolute; z-index: 2147483648; background-color: transparent;=
+ }
+
+iframe.vimiumuicomponenthidden { display: none; }
+
+iframe.vimiumuicomponentvisible { display: block; }
+
+iframe.vimiumuicomponentreactivated { border: 5px solid yellow; }
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: chrome-extension://dbepggeogbaibhgnhhndojpepiihcmeb/pages/vomnibar.css
+
+#vomnibar ol, #vomnibar ul { list-style: none; display: none; }
+
+#vomnibar { display: block; position: fixed; width: calc(100% - 20px); top:=
+ 8px; left: 8px; font-family: sans-serif; text-align: left; border-radius: =
+4px; box-shadow: rgba(0, 0, 0, 0.8) 0px 2px 10px; border: 1px solid rgb(170=
+, 170, 170); z-index: 2147483646; background: rgb(241, 241, 241); }
+
+#vomnibar input { color: rgb(0, 0, 0); font-family: 'Helvetica Neue', Helve=
+tica, Arial, sans-serif; font-size: 20px; height: 34px; margin-bottom: 0px;=
+ padding: 4px; border-radius: 3px; border: 1px solid rgb(232, 232, 232); bo=
+x-shadow: rgb(68, 68, 68) 0px 0px 1px; width: 100%; outline: none; box-sizi=
+ng: border-box; background-color: white; }
+
+#vomnibar .vomnibarsearcharea { display: block; padding: 10px; border-radiu=
+s: 4px 4px 0px 0px; border-bottom-width: 1px; border-bottom-style: solid; b=
+order-bottom-color: rgb(198, 201, 206); background-color: rgb(241, 241, 241=
+); }
+
+#vomnibar ul { border-radius: 0px 0px 4px 4px; list-style: none; padding: 0=
+px 0px 10px; background-color: white; }
+
+#vomnibar li { border-bottom-width: 1px; border-bottom-style: solid; border=
+-bottom-color: rgb(221, 221, 221); line-height: 1.1em; padding: 7px 10px; f=
+ont-size: 16px; color: black; position: relative; display: list-item; margi=
+n: auto; }
+
+#vomnibar li:last-of-type { border-bottom-style: none; }
+
+#vomnibar li .vomnibartophalf, #vomnibar li .vomnibarbottomhalf { display: =
+block; overflow: hidden; }
+
+#vomnibar li .vomnibarbottomhalf { font-size: 15px; margin-top: 3px; paddin=
+g: 2px 0px; }
+
+#vomnibar li .vomnibaricon { padding-left: 20px; background-size: 16px; bac=
+kground-position-y: 50%; background-repeat: no-repeat; }
+
+#vomnibar li .vomnibarsource { color: rgb(119, 119, 119); margin-right: 4px=
+; }
+
+#vomnibar li .vomnibarrelevancy { position: absolute; right: 0px; top: 0px;=
+ padding: 5px; color: black; font-family: monospace; width: 100px; overflow=
+: hidden; background-color: white; }
+
+#vomnibar li .vomnibarurl { white-space: nowrap; color: rgb(34, 70, 132); }
+
+#vomnibar li .vomnibarmatch { font-weight: bold; color: black; }
+
+#vomnibar li em, #vomnibar li .vomnibartitle { color: black; margin-left: 4=
+px; font-weight: normal; }
+
+#vomnibar li em { font-style: italic; }
+
+#vomnibar li em .vomnibarmatch, #vomnibar li .vomnibartitle .vomnibarmatch =
+{ color: rgb(51, 51, 51); text-decoration: underline; }
+
+#vomnibar li.vomnibarselected { font-weight: normal; background-color: rgb(=
+187, 206, 233); }
+------=_NextPart_000_45FD_DE7C85C9.AE4CE561--

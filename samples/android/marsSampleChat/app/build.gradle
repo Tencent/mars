@@ -83,7 +83,7 @@ dependencies {
         compile project(':wrapper')
 
     } else {
-        compile "com.tencent.mars:mars-wrapper:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
+        compile "com.tencent.mars:mars-wrapper:${WRAPPER_VERSION_NAME}"
     }
 
     androidTestCompile 'com.android.support.test:runner:0.5'

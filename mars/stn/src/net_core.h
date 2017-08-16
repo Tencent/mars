@@ -68,6 +68,8 @@ class NetCore {
 
   public:
     MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
+    NetSource& GetNetSourceRef() {return *net_source_;}
+    
     void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
     
     void    StartTask(const Task& _task);
@@ -113,6 +115,7 @@ class NetCore {
     
     void    __OnSignalActive(bool _isactive);
 
+    void    __OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
   private:
     NetCore(const NetCore&);
     NetCore& operator=(const NetCore&);
