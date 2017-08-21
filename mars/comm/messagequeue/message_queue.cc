@@ -47,6 +47,8 @@
 
 namespace MessageQueue {
 
+#define MAX_MQ_SIZE 300
+
 static unsigned int __MakeSeq() {
     static unsigned int s_seq = 0;
 
@@ -314,6 +316,10 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
     }
 
     MessageQueueContent& content = pos->second;
+    if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        ASSERT2(false, "Over MAX_MQ_SIZE");
+        return KNullPost;
+    }
 
     MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, __MakeSeq());
 
@@ -345,6 +351,11 @@ MessagePost_t SingletonMessage(bool _replace, const MessageHandler_t& _handlerid
             }
         }
     }
+    
+    if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        ASSERT2(false, "Over MAX_MQ_SIZE");
+        return KNullPost;
+    }
 
     MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, 0 != post_id.seq ? post_id.seq : __MakeSeq());
     content.lst_message.push_back(messagewrapper);
@@ -363,6 +374,10 @@ MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Mes
     }
 
     MessageQueueContent& content = pos->second;
+    if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        ASSERT2(false, "Over MAX_MQ_SIZE");
+        return KNullPost;
+    }
 
     MessageHandler_t reg;
     reg.queue = _messagequeueid;
@@ -420,6 +435,11 @@ MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _
         }
     }
 
+    if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        ASSERT2(false, "Over MAX_MQ_SIZE");
+        delete messagewrapper;
+        return KNullPost;
+    }
     content.lst_message.push_back(messagewrapper);
     content.breaker->Notify(lock);
     return messagewrapper->postid;
