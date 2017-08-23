@@ -9,6 +9,7 @@
 #ifndef http_detector_h
 #define http_detector_h
 #include <string>
+#include <vector>
 #include <map>
 
 #include "thread/thread.h"
@@ -27,15 +28,26 @@ class HTTPDetectReq {
     
     std::string ToString(){
         XMessage xmsg;
-        xmsg(TSF"detect_url_:%_, total_timeout_:%_, extra_header_:\n", detect_url_, total_timeout_);
+        xmsg(TSF"detect_url_:%_, total_timeout_:%_.", detect_url_, total_timeout_);
+        xmsg(TSF"prior_ip_(%_):", prior_ip_.size());
+        for (const auto& ip : prior_ip_) {
+            xmsg(TSF"%_;", ip);
+        }
+        xmsg(TSF"extra_header_:\n");
         for (const auto& kv : extra_header_ ) {
             xmsg(TSF"%_:%_\n", kv.first, kv.second);
         }
+        
         return xmsg.String();
     }
     void SetTimeOut(unsigned long long _total_timeout) {total_timeout_ = _total_timeout;}
-    void SetPost(std::string _post_data) {http_method_="POST"; post_data_ = _post_data;}
+    void SetPost(const std::string& _post_data) {http_method_="POST"; post_data_ = _post_data;}
+    void SetPriorIPs(const std::vector<std::string>& _ips) {prior_ip_ = _ips;}
+    
     std::string detect_url_;
+    
+    std::vector<std::string> prior_ip_;
+    
     std::map<std::string, std::string> extra_header_;
     unsigned long long total_timeout_; //ms
     std::string http_method_="GET";
@@ -138,6 +150,7 @@ class HTTPDetector {
      */
     int StartAsync(DetectEndCallBack _callback);
     int StartSync(HTTPDectectResult& result);
+    
     
     void CancelAndWait();
     
