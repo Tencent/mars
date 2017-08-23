@@ -150,7 +150,7 @@ class HTTPDetector {
      */
     int StartAsync(DetectEndCallBack _callback);
     int StartSync(HTTPDectectResult& result);
-    
+    int StartSync(const std::vector<std::string>& _prior_ips, HTTPDectectResult& _result);
     
     void CancelAndWait();
     
