@@ -31,6 +31,7 @@
 #include "comm/objc/objc_timer.h"
 #import "comm/objc/Reachability.h"
 
+#include "comm/thread/mutex.h"
 #include "comm/thread/lock.h"
 #include "comm/network/getifaddrs.h"
 
@@ -225,6 +226,9 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     wifiInfo.bssid = SIMULATOR_NET_INFO;
     return true;
 #elif !TARGET_OS_IPHONE
+    
+    static Mutex mutex;
+    ScopedLock lock(mutex);
     
     static CWInterface* info = nil; //CWInterface can reused
     

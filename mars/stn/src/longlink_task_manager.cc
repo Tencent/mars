@@ -235,6 +235,8 @@ void LongLinkTaskManager::__RunOnTimeout() {
         }
 
         if (cur_time - first->start_task_time >= first->task_timeout) {
+            xerror2(TSF"task timeout, taskid:%_, nStartSendTime=%_, cur_time=%_, timeout:%_",
+                    first->task.taskid, first->transfer_profile.start_send_time / 1000, cur_time / 1000, first->task_timeout / 1000);
             __SingleRespHandle(first, kEctLocal, kEctLocalTaskTimeout, kTaskFailHandleTaskTimeout, longlink_->Profile());
             istasktimeout = true;
         }
@@ -362,9 +364,9 @@ void LongLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_",
+        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, curtime:%_, start_send_time:%_,",
                first->task.cgi, first->task.cmdid, first->task.taskid, first->transfer_profile.send_data_size, first->transfer_profile.first_pkg_timeout / 1000,
-               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count);
+               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, curtime, first->start_task_time);
 
         if (first->task.send_only) {
             __SingleRespHandle(first, kEctOK, 0, kTaskFailHandleNoError, longlink_->Profile());
@@ -509,7 +511,11 @@ void LongLinkTaskManager::__OnResponse(ErrCmdType _error_type, int _error_code, 
     
     if (kEctOK == _error_type && ::longlink_ispush(_cmdid, _taskid, body, extension))  {
         xinfo2(TSF"task push seq:%_, cmdid:%_, len:(%_, %_)", _taskid, _cmdid, body->Length(), extension->Length());
-        OnPush(_connect_profile.start_time, _cmdid, _taskid, body, extension);
+        
+        if (fun_on_push_)
+            fun_on_push_(_connect_profile.start_time, _cmdid, _taskid, body, extension);
+        else
+            xassert2(false);
         return;
     }
     
