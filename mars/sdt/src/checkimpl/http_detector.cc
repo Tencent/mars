@@ -76,6 +76,8 @@ int HTTPDetector::StartSync(HTTPDectectResult& _result) {
         xwarn2(TSF"@%_ HTTPDetect is running.", this);
         return -1;
     }
+    dns_breaker_.Clear();
+    breaker_.Clear();
     __Detect();
     _result = result_;
     result_.Reset();
@@ -151,40 +153,47 @@ void HTTPDetector::__Detect() {
     }
     xdebug2(TSF"req_buffer:%_", (char*)req_buffer.Ptr());
     
-    bool is_host_ipaddr = socket_address(host.c_str(), 0).valid();
-    
-    std::string svr_ip = host;
-    if (!is_host_ipaddr) {
-        std::vector<std::string> vec_ip;
-        result_.dns_start_time_ = GetCurTimeStr();
-        detect_tick.gettickcount();
-        bool ret = dns_.GetHostByName(host, vec_ip, kDefaultDNSTimeout<remain_timeout?kDefaultDNSTimeout:remain_timeout, &dns_breaker_);
-        result_.dns_cost_ = detect_tick.gettickspan();
-        if (ret && !vec_ip.empty()) {
-            std::random_shuffle(vec_ip.begin(), vec_ip.end());
-            svr_ip = vec_ip[0];
-            for (auto ip : vec_ip)
-                result_.dns_resolved_ip_.push_back(ip);
-        } else if (dns_breaker_.isbreak) {
-            xwarn2(TSF"@%_ GetHostByName break by user", this);
-            result_.dns_errmsg_.append("GetHostByName break by user;");
-            return;
-        } else {
-            xerror2(TSF"@%_ GetHostByName error， remain_timeout：%_", this, remain_timeout);
-            if (result_.dns_cost_>=remain_timeout) {
-                result_.dns_errmsg_.append(std::string("GetHostByName timeout, set timeout:")+string_cast(remain_timeout).str()+"ms");
+    std::string svr_ip;
+    if (req_.prior_ip_.empty()) {
+        
+        bool is_host_ipaddr = socket_address(host.c_str(), 0).valid();
+        
+        svr_ip = host;
+        if (!is_host_ipaddr) {
+            std::vector<std::string> vec_ip;
+            result_.dns_start_time_ = GetCurTimeStr();
+            detect_tick.gettickcount();
+            bool ret = dns_.GetHostByName(host, vec_ip, kDefaultDNSTimeout<remain_timeout?kDefaultDNSTimeout:remain_timeout, &dns_breaker_);
+            result_.dns_cost_ = detect_tick.gettickspan();
+            if (ret && !vec_ip.empty()) {
+                std::random_shuffle(vec_ip.begin(), vec_ip.end());
+                svr_ip = vec_ip[0];
+                for (auto ip : vec_ip)
+                    result_.dns_resolved_ip_.push_back(ip);
+            } else if (dns_breaker_.isbreak) {
+                xwarn2(TSF"@%_ GetHostByName break by user", this);
+                result_.dns_errmsg_.append("GetHostByName break by user;");
+                return;
             } else {
-                result_.dns_errmsg_.append("GetHostByName error;");
+                xerror2(TSF"@%_ GetHostByName error， remain_timeout：%_", this, remain_timeout);
+                if (result_.dns_cost_>=remain_timeout) {
+                    result_.dns_errmsg_.append(std::string("GetHostByName timeout, set timeout:")+string_cast(remain_timeout).str()+"ms");
+                } else {
+                    result_.dns_errmsg_.append("GetHostByName error;");
+                }
+                return;
             }
-            return;
+            remain_timeout -= result_.dns_cost_;
+            if (remain_timeout<=0) {
+                xwarn2(TSF"@%_ HTTPDetect timeout, dns_cost:%_, total_timeout:%_", this, result_.dns_cost_, req_.total_timeout_);
+                result_.is_timeout_ = true;
+                result_.logic_error_msg_.append("HTTPDetect total timeout after dns resolve.");
+                return;
+            }
         }
-        remain_timeout -= result_.dns_cost_;
-        if (remain_timeout<=0) {
-            xwarn2(TSF"@%_ HTTPDetect timeout, dns_cost:%_, total_timeout:%_", this, result_.dns_cost_, req_.total_timeout_);
-            result_.is_timeout_ = true;
-            result_.logic_error_msg_.append("HTTPDetect total timeout after dns resolve.");
-            return;
-        }
+    } else {
+        svr_ip = req_.prior_ip_.at(0);
+        xerror2(TSF"@%_ use prior ip %_", this, svr_ip);
     }
     
     detect_tick.gettickcount();
