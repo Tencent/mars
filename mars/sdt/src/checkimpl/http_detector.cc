@@ -76,6 +76,8 @@ int HTTPDetector::StartSync(HTTPDectectResult& _result) {
         xwarn2(TSF"@%_ HTTPDetect is running.", this);
         return -1;
     }
+    dns_breaker_.Clear();
+    breaker_.Clear();
     __Detect();
     _result = result_;
     result_.Reset();
