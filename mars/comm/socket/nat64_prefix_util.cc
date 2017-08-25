@@ -24,6 +24,7 @@
 #include "xlogger/xlogger.h"
 #include "strutil.h"
 #include "platform_comm.h"
+#include "getaddrinfo_with_timeout.h"
 
 static const uint8_t kWellKnownV4Addr1[4] = {192, 0, 0, 170};
 static const uint8_t kWellKnownV4Addr2[4] = {192, 0, 0, 171};
@@ -211,12 +212,13 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 
 	char v4_ip[16] = {0};
 	socket_inet_ntop(AF_INET, &_v4_addr, v4_ip, sizeof(v4_ip));
+    bool is_timeout = false;
 #ifdef __APPLE__
 	if (publiccomponent_GetSystemVersion() >= 9.2f) {//higher than iOS9.2
-		error = getaddrinfo(v4_ip, NULL, &hints, &res0);
+		error = getaddrinfo_with_timeout(v4_ip, NULL, &hints, &res0, is_timeout, 2000);
 	} else {//lower than iOS9.2 or other platform
 #endif
-		error = getaddrinfo("ipv4only.arpa", NULL, &hints, &res0);
+		error = getaddrinfo_with_timeout("ipv4only.arpa", NULL, &hints, &res0, is_timeout, 2000);
 #ifdef __APPLE__
 	}
 #endif
