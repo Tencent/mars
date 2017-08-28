@@ -86,6 +86,9 @@ class NetCore {
     void	KeepSignal();
     void	StopSignal();
 
+    ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
+    void AddServerBan(const std::string& _ip);
+    
 #ifdef USE_LONG_LINK
     LongLink& Longlink();
 #endif

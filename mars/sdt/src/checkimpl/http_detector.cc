@@ -84,6 +84,23 @@ int HTTPDetector::StartSync(HTTPDectectResult& _result) {
     return 0;
 }
 
+int HTTPDetector::StartSync(const std::vector<std::string>& _prior_ips, HTTPDectectResult& _result) {
+    if (worker_thread_.isruning()) {
+        xwarn2(TSF"@%_ HTTPDetect is running.", this);
+        return -1;
+    }
+    dns_breaker_.Clear();
+    breaker_.Clear();
+    HTTPDetectReq old_req = req_;
+    req_.SetPriorIPs(_prior_ips);
+    __Detect();
+    _result = result_;
+    result_.Reset();
+    req_ = old_req;
+    return 0;
+}
+
+
 void HTTPDetector::CancelAndWait() {
     ScopedLock lock(mutex_);
     dns_.Cancel(dns_breaker_);
@@ -193,7 +210,7 @@ void HTTPDetector::__Detect() {
         }
     } else {
         svr_ip = req_.prior_ip_.at(0);
-        xerror2(TSF"@%_ use prior ip %_", this, svr_ip);
+        xinfo2(TSF"@%_ use prior ip %_", this, svr_ip);
     }
     
     detect_tick.gettickcount();

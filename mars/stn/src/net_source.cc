@@ -483,3 +483,7 @@ bool NetSource::GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec) {
 
 void NetSource::ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec) {
 }
+
+void NetSource::AddServerBan(const std::string& _ip) {
+    ipportstrategy_.AddServerBan(_ip);
+}
