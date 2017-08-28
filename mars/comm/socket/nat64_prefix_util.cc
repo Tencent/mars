@@ -24,7 +24,7 @@
 #include "xlogger/xlogger.h"
 #include "strutil.h"
 #include "platform_comm.h"
-#include "getaddrinfo_with_timeout.h"
+#include "mars/comm/network/getaddrinfo_with_timeout.h"
 
 static const uint8_t kWellKnownV4Addr1[4] = {192, 0, 0, 170};
 static const uint8_t kWellKnownV4Addr2[4] = {192, 0, 0, 171};
