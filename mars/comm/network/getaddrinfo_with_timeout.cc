@@ -1,6 +1,12 @@
+#if (!UWP && !WIN32)
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#else
+#define USE_WIN32_CODE
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#endif
 #include <vector>
 #include "getaddrinfo_with_timeout.h"
 
@@ -9,6 +15,7 @@
 #include "comm/thread/thread.h"
 #include "comm/thread/condition.h"
 #include "comm/xlogger/xlogger.h"
+#include "comm/time_utils.h"
 
 
 enum {
