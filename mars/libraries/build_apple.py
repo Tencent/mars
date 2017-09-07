@@ -25,8 +25,9 @@ iphone_project = Project(RELATIVE_PATH + "mars-open-iphone.xcodeproj", "iphone",
 iphone_xlog_project = Project(RELATIVE_PATH + "mars-log-iphone.xcodeproj", "iphone", set(["Release-iphoneos", "Release-iphonesimulator"]), "mars", "mars.framework", "")
 iphone_project_with_bitcode = Project(RELATIVE_PATH + "mars-open-iphone.xcodeproj", "iphone", set(["Release-iphoneos", "Release-iphonesimulator"]), "mars", "mars.framework", "-fembed-bitcode")
 mac_project = Project(RELATIVE_PATH + "mars-open-mac.xcodeproj", "macosx", set(["Release"]), "mars", "mars.framework", "")
+mac_xlog_project = Project(RELATIVE_PATH + "mars-log-mac.xcodeproj", "macosx", set(["Release"]), "mars", "mars.framework", "")
 
-APPLE_PROJECTS = (iphone_project, iphone_project_with_bitcode, iphone_xlog_project, mac_project)
+APPLE_PROJECTS = (iphone_project, iphone_project_with_bitcode, iphone_xlog_project, mac_project, mac_xlog_project)
 
 
 def get_child_project(project_path):
@@ -185,15 +186,15 @@ def main():
     save_path = prefix + "_[%s]@%s@%s" % (time.strftime('%Y-%m-%d_%H.%M', time.localtime()), get_revision(RELATIVE_PATH), getpass.getuser())
     
     while True:
-        num = raw_input("\033[0;33mEnter menu:\n1. build mars for iphone.\n2. build mars for iphone with bitcode.\n3. build xlog for iphone\n4. build mars for macosx.\n5. build all.\n6. exit.\033[0m\n").strip()
-        if num == "1" or num == "2" or num == "3" or num == "4":
+        num = raw_input("\033[0;33mEnter menu:\n1. build mars for iphone.\n2. build mars for iphone with bitcode.\n3. build xlog for iphone.\n4. build mars for macosx.\n5. build xlog for macosx.\n6. build all.\n7. exit.\033[0m\n").strip()
+        if num == "1" or num == "2" or num == "3" or num == "4" or num == "5":
             build_apple(APPLE_PROJECTS[int(num)-1], save_path)
             return
-        elif num == "5":
+        elif num == "6":
             for project in APPLE_PROJECTS:
                 build_apple(project, save_path)
             return
-        elif num == "6":
+        elif num == "7":
             print("exit!")
             return
         else:
