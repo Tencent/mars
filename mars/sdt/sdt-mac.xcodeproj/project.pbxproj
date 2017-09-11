@@ -19,6 +19,8 @@
 		557B20121CC7C5FB0076B9EE /* httpquery.cc in Sources */ = {isa = PBXBuildFile; fileRef = 557B1FE61CC7C5FB0076B9EE /* httpquery.cc */; };
 		557B20131CC7C5FB0076B9EE /* pingquery.cc in Sources */ = {isa = PBXBuildFile; fileRef = 557B1FE81CC7C5FB0076B9EE /* pingquery.cc */; };
 		557B20141CC7C5FB0076B9EE /* tcpquery.cc in Sources */ = {isa = PBXBuildFile; fileRef = 557B1FEA1CC7C5FB0076B9EE /* tcpquery.cc */; };
+		9A00CD221F33473200A88CA1 /* base_netinfo_query.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9A00CD151F33473200A88CA1 /* base_netinfo_query.cc */; };
+		9A00CD241F33473200A88CA1 /* http_detector.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9A00CD191F33473200A88CA1 /* http_detector.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -63,6 +65,10 @@
 		557B1FEA1CC7C5FB0076B9EE /* tcpquery.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcpquery.cc; sourceTree = "<group>"; };
 		557B1FEB1CC7C5FB0076B9EE /* tcpquery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tcpquery.h; sourceTree = "<group>"; };
 		55D9C0821CC7B1C90076CBD9 /* libsdt.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsdt.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A00CD151F33473200A88CA1 /* base_netinfo_query.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_netinfo_query.cc; sourceTree = "<group>"; };
+		9A00CD161F33473200A88CA1 /* base_netinfo_query.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_netinfo_query.h; sourceTree = "<group>"; };
+		9A00CD191F33473200A88CA1 /* http_detector.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http_detector.cc; sourceTree = "<group>"; };
+		9A00CD1A1F33473200A88CA1 /* http_detector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_detector.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +136,10 @@
 		557B1FE31CC7C5FB0076B9EE /* checkimpl */ = {
 			isa = PBXGroup;
 			children = (
+				9A00CD151F33473200A88CA1 /* base_netinfo_query.cc */,
+				9A00CD161F33473200A88CA1 /* base_netinfo_query.h */,
+				9A00CD191F33473200A88CA1 /* http_detector.cc */,
+				9A00CD1A1F33473200A88CA1 /* http_detector.h */,
 				4B0280801DE70275001721C0 /* http_url_parser.h */,
 				557B1FE41CC7C5FB0076B9EE /* dnsquery.cc */,
 				557B1FE51CC7C5FB0076B9EE /* dnsquery.h */,
@@ -194,6 +204,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A00CD241F33473200A88CA1 /* http_detector.cc in Sources */,
 				557B200C1CC7C5FB0076B9EE /* dnschecker.cc in Sources */,
 				557B20101CC7C5FB0076B9EE /* tcpchecker.cc in Sources */,
 				4B02807E1DE70262001721C0 /* sdt_core.cc in Sources */,
@@ -203,6 +214,7 @@
 				557B200B1CC7C5FB0076B9EE /* basechecker.cc in Sources */,
 				557B200D1CC7C5FB0076B9EE /* httpchecker.cc in Sources */,
 				557B20121CC7C5FB0076B9EE /* httpquery.cc in Sources */,
+				9A00CD221F33473200A88CA1 /* base_netinfo_query.cc in Sources */,
 				1F25BEEC1CD363D700AC1003 /* sdt_logic.cc in Sources */,
 				557B20141CC7C5FB0076B9EE /* tcpquery.cc in Sources */,
 				4B02807F1DE70262001721C0 /* netchecker_trafficmonitor.cc in Sources */,

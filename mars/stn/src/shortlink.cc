@@ -71,7 +71,7 @@ class ShortLinkConnectObserver : public MComplexConnect {
         if (0 != _error) {
             xassert2(shortlink_.func_network_report);
 
-            if (_index < shortlink_.Profile().ip_items.size())
+            if (_index < shortlink_.Profile().ip_items.size() && shortlink_.func_network_report)
                 shortlink_.func_network_report(__LINE__, kEctSocket, _error, _addr.ip(), shortlink_.Profile().ip_items[_index].str_host, _addr.port());
         }
 
@@ -138,8 +138,11 @@ void ShortLink::__Run() {
     SOCKET fd_socket = __RunConnect(conn_profile);
 
     if (INVALID_SOCKET == fd_socket) return;
-    OnSend(this);
-
+    if (OnSend) {
+        OnSend(this);
+    } else {
+        xwarn2(TSF"OnSend NULL.");
+    }
     int errtype = 0;
     int errcode = 0;
     __RunReadWrite(fd_socket, errtype, errcode, conn_profile);
@@ -266,7 +269,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xassert2(0 <= conn.Index() && (unsigned int)conn.Index() < _conn_profile.ip_items.size());
 
     for (int i = 0; i < conn.Index(); ++i) {
-        if (1 == connect_observer.ConnectingIndex[i])
+        if (1 == connect_observer.ConnectingIndex[i] && func_network_report)
             func_network_report(__LINE__, kEctSocket, SOCKET_ERRNO(ETIMEDOUT), _conn_profile.ip_items[i].str_ip, _conn_profile.ip_items[i].str_host, _conn_profile.ip_items[i].port);
     }
 
@@ -292,16 +295,29 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, ConnectProfile& _conn_profile) {
 	xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
-    std::string url;
-    if (kIPSourceProxy==_conn_profile.ip_type) {
-        url +="http://";
-        url += _conn_profile.host;
-    }
+	std::string url;
+	std::map<std::string, std::string> headers;
+#ifdef WIN32
+	std::string replace_host = _conn_profile.host;
+	if (kIPSourceProxy == _conn_profile.ip_type) {
+		url += "http://";
+		url += _conn_profile.host;
+	} else {
+		replace_host = _conn_profile.ip.empty() ? _conn_profile.host : _conn_profile.ip;
+	}
 	url += task_.cgi;
 
+	headers[http::HeaderFields::KStringHost] = replace_host;
+	headers["X-Online-Host"] = replace_host;
+#else
+	if (kIPSourceProxy == _conn_profile.ip_type) {
+		url += "http://";
+		url += _conn_profile.host;
+	}
+	url += task_.cgi;
 
-	std::map<std::string, std::string> headers;
 	headers[http::HeaderFields::KStringHost] = _conn_profile.host;
+#endif // WIN32
 
 	if (_conn_profile.proxy_info.IsValid() && mars::comm::kProxyHttp == _conn_profile.proxy_info.type
 		&& !_conn_profile.proxy_info.username.empty() && !_conn_profile.proxy_info.password.empty()) {
@@ -388,7 +404,10 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
             GetSignalOnNetworkDataChange()(XLOGGER_TAG, 0, recv_ret);
             
 			xinfo2(TSF"recv len:%_ ", recv_ret) >> group_recv;
-			OnRecv(this, (unsigned int)(recv_buf.Length() - recv_pos), (unsigned int)recv_buf.Length());
+            if (OnRecv)
+                OnRecv(this, (unsigned int)(recv_buf.Length() - recv_pos), (unsigned int)recv_buf.Length());
+            else
+                xwarn2(TSF"OnRecv NULL.");
 			recv_pos = recv_buf.Pos();
 		}
 
@@ -462,10 +481,13 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
     if (kEctOK != _errType) {
         xassert2(func_network_report);
 
-        if (_report) func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
+        if (_report && func_network_report) func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
     }
 
-    OnResponse(this, _errType, _status, _body, _extension, -1 != _conn_profile.ip_index, _conn_profile);
+    if (OnResponse)
+        OnResponse(this, _errType, _status, _body, _extension, -1 != _conn_profile.ip_index, _conn_profile);
+    else
+        xwarn2(TSF"OnResponse NULL.");
 }
 
 void ShortLink::__CancelAndWaitWorkerThread() {

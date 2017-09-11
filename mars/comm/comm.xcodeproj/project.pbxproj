@@ -63,6 +63,7 @@
 		1FA3D6331C89758400B9BEFD /* __assert.c in Sources */ = {isa = PBXBuildFile; fileRef = 1FA3D6311C89758400B9BEFD /* __assert.c */; };
 		1FDCDCA31DAA70B700ADAE56 /* http.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1FDCDCA11DAA70B700ADAE56 /* http.cc */; };
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+		3D74CB2F1F5046FF00726F9D /* getaddrinfo_with_timeout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3D74CB2D1F5046FF00726F9D /* getaddrinfo_with_timeout.cc */; };
 		3D8AC2D31D5477DA007DE060 /* getsocktcpinfo.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3D8AC2D11D5477DA007DE060 /* getsocktcpinfo.cc */; };
 		425BA5811A14AD0600073A45 /* tickcount.cc in Sources */ = {isa = PBXBuildFile; fileRef = 425BA57F1A14AD0600073A45 /* tickcount.cc */; };
 		4B299BE21CEF063600E2315B /* boost_exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B299BE01CEF063600E2315B /* boost_exception.cc */; };
@@ -255,6 +256,8 @@
 		1FDCDCA21DAA70B700ADAE56 /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http.h; sourceTree = "<group>"; };
 		3170A027177887B0004F5DDA /* libcomm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libcomm.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3D74CB2D1F5046FF00726F9D /* getaddrinfo_with_timeout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getaddrinfo_with_timeout.cc; sourceTree = "<group>"; };
+		3D74CB2E1F5046FF00726F9D /* getaddrinfo_with_timeout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = getaddrinfo_with_timeout.h; sourceTree = "<group>"; };
 		3D8AC2D11D5477DA007DE060 /* getsocktcpinfo.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = getsocktcpinfo.cc; sourceTree = "<group>"; };
 		3D8AC2D21D5477DA007DE060 /* getsocktcpinfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = getsocktcpinfo.h; sourceTree = "<group>"; };
 		425BA57F1A14AD0600073A45 /* tickcount.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tickcount.cc; sourceTree = "<group>"; };
@@ -377,6 +380,8 @@
 		13E9F2BC19754DE5007591EC /* network */ = {
 			isa = PBXGroup;
 			children = (
+				3D74CB2D1F5046FF00726F9D /* getaddrinfo_with_timeout.cc */,
+				3D74CB2E1F5046FF00726F9D /* getaddrinfo_with_timeout.h */,
 				4BDBD1781E094FFE006C62F5 /* netinfo_util.cc */,
 				4BDBD1791E094FFE006C62F5 /* netinfo_util.h */,
 				1FA3D5A81C86E00800B9BEFD /* getdnssvraddrs.cc */,
@@ -961,6 +966,7 @@
 				1F25BF841CD376F100AC1003 /* greg_weekday.cpp in Sources */,
 				1F25BF851CD376F100AC1003 /* gregorian_types.cpp in Sources */,
 				1F25BF861CD376F100AC1003 /* posix_time_types.cpp in Sources */,
+				3D74CB2F1F5046FF00726F9D /* getaddrinfo_with_timeout.cc in Sources */,
 				1F25BF871CD376F100AC1003 /* codecvt_error_category.cpp in Sources */,
 				1F25BF881CD376F100AC1003 /* operations.cpp in Sources */,
 				1F25BF891CD376F100AC1003 /* path.cpp in Sources */,

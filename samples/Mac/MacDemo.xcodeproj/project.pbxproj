@@ -55,7 +55,6 @@
 		4BB712CF1DE81FC100185734 /* UnknownFieldSetBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712B11DE81FC100185734 /* UnknownFieldSetBuilder.m */; };
 		4BB712D01DE81FC100185734 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712B31DE81FC100185734 /* Utilities.m */; };
 		4BB712D11DE81FC100185734 /* WireFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712B51DE81FC100185734 /* WireFormat.m */; };
-		4BB712D71DE8202900185734 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712D21DE8202900185734 /* log_crypt.cc */; };
 		4BB712D81DE8202900185734 /* shortlink_packer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712D41DE8202900185734 /* shortlink_packer.cc */; };
 		4BB712ED1DE8222A00185734 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712EC1DE8222A00185734 /* CFNetwork.framework */; };
 		4BB712F91DE822BB00185734 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712F81DE822BB00185734 /* CoreWLAN.framework */; };
@@ -164,8 +163,6 @@
 		4BB712B31DE81FC100185734 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utilities.m; sourceTree = "<group>"; };
 		4BB712B41DE81FC100185734 /* WireFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WireFormat.h; sourceTree = "<group>"; };
 		4BB712B51DE81FC100185734 /* WireFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WireFormat.m; sourceTree = "<group>"; };
-		4BB712D21DE8202900185734 /* log_crypt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt.cc; sourceTree = "<group>"; };
-		4BB712D31DE8202900185734 /* log_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
 		4BB712D41DE8202900185734 /* shortlink_packer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shortlink_packer.cc; sourceTree = "<group>"; };
 		4BB712D51DE8202900185734 /* shortlink_packer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shortlink_packer.h; sourceTree = "<group>"; };
 		4BB712D61DE8202900185734 /* stnproto_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stnproto_logic.h; sourceTree = "<group>"; };
@@ -245,8 +242,6 @@
 		1FB576C11CE1D4CA00ADCF8C /* PublicComponentV2 */ = {
 			isa = PBXGroup;
 			children = (
-				4BB712D21DE8202900185734 /* log_crypt.cc */,
-				4BB712D31DE8202900185734 /* log_crypt.h */,
 				4BB712D41DE8202900185734 /* shortlink_packer.cc */,
 				4BB712D51DE8202900185734 /* shortlink_packer.h */,
 				4BB712D61DE8202900185734 /* stnproto_logic.h */,
@@ -517,7 +512,6 @@
 				4BB712BC1DE81FC100185734 /* AbstractMessage.m in Sources */,
 				4BB712BF1DE81FC100185734 /* CodedOutputStream.m in Sources */,
 				4BB712D81DE8202900185734 /* shortlink_packer.cc in Sources */,
-				4BB712D71DE8202900185734 /* log_crypt.cc in Sources */,
 				4BB712CF1DE81FC100185734 /* UnknownFieldSetBuilder.m in Sources */,
 				1FAEF2431DEEB1AB002F3AA6 /* LogHelper.mm in Sources */,
 				4BB712BA1DE81FC100185734 /* Main.pb.m in Sources */,

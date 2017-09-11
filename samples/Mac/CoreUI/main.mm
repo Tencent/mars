@@ -39,7 +39,7 @@ int main(int argc, const char * argv[]) {
     xlogger_SetLevel(kLevelInfo);
     appender_set_console_log(false);
 #endif
-    appender_open(kAppednerAsync, [[libraryDirectory stringByAppendingString:@"/log/"] UTF8String], "test");
+    appender_open(kAppednerAsync, [[libraryDirectory stringByAppendingString:@"/log/"] UTF8String], "Test", "");
 
     return NSApplicationMain(argc, argv);
 }

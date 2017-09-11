@@ -52,6 +52,7 @@ static const char* const kPort = "port";
 static const char* const kHistoryResult = "historyresult";
 
 static const unsigned int kBanTime = 6 * 60 * 1000;  // 6 min
+static const unsigned int kServerBanTime = 30 * 60 * 1000; // 30 min
 static const int kBanFailCount = 3;
 static const int kSuccessUpdateInterval = 10*1000;
 static const int kFailUpdateInterval = 10*1000;
@@ -329,7 +330,7 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
     
     uint64_t now = ::gettickcount();
     xassert2(now >= iter->second, TSF"%_:%_", now, iter->second);
-    if (now - iter->second < kBanTime) {
+    if (now - iter->second < kServerBanTime) {
         xwarn2(TSF"ip %0 is ban by server, haha!", _ip.c_str());
         return true;
     }
