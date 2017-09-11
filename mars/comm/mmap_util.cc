@@ -54,7 +54,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
     _mmmap_file.open(param);
 
     bool is_open = IsMmapFileOpenSucc(_mmmap_file);
-
+#ifndef _WIN32
     if (!file_exist && is_open) {
 
         //Extending a file with ftruncate, thus creating a big hole, and then filling the hole by mod-ifying a shared mmap() can lead to SIGBUS when no space left
@@ -79,7 +79,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         fclose(file);
         delete[] zero_data;
     }
-
+#endif
     return is_open;
 }
 
