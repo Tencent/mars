@@ -620,6 +620,7 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status) {
     if (LongLink::kConnected == _status) zombie_task_manager_->RedoTasks();
 
     __ConnStatusCallBack();
+    OnLongLinkStatusChange(_status);
 }
 #endif
 

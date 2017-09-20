@@ -108,6 +108,7 @@
     <ClCompile Include="..\memdbg.cc" />
     <ClCompile Include="..\messagequeue\message_queue.cc" />
     <ClCompile Include="..\mmap_util.cc" />
+    <ClCompile Include="..\network\getaddrinfo_with_timeout.cc" />
     <ClCompile Include="..\network\getdnssvraddrs.cc" />
     <ClCompile Include="..\network\getgateway.c" />
     <ClCompile Include="..\network\getifaddrs.cc" />
@@ -183,6 +184,7 @@
     <ClInclude Include="..\messagequeue\message_queue.h" />
     <ClInclude Include="..\messagequeue\message_queue_utils.h" />
     <ClInclude Include="..\mmap_util.h" />
+    <ClInclude Include="..\network\getaddrinfo_with_timeout.h" />
     <ClInclude Include="..\network\getdnssvraddrs.h" />
     <ClInclude Include="..\network\getgateway.h" />
     <ClInclude Include="..\network\getifaddrs.h" />

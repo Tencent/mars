@@ -299,6 +299,7 @@ bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostl
 			item.port = sg_shortlink_port;
 			item.source_type = kIPSourceDebug;
 			_ipport_items.push_back(item);
+			return true;
 		}
 	}
     
