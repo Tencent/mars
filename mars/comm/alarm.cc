@@ -42,9 +42,9 @@ bool Alarm::Start(int _after) {
 
     int64_t seq = sg_seq++;
     uint64_t starttime = gettickcount();
-    MessageQueue::MessagePost_t mqId = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, 1), MessageQueue::MessageTiming(_after));
+    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, 1), MessageQueue::MessageTiming(_after));
 
-    if (MessageQueue::KNullPost == mqId) {
+    if (MessageQueue::KNullPost == broadcast_msg_id_) {
         xerror2(TSF"mq alarm return null post, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
         return false;
     }
@@ -53,7 +53,8 @@ bool Alarm::Start(int _after) {
 
     if (!::startAlarm((int64_t) seq, _after)) {
         xerror2(TSF"startAlarm error, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
-        MessageQueue::CancelMessage(mqId);
+        MessageQueue::CancelMessage(broadcast_msg_id_);
+        broadcast_msg_id_ = MessageQueue::KNullPost;
         return false;
     }
 
@@ -64,15 +65,18 @@ bool Alarm::Start(int _after) {
     endtime_ = 0;
     after_ = _after;
     seq_ = seq;
-    xinfo2(TSF"alarm id:%0, after:%1, seq:%2, po.reg.q:%3,po.reg.s:%4,po.s:%5", (uintptr_t)this, _after, seq, mqId.reg.queue, mqId.reg.seq, mqId.seq);
+    xinfo2(TSF"alarm id:%0, after:%1, seq:%2, po.reg.q:%3,po.reg.s:%4,po.s:%5", (uintptr_t)this, _after, seq, broadcast_msg_id_.reg.queue, broadcast_msg_id_.reg.seq, broadcast_msg_id_.seq);
 
     return true;
 }
 
 bool Alarm::Cancel() {
     ScopedLock lock(sg_lock);
+    if (broadcast_msg_id_!=MessageQueue::KNullPost) {
+        MessageQueue::CancelMessage(broadcast_msg_id_);
+        broadcast_msg_id_=MessageQueue::KNullPost;
+    }
     MessageQueue::CancelMessage(reg_async_.Get());
-
     if (INVAILD_SEQ == seq_) return true;
 
 #ifdef ANDROID

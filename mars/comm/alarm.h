@@ -43,6 +43,7 @@ class Alarm {
     explicit Alarm(const T& _op, bool _inthread = true)
         : target_(detail::transform(_op))
         , reg_async_(MessageQueue::InstallAsyncHandler(MessageQueue::GetDefMessageQueue()))
+        , broadcast_msg_id_(MessageQueue::KNullPost)
         , runthread_(boost::bind(&Alarm::__Run, this), "alarm")
         , inthread_(_inthread)
         , seq_(0), status_(kInit)
@@ -59,6 +60,7 @@ class Alarm {
     explicit Alarm(const T& _op, const MessageQueue::MessageQueue_t& _id)
         : target_(detail::transform(_op))
         , reg_async_(MessageQueue::InstallAsyncHandler(_id))
+        , broadcast_msg_id_(MessageQueue::KNullPost)
         , runthread_(boost::bind(&Alarm::__Run, this), "alarm")
         , inthread_(false)
         , seq_(0), status_(kInit)
@@ -102,6 +104,7 @@ class Alarm {
   private:
     Runnable*                   target_;
     MessageQueue::ScopeRegister reg_async_;
+    MessageQueue::MessagePost_t broadcast_msg_id_;
     Thread                      runthread_;
     bool                        inthread_;
 
