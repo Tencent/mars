@@ -31,6 +31,7 @@ BaseChecker::BaseChecker() {
 
 BaseChecker::~BaseChecker() {
     xverbose_function();
+    CancelDoCheck();
 }
 
 int BaseChecker::StartDoCheck(CheckRequestProfile& _check_request) {
@@ -46,7 +47,8 @@ int BaseChecker::StartDoCheck(CheckRequestProfile& _check_request) {
 }
 
 int BaseChecker::CancelDoCheck() {
-    xverbose_function();
+    xinfo_function();
+    is_canceled_ = true;
     return 1;
 }
 

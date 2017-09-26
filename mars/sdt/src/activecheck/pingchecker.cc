@@ -60,6 +60,12 @@ void PingChecker::__DoCheck(CheckRequestProfile& _check_request) {
     // longlink ip ping
     for (CheckIPPorts_Iterator iter = _check_request.longlink_items.begin(); iter != _check_request.longlink_items.end(); ++iter) {
 		for (std::vector<CheckIPPort>::iterator ipport = iter->second.begin(); ipport != iter->second.end(); ++ipport) {
+            
+            if (is_canceled_) {
+                xinfo2(TSF"PingChecker is canceled.");
+                return;
+            }
+            
 			CheckResultProfile profile;
 			std::string host = (*ipport).ip.empty() ? DEFAULT_PING_HOST : (*ipport).ip;
 			profile.ip = host;
@@ -111,6 +117,12 @@ void PingChecker::__DoCheck(CheckRequestProfile& _check_request) {
     // shortlink ip ping
     for (CheckIPPorts_Iterator iter = _check_request.shortlink_items.begin(); iter != _check_request.shortlink_items.end(); ++iter) {
 		for (std::vector<CheckIPPort>::iterator ipport = iter->second.begin(); ipport != iter->second.end(); ++ipport) {
+            
+            if (is_canceled_) {
+                xinfo2(TSF"PingChecker is canceled.");
+                return;
+            }
+            
 			CheckResultProfile profile;
 			std::string host = (*ipport).ip.empty() ? DEFAULT_PING_HOST : (*ipport).ip;
 			profile.ip = host;

@@ -79,7 +79,7 @@ static void __WorkerFunc() {
     std::string worker_node;
     std::string worker_service;
     struct addrinfo worker_hints;
-    struct addrinfo **worker_res= NULL;
+    struct addrinfo *worker_res0= NULL;
 	memset(&worker_hints, 0, sizeof(worker_hints));
 
     ScopedLock lock(sg_mutex);
@@ -90,15 +90,18 @@ static void __WorkerFunc() {
             worker_node = iter->node ? iter->node : "";
             worker_service =  iter->service ? iter->service : "";
             if(iter->hints) worker_hints = *iter->hints;
-            worker_res = iter->res;
             iter->status = kGetADDRDoing;
             break;
         }
     }
-    
+    if (iter == sg_dnsitem_vec.end()) {
+        xerror2(TSF"timeout before sys getaddrinfo");
+        return;
+    }
     lock.unlock();
     
-    int error = getaddrinfo(worker_node.c_str(), worker_service.c_str(), &worker_hints, worker_res);
+    int error = getaddrinfo(worker_node.c_str(), worker_service.c_str(), &worker_hints, &worker_res0);
+    xinfo2(TSF"sys getaddrinfo error:%_, node:%_, service:%_", error, worker_node, worker_service);
     
     lock.lock();
     
@@ -113,13 +116,27 @@ static void __WorkerFunc() {
         if (iter != sg_dnsitem_vec.end()) {
             iter->error_code = error;
             iter->status = kGetADDRFail;
+            xassert2(NULL!=iter->res);
+            *(iter->res) = worker_res0;
+        } else {
+            if (worker_res0!=NULL) {
+                xinfo2(TSF"getaddrinfo fail and timeout. free worker_res0 @%_", worker_res0);
+                freeaddrinfo(worker_res0);
+            }
+            xinfo2(TSF"getaddrinfo fail and timeout. dns_item:%_", iter->ToString());
         }
         sg_condition.notifyAll();
     } else {
         if (iter != sg_dnsitem_vec.end()) {
             if (iter->status==kGetADDRDoing) {
                 iter->status = kGetADDRSuc;
+                xassert2(NULL!=iter->res);
+                *(iter->res) = worker_res0;
             } else {
+                if (worker_res0!=NULL) {
+                    xinfo2(TSF"getaddrinfo end but timeout. free worker_res0 @%_", worker_res0);
+                    freeaddrinfo(worker_res0);
+                }
                 xinfo2(TSF"getaddrinfo end but timeout. dns_item:%_", iter->ToString());
             }
         }
@@ -179,7 +196,7 @@ int getaddrinfo_with_timeout(const char *node, const char *service, const struct
                 it->status = kGetADDRTimeout;
             }
             
-            if (kGetADDRDoing == it->status) {
+            if (kGetADDRNotBegin== it->status || kGetADDRDoing == it->status) {
                 continue;
             }
             
