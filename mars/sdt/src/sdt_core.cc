@@ -159,9 +159,13 @@ void SdtCore::__DumpCheckResult() {
 void SdtCore::CancelCheck() {
     xinfo_function();
     cancel_ = true;
+    for (std::list<BaseChecker*>::iterator iter = check_list_.begin(); iter != check_list_.end(); ++iter) {
+        (*iter)->CancelDoCheck();
+    }
 }
 
 void SdtCore::CancelAndWait() {
     xinfo_function();
+    CancelCheck();
     thread_.join();
 }
