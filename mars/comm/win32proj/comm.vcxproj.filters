@@ -201,6 +201,9 @@
     <ClCompile Include="..\socket\nat64_prefix_util.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\network\getaddrinfo_with_timeout.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\assert\__assert.h">
@@ -477,6 +480,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\network\netinfo_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\getaddrinfo_with_timeout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

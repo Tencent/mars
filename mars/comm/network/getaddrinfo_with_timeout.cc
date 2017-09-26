@@ -1,6 +1,12 @@
+#if (!UWP && !WIN32)
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#else
+#define USE_WIN32_CODE
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#endif
 #include <vector>
 #include "getaddrinfo_with_timeout.h"
 
@@ -9,6 +15,7 @@
 #include "comm/thread/thread.h"
 #include "comm/thread/condition.h"
 #include "comm/xlogger/xlogger.h"
+#include "comm/time_utils.h"
 
 
 enum {
@@ -69,19 +76,20 @@ static void __WorkerFunc() {
     
     
     //parameter
-    const char *worker_node = NULL;
-    const char *worker_service= NULL;
-    const struct addrinfo *worker_hints= NULL;
+    std::string worker_node;
+    std::string worker_service;
+    struct addrinfo worker_hints;
     struct addrinfo **worker_res= NULL;
-    
+	memset(&worker_hints, 0, sizeof(worker_hints));
+
     ScopedLock lock(sg_mutex);
     std::vector<DnsItem>::iterator iter = sg_dnsitem_vec.begin();
     
     for (; iter != sg_dnsitem_vec.end(); ++iter) {
         if (iter->threadid == ThreadUtil::currentthreadid()) {
-            worker_node = iter->node;
-            worker_service =  iter->service;
-            worker_hints = iter->hints;
+            worker_node = iter->node ? iter->node : "";
+            worker_service =  iter->service ? iter->service : "";
+            if(iter->hints) worker_hints = *iter->hints;
             worker_res = iter->res;
             iter->status = kGetADDRDoing;
             break;
@@ -90,7 +98,7 @@ static void __WorkerFunc() {
     
     lock.unlock();
     
-    int error = getaddrinfo(worker_node, worker_service, worker_hints, worker_res);
+    int error = getaddrinfo(worker_node.c_str(), worker_service.c_str(), &worker_hints, worker_res);
     
     lock.lock();
     

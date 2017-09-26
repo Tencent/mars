@@ -448,7 +448,10 @@ void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::
 = [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
 
 };
+void (*OnLongLinkStatusChange)(int _status)
+= [](int _status) {
 
+};
 }
 }
 
