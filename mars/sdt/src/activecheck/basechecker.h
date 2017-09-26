@@ -45,6 +45,8 @@ class BaseChecker {
 
   protected:
     virtual void __DoCheck(CheckRequestProfile& _check_request) = 0;
+  protected:
+    bool is_canceled_ = false;
 };
 
 }}

@@ -27,7 +27,7 @@
  * Many systems should provide route information through raw PF_ROUTE
  * sockets. */
 
-#define __ROUTE_HEADER_FILE__ <net/route.h>
+#define __ROUTE_HEADER_FILE__ "comm/objc/route.h"
 
 #ifdef __linux__
 #define USE_PROC_NET_ROUTE
