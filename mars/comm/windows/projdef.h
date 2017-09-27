@@ -78,7 +78,10 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#if !_WIN64
 typedef SSIZE_T ssize_t;
+#define  PRIu64 "I64d"
+
+#if defined(WIN32) && !defined(SIZE_T_MAX)
+#define SIZE_T_MAX  UINT_MAX
 #endif
 

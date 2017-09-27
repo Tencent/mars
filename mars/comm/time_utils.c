@@ -134,8 +134,27 @@ uint64_t gettickcount() {//todoyy
     }
     return 0;
 }
+<<<<<<< HEAD
 
 #elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP
+
+#include "unistd.h"
+#include <stdint.h>
+=======
+#elif defined _WIN32
+//#define NOMINMAX
+//#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+>>>>>>> master
+
+uint64_t gettickcount() {
+	return GetTickCount();
+}
+
+uint64_t clock_app_monotonic() {
+	return gettickcount();
+}
+#elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP 
 
 #include "unistd.h"
 #include <stdint.h>
@@ -143,19 +162,6 @@ uint64_t gettickcount() {//todoyy
 uint64_t gettickcount() {
     return GetTickCount64();
 }
-uint64_t clock_app_monotonic() {
-    return gettickcount();
-}
-
-#elif defined _WIN32
-//#define NOMINMAX
-//#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-uint64_t gettickcount() {
-    return GetTickCount();
-}
-
 uint64_t clock_app_monotonic() {
     return gettickcount();
 }

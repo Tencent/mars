@@ -103,13 +103,10 @@ class NetSource {
 
     void RemoveLongBanIP(const std::string& _ip);
 
-    bool GetShortLinkProxyInfo(uint16_t& _port, std::string& _ipproxy, const std::vector<std::string>& _hostlist);
-
     bool GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec);
     void ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec);
 
   private:
-    void __ClearShortLinkProxyInfo();
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
     

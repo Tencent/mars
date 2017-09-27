@@ -21,7 +21,9 @@
 
 #include <cstddef>
 #include <stdlib.h>
-
+#ifdef WIN32
+#include <algorithm>
+#endif //WIN32
 #include "comm/strutil.h"
 #include "comm/xlogger/xlogger.h"
 
@@ -30,6 +32,10 @@ namespace http {
 static const char* const KStringSpace = " ";
 static const char* const KStringCRLF = "\r\n";
 static const char* const KStringColon = ":";
+
+bool less::operator()(const std::string& __x, const std::string& __y) const {
+    return 0 > strcasecmp(__x.c_str(), __y.c_str());
+}
 
 inline char* string_strnstr(const char* src, const char* sfind, int pos1) {
     xassert2(src != NULL && sfind != NULL);
@@ -290,6 +296,8 @@ const char* const HeaderFields::KStringAccept = "Accept";
 const char* const HeaderFields::KStringUserAgent = "User-Agent";
 const char* const HeaderFields::KStringCacheControl = "Cache-Control";
 const char* const HeaderFields::KStringConnection = "Connection";
+const char* const HeaderFields::kStringProxyConnection = "Proxy-Connection";
+const char* const HeaderFields::kStringProxyAuthorization = "Proxy-Authorization";
 const char* const HeaderFields::KStringContentType = "Content-Type";
 const char* const HeaderFields::KStringContentLength = "Content-Length";
 const char* const HeaderFields::KStringTransferEncoding = "Transfer-Encoding";
@@ -693,9 +701,16 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                     return recvstatus_;
                 }
                 
-                recvstatus_ = kHeaderFields;
                 headerbuf_.Write(recvbuf_.Ptr(), firstlinelength);
-                recvbuf_.Move(- firstlinelength);
+                // HTTP/1.1 4.7 Unauthorized\r\n\r\n
+                char* pos_2crlf = string_strnstr(pBuf, "\r\n\r\n", (int)recvbuf_.Length());
+                if (NULL != pos_2crlf && pos_2crlf == pos) {
+                    recvstatus_ = kBody;
+                    recvbuf_.Move(- (firstlinelength + 2));
+                } else {
+                    recvstatus_ = kHeaderFields;
+                    recvbuf_.Move(- firstlinelength);
+                }
             }
                 break;
                 

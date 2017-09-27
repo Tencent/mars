@@ -40,7 +40,7 @@
 #define socket_close closesocket
 
 #define socket_errno WSAGetLastError()
-#define socket_strerror gai_strerror
+#define socket_strerror gai_strerrorA//gai_strerror
 
 
 #ifdef __cplusplus

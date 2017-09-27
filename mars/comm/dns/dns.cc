@@ -48,7 +48,7 @@ struct dnsinfo {
 
 static std::string DNSInfoToString(const struct dnsinfo& _info) {
 	XMessage msg;
-	msg(TSF"info:%@p, threadid:%_, dns:@%p, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
+	msg(TSF"info:%_, threadid:%_, dns:%_, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
 	return msg.Message();
 }
 static std::vector<dnsinfo> sg_dnsinfo_vec;
@@ -259,7 +259,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
             if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
                 if (_breaker) _breaker->dnsstatus = NULL;
 
-                xinfo2(TSF "dns get ip status:%_ host:%_", it->status, it->host_name);
+                xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
                 sg_dnsinfo_vec.erase(it);
                 return false;
             }

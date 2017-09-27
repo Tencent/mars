@@ -19,7 +19,6 @@
 
 #include "net_channel_factory.h"
 
-#include "mars/comm/compiler_util.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/xlogger/xlogger.h"
 

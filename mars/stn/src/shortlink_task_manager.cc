@@ -54,7 +54,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout
     , wakeup_lock_(new WakeUpLock())
 #endif
 {
-    xinfo_function();
+    xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     xinfo2(TSF"ShortLinkTaskManager messagequeue_id=%_", MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
 
@@ -433,7 +433,7 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 }
 
 void ShortLinkTaskManager::RedoTasks() {
-    xdebug_function();
+    xinfo_function();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
@@ -576,7 +576,10 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
 void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     if (!_running_id) return;
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-    ShortLinkChannelFactory::Destory(p_shortlink);
+    Thread thread([=] () {
+        ShortLinkChannelFactory::Destory(p_shortlink);
+    });
+    thread.start();
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;
 }

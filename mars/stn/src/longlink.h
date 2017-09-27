@@ -49,6 +49,9 @@ class SmartHeartbeat;
 
 
 namespace mars {
+    namespace comm {
+        class ProxyInfo;
+    }
     namespace stn {
 
 class NetSource;
@@ -166,6 +169,7 @@ class LongLink {
     boost::scoped_ptr<longlink_tracker>         tracker_;
     NetSource::DnsUtil                          dns_util_;
     SocketBreaker                               connectbreak_;
+	SocketBreaker             testproxybreak_;
     TLongLinkStatus                             connectstatus_;
     ConnectProfile                              conn_profile_;
     TDisconnectInternalCode                     disconnectinternalcode_;

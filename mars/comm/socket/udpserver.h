@@ -66,7 +66,7 @@ class UdpServer {
     SOCKET fd_socket_;
     IAsyncUdpServerEvent* event_;
 
-    SocketBreaker breaker_;
+	SocketBreaker breaker_;
     SocketSelect selector_;
     Thread* thread_;
 

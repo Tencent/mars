@@ -31,8 +31,8 @@ enum TAppenderMode
     kAppednerSync,
 };
 
-void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix);
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix);
+void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key);
+void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix, const char* _pub_key);
 void appender_flush();
 void appender_flush_sync();
 void appender_close();

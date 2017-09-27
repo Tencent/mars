@@ -27,7 +27,7 @@
  * Many systems should provide route information through raw PF_ROUTE
  * sockets. */
 
-#define __ROUTE_HEADER_FILE__ <net/route.h>
+#define __ROUTE_HEADER_FILE__ "comm/objc/route.h"
 
 #ifdef __linux__
 #define USE_PROC_NET_ROUTE
@@ -89,10 +89,8 @@
 #endif
 #include "comm/network/getgateway.h"
 
-#ifndef WIN32
 #define SUCCESS (0)
 #define FAILED  (-1)
-#endif
 
 typedef uint32_t in_addr_t;
 #ifdef USE_PROC_NET_ROUTE

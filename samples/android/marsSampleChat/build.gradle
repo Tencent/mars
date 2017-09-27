@@ -23,8 +23,10 @@ subprojects {
 
 ext {
     GROUP = 'com.tencent.mars.sample'
-    VERSION_NAME_PREFIX = '1.1.9'
+    VERSION_NAME_PREFIX = '1.2.0'
     VERSION_NAME_SUFFIX = '' // '-SNAPSHOT'
+    WRAPPER_VERSION_NAME_PREFIX = '1.1.7'
+    WRAPPER_VERSION_NAME_SUFFIX = '' // '-SNAPSHOT'
 
     minSdkVersion = 16
     compileSdkVersion = 25
@@ -33,6 +35,7 @@ ext {
     javaVersion = JavaVersion.VERSION_1_7
 
     VERSION_NAME = "${VERSION_NAME_PREFIX}${VERSION_NAME_SUFFIX}"
+    WRAPPER_VERSION_NAME = "${WRAPPER_VERSION_NAME_PREFIX}${WRAPPER_VERSION_NAME_SUFFIX}"
 
     POM_PACKAGING = "pom"
     POM_DESCRIPTION = "mars-wrapper"
