@@ -34,7 +34,6 @@
 #include "comm/messagequeue/message_queue.h"
 #include "comm/time_utils.h"
 #include "comm/bootrun.h"
-#include "comm/xlogger/xlogger.h"
 #ifdef __APPLE__
 #include "comm/debugger/debugger_utils.h"
 #endif
@@ -162,6 +161,19 @@ static std::map<MessageQueue_t, MessageQueueContent>& messagequeue_map() {
     return *mq_map;
 }
 
+
+static void DumpMessage(const std::list<MessageWrapper*> _message_lst) {
+    XMessage xmsg;
+    xmsg(TSF"**************DumpMessage**************size:%_\n", _message_lst.size());
+    int index = 0;
+    for (auto msg : _message_lst) {
+        xmsg(TSF"postid:%_, timing:%_, record_time:%_, message:%_\n", msg->postid.ToString(), msg->timing.ToString(), msg->record_time, msg->message.ToString());
+        if (++index>50)
+            break;
+    }
+    xinfo2(TSF"%_", xmsg.String());
+}
+    
 MessageQueue_t CurrentThreadMessageQueue() {
     ScopedLock lock(sg_messagequeue_map_mutex);
     MessageQueue_t id = (MessageQueue_t)ThreadUtil::currentthreadid();
@@ -317,6 +329,7 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
 
     MessageQueueContent& content = pos->second;
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        DumpMessage(content.lst_message);
         ASSERT2(false, "Over MAX_MQ_SIZE");
         return KNullPost;
     }
@@ -353,6 +366,7 @@ MessagePost_t SingletonMessage(bool _replace, const MessageHandler_t& _handlerid
     }
     
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        DumpMessage(content.lst_message);
         ASSERT2(false, "Over MAX_MQ_SIZE");
         return KNullPost;
     }
@@ -375,6 +389,7 @@ MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Mes
 
     MessageQueueContent& content = pos->second;
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        DumpMessage(content.lst_message);
         ASSERT2(false, "Over MAX_MQ_SIZE");
         return KNullPost;
     }
@@ -436,6 +451,7 @@ MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _
     }
 
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
+        DumpMessage(content.lst_message);
         ASSERT2(false, "Over MAX_MQ_SIZE");
         delete messagewrapper;
         return KNullPost;
@@ -710,7 +726,7 @@ static void __ANRCheckCallback(bool _iOS_style, const mars::comm::check_content&
                    _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, mq_id.queue, mq_id.seq);
             thread->cancel_after();
         }
-    }, MessageQueue::DefAsyncInvokeHandler(mq_id.queue));
+    }, MessageQueue::DefAsyncInvokeHandler(mq_id.queue), "__ANRCheckCallback");
 }
 #ifndef ANR_CHECK_DISABLE
 
@@ -821,6 +837,7 @@ void RunLoop::Run() {
         int64_t anr_timeout = messagewrapper->message.anr_timeout;
         lock.unlock();
 
+        messagewrapper->message.execute_time = ::gettickcount();
         for (std::list<HandlerWrapper>::iterator it = fit_handler.begin(); it != fit_handler.end(); ++it) {
             SCOPE_ANR_AUTO((int)anr_timeout, kMQCallANRId, &(*it).reg);
             uint64_t timestart = ::clock_app_monotonic();

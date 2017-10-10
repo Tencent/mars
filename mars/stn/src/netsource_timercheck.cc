@@ -98,7 +98,7 @@ void NetSourceTimerCheck::__StartCheck() {
 
     if (asyncpost_ != MessageQueue::KNullPost) return;
 
-    asyncpost_ = MessageQueue::AsyncInvokePeriod(kTimeCheckPeriod, kTimeCheckPeriod, boost::bind(&NetSourceTimerCheck::__Check, this), asyncreg_.Get());
+    asyncpost_ = MessageQueue::AsyncInvokePeriod(kTimeCheckPeriod, kTimeCheckPeriod, boost::bind(&NetSourceTimerCheck::__Check, this), asyncreg_.Get(), "NetSourceTimerCheck::__Check()");
 
 }
 

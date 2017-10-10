@@ -42,7 +42,7 @@ bool Alarm::Start(int _after) {
 
     int64_t seq = sg_seq++;
     uint64_t starttime = gettickcount();
-    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, 1), MessageQueue::MessageTiming(_after));
+    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, 1, "Alarm.broadcast"), MessageQueue::MessageTiming(_after));
 
     if (MessageQueue::KNullPost == broadcast_msg_id_) {
         xerror2(TSF"mq alarm return null post, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
@@ -123,7 +123,7 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
     ScopedLock lock(sg_lock);
 
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(reg_async_.Get())) {
-        MessageQueue::AsyncInvoke(boost::bind(&Alarm::OnAlarm, this, _id, _message), (MessageQueue::MessageTitle_t)this, reg_async_.Get());
+        MessageQueue::AsyncInvoke(boost::bind(&Alarm::OnAlarm, this, _id, _message), (MessageQueue::MessageTitle_t)this, reg_async_.Get(), "Alarm::OnAlarm");
         return;
     }
 
@@ -163,7 +163,7 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
     if (inthread_)
         runthread_.start();
     else
-        MessageQueue::AsyncInvoke(boost::bind(&Alarm::__Run, this), (MessageQueue::MessageTitle_t)this, reg_async_.Get());
+        MessageQueue::AsyncInvoke(boost::bind(&Alarm::__Run, this), (MessageQueue::MessageTitle_t)this, reg_async_.Get(), "Alarm::__Run");
 }
 
 void Alarm::__Run() {

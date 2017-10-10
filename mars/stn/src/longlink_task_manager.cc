@@ -191,7 +191,7 @@ void LongLinkTaskManager::__RunLoop() {
         wakeup_lock_->Lock(30 * 1000);
 #endif
       MessageQueue::FasterMessage(asyncreg_.Get(),
-                                  MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&LongLinkTaskManager::__RunLoop, this)),
+                                  MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&LongLinkTaskManager::__RunLoop, this), "LongLinkTaskManager::__RunLoop"),
                                   MessageQueue::MessageTiming(1000));
     } else {
 #ifdef ANDROID
