@@ -55,10 +55,6 @@ int HttpChecker::StartDoCheck(CheckRequestProfile& _check_request) {
     return BaseChecker::StartDoCheck(_check_request);
 }
 
-int HttpChecker::CancelDoCheck() {
-    xinfo_function();
-    return BaseChecker::CancelDoCheck();
-}
 
 void HttpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
