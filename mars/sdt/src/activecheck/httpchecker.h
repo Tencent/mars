@@ -36,7 +36,6 @@ class HttpChecker : public BaseChecker {
     virtual ~HttpChecker();
 
     virtual int StartDoCheck(CheckRequestProfile& _check_request);
-    virtual int CancelDoCheck();
 
   protected:
     virtual void __DoCheck(CheckRequestProfile& _check_request);
