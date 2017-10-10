@@ -47,7 +47,7 @@
 
 namespace MessageQueue {
 
-#define MAX_MQ_SIZE 300
+#define MAX_MQ_SIZE 5000
 
 static unsigned int __MakeSeq() {
     static unsigned int s_seq = 0;
