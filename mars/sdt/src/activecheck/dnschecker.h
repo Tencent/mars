@@ -34,7 +34,6 @@ class DnsChecker : public BaseChecker {
     virtual ~DnsChecker();
 
     virtual int StartDoCheck(CheckRequestProfile& _check_request);
-    virtual int CancelDoCheck();
 
   protected:
     virtual void __DoCheck(CheckRequestProfile& _check_request);

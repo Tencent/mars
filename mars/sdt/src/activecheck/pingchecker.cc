@@ -47,11 +47,6 @@ int PingChecker::StartDoCheck(CheckRequestProfile& _check_request) {
 #endif
 }
 
-int PingChecker::CancelDoCheck() {
-    xinfo_function();
-    return BaseChecker::CancelDoCheck();
-}
-
 void PingChecker::__DoCheck(CheckRequestProfile& _check_request) {
 
 #if defined(ANDROID) || defined(__APPLE__)
