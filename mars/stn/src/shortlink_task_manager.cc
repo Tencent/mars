@@ -160,7 +160,7 @@ void ShortLinkTaskManager::__RunLoop() {
         wakeup_lock_->Lock(30 * 1000);
 #endif
         MessageQueue::FasterMessage(asyncreg_.Get(),
-                                    MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&ShortLinkTaskManager::__RunLoop, this)),
+                                    MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&ShortLinkTaskManager::__RunLoop, this), "ShortLinkTaskManager::__RunLoop"),
                                     MessageQueue::MessageTiming(1000));
     } else {
 #ifdef ANDROID
