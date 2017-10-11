@@ -40,7 +40,8 @@
 
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
-#include "comm/xlogger/xlogger.h"
+#include "mars/comm/xlogger/xlogger.h"
+#include "mars/comm/strutil.h"
 namespace MessageQueue {
 
 typedef uint64_t MessageQueue_t;
@@ -244,7 +245,7 @@ MessagePost_t  AsyncInvokePeriod(int64_t _after, int64_t _period, const F& _func
 }
     //~title
 //---~with message name
-    
+
 template<class F>
 MessagePost_t AsyncInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
     return PostMessage(_handlerid, Message(0, _func));
@@ -617,8 +618,8 @@ typename boost::result_of< F()>::type  WaitInvoke(const F& _func, const MessageH
 }
 
 template <typename R>
-MessagePost_t  AsyncInvoke(const AsyncResult<R>& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
-    return PostMessage(_handlerid, Message(0, _func));
+MessagePost_t  AsyncInvoke(const AsyncResult<R>& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
+    return PostMessage(_handlerid, Message(0, _func, _msg_name));
 }
     
 class ScopeRegister {
@@ -639,22 +640,8 @@ private:
 };
 
 //------
-static std::string GetFileNameFromPath(const char* _path) {
-    if (NULL == _path) return "";
     
-    const char* pos = strrchr(_path, '\\');
-    
-    if (NULL == pos) {
-        pos = strrchr(_path, '/');
-    }
-    
-    if (NULL == pos || '\0' == *(pos + 1)) {
-        return _path;
-    } else {
-        return pos + 1;
-    }
-}
-#define MESSAGE_NAME(file, function) (mq::GetFileNameFromPath(file)+":"+function)
+#define MESSAGE_NAME(file, function) (strutil::GetFileNameFromPath(file)+":"+function)
 #define ASYNC_BLOCK_END_MSGNAME(msg_name)  }, AYNC_HANDLER, msg_name);
 
 #define ASYNC_BLOCK_START MessageQueue::AsyncInvoke([=] () {

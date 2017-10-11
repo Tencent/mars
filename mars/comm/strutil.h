@@ -135,6 +135,8 @@ std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
 
 std::string ReplaceChar(const char* const input_str, char be_replaced='@', char replace_with='.');
+    
+std::string GetFileNameFromPath(const char* _path);
 }
 
 #endif	// COMM_STRUTIL_H_
