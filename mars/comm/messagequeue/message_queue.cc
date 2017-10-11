@@ -162,16 +162,16 @@ static std::map<MessageQueue_t, MessageQueueContent>& messagequeue_map() {
 }
 
 
-static void DumpMessage(const std::list<MessageWrapper*> _message_lst) {
+static void DumpMessage(const std::list<MessageWrapper*>& _message_lst) {
     XMessage xmsg;
-    xmsg(TSF"**************DumpMessage**************size:%_\n", _message_lst.size());
+    xmsg(TSF"**************Dump MQ Message**************size:%_\n", _message_lst.size());
     int index = 0;
     for (auto msg : _message_lst) {
         xmsg(TSF"postid:%_, timing:%_, record_time:%_, message:%_\n", msg->postid.ToString(), msg->timing.ToString(), msg->record_time, msg->message.ToString());
         if (++index>50)
             break;
     }
-    xinfo2(TSF"%_", xmsg.String());
+    xwarn2(TSF"%_", xmsg.String());
 }
     
 MessageQueue_t CurrentThreadMessageQueue() {
