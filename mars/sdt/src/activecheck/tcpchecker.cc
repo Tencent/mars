@@ -46,10 +46,6 @@ int TcpChecker::StartDoCheck(CheckRequestProfile& _check_request) {
     return BaseChecker::StartDoCheck(_check_request);
 }
 
-int TcpChecker::CancelDoCheck() {
-    xinfo_function();
-    return BaseChecker::CancelDoCheck();
-}
 
 void TcpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
