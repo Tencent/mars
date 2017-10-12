@@ -42,8 +42,9 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
 	}
 
 	const char* pubkey = NULL;
+	ScopedJstring jstr_pubkey(env, _pubkey);
 	if (NULL != _pubkey) {
-		pubkey = ScopedJstring(env, _pubkey).GetChar();
+		pubkey = jstr_pubkey.GetChar();
 	}
 
 	ScopedJstring log_dir_jstr(env, _log_dir);
