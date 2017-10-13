@@ -41,10 +41,12 @@ class BaseChecker {
 
   public:
     virtual int StartDoCheck(CheckRequestProfile& _check_request) = 0;
-    virtual int CancelDoCheck() = 0;
+    int CancelDoCheck();
 
   protected:
     virtual void __DoCheck(CheckRequestProfile& _check_request) = 0;
+  protected:
+    bool is_canceled_ = false;
 };
 
 }}

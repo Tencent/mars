@@ -993,9 +993,10 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
 
                     if (int(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
                         appendlen = int(_recv_buffer.Length());
-                    else
+                    else {
+                        xwarn2(TSF"contentLength:%_, body.len:%_, recv len:%_", contentLength, int(bodyreceiver_->Length()), _recv_buffer.Length());
                         appendlen = contentLength - int(bodyreceiver_->Length());
-
+                    }
 
                     bodyreceiver_->AppendData(_recv_buffer.Ptr(), (size_t)appendlen);
                     _recv_buffer.Move(-appendlen);
