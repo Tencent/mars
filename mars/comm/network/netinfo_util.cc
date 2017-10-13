@@ -26,6 +26,7 @@
 #include "comm/network/getifaddrs.h"
 #include "comm/socket/unix_socket.h"
 #include "comm/socket/socket_address.h"
+#include "netinfo_util.h"
 
 NetworkType GetNetworkType() {
     NetworkType network_type = kNetworkTypeUnknown;
