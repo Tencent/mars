@@ -27,6 +27,26 @@
 #include "comm/socket/unix_socket.h"
 #include "comm/socket/socket_address.h"
 
+NetworkType GetNetworkType() {
+    NetworkType network_type = kNetworkTypeUnknown;
+    int netinfo = getNetInfo();
+    
+    if (kWifi == netinfo) {
+        network_type = kNetworkTypeWiFi;
+    } else if (kMobile == netinfo) {
+        RadioAccessNetworkInfo ran;
+        getCurRadioAccessNetworkInfo(ran);
+        
+        if (ran.Is2G())
+            network_type = kNetworkType2G;
+        else if (ran.Is3G())
+            network_type = kNetworkType3G;
+        else if (ran.Is4G())
+            network_type = kNetworkType4G;
+    }
+    return network_type;
+}
+
 std::string GetDetailNetInfo() {
 	XMessage detail_net_info;
 	//1.网络信息
