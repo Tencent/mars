@@ -96,7 +96,7 @@ namespace stn{
     
 
     // async function.
-	extern void (*StartTask)(const Task& task);
+	extern bool (*StartTask)(const Task& task);
     
     // sync function
 	extern void (*StopTask)(uint32_t taskid);
