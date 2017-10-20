@@ -39,6 +39,7 @@
 
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
+#include "weak_network_logic.h"
 
 using namespace mars::stn;
 
@@ -424,6 +425,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
         ReportTaskProfile(*_it);
+        WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         lst_cmd_.erase(_it);
         return true;
@@ -617,6 +619,10 @@ void LongLinkTaskManager::__OnRecv(uint32_t _taskid, size_t _cachedsize, size_t 
     std::list<TaskProfile>::iterator it = __Locate(_taskid);
 
     if (lst_cmd_.end() != it) {
+        if(it->transfer_profile.last_receive_pkg_time == 0)
+            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+        else
+            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.received_size = _cachedsize;
         it->transfer_profile.receive_data_size = _totalsize;
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();

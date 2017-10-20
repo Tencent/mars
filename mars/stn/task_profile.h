@@ -188,6 +188,17 @@ struct TransferProfile {
     int error_type;
     int error_code;
 };
+    
+//do not insert or delete
+enum TaskFailStep {
+    kStepSucc = 0,
+    kStepDns,
+    kStepConnect,
+    kStepFirstPkg,
+    kStepPkgPkg,
+    kStepDecode,
+    kStepOther
+};
         
 struct TaskProfile {
     
@@ -240,6 +251,16 @@ struct TaskProfile {
     
     void PushHistory() {
         history_transfer_profiles.push_back(transfer_profile);
+    }
+    
+    TaskFailStep GetFailStep() const {
+        if(kEctOK == err_type && 0 == err_code) return kStepSucc;
+        if(kEctDns == err_type) return kStepDns;
+        if(transfer_profile.connect_profile.ip_index == -1) return kStepConnect;
+        if(transfer_profile.last_receive_pkg_time == 0) return kStepFirstPkg;
+        if(kEctEnDecode == err_type)    return kStepDecode;
+        if(kEctSocket == err_type || kEctHttp == err_type || kEctNetMsgXP == err_type)  return kStepPkgPkg;
+        return kStepOther;
     }
 
     const Task task;

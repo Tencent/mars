@@ -37,6 +37,7 @@
 
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
+#include "weak_network_logic.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -423,6 +424,10 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
 
     if (lst_cmd_.end() != it) {
+        if(it->transfer_profile.last_receive_pkg_time == 0)
+            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+        else
+            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();
         it->transfer_profile.received_size = _cached_size;
         it->transfer_profile.receive_data_size = _total_size;
@@ -531,6 +536,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
         ReportTaskProfile(*_it);
+        WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         __DeleteShortLink(_it->running_id);
 
