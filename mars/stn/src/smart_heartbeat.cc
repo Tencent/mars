@@ -132,8 +132,8 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
         time_t cur_time = time(NULL);
         // heart info changed recently,Don't need probe
         // probe bigger heart on Wednesday
-        if ((cur_time - current_net_heart_info_.last_modify_time_) >= 7*ONE_DAY_SECONEDS) {
-            xinfo2(TSF"tryProbeBiggerHeart. curHeart=%0  ", current_net_heart_info_.cur_heart_);
+        if ((cur_time - current_net_heart_info_.last_modify_time_) >= 7*ONE_DAY_SECONEDS && current_net_heart_info_.cur_heart_ < (MaxHeartInterval - SuccessStep)) {
+            xinfo2(TSF"tryProbeBiggerHeart. curHeart=%_, last modify:%_", current_net_heart_info_.cur_heart_, current_net_heart_info_.last_modify_time_);
             current_net_heart_info_.cur_heart_ += SuccessStep;
             current_net_heart_info_.succ_heart_count_ = 0;
             current_net_heart_info_.is_stable_ = false;
