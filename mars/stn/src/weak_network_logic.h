@@ -24,6 +24,7 @@
 #include "mars/comm/singleton.h"
 #include "comm/tickcount.h"
 #include "mars/stn/task_profile.h"
+#include "mars/baseevent/active_logic.h"
 
 namespace mars {
 namespace stn {
@@ -33,13 +34,15 @@ public:
     SINGLETON_INTRUSIVE(WeakNetworkLogic, new WeakNetworkLogic, delete);
     boost::function<void (int _key, int _value, bool _is_important)> report_weak_logic_;
     
-    WeakNetworkLogic():is_curr_weak_(false) {}
-    
     bool IsCurrentNetworkWeak();
-    
     void OnConnectEvent(bool _is_suc, int _rtt, int _index);
     void OnPkgEvent(bool _is_firstpkg, int _span);
     void OnTaskEvent(const TaskProfile& _task_profile);
+    
+private:
+    WeakNetworkLogic();
+    virtual ~WeakNetworkLogic();
+    void __SignalForeground(bool _is_foreground);
     
 private:
     tickcount_t first_mark_tick_;

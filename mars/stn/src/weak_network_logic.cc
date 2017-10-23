@@ -20,7 +20,7 @@
 #include "weak_network_logic.h"
 #include "mars/comm/xlogger/xlogger.h"
 
-#define MARK_TIMEOUT (5*60*1000)
+#define MARK_TIMEOUT (60*1000)
 #define WEAK_CONNECT_RTT (1 * 1000)
 #define WEAK_PKG_SPAN (1*1000)
 #define GOOD_TASK_SPAN (600)
@@ -44,7 +44,26 @@ namespace stn {
         kExitSceneTask,
         kExitSceneTimeout,
         kExitSceneConnect,
+        kExitSceneBackground,
     };
+    
+    WeakNetworkLogic::WeakNetworkLogic():is_curr_weak_(false) {
+        ActiveLogic::Singleton::Instance()->SignalForeground.connect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+    }
+    
+    WeakNetworkLogic::~WeakNetworkLogic() {
+        ActiveLogic::Singleton::Instance()->SignalForeground.disconnect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+    }
+    
+    void WeakNetworkLogic::__SignalForeground(bool _is_foreground) {
+        if(!_is_foreground && is_curr_weak_) {
+            is_curr_weak_ = false;
+            report_weak_logic_(kExitWeak, 1, false);
+            report_weak_logic_(kExitSceneBackground, 1, false);
+            report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
+            xinfo2(TSF"weak network end");
+        }
+    }
     
     bool WeakNetworkLogic::IsCurrentNetworkWeak() {
         if(is_curr_weak_) {
@@ -52,9 +71,8 @@ namespace stn {
             else {
                 is_curr_weak_ = false;
                 report_weak_logic_(kExitWeak, 1, false);
-                report_weak_logic_(kExitWeak, 1, false);
                 report_weak_logic_(kExitSceneTimeout, 1, false);
-                report_weak_logic_(kWeakTime, first_mark_tick_.gettickspan(), false);
+                report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
                 xinfo2(TSF"weak network end");
                 return false;
             }
@@ -63,6 +81,9 @@ namespace stn {
     }
     
     void WeakNetworkLogic::OnConnectEvent(bool _is_suc, int _rtt, int _index) {
+        if(!ActiveLogic::Singleton::Instance()->IsForeground())
+            return;
+        
         if(!_is_suc) {
             if(is_curr_weak_) {
                 report_weak_logic_(kExitWeak, 1, false);
@@ -94,6 +115,9 @@ namespace stn {
     }
     
     void WeakNetworkLogic::OnPkgEvent(bool _is_firstpkg, int _span) {
+        if(!ActiveLogic::Singleton::Instance()->IsForeground())
+            return;
+        
         bool is_weak = (_span > WEAK_PKG_SPAN);
         if(is_weak) {
             if(!is_curr_weak_) {
@@ -108,6 +132,9 @@ namespace stn {
     }
     
     void WeakNetworkLogic::OnTaskEvent(const TaskProfile& _task_profile) {
+        if(!ActiveLogic::Singleton::Instance()->IsForeground())
+            return;
+        
         bool is_weak = false;
         if(_task_profile.transfer_profile.connect_profile.ip_index > 0 && _task_profile.err_type != kEctOK && _task_profile.err_type != kEctEnDecode)
             is_weak = true;
@@ -125,7 +152,7 @@ namespace stn {
                 is_curr_weak_ = false;
                 report_weak_logic_(kExitWeak, 1, false);
                 report_weak_logic_(kExitSceneTask, 1, false);
-                report_weak_logic_(kWeakTime, first_mark_tick_.gettickspan(), false);
+                report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
                 xinfo2(TSF"weak network end");
             }
         }
@@ -134,7 +161,7 @@ namespace stn {
             report_weak_logic_(kCGICount, 1, false);
             if(_task_profile.err_type == kEctOK) {
                 report_weak_logic_(kCGISucc, 1, false);
-                report_weak_logic_(kCGICost, (_task_profile.end_task_time - _task_profile.start_task_time), false);
+                report_weak_logic_(kCGICost, (int)(_task_profile.end_task_time - _task_profile.start_task_time), false);
             }
         }
     }
