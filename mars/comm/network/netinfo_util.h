@@ -24,6 +24,7 @@
 
 typedef enum {
     kNetworkTypeUnknown,
+    kNetworkTypeNoNet,
     kNetworkTypeWiFi,
     kNetworkType2G,
     kNetworkType3G,

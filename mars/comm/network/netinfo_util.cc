@@ -44,6 +44,8 @@ NetworkType GetNetworkType() {
             network_type = kNetworkType3G;
         else if (ran.Is4G())
             network_type = kNetworkType4G;
+    } else if (kNoNet == netinfo) {
+        network_type = kNetworkTypeNoNet;
     }
     return network_type;
 }
