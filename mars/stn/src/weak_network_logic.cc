@@ -45,9 +45,10 @@ namespace stn {
         kExitSceneTimeout,
         kExitSceneConnect,
         kExitSceneBackground,
+        kExitQuickConnectNoNet,
     };
     
-    WeakNetworkLogic::WeakNetworkLogic():is_curr_weak_(false) {
+    WeakNetworkLogic::WeakNetworkLogic():is_curr_weak_(false), connect_after_weak_(0) {
         ActiveLogic::Singleton::Instance()->SignalForeground.connect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
     }
     
@@ -84,10 +85,13 @@ namespace stn {
         if(!ActiveLogic::Singleton::Instance()->IsForeground())
             return;
         
+        if(is_curr_weak_)   ++connect_after_weak_;
         if(!_is_suc) {
             if(is_curr_weak_) {
+                is_curr_weak_ = false;
                 report_weak_logic_(kExitWeak, 1, false);
                 report_weak_logic_(kExitSceneConnect, 1, false);
+                if(connect_after_weak_ <= 1) report_weak_logic_(kExitQuickConnectNoNet, 1, false);
             }
             
             return;
@@ -111,6 +115,7 @@ namespace stn {
                 report_weak_logic_(kEnterWeak, 1, false);
             }
             is_curr_weak_ = true;
+            connect_after_weak_ = 0;
             last_mark_tick_.gettickcount();
             xinfo2(TSF"weak network rtt:%_, index:%_", _rtt, _index);
         }
@@ -126,6 +131,7 @@ namespace stn {
             report_weak_logic_(kEnterWeak, 1, false);
             report_weak_logic_(_is_firstpkg ? kSceneFirstPkg : kScenePkgPkg, 1, false);
             is_curr_weak_ = true;
+            connect_after_weak_ = 0;
             last_mark_tick_.gettickcount();
             xinfo2(TSF"weak network span:%_", _span);
         }
@@ -145,6 +151,7 @@ namespace stn {
                 report_weak_logic_(kSceneTask, 1, false);
             }
             is_curr_weak_ = true;
+            connect_after_weak_ = 0;
             last_mark_tick_.gettickcount();
             xinfo2(TSF"weak network errtype:%_", _task_profile.err_type);
         } else {

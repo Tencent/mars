@@ -48,6 +48,7 @@ private:
     tickcount_t first_mark_tick_;
     tickcount_t last_mark_tick_;
     bool is_curr_weak_;
+    unsigned int connect_after_weak_;
 };
     
 }
