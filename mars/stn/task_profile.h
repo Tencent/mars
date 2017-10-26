@@ -197,7 +197,8 @@ enum TaskFailStep {
     kStepFirstPkg,
     kStepPkgPkg,
     kStepDecode,
-    kStepOther
+    kStepOther,
+    kStepTimeout,
 };
         
 struct TaskProfile {
@@ -260,6 +261,7 @@ struct TaskProfile {
         if(transfer_profile.last_receive_pkg_time == 0) return kStepFirstPkg;
         if(kEctEnDecode == err_type)    return kStepDecode;
         if(kEctSocket == err_type || kEctHttp == err_type || kEctNetMsgXP == err_type)  return kStepPkgPkg;
+        if(kEctLocalTaskTimeout == err_code)    return kStepTimeout;
         return kStepOther;
     }
 
