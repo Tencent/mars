@@ -24,6 +24,19 @@ int aes_cbc_decrypt(const unsigned char* pKey, unsigned int uiKeyLen
 int aes_ecb_decrypt(const unsigned char* pKey, unsigned int uiKeyLen
 		, const unsigned char* pInput, unsigned int uiInputLen, int bFinal
 		, unsigned char** ppOutput, unsigned int* pOutputLen);
+    
+    
+    
+int aes_cbc_encrypt_iv(const unsigned char* pKey, unsigned int uiKeyLen
+                    , const unsigned char* pIV, unsigned int uiIVLen
+                    , const unsigned char* pInput, unsigned int uiInputLen
+                    , unsigned char** ppOutput, unsigned int* pOutputLen);
+
+int aes_cbc_decrypt_iv(const unsigned char* pKey, unsigned int uiKeyLen
+                    , const unsigned char* pIV, unsigned int uiIVLen
+                    , const unsigned char* pInput, unsigned int uiInputLen
+                    , unsigned char** ppOutput, unsigned int* pOutputLen);
+
 #ifdef __cplusplus
 }
 #endif
