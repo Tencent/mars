@@ -21,8 +21,8 @@
 #include "mars/comm/xlogger/xlogger.h"
 
 #define MARK_TIMEOUT (60*1000)
-#define WEAK_CONNECT_RTT (1 * 1000)
-#define WEAK_PKG_SPAN (1*1000)
+#define WEAK_CONNECT_RTT (3 * 1000)
+#define WEAK_PKG_SPAN (3*1000)
 #define GOOD_TASK_SPAN (600)
 
 namespace mars {
@@ -93,6 +93,8 @@ namespace stn {
             return;
         }
         
+        if(!is_curr_weak_)  return;
+        
         bool is_weak = false;
         if(_index > 0)  {
             is_weak = true;
@@ -149,11 +151,13 @@ namespace stn {
             xinfo2(TSF"weak network errtype:%_", _task_profile.err_type);
         } else {
             if(_task_profile.err_type == kEctOK && (_task_profile.end_task_time - _task_profile.start_task_time) < GOOD_TASK_SPAN) {
-                is_curr_weak_ = false;
-                report_weak_logic_(kExitWeak, 1, false);
-                report_weak_logic_(kExitSceneTask, 1, false);
-                report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
-                xinfo2(TSF"weak network end");
+                if(is_curr_weak_) {
+                    is_curr_weak_ = false;
+                    report_weak_logic_(kExitWeak, 1, false);
+                    report_weak_logic_(kExitSceneTask, 1, false);
+                    report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
+                    xinfo2(TSF"weak network end");
+                }
             }
         }
         
