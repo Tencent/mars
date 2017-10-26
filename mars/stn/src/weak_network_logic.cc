@@ -21,8 +21,8 @@
 #include "mars/comm/xlogger/xlogger.h"
 
 #define MARK_TIMEOUT (60*1000)
-#define WEAK_CONNECT_RTT (3 * 1000)
-#define WEAK_PKG_SPAN (3*1000)
+#define WEAK_CONNECT_RTT (1 * 1000)
+#define WEAK_PKG_SPAN (1*1000)
 #define GOOD_TASK_SPAN (600)
 
 namespace mars {
@@ -122,11 +122,9 @@ namespace stn {
         
         bool is_weak = (_span > WEAK_PKG_SPAN);
         if(is_weak) {
-            if(!is_curr_weak_) {
-                first_mark_tick_.gettickcount();
-                report_weak_logic_(kEnterWeak, 1, false);
-                report_weak_logic_(_is_firstpkg ? kSceneFirstPkg : kScenePkgPkg, 1, false);
-            }
+            first_mark_tick_.gettickcount();
+            report_weak_logic_(kEnterWeak, 1, false);
+            report_weak_logic_(_is_firstpkg ? kSceneFirstPkg : kScenePkgPkg, 1, false);
             is_curr_weak_ = true;
             last_mark_tick_.gettickcount();
             xinfo2(TSF"weak network span:%_", _span);
