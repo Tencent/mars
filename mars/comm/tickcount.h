@@ -63,6 +63,7 @@ class tickcount_t {
     bool operator> (const tickcount_t& _tc) const { return tickcount_ >  _tc.tickcount_;}
     bool operator>=(const tickcount_t& _tc) const { return tickcount_ >= _tc.tickcount_;}
 	bool isValid() { return tickcount_!=0; }
+    void SetInvalid() { tickcount_ = 0; }
 
   public:
     // tickcount_t(const tickcount_t&);
