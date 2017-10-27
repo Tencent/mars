@@ -103,6 +103,7 @@ namespace stn {
                 report_weak_logic_(kExitSceneConnect, 1, false);
                 report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
                 if(connect_after_weak_ <= 1 && first_mark_tick_.gettickspan() < SURE_WEAK_SPAN) report_weak_logic_(kExitQuickConnectNoNet, 1, false);
+                xinfo2(TSF"weak network end");
             }
             
             return;
