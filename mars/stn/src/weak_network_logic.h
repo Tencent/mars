@@ -38,6 +38,7 @@ public:
     void OnConnectEvent(bool _is_suc, int _rtt, int _index);
     void OnPkgEvent(bool _is_firstpkg, int _span);
     void OnTaskEvent(const TaskProfile& _task_profile);
+    bool IsLastValidConnectFail(int64_t &_span);
     
 private:
     WeakNetworkLogic();
@@ -49,6 +50,8 @@ private:
     tickcount_t last_mark_tick_;
     bool is_curr_weak_;
     unsigned int connect_after_weak_;
+    tickcount_t last_connect_fail_tick_;
+    tickcount_t last_connect_suc_tick_;
 };
     
 }

@@ -26,6 +26,7 @@
 #define GOOD_TASK_SPAN (600)
 #define SURE_WEAK_SPAN (5*1000)
 #define WEAK_TASK_SPAN (5*1000)
+//#define LAST_CONNECTINFO_VALID_SPAN (10*1000)
 
 namespace mars {
 namespace stn {
@@ -58,7 +59,7 @@ namespace stn {
         kFailStepTimeout,
     };
     
-    WeakNetworkLogic::WeakNetworkLogic():is_curr_weak_(false), connect_after_weak_(0) {
+    WeakNetworkLogic::WeakNetworkLogic():is_curr_weak_(false), connect_after_weak_(0), last_connect_fail_tick_(false), last_connect_suc_tick_(false) {
         ActiveLogic::Singleton::Instance()->SignalForeground.connect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
     }
     
@@ -91,7 +92,27 @@ namespace stn {
         return false;
     }
     
+    bool WeakNetworkLogic::IsLastValidConnectFail(int64_t &_span) {
+        if(last_connect_fail_tick_.isValid()) {
+            _span = last_connect_fail_tick_.gettickspan();
+            return true;
+        } else if(last_connect_suc_tick_.isValid()) {
+            _span = last_connect_suc_tick_.gettickspan();
+            return false;
+        }
+        return false;
+    }
+    
     void WeakNetworkLogic::OnConnectEvent(bool _is_suc, int _rtt, int _index) {
+        if(_is_suc) {
+            last_connect_fail_tick_.setInvalid();
+            last_connect_suc_tick_.gettickcount();
+        }
+        else {
+            last_connect_fail_tick_.gettickcount();
+            last_connect_suc_tick_.setInvalid();
+        }
+        
         if(!ActiveLogic::Singleton::Instance()->IsForeground())
             return;
         
