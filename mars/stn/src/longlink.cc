@@ -408,6 +408,7 @@ void LongLink::__Run() {
     conn_profile.disconn_signal = ::getSignal(::getNetInfo() == kWifi);
     
     __ConnectStatus(kDisConnected);
+    xinfo2(TSF"longlink lifetime:%_", (gettickcount() - conn_profile.conn_time));
     __UpdateProfile(conn_profile);
 
     if (kEctOK != errtype) __RunResponseError(errtype, errcode, conn_profile);
