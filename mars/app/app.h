@@ -47,6 +47,7 @@ extern std::string GetUserName();
 extern std::string GetRecentUserName();
 extern unsigned int GetClientVersion();
 extern DeviceInfo GetDeviceInfo();
+extern double GetOsVersion();
 }}
 
 #endif /* APPCOMM_INTERFACE_APPCOMM_H_ */
