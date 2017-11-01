@@ -525,7 +525,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
 
         if (_it->running_id) {
             if (kEctOK == _err_type) {
-                errcode = (cgi_retcode == 0 ? cgi_retcode : kEctServer);
+                errcode = cgi_retcode;
             }
         }
 

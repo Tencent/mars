@@ -199,6 +199,7 @@ enum TaskFailStep {
     kStepDecode,
     kStepOther,
     kStepTimeout,
+    kStepServer,
 };
         
 struct TaskProfile {
@@ -262,6 +263,7 @@ struct TaskProfile {
         if(kEctEnDecode == err_type)    return kStepDecode;
         if(kEctSocket == err_type || kEctHttp == err_type || kEctNetMsgXP == err_type)  return kStepPkgPkg;
         if(kEctLocalTaskTimeout == err_code)    return kStepTimeout;
+        if(kEctServer == err_type || (kEctOK == err_type && err_code != 0))    return kStepServer;
         return kStepOther;
     }
 

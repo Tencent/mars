@@ -414,7 +414,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
 
         if (!_it->task.send_only && _it->running_id) {
         	if (kEctOK == _err_type) {
-				errcode = (cgi_retcode == 0 ? cgi_retcode : kEctServer);
+				errcode = cgi_retcode;
 			}
 		}
 
