@@ -378,7 +378,7 @@ void LongLink::__Run() {
     __UpdateProfile(conn_profile);
     
 #ifdef ANDROID
-    wakelock_->Lock(60 * 1000);
+    wakelock_->Lock(40 * 1000);
 #endif
     SOCKET sock = __RunConnect(conn_profile);
 #ifdef ANDROID
