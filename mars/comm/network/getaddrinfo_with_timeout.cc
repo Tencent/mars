@@ -123,7 +123,7 @@ static void __WorkerFunc() {
                 xinfo2(TSF"getaddrinfo fail and timeout. free worker_res0 @%_", worker_res0);
                 freeaddrinfo(worker_res0);
             }
-            xinfo2(TSF"getaddrinfo fail and timeout. dns_item:%_", iter->ToString());
+            xinfo2(TSF"getaddrinfo fail and timeout. worker_node:%_", worker_node);
         }
         sg_condition.notifyAll();
     } else {
@@ -137,7 +137,7 @@ static void __WorkerFunc() {
                     xinfo2(TSF"getaddrinfo end but timeout. free worker_res0 @%_", worker_res0);
                     freeaddrinfo(worker_res0);
                 }
-                xinfo2(TSF"getaddrinfo end but timeout. dns_item:%_", iter->ToString());
+                xinfo2(TSF"getaddrinfo end but timeout. worker_node:%_", worker_node);
             }
         }
         

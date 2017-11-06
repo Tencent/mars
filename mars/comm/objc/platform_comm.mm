@@ -243,7 +243,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
 
     if (nil == info) return false;
     if (info.ssid) {
-        wifiInfo.ssid = [info.ssid UTF8String];
+        const char* ssid = [info.ssid UTF8String];
+        if(NULL != ssid) wifiInfo.ssid = ssid;
         //wifiInfo.bssid = [info.bssid UTF8String];
     } else {
         wifiInfo.ssid = USE_WIRED;

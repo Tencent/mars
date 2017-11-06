@@ -86,6 +86,7 @@
 		55D918791CC7BD7A0076CBD9 /* tinyxml2.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D90B081CC7BD770076CBD9 /* tinyxml2.cc */; };
 		55D91ABB1CC7BD7A0076CBD9 /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D9177D1CC7BD7A0076CBD9 /* md5.c */; };
 		55D91ABC1CC7BD7A0076CBD9 /* adler32.c in Sources */ = {isa = PBXBuildFile; fileRef = 55D9177E1CC7BD7A0076CBD9 /* adler32.c */; };
+		9A739E8A1F7E3E7B000019E7 /* getaddrinfo_with_timeout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9A739E881F7E3E7B000019E7 /* getaddrinfo_with_timeout.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -290,6 +291,8 @@
 		55D9177D1CC7BD7A0076CBD9 /* md5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = md5.c; sourceTree = "<group>"; };
 		55D9177E1CC7BD7A0076CBD9 /* adler32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adler32.c; sourceTree = "<group>"; };
 		55D9C0821CC7B1C90076CBD9 /* libcomm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libcomm.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A739E881F7E3E7B000019E7 /* getaddrinfo_with_timeout.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = getaddrinfo_with_timeout.cc; sourceTree = "<group>"; };
+		9A739E891F7E3E7B000019E7 /* getaddrinfo_with_timeout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = getaddrinfo_with_timeout.h; sourceTree = "<group>"; };
 		F138F5511DEED3B600546CBB /* coro_socket.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = coro_socket.cc; sourceTree = "<group>"; };
 		F138F5521DEED3B600546CBB /* coro_socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coro_socket.h; sourceTree = "<group>"; };
 		F138F5531DEED3B600546CBB /* coroutine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coroutine.h; sourceTree = "<group>"; };
@@ -646,6 +649,8 @@
 		55D90A731CC7BD770076CBD9 /* network */ = {
 			isa = PBXGroup;
 			children = (
+				9A739E881F7E3E7B000019E7 /* getaddrinfo_with_timeout.cc */,
+				9A739E891F7E3E7B000019E7 /* getaddrinfo_with_timeout.h */,
 				4B3C3E081E120D9400351897 /* netinfo_util.cc */,
 				4B3C3E091E120D9400351897 /* netinfo_util.h */,
 				55D90A741CC7BD770076CBD9 /* getdnssvraddrs.cc */,
@@ -923,6 +928,7 @@
 				4BA235641E5AB6E1002B769D /* socketbreaker.cc in Sources */,
 				55D9186E1CC7BD7A0076CBD9 /* platform_comm.mm in Sources */,
 				55D918531CC7BD7A0076CBD9 /* autobuffer.cc in Sources */,
+				9A739E8A1F7E3E7B000019E7 /* getaddrinfo_with_timeout.cc in Sources */,
 				55D918791CC7BD7A0076CBD9 /* tinyxml2.cc in Sources */,
 				55D9184C1CC7BD7A0076CBD9 /* getifaddrs.cc in Sources */,
 				55D918751CC7BD7A0076CBD9 /* strutil.cc in Sources */,

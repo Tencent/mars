@@ -140,7 +140,7 @@ class ConnectCheckFSM : public TcpClientFSM {
     virtual int ReadWriteTimeout() const {return (int)(end_connecttime_ + ReadWriteAbsTimeout() - gettickcount());}
 
     virtual int ConnectAbsTimeout() const { return connect_timeout_; }
-    virtual int ReadWriteAbsTimeout() const { return std::max(1000, std::min(6 * Rtt(), ConnectAbsTimeout() - Rtt()));}
+    virtual int ReadWriteAbsTimeout() const { return std::max(3000, std::min(6 * Rtt(), ConnectAbsTimeout() - Rtt()));}
 
   protected:
     const unsigned int connect_timeout_;
