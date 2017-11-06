@@ -228,6 +228,7 @@ struct TaskProfile {
     TaskProfile(const Task& _task):task(_task), transfer_profile(task), task_timeout(ComputeTaskTimeout(_task)), start_task_time(::gettickcount()){
         
         remain_retry_count = task.retry_count;
+        force_no_retry = false;
         
         running_id = 0;
         
@@ -277,6 +278,7 @@ struct TaskProfile {
     uint64_t retry_start_time;
 
     int remain_retry_count;
+    bool force_no_retry;
     
     int last_failed_dyntime_status;
     int current_dyntime_status;
