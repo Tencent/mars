@@ -74,8 +74,9 @@ void TrafficStatistics::Data(unsigned int _send, unsigned int _recv) {
 
 void TrafficStatistics::__ReportData() {
     if (func_report_flow_) {
-        func_report_flow_(wifi_recv_data_size_, wifi_send_data_size_, mobile_recv_data_size_, mobile_send_data_size_);
-        xdebug2(TSF"wifi:s:%_, r:%_, mobile:s:%_, r:%_", wifi_send_data_size_, wifi_recv_data_size_, mobile_send_data_size_, mobile_recv_data_size_);
+        if (wifi_recv_data_size_>0 || wifi_send_data_size_ || mobile_recv_data_size_ || mobile_send_data_size_)
+            func_report_flow_(wifi_recv_data_size_, wifi_send_data_size_, mobile_recv_data_size_, mobile_send_data_size_);
+        xdebug2(TSF"wifi:%_, r:%_, mobile:s:%_, r:%_", wifi_send_data_size_, wifi_recv_data_size_, mobile_send_data_size_, mobile_recv_data_size_);
     } else {
         xassert2(false, TSF"wifi:s:%_, r:%_, mobile:s:%_, r:%_", wifi_send_data_size_, wifi_recv_data_size_, mobile_send_data_size_, mobile_recv_data_size_);
     }
