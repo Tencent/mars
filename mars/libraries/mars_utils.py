@@ -236,10 +236,24 @@ def check_python_version():
 
 def check_ndk_env():
     system = platform.system()
-    path_env = os.getenv("PATH")
+    ndk_path = ""
+    path_env = os.getenv("ANDROID_NDK_HOME")
+    if path_env.strip()=="":
+        path_env = os.getenv("ANDROID_HOME")
+        if path_env.strip()=="":
+            path_env = os.getenv("PATH")
+        else:
+            if(os.path.isdir(os.path.join(path_env, "ndk-bundle")) and os.path.isfile(os.path.join(os.path.join(path_env, "ndk-bundle"), "ndk-build"))):
+                ndk_path = os.path.join(path_env, "ndk-bundle")
+    else:
+        if(os.path.isfile(os.path.join(path_env, "ndk-build")) or os.path.isfile(os.path.join(path_env, "ndk-build.cmd"))):
+            ndk_path = path_env
+
+    if ndk_path.strip():
+        print("ndk path:%s"%ndk_path)
+        return True
 
     delimiter = ":"
-
     if "Windows" == system:
         delimiter = ";"
         
