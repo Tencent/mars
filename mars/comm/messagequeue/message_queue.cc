@@ -173,7 +173,7 @@ static std::string DumpMessage(const std::list<MessageWrapper*>& _message_lst) {
     }
     return xmsg.String();
 }
-std::string DumpMessage(const MessageQueue_t& _msq_queue_id) {
+std::string DumpMQ(const MessageQueue_t& _msq_queue_id) {
     ScopedLock lock(sg_messagequeue_map_mutex);
     const MessageQueue_t& id = _msq_queue_id;
     
