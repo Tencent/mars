@@ -206,9 +206,14 @@ def choose_android_mars_jni_arch():
 
     
 def main():
-    if not check_env():
+    ret,ndk_path = check_env()
+    if not ret or ndk_path is None:
         return
 
+    global NDK_BUILD_CMD
+    print("test:%s"%ndk_path)
+    NDK_BUILD_CMD = os.path.join(ndk_path, NDK_BUILD_CMD)
+    print("ndk command:%s"%NDK_BUILD_CMD)
     while True:
         global WITH_SCRIPT
         archs = []
@@ -216,7 +221,6 @@ def main():
             num = sys.argv[1]
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
-                global NDK_BUILD_CMD
                 NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=%s %s -C "
                 WITH_SCRIPT = 1
         else:
