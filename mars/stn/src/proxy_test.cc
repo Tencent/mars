@@ -132,9 +132,9 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"test proxy connect fail sock:-1, costtime:%0", com_connect.TotalCost());
+    } else {
+        xinfo2(TSF"test proxy connect suc sock:%_, net:%_", sock, ::getNetInfo());
     }
-    
-    xinfo2(TSF"test proxy connect suc sock:%_, net:%_", sock, ::getNetInfo());
     
     return sock;
     
@@ -171,11 +171,9 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
     req_builder.Fields().HeaderFiled(HeaderFields::MakeAcceptAll());
     req_builder.Fields().HeaderFiled(HeaderFields::KStringUserAgent, HeaderFields::KStringMicroMessenger);
     req_builder.Fields().HeaderFiled(HeaderFields::MakeCacheControlNoCache());
-    req_builder.Fields().HeaderFiled(HeaderFields::MakeContentTypeOctetStream());
     req_builder.Fields().HeaderFiled(HeaderFields::MakeConnectionClose());
     req_builder.Fields().HeaderFiled(HeaderFields::KStringHost, _host.c_str());
-    req_builder.Fields().HeaderFiled(HeaderFields::KStringContentLength, "0");
-    
+
     
     if (mars::comm::kProxyHttp == _proxy_info.type && !_proxy_info.username.empty() && !_proxy_info.password.empty()) {
         std::string account_info = _proxy_info.username + ":" + _proxy_info.password;
@@ -195,7 +193,7 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
     
     std::string url;
     if (mars::comm::kProxyHttp == _proxy_info.type) {
-        url = std::string("http://") + _host;
+        url = std::string("http://") + _host + "/"; // the "/" is necessary, otherwise some proxy server will response: 400 bad request
     } else {
         url = "/";
     }
