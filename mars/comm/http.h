@@ -164,6 +164,7 @@ class HeaderFields {
     std::map<const std::string, std::string, less>& GetHeaders() {return headers_;}
 
     bool IsTransferEncodingChunked();
+    bool IsConnectionClose();
     int ContentLength();
 
     bool ContentRange(int* start, int* end, int* total);
