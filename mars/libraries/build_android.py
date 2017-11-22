@@ -219,7 +219,7 @@ def main():
             num = sys.argv[1]
             platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
-                NDK_BUILD_CMD = "ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=%s %s -C "
+                NDK_BUILD_CMD = ndk_path + "/ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=%s %s -C "
                 WITH_SCRIPT = 1
         else:
             num = raw_input("Enter menu:\n1. build mars shared libs.\n2. build mars static libs.\n3. build xlog shared lib with crypt.\n4. exit.\n")
