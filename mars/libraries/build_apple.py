@@ -183,9 +183,12 @@ def main():
         prefix = raw_input("input prefix for save directory. like `trunk`,`br`,`tag`: ").strip()
     
     save_path = prefix + "_[%s]@%s@%s" % (time.strftime('%Y-%m-%d_%H.%M', time.localtime()), get_revision(RELATIVE_PATH), getpass.getuser())
-    
+
+    if 3 <= len(sys.argv):
+        num = sys.argv[2]
+    else:
+        num = "0"
     while True:
-        num = raw_input("\033[0;33mEnter menu:\n1. build mars for iphone.\n2. build mars for iphone with bitcode.\n3. build xlog for iphone\n4. build mars for macosx.\n5. build all.\n6. exit.\033[0m\n").strip()
         if num == "1" or num == "2" or num == "3" or num == "4":
             build_apple(APPLE_PROJECTS[int(num)-1], save_path)
             return
@@ -196,8 +199,7 @@ def main():
         elif num == "6":
             print("exit!")
             return
-        else:
-            continue;
+        num = raw_input("\033[0;33mEnter menu:\n1. build mars for iphone.\n2. build mars for iphone with bitcode.\n3. build xlog for iphone\n4. build mars for macosx.\n5. build all.\n6. exit.\033[0m\n").strip()
 
 if __name__ == "__main__":
     before_time = time.time()

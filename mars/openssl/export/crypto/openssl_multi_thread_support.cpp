@@ -14,7 +14,7 @@ static long* lock_count = NULL;
 void LockingCallback(int mode, int type, const char* file, int line) {
 	static int call_counts = 0;
 	if (call_counts++%100 == 0) { //call 100 times, log once
-		xinfo2(TSF"call_counts=%_, file=%_, line=%_, type=%_, thread_id=%_, lock_mode=(%_,%_)", call_counts, file, line, type,
+		xverbose2(TSF"call_counts=%_, file=%_, line=%_, type=%_, thread_id=%_, lock_mode=(%_,%_)", call_counts, file, line, type,
 				CRYPTO_thread_id(), (mode & CRYPTO_LOCK)?"lock":"unlock", (mode & CRYPTO_READ)?"r":"w");
 	}
 	if (NULL!=mutex_start && NULL!=lock_count) {
