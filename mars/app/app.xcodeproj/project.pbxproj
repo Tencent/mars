@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1F25B30E1CD335FD00AC1003 /* app_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F25B30B1CD335FD00AC1003 /* app_logic.cc */; };
 		3170A02B177887B0004F5DDA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3170A02A177887B0004F5DDA /* Foundation.framework */; };
+		3D30E8F71FB2DEA70085B45E /* traffic_statistics.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3D30E8F61FB2DEA70085B45E /* traffic_statistics.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,6 +30,8 @@
 		1F25B30D1CD335FD00AC1003 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app.h; sourceTree = "<group>"; };
 		3170A027177887B0004F5DDA /* libapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapp.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170A02A177887B0004F5DDA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3D30E8F51FB2DEA70085B45E /* traffic_statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = traffic_statistics.h; sourceTree = "<group>"; };
+		3D30E8F61FB2DEA70085B45E /* traffic_statistics.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = traffic_statistics.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +49,8 @@
 		136359EA1981F37600EED49B /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3D30E8F61FB2DEA70085B45E /* traffic_statistics.cc */,
+				3D30E8F51FB2DEA70085B45E /* traffic_statistics.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -129,6 +134,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D30E8F71FB2DEA70085B45E /* traffic_statistics.cc in Sources */,
 				1F25B30E1CD335FD00AC1003 /* app_logic.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -33,6 +33,7 @@
 		4BA323A61C4FA889009B26F5 /* net_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BA323A41C4FA889009B26F5 /* net_source.cc */; };
 		4F85ED521CA934EF0039267F /* task_profile.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F85ED511CA934EF0039267F /* task_profile.cc */; };
 		554AC56E1EF90A35007A07B2 /* proxy_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 554AC56C1EF90A35007A07B2 /* proxy_test.cc */; };
+		F197A6321F9A0F6700F6FBB6 /* weak_network_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = F197A6311F9A0F6700F6FBB6 /* weak_network_logic.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -103,6 +104,8 @@
 		4FC680101CAE601600A28E2A /* special_ini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = special_ini.h; sourceTree = "<group>"; };
 		554AC56C1EF90A35007A07B2 /* proxy_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = proxy_test.cc; sourceTree = "<group>"; };
 		554AC56D1EF90A35007A07B2 /* proxy_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = proxy_test.h; sourceTree = "<group>"; };
+		F197A6301F9A0F6700F6FBB6 /* weak_network_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weak_network_logic.h; sourceTree = "<group>"; };
+		F197A6311F9A0F6700F6FBB6 /* weak_network_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weak_network_logic.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +123,8 @@
 		134DEBC5197631D90055FA73 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F197A6311F9A0F6700F6FBB6 /* weak_network_logic.cc */,
+				F197A6301F9A0F6700F6FBB6 /* weak_network_logic.h */,
 				554AC56C1EF90A35007A07B2 /* proxy_test.cc */,
 				554AC56D1EF90A35007A07B2 /* proxy_test.h */,
 				1FCE8FF61D479D18002DB759 /* net_channel_factory.cc */,
@@ -264,6 +269,7 @@
 				1F25B32F1CD33BEC00AC1003 /* stn_logic.cc in Sources */,
 				4B07F3131C4F8F0700FD1B8D /* longlink_speed_test.cc in Sources */,
 				4B07F31E1C4F8F0700FD1B8D /* timing_sync.cc in Sources */,
+				F197A6321F9A0F6700F6FBB6 /* weak_network_logic.cc in Sources */,
 				4B07F3181C4F8F0700FD1B8D /* net_core.cc in Sources */,
 				4BA323A61C4FA889009B26F5 /* net_source.cc in Sources */,
 				134DEC5D197631D90055FA73 /* signalling_keeper.cc in Sources */,
