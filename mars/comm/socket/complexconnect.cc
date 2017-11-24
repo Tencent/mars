@@ -233,6 +233,7 @@ protected:
                 snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
 
                 req_builder.Fields().HeaderFiled(http::HeaderFields::kStringProxyAuthorization, auth_info);
+                free(dstbuf);
             }
             
             req_builder.HeaderToBuffer(_send_buff);

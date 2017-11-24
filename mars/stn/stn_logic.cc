@@ -111,7 +111,7 @@ static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) 
         return;
     }
     
-    if (NULL != XLOGGER_TAG && 0 == strcmp(_tag, XLOGGER_TAG)) {
+    if (0 == strcmp(_tag, XLOGGER_TAG)) {
         TrafficData(_send, _recv);
     }
 }

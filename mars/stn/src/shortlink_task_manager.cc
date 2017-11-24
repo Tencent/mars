@@ -496,6 +496,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     xverbose_function();
     xassert2(kEctServer != _err_type);
     xassert2(_it != lst_cmd_.end());
+    
+    if(_it == lst_cmd_.end()) return false;
 
     if (kEctOK == _err_type) {
         tasks_continuous_fail_count_ = 0;

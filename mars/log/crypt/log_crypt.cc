@@ -440,7 +440,7 @@ bool LogCrypt::Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _ra
         return false;
     }
     
-    if (kMagicSyncStart == start || kMagicSyncNoCryptStart) {
+    if (kMagicSyncStart == start || kMagicSyncNoCryptStart == start) {
         _is_async = false;
     } else {
         _is_async = true;

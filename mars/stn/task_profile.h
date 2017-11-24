@@ -245,6 +245,7 @@ struct TaskProfile {
 
         err_type = kEctOK;
         err_code = 0;
+        link_type = 0;
     }
     
     void InitSendParam() {
