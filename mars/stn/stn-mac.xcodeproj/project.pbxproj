@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1F25BEE61CD363A800AC1003 /* stn_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F25BEE21CD363A800AC1003 /* stn_logic.cc */; };
 		1F25BEE71CD363A800AC1003 /* stn.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F25BEE41CD363A800AC1003 /* stn.cc */; };
+		3AE6F4CF1FC6E3A400562E53 /* weak_network_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3AE6F4CD1FC6E3A400562E53 /* weak_network_logic.cc */; };
 		9AA4BE921EF91C5100E5B9C9 /* anti_avalanche.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AA4BE631EF91C5100E5B9C9 /* anti_avalanche.cc */; };
 		9AA4BE931EF91C5100E5B9C9 /* dynamic_timeout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AA4BE651EF91C5100E5B9C9 /* dynamic_timeout.cc */; };
 		9AA4BE941EF91C5100E5B9C9 /* flow_limit.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AA4BE671EF91C5100E5B9C9 /* flow_limit.cc */; };
@@ -52,6 +53,8 @@
 		1F25BEE31CD363A800AC1003 /* stn_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stn_logic.h; sourceTree = "<group>"; };
 		1F25BEE41CD363A800AC1003 /* stn.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stn.cc; sourceTree = "<group>"; };
 		1F25BEE51CD363A800AC1003 /* stn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stn.h; sourceTree = "<group>"; };
+		3AE6F4CD1FC6E3A400562E53 /* weak_network_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weak_network_logic.cc; sourceTree = "<group>"; };
+		3AE6F4CE1FC6E3A400562E53 /* weak_network_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weak_network_logic.h; sourceTree = "<group>"; };
 		55D9C0821CC7B1C90076CBD9 /* libstn.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libstn.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AA4BE601EF91BDD00E5B9C9 /* task_profile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = task_profile.h; sourceTree = "<group>"; };
 		9AA4BE631EF91C5100E5B9C9 /* anti_avalanche.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = anti_avalanche.cc; sourceTree = "<group>"; };
@@ -131,6 +134,8 @@
 		55D91B541CC7BE930076CBD9 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3AE6F4CD1FC6E3A400562E53 /* weak_network_logic.cc */,
+				3AE6F4CE1FC6E3A400562E53 /* weak_network_logic.h */,
 				9AA4BE631EF91C5100E5B9C9 /* anti_avalanche.cc */,
 				9AA4BE641EF91C5100E5B9C9 /* anti_avalanche.h */,
 				9AA4BE651EF91C5100E5B9C9 /* dynamic_timeout.cc */,
@@ -244,6 +249,7 @@
 				9AA4BEA31EF91C5100E5B9C9 /* signalling_keeper.cc in Sources */,
 				9AA4BEA81EF91C5100E5B9C9 /* zombie_task_manager.cc in Sources */,
 				9AA4BE9D1EF91C5100E5B9C9 /* net_core.cc in Sources */,
+				3AE6F4CF1FC6E3A400562E53 /* weak_network_logic.cc in Sources */,
 				9AA4BE951EF91C5100E5B9C9 /* frequency_limit.cc in Sources */,
 				9AA4BE9B1EF91C5100E5B9C9 /* net_channel_factory.cc in Sources */,
 				9AA4BE9A1EF91C5100E5B9C9 /* longlink.cc in Sources */,
