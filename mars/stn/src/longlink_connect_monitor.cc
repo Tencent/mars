@@ -170,7 +170,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     if (posttime >= interval) {
         bool newone = false;
         bool ret = longlink_.MakeSureConnected(&newone);
-        xinfo2(TSF"made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_", interval, posttime, newone, longlink_.ConnectStatus());
+        xinfo2(TSF"made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
         return 0;
 
     } else {
