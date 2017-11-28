@@ -1,4 +1,5 @@
 #!/bin/sh
 
 # build libraries for android
-cd ./mars/libraries/ && python build_android.py 1 armeabi
+export ANDROID_NDK_HOME=/usr/local/android-ndks/android-ndk-r13b
+python mars/librariesbuild_android.py 1 armeabi
