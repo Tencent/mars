@@ -42,6 +42,15 @@
     <ClCompile Include="..\export\crypto\rsa_pss_sha256.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\export\crypto\ecdh_util.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\export\crypto\pay_openssl_crypto_util.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\export\crypto\test_rsa_pss_sha256.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\export_include\aes_crypt.h">

@@ -27,9 +27,15 @@
     <ClInclude Include="..\compiler_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\traffic_statistics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\app_logic.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\traffic_statistics.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

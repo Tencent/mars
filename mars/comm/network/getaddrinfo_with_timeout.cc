@@ -44,7 +44,7 @@ struct DnsItem {
     int error_code;
     int status;
     
-    DnsItem(): node(NULL), service(NULL), hints(NULL), res(NULL), error_code(0), status(kGetADDRNotBegin) {}
+    DnsItem(): threadid(0), node(NULL), service(NULL), hints(NULL), res(NULL), error_code(0), status(kGetADDRNotBegin) {}
     
     bool EqualParameter(const DnsItem& _item) {
         return _item.node == node
@@ -138,6 +138,11 @@ static void __WorkerFunc() {
                     freeaddrinfo(worker_res0);
                 }
                 xinfo2(TSF"getaddrinfo end but timeout. worker_node:%_", worker_node);
+            }
+        } else {
+            if (worker_res0!=NULL) {
+                xinfo2(TSF"getaddrinfo end but timeout. free worker_res0 @%_", worker_res0);
+                freeaddrinfo(worker_res0);
             }
         }
         

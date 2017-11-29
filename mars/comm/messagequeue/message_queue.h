@@ -21,6 +21,9 @@
 #ifndef MESSAGEQUEUE_H_
 #define MESSAGEQUEUE_H_
 
+#include <string.h>
+#include <string>
+
 #include "boost/function.hpp"
 #include "boost/any.hpp"
 #include "boost/smart_ptr.hpp"
@@ -36,7 +39,9 @@
 #endif 
 
 #include "mars/comm/thread/thread.h"
-
+#include "mars/comm/time_utils.h"
+#include "mars/comm/xlogger/xlogger.h"
+#include "mars/comm/strutil.h"
 namespace MessageQueue {
 
 typedef uint64_t MessageQueue_t;
@@ -59,6 +64,12 @@ struct MessagePost_t {
     bool operator!=(const MessagePost_t& _rhs) const {return !operator==(_rhs);}
     MessageHandler_t reg;
     unsigned int seq;
+    
+    std::string ToString() const {
+        XMessage xmsg;
+        xmsg(TSF"(seq:%_, handler:%_, queue:%_)", seq, reg.seq, reg.queue);
+        return xmsg.String();
+    }
 };
 
 struct MessageTitle_t {
@@ -72,28 +83,45 @@ struct MessageTitle_t {
 
 
 struct Message {
-    Message(): title(0) {}
-    Message(const MessageTitle_t& _title, const boost::any& _body1, const boost::any& _body2)
-        : title(_title), body1(_body1), body2(_body2), anr_timeout(10*60*1000) {}
-
+    Message(): title(0), anr_timeout(0), create_time(0), execute_time(0) {}
+    Message(const MessageTitle_t& _title, const boost::any& _body1, const boost::any& _body2, const std::string& _name)
+    : title(_title), body1(_body1), body2(_body2), anr_timeout(10*60*1000), msg_name(_name), create_time(::gettickcount()),
+    execute_time(0){}
+    
     template <class F>
-    Message(const MessageTitle_t& _title, const F& _func)
-    : title(_title), body1(boost::make_shared<AsyncInvokeFunction>()), body2(), anr_timeout(10*60*1000) {
+    Message(const MessageTitle_t& _title, const F& _func, const std::string& _name)
+    : title(_title), body1(boost::make_shared<AsyncInvokeFunction>()), body2(), anr_timeout(10*60*1000), msg_name(_name), create_time(::gettickcount()), execute_time(0) {
         *boost::any_cast<boost::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
     }
-
+    
+    
     bool operator == (const Message& _rhs) const {return title == _rhs.title;}
 
+    std::string ToString() const {
+        XMessage xmsg;
+        xmsg(TSF"(msg_name:%_, create_time:%_, execute_time:%_)", msg_name, create_time, execute_time);
+        return xmsg.String();
+    }
+    
     MessageTitle_t  title;
     boost::any      body1;
     boost::any      body2;
     int64_t         anr_timeout;
+    
+    std::string     msg_name;
+    uint64_t        create_time;
+    uint64_t        execute_time;
 };
 
     
+const char* const TMessageTimingString[] = {
+    "kAfter",
+    "kPeriod",
+    "kImmediately"
+};
 struct MessageTiming {
     
-    enum class TMessageTiming {
+    enum TMessageTiming {
         kAfter,
         kPeriod,
         kImmediately,
@@ -123,6 +151,12 @@ struct MessageTiming {
         , period(0)
     {}
 
+    std::string ToString() const {
+        XMessage xmsg;
+        xmsg(TSF"(type:%_, after:%_, period:%_)", TMessageTimingString[type], after, period);
+        return xmsg.String();
+    }
+    
     TMessageTiming type;
     int64_t after;
     int64_t period;
@@ -178,6 +212,39 @@ void CancelMessage(const MessageHandler_t& _handlerid, const MessageTitle_t& _ti
 
 //AsyncInvoke
 MessageHandler_t InstallAsyncHandler(const MessageQueue_t& id);
+
+//---with message name
+    //no title
+template<class F>
+    MessagePost_t AsyncInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessage(_handlerid, Message(0, _func, _msg_name));
+}
+template<class F>
+MessagePost_t  AsyncInvokeAfter(int64_t _after, const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessage(_handlerid, Message(0, _func, _msg_name), MessageTiming(kAfter, _after, 0));
+}
+template<class F>
+MessagePost_t  AsyncInvokePeriod(int64_t _after, int64_t _period, const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessage(_handlerid, Message(0, _func, _msg_name), MessageTiming(kPeriod, _after, _period));
+}
+    //~no title
+    //title
+template<class F>
+MessagePost_t  AsyncInvoke(const F& _func, const MessageTitle_t& _title, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessage(_handlerid, Message(_title, _func, _msg_name));
+}
+
+template<class F>
+MessagePost_t  AsyncInvokeAfter(int64_t _after, const F& _func, const MessageTitle_t& _title, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessage(_handlerid, Message(_title, _func, _msg_name), MessageTiming(kAfter, _after, 0));
+}
+
+template<class F>
+MessagePost_t  AsyncInvokePeriod(int64_t _after, int64_t _period, const F& _func, const MessageTitle_t& _title, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessage(_handlerid, Message(_title, _func, _msg_name), MessageTiming(kPeriod, _after, _period));
+}
+    //~title
+//---~with message name
 
 template<class F>
 MessagePost_t AsyncInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
@@ -524,19 +591,19 @@ class AsyncResult <const R&> {
 };
 
 template <typename R>
-R& WaitInvoke(const AsyncResult<R>& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
+    R& WaitInvoke(const AsyncResult<R>& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
     
     if (CurrentThreadMessageQueue() == Handler2Queue(_handlerid)) {
         _func();
         return _func.Result();
     } else {
-        WaitMessage(AsyncInvoke(_func, _handlerid));
+        WaitMessage(AsyncInvoke(_func, _handlerid, _msg_name));
         return _func.Result();
     }
 }
     
 template <typename F>
-typename boost::result_of< F()>::type  WaitInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
+typename boost::result_of< F()>::type  WaitInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
     
     if (CurrentThreadMessageQueue() == Handler2Queue(_handlerid)) {
         return _func();
@@ -545,14 +612,14 @@ typename boost::result_of< F()>::type  WaitInvoke(const F& _func, const MessageH
         typedef typename boost::result_of<F()>::type R;
         MessageQueue::AsyncResult<R> result(_func);
         
-        WaitMessage(AsyncInvoke(result, _handlerid));
+        WaitMessage(AsyncInvoke(result, _handlerid, _msg_name));
         return result.Result();
     }
 }
 
 template <typename R>
-MessagePost_t  AsyncInvoke(const AsyncResult<R>& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
-    return PostMessage(_handlerid, Message(0, _func));
+MessagePost_t  AsyncInvoke(const AsyncResult<R>& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
+    return PostMessage(_handlerid, Message(0, _func, _msg_name));
 }
     
 class ScopeRegister {
@@ -571,32 +638,54 @@ private:
 private:
     MessageHandler_t* m_reg;
 };
+
+//------
     
+#define MESSAGE_NAME(file, function) (strutil::GetFileNameFromPath(file)+":"+function)
+#define ASYNC_BLOCK_END_MSGNAME(msg_name)  }, AYNC_HANDLER, msg_name);
+
 #define ASYNC_BLOCK_START MessageQueue::AsyncInvoke([=] () {
-#define ASYNC_BLOCK_END }, AYNC_HANDLER);
+#define ASYNC_BLOCK_END ASYNC_BLOCK_END_MSGNAME(MESSAGE_NAME(__FILE__, __FUNCTION__))
 
-#define SYNC2ASYNC_FUNC(func) \
+
+//------
+#define SYNC2ASYNC_FUNC_MSGNAME(func, msg_name) \
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::AsyncInvoke(func, AYNC_HANDLER); return; } \
+{ MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name); return; } \
 
-#define RETURN_SYNC2ASYNC_FUNC(func, ret) \
+#define SYNC2ASYNC_FUNC(func) SYNC2ASYNC_FUNC_MSGNAME(func, MESSAGE_NAME(__FILE__, __FUNCTION__))
+
+//------
+#define RETURN_SYNC2ASYNC_FUNC_MSGNAME(func, ret, msg_name) \
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::AsyncInvoke(func, AYNC_HANDLER); return ret; } \
+{ MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name); return ret; } \
 
-#define RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, ret) \
+#define RETURN_SYNC2ASYNC_FUNC(func, ret) RETURN_SYNC2ASYNC_FUNC_MSGNAME(func, ret, MESSAGE_NAME(__FILE__, __FUNCTION__))
+   
+    
+//------
+#define RETURN_SYNC2ASYNC_FUNC_TITLE_MSGNAME(func, title, ret, msg_name) \
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::AsyncInvoke(func, title, AYNC_HANDLER); return ret; } \
+{ MessageQueue::AsyncInvoke(func, title, AYNC_HANDLER, msg_name); return ret; } \
 
-#define RETURN_WAIT_SYNC2ASYNC_FUNC(func, ret) \
+#define RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, ret) RETURN_SYNC2ASYNC_FUNC_TITLE_MSGNAME(func, title, ret, MESSAGE_NAME(__FILE__, __FUNCTION__))
+
+//------
+#define RETURN_WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, ret, msg_name) \
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::MessagePost_t postId = MessageQueue::AsyncInvoke(func, AYNC_HANDLER);MessageQueue::WaitMessage(postId); return ret; } \
+{ MessageQueue::MessagePost_t postId = MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name);MessageQueue::WaitMessage(postId); return ret; } \
 
-#define WAIT_SYNC2ASYNC_FUNC(func) \
+#define RETURN_WAIT_SYNC2ASYNC_FUNC(func, ret) RETURN_WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, ret, MESSAGE_NAME(__FILE__, __FUNCTION__))
+    
+//------
+#define WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, msg_name) \
 \
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
 {\
-return MessageQueue::WaitInvoke(func, AYNC_HANDLER);\
+return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
 }
+    
+#define WAIT_SYNC2ASYNC_FUNC(func) WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, MESSAGE_NAME(__FILE__, __FUNCTION__))
 
 // define AYNC_HANDLER in source file
 //#define AYNC_HANDLER handler

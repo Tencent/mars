@@ -372,7 +372,10 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
                       
                   xassert2(l != _ban_fail_list_.end());
                   xassert2(r != _ban_fail_list_.end());
-                      
+                  
+                 if(l == _ban_fail_list_.end() || r == _ban_fail_list_.end())
+                  return false;
+                 
                  if (CAL_BIT_COUNT(l->records) != CAL_BIT_COUNT(r->records))
                      return CAL_BIT_COUNT(l->records) < CAL_BIT_COUNT(r->records);
                       

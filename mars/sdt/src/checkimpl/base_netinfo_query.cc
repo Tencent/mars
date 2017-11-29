@@ -16,7 +16,9 @@
 #include "mars/comm/socket/socket_address.h"
 
 
-BaseNetInfo::BaseNetInfo() {
+BaseNetInfo::BaseNetInfo()
+: nettype_(kNoNet)
+, ip_stack_(ELocalIPStack_None) {
 
 }
 BaseNetInfo::~BaseNetInfo() {

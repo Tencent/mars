@@ -41,6 +41,7 @@
 #endif
 #include "mars/stn/proto/shortlink_packer.h"
 
+#include "weak_network_logic.h"
 
 
 #define AYNC_HANDLER asyncreg_.Get()
@@ -225,6 +226,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
         __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile, false);
+        delete proxy_addr;
         return INVALID_SOCKET;
     }
 
@@ -250,6 +252,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.conn_cost = conn.TotalCost();
 
     __UpdateProfile(_conn_profile);
+    
+    WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, conn.IndexRtt(), conn.Index());
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());
@@ -333,6 +337,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 		char auth_info[1024] = { 0 };
 		snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
 		headers[http::HeaderFields::kStringProxyAuthorization] = auth_info;
+        free(dstbuf);
 	}
 
 	AutoBuffer out_buff;

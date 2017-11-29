@@ -136,6 +136,7 @@
     <ClCompile Include="..\src\smart_heartbeat.cc" />
     <ClCompile Include="..\src\task_profile.cc" />
     <ClCompile Include="..\src\timing_sync.cc" />
+    <ClCompile Include="..\src\weak_network_logic.cc" />
     <ClCompile Include="..\src\zombie_task_manager.cc" />
     <ClCompile Include="..\stn.cc" />
     <ClCompile Include="..\stn_logic.cc" />
@@ -165,10 +166,10 @@
     <ClInclude Include="..\src\signalling_keeper.h" />
     <ClInclude Include="..\src\simple_ipport_sort.h" />
     <ClInclude Include="..\src\smart_heartbeat.h" />
-    <ClInclude Include="..\src\socket_util.h" />
     <ClInclude Include="..\src\special_ini.h" />
     <ClInclude Include="..\src\timing_sync.h" />
     <ClInclude Include="..\src\traffic_statistics.h" />
+    <ClInclude Include="..\src\weak_network_logic.h" />
     <ClInclude Include="..\src\zombie_task_manager.h" />
     <ClInclude Include="..\stn.h" />
     <ClInclude Include="..\stn_logic.h" />

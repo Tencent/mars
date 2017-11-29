@@ -268,5 +268,20 @@ std::string ReplaceChar(const char* const input_str, char be_replaced, char repl
 	}
 	return output_str;
 }
+std::string GetFileNameFromPath(const char* _path) {
+    if (NULL == _path) return "";
+    
+    const char* pos = strrchr(_path, '\\');
+    
+    if (NULL == pos) {
+        pos = strrchr(_path, '/');
+    }
+    
+    if (NULL == pos || '\0' == *(pos + 1)) {
+        return _path;
+    } else {
+        return pos + 1;
+    }
+}
 
 }

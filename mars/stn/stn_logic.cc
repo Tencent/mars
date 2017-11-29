@@ -53,6 +53,15 @@ static const std::string kLibName = "stn";
         return;\
     }\
     stn_ptr->func
+    
+#define STN_RETURN_WEAK_CALL(func) \
+    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+    if (!stn_ptr) {\
+        xwarn2(TSF"stn uncreate");\
+        return false;\
+    }\
+    stn_ptr->func;\
+    return true
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
 	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
@@ -102,7 +111,7 @@ static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) 
         return;
     }
     
-    if (NULL != XLOGGER_TAG && 0 == strcmp(_tag, XLOGGER_TAG)) {
+    if (0 == strcmp(_tag, XLOGGER_TAG)) {
         TrafficData(_send, _recv);
     }
 }
@@ -133,9 +142,9 @@ void SetCallback(Callback* const callback) {
 	sg_callback = callback;
 }
 
-void (*StartTask)(const Task& _task)
+bool (*StartTask)(const Task& _task)
 = [](const Task& _task) {
-    STN_WEAK_CALL(StartTask(_task));
+    STN_RETURN_WEAK_CALL(StartTask(_task));
 };
 
 void (*StopTask)(uint32_t _taskid)

@@ -95,9 +95,11 @@
     <ClInclude Include="..\app.h" />
     <ClInclude Include="..\app_logic.h" />
     <ClInclude Include="..\compiler_util.h" />
+    <ClInclude Include="..\src\traffic_statistics.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\app_logic.cc" />
+    <ClCompile Include="..\src\traffic_statistics.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
