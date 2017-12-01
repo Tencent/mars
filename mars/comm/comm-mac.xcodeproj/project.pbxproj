@@ -865,7 +865,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python_str=\"import sys;\nsys.path.append('${SRCROOT}/../libraries')\nimport mars_utils\nmars_utils.gen_revision_file('${SRCROOT}','${SRCROOT}')\"\npython -c \"${python_str}\"";
+			shellScript = "python_str=\"import sys;\nsys.path.append('${SRCROOT}/../libraries')\nimport mars_utils\nmars_utils.gen_revision_file('mars','mars')\"\npython -c \"${python_str}\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
