@@ -813,6 +813,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3170A035177887B0004F5DDA /* Build configuration list for PBXNativeTarget "comm" */;
 			buildPhases = (
+				F1C1848D1FD148AB004E8D1B /* ShellScript */,
 				3170A023177887B0004F5DDA /* Sources */,
 				3170A024177887B0004F5DDA /* Frameworks */,
 				3170A025177887B0004F5DDA /* CopyFiles */,
@@ -851,6 +852,22 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F1C1848D1FD148AB004E8D1B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python_str=\"import sys;\nsys.path.append('${SRCROOT}/../libraries')\nimport mars_utils\nmars_utils.gen_revision_file('${SRCROOT}','${SRCROOT}')\"\npython -c \"${python_str}\"";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3170A023177887B0004F5DDA /* Sources */ = {
