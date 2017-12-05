@@ -168,7 +168,7 @@ void SimpleIPPortSort::InitHistory2BannedList(bool _savexml) {
         uint64_t    historyresult = (uint64_t)item->Int64Attribute(kHistoryResult);
         
         struct BanItem banitem;
-        banitem.ip = ip;
+        if(ip) banitem.ip = ip;
         banitem.port = port;
         banitem.records = 0;
         //8 in 1
