@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/projdef.h"
 
 namespace mars{
     namespace stn{

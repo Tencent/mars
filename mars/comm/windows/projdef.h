@@ -66,7 +66,9 @@
 #endif
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 
 #if !defined(WIN32)
 #define sscanf sscanf_s
@@ -75,7 +77,6 @@
 #define _CRT_NONSTDC_NO_WARNINGS 1
 #define _SCL_SECURE_NO_WARNINGS 1
 #define S_ISDIR(x) (_S_IFDIR & x) 
-#define WIN32_LEAN_AND_MEAN
 #endif
 
 typedef SSIZE_T ssize_t;
