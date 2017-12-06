@@ -95,6 +95,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(ProjectDir)../../../;$(ProjectDir)../;$(ProjectDir)../../;$(ProjectDir)../../comm/windows/;$(ProjectDir)../../comm/;$(ProjectDir)../../openssl/include;$(ProjectDir)../../openssl/export_include</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
