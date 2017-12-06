@@ -460,9 +460,9 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         xinfo2(TSF"complex.conn %_", _vecaddr[i].url());
 
         ConnectCheckFSM* ic = NULL;
-        if (mars::comm::kProxyHttpTunel == _proxy_type) {
+        if (mars::comm::kProxyHttpTunel == _proxy_type && _proxy_addr) {
             ic = new ConnectHttpTunelCheckFSM(_vecaddr[i], *_proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
-        } else if (mars::comm::kProxySocks5 == _proxy_type) {
+        } else if (mars::comm::kProxySocks5 == _proxy_type && _proxy_addr) {
             ic = new ConnectSocks5CheckFSM(_vecaddr[i], *_proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
         } else {
             ic = new ConnectCheckFSM(_vecaddr[i], timeout_, i, _observer);
