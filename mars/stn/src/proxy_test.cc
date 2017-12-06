@@ -189,7 +189,7 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
         char auth_info[1024] = {0};
         snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
         req_builder.Fields().HeaderFiled(HeaderFields::kStringProxyAuthorization, auth_info);
-
+        free(dstbuf);
     }
     
     std::string url;
