@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1F25BF0F1CD3647300AC1003 /* app_logic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1F25BF0C1CD3647300AC1003 /* app_logic.cc */; };
+		3A3C3A081FD7CB3C008FF6C9 /* traffic_statistics.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3A3C3A071FD7CB3C008FF6C9 /* traffic_statistics.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,6 +27,8 @@
 		1F25BF0C1CD3647300AC1003 /* app_logic.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = app_logic.cc; sourceTree = "<group>"; };
 		1F25BF0D1CD3647300AC1003 /* app_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app_logic.h; sourceTree = "<group>"; };
 		1F25BF0E1CD3647300AC1003 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app.h; sourceTree = "<group>"; };
+		3A3C3A061FD7CB3C008FF6C9 /* traffic_statistics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = traffic_statistics.h; path = src/traffic_statistics.h; sourceTree = "<group>"; };
+		3A3C3A071FD7CB3C008FF6C9 /* traffic_statistics.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = traffic_statistics.cc; path = src/traffic_statistics.cc; sourceTree = "<group>"; };
 		55D9C0821CC7B1C90076CBD9 /* libapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libapp.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -43,6 +46,8 @@
 		3170A01E177887B0004F5DDA = {
 			isa = PBXGroup;
 			children = (
+				3A3C3A071FD7CB3C008FF6C9 /* traffic_statistics.cc */,
+				3A3C3A061FD7CB3C008FF6C9 /* traffic_statistics.h */,
 				1F25BF0C1CD3647300AC1003 /* app_logic.cc */,
 				1F25BF0D1CD3647300AC1003 /* app_logic.h */,
 				1F25BF0E1CD3647300AC1003 /* app.h */,
@@ -101,6 +106,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A3C3A081FD7CB3C008FF6C9 /* traffic_statistics.cc in Sources */,
 				1F25BF0F1CD3647300AC1003 /* app_logic.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
