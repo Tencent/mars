@@ -34,7 +34,7 @@ TcpQuery::TcpQuery(const char* _ip, uint16_t _port, unsigned int _conn_timeout, 
     , port_(_port)
     , select_(pipe_)
     , status_(kTcpInit)
-    , errcode_(-1)
+    , errcode_(0)
     , conn_timeout_(_conn_timeout) {
     if (!pipe_.IsCreateSuc()) {
         xassert2(false, "TcpQuery create breaker error.");
@@ -115,4 +115,7 @@ std::string TcpQuery::getStatus() {
     }
 
     return str_status;
+}
+int TcpQuery::getErrorCode() {
+    return errcode_;
 }

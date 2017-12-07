@@ -54,7 +54,7 @@ class TcpQuery {
 
     void send_break();
     std::string getStatus();
-
+    int getErrorCode();
   private:
     char* ip_;
     uint16_t port_;
