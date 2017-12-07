@@ -239,7 +239,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     }
     
     if (version < 10.10){
-        info = [CWInterface interface];
+        static CWInterface* s_info = [[CWInterface interface] retain];
+        info = s_info;
     }else{
         CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
         if (nil != wificlient) info = [wificlient interface];
@@ -248,7 +249,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     if (nil == info) return false;
     if (info.ssid != nil) {
         const char* ssid = [info.ssid UTF8String];
-        if(NULL != ssid) wifiInfo.ssid = ssid;
+        if(NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
         //wifiInfo.bssid = [info.bssid UTF8String];
     } else {
         wifiInfo.ssid = USE_WIRED;
