@@ -66,6 +66,15 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>SET python_str="import sys;sys.path.append('$(ProjectDir)/../../libraries');import mars_utils;mars_utils.gen_revision_file('mars','mars')"
+echo %python_str%
+python -c %python_str%</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -88,6 +97,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>SET python_str="import sys;sys.path.append('$(ProjectDir)/../../libraries');import mars_utils;mars_utils.gen_revision_file('mars','mars')"
+echo %python_str%
+python -c %python_str%</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
