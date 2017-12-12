@@ -12,10 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\export\aes_crypt.c" />
+    <ClCompile Include="..\export\crypto\ecdh_util.cpp" />
     <ClCompile Include="..\export\crypto\gen_rsa_key_pair.cpp" />
     <ClCompile Include="..\export\crypto\openssl_multi_thread_support.cpp" />
+    <ClCompile Include="..\export\crypto\pay_openssl_crypto_util.cpp" />
     <ClCompile Include="..\export\crypto\rsa_crypt.cpp" />
     <ClCompile Include="..\export\crypto\rsa_pss_sha256.cpp" />
+    <ClCompile Include="..\export\crypto\test_rsa_pss_sha256.cpp" />
     <ClCompile Include="..\export\ecdh_crypt.c" />
     <ClCompile Include="..\export\ecdsa_verify.c" />
     <ClCompile Include="..\export\md5_digest.c" />

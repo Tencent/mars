@@ -233,30 +233,40 @@ def check_python_version():
 
     return True
 
-
-def check_ndk_env():
+def get_ndk_path():
     system = platform.system()
+    path_env = os.getenv("ANDROID_NDK_HOME")
+    if path_env is not None and path_env.strip()!="" and ((os.path.isfile(os.path.join(path_env, "ndk-build")) or os.path.isfile(os.path.join(path_env, "ndk-build.cmd")))):
+        return path_env
+
+    path_env = os.getenv("ANDROID_HOME")
+    if path_env is not None and path_env.strip()!="" and (os.path.isdir(os.path.join(path_env, "ndk-bundle")) and os.path.isfile(os.path.join(os.path.join(path_env, "ndk-bundle"), "ndk-build"))):
+        return os.path.join(path_env, "ndk-bundle")
+
     path_env = os.getenv("PATH")
-
     delimiter = ":"
-
     if "Windows" == system:
         delimiter = ";"
-        
-    path_array = path_env.split(delimiter)
 
-    ndk_path = None
+    path_array = path_env.split(delimiter)
     for s in path_array:
         if os.path.isfile(os.path.join(s, "ndk-build")) or os.path.isfile(os.path.join(s, "ndk-build.cmd")):
-            ndk_path = s
+            return s
+    return None
+
+
+def check_ndk_env():
+    ndk_path = get_ndk_path()
+    if ndk_path is not None and ndk_path.strip():
+        print("ndk path:%s"%ndk_path)
 
     if not ndk_path:
         print("Error: ndk does not exist or you do not set it into system environment.")
-        return False
+        return False,None
 
     if not os.path.isfile(os.path.join(ndk_path, "source.properties")):
         print("Error: source.properties does not exist, make sure ndk's version>=r11c")
-        return False
+        return False,None
 
     ndk_revision = None
     
@@ -265,28 +275,27 @@ def check_ndk_env():
     while line:
         if line.startswith("Pkg.Revision") and len(line.split("=")) == 2:
             ndk_revision = line.split("=")[1].strip()
-
         line = f.readline()
 
     f.close()
 
-
     if not ndk_revision or len(ndk_revision) < 4:
         print("Error: parse source.properties fail")
-        return False
+        return False,None
 
     if ndk_revision[:4] >= "11.2":
-        return True
-
+        return True,ndk_path
 
     print("Error: make sure ndk's version >= r11c")
-    return False
+    return False,None
     
 
 def check_env():
-
-    return check_python_version() and check_ndk_env()
-    
+    ret = check_python_version()
+    if ret:
+        return check_ndk_env()
+    else:
+        return False,None
 
 
 def main(save_path, tag):

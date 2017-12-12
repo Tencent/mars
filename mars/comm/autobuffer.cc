@@ -304,6 +304,9 @@ void AutoBuffer::__FitSize(size_t _len) {
 				(uint64_t)_len, (uint64_t)malloc_unitsize_, (uint64_t)mallocsize, (uint64_t)capacity_);
 
             free(parray_);
+            parray_ = NULL;
+            capacity_ = 0;
+            return;
         }
 
         parray_ = (unsigned char*) p;

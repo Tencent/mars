@@ -95,8 +95,10 @@
     <ClCompile Include="..\src\activecheck\httpchecker.cc" />
     <ClCompile Include="..\src\activecheck\pingchecker.cc" />
     <ClCompile Include="..\src\activecheck\tcpchecker.cc" />
+    <ClCompile Include="..\src\checkimpl\base_netinfo_query.cc" />
     <ClCompile Include="..\src\checkimpl\dnsquery.cc" />
     <ClCompile Include="..\src\checkimpl\httpquery.cc" />
+    <ClCompile Include="..\src\checkimpl\http_detector.cc" />
     <ClCompile Include="..\src\checkimpl\pingquery.cc" />
     <ClCompile Include="..\src\checkimpl\tcpquery.cc" />
     <ClCompile Include="..\src\sdt_core.cc" />
@@ -111,8 +113,11 @@
     <ClInclude Include="..\src\activecheck\httpchecker.h" />
     <ClInclude Include="..\src\activecheck\pingchecker.h" />
     <ClInclude Include="..\src\activecheck\tcpchecker.h" />
+    <ClInclude Include="..\src\checkimpl\base_netinfo_query.h" />
     <ClInclude Include="..\src\checkimpl\dnsquery.h" />
     <ClInclude Include="..\src\checkimpl\httpquery.h" />
+    <ClInclude Include="..\src\checkimpl\http_detector.h" />
+    <ClInclude Include="..\src\checkimpl\http_url_parser.h" />
     <ClInclude Include="..\src\checkimpl\pingquery.h" />
     <ClInclude Include="..\src\checkimpl\tcpquery.h" />
     <ClInclude Include="..\src\checkimpl\urlparser.h" />

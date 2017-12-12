@@ -499,6 +499,7 @@ int PingQuery::__prepareSendAddr(const char* _dest) {
 
     if (ai->ai_family != AF_INET) {
         xinfo2(TSF"unknown address family %0\n", ai->ai_family);
+        freeaddrinfo(ai);
         return -1;
     }
 

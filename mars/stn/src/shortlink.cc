@@ -226,6 +226,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
         __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile, false);
+        delete proxy_addr;
         return INVALID_SOCKET;
     }
 
@@ -336,6 +337,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 		char auth_info[1024] = { 0 };
 		snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
 		headers[http::HeaderFields::kStringProxyAuthorization] = auth_info;
+        free(dstbuf);
 	}
 
 	AutoBuffer out_buff;

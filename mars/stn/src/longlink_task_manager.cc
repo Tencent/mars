@@ -387,6 +387,8 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     xassert2(kEctServer != _err_type);
     xassert2(_it != lst_cmd_.end());
 
+    if(_it == lst_cmd_.end())return false;
+    
     _it->transfer_profile.connect_profile = _connect_profile;
     
     if (kEctOK == _err_type) {

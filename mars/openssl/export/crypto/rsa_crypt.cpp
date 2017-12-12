@@ -192,7 +192,6 @@ int rsa_private_decrypt(unsigned char** _out, unsigned int* _outlen,  const unsi
 
 	// load priv key
 	RSA *Rsa = _key;
-	if (!Rsa) { return __LINE__; }
 	unsigned int iKeySize = (unsigned int)RSA_size(Rsa);
 
 	// decrypt

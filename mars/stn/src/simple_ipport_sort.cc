@@ -168,7 +168,7 @@ void SimpleIPPortSort::InitHistory2BannedList(bool _savexml) {
         uint64_t    historyresult = (uint64_t)item->Int64Attribute(kHistoryResult);
         
         struct BanItem banitem;
-        banitem.ip = ip;
+        if(ip) banitem.ip = ip;
         banitem.port = port;
         banitem.records = 0;
         //8 in 1
@@ -372,7 +372,10 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
                       
                   xassert2(l != _ban_fail_list_.end());
                   xassert2(r != _ban_fail_list_.end());
-                      
+                  
+                 if(l == _ban_fail_list_.end() || r == _ban_fail_list_.end())
+                  return false;
+                 
                  if (CAL_BIT_COUNT(l->records) != CAL_BIT_COUNT(r->records))
                      return CAL_BIT_COUNT(l->records) < CAL_BIT_COUNT(r->records);
                       
