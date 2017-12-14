@@ -110,6 +110,8 @@ class SmartHeartbeat {
     int doze_mode_count_;
     int normal_mode_count_;
     tickcount_t noop_start_tick_;
+    
+    std::string net_info_;
 };
 
 #endif // STN_SRC_SMART_HEARTBEAT_H_
