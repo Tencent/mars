@@ -154,6 +154,11 @@ LongLink::~LongLink() {
     if (NULL != smartheartbeat_) {
     	delete smartheartbeat_, smartheartbeat_=NULL;
     }
+#ifdef ANDROID
+    if(NULL != wakelock_) {
+        delete wakelock_, wakelock_ = NULL;
+    }
+#endif
 }
 
 bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task) {

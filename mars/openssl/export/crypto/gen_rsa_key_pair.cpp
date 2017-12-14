@@ -49,6 +49,10 @@ GenRsaKeyResult generate_rsa_key_pair(char* _pem_public_key_buf, const size_t _p
     int public_key_len = BIO_pending(bio_public);
     xdebug2(TSF"public_key_len=%_", public_key_len);
     char *pem_public_key = (char*)calloc(public_key_len+1, 1);
+    if(pem_public_key == NULL) {
+        xerror2(TSF"pem_public_key=NULL");
+        goto err;
+    }
 	BIO_read(bio_public, pem_public_key, public_key_len);
 	xdebug2(TSF"pem_public_key=%_, pem key len=%_", pem_public_key, strlen(pem_public_key));
 
