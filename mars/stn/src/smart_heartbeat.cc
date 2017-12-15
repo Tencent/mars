@@ -278,7 +278,6 @@ void SmartHeartbeat::__LoadINI() {
     current_net_heart_info_.net_detail_ = net_info;
     current_net_heart_info_.net_type_ = net_type;
 
-    net_info_ = net_info;
     if (ini_.Select(net_info)) {
         current_net_heart_info_.last_modify_time_ = ini_.Get(kKeyModifyTime, current_net_heart_info_.last_modify_time_);
         current_net_heart_info_.cur_heart_ = ini_.Get(kKeyCurHeart, current_net_heart_info_.cur_heart_);
@@ -362,7 +361,7 @@ void SmartHeartbeat::__LimitINISize() {
 
 void SmartHeartbeat::__SaveINI() {
     xdebug_function();
-    if(net_info_.empty())return;
+    if(current_net_heart_info_.net_detail_.empty())return;
     
     current_net_heart_info_.last_modify_time_ = time(NULL);
 
