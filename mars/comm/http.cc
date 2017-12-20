@@ -388,6 +388,13 @@ bool HeaderFields::IsTransferEncodingChunked() {
 
     return false;
 }
+bool HeaderFields::IsConnectionClose() {
+    const char* conn = HeaderField(HeaderFields::KStringConnection);
+        
+    if (conn && 0 == strcasecmp(conn, KStringClose)) return true;
+        
+    return false;
+}
 
 int HeaderFields::ContentLength() {
     const char* strContentLength = HeaderField(HeaderFields::KStringContentLength);
@@ -639,9 +646,15 @@ Parser::~Parser() {
 }
 
 Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
-    xassert2(_buffer);
+    if((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_==kBody) {
+        xwarn2(TSF"status:%_", recvstatus_);
+        recvstatus_ = kEnd;
+        bodyreceiver_->EndData();
+        return  recvstatus_;
+    }
     
-    if (NULL == _buffer || 0 == _length) {
+    xassert2(_buffer);
+    if ((NULL == _buffer || 0 == _length)){
         xwarn2(TSF"Recv(%_, %_), status:%_", NULL==_buffer?"NULL":_buffer, _length, recvstatus_);
         return recvstatus_;
     }
@@ -800,8 +813,9 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                     } else {  // no chunk
                         int contentLength = headfields_.ContentLength();
                         int appendlen = 0;
-                        
-                        if (int(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
+                        if (Fields().IsConnectionClose() && 0==contentLength) {
+                            appendlen = int(recvbuf_.Length());
+                        } else if (int(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
                             appendlen = int(recvbuf_.Length());
                         else {
                             xwarn2(TSF"recv len bigger than contentlen, (%_, %_, %_)", recvbuf_.Length(), bodyreceiver_->Length(), contentLength);

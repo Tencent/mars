@@ -31,7 +31,7 @@ uint64_t gettickcount() {
         if (-1 == fd) errcode = errno;
 #if __ANDROID_API__< 21 && !defined(__LP64__)
         if (__atomic_cmpxchg(-1, fd, &s_fd)) {
-            close(fd);
+            if(fd != -1) close(fd);
         }
 #else
         atomic_int x = ATOMIC_VAR_INIT(s_fd);
