@@ -70,10 +70,16 @@ namespace stn {
     void WeakNetworkLogic::__SignalForeground(bool _is_foreground) {
         if(!_is_foreground && is_curr_weak_) {
             is_curr_weak_ = false;
-            report_weak_logic_(kExitWeak, 1, false);
-            report_weak_logic_(kExitSceneBackground, 1, false);
-            report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
+            __ReportWeakLogic(kExitWeak, 1, false);
+            __ReportWeakLogic(kExitSceneBackground, 1, false);
+            __ReportWeakLogic(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
             xinfo2(TSF"weak network end");
+        }
+    }
+    
+    void WeakNetworkLogic::__ReportWeakLogic(int _key, int _value, bool _is_important) {
+        if (report_weak_logic_) {
+            report_weak_logic_(_key, _value, _is_important);
         }
     }
     
@@ -82,9 +88,9 @@ namespace stn {
             if(last_mark_tick_.gettickspan() < MARK_TIMEOUT)    return true;
             else {
                 is_curr_weak_ = false;
-                report_weak_logic_(kExitWeak, 1, false);
-                report_weak_logic_(kExitSceneTimeout, 1, false);
-                report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
+                __ReportWeakLogic(kExitWeak, 1, false);
+                __ReportWeakLogic(kExitSceneTimeout, 1, false);
+                __ReportWeakLogic(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
                 xinfo2(TSF"weak network end");
                 return false;
             }
@@ -120,10 +126,10 @@ namespace stn {
         if(!_is_suc) {
             if(is_curr_weak_) {
                 is_curr_weak_ = false;
-                report_weak_logic_(kExitWeak, 1, false);
-                report_weak_logic_(kExitSceneConnect, 1, false);
-                report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
-                if(connect_after_weak_ <= 1 && first_mark_tick_.gettickspan() < SURE_WEAK_SPAN) report_weak_logic_(kExitQuickConnectNoNet, 1, false);
+                __ReportWeakLogic(kExitWeak, 1, false);
+                __ReportWeakLogic(kExitSceneConnect, 1, false);
+                __ReportWeakLogic(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
+                if(connect_after_weak_ <= 1 && first_mark_tick_.gettickspan() < SURE_WEAK_SPAN) __ReportWeakLogic(kExitQuickConnectNoNet, 1, false);
                 xinfo2(TSF"weak network end");
             }
             
@@ -133,11 +139,11 @@ namespace stn {
         bool is_weak = false;
         if(_index > 0)  {
             is_weak = true;
-            if(!is_curr_weak_)  report_weak_logic_(kSceneIndex, 1, false);
+            if(!is_curr_weak_)  __ReportWeakLogic(kSceneIndex, 1, false);
         }
         else if(_rtt > WEAK_CONNECT_RTT) {
             is_weak = true;
-            if(!is_curr_weak_)  report_weak_logic_(kSceneRtt, 1, false);
+            if(!is_curr_weak_)  __ReportWeakLogic(kSceneRtt, 1, false);
         }
         
         if(is_weak) {
@@ -146,7 +152,7 @@ namespace stn {
                 connect_after_weak_ = 0;
                 first_mark_tick_.gettickcount();
                 last_mark_tick_.gettickcount();
-                report_weak_logic_(kEnterWeak, 1, false);
+                __ReportWeakLogic(kEnterWeak, 1, false);
                 xinfo2(TSF"weak network rtt:%_, index:%_", _rtt, _index);
             }
             
@@ -162,8 +168,8 @@ namespace stn {
         if(is_weak) {
             if(!is_curr_weak_) {
                 first_mark_tick_.gettickcount();
-                report_weak_logic_(kEnterWeak, 1, false);
-                report_weak_logic_(_is_firstpkg ? kSceneFirstPkg : kScenePkgPkg, 1, false);
+                __ReportWeakLogic(kEnterWeak, 1, false);
+                __ReportWeakLogic(_is_firstpkg ? kSceneFirstPkg : kScenePkgPkg, 1, false);
                 is_curr_weak_ = true;
                 connect_after_weak_ = 0;
                 last_mark_tick_.gettickcount();
@@ -181,16 +187,16 @@ namespace stn {
         bool is_weak = false;
         if(_task_profile.transfer_profile.connect_profile.ip_index > 0 && _task_profile.err_type != kEctOK && _task_profile.err_type != kEctEnDecode) {
             is_weak = true;
-            if(!is_curr_weak_)   report_weak_logic_(kSceneTask, 1, false);
+            if(!is_curr_weak_)   __ReportWeakLogic(kSceneTask, 1, false);
         }
         else if(_task_profile.err_type == kEctOK && (_task_profile.end_task_time - _task_profile.start_task_time) >= WEAK_TASK_SPAN) {
             is_weak = true;
-            if(!is_curr_weak_)  report_weak_logic_(kSceneTaskBad, 1, false);
+            if(!is_curr_weak_)  __ReportWeakLogic(kSceneTaskBad, 1, false);
         }
         if(is_weak) {
             if(!is_curr_weak_) {
                 first_mark_tick_.gettickcount();
-                report_weak_logic_(kEnterWeak, 1, false);
+                __ReportWeakLogic(kEnterWeak, 1, false);
                 is_curr_weak_ = true;
                 connect_after_weak_ = 0;
                 last_mark_tick_.gettickcount();
@@ -201,21 +207,21 @@ namespace stn {
             if(_task_profile.err_type == kEctOK && (_task_profile.end_task_time - _task_profile.start_task_time) < GOOD_TASK_SPAN) {
                 if(is_curr_weak_) {
                     is_curr_weak_ = false;
-                    report_weak_logic_(kExitWeak, 1, false);
-                    report_weak_logic_(kExitSceneTask, 1, false);
-                    report_weak_logic_(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
+                    __ReportWeakLogic(kExitWeak, 1, false);
+                    __ReportWeakLogic(kExitSceneTask, 1, false);
+                    __ReportWeakLogic(kWeakTime, (int)first_mark_tick_.gettickspan(), false);
                     xinfo2(TSF"weak network end");
                 }
             }
         }
         
         if(is_curr_weak_ || old_weak) {
-            report_weak_logic_(kCGICount, 1, false);
+            __ReportWeakLogic(kCGICount, 1, false);
             if(_task_profile.err_type == kEctOK) {
-                report_weak_logic_(kCGISucc, 1, false);
-                report_weak_logic_(kCGICost, (int)(_task_profile.end_task_time - _task_profile.start_task_time), false);
+                __ReportWeakLogic(kCGISucc, 1, false);
+                __ReportWeakLogic(kCGICost, (int)(_task_profile.end_task_time - _task_profile.start_task_time), false);
             } else {
-                report_weak_logic_(kFailStepDns + _task_profile.GetFailStep() - 1, 1, false);
+                __ReportWeakLogic(kFailStepDns + _task_profile.GetFailStep() - 1, 1, false);
             }
         }
     }
