@@ -190,11 +190,6 @@ void SetCallback(Callback* const callback) {
     return device_info;
 	}
 
-  double GetOsVersion(){
-    xassert2(sg_callback != NULL);
-    return sg_callback->GetOsVersion();
-  }
-
 #endif
 
 }
