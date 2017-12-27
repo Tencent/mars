@@ -192,8 +192,11 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
     ASYNC_BLOCK_START
 #ifdef __APPLE__
+    xinfo2(TSF"forground:%_ time:%_ tick:%_", _isForeground, timeMs(), gettickcount());
 
     if (_isForeground) {
+        xinfo2(TSF"longlink:%_ time:%_ %_ %_", longlink_.ConnectStatus(), tickcount_t().gettickcount().get(), longlink_.GetLastRecvTime().get(), int64_t(tickcount_t().gettickcount() - longlink_.GetLastRecvTime()));
+        
         if ((longlink_.ConnectStatus() == LongLink::kConnected) &&
                 (tickcount_t().gettickcount() - longlink_.GetLastRecvTime() > tickcountdiff_t(4.5 * 60 * 1000))) {
             xwarn2(TSF"sock long time no send data, close it");
