@@ -46,6 +46,9 @@ namespace stn {
 static Callback* sg_callback = NULL;
 static const std::string kLibName = "stn";
 
+boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
+boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
+
 #define STN_WEAK_CALL(func) \
     boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (!stn_ptr) {\
@@ -318,12 +321,14 @@ void (*OnLongLinkStatusChange)(int _status)
 void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
 = [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     xassert2(sg_callback != NULL);
+    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
     sg_callback->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 };
     
 void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
 = [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
     xassert2(sg_callback != NULL);
+    SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
     sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 };
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
