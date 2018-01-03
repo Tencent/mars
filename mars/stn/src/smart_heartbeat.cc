@@ -361,6 +361,8 @@ void SmartHeartbeat::__LimitINISize() {
 
 void SmartHeartbeat::__SaveINI() {
     xdebug_function();
+    if(current_net_heart_info_.net_detail_.empty())return;
+    
     current_net_heart_info_.last_modify_time_ = time(NULL);
 
     ini_.Set<time_t>(kKeyModifyTime, current_net_heart_info_.last_modify_time_);

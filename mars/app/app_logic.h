@@ -43,8 +43,6 @@ namespace app {
 		virtual unsigned int GetClientVersion() = 0;
 
 		virtual DeviceInfo GetDeviceInfo() = 0;
-    
-    virtual double GetOsVersion(){  return 0.0; };
 	};
 
 	void SetCallback(Callback* const callback);
