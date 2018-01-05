@@ -154,6 +154,11 @@ LongLink::~LongLink() {
     if (NULL != smartheartbeat_) {
     	delete smartheartbeat_, smartheartbeat_=NULL;
     }
+#ifdef ANDROID
+    if(NULL != wakelock_) {
+        delete wakelock_, wakelock_ = NULL;
+    }
+#endif
 }
 
 bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task) {
@@ -343,6 +348,8 @@ void LongLink::__ConnectStatus(TLongLinkStatus _status) {
     xinfo2(TSF"connect status from:%0 to:%1, nettype:%_", connectstatus_, _status, ::getNetInfo());
     connectstatus_ = _status;
     __NotifySmartHeartbeatConnectStatus(connectstatus_);
+    if (kConnected==connectstatus_ && fun_network_report_)
+        fun_network_report_(__LINE__, kEctOK, 0, conn_profile_.ip, conn_profile_.port);
     STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(boost::ref(SignalConnection), connectstatus_));
 }
 

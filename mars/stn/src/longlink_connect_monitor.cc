@@ -164,7 +164,7 @@ bool LongLinkConnectMonitor::NetworkChange() {
 uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
-    uint64_t interval =  __Interval(_type, activelogic_) * 1000;
+    uint64_t interval =  __Interval(_type, activelogic_) * 1000ULL;
     uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
 
     if (posttime >= interval) {
