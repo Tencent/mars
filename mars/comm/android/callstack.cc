@@ -283,6 +283,7 @@ CallStack::CallStack()
 CallStack::CallStack(const CallStack& rhs)
     : count_(rhs.count_)
     , tid_(rhs.tid_) {
+    stack_[0] = 0;
     if (count_) {
         memcpy(stack_, rhs.stack_, count_ * sizeof(void*));
     }

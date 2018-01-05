@@ -28,12 +28,16 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
+#include "mars/boost/signals2.hpp"
 
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnLogic")
 
 namespace mars {
 namespace stn {
 
+extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
+extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
+    
 DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
 int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code)
 = [](uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) {
@@ -441,12 +445,12 @@ void (*ReportDnsProfile)(const DnsProfile& _dns_profile)
 
 void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
 = [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
-
+    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 };
     
 void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
 = [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-
+    SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 };
 void (*OnLongLinkStatusChange)(int _status)
 = [](int _status) {

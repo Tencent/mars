@@ -162,7 +162,7 @@ static std::map<MessageQueue_t, MessageQueueContent>& messagequeue_map() {
 }
 
 
-static void DumpMessage(const std::list<MessageWrapper*>& _message_lst) {
+static std::string DumpMessage(const std::list<MessageWrapper*>& _message_lst) {
     XMessage xmsg;
     xmsg(TSF"**************Dump MQ Message**************size:%_\n", _message_lst.size());
     int index = 0;
@@ -171,9 +171,23 @@ static void DumpMessage(const std::list<MessageWrapper*>& _message_lst) {
         if (++index>50)
             break;
     }
-    xwarn2(TSF"%_", xmsg.String());
+    return xmsg.String();
 }
+std::string DumpMQ(const MessageQueue_t& _msq_queue_id) {
+    ScopedLock lock(sg_messagequeue_map_mutex);
+    const MessageQueue_t& id = _msq_queue_id;
     
+    std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+    if (sg_messagequeue_map.end() == pos) {
+        //ASSERT2(false, "%" PRIu64, id);
+        xinfo2(TSF"message queue not found.");
+        return "";
+    }
+    
+    MessageQueueContent& content = pos->second;
+    return DumpMessage(content.lst_message);
+}
+
 MessageQueue_t CurrentThreadMessageQueue() {
     ScopedLock lock(sg_messagequeue_map_mutex);
     MessageQueue_t id = (MessageQueue_t)ThreadUtil::currentthreadid();
@@ -329,7 +343,7 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
 
     MessageQueueContent& content = pos->second;
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
-        DumpMessage(content.lst_message);
+        xwarn2(TSF"%_", DumpMessage(content.lst_message));
         ASSERT2(false, "Over MAX_MQ_SIZE");
         return KNullPost;
     }
@@ -366,7 +380,7 @@ MessagePost_t SingletonMessage(bool _replace, const MessageHandler_t& _handlerid
     }
     
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
-        DumpMessage(content.lst_message);
+        xwarn2(TSF"%_", DumpMessage(content.lst_message));
         ASSERT2(false, "Over MAX_MQ_SIZE");
         return KNullPost;
     }
@@ -389,7 +403,7 @@ MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Mes
 
     MessageQueueContent& content = pos->second;
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
-        DumpMessage(content.lst_message);
+        xwarn2(TSF"%_", DumpMessage(content.lst_message));
         ASSERT2(false, "Over MAX_MQ_SIZE");
         return KNullPost;
     }
@@ -451,7 +465,7 @@ MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _
     }
 
     if(content.lst_message.size() >= MAX_MQ_SIZE) {
-        DumpMessage(content.lst_message);
+        xwarn2(TSF"%_", DumpMessage(content.lst_message));
         ASSERT2(false, "Over MAX_MQ_SIZE");
         delete messagewrapper;
         return KNullPost;

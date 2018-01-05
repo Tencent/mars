@@ -210,6 +210,7 @@ bool CancelMessage(const MessagePost_t& _postid);
 void CancelMessage(const MessageHandler_t& _handlerid);
 void CancelMessage(const MessageHandler_t& _handlerid, const MessageTitle_t& _title);
 
+std::string DumpMQ(const MessageQueue_t& _msq_queue_id);
 //AsyncInvoke
 MessageHandler_t InstallAsyncHandler(const MessageQueue_t& id);
 
