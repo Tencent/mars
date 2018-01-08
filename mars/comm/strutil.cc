@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <algorithm>
+#include <locale>
 
 #include "comm/xlogger/xlogger.h"
 
@@ -282,6 +283,26 @@ std::string GetFileNameFromPath(const char* _path) {
     } else {
         return pos + 1;
     }
+}
+    
+template<typename charT>
+struct my_equal {
+    my_equal(const std::locale& loc) : loc_(loc) {}
+    bool operator()(charT ch1, charT ch2) {
+        return std::toupper(ch1, loc_) == std::toupper(ch2, loc_);
+    }
+private:
+    const std::locale& loc_;
+};
+
+// find substring (case insensitive)
+size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos){
+    const std::locale& loc = std::locale();
+    typename std::string::const_iterator it = std::search(str.begin() + pos, str.end(),
+                                                sub.begin(), sub.end(), my_equal<typename std::string::value_type>(loc));
+    
+    if (it != str.end()) return it - str.begin();
+    else return std::string::npos;  // not found
 }
 
 }

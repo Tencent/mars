@@ -148,7 +148,6 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
 }
 
 LongLink::~LongLink() {
-    testproxybreak_.Break();
     Disconnect(kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
