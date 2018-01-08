@@ -137,6 +137,9 @@ std::string Str2Hex(const char* _str, unsigned int _len);
 std::string ReplaceChar(const char* const input_str, char be_replaced='@', char replace_with='.');
     
 std::string GetFileNameFromPath(const char* _path);
+    
+// find substring (case insensitive)
+size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos);
 }
 
 #endif	// COMM_STRUTIL_H_
