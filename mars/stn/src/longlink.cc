@@ -478,7 +478,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
             std::vector<std::string> ips;
             if (!dns_util_.GetDNS().GetHostByName(proxy_info.host, ips) || ips.empty()) {
                 xwarn2(TSF"dns %_ error", proxy_info.host);
-                return false;
+                return INVALID_SOCKET;
             }
             
 			proxy_addr = &((new socket_address(ips.front().c_str(), proxy_info.port))->v4tov6_address(isnat64));
@@ -513,7 +513,6 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         __ConnectStatus(kConnectFailed);
         
         if (kNone == disconnectinternalcode_) __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
-        
         
         return INVALID_SOCKET;
     }
