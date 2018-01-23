@@ -195,7 +195,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         if (_conn_profile.proxy_info.ip.empty() && !_conn_profile.proxy_info.host.empty()) {
             if (!dns_util_.GetDNS().GetHostByName(_conn_profile.proxy_info.host, proxy_ips) || proxy_ips.empty()) {
                 xwarn2(TSF"dns %_ error", _conn_profile.proxy_info.host);
-                return false;
+                return INVALID_SOCKET;
             }
 			proxy_ip = proxy_ips.front();
         } else {
