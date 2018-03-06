@@ -84,12 +84,12 @@ struct MessageTitle_t {
 
 struct Message {
     Message(): title(0), anr_timeout(0), create_time(0), execute_time(0) {}
-    Message(const MessageTitle_t& _title, const boost::any& _body1, const boost::any& _body2, const std::string& _name)
+    Message(const MessageTitle_t& _title, const boost::any& _body1, const boost::any& _body2, const std::string& _name = "")
     : title(_title), body1(_body1), body2(_body2), anr_timeout(10*60*1000), msg_name(_name), create_time(::gettickcount()),
     execute_time(0){}
     
     template <class F>
-    Message(const MessageTitle_t& _title, const F& _func, const std::string& _name)
+    Message(const MessageTitle_t& _title, const F& _func, const std::string& _name = "")
     : title(_title), body1(boost::make_shared<AsyncInvokeFunction>()), body2(), anr_timeout(10*60*1000), msg_name(_name), create_time(::gettickcount()), execute_time(0) {
         *boost::any_cast<boost::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
     }
@@ -246,7 +246,7 @@ MessagePost_t  AsyncInvokePeriod(int64_t _after, int64_t _period, const F& _func
 }
     //~title
 //---~with message name
-
+/*
 template<class F>
 MessagePost_t AsyncInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
     return PostMessage(_handlerid, Message(0, _func));
@@ -276,7 +276,7 @@ template<class F>
 MessagePost_t  AsyncInvokePeriod(int64_t _after, int64_t _period, const F& _func, const MessageTitle_t& _title, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler()) {
     return PostMessage(_handlerid, Message(_title, _func), MessageTiming(kPeriod, _after, _period));
 }
-    
+    */
 class RunLoop {
  public:
     template<typename B>

@@ -44,6 +44,7 @@ private:
     WeakNetworkLogic();
     virtual ~WeakNetworkLogic();
     void __SignalForeground(bool _is_foreground);
+    void __ReportWeakLogic(int _key, int _value, bool _is_important);
     
 private:
     tickcount_t first_mark_tick_;

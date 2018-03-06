@@ -72,6 +72,7 @@
       <PreprocessorDefinitions>BOOST_NO_EXCEPTIONS;XLOGGER_TAG="mars::$(TargetName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(ProjectDir)../;$(ProjectDir)../comm/windows/</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
