@@ -115,6 +115,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;XLOGGER_TAG="mars::$(TargetName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;$(ProjectDir)..\..\..\;$(ProjectDir)..\..\comm;$(ProjectDir)..\..\comm\windows;$(ProjectDir)..\..\;$(ProjectDir)..\;$(ProjectDir)..\crypto\evp;$(ProjectDir)..\crypto\asn1;$(ProjectDir)..\crypto;$(ProjectDir)..\export_include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <ForcedIncludeFiles>mars/comm/projdef.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
