@@ -176,7 +176,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_mars_xlog_Xlog_getLogLevel
 	return xlogger_Level();
 }
 
-DEFINE_FIND_STATIC_METHOD(KXlog_setLogLevel, KXlog, "setLogLevel", "(I)V")
+//DEFINE_FIND_STATIC_METHOD(KXlog_setLogLevel, KXlog, "setLogLevel", "(I)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setLogLevel
   (JNIEnv *, jclass, jint _log_level) {
 	xlogger_SetLevel((TLogLevel)_log_level);
