@@ -30,7 +30,7 @@
 #define DEF_TASK_RETRY_INTERNAL (1 * 1000)
 
 // Heartbeart Range
-#define MinHeartInterval (4  * 60 * 1000 + 30 * 1000)   // 4.5 minute
+#define MinHeartInterval (3  * 60 * 1000 + 30 * 1000)   // 3.5 minute
 #define MaxHeartInterval (10 * 60 * 1000)   // 10 minute
 
 // Heartbeat Step
