@@ -807,7 +807,6 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     xlogger_SetAppender(&xlogger_appender);
     
-	//mkdir(_dir, S_IRWXU|S_IRWXG|S_IRWXO);
 	boost::filesystem::create_directories(_dir);
     tickcount_t tick;
     tick.gettickcount();
