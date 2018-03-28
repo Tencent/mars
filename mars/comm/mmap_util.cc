@@ -62,7 +62,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         FILE* file = fopen(_filepath, "rb+");
         if (NULL == file) {
             _mmmap_file.close();
-            remove(_filepath);
+            boost::filesystem::remove(_filepath);
             return false;
         }
 
@@ -72,7 +72,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         if (_size != fwrite(zero_data, sizeof(char), _size, file)) {
             _mmmap_file.close();
             fclose(file);
-            remove(_filepath);
+            boost::filesystem::remove(_filepath);
             delete[] zero_data;
             return false;
         }
