@@ -40,6 +40,12 @@
 #include "stn/src/signalling_keeper.h"
 #include "stn/src/proxy_test.h"
 
+#ifdef WIN32
+#include <locale>
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
+#endif
+
 namespace mars {
 namespace stn {
 
@@ -119,8 +125,11 @@ static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) 
     }
 }
 
-
 static void __initbind_baseprjevent() {
+
+#ifdef WIN32
+	boost::filesystem::path::imbue(std::locale(std::locale(), new boost::filesystem::detail::utf8_codecvt_facet));
+#endif
 
 #ifdef ANDROID
 	mars::baseevent::addLoadModule(kLibName);
