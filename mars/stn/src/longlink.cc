@@ -444,7 +444,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::string netInfo;
     getCurrNetLabel(netInfo );
     bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect_log(log);//local_ipstack_detect();
-    xinfo2_if(isnat64, TSF"ipstack log:%_, netInfo:%_", log, netInfo);
+    xinfo2(TSF"ipstack log:%_, netInfo:%_", log, netInfo);
     
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
         if (use_proxy) {
