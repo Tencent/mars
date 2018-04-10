@@ -132,6 +132,7 @@
     <ClCompile Include="..\tickcount.cc" />
     <ClCompile Include="..\time_utils.c" />
     <ClCompile Include="..\tinyxml2.cc" />
+    <ClCompile Include="..\windows\projdef.cc" />
     <ClCompile Include="..\windows\SocketSelect\socketselect2.cc" />
     <ClCompile Include="..\windows\sys\time.c" />
     <ClCompile Include="..\windows\TssGC.cpp" />

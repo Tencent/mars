@@ -10,21 +10,24 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-//
-//  boost_exception.cpp
-//  comm
-//
-//  Created by yanguoyue on 16/5/20.
-//
+#include "projdef.h"
+#include <Windows.h>
 
-#include <exception>
-#include "comm/xlogger/xlogger.h"
+#include "strutil.h"
 
+#define ENCODING CP_UTF8 
 
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+FILE* mars_fopen_utf8(const char* _path, const char* _model) {
+	return _wfopen(strutil::String2WString(_path, ENCODING).c_str(), strutil::String2WString(_model, ENCODING).c_str());
+}
 
-    void throw_exception( std::exception const & e ) {
-        xfatal2(TSF"boost exception:%_", e.what());
+int mars_mkdir_utf8(const char* _path, unsigned short _model) {
+	return _wmkdir(strutil::String2WString(_path, ENCODING).c_str());
+}
+int mars_access_utf8(char const* _path, int _model) {
+	return _waccess(strutil::String2WString(_path, ENCODING).c_str(), _model);
+}
 
-    }
+int mars_remove_utf8(char const* _path) {
+	return _wremove(strutil::String2WString(_path, ENCODING).c_str());
 }

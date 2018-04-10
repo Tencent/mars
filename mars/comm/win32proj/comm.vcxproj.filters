@@ -204,6 +204,9 @@
     <ClCompile Include="..\network\getaddrinfo_with_timeout.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\windows\projdef.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\assert\__assert.h">

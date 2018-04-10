@@ -349,7 +349,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     it->transfer_profile.received_size = body->Length();
     it->transfer_profile.receive_data_size = body->Length();
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
-    it->force_no_retry = _cancel_retry;
+    if (_err_type == kEctSocket) {
+        it->force_no_retry = _cancel_retry;
+    }
 
     int err_code = 0;
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, body, extension, err_code, Task::kChannelShort);

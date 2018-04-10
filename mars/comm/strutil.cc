@@ -219,6 +219,23 @@ ENDSWITH(std::wstring)
 SPLITTOKEN(std::string)
 SPLITTOKEN(std::wstring)
 
+#ifdef WIN32
+#include <Windows.h>
+std::wstring String2WString(const std::string& _src, unsigned int _cp) {
+	const int len = static_cast<int>(_src.length());
+	std::wstring enc;
+	const int req = MultiByteToWideChar(_cp, 0, _src.c_str(), len, NULL, 0);
+	if (req > 0) {
+		enc.resize(static_cast<size_t>(req));
+		MultiByteToWideChar(_cp, 0, _src.c_str(), len, &enc[0], req);
+	}
+	return enc;
+}
+
+std::wstring UTF8String2Wstring(const std::string& _src) {
+	return String2WString(_src, CP_UTF8);
+}
+#endif
 std::string Hex2Str(const char* _str, unsigned int _len) {
     std::string outstr="";
     for(unsigned int i = 0; i< _len;i++) {

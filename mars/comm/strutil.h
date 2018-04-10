@@ -56,6 +56,10 @@ bool EndsWith(const std::wstring& str, const std::wstring& substr);
 std::wstring& ToLower(std::wstring& str);
 std::wstring& ToUpper(std::wstring& str);
 
+#ifdef WIN32
+std::wstring String2WString(const std::string& _src, unsigned int _cp);
+std::wstring UTF8String2Wstring(const std::string& _src);
+#endif
 std::vector<std::wstring>& SplitToken(const std::wstring& str,
                                       const std::wstring& delimiters, std::vector<std::wstring>& ss);
 
