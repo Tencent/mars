@@ -67,9 +67,9 @@ def get_child_project(project_path):
     file.close()
     return (folders, projects)
 
-def link_openssl(output_lib_path, cpu_folder):
+def link_openssl(output_lib_path, cpu_folder, openssl_path):
     #split .a by cpu arch
-    openssl_lib_folder = os.path.join(LIBRARIES_PATH, "../openssl/openssl_lib_iOS")
+    openssl_lib_folder = os.path.join(LIBRARIES_PATH, openssl_path)
     os.system("mkdir %s/%s"%(openssl_lib_folder, cpu_folder))
     os.system("lipo  %s/libcrypto.a -thin %s -output %s/%s/libcrypto.a"% (openssl_lib_folder, cpu_folder, openssl_lib_folder, cpu_folder))
     os.system("lipo  %s/libssl.a -thin %s -output %s/%s/libssl.a"% (openssl_lib_folder, cpu_folder, openssl_lib_folder, cpu_folder))
@@ -88,7 +88,7 @@ def link_openssl(output_lib_path, cpu_folder):
     
     os.system("rm -rf %s/%s" % (openssl_lib_folder, cpu_folder))
 
-def build_apple(project, save_path):
+def build_apple(project, save_path, openssl_path="../openssl/openssl_lib_iOS"):
     gen_revision_file(save_path, save_path)
 
     print('##############display system info####################')
@@ -153,7 +153,7 @@ def build_apple(project, save_path):
                 else:
                     os.system("ar -q %s %s/%s/*.o 2>/dev/null" %(cpu_lib_path, obj_folders, cpu_folder))
                 if cf=="openssl":
-                    link_openssl(cpu_lib_path, cpu_folder)
+                    link_openssl(cpu_lib_path, cpu_folder, openssl_path)
 
 
     framework_path = save_path + "/" + project.framework_name
@@ -189,8 +189,11 @@ def main():
     else:
         num = "0"
     while True:
-        if num == "1" or num == "2" or num == "3" or num == "4":
+        if num == "1" or num == "2" or num == "3":
             build_apple(APPLE_PROJECTS[int(num)-1], save_path)
+            return
+        elif num == "4":
+            build_apple(APPLE_PROJECTS[int(num)-1], save_path, "../openssl/openssl_lib_osx")
             return
         elif num == "5":
             for project in APPLE_PROJECTS:
