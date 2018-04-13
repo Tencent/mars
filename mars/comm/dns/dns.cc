@@ -28,7 +28,7 @@
 #include "thread/lock.h"
 
 #include "network/getdnssvraddrs.h"
-
+#include "local_ipstack.h"
 enum {
     kGetIPDoing,
     kGetIPTimeout,
@@ -85,8 +85,14 @@ static void __GetIP() {
         //in iOS work fine, in Android ipv6 stack get ipv4-ip fail
         //and in ipv6 stack AI_ADDRCONFIGd will filter ipv4-ip but we ipv4-ip can use by nat64
     //    hints.ai_flags = AI_V4MAPPED|AI_ADDRCONFIG;
-        int error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/NULL, &result);
-
+        int error = 0;
+        TLocalIPStack ipstack = local_ipstack_detect();
+        if (ELocalIPStack_IPv4 == ipstack) {
+            error = getaddrinfo(host_name.c_str(), NULL, &hints, &result);
+        } else {
+            error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/NULL, &result);
+        }
+           
         lock.lock();
 
         iter = sg_dnsinfo_vec.begin();
@@ -97,7 +103,7 @@ static void __GetIP() {
         }
 
         if (error != 0) {
-            xwarn2(TSF"error, error:%0, hostname:%1", error, host_name.c_str());
+            xwarn2(TSF"error, error:%_, hostname:%_, ipstack:%_", error, host_name.c_str(), ipstack);
 
             if (iter != sg_dnsinfo_vec.end()) iter->status = kGetIPFail;
 
