@@ -5,7 +5,7 @@
 
 #include <exception>
 #include <string>
-
+/*
 namespace std
 {
 
@@ -55,5 +55,5 @@ namespace std
   };
 
 
-} 
+} */
 #endif 

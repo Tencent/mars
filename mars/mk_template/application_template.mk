@@ -3,8 +3,8 @@ include $(APP_LOCAL_PATH)/build.conf
 endif
 
 APP_ABI := ${_ARCH_}
-APP_STL := stlport_shared
-APP_PLATFORM := android-9
+APP_STL := c++_shared#stlport_shared
+APP_PLATFORM := android-14
 APP_CPPFLAGS +=-std=gnu++11 
 #NDK_TOOLCHAIN_VERSION := clang
 APP_MODULES :=$(SELF_LOCAL_MODULE)

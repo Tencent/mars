@@ -91,7 +91,7 @@ LOCAL_MODULE := marsstn
 
 LOCAL_SRC_FILES := shortlink_packer.cc longlink_packer.cc JNI_OnLoad.cc import.cc
 
-LOCAL_STATIC_LIBRARIES += stn sdt appcomm baseevent comm mmjpeg jpeg_static
+LOCAL_STATIC_LIBRARIES += stn sdt appcomm baseevent comm
 LOCAL_SHARED_LIBRARIES += marsxlog
 
 LOCAL_LDLIBS += -llog -lz -ljnigraphics 

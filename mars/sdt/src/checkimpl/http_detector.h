@@ -12,12 +12,12 @@
 #include <vector>
 #include <map>
 
-#include "thread/thread.h"
-#include "thread/mutex.h"
-#include "socket/socketbreaker.h"
-#include "boost/function.hpp"
+#include "mars/comm/thread/thread.h"
+#include "mars/comm/thread/mutex.h"
+#include "mars/comm/socket/socketbreaker.h"
+#include "mars/boost/function.hpp"
 #include "mars/comm/dns/dns.h"
-#include "xlogger/xlogger.h"
+#include "mars/comm/xlogger/xlogger.h"
 class HTTPDetectReq {
   public:
     //static const unsigned long long kDefaultHTTPDetectTimeout = 10*1000; //10s;
