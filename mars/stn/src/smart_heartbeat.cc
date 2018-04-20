@@ -311,6 +311,7 @@ void SmartHeartbeat::__LoadINI() {
         xassert2(ret);
         __SaveINI();
     }
+    __DumpHeartInfo();
 }
 
 #define MAX_INI_SECTIONS (20)
