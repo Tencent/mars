@@ -130,7 +130,7 @@ static void __GetIP() {
 //                convertAddr.s_addr = addr_in->sin_addr.s_addr;
     			const char* ip = socket_address(single->ai_addr).ip();
 
-                if (!socket_address(ip, 0).valid_server_address(false)) {
+                if (!socket_address(ip, 0).valid_server_address(false, true)) {
                     xerror2(TSF"ip is invalid, ip:%0", ip);
                     continue;
                 }

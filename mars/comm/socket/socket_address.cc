@@ -255,12 +255,12 @@ bool socket_address::valid() const {
     return false;
 }
 
-bool socket_address::valid_server_address(bool _allowloopback) const {
+bool socket_address::valid_server_address(bool _allowloopback, bool _ignore_port) const {
     if (AF_INET == addr_.sa.sa_family) {
         const sockaddr_in& sock_addr = addr_.in;
 
         uint32_t hostip = ntohl(sock_addr.sin_addr.s_addr);
-        return  0 != sock_addr.sin_port
+        return  (_ignore_port ? true : 0 != sock_addr.sin_port)
         && hostip != INADDR_ANY
         && hostip != INADDR_BROADCAST
         && hostip != INADDR_NONE
