@@ -1,8 +1,11 @@
 LOCAL_PATH :=$(call my-dir)
 
+$(info 'info current choose arch is $(_ARCH_)---------------------------------')
+
+
 include $(CLEAR_VARS)  
 LOCAL_MODULE := openssl_crypto
-LOCAL_SRC_FILES := ../openssl_lib_android/libcrypto.a
+LOCAL_SRC_FILES := ../openssl_lib_android/$(_ARCH_)/libcrypto.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 
