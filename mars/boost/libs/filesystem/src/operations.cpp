@@ -2070,8 +2070,7 @@ namespace
   inline int readdir_r_simulator(DIR * dirp, struct dirent * entry,
     struct dirent ** result)// *result set to 0 on end of directory
   {
-    errno = 0;
-
+    
 #   if !defined(__CYGWIN__)\
     && defined(_POSIX_THREAD_SAFE_FUNCTIONS)\
     && defined(_SC_THREAD_SAFE_FUNCTIONS)\
@@ -2084,6 +2083,7 @@ namespace
 
     struct dirent * p;
     *result = 0;
+    errno = 0;
     if ((p = ::readdir(dirp))== 0)
       return errno;
     std::strcpy(entry->d_name, p->d_name);
