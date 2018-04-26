@@ -10,7 +10,9 @@
 
 //--------------------------------------------------------------------------------------// 
 
-//  define 64-bit offset macros BEFORE including boost/config.hpp (see ticket #5355) 
+//  define 64-bit offset macros BEFORE including boost/config.hpp (see ticket #5355)
+//  Google Android NDK is broken though as it doesn't provide truncate() declaration when _FILE_OFFSET_BITS=64 is defined (https://github.com/boostorg/filesystem/issues/65)
+#if !defined(__ANDROID__) || (__ANDROID_API__+0) >= 21 || defined(__CRYSTAX__)
 #if !(defined(__HP_aCC) && defined(_ILP32) && !defined(_STATVFS_ACPP_PROBLEMS_FIXED))
 #define _FILE_OFFSET_BITS 64 // at worst, these defines may have no effect,
 #endif
@@ -28,6 +30,7 @@
 #else
 #define _FILE_OFFSET_BITS 64
 #endif
+#endif // !defined(__ANDROID__) || (__ANDROID_API__+0) >= 21 || defined(__CRYSTAX__)
 
 // define BOOST_FILESYSTEM_SOURCE so that <boost/filesystem/config.hpp> knows
 // the library is being built (possibly exporting rather than importing code)
@@ -44,7 +47,8 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/scoped_array.hpp>
 #include <boost/detail/workaround.hpp>
-#include <vector> 
+#include <limits>
+#include <vector>
 #include <cstdlib>     // for malloc, free
 #include <cstring>
 #include <cstdio>      // for remove, rename
@@ -1593,6 +1597,12 @@ namespace detail
   BOOST_FILESYSTEM_DECL
   void resize_file(const path& p, uintmax_t size, system::error_code* ec)
   {
+#   if defined(BOOST_POSIX_API)
+    if (BOOST_UNLIKELY(size > static_cast< uintmax_t >((std::numeric_limits< off_t >::max)()))) {
+      error(system::errc::file_too_large, p, ec, "mars_boost::filesystem::resize_file");
+      return;
+    }
+#   endif
     error(!BOOST_RESIZE_FILE(p.c_str(), size) ? BOOST_ERRNO : 0, p, ec,
       "mars_boost::filesystem::resize_file");
   }
@@ -2060,8 +2070,7 @@ namespace
   inline int readdir_r_simulator(DIR * dirp, struct dirent * entry,
     struct dirent ** result)// *result set to 0 on end of directory
   {
-    errno = 0;
-
+    
 #   if !defined(__CYGWIN__)\
     && defined(_POSIX_THREAD_SAFE_FUNCTIONS)\
     && defined(_SC_THREAD_SAFE_FUNCTIONS)\
@@ -2074,6 +2083,7 @@ namespace
 
     struct dirent * p;
     *result = 0;
+    errno = 0;
     if ((p = ::readdir(dirp))== 0)
       return errno;
     std::strcpy(entry->d_name, p->d_name);

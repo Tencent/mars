@@ -192,8 +192,8 @@ def build_android_mars_shared_libs(_path="mars_android_sdk", _arch="armeabi", _l
     return 0
 
 def choose_android_mars_jni_arch():
-    platforms = ['armeabi', 'x86', 'mips', 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'mips64']
-    archnum = raw_input("Enter the architecture which would like to build:\n1. armeabi.\n2. x86.\n3. mips.\n4. armeabi-v7a.\n5. arm64-v8a.\n6. x86_64.\n7. mips64.\n8. exit.\n")
+    platforms = ['armeabi', 'x86', 'armeabi-v7a', 'arm64-v8a', 'x86_64']
+    archnum = raw_input("Enter the architecture which would like to build:\n1. armeabi.\n2. x86.\n3. armeabi-v7a.\n4. arm64-v8a.\n5. x86_64.\n6. exit.\n")
 
     arr = []
     
@@ -217,7 +217,7 @@ def main():
         archs = []
         if len(sys.argv) >=2 and len(sys.argv[1])==1 and sys.argv[1] >="1" and sys.argv[1] <="5":
             num = sys.argv[1]
-            platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a', 'mips', 'mips64']
+            platforms = ['x86', 'x86_64', 'armeabi', 'arm64-v8a', 'armeabi-v7a']
             if len(sys.argv) >=3 and sys.argv[2] in platforms:
                 NDK_BUILD_CMD = ndk_path + "/ndk-build _ARCH_=" + sys.argv[2] + " NDK_DEBUG=0 -j 4 -B SDK=0 LIBPREFIX=%s %s -C "
                 WITH_SCRIPT = 1

@@ -2,7 +2,7 @@
 TEMP_LOCAL_PATH :=$(call my-dir)
 
 LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../src
-LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../
+LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../ $(TEMP_LOCAL_PATH)/../../comm
 LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../../ $(TEMP_LOCAL_PATH)/../../../ $(TEMP_LOCAL_PATH)/../src/activecheck 
 LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/../src/ $(TEMP_LOCAL_PATH)/../src/checkimpl $(TEMP_LOCAL_PATH)/../src/remotecheck $(TEMP_LOCAL_PATH)/../src/tools
 
