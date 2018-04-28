@@ -15,24 +15,19 @@
 using namespace std;
 
 bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
-    xverbose_function();
 
     return getProxyInfoImpl(port, strProxy, _host);
 }
 
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& info) {
-    xverbose_function();
     return false;
 }
 
 int getNetInfo() {
-    xverbose_function();
-
     return isNetworkConnected() ? kWifi : kNoNet;
 }
 
 unsigned int getSignal(bool isWifi) {
-    xverbose_function();
     return (unsigned int)0;
 }
 
