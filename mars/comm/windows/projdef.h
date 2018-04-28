@@ -86,7 +86,9 @@ extern "C" {
 #endif
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 
 #if !defined(WIN32)
 #define sscanf sscanf_s
@@ -95,7 +97,6 @@ extern "C" {
 #define _CRT_NONSTDC_NO_WARNINGS 1
 #define _SCL_SECURE_NO_WARNINGS 1
 #define S_ISDIR(x) (_S_IFDIR & x) 
-#define WIN32_LEAN_AND_MEAN
 
 typedef SSIZE_T ssize_t;
 #define  PRIu64 "I64d"

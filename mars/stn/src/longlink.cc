@@ -479,6 +479,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
             std::vector<std::string> ips;
             if (!dns_util_.GetDNS().GetHostByName(proxy_info.host, ips) || ips.empty()) {
                 xwarn2(TSF"dns %_ error", proxy_info.host);
+                __ConnectStatus(kConnectFailed);
+                __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile);
                 return INVALID_SOCKET;
             }
             

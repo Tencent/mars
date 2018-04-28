@@ -230,21 +230,26 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     static Mutex mutex;
     ScopedLock lock(mutex);
     
-    static CWInterface* info = nil; //CWInterface can reused
+    static float version = 0.0;
     
-    if (nil == info) {
-        if (__GetSystemVersion() < 10.10){
-            info = [CWInterface interface];
-        }else{
-            CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
-            if (nil != wificlient) info = [wificlient interface];
-        }
+    CWInterface* info = nil;
+    
+    if (version < 0.1) {
+        version = __GetSystemVersion();
+    }
+    
+    if (version < 10.10){
+        static CWInterface* s_info = [[CWInterface interface] retain];
+        info = s_info;
+    }else{
+        CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
+        if (nil != wificlient) info = [wificlient interface];
     }
 
     if (nil == info) return false;
-    if (info.ssid) {
+    if (info.ssid != nil) {
         const char* ssid = [info.ssid UTF8String];
-        if(NULL != ssid) wifiInfo.ssid = ssid;
+        if(NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
         //wifiInfo.bssid = [info.bssid UTF8String];
     } else {
         wifiInfo.ssid = USE_WIRED;

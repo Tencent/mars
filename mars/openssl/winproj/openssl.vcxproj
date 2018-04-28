@@ -109,12 +109,13 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;XLOGGER_TAG="mars::$(TargetName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;XLOGGER_TAG="mars::$(TargetName)";WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\include\;$(ProjectDir)..\include\openssl\;$(ProjectDir)..\..\..\;$(ProjectDir)..\..\comm;$(ProjectDir)..\..\comm\windows;$(ProjectDir)..\..\;$(ProjectDir)..\;$(ProjectDir)..\crypto\evp;$(ProjectDir)..\crypto\asn1;$(ProjectDir)..\crypto;$(ProjectDir)..\export_include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
       <ForcedIncludeFiles>mars/comm/projdef.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>

@@ -66,18 +66,27 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>SET python_str="import sys;sys.path.append('$(ProjectDir)/../../libraries');import mars_utils;mars_utils.gen_revision_file('mars','mars')"
+echo %python_str%
+python -c %python_str%</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;WIN32_PLATFORM;XLOGGER_TAG="mars::$(TargetName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
-      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(ProjectDir)../../;$(ProjectDir)../../../;$(ProjectDir)../windows/;$(ProjectDir)../;</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
@@ -88,6 +97,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>SET python_str="import sys;sys.path.append('$(ProjectDir)/../../libraries');import mars_utils;mars_utils.gen_revision_file('mars','mars')"
+echo %python_str%
+python -c %python_str%</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
