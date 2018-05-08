@@ -912,7 +912,7 @@ void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir,
         boost::filesystem::create_directories(_cachedir);
         __del_timeout_file(_cachedir);
         // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
-        Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(10 * 1000);
+        Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
     }
 
     appender_open(_mode, _logdir.c_str(), _nameprefix, _pub_key);
