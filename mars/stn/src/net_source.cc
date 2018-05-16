@@ -236,7 +236,7 @@ void NetSource::GetBackupIPs(std::string _host, std::vector<std::string>& _iplis
 }
 
 void NetSource::ReportLongIP(bool _is_success, const std::string& _ip, uint16_t _port) {
-    xdebug2(TSF"_is_success=%0, ip=%1, port=%2", _is_success, _ip, _port);
+    xinfo2_if(!_is_success, TSF"_is_success=%0, ip=%1, port=%2", _is_success, _ip, _port);
 
     if (_ip.empty() || 0 == _port) return;
 
@@ -447,7 +447,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 }
 
 void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    xdebug2(TSF"_is_success=%0, ip=%1, port=%2 host=%3", _is_success, _ip, _port, _host);
+    xinfo2_if(!_is_success, TSF"_is_success=%0, ip=%1, port=%2 host=%3", _is_success, _ip, _port, _host);
 
     if (_ip.empty()) return;
 
