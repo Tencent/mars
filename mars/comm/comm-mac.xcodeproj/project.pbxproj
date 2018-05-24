@@ -42,6 +42,7 @@
 		4BA235641E5AB6E1002B769D /* socketbreaker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BA2355E1E5AB6E1002B769D /* socketbreaker.cc */; };
 		4BA235651E5AB6E1002B769D /* socketpoll.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BA235601E5AB6E1002B769D /* socketpoll.cc */; };
 		4BB712F71DE8229A00185734 /* loginfo_extract.c in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712F51DE8229A00185734 /* loginfo_extract.c */; };
+		55C4835320B6980A00DF9158 /* local_routetable.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55C4835220B6980A00DF9158 /* local_routetable.cc */; };
 		55D917841CC7BD7A0076CBD9 /* message_queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D9093D1CC7BD760076CBD9 /* message_queue.cc */; };
 		55D918241CC7BD7A0076CBD9 /* mmap_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D90A141CC7BD770076CBD9 /* mmap_util.cc */; };
 		55D918251CC7BD7A0076CBD9 /* block_socket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55D90A161CC7BD770076CBD9 /* block_socket.cc */; };
@@ -161,6 +162,8 @@
 		4BE039041DE7F1250004CD84 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		4BE039061DE7F12E0004CD84 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		4BE039081DE7F1350004CD84 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		55C4835120B6980900DF9158 /* local_routetable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = local_routetable.h; sourceTree = "<group>"; };
+		55C4835220B6980A00DF9158 /* local_routetable.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = local_routetable.cc; sourceTree = "<group>"; };
 		55D9093B1CC7BD760076CBD9 /* verinfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = verinfo.h; sourceTree = "<group>"; };
 		55D9093D1CC7BD760076CBD9 /* message_queue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message_queue.cc; sourceTree = "<group>"; };
 		55D9093E1CC7BD760076CBD9 /* message_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_queue.h; sourceTree = "<group>"; };
@@ -649,6 +652,8 @@
 		55D90A731CC7BD770076CBD9 /* network */ = {
 			isa = PBXGroup;
 			children = (
+				55C4835220B6980A00DF9158 /* local_routetable.cc */,
+				55C4835120B6980900DF9158 /* local_routetable.h */,
 				9A739E881F7E3E7B000019E7 /* getaddrinfo_with_timeout.cc */,
 				9A739E891F7E3E7B000019E7 /* getaddrinfo_with_timeout.h */,
 				4B3C3E081E120D9400351897 /* netinfo_util.cc */,
@@ -941,6 +946,7 @@
 				55D918771CC7BD7A0076CBD9 /* tickcount.cc in Sources */,
 				55D918251CC7BD7A0076CBD9 /* block_socket.cc in Sources */,
 				55D91ABB1CC7BD7A0076CBD9 /* md5.c in Sources */,
+				55C4835320B6980A00DF9158 /* local_routetable.cc in Sources */,
 				55D918501CC7BD7A0076CBD9 /* alarm.cc in Sources */,
 				4BA235641E5AB6E1002B769D /* socketbreaker.cc in Sources */,
 				55D9186E1CC7BD7A0076CBD9 /* platform_comm.mm in Sources */,

@@ -80,6 +80,7 @@
 		4FCB62C81A307EFA00E57EE0 /* tcpserver_fsm.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4FCB62C51A307EFA00E57EE0 /* tcpserver_fsm.cc */; };
 		4FCB62DB1A30802600E57EE0 /* basepacker.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4FCB62D91A30802600E57EE0 /* basepacker.cc */; };
 		558C681E1C05C5AF00C06D77 /* socket_address.cc in Sources */ = {isa = PBXBuildFile; fileRef = 558C681D1C05C5AF00C06D77 /* socket_address.cc */; };
+		55C4835620B6994900DF9158 /* local_routetable.cc in Sources */ = {isa = PBXBuildFile; fileRef = 55C4835520B6994900DF9158 /* local_routetable.cc */; };
 		F138F5F41DEEF0DA00546CBB /* complexconnect.cc in Sources */ = {isa = PBXBuildFile; fileRef = F138F5F31DEEF0DA00546CBB /* complexconnect.cc */; };
 		F138F6971DF0109E00546CBB /* execution_context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F138F6441DF0109E00546CBB /* execution_context.cpp */; };
 		F138F6981DF0109E00546CBB /* stack_traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F138F6461DF0109E00546CBB /* stack_traits.cpp */; };
@@ -292,6 +293,8 @@
 		4FCB62D91A30802600E57EE0 /* basepacker.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basepacker.cc; sourceTree = "<group>"; };
 		4FCB62DA1A30802600E57EE0 /* basepacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basepacker.h; sourceTree = "<group>"; };
 		558C681D1C05C5AF00C06D77 /* socket_address.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = socket_address.cc; path = socket/socket_address.cc; sourceTree = "<group>"; };
+		55C4835420B6994800DF9158 /* local_routetable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = local_routetable.h; sourceTree = "<group>"; };
+		55C4835520B6994900DF9158 /* local_routetable.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = local_routetable.cc; sourceTree = "<group>"; };
 		F138F5F31DEEF0DA00546CBB /* complexconnect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = complexconnect.cc; sourceTree = "<group>"; };
 		F138F6441DF0109E00546CBB /* execution_context.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = execution_context.cpp; sourceTree = "<group>"; };
 		F138F6461DF0109E00546CBB /* stack_traits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stack_traits.cpp; sourceTree = "<group>"; };
@@ -380,6 +383,8 @@
 		13E9F2BC19754DE5007591EC /* network */ = {
 			isa = PBXGroup;
 			children = (
+				55C4835520B6994900DF9158 /* local_routetable.cc */,
+				55C4835420B6994800DF9158 /* local_routetable.h */,
 				3D74CB2D1F5046FF00726F9D /* getaddrinfo_with_timeout.cc */,
 				3D74CB2E1F5046FF00726F9D /* getaddrinfo_with_timeout.h */,
 				4BDBD1781E094FFE006C62F5 /* netinfo_util.cc */,
@@ -995,6 +1000,7 @@
 				F138F6A71DF0119A00546CBB /* make_arm64_aapcs_macho_gas.S in Sources */,
 				1F25BF8D1CD376F100AC1003 /* utf8_codecvt_facet.cpp in Sources */,
 				F138F6971DF0109E00546CBB /* execution_context.cpp in Sources */,
+				55C4835620B6994900DF9158 /* local_routetable.cc in Sources */,
 				1F25BF901CD376F100AC1003 /* file_descriptor.cpp in Sources */,
 				F138F6CE1DF016BD00546CBB /* make_i386_sysv_macho_gas.S in Sources */,
 				1F25BF911CD376F100AC1003 /* mapped_file.cpp in Sources */,

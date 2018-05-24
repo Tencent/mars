@@ -24,8 +24,10 @@
 #include "comm/network/getgateway.h"
 #include "comm/network/getdnssvraddrs.h"
 #include "comm/network/getifaddrs.h"
+#include "comm/network/local_routetable.h"
 #include "comm/socket/unix_socket.h"
 #include "comm/socket/socket_address.h"
+
 #include "netinfo_util.h"
 
 NetworkType GetNetworkType() {
@@ -114,9 +116,11 @@ std::string GetDetailNetInfo() {
 	    } else {
 	    	detail_net_info << "dns server: empty." << "\n";
 	    }
-	    //TODO 路由表信息
-
-	 //3.网卡信息
+	    //路由表信息
+        detail_net_info << "----------route table----------\n";
+        detail_net_info << get_local_route_table();
+	 
+    //3.网卡信息
 	    detail_net_info << "----------NIC Info-----------" << "\n";
 	    std::vector<ifaddrinfo_ip_t> v4_addrs;
 	    if (getifaddrs_ipv4_filter(v4_addrs, 0)) {
