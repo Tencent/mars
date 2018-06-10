@@ -222,6 +222,12 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 		_env->DeleteLocalRef(cgi);
 	}
 
+	jobject _user_context = JNU_GetField(_env, _task, "userContext", "Ljava/lang/Object;").l;
+	if (NULL != _user_context) {
+		task.user_context = _env->NewGlobalRef(_user_context);
+		_env->DeleteLocalRef(_user_context);
+	}
+
 	StartTask(task);
 }
 
