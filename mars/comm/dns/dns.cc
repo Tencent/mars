@@ -28,7 +28,7 @@
 #include "thread/lock.h"
 
 #include "network/getdnssvraddrs.h"
-#include "local_ipstack.h"
+#include "socket/local_ipstack.h"
 enum {
     kGetIPDoing,
     kGetIPTimeout,
