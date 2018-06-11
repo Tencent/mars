@@ -100,6 +100,7 @@ extern "C" {
 
 typedef SSIZE_T ssize_t;
 #define  PRIu64 "I64d"
+#define  PRIuMAX	PRIu64
 
 #if defined(WIN32) && !defined(SIZE_T_MAX)
 #define SIZE_T_MAX  UINT_MAX
