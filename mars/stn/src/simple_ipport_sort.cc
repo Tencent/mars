@@ -344,6 +344,27 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
     //random_shuffle new and history
     std::random_shuffle(_items.begin(), _items.end());
 
+	int cnt = _items.size();
+	for (int i = 1; i < cnt - 1; ++i)
+	{
+		if(_items[i].str_ip == _items[i - 1].str_ip )
+		{
+			bool find = false;
+			for (int j = i + 1; j < cnt; ++j)
+			{
+				if (_items[i - 1].str_ip != _items[j].str_ip)
+				{
+					IPPortItem tmp_item = _items[i];
+					_items[i] = _items[j];
+					_items[j] = tmp_item;
+					find = true;
+					break;
+				}
+			}
+			if (!find)break;
+		}
+	}
+
     //separate new and history
     std::deque<IPPortItem> items_history(_items.size());
     std::deque<IPPortItem> items_new(_items.size());

@@ -490,7 +490,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
     }
 
     if (OnResponse)
-        OnResponse(this, _errType, _status, _body, _extension, -1 != _conn_profile.ip_index, _conn_profile);
+        OnResponse(this, _errType, _status, _body, _extension, false, _conn_profile);
     else
         xwarn2(TSF"OnResponse NULL.");
 }
