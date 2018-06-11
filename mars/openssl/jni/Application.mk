@@ -3,3 +3,4 @@ APP_ABI := ${_ARCH_}
 APP_STL := c++_shared
 APP_CPPFLAGS +=-std=gnu++11
 APP_MODULES := cryptowrapper
+NDK_TOOLCHAIN_VERSION := 4.9
