@@ -415,19 +415,18 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 			ports.push_back(NetSource::GetShortLinkPort());
 		}
 		ist = kIPSourceBackup;
-		if (!iplist.empty() && !ports.empty())
+		if (!iplist.empty() && ports.size() > 0)
 		{
 			std::set<std::string> setIps;
 			for (auto it = _ip_items.begin(); it != _ip_items.end(); ++it)
 			{
 				setIps.insert(it->str_ip);
 			}
-			size_t ports_cnt = ports.size();
-			size_t require_cnt = _count - _ip_items.size();
-			if (require_cnt < ports_cnt) require_cnt += ports_cnt;
-			size_t cur_cnt = iplist.size() * ports_cnt;
-			size_t i = 0;
-			while (cur_cnt > require_cnt && i < iplist.size())
+			int ports_cnt = ports.size();
+			int remain_cnt = _count - _ip_items.size();
+			int cur_cnt = iplist.size() * ports_cnt;
+			int i = 0;
+			while (cur_cnt > remain_cnt && i < iplist.size())
 			{
 				if (setIps.find(iplist[i]) != setIps.end())
 				{
