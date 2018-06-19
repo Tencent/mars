@@ -45,7 +45,7 @@ SignallingKeeper::SignallingKeeper(const LongLink& _longlink, MessageQueue::Mess
 , udp_client_(ip_, port_, this)
 , use_UDP_(_use_UDP)
 {
-    xinfo2(TSF"SignallingKeeper messagequeue_id=%_", MessageQueue::Handler2Queue(msgreg_.Get()));
+    xinfo2(TSF"SignallingKeeper messagequeue_id=%_, handler:(%_,%_)", MessageQueue::Handler2Queue(msgreg_.Get()), msgreg_.Get().queue, msgreg_.Get().seq);
 }
 
 SignallingKeeper::~SignallingKeeper()
@@ -130,13 +130,13 @@ void SignallingKeeper::__SendSignallingBuffer()
         {
             udp_client_.SetIpPort(ip_, port_);
             AutoBuffer buffer;
-            longlink_pack(signal_keep_cmdid(), 0, NULL, 0, buffer);
+            longlink_pack(signal_keep_cmdid(), 0, KNullAtuoBuffer, KNullAtuoBuffer, buffer, NULL);
             udp_client_.SendAsync(buffer.Ptr(), buffer.Length());
         }
     } else {
         if (fun_send_signalling_buffer_)
         {
-            fun_send_signalling_buffer_(NULL, 0, signal_keep_cmdid());
+            fun_send_signalling_buffer_(KNullAtuoBuffer, KNullAtuoBuffer, signal_keep_cmdid());
         }
     }
 }

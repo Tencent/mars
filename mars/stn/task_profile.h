@@ -22,11 +22,11 @@
 #define TASK_PROFILE_H_
 
 #include <list>
-#include <sstream>
 
 #include "boost/shared_ptr.hpp"
 
 #include "mars/comm/time_utils.h"
+#include "mars/comm/comm_data.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/config.h"
 
@@ -91,6 +91,7 @@ struct ConnectProfile {
         tryip_count = 0;
 
         local_ip.clear();
+        local_port = 0;
         ip_index = -1;
         
         disconn_time = 0;
@@ -125,6 +126,7 @@ struct ConnectProfile {
     std::string host;
     IPSourceType ip_type;
     std::string local_ip;
+    uint16_t local_port;
     int ip_index;
     
     uint64_t disconn_time;
@@ -137,6 +139,7 @@ struct ConnectProfile {
     std::vector<NoopProfile> noop_profiles;
 
     boost::shared_ptr<ProfileExtension> extension_ptr;
+    mars::comm::ProxyInfo proxy_info;
 };
 
         

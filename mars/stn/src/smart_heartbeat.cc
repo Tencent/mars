@@ -256,7 +256,7 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval(bool& _use_smart_heartbeat
     _use_smart_heartbeat = false;
     ScopedLock lock(_mutex_);
 
-    if (SINGLETON_STRONG(ActiveLogic)->IsActive() || success_heart_count_ < NetStableTestCount || current_net_heart_info_.net_detail_.empty()
+    if (ActiveLogic::Singleton::Instance()->IsActive() || success_heart_count_ < NetStableTestCount || current_net_heart_info_.net_detail_.empty()
             || __IsMIUIStyle()) {
         //        xdebug2(TSF"getNextHeartbeatInterval use MinHeartInterval. success_heart_count_=%0",success_heart_count_);
         last_heart_ = MinHeartInterval;
@@ -345,7 +345,6 @@ void SmartHeartbeat::__LimitINISize() {
 
     time_t min_time = 0;
     SpecialINI::sections_t::iterator min_iter = sections.end();
-    std::stringstream stream;
 
     for (SpecialINI::sections_t::iterator iter = sections.begin(); iter != sections.end();) {
         SpecialINI::keys_t::iterator time_iter = iter->second.find(kKeyModifyTime);
@@ -357,12 +356,8 @@ void SmartHeartbeat::__LimitINISize() {
             continue;
         }
 
-        time_t time_value = 0;
-        stream << time_iter->second;
-        stream >> time_value;
-        stream.clear();
-        stream.str("");
-
+        time_t time_value = number_cast<time_t>(time_iter->second.c_str());
+        
         if (time_value > cur_time) {
             // remove dirty value
             sections.erase(iter++);

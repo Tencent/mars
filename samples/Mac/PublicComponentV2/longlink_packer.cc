@@ -20,14 +20,15 @@
 
 #include "longlink_packer.h"
 
+#include <arpa/inet.h>
+
 #ifdef __APPLE__
-#include "mars/comm/autobuffer.h"
 #include "mars/xlog/xlogger.h"
 #else
-#include "comm/autobuffer.h"
-#include "comm/xlogger/xlogger.h"
-#include "comm/socket/unix_socket.h"
+#include "mars/comm/xlogger/xlogger.h"
 #endif
+#include "mars/comm/autobuffer.h"
+#include "mars/stn/stn.h"
 
 static uint32_t sg_client_version = 0;
 
@@ -43,11 +44,15 @@ struct __STNetMsgXpHeader {
 
 namespace mars {
 namespace stn {
-	void SetClientVersion(uint32_t _client_version)  {
-		sg_client_version = _client_version;
-	}
+longlink_tracker* (*longlink_tracker::Create)()
+= []() {
+    return new longlink_tracker;
+};
+    
+void SetClientVersion(uint32_t _client_version)  {
+    sg_client_version = _client_version;
 }
-}
+
 
 static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, size_t& _body_len) {
     __STNetMsgXpHeader st = {0};
@@ -77,24 +82,26 @@ static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmd
     return LONGLINK_UNPACK_OK;
 }
 
-void longlink_pack(uint32_t _cmdid, uint32_t _seq, const void* _raw, size_t _raw_len, AutoBuffer& _packed) {
+void (*longlink_pack)(uint32_t _cmdid, uint32_t _seq, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _packed, longlink_tracker* _tracker)
+= [](uint32_t _cmdid, uint32_t _seq, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _packed, longlink_tracker* _tracker) {
     __STNetMsgXpHeader st = {0};
     st.head_length = htonl(sizeof(__STNetMsgXpHeader));
     st.client_version = htonl(sg_client_version);
     st.cmdid = htonl(_cmdid);
     st.seq = htonl(_seq);
-    st.body_length = htonl(_raw_len);
+    st.body_length = htonl(_body.Length());
 
-    _packed.AllocWrite(sizeof(__STNetMsgXpHeader) + _raw_len);
+    _packed.AllocWrite(sizeof(__STNetMsgXpHeader) + _body.Length());
     _packed.Write(&st, sizeof(st));
     
-    if (NULL != _raw) _packed.Write(_raw, _raw_len);
+    if (NULL != _body.Ptr()) _packed.Write(_body.Ptr(), _body.Length());
     
     _packed.Seek(0, AutoBuffer::ESeekStart);
-}
+};
 
 
-int longlink_unpack(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body) {
+int (*longlink_unpack)(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body, AutoBuffer& _extension, longlink_tracker* _tracker)
+= [](const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body, AutoBuffer& _extension, longlink_tracker* _tracker) {
    size_t body_len = 0;
    int ret = __unpack_test(_packed.Ptr(), _packed.Length(), _cmdid,  _seq, _package_len, body_len);
     
@@ -103,37 +110,57 @@ int longlink_unpack(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq,
     _body.Write(AutoBuffer::ESeekCur, _packed.Ptr(_package_len-body_len), body_len);
     
     return ret;
-}
+};
 
 
 #define NOOP_CMDID 6
 #define SIGNALKEEP_CMDID 243
 #define PUSH_DATA_TASKID 0
 
-uint32_t longlink_noop_cmdid() {
+uint32_t (*longlink_noop_cmdid)()
+= []() -> uint32_t {
     return NOOP_CMDID;
-}
+};
 
+bool  (*longlink_noop_isresp)(uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    return Task::kNoopTaskID == _taskid && NOOP_CMDID == _cmdid;
+};
 
-uint32_t longlink_noop_resp_cmdid() {
-    return NOOP_CMDID;
-}
-
-uint32_t signal_keep_cmdid() {
+uint32_t (*signal_keep_cmdid)()
+= []() -> uint32_t {
     return SIGNALKEEP_CMDID;
-}
+};
 
-void longlink_noop_req_body(AutoBuffer& _body) {}
-void longlink_noop_resp_body(AutoBuffer& _body) {}
+void (*longlink_noop_req_body)(AutoBuffer& _body, AutoBuffer& _extend)
+= [](AutoBuffer& _body, AutoBuffer& _extend) {
+    
+};
+    
+void (*longlink_noop_resp_body)(const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](const AutoBuffer& _body, const AutoBuffer& _extend) {
+    
+};
 
-uint32_t longlink_noop_interval() {
+uint32_t (*longlink_noop_interval)()
+= []() -> uint32_t {
 	return 0;
-}
+};
 
-bool longlink_complexconnect_need_verify() {  
+bool (*longlink_complexconnect_need_verify)()
+= []() {
     return false;
-}
+};
 
-bool is_push_data(uint32_t _cmdid, uint32_t _taskid) {
+bool (*longlink_ispush)(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
     return PUSH_DATA_TASKID == _taskid;
+};
+    
+bool (*longlink_identify_isresp)(uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    return _sent_seq == _recv_seq && 0 != _sent_seq;
+};
+
+}
 }

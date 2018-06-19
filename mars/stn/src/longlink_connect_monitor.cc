@@ -100,21 +100,25 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
         } else {
             // default value
+			interval += rand() % (20);
         }
     }
 
     return interval;
 }
 
+#define AYNC_HANDLER asyncreg_.Get()
 
 LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id)
-    : activelogic_(_activelogic), longlink_(_longlink), alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this), _id)
+    : asyncreg_(MessageQueue::InstallAsyncHandler(_id))
+    , activelogic_(_activelogic), longlink_(_longlink), alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this), _id)
     , status_(LongLink::kDisConnected)
     , last_connect_time_(0)
     , last_connect_net_type_(kNoNet)
     , thread_(boost::bind(&LongLinkConnectMonitor::__Run, this), XLOGGER_TAG"::con_mon")
     , conti_suc_count_(0)
     , isstart_(false) {
+    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
     activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
     activelogic_.SignalForeground.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
     longlink_.SignalConnection.connect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
@@ -127,6 +131,7 @@ LongLinkConnectMonitor::~LongLinkConnectMonitor() {
     longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
     activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
     activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+    asyncreg_.CancelAndWait();
 }
 
 bool LongLinkConnectMonitor::MakeSureConnected() {
@@ -135,7 +140,7 @@ bool LongLinkConnectMonitor::MakeSureConnected() {
 }
 
 bool LongLinkConnectMonitor::NetworkChange() {
-    xdebug_function();
+    xinfo_function();
 #ifdef __APPLE__
     __StopTimer();
 
@@ -156,11 +161,11 @@ bool LongLinkConnectMonitor::NetworkChange() {
     return 0 == __IntervalConnect(kNetworkChangeConnect);
 }
 
-unsigned long LongLinkConnectMonitor::__IntervalConnect(int _type) {
+uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
-    unsigned long interval =  __Interval(_type, activelogic_) * 1000;
-    unsigned long posttime = gettickcount() - longlink_.Profile().dns_time;
+    uint64_t interval =  __Interval(_type, activelogic_) * 1000;
+    uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
 
     if (posttime >= interval) {
         bool newone = false;
@@ -173,9 +178,9 @@ unsigned long LongLinkConnectMonitor::__IntervalConnect(int _type) {
     }
 }
 
-unsigned long  LongLinkConnectMonitor::__AutoIntervalConnect() {
+uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
     alarm_.Cancel();
-    unsigned long remain = __IntervalConnect(kLongLinkConnect);
+    uint64_t remain = __IntervalConnect(kLongLinkConnect);
 
     if (0 == remain) return remain;
 
@@ -185,6 +190,7 @@ unsigned long  LongLinkConnectMonitor::__AutoIntervalConnect() {
 }
 
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
+    ASYNC_BLOCK_START
 #ifdef __APPLE__
 
     if (_isForeground) {
@@ -197,10 +203,13 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
 
 #endif
     __AutoIntervalConnect();
+    ASYNC_BLOCK_END
 }
 
 void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
+    ASYNC_BLOCK_START
     __AutoIntervalConnect();
+    ASYNC_BLOCK_END
 }
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status) {

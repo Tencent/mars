@@ -23,6 +23,7 @@
 #include <string>
 
 #include "mars/app/app.h"
+#include "mars/comm/comm_data.h"
 
 class AutoBuffer;
 
@@ -32,6 +33,8 @@ namespace app {
 	class Callback {
 	public:
 		virtual ~Callback() {};
+        
+        virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
 
         virtual std::string GetAppFilePath() = 0;
         

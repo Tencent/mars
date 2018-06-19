@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <sstream>
 #include "callstack.h"
+#include "comm/thread/lock.h"
 
 // #define HAVE_DLADDR 1
 
@@ -57,8 +58,13 @@ static _Unwind_Reason_Code trace_function(_Unwind_Context* context, void* arg) {
     if (state->count) {
         void* ip = NULL;// = (void*)_Unwind_GetIP(context);
 
-#if !defined(__arm__)
-        ip = (void*)_Unwind_GetGR(context, 15);
+#if defined(__aarch64__)
+
+		//_Unwind_GetGR crash
+		return _URC_NO_REASON;
+#elif !defined(__arm__)
+      // ip = (void*)_Unwind_GetGR(context, 15);
+		return _URC_NO_REASON;
 #else
         _Unwind_VRS_Get(context, _UVRSC_CORE, 15, _UVRSD_UINT32, &ip);
 #endif
@@ -209,7 +215,7 @@ class MapInfo {
     }
 
     mapinfo* getMapInfoList() {
-        //        Mutex::Autolock _l(mLock);
+        ScopedLock _l(mLock);
         if (milist == 0) {
             char data[1024];
             FILE* fp;
@@ -233,7 +239,7 @@ class MapInfo {
         return milist;
     }
     mapinfo*    milist;
-    //    Mutex       mLock;
+    Mutex       mLock;
     static MapInfo sMapInfo;
 
   public:

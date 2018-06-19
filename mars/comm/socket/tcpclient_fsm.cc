@@ -179,9 +179,10 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
     }
-    if (0 != socket_ipv6only(sock_, 0)){
-        xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno));
-    }
+    
+#ifdef _WIN32
+    if (0 != socket_ipv6only(sock_, 0)){ xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno)); }
+#endif
     
     if (0 != socket_set_nobio(sock_)) {
         error_ = socket_errno;
@@ -301,7 +302,6 @@ void TcpClientFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log)
         if (request_send_ && 0 == send_buf_.Length()) {
             request_send_ = false;
             _OnRequestSend(send_buf_);
-            xassert2(0 == send_buf_.Length());
         }
 
         ssize_t ret = send(sock_, send_buf_.Ptr(), send_buf_.Length(), 0);

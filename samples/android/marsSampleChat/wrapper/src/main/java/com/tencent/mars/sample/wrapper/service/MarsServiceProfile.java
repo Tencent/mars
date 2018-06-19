@@ -15,15 +15,15 @@
 package com.tencent.mars.sample.wrapper.service;
 
 /**
- * profile interface
- * <p>
+ * profile interface.
+ * <p></p>
  * Created by zhaoyuan on 2016/11/16.
  */
 
 public interface MarsServiceProfile {
 
     short magic();
-    
+
     short productID();
 
     String longLinkHost();

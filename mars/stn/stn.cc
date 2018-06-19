@@ -26,16 +26,14 @@
 namespace mars{
     namespace stn{
         
-Task::Task() {
+static uint32_t gs_taskid = 1;
+Task::Task():Task(atomic_inc32(&gs_taskid)) {}
+        
+Task::Task(uint32_t _taskid) {
     
-#ifndef ANDROID
-    static uint32_t s_taskid = 1;
-    taskid = atomic_inc32(&s_taskid);
-#else
-    taskid = 0;
-#endif
-    
+    taskid = _taskid;
     cmdid = 0;
+    channel_id = 0;
     channel_select = 0;
     
     send_only = false;

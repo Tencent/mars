@@ -19,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Simple view bind for library support
- *
+ * <p></p>
  * Created by zhaoyuan on 16/2/29.
  */
 @Retention(RetentionPolicy.RUNTIME)

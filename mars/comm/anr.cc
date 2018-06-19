@@ -37,37 +37,18 @@
 #include "android/fatal_assert.h"
 #endif
 
-#if !defined(ANDROID) && !defined(__APPLE__)
-#define ANR_CHECK_DISABLE
-#endif
-
 #ifndef ANR_CHECK_DISABLE
 
-boost::signals2::signal<void (bool _iOS_style)>& GetSignalCheckHit() {
-	static boost::signals2::signal<void (bool _iOS_style)> SignalCheckHit;
+using namespace mars::comm;
+
+boost::signals2::signal<void (bool _iOS_style, const check_content& _content)>& GetSignalCheckHit() {
+	static boost::signals2::signal<void (bool _iOS_style, const check_content& _content)> SignalCheckHit;
 	return SignalCheckHit;
 }
 
 namespace {
 
-struct check_content {
-    uintptr_t ptr;
-    const char* file;
-    const char* func;
-    int line;
-    int timeout;
-    intmax_t tid;
 
-    uint64_t start_time;
-    uint64_t end_time;
-
-    uint64_t start_tickcount;
-    uint64_t used_cpu_time; //ms
-
-    bool operator<(const check_content& _ref) const {
-        return end_time > _ref.end_time;
-    }
-};
 
 static std::vector<check_content> sg_check_heap;
 static Mutex             sg_mutex;
@@ -91,13 +72,13 @@ static void __unregister_anr(uintptr_t _ptr) {
     sg_cond.notifyAll(lock);
 }
 
-static void __register_anr(uintptr_t _ptr, const char* _file, const char* _func, int _line, int _timeout) {
+static void __register_anr(uintptr_t _ptr, const char* _file, const char* _func, int _line, int _timeout, int _call_id, void* extra_info) {
     ScopedLock lock(sg_mutex);
     __unregister_anr_impl(_ptr);
 
     if (0 >= _timeout) return;
 
-    check_content ch = {_ptr, _file, _func, _line, _timeout, xlogger_tid(), clock_app_monotonic(), 0, gettickcount(), 0/*init cpu_time*/};
+    check_content ch = {_ptr, _file, _func, _line, _timeout, xlogger_tid(), clock_app_monotonic(), 0, gettickcount(), 0/*init cpu_time*/, _call_id, extra_info};
     ch.end_time = ch.start_time + ch.timeout;
 
     sg_check_heap.push_back(ch);
@@ -116,8 +97,8 @@ static void __anr_checker_thread() {
         ScopedLock lock(sg_mutex);
 
     	uint64_t round_tick_start = clock_app_monotonic();
-    	uint64_t use_cpu_time_1 = (uint64_t)(((double)clock()/CLOCKS_PER_SEC)*1000); //ms
-
+        clock_t use_cpu_clock_1 = clock();
+    	uint64_t use_cpu_time_1 = (uint64_t)(((double)use_cpu_clock_1/CLOCKS_PER_SEC)*1000); //ms
         if (sg_exit) return;
 
         int64_t wait_timeout = 0;
@@ -128,10 +109,10 @@ static void __anr_checker_thread() {
             sg_cond.wait(lock);
             //is_wait_timeout = (ETIMEDOUT==ret);
         } else {
-            wait_timeout = (sg_check_heap.front().end_time - clock_app_monotonic());
+            wait_timeout = iOS_style? (sg_check_heap.front().timeout - sg_check_heap.front().used_cpu_time) : (sg_check_heap.front().end_time - clock_app_monotonic());
             if (wait_timeout<0) {
-                xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"wait_timeout:%_, end_time:%_, used_cpu_time:%_, now:%_, anr_checker_size:%_", wait_timeout,
-                      sg_check_heap.front().end_time, sg_check_heap.front().used_cpu_time, clock_app_monotonic(), sg_check_heap.size());
+                xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"wait_timeout:%_, end_time:%_, used_cpu_time:%_, timeout:%_ now:%_, iOS_style：%_, anr_checker_size:%_", wait_timeout,
+                      sg_check_heap.front().end_time, sg_check_heap.front().used_cpu_time, sg_check_heap.front().timeout, iOS_style, clock_app_monotonic(), sg_check_heap.size());
                 wait_timeout = 0;
             }
             wait_timeout = std::min(wait_timeout, kEachRoundSleepTime);
@@ -141,38 +122,37 @@ static void __anr_checker_thread() {
         }
 
         int64_t round_tick_elapse = clock_app_monotonic()-round_tick_start;
-        uint64_t use_cpu_time_2 = (uint64_t)(((double)clock()/CLOCKS_PER_SEC) * 1000); //ms
+        clock_t use_cpu_clock_2 = clock();
+        uint64_t use_cpu_time_2 = (uint64_t)(((double)use_cpu_clock_2/CLOCKS_PER_SEC) * 1000); //ms
         if (is_wait_timeout && round_tick_elapse > (wait_timeout+kTimeDeviation)) {
             xwarn2("@%p", (void*)sg_check_heap.front().ptr)(TSF"now:%_, round_tick_start:%_, round_tick_elapse:%_, wait_timeout:%_, round cputime:%_, anr_checker_size:%_", clock_app_monotonic(), round_tick_start, round_tick_elapse, wait_timeout, use_cpu_time_2-use_cpu_time_1, sg_check_heap.size());
             iOS_style = true;
         }
         for (std::vector<check_content>::iterator it = sg_check_heap.begin(); it != sg_check_heap.end(); ++it) {
-            it->used_cpu_time += (use_cpu_time_2-use_cpu_time_1);
+            if (use_cpu_time_2>=use_cpu_time_1) {
+                it->used_cpu_time += (use_cpu_time_2-use_cpu_time_1);
+            } else {
+                xassert2(false, TSF"use_cpu_time_2:%_, use_cpu_time_1:%_, use_cpu_clock_2:%_, use_cpu_clock_1:%_, CLOCKS_PER_SEC:%_", use_cpu_time_2, use_cpu_time_1,
+                         use_cpu_clock_2, use_cpu_clock_1, CLOCKS_PER_SEC);
+            }
         }
         bool check_hit = false;
         if (iOS_style) {
             if (!sg_check_heap.empty() && (uint64_t)sg_check_heap.front().timeout <= sg_check_heap.front().used_cpu_time) {
                 check_hit = true;
-                GetSignalCheckHit()(true);
+                GetSignalCheckHit()(true, sg_check_heap.front());
                 xassert2(sg_check_heap.front().end_time <= clock_app_monotonic(),
                          "end_time:%" PRIu64", now:%" PRIu64", anr_checker_size:%d, @%p", sg_check_heap.front().end_time, clock_app_monotonic(), (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr); //old logic is strict than new logic
             }
         } else {
             if (!sg_check_heap.empty()  && sg_check_heap.front().end_time <= clock_app_monotonic()) {
                 check_hit = true;
-                GetSignalCheckHit()(false);
+                GetSignalCheckHit()(false, sg_check_heap.front());
             }
         }
 
 
         if (!sg_check_heap.empty() && check_hit) {
-            check_content& front = sg_check_heap.front();
-            __ASSERT2(front.file, front.line, front.func, "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s, anr_checker_size:%d, @%p",
-                    front.timeout, front.tid, clock_app_monotonic() - front.start_time, gettickcount() - front.start_tickcount, front.used_cpu_time, iOS_style?"true":"false", (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr);
-#ifdef ANDROID
-            __FATAL_ASSERT2(front.file, front.line, front.func, "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s, anr_checker_size:%d, @%p",
-                    front.timeout, front.tid, clock_app_monotonic() - front.start_time, gettickcount() - front.start_tickcount, front.used_cpu_time, iOS_style?"true":"false", (int)sg_check_heap.size(), (void*)sg_check_heap.front().ptr);
-#endif
             std::pop_heap(sg_check_heap.begin(), sg_check_heap.end());
             sg_check_heap.pop_back();
         }
@@ -199,8 +179,8 @@ static class startup {
 
 #endif
 
-scope_anr::scope_anr(const char* _file, const char* _func, int _line)
-    : file_(_file), func_(_func), line_(_line)
+scope_anr::scope_anr(const char* _file, const char* _func, int _line, int _id, void* _extra_info)
+    : file_(_file), func_(_func), line_(_line), call_id_(_id), extra_info_(_extra_info)
 {}
 
 scope_anr::~scope_anr() {
@@ -212,7 +192,7 @@ scope_anr::~scope_anr() {
 
 void scope_anr::anr(int _timeout) {
 #ifndef ANR_CHECK_DISABLE
-    __register_anr(reinterpret_cast<uintptr_t>(this), file_, func_, line_, _timeout);
+    __register_anr(reinterpret_cast<uintptr_t>(this), file_, func_, line_, _timeout, call_id_, extra_info_);
 #endif
 }
 

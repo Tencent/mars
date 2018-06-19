@@ -103,7 +103,7 @@ struct __ServicesNameSet
     
 inline std::set<std::string> _ComputeCoreServiceDepend(const std::string& _servicename)
 {
-    std::vector<ServiceRegister>& svrreg = BootRegister_Container<ServiceRegister>();
+    std::vector<ServiceRegister>& svrreg = BOOT_REGISTER_CONTAINER<ServiceRegister>();
     std::set<std::string> servicedepend;
     for (std::vector<ServiceRegister>::iterator it=svrreg.begin(); it!=svrreg.end(); ++it)
     {

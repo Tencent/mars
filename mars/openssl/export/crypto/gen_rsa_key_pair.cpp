@@ -4,17 +4,20 @@
  *  Created on: 2016年3月21日
  *      Author: wutianqiang
  */
-#include <string.h>
 #include "../../export_include/gen_rsa_key_pair.h"
+#include <string.h>
 #include "openssl/rsa.h"
 #include "openssl/pem.h"
+
 #include "../../../comm/xlogger/xlogger.h"
-GenRsaKeyResult generate_rsa_key_pair_2048(char* _pem_public_key_buf, const size_t _public_key_buf_len,
-										   char* _pem_private_key_buf, const size_t _private_key_buf_len) {
+
+
+GenRsaKeyResult generate_rsa_key_pair(char* _pem_public_key_buf, const size_t _public_key_buf_len,
+                                      char* _pem_private_key_buf, const size_t _private_key_buf_len, RSAKeyBits _key_bits) {
     
     GenRsaKeyResult ret = kOK;
 	/* 产生RSA密钥 */
-	RSA *rsa = RSA_generate_key(2048, 65537, NULL, NULL); //TODO
+	RSA *rsa = RSA_generate_key(_key_bits, RSA_F4, NULL, NULL);
 
 	xdebug2(TSF"BIGNUM: %_\n", BN_bn2hex(rsa->n));
 
@@ -80,3 +83,7 @@ err:
 
 }
 
+GenRsaKeyResult generate_rsa_key_pair_2048(char* _pem_public_key_buf, const size_t _public_key_buf_len,
+                                           char* _pem_private_key_buf, const size_t _private_key_buf_len) {
+    return generate_rsa_key_pair(_pem_public_key_buf, _public_key_buf_len, _pem_private_key_buf, _private_key_buf_len, kKey2048Bits);
+}

@@ -24,6 +24,10 @@
 
 @implementation NetworkEvent
 
+- (void)addPushObserver:(id<PushNotifyDelegate>)observer withCmdId:(int)cmdId {
+    [pushrecvers setObject:observer forKey:[NSString stringWithFormat:@"%d", cmdId]];
+}
+
 - (void)addObserver:(id<UINotifyDelegate>)observer forKey:(NSString *)key {
     [controllers setObject:observer forKey:key];
 }
@@ -37,6 +41,7 @@
     if(self = [super init]) {
         tasks = [[NSMutableDictionary alloc] init];
         controllers = [[NSMutableDictionary alloc] init];
+        pushrecvers = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -53,7 +58,10 @@
 }
 
 - (void)OnPushWithCmd:(NSInteger)cid data:(NSData *)data {
-    
+    id<PushNotifyDelegate> pushObserver = [pushrecvers objectForKey:[NSString stringWithFormat:@"%ld", (long)cid]];
+    if (pushObserver != nil) {
+        [pushObserver notifyPushMessage:data withCmdId:(int)cid];
+    }
 }
 
 - (NSData*)Request2BufferWithTaskID:(uint32_t)tid task:(CGITask *)task {

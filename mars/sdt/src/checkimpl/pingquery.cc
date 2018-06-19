@@ -34,7 +34,7 @@
 #include "mars/comm/socket/socket_address.h"
 #include "mars/sdt/constants.h"
 
-#include "netchecker_trafficmonitor.h"
+#include "sdt/src/tools/netchecker_trafficmonitor.h"
 
 using namespace mars::sdt;
 
@@ -364,7 +364,7 @@ static int Sendto(int fd, const void* ptr, size_t nbytes, int flags, const struc
     int len = 0;
 
     if ((len = (int)sendto(fd, ptr, nbytes, flags, sa, salen)) != (ssize_t) nbytes) {
-        xerror2(TSF"sendto: uncomplete packet");
+        xerror2(TSF"sendto: uncomplete packet, len:%_, nbytes:%_, errno:%_(%_)", len, nbytes, socket_errno, strerror(socket_errno));
     }
 
     return len;
@@ -648,7 +648,7 @@ int PingQuery::__runReadWrite(int& _errcode) {
         sel.Read_FD_SET(sockfd_);
         sel.Exception_FD_SET(sockfd_);
 
-        if (sendcount_ > 0) sel.Write_FD_SET(sockfd_);
+        if (should_send) sel.Write_FD_SET(sockfd_);
 
         long timeoutMs = timeout_point - gettickcount();
 

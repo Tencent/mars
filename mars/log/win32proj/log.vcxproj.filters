@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="crypt">
+      <UniqueIdentifier>{8f010701-7ab3-4284-b6a9-a1ceb7c7960e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypt\micro-ecc-master">
+      <UniqueIdentifier>{f716487b-eeac-4ce4-8f8b-9b0d089b8244}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -24,16 +30,57 @@
     <ClCompile Include="..\src\formater.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\loglogic\log_logic.cc">
+    <ClCompile Include="..\src\log_buffer.cc">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypt\log_crypt.cc">
+      <Filter>crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\crypt\micro-ecc-master\uECC.c">
+      <Filter>crypt\micro-ecc-master</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\interface\appender.h">
+    <ClInclude Include="..\src\log_buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\interface\log_logic.h">
+    <ClInclude Include="..\appender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\crypt\log_crypt.h">
+      <Filter>crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypt\micro-ecc-master\uECC.h">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypt\micro-ecc-master\uECC_vli.h">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </ClInclude>
+    <ClInclude Include="..\crypt\micro-ecc-master\types.h">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\crypt\micro-ecc-master\asm_arm.inc">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </None>
+    <None Include="..\crypt\micro-ecc-master\asm_arm_mult_square.inc">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </None>
+    <None Include="..\crypt\micro-ecc-master\asm_arm_mult_square_umaal.inc">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </None>
+    <None Include="..\crypt\micro-ecc-master\asm_avr.inc">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </None>
+    <None Include="..\crypt\micro-ecc-master\asm_avr_mult_square.inc">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </None>
+    <None Include="..\crypt\micro-ecc-master\curve-specific.inc">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </None>
+    <None Include="..\crypt\micro-ecc-master\platform-specific.inc">
+      <Filter>crypt\micro-ecc-master</Filter>
+    </None>
   </ItemGroup>
 </Project>

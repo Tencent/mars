@@ -13,7 +13,7 @@
 /*
  * stnproto_logic.h
  *
- *  Created on: 2016年3月16日
+ *  Created on: 2016-03-15
  *      Author: caoshaokun
  */
 
@@ -25,7 +25,7 @@
 namespace mars {
 namespace stn {
 
-void SetClientVersion(uint32_t _productID);
+void SetClientVersion(uint32_t _client_version);
 
 }}
 

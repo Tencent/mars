@@ -28,7 +28,7 @@
 class socket_address {
 
   public:
-    socket_address(const char* _url);
+    explicit socket_address(const char* _url);
     explicit socket_address(const char* _ip, uint16_t _port);
     explicit socket_address(const sockaddr_in& _addr);
     explicit socket_address(const sockaddr_in6& _addr);
@@ -46,7 +46,7 @@ class socket_address {
     uint16_t port() const;
 
     bool valid() const;
-    bool valid_server_address(bool _allowloopback = false) const;
+    bool valid_server_address(bool _allowloopback = false, bool _ignore_port = false) const;
     bool valid_bind_address() const;
     bool valid_broadcast_address() const;
 
@@ -80,7 +80,7 @@ class socket_address {
         struct sockaddr_in  in;
         struct sockaddr_in6 in6;
     }                   addr_;
-    char                ip_[64];
+    char                ip_[96];
     char                url_[128];
 };
 

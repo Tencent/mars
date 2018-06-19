@@ -13,7 +13,7 @@
 #endif
 
 #ifdef BOOST_NO_EXCEPTIONS
-#    error This header requires exception handling to be enabled.
+//#    error This header requires exception handling to be enabled.
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace

@@ -18,7 +18,7 @@ BUILD_CONFIGURE = {"Release":'"Release|Win32"', "Debug":'"Debug|Win32"'}
 def build_win32_impl(save_path, cfg_folder, cfg):
 
     gen_revision_file(save_path, save_path)
-    vs_tool_dir = os.getenv("VS120COMNTOOLS")
+    vs_tool_dir = os.getenv("VS140COMNTOOLS")
     vs_cmd_path = vs_tool_dir + "../IDE/devenv"
     cmd = '"%s" "%s" /Clean %s' %(vs_cmd_path, PROJECT_PATH + PROJECT_FILE, cfg)
     ret = os.system('"%s"' %cmd)
@@ -33,19 +33,19 @@ def build_win32_impl(save_path, cfg_folder, cfg):
         print("Build Failed")
         return
 
-    lib_save_path = save_path + "/win/" + cfg_folder +"/mars"
+    lib_save_path = save_path + "/" + cfg_folder
     if not os.path.exists(lib_save_path):
         os.makedirs(lib_save_path)
         
-    shutil.copy(PROJECT_PATH + cfg_folder + "/" + LIB_NAME, lib_save_path)
+    shutil.copy(PROJECT_PATH + cfg_folder + "/lib/" + LIB_NAME, lib_save_path)
         
-    copy_files(RELATIVE_PATH, lib_save_path, save_path + "/win/" + cfg_folder, WIN_COPY_EXT_FILES)
+    copy_files(RELATIVE_PATH, save_path + "/include/mars", save_path, WIN_COPY_EXT_FILES)
 
 def build_win32(save_path):
-    vs_tool_dir = os.getenv("VS120COMNTOOLS")
+    vs_tool_dir = os.getenv("VS140COMNTOOLS")
     
     if not vs_tool_dir:
-        print("You must install visual studio 2013 for build.")
+        print("You must install visual studio 2015 for build.")
         return
         
     if not os.path.isfile(PROJECT_PATH + PROJECT_FILE):
@@ -53,7 +53,10 @@ def build_win32(save_path):
         return
         
     while True:
-        menu_select = raw_input("input build config.\n1. Release.\n2. Debug.\n3. all.\n").strip()
+        if 3 <= len(sys.argv):
+            menu_select = sys.argv[2]
+        else:
+            menu_select = raw_input("input build config.\n1. Release.\n2. Debug.\n3. all.\n").strip()
         
         if "3" == menu_select:
             for (folder, cfg) in BUILD_CONFIGURE.items():

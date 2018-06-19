@@ -20,6 +20,4 @@ SRC := $(wildcard $(TEMP_LOCAL_PATH)/*.cc)
 SRC := $(SRC:$(LOCAL_PATH)/%=%)
 LOCAL_SRC_FILES += $(SRC)
 
-$(info 'garry=$(LOCAL_SRC_FILES)')
-
 LOCAL_C_INCLUDES += $(TEMP_LOCAL_PATH)/ $(TEMP_LOCAL_PATH)/src $(TEMP_LOCAL_PATH)/../../

@@ -21,13 +21,16 @@
 #import <Cocoa/Cocoa.h>
 
 #import "UINotifyDelegate.h"
+#import "Main.pb.h"
+#import "../Bussiness/PushNotifyDelegate.h"
 
-@interface TopicViewController : NSViewController<UINotifyDelegate> {
+@interface TopicViewController : NSViewController<UINotifyDelegate, PushNotifyDelegate> {
     NSString* text;
 }
 
 @property (weak) IBOutlet NSTextField *textField;
-@property (weak) IBOutlet NSTextField *sendTextField;
-@property (weak) IBOutlet NSTextField *recvTextField;
+@property NSTextView *recvTextView;
 
+-(void)setHostController:(NSViewController*)controller;
+-(void)setConversation:(Conversation*)conversation;
 @end

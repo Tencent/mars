@@ -31,12 +31,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.tencent.mars.sample.chat.ChatActivity;
-import com.tencent.mars.sample.core.ActivityEvent;
 import com.tencent.mars.sample.core.MainService;
 import com.tencent.mars.sample.proto.Main;
 import com.tencent.mars.sample.statistic.ReportDisplayActivity;
@@ -70,24 +68,26 @@ public class ConversationActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     @BindView(R.id.toolbar)
-    Toolbar mMainToolbar;
+    Toolbar mainToolbar;
 
     @BindView(R.id.main_page_refreshtext)
-    TextView mTextView;
+    TextView textView;
 
     private ConversationListAdapter conversationListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        checkPermission();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
         BindSimple.bind(this);
 
-        setSupportActionBar(mMainToolbar);
+        setSupportActionBar(mainToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);  //是否显示显示返回箭头
         getSupportActionBar().setDisplayShowTitleEnabled(false); //是否显示标题
-
 
 
         conversationListAdapter = new ConversationListAdapter();
@@ -95,14 +95,10 @@ public class ConversationActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(Conversation conversation, int pos) {
-//                ActivityEvent.jumpTo(
-//                        ConversationActivity.this, ActivityEvent.Connect.ChatActivity,
-//                        new Intent().putExtra("conversation_id", conversation.getTopic())
                 Intent intent = new Intent(ConversationActivity.this, ChatActivity.class);
                 intent.putExtra("conversation_id", conversation.getTopic());
                 intent.putExtra("notice", conversation.getNotice());
                 startActivity(intent);
-//                );
             }
         });
 
@@ -118,7 +114,7 @@ public class ConversationActivity extends AppCompatActivity {
             }
         });
 
-        mTextView.setOnClickListener(new View.OnClickListener() {
+        textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateConversationTopics();
@@ -136,12 +132,13 @@ public class ConversationActivity extends AppCompatActivity {
 
         TextView tv = new TextView(this);
         tv.setText(
-                "\n   请注意：\n\n" +
-                "   1. 消息在服务器和客户端均不做存储\n\n" +
-                "   2. 服务器仅将消息推送给与其保持长连接的客户端\n\n" +
-                "      * 当前长连接不可用时您将无法收到消息推送\n\n" +
-                "      * Mars Sample未运行时也将无法收到消息推送\n\n" +
-                "   3. 消息使用服务器处理时间排序，并非消息本身的时序");
+                "\n   请注意：\n\n"
+                        + "   1. 消息在服务器和客户端均不做存储\n\n"
+                        + "   2. 服务器仅将消息推送给与其保持长连接的客户端\n\n"
+                        + "      * 当前长连接不可用时您将无法收到消息推送\n\n"
+                        + "      * Mars Sample未运行时也将无法收到消息推送\n\n"
+                        + "   3. 消息使用服务器处理时间排序，并非消息本身的时序"
+        );
         new AlertDialog.Builder(this)
                 .setTitle("Mars Sample是一个快速聊天工具")
                 .setIcon(android.R.drawable.ic_dialog_info).setView(tv).setPositiveButton("确定", null).create().show();
@@ -189,14 +186,14 @@ public class ConversationActivity extends AppCompatActivity {
     private NanoMarsTaskWrapper<Main.ConversationListRequest, Main.ConversationListResponse> taskGetConvList = null;
 
     /**
-     * pull conversation list from server
+     * pull conversation list from server.
      */
     private void updateConversationTopics() {
         if (taskGetConvList != null) {
             MarsServiceProxy.cancel(taskGetConvList);
         }
 
-        mTextView.setVisibility(View.INVISIBLE);
+        textView.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
 
         swipeRefreshLayout.setRefreshing(true);
@@ -239,11 +236,10 @@ public class ConversationActivity extends AppCompatActivity {
 
                             swipeRefreshLayout.setRefreshing(false);
 
-                        }
-                        else {
+                        } else {
                             Log.i(TAG, "getconvlist: empty response list");
                             progressBar.setVisibility(View.INVISIBLE);
-                            mTextView.setVisibility(View.VISIBLE);
+                            textView.setVisibility(View.VISIBLE);
                         }
                     }
                 });
@@ -254,15 +250,12 @@ public class ConversationActivity extends AppCompatActivity {
         MarsServiceProxy.send(taskGetConvList.setHttpRequest(CONVERSATION_HOST, "/mars/getconvlist"));
     }
 
-    /**
-     *
-     */
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            }
-            else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //
+
+            } else {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         Constants.STORAGE_REQUESTCODE);
@@ -274,11 +267,11 @@ public class ConversationActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case Constants.STORAGE_REQUESTCODE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    SampleApplicaton.openXlog();
-                } else {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                  //  SampleApplicaton.openXlog();
 
+                } else {
+                    //
                 }
                 break;
             default:

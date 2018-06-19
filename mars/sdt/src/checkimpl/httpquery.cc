@@ -106,7 +106,7 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
     bool domain_is_ipaddr = socket_address(host.c_str(), 0).valid();  // 判断strHost是否是一个点分十进制IP
 
     header.HeaderFiled("Host", host.c_str());
-    str_req.append(header.ToStrig());
+    str_req.append(header.ToString());
     str_req.append("\r\n\r\n");  // important
 
     xdebug2(TSF"str_req=%_", str_req);

@@ -21,7 +21,9 @@
 
 #include <cstddef>
 #include <stdlib.h>
-
+#ifdef WIN32
+#include <algorithm>
+#endif //WIN32
 #include "comm/strutil.h"
 #include "comm/xlogger/xlogger.h"
 
@@ -30,6 +32,10 @@ namespace http {
 static const char* const KStringSpace = " ";
 static const char* const KStringCRLF = "\r\n";
 static const char* const KStringColon = ":";
+
+bool less::operator()(const std::string& __x, const std::string& __y) const {
+    return 0 > strcasecmp(__x.c_str(), __y.c_str());
+}
 
 inline char* string_strnstr(const char* src, const char* sfind, int pos1) {
     xassert2(src != NULL && sfind != NULL);
@@ -290,6 +296,8 @@ const char* const HeaderFields::KStringAccept = "Accept";
 const char* const HeaderFields::KStringUserAgent = "User-Agent";
 const char* const HeaderFields::KStringCacheControl = "Cache-Control";
 const char* const HeaderFields::KStringConnection = "Connection";
+const char* const HeaderFields::kStringProxyConnection = "Proxy-Connection";
+const char* const HeaderFields::kStringProxyAuthorization = "Proxy-Authorization";
 const char* const HeaderFields::KStringContentType = "Content-Type";
 const char* const HeaderFields::KStringContentLength = "Content-Length";
 const char* const HeaderFields::KStringTransferEncoding = "Transfer-Encoding";
@@ -305,7 +313,8 @@ const char* const KStringChunked = "chunked";
 const char* const KStringClose = "close";
 const char* const KStringKeepalive = "Keep-Alive";
 const char* const KStringAcceptAll = "*/*";
-const char* const KStringAcceptEncodingDefalte = "defalte";
+const char* const KStringAcceptEncodingDeflate = "deflate";
+const char* const KStringAcceptEncodingGzip = "gzip";
 const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
 
@@ -332,9 +341,11 @@ std::pair<const std::string, std::string> HeaderFields::MakeAcceptAll() {
 }
 
 std::pair<const std::string, std::string> HeaderFields::MakeAcceptEncodingDefalte() {
-    return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingDefalte);
+    return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingDeflate);
 }
-
+std::pair<const std::string, std::string> HeaderFields::MakeAcceptEncodingGzip() {
+    return std::make_pair(KStringAcceptEncoding, KStringAcceptEncodingGzip);
+}
 std::pair<const std::string, std::string> HeaderFields::MakeCacheControlNoCache() {
     return std::make_pair(KStringCacheControl, KStringNoCache);
 }
@@ -429,7 +440,7 @@ bool HeaderFields::ContentRange(int* start, int* end, int* total) {
     return false;
 }
 
-const std::string HeaderFields::ToStrig() const {
+const std::string HeaderFields::ToString() const {
     if (headers_.empty()) return "";
 
     std::string str;
@@ -571,7 +582,7 @@ bool Builder::HeaderToBuffer(AutoBuffer& _header) {
 
     if (firstline.empty()) return false;
 
-    const std::string strheaders = headfields_.ToStrig();
+    const std::string strheaders = headfields_.ToString();
 
     if (strheaders.empty()) return false;
 
@@ -582,21 +593,21 @@ bool Builder::HeaderToBuffer(AutoBuffer& _header) {
 }
 
 bool Builder::HttpToBuffer(AutoBuffer& _http) {
-    if (!HeaderToBuffer(_http)) return false;
 
     if (blockbody_) {
         if (blockbody_->Length() > 0) {
             headfields_.MakeContentLength((int)blockbody_->Length());
-
-            if (!blockbody_->FillData(_http)) return false;
+            if (!HeaderToBuffer(_http) || !blockbody_->FillData(_http)) return false;
         }
 
     } else if (streambody_) {
+    		headfields_.MakeTransferEncodingChunked();
+    		if (!HeaderToBuffer(_http)) return false;
         if (streambody_->HaveData()) {
             if (!streambody_->Data(_http)) return false;
         }
-
-        headfields_.MakeTransferEncodingChunked();
+    } else {
+    		return HeaderToBuffer(_http);
     }
 
     return true;
@@ -606,6 +617,7 @@ bool Builder::HttpToBuffer(AutoBuffer& _http) {
 // implement of Parser
 Parser::Parser(BodyReceiver* _body, bool _manage)
     : recvstatus_(kStart)
+    , response_header_ready_(false)
     , csmode_(kRespond)
     , headfields_()
     , bodyreceiver_(_body)
@@ -626,8 +638,24 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
     xassert2(_buffer);
     
     if (NULL == _buffer || 0 == _length) {
-        xwarn2(TSF"Recv(%_, %_), status:%_", _buffer, _length, recvstatus_);
+        xwarn2(TSF"Recv(%_, %_), status:%_", NULL==_buffer?"NULL":_buffer, _length, recvstatus_);
         return recvstatus_;
+    }
+    
+    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
+        
+        headerbuf_.Write(_buffer, std::min(_length, (size_t)4096));
+        
+        const char* pszbuf = (const char*)headerbuf_.Ptr();
+        size_t length = headerbuf_.Length();
+    
+        if (length > 4){
+            char* pos = string_strnstr(pszbuf, "\r\n\r\n", (int)length);
+            if (pos != NULL){
+                headerbuf_.Length(0, pos - pszbuf + 4);
+                response_header_ready_ = true;
+            }
+        }
     }
     
     recvbuf_.Write(_buffer, _length);
@@ -673,8 +701,16 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                     return recvstatus_;
                 }
                 
-                recvstatus_ = kHeaderFields;
-                recvbuf_.Move(- firstlinelength);
+                headerbuf_.Write(recvbuf_.Ptr(), firstlinelength);
+                // HTTP/1.1 4.7 Unauthorized\r\n\r\n
+                char* pos_2crlf = string_strnstr(pBuf, "\r\n\r\n", (int)recvbuf_.Length());
+                if (NULL != pos_2crlf && pos_2crlf == pos) {
+                    recvstatus_ = kBody;
+                    recvbuf_.Move(- (firstlinelength + 2));
+                } else {
+                    recvstatus_ = kHeaderFields;
+                    recvbuf_.Move(- firstlinelength);
+                }
             }
                 break;
                 
@@ -701,6 +737,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                 }
                 
                 recvstatus_ = kBody;
+                headerbuf_.Write(recvbuf_.Ptr(), headerslength);
                 recvbuf_.Move(-headerslength);
             }
                 break;
@@ -804,6 +841,21 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
         return recvstatus_;
     }
 
+    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
+        
+        headerbuf_.Write(_recv_buffer.Ptr(), std::min(_recv_buffer.Length(), (size_t)4096));
+        
+        const char* pszbuf = (const char*)headerbuf_.Ptr();
+        size_t length = headerbuf_.Length();
+        
+        if (length > 4){
+            char* pos = string_strnstr(pszbuf, "\r\n\r\n", (int)length);
+            if (pos != NULL){
+                headerbuf_.Length(0, pos - pszbuf + 4);
+                response_header_ready_ = true;
+            }
+        }
+    }
 
     while (true) {
         switch (recvstatus_) {
@@ -1003,6 +1055,9 @@ const BodyReceiver& Parser::Body() const {
     return *bodyreceiver_;
 }
 
+const AutoBuffer& Parser::HeaderBuffer() const{
+    return headerbuf_;
+}
 
 bool Parser::FirstLineReady() const {
     return kFirstLineError < recvstatus_;

@@ -25,7 +25,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/sdt/constants.h"
 
-#include "checkimpl/dnsquery.h"
+#include "sdt/src/checkimpl/dnsquery.h"
 
 using namespace mars::sdt;
 
@@ -50,7 +50,7 @@ int DnsChecker::CancelDoCheck() {
 void DnsChecker::__DoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
 
-    //lonlgink host dns
+    //longlink host dns
     for (CheckIPPorts_Iterator iter = _check_request.longlink_items.begin(); iter != _check_request.longlink_items.end(); ++iter) {
 		CheckResultProfile profile;
 		profile.domain_name = iter->first;

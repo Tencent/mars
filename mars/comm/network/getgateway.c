@@ -47,7 +47,7 @@
 #define USE_SYSCTL_NET_ROUTE
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_SIMULATOR
+#if TARGET_OS_IOS
 #undef __ROUTE_HEADER_FILE__
 #define __ROUTE_HEADER_FILE__  "comm/objc/route.h"
 #endif
@@ -89,10 +89,8 @@
 #endif
 #include "comm/network/getgateway.h"
 
-#ifndef WIN32
 #define SUCCESS (0)
 #define FAILED  (-1)
-#endif
 
 typedef uint32_t in_addr_t;
 #ifdef USE_PROC_NET_ROUTE
@@ -470,6 +468,10 @@ int getdefaultgateway(in_addr_t * addr)
     }
     
     return -1;
+}
+
+int getdefaultgateway6(struct in6_addr * addr) {
+	return FAILED;
 }
 #endif /* #ifdef USE_WIN32_CODE */
 

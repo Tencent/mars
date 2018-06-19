@@ -61,7 +61,7 @@ std::string GetDetailNetInfo() {
 	        break;
 	    }
 	 detail_net_info << "--------NetConfig Info----------"<< "\n";
-	 //2.网络配置信息（默认网关、dns svr、路由表）
+	 //2.网络配置信息（默认网关、dns svr、路由表） 
 	 	in6_addr addr6_gateway;
 	 	memset(&addr6_gateway, 0, sizeof(addr6_gateway));
 	    if (0 == getdefaultgateway6(&addr6_gateway)) {

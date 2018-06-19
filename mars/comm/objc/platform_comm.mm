@@ -252,14 +252,11 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     wifiInfo.bssid = IWATCH_NET_INFO;
     return true;
 #else
-    static Mutex mutex;
     NSArray *ifs = nil;
-    {
-        ScopedLock lock(mutex);
+    @synchronized (@"CNCopySupportedInterfaces") {
         ifs = (id)CNCopySupportedInterfaces();
     }
-
-    if (ifs == nil) return false;
+    if(ifs == nil) return false;
         
     id info = nil;
     for (NSString *ifnam in ifs) {

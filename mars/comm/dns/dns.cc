@@ -28,7 +28,7 @@
 #include "thread/lock.h"
 
 #include "network/getdnssvraddrs.h"
-
+#include "socket/local_ipstack.h"
 enum {
     kGetIPDoing,
     kGetIPTimeout,
@@ -48,7 +48,7 @@ struct dnsinfo {
 
 static std::string DNSInfoToString(const struct dnsinfo& _info) {
 	XMessage msg;
-	msg(TSF"info:%@p, threadid:%_, dns:@%p, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
+	msg(TSF"info:%_, threadid:%_, dns:%_, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
 	return msg.Message();
 }
 static std::vector<dnsinfo> sg_dnsinfo_vec;
@@ -85,8 +85,14 @@ static void __GetIP() {
         //in iOS work fine, in Android ipv6 stack get ipv4-ip fail
         //and in ipv6 stack AI_ADDRCONFIGd will filter ipv4-ip but we ipv4-ip can use by nat64
     //    hints.ai_flags = AI_V4MAPPED|AI_ADDRCONFIG;
-        int error = getaddrinfo(host_name.c_str(), NULL, &hints, &result);
-
+        int error = 0;
+        TLocalIPStack ipstack = local_ipstack_detect();
+        if (ELocalIPStack_IPv4 == ipstack) {
+            error = getaddrinfo(host_name.c_str(), NULL, &hints, &result);
+        } else {
+            error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/NULL, &result);
+        }
+           
         lock.lock();
 
         iter = sg_dnsinfo_vec.begin();
@@ -97,7 +103,7 @@ static void __GetIP() {
         }
 
         if (error != 0) {
-            xwarn2(TSF"error, error:%0, hostname:%1", error, host_name.c_str());
+            xwarn2(TSF"error, error:%_, hostname:%_, ipstack:%_", error, host_name.c_str(), ipstack);
 
             if (iter != sg_dnsinfo_vec.end()) iter->status = kGetIPFail;
 
@@ -110,24 +116,21 @@ static void __GetIP() {
             }
 
             for (single = result; single; single = single->ai_next) {
-                if (PF_INET != single->ai_family) {
-                    xassert2(false);
-                    continue;
-                }
-
-                sockaddr_in* addr_in = (sockaddr_in*)single->ai_addr;
-                struct in_addr convertAddr;
-
                 // In Indonesia, if there is no ipv6's ip, operators return 0.0.0.0.
-                if (INADDR_ANY == addr_in->sin_addr.s_addr || INADDR_NONE == addr_in->sin_addr.s_addr) {
-                    xwarn2(TSF"hehe, addr_in->sin_addr.s_addr:%0", addr_in->sin_addr.s_addr);
-                    continue;
+                if (PF_INET == single->ai_family) {
+                    sockaddr_in* addr_in = (sockaddr_in*)single->ai_addr;
+//                    struct in_addr convertAddr;
+                    if (INADDR_ANY == addr_in->sin_addr.s_addr || INADDR_NONE == addr_in->sin_addr.s_addr) {
+                        xwarn2(TSF"hehe, addr_in->sin_addr.s_addr:%0", addr_in->sin_addr.s_addr);
+                        continue;
+                    }
                 }
 
-                convertAddr.s_addr = addr_in->sin_addr.s_addr;
-    			const char* ip = socket_address(convertAddr).ip();
 
-                if (!socket_address(ip, 0).valid()) {
+//                convertAddr.s_addr = addr_in->sin_addr.s_addr;
+    			const char* ip = socket_address(single->ai_addr).ip();
+
+                if (!socket_address(ip, 0).valid_server_address(false, true)) {
                     xerror2(TSF"ip is invalid, ip:%0", ip);
                     continue;
                 }
@@ -259,7 +262,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
             if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
                 if (_breaker) _breaker->dnsstatus = NULL;
 
-                xinfo2(TSF "dns get ip status:%_", it->status);
+                xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
                 sg_dnsinfo_vec.erase(it);
                 return false;
             }
@@ -289,7 +292,6 @@ void DNS::Cancel(const std::string& _host_name) {
 
         if (info.host_name.compare(_host_name) == 0 && info.dns == this) {
             info.status = kGetIPCancel;
-            break;
         }
     }
 

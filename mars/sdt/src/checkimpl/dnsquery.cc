@@ -29,7 +29,7 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/socket_address.h"
 
-#include "netchecker_trafficmonitor.h"
+#include "sdt/src/tools/netchecker_trafficmonitor.h"
 
 #define TRAFFIC_LIMIT_RET_CODE (INT_MIN)
 #define DNS_PORT (53)
@@ -209,7 +209,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
         dns = (struct DNS_HEADER*)recv_buf;   // 指向recv_buf的header
         ReadRecvAnswer(recv_buf, dns, reader, answers);
 
-        // 把查询到的IP放入返回参数_ipinfo结构体中
+        // 把查询到的IP放入返回参数_ipinfo结构体中 
         int answer_count = std::min(SOCKET_MAX_IP_COUNT, (int)ntohs(dns->ans_count));
         _ipinfo->size = 0;
 
@@ -233,7 +233,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
     FreeAll(answers);
     xinfo2(TSF"close fd in dnsquery,sock=%0", sock);
     ::socket_close(sock);
-    return ret;  //* 查询DNS服务器超时
+    return ret;  //* 查询DNS服务器超时 
 }
 
 int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeout /*ms*/, const char* _dnsserver) {
@@ -271,7 +271,7 @@ void ReadRecvAnswer(unsigned char* _buf, struct DNS_HEADER* _dns, unsigned char*
         _reader = _reader + sizeof(struct R_DATA);
 
         if (ntohs(_answers[i].resource->type) == 1) {  // if its an ipv4 address
-            _answers[i].rdata = (unsigned char*)malloc(ntohs(_answers[i].resource->data_len));
+            _answers[i].rdata = (unsigned char*)malloc(ntohs(_answers[i].resource->data_len)+1);
 
             if (NULL == _answers[i].rdata) {
                 xerror2(TSF"answer error.");

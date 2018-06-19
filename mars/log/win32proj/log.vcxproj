@@ -14,19 +14,20 @@
     <ProjectGuid>{8C88F244-E839-46AE-974D-78311B22ADDE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>log</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>
+    </WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -41,10 +42,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)/../;$(SolutionDir)/../../;$(SolutionDir)/../comm/;$(SolutionDir)/../comm/windows;$(SolutionDir)/../comm/windows/zlib;$(ProjectDir)/../src;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\lib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -54,6 +57,9 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../;$(ProjectDir)../../../;$(ProjectDir)../../comm/;$(ProjectDir)../../comm/windows/;$(ProjectDir)../../comm/windows/zlib/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -71,6 +77,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>mars/comm/projdef.h</ForcedIncludeFiles>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../;$(ProjectDir)../../../;$(ProjectDir)../../comm/;$(ProjectDir)../../comm/windows/;$(ProjectDir)../../comm/windows/zlib/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -83,13 +91,28 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\crypt\log_crypt.cc" />
+    <ClCompile Include="..\crypt\micro-ecc-master\uECC.c" />
     <ClCompile Include="..\src\appender.cc" />
     <ClCompile Include="..\src\formater.cc" />
-    <ClCompile Include="..\src\loglogic\log_logic.cc" />
+    <ClCompile Include="..\src\log_buffer.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\interface\appender.h" />
-    <ClInclude Include="..\interface\log_logic.h" />
+    <ClInclude Include="..\appender.h" />
+    <ClInclude Include="..\crypt\log_crypt.h" />
+    <ClInclude Include="..\crypt\micro-ecc-master\types.h" />
+    <ClInclude Include="..\crypt\micro-ecc-master\uECC.h" />
+    <ClInclude Include="..\crypt\micro-ecc-master\uECC_vli.h" />
+    <ClInclude Include="..\src\log_buffer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\crypt\micro-ecc-master\asm_arm.inc" />
+    <None Include="..\crypt\micro-ecc-master\asm_arm_mult_square.inc" />
+    <None Include="..\crypt\micro-ecc-master\asm_arm_mult_square_umaal.inc" />
+    <None Include="..\crypt\micro-ecc-master\asm_avr.inc" />
+    <None Include="..\crypt\micro-ecc-master\asm_avr_mult_square.inc" />
+    <None Include="..\crypt\micro-ecc-master\curve-specific.inc" />
+    <None Include="..\crypt\micro-ecc-master\platform-specific.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

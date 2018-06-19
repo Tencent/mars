@@ -172,9 +172,9 @@ bool two_addrs_on_one_interface(sockaddr* first_addr, sockaddr* second_addr) {
 }
 
 TLocalIPStack __local_ipstack_detect(std::string& _log) {
-    XMessage detail(_log);
+    XMessage detail;
     detail("local_ipstack_detect ");
-#ifdef __APPLE__
+#if 0//defined(__APPLE__) && (TARGET_OS_IPHONE)
     in6_addr addr6_gateway = {0};
     if (0 != getdefaultgateway6(&addr6_gateway)){
         detail("getdefaultgateway6 fail");
@@ -206,7 +206,7 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
     
     detail("have_ipv4:%d have_ipv6:%d \n", have_ipv4, have_ipv6);
 
-#ifdef __APPLE__
+#if 0//defined(__APPLE__) && (TARGET_OS_IPHONE)
     if (ELocalIPStack_Dual != local_stack) {
     	detail("ELocalIPStack_Dual != local_stack");
         return (TLocalIPStack)local_stack;
@@ -237,9 +237,6 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
 }
 
 TLocalIPStack local_ipstack_detect() {
-#ifdef ANDROID
-	return ELocalIPStack_IPv4;
-#endif
     std::string log;
     return __local_ipstack_detect(log);
 }

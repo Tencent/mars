@@ -122,8 +122,8 @@ class Thread {
 
   public:
     template<class T>
-    explicit Thread(const T& op, const char* _thread_name = NULL)
-        : runable_ref_(NULL) {
+    explicit Thread(const T& op, const char* _thread_name = NULL, bool _outside_join = false)
+        : runable_ref_(NULL), outside_join_(_outside_join) {
         runable_ref_ = new RunnableReference(detail::transform(op));
         ScopedSpinLock lock(runable_ref_->splock);
         runable_ref_->AddRef();
@@ -133,8 +133,8 @@ class Thread {
         if (_thread_name) strncpy(runable_ref_->thread_name, _thread_name, sizeof(runable_ref_->thread_name));
     }
 
-    Thread(const char* _thread_name = NULL)
-        : runable_ref_(NULL) {
+    Thread(const char* _thread_name = NULL, bool _outside_join = false)
+        : runable_ref_(NULL), outside_join_(_outside_join) {
         runable_ref_ = new RunnableReference(NULL);
         ScopedSpinLock lock(runable_ref_->splock);
         runable_ref_->AddRef();
@@ -148,6 +148,7 @@ class Thread {
         int res = pthread_attr_destroy(&attr_);
         ASSERT2(0 == res, "res=%d", res);
         ScopedSpinLock lock(runable_ref_->splock);
+        if (0 != runable_ref_->tid && !runable_ref_->isjoined) pthread_detach(runable_ref_->tid);
         runable_ref_->RemoveRef(lock);
     }
 
@@ -157,9 +158,11 @@ class Thread {
         if (_newone) *_newone = false;
 
         if (isruning())return 0;
+        if (0 != runable_ref_->tid && !runable_ref_->isjoined) pthread_detach(runable_ref_->tid);
 
         ASSERT(runable_ref_->target);
         runable_ref_->isended = false;
+        runable_ref_->isjoined = outside_join_;
         runable_ref_->AddRef();
 
         int ret =  pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine, runable_ref_);
@@ -182,11 +185,13 @@ class Thread {
         if (_newone) *_newone = false;
 
         if (isruning())return 0;
-
+        if (0 != runable_ref_->tid && !runable_ref_->isjoined) pthread_detach(runable_ref_->tid);
+        
         delete runable_ref_->target;
         runable_ref_->target = detail::transform(op);
 
         runable_ref_->isended = false;
+        runable_ref_->isjoined = outside_join_;
         runable_ref_->AddRef();
 
         int ret =  pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine, runable_ref_);
@@ -206,12 +211,14 @@ class Thread {
         ScopedSpinLock lock(runable_ref_->splock);
 
         if (isruning())return 0;
+        if (0 != runable_ref_->tid && !runable_ref_->isjoined) pthread_detach(runable_ref_->tid);
 
         ASSERT(runable_ref_->target);
         runable_ref_->condtime.cancelAnyWayNotify();
-        runable_ref_->iscanceldelaystart = false;
+        runable_ref_->isjoined = outside_join_;
         runable_ref_->isended = false;
         runable_ref_->aftertime = after;
+        runable_ref_->iscanceldelaystart = false;
         runable_ref_->AddRef();
 
         int ret =  pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine_after, runable_ref_);
@@ -239,11 +246,13 @@ class Thread {
         ScopedSpinLock lock(runable_ref_->splock);
 
         if (isruning()) return 0;
+        if (0 != runable_ref_->tid && !runable_ref_->isjoined) pthread_detach(runable_ref_->tid);
 
         ASSERT(runable_ref_->target);
         runable_ref_->condtime.cancelAnyWayNotify();
-        runable_ref_->iscanceldelaystart = false;
         runable_ref_->isended = false;
+        runable_ref_->isjoined = outside_join_;
+        runable_ref_->iscanceldelaystart = false;
         runable_ref_->aftertime = after;
         runable_ref_->periodictime = periodic;
         runable_ref_->AddRef();
@@ -273,6 +282,7 @@ class Thread {
     int join() const {
         int ret = 0;
         ScopedSpinLock lock(runable_ref_->splock);
+        ASSERT(!outside_join_);
         ASSERT(!runable_ref_->isjoined);
 
         if (tid() == ThreadUtil::currentthreadid()) return EDEADLK;
@@ -287,15 +297,6 @@ class Thread {
         return ret;
     }
     
-    void outside_join() const {
-        ScopedSpinLock lock(runable_ref_->splock);
-        ASSERT(!runable_ref_->isjoined);
-        ASSERT(!isruning());
-        if (runable_ref_->isjoined || isruning()) return;
-        
-        runable_ref_->isjoined = true;
-    }
-
     int kill(int sig) const {
         ScopedSpinLock lock(runable_ref_->splock);
 
@@ -399,10 +400,7 @@ class Thread {
         runableref->isinthread = false;
         runableref->killsig = 0;
         runableref->isended = true;
-
-        if (!runableref->isjoined) pthread_detach(pthread_self());
-
-        runableref->isjoined = false;
+        
         (const_cast<RunnableReference*>(runableref))->RemoveRef(lock);
     }
 
@@ -458,6 +456,7 @@ class Thread {
   private:
     RunnableReference*  runable_ref_;
     pthread_attr_t attr_;
+    bool outside_join_;
 };
 
 
