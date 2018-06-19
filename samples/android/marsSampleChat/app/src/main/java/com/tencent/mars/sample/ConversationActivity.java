@@ -54,7 +54,7 @@ public class ConversationActivity extends AppCompatActivity {
 
     private static final String TAG = "Mars.Sample.ConversationActivity";
 
-    private static final String CONVERSATION_HOST = "marsopen.cn"; // using preset ports
+    private static final String CONVERSATION_HOST = "106.75.93.248"; // using preset ports
 
     private int conversationFilterType = Main.ConversationListRequest.DEFAULT;
 

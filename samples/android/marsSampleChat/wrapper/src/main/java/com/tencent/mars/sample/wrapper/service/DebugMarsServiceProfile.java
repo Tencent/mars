@@ -24,9 +24,9 @@ public class DebugMarsServiceProfile implements MarsServiceProfile {
 
     public static final short MAGIC = 0x0110;
     public static final short PRODUCT_ID = 200;
-    public static final String LONG_LINK_HOST = "localhost";
-    public static final int[] LONG_LINK_PORTS = new int[]{8081};
-    public static final int SHORT_LINK_PORT = 8080;
+    public static final String LONG_LINK_HOST = "106.75.93.248";
+    public static final int[] LONG_LINK_PORTS = new int[]{8112};
+    public static final int SHORT_LINK_PORT = 8209;
 
     @Override
     public short magic() {

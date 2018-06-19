@@ -29,7 +29,7 @@ import com.tencent.mars.sample.wrapper.remote.NanoMarsTaskWrapper;
  * Created by zhaoyuan on 16/2/29.
  */
 @TaskProperty(
-        host = "marsopen.cn",
+        host = "106.75.93.248",
         path = "/mars/sendmessage",
         cmdID = Main.CMD_ID_SEND_MESSAGE,
         longChannelSupport = true,
