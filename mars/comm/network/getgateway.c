@@ -27,7 +27,7 @@
  * Many systems should provide route information through raw PF_ROUTE
  * sockets. */
 
-#define __ROUTE_HEADER_FILE__ "comm/objc/route.h"
+#define __ROUTE_HEADER_FILE__ <net/route.h>
 
 #ifdef __linux__
 #define USE_PROC_NET_ROUTE
@@ -47,7 +47,7 @@
 #define USE_SYSCTL_NET_ROUTE
 
 #include <TargetConditionals.h>
-#if !TARGET_OS_SIMULATOR
+#if TARGET_OS_IOS
 #undef __ROUTE_HEADER_FILE__
 #define __ROUTE_HEADER_FILE__  "comm/objc/route.h"
 #endif

@@ -46,7 +46,7 @@ class socket_address {
     uint16_t port() const;
 
     bool valid() const;
-    bool valid_server_address(bool _allowloopback = false) const;
+    bool valid_server_address(bool _allowloopback = false, bool _ignore_port = false) const;
     bool valid_bind_address() const;
     bool valid_broadcast_address() const;
 
