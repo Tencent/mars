@@ -50,6 +50,7 @@
 		3D9C4F751EAF469D002346D5 /* e_os2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = e_os2.h; sourceTree = "<group>"; };
 		3D9C4F771EAF471E002346D5 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = openssl_lib_iOS/libcrypto.a; sourceTree = "<group>"; };
 		3D9C4F781EAF471E002346D5 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = openssl_lib_iOS/libssl.a; sourceTree = "<group>"; };
+		4BB03A4420DCECFE00D178DD /* libopenssl.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libopenssl.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BB713031DE8234100185734 /* gen_rsa_key_pair.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gen_rsa_key_pair.h; sourceTree = "<group>"; };
 		4BB713041DE8234100185734 /* openssl_multi_thread_support.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = openssl_multi_thread_support.h; sourceTree = "<group>"; };
 		4BB713051DE8234100185734 /* pay_openssl_crypto_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pay_openssl_crypto_util.h; sourceTree = "<group>"; };
@@ -135,7 +136,6 @@
 		55D9072D1CC7BACF0076CBD9 /* x509.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509.h; sourceTree = "<group>"; };
 		55D9072E1CC7BACF0076CBD9 /* x509_vfy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		55D9072F1CC7BACF0076CBD9 /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
-		55D9C0821CC7B1C90076CBD9 /* libopenssl.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libopenssl.a; path = /Users/elviswu/elvis_workspace/mmnet/mars/mars/openssl/build/Debug/libopenssl.a; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -160,6 +160,7 @@
 				55D906E41CC7BACF0076CBD9 /* export_include */,
 				55D906ED1CC7BACF0076CBD9 /* include */,
 				3D9C4F761EAF471D002346D5 /* Frameworks */,
+				4BB03A4420DCECFE00D178DD /* libopenssl.a */,
 			);
 			sourceTree = "<group>";
 		};
@@ -322,7 +323,7 @@
 			);
 			name = openssl;
 			productName = PublicComponent;
-			productReference = 55D9C0821CC7B1C90076CBD9 /* libopenssl.a */;
+			productReference = 4BB03A4420DCECFE00D178DD /* libopenssl.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -596,6 +597,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_DEBUG_INFORMATION_LEVEL = "line-tables-only";
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/PublicComponent.dst;

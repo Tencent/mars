@@ -16,11 +16,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		557B1F301CC7BF110076B9EE /* PBXContainerItemProxy */ = {
+		4BB03A6520DCEFA500D178DD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 557B1F2C1CC7BF110076B9EE /* openssl-mac.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 55D9C0821CC7B1C90076CBD9;
+			remoteGlobalIDString = 4BB03A4420DCECFE00D178DD;
 			remoteInfo = openssl;
 		};
 		557B1F361CC7BF1B0076B9EE /* PBXContainerItemProxy */ = {
@@ -193,7 +193,7 @@
 		557B1F2D1CC7BF110076B9EE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				557B1F311CC7BF110076B9EE /* libopenssl.a */,
+				4BB03A6620DCEFA500D178DD /* libopenssl.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -331,11 +331,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		557B1F311CC7BF110076B9EE /* libopenssl.a */ = {
+		4BB03A6620DCEFA500D178DD /* libopenssl.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libopenssl.a;
-			remoteRef = 557B1F301CC7BF110076B9EE /* PBXContainerItemProxy */;
+			remoteRef = 4BB03A6520DCEFA500D178DD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		557B1F371CC7BF1B0076B9EE /* libapp.a */ = {
@@ -661,6 +661,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_DEBUG_INFORMATION_LEVEL = "line-tables-only";
 				DEAD_CODE_STRIPPING = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/PublicComponent.dst;
