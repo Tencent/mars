@@ -185,6 +185,8 @@ bool LongLink::SendWhenNoData(const AutoBuffer& _body, const AutoBuffer& _extens
     
     Task task(_taskid);
     task.send_only = true;
+    task.cmdid = _cmdid;
+    task.taskid = _taskid;
     lstsenddata_.push_back(std::make_pair(task, move_wrapper<AutoBuffer>(AutoBuffer())));
     longlink_pack(_cmdid, _taskid, _body, _extension, lstsenddata_.back().second, tracker_.get());
     lstsenddata_.back().second->Seek(0, AutoBuffer::ESeekStart);
