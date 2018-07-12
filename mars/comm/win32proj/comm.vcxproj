@@ -131,6 +131,7 @@ python -c %python_str%</Command>
     <ClCompile Include="..\network\getdnssvraddrs.cc" />
     <ClCompile Include="..\network\getgateway.c" />
     <ClCompile Include="..\network\getifaddrs.cc" />
+    <ClCompile Include="..\network\local_routetable.cc" />
     <ClCompile Include="..\network\netinfo_util.cc" />
     <ClCompile Include="..\ptrbuffer.cc" />
     <ClCompile Include="..\singleton.cc" />
@@ -208,6 +209,7 @@ python -c %python_str%</Command>
     <ClInclude Include="..\network\getdnssvraddrs.h" />
     <ClInclude Include="..\network\getgateway.h" />
     <ClInclude Include="..\network\getifaddrs.h" />
+    <ClInclude Include="..\network\local_routetable.h" />
     <ClInclude Include="..\network\netinfo_util.h" />
     <ClInclude Include="..\platform_comm.h" />
     <ClInclude Include="..\ptrbuffer.h" />

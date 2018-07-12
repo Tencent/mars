@@ -207,6 +207,9 @@
     <ClCompile Include="..\windows\projdef.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\network\local_routetable.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\assert\__assert.h">
@@ -486,6 +489,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\network\getaddrinfo_with_timeout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\network\local_routetable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
