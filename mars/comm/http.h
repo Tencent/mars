@@ -155,6 +155,7 @@ class HeaderFields {
     static const char* const KStringRange;
     static const char* const KStringLocation;
     static const char* const KStringReferer;
+    static const char* const kStringServer;
 
     void HeaderFiled(const char* _name, const char* _value);
     void HeaderFiled(const std::pair<const std::string, std::string>& _headerfield);
@@ -167,6 +168,7 @@ class HeaderFields {
     bool IsConnectionClose();
     int ContentLength();
 
+    bool Range(long& _start, long& _end);
     bool ContentRange(int* start, int* end, int* total);
 
     const std::string ToString() const;
@@ -187,10 +189,10 @@ class IBlockBodyProvider {
 class BufferBodyProvider : public IBlockBodyProvider {
   public:
     bool Data(AutoBuffer& _body) {
-        if (!buffer_.Ptr()) return false;
-
-        _body.Write(buffer_.Ptr(), buffer_.Length());
-        buffer_.Reset();
+        if (!_body.Ptr()) return false;
+        
+        buffer_.Write(_body.Ptr(), _body.Length());
+        _body.Reset();
         return true;
     }
     bool FillData(AutoBuffer& _body) {
@@ -324,6 +326,7 @@ class Parser {
     bool FieldsReady() const;
     HeaderFields& Fields();
     const HeaderFields& Fields() const;
+    size_t FirstLineLength() const;
     size_t HeaderLength() const;
 
     bool BodyReady() const;
@@ -348,6 +351,7 @@ class Parser {
 
     BodyReceiver* bodyreceiver_;
     bool is_manage_body_;
+    size_t firstlinelength_;
     size_t headerlength_;
 };
 

@@ -308,6 +308,7 @@ const char* const HeaderFields::KStringMicroMessenger = "MicroMessenger Client";
 const char* const HeaderFields::KStringRange = "Range";
 const char* const HeaderFields::KStringLocation = "Location";
 const char* const HeaderFields::KStringReferer = "Referer";
+const char* const HeaderFields::kStringServer = "Server";
 
 const char* const KStringChunked = "chunked";
 const char* const KStringClose = "close";
@@ -407,7 +408,31 @@ int HeaderFields::ContentLength() {
     return contentLength;
 }
 
-
+bool HeaderFields::Range(long& _start, long& _end) {
+    const char* strRange = HeaderField(HeaderFields::KStringRange);
+    if (NULL == strRange) {
+        return false;
+    }
+    
+    std::string range(strRange);
+    if (!strutil::StartsWith(range, std::string("bytes="))) {
+        return false;
+    }
+    std::string bytes = range.substr(6);
+    strutil::Trim(bytes);
+    
+    size_t range_start = bytes.find("-");
+    if (std::string::npos == range_start) {
+        return false;
+    }
+    
+    std::string startstr = bytes.substr(0, range_start);
+    _start = strtol(startstr.c_str(), NULL, 10);
+    std::string endstr = bytes.substr(range_start + 1);
+    _end = strtol(endstr.c_str(), NULL, 10);
+    return true;
+}
+    
 bool HeaderFields::ContentRange(int* start, int* end, int* total) {
     // Content-Range: bytes 0-102400/102399
 
@@ -607,12 +632,12 @@ bool Builder::HttpToBuffer(AutoBuffer& _http) {
 
     if (blockbody_) {
         if (blockbody_->Length() > 0) {
-            headfields_.MakeContentLength((int)blockbody_->Length());
+            headfields_.HeaderFiled(headfields_.MakeContentLength((int)blockbody_->Length()));
             if (!HeaderToBuffer(_http) || !blockbody_->FillData(_http)) return false;
         }
 
     } else if (streambody_) {
-    		headfields_.MakeTransferEncodingChunked();
+    		headfields_.HeaderFiled(headfields_.MakeTransferEncodingChunked());
     		if (!HeaderToBuffer(_http)) return false;
         if (streambody_->HaveData()) {
             if (!streambody_->Data(_http)) return false;
@@ -728,6 +753,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                     recvstatus_ = kHeaderFields;
                     recvbuf_.Move(- firstlinelength);
                 }
+                firstlinelength_ = firstlinelength;
             }
                 break;
                 
@@ -756,6 +782,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                 recvstatus_ = kBody;
                 headerbuf_.Write(recvbuf_.Ptr(), headerslength);
                 recvbuf_.Move(-headerslength);
+                headerlength_ = headerslength;
             }
                 break;
                 
@@ -919,6 +946,7 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
 
             recvstatus_ = kHeaderFields;
             _recv_buffer.Move(- firstlinelength);
+            firstlinelength_ = firstlinelength;
         }
         break;
 
@@ -1086,6 +1114,11 @@ bool Parser::FirstLineReady() const {
 bool Parser::FieldsReady() const {
     return kHeaderFieldsError < recvstatus_;
 }
+    
+size_t Parser::FirstLineLength() const {
+    return firstlinelength_;
+}
+    
 size_t Parser::HeaderLength() const{
     return headerlength_;
 }
