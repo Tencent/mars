@@ -574,7 +574,10 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             if (first_noop_sent && alarmnoopinterval.Status() != Alarm::kOnAlarm) {
                 xassert2(false, "noop interval alarm not running");
             }
-            
+          
+            if(first_noop_sent && alarmnoopinterval.Status() == Alarm::kOnAlarm) {
+              __NotifySmartHeartbeatJudgeDozeStyle();
+            }
             xgroup2_define(noop_xlog);
             uint64_t last_noop_interval = alarmnoopinterval.After();
             uint64_t last_noop_actual_interval = (alarmnoopinterval.Status() == Alarm::kOnAlarm) ? alarmnoopinterval.ElapseTime() : 0;
@@ -644,7 +647,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
         
         if (nooping && alarmnooptimeout.Status() == Alarm::kOnAlarm) {
             xerror2(TSF"task socket close sock:%0, noop timeout, nread:%_, nwrite:%_", _sock, socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
-            __NotifySmartHeartbeatJudgeDozeStyle();
+//            __NotifySmartHeartbeatJudgeDozeStyle();
             _errtype = kEctSocket;
             _errcode = kEctSocketRecvErr;
             goto End;
