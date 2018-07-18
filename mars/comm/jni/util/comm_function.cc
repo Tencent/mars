@@ -20,16 +20,140 @@
 
 #include <jni.h>
 #include <string>
+#include <android/log.h>
 
+#include "mars/comm/xlogger/xlogger.h"
 #include "assert/__assert.h"
 #include "var_cache.h"
 #include "autobuffer.h"
 
-
-
 using namespace std;
 
+//
+/*
+ * Get a human-readable summary of an exception object.  The buffer will
+ * be populated with the "binary" class name and, if present, the
+ * exception message.
+ */
+static void getExceptionSummary(JNIEnv* env, jthrowable exception, char* buf, size_t bufLen)
+{
+    int success = 0;
+    /* get the name of the exception's class */
+    jclass exceptionClazz = env->GetObjectClass(exception); // can't fail
+    jclass classClazz = env->GetObjectClass(exceptionClazz); // java.lang.Class, can't fail
+    jmethodID classGetNameMethod = env->GetMethodID(
+            classClazz, "getName", "()Ljava/lang/String;");
+    jstring classNameStr = (jstring)env->CallObjectMethod(exceptionClazz, classGetNameMethod);
+    if (classNameStr != NULL) {
+        /* get printable string */
+        const char* classNameChars = env->GetStringUTFChars(classNameStr, NULL);
+        if (classNameChars != NULL) {
+            /* if the exception has a message string, get that */
+            jmethodID throwableGetMessageMethod = env->GetMethodID(
+                    exceptionClazz, "getMessage", "()Ljava/lang/String;");
+            jstring messageStr = (jstring)env->CallObjectMethod(
+                    exception, throwableGetMessageMethod);
+            if (messageStr != NULL) {
+                const char* messageChars = env->GetStringUTFChars(messageStr, NULL);
+                if (messageChars != NULL) {
+                    snprintf(buf, bufLen, "%s: %s", classNameChars, messageChars);
+                    env->ReleaseStringUTFChars(messageStr, messageChars);
+                } else {
+                    env->ExceptionClear(); // clear OOM
+                    snprintf(buf, bufLen, "%s: <error getting message>", classNameChars);
+                }
+                env->DeleteLocalRef(messageStr);
+            } else {
+                strncpy(buf, classNameChars, bufLen);
+                buf[bufLen - 1] = '\0';
+            }
+            env->ReleaseStringUTFChars(classNameStr, classNameChars);
+            success = 1;
+        }
+        env->DeleteLocalRef(classNameStr);
+    }
+    env->DeleteLocalRef(classClazz);
+    env->DeleteLocalRef(exceptionClazz);
+    if (! success) {
+        env->ExceptionClear();
+        snprintf(buf, bufLen, "%s", "<error getting class name>");
+    }
+}
+/*
+ * Formats an exception as a string with its stack trace.
+ */
+static void printStackTrace(JNIEnv* env, jthrowable exception, char* buf, size_t bufLen)
+{
+    int success = 0;
+    jclass stringWriterClazz = env->FindClass("java/io/StringWriter");
+    if (stringWriterClazz != NULL) {
+        jmethodID stringWriterCtor = env->GetMethodID(stringWriterClazz,
+                "<init>", "()V");
+        jmethodID stringWriterToStringMethod = env->GetMethodID(stringWriterClazz,
+                "toString", "()Ljava/lang/String;");
+        jclass printWriterClazz = env->FindClass("java/io/PrintWriter");
+        if (printWriterClazz != NULL) {
+            jmethodID printWriterCtor = env->GetMethodID(printWriterClazz,
+                    "<init>", "(Ljava/io/Writer;)V");
+            jobject stringWriterObj = env->NewObject(stringWriterClazz, stringWriterCtor);
+            if (stringWriterObj != NULL) {
+                jobject printWriterObj = env->NewObject(printWriterClazz, printWriterCtor,
+                        stringWriterObj);
+                if (printWriterObj != NULL) {
+                    jclass exceptionClazz = env->GetObjectClass(exception); // can't fail
+                    jmethodID printStackTraceMethod = env->GetMethodID(
+                            exceptionClazz, "printStackTrace", "(Ljava/io/PrintWriter;)V");
+                    env->CallVoidMethod(
+                            exception, printStackTraceMethod, printWriterObj);
+                    if (! env->ExceptionCheck()) {
+                        jstring messageStr = (jstring)env->CallObjectMethod(
+                                stringWriterObj, stringWriterToStringMethod);
+                        if (messageStr != NULL) {
+                            jsize messageStrLength = env->GetStringLength(messageStr);
+                            if (messageStrLength >= (jsize) bufLen) {
+                                messageStrLength = bufLen - 1;
+                            }
+                            env->GetStringUTFRegion(messageStr, 0, messageStrLength, buf);
+                            env->DeleteLocalRef(messageStr);
+                            buf[messageStrLength] = '\0';
+                            success = 1;
+                        }
+                    }
+                    env->DeleteLocalRef(exceptionClazz);
+                    env->DeleteLocalRef(printWriterObj);
+                }
+                env->DeleteLocalRef(stringWriterObj);
+            }
+            env->DeleteLocalRef(printWriterClazz);
+        }
+        env->DeleteLocalRef(stringWriterClazz);
+    }
+    if (! success) {
+        env->ExceptionClear();
+        getExceptionSummary(env, exception, buf, bufLen);
+    }
+}
 
+/*
+ * Log an exception.
+ * If exception is NULL, logs the current exception in the JNI environment, if any.
+ */
+static void jniLogException(JNIEnv* env)
+{
+    jthrowable exception = env->ExceptionOccurred();
+    if (exception == NULL) {
+        return;
+    }
+    env->ExceptionDescribe();
+    env->ExceptionClear();
+
+    char szbuffer[1024] = {0};
+    printStackTrace(env, exception, szbuffer, sizeof(szbuffer));
+    xerror2(TSF"jni exception %_", szbuffer);
+    __android_log_write(ANDROID_LOG_WARN, "mars::jniexception", szbuffer);
+}
+
+//
 jvalue __JNU_CallMethodByName(
     JNIEnv* env,
     jobject obj,
@@ -116,6 +240,7 @@ jvalue __JNU_CallMethodByName(
                 break;
             }
 
+            jniLogException(env);
         }
 
         env->DeleteLocalRef(clazz);
@@ -233,6 +358,8 @@ jvalue __JNU_CallStaticMethodByName(
             _env->FatalError("illegal _descriptor");
             break;
         }
+
+        jniLogException(_env);
     }
 
     return result;
@@ -350,6 +477,8 @@ jvalue JNU_GetStaticField(JNIEnv* _env, jclass _clazz, const char* _name, const 
         break;
     }
 
+    jniLogException(_env);
+
     return result;
 }
 
@@ -416,6 +545,8 @@ jvalue JNU_GetField(JNIEnv* _env, jobject obj, const char* _name, const char* si
         _env->FatalError("illegal _descriptor");
         break;
     }
+
+    jniLogException(_env);
 
     return result;
 }
