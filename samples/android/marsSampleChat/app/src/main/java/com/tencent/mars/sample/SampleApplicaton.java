@@ -49,7 +49,7 @@ public class SampleApplicaton extends Application {
 
         @Override
         public String longLinkHost() {
-            return "marsopen.cn";
+            return "106.75.93.248";
         }
     }
 

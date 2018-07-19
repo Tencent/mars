@@ -271,7 +271,7 @@ void ReadRecvAnswer(unsigned char* _buf, struct DNS_HEADER* _dns, unsigned char*
         _reader = _reader + sizeof(struct R_DATA);
 
         if (ntohs(_answers[i].resource->type) == 1) {  // if its an ipv4 address
-            _answers[i].rdata = (unsigned char*)malloc(ntohs(_answers[i].resource->data_len));
+            _answers[i].rdata = (unsigned char*)malloc(ntohs(_answers[i].resource->data_len)+1);
 
             if (NULL == _answers[i].rdata) {
                 xerror2(TSF"answer error.");

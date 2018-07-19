@@ -1,0 +1,18 @@
+package com.tencent.mars.sample.chat.proto;
+
+
+message TopicRequest {
+    required string topic = 1;
+}
+
+
+message TopicResponse {
+
+    enum Error {
+        ERR_OK = 0;
+        ERR_SYS = -1;
+    }
+
+    required int32 err_code = 1;
+    required string err_msg = 2;
+}

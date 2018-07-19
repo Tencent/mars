@@ -41,7 +41,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.1.7'
+    compile 'com.tencent.mars:mars-wrapper:1.1.8'
 }
 ```
 
@@ -53,11 +53,20 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.0'
+    compile 'com.tencent.mars:mars-core:1.2.1'
+}
+```
+**OR**
+#### <a name="">mars-xlog</a>
+If you just want to user xlog, add dependencies by adding the following lines to your app/build.gradle.
+note: xlog is included in mars-core and mars-wrapper. 
+```xml
+dependencies {
+    compile 'com.tencent.mars:mars-xlog:1.0.6'
 }
 ```
 
-If you read here, make sure you have added dependencies of mars-wrapper or mars-core.
+If you read here, make sure you have added dependencies of mars-wrapper, mars-core or mars-xlog.
 
 #### <a name="Xlog">Xlog Init</a>
 
@@ -414,7 +423,7 @@ gradle 接入我们提供了两种接入方式：[mars-wrapper](#wrapper) 或者
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.1.7'
+    compile 'com.tencent.mars:mars-wrapper:1.1.8'
 }
 ```
 
@@ -427,10 +436,18 @@ dependencies {
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.0, '
+    compile 'com.tencent.mars:mars-core:1.2.1'
 }
 ```
-接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 的依赖
+**或者**
+#### <a name="">mars-xlog</a>
+如果只想使用 xlog,可以只加 xlog 的依赖(mars-core,mars-wrapper 中都已经包括 xlog)：
+```xml
+dependencies {
+    compile 'com.tencent.mars:mars-xlog:1.0.6'
+}
+```
+接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 或者 mars-xlog 的依赖
 
 #### <a name="Xlog">Xlog Init</a>
 

@@ -1,0 +1,8 @@
+package com.tencent.mars.sample.chat.proto;
+
+
+message MessagePush {
+    required string topic = 1;
+    required string content = 2;
+    required string from = 3;
+}
