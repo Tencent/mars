@@ -262,8 +262,11 @@ static void __del_timeout_file(const std::string& _log_path) {
         for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
             time_t file_modify_time = boost::filesystem::last_write_time(iter->path());
             
-            if (now_time > file_modify_time && now_time - file_modify_time > kMaxLogAliveTime) {
-                boost::filesystem::remove_all(iter->path());
+            if (now_time > file_modify_time && now_time - file_modify_time > kMaxLogAliveTime
+                && boost::filesystem::is_regular_file(iter->status())
+                && iter->path().extension()==(std::string(".") + LOG_EXT)) {
+            
+                boost::filesystem::remove(iter->path());
             }
         }
     }
