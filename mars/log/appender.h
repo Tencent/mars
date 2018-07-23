@@ -51,5 +51,11 @@ void appender_set_console_log(bool _is_open);
  */
 void appender_set_max_file_size(uint64_t _max_byte_size);
 
+/*
+ * By default, all logs lives 10 days at most.
+ *
+ * @param _max_time    Max alive duration of a single log file in seconds, default is 10 days
+ */
+void appender_set_max_alive_duration(long _max_time);
 
 #endif /* APPENDER_H_ */
