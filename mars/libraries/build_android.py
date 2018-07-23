@@ -51,8 +51,14 @@ def build_android_xlog_static_libs(_path="mars_xlog_sdk", _arch="armeabi", _lib_
     for i in range(len(BUILD_XLOG_PATHS)-1, -1, -1):
         if not os.path.exists("../" + BUILD_XLOG_PATHS[i] + "/jni"):
             continue
-        
-        files = os.listdir("../" + BUILD_XLOG_PATHS[i] + "/libs")
+		
+			
+        files = []
+        if os.path.exists("../" + BUILD_XLOG_PATHS[i] + "/libs"):
+            files = os.listdir("../" + BUILD_XLOG_PATHS[i] + "/libs")
+        elif os.path.exists("../" + BUILD_XLOG_PATHS[i] + "/obj/local/"):
+            files = os.listdir("../" + BUILD_XLOG_PATHS[i] + "/obj/local/")
+			
         for f in files:
             if os.path.isfile(f):
                 continue

@@ -1,0 +1,38 @@
+version: '{build}'
+image: Visual Studio 2017
+platform:
+- x86
+- x64
+environment:
+  matrix:
+  - PYTHON: 27
+  - PYTHON: 36
+  - CONDA: 27
+  - CONDA: 36
+install:
+- ps: |
+    git submodule update -q --init --recursive
+    if ($env:PYTHON) {
+      if ($env:PLATFORM -eq "x64") { $env:PYTHON = "$env:PYTHON-x64" }
+      $env:PATH = "C:\Python$env:PYTHON\;C:\Python$env:PYTHON\Scripts\;$env:PATH"
+      pip install --disable-pip-version-check --user --upgrade pip setuptools
+    } elseif ($env:CONDA) {
+      if ($env:CONDA -eq "27") { $env:CONDA = "" }
+      if ($env:PLATFORM -eq "x64") { $env:CONDA = "$env:CONDA-x64" }
+      $env:PATH = "C:\Miniconda$env:CONDA\;C:\Miniconda$env:CONDA\Scripts\;$env:PATH"
+      conda config --set always_yes yes --set changeps1 no
+      conda config --add channels conda-forge
+      conda update -q conda
+      conda install -q conda-build
+    }
+build_script:
+- ps: |
+    if ($env:PYTHON) {
+      python setup.py sdist
+      pip install --verbose dist\cmake_example-0.0.1.tar.gz
+    } else {
+      conda build conda.recipe
+      conda install --use-local cmake_example
+    }
+test_script:
+- ps: python tests\test.py
