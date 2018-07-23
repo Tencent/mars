@@ -52,6 +52,7 @@ static const char* const kPort = "port";
 static const char* const kHistoryResult = "historyresult";
 
 static const unsigned int kBanTime = 6 * 60 * 1000;  // 6 min
+static const unsigned int kMaxBanTime = 30 * 60 * 1000; // 30 min
 static const unsigned int kServerBanTime = 30 * 60 * 1000; // 30 min
 static const int kBanFailCount = 3;
 static const int kSuccessUpdateInterval = 10*1000;
@@ -66,6 +67,20 @@ uint32_t CAL_BIT_COUNT(uint64_t RECORDS) {
     {
         RECORDS = RECORDS & (RECORDS-1);
         COUNT++;
+    }
+    return COUNT;
+}
+
+
+static inline
+uint32_t CAL_LAST_CONTINUOUS_BIT_COUNT(uint64_t RECORDS) {
+    uint32_t COUNT = 0;
+    uint64_t TMP = RECORDS & 0x1;
+    while(TMP)
+    {
+        COUNT++;
+        RECORDS = RECORDS >> 1;
+        TMP = RECORDS & 0x1;
     }
     return COUNT;
 }
@@ -264,8 +279,18 @@ bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
 
     bool baned =  CAL_BIT_COUNT(_iter->records) >= kBanFailCount;
     if (!baned) return false;
-
-    if (_iter->last_fail_time.gettickspan() < kBanTime) {
+    
+    uint32_t last_continuous_cnt = CAL_LAST_CONTINUOUS_BIT_COUNT(_iter->records);
+    int64_t ban_time = kBanTime;
+    if (last_continuous_cnt > kBanFailCount) {
+        ban_time += (last_continuous_cnt - kBanFailCount) * kBanTime;
+        if (ban_time > kMaxBanTime) {
+            ban_time = kMaxBanTime;
+        }
+        xinfo2(TSF"%_:%_ ban time:%_", _iter->ip, _iter->port, ban_time);
+    }
+    
+    if (_iter->last_fail_time.gettickspan() < ban_time) {
         return true;
     }
 
@@ -301,10 +326,9 @@ bool SimpleIPPortSort::__CanUpdate(const std::string& _ip, uint16_t _port, bool 
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             if (_is_success) {
-                return kSuccessUpdateInterval < iter->last_suc_time.gettickspan() ? true:false;
-            }
-            else {
-                return kFailUpdateInterval < iter->last_fail_time.gettickspan() ? true:false;
+                return kSuccessUpdateInterval < iter->last_suc_time.gettickspan();
+            } else {
+                return kFailUpdateInterval < iter->last_fail_time.gettickspan();
             }
         }
     }
