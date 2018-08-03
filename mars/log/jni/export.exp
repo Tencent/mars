@@ -10,12 +10,12 @@ global:
 	xlogger_maintid;
 	xlogger_SetLevel;
 	xlogger_SetAppender;
-    xlogger_VPrint;
+        xlogger_VPrint;
 	
 	__xlogger_Level_impl;
 	__xlogger_SetLevel_impl;
 	__xlogger_IsEnabledFor_impl;
-	__xlogger_SetAppnder_impl;
+	__xlogger_SetAppender_impl;
 	__xlogger_AssertP_impl;
 	__xlogger_Assert_impl;
 	__xlogger_VPrint_impl;
