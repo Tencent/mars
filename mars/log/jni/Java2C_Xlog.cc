@@ -42,8 +42,9 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
 	}
 
 	const char* pubkey = NULL;
+	ScopedJstring jstr_pubkey(env, _pubkey);
 	if (NULL != _pubkey) {
-		pubkey = ScopedJstring(env, _pubkey).GetChar();
+		pubkey = jstr_pubkey.GetChar();
 	}
 
 	ScopedJstring log_dir_jstr(env, _log_dir);
@@ -193,7 +194,17 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setConsoleLogOpen
 	appender_set_console_log((bool)_is_open);
 }
 
+DEFINE_FIND_STATIC_METHOD(KXlog_setMaxFileSize, KXlog, "setMaxFileSize", "(J)V")
+JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxFileSize
+		(JNIEnv *env, jclass, jlong _maxSize) {
+	appender_set_max_file_size(_maxSize);
+}
 
+DEFINE_FIND_STATIC_METHOD(KXlog_setMaxAliveTime, KXlog, "setMaxAliveTime", "(J)V")
+JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxAliveTime
+		(JNIEnv *env, jclass, jlong _maxTime) {
+    appender_set_max_alive_duration(_maxTime);
+}
 }
 
 void ExportXlog() {}
