@@ -10,7 +10,7 @@ global:
 	xlogger_maintid;
 	xlogger_SetLevel;
 	xlogger_SetAppender;
-        xlogger_VPrint;
+    xlogger_VPrint;
 	
 	__xlogger_Level_impl;
 	__xlogger_SetLevel_impl;
@@ -29,6 +29,7 @@ global:
 	*LogBuffer*;
   
  	JNI_OnLoad; 
+    Java_com*;
  	
 local:
   _Z22appender_set_console_logb;
