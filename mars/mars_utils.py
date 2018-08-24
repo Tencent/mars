@@ -37,6 +37,10 @@ COMM_COPY_HEADER_FILES = {"mars/mars/comm/verinfo.h": "comm",
             "mars/mars/openssl/export_include/gen_rsa_key_pair.h":"openssl",
             "mars/mars/openssl/export_include/rsa_pss_sha256.h":"openssl",
             "mars/mars/openssl/export_include/ecdsa_verify.h":"openssl",
+            "mars/mars/openssl/export_include/ecdh_client.h":"openssl",
+            "mars/mars/openssl/export_include/hybrid_ecdh_client.h":"openssl",
+            "mars/mars/openssl/export_include/crypto_aes.h":"openssl",
+            "mars/mars/openssl/export_include/crypto_algorithm.h":"openssl",
             "mars/mars/openssl/export_include/ecdh_crypt.h":"openssl",
             }        
 
