@@ -658,6 +658,7 @@ Parser::Parser(BodyReceiver* _body, bool _manage)
     , headfields_()
     , bodyreceiver_(_body)
     , is_manage_body_(_manage)
+    , firstlinelength_(0)
     , headerlength_(0){
 }
 
