@@ -114,6 +114,10 @@ def gen_ios_project():
         print('!!!!!!!!!!!gen fail!!!!!!!!!!!!!!!')
         return False
 
+
+    print('==================Output========================')
+    print('project file: %s/%s' %(SCRIPT_PATH, BUILD_OUT_PATH))
+    
     return True
 
 def main():
