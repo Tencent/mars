@@ -12,7 +12,7 @@ add_subdirectory(sdt sdt)
 add_subdirectory(stn stn)
 
 
-project (marsstn)
+project (mars)
 
 include(comm/CMakeUtils.txt)
 
@@ -46,6 +46,7 @@ if(ANDROID)
                             comm)
 
 
+    set(SELF_LIB_NAME marsstn)
     get_filename_component(EXPORT_EXP_FILE libraries/mars_android_sdk/jni/export.exp ABSOLUTE)
 
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc)
@@ -58,7 +59,7 @@ if(ANDROID)
 
     link_directories(${SELF_LIBS_OUT})
 
-    target_link_libraries(${PROJECT_NAME}
+    target_link_libraries(${SELF_LIB_NAME}
                             ${log-lib}
                             stn
                             sdt
