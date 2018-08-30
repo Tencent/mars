@@ -58,6 +58,7 @@ def build_ios(tag=''):
 
     print('==================Output========================')
     print(dst_framework_path)
+    return True
 
 def build_ios_xlog(tag=''):
     gen_mars_revision_file('comm', tag)

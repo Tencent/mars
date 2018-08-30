@@ -33,14 +33,12 @@ def build_osx(tag=''):
     if not libtool_libs(glob.glob(INSTALL_PATH + '/*.a'), libtool_os_dst_lib):
         return False
 
-
-
-
     dst_framework_path = INSTALL_PATH + '/mars.framework'
     make_static_framework(libtool_os_dst_lib, dst_framework_path, COMM_COPY_HEADER_FILES, '../../')
 
     print('==================Output========================')
     print(dst_framework_path)
+    return True
 
 def gen_ios_project():
     gen_mars_revision_file('comm')
