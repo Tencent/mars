@@ -38,7 +38,7 @@ if(ANDROID)
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
 
     get_filename_component(EXPORT_XLOG_EXP_FILE log/jni/export.exp ABSOLUTE)
-    target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script=${EXPORT_XLOG_EXP_FILE}"
+    target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script='${EXPORT_XLOG_EXP_FILE}'"
                             ${log-lib}
                             ${z-lib}
                             xlog
@@ -50,7 +50,7 @@ if(ANDROID)
     get_filename_component(EXPORT_EXP_FILE libraries/mars_android_sdk/jni/export.exp ABSOLUTE)
 
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc)
-    set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script=${EXPORT_EXP_FILE}")
+    set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script='${EXPORT_EXP_FILE}'")
 
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
 
