@@ -11,6 +11,7 @@ global:
 	xlogger_SetLevel;
 	xlogger_SetAppender;
     xlogger_VPrint;
+	xlogger_Level;
 	
 	__xlogger_Level_impl;
 	__xlogger_SetLevel_impl;
