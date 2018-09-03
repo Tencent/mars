@@ -48,6 +48,29 @@ if(ANDROID)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
 
 elseif(APPLE)
+    macro(check_apple_platform) 
+        include(CheckCSourceCompiles) 
+        check_c_source_compiles(" 
+        #include \"TargetConditionals.h\" 
+        int main(int argc, char *argv[]) { 
+        #if !TARGET_OS_MAC 
+            -1 
+        #endif 
+        } 
+        " OS_OSX) 
+        check_c_source_compiles(" 
+        #include \"TargetConditionals.h\" 
+        int main(int argc, char *argv[]) { 
+        #if !TARGET_OS_IPHONE 
+            -1 
+        #endif 
+        } 
+        " OS_IPHONE) 
+    
+    endmacro() 
+
+    check_apple_platform()
+
     # for gen xcode project file
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "gnu++0x")
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
@@ -55,7 +78,7 @@ elseif(APPLE)
     # for build
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -stdlib=libc++")
 
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -g -gline-tables-only")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -gline-tables-only")
     
     if (NOT DEFINED ENABLE_BITCODE)
         set(ENABLE_BITCODE TRUE CACHE BOOL "Wheter or not to enable bitcode")

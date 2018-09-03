@@ -110,6 +110,9 @@ def lipo_thin_libs(src_lib, dst_lib, archs):
     else:
         return lipo_libs(tmp_results, dst_lib)
 
+GENERATE_DSYM_FILE_CMD = 'dsymutil %s -o %s'
+def gen_dwarf_with_dsym(src_dylib, dst_dsym):
+    os.system(GENERATE_DSYM_FILE_CMD %(src_dylib, dst_dsym))
 
 def remove_cmake_files(path):
     cmake_files = path + '/CMakeFiles'
