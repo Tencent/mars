@@ -75,17 +75,17 @@ bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const 
 SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std::string& _host, const std::vector<std::string>& _hardcode_ips) {
     NetSource::DnsUtil dns_util_;
     
-	std::string proxy_ip;
+    std::string proxy_ip;
     if (mars::comm::kProxyNone != _proxy_info.type) {
         if (!_proxy_info.ip.empty()) {
             proxy_ip = _proxy_info.ip;
         } else {
-			std::vector<std::string> proxy_ips;
+            std::vector<std::string> proxy_ips;
             if (!dns_util_.GetDNS().GetHostByName(_proxy_info.host, proxy_ips) || proxy_ips.empty()) {
                 xwarn2(TSF"dns proxy host error, host:%_", _proxy_info.host);
                 return INVALID_SOCKET;
             }
-			proxy_ip = proxy_ips.front();
+            proxy_ip = proxy_ips.front();
         }
     }
     
@@ -93,16 +93,16 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     std::vector<socket_address> vecaddr;
     
     if (mars::comm::kProxyHttp == _proxy_info.type) {
-		vecaddr.push_back(socket_address(proxy_ip.c_str(), _proxy_info.port).v4tov6_address(isnat64));
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _proxy_info.port).v4tov6_address(isnat64));
     } else {
-		std::vector<std::string> test_ips;
-		if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
-			xwarn2(TSF"dns test_host error, host:%_", _host);
-			if (_hardcode_ips.empty()) {
-				return INVALID_SOCKET;
-			}
-			test_ips = _hardcode_ips;
-		}
+        std::vector<std::string> test_ips;
+        if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
+            xwarn2(TSF"dns test_host error, host:%_", _host);
+            if (_hardcode_ips.empty()) {
+                return INVALID_SOCKET;
+            }
+            test_ips = _hardcode_ips;
+        }
 
         for (size_t i = 0; i < test_ips.size(); ++i) {
             if (mars::comm::kProxyNone == _proxy_info.type) {
@@ -122,7 +122,7 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     socket_address* proxy_addr = NULL;
     
     if (mars::comm::kProxyNone != _proxy_info.type && mars::comm::kProxyHttp != _proxy_info.type) {
-		proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(isnat64));
+        proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(isnat64));
     }
     
     ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);

@@ -74,6 +74,10 @@ if(MSVC)
             network/local_routetable.cc
             socket/getsocktcpinfo.h
             socket/getsocktcpinfo.cc)
+
+    file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} windows/*.c windows/*.cc windows/*.cpp windows/*.h)
+    source_group(windows FILES ${SELF_TEMP_SRC_FILES})
+    list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
             
     file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} windows/zlib/*.c windows/zlib/*.h)
     source_group(windows\\zlib FILES ${SELF_TEMP_SRC_FILES})
