@@ -57,7 +57,7 @@ ANDROID_STL_FILE = {
 def get_android_strip_cmd(arch):
 
     system_str = platform.system().lower()
-    if (system_architecture_is64):
+    if (system_architecture_is64()):
         system_str = system_str + '-x86_64'
     else:
         pass

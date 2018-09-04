@@ -207,12 +207,12 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
     
     if (send_ret < 0) {
         xerror2(TSF"test proxy Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, strerror(err_code), socket_nread(_sock), socket_nwrite(_sock));
-        return false;
+        return -1;
     }
     
     if (testproxybreak_.IsBreak()) {
         xwarn2(TSF"test proxy break, sent:%_ nread:%_, nwrite:%_", send_ret, socket_nread(_sock), socket_nwrite(_sock));
-        return false;
+        return -1;
     }
     
     //recv response

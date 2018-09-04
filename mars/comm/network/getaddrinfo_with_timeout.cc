@@ -165,7 +165,7 @@ int getaddrinfo_with_timeout(const char *node, const char *service, const struct
     
     if (start_ret != 0) {
         xerror2(TSF"start the thread fail, host:%_", node);
-        return false;
+        return kRetCodeInternalStateError;
     }
     
     DnsItem dns_item;
