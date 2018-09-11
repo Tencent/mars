@@ -116,6 +116,11 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
         }
         return;
     }
+
+    if (last_heart_ != current_net_heart_info_.cur_heart_) {
+        xdebug2(TSF"last heart & cur_heart not match, ignore");
+        return;
+    }
     
     if(_sucess) {
         current_net_heart_info_.succ_heart_count_ += 1;
@@ -142,11 +147,6 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
                 report_smart_heart_(kActionReCalc, current_net_heart_info_, false);
             __SaveINI();
         }
-        return;
-    }
-
-    if (last_heart_ != current_net_heart_info_.cur_heart_) {
-        xdebug2(TSF"last heart & cur_heart not match, ignore");
         return;
     }
     
@@ -254,10 +254,10 @@ unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //
     xassert2((last_heart_ < MaxHeartInterval && last_heart_ >= MinHeartInterval), "heart value invalid");
 
     if(__IsDozeStyle() && current_net_heart_info_.heart_type_ != kDozeModeHeart && last_heart_ != (MaxHeartInterval - SuccessStep)) {
-        last_heart_ = MinHeartInterval;
+        current_net_heart_info_.cur_heart_ = last_heart_ = MinHeartInterval;
     }
     if(last_heart_ >= MaxHeartInterval || last_heart_ < MinHeartInterval) {
-        last_heart_ = MinHeartInterval;
+        current_net_heart_info_.cur_heart_ = last_heart_ = MinHeartInterval;
     }
     return last_heart_;
 }
