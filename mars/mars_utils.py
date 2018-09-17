@@ -282,7 +282,7 @@ def gen_mars_revision_file(version_file_path, tag=''):
 
     version_data = {
         'PublicComponent': {
-            'Branch': url,
+            'Branch': path,
             'Revision': revision,
             'BuildTag': tag,
             'BuildTime': build_time
