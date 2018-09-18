@@ -127,6 +127,9 @@ def remove_cmake_files(path):
     if os.path.isfile(cmake_cache):
         os.remove(cmake_cache)
 
+    for f in glob.glob(path + '/*.a'):
+        os.remove(f)
+
 
 def clean(path, incremental=False):
     if not incremental:
