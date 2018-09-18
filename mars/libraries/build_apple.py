@@ -6,6 +6,7 @@ import glob
 import time
 import getpass
 import time
+import shutil
 
 from mars_utils import *
 
@@ -88,6 +89,17 @@ def link_openssl(output_lib_path, cpu_folder):
     
     os.system("rm -rf %s/%s" % (openssl_lib_folder, cpu_folder))
 
+
+def clean(project):
+    (child_folders, child_projects) = get_child_project(project.path)
+
+    for child_folder in child_folders:
+        build_folder = RELATIVE_PATH + child_folder + '/build'
+        if os.path.exists(build_folder):
+            shutil.rmtree(build_folder)
+            print("removing " + build_folder)
+
+
 def build_apple(project, save_path):
     gen_revision_file(save_path, save_path)
 
@@ -100,6 +112,8 @@ def build_apple(project, save_path):
 
     print('#####################################################')
 
+    clean(project)
+
     targets = []
 
     while project.platform in xcode_sdks:
@@ -107,11 +121,6 @@ def build_apple(project, save_path):
         target = xcode_sdks[:xcode_sdks.find("\n")]
         xcode_sdks = xcode_sdks[xcode_sdks.find("\n"):]
         targets.append(target)
-
-        ret = os.system("xcodebuild clean -sdk %s -configuration Release -project %s" %(target, project.path))
-        if ret:
-            print("\033[0;31;40m!!!!clean %s failed!!!\033[0m" %(target))
-            return False
 
         if "simulator" in target:
             ret = os.system("xcodebuild  -sdk %s -configuration Release -project %s" %(target, project.path))
