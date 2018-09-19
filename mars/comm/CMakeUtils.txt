@@ -48,28 +48,6 @@ if(ANDROID)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
 
 elseif(APPLE)
-    macro(check_apple_platform) 
-        include(CheckCSourceCompiles) 
-        check_c_source_compiles(" 
-        #include \"TargetConditionals.h\" 
-        int main(int argc, char *argv[]) { 
-        #if !TARGET_OS_MAC 
-            -1 
-        #endif 
-        } 
-        " OS_OSX) 
-        check_c_source_compiles(" 
-        #include \"TargetConditionals.h\" 
-        int main(int argc, char *argv[]) { 
-        #if !TARGET_OS_IPHONE 
-            -1 
-        #endif 
-        } 
-        " OS_IPHONE) 
-    
-    endmacro() 
-
-    check_apple_platform()
 
     # for gen xcode project file
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "gnu++0x")
@@ -97,7 +75,5 @@ elseif(APPLE)
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_DEBUG_INFORMATION_LEVEL[variant=Debug] "default")
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_DEBUG_INFORMATION_LEVEL[variant=Release] "line-tables-only")
  
-
-
 endif()
  
