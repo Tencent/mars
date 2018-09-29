@@ -68,7 +68,7 @@ bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const 
     
     xinfo2(TSF"test proxy status code:%_", status_code);
     
-    return status_code == 200;
+    return status_code == 200 || status_code == 497 || (status_code > 300 && status_code < 400);
 
 }
 
