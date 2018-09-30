@@ -4,6 +4,8 @@
  */
 #include "comm/platform_comm.h"
 
+#import <Foundation/Foundation.h>
+
 #include "comm/xlogger/xlogger.h"
 #include "comm/xlogger/loginfo_extract.h"
 #import "comm/objc/scope_autoreleasepool.h"
@@ -60,7 +62,9 @@ static MarsNetworkStatus __GetNetworkStatus()
 }
 
 void FlushReachability() {
+#if !TARGET_OS_WATCH
    [MarsReachability getCacheReachabilityStatus:YES];
+#endif
 }
 
 float publiccomponent_GetSystemVersion() {

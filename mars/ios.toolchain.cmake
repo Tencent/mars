@@ -57,7 +57,8 @@
 #    SIMULATOR64 = Build for x86_64 iPhone Simulator.
 #    TVOS = Build for AppleTVOS.
 #    SIMULATOR_TVOS = Build for x86_64 AppleTV Simulator.
-#    WATCHOS = Build for armv7k for WatchOS
+#    WATCHOS = Build for armv7k for WatchOS.
+#    SIMULATOR_WATCHOS = Build for i386 for Watch Simulator.
 # CMAKE_OSX_SYSROOT: Path to the iOS SDK to use.  By default this is
 #    automatically determined from IOS_PLATFORM and xcodebuild, but
 #    can also be manually specified (although this should not be required).
@@ -75,6 +76,7 @@
 #    TVOS = arm64
 #    SIMULATOR_TVOS = x86_64
 #    WATCHOS = armv7k
+#    SIMULATOR_WATCHOS = i386
 #
 # This toolchain defines the following variables for use externally:
 #
@@ -163,6 +165,11 @@ elseif (IOS_PLATFORM STREQUAL "WATCHOS")
   set(XCODE_IOS_PLATFORM watchos)
   if(NOT IOS_ARCH)
     set(IOS_ARCH armv7k)
+  endif()
+elseif (IOS_PLATFORM STREQUAL "SIMULATOR_WATCHOS")
+  set(XCODE_IOS_PLATFORM  watchsimulator)
+  if(NOT IOS_ARCH)
+    set(IOS_ARCH i386)
   endif()
 else()
   message(FATAL_ERROR "Invalid IOS_PLATFORM: ${IOS_PLATFORM}")
@@ -333,6 +340,9 @@ elseif (IOS_PLATFORM STREQUAL "SIMULATOR_TVOS")
 elseif (IOS_PLATFORM STREQUAL "WATCHOS")
   set(XCODE_IOS_PLATFORM_VERSION_FLAGS
     "-mwatchos-version-min=${IOS_DEPLOYMENT_TARGET}")
+elseif (IOS_PLATFORM STREQUAL "SIMULATOR_WATCHOS")
+  set(XCODE_IOS_PLATFORM_VERSION_FLAGS
+    "-mwatchos-simulator-version-min=${IOS_DEPLOYMENT_TARGET}")
 else()
   # SIMULATOR or SIMULATOR64 both use -mios-simulator-version-min.
   set(XCODE_IOS_PLATFORM_VERSION_FLAGS
