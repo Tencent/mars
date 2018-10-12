@@ -20,7 +20,7 @@
 		4B91BAFE1DEF015900CFD83F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BAFD1DEF015900CFD83F /* Foundation.framework */; };
 		4B91BB001DEF016D00CFD83F /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BAFF1DEF016D00CFD83F /* CoreTelephony.framework */; };
 		4B91BB021DEF019800CFD83F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BB011DEF019800CFD83F /* SystemConfiguration.framework */; };
-		4B91BB061DEF028E00CFD83F /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BB051DEF028E00CFD83F /* mars.framework */; };
+		4BD0096D217081C9007FD5DB /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD0096C217081C9007FD5DB /* mars.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +64,7 @@
 		4B91BAFF1DEF016D00CFD83F /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		4B91BB011DEF019800CFD83F /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		4B91BB051DEF028E00CFD83F /* mars.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mars.framework; path = Kernel/MarsLib/mars.framework; sourceTree = "<group>"; };
+		4BD0096C217081C9007FD5DB /* mars.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = mars.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,7 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4B91BB061DEF028E00CFD83F /* mars.framework in Frameworks */,
+				4BD0096D217081C9007FD5DB /* mars.framework in Frameworks */,
 				4B91BB021DEF019800CFD83F /* SystemConfiguration.framework in Frameworks */,
 				4B91BB001DEF016D00CFD83F /* CoreTelephony.framework in Frameworks */,
 				4B91BAFE1DEF015900CFD83F /* Foundation.framework in Frameworks */,
@@ -173,6 +174,7 @@
 			isa = PBXGroup;
 			children = (
 				4B91BB051DEF028E00CFD83F /* mars.framework */,
+				4BD0096C217081C9007FD5DB /* mars.framework */,
 				4B91BB011DEF019800CFD83F /* SystemConfiguration.framework */,
 				4B91BAFF1DEF016D00CFD83F /* CoreTelephony.framework */,
 				4B91BAFD1DEF015900CFD83F /* Foundation.framework */,
@@ -188,7 +190,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1FB5771B1CE209A500ADCF8C /* Build configuration list for PBXNativeTarget "iOSDemoXlog" */;
 			buildPhases = (
-				4B91BAF21DEEF95100CFD83F /* Run Script - build xlog */,
 				1FB576EA1CE209A500ADCF8C /* Sources */,
 				1FB576EB1CE209A500ADCF8C /* Frameworks */,
 				1FB576EC1CE209A500ADCF8C /* Resources */,
@@ -309,23 +310,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4B91BAF21DEEF95100CFD83F /* Run Script - build xlog */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script - build xlog";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "BUILD_LIB_SCRIPT=${SRCROOT}/Kernel/build_libs_for_sample.py\n\npython $BUILD_LIB_SCRIPT\n\nif [[ $? -eq 1 ]]\nthen\n    exit 1\nfi";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1FB576EA1CE209A500ADCF8C /* Sources */ = {
@@ -479,6 +463,7 @@
 					"$(PROJECT_DIR)/Kernel",
 					"$(PROJECT_DIR)/PublicComponentV2",
 					"$(PROJECT_DIR)/Kernel/MarsLib",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = iOSDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -496,6 +481,7 @@
 					"$(PROJECT_DIR)/Kernel",
 					"$(PROJECT_DIR)/PublicComponentV2",
 					"$(PROJECT_DIR)/Kernel/MarsLib",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = iOSDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

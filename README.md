@@ -4,7 +4,7 @@
 [![Release Version](https://img.shields.io/badge/release-1.1.9-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
 [![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.9-red.svg)](https://github.com/Tencent/mars/wiki)
-[![WeChat Approved](https://img.shields.io/badge/Platform-%20iOS%20%7C%20OS%20X%20%7C%20Android(ndk11c)%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
+[![WeChat Approved](https://img.shields.io/badge/Platform-%20iOS%20%7C%20OS%20X%20%7C%20Android(ndk16b)%20%7C%20Windows%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 (中文版本请参看[这里](#mars_cn))
 
@@ -159,13 +159,18 @@ If you want to modify the encryption algorithm of Xlog, the packer/unpacker of l
 ### <a name="apple">[iOS/OS X](https://github.com/Tencent/mars/wiki/Mars-iOS%EF%BC%8FOS-X-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 Compile
 
+```python
+python build_ios.py
 ```
-python build_apple.py
+
+or 
+```python
+python build_osx.py
 ```
 
 1. Add mars.framework as a dependency of your project.
-2. Rename files with .rewriteme extension to .cc extension.
-3. Add header files and source files into your project.
+2. Rename files in mars/libraries/mars_android_sdk/jni with .rewriteme extension to .cc extension.
+3. Add header files in mars/libraries/mars_android_sdk/jni and source files from step 2 into your project.
 
 #### <a name="Xlog">Xlog Init</a>
 
@@ -281,12 +286,12 @@ Install Visual Studio 2015.
 
 Compile
 ```python
-python build_for_win32.py
+python build_windows.py
 ```
 
 1. Add mars.lib as a dependency of your project.
-2. Rename files with .rewriteme extension to .cc extension.
-3. Add header files and source files into your project.
+2. Rename files in mars/libraries/mars_android_sdk/jni with .rewriteme extension to .cc extension.
+3. Add header files in mars/libraries/mars_android_sdk/jni and source files from step 2 into your project.
 
 #### <a name="Xlog">Xlog Init</a>
 
@@ -374,7 +379,6 @@ For more information about contributing issues or pull requests, see our [Mars C
 ## License
 
 Mars is under the MIT license. See the [LICENSE](https://github.com/Tencent/mars/blob/master/LICENSE) file for details.
-
 
 ------------------------------
 ## <a name="mars_cn">Mars</a>
@@ -535,10 +539,15 @@ StnLogic.reset();
 编译
 
 ```
-python build_apple.py
+python build_ios.py
 ```
 
-把 mars.framework 作为依赖加入到你的项目中，把和 mars.framework 同目录的后缀名为 rewriteme 的文件名删掉".rewriteme"和头文件一起加入到你的项目中。
+or 
+```python
+python build_osx.py
+```
+
+把 mars.framework 作为依赖加入到你的项目中，把mars/libraries/mars_android_sdk/jni 目录的后缀名为 rewriteme 的文件名删掉".rewriteme"和头文件一起加入到你的项目中。
 
 #### <a name="Xlog">Xlog Init</a>
 
@@ -655,10 +664,10 @@ appender_close();
 编译
 
 ```python
-python build_for_win32.py
+python build_windows.py
 ```
 
-把 mars.lib作为依赖加入到你的项目中，把和 mars.lib 同目录的后缀名为 rewriteme 的文件名删掉".rewriteme"和头文件一起加入到你的项目中。
+把 mars.lib作为依赖加入到你的项目中，把mars/libraries/mars_android_sdk/jni 目录的后缀名为 rewriteme 的文件名删掉".rewriteme"和头文件一起加入到你的项目中。
 
 #### <a name="Xlog">Xlog Init</a>
 
