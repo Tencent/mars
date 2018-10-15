@@ -131,7 +131,7 @@ class ConnectCheckFSM : public TcpClientFSM {
                 observer_->OnConnected(index_, addr_, sock_, _error, TotalRtt());
             } else if (EReadWrite == _status && SOCKET_ERRNO(ETIMEDOUT) == _error) {
                 checkfintime_ = gettickcount();
-                observer_->OnVerifyTimeout((int)(checkfintime_ - end_connecttime_));
+                observer_->OnVerifyTimeout(index_, addr_, sock_, (int)(checkfintime_ - end_connecttime_));
             }
         }
     }
