@@ -14,14 +14,15 @@
 #include <errno.h>
 #include <linux/ioctl.h>
 
-#if __ANDROID_API__< 21 && !defined(__LP64__)
-#include <sys/atomics.h>
-#else
+//#if __ANDROID_API__< 21 && !defined(__LP64__)
+//#include <sys/atomics.h>
+//#else
 #include <stdatomic.h>
-#endif
+//#endif
 
-#include <linux/android_alarm.h>
+#include "android/android_alarm.h"
 #include <fcntl.h>
+#include <unistd.h>
 
 uint64_t gettickcount() {
     static int s_fd = -1;
@@ -29,18 +30,18 @@ uint64_t gettickcount() {
     if (s_fd == -1 && EACCES != errcode) {
         int fd = open("/dev/alarm", O_RDONLY);
         if (-1 == fd) errcode = errno;
-#if __ANDROID_API__< 21 && !defined(__LP64__)
-        if (__atomic_cmpxchg(-1, fd, &s_fd)) {
-            close(fd);
-        }
-#else
+//#if __ANDROID_API__< 21 && !defined(__LP64__)
+//        if (__atomic_cmpxchg(-1, fd, &s_fd)) {
+//            if(fd != -1) close(fd);
+//        }
+//#else
         atomic_int x = ATOMIC_VAR_INIT(s_fd);
         int expect = -1;
         if (!atomic_compare_exchange_strong(&x, &expect, fd)) {
         	close(fd);
         }
         s_fd = atomic_load(&x);
-#endif
+//#endif
     }
 
     struct timespec ts;
@@ -135,17 +136,11 @@ uint64_t gettickcount() {//todoyy
     return 0;
 }
 
+
 #elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP
 
 #include "unistd.h"
 #include <stdint.h>
-
-uint64_t gettickcount() {
-    return GetTickCount64();
-}
-uint64_t clock_app_monotonic() {
-    return gettickcount();
-}
 
 #elif defined _WIN32
 //#define NOMINMAX
@@ -153,9 +148,20 @@ uint64_t clock_app_monotonic() {
 #include <windows.h>
 
 uint64_t gettickcount() {
-    return GetTickCount();
+	return GetTickCount();
 }
 
+uint64_t clock_app_monotonic() {
+	return gettickcount();
+}
+#elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP 
+
+#include "unistd.h"
+#include <stdint.h>
+
+uint64_t gettickcount() {
+    return GetTickCount64();
+}
 uint64_t clock_app_monotonic() {
     return gettickcount();
 }
