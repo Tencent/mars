@@ -448,10 +448,12 @@ void ShortLinkTaskManager::RedoTasks() {
         std::list<TaskProfile>::iterator next = first;
         ++next;
 
-        if (first->running_id)    __DeleteShortLink(first->running_id);
-
-        first->InitSendParam();
         first->last_failed_dyntime_status = 0;
+
+        if (first->running_id) {
+            xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
+            __SingleRespHandle(first, kEctLocal, kEctLocalCancel, kTaskFailHandleDefault, 0, ((ShortLinkInterface*)first->running_id)->Profile());
+        }
 
         first = next;
     }

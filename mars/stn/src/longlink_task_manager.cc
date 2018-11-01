@@ -155,8 +155,11 @@ void LongLinkTaskManager::RedoTasks() {
         std::list<TaskProfile>::iterator next = first;
         ++next;
 
-        first->InitSendParam();
         first->last_failed_dyntime_status = 0;
+        if (first->running_id) {
+            xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
+            __SingleRespHandle(first, kEctLocal, kEctLocalCancel, kTaskFailHandleDefault, longlink_->Profile());
+        }
 
         first = next;
     }
