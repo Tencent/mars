@@ -709,7 +709,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
             case kFirstLine: {
                 char* pBuf = (char*)recvbuf_.Ptr();
                 char* pos = string_strnstr(pBuf, KStringCRLF, (int)recvbuf_.Length());
-                
                 if (NULL == pos && 8 * 1024 < recvbuf_.Length()) {
                     xerror2(TSF"wrong first line 8k buffer no found CRLF");
                     recvstatus_ = kFirstLineError;

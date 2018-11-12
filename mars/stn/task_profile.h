@@ -89,6 +89,8 @@ struct ConnectProfile {
         conn_rtt = 0;
         conn_cost = 0;
         tryip_count = 0;
+        send_request_cost = 0;
+        recv_reponse_cost = 0;
 
         local_ip.clear();
         local_port = 0;
@@ -120,6 +122,8 @@ struct ConnectProfile {
     unsigned int conn_rtt;
     unsigned long conn_cost;
     int tryip_count;
+    uint64_t send_request_cost;
+    uint64_t recv_reponse_cost;
 
     std::string ip;
     uint16_t port;

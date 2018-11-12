@@ -70,7 +70,7 @@ class ShortLinkConnectObserver : public MComplexConnect {
         ConnectingIndex[_index] = 0;
 
         if (0 != _error) {
-            xassert2(shortlink_.func_network_report);
+//            xassert2(shortlink_.func_network_report);
 
             if (_index < shortlink_.Profile().ip_items.size() && shortlink_.func_network_report)
                 shortlink_.func_network_report(__LINE__, kEctSocket, _error, _addr.ip(), shortlink_.Profile().ip_items[_index].str_host, _addr.port());
@@ -180,12 +180,18 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_items.push_back(item);
         __UpdateProfile(_conn_profile);
     } else {
-        if (net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_)) {
-        	_conn_profile.host = _conn_profile.ip_items[0].str_host;
-        	_conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
-        	_conn_profile.ip = _conn_profile.ip_items[0].str_ip;
-        	_conn_profile.port = _conn_profile.ip_items[0].port;
-        	__UpdateProfile(_conn_profile);
+        if (!outter_vec_addr_.empty()) {
+            _conn_profile.ip_items = outter_vec_addr_;
+        } else {
+            net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
+        }
+        
+        if (!_conn_profile.ip_items.empty()) {
+            _conn_profile.host      = _conn_profile.ip_items[0].str_host;
+            _conn_profile.ip_type   = _conn_profile.ip_items[0].source_type;
+            _conn_profile.ip        = _conn_profile.ip_items[0].str_ip;
+            _conn_profile.port      = _conn_profile.ip_items[0].port;
+            __UpdateProfile(_conn_profile);
         }
     }
     
@@ -208,9 +214,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     } else {
         for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
             if (!use_proxy || mars::comm::kProxyNone == _conn_profile.proxy_info.type) {
-                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.port).v4tov6_address(isnat64));
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port).v4tov6_address(isnat64));
             } else {
-                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.port));
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port));
             }
         }
     }
@@ -243,7 +249,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     ShortLinkConnectObserver connect_observer(*this);
 	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval);
-
+    
     SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
     delete proxy_addr;
 
@@ -342,7 +348,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	AutoBuffer out_buff;
 
-	shortlink_pack(url, headers, send_body_, send_extend_, out_buff, tracker_.get());
+    shortlink_pack(url, headers, send_body_, send_extend_, out_buff, tracker_.get());
 
 	// send request
 	xgroup2_define(group_send);
@@ -484,7 +490,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
  //   xassert2(!breaker_.IsBreak());
 
     if (kEctOK != _errType) {
-        xassert2(func_network_report);
+//        xassert2(func_network_report);
 
         if (_report && func_network_report) func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
     }
@@ -493,6 +499,12 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
         OnResponse(this, _errType, _status, _body, _extension, false, _conn_profile);
     else
         xwarn2(TSF"OnResponse NULL.");
+}
+
+void ShortLink::FillOutterIPAddr(const std::vector<IPPortItem>& _out_addr) {
+    if (!_out_addr.empty()) {
+        outter_vec_addr_ = _out_addr;
+    }
 }
 
 void ShortLink::__CancelAndWaitWorkerThread() {
