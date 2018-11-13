@@ -114,7 +114,7 @@ static const long kMaxLogAliveTime = 10 * 24 * 60 * 60;	// 10 days in second
 
 static std::string sg_log_extra_msg;
 
-static boost::iostreams::mapped_file sg_mmmap_file;
+static boost::iostreams::mapped_file& sg_mmmap_file = *(new boost::iostreams::mapped_file);
 
 namespace {
 class ScopeErrno {
