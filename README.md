@@ -86,11 +86,11 @@ final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
 if (BuildConfig.DEBUG) {
-    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
     Xlog.setConsoleLogOpen(true);
 
 } else {
-    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
     Xlog.setConsoleLogOpen(false);
 }
 
@@ -249,7 +249,7 @@ Initialize STN before you use it:
 }
 
 - (void)reportEvent_OnForeground:(BOOL)isForeground {
-    mars::baseevent::OnForeground(isForground);
+    mars::baseevent::OnForeground(isForeground);
 }
 
 - (void)makesureLongLinkConnect {
@@ -273,7 +273,7 @@ When the App's state of background or foreground is changed:
 
 ```objc
 - (void)reportEvent_OnForeground:(BOOL)isForeground {
-    mars::baseevent::OnForeground(isForground);
+    mars::baseevent::OnForeground(isForeground);
 }
 ```
 
@@ -466,11 +466,11 @@ final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
 if (BuildConfig.DEBUG) {
-    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
     Xlog.setConsoleLogOpen(true);
 
 } else {
-    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
     Xlog.setConsoleLogOpen(false);
 }
 
