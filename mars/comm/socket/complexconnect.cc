@@ -25,7 +25,7 @@
 #include <inttypes.h>
 #endif
 
-
+#include <limits.h>
 #include <algorithm>
 
 #include "comm/xlogger/xlogger.h"
