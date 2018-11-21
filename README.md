@@ -81,7 +81,7 @@ System.loadLibrary("marsxlog");
 final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
 final String logPath = SDCARD + "/marssample/log";
 
-// this is necessary, or may cash for SIGBUS
+// this is necessary, or may crash for SIGBUS
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
@@ -461,7 +461,7 @@ System.loadLibrary("marsxlog");
 final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
 final String logPath = SDCARD + "/marssample/log";
 
-// this is necessary, or may cash for SIGBUS
+// this is necessary, or may crash for SIGBUS
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
