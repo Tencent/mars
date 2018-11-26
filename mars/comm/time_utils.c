@@ -136,6 +136,9 @@ uint64_t gettickcount() {//todoyy
     return 0;
 }
 
+uint64_t clock_app_monotonic() {
+    return gettickcount();
+}
 
 #elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP
 
