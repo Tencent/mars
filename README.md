@@ -59,7 +59,7 @@ dependencies {
 **OR**
 #### <a name="">mars-xlog</a>
 If you just want to user xlog, add dependencies by adding the following lines to your app/build.gradle.
-note: xlog is included in mars-core and mars-wrapper. 
+note: xlog is included in mars-core and mars-wrapper.
 ```xml
 dependencies {
     compile 'com.tencent.mars:mars-xlog:1.0.6'
@@ -81,7 +81,7 @@ System.loadLibrary("marsxlog");
 final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
 final String logPath = SDCARD + "/marssample/log";
 
-// this is necessary, or may cash for SIGBUS
+// this is necessary, or may crash for SIGBUS
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
@@ -106,7 +106,7 @@ Log.appenderClose();
 
 #### <a name="STN">STN Init</a>
 
-If you add dependencies of mars-core to your project, you need to initialize and release STN.  
+If you add dependencies of mars-core to your project, you need to initialize and release STN.
 Initialize STN before you use it
 
 ```java
@@ -199,7 +199,7 @@ appender_set_console_log(false);
 appender_open(kAppednerAsync, [logPath UTF8String], "Test", "");
 ```
 
-Uninitialized xlog in function "applicationWillTerminate"
+Close xlog in function "applicationWillTerminate"
 
 
 ```cpp
@@ -257,7 +257,7 @@ Initialize STN before you use it:
 }
 ```
 
-Firstly, you should call the setCalBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, onForeground and makesureLongLinkConnect can be called.
+Firstly, you should call the setCallBack interface, and secondly, the Mars.init. Then, to initialize the Mars, there is to need to strictly follow the orders of the four commands. Finally, after Mars are initialized, onForeground and makesureLongLinkConnect can be called.
 
 If you want to destroy STN or exit App:
 
@@ -348,12 +348,12 @@ void Init()
 	mars::stn::SetCallback(mars::stn::StnCallBack::Instance());
 	mars::app::SetCallback(mars::app::AppCallBack::Instance());
 	mars::baseevent::OnCreate();
-	
+
 	//todo
 	//mars::stn::SetClientVersion(version);
 	//setShortLinkDebugIP(...)
 	//setLongLinkAddress(...)
-	
+
 	mars::baseevent::OnForeground(true);
 	mars::stn::MakesureLonglinkConnected();
 }
@@ -461,7 +461,7 @@ System.loadLibrary("marsxlog");
 final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
 final String logPath = SDCARD + "/marssample/log";
 
-// this is necessary, or may cash for SIGBUS
+// this is necessary, or may crash for SIGBUS
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
@@ -727,12 +727,12 @@ void Init()
 	mars::stn::SetCallback(mars::stn::StnCallBack::Instance());
 	mars::app::SetCallback(mars::app::AppCallBack::Instance());
 	mars::baseevent::OnCreate();
-	
+
 	//todo
 	//mars::stn::SetClientVersion(version);
 	//setShortLinkDebugIP(...)
 	//setLongLinkAddress(...)
-	
+
 	mars::baseevent::OnForeground(true);
 	mars::stn::MakesureLonglinkConnected();
 }
