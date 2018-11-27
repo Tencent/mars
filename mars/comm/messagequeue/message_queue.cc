@@ -947,6 +947,7 @@ MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<Runl
     ScopedSpinLock lock(*sp);
 
     if (0 != thread.start()) {
+        lock.unlock();
         delete sp;
         return KInvalidQueueID;
     }
