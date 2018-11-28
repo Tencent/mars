@@ -129,6 +129,8 @@ def remove_cmake_files(path):
 
     for f in glob.glob(path + '/*.a'):
         os.remove(f)
+    for f in glob.glob(path + '/*.so'):
+        os.remove(f)
 
 
 def clean(path, incremental=False):

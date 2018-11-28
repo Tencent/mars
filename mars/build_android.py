@@ -30,8 +30,8 @@ except KeyError as identifier:
 
 
 BUILD_OUT_PATH = 'cmake_build'
-ANDROID_LIBS_INSTALL_PATH = BUILD_OUT_PATH + "/Android.out/"
-ANDROID_BUILD_CMD = 'cmake %s %s -DANDROID_ABI="%s" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake -DANDROID_TOOLCHAIN=gcc -DANDROID_NDK=%s -DANDROID_PLATFORM=android-14 -DANDROID_STL="c++_shared" && make -j8 && make install'
+ANDROID_LIBS_INSTALL_PATH = BUILD_OUT_PATH + '/'
+ANDROID_BUILD_CMD = 'cmake %s %s -DANDROID_ABI="%s" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake -DANDROID_TOOLCHAIN=gcc -DANDROID_NDK=%s -DANDROID_PLATFORM=android-14 -DANDROID_STL="c++_shared" && cmake --build . %s --config Release -- -j8'
 ANDROID_SYMBOL_PATH = 'libraries/mars_android_sdk/obj/local/'
 ANDROID_LIBS_PATH = 'libraries/mars_android_sdk/libs/'
 
@@ -67,14 +67,14 @@ def get_android_strip_cmd(arch):
     return strip_cmd
 
 
-def build_android(incremental, arch):
+def build_android(incremental, arch, target_option=''):
 
     before_time = time.time()
     
     clean(BUILD_OUT_PATH, incremental)
     os.chdir(BUILD_OUT_PATH)
     
-    build_cmd = ANDROID_BUILD_CMD %(SCRIPT_PATH, ANDROID_GENERATOR, arch, NDK_ROOT, NDK_ROOT)
+    build_cmd = ANDROID_BUILD_CMD %(SCRIPT_PATH, ANDROID_GENERATOR, arch, NDK_ROOT, NDK_ROOT, target_option)
     print("build cmd:" + build_cmd)
     ret = os.system(build_cmd)
     os.chdir(SCRIPT_PATH)
@@ -130,7 +130,7 @@ def build_android(incremental, arch):
     print("use time:%d s" % (int(after_time - before_time)))
     return True
 
-def main(incremental, archs, tag=''):
+def main(incremental, archs, target_option='', tag=''):
     if not check_ndk_env():
         return
 
@@ -143,7 +143,7 @@ def main(incremental, archs, tag=''):
         shutil.rmtree(ANDROID_SYMBOL_PATH)
 
     for arch in archs:
-        if not build_android(incremental, arch):
+        if not build_android(incremental, arch, target_option):
             return
 
 if __name__ == '__main__':
@@ -155,7 +155,7 @@ if __name__ == '__main__':
             break
         else:
             archs = set(['armeabi'])
-            num = raw_input('Enter menu:\n1. Clean && build.\n2. Build incrementally.\n3. Exit\n')
+            num = raw_input('Enter menu:\n1. Clean && build mars.\n2. Build incrementally mars.\n3. Clean && build xlog.\n4. Exit\n')
             if num == '1':
                 main(False, archs)
                 break
@@ -163,6 +163,9 @@ if __name__ == '__main__':
                 main(True, archs)
                 break
             elif num == '3':
+                main(False, archs, '--target marsxlog')
+                break
+            elif num == '4':
                 break
             else:
                 main(False, archs)
