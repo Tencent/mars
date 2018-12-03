@@ -151,7 +151,7 @@ if __name__ == '__main__':
     while True:
         if len(sys.argv) >= 3:
             archs = sys.argv[2:]
-            main(False, archs, sys.argv[1])
+            main(False, archs, tag=sys.argv[1])
             break
         else:
             archs = set(['armeabi'])
