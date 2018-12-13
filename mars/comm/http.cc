@@ -671,7 +671,7 @@ Parser::~Parser() {
     }
 }
 
-Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
+Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes) {
     if((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_==kBody) {
         xwarn2(TSF"status:%_", recvstatus_);
         recvstatus_ = kEnd;
@@ -702,6 +702,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
     }
     
     recvbuf_.Write(_buffer, _length);
+    size_t origin_size = recvbuf_.Length();
     
     while (true) {
         switch (recvstatus_) {
@@ -753,6 +754,11 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                     recvstatus_ = kHeaderFields;
                     recvbuf_.Move(- firstlinelength);
                 }
+                
+                if (consumed_bytes){
+                    *consumed_bytes = origin_size - recvbuf_.Length();
+                }
+                
                 firstlinelength_ = firstlinelength;
             }
                 break;
@@ -782,6 +788,11 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                 recvstatus_ = kBody;
                 headerbuf_.Write(recvbuf_.Ptr(), headerslength);
                 recvbuf_.Move(-headerslength);
+                
+                if (consumed_bytes){
+                    *consumed_bytes = origin_size - recvbuf_.Length();
+                }
+                
                 headerlength_ = headerslength;
             }
                 break;
@@ -821,6 +832,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                             bodyreceiver_->AppendData(chunkBegin, (size_t)chunkSize);
                             
                             recvbuf_.Move(-(chunkEnd - chunkSizeBegin + 2));
+                            
+                            if (consumed_bytes){
+                                *consumed_bytes = origin_size - recvbuf_.Length();
+                            }
                         } else {  // last chunk
                             char* trailerBegin = chunkSizeEnd + 2;
                             
@@ -836,6 +851,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                             
                             
                             recvbuf_.Move(-(trailerEnd - chunkSizeBegin + 2));
+                            
+                            if (consumed_bytes){
+                                *consumed_bytes = origin_size - recvbuf_.Length();
+                            }
                         }
                     } else {  // no chunk
                         int contentLength = headfields_.ContentLength();
@@ -851,6 +870,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length) {
                         
                         bodyreceiver_->AppendData(recvbuf_.Ptr(), (size_t)appendlen);
                         recvbuf_.Move(-appendlen);
+                        
+                        if (consumed_bytes){
+                            *consumed_bytes = origin_size - recvbuf_.Length();
+                        }
                         
                         if ((int)bodyreceiver_->Length() == contentLength) {
                             recvstatus_ = kEnd;

@@ -313,7 +313,7 @@ class Parser {
     Parser& operator=(const Parser&);
 
   public:
-    TRecvStatus Recv(const void* _buffer, size_t _length);
+    TRecvStatus Recv(const void* _buffer, size_t _length, size_t* consumed_bytes = nullptr);
     TRecvStatus Recv(AutoBuffer& _recv_buffer);
     TRecvStatus RecvStatus() const;
 

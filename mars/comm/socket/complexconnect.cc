@@ -180,7 +180,8 @@ protected:
         if (check_status_ == EProxyHttpTunelConnSvrReq) {
 
             http::Parser parser;
-            http::Parser::TRecvStatus parse_status = parser.Recv(_recv_buff.Ptr(), _recv_buff.Length());
+            size_t consumed_bytes = 0;
+            http::Parser::TRecvStatus parse_status = parser.Recv(_recv_buff.Ptr(), _recv_buff.Length(), &consumed_bytes);
 
             if (parse_status != http::Parser::kEnd) {
                 xinfo2(TSF"proxy response continue:%_", _recv_buff.Length());
