@@ -141,6 +141,40 @@ def clean(path, incremental=False):
     if not os.path.exists(path):
         os.makedirs(path)
 
+def clean_windows(path, incremental):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        return
+    
+    if incremental:
+        return;
+    
+    try:
+        if os.path.exists(path):
+            shutil.rmtree(path)
+            if not os.path.exists(path):
+                os.makedirs(path)
+    except Exception:
+        pass
+        
+def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
+    for sf in sub_folder:
+        src_file = "%s/%s/" %(cmake_out, sf)
+        dirs = glob.glob(src_file + "*.dir")
+        if len(dirs) != 1:
+            print("Warning: %s path error." %src_file)
+            continue
+        
+        src_file = "%s/%s" %(dirs[0], config)
+        pdbs = glob.glob(src_file + "/*.pdb")
+        if len(pdbs) != 1:
+            print("Warning: %s path error." %src_file)
+            continue
+        pdb = pdbs[0]
+        if os.path.isfile(pdb):
+            shutil.copy(pdb, dst_folder)
+        else:
+            print("%s not exists" %pdb)
 
 def copy_file(src, dst):
     if not os.path.isfile(src):
