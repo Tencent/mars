@@ -11,11 +11,11 @@ from mars_utils import *
 SCRIPT_PATH = os.path.split(os.path.realpath(__file__))[0]
 
 
-BUILD_OUT_PATH = 'cmake_build'
+BUILD_OUT_PATH = 'cmake_build/Windows'
 WIN_LIBS_INSTALL_PATH = BUILD_OUT_PATH + "/Windows.out/"
 WIN_RESULT_DIR = WIN_LIBS_INSTALL_PATH + 'win/'
-WIN_BUILD_CMD = 'cmake .. && cmake --build . --target install --config %s'
-WIN_GEN_PROJECT_CMD = 'cmake ..'
+WIN_BUILD_CMD = 'cmake ../.. && cmake --build . --target install --config %s'
+WIN_GEN_PROJECT_CMD = 'cmake ../..'
 
 
 def build_windows(incremental, tag='', config='Release'):

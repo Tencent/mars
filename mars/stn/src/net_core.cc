@@ -75,10 +75,8 @@ inline  static bool __ValidAndInitDefault(Task& _task, XLogger& _group) {
     }
     
     if (_task.channel_select & Task::kChannelLong) {
-        xassert2(_task.cmdid > 0);
-        
         if (0 == _task.cmdid) {
-            xerror2("use longlink, but 0 == _task.cmdid ") >> _group;
+            xwarn2(" use longlink, but 0 == _task.cmdid ") >> _group;
             _task.channel_select &= ~Task::kChannelLong;
         }
     }

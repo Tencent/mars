@@ -8,12 +8,12 @@ from mars_utils import *
 
 SCRIPT_PATH = os.path.split(os.path.realpath(__file__))[0]
 
-BUILD_OUT_PATH = 'cmake_build'
+BUILD_OUT_PATH = 'cmake_build/OSX'
 INSTALL_PATH = BUILD_OUT_PATH + '/Darwin.out'
 
-OSX_BUILD_OS_CMD = 'cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_ARC=0 -DENABLE_BITCODE=0 && make -j8 && make install'
+OSX_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DENABLE_ARC=0 -DENABLE_BITCODE=0 && make -j8 && make install'
 
-GEN_OSX_PROJ = 'cmake .. -G Xcode -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=10.9 -DENABLE_BITCODE=0'
+GEN_OSX_PROJ = 'cmake ../.. -G Xcode -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=10.9 -DENABLE_BITCODE=0'
 
 
 def build_osx(tag=''):
