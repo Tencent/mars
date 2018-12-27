@@ -382,14 +382,14 @@ const char* HeaderFields::HeaderField(const char* _key) const {
     return NULL;
 }
 
-bool HeaderFields::IsTransferEncodingChunked() {
+bool HeaderFields::IsTransferEncodingChunked() const{
     const char* transferEncoding = HeaderField(HeaderFields::KStringTransferEncoding);
 
     if (transferEncoding && 0 == strcasecmp(transferEncoding, KStringChunked)) return true;
 
     return false;
 }
-bool HeaderFields::IsConnectionClose() {
+bool HeaderFields::IsConnectionClose() const{
     const char* conn = HeaderField(HeaderFields::KStringConnection);
         
     if (conn && 0 == strcasecmp(conn, KStringClose)) return true;
@@ -397,7 +397,7 @@ bool HeaderFields::IsConnectionClose() {
     return false;
 }
 
-int HeaderFields::ContentLength() {
+int HeaderFields::ContentLength() const{
     const char* strContentLength = HeaderField(HeaderFields::KStringContentLength);
     int contentLength = 0;
 
@@ -408,7 +408,7 @@ int HeaderFields::ContentLength() {
     return contentLength;
 }
 
-bool HeaderFields::Range(long& _start, long& _end) {
+bool HeaderFields::Range(long& _start, long& _end) const {
     const char* strRange = HeaderField(HeaderFields::KStringRange);
     if (NULL == strRange) {
         return false;
@@ -433,7 +433,7 @@ bool HeaderFields::Range(long& _start, long& _end) {
     return true;
 }
     
-bool HeaderFields::ContentRange(int* start, int* end, int* total) {
+bool HeaderFields::ContentRange(int* start, int* end, int* total) const{
     // Content-Range: bytes 0-102400/102399
 
     *start = 0;
@@ -487,8 +487,16 @@ const std::string HeaderFields::ToString() const {
 
     return str;
 }
-
-
+    
+std::list<std::pair<std::string, std::string>> HeaderFields::GetAsList() const{
+    std::list<std::pair<std::string, std::string>> result;
+    
+    std::transform(std::begin(headers_), std::end(headers_), std::back_inserter(result), [](const std::pair<const std::string, std::string>& kv) ->std::pair<std::string, std::string>{
+        return {kv.first, kv.second};
+    });
+    
+    return result;
+}
 
 
 // implement of IStreamBodyProvider

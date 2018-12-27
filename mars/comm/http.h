@@ -23,6 +23,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 
 #include "autobuffer.h"
 
@@ -163,13 +164,14 @@ class HeaderFields {
     void HeaderFiled(const HeaderFields& _headerfields);
     const char* HeaderField(const char* _key) const;
     std::map<const std::string, std::string, less>& GetHeaders() {return headers_;}
+    std::list<std::pair<std::string, std::string>> GetAsList() const;
 
-    bool IsTransferEncodingChunked();
-    bool IsConnectionClose();
-    int ContentLength();
+    bool IsTransferEncodingChunked() const;
+    bool IsConnectionClose() const;
+    int ContentLength() const ;
 
-    bool Range(long& _start, long& _end);
-    bool ContentRange(int* start, int* end, int* total);
+    bool Range(long& _start, long& _end) const;
+    bool ContentRange(int* start, int* end, int* total) const;
 
     const std::string ToString() const;
 
