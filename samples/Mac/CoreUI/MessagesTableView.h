@@ -11,37 +11,26 @@
 // limitations under the License.
 
 //
-//  MessageQueueUtils.cpp
-//  PublicComponent
+//  MessagesTableView.h
+//  mactest
 //
-//  Created by yerungui on 14-5-21.
+//  Created by caoshaokun on 16/11/28.
+//  Copyright © 2016年 caoshaokun. All rights reserved.
 //
 //
 #include "boost/utility/result_of.hpp"
-#include "comm/messagequeue/message_queue.h"
-#include "comm/messagequeue/message_queue_utils.h"
+#import <Cocoa/Cocoa.h>
 
+#import "Main.pb.h"
 
-namespace MessageQueue {
+#import "NetworkDelegate.h"
+#import "UINotifyDelegate.h"
+#import "MessagesDelegate.h"
 
-ScopeRegister::ScopeRegister(const MessageHandler_t& _reg)
-    : m_reg(new MessageHandler_t(_reg)) {}
-
-ScopeRegister::~ScopeRegister() {
-    Cancel();
-    delete m_reg;
+@interface MessagesTableView : NSTableView<UINotifyDelegate, NSTableViewDelegate, NSTableViewDataSource> {
+    NSArray<Conversation*> * converSations;
 }
 
-const MessageHandler_t& ScopeRegister::Get() const
-{return *m_reg;}
+@property (nullable, weak) id <MessagesDelegate> messagesDelegate;
 
-void ScopeRegister::Cancel() const {
-    UnInstallMessageHandler(*m_reg);
-    CancelMessage(*m_reg);
-}
-void ScopeRegister::CancelAndWait() const {
-    Cancel();
-    WaitForRuningLockEnd(*m_reg);
-}
-
-}  // namespace MessageQueue
+@end

@@ -21,6 +21,25 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
+	FILE* mars_fopen_utf8(const char* _path, const char* _model);
+	int mars_mkdir_utf8(const char* _path, unsigned short _model);
+	int mars_access_utf8(char const* _path, int _model);
+	//int mars_remove_utf8(char const* _path);
+
+#ifdef __cplusplus 
+}
+#endif 
+
+#undef fopen
+#define fopen mars_fopen_utf8 
+//#undef remove
+//#define remove mars_remove_utf8 // boost::filesystem::detail::remove compile error
+
+
 #ifdef WINAPI_FAMILY_PARTITION
 #include <winapifamily.h>
 #if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PC_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
@@ -38,13 +57,14 @@
 #define stricmp _stricmp
 #define snprintf _snprintf
 #else
-#define mkdir _mkdir
+#define mkdir mars_mkdir_utf8
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define stricmp _stricmp
 #define snprintf _snprintf
 #endif
-#define access _access
+#undef access
+#define access mars_access_utf8
 #if !defined(WIN32)
     #define sscanf sscanf_s
 #endif
@@ -66,7 +86,9 @@
 #endif
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 
 #if !defined(WIN32)
 #define sscanf sscanf_s
@@ -75,10 +97,13 @@
 #define _CRT_NONSTDC_NO_WARNINGS 1
 #define _SCL_SECURE_NO_WARNINGS 1
 #define S_ISDIR(x) (_S_IFDIR & x) 
-#define WIN32_LEAN_AND_MEAN
-#endif
 
-#if !_WIN64
 typedef SSIZE_T ssize_t;
+#define  PRIu64 "I64d"
+#define  PRIuMAX	PRIu64
+
+#if defined(WIN32) && !defined(SIZE_T_MAX)
+#define SIZE_T_MAX  UINT_MAX
 #endif
 
+#endif
