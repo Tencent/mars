@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/projdef.h"
 
 namespace mars{
     namespace stn{
@@ -141,7 +142,7 @@ enum {
     kEctLongFirstPkgTimeout = -500,
     kEctLongPkgPkgTimeout = -501,
     kEctLongReadWriteTimeout = -502,
-    kEctLongTaskTimeout = -503,
+   // kEctLongTaskTimeout = -503,
 };
 
 // -600 ~ -500
@@ -149,7 +150,7 @@ enum {
     kEctHttpFirstPkgTimeout = -500,
     kEctHttpPkgPkgTimeout = -501,
     kEctHttpReadWriteTimeout = -502,
-    kEctHttpTaskTimeout = -503,
+  //  kEctHttpTaskTimeout = -503,
 };
 
 // -20000 ~ -10000
@@ -163,6 +164,7 @@ enum {
     kEctSocketSendErr = -10092,
     kEctSocketNoopTimeout = -10093,
     kEctSocketNoopAlarmTooLate = -10094,
+    kEctSocketUserBreak = -10095,
 
     kEctHttpSplitHttpHeadAndBody = -10194,
     kEctHttpParseStatusLine = -10195,
@@ -234,7 +236,8 @@ extern void (*ReportConnectStatus)(int status, int longlink_status);
         
 extern void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);        
 extern void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);
-        
+    
+extern void (*OnLongLinkStatusChange)(int _status);
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 extern int  (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid);
 //长连信令校验回包 

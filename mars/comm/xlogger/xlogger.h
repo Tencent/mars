@@ -581,7 +581,8 @@ inline void XLogger::DoTypeSafeFormat(const char* _format, const string_cast** _
 #else
 	// Definitely, VC6 not support this feature!
 	#if _MSC_VER > 1200
-		#define __XFUNCTION__	__FUNCSIG__
+		//#define __XFUNCTION__	__FUNCSIG__
+        #define __XFUNCTION__	__FUNCTION__
 	#else
 		#define __XFUNCTION__	"N/A"
 		#warning " is not supported by this compiler"

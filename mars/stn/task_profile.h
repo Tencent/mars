@@ -89,6 +89,8 @@ struct ConnectProfile {
         conn_rtt = 0;
         conn_cost = 0;
         tryip_count = 0;
+        send_request_cost = 0;
+        recv_reponse_cost = 0;
 
         local_ip.clear();
         local_port = 0;
@@ -120,6 +122,8 @@ struct ConnectProfile {
     unsigned int conn_rtt;
     unsigned long conn_cost;
     int tryip_count;
+    uint64_t send_request_cost;
+    uint64_t recv_reponse_cost;
 
     std::string ip;
     uint16_t port;
@@ -188,6 +192,19 @@ struct TransferProfile {
     int error_type;
     int error_code;
 };
+    
+//do not insert or delete
+enum TaskFailStep {
+    kStepSucc = 0,
+    kStepDns,
+    kStepConnect,
+    kStepFirstPkg,
+    kStepPkgPkg,
+    kStepDecode,
+    kStepOther,
+    kStepTimeout,
+    kStepServer,
+};
         
 struct TaskProfile {
     
@@ -215,6 +232,7 @@ struct TaskProfile {
     TaskProfile(const Task& _task):task(_task), transfer_profile(task), task_timeout(ComputeTaskTimeout(_task)), start_task_time(::gettickcount()){
         
         remain_retry_count = task.retry_count;
+        force_no_retry = false;
         
         running_id = 0;
         
@@ -231,6 +249,7 @@ struct TaskProfile {
 
         err_type = kEctOK;
         err_code = 0;
+        link_type = 0;
     }
     
     void InitSendParam() {
@@ -240,6 +259,18 @@ struct TaskProfile {
     
     void PushHistory() {
         history_transfer_profiles.push_back(transfer_profile);
+    }
+    
+    TaskFailStep GetFailStep() const {
+        if(kEctOK == err_type && 0 == err_code) return kStepSucc;
+        if(kEctDns == err_type) return kStepDns;
+        if(transfer_profile.connect_profile.ip_index == -1) return kStepConnect;
+        if(transfer_profile.last_receive_pkg_time == 0) return kStepFirstPkg;
+        if(kEctEnDecode == err_type)    return kStepDecode;
+        if(kEctSocket == err_type || kEctHttp == err_type || kEctNetMsgXP == err_type)  return kStepPkgPkg;
+        if(kEctLocalTaskTimeout == err_code)    return kStepTimeout;
+        if(kEctServer == err_type || (kEctOK == err_type && err_code != 0))    return kStepServer;
+        return kStepOther;
     }
 
     const Task task;
@@ -252,6 +283,7 @@ struct TaskProfile {
     uint64_t retry_start_time;
 
     int remain_retry_count;
+    bool force_no_retry;
     
     int last_failed_dyntime_status;
     int current_dyntime_status;

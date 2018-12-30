@@ -52,6 +52,10 @@
 #define __ROUTE_HEADER_FILE__  "comm/objc/route.h"
 #endif
 
+#if TARGET_OS_WATCH
+#undef USE_SYSCTL_NET_ROUTE
+#endif
+
 #endif //__APPLE__
 
 #if (defined(sun) && defined(__SVR4))

@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <algorithm>
+#include <locale>
 
 #include "comm/xlogger/xlogger.h"
 
@@ -218,6 +219,23 @@ ENDSWITH(std::wstring)
 SPLITTOKEN(std::string)
 SPLITTOKEN(std::wstring)
 
+#ifdef WIN32
+#include <Windows.h>
+std::wstring String2WString(const std::string& _src, unsigned int _cp) {
+	const int len = static_cast<int>(_src.length());
+	std::wstring enc;
+	const int req = MultiByteToWideChar(_cp, 0, _src.c_str(), len, NULL, 0);
+	if (req > 0) {
+		enc.resize(static_cast<size_t>(req));
+		MultiByteToWideChar(_cp, 0, _src.c_str(), len, &enc[0], req);
+	}
+	return enc;
+}
+
+std::wstring UTF8String2Wstring(const std::string& _src) {
+	return String2WString(_src, CP_UTF8);
+}
+#endif
 std::string Hex2Str(const char* _str, unsigned int _len) {
     std::string outstr="";
     for(unsigned int i = 0; i< _len;i++) {
@@ -260,7 +278,7 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
 std::string ReplaceChar(const char* const input_str, char be_replaced, char replace_with) {
 	std::string output_str(input_str);
 	size_t len = output_str.size();
-	xassert2(len<16);
+	xassert2(len<16*1024, TSF"input_str:%_", input_str);
 	for(size_t i=0; i<len; ++i) {
 		if (be_replaced == output_str[i]) {
 			output_str[i] = replace_with;
@@ -268,4 +286,40 @@ std::string ReplaceChar(const char* const input_str, char be_replaced, char repl
 	}
 	return output_str;
 }
+std::string GetFileNameFromPath(const char* _path) {
+    if (NULL == _path) return "";
+    
+    const char* pos = strrchr(_path, '\\');
+    
+    if (NULL == pos) {
+        pos = strrchr(_path, '/');
+    }
+    
+    if (NULL == pos || '\0' == *(pos + 1)) {
+        return _path;
+    } else {
+        return pos + 1;
+    }
+}
+    
+template<typename charT>
+struct my_equal {
+    my_equal(const std::locale& loc) : loc_(loc) {}
+    bool operator()(charT ch1, charT ch2) {
+        return std::toupper(ch1, loc_) == std::toupper(ch2, loc_);
+    }
+private:
+    const std::locale& loc_;
+};
+
+// find substring (case insensitive)
+size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos){
+    const std::locale& loc = std::locale();
+    typename std::string::const_iterator it = std::search(str.begin() + pos, str.end(),
+                                                sub.begin(), sub.end(), my_equal<typename std::string::value_type>(loc));
+    
+    if (it != str.end()) return it - str.begin();
+    else return std::string::npos;  // not found
+}
+
 }

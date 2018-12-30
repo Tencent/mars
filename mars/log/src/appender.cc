@@ -105,12 +105,13 @@ static bool sg_consolelog_open = false;
 #endif
 
 static uint64_t sg_max_file_size = 0; // 0, will not split log file.
+static int sg_cache_log_days = 0;   // 0, will not cache logs
 
 static void __async_log_thread();
 static Thread sg_thread_async(&__async_log_thread);
 
 static const unsigned int kBufferBlockLength = 150 * 1024;
-static const long kMaxLogAliveTime = 10 * 24 * 60 * 60;	// 10 days in second
+static const long kMaxLogAliveTime = 10 * 24 * 60 * 60;    // 10 days in second
 static long sg_max_alive_time = kMaxLogAliveTime;
 static std::string sg_log_extra_msg;
 
@@ -251,22 +252,6 @@ static void __make_logfilename(const timeval& _tv, const std::string& _logdir, c
     _filepath[_len - 1] = '\0';
 }
 
-static void __del_files(const std::string& _forder_path) {
-    
-    boost::filesystem::path path(_forder_path);
-    if (!boost::filesystem::is_directory(path)) {
-        return;
-    }
-    
-    boost::filesystem::directory_iterator end_iter;
-    for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
-        if (boost::filesystem::is_regular_file(iter->status()))
-        {
-            boost::filesystem::remove(iter->path());
-        }
-    }
-}
-
 static void __del_timeout_file(const std::string& _log_path) {
     time_t now_time = time(NULL);
     
@@ -275,15 +260,13 @@ static void __del_timeout_file(const std::string& _log_path) {
     if (boost::filesystem::exists(path) && boost::filesystem::is_directory(path)){
         boost::filesystem::directory_iterator end_iter;
         for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
-            time_t fileModifyTime = boost::filesystem::last_write_time(iter->path());
+            time_t file_modify_time = boost::filesystem::last_write_time(iter->path());
             
-            if (now_time > fileModifyTime && now_time - fileModifyTime > sg_max_alive_time) {
-                if (boost::filesystem::is_regular_file(iter->status())) {
-                    boost::filesystem::remove(iter->path());
-                }
-                else if (boost::filesystem::is_directory(iter->status())) {
-                    __del_files(iter->path().string());
-                }
+            if (now_time > file_modify_time && now_time - file_modify_time > kMaxLogAliveTime
+                && boost::filesystem::is_regular_file(iter->status())
+                && iter->path().extension()==(std::string(".") + LOG_EXT)) {
+            
+                boost::filesystem::remove(iter->path());
             }
         }
     }
@@ -294,7 +277,7 @@ static bool __append_file(const std::string& _src_file, const std::string& _dst_
         return false;
     }
 
-    if (!boost::filesystem::exists(_src_file)){
+    if (!boost::filesystem::exists(_src_file)) {
         return false;
     }
     
@@ -360,10 +343,7 @@ static void __move_old_files(const std::string& _src_path, const std::string& _d
     }
     
     ScopedLock lock_file(sg_mutex_log_file);
-    
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    char logfilepath[1024] = {0};
+    time_t now_time = time(NULL);
     
     boost::filesystem::directory_iterator end_iter;
     for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
@@ -372,14 +352,18 @@ static void __move_old_files(const std::string& _src_path, const std::string& _d
             continue;
         }
         
-        __make_logfilename(tv, _dest_path, sg_logfileprefix.c_str(), LOG_EXT, logfilepath , 1024);
+        if (sg_cache_log_days > 0) {
+            time_t file_modify_time = boost::filesystem::last_write_time(iter->path());
+            if (now_time > file_modify_time && (now_time - file_modify_time) < sg_cache_log_days * 24 * 60 * 60) {
+                continue;
+            }
+        }
         
-        if (!__append_file(iter->path().string(), logfilepath)) {
+        if (!__append_file(iter->path().string(), sg_logdir + "/" + iter->path().filename().string())) {
             break;
         }
         
         boost::filesystem::remove(iter->path());
-        memset(logfilepath, 0, sizeof(logfilepath));
     }
 }
 
@@ -413,7 +397,6 @@ static bool __writefile(const void* _data, size_t _len, FILE* _file) {
         int err = ferror(_file);
 
         __writetips2console("write file error:%d", err);
-
 
         ftruncate(fileno(_file), before_len);
         fseek(_file, 0, SEEK_END);
@@ -465,7 +448,7 @@ static bool __openlogfile(const std::string& _log_dir) {
     if (now_time < s_last_time) {
         sg_logfile = fopen(s_last_file_path, "ab");
 
-		if (NULL == sg_logfile) {
+        if (NULL == sg_logfile) {
             __writetips2console("open file error:%d %s, path:%s", errno, strerror(errno), s_last_file_path);
         }
 
@@ -477,7 +460,7 @@ static bool __openlogfile(const std::string& _log_dir) {
 
     sg_logfile = fopen(logfilepath, "ab");
 
-	if (NULL == sg_logfile) {
+    if (NULL == sg_logfile) {
         __writetips2console("open file error:%d %s, path:%s", errno, strerror(errno), logfilepath);
     }
 
@@ -518,14 +501,37 @@ static void __closelogfile() {
     sg_logfile = NULL;
 }
 
-static void __log2file(const void* _data, size_t _len) {
-	if (NULL == _data || 0 == _len || sg_logdir.empty()) {
-		return;
-	}
+static bool __cache_logs() {
+    if (sg_cache_logdir.empty() || sg_cache_log_days <= 0) {
+        return false;
+    }
+    
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    char logfilepath[1024] = {0};
+    __make_logfilename(tv, sg_logdir, sg_logfileprefix.c_str(), LOG_EXT, logfilepath , 1024);
+    if (boost::filesystem::exists(logfilepath)) {
+        return false;
+    }
+    
+    static const uintmax_t kAvailableSizeThreshold = (uintmax_t)1 * 1024 * 1024 * 1024;   // 1G
+    boost::filesystem::space_info info = boost::filesystem::space(sg_cache_logdir);
+    if (info.available < kAvailableSizeThreshold) {
+        return false;
+    }
+    
+    return true;
+    
+}
 
-	ScopedLock lock_file(sg_mutex_log_file);
+static void __log2file(const void* _data, size_t _len, bool _move_file) {
+    if (NULL == _data || 0 == _len || sg_logdir.empty()) {
+        return;
+    }
 
-	if (sg_cache_logdir.empty()) {
+    ScopedLock lock_file(sg_mutex_log_file);
+
+    if (sg_cache_logdir.empty()) {
         if (__openlogfile(sg_logdir)) {
             __writefile(_data, _len, sg_logfile);
             if (kAppednerAsync == sg_mode) {
@@ -533,7 +539,7 @@ static void __log2file(const void* _data, size_t _len) {
             }
         }
         return;
-	}
+    }
 
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -541,12 +547,16 @@ static void __log2file(const void* _data, size_t _len) {
 
     __make_logfilename(tv, sg_cache_logdir, sg_logfileprefix.c_str(), LOG_EXT, logcachefilepath , 1024);
     
-    if (boost::filesystem::exists(logcachefilepath) && __openlogfile(sg_cache_logdir)) {
+    bool cache_logs = __cache_logs();
+    if ((cache_logs || boost::filesystem::exists(logcachefilepath)) && __openlogfile(sg_cache_logdir)) {
         __writefile(_data, _len, sg_logfile);
         if (kAppednerAsync == sg_mode) {
             __closelogfile();
         }
-
+        
+        if (cache_logs || !_move_file) {
+            return;
+        }
 
         char logfilepath[1024] = {0};
         __make_logfilename(tv, sg_logdir, sg_logfileprefix.c_str(), LOG_EXT, logfilepath , 1024);
@@ -554,28 +564,29 @@ static void __log2file(const void* _data, size_t _len) {
             if (kAppednerSync == sg_mode) {
                 __closelogfile();
             }
-            remove(logcachefilepath);
+            boost::filesystem::remove(logcachefilepath);
         }
-    } else {
-        bool write_sucess = false;
-        bool open_success = __openlogfile(sg_logdir);
-        if (open_success) {
-            write_sucess = __writefile(_data, _len, sg_logfile);
+        return;
+    }
+    
+    bool write_sucess = false;
+    bool open_success = __openlogfile(sg_logdir);
+    if (open_success) {
+        write_sucess = __writefile(_data, _len, sg_logfile);
+        if (kAppednerAsync == sg_mode) {
+            __closelogfile();
+        }
+    }
+
+    if (!write_sucess) {
+        if (open_success && kAppednerSync == sg_mode) {
+            __closelogfile();
+        }
+
+        if (__openlogfile(sg_cache_logdir)) {
+            __writefile(_data, _len, sg_logfile);
             if (kAppednerAsync == sg_mode) {
                 __closelogfile();
-            }
-        }
-
-        if (!write_sucess) {
-            if (open_success && kAppednerSync == sg_mode) {
-                __closelogfile();
-            }
-
-            if (__openlogfile(sg_cache_logdir)) {
-                __writefile(_data, _len, sg_logfile);
-                if (kAppednerAsync == sg_mode) {
-                    __closelogfile();
-                }
             }
         }
     }
@@ -598,7 +609,7 @@ static void __writetips2file(const char* _tips_format, ...) {
     AutoBuffer tmp_buff;
     sg_log_buff->Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp_buff);
     
-    __log2file(tmp_buff.Ptr(), tmp_buff.Length());
+    __log2file(tmp_buff.Ptr(), tmp_buff.Length(), false);
 }
 
 static void __async_log_thread() {
@@ -612,11 +623,11 @@ static void __async_log_thread() {
         sg_log_buff->Flush(tmp);
         lock_buffer.unlock();
 
-		if (NULL != tmp.Ptr())  __log2file(tmp.Ptr(), tmp.Length());
+        if (NULL != tmp.Ptr())  __log2file(tmp.Ptr(), tmp.Length(), true);
 
         if (sg_log_close) break;
 
-        sg_cond_buffer_async.wait(15 * 60 *1000);
+        sg_cond_buffer_async.wait(15 * 60 * 1000);
     }
 }
 
@@ -629,7 +640,7 @@ static void __appender_sync(const XLoggerInfo* _info, const char* _log) {
     AutoBuffer tmp_buff;
     if (!sg_log_buff->Write(log.Ptr(), log.Length(), tmp_buff))   return;
 
-    __log2file(tmp_buff.Ptr(), tmp_buff.Length());
+    __log2file(tmp_buff.Ptr(), tmp_buff.Length(), false);
 }
 
 static void __appender_async(const XLoggerInfo* _info, const char* _log) {
@@ -787,18 +798,18 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
 
 
 static void get_mark_info(char* _info, size_t _infoLen) {
-	struct timeval tv;
-	gettimeofday(&tv, 0);
-	time_t sec = tv.tv_sec; 
-	struct tm tm_tmp = *localtime((const time_t*)&sec);
-	char tmp_time[64] = {0};
-	strftime(tmp_time, sizeof(tmp_time), "%Y-%m-%d %z %H:%M:%S", &tm_tmp);
-	snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
+    struct timeval tv;
+    gettimeofday(&tv, 0);
+    time_t sec = tv.tv_sec;
+    struct tm tm_tmp = *localtime((const time_t*)&sec);
+    char tmp_time[64] = {0};
+    strftime(tmp_time, sizeof(tmp_time), "%Y-%m-%d %z %H:%M:%S", &tm_tmp);
+    snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
 }
 
 void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key) {
-	assert(_dir);
-	assert(_nameprefix);
+    assert(_dir);
+    assert(_nameprefix);
     
     if (!sg_log_close) {
         __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _dir, _nameprefix);
@@ -807,11 +818,10 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     xlogger_SetAppender(&xlogger_appender);
     
-	//mkdir(_dir, S_IRWXU|S_IRWXG|S_IRWXO);
-	boost::filesystem::create_directories(_dir);
+    boost::filesystem::create_directories(_dir);
     tickcount_t tick;
     tick.gettickcount();
-	__del_timeout_file(_dir);
+    __del_timeout_file(_dir);
 
     tickcountdiff_t del_timeout_file_time = tickcount_t().gettickcount() - tick;
     
@@ -839,11 +849,11 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     AutoBuffer buffer;
     sg_log_buff->Flush(buffer);
 
-	ScopedLock lock(sg_mutex_log_file);
-	sg_logdir = _dir;
-	sg_logfileprefix = _nameprefix;
-	sg_log_close = false;
-	appender_setmode(_mode);
+    ScopedLock lock(sg_mutex_log_file);
+    sg_logdir = _dir;
+    sg_logfileprefix = _nameprefix;
+    sg_log_close = false;
+    appender_setmode(_mode);
     lock.unlock();
     
     char mark_info[512] = {0};
@@ -851,18 +861,17 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     if (buffer.Ptr()) {
         __writetips2file("~~~~~ begin of mmap ~~~~~\n");
-        __log2file(buffer.Ptr(), buffer.Length());
+        __log2file(buffer.Ptr(), buffer.Length(), false);
         __writetips2file("~~~~~ end of mmap ~~~~~%s\n", mark_info);
     }
 
     tickcountdiff_t get_mmap_time = tickcount_t().gettickcount() - tick;
 
-
     char appender_info[728] = {0};
     snprintf(appender_info, sizeof(appender_info), "^^^^^^^^^^" __DATE__ "^^^" __TIME__ "^^^^^^^^^^%s", mark_info);
 
     xlogger_appender(NULL, appender_info);
-    char logmsg[64] = {0};
+    char logmsg[256] = {0};
     snprintf(logmsg, sizeof(logmsg), "del time out files time: %" PRIu64, (int64_t)del_timeout_file_time);
     xlogger_appender(NULL, logmsg);
 
@@ -877,22 +886,34 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_mode, use_mmap);
     xlogger_appender(NULL, logmsg);
+    
+    if (!sg_cache_logdir.empty()) {
+        boost::filesystem::space_info info = boost::filesystem::space(sg_cache_logdir);
+        snprintf(logmsg, sizeof(logmsg), "cache dir space info, capacity:%" PRIuMAX" free:%" PRIuMAX" available:%" PRIuMAX, info.capacity, info.free, info.available);
+        xlogger_appender(NULL, logmsg);
+    }
+    
+    boost::filesystem::space_info info = boost::filesystem::space(sg_logdir);
+    snprintf(logmsg, sizeof(logmsg), "log dir space info, capacity:%" PRIuMAX" free:%" PRIuMAX" available:%" PRIuMAX, info.capacity, info.free, info.available);
+    xlogger_appender(NULL, logmsg);
 
-	BOOT_RUN_EXIT(appender_close);
+    BOOT_RUN_EXIT(appender_close);
 
 }
 
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir, const char* _nameprefix, const char* _pub_key) {
+void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir,
+                              const char* _nameprefix, int _cache_days, const char* _pub_key) {
     assert(!_cachedir.empty());
     assert(!_logdir.empty());
     assert(_nameprefix);
 
     sg_logdir = _logdir;
+    sg_cache_log_days = _cache_days;
 
     if (!_cachedir.empty()) {
-    	sg_cache_logdir = _cachedir;
-    	boost::filesystem::create_directories(_cachedir);
-    	__del_timeout_file(_cachedir);
+        sg_cache_logdir = _cachedir;
+        boost::filesystem::create_directories(_cachedir);
+        __del_timeout_file(_cachedir);
         // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
         Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
     }
@@ -919,7 +940,7 @@ void appender_flush_sync() {
 
     lock_buffer.unlock();
 
-	if (tmp.Ptr())  __log2file(tmp.Ptr(), tmp.Length());
+    if (tmp.Ptr())  __log2file(tmp.Ptr(), tmp.Length(), false);
 
 }
 
@@ -939,12 +960,12 @@ void appender_close() {
     if (sg_thread_async.isruning())
         sg_thread_async.join();
 
-	
+    
     ScopedLock buffer_lock(sg_mutex_buffer_async);
     if (sg_mmmap_file.is_open()) {
         if (!sg_mmmap_file.operator !()) memset(sg_mmmap_file.data(), 0, kBufferBlockLength);
 
-		CloseMmapFile(sg_mmmap_file);
+        CloseMmapFile(sg_mmmap_file);
     } else {
         delete[] (char*)((sg_log_buff->GetData()).Ptr());
     }
@@ -954,7 +975,7 @@ void appender_close() {
     buffer_lock.unlock();
 
     ScopedLock lock(sg_mutex_log_file);
-	__closelogfile();
+    __closelogfile();
 }
 
 void appender_setmode(TAppenderMode _mode) {
@@ -1021,19 +1042,28 @@ bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<
     gettimeofday(&tv, NULL);
     tv.tv_sec -= _timespan * (24 * 60 * 60);
     
-    char log_path[2048] = {0};
+    char log_path[2048] = { 0 };
     __make_logfilename(tv, sg_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
     
-    _filepath_vec.push_back(log_path);
-    
     if (sg_cache_logdir.empty()) {
+        _filepath_vec.push_back(log_path);
         return true;
     }
     
-    memset(log_path, 0, sizeof(log_path));
-    __make_logfilename(tv, sg_cache_logdir, _prefix, LOG_EXT, log_path, sizeof(log_path));
+    char cache_log_path[2048] = { 0 };
+    __make_logfilename(tv, sg_cache_logdir, _prefix, LOG_EXT, cache_log_path, sizeof(cache_log_path));
     
-    _filepath_vec.push_back(log_path);
+    if (boost::filesystem::exists(log_path)) {
+        _filepath_vec.push_back(log_path);
+    }
+    
+    if (boost::filesystem::exists(cache_log_path)) {
+        _filepath_vec.push_back(cache_log_path);
+    }
+    
+    if (!boost::filesystem::exists(log_path) && !boost::filesystem::exists(cache_log_path)) {
+        _filepath_vec.push_back(log_path);
+    }
     
     return true;
 }

@@ -37,6 +37,8 @@
 #include "mars/comm/jni/util/var_cache.h"
 #include "mars/comm/jni/util/scope_jenv.h"
 #include "mars/comm/jni/util/comm_function.h"
+#include "mars/comm/thread/mutex.h"
+#include "mars/comm/thread/lock.h"
 
 #include "mars/app/app.h"
 
@@ -162,14 +164,25 @@ DeviceInfo GetDeviceInfo() {
 
 	jstring devicename_jstr = (jstring)JNU_GetField(env, ret_obj, "devicename", "Ljava/lang/String;").l;
 
+	static Mutex mutex;
+	ScopedLock lock(mutex);
+
 	if (NULL != devicename_jstr) {
-		s_info.devicename = ScopedJstring(env, devicename_jstr).GetChar();
+		ScopedJstring scoped_jstr(env, devicename_jstr);
+		
+		jsize len = env->GetStringUTFLength(devicename_jstr);
+		s_info.devicename = std::string(scoped_jstr.GetChar(), len);
+		
 		env->DeleteLocalRef(devicename_jstr);
 	}
 
 	jstring devicetype_jstr = (jstring)JNU_GetField(env, ret_obj, "devicetype", "Ljava/lang/String;").l;
 	if (NULL != devicetype_jstr) {
-		s_info.devicetype = ScopedJstring(env, devicetype_jstr).GetChar();
+		ScopedJstring scoped_jstr(env, devicetype_jstr);
+
+		jsize len = env->GetStringUTFLength(devicetype_jstr);
+		s_info.devicetype = std::string(scoped_jstr.GetChar(), len);
+		
 		env->DeleteLocalRef(devicetype_jstr);
 	}
 

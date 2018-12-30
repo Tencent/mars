@@ -75,10 +75,8 @@ inline  static bool __ValidAndInitDefault(Task& _task, XLogger& _group) {
     }
     
     if (_task.channel_select & Task::kChannelLong) {
-        xassert2(_task.cmdid > 0);
-        
         if (0 == _task.cmdid) {
-            xerror2("use longlink, but 0 == _task.cmdid ") >> _group;
+            xwarn2(" use longlink, but 0 == _task.cmdid ") >> _group;
             _task.channel_select &= ~Task::kChannelLong;
         }
     }
@@ -178,7 +176,8 @@ NetCore::NetCore()
 
     longlink_task_manager_->LongLinkChannel().SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
     longlink_task_manager_->LongLinkChannel().SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
-
+    
+    longlink_task_manager_->fun_on_push_ = boost::bind(&NetCore::__OnPush, this, _1, _2, _3, _4, _5);
 #ifdef __APPLE__
     longlink_task_manager_->getLongLinkConnectMonitor().fun_longlink_reset_ = boost::bind(&NetCore::__ResetLongLink, this);
 #endif
@@ -238,7 +237,7 @@ NetCore::~NetCore() {
 
 void NetCore::__Release(NetCore* _instance) {
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(_instance->asyncreg_.Get())) {
-        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get()));
+        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
         return;
     }
     
@@ -552,14 +551,11 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 
 #ifdef USE_LONG_LINK
 
-//void NetCore::__OnPush(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _buf) {
-//
-//    if (is_push_data(_cmdid, _taskid)) {
-//        xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _buf.Length());
-//        push_preprocess_signal_(_cmdid, _buf);
-//        OnPush(_cmdid, _buf);
-//    }
-//}
+void NetCore::__OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _body.Length());
+    push_preprocess_signal_(_cmdid, _body);
+    OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+}
 
 void NetCore::__OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnLongLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _port));
@@ -622,6 +618,7 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status) {
     if (LongLink::kConnected == _status) zombie_task_manager_->RedoTasks();
 
     __ConnStatusCallBack();
+    OnLongLinkStatusChange(_status);
 }
 #endif
 
@@ -729,3 +726,18 @@ void NetCore::__OnSignalActive(bool _isactive) {
     ASYNC_BLOCK_END
 }
 
+void NetCore::AddServerBan(const std::string& _ip) {
+    net_source_->AddServerBan(_ip);
+}
+
+ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select) {
+    if (_channel_select == Task::kChannelShort) {
+        return shortlink_task_manager_->GetConnectProfile(_taskid);
+    }
+#ifdef USE_LONG_LINK
+    else if (_channel_select == Task::kChannelLong) {
+        return longlink_task_manager_->LongLinkChannel().Profile();
+    }
+#endif
+    return ConnectProfile();
+}

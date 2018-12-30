@@ -162,7 +162,7 @@ int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/
     GetPingStatus(pingStatusTemp);
 
     if (0 == pingStatusTemp.avgrtt && 0 == pingStatusTemp.maxrtt) {
-        xinfo2(TSF"remote host is not available");
+        xinfo2(TSF"remote host is not available, pingresult_:%_", pingresult_);
         return -1;
     }
 
@@ -499,6 +499,7 @@ int PingQuery::__prepareSendAddr(const char* _dest) {
 
     if (ai->ai_family != AF_INET) {
         xinfo2(TSF"unknown address family %0\n", ai->ai_family);
+        freeaddrinfo(ai);
         return -1;
     }
 

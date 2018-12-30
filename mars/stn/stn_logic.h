@@ -43,7 +43,7 @@ namespace stn{
     	virtual ~Callback() {}
         virtual bool MakesureAuthed() = 0;
         
-        //流量统计
+        //流量统计 
         virtual void TrafficData(ssize_t _send, ssize_t _recv) = 0;
         
         //底层询问上层该host对应的ip列表 
@@ -57,8 +57,13 @@ namespace stn{
         //任务执行结束 
         virtual int  OnTaskEnd(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) = 0;
 
+
         //上报网络连接状态 
         virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
+        virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {}
+        virtual void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {}
+        
+        virtual void OnLongLinkStatusChange(int _status) {}
         //长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2 
         virtual int  GetLonglinkIdentifyCheckBuffer(AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) = 0;
         //长连信令校验回包 
@@ -93,7 +98,7 @@ namespace stn{
     
 
     // async function.
-	extern void (*StartTask)(const Task& task);
+	extern bool (*StartTask)(const Task& task);
     
     // sync function
 	extern void (*StopTask)(uint32_t taskid);

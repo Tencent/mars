@@ -30,23 +30,22 @@ class AutoBuffer;
 namespace mars {
 namespace app {
 
-	class Callback {
-	public:
-		virtual ~Callback() {};
+    class Callback {
+    public:
+        virtual ~Callback() {};
         
         virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
 
         virtual std::string GetAppFilePath() = 0;
         
-		virtual AccountInfo GetAccountInfo() = 0;
+        virtual AccountInfo GetAccountInfo() = 0;
 
-		virtual unsigned int GetClientVersion() = 0;
+        virtual unsigned int GetClientVersion() = 0;
 
-		virtual DeviceInfo GetDeviceInfo() = 0;
+        virtual DeviceInfo GetDeviceInfo() = 0;
+    };
 
-	};
-
-	void SetCallback(Callback* const callback);
+    void SetCallback(Callback* const callback);
 }}
 
 

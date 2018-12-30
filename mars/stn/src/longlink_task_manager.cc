@@ -39,6 +39,7 @@
 
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
+#include "weak_network_logic.h"
 
 using namespace mars::stn;
 
@@ -154,8 +155,11 @@ void LongLinkTaskManager::RedoTasks() {
         std::list<TaskProfile>::iterator next = first;
         ++next;
 
-        first->InitSendParam();
         first->last_failed_dyntime_status = 0;
+        if (first->running_id) {
+            xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
+            __SingleRespHandle(first, kEctLocal, kEctLocalCancel, kTaskFailHandleDefault, longlink_->Profile());
+        }
 
         first = next;
     }
@@ -191,7 +195,7 @@ void LongLinkTaskManager::__RunLoop() {
         wakeup_lock_->Lock(30 * 1000);
 #endif
       MessageQueue::FasterMessage(asyncreg_.Get(),
-                                  MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&LongLinkTaskManager::__RunLoop, this)),
+                                  MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&LongLinkTaskManager::__RunLoop, this), "LongLinkTaskManager::__RunLoop"),
                                   MessageQueue::MessageTiming(1000));
     } else {
 #ifdef ANDROID
@@ -207,6 +211,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
 
     uint64_t cur_time = ::gettickcount();
     int socket_timeout_code = 0;
+    uint32_t src_taskid = Task::kInvalidTaskID;
     bool istasktimeout = false;
 
     while (first != last) {
@@ -218,6 +223,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
                 xerror2(TSF"task first-pkg timeout taskid:%_,  nStartSendTime=%_, nfirstpkgtimeout=%_",
                         first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.first_pkg_timeout / 1000);
                 socket_timeout_code = kEctLongFirstPkgTimeout;
+                src_taskid = first->task.taskid;
                 __SetLastFailedStatus(first);
             }
 
@@ -225,16 +231,20 @@ void LongLinkTaskManager::__RunOnTimeout() {
                 xerror2(TSF"task pkg-pkg timeout, taskid:%_, nLastRecvTime=%_, pkg-pkg timeout=%_",
                         first->task.taskid, first->transfer_profile.last_receive_pkg_time / 1000, ((kMobile != getNetInfo()) ? kWifiPackageInterval : kGPRSPackageInterval) / 1000);
                 socket_timeout_code = kEctLongPkgPkgTimeout;
+                src_taskid = first->task.taskid;
             }
             
             if (cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.read_write_timeout) {
                 xerror2(TSF"task read-write timeout, taskid:%_, , nStartSendTime=%_, nReadWriteTimeOut=%_",
                         first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.read_write_timeout / 1000);
                 socket_timeout_code = kEctLongReadWriteTimeout;
+                src_taskid = first->task.taskid;
             }
         }
 
         if (cur_time - first->start_task_time >= first->task_timeout) {
+            xerror2(TSF"task timeout, taskid:%_, nStartSendTime=%_, cur_time=%_, timeout:%_",
+                    first->task.taskid, first->transfer_profile.start_send_time / 1000, cur_time / 1000, first->task_timeout / 1000);
             __SingleRespHandle(first, kEctLocal, kEctLocalTaskTimeout, kTaskFailHandleTaskTimeout, longlink_->Profile());
             istasktimeout = true;
         }
@@ -244,11 +254,11 @@ void LongLinkTaskManager::__RunOnTimeout() {
 
     if (0 != socket_timeout_code) {
         dynamic_timeout_.CgiTaskStatistic("", kDynTimeTaskFailedPkgLen, 0);
-        __BatchErrorRespHandle(kEctNetMsgXP, socket_timeout_code, kTaskFailHandleDefault, Task::kInvalidTaskID, longlink_->Profile());
+        __BatchErrorRespHandle(kEctNetMsgXP, socket_timeout_code, kTaskFailHandleDefault, src_taskid, longlink_->Profile());
         xassert2(fun_notify_network_err_);
         fun_notify_network_err_(__LINE__, kEctNetMsgXP, socket_timeout_code, longlink_->Profile().ip,  longlink_->Profile().port);
     } else if (istasktimeout) {
-        __BatchErrorRespHandle(kEctNetMsgXP, kEctLongTaskTimeout, kTaskFailHandleDefault, Task::kInvalidTaskID, longlink_->Profile());
+        __BatchErrorRespHandle(kEctNetMsgXP, kEctLocalTaskTimeout, kTaskFailHandleDefault, src_taskid, longlink_->Profile());
     }
 }
 
@@ -362,9 +372,9 @@ void LongLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_",
+        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, curtime:%_, start_send_time:%_,",
                first->task.cgi, first->task.cmdid, first->task.taskid, first->transfer_profile.send_data_size, first->transfer_profile.first_pkg_timeout / 1000,
-               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count);
+               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, curtime, first->start_task_time);
 
         if (first->task.send_only) {
             __SingleRespHandle(first, kEctOK, 0, kTaskFailHandleNoError, longlink_->Profile());
@@ -380,6 +390,8 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     xassert2(kEctServer != _err_type);
     xassert2(_it != lst_cmd_.end());
 
+    if(_it == lst_cmd_.end())return false;
+    
     _it->transfer_profile.connect_profile = _connect_profile;
     
     if (kEctOK == _err_type) {
@@ -407,15 +419,18 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
 
         if (!_it->task.send_only && _it->running_id) {
         	if (kEctOK == _err_type) {
-				errcode = (cgi_retcode == 0 ? cgi_retcode : kEctServer);
+				errcode = cgi_retcode;
 			}
 		}
 
         _it->end_task_time = ::gettickcount();
         _it->err_code = errcode;
         _it->err_type = _err_type;
+        _it->transfer_profile.error_type = _err_type;
+        _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
         ReportTaskProfile(*_it);
+        WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         lst_cmd_.erase(_it);
         return true;
@@ -428,6 +443,8 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     (TSF"cgi:%_, taskid:%_, tid:%_", _it->task.cgi, _it->task.taskid, _connect_profile.tid);
 
     _it->remain_retry_count--;
+    _it->transfer_profile.error_type = _err_type;
+    _it->transfer_profile.error_code = _err_code;
     _it->PushHistory();
     _it->InitSendParam();
     
@@ -509,7 +526,11 @@ void LongLinkTaskManager::__OnResponse(ErrCmdType _error_type, int _error_code, 
     
     if (kEctOK == _error_type && ::longlink_ispush(_cmdid, _taskid, body, extension))  {
         xinfo2(TSF"task push seq:%_, cmdid:%_, len:(%_, %_)", _taskid, _cmdid, body->Length(), extension->Length());
-        OnPush(_connect_profile.start_time, _cmdid, _taskid, body, extension);
+        
+        if (fun_on_push_)
+            fun_on_push_(_connect_profile.start_time, _cmdid, _taskid, body, extension);
+        else
+            xassert2(false);
         return;
     }
     
@@ -603,6 +624,10 @@ void LongLinkTaskManager::__OnRecv(uint32_t _taskid, size_t _cachedsize, size_t 
     std::list<TaskProfile>::iterator it = __Locate(_taskid);
 
     if (lst_cmd_.end() != it) {
+        if(it->transfer_profile.last_receive_pkg_time == 0)
+            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+        else
+            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.received_size = _cachedsize;
         it->transfer_profile.receive_data_size = _totalsize;
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();

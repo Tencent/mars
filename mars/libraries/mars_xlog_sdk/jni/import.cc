@@ -5,8 +5,6 @@
 
 void ImportLibs() {
 	
-#ifdef MARS_STATIC_XLOG
 	extern void ExportXlog();
 	ExportXlog();
-#endif	
 }

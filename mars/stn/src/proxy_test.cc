@@ -68,24 +68,24 @@ bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const 
     
     xinfo2(TSF"test proxy status code:%_", status_code);
     
-    return status_code == 200;
+    return status_code == 200 || status_code == 497 || (status_code > 300 && status_code < 400);
 
 }
 
 SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std::string& _host, const std::vector<std::string>& _hardcode_ips) {
     NetSource::DnsUtil dns_util_;
     
-	std::string proxy_ip;
+    std::string proxy_ip;
     if (mars::comm::kProxyNone != _proxy_info.type) {
         if (!_proxy_info.ip.empty()) {
             proxy_ip = _proxy_info.ip;
         } else {
-			std::vector<std::string> proxy_ips;
+            std::vector<std::string> proxy_ips;
             if (!dns_util_.GetDNS().GetHostByName(_proxy_info.host, proxy_ips) || proxy_ips.empty()) {
                 xwarn2(TSF"dns proxy host error, host:%_", _proxy_info.host);
                 return INVALID_SOCKET;
             }
-			proxy_ip = proxy_ips.front();
+            proxy_ip = proxy_ips.front();
         }
     }
     
@@ -93,16 +93,16 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     std::vector<socket_address> vecaddr;
     
     if (mars::comm::kProxyHttp == _proxy_info.type) {
-		vecaddr.push_back(socket_address(proxy_ip.c_str(), _proxy_info.port).v4tov6_address(isnat64));
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _proxy_info.port).v4tov6_address(isnat64));
     } else {
-		std::vector<std::string> test_ips;
-		if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
-			xwarn2(TSF"dns test_host error, host:%_", _host);
-			if (_hardcode_ips.empty()) {
-				return INVALID_SOCKET;
-			}
-			test_ips = _hardcode_ips;
-		}
+        std::vector<std::string> test_ips;
+        if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
+            xwarn2(TSF"dns test_host error, host:%_", _host);
+            if (_hardcode_ips.empty()) {
+                return INVALID_SOCKET;
+            }
+            test_ips = _hardcode_ips;
+        }
 
         for (size_t i = 0; i < test_ips.size(); ++i) {
             if (mars::comm::kProxyNone == _proxy_info.type) {
@@ -122,7 +122,7 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     socket_address* proxy_addr = NULL;
     
     if (mars::comm::kProxyNone != _proxy_info.type && mars::comm::kProxyHttp != _proxy_info.type) {
-		proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(isnat64));
+        proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(isnat64));
     }
     
     ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);
@@ -132,9 +132,9 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"test proxy connect fail sock:-1, costtime:%0", com_connect.TotalCost());
+    } else {
+        xinfo2(TSF"test proxy connect suc sock:%_, net:%_", sock, ::getNetInfo());
     }
-    
-    xinfo2(TSF"test proxy connect suc sock:%_, net:%_", sock, ::getNetInfo());
     
     return sock;
     
@@ -158,6 +158,7 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
         char auth_info[1024] = {0};
         snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
         headers[http::HeaderFields::kStringProxyAuthorization] = auth_info;
+        free(dstbuf);
     }
     
     AutoBuffer body;
@@ -171,11 +172,9 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
     req_builder.Fields().HeaderFiled(HeaderFields::MakeAcceptAll());
     req_builder.Fields().HeaderFiled(HeaderFields::KStringUserAgent, HeaderFields::KStringMicroMessenger);
     req_builder.Fields().HeaderFiled(HeaderFields::MakeCacheControlNoCache());
-    req_builder.Fields().HeaderFiled(HeaderFields::MakeContentTypeOctetStream());
     req_builder.Fields().HeaderFiled(HeaderFields::MakeConnectionClose());
     req_builder.Fields().HeaderFiled(HeaderFields::KStringHost, _host.c_str());
-    req_builder.Fields().HeaderFiled(HeaderFields::KStringContentLength, "0");
-    
+
     
     if (mars::comm::kProxyHttp == _proxy_info.type && !_proxy_info.username.empty() && !_proxy_info.password.empty()) {
         std::string account_info = _proxy_info.username + ":" + _proxy_info.password;
@@ -190,12 +189,12 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
         char auth_info[1024] = {0};
         snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
         req_builder.Fields().HeaderFiled(HeaderFields::kStringProxyAuthorization, auth_info);
-
+        free(dstbuf);
     }
     
     std::string url;
     if (mars::comm::kProxyHttp == _proxy_info.type) {
-        url = std::string("http://") + _host;
+        url = std::string("http://") + _host + "/"; // the "/" is necessary, otherwise some proxy server will response: 400 bad request
     } else {
         url = "/";
     }
@@ -208,12 +207,12 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
     
     if (send_ret < 0) {
         xerror2(TSF"test proxy Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, strerror(err_code), socket_nread(_sock), socket_nwrite(_sock));
-        return false;
+        return -1;
     }
     
     if (testproxybreak_.IsBreak()) {
         xwarn2(TSF"test proxy break, sent:%_ nread:%_, nwrite:%_", send_ret, socket_nread(_sock), socket_nwrite(_sock));
-        return false;
+        return -1;
     }
     
     //recv response

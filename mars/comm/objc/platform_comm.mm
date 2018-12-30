@@ -4,6 +4,8 @@
  */
 #include "comm/platform_comm.h"
 
+#import <Foundation/Foundation.h>
+
 #include "comm/xlogger/xlogger.h"
 #include "comm/xlogger/loginfo_extract.h"
 #import "comm/objc/scope_autoreleasepool.h"
@@ -31,6 +33,7 @@
 #include "comm/objc/objc_timer.h"
 #import "comm/objc/Reachability.h"
 
+#include "comm/thread/mutex.h"
 #include "comm/thread/lock.h"
 #include "comm/network/getifaddrs.h"
 
@@ -59,7 +62,9 @@ static MarsNetworkStatus __GetNetworkStatus()
 }
 
 void FlushReachability() {
+#if !TARGET_OS_WATCH
    [MarsReachability getCacheReachabilityStatus:YES];
+#endif
 }
 
 float publiccomponent_GetSystemVersion() {
@@ -226,20 +231,29 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     return true;
 #elif !TARGET_OS_IPHONE
     
-    static CWInterface* info = nil; //CWInterface can reused
+    static Mutex mutex;
+    ScopedLock lock(mutex);
     
-    if (nil == info) {
-        if (__GetSystemVersion() < 10.10){
-            info = [CWInterface interface];
-        }else{
-            CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
-            if (nil != wificlient) info = [wificlient interface];
-        }
+    static float version = 0.0;
+    
+    CWInterface* info = nil;
+    
+    if (version < 0.1) {
+        version = __GetSystemVersion();
+    }
+    
+    if (version < 10.10){
+        static CWInterface* s_info = [[CWInterface interface] retain];
+        info = s_info;
+    }else{
+        CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
+        if (nil != wificlient) info = [wificlient interface];
     }
 
     if (nil == info) return false;
-    if (info.ssid) {
-        wifiInfo.ssid = [info.ssid UTF8String];
+    if (info.ssid != nil) {
+        const char* ssid = [info.ssid UTF8String];
+        if(NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
         //wifiInfo.bssid = [info.bssid UTF8String];
     } else {
         wifiInfo.ssid = USE_WIRED;
