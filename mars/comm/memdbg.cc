@@ -28,7 +28,6 @@
 
 #ifdef ANDROID
 #include <unistd.h>
-#include "comm/android/callstack.h"
 #endif
 #include "mars/comm/xlogger/xlogger.h"
 
@@ -51,9 +50,7 @@ struct CrtMem {
     void*                    _crtMemAddr;
     size_t                  _crtMemLen;
     TMemoryType                _crtMemoryType;
-#ifdef ANDROID
-    android::CallStack      _crtCallStack;
-#endif
+
 };
 
 static std::vector<CrtMem> gs_CrtMemRoot;
@@ -68,9 +65,7 @@ static void __LogAlloc(void* _retp, size_t _size, const char* _filename, int _li
     crtMemCell._crtMemAddr    = _retp;
     crtMemCell._crtMemLen     = _size;
     crtMemCell._crtMemoryType = _type;
-#ifdef ANDROID
-    crtMemCell._crtCallStack.update();
-#endif
+
 
     gs_CrtMemRoot.push_back(crtMemCell);
 }
@@ -84,12 +79,7 @@ static void __DeleteLogAlloc(void* _p, const char* _filename, int _line, const c
                           << "alloc type is: " << gs_typename[it->_crtMemoryType] << "\n"
                           << "[" << _filename << ", " << _line << ", " << _func << "]"
                           << "dealloc type is: " << gs_typename[_type] << "\n";
-#ifdef ANDROID
-                android::CallStack  callstack;
-                callstack.update();
-                std::string str_stack = callstack.Format("dealloc type error stack dump", "memdbg");
-                strstream << str_stack;
-#endif
+
                 __ASSERT(__FILE__, __LINE__, __FUNCTION__, strstream.String().c_str());
             }
 
@@ -220,9 +210,7 @@ extern "C" void DumpMemoryLeaks(void (* _pfunoutput)(const char*)) {
         }
 
         strstream << ">\n";
-#ifdef ANDROID
-        strstream << it->_crtCallStack.Format("memory leaks stack dump", "memdbg");
-#endif
+
         strstream << "<--------------------------------Separator---------------------------------->\n";
     }
 

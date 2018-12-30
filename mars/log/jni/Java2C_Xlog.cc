@@ -28,9 +28,9 @@ DEFINE_FIND_CLASS(KXlog, "com/tencent/mars/xlog/Xlog")
 
 extern "C" {
 
-DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V")
+DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
-	(JNIEnv *env, jclass, jint level, jint mode, jstring _cache_dir, jstring _log_dir, jstring _nameprefix, jstring _pubkey) {
+	(JNIEnv *env, jclass, jint level, jint mode, jstring _cache_dir, jstring _log_dir, jstring _nameprefix, jint _cache_log_days, jstring _pubkey) {
 	if (NULL == _log_dir || NULL == _nameprefix) {
 		return;
 	}
@@ -49,7 +49,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
 
 	ScopedJstring log_dir_jstr(env, _log_dir);
 	ScopedJstring nameprefix_jstr(env, _nameprefix);
-	appender_open_with_cache((TAppenderMode)mode, cache_dir.c_str(), log_dir_jstr.GetChar(), nameprefix_jstr.GetChar(), pubkey);
+	appender_open_with_cache((TAppenderMode)mode, cache_dir.c_str(), log_dir_jstr.GetChar(), nameprefix_jstr.GetChar(), _cache_log_days, pubkey);
 	xlogger_SetLevel((TLogLevel)level);
 
 }
@@ -176,7 +176,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_mars_xlog_Xlog_getLogLevel
 	return xlogger_Level();
 }
 
-DEFINE_FIND_STATIC_METHOD(KXlog_setLogLevel, KXlog, "setLogLevel", "(I)V")
+//DEFINE_FIND_STATIC_METHOD(KXlog_setLogLevel, KXlog, "setLogLevel", "(I)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setLogLevel
   (JNIEnv *, jclass, jint _log_level) {
 	xlogger_SetLevel((TLogLevel)_log_level);
@@ -194,7 +194,17 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setConsoleLogOpen
 	appender_set_console_log((bool)_is_open);
 }
 
+DEFINE_FIND_STATIC_METHOD(KXlog_setMaxFileSize, KXlog, "setMaxFileSize", "(J)V")
+JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxFileSize
+		(JNIEnv *env, jclass, jlong _maxSize) {
+	appender_set_max_file_size(_maxSize);
+}
 
+DEFINE_FIND_STATIC_METHOD(KXlog_setMaxAliveTime, KXlog, "setMaxAliveTime", "(J)V")
+JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxAliveTime
+		(JNIEnv *env, jclass, jlong _maxTime) {
+    appender_set_max_alive_duration(_maxTime);
+}
 }
 
 void ExportXlog() {}

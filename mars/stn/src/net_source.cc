@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <set>
 
 #include "boost/bind.hpp"
 
@@ -177,7 +178,7 @@ void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
 }
 
 bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util) {
-    
+    xinfo_function();
     ScopedLock lock(sg_ip_mutex);
 
     if (__GetLonglinkDebugIPPort(_ipport_items)) {
@@ -236,7 +237,7 @@ void NetSource::GetBackupIPs(std::string _host, std::vector<std::string>& _iplis
 }
 
 void NetSource::ReportLongIP(bool _is_success, const std::string& _ip, uint16_t _port) {
-    xdebug2(TSF"_is_success=%0, ip=%1, port=%2", _is_success, _ip, _port);
+    xinfo2_if(!_is_success, TSF"_is_success=%0, ip=%1, port=%2", _is_success, _ip, _port);
 
     if (_ip.empty() || 0 == _port) return;
 
@@ -299,6 +300,7 @@ bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostl
 			item.port = sg_shortlink_port;
 			item.source_type = kIPSourceDebug;
 			_ipport_items.push_back(item);
+			return true;
 		}
 	}
     
@@ -413,6 +415,31 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 			ports.push_back(NetSource::GetShortLinkPort());
 		}
 		ist = kIPSourceBackup;
+		if (!iplist.empty() && !ports.empty())
+		{
+			std::set<std::string> setIps;
+			for (auto it = _ip_items.begin(); it != _ip_items.end(); ++it)
+			{
+				setIps.insert(it->str_ip);
+			}
+			size_t ports_cnt = ports.size();
+			size_t require_cnt = _count - _ip_items.size();
+			if (require_cnt < ports_cnt) require_cnt += ports_cnt;
+			size_t cur_cnt = iplist.size() * ports_cnt;
+			size_t i = 0;
+			while (cur_cnt > require_cnt && i < iplist.size())
+			{
+				if (setIps.find(iplist[i]) != setIps.end())
+				{
+					iplist.erase(iplist.begin() + i);
+					cur_cnt -= ports_cnt;
+				}
+				else
+				{
+					i++;
+				}
+			}
+		}
 	}
 
 	if (iplist.empty()) return 0;
@@ -446,7 +473,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 }
 
 void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    xdebug2(TSF"_is_success=%0, ip=%1, port=%2 host=%3", _is_success, _ip, _port, _host);
+    xinfo2_if(!_is_success, TSF"_is_success=%0, ip=%1, port=%2 host=%3", _is_success, _ip, _port, _host);
 
     if (_ip.empty()) return;
 
@@ -482,4 +509,8 @@ bool NetSource::GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec) {
 }
 
 void NetSource::ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec) {
+}
+
+void NetSource::AddServerBan(const std::string& _ip) {
+    ipportstrategy_.AddServerBan(_ip);
 }

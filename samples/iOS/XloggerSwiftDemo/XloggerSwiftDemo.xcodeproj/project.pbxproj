@@ -23,7 +23,7 @@
 		49058EEB1E1B89D2002ECC65 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 49058EE51E1B89D2002ECC65 /* log_crypt.cc */; };
 		49058EEC1E1B89D2002ECC65 /* LogHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 49058EE81E1B89D2002ECC65 /* LogHelper.mm */; };
 		49058EED1E1B89D2002ECC65 /* LogUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 49058EEA1E1B89D2002ECC65 /* LogUtil.m */; };
-		4B18C5701E1C9A6C000C883F /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B18C56F1E1C9A6C000C883F /* mars.framework */; };
+		4BD0096E21708209007FD5DB /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49058ED51E1B8567002ECC65 /* mars.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,7 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4B18C5701E1C9A6C000C883F /* mars.framework in Frameworks */,
+				4BD0096E21708209007FD5DB /* mars.framework in Frameworks */,
 				49058EE01E1B85C2002ECC65 /* SystemConfiguration.framework in Frameworks */,
 				49058EDE1E1B85B2002ECC65 /* CoreTelephony.framework in Frameworks */,
 				49058EDC1E1B85A6002ECC65 /* Foundation.framework in Frameworks */,
@@ -204,7 +204,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 49058EC81E1B84F3002ECC65 /* Build configuration list for PBXNativeTarget "XloggerSwiftDemo" */;
 			buildPhases = (
-				4B18C5671E1C99F1000C883F /* Run Script - build xlog */,
 				49058E9C1E1B84F3002ECC65 /* Sources */,
 				49058E9D1E1B84F3002ECC65 /* Frameworks */,
 				49058E9E1E1B84F3002ECC65 /* Resources */,
@@ -330,23 +329,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4B18C5671E1C99F1000C883F /* Run Script - build xlog */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script - build xlog";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "BUILD_LIB_SCRIPT=${SRCROOT}/Kernel/build_libs_for_sample.py\n\npython $BUILD_LIB_SCRIPT\n\nif [[ $? -eq 1 ]]\nthen\nexit 1\nfi";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		49058E9C1E1B84F3002ECC65 /* Sources */ = {

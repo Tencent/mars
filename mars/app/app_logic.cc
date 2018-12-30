@@ -181,15 +181,14 @@ void SetCallback(Callback* const callback) {
 	DeviceInfo GetDeviceInfo() {
 		xassert2(sg_callback != NULL);
         
-        static DeviceInfo device_info;
-        if (!device_info.devicename.empty() || !device_info.devicetype.empty()) {
-            return device_info;
-        }
-        
-		device_info = sg_callback->GetDeviceInfo();
+    static DeviceInfo device_info;
+    if (!device_info.devicename.empty() || !device_info.devicetype.empty()) {
         return device_info;
+    }
+    
+    device_info = sg_callback->GetDeviceInfo();
+    return device_info;
 	}
-
 
 #endif
 

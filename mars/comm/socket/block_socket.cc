@@ -29,7 +29,7 @@
  * return value:
  */
 
-SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _breaker, int& _errcode, int32_t _timeout/*ms*/) {
+SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _breaker, int& _errcode, int32_t _timeout/*ms*/){
     //socket
     SOCKET sock = socket(_address.address().sa_family, SOCK_STREAM, IPPROTO_TCP);
     

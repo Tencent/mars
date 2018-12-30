@@ -46,7 +46,7 @@ class MComplexConnect {
     virtual bool OnShouldVerify(unsigned int _index, const socket_address& _addr) { return false;}
     virtual bool OnVerifySend(unsigned int _index, const socket_address& _addr, SOCKET _socket, AutoBuffer& _buffer_send) { return false;}
     virtual bool OnVerifyRecv(unsigned int _index, const socket_address& _addr, SOCKET _socket, const AutoBuffer& _buffer_recv) { return false;}
-    virtual void OnVerifyTimeout(int _usedtime) {}
+    virtual void OnVerifyTimeout(unsigned int _index, const socket_address& _addr, SOCKET _socket, int _timeout) {}
 
     virtual void OnFinished(unsigned int _index, const socket_address& _addr, SOCKET _socket,
                             int _error, int _conn_rtt, int _conn_totalcost, int _complex_totalcost) {}

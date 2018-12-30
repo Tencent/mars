@@ -228,6 +228,7 @@ const char* socket_address::ip() const {
             return ip_;
     }
 
+    xerror2(TSF"invalid ip family:%_, ip:%_", addr_.sa.sa_family, ip_);
     return "";
 }
 

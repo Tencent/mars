@@ -95,6 +95,11 @@ const char* ScopedJstring::GetChar() const {
     return char_;
 }
 
+const char* ScopedJstring::SafeGetChar() const{
+    const char* realstr = GetChar();
+    return NULL == realstr ? "" : realstr;
+}
+
 jstring ScopedJstring::GetJstr() const {
     if (env_->ExceptionOccurred()) {
         return NULL;

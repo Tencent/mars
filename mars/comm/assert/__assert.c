@@ -14,9 +14,7 @@
 #include "comm/xlogger/xloggerbase.h"
 #include "comm/compiler_util.h"
 
-#ifdef ANDROID
-#include "comm/android/callstack.h"
-#endif
+
 
 #ifndef XLOGGER_TAG
 #define XLOGGER_TAG ""
@@ -48,9 +46,9 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
 
     offset += snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
 
-#ifdef ANDROID
-    android_callstack(assertlog+offset, sizeof(assertlog)-offset);
-#endif
+//#ifdef ANDROID
+//    android_callstack(assertlog+offset, sizeof(assertlog)-offset);
+//#endif
 
     info.level = kLevelFatal;
     info.tag = XLOGGER_TAG;
@@ -84,9 +82,9 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
     offset += snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
     offset += vsnprintf(assertlog+offset, sizeof(assertlog)-offset, _format, _list);
 
-#ifdef ANDROID
-    android_callstack(assertlog+offset, sizeof(assertlog)-offset);
-#endif
+//#ifdef ANDROID
+//    android_callstack(assertlog+offset, sizeof(assertlog)-offset);
+//#endif
 
     info.level = kLevelFatal;
     info.tag = XLOGGER_TAG;

@@ -84,7 +84,9 @@ LongLinkSpeedTestItem::LongLinkSpeedTestItem(const std::string& _ip, uint16_t _p
 
     before_connect_time_ = gettickcount();
 
-    ::connect(socket_, (sockaddr*)&_addr, sizeof(_addr));
+    if (0 !=::connect(socket_, (sockaddr*)&_addr, sizeof(_addr))) {
+        xerror2(TSF "connect fail");
+    }
 }
 
 LongLinkSpeedTestItem::~LongLinkSpeedTestItem() {

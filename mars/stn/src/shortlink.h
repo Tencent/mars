@@ -35,6 +35,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
+#include "mars/comm/socket/socket_address.h"
 
 #include "net_source.h"
 #include "shortlink_interface.h"
@@ -50,6 +51,8 @@ class ShortLink : public ShortLinkInterface {
     virtual ~ShortLink();
 
     ConnectProfile   Profile() const { return conn_profile_;}
+    
+    void              FillOutterIPAddr(const std::vector<IPPortItem>& _out_addr);
 
   protected:
     virtual void 	 SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
@@ -76,6 +79,8 @@ class ShortLink : public ShortLinkInterface {
     const bool                      use_proxy_;
     AutoBuffer                      send_body_;
     AutoBuffer                      send_extend_;
+    
+    std::vector<IPPortItem>        outter_vec_addr_;
     
     boost::scoped_ptr<shortlink_tracker> tracker_;
 };

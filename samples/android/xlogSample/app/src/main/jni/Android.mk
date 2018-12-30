@@ -8,7 +8,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := native-lib
 LOCAL_SRC_FILES += native-lib.cpp
 
-LOCAL_SHARED_LIBRARIES += xlog stl
+LOCAL_SHARED_LIBRARIES += xlog
 
 LOCAL_LDLIBS    += -llog
 

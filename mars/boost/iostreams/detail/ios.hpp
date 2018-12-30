@@ -47,8 +47,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
     class failure : public std::exception {
     public:
         explicit failure(const std::string& what_arg) : what_(what_arg) { }
-        virtual ~failure()_GABIXX_NOEXCEPT {}
-        virtual const char* what() const _GABIXX_NOEXCEPT{ return what_.c_str(); };
+        virtual ~failure()  {}
+        virtual const char* what() const throw() { return what_.c_str(); };
     private:
         std::string what_;
     };

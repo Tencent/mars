@@ -164,14 +164,14 @@ bool LongLinkConnectMonitor::NetworkChange() {
 uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
-    uint64_t interval =  __Interval(_type, activelogic_) * 1000;
+    uint64_t interval =  __Interval(_type, activelogic_) * 1000ULL;
     uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
 
     if (posttime >= interval) {
         bool newone = false;
         bool ret = longlink_.MakeSureConnected(&newone);
-        xinfo2(TSF"made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_", interval, posttime, newone, longlink_.ConnectStatus());
-        return (ret || newone) ? 0 : 0;
+        xinfo2(TSF"made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
+        return 0;
 
     } else {
         return interval - posttime;
@@ -192,8 +192,11 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
     ASYNC_BLOCK_START
 #ifdef __APPLE__
+    xinfo2(TSF"forground:%_ time:%_ tick:%_", _isForeground, timeMs(), gettickcount());
 
     if (_isForeground) {
+        xinfo2(TSF"longlink:%_ time:%_ %_ %_", longlink_.ConnectStatus(), tickcount_t().gettickcount().get(), longlink_.GetLastRecvTime().get(), int64_t(tickcount_t().gettickcount() - longlink_.GetLastRecvTime()));
+        
         if ((longlink_.ConnectStatus() == LongLink::kConnected) &&
                 (tickcount_t().gettickcount() - longlink_.GetLastRecvTime() > tickcountdiff_t(4.5 * 60 * 1000))) {
             xwarn2(TSF"sock long time no send data, close it");

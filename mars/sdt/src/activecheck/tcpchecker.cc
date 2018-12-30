@@ -46,10 +46,6 @@ int TcpChecker::StartDoCheck(CheckRequestProfile& _check_request) {
     return BaseChecker::StartDoCheck(_check_request);
 }
 
-int TcpChecker::CancelDoCheck() {
-    xinfo_function();
-    return BaseChecker::CancelDoCheck();
-}
 
 void TcpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
@@ -57,6 +53,10 @@ void TcpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     for (CheckIPPorts_Iterator iter = _check_request.longlink_items.begin(); iter != _check_request.longlink_items.end(); ++iter) {
     	std::string host = iter->first;
     	for (std::vector<CheckIPPort>::iterator ipport = iter->second.begin(); ipport != iter->second.end(); ++ipport) {
+            if (is_canceled_) {
+                xinfo2(TSF"TcpChecker is canceled.");
+                return;
+            }
     		CheckResultProfile profile;
 			profile.netcheck_type = kTcpCheck;
     		profile.ip = (*ipport).ip;

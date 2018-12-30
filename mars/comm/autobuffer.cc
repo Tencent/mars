@@ -304,11 +304,14 @@ void AutoBuffer::__FitSize(size_t _len) {
 				(uint64_t)_len, (uint64_t)malloc_unitsize_, (uint64_t)mallocsize, (uint64_t)capacity_);
 
             free(parray_);
+            parray_ = NULL;
+            capacity_ = 0;
+            return;
         }
 
         parray_ = (unsigned char*) p;
 
-        ASSERT2(_len <= 10 * 1024 * 1024, "%u", (uint32_t)_len);
+        ASSERT2(_len <= 20 * 1024 * 1024, "%u", (uint32_t)_len);
         ASSERT(parray_);
         
         memset(parray_+capacity_, 0, mallocsize-capacity_);
