@@ -25,6 +25,10 @@
 #include "boost/any.hpp"
 #include "boost/smart_ptr.hpp"
 
+#if UWP //???andrewu temp compile pass
+#include "boost/utility/result_of.hpp"
+#endif
+
 #if __cplusplus >= 201103L
 #include "boost/static_assert.hpp"
 #include "boost/utility/result_of.hpp"

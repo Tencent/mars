@@ -54,12 +54,12 @@ namespace stn{
         virtual bool Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select) = 0;
         //底层回包返回给上层解析 
         virtual int Buf2Resp(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) = 0;
-        //任务执行结束
+        //任务执行结束 
         virtual int  OnTaskEnd(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) = 0;
 
         //上报网络连接状态 
         virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
-        //长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2
+        //长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2 
         virtual int  GetLonglinkIdentifyCheckBuffer(AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) = 0;
         //长连信令校验回包 
         virtual bool OnLonglinkIdentifyResponse(const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) = 0;
@@ -67,6 +67,7 @@ namespace stn{
         
         virtual void RequestSync() = 0;
         
+        //验证是否已登录
     };
 
     void SetCallback(Callback* const callback);

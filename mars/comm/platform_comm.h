@@ -169,7 +169,7 @@ struct RadioAccessNetworkInfo {
 
         3.9G：
         LTE FDD：Wi-Fi终结者，拥有比WLAN快10倍的能力，估速将达到4M／S以上，兼容性强！是CDMA2000和WCDMA歧路同归的重要制式！（中国未发展）
-        LTE TDD：世b0会展出对象，尖端技术，比FDD早发展一年，网速和FDD差不多，但不成熟，兼容性弱！（湖北移动、上海移动已启动试运营，国家大力推广）
+        LTE TDD：世博会展出对象，尖端技术，比FDD早发展一年，网速和FDD差不多，但不成熟，兼容性弱！（湖北移动、上海移动已启动试运营，国家大力推广）
     ***/
 
     std::string  radio_access_network;

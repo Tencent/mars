@@ -134,10 +134,18 @@ uint64_t gettickcount() {//todoyy
     }
     return 0;
 }
+<<<<<<< HEAD
+
+#elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP
+
+#include "unistd.h"
+#include <stdint.h>
+=======
 #elif defined _WIN32
 //#define NOMINMAX
 //#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+>>>>>>> master
 
 uint64_t gettickcount() {
 	return GetTickCount();

@@ -269,7 +269,7 @@ std::vector<std::string> (*OnNewDns)(const std::string& host)
 	return sg_callback->OnNewDns(host);
 };
 
-//网络层收到push消息回调 
+//网络层收到push消息回调
 void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
 = [](uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
 	xassert2(sg_callback != NULL);
@@ -294,7 +294,7 @@ int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, int error_type, int
 	return sg_callback->OnTaskEnd(taskid, user_context, error_type, error_code);
  };
 
-//上报网络连接状态 
+//上报网络连接状态
 void (*ReportConnectStatus)(int status, int longlink_status)
 = [](int status, int longlink_status) {
 	xassert2(sg_callback != NULL);

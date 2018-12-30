@@ -1,0 +1,52 @@
+﻿<Page
+    x:Class="UWPDemo.ui.ConversationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UWPDemo.ui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="#f7f7f7">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" HorizontalAlignment="Center" Margin="0,20,0,10">
+
+            <ContentDialog x:Name="readMeDialog" >
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock x:Name="readMeDialogText" Width="300" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap"></TextBlock>
+                    <Button x:Name="readMeConfirmBtn" Content="OK" Width="80" Height="30" Click="readMeConfirmBtn_Click" HorizontalAlignment="Center" Margin="0,10,0,0" BorderThickness="1,1,1,1" BorderBrush="#e3e3e3" Background="#ffffff"></Button>
+                </StackPanel>
+            </ContentDialog>
+
+            <ContentDialog x:Name="contentDialog" >
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBox x:Name="nameTextBox" Width="300" Height="30" KeyDown="nameTextBox_KeyDown" HorizontalAlignment="Center" Margin="0,30,0,0"></TextBox>
+                    <Button x:Name="confirmBtn" Content="Confirm" Width="80" Height="30" Click="confirmBtn_Click" HorizontalAlignment="Center" Margin="0,20,0,0" BorderThickness="1,1,1,1" BorderBrush="#e3e3e3" Background="#ffffff"></Button>
+                </StackPanel>
+            </ContentDialog>
+  
+            <ProgressRing x:Name="progressRingCon" Width="80" Height="80" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Visible" IsActive="True"></ProgressRing>
+
+            <TextBlock x:Name="errorTextBlock" Text="Topics Load Failed, Please Refresh!" TextWrapping="Wrap" MaxWidth="300" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed"></TextBlock>
+
+            <ListView x:Name="conListView"  Visibility="Collapsed" ItemClick="conListView_ItemClick" IsItemClickEnabled="True" VerticalAlignment="Center" HorizontalAlignment="Center" ItemsSource="{Binding ConListBinding}" SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Width="300" Height="30">
+                            <TextBlock Text="{Binding ConNotice}" TextWrapping="Wrap" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center"  Margin="0,10,0,20">
+            <Button x:Name="readMeBtn" Content="ReadMe" Width="80" Height="30" Margin="0,0,20,0" Click="readMeBtn_Click" Visibility="Collapsed" BorderThickness="1,1,1,1" BorderBrush="#e3e3e3" Background="#ffffff"></Button>
+            <Button x:Name="refreshListBtn" Content="Refresh" Width="80" Height="30" Click="refreshListBtn_Click" Visibility="Collapsed" BorderThickness="1,1,1,1" BorderBrush="#e3e3e3" Background="#ffffff"></Button>
+        </StackPanel>
+    </Grid>
+</Page>

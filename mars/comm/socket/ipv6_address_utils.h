@@ -72,6 +72,14 @@ inline void IN6_SET_ADDR_NAT64(in6_addr* a6, const in_addr* a4) {
 inline bool IN6_IS_ADDR_NAT64(in6_addr* a6) {
 	return a6->s6_words[0] == htons(0x0064) && a6->s6_words[1] == htons(0x0064);
 }
+
+#if UWP //???andrewu add for uwp
+struct uwp_in6_addr {
+	UINT s6_addr32[4];
+};
+#define s6_addr8    u.Byte
+#define s6_addr16   u.Word
+#endif
 #endif
 
 #endif
