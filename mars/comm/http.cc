@@ -491,9 +491,9 @@ const std::string HeaderFields::ToString() const {
 std::list<std::pair<std::string, std::string>> HeaderFields::GetAsList() const{
     std::list<std::pair<std::string, std::string>> result;
     
-    std::transform(std::begin(headers_), std::end(headers_), std::back_inserter(result), [](const std::pair<const std::string, std::string>& kv) ->std::pair<std::string, std::string>{
-        return {kv.first, kv.second};
-    });
+    for (auto entry : headers_) {
+        result.push_back({entry.first, entry.second});
+    }
     
     return result;
 }

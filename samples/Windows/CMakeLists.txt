@@ -20,7 +20,6 @@ add_subdirectory(../../mars/baseevent baseevent.out)
 add_subdirectory(../../mars/boost boost.out)
 add_subdirectory(../../mars/comm comm.out)
 add_subdirectory(../../mars/sdt sdt.out)
-add_subdirectory(../../mars/openssl openssl.out)
 add_subdirectory(../../mars/stn stn.out)
 
 add_definitions(-D_WIN32 -DWIN32 -DUNICODE -D_UNICODE)
@@ -141,13 +140,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/LTCG")
 
   
 if(CMAKE_CL_64)
-    get_filename_component(CRYPT_LIB ../mars/mars/openssl/openssl_lib_windows/x64/libeay32.lib ABSOLUTE)
-    get_filename_component(SSL_LIB ../mars/mars/openssl/openssl_lib_windows/x64/ssleay32.lib ABSOLUTE)
 	add_definitions(-D_WIN64 -DWIN64)
-
-else()
-    get_filename_component(CRYPT_LIB ../mars/mars/openssl/openssl_lib_windows/x86/libeay32.lib ABSOLUTE)
-    get_filename_component(SSL_LIB ../mars/mars/openssl/openssl_lib_windows/x86/ssleay32.lib ABSOLUTE)
 endif()
 
 set(CMAKE_FIND_LIBRARY_PREFIXES "")
@@ -162,6 +155,5 @@ target_link_libraries(${PROJECT_NAME} ws2_32.lib comsuppw.lib
                         mars-boost
                         comm
                         sdt
-                        stn
-                        cryptowrapper)
+                        stn)
   
