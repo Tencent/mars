@@ -4,7 +4,7 @@
 [![Release Version](https://img.shields.io/badge/release-1.1.9-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
 [![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.9-red.svg)](https://github.com/Tencent/mars/wiki)
-[![WeChat Approved](https://img.shields.io/badge/Platform-%20iOS%20%7C%20OS%20X%20%7C%20Android(ndk16b)%20%7C%20Windows%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
+[![WeChat Approved](https://img.shields.io/badge/Platform(cmake)-%20iOS%20%7C%20OS%20X%20%7C%20Android(ndk16b)%20%7C%20Windows(vs2015)%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 (中文版本请参看[这里](#mars_cn))
 
@@ -86,11 +86,11 @@ final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
 if (BuildConfig.DEBUG) {
-    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(true);
 
 } else {
-    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(false);
 }
 
@@ -201,7 +201,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, [logPath UTF8String], "Test", "");
+appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
 ```
 
 Close xlog in function "applicationWillTerminate"
@@ -318,7 +318,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", pubKey.c_str());
+appender_open(kAppednerAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
 ```
 
 Uninitialized xlog before your app exits
@@ -470,11 +470,11 @@ final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
 if (BuildConfig.DEBUG) {
-    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(true);
 
 } else {
-    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", "");
+    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(false);
 }
 
@@ -587,7 +587,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, [logPath UTF8String], "Test", "");
+appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
 ```
 
 在函数 "applicationWillTerminate" 中反初始化 Xlog
@@ -702,7 +702,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", pubKey.c_str());
+appender_open(kAppednerAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
 ```
 
 在程序退出前反初始化 Xlog
