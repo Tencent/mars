@@ -5,7 +5,8 @@ import time
 import subprocess
 
 
-COMM_COPY_HEADER_FILES = {"mars/mars/comm/verinfo.h": "comm",
+COMM_COPY_HEADER_FILES = {
+            "mars/mars/comm/verinfo.h": "comm",
             "mars/mars/comm/autobuffer.h": "comm",
             "mars/mars/comm/http.h": "comm",
             "mars/mars/comm/time_utils.h": "comm",
@@ -38,7 +39,7 @@ WIN_COPY_EXT_FILES = {
             "mars/mars/comm/platform_comm.h": "comm",
             "mars/mars/comm/windows/projdef.h": "comm/windows",
             "mars/mars/comm/windows/sys/cdefs.h": "comm/windows/sys",
-            "mars/mars/comm/windows/sys/time.h": "comm/windows/sys"
+            "mars/mars/comm/windows/sys/time.h": "comm/windows/sys",
 }
 
 XLOG_COPY_HEADER_FILES = {

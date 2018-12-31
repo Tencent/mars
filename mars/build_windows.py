@@ -38,7 +38,11 @@ def build_windows(incremental, tag='', config='Release'):
     os.makedirs(WIN_RESULT_DIR)
         
     merge_win_static_libs(glob.glob(WIN_LIBS_INSTALL_PATH + '*.lib'), WIN_RESULT_DIR + 'mars.lib')
-    copy_file_mapping(COMM_COPY_HEADER_FILES.items() + WIN_COPY_EXT_FILES.items(), '../../', WIN_RESULT_DIR)
+    
+    headers = dict()
+    headers.update(COMM_COPY_HEADER_FILES)
+    headers.update(WIN_COPY_EXT_FILES)
+    copy_file_mapping(headers, '../../', WIN_RESULT_DIR)
     
     sub_folders = ["app", "baseevent", "comm", "boost", "xlog", "sdt", "stn"]
     copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)
