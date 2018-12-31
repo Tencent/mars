@@ -51,8 +51,8 @@ ANDROID_STL_FILE = {
         'armeabi': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/armeabi/libc++_shared.so',
         'armeabi-v7a': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libc++_shared.so',
         'x86': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/x86/libc++_shared.so',
-        'arm64-v8a': NDK_ROOT + 'sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_shared.so',
-        'x86_64': NDK_ROOT + 'sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so',
+        'arm64-v8a': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_shared.so',
+        'x86_64': NDK_ROOT + '/sources/cxx-stl/llvm-libc++/libs/x86_64/libc++_shared.so',
         }
 
 

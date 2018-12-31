@@ -101,4 +101,3 @@ public class Xlog implements Log.LogImp {
 	public native void appenderFlush(boolean isSync);
 
 }
-
