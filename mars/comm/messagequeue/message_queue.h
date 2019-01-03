@@ -207,7 +207,7 @@ MessagePost_t SingletonMessage(bool _replace, const MessageHandler_t& _handlerid
 MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Message& _message, const MessageTiming& _timing = KDefTiming);
 MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _message, const MessageTiming& _timing = KDefTiming);
 
-bool WaitMessage(const MessagePost_t& _message);
+bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs = -1);
 bool FoundMessage(const MessagePost_t& _message);
 
 bool CancelMessage(const MessagePost_t& _postid);
@@ -665,6 +665,9 @@ if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYN
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
 { MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name); return ret; } \
 
+    /*
+     * sync to async, will not wait, but immediately return ret
+     */
 #define RETURN_SYNC2ASYNC_FUNC(func, ret) RETURN_SYNC2ASYNC_FUNC_MSGNAME(func, ret, MESSAGE_NAME(__FILE__, __FUNCTION__))
    
     
@@ -680,6 +683,10 @@ if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYN
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
 { MessageQueue::MessagePost_t postId = MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name);MessageQueue::WaitMessage(postId); return ret; } \
 
+    /*
+     * sync to async, wait utils async function end
+     * when wait ends, will return ret
+     */
 #define RETURN_WAIT_SYNC2ASYNC_FUNC(func, ret) RETURN_WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, ret, MESSAGE_NAME(__FILE__, __FUNCTION__))
     
 //------
@@ -689,11 +696,48 @@ if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYN
 {\
 return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
 }
-    
+
+    /*
+     * sync to async, wait utils async function end
+     */
 #define WAIT_SYNC2ASYNC_FUNC(func) WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, MESSAGE_NAME(__FILE__, __FUNCTION__))
+    
+//-------
+
+#define WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_HOOK(func, pre_lambda, post_lambda, msg_name) \
+\
+if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+{\
+pre_lambda();\
+auto r = MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
+return post_lambda(r);\
+}
+    
+    /*
+     * sync to async, wait utils async function end
+     * pre_lambda: function will be called before transform to async, will only be called in caller's thread
+     */
+#define WAIT_SYNC2ASYNC_FUNC_WITH_HOOK(func, pre_lambda, post_lambda) WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_HOOK(func, pre_lambda, post_lambda, MESSAGE_NAME(__FILE__, __FUNCTION__))
+    
+    
+#define WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_PREHOOK(func, pre_lambda, msg_name) \
+\
+if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+{\
+pre_lambda();\
+return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
+}
+
+    /*
+     * sync to async, wait utils async function end
+     * pre_lambda: function will be called before transform to async, will only be called in caller's thread
+     */
+#define WAIT_SYNC2ASYNC_FUNC_WITH_PREHOOK(func, pre_lambda) WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_PREHOOK(func, pre_lambda, MESSAGE_NAME(__FILE__, __FUNCTION__))
+
 
 // define AYNC_HANDLER in source file
 //#define AYNC_HANDLER handler
+    
 } namespace mq = MessageQueue; //namespace MessageQueue
 
 #endif /* MESSAGEQUEUE_H_ */

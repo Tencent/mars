@@ -47,7 +47,7 @@ class Condition {
     }
 
     void wait(ScopedLock& lock) {
-        ASSERT(lock.islocked());
+        ASSERT(lock.internal().islocked());
 
         int ret = 0;
 

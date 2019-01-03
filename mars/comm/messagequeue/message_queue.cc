@@ -475,7 +475,7 @@ MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _
     return messagewrapper->postid;
 }
 
-bool WaitMessage(const MessagePost_t& _message) {
+bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs) {
     bool is_in_mq = Handler2Queue(Post2Handler(_message)) == CurrentThreadMessageQueue();
 
     ScopedLock lock(sg_messagequeue_map_mutex);
@@ -497,7 +497,12 @@ bool WaitMessage(const MessagePost_t& _message) {
             if (is_in_mq) return false;
             
             boost::shared_ptr<Condition> runing_cond = find_it->runing_cond;
-            runing_cond->wait(lock);
+            if(_timeoutInMs < 0) {
+                runing_cond->wait(lock);
+            } else {
+                int ret = runing_cond->wait(lock, _timeoutInMs);
+                return ret==0;
+            }
         }
     } else {
         
@@ -515,7 +520,12 @@ bool WaitMessage(const MessagePost_t& _message) {
             if (!((*find_it)->wait_end_cond))(*find_it)->wait_end_cond = boost::make_shared<Condition>();
 
             boost::shared_ptr<Condition> wait_end_cond = (*find_it)->wait_end_cond;
-            wait_end_cond->wait(lock);
+            if(_timeoutInMs < 0) {
+                wait_end_cond->wait(lock);
+            } else {
+                int ret = wait_end_cond->wait(lock, _timeoutInMs);
+                return ret==0;
+            }
         }
     }
 
