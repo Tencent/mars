@@ -67,6 +67,10 @@
 #include "mars/comm/tickcount.h"
 #include "mars/comm/verinfo.h"
 
+#ifdef __APPLE__
+#include "mars/comm/objc/data_protect_attr.h"
+#endif
+
 #include "log_buffer.h"
 
 #define LOG_EXT "xlog"
@@ -262,11 +266,17 @@ static void __del_timeout_file(const std::string& _log_path) {
         for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
             time_t file_modify_time = boost::filesystem::last_write_time(iter->path());
             
-            if (now_time > file_modify_time && now_time - file_modify_time > kMaxLogAliveTime
-                && boost::filesystem::is_regular_file(iter->status())
-                && iter->path().extension()==(std::string(".") + LOG_EXT)) {
-            
-                boost::filesystem::remove(iter->path());
+            if (now_time > file_modify_time && now_time - file_modify_time > kMaxLogAliveTime) {
+                if(boost::filesystem::is_regular_file(iter->status())
+                && iter->path().extension() == (std::string(".") + LOG_EXT)) {
+                    boost::filesystem::remove(iter->path());
+                } 
+                if (boost::filesystem::is_directory(iter->status())) {
+                    std::string filename = iter->path().filename().c_str();
+                    if (filename.size() == 8 && filename.find_first_not_of("0123456789") == std::string::npos) {
+                        boost::filesystem::remove_all(iter->path());
+                    }
+                }
             }
         }
     }
@@ -821,14 +831,16 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     boost::filesystem::create_directories(_dir);
     tickcount_t tick;
     tick.gettickcount();
-    __del_timeout_file(_dir);
-
-    tickcountdiff_t del_timeout_file_time = tickcount_t().gettickcount() - tick;
+    Thread(boost::bind(&__del_timeout_file, _dir)).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
+#ifdef __APPLE__
+    setAttrProtectionNone(_dir);
+#endif
+
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap2", sg_cache_logdir.empty()?_dir:sg_cache_logdir.c_str(), _nameprefix);
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_dir:sg_cache_logdir.c_str(), _nameprefix);
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
@@ -872,9 +884,6 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     xlogger_appender(NULL, appender_info);
     char logmsg[256] = {0};
-    snprintf(logmsg, sizeof(logmsg), "del time out files time: %" PRIu64, (int64_t)del_timeout_file_time);
-    xlogger_appender(NULL, logmsg);
-
     snprintf(logmsg, sizeof(logmsg), "get mmap time: %" PRIu64, (int64_t)get_mmap_time);
     xlogger_appender(NULL, logmsg);
 
@@ -913,11 +922,15 @@ void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir,
     if (!_cachedir.empty()) {
         sg_cache_logdir = _cachedir;
         boost::filesystem::create_directories(_cachedir);
-        __del_timeout_file(_cachedir);
+
+        Thread(boost::bind(&__del_timeout_file, _cachedir)).start_after(2 * 60 * 1000);
         // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
         Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
     }
 
+#ifdef __APPLE__
+    setAttrProtectionNone(_cachedir.c_str());
+#endif
     appender_open(_mode, _logdir.c_str(), _nameprefix, _pub_key);
 
 }

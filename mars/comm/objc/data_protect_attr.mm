@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #endif
 
-
+// If '_path' is directory, the function has effect on new file but ignores existed file.
 bool setAttrProtectionNone(const char* _path) {
     
 #if !TARGET_OS_IPHONE
@@ -37,11 +37,14 @@ bool setAttrProtectionNone(const char* _path) {
         [path release];
         return false;
     }
-    
-    NSDictionary* attr = [NSDictionary dictionaryWithObject:NSFileProtectionNone forKey:NSFileProtectionKey];
-    
-    BOOL ret = [fileManager setAttributes:attr ofItemAtPath:path error:nil];
-    
+
+    BOOL ret = YES;
+    NSDictionary* old_attr = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:NULL];
+    NSString* protection = [old_attr valueForKey:NSFileProtectionKey];
+    if ([protection isEqualToString:NSFileProtectionNone] == NO) {
+        NSDictionary* attr = [NSDictionary dictionaryWithObject:NSFileProtectionNone forKey:NSFileProtectionKey];
+        ret = [fileManager setAttributes:attr ofItemAtPath:path error:nil];
+    }
     [path release];
     
     return ret;
