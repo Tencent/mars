@@ -33,6 +33,7 @@
 
 #ifdef __APPLE__
 #include <TargetConditionals.h>
+#include "mars/comm/objc/data_protect_attr.h"
 #endif
 
 #include "mars/comm/xlogger/xlogger.h"
@@ -153,7 +154,13 @@ void SetCallback(Callback* const callback) {
 
     std::string GetAppFilePath() {
         xassert2(sg_callback != NULL);
-        return sg_callback->GetAppFilePath();
+
+        std::string path = sg_callback->GetAppFilePath();
+#ifdef __APPLE__
+        setAttrProtectionNone(path.c_str());
+#endif
+
+        return path;
     }
     
 	AccountInfo GetAccountInfo() {
