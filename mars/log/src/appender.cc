@@ -1030,7 +1030,7 @@ void appender_set_max_file_size(uint64_t _max_byte_size) {
 }
 void appender_set_max_alive_duration(long _max_time) {
 	if (_max_time >= kMinLogAliveTime) {
-		sg_max_alive_time = _max_time
+		sg_max_alive_time = _max_time;
 	}
 }
 void appender_setExtraMSg(const char* _msg, unsigned int _len) {
