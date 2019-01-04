@@ -116,6 +116,7 @@ static Thread sg_thread_async(&__async_log_thread);
 
 static const unsigned int kBufferBlockLength = 150 * 1024;
 static const long kMaxLogAliveTime = 10 * 24 * 60 * 60;    // 10 days in second
+static const long kMinLogAliveTime = 24 * 60 * 60;    // 1 days in second
 static long sg_max_alive_time = kMaxLogAliveTime;
 static std::string sg_log_extra_msg;
 
@@ -266,7 +267,7 @@ static void __del_timeout_file(const std::string& _log_path) {
         for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
             time_t file_modify_time = boost::filesystem::last_write_time(iter->path());
             
-            if (now_time > file_modify_time && now_time - file_modify_time > kMaxLogAliveTime) {
+            if (now_time > file_modify_time && now_time - file_modify_time > sg_max_alive_time) {
                 if(boost::filesystem::is_regular_file(iter->status())
                 && iter->path().extension() == (std::string(".") + LOG_EXT)) {
                     boost::filesystem::remove(iter->path());
@@ -1028,7 +1029,9 @@ void appender_set_max_file_size(uint64_t _max_byte_size) {
     sg_max_file_size = _max_byte_size;
 }
 void appender_set_max_alive_duration(long _max_time) {
-    sg_max_alive_time = _max_time;
+	if (_max_time >= kMinLogAliveTime) {
+		sg_max_alive_time = _max_time
+	}
 }
 void appender_setExtraMSg(const char* _msg, unsigned int _len) {
     sg_log_extra_msg = std::string(_msg, _len);
