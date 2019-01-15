@@ -38,7 +38,7 @@ uint64_t gettickcount() {
         atomic_int x = ATOMIC_VAR_INIT(s_fd);
         int expect = -1;
         if (!atomic_compare_exchange_strong(&x, &expect, fd)) {
-        	close(fd);
+            if (fd >=0) close(fd);
         }
         s_fd = atomic_load(&x);
 //#endif
@@ -146,11 +146,11 @@ uint64_t clock_app_monotonic() {
 #include <windows.h>
 
 uint64_t gettickcount() {
-	return GetTickCount();
+    return GetTickCount();
 }
 
 uint64_t clock_app_monotonic() {
-	return gettickcount();
+    return gettickcount();
 }
 #elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP 
 
