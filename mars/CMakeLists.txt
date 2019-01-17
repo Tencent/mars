@@ -48,7 +48,7 @@ if(ANDROID)
                                 comm)
 
     else()
-        target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script='${EXPORT_XLOG_EXP_FILE}'"
+        target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script=\"${EXPORT_XLOG_EXP_FILE}\""
                                 ${log-lib}
                                 ${z-lib}
                                 xlog
@@ -80,7 +80,7 @@ if(ANDROID)
                             mars-boost
                             marsxlog)
     else()
-        target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script='${EXPORT_EXP_FILE}'"
+        target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script=\"${EXPORT_EXP_FILE}\""
                             ${log-lib}
                             stn
                             sdt

@@ -1,0 +1,5 @@
+cmake_minimum_required (VERSION 2.8)
+project (decode_log_file)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -ggdb")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lz")
+add_executable(decode_log_file decode_log_file.c micro-ecc-master/uECC.c)
