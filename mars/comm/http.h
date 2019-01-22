@@ -164,7 +164,7 @@ class HeaderFields {
     void HeaderFiled(const HeaderFields& _headerfields);
     const char* HeaderField(const char* _key) const;
     std::map<const std::string, std::string, less>& GetHeaders() {return headers_;}
-    std::list<std::pair<std::string, std::string>> GetAsList() const;
+    std::list<std::pair<const std::string, const std::string>> GetAsList() const;
 
     bool IsTransferEncodingChunked() const;
     bool IsConnectionClose() const;
