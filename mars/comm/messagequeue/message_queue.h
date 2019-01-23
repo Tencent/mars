@@ -621,6 +621,23 @@ typename boost::result_of< F()>::type  WaitInvoke(const F& _func, const MessageH
         return result.Result();
     }
 }
+    
+template <typename F, typename R>
+    R  WaitInvoke(const F& _func, R _ret, long _timeout = -1, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
+    
+    if (CurrentThreadMessageQueue() == Handler2Queue(_handlerid)) {
+        return _func();
+    } else {
+        // typedef typename boost::result_of<F()>::type R;
+        MessageQueue::AsyncResult<R> result(_func);
+        
+        bool hasRun = WaitMessage(AsyncInvoke(result, _handlerid, _msg_name), _timeout);
+        if(hasRun)
+            return result.Result();
+        else
+            return _ret;
+    }
+}
 
 template <typename R>
 MessagePost_t  AsyncInvoke(const AsyncResult<R>& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
@@ -704,12 +721,12 @@ return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
     
 //-------
 
-#define WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_HOOK(func, pre_lambda, post_lambda, msg_name) \
+#define WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_HOOK(func, pre_lambda, post_lambda, msg_name, ret, timeout) \
 \
 if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
 {\
 pre_lambda();\
-auto r = MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
+auto r = MessageQueue::WaitInvoke(func, ret, timeout, AYNC_HANDLER, msg_name);\
 return post_lambda(r);\
 }
     
@@ -717,7 +734,7 @@ return post_lambda(r);\
      * sync to async, wait utils async function end
      * pre_lambda: function will be called before transform to async, will only be called in caller's thread
      */
-#define WAIT_SYNC2ASYNC_FUNC_WITH_HOOK(func, pre_lambda, post_lambda) WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_HOOK(func, pre_lambda, post_lambda, MESSAGE_NAME(__FILE__, __FUNCTION__))
+#define WAIT_SYNC2ASYNC_FUNC_WITH_HOOK(func, pre_lambda, post_lambda, ret, timeout) WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_HOOK(func, pre_lambda, post_lambda, MESSAGE_NAME(__FILE__, __FUNCTION__), ret, timeout)
     
     
 #define WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_PREHOOK(func, pre_lambda, msg_name) \
