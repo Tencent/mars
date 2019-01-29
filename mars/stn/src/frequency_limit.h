@@ -45,6 +45,7 @@ class FrequencyLimit {
   private:
     void __ClearRecord();
     void __InsertRecord(unsigned long _hash);
+    void __ResetRecord(unsigned long _index);
     bool __CheckRecord(int _index) const;
     void __UpdateRecord(int _index);
     unsigned int __GetLastUpdateTillNow(int _index);

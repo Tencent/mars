@@ -32,6 +32,7 @@
 #define NOT_CLEAR_INTERCEPT_COUNT (75)
 #define NOT_CLEAR_INTERCEPT_INTERVAL_MINUTE (10*60*1000)
 #define RUN_CLEAR_RECORDS_INTERVAL_MINUTE  (60*60*1000)
+#define RESET_RECORD_INTERVAL_MILLISECOND (200)
 
 using namespace mars::stn;
 
@@ -61,7 +62,14 @@ bool FrequencyLimit::Check(const mars::stn::Task& _task, const void* _buffer, in
     int find_index = __LocateIndex(hash);
 
     if (0 <= find_index) {
-    	_span = __GetLastUpdateTillNow(find_index);
+        _span = __GetLastUpdateTillNow(find_index);
+
+        if (_span >= RESET_RECORD_INTERVAL_MILLISECOND) {
+            __ResetRecord(find_index);
+
+            return true;
+        }
+
         __UpdateRecord(find_index);
 
         if (!__CheckRecord(find_index)) {
@@ -142,6 +150,13 @@ void FrequencyLimit::__InsertRecord(unsigned long _hash) {
     }
 
     iarr_record_.push_back(temp);
+}
+
+void FrequencyLimit::__ResetRecord(unsigned long _index) {
+    xassert2(0 <= _index && (unsigned int)_index < iarr_record_.size());
+
+    iarr_record_[_index].count_ = 1;
+    iarr_record_[_index].time_last_update_ = ::gettickcount();
 }
 
 void FrequencyLimit::__UpdateRecord(int _index) {
