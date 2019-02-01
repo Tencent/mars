@@ -71,7 +71,7 @@ extern int  (*longlink_unpack)(const AutoBuffer& _packed, uint32_t& _cmdid, uint
 
 //heartbeat signal to keep longlink network alive
 extern uint32_t (*longlink_noop_cmdid)();
-extern bool  (*longlink_noop_isresp)(uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
+extern bool  (*longlink_noop_isresp)(uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend);
 extern uint32_t (*signal_keep_cmdid)();
 extern void (*longlink_noop_req_body)(AutoBuffer& _body, AutoBuffer& _extend);
 extern void (*longlink_noop_resp_body)(const AutoBuffer& _body, const AutoBuffer& _extend);

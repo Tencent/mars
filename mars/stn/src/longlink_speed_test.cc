@@ -220,7 +220,7 @@ int LongLinkSpeedTestItem::__HandleSpeedTestResp() {
 
             resp_ab_.Reset();
             return kLongLinkSpeedTestOOB;
-        } else if (longlink_noop_isresp(Task::kNoopTaskID, anCmdID, anSeq, body, extension)) {
+        } else if (longlink_noop_isresp(anCmdID, anSeq, body, extension)) {
             return kLongLinkSpeedTestSuc;
         } else {
             xassert2(false);

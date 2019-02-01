@@ -124,9 +124,9 @@ uint32_t (*longlink_noop_cmdid)()
     return NOOP_CMDID;
 };
 
-bool  (*longlink_noop_isresp)(uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend) {
-    return Task::kNoopTaskID == _taskid && NOOP_CMDID == _cmdid;
+bool  (*longlink_noop_isresp)(uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    return Task::kNoopTaskID == _recv_seq && NOOP_CMDID == _cmdid;
 };
 
 uint32_t (*signal_keep_cmdid)()

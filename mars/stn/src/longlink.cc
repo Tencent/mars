@@ -111,7 +111,7 @@ class LongLinkConnectObserver : public MComplexConnect {
             return false;
         }
 
-        if (!longlink_noop_isresp(taskid, cmdid, taskid, bufferbody, extension)) {
+        if (!longlink_noop_isresp(cmdid, taskid, bufferbody, extension)) {
             xwarn2(TSF"index:%_, sock:%_, %_, ret:%_, cmdid:%_, taskid:%_, pack_len:%_, recv_len:%_", _index, _socket, _addr.url(), ret, cmdid, taskid, pack_len, _buffer_recv.Length());
         }
 
@@ -311,7 +311,7 @@ bool LongLink::__NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, A
         }
     }
     
-    if (longlink_noop_isresp(Task::kNoopTaskID, _cmdid, _taskid, _buf, _extension)) {
+    if (longlink_noop_isresp(_cmdid, _taskid, _buf, _extension)) {
         longlink_noop_resp_body(_buf, _extension);
         xinfo2(TSF"end noop");
         is_noop = true;

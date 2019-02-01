@@ -129,7 +129,7 @@ bool TcpChecker::__NoopResp(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_
     AutoBuffer extension;
 	int unpackret = longlink_unpack(_packed, _cmdid, _seq, _package_len, _body, extension, NULL);
 	if (unpackret == LONGLINK_UNPACK_OK) {
-        if (longlink_noop_isresp(Task::kNoopTaskID, _cmdid, _seq, _body, extension)) {
+        if (longlink_noop_isresp(_cmdid, _seq, _body, extension)) {
 			longlink_noop_resp_body(_body, extension);
 			return true;
 		}
