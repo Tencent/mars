@@ -45,6 +45,8 @@ using namespace mars::app;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
+boost::function<void (std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , net_source_(_netsource)
@@ -247,12 +249,19 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
+        Task task = first->task;
+        if (get_real_host_) {
+            get_real_host_(task.shortlink_host_list);
+        }
+        std::string host = task.shortlink_host_list.front();
+        xinfo2(TSF"host ip to callback is %_ ",host);
+
         // make sure login
         if (first->task.need_authed) {
 
             if (!ismakesureauthruned) {
                 ismakesureauthruned = true;
-                ismakesureauthsuccess = MakesureAuthed();
+                ismakesureauthsuccess = MakesureAuthed(host);
             }
 
             if (!ismakesureauthsuccess) {
@@ -266,7 +275,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
-        if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelShort)) {
+        if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
