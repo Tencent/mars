@@ -15,7 +15,7 @@ def system_is_windows():
     return platform.system() == 'Windows'
 
 def system_architecture_is64():
-    return platform.architecture()[0] == '64bit'
+    return platform.machine().endswith('64')
 
 
 if system_is_windows():
@@ -31,7 +31,7 @@ except KeyError as identifier:
 
 BUILD_OUT_PATH = 'cmake_build/Android'
 ANDROID_LIBS_INSTALL_PATH = BUILD_OUT_PATH + '/'
-ANDROID_BUILD_CMD = 'cmake %s %s -DANDROID_ABI="%s" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake -DANDROID_TOOLCHAIN=gcc -DANDROID_NDK=%s -DANDROID_PLATFORM=android-14 -DANDROID_STL="c++_shared" && cmake --build . %s --config Release -- -j8'
+ANDROID_BUILD_CMD = 'cmake "%s" %s -DANDROID_ABI="%s" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake -DANDROID_TOOLCHAIN=gcc -DANDROID_NDK=%s -DANDROID_PLATFORM=android-14 -DANDROID_STL="c++_shared" && cmake --build . %s --config Release -- -j8'
 ANDROID_SYMBOL_PATH = 'libraries/mars_android_sdk/obj/local/'
 ANDROID_LIBS_PATH = 'libraries/mars_android_sdk/libs/'
 ANDROID_XLOG_SYMBOL_PATH = 'libraries/mars_xlog_sdk/obj/local/'

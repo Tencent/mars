@@ -165,7 +165,7 @@ void LogBuffer::__Flush() {
 }
 
 void LogBuffer::__Clear() {
-    memset(buff_.Ptr(), 0, buff_.MaxLength());
+    memset(buff_.Ptr(), 0, buff_.Length());
     buff_.Length(0, 0);
     remain_nocrypt_len_ = 0;
 }
