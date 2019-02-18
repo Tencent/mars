@@ -289,9 +289,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         first->use_proxy =  (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, first->use_proxy);
-        worker->OnSend = boost::bind(&ShortLinkTaskManager::__OnSend, this, _1);
-        worker->OnRecv = boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3);
-        worker->OnResponse = boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7);
+        worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), AYNC_HANDLER);
+        worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), AYNC_HANDLER);
+        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), AYNC_HANDLER);
         first->running_id = (intptr_t)worker;
 
         xassert2(worker && first->running_id);
@@ -301,7 +301,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        worker->func_network_report = fun_notify_network_err_;
+        worker->func_network_report.set(fun_notify_network_err_);
         worker->SendRequest(bufreq, buffer_extension);
 
         xinfo2(TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, useProxy:%_",
@@ -321,11 +321,8 @@ struct find_seq {
 };
 
 void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, bool _cancel_retry, ConnectProfile& _conn_profile) {
-    move_wrapper<AutoBuffer> body(_body);
-    move_wrapper<AutoBuffer> extension(_extension);
-    RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _worker, _err_type, _status, body, extension, _cancel_retry, _conn_profile), _worker);
 
-    xdebug2(TSF"worker=%0, _err_type=%1, _status=%2, _body.lenght=%3, _cancel_retry=%4", _worker, _err_type, _status, body.get().Length(), _cancel_retry);
+    xdebug2(TSF"worker=%0, _err_type=%1, _status=%2, _body.lenght=%3, _cancel_retry=%4", _worker, _err_type, _status, _body.Length(), _cancel_retry);
 
     fun_shortlink_response_(_status);
 
@@ -345,22 +342,22 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
         if (_err_type == kEctSocket) {
             it->force_no_retry = _cancel_retry;
         }
-        __SingleRespHandle(it, _err_type, _status, kTaskFailHandleDefault, body.get().Length(), _conn_profile);
+        __SingleRespHandle(it, _err_type, _status, kTaskFailHandleDefault, _body.Length(), _conn_profile);
         return;
 
     }
 
-    it->transfer_profile.received_size = body->Length();
-    it->transfer_profile.receive_data_size = body->Length();
+    it->transfer_profile.received_size = _body.Length();
+    it->transfer_profile.receive_data_size = _body.Length();
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
-    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, body, extension, err_code, Task::kChannelShort);
+    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, _body, _extension, err_code, Task::kChannelShort);
 
     switch(handle_type){
         case kTaskFailHandleNoError:
         {
-            dynamic_timeout_.CgiTaskStatistic(it->task.cgi, (unsigned int)it->transfer_profile.send_data_size + (unsigned int)body.get().Length(), ::gettickcount() - it->transfer_profile.start_send_time);
+            dynamic_timeout_.CgiTaskStatistic(it->task.cgi, (unsigned int)it->transfer_profile.send_data_size + (unsigned int)_body.Length(), ::gettickcount() - it->transfer_profile.start_send_time);
             __SingleRespHandle(it, kEctOK, err_code, handle_type, (unsigned int)it->transfer_profile.receive_data_size, _conn_profile);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(__LINE__, kEctOK, err_code, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
@@ -387,7 +384,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             break;
         case kTaskFailHandleDefault:
         {
-            xerror2(TSF"task decode error handle_type:%_, err_code:%_, pWorker:%_, taskid:%_ body dump:%_", handle_type, err_code, (void*)it->running_id, it->task.taskid, xdump(body->Ptr(), body->Length()));
+            xerror2(TSF"task decode error handle_type:%_, err_code:%_, pWorker:%_, taskid:%_ body dump:%_", handle_type, err_code, (void*)it->running_id, it->task.taskid, xdump(_body.Ptr(), _body.Length()));
             __SingleRespHandle(it, kEctEnDecode, err_code, handle_type, (unsigned int)it->transfer_profile.receive_data_size, _conn_profile);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(__LINE__, kEctEnDecode, handle_type, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
@@ -406,8 +403,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 }
 
 void ShortLinkTaskManager::__OnSend(ShortLinkInterface* _worker) {
-    RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(boost::bind(&ShortLinkTaskManager::__OnSend, this, _worker), _worker);
-
+    
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
 
     if (lst_cmd_.end() != it) {
@@ -419,7 +415,6 @@ void ShortLinkTaskManager::__OnSend(ShortLinkInterface* _worker) {
 }
 
 void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size) {
-    RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _worker, _cached_size, _total_size), _worker);
 
     xverbose_function();
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);

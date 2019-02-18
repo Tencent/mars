@@ -488,8 +488,8 @@ const std::string HeaderFields::ToString() const {
     return str;
 }
     
-std::list<std::pair<std::string, std::string>> HeaderFields::GetAsList() const{
-    std::list<std::pair<std::string, std::string>> result;
+std::list<std::pair<const std::string, const std::string>> HeaderFields::GetAsList() const{
+    std::list<std::pair<const std::string, const std::string>> result;
     
     for (auto entry : headers_) {
         result.push_back({entry.first, entry.second});

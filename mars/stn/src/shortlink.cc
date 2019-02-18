@@ -35,6 +35,7 @@
 #include "mars/app/app.h"
 #include "mars/comm/crypt/ibase64.h"
 #include "mars/baseevent/baseprjevent.h"
+#include "mars/comm/move_wrapper.h"
 
 #if defined(__ANDROID__) || defined(__APPLE__)
 #include "mars/comm/socket/getsocktcpinfo.h"
@@ -495,8 +496,11 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
         if (_report && func_network_report) func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
     }
 
-    if (OnResponse)
-        OnResponse(this, _errType, _status, _body, _extension, false, _conn_profile);
+    if (OnResponse) {
+        move_wrapper<AutoBuffer> body(_body);
+        move_wrapper<AutoBuffer> extension(_extension);
+        OnResponse(this, _errType, _status, body, extension, false, _conn_profile);
+    }
     else
         xwarn2(TSF"OnResponse NULL.");
 }
