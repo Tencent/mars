@@ -434,6 +434,25 @@ void (*ReportTaskProfile)(const TaskProfile& _task_profile)
 	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportTaskProfile, ScopedJstring(env, report_task_str.c_str()).GetJstr());
 };
 
+DEFINE_FIND_STATIC_METHOD(KC2Java_notifyNewSpeedTestReport, KC2Java, "notifyNewSpeedTestReport", "([BIIII)V")
+void (*NotifySpeedTestReport)(const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
+                              const uint32_t& _trans_time, const int& _trans_retcode) 
+= [](const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
+     const uint32_t& _trans_time, const int& _trans_retcode) {
+	xinfo_function(TSF"cookie:%_, cookie length:%_, conn_time:%_, conn_retcode:%_, trans_time:%_, conn_retcode:%_", _cookie, _cookie.size(), _conn_time, _conn_retcode, _trans_time, _trans_retcode);
+
+	VarCache* cacheInstance = VarCache::Singleton();
+	ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
+	JNIEnv *env = scopeJEnv.GetEnv();
+
+	int len = _cookie.size();
+	jbyteArray ctx = env->NewByteArray((jsize)len);
+	env->SetByteArrayRegion(ctx, 0, (jsize)len, (jbyte*) _cookie.data());
+
+	JNU_CallStaticMethodByMethodInfo(env, KC2Java_notifyNewSpeedTestReport, ctx, (jint)_conn_time, (jint)_conn_retcode, (jint)_trans_time, (jint)_trans_retcode);
+ 
+};
+
 void (*ReportTaskLimited)(int _check_type, const Task& _task, unsigned int& _param)
 = [](int _check_type, const Task& _task, unsigned int& _param) {
 

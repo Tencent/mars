@@ -254,6 +254,9 @@ extern void (*ReportTaskProfile)(const TaskProfile& _task_profile);
 extern void (*ReportTaskLimited)(int _check_type, const Task& _task, unsigned int& _param);
 //底层上报域名dns结果 
 extern void (*ReportDnsProfile)(const DnsProfile& _dns_profile);
+//网络测速上报
+extern void (*NotifySpeedTestReport)(const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
+                                     const uint32_t& _trans_time, const int& _trans_retcode);
         
 }}
 #endif // NETWORK_SRC_NET_COMM_H_
