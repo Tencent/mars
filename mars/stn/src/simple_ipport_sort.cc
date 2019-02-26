@@ -436,19 +436,98 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
     
    //merge
     _items.clear();
-    while ( !items_history.empty() || !items_new.empty()) {
-        int ran = rand()%(items_history.size()+items_new.size());
-        if (0 <= ran && ran < (int)items_history.size()) {
-            _items.push_back(items_history.front());
-            items_history.pop_front();
-        } else if ((int)items_history.size() <= ran && ran < (int)(items_history.size()+items_new.size())) {
-            _items.push_back(items_new.front());
-            items_new.pop_front();
+    //v6 version
+    bool use_V6 = false;
+    
+    if (!use_V6) {//not use V6
+    
+        while ( !items_history.empty() || !items_new.empty()) {
+            __PickIpItemRandom(_items, items_history, items_new);
+        }
+        
+        return;
+    }
+    std::deque<IPPortItem> items_new_V6;
+    std::deque<IPPortItem> items_new_V4;
+    
+    for (auto item : items_new) {
+        if (__IsV6Ip(item)) {
+            items_new_V6.push_back(item);
         } else {
-            xassert2(false, TSF"ran:%_, history:%_, new:%_", ran, items_history.size(), items_new.size());
+            items_new_V4.push_back(item);
         }
     }
+    
+    bool pick_V6 = true;
+    
+    while (!items_history.empty() || !items_new_V6.empty() || !items_new_V4.empty()) {
+        if (pick_V6) {
+            if (!items_history.empty()) {
+                IPPortItem item = items_history.front();
+                if (__IsV6Ip(item)) {
+                    if (items_new_V6.empty()) {
+                        _items.push_back(item);
+                        items_history.pop_front();
+                    } else {
+                        __PickIpItemRandom(_items, items_history, items_new_V6);
+                    }
+                } else {
+                    if (!items_new_V6.empty()) {
+                        _items.push_back(items_new_V6.front());
+                        items_new_V6.pop_front();
+                    }
+                }
+            } else { // items_history empty
+                if (!items_new_V6.empty()) {
+                    _items.push_back(items_new_V6.front());
+                    items_new_V6.pop_front();
+                }
+            }
+        } else { //pick v4
+            if (!items_history.empty()) {
+                IPPortItem item = items_history.front();
+                if (__IsV6Ip(item)) {
+                    if (!items_new_V4.empty()) {
+                        _items.push_back(items_new_V4.front());
+                        items_new_V4.pop_front();
+                    }
+                } else {
+                    if (items_new_V4.empty()) {
+                        _items.push_back(item);
+                        items_history.pop_front();
+                    } else {
+                        __PickIpItemRandom(_items, items_history, items_new_V4);
+                    }
+                }
+            } else { // items_history empty
+                if (!items_new_V4.empty()) {
+                    _items.push_back(items_new_V4.front());
+                    items_new_V4.pop_front();
+                }
+            }
+        }
+        pick_V6 = !pick_V6;
+    }
+
 }
+
+bool SimpleIPPortSort::__IsV6Ip(const IPPortItem& item) const {
+    return item.str_ip.find(":") != std::string::npos;
+}
+
+void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items, std::deque<IPPortItem>& _items_history, std::deque<IPPortItem>& _items_new) const {
+    int ran = rand() % (_items_history.size() + _items_new.size());
+    if (0 <= ran && ran < (int)_items_history.size()) {
+        _items.push_back(_items_history.front());
+        _items_history.pop_front();
+    } else if ((int)_items_history.size() <= ran && ran < (int)(_items_history.size() + _items_new.size())) {
+        _items.push_back(_items_new.front());
+        _items_new.pop_front();
+    } else {
+        xassert2(false, TSF"ran:%_, history:%_, new:%_", ran, _items_history.size(), _items_new.size());
+    }
+}
+
 
 
 void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount) const {

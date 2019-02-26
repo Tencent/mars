@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <deque>
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/tinyxml2.h"
@@ -62,6 +63,8 @@ class SimpleIPPortSort {
     void __FilterbyBanned(std::vector<IPPortItem>& _items) const;
     void __SortbyBanned(std::vector<IPPortItem>& _items) const;
     bool __IsServerBan(const std::string& _ip) const;
+    bool __IsV6Ip(const IPPortItem& item) const;
+    void __PickIpItemRandom(std::vector<IPPortItem>& _items, std::deque<IPPortItem>& _items_history, std::deque<IPPortItem>& _items_new) const;
     
   private:
     SimpleIPPortSort(const SimpleIPPortSort&);
