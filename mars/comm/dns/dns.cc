@@ -131,7 +131,7 @@ static void __GetIP() {
                 socket_address sock_addr(single->ai_addr);
                 const char* ip = sock_addr.ip();
 
-                if (!socket_address(ip, 0).valid_server_address(false, true)) {
+                if (!socket_address(ip, 0).valid_server_address(true, true)) {
                     xerror2(TSF"ip is invalid, ip:%0", ip);
                     continue;
                 }
