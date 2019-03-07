@@ -32,8 +32,8 @@
 using namespace mars::stn;
 
 AntiAvalanche::AntiAvalanche(bool _isactive)
-	: frequency_limit_(new FrequencyLimit())
-	, flow_limit_(new FlowLimit((_isactive)))
+    : frequency_limit_(new FrequencyLimit())
+    , flow_limit_(new FlowLimit((_isactive)))
 {}
 
 AntiAvalanche::~AntiAvalanche() {
@@ -46,13 +46,13 @@ bool AntiAvalanche::Check(const Task& _task, const void* _buffer, int _len) {
 
     unsigned int span = 0;
     if (!frequency_limit_->Check(_task, _buffer, _len, span)){
-		ReportTaskLimited(kFrequencyLimit, _task, span);
-    	return false;
+        ReportTaskLimited(kFrequencyLimit, _task, span);
+        return false;
     }
 
     if (kMobile == getNetInfo() && !flow_limit_->Check(_task, _buffer, _len)) {
-    	ReportTaskLimited(kFlowLimit, _task, (unsigned int&)_len);
-		return false;
+        ReportTaskLimited(kFlowLimit, _task, (unsigned int&)_len);
+        return false;
     }
 
     return true;

@@ -47,27 +47,30 @@ ActiveLogic::ActiveLogic()
 {
     xinfo_function();
 #ifndef __APPLE__
-        if (!alarm_.Start(INACTIVE_TIMEOUT))
-       	{
-            xerror2(TSF"m_alarm.Start false");
-    	}
+    if (!alarm_.Start(INACTIVE_TIMEOUT))
+        {
+        xerror2(TSF"m_alarm.Start false");
+    }
 #endif
 }
 
 ActiveLogic::~ActiveLogic()
 {
     xinfo_function();
-	MessageQueue::CancelMessage(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()), (MessageQueue::MessageTitle_t)this);
-	MessageQueue::WaitForRunningLockEnd(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()));
+    MessageQueue::CancelMessage(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()), (MessageQueue::MessageTitle_t)this);
+    MessageQueue::WaitForRunningLockEnd(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()));
 }
 
 void ActiveLogic::OnForeground(bool _isforeground)
 {
-	if (MessageQueue::GetDefMessageQueue()!=MessageQueue::CurrentThreadMessageQueue())
-	{
-        MessageQueue::AsyncInvoke(boost::bind(&ActiveLogic::OnForeground, this, _isforeground), (MessageQueue::MessageTitle_t)this, mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()), "ActiveLogic::OnForeground");
-		return;
-	}
+    if (MessageQueue::GetDefMessageQueue()!=MessageQueue::CurrentThreadMessageQueue())
+    {
+        MessageQueue::AsyncInvoke(boost::bind(&ActiveLogic::OnForeground, this, _isforeground),
+                                    (MessageQueue::MessageTitle_t)this,
+                                    mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()),
+                                    "ActiveLogic::OnForeground");
+        return;
+    }
 
     xgroup2_define(group);
     xinfo2(TSF"OnForeground:%0, change:%1, ", _isforeground, _isforeground!=isforeground_) >> group;
@@ -84,9 +87,9 @@ void ActiveLogic::OnForeground(bool _isforeground)
     {
 #ifndef __APPLE__
         if (!alarm_.Start(INACTIVE_TIMEOUT))
-       	{
+           {
             xerror2(TSF"m_alarm.Start false") >> group;
-    	}
+        }
 #endif
     }
 
@@ -95,8 +98,8 @@ void ActiveLogic::OnForeground(bool _isforeground)
 
     if (isnotify)
     {
-    	xinfo2(TSF"active change:%0", isactive_) >> group;
-    	SignalActive(isactive_);
+        xinfo2(TSF"active change:%0", isactive_) >> group;
+        SignalActive(isactive_);
     }
 }
 
@@ -107,12 +110,12 @@ bool ActiveLogic::IsActive() const
 
 bool ActiveLogic::IsForeground() const
 {
-	return isforeground_;
+    return isforeground_;
 }
 
 uint64_t ActiveLogic::LastForegroundChangeTime() const
 {
-	return lastforegroundchangetime_;
+    return lastforegroundchangetime_;
 }
 
 void ActiveLogic::__OnInActive()
