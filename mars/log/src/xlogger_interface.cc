@@ -87,6 +87,7 @@ void ReleaseXloggerInstance(const char* _nameprefix) {
     XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
     XloggerAppender::DelayRelease(appender);
     XloggerCategory::DelayRelease(category);
+    sg_map.erase(it);
 }
 
 void XloggerWrite(int64_t _instance_ptr, const XLoggerInfo* _info, const char* _log) {
