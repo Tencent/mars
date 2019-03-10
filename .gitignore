@@ -114,4 +114,4 @@ Debug-iphonesimulator
 *.xcodeproj
 *.build
 cmake_build
-
+*.settings
