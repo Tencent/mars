@@ -31,25 +31,25 @@ extern "C" {
 
 DEFINE_FIND_STATIC_METHOD(KXlog_newXlogInstance, KXlog, "newXlogInstance", "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)J")
 JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
-	(JNIEnv *env, jclass, jint level, jint mode, jstring _cache_dir, jstring _log_dir, jstring _nameprefix, jint _cache_log_days, jstring _pubkey) {
+    (JNIEnv *env, jclass, jint level, jint mode, jstring _cache_dir, jstring _log_dir, jstring _nameprefix, jint _cache_log_days, jstring _pubkey) {
     if (NULL == _log_dir || NULL == _nameprefix) {
-		return -1;
-	}
+        return -1;
+    }
 
-	std::string cache_dir;
-	if (NULL != _cache_dir) {
-		ScopedJstring cache_dir_jstr(env, _cache_dir);
-		cache_dir = cache_dir_jstr.GetChar();
-	}
+    std::string cache_dir;
+    if (NULL != _cache_dir) {
+        ScopedJstring cache_dir_jstr(env, _cache_dir);
+        cache_dir = cache_dir_jstr.GetChar();
+    }
 
-	const char* pubkey = NULL;
-	ScopedJstring jstr_pubkey(env, _pubkey);
-	if (NULL != _pubkey) {
-		pubkey = jstr_pubkey.GetChar();
-	}
+    const char* pubkey = NULL;
+    ScopedJstring jstr_pubkey(env, _pubkey);
+    if (NULL != _pubkey) {
+        pubkey = jstr_pubkey.GetChar();
+    }
 
-	ScopedJstring log_dir_jstr(env, _log_dir);
-	ScopedJstring nameprefix_jstr(env, _nameprefix);
+    ScopedJstring log_dir_jstr(env, _log_dir);
+    ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::comm::XloggerCategory* category = mars::xlog::NewXloggerInstance((TLogLevel)level, (TAppenderMode)mode,
                                         cache_dir.c_str(), log_dir_jstr.GetChar(),
                                         nameprefix_jstr.GetChar(), _cache_log_days, pubkey);
@@ -61,7 +61,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
 
 DEFINE_FIND_STATIC_METHOD(KXlog_getXlogInstance, KXlog, "getXlogInstance", "(Ljava/lang/String;)J")
 JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
-	(JNIEnv *env, jclass, jstring _nameprefix) {
+    (JNIEnv *env, jclass, jstring _nameprefix) {
     ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::comm::XloggerCategory* category = mars::xlog::GetXloggerInstance(nameprefix_jstr.GetChar());
     if (nullptr == category) {
@@ -72,153 +72,153 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
 
 DEFINE_FIND_STATIC_METHOD(KXlog_releaseXlogInstance, KXlog, "releaseXlogInstance", "(Ljava/lang/String;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_releaseXlogInstance
-	(JNIEnv *env, jclass, jstring _nameprefix) {
+    (JNIEnv *env, jclass, jstring _nameprefix) {
     ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::xlog::ReleaseXloggerInstance(nameprefix_jstr.GetChar());
 }
 
 DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
-	(JNIEnv *env, jclass, jint level, jint mode, jstring _cache_dir, jstring _log_dir, jstring _nameprefix, jint _cache_log_days, jstring _pubkey) {
-	if (NULL == _log_dir || NULL == _nameprefix) {
-		return;
-	}
+    (JNIEnv *env, jclass, jint level, jint mode, jstring _cache_dir, jstring _log_dir, jstring _nameprefix, jint _cache_log_days, jstring _pubkey) {
+    if (NULL == _log_dir || NULL == _nameprefix) {
+        return;
+    }
 
-	std::string cache_dir;
-	if (NULL != _cache_dir) {
-		ScopedJstring cache_dir_jstr(env, _cache_dir);
-		cache_dir = cache_dir_jstr.GetChar();
-	}
+    std::string cache_dir;
+    if (NULL != _cache_dir) {
+        ScopedJstring cache_dir_jstr(env, _cache_dir);
+        cache_dir = cache_dir_jstr.GetChar();
+    }
 
-	const char* pubkey = NULL;
-	ScopedJstring jstr_pubkey(env, _pubkey);
-	if (NULL != _pubkey) {
-		pubkey = jstr_pubkey.GetChar();
-	}
+    const char* pubkey = NULL;
+    ScopedJstring jstr_pubkey(env, _pubkey);
+    if (NULL != _pubkey) {
+        pubkey = jstr_pubkey.GetChar();
+    }
 
-	ScopedJstring log_dir_jstr(env, _log_dir);
-	ScopedJstring nameprefix_jstr(env, _nameprefix);
-	appender_open_with_cache((TAppenderMode)mode, cache_dir.c_str(), log_dir_jstr.GetChar(), nameprefix_jstr.GetChar(), _cache_log_days, pubkey);
-	xlogger_SetLevel((TLogLevel)level);
+    ScopedJstring log_dir_jstr(env, _log_dir);
+    ScopedJstring nameprefix_jstr(env, _nameprefix);
+    appender_open_with_cache((TAppenderMode)mode, cache_dir.c_str(), log_dir_jstr.GetChar(), nameprefix_jstr.GetChar(), _cache_log_days, pubkey);
+    xlogger_SetLevel((TLogLevel)level);
 
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderClose(JNIEnv *env, jobject) {
-	appender_close();
+    appender_close();
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderFlush(JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_sync) {
-	mars::xlog::Flush(_log_instance_ptr, _is_sync);
+    mars::xlog::Flush(_log_instance_ptr, _is_sync);
 }
 
 DEFINE_FIND_STATIC_METHOD(KXlog_logWrite, KXlog, "logWrite", "(Lcom/tencent/mars/xlog/Xlog$XLoggerInfo;Ljava/lang/String;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite
   (JNIEnv *env, jclass, jobject _log_info, jstring _log) {
 
-	if (NULL == _log_info || NULL == _log) {
-		xerror2(TSF"loginfo or log is null");
-		return;
-	}
+    if (NULL == _log_info || NULL == _log) {
+        xerror2(TSF"loginfo or log is null");
+        return;
+    }
 
-	jint level = JNU_GetField(env, _log_info, "level", "I").i;
+    jint level = JNU_GetField(env, _log_info, "level", "I").i;
 
-	if (!xlogger_IsEnabledFor((TLogLevel)level)) {
-		return;
-	}
+    if (!xlogger_IsEnabledFor((TLogLevel)level)) {
+        return;
+    }
 
-	jstring tag = (jstring)JNU_GetField(env, _log_info, "tag", "Ljava/lang/String;").l;
-	jstring filename = (jstring)JNU_GetField(env, _log_info, "filename", "Ljava/lang/String;").l;
-	jstring funcname = (jstring)JNU_GetField(env, _log_info, "funcname", "Ljava/lang/String;").l;
-	jint line = JNU_GetField(env, _log_info, "line", "I").i;
-	jlong pid = JNU_GetField(env, _log_info, "pid", "J").i;
-	jlong tid = JNU_GetField(env, _log_info, "tid", "J").j;
-	jlong maintid = JNU_GetField(env, _log_info, "maintid", "J").j;
+    jstring tag = (jstring)JNU_GetField(env, _log_info, "tag", "Ljava/lang/String;").l;
+    jstring filename = (jstring)JNU_GetField(env, _log_info, "filename", "Ljava/lang/String;").l;
+    jstring funcname = (jstring)JNU_GetField(env, _log_info, "funcname", "Ljava/lang/String;").l;
+    jint line = JNU_GetField(env, _log_info, "line", "I").i;
+    jlong pid = JNU_GetField(env, _log_info, "pid", "J").i;
+    jlong tid = JNU_GetField(env, _log_info, "tid", "J").j;
+    jlong maintid = JNU_GetField(env, _log_info, "maintid", "J").j;
 
-	XLoggerInfo xlog_info;
-	gettimeofday(&xlog_info.timeval, NULL);
-	xlog_info.level = (TLogLevel)level;
-	xlog_info.line = line;
-	xlog_info.pid = (int)pid;
-	xlog_info.tid = LONGTHREADID2INT(tid);
-	xlog_info.maintid = LONGTHREADID2INT(maintid);;
+    XLoggerInfo xlog_info;
+    gettimeofday(&xlog_info.timeval, NULL);
+    xlog_info.level = (TLogLevel)level;
+    xlog_info.line = line;
+    xlog_info.pid = (int)pid;
+    xlog_info.tid = LONGTHREADID2INT(tid);
+    xlog_info.maintid = LONGTHREADID2INT(maintid);;
 
-	ScopedJstring tag_jstr(env, tag);
-	ScopedJstring filename_jstr(env, filename);
-	ScopedJstring funcname_jstr(env, funcname);
-	ScopedJstring log_jst(env, _log);
+    ScopedJstring tag_jstr(env, tag);
+    ScopedJstring filename_jstr(env, filename);
+    ScopedJstring funcname_jstr(env, funcname);
+    ScopedJstring log_jst(env, _log);
 
-	xlog_info.tag = tag_jstr.GetChar();
-	xlog_info.filename = filename_jstr.GetChar();
-	xlog_info.func_name = funcname_jstr.GetChar();
+    xlog_info.tag = tag_jstr.GetChar();
+    xlog_info.filename = filename_jstr.GetChar();
+    xlog_info.func_name = funcname_jstr.GetChar();
 
-	xlogger_Write(&xlog_info, log_jst.GetChar());
+    xlogger_Write(&xlog_info, log_jst.GetChar());
 
 }
 
 DEFINE_FIND_STATIC_METHOD(KXlog_logWrite2, KXlog, "logWrite2", "(JILjava/lang/String;Ljava/lang/String;Ljava/lang/String;IIJJLjava/lang/String;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
   (JNIEnv *env, jclass, jlong _log_instance_ptr, int _level, jstring _tag, jstring _filename,
-		  jstring _funcname, jint _line, jint _pid, jlong _tid, jlong _maintid, jstring _log) {
+          jstring _funcname, jint _line, jint _pid, jlong _tid, jlong _maintid, jstring _log) {
 
-	if (!mars::xlog::IsEnabledFor(_log_instance_ptr, (TLogLevel)_level)) {
-		return;
-	}
+    if (!mars::xlog::IsEnabledFor(_log_instance_ptr, (TLogLevel)_level)) {
+        return;
+    }
 
-	XLoggerInfo xlog_info;
-	gettimeofday(&xlog_info.timeval, NULL);
-	xlog_info.level = (TLogLevel)_level;
-	xlog_info.line = (int)_line;
-	xlog_info.pid = (int)_pid;
-	xlog_info.tid = LONGTHREADID2INT(_tid);
-	xlog_info.maintid = LONGTHREADID2INT(_maintid);
+    XLoggerInfo xlog_info;
+    gettimeofday(&xlog_info.timeval, NULL);
+    xlog_info.level = (TLogLevel)_level;
+    xlog_info.line = (int)_line;
+    xlog_info.pid = (int)_pid;
+    xlog_info.tid = LONGTHREADID2INT(_tid);
+    xlog_info.maintid = LONGTHREADID2INT(_maintid);
 
-	const char* tag_cstr = NULL;
-	const char* filename_cstr = NULL;
-	const char* funcname_cstr = NULL;
-	const char* log_cstr = NULL;
+    const char* tag_cstr = NULL;
+    const char* filename_cstr = NULL;
+    const char* funcname_cstr = NULL;
+    const char* log_cstr = NULL;
 
-	if (NULL != _tag) {
-		tag_cstr = env->GetStringUTFChars(_tag, NULL);
-	}
+    if (NULL != _tag) {
+        tag_cstr = env->GetStringUTFChars(_tag, NULL);
+    }
 
-	if (NULL != _filename) {
-		filename_cstr = env->GetStringUTFChars(_filename, NULL);
-	}
+    if (NULL != _filename) {
+        filename_cstr = env->GetStringUTFChars(_filename, NULL);
+    }
 
-	if (NULL != _funcname) {
-		funcname_cstr = env->GetStringUTFChars(_funcname, NULL);
-	}
+    if (NULL != _funcname) {
+        funcname_cstr = env->GetStringUTFChars(_funcname, NULL);
+    }
 
-	if (NULL != _log) {
-		log_cstr = env->GetStringUTFChars(_log, NULL);
-	}
+    if (NULL != _log) {
+        log_cstr = env->GetStringUTFChars(_log, NULL);
+    }
 
-	xlog_info.tag = NULL == tag_cstr ? "" : tag_cstr;
-	xlog_info.filename = NULL == filename_cstr ? "" : filename_cstr;
-	xlog_info.func_name = NULL == funcname_cstr ? "" : funcname_cstr;
+    xlog_info.tag = NULL == tag_cstr ? "" : tag_cstr;
+    xlog_info.filename = NULL == filename_cstr ? "" : filename_cstr;
+    xlog_info.func_name = NULL == funcname_cstr ? "" : funcname_cstr;
 
     mars::xlog::XloggerWrite(_log_instance_ptr, &xlog_info, NULL == log_cstr ? "NULL == log" : log_cstr);
 
-	if (NULL != _tag) {
-		env->ReleaseStringUTFChars(_tag, tag_cstr);
-	}
+    if (NULL != _tag) {
+        env->ReleaseStringUTFChars(_tag, tag_cstr);
+    }
 
-	if (NULL != _filename) {
-		env->ReleaseStringUTFChars(_filename, filename_cstr);
-	}
+    if (NULL != _filename) {
+        env->ReleaseStringUTFChars(_filename, filename_cstr);
+    }
 
-	if (NULL != _funcname) {
-		env->ReleaseStringUTFChars(_funcname, funcname_cstr);
-	}
+    if (NULL != _funcname) {
+        env->ReleaseStringUTFChars(_funcname, funcname_cstr);
+    }
 
-	if (NULL != _log) {
-		env->ReleaseStringUTFChars(_log, log_cstr);
-	}
+    if (NULL != _log) {
+        env->ReleaseStringUTFChars(_log, log_cstr);
+    }
 }
 
 JNIEXPORT jint JNICALL Java_com_tencent_mars_xlog_Xlog_getLogLevel
   (JNIEnv *, jobject, jlong _log_instance_ptr) {
-	return mars::xlog::GetLevel(_log_instance_ptr);
+    return mars::xlog::GetLevel(_log_instance_ptr);
 }
 
 //DEFINE_FIND_STATIC_METHOD(KXlog_setLogLevel, KXlog, "setLogLevel", "(I)V")
@@ -241,13 +241,13 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setConsoleLogOpen
 
 DEFINE_FIND_METHOD(KXlog_setMaxFileSize, KXlog, "setMaxFileSize", "(JJ)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxFileSize
-		(JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_size) {
+        (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_size) {
     mars::xlog::SetMaxFileSize(_log_instance_ptr, _max_size);
 }
 
 DEFINE_FIND_METHOD(KXlog_setMaxAliveTime, KXlog, "setMaxAliveTime", "(JJ)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxAliveTime
-		(JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_time) {
+        (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_time) {
     mars::xlog::SetMaxFileSize(_log_instance_ptr, _max_time);
 }
 }

@@ -245,6 +245,8 @@ void XloggerAppender::Open(TAppenderMode _mode, const char* _cachedir,
                              const char* _logdir, const char* _nameprefix,
                              int _cache_days, const char* _pub_key) {
 
+    assert(nullptr != _logdir);
+    assert(nullptr != _nameprefix);
     mode_ = _mode;
     cache_logdir_ = nullptr == _cachedir ? "" : _cachedir;
     logdir_ = nullptr == _logdir ? "" : _logdir;
@@ -295,7 +297,7 @@ void XloggerAppender::Open(TAppenderMode _mode, const char* _cachedir,
 
     ScopedLock lock(mutex_log_file_);
     log_close_ = false;
-    appender_setmode(mode_);
+    SetMode(mode_);
     lock.unlock();
 
     char mark_info[512] = {0};
@@ -461,6 +463,7 @@ void XloggerAppender::__MakeLogFileName(const timeval& _tv,
 }
 
 void XloggerAppender::__DelTimeoutFile(const std::string& _log_path) {
+    ScopedLock dir_attr_lock(sg_mutex_dir_attr);
     time_t now_time = time(nullptr);
     
     boost::filesystem::path path(_log_path);
@@ -548,6 +551,7 @@ bool XloggerAppender::__AppendFile(const std::string& _src_file, const std::stri
 
 void XloggerAppender::__MoveOldFiles(const std::string& _src_path, const std::string& _dest_path,
                                         const std::string& _nameprefix) {
+    ScopedLock dir_attr_lock(sg_mutex_dir_attr);
     if (_src_path == _dest_path) {
         return;
     }
@@ -1004,8 +1008,8 @@ void XloggerAppender::SetMaxFileSize(uint64_t _max_byte_size) {
 
 void XloggerAppender::SetMaxAliveDuration(long _max_time) {
     if (_max_time >= kMinLogAliveTime) {
-		max_alive_time_ = _max_time;
-	}
+        max_alive_time_ = _max_time;
+    }
 }
 
 bool XloggerAppender::GetfilepathFromTimespan(int _timespan, const char* _prefix,
