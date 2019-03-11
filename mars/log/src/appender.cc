@@ -832,7 +832,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     boost::filesystem::create_directories(_dir);
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, _dir)).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&__del_timeout_file, std::string(_dir))).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
