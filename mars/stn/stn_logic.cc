@@ -374,6 +374,15 @@ void (*ReportTaskLimited)(int _check_type, const Task& _task, unsigned int& _par
 void (*ReportDnsProfile)(const DnsProfile& _dns_profile)
 = [](const DnsProfile& _dns_profile) {
 };
+
+void (*NotifySpeedTestReport)(const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
+                              const uint32_t& _trans_time, const int& _trans_retcode)
+    
+= [](const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
+     const uint32_t& _trans_time, const int& _trans_retcode) {
+    sg_callback->NotifySpeedTestReport(_cookie, _conn_time, _conn_retcode, _trans_time, _trans_retcode);
+};
+
 #endif
 
 }
