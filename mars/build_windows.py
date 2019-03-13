@@ -87,6 +87,49 @@ def build_windows_xlog(incremental, tag='', config='Release'):
     headers.update(WIN_COPY_EXT_FILES)
     copy_file_mapping(headers, '../../', WIN_RESULT_DIR)
     
+    copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)
+
+    print('==================Output========================')
+    print("libs: %s" %(WIN_RESULT_DIR))
+    print("pdb files: %s" %(WIN_LIBS_INSTALL_PATH))
+
+    after_time = time.time()
+    print("use time:%d s" % (int(after_time - before_time)))
+    return True
+    
+def build_windows_xlog(incremental, tag='', config='Release'):
+    before_time = time.time()
+    gen_mars_revision_file('comm', tag)
+
+    clean_windows(BUILD_OUT_PATH, incremental)
+    os.chdir(BUILD_OUT_PATH)
+    
+    print("build cmd:" + WIN_BUILD_CMD %config)
+    ret = os.system(WIN_BUILD_CMD %config)
+    os.chdir(SCRIPT_PATH)
+
+    if 0 != ret:
+        print('!!!!!!!!!!!!!!!!!!build fail!!!!!!!!!!!!!!!!!!!!')
+        return False
+
+    if os.path.exists(WIN_RESULT_DIR):
+        shutil.rmtree(WIN_RESULT_DIR)
+    os.makedirs(WIN_RESULT_DIR)
+    
+    needed_libs = [os.path.normpath(WIN_LIBS_INSTALL_PATH + 'comm.lib'), os.path.normpath(WIN_LIBS_INSTALL_PATH + 'mars-boost.lib'), os.path.normpath(WIN_LIBS_INSTALL_PATH + 'xlog.lib')]
+    for lib in glob.glob(WIN_LIBS_INSTALL_PATH + '*.lib'):
+        if os.path.normpath(lib) in needed_libs:
+            pass
+        else:
+            os.remove(lib)
+
+    merge_win_static_libs(needed_libs, WIN_RESULT_DIR + 'xlog.lib')
+    
+    headers = dict()
+    headers.update(XLOG_COPY_HEADER_FILES)
+    headers.update(WIN_COPY_EXT_FILES)
+    copy_file_mapping(headers, '../../', WIN_RESULT_DIR)
+    
     sub_folders = ["comm", "boost", "xlog"]
     copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)
 
