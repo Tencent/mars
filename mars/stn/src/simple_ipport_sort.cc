@@ -363,7 +363,7 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
     return false;
 }
 
-void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
+void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const {
     srand((unsigned int)gettickcount());
     //random_shuffle new and history
     std::random_shuffle(_items.begin(), _items.end());
@@ -436,10 +436,8 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
     
    //merge
     _items.clear();
-    //v6 version
-    bool use_V6 = false;
     
-    if (!use_V6) {//not use V6
+    if (!_use_IPv6) {//not use V6
     
         while ( !items_history.empty() || !items_new.empty()) {
             __PickIpItemRandom(_items, items_history, items_new);
@@ -530,10 +528,10 @@ void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items, std::
 
 
 
-void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount) const {
+void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const {
     ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
-    __SortbyBanned(_items);
+    __SortbyBanned(_items, _use_IPv6);
     
     if (_needcount < (int)_items.size()) _items.resize(_needcount);
 }

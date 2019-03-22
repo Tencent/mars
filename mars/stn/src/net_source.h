@@ -62,6 +62,9 @@ class NetSource {
         DNS new_dns_;
         DNS dns_;
     };
+    
+  public:
+    boost::function<bool ()> fun_need_use_IPv6_;
 
   public:
     //set longlink host and ports

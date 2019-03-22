@@ -380,6 +380,7 @@ void (*NotifySpeedTestReport)(const std::string _cookie, const uint32_t& _conn_t
     
 = [](const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
      const uint32_t& _trans_time, const int& _trans_retcode) {
+    xassert2(sg_callback != NULL);
     sg_callback->NotifySpeedTestReport(_cookie, _conn_time, _conn_retcode, _trans_time, _trans_retcode);
 };
 
