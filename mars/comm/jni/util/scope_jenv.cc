@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <cstdio>
 #include "assert/__assert.h"
 
 extern pthread_key_t g_env_key;
@@ -42,9 +43,11 @@ ScopeJEnv::ScopeJEnv(JavaVM* jvm, jint _capacity)
             break;
         }
 
+        char thread_name[32] = {0};
+        snprintf(thread_name, sizeof(thread_name), "mars::%d", (int)gettid());
         JavaVMAttachArgs args;
         args.group = NULL;
-        args.name = "default";
+        args.name = thread_name;
         args.version = JNI_VERSION_1_6;
         status_ = vm_->AttachCurrentThread(&env_, &args);
 
