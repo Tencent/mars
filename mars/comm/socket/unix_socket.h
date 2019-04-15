@@ -33,7 +33,8 @@
 
 #ifdef _WIN32
 
-#include "winsock2.h"
+#include <winsock2.h>
+#pragma comment(lib, "ws2_32.lib")
 
 #define SOCKET_ERRNO(error) WSA##error
 

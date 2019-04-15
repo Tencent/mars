@@ -981,7 +981,9 @@ void appender_close() {
 
         CloseMmapFile(sg_mmmap_file);
     } else {
+      if (sg_log_buff!=nullptr){
         delete[] (char*)((sg_log_buff->GetData()).Ptr());
+      }
     }
 
     delete sg_log_buff;
