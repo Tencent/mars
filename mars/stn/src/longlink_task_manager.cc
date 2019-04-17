@@ -301,7 +301,11 @@ void LongLinkTaskManager::__RunOnStartTask() {
         if (get_real_host_) {
             get_real_host_(task.longlink_host_list);
         }
-        std::string host = task.longlink_host_list.front();
+        std::string host = "";
+        if (!task.longlink_host_list.empty()) {
+            host = task.longlink_host_list.front();
+
+        }
         xinfo2(TSF"host ip to callback is %_ ",host);
 
         // make sure login
@@ -355,8 +359,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         }
         
 		if (0 == bufreq.Length()) {
-            Task task = first->task;
-            std::string host = task.longlink_host_list.front();
+
 			if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_->Profile());
 				first = next;

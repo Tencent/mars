@@ -46,6 +46,7 @@ using namespace mars::app;
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
 boost::function<void (std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -256,9 +257,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         std::string host = task.shortlink_host_list.front();
         xinfo2(TSF"host ip to callback is %_ ",host);
 
+        xinfo2(TSF"need auth cgi %_ , host %_ need auth %_ ", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
-
             if (!ismakesureauthruned) {
                 ismakesureauthruned = true;
                 ismakesureauthsuccess = MakesureAuthed(host);
@@ -528,6 +529,10 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
                 0 != _resp_length ? "" : string_cast(_it->transfer_profile.received_size).str(), _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time),
                         (curtime - _it->start_task_time), _it->remain_retry_count)
         (TSF"cgi:%_, taskid:%_, worker:%_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id);
+
+        if (task_connection_detail_) {
+            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);
+        }
 
         int cgi_retcode = fun_callback_(_err_type, _err_code, _fail_handle, _it->task, (unsigned int)(curtime - _it->start_task_time));
         int errcode = _err_code;
