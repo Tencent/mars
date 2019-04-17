@@ -72,7 +72,7 @@ namespace stn{
         
         virtual void RequestSync() = 0;
         
-        //验证是否已登录
+        //验证是否已登录 
     };
 
     void SetCallback(Callback* const callback);

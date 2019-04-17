@@ -75,7 +75,7 @@ Initialize Xlog when your APP starts. Remember to use an exclusive folder to sav
 When multiple processes is used in your app, make sure that each process owns its exclusive log file.
 
 ```java
-System.loadLibrary("stlport_shared");
+System.loadLibrary("c++_shared");
 System.loadLibrary("marsxlog");
 
 final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -459,7 +459,7 @@ dependencies {
 
 
 ```java
-System.loadLibrary("stlport_shared");
+System.loadLibrary("c++_shared");
 System.loadLibrary("marsxlog");
 
 final String SDCARD = Environment.getExternalStorageDirectory().getAbsolutePath();

@@ -273,7 +273,7 @@ static void __del_timeout_file(const std::string& _log_path) {
                     boost::filesystem::remove(iter->path());
                 } 
                 if (boost::filesystem::is_directory(iter->status())) {
-                    std::string filename = iter->path().filename().c_str();
+                    std::string filename = iter->path().filename().string();
                     if (filename.size() == 8 && filename.find_first_not_of("0123456789") == std::string::npos) {
                         boost::filesystem::remove_all(iter->path());
                     }
@@ -832,7 +832,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     boost::filesystem::create_directories(_dir);
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, _dir)).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&__del_timeout_file, std::string(_dir))).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
@@ -981,7 +981,9 @@ void appender_close() {
 
         CloseMmapFile(sg_mmmap_file);
     } else {
+      if (sg_log_buff!=nullptr){
         delete[] (char*)((sg_log_buff->GetData()).Ptr());
+      }
     }
 
     delete sg_log_buff;

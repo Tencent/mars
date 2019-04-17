@@ -42,9 +42,52 @@ def build_windows(incremental, tag='', config='Release'):
     headers = dict()
     headers.update(COMM_COPY_HEADER_FILES)
     headers.update(WIN_COPY_EXT_FILES)
+    copy_file_mapping(headers, '../', WIN_RESULT_DIR)
+    
+    copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)
+
+    print('==================Output========================')
+    print("libs: %s" %(WIN_RESULT_DIR))
+    print("pdb files: %s" %(WIN_LIBS_INSTALL_PATH))
+
+    after_time = time.time()
+    print("use time:%d s" % (int(after_time - before_time)))
+    return True
+    
+def build_windows_xlog(incremental, tag='', config='Release'):
+    before_time = time.time()
+    gen_mars_revision_file('comm', tag)
+
+    clean_windows(BUILD_OUT_PATH, incremental)
+    os.chdir(BUILD_OUT_PATH)
+    
+    print("build cmd:" + WIN_BUILD_CMD %config)
+    ret = os.system(WIN_BUILD_CMD %config)
+    os.chdir(SCRIPT_PATH)
+
+    if 0 != ret:
+        print('!!!!!!!!!!!!!!!!!!build fail!!!!!!!!!!!!!!!!!!!!')
+        return False
+
+    if os.path.exists(WIN_RESULT_DIR):
+        shutil.rmtree(WIN_RESULT_DIR)
+    os.makedirs(WIN_RESULT_DIR)
+    
+    needed_libs = [os.path.normpath(WIN_LIBS_INSTALL_PATH + 'comm.lib'), os.path.normpath(WIN_LIBS_INSTALL_PATH + 'mars-boost.lib'), os.path.normpath(WIN_LIBS_INSTALL_PATH + 'xlog.lib')]
+    for lib in glob.glob(WIN_LIBS_INSTALL_PATH + '*.lib'):
+        if os.path.normpath(lib) in needed_libs:
+            pass
+        else:
+            os.remove(lib)
+
+    merge_win_static_libs(needed_libs, WIN_RESULT_DIR + 'xlog.lib')
+    
+    headers = dict()
+    headers.update(XLOG_COPY_HEADER_FILES)
+    headers.update(WIN_COPY_EXT_FILES)
     copy_file_mapping(headers, '../../', WIN_RESULT_DIR)
     
-    sub_folders = ["app", "baseevent", "comm", "boost", "xlog", "sdt", "stn"]
+    sub_folders = ["comm", "boost", "xlog"]
     copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)
 
     print('==================Output========================')
@@ -86,7 +129,9 @@ def main():
             build_windows(False, sys.argv[1], sys.argv[2])
             break
         else:
-            num = raw_input('Enter menu(or usage: python build_windows.py <tag> <Debug/Release>):\n1. Clean && build Release.\n2. Build Release incrementally.\n3. Clean && build Debug.\n4. Build Debug incrementally.\n5. Gen project file.\n6. Exit\n')
+            num = raw_input('Enter menu(or usage: python build_windows.py <tag> <Debug/Release>):\n'\
+            '1. Clean && build mars Release.\n2. Build mars Release incrementally.\n3. Clean && build mars Debug.\n'\
+            '4. Build mars Debug incrementally.\n5. Clean && build xlog Release.\n6. Clean && build xlog Debug.\n7. Gen mars project file.\n8. Exit\n')
             if num == '1':
                 build_windows(False, config='Release')
                 break
@@ -100,9 +145,15 @@ def main():
                 build_windows(True, config='Debug')
                 break
             elif num == '5':
-                gen_win_project()
+                build_windows_xlog(False, config='Release')
                 break
             elif num == '6':
+                build_windows_xlog(False, config='Debug')
+                break
+            elif num == '7':
+                gen_win_project()
+                break
+            elif num == '8':
                 break
             else:
                 build_windows(False)
