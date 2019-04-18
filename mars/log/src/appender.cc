@@ -832,7 +832,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     boost::filesystem::create_directories(_dir);
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, _dir)).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&__del_timeout_file, std::string(_dir))).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
@@ -981,7 +981,9 @@ void appender_close() {
 
         CloseMmapFile(sg_mmmap_file);
     } else {
+      if (sg_log_buff!=nullptr){
         delete[] (char*)((sg_log_buff->GetData()).Ptr());
+      }
     }
 
     delete sg_log_buff;
