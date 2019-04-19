@@ -434,11 +434,13 @@ void (*ReportTaskProfile)(const TaskProfile& _task_profile)
 	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportTaskProfile, ScopedJstring(env, report_task_str.c_str()).GetJstr());
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_notifyNewSpeedTestReport, KC2Java, "notifyNewSpeedTestReport", "([BIIII)V")
+DEFINE_FIND_STATIC_METHOD(KC2Java_notifyNewSpeedTestReport, KC2Java, "notifyNewSpeedTestReport", "([BIIIILjava/lang/String;ILjava/lang/String;II)V")
 void (*NotifySpeedTestReport)(const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
-                              const uint32_t& _trans_time, const int& _trans_retcode) 
+                              const uint32_t& _trans_time, const int& _trans_retcode, const std::string& _cli_ip, const int _cli_port,
+                              const std::string& _svr_ip, const int _svr_port, const int _local_stack) 
 = [](const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
-     const uint32_t& _trans_time, const int& _trans_retcode) {
+     const uint32_t& _trans_time, const int& _trans_retcode, const std::string& _cli_ip, const int _cli_port,
+    const std::string& _svr_ip, const int _svr_port, const int _local_stack) {
 	xinfo_function(TSF"cookie:%_, cookie length:%_, conn_time:%_, conn_retcode:%_, trans_time:%_, conn_retcode:%_", _cookie, _cookie.size(), _conn_time, _conn_retcode, _trans_time, _trans_retcode);
 
 	VarCache* cacheInstance = VarCache::Singleton();
@@ -449,7 +451,8 @@ void (*NotifySpeedTestReport)(const std::string _cookie, const uint32_t& _conn_t
 	jbyteArray ctx = env->NewByteArray((jsize)len);
 	env->SetByteArrayRegion(ctx, 0, (jsize)len, (jbyte*) _cookie.data());
 
-	JNU_CallStaticMethodByMethodInfo(env, KC2Java_notifyNewSpeedTestReport, ctx, (jint)_conn_time, (jint)_conn_retcode, (jint)_trans_time, (jint)_trans_retcode);
+	JNU_CallStaticMethodByMethodInfo(env, KC2Java_notifyNewSpeedTestReport, ctx, (jint)_conn_time, (jint)_conn_retcode, (jint)_trans_time, (jint)_trans_retcode,
+									ScopedJstring(env, _cli_ip.c_str()).GetJstr(), (jint)_cli_port, ScopedJstring(env, _svr_ip.c_str()).GetJstr(), (jint)_svr_port, (jint)_local_stack);
  
 };
 
