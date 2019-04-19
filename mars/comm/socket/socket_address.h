@@ -28,7 +28,6 @@
 class socket_address {
 
   public:
-    explicit socket_address(const char* _url);
     explicit socket_address(const char* _ip, uint16_t _port);
     explicit socket_address(const sockaddr_in& _addr);
     explicit socket_address(const sockaddr_in6& _addr);
