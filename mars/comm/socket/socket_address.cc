@@ -35,31 +35,6 @@
 
 static const char kWellKnownNat64Prefix[] = {'6', '4', ':','f', 'f', '9', 'b', ':', ':', '\0'};
 
-socket_address::socket_address(const char* _url) {
-    char ip_s[40] = {0};
-    uint16_t port_u = 0;
-
-    if (0 < sscanf(_url, "%15[0-9.]:%8hu", ip_s, &port_u)) {
-        sockaddr_in sock_addr = {0};
-        sock_addr.sin_family = AF_INET;
-        socket_inet_pton(AF_INET, ip_s, &sock_addr.sin_addr);
-        sock_addr.sin_port = htons(port_u);
-
-        __init((sockaddr*)&sock_addr);
-    } else if (0 < sscanf(_url, "[%40[0-9a-fA-F:.]]:%8hu", ip_s, &port_u) || 0 < sscanf(_url, "%40[0-9a-fA-F:.]", ip_s)) {
-        sockaddr_in6 sock_addr = {0};
-        sock_addr.sin6_family = AF_INET6;
-        socket_inet_pton(AF_INET6, ip_s, &sock_addr.sin6_addr);
-        sock_addr.sin6_port = htons(port_u);
-
-        __init((sockaddr*)&sock_addr);
-    } else {
-    	sockaddr sock_addr = {0};
-    	sock_addr.sa_family = AF_UNSPEC;
-    	__init((sockaddr*)&sock_addr);
-    }
-}
-
 socket_address::socket_address(const char* _ip, uint16_t _port) {
     in6_addr addr6 = IN6ADDR_ANY_INIT;
     in_addr  addr4 = {0};
