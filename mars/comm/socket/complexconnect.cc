@@ -437,9 +437,13 @@ private:
 static bool __isconnecting(const ConnectCheckFSM* _ref) { return NULL != _ref && INVALID_SOCKET != _ref->Socket(); }
 }
 
-SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketBreaker& _breaker, MComplexConnect* _observer,
-                                            mars::comm::ProxyType _proxy_type, const socket_address* _proxy_addr,
-                                            const std::string& _proxy_username, const std::string& _proxy_pwd) {
+SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _vecaddr,
+                                        SocketBreaker& _breaker,
+                                        MComplexConnect* _observer,
+                                        mars::comm::ProxyType _proxy_type,
+                                        const socket_address* _proxy_addr,
+                                        const std::string& _proxy_username,
+                                        const std::string& _proxy_pwd) {
     trycount_ = 0;
     index_ = -1;
     errcode_ = 0;
