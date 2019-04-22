@@ -352,7 +352,6 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         auto iter = task_.headers.begin();
         while(iter != task_.headers.end()) {
             headers[iter->first] = iter->second;
-            xinfo2(TSF"user headers:(%_, %_)", iter->first, iter->second);
             iter++;
         }
     }
