@@ -26,6 +26,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/projdef.h"
@@ -91,6 +92,7 @@ public:
     std::string report_arg;  // user for cgi report
     
     std::vector<std::string> shortlink_host_list;
+    std::map<std::string, std::string> headers;
 };
 
 enum TaskFailHandleType {

@@ -26,6 +26,7 @@
 #include "assert/__assert.h"
 #include "var_cache.h"
 #include "autobuffer.h"
+#include "scoped_jstring.h"
 
 using namespace std;
 
@@ -717,4 +718,37 @@ void JNU_FreeJstring(JNIEnv* _env, jstring str) {
     ASSERT(_env != NULL);
 
     _env->DeleteLocalRef(str);
+}
+
+std::map<std::string, std::string> JNU_JObject2Map(JNIEnv* _env, const jobject _obj) {
+    ASSERT(_env != NULL);
+
+    std::map<std::string, std::string> result;
+    jclass c_Map = _env->FindClass("java/util/Map");  
+    jmethodID m_KeySet = _env->GetMethodID(c_Map, "keySet", "()Ljava/util/Set;");
+    jobject jKeySet = _env->CallObjectMethod(_obj, m_KeySet);
+
+    jclass c_Set = _env->FindClass("java/util/Set");
+    jmethodID m_ToArray = _env->GetMethodID(c_Set, "toArray", "()[Ljava/lang/Object;");
+    jobjectArray jobjArray = (jobjectArray)_env->CallObjectMethod(jKeySet, m_ToArray);
+    if(jobjArray == NULL){
+        return result;
+    }
+
+    jmethodID m_Get = _env->GetMethodID(c_Map, "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+    jsize arraysize = _env->GetArrayLength(jobjArray);
+    for(int i = 0; i < arraysize; i++ ){
+        jstring jkey = (jstring)_env->GetObjectArrayElement(jobjArray, i);
+        jstring jvalue = (jstring)_env->CallObjectMethod(_obj, m_Get, jkey);
+        result[ScopedJstring(_env, jkey).GetChar()] = ScopedJstring(_env, jvalue).GetChar();
+        _env->DeleteLocalRef(jkey);
+		_env->DeleteLocalRef(jvalue);
+    }
+
+    _env->DeleteLocalRef(jobjArray);
+    _env->DeleteLocalRef(jKeySet);
+    _env->DeleteLocalRef(c_Set);
+    _env->DeleteLocalRef(c_Map);
+
+    return result;
 }
