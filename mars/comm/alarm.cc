@@ -33,7 +33,7 @@ static const MessageQueue::MessageTitle_t KALARM_MESSAGETITLE(0x1F1FF);
 #define MAX_LOCK_TIME (5000)
 #define INVAILD_SEQ (0)
 
-bool Alarm::Start(int _after) {
+bool Alarm::Start(int _after, bool _needWake) {
     ScopedLock lock(sg_lock);
 
     if (INVAILD_SEQ != seq_) return false;
@@ -51,7 +51,7 @@ bool Alarm::Start(int _after) {
 
 #ifdef ANDROID
 
-    if (!::startAlarm((int64_t) seq, _after)) {
+    if (_needWake && !::startAlarm((int64_t) seq, _after)) {
         xerror2(TSF"startAlarm error, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
         MessageQueue::CancelMessage(broadcast_msg_id_);
         broadcast_msg_id_ = MessageQueue::KNullPost;
