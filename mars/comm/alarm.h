@@ -84,7 +84,7 @@ class Alarm {
 #endif
     }
 
-    bool Start(int _after);  // ms
+    bool Start(int _after, bool _needWake=true);  // ms
     bool Cancel();
 
     bool IsWaiting() const;

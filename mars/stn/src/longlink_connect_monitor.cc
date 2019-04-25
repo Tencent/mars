@@ -40,6 +40,7 @@ using namespace mars::app;
 
 static const unsigned int kTimeCheckPeriod = 10 * 1000;     // 10s
 static const unsigned int kStartCheckPeriod = 3 * 1000;     // 3s
+static const unsigned int kInactiveBuffer = 30 * 1000;      //30s
 
 static const unsigned long kNoNetSaltRate = 3;
 static const unsigned long kNoNetSaltRise = 600;
@@ -166,8 +167,9 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
     uint64_t interval =  __Interval(_type, activelogic_) * 1000ULL;
     uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
+    uint64_t buffer = activelogic_.IsActive() ? 0 : kInactiveBuffer;    //in case doze mode
 
-    if (posttime >= interval) {
+    if ((posttime + buffer) >= interval) {
         bool newone = false;
         bool ret = longlink_.MakeSureConnected(&newone);
         xinfo2(TSF"made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
@@ -219,7 +221,7 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
     alarm_.Cancel();
 
     if (LongLink::kConnectFailed == _status || LongLink::kDisConnected == _status) {
-        alarm_.Start(500);
+        __AutoIntervalConnect();
     } else if (LongLink::kConnected == _status) {
         xinfo2(TSF"cancel auto connect");
     }
