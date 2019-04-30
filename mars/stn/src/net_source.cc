@@ -461,8 +461,10 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 	if (!_isbackup) {
         bool need_use_IPv6 = false;
         if (fun_need_use_IPv6_) {
+			xinfo2(TSF"try get local next ipv6 host %_ ", _host);
             need_use_IPv6 = fun_need_use_IPv6_();
         }
+		xinfo2(TSF"use ip v6 %_ , host is %_ ", need_use_IPv6, _host);
 		ipportstrategy_.SortandFilter(temp_items, (int)(_count - len), need_use_IPv6);
 		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
 	}

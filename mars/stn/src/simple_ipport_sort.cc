@@ -436,6 +436,9 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     
    //merge
     _items.clear();
+
+    xinfo2(TSF"use ipv6 %_ ", _use_IPv6);
+
     //v6 version
     if (!_use_IPv6) {//not use V6
     
