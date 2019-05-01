@@ -19,6 +19,10 @@
 //
 
 #include <unistd.h>
+#include <inttypes.h>
+#ifndef __ANDROID__
+#include <sys/syscall.h>
+#endif
 #include "compiler_util.h"
 
 extern "C"
@@ -31,7 +35,11 @@ EXPORT_FUNC intmax_t xlogger_pid()
 
 EXPORT_FUNC intmax_t xlogger_tid()
 {
+#ifdef __ANDROID__
     return gettid();
+#else
+    return syscall(SYS_gettid);
+#endif
 }
 
 EXPORT_FUNC intmax_t xlogger_maintid()

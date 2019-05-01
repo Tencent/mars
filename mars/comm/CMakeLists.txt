@@ -116,7 +116,9 @@ if(ANDROID)
             android/*.c
             jni/*.cc
             jni/*.c
-            jni/util/*.cc)
+            jni/util/*.cc
+            unix/xlogger_threadinfo.cc
+            )
         
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 elseif(APPLE)
@@ -124,6 +126,8 @@ elseif(APPLE)
     file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} objc/*.mm objc/*.h)
     source_group(objc FILES ${SELF_TEMP_SRC_FILES})
     list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES} debugger/debugger_utils.c)
+elseif(UNIX)
+    list(APPEND SELF_SRC_FILES unix/xlogger_threadinfo.cc)
 endif()
 
 
