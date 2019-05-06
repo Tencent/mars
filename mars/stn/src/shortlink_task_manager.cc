@@ -21,6 +21,7 @@
 #include "shortlink_task_manager.h"
 
 #include <algorithm>
+#include <set>
 
 #include "boost/bind.hpp"
 
@@ -228,8 +229,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
-    bool ismakesureauthruned = false;
     bool ismakesureauthsuccess = false;
+    std::set<std::string> has_makesureauth_host;
     uint64_t curtime = ::gettickcount();
     int sent_count = 0;
 
@@ -260,10 +261,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         xinfo2(TSF"need auth cgi %_ , host %_ need auth %_ ", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
-            if (!ismakesureauthruned) {
-                ismakesureauthruned = true;
+            if (has_makesureauth_host.find(host) == has_makesureauth_host.end()) {
                 ismakesureauthsuccess = MakesureAuthed(host);
+                has_makesureauth_host.insert(host);
             }
+            xinfo2(TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
@@ -363,6 +365,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
     int err_code = 0;
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, _body, _extension, err_code, Task::kChannelShort);
+    xinfo2(TSF"zyzhang err_code %_ ",err_code);
 
     switch(handle_type){
         case kTaskFailHandleNoError:
