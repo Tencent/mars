@@ -389,12 +389,18 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
 		}
 	}
 
+    for (size_t i=0; i<_items.size(); i++) {
+		xinfo2(TSF"after find list ip: %_ ", _items[i].str_ip);
+	}
+
+
     //separate new and history
     std::deque<IPPortItem> items_history(_items.size());
     std::deque<IPPortItem> items_new(_items.size());
     auto find_lambda = [&](const IPPortItem& _v) {
         for (std::vector<BanItem>::const_iterator it_banned = _ban_fail_list_.begin(); it_banned != _ban_fail_list_.end(); ++it_banned) {
             if (it_banned->ip == _v.str_ip && it_banned->port == _v.port) {
+                xinfo2(TSF"find ban ip %_ ", it_banned->ip);
                 return true;
             }
         }
@@ -404,6 +410,14 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     items_history.erase(std::remove_copy_if(_items.begin(), _items.end(), items_history.begin(), !boost::bind<bool>(find_lambda, _1)), items_history.end());
     items_new.erase(std::remove_copy_if(_items.begin(), _items.end(), items_new.begin(), find_lambda), items_new.end());
     xassert2(_items.size() == items_history.size()+items_new.size(), TSF"_item:%_, history:%_, new:%_", _items.size(), items_history.size(), items_new.size());
+
+    for (size_t i=0; i<items_history.size(); i++) {
+		xinfo2(TSF"after ban filter history list ip: %_ ", items_history[i].str_ip);
+	}
+
+    for (size_t i=0; i<items_new.size(); i++) {
+		xinfo2(TSF"after ban filter new list ip: %_ ", items_new[i].str_ip);
+	}
     
     //sort history
     std::sort(items_history.begin(), items_history.end(),
@@ -433,6 +447,11 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
                   //random by std::random_shuffle(_items.begin(), _items.end());
                   return false;
               });
+
+    
+    for (size_t i=0; i<items_history.size(); i++) {
+		xinfo2(TSF"after ban filter hostory list ip: %_ ", items_history[i].str_ip);
+	}
     
    //merge
     _items.clear();
@@ -458,6 +477,14 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
             items_new_V4.push_back(item);
         }
     }
+
+    for (size_t i=0; i<items_new_V6.size(); i++) {
+		xinfo2(TSF"v6 list ip: %_ ", items_new_V6[i].str_ip);
+	}
+
+    for (size_t i=0; i<items_new_V4.size(); i++) {
+		xinfo2(TSF"v4 list ip: %_ ", items_new_V4[i].str_ip);
+	}
     
     bool pick_V6 = true;
     
@@ -532,9 +559,17 @@ void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items, std::
 
 
 void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const {
+    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
     ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
+    for (size_t i=0; i<_items.size(); i++) {
+		xinfo2(TSF"after FilterbyBanned list ip: %_ ", _items[i].str_ip);
+	}
     __SortbyBanned(_items, _use_IPv6);
+
+    for (size_t i=0; i<_items.size(); i++) {
+		xinfo2(TSF"after SortbyBanned list ip: %_ ", _items[i].str_ip);
+	}
     
     if (_needcount < (int)_items.size()) _items.resize(_needcount);
 }

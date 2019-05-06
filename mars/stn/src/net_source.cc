@@ -446,6 +446,10 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 	size_t len = _ip_items.size();
 
+	for (size_t i=0; i<iplist.size(); i++) {
+		xinfo2(TSF"origin ip: %_ ", iplist[i]);
+	}
+
 	std::vector<IPPortItem> temp_items;
 	for (std::vector<std::string>::iterator ip_iter = iplist.begin(); ip_iter != iplist.end(); ++ip_iter) {
 		for (std::vector<uint16_t>::iterator port_iter = ports.begin(); port_iter != ports.end(); ++port_iter) {
@@ -458,6 +462,10 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 		}
 	}
 
+	for (size_t i=0; i<temp_items.size(); i++) {
+		xinfo2(TSF"temp list ip: %_ ", temp_items[i].str_ip);
+	}
+
 	if (!_isbackup) {
         bool need_use_IPv6 = false;
         if (fun_need_use_IPv6_) {
@@ -465,6 +473,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
             need_use_IPv6 = fun_need_use_IPv6_();
         }
 		xinfo2(TSF"use ip v6 %_ , host is %_ ", need_use_IPv6, _host);
+
 		ipportstrategy_.SortandFilter(temp_items, (int)(_count - len), need_use_IPv6);
 		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
 	}
