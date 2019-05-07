@@ -73,6 +73,12 @@ namespace stn{
         virtual void RequestSync() = 0;
         
         //验证是否已登录 
+
+
+        //网络测速上报
+        virtual void NotifySpeedTestReport(const std::string _cookie, const uint32_t& _conn_time, const uint32_t& _conn_retcode,
+                                           const uint32_t& _trans_time, const int& _trans_retcode, const std::string& _cli_ip, const int _cli_port,
+                                           const std::string& _svr_ip, const int _svr_port, const int _local_stack) = 0;
     };
 
     void SetCallback(Callback* const callback);
