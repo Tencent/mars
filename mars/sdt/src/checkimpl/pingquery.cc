@@ -633,8 +633,9 @@ void PingQuery::__onAlarm() {
 int PingQuery::__runReadWrite(int& _errcode) {
     unsigned long timeout_point = timeout_ * 1000 + gettickcount();
     unsigned long send_next = 0;
-
-    while (readcount_ > 0) {
+    
+    int sel_timeout_cnt = 0;
+    while (readcount_ > 0 && sel_timeout_cnt < 10) {
         bool    should_send = false;
 
         if (send_next <= gettickcount() && sendcount_ > 0) {
@@ -664,6 +665,12 @@ int PingQuery::__runReadWrite(int& _errcode) {
             _errcode = sel.Errno();
             return -1;
         }
+        
+        if (sel.IsBreak()){
+            xinfo2(TSF"user breaked");
+            _errcode = EINTR;
+            return -1;
+        }
 
         if (sel.IsException()) {
             xerror2(TSF"socketselect exception");
@@ -673,8 +680,12 @@ int PingQuery::__runReadWrite(int& _errcode) {
 
         if (sel.Exception_FD_ISSET(sockfd_)) {
             _errcode = socket_error(sockfd_);
-
             return -1;
+        }
+        
+        if (0 == retsel){
+            _errcode = ETIMEDOUT;
+            ++sel_timeout_cnt;
         }
 
         if (sel.Write_FD_ISSET(sockfd_) && should_send) {
