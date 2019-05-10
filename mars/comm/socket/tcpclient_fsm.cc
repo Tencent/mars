@@ -188,7 +188,7 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
         error_ = socket_errno;
         xerror2(TSF"close socket_set_nobio:(%_, %_)", error_, socket_strerror(error_)) >> _log;
     } else {
-        xinfo2(TSF"socket:%_, ", sock_) >> _log;
+        xinfo2(TSF"sock:%_, ", sock_) >> _log;
     }
 
     if (0 != error_) {
