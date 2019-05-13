@@ -478,6 +478,24 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
         }
     }
 
+    std::deque<IPPortItem> items_new_V6_history;
+    std::deque<IPPortItem> items_new_V4_history;
+    for (auto item : items_history) {
+        if (__IsV6Ip(item)) {
+            items_new_V6_history.push_back(item);
+        } else {
+            items_new_V4_history.push_back(item);
+        }
+    }
+    items_history.clear();
+
+    items_history.insert(items_history.end(), items_new_V6_history.begin(), items_new_V6_history.end());
+    items_history.insert(items_history.end(), items_new_V4_history.begin(), items_new_V4_history.end());
+
+    for (size_t i=0; i<items_history.size(); i++) {
+		xinfo2(TSF"after insert filter hostory list ip: %_ ", items_history[i].str_ip);
+	}
+
     for (size_t i=0; i<items_new_V6.size(); i++) {
 		xinfo2(TSF"v6 list ip: %_ ", items_new_V6[i].str_ip);
 	}
