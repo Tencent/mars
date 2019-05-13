@@ -489,8 +489,25 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     }
     items_history.clear();
 
-    items_history.insert(items_history.end(), items_new_V6_history.begin(), items_new_V6_history.end());
-    items_history.insert(items_history.end(), items_new_V4_history.begin(), items_new_V4_history.end());
+    if (items_new_V6_history.empty()) {
+        items_history.insert(items_history.end(), items_new_V4_history.begin(), items_new_V4_history.end());
+    } else { // v6 - v4 - v6 -v4... format
+        std::deque<IPPortItem>::iterator iterV6 = items_new_V6_history.begin();
+        std::deque<IPPortItem>::iterator iterV4 = items_new_V4_history.begin();
+
+        while(iterV6 != items_new_V6_history.end()) {
+            items_history.push_back(*iterV6);
+            if (iterV4 != items_new_V4_history.end()) {
+                items_history.push_back(*iterV4);
+                iterV4 ++;
+            }
+            iterV6 ++;
+        }
+        while(iterV4 != items_new_V4_history.end()) {
+            items_history.push_back(*iterV4);
+            iterV4 ++;
+        }
+    }
 
     for (size_t i=0; i<items_history.size(); i++) {
 		xinfo2(TSF"after insert filter hostory list ip: %_ ", items_history[i].str_ip);
