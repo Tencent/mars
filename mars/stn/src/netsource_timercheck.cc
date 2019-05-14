@@ -215,6 +215,7 @@ bool NetSourceTimerCheck::__TryConnnect(const std::string& _host) {
 
         if (select_ret < 0) {
             xerror2(TSF"select errror, ret:%0, strerror(errno):%1", select_ret, strerror(errno));
+            break;
         }
 
         if (seletor_.IsException()) {
