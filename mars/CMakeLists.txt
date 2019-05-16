@@ -24,7 +24,7 @@ set(SELF_LIBS_OUT ${CMAKE_SYSTEM_NAME}.out)
 if(ANDROID)
 
     find_library(log-lib log)
-    find_library(z-lib z)
+    find_library(z-lib NAMES z libz.so)
 
     link_directories(app baseevent log sdt stn comm boost)
 

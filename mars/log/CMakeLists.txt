@@ -42,18 +42,21 @@ if(MSVC)
 
     include_directories(../comm/windows)
     include_directories(../comm/windows/zlib)
-    
+
 elseif(ANDROID)
     file(GLOB SELF_ANDROID_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR}
             ../comm/xlogger/xloggerbase.c
             jni/*.cc
             ../mk_template/JNI_OnLoad.cpp)
-        
+
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 
     # for micro-ecc
     if(ANDROID_ABI MATCHES "^armeabi(-v7a)?$")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -marm")
+        if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -marm")
+        endif()
+
         if (CMAKE_VERSION VERSION_GREATER 3.7.0)
             set(CMAKE_ANDROID_ARM_MODE arm)
         endif()
@@ -70,5 +73,5 @@ install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
 
 
 
-    
-    
+
+
