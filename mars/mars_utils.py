@@ -14,6 +14,7 @@ COMM_COPY_HEADER_FILES = {
             "mars/comm/string_cast.h": "comm",
             "mars/comm/comm_data.h": "comm",
             "mars/comm/projdef.h": "comm",
+            "mars/comm/platform_comm.h": "comm",
             "mars/comm/socket/local_ipstack.h": "comm",
             "mars/comm/socket/nat64_prefix_util.h": "comm",
             "mars/comm/has_member.h" : "comm",
