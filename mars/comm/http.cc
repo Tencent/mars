@@ -397,12 +397,12 @@ bool HeaderFields::IsConnectionClose() const{
     return false;
 }
 
-int HeaderFields::ContentLength() const{
+int64_t HeaderFields::ContentLength() const{
     const char* strContentLength = HeaderField(HeaderFields::KStringContentLength);
-    int contentLength = 0;
+    int64_t contentLength = 0;
 
     if (strContentLength) {
-        contentLength = (int)strtol(strContentLength, NULL, 10);
+        contentLength = strtoll(strContentLength, NULL, 10);
     }
 
     return contentLength;
@@ -433,7 +433,7 @@ bool HeaderFields::Range(long& _start, long& _end) const {
     return true;
 }
     
-bool HeaderFields::ContentRange(int* start, int* end, int* total) const{
+bool HeaderFields::ContentRange(int64_t* start, int64_t* end, int64_t* total) const{
     // Content-Range: bytes 0-102400/102399
 
     *start = 0;
@@ -456,17 +456,17 @@ bool HeaderFields::ContentRange(int* start, int* end, int* total) const{
 
         if (std::string::npos != range_start) {
             std::string startstr = bytes.substr(0, range_start);
-            *start = (int)strtol(startstr.c_str(), NULL, 10);
+            *start = strtoll(startstr.c_str(), NULL, 10);
 
             size_t range_end = bytes.find("/", range_start + 1);
 
             if (range_end != std::string::npos) {
                 std::string endstr = bytes.substr(range_start + 1, range_end - range_start - 1);
-                *end = (int)strtol(endstr.c_str(), NULL, 10);
+                *end = strtoll(endstr.c_str(), NULL, 10);
 
 
                 std::string totalstr = bytes.substr(range_end + 1);
-                *total = (int)strtol(totalstr.c_str(), NULL, 10);
+                *total = strtoll(totalstr.c_str(), NULL, 10);
 
                 return true;
             }
