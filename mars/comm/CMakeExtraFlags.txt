@@ -1,0 +1,20 @@
+if(ANDROID)
+
+    set(SELF_EXTRA_FLAGS "-Werror -Wall -Werror=sign-compare -Wtype-limits -Wuninitialized -Wempty-body")
+
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+       set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wconsumed -Wno-error=char-subscripts -Wno-error=gnu-designator -Wno-error=unused-variable") 
+    else()
+        set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wclobbered")
+    endif()
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SELF_EXTRA_FLAGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${SELF_EXTRA_FLAGS}")
+
+
+
+elseif(APPLE)
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall")
+
+
+endif()

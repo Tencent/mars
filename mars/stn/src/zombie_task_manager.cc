@@ -44,7 +44,9 @@ static bool __compare_task(const ZombieTask& first, const ZombieTask& second)
 
 ZombieTaskManager::ZombieTaskManager(MessageQueue::MessageQueue_t _messagequeueid)
 		: asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
-		, net_core_last_start_task_time_(gettickcount()) {}
+		, net_core_last_start_task_time_(gettickcount()) {
+            xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+        }
 
 ZombieTaskManager::~ZombieTaskManager()
 {
@@ -67,7 +69,7 @@ bool ZombieTaskManager::SaveTask(const Task& _task, unsigned int _taskcosttime)
 
     MessageQueue::SingletonMessage(false, asyncreg_.Get(),
                                     MessageQueue::Message((MessageQueue::MessageTitle_t)this,
-                                    boost::bind(&ZombieTaskManager::__TimerChecker, this)),
+                                    boost::bind(&ZombieTaskManager::__TimerChecker, this), "ZombieTaskManager::__TimerChecker"),
                                     MessageQueue::MessageTiming(3000, 3000));
     return true;
 }
@@ -112,6 +114,7 @@ void ZombieTaskManager::ClearTasks()
 
 void ZombieTaskManager::RedoTasks()
 {
+    xinfo_function();
     __StartTask();
 }
 

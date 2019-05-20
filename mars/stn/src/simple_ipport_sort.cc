@@ -52,6 +52,8 @@ static const char* const kPort = "port";
 static const char* const kHistoryResult = "historyresult";
 
 static const unsigned int kBanTime = 6 * 60 * 1000;  // 6 min
+static const unsigned int kMaxBanTime = 30 * 60 * 1000; // 30 min
+static const unsigned int kServerBanTime = 30 * 60 * 1000; // 30 min
 static const int kBanFailCount = 3;
 static const int kSuccessUpdateInterval = 10*1000;
 static const int kFailUpdateInterval = 10*1000;
@@ -65,6 +67,20 @@ uint32_t CAL_BIT_COUNT(uint64_t RECORDS) {
     {
         RECORDS = RECORDS & (RECORDS-1);
         COUNT++;
+    }
+    return COUNT;
+}
+
+
+static inline
+uint32_t CAL_LAST_CONTINUOUS_BIT_COUNT(uint64_t RECORDS) {
+    uint32_t COUNT = 0;
+    uint64_t TMP = RECORDS & 0x1;
+    while(TMP)
+    {
+        COUNT++;
+        RECORDS = RECORDS >> 1;
+        TMP = RECORDS & 0x1;
     }
     return COUNT;
 }
@@ -167,7 +183,7 @@ void SimpleIPPortSort::InitHistory2BannedList(bool _savexml) {
         uint64_t    historyresult = (uint64_t)item->Int64Attribute(kHistoryResult);
         
         struct BanItem banitem;
-        banitem.ip = ip;
+        if(ip) banitem.ip = ip;
         banitem.port = port;
         banitem.records = 0;
         //8 in 1
@@ -263,8 +279,18 @@ bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
 
     bool baned =  CAL_BIT_COUNT(_iter->records) >= kBanFailCount;
     if (!baned) return false;
-
-    if (_iter->last_fail_time.gettickspan() < kBanTime) {
+    
+    uint32_t last_continuous_cnt = CAL_LAST_CONTINUOUS_BIT_COUNT(_iter->records);
+    int64_t ban_time = kBanTime;
+    if (last_continuous_cnt > kBanFailCount) {
+        ban_time += (last_continuous_cnt - kBanFailCount) * kBanTime;
+        if (ban_time > kMaxBanTime) {
+            ban_time = kMaxBanTime;
+        }
+        xinfo2(TSF"%_:%_ ban time:%_", _iter->ip, _iter->port, ban_time);
+    }
+    
+    if (_iter->last_fail_time.gettickspan() < ban_time) {
         return true;
     }
 
@@ -300,10 +326,9 @@ bool SimpleIPPortSort::__CanUpdate(const std::string& _ip, uint16_t _port, bool 
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             if (_is_success) {
-                return kSuccessUpdateInterval < iter->last_suc_time.gettickspan() ? true:false;
-            }
-            else {
-                return kFailUpdateInterval < iter->last_fail_time.gettickspan() ? true:false;
+                return kSuccessUpdateInterval < iter->last_suc_time.gettickspan();
+            } else {
+                return kFailUpdateInterval < iter->last_fail_time.gettickspan();
             }
         }
     }
@@ -329,7 +354,7 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
     
     uint64_t now = ::gettickcount();
     xassert2(now >= iter->second, TSF"%_:%_", now, iter->second);
-    if (now - iter->second < kBanTime) {
+    if (now - iter->second < kServerBanTime) {
         xwarn2(TSF"ip %0 is ban by server, haha!", _ip.c_str());
         return true;
     }
@@ -342,6 +367,27 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
     srand((unsigned int)gettickcount());
     //random_shuffle new and history
     std::random_shuffle(_items.begin(), _items.end());
+
+	int cnt = _items.size();
+	for (int i = 1; i < cnt - 1; ++i)
+	{
+		if(_items[i].str_ip == _items[i - 1].str_ip )
+		{
+			bool find = false;
+			for (int j = i + 1; j < cnt; ++j)
+			{
+				if (_items[i - 1].str_ip != _items[j].str_ip)
+				{
+					IPPortItem tmp_item = _items[i];
+					_items[i] = _items[j];
+					_items[j] = tmp_item;
+					find = true;
+					break;
+				}
+			}
+			if (!find)break;
+		}
+	}
 
     //separate new and history
     std::deque<IPPortItem> items_history(_items.size());
@@ -371,7 +417,10 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
                       
                   xassert2(l != _ban_fail_list_.end());
                   xassert2(r != _ban_fail_list_.end());
-                      
+                  
+                 if(l == _ban_fail_list_.end() || r == _ban_fail_list_.end())
+                  return false;
+                 
                  if (CAL_BIT_COUNT(l->records) != CAL_BIT_COUNT(r->records))
                      return CAL_BIT_COUNT(l->records) < CAL_BIT_COUNT(r->records);
                       

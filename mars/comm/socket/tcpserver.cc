@@ -88,6 +88,14 @@ void TcpServer::StopAndWait() {
         breaker_.ReCreate();
     }
 
+    if (INVALID_SOCKET != listen_sock_)
+    {
+#ifdef WIN32
+		shutdown(listen_sock_, SD_BOTH);
+#endif
+        socket_close(listen_sock_);
+		listen_sock_ = INVALID_SOCKET;
+	}
     lock.unlock();
 
     if (thread_.isruning())
@@ -96,7 +104,7 @@ void TcpServer::StopAndWait() {
 
 void TcpServer::__ListenThread() {
     char ip[16] = {0};
-    inet_ntop(AF_INET, &(bind_addr_.sin_addr),  ip, sizeof(ip));
+	socket_inet_ntop(AF_INET, &(bind_addr_.sin_addr), ip, sizeof(ip));
 
     xgroup2_define(break_group);
 
@@ -143,6 +151,7 @@ void TcpServer::__ListenThread() {
         observer_.OnCreate(this);
 
         while (true) {
+#ifndef WIN32
             SocketSelect sel(breaker_);
             sel.PreSelect();
             sel.Exception_FD_SET(listen_sock_);
@@ -174,6 +183,7 @@ void TcpServer::__ListenThread() {
                 xerror2(TSF"socket unreadable but break by unknown") >> break_group;
                 break;
             }
+#endif
 
             struct sockaddr_in client_addr = {0};
 
@@ -187,7 +197,12 @@ void TcpServer::__ListenThread() {
             }
 
             char cli_ip[16] = {0};
-            inet_ntop(AF_INET, &(client_addr.sin_addr),  cli_ip, sizeof(cli_ip));
+#ifdef WIN32
+			socket_inet_ntop(AF_INET, &(client_addr.sin_addr), cli_ip, sizeof(cli_ip));
+#else
+			inet_ntop(AF_INET, &(client_addr.sin_addr), cli_ip, sizeof(cli_ip));
+#endif // WIN32
+            
             xinfo2(TSF"listen accept sock:(%_, %_:%_) cli:(%_, %_:%_)", listen_sock_, ip, ntohs(bind_addr_.sin_port), client, cli_ip, ntohs(client_addr.sin_port));
 
             observer_.OnAccept(this, client, client_addr);

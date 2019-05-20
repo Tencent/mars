@@ -47,8 +47,10 @@ class WakeUpLock;
 
 class SmartHeartbeat;
 
-
 namespace mars {
+    namespace comm {
+        class ProxyInfo;
+    }
     namespace stn {
 
 class NetSource;
@@ -105,7 +107,6 @@ class LongLink {
         kLinkCheckError = 10018,
         kTimeCheckSucc = 10019,
     };
-
   public:
     boost::signals2::signal<void (TLongLinkStatus _connectStatus)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
@@ -147,15 +148,14 @@ class LongLink {
     virtual void     __Run();
     virtual SOCKET   __RunConnect(ConnectProfile& _conn_profile);
     virtual void     __RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile);
-    
   protected:
     
     uint32_t   __GetNextHeartbeatInterval();
     void       __NotifySmartHeartbeatConnectStatus(TLongLinkStatus _status);
     void       __NotifySmartHeartbeatHeartReq(ConnectProfile& _profile, uint64_t _internal, uint64_t _actual_internal);
     void       __NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_timeout, ConnectProfile& _profile);
-    void       __NotifySmartHeartbeatJudgeMIUIStyle();
-
+    void       __NotifySmartHeartbeatJudgeDozeStyle();
+	
   protected:
     MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      netsource_;

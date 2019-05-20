@@ -51,10 +51,10 @@ __BEGIN_DECLS
 
 typedef unsigned short mode_t;
 
-extern int  mkdir(const char*, mode_t);
+//extern int  mkdir(const char*, mode_t);
 extern unsigned int sleep(unsigned int);
 extern void usleep(unsigned long);
-#define access _access
+//#define access _access
 
 #ifdef WP8
 extern int getpid(void);

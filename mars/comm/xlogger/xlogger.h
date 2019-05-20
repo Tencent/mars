@@ -1,3 +1,15 @@
+// Tencent is pleased to support the open source community by making Mars available.
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+
+// Licensed under the MIT License (the "License"); you may not use this file except in 
+// compliance with the License. You may obtain a copy of the License at
+// http://opensource.org/licenses/MIT
+
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied. See the License for the specific language governing permissions and
+// limitations under the License.
+
 /*
  ============================================================================
  Name		: xlogger.h
@@ -10,6 +22,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <sys/cdefs.h>
+#include <sys/time.h>
 
 #include "mars/comm/string_cast.h"
 #include "xloggerbase.h"
@@ -568,7 +581,8 @@ inline void XLogger::DoTypeSafeFormat(const char* _format, const string_cast** _
 #else
 	// Definitely, VC6 not support this feature!
 	#if _MSC_VER > 1200
-		#define __XFUNCTION__	__FUNCSIG__
+		//#define __XFUNCTION__	__FUNCSIG__
+        #define __XFUNCTION__	__FUNCTION__
 	#else
 		#define __XFUNCTION__	"N/A"
 		#warning " is not supported by this compiler"
@@ -664,7 +678,7 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xinfo2_if(exp, ...)		   __xlogger_cpp_impl_if(kLevelInfo, exp,  __VA_ARGS__)
 #define xwarn2_if(exp, ...)		   __xlogger_cpp_impl_if(kLevelWarn, exp,  __VA_ARGS__)
 #define xerror2_if(exp, ...)	   __xlogger_cpp_impl_if(kLevelError, exp,	__VA_ARGS__)
-#define xfatal2_if(exp, ...)	   __xlogger_cpp_impl_ifkLevelFatal, exp, __VA_ARGS__)
+#define xfatal2_if(exp, ...)	   __xlogger_cpp_impl_if(kLevelFatal, exp, __VA_ARGS__)
 #define xlog2_if(level, ...)	   __xlogger_cpp_impl_if(level, __VA_ARGS__)
 
 #define xgroup2_define(group)	   XLogger group(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_HOOK)

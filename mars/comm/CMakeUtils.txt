@@ -1,0 +1,82 @@
+
+message(STATUS "==============config ${PROJECT_NAME}====================")
+
+# just debug;release
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
+
+add_definitions(-DXLOGGER_TAG="mars::${PROJECT_NAME}")
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+
+if(MSVC)
+    # add DEBUG macro .. release has NDEBUG defaultly
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DDEBUG")
+
+    if(CMAKE_CL_64)
+        add_definitions(-D_WIN64 -DWIN64)
+    endif()
+
+    add_definitions(-D_WIN32 -DWIN32 -DUNICODE -D_UNICODE -DNOMINMAX -D_LIB)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:threadSafeInit-")
+    
+    # generate pdb file
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
+ 
+    set(CompilerFlags
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE)
+        
+    foreach(CompilerFlag ${CompilerFlags})
+        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    endforeach()
+
+else()
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -DDEBUG")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
+    
+endif()
+    
+
+if(ANDROID)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
+
+elseif(APPLE)
+
+    # for gen xcode project file
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "gnu++14")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+
+    # for build
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14 -stdlib=libc++")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -g -gline-tables-only")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -gline-tables-only")
+    
+    if (NOT DEFINED ENABLE_BITCODE)
+        set(ENABLE_BITCODE TRUE CACHE BOOL "Wheter or not to enable bitcode")
+    endif()
+
+    if (ENABLE_BITCODE)
+        set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE "YES")
+    else()
+        set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
+    endif()
+
+    set(CMAKE_XCODE_ATTRIBUTE_STRIP_STYLE "all")
+    set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "8.0")
+    set(CMAKE_XCODE_ATTRIBUTE_OTHER_LDFLAGS "-ObjC")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_DEBUG_INFORMATION_LEVEL[variant=Debug] "default")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_DEBUG_INFORMATION_LEVEL[variant=Release] "line-tables-only")
+
+elseif(UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -ffunction-sections -fdata-sections -Os")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -ffunction-sections -fdata-sections -Os")
+endif()
+ 

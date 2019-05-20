@@ -40,7 +40,7 @@
 #define socket_close closesocket
 
 #define socket_errno WSAGetLastError()
-#define socket_strerror gai_strerror
+#define socket_strerror gai_strerrorA//gai_strerror
 
 
 #ifdef __cplusplus
@@ -69,7 +69,9 @@ int          socket_inet_pton(int af, const char* src, void* dst);
 
 
 typedef uint32_t in_addr_t;
+#if !_WIN64
 typedef SSIZE_T ssize_t;
+#endif
 typedef int socklen_t;
 typedef unsigned short in_port_t;
 

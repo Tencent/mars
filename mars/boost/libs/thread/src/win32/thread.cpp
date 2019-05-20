@@ -63,7 +63,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         for (async_states_t::iterator i = async_states_.begin(), e = async_states_.end();
                 i != e; ++i)
         {
+#ifndef BOOST_NO_EXCEPTIONS
             (*i)->make_ready();
+#endif
         }
     }
   }

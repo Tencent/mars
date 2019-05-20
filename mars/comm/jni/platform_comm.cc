@@ -130,11 +130,11 @@ DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getNetInfo, KPlatformCommC2Java, "
 int getNetInfo() {
 	xverbose_function();
 
-    if (g_NetInfo != 0)
-        return g_NetInfo;
+    // if (g_NetInfo != 0 && g_NetInfo != kNoNet)
+    //     return g_NetInfo;
     
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(&getNetInfo);
+    // if (coroutine::isCoroutine())
+    //     return coroutine::MessageInvoke(&getNetInfo);
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());

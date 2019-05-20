@@ -20,7 +20,9 @@
 
 #include "longlink_packer.h"
 
+#ifndef WIN32
 #include <arpa/inet.h>
+#endif // !WIN32
 
 #ifdef __APPLE__
 #include "mars/xlog/xlogger.h"

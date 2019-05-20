@@ -65,7 +65,7 @@ void ActiveLogic::OnForeground(bool _isforeground)
 {
 	if (MessageQueue::GetDefMessageQueue()!=MessageQueue::CurrentThreadMessageQueue())
 	{
-        MessageQueue::AsyncInvoke(boost::bind(&ActiveLogic::OnForeground, this, _isforeground), (MessageQueue::MessageTitle_t)this, mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()));
+        MessageQueue::AsyncInvoke(boost::bind(&ActiveLogic::OnForeground, this, _isforeground), (MessageQueue::MessageTitle_t)this, mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()), "ActiveLogic::OnForeground");
 		return;
 	}
 

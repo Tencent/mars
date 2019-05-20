@@ -42,16 +42,18 @@ int DnsChecker::StartDoCheck(CheckRequestProfile& _check_request) {
     return BaseChecker::StartDoCheck(_check_request);
 }
 
-int DnsChecker::CancelDoCheck() {
-    xinfo_function();
-    return BaseChecker::CancelDoCheck();
-}
 
 void DnsChecker::__DoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
 
     //longlink host dns
     for (CheckIPPorts_Iterator iter = _check_request.longlink_items.begin(); iter != _check_request.longlink_items.end(); ++iter) {
+        
+        if (is_canceled_) {
+            xinfo2(TSF"HttpChecker is canceled.");
+            return;
+        }
+        
 		CheckResultProfile profile;
 		profile.domain_name = iter->first;
 		profile.netcheck_type = kDnsCheck;
@@ -94,6 +96,12 @@ void DnsChecker::__DoCheck(CheckRequestProfile& _check_request) {
 
     //shortlink host dns
     for (CheckIPPorts_Iterator iter = _check_request.shortlink_items.begin(); iter != _check_request.shortlink_items.end(); ++iter) {
+        
+        if (is_canceled_) {
+            xinfo2(TSF"HttpChecker is canceled.");
+            return;
+        }
+        
 		CheckResultProfile profile;
 		profile.domain_name = iter->first;
 		profile.netcheck_type = kDnsCheck;

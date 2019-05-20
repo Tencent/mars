@@ -96,6 +96,8 @@ class NetSource {
     // for short link
     bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
 
+    void AddServerBan(const std::string& _ip);
+    
     void ClearCache();
 
     void ReportLongIP(bool _is_success, const std::string& _ip, uint16_t _port);
@@ -103,13 +105,10 @@ class NetSource {
 
     void RemoveLongBanIP(const std::string& _ip);
 
-    bool GetShortLinkProxyInfo(uint16_t& _port, std::string& _ipproxy, const std::vector<std::string>& _hostlist);
-
     bool GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec);
     void ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec);
 
   private:
-    void __ClearShortLinkProxyInfo();
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
     

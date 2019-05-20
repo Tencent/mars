@@ -37,8 +37,8 @@
         static boost::shared_ptr<classname>& instance_shared_ptr() { static boost::shared_ptr<classname> s_ptr;return s_ptr;}\
         static Mutex& singleton_mutex() {static Mutex s_mutex; return s_mutex;}\
         static boost::signals2::signal<void ()>& SignalInstanceBegin() { static boost::signals2::signal<void ()> s_signal; return s_signal;} \
-        static boost::signals2::signal<void (classname&)>& SignalInstance() { static boost::signals2::signal<void (classname&)> s_signal; return s_signal;} \
-        static boost::signals2::signal<void (classname&)>& SignalRelease() { static boost::signals2::signal<void (classname&)> s_signal; return s_signal;} \
+        static boost::signals2::signal<void (boost::shared_ptr<classname>)>& SignalInstance() { static boost::signals2::signal<void (boost::shared_ptr<classname>)> s_signal; return s_signal;} \
+        static boost::signals2::signal<void (boost::shared_ptr<classname>)>& SignalRelease() { static boost::signals2::signal<void (boost::shared_ptr<classname>)> s_signal; return s_signal;} \
         static boost::signals2::signal<void ()>& SignalReleaseEnd() { static boost::signals2::signal<void ()> s_signal; return s_signal;} \
         static boost::signals2::signal<void (classname&)>& SignalResetOld() { static boost::signals2::signal<void (classname&)> s_signal; return s_signal;} \
         static boost::signals2::signal<void (classname&)>& SignalResetNew() { static boost::signals2::signal<void (classname&)> s_signal; return s_signal;} \
@@ -54,7 +54,7 @@
             {\
                 SignalInstanceBegin()();\
                 boost::shared_ptr<classname> temp(const_cast<classname*>(creater), Singleton::Delete);\
-                SignalInstance()(*const_cast<classname*>(temp.get()));\
+                SignalInstance()(temp);\
                 instance_shared_ptr().swap(temp); \
             }\
             return ( instance_shared_ptr());\
@@ -71,7 +71,7 @@
             {\
                 SignalInstanceBegin()();\
                 boost::shared_ptr<classname> temp(const_cast<classname*>(_creater()), Singleton::Delete);\
-                SignalInstance()(*const_cast<classname*>(temp.get()));\
+                SignalInstance()(temp);\
                 instance_shared_ptr().swap(temp); \
             }\
             return ( instance_shared_ptr());\
@@ -84,7 +84,7 @@
             ScopedLock    lock(singleton_mutex());\
             if (instance_shared_ptr())\
             {\
-                SignalRelease()(*const_cast<classname*>(instance_shared_ptr().get()));\
+                SignalRelease()(instance_shared_ptr());\
                 instance_shared_ptr().reset();\
                 SignalReleaseEnd()();\
             }\

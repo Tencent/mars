@@ -75,10 +75,8 @@ inline  static bool __ValidAndInitDefault(Task& _task, XLogger& _group) {
     }
     
     if (_task.channel_select & Task::kChannelLong) {
-        xassert2(_task.cmdid > 0);
-        
         if (0 == _task.cmdid) {
-            xerror2("use longlink, but 0 == _task.cmdid ") >> _group;
+            xwarn2(" use longlink, but 0 == _task.cmdid ") >> _group;
             _task.channel_select &= ~Task::kChannelLong;
         }
     }
@@ -122,7 +120,7 @@ NetCore::NetCore()
     , shortlink_try_flag_(false) {
     xwarn2(TSF"publiccomponent version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
-    xinfo2(TSF"netcore messagequeue_id=%_", messagequeue_creater_.GetMessageQueue());
+    xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
 
     std::string printinfo;
 
@@ -160,7 +158,7 @@ NetCore::NetCore()
                    
     xinfo_function();
 
-    ActiveLogic::Singleton::Instance()->SignalActive.connect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
+    ActiveLogic::Singleton::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
 
 #ifdef USE_LONG_LINK
@@ -178,7 +176,8 @@ NetCore::NetCore()
 
     longlink_task_manager_->LongLinkChannel().SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
     longlink_task_manager_->LongLinkChannel().SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
-
+    
+    longlink_task_manager_->fun_on_push_ = boost::bind(&NetCore::__OnPush, this, _1, _2, _3, _4, _5);
 #ifdef __APPLE__
     longlink_task_manager_->getLongLinkConnectMonitor().fun_longlink_reset_ = boost::bind(&NetCore::__ResetLongLink, this);
 #endif
@@ -207,7 +206,7 @@ NetCore::NetCore()
 NetCore::~NetCore() {
     xinfo_function();
 
-    ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&AntiAvalanche::OnSignalActive, anti_avalanche_, _1));
+    ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
 
 
@@ -232,17 +231,17 @@ NetCore::~NetCore() {
     delete anti_avalanche_;
     delete netcheck_logic_;
     delete net_source_;
+    
+    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
 
 void NetCore::__Release(NetCore* _instance) {
-    
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(_instance->asyncreg_.Get())) {
-        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get()));
+        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
         return;
     }
- 
+    
     delete _instance;
-
 }
 
 
@@ -283,6 +282,18 @@ void NetCore::StartTask(const Task& _task) {
         OnTaskEnd(task.taskid, task.user_context, kEctLocal, kEctLocalNoNet);
         return;
     }
+    
+#ifdef ANDROID
+    if (kNoNet == ::getNetInfo() && !ActiveLogic::Singleton::Instance()->IsActive()
+#ifdef USE_LONG_LINK
+    && LongLink::kConnected != longlink_task_manager_->LongLinkChannel().ConnectStatus()
+#endif
+    ){
+        xerror2(TSF" error no net (%_, %_) return when no active", kEctLocal, kEctLocalNoNet) >> group;
+        OnTaskEnd(task.taskid, task.user_context, kEctLocal, kEctLocalNoNet);
+        return;
+    }
+#endif
 
     bool start_ok = false;
 
@@ -385,7 +396,7 @@ void NetCore::ClearTasks() {
 
 void NetCore::OnNetworkChange() {
     
-    ASYNC_BLOCK_START
+    SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
 
@@ -441,15 +452,18 @@ void NetCore::OnNetworkChange() {
     shortlink_try_flag_ = false;
     shortlink_error_count_ = 0;
     
-   ASYNC_BLOCK_END
 }
 
 void NetCore::KeepSignal() {
+    ASYNC_BLOCK_START
 	signalling_keeper_->Keep();
+    ASYNC_BLOCK_END
 }
 
 void NetCore::StopSignal() {
+    ASYNC_BLOCK_START
 	signalling_keeper_->Stop();
+    ASYNC_BLOCK_END
 }
 
 #ifdef USE_LONG_LINK
@@ -479,7 +493,9 @@ void NetCore::RedoTasks() {
 
 #ifdef USE_LONG_LINK
     longlink_task_manager_->LongLinkChannel().Disconnect(LongLink::kReset);
+    longlink_task_manager_->LongLinkChannel().MakeSureConnected();
     longlink_task_manager_->RedoTasks();
+    zombie_task_manager_->RedoTasks();
 #endif
     shortlink_task_manager_->RedoTasks();
     
@@ -496,7 +512,9 @@ void NetCore::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, 
 
 void NetCore::MakeSureLongLinkConnect() {
 #ifdef USE_LONG_LINK
+    ASYNC_BLOCK_START
     longlink_task_manager_->LongLinkChannel().MakeSureConnected();
+    ASYNC_BLOCK_END
 #endif
 }
 
@@ -545,20 +563,18 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 
 #ifdef USE_LONG_LINK
 
-//void NetCore::__OnPush(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _buf) {
-//
-//    if (is_push_data(_cmdid, _taskid)) {
-//        xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _buf.Length());
-//        push_preprocess_signal_(_cmdid, _buf);
-//        OnPush(_cmdid, _buf);
-//    }
-//}
+void NetCore::__OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _body.Length());
+    push_preprocess_signal_(_cmdid, _body);
+    OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+}
 
 void NetCore::__OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnLongLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _port));
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateLongLinkInfo(longlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
+    OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 
     if (kEctOK == _err_type) zombie_task_manager_->RedoTasks();
 
@@ -571,6 +587,7 @@ void NetCore::__OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err
     if (kEctLocal == _err_type) return;
 
     net_source_->ReportLongIP(_err_type == kEctOK, _ip, _port);
+
 }
 #endif
 
@@ -579,6 +596,7 @@ void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _er
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateShortLinkInfo(shortlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
+    OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 
     shortlink_try_flag_ = true;
 
@@ -603,6 +621,7 @@ void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _er
     if (kEctLocal == _err_type) return;
 
     net_source_->ReportShortIP(_err_type == kEctOK, _ip, _host, _port);
+
 }
 
 
@@ -611,6 +630,7 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status) {
     if (LongLink::kConnected == _status) zombie_task_manager_->RedoTasks();
 
     __ConnStatusCallBack();
+    OnLongLinkStatusChange(_status);
 }
 #endif
 
@@ -710,3 +730,26 @@ void NetCore::__OnTimerCheckSuc() {
 
 }
 
+void NetCore::__OnSignalActive(bool _isactive) {
+    ASYNC_BLOCK_START
+    
+    anti_avalanche_->OnSignalActive(_isactive);
+    
+    ASYNC_BLOCK_END
+}
+
+void NetCore::AddServerBan(const std::string& _ip) {
+    net_source_->AddServerBan(_ip);
+}
+
+ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select) {
+    if (_channel_select == Task::kChannelShort) {
+        return shortlink_task_manager_->GetConnectProfile(_taskid);
+    }
+#ifdef USE_LONG_LINK
+    else if (_channel_select == Task::kChannelLong) {
+        return longlink_task_manager_->LongLinkChannel().Profile();
+    }
+#endif
+    return ConnectProfile();
+}

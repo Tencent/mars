@@ -47,7 +47,7 @@ class Condition {
     }
 
     void wait(ScopedLock& lock) {
-        ASSERT(lock.islocked());
+        ASSERT(lock.internal().islocked());
 
         int ret = 0;
 
@@ -63,7 +63,7 @@ class Condition {
     }
 
     int wait(ScopedLock& lock, long millisecond) {
-        ASSERT(lock.islocked());
+        ASSERT(lock.internal().islocked());
         struct timespec ts;
         makeTimeout(&ts, millisecond);
 
@@ -102,7 +102,7 @@ class Condition {
     }
 
     void notifyOne(ScopedLock& lock) {
-        ASSERT(lock.islocked());
+        ASSERT(lock.internal().islocked());
         notifyOne();
     }
 
@@ -116,7 +116,7 @@ class Condition {
     }
 
     void notifyAll(ScopedLock& lock, bool anywaynotify = false) {
-        ASSERT(lock.islocked());
+        ASSERT(lock.internal().islocked());
         notifyAll(anywaynotify);
     }
 

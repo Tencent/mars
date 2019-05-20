@@ -30,6 +30,8 @@ SocketBreaker::SocketBreaker()
 : create_success_(true),
 broken_(false)
 {
+    pipes_[0] = -1;
+    pipes_[1] = -1;
     ReCreate();
 }
 
@@ -45,6 +47,11 @@ bool SocketBreaker::IsCreateSuc() const
 
 bool SocketBreaker::ReCreate()
 {
+    if(pipes_[1] >= 0)
+        close(pipes_[1]);
+    if(pipes_[0] >= 0)
+        close(pipes_[0]);
+    
     pipes_[0] = -1;
     pipes_[1] = -1;
 
@@ -134,6 +141,8 @@ void SocketBreaker::Close()
         close(pipes_[1]);
     if(pipes_[0] >= 0)
         close(pipes_[0]);
+    pipes_[0] = -1;
+    pipes_[1] = -1;
 }
 
 int SocketBreaker::BreakerFD() const

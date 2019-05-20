@@ -37,9 +37,9 @@ public class HelloCgi {
             int retCode = 0;
             String errMsg = "hello mars";
             int size = 0;
-            if(request.getText() == "64KB")
+            if("64KB".equals(request.getText()))
                 size = 64*1024;
-            if(request.getText() == "128KB")
+            if("128KB".equals(request.getText()))
                 size = 128*1024;
             Main.HelloResponse response = null;
             if(size > 0) {

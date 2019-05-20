@@ -32,15 +32,17 @@
 #include "mars/comm/time_utils.h"
 #include "mars/comm/http.h"
 #include "mars/comm/platform_comm.h"
-
 #include "mars/app/app.h"
+#include "mars/comm/crypt/ibase64.h"
 #include "mars/baseevent/baseprjevent.h"
+#include "mars/comm/move_wrapper.h"
 
 #if defined(__ANDROID__) || defined(__APPLE__)
 #include "mars/comm/socket/getsocktcpinfo.h"
 #endif
 #include "mars/stn/proto/shortlink_packer.h"
 
+#include "weak_network_logic.h"
 
 
 #define AYNC_HANDLER asyncreg_.Get()
@@ -69,9 +71,9 @@ class ShortLinkConnectObserver : public MComplexConnect {
         ConnectingIndex[_index] = 0;
 
         if (0 != _error) {
-            xassert2(shortlink_.func_network_report);
+//            xassert2(shortlink_.func_network_report);
 
-            if (_index < shortlink_.Profile().ip_items.size())
+            if (_index < shortlink_.Profile().ip_items.size() && shortlink_.func_network_report)
                 shortlink_.func_network_report(__LINE__, kEctSocket, _error, _addr.ip(), shortlink_.Profile().ip_items[_index].str_host, _addr.port());
         }
 
@@ -107,7 +109,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     {
-    xdebug2(XTHIS);
+    xinfo2(TSF"%_, handler:(%_,%_)",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq);
     xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
 }
 
@@ -138,8 +140,11 @@ void ShortLink::__Run() {
     SOCKET fd_socket = __RunConnect(conn_profile);
 
     if (INVALID_SOCKET == fd_socket) return;
-    OnSend(this);
-
+    if (OnSend) {
+        OnSend(this);
+    } else {
+        xwarn2(TSF"OnSend NULL.");
+    }
     int errtype = 0;
     int errcode = 0;
     __RunReadWrite(fd_socket, errtype, errcode, conn_profile);
@@ -159,33 +164,76 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.dns_time = ::gettickcount();
     __UpdateProfile(_conn_profile);
 
-    if (!task_.shortlink_host_list.empty())_conn_profile.host = task_.shortlink_host_list.front();
+    if (!task_.shortlink_host_list.empty()) _conn_profile.host = task_.shortlink_host_list.front();
     
-    if (use_proxy_ && net_source_.GetShortLinkProxyInfo(_conn_profile.port, _conn_profile.ip, task_.shortlink_host_list)) {
+    if (use_proxy_) {
+        _conn_profile.proxy_info = mars::app::GetProxyInfo(_conn_profile.host);
+    }
+    
+    bool use_proxy = use_proxy_ && _conn_profile.proxy_info.IsValid();
+    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
+
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
+        _conn_profile.ip = _conn_profile.proxy_info.ip;
+        _conn_profile.port = _conn_profile.proxy_info.port;
     	_conn_profile.ip_type = kIPSourceProxy;
         IPPortItem item = {_conn_profile.ip, net_source_.GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
         _conn_profile.ip_items.push_back(item);
         __UpdateProfile(_conn_profile);
     } else {
-        if (net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_)) {
-        	_conn_profile.host = _conn_profile.ip_items[0].str_host;
-        	_conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
-        	_conn_profile.ip = _conn_profile.ip_items[0].str_ip;
-        	_conn_profile.port = _conn_profile.ip_items[0].port;
-        	__UpdateProfile(_conn_profile);
+        if (!outter_vec_addr_.empty()) {
+            _conn_profile.ip_items = outter_vec_addr_;
+        } else {
+            net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
         }
+        
+        if (!_conn_profile.ip_items.empty()) {
+            _conn_profile.host      = _conn_profile.ip_items[0].str_host;
+            _conn_profile.ip_type   = _conn_profile.ip_items[0].source_type;
+            _conn_profile.ip        = _conn_profile.ip_items[0].str_ip;
+            _conn_profile.port      = _conn_profile.ip_items[0].port;
+            __UpdateProfile(_conn_profile);
+        }
+    }
+    
+	std::string proxy_ip;
+    if (use_proxy && mars::comm::kProxyNone != _conn_profile.proxy_info.type) {
+		std::vector<std::string> proxy_ips;
+        if (_conn_profile.proxy_info.ip.empty() && !_conn_profile.proxy_info.host.empty()) {
+            if (!dns_util_.GetDNS().GetHostByName(_conn_profile.proxy_info.host, proxy_ips) || proxy_ips.empty()) {
+                xwarn2(TSF"dns %_ error", _conn_profile.proxy_info.host);
+                return INVALID_SOCKET;
+            }
+			proxy_ip = proxy_ips.front();
+        } else {
+			proxy_ip = _conn_profile.proxy_info.ip;
+        }
+    }
+    
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(isnat64));
+    } else {
+        for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
+            if (!use_proxy || mars::comm::kProxyNone == _conn_profile.proxy_info.type) {
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port).v4tov6_address(isnat64));
+            } else {
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port));
+            }
+        }
+    }
+    
+	socket_address* proxy_addr = NULL;
+    if (use_proxy && (mars::comm::kProxyHttpTunel == _conn_profile.proxy_info.type || mars::comm::kProxySocks5 == _conn_profile.proxy_info.type)) {
+		proxy_addr = &((new socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port))->v4tov6_address(isnat64));
+        _conn_profile.ip_type = kIPSourceProxy;
     }
 
     xinfo2(TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items));
 
-    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
-    for (unsigned int i = 0; i < _conn_profile.ip_items.size(); ++i) {
-        vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.port).v4tov6_address(isnat64));
-    }
-
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
         __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile, false);
+        delete proxy_addr;
         return INVALID_SOCKET;
     }
 
@@ -201,13 +249,18 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
 
     ShortLinkConnectObserver connect_observer(*this);
-    ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval);
-    SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer);
+	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval);
+    
+    SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
+    delete proxy_addr;
 
     _conn_profile.conn_rtt = conn.IndexRtt();
     _conn_profile.ip_index = conn.Index();
     _conn_profile.conn_cost = conn.TotalCost();
+
     __UpdateProfile(_conn_profile);
+    
+    WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, conn.IndexRtt(), conn.Index());
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());
@@ -227,7 +280,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xassert2(0 <= conn.Index() && (unsigned int)conn.Index() < _conn_profile.ip_items.size());
 
     for (int i = 0; i < conn.Index(); ++i) {
-        if (1 == connect_observer.ConnectingIndex[i])
+        if (1 == connect_observer.ConnectingIndex[i] && func_network_report)
             func_network_report(__LINE__, kEctSocket, SOCKET_ERRNO(ETIMEDOUT), _conn_profile.ip_items[i].str_ip, _conn_profile.ip_items[i].str_host, _conn_profile.ip_items[i].port);
     }
 
@@ -253,19 +306,50 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, ConnectProfile& _conn_profile) {
 	xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
-    std::string url;
-    if (kIPSourceProxy==_conn_profile.ip_type) {
-        url +="http://";
-        url += _conn_profile.host;
-    }
+	std::string url;
+	std::map<std::string, std::string> headers;
+#ifdef WIN32
+	std::string replace_host = _conn_profile.host;
+	if (kIPSourceProxy == _conn_profile.ip_type) {
+		url += "http://";
+		url += _conn_profile.host;
+	} else {
+		replace_host = _conn_profile.ip.empty() ? _conn_profile.host : _conn_profile.ip;
+	}
 	url += task_.cgi;
 
+	headers[http::HeaderFields::KStringHost] = replace_host;
+	headers["X-Online-Host"] = replace_host;
+#else
+	if (kIPSourceProxy == _conn_profile.ip_type) {
+		url += "http://";
+		url += _conn_profile.host;
+	}
+	url += task_.cgi;
 
-	std::map<std::string, std::string> headers;
 	headers[http::HeaderFields::KStringHost] = _conn_profile.host;
+#endif // WIN32
+
+	if (_conn_profile.proxy_info.IsValid() && mars::comm::kProxyHttp == _conn_profile.proxy_info.type
+		&& !_conn_profile.proxy_info.username.empty() && !_conn_profile.proxy_info.password.empty()) {
+		std::string account_info = _conn_profile.proxy_info.username + ":" + _conn_profile.proxy_info.password;
+		size_t dstlen = modp_b64_encode_len(account_info.length());
+
+		char* dstbuf = (char*)malloc(dstlen);
+		memset(dstbuf, 0, dstlen);
+
+		int retsize = Comm::EncodeBase64((unsigned char*)account_info.c_str(), (unsigned char*)dstbuf, (int)account_info.length());
+		dstbuf[retsize] = '\0';
+
+		char auth_info[1024] = { 0 };
+		snprintf(auth_info, sizeof(auth_info), "Basic %s", dstbuf);
+		headers[http::HeaderFields::kStringProxyAuthorization] = auth_info;
+        free(dstbuf);
+	}
+
 	AutoBuffer out_buff;
 
-	shortlink_pack(url, headers, send_body_, send_extend_, out_buff, tracker_.get());
+    shortlink_pack(url, headers, send_body_, send_extend_, out_buff, tracker_.get());
 
 	// send request
 	xgroup2_define(group_send);
@@ -332,7 +416,10 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
             GetSignalOnNetworkDataChange()(XLOGGER_TAG, 0, recv_ret);
             
 			xinfo2(TSF"recv len:%_ ", recv_ret) >> group_recv;
-			OnRecv(this, (unsigned int)(recv_buf.Length() - recv_pos), (unsigned int)recv_buf.Length());
+            if (OnRecv)
+                OnRecv(this, (unsigned int)(recv_buf.Length() - recv_pos), (unsigned int)recv_buf.Length());
+            else
+                xwarn2(TSF"OnRecv NULL.");
 			recv_pos = recv_buf.Pos();
 		}
 
@@ -404,12 +491,24 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
  //   xassert2(!breaker_.IsBreak());
 
     if (kEctOK != _errType) {
-        xassert2(func_network_report);
+//        xassert2(func_network_report);
 
-        if (_report) func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
+        if (_report && func_network_report) func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
     }
 
-    OnResponse(this, _errType, _status, _body, _extension, -1 != _conn_profile.ip_index, _conn_profile);
+    if (OnResponse) {
+        move_wrapper<AutoBuffer> body(_body);
+        move_wrapper<AutoBuffer> extension(_extension);
+        OnResponse(this, _errType, _status, body, extension, false, _conn_profile);
+    }
+    else
+        xwarn2(TSF"OnResponse NULL.");
+}
+
+void ShortLink::FillOutterIPAddr(const std::vector<IPPortItem>& _out_addr) {
+    if (!_out_addr.empty()) {
+        outter_vec_addr_ = _out_addr;
+    }
 }
 
 void ShortLink::__CancelAndWaitWorkerThread() {

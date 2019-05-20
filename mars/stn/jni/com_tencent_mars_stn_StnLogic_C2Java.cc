@@ -28,12 +28,16 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
+#include "mars/boost/signals2.hpp"
 
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnLogic")
 
 namespace mars {
 namespace stn {
 
+extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
+extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
+    
 DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
 int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code)
 = [](uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) {
@@ -45,7 +49,7 @@ int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, int _error_type, i
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
 
-	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, NULL, (jint)_error_type, (jint)_error_code).i;
+	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code).i;
 
 	return ret;
 };
@@ -130,7 +134,7 @@ bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbu
 
 	jintArray errcode_array = env->NewIntArray(2);
 
-	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_req2Buf, (jint)_taskid, NULL, byte_array_output_stream_obj, errcode_array, _channel_select).z;
+	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_req2Buf, (jint)_taskid, _user_context, byte_array_output_stream_obj, errcode_array, _channel_select).z;
 
 	if (ret) {
 		jbyteArray ret_byte_array = (jbyteArray)JNU_CallMethodByName(env, byte_array_output_stream_obj, "toByteArray", "()[B").l;
@@ -174,7 +178,7 @@ int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const AutoBuffer& _
 
 	jintArray errcode_array = env->NewIntArray(1);
 
-	jint ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_buf2Resp, (jint)_taskid, NULL, resp_buf_jba, errcode_array, _channel_select).i;
+	jint ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_buf2Resp, (jint)_taskid, _user_context, resp_buf_jba, errcode_array, _channel_select).i;
 
 	if (resp_buf_jba != NULL) {
 		env->DeleteLocalRef(resp_buf_jba);
@@ -439,6 +443,19 @@ void (*ReportDnsProfile)(const DnsProfile& _dns_profile)
 = [](const DnsProfile& _dns_profile) {
 };
 
+void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
+    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+};
+    
+void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
+= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+    SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
+};
+void (*OnLongLinkStatusChange)(int _status)
+= [](int _status) {
+
+};
 }
 }
 

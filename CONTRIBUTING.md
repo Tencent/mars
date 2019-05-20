@@ -19,21 +19,21 @@ There are three main branches here:
 1. `master` branch.
 	1. It is the latest (pre-)release branch. We use `master` for tags, with version number `1.1.0`, `1.2.0`, `1.3.0`...
 	2. **Don't submit any PR on `master` branch.**
-2. `dev` branch. 
-	1. It is our stable developing branch. After full testing, `dev` will be merged to `master` branch for the next release.
-	2. **You are recommended to submit bugfix or feature PR on `dev` branch.**
+2. `develop` branch. 
+	1. It is our stable developing branch. After full testing, `develop` will be merged to `master` branch for the next release.
+	2. **You are recommended to submit bugfix or feature PR on `develop` branch.**
 3. `hotfix` branch. 
 	1. It is the latest tag version for hot fix. If we accept your pull request, we may just tag with version number `1.1.1`, `1.2.3`.
 	2. **Only submit urgent PR on `hotfix` branch for next specific release.**
 
-Normal bugfix or feature request should be submitted to `dev` branch. After full testing, we will merge them to `master` branch for the next release. 
+Normal bugfix or feature request should be submitted to `develop` branch. After full testing, we will merge them to `master` branch for the next release. 
 
-If you have some urgent bugfixes on a published version, but the `master` branch have already far away with the latest tag version, you can submit a PR on hotfix. And it will be cherry picked to `dev` branch if it is possible.
+If you have some urgent bugfixes on a published version, but the `master` branch have already far away with the latest tag version, you can submit a PR on hotfix. And it will be cherry picked to `develop` branch if it is possible.
 
 ```
 master
  ↑
-dev        <--- hotfix PR
+develop        <--- hotfix PR
  ↑ 
 feature/bugfix PR
 ```  
@@ -48,7 +48,7 @@ Before submitting a pull request, please make sure the followings are done:
 3. Add the copyright notice to the top of any new files you've added.
 4. Check your code lints and checkstyles.
 5. Test and test again your code.
-6. Now, you can submit your pull request on `dev` or `hotfix` branch.
+6. Now, you can submit your pull request on `develop` or `hotfix` branch.
 
 ## Code Style Guide
 Use [Code Style for C/C++](http://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/).

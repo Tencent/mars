@@ -16,7 +16,7 @@ public class Mars {
 
     public static void loadDefaultMarsLibrary(){
         try {
-            System.loadLibrary("stlport_shared");
+            System.loadLibrary("c++_shared");
             System.loadLibrary("marsxlog");
             System.loadLibrary("marsstn");
         }

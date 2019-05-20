@@ -20,19 +20,11 @@
 #include <exception>
 #include "comm/xlogger/xlogger.h"
 
-#ifdef ANDROID
-#include "comm/android/callstack.h"
-#endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
     void throw_exception( std::exception const & e ) {
         xfatal2(TSF"boost exception:%_", e.what());
-        
-#ifdef ANDROID
-        char stack[4096] = {0};
-        android_callstack(stack, sizeof(stack));
-        xfatal2(TSF"%_", stack);
-#endif
+
     }
 }

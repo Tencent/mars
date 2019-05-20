@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <set>
 
 #include "boost/bind.hpp"
 
@@ -59,46 +60,6 @@ static std::map< std::string, std::string > sg_host_debugip_mapping;
 
 static Mutex sg_ip_mutex;
 
-static Mutex sg_slproxymutex;
-static Thread sg_slproxyThread(XLOGGER_TAG"::proxy");
-static std::string sg_slproxyip = "";
-static uint16_t sg_slproxyport = 0;
-static uint64_t sg_slproxytimetick = gettickcount();
-static int sg_slproxycount = 0;
-
-static void __GetProxyInfo(uint64_t _timetick, std::string _host) {
-    xinfo_function(TSF"_timetick:%_, _host:%_", _timetick, _host);
-
-    int tmp_port = 0;
-    std::string tmp_proxy;
-
-    if (!::getProxyInfo(tmp_port, tmp_proxy, _host.empty() ? "" : "http://" + _host)) {
-        ScopedLock lock(sg_slproxymutex);
-
-        if (sg_slproxytimetick != _timetick) return;
-
-        ++sg_slproxycount;
-        return;
-    }
-
-    ScopedLock lock(sg_slproxymutex);
-
-    if (sg_slproxytimetick != _timetick) return;
-
-    ++sg_slproxycount;
-
-    if (tmp_proxy.empty() || 0 == tmp_port) return;
-
-    static DNS s_dns;
-    std::vector<std::string> result;
-    s_dns.GetHostByName(tmp_proxy, result);
-
-    if (result.empty()) return;
-
-    sg_slproxyip = result.front();
-    sg_slproxyport = (uint16_t)tmp_port;
-}
-
 NetSource::DnsUtil::DnsUtil():
 new_dns_(OnNewDns) {
 }
@@ -119,11 +80,11 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 NetSource::NetSource(ActiveLogic& _active_logic)
 	: active_logic_(_active_logic)
 {
-    xdebug_function();
+    xinfo_function();
 }
 
 NetSource::~NetSource() {
-    xdebug_function();
+    xinfo_function();
 }
 
 /**
@@ -217,7 +178,7 @@ void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
 }
 
 bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util) {
-    
+    xinfo_function();
     ScopedLock lock(sg_ip_mutex);
 
     if (__GetLonglinkDebugIPPort(_ipport_items)) {
@@ -276,7 +237,7 @@ void NetSource::GetBackupIPs(std::string _host, std::vector<std::string>& _iplis
 }
 
 void NetSource::ReportLongIP(bool _is_success, const std::string& _ip, uint16_t _port) {
-    xdebug2(TSF"_is_success=%0, ip=%1, port=%2", _is_success, _ip, _port);
+    xinfo2_if(!_is_success, TSF"_is_success=%0, ip=%1, port=%2", _is_success, _ip, _port);
 
     if (_ip.empty() || 0 == _port) return;
 
@@ -339,6 +300,7 @@ bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostl
 			item.port = sg_shortlink_port;
 			item.source_type = kIPSourceDebug;
 			_ipport_items.push_back(item);
+			return true;
 		}
 	}
     
@@ -453,6 +415,31 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 			ports.push_back(NetSource::GetShortLinkPort());
 		}
 		ist = kIPSourceBackup;
+		if (!iplist.empty() && !ports.empty())
+		{
+			std::set<std::string> setIps;
+			for (auto it = _ip_items.begin(); it != _ip_items.end(); ++it)
+			{
+				setIps.insert(it->str_ip);
+			}
+			size_t ports_cnt = ports.size();
+			size_t require_cnt = _count - _ip_items.size();
+			if (require_cnt < ports_cnt) require_cnt += ports_cnt;
+			size_t cur_cnt = iplist.size() * ports_cnt;
+			size_t i = 0;
+			while (cur_cnt > require_cnt && i < iplist.size())
+			{
+				if (setIps.find(iplist[i]) != setIps.end())
+				{
+					iplist.erase(iplist.begin() + i);
+					cur_cnt -= ports_cnt;
+				}
+				else
+				{
+					i++;
+				}
+			}
+		}
 	}
 
 	if (iplist.empty()) return 0;
@@ -486,7 +473,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 }
 
 void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    xdebug2(TSF"_is_success=%0, ip=%1, port=%2 host=%3", _is_success, _ip, _port, _host);
+    xinfo2_if(!_is_success, TSF"_is_success=%0, ip=%1, port=%2 host=%3", _is_success, _ip, _port, _host);
 
     if (_ip.empty()) return;
 
@@ -495,45 +482,8 @@ void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const st
     ipportstrategy_.Update(_ip, _port, _is_success);
 }
 
-/**
- * use proxy
- */
-bool NetSource::GetShortLinkProxyInfo(uint16_t& _port, std::string& _ipproxy, const std::vector<std::string>& _hostlist) {
-    if (__HasShortLinkDebugIP(_hostlist)) return false;
-    
-#ifdef ANDROID
-
-    if (kMobile != getNetInfo()) return false;
-
-#endif
-
-    ScopedLock lock(sg_slproxymutex, false);
-
-    if (!lock.timedlock(500)) return false;
-
-    if (sg_slproxycount < 3 || (5 * 1000) > gettickspan(sg_slproxytimetick)) {
-        sg_slproxyThread.start(boost::bind(&__GetProxyInfo, sg_slproxytimetick, _hostlist.empty() ? "" : _hostlist.front()));
-    }
-
-
-    if (sg_slproxyip.empty() || 0 == sg_slproxyport) return false;
-
-    _ipproxy = sg_slproxyip;
-    _port = (unsigned int)sg_slproxyport;
-    return true;
-}
-
-void NetSource::__ClearShortLinkProxyInfo() {
-    ScopedLock lock(sg_slproxymutex);
-    sg_slproxyip = "";
-    sg_slproxyport = 0;
-    sg_slproxycount = 0;
-    sg_slproxytimetick = ::gettickcount();
-}
-
 void NetSource::ClearCache() {
-    xverbose_function();
-    __ClearShortLinkProxyInfo();
+    xinfo_function();
     ipportstrategy_.InitHistory2BannedList(true);
 }
 
@@ -559,4 +509,8 @@ bool NetSource::GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec) {
 }
 
 void NetSource::ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec) {
+}
+
+void NetSource::AddServerBan(const std::string& _ip) {
+    ipportstrategy_.AddServerBan(_ip);
 }

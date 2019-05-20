@@ -55,10 +55,6 @@ int HttpChecker::StartDoCheck(CheckRequestProfile& _check_request) {
     return BaseChecker::StartDoCheck(_check_request);
 }
 
-int HttpChecker::CancelDoCheck() {
-    xinfo_function();
-    return BaseChecker::CancelDoCheck();
-}
 
 void HttpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
@@ -66,6 +62,12 @@ void HttpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     for (CheckIPPorts_Iterator iter = _check_request.shortlink_items.begin(); iter != _check_request.shortlink_items.end(); ++iter) {
     	std::string host = iter->first;
     	for (std::vector<CheckIPPort>::iterator ipport = iter->second.begin(); ipport != iter->second.end(); ++ipport) {
+            
+            if (is_canceled_) {
+                xinfo2(TSF"HttpChecker is canceled.");
+                return;
+            }
+            
     		CheckResultProfile profile;
     		profile.netcheck_type = kHttpCheck;
     		profile.network_type = ::getNetInfo();

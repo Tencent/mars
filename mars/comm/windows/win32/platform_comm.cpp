@@ -6,6 +6,7 @@
 #include "platform_comm.h"
 
 #include <string>
+#include <functional>
 
 #include "xlogger/xlogger.h"
 #include "xlogger/loginfo_extract.h"
@@ -36,6 +37,9 @@ unsigned int getSignal(bool isWifi) {
     return (unsigned int)0;
 }
 
+bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
+	return false;
+}
 
 bool isNetworkConnected() {
     return isNetworkConnectedImpl();
@@ -56,6 +60,13 @@ bool getAPNInfo(APNInfo& info) {
     return false;
 }
 
+#ifdef NDEBUG
+std::function<void (char* _log)> g_console_log_fun = nullptr;
+#else
+std::function<void (char* _log)> g_console_log_fun = [](char* _log) {
+    ::OutputDebugStringA(_log);
+};
+#endif
 void ConsoleLog(const XLoggerInfo* _info, const char* _log)
 {
 	if (NULL == _info || NULL == _log) return;
@@ -72,5 +83,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
 	const char* file_name = ExtractFileName(_info->filename);
 	char log[16 * 1024] = { 0 };
 	snprintf(log, sizeof(log), "[%s][%s][%s, %s, %d][%s\n", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, strFuncName, _info->line, _log);
-	::OutputDebugStringA(log);
+    if (nullptr != g_console_log_fun) {
+        g_console_log_fun(log);
+    }
 }

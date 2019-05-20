@@ -27,7 +27,6 @@
 		1FB576D81CE1D82100ADCF8C /* app_callback.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FB576D11CE1D82100ADCF8C /* app_callback.mm */; };
 		1FB576DA1CE1D82100ADCF8C /* longlink_packer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1FB576D41CE1D82100ADCF8C /* longlink_packer.cc */; };
 		1FB576DB1CE1D82100ADCF8C /* stn_callback.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FB576D71CE1D82100ADCF8C /* stn_callback.mm */; };
-		4B3C3E221E12111300351897 /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712711DE81ED300185734 /* mars.framework */; };
 		4BB712741DE81EF900185734 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712731DE81EF900185734 /* libz.tbd */; };
 		4BB712B81DE81FC100185734 /* Chat.pb.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB7127E1DE81FC100185734 /* Chat.pb.m */; };
 		4BB712B91DE81FC100185734 /* chat.proto in Resources */ = {isa = PBXBuildFile; fileRef = 4BB7127F1DE81FC100185734 /* chat.proto */; };
@@ -55,7 +54,6 @@
 		4BB712CF1DE81FC100185734 /* UnknownFieldSetBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712B11DE81FC100185734 /* UnknownFieldSetBuilder.m */; };
 		4BB712D01DE81FC100185734 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712B31DE81FC100185734 /* Utilities.m */; };
 		4BB712D11DE81FC100185734 /* WireFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712B51DE81FC100185734 /* WireFormat.m */; };
-		4BB712D71DE8202900185734 /* log_crypt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712D21DE8202900185734 /* log_crypt.cc */; };
 		4BB712D81DE8202900185734 /* shortlink_packer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB712D41DE8202900185734 /* shortlink_packer.cc */; };
 		4BB712ED1DE8222A00185734 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712EC1DE8222A00185734 /* CFNetwork.framework */; };
 		4BB712F91DE822BB00185734 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712F81DE822BB00185734 /* CoreWLAN.framework */; };
@@ -63,6 +61,7 @@
 		4BB712FD1DE822D300185734 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712FC1DE822D300185734 /* SystemConfiguration.framework */; };
 		4BB712FF1DE822DA00185734 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB712FE1DE822DA00185734 /* CoreFoundation.framework */; };
 		4BB713121DE8254B00185734 /* libresolv.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BB713111DE8254B00185734 /* libresolv.9.tbd */; };
+		4BD00970217082DC007FD5DB /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD0096F217082DB007FD5DB /* mars.framework */; };
 		4BDBD1701E091571006C62F5 /* NetworkStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BDBD16F1E091571006C62F5 /* NetworkStatus.m */; };
 		9ABF6F9E1EC98F69006A99C8 /* MessagesTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9ABF6F9D1EC98F69006A99C8 /* MessagesTableView.m */; };
 /* End PBXBuildFile section */
@@ -164,8 +163,6 @@
 		4BB712B31DE81FC100185734 /* Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utilities.m; sourceTree = "<group>"; };
 		4BB712B41DE81FC100185734 /* WireFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WireFormat.h; sourceTree = "<group>"; };
 		4BB712B51DE81FC100185734 /* WireFormat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WireFormat.m; sourceTree = "<group>"; };
-		4BB712D21DE8202900185734 /* log_crypt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_crypt.cc; sourceTree = "<group>"; };
-		4BB712D31DE8202900185734 /* log_crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_crypt.h; sourceTree = "<group>"; };
 		4BB712D41DE8202900185734 /* shortlink_packer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shortlink_packer.cc; sourceTree = "<group>"; };
 		4BB712D51DE8202900185734 /* shortlink_packer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shortlink_packer.h; sourceTree = "<group>"; };
 		4BB712D61DE8202900185734 /* stnproto_logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stnproto_logic.h; sourceTree = "<group>"; };
@@ -175,6 +172,7 @@
 		4BB712FC1DE822D300185734 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		4BB712FE1DE822DA00185734 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4BB713111DE8254B00185734 /* libresolv.9.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.9.tbd; path = usr/lib/libresolv.9.tbd; sourceTree = SDKROOT; };
+		4BD0096F217082DB007FD5DB /* mars.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = mars.framework; sourceTree = "<group>"; };
 		4BDBD16E1E091571006C62F5 /* NetworkStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkStatus.h; sourceTree = "<group>"; };
 		4BDBD16F1E091571006C62F5 /* NetworkStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkStatus.m; sourceTree = "<group>"; };
 		557B21D21CC8ECC40076B9EE /* MacDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -189,7 +187,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4B3C3E221E12111300351897 /* mars.framework in Frameworks */,
+				4BD00970217082DC007FD5DB /* mars.framework in Frameworks */,
 				4BB713121DE8254B00185734 /* libresolv.9.tbd in Frameworks */,
 				4BB712FF1DE822DA00185734 /* CoreFoundation.framework in Frameworks */,
 				4BB712FD1DE822D300185734 /* SystemConfiguration.framework in Frameworks */,
@@ -245,8 +243,6 @@
 		1FB576C11CE1D4CA00ADCF8C /* PublicComponentV2 */ = {
 			isa = PBXGroup;
 			children = (
-				4BB712D21DE8202900185734 /* log_crypt.cc */,
-				4BB712D31DE8202900185734 /* log_crypt.h */,
 				4BB712D41DE8202900185734 /* shortlink_packer.cc */,
 				4BB712D51DE8202900185734 /* shortlink_packer.h */,
 				4BB712D61DE8202900185734 /* stnproto_logic.h */,
@@ -263,6 +259,7 @@
 		4BB712701DE81ED200185734 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4BD0096F217082DB007FD5DB /* mars.framework */,
 				4BB713111DE8254B00185734 /* libresolv.9.tbd */,
 				4BB712FE1DE822DA00185734 /* CoreFoundation.framework */,
 				4BB712FC1DE822D300185734 /* SystemConfiguration.framework */,
@@ -394,7 +391,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 557B21E61CC8ECC40076B9EE /* Build configuration list for PBXNativeTarget "MacDemo" */;
 			buildPhases = (
-				4B3C3DFF1E120B1000351897 /* Run Script - build mars */,
 				557B21CE1CC8ECC40076B9EE /* Sources */,
 				557B21CF1CC8ECC40076B9EE /* Frameworks */,
 				557B21D01CC8ECC40076B9EE /* Resources */,
@@ -456,23 +452,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		4B3C3DFF1E120B1000351897 /* Run Script - build mars */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script - build mars";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "BUILD_LIB_SCRIPT=${SRCROOT}/Kernel/build_libs_for_sample.py\n\npython $BUILD_LIB_SCRIPT\n\nif [[ $? -eq 1 ]]\nthen\nexit 1\nfi";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		557B21CE1CC8ECC40076B9EE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -517,7 +496,6 @@
 				4BB712BC1DE81FC100185734 /* AbstractMessage.m in Sources */,
 				4BB712BF1DE81FC100185734 /* CodedOutputStream.m in Sources */,
 				4BB712D81DE8202900185734 /* shortlink_packer.cc in Sources */,
-				4BB712D71DE8202900185734 /* log_crypt.cc in Sources */,
 				4BB712CF1DE81FC100185734 /* UnknownFieldSetBuilder.m in Sources */,
 				1FAEF2431DEEB1AB002F3AA6 /* LogHelper.mm in Sources */,
 				4BB712BA1DE81FC100185734 /* Main.pb.m in Sources */,

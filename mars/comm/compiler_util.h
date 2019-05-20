@@ -37,6 +37,17 @@
 #error "export"
 #endif
 
+#if defined(_MSC_VER) && defined(MARS_USE_DLLS)
+#ifdef MARS_COMMON_EXPORTS
+#define MARS_COMMON_EXPORT __declspec(dllexport)
+#else
+#define MARS_COMMON_EXPORT __declspec(dllimport)
+#endif
+#else
+#define MARS_COMMON_EXPORT
+#endif
+
+
 #ifndef VARIABLE_IS_NOT_USED
 #ifdef __GNUC__
 #define VARIABLE_IS_NOT_USED __attribute__ ((unused))

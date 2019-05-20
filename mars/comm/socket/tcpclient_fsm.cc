@@ -233,7 +233,7 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
 
         if (0 != getsockopt(sock_, SOL_SOCKET, SO_ERROR, &error_, &len)) { error_ = socket_errno; }
 
-        xwarn2(TSF"close connect exception: (%_, %_)", sock_, error_, socket_strerror(error_)) >> _log;
+        xwarn2(TSF"close connect exception: sock:%_, err(%_, %_)", sock_, error_, socket_strerror(error_)) >> _log;
 
         end_connecttime_ = gettickcount();
         last_status_ = status_;
@@ -302,7 +302,6 @@ void TcpClientFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log)
         if (request_send_ && 0 == send_buf_.Length()) {
             request_send_ = false;
             _OnRequestSend(send_buf_);
-            xassert2(0 == send_buf_.Length());
         }
 
         ssize_t ret = send(sock_, send_buf_.Ptr(), send_buf_.Length(), 0);

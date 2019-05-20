@@ -568,7 +568,8 @@ inline void XLogger::DoTypeSafeFormat(const char* _format, const string_cast** _
 #else
 	// Definitely, VC6 not support this feature!
 	#if _MSC_VER > 1200
-		#define __XFUNCTION__	__FUNCSIG__
+		//#define __XFUNCTION__	__FUNCSIG__
+        #define __XFUNCTION__	__FUNCTION__
 	#else
 		#define __XFUNCTION__	"N/A"
 		#warning " is not supported by this compiler"
@@ -664,7 +665,7 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xinfo2_if(exp, ...)		   __xlogger_cpp_impl_if(kLevelInfo, exp,  __VA_ARGS__)
 #define xwarn2_if(exp, ...)		   __xlogger_cpp_impl_if(kLevelWarn, exp,  __VA_ARGS__)
 #define xerror2_if(exp, ...)	   __xlogger_cpp_impl_if(kLevelError, exp,	__VA_ARGS__)
-#define xfatal2_if(exp, ...)	   __xlogger_cpp_impl_ifkLevelFatal, exp, __VA_ARGS__)
+#define xfatal2_if(exp, ...)	   __xlogger_cpp_impl_if(kLevelFatal, exp, __VA_ARGS__)
 #define xlog2_if(level, ...)	   __xlogger_cpp_impl_if(level, __VA_ARGS__)
 
 #define xgroup2_define(group)	   XLogger group(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_HOOK)

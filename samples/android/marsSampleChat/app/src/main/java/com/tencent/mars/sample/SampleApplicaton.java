@@ -58,7 +58,7 @@ public class SampleApplicaton extends Application {
         super.onCreate();
         context = this;
 
-        System.loadLibrary("stlport_shared");
+        System.loadLibrary("c++_shared");
         System.loadLibrary("marsxlog");
         openXlog();
 
@@ -112,10 +112,10 @@ public class SampleApplicaton extends Application {
         String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
 
         if (BuildConfig.DEBUG) {
-            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName);
+            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
             Xlog.setConsoleLogOpen(true);
         } else {
-            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName);
+            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
             Xlog.setConsoleLogOpen(false);
         }
         Log.setLogImp(new Xlog());

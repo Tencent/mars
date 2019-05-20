@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>48fb146a-56ea-4f38-8368-132ddcc25690</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\activecheck\basechecker.cc" />
+    <ClCompile Include="..\src\activecheck\dnschecker.cc" />
+    <ClCompile Include="..\src\activecheck\httpchecker.cc" />
+    <ClCompile Include="..\src\activecheck\pingchecker.cc" />
+    <ClCompile Include="..\src\activecheck\tcpchecker.cc" />
+    <ClCompile Include="..\src\checkimpl\dnsquery.cc" />
+    <ClCompile Include="..\src\checkimpl\httpquery.cc" />
+    <ClCompile Include="..\src\checkimpl\pingquery.cc" />
+    <ClCompile Include="..\src\checkimpl\tcpquery.cc" />
+    <ClCompile Include="..\src\tools\netchecker_trafficmonitor.cc" />
+    <ClCompile Include="..\src\sdt_core.cc" />
+    <ClCompile Include="..\sdt_logic.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\activecheck\basechecker.h" />
+    <ClInclude Include="..\src\activecheck\dnschecker.h" />
+    <ClInclude Include="..\src\activecheck\httpchecker.h" />
+    <ClInclude Include="..\src\activecheck\pingchecker.h" />
+    <ClInclude Include="..\src\activecheck\tcpchecker.h" />
+    <ClInclude Include="..\src\checkimpl\dnsquery.h" />
+    <ClInclude Include="..\src\checkimpl\http_url_parser.h" />
+    <ClInclude Include="..\src\checkimpl\httpquery.h" />
+    <ClInclude Include="..\src\checkimpl\pingquery.h" />
+    <ClInclude Include="..\src\checkimpl\tcpquery.h" />
+    <ClInclude Include="..\src\tools\netchecker_socketutils.hpp" />
+    <ClInclude Include="..\src\tools\netchecker_trafficmonitor.h" />
+    <ClInclude Include="..\src\sdt_core.h" />
+  </ItemGroup>
+</Project>

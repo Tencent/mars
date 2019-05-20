@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/projdef.h"
 
 namespace mars{
     namespace stn{
@@ -141,7 +142,7 @@ enum {
     kEctLongFirstPkgTimeout = -500,
     kEctLongPkgPkgTimeout = -501,
     kEctLongReadWriteTimeout = -502,
-    kEctLongTaskTimeout = -503,
+   // kEctLongTaskTimeout = -503,
 };
 
 // -600 ~ -500
@@ -149,7 +150,7 @@ enum {
     kEctHttpFirstPkgTimeout = -500,
     kEctHttpPkgPkgTimeout = -501,
     kEctHttpReadWriteTimeout = -502,
-    kEctHttpTaskTimeout = -503,
+  //  kEctHttpTaskTimeout = -503,
 };
 
 // -20000 ~ -10000
@@ -161,6 +162,9 @@ enum {
     kEctSocketShutdown = -10090,
     kEctSocketRecvErr = -10091,
     kEctSocketSendErr = -10092,
+    kEctSocketNoopTimeout = -10093,
+    kEctSocketNoopAlarmTooLate = -10094,
+    kEctSocketUserBreak = -10095,
 
     kEctHttpSplitHttpHeadAndBody = -10194,
     kEctHttpParseStatusLine = -10195,
@@ -216,34 +220,39 @@ extern bool (*MakesureAuthed)();
 //流量统计
 extern void (*TrafficData)(ssize_t _send, ssize_t _recv);
         
-//底层询问上层该host对应的ip列表
+//底层询问上层该host对应的ip列表 
 extern std::vector<std::string> (*OnNewDns)(const std::string& host);
-//网络层收到push消息回调
+//网络层收到push消息回调 
 extern void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
-//底层获取task要发送的数据
+//底层获取task要发送的数据 
 extern bool (*Req2Buf)(uint32_t taskid, void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select);
-//底层回包返回给上层解析
+//底层回包返回给上层解析 
 extern int (*Buf2Resp)(uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
-//任务执行结束
+//任务执行结束 
 extern int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, int error_type, int error_code);
 
-//上报网络连接状态
+//上报网络连接状态 
 extern void (*ReportConnectStatus)(int status, int longlink_status);
+        
+extern void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);        
+extern void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);
+    
+extern void (*OnLongLinkStatusChange)(int _status);
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 extern int  (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid);
-//长连信令校验回包
+//长连信令校验回包 
 extern bool (*OnLonglinkIdentifyResponse)(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash);
 
 extern void (*RequestSync)();
+//验证是否已登录
 
-
-//底层询问上层http网络检查的域名列表
+//底层询问上层http网络检查的域名列表 
 extern void (*RequestNetCheckShortLinkHosts)(std::vector<std::string>& _hostlist);
-//底层向上层上报cgi执行结果
+//底层向上层上报cgi执行结果 
 extern void (*ReportTaskProfile)(const TaskProfile& _task_profile);
-//底层通知上层cgi命中限制
+//底层通知上层cgi命中限制 
 extern void (*ReportTaskLimited)(int _check_type, const Task& _task, unsigned int& _param);
-//底层上报域名dns结果
+//底层上报域名dns结果 
 extern void (*ReportDnsProfile)(const DnsProfile& _dns_profile);
         
 }}

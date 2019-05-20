@@ -25,13 +25,13 @@ public class Xlog implements Log.LogImp {
 		public long maintid;
 	}
 
-	public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix) {
+	public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
 		if (isLoadLib) {
-			System.loadLibrary("stlport_shared");
+			System.loadLibrary("c++_shared");
 			System.loadLibrary("marsxlog");
 		}
 
-		appenderOpen(level, mode, cacheDir, logDir, nameprefix);
+		appenderOpen(level, mode, cacheDir, logDir, nameprefix, 0, pubkey);
 	}
 
 	private static String decryptTag(String tag) {
@@ -84,7 +84,15 @@ public class Xlog implements Log.LogImp {
 
 	public static native void setErrLogOpen(boolean isOpen);	//set whether the  prints err log into a separate file
 
-	public static native void appenderOpen(int level, int mode, String cacheDir, String logDir, String nameprefix);
+	public static native void appenderOpen(int level, int mode, String cacheDir, String logDir, String nameprefix, int cacheDays, String pubkey);
+
+	public static native void setMaxFileSize(long size);
+
+	/**
+	 * should be called before appenderOpen to take effect
+	 * @param duration alive seconds
+	 */
+	public static native void setMaxAliveTime(long duration);
 
 	@Override
 	public native void appenderClose();

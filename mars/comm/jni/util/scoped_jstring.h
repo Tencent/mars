@@ -31,6 +31,7 @@ class ScopedJstring {
     ~ScopedJstring();
 
     const char* GetChar() const;
+    const char* SafeGetChar() const;
     jstring GetJstr() const;
 
   private:

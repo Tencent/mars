@@ -30,6 +30,11 @@ struct DNSBreaker {
 	DNSBreaker(): isbreak(false), dnsstatus(NULL) {}
 	bool isbreak;
 	int* dnsstatus;
+    
+    void Clear() {
+        isbreak = false;
+        dnsstatus = NULL;
+    }
 };
 
 class DNS {

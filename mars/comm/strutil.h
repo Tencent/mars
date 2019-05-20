@@ -56,6 +56,10 @@ bool EndsWith(const std::wstring& str, const std::wstring& substr);
 std::wstring& ToLower(std::wstring& str);
 std::wstring& ToUpper(std::wstring& str);
 
+#ifdef WIN32
+std::wstring String2WString(const std::string& _src, unsigned int _cp);
+std::wstring UTF8String2Wstring(const std::string& _src);
+#endif
 std::vector<std::wstring>& SplitToken(const std::wstring& str,
                                       const std::wstring& delimiters, std::vector<std::wstring>& ss);
 
@@ -135,6 +139,11 @@ std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
 
 std::string ReplaceChar(const char* const input_str, char be_replaced='@', char replace_with='.');
+    
+std::string GetFileNameFromPath(const char* _path);
+    
+// find substring (case insensitive)
+size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos);
 }
 
 #endif	// COMM_STRUTIL_H_

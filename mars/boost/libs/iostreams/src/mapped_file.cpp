@@ -416,8 +416,10 @@ void mapped_file_impl::try_map_file(param_type p)
             0, 
             0, 
             NULL );
-    if (mapped_handle_ == NULL)
+    if (mapped_handle_ == NULL) {   // modified by Tencent garryyan 2018.05.17
         cleanup_and_throw("failed create mapping");
+        return;
+    }
 
     // Access data
     DWORD access = priv ? 

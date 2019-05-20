@@ -48,21 +48,21 @@ static void __WOULDBLOCK(SOCKET _sock, bool _block) {
     __SO_RCVTIMEO(_sock, (ret & (~0x1)) + _block);
 }
 
-SocketSelectBreaker::SocketSelectBreaker()
+SocketBreaker::SocketBreaker()
     : m_broken(false)
     , m_create_success(true), m_exception(0) {
     ReCreate();
 }
 
-SocketSelectBreaker::~SocketSelectBreaker() {
+SocketBreaker::~SocketBreaker() {
     Close();
 }
 
-bool SocketSelectBreaker::IsCreateSuc() const {
+bool SocketBreaker::IsCreateSuc() const {
     return m_create_success;
 }
 
-bool SocketSelectBreaker::ReCreate() {
+bool SocketBreaker::ReCreate() {
     m_event = WSACreateEvent();
     m_create_success = WSA_INVALID_EVENT != m_event;
     ASSERT2(m_create_success, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
@@ -71,11 +71,11 @@ bool SocketSelectBreaker::ReCreate() {
     return m_create_success;
 }
 
-bool SocketSelectBreaker::IsBreak() const {
+bool SocketBreaker::IsBreak() const {
     return m_broken;
 }
 
-bool SocketSelectBreaker::Break() {
+bool SocketBreaker::Break() {
     ScopedLock lock(m_mutex);
     bool ret = WSASetEvent(m_event);
     ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
@@ -86,7 +86,7 @@ bool SocketSelectBreaker::Break() {
     return m_broken;
 }
 
-bool SocketSelectBreaker::Clear() {
+bool SocketBreaker::Clear() {
     ScopedLock lock(m_mutex);
 
     if (!m_broken) return true;
@@ -101,7 +101,7 @@ bool SocketSelectBreaker::Clear() {
     return ret;
 }
 
-void SocketSelectBreaker::Close() {
+void SocketBreaker::Close() {
     bool ret = WSACloseEvent(m_event);
     ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
     m_exception = WSAGetLastError();
@@ -109,12 +109,12 @@ void SocketSelectBreaker::Close() {
     m_broken = true;
 }
 
-WSAEVENT SocketSelectBreaker::BreakerFD() const {
+WSAEVENT SocketBreaker::BreakerFD() const {
     return m_event;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-SocketSelect::SocketSelect(SocketSelectBreaker& _breaker, bool _autoclear)
+SocketSelect::SocketSelect(SocketBreaker& _breaker, bool _autoclear)
     : autoclear_(_autoclear), breaker_(_breaker), m_broken(false), errno_(0) {
     // inital FD
     FD_ZERO(&writefd_);
@@ -142,7 +142,29 @@ int SocketSelect::Select() {
 }
 
 int SocketSelect::Select(int _msec) {
+	xverbose_function();
+	xgroup2_define(group);
     ASSERT(-1 <= _msec);
+
+	//create eventarray and socketarray
+	WSAEVENT* eventarray = (WSAEVENT*)calloc(m_filter_map.size() + 1, sizeof(WSAEVENT));
+    SOCKET* socketarray = (SOCKET*)calloc(m_filter_map.size() + 1, sizeof(SOCKET));
+    eventarray[0] = Breaker().BreakerFD();
+    socketarray[0] = INVALID_SOCKET;
+
+    int index = 1;
+
+    for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
+        eventarray[index] = WSACreateEvent();
+        socketarray[index] = it->first;
+
+        ASSERT2(WSA_INVALID_EVENT != eventarray[index], "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+        ASSERT2(SOCKET_ERROR != WSAEventSelect(it->first, eventarray[index], it->second), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+
+        ++index;
+    }
+
+
     // select
     SOCKET maxsocket = INVALID_SOCKET;
 
@@ -175,7 +197,8 @@ int SocketSelect::Select(int _msec) {
 
             if (autoclear_) Breaker().Clear();
 
-            return ret;
+            xdebug2(TSF"return select, ret=%_", ret);
+            goto END; //free eventarray and socketarrary
         }
 
         if (0 < ret) {
@@ -183,13 +206,13 @@ int SocketSelect::Select(int _msec) {
 
             if (autoclear_) Breaker().Clear();
 
-            return ret;
+			xdebug2(TSF"return select, ret=%_", ret);
+            goto END; //free eventarray and socketarrary
         }
     }
 
 
     // check socket first write select
-    xgroup2_define(group);
     int new_WOULDBLOCK_count = 0;
 
     for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
@@ -207,27 +230,11 @@ int SocketSelect::Select(int _msec) {
 
         if (autoclear_) Breaker().Clear();
 
-        return new_WOULDBLOCK_count;
+        ret = new_WOULDBLOCK_count;
+		goto END; //free eventarray and socketarrary
     }
 
     // WSAWaitForMultipleEvents
-    WSAEVENT* eventarray = (WSAEVENT*)calloc(m_filter_map.size() + 1, sizeof(WSAEVENT));
-    SOCKET* socketarray = (SOCKET*)calloc(m_filter_map.size() + 1, sizeof(SOCKET));
-    eventarray[0] = Breaker().BreakerFD();
-    socketarray[0] = INVALID_SOCKET;
-
-    int index = 1;
-
-    for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
-        eventarray[index] = WSACreateEvent();
-        socketarray[index] = it->first;
-
-        ASSERT2(WSA_INVALID_EVENT != eventarray[index], "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
-        ASSERT2(SOCKET_ERROR != WSAEventSelect(it->first, eventarray[index], it->second), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
-
-        ++index;
-    }
-
     ret = WSAWaitForMultipleEvents(m_filter_map.size() + 1, eventarray, FALSE, _msec, FALSE);
     ASSERT2(WSA_WAIT_FAILED != ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
 
@@ -250,27 +257,45 @@ int SocketSelect::Select(int _msec) {
             if (m_filter_map[sock] & (FD_WRITE | FD_CONNECT) && networkevents.lNetworkEvents & (FD_WRITE | FD_CONNECT)) {
                 FD_SET(sock, &writefd_);
                 __WOULDBLOCK(sock, false);
+				xverbose2(TSF"FD_WRITE | FD_CONNECT");
             }
 
             if (m_filter_map[sock] & (FD_READ | FD_ACCEPT) && networkevents.lNetworkEvents & (FD_READ | FD_ACCEPT)) {
                 FD_SET(sock, &readfd_);
+                xverbose2(TSF"FD_READ | FD_ACCEPT");
             }
 
             if (m_filter_map[sock] & (FD_READ | FD_ACCEPT) && networkevents.lNetworkEvents & FD_CLOSE && networkevents.iErrorCode[FD_CLOSE_BIT] == 0) {
                 FD_SET(sock, &readfd_);
+                xverbose2(TSF"FD_READ | FD_ACCEPT");
             }
 
             if (m_filter_map[sock] & (FD_CLOSE)) {
                 for (int i = 0; i < FD_MAX_EVENTS; ++i) {
                     if (networkevents.iErrorCode[i] != 0) {
+                        xerror2(TSF"selector exception, sock %_ err %_",sock, networkevents.iErrorCode[i]);
                         FD_SET(sock, &exceptionfd_);
                         break;
                     }
                 }
             }
         }
-    }
+	} else {
+		xinfo2(TSF"return WSAWaitForMultipleEvents, ret=%_", ret);
+	}
 
+
+    if (ret == WSA_WAIT_FAILED) ret = -1;
+    else if (ret == SOCKET_ERROR) ret = -1;
+    else if (ret == WSA_WAIT_TIMEOUT)  ret = 0;
+    else ret = 1;
+
+    m_broken = Breaker().m_broken;
+    
+    if (autoclear_) Breaker().Clear();
+
+END:
+	//free eventarray and socketarray
     index = 1;
 
     for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
@@ -280,15 +305,6 @@ int SocketSelect::Select(int _msec) {
 
     free(eventarray);
     free(socketarray);
-
-    if (ret == WSA_WAIT_FAILED) ret = -1;
-    else if (ret == SOCKET_ERROR) ret = -1;
-    else if (ret == WSA_WAIT_TIMEOUT) ret = 0;
-    else ret = 1;
-
-    m_broken = Breaker().m_broken;
-
-    if (autoclear_) Breaker().Clear();
 
     return ret;
 }
@@ -332,7 +348,7 @@ bool SocketSelect::IsBreak() const {
     return m_broken;
 }
 
-SocketSelectBreaker& SocketSelect::Breaker() {
+SocketBreaker& SocketSelect::Breaker() {
     return breaker_;
 }
 
