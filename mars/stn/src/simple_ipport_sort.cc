@@ -471,44 +471,24 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     }
     items_history.clear();
 
-    if (items_V6_history.empty()) {
-        items_history.insert(items_history.end(), items_V4_history.begin(), items_V4_history.end());
-    } else { // v6 - v4 - v6 -v4... format
-        std::deque<IPPortItem>::iterator iterV6 = items_V6_history.begin();
-        std::deque<IPPortItem>::iterator iterV4 = items_V4_history.begin();
+    std::deque<IPPortItem>::iterator iterV6 = items_V6_history.begin();
+    std::deque<IPPortItem>::iterator iterV4 = items_V4_history.begin();
 
-        while(iterV6 != items_V6_history.end()) {
-            items_history.push_back(*iterV6);
-            if (iterV4 != items_V4_history.end()) {
-                items_history.push_back(*iterV4);
-                iterV4 ++;
-            }
-            iterV6 ++;
-        }
-        while(iterV4 != items_V4_history.end()) {
+    while(iterV6 != items_V6_history.end()) {
+        items_history.push_back(*iterV6);
+        if (iterV4 != items_V4_history.end()) {
             items_history.push_back(*iterV4);
             iterV4 ++;
         }
+        iterV6 ++;
     }
-    bool pick_V6 = true;
-    
+    items_history.insert(items_history.end(), iterV4, items_V4_history.end());
+
+    bool pick_V6 = true;    
     while (!items_history.empty() || !items_new_V6.empty() || !items_new_V4.empty()) {
         if (pick_V6) {
-            if (!items_history.empty()) {
-                IPPortItem item = items_history.front();
-                if (__IsV6Ip(item)) {
-                    if (items_new_V6.empty()) {
-                        _items.push_back(item);
-                        items_history.pop_front();
-                    } else {
-                        __PickIpItemRandom(_items, items_history, items_new_V6);
-                    }
-                } else {
-                    if (!items_new_V6.empty()) {
-                        _items.push_back(items_new_V6.front());
-                        items_new_V6.pop_front();
-                    }
-                }
+            if (!items_history.empty() && __IsV6Ip(items_history.front())) {
+                __PickIpItemRandom(_items, items_history, items_new_V6);
             } else { // items_history empty
                 if (!items_new_V6.empty()) {
                     _items.push_back(items_new_V6.front());
@@ -516,21 +496,8 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
                 }
             }
         } else { //pick v4
-            if (!items_history.empty()) {
-                IPPortItem item = items_history.front();
-                if (__IsV6Ip(item)) {
-                    if (!items_new_V4.empty()) {
-                        _items.push_back(items_new_V4.front());
-                        items_new_V4.pop_front();
-                    }
-                } else {
-                    if (items_new_V4.empty()) {
-                        _items.push_back(item);
-                        items_history.pop_front();
-                    } else {
-                        __PickIpItemRandom(_items, items_history, items_new_V4);
-                    }
-                }
+            if (!items_history.empty() && !__IsV6Ip(items_history.front())) {
+                __PickIpItemRandom(_items, items_history, items_new_V4);
             } else { // items_history empty
                 if (!items_new_V4.empty()) {
                     _items.push_back(items_new_V4.front());
