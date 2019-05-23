@@ -46,6 +46,8 @@ using namespace mars::stn;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
+boost::function<void (std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+
 LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
     , lastbatcherrortime_(0)
@@ -294,11 +296,23 @@ void LongLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
+        Task task = first->task;
+        
+        if (get_real_host_) {
+            get_real_host_(task.longlink_host_list);
+        }
+        std::string host = "";
+        if (!task.longlink_host_list.empty()) {
+            host = task.longlink_host_list.front();
+
+        }
+        xinfo2(TSF"host ip to callback is %_ ",host);
+
         // make sure login
         if (first->task.need_authed) {
             if (!ismakesureauthruned) {
                 ismakesureauthruned = true;
-                ismakesureauthsuccess = MakesureAuthed();
+                ismakesureauthsuccess = MakesureAuthed(host);
             }
 
             if (!ismakesureauthsuccess) {
@@ -313,7 +327,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         int error_code = 0;
 
         if (!first->antiavalanche_checked) {
-			if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelLong)) {
+			if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_->Profile());
 				first = next;
 				continue;
@@ -345,7 +359,8 @@ void LongLinkTaskManager::__RunOnStartTask() {
         }
         
 		if (0 == bufreq.Length()) {
-			if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelLong)) {
+
+			if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_->Profile());
 				first = next;
 				continue;
