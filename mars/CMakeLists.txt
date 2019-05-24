@@ -37,59 +37,35 @@ if(ANDROID)
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
 
-    get_filename_component(EXPORT_XLOG_EXP_FILE log/jni/export.exp ABSOLUTE)
+    get_filename_component(EXPORT_XLOG_EXP_FILE libraries/mars_android_sdk/jni/export.exp ABSOLUTE)
 
-    if(ANDROID_ABI STREQUAL "arm64-v8a")
-         target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
-                                ${log-lib}
-                                ${z-lib}
-                                xlog
-                                mars-boost
-                                comm)
-
-    else()
-        target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script=\"${EXPORT_XLOG_EXP_FILE}\""
-                                ${log-lib}
-                                ${z-lib}
-                                xlog
-                                mars-boost
-                                comm)
-    endif()
-
-
+    target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script=\"${EXPORT_XLOG_EXP_FILE}\""
+                            ${log-lib}
+                            ${z-lib}
+                            xlog
+                            mars-boost
+                            comm)
+ 
     set(SELF_LIB_NAME marsstn)
-    get_filename_component(EXPORT_EXP_FILE libraries/mars_android_sdk/jni/export.exp ABSOLUTE)
 
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc)
 
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
 
-
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
 
     link_directories(${SELF_LIBS_OUT})
 
-    if(ANDROID_ABI STREQUAL "arm64-v8a")
-        target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
-                            ${log-lib}
-                            stn
-                            sdt
-                            app
-                            baseevent
-                            comm
-                            mars-boost
-                            marsxlog)
-    else()
-        target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script=\"${EXPORT_EXP_FILE}\""
-                            ${log-lib}
-                            stn
-                            sdt
-                            app
-                            baseevent
-                            comm
-                            mars-boost
-                            marsxlog)
-    endif()
+    target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
+                        ${log-lib}
+                        stn
+                        sdt
+                        app
+                        baseevent
+                        comm
+                        mars-boost
+                        marsxlog)
+
 elseif(APPLE)
 
 endif()
