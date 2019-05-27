@@ -22,7 +22,7 @@
 
 #include "boost/iostreams/device/mapped_file.hpp"
 
-bool IsMmapFileOpenSucc(const boost::iostreams::mapped_file& _mmmap_file);
+bool IsMmapFileOpenSucc(boost::iostreams::mapped_file& _mmmap_file, unsigned int _size);
 
 bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::mapped_file& _mmmap_file);
 

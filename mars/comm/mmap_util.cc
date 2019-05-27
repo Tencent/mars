@@ -24,8 +24,15 @@
 
 #include "boost/filesystem.hpp"
 
-bool IsMmapFileOpenSucc(const boost::iostreams::mapped_file& _mmmap_file) {
-    return !_mmmap_file.operator !() && _mmmap_file.is_open();
+bool IsMmapFileOpenSucc(boost::iostreams::mapped_file& _mmmap_file, unsigned int _size) {
+    if (_mmmap_file.operator !() || !_mmmap_file.is_open()) {
+        return false;
+    }
+    if (nullptr == _mmmap_file.data() || _mmmap_file.size() != _size) {
+        CloseMmapFile(_mmmap_file);
+        return false;
+    }
+    return true;
 }
 
 bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::mapped_file& _mmmap_file) {
@@ -34,7 +41,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         return false;
     }
 
-    if (IsMmapFileOpenSucc(_mmmap_file)) {
+    if (IsMmapFileOpenSucc(_mmmap_file, _size)) {
         CloseMmapFile(_mmmap_file);
     }
     
@@ -53,10 +60,15 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
 
     _mmmap_file.open(param);
 
-    bool is_open = IsMmapFileOpenSucc(_mmmap_file);
+    bool is_open = IsMmapFileOpenSucc(_mmmap_file, _size);
 #ifndef _WIN32
-    if (!file_exist && is_open) {
-
+    if (!is_open) {
+        if (file_exist) {
+            boost::filesystem::remove(_filepath);
+        }
+        return false;
+    }
+    if (!file_exist) {
         //Extending a file with ftruncate, thus creating a big hole, and then filling the hole by mod-ifying a shared mmap() can lead to SIGBUS when no space left
         //the boost library uses ftruncate, so we pre-allocate the file's backing store by writing zero.
         FILE* file = fopen(_filepath, "rb+");
@@ -78,6 +90,26 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         }
         fclose(file);
         delete[] zero_data;
+    } else {
+        if (_size != boost::filesystem::file_size(_filepath)) {
+            _mmmap_file.close();
+            boost::filesystem::remove(_filepath);
+            return false;
+        }
+        boost::system::error_code ec;
+        boost::filesystem::file_status fs = boost::filesystem::status(_filepath, ec);
+        if (ec != boost::system::error_code()) {
+            _mmmap_file.close();
+            boost::filesystem::remove(_filepath);
+            return false;
+        }
+        boost::filesystem::perms perm = fs.permissions();
+        if ((perm & boost::filesystem::perms::owner_read) == 0 ||
+            (perm & boost::filesystem::perms::owner_write) == 0) {
+            _mmmap_file.close();
+            boost::filesystem::remove(_filepath);
+            return false;     
+        }
     }
 #endif
     return is_open;
