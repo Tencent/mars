@@ -354,9 +354,7 @@ def check_vs_env():
     return True
     
 def merge_win_static_libs(src_libs, dst_lib):
-    
-    vs_tool_dir = os.getenv("VS140COMNTOOLS")
-    lib_cmd = vs_tool_dir + '/../../VC/bin/lib.exe'
+    lib_cmd = 'lib.exe'
     print('lib cmd:' + lib_cmd)
     
     src_libs.insert(0, '/OUT:' + dst_lib)

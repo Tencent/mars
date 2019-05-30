@@ -100,9 +100,8 @@ static inline void cpu_relax() {
 
 
 #ifdef _WIN32
-#include <thr/threads.h>
-extern "C" void thrd_yield();
-#define sched_yield() thrd_yield()
+#include <thread>
+#define sched_yield() std::this_thread::yield()
 #else
 #include <sched.h>
 #endif

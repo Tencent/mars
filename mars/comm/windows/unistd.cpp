@@ -1,13 +1,10 @@
-
-#include <thr/threads.h>
+#include "unistd.h"
+#include <thread>
+#include <chrono>
 
 static void thread_sleep(unsigned long _sec, unsigned long _nanosec)
 {
-    struct xtime xt = {0, 0};
-    xtime_get(&xt, TIME_UTC);
-    xt.sec += _sec;
-    xt.nsec += _nanosec;
-    thrd_sleep(&xt);
+	std::this_thread::sleep_for(std::chrono::nanoseconds(_nanosec)+std::chrono::seconds(_sec));
 }
 
 unsigned int sleep(unsigned int _sec)

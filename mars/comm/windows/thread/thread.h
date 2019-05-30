@@ -17,7 +17,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <thr/threads.h>
+#include <thread>
 
 #include "assert/__assert.h"
 #include "condition.h"
@@ -33,11 +33,15 @@
 #include <boost/thread/thread.hpp>
 typedef boost::thread*  thread_handler;
 #else
-#include <thr/threads.h>
-typedef thrd_t*  thread_handler;
+#include <thread>
+#include <chrono>
+#include <string>
+#include <sstream>
+typedef std::thread*  thread_handler;
 #endif
 
 #define thrd_success 0
+
 
 typedef unsigned int thread_tid;
 
@@ -49,29 +53,26 @@ class ThreadUtil {
 #ifdef  USED_BOOST_THREAD_LIB
         boost::this_thread::yield();
 #else
-        thrd_yield();
+        std::this_thread::yield();
 #endif
     }
 
     static void sleep(unsigned int _sec) {
-        struct xtime xt = {0, 0};
-        xtime_get(&xt, TIME_UTC);
-        xt.sec += _sec;
-        thrd_sleep(&xt);
+		std::this_thread::sleep_for(std::chrono::seconds(_sec));
     }
 
-    static void usleep(unsigned int _usec) {
-        struct xtime xt = {0, 0};
-        xtime_get(&xt, TIME_UTC);
-        xt.nsec += _usec;
-        thrd_sleep(&xt);
+    static void usleep(unsigned int _nsec) {
+		std::this_thread::sleep_for(std::chrono::nanoseconds(_nsec));
     }
 
     static thread_tid currentthreadid() {
 #ifdef  USED_BOOST_THREAD_LIB
         return boost::detail::win32::GetCurrentThreadId();
 #else
-        return thrd_current()._Id;
+		std::stringstream ss;
+		ss << std::this_thread::get_id();
+		uint64_t tid = std::stoull(ss.str());
+        return tid;
 #endif
     }
 
@@ -84,7 +85,7 @@ class ThreadUtil {
     static int createThread(thread_handler& pth, THREAD_START_PROC proc, void* args) {
 #ifdef  USED_BOOST_THREAD_LIB
 
-        if (pth) {
+        if (pth!=nullptr) {
             pth->detach();
             delete pth;
             pth = NULL;
@@ -94,64 +95,41 @@ class ThreadUtil {
         return thrd_success;
 #else
 
-        if (pth != NULL) {
+        if (pth != nullptr) {
+            pth->detach();
             delete pth;
+            pth=nullptr;
         }
 
-        pth = new thrd_t();
-        return thrd_create(pth, (thrd_start_t)proc, (void*)args);
+        pth = new std::thread(proc,args);
+		return thrd_success;
 #endif
     }
 
     static void join(thread_handler& pth) {
         if (pth == NULL)
             return ;
-
-#ifdef  USED_BOOST_THREAD_LIB
         pth->join();
-#else
-        thrd_join(*pth, 0);
-#endif
     }
 
-	static void join (thread_tid _tid) {
-	
-#ifdef USED_BOOST_THREAD_LIB
-	#error "todo"
-#else
-	HANDLE handler = OpenThread(THREAD_ALL_ACCESS, FALSE, _tid);
-	if (NULL == handler) {
-		ASSERT(false);
-		return;
-	}
-	thrd_t thrd;
-	thrd._Hnd = &handler;
-	thrd._Id = _tid;
-	thread_handler th = &thrd;
-	join(th);
-	CloseHandle(handler);
-#endif
+	static void join (thread_tid _tid){
+		// todo
 	}
 
     static void detach(thread_handler& pth) {
         if (pth == NULL)
             return ;
-
-#ifdef  USED_BOOST_THREAD_LIB
         pth->detach();
-#else
-        thrd_detach(*pth);
-#endif
     }
 
     static thread_tid getThreadId(thread_handler& pth) {
-        if (pth == NULL)
-            return 0;
-
 #ifdef  USED_BOOST_THREAD_LIB
         return pth->get_thread_info()->id;
 #else
-        return  pth->_Id;
+		std::stringstream ss;
+		ss << pth->get_id();
+		uint64_t tid = std::stoull(ss.str());
+		return  tid;
 #endif
     }
 };
@@ -419,7 +397,6 @@ class Thread {
             // thrd_detach(const_cast<RunnableReference*>(runableref)->tid);
             ThreadUtil::detach(const_cast<RunnableReference*>(runableref)->m_th);
         }
-
         runableref->isjoined = false;
         (const_cast<RunnableReference*>(runableref))->RemoveRef(lock);
     }
