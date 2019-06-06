@@ -266,6 +266,40 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
+
+// +lambda syntax could apply a conversion between lambda and function pointer
+// https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
+auto CreateLonglink_ext = +[](const std::string& name,
+                         const std::string& host,
+                         const std::vector<uint16_t> ports,
+                         const std::string& debugip)->int8_t{
+    return 0;
+};
+auto DestroyLonglink_ext = +[](int8_t longlink_id)->bool{
+    return false;
+};
+auto SetLonglinkSvrAddr_ext = +[](int8_t longlink_id, const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip){};
+
+auto GetLonglinkByName_ext = +[](const std::string& name)->int8_t{
+    return 0;
+};
+auto GetAllLonglink_ext = +[]()->std::vector<int8_t>{
+    return std::vector<int8_t>();
+};
+auto GetLonglinkById_ext = +[](int8_t longlink_id)->std::string{
+    return "null";
+};
+auto LongLinkIsConnected_ext = +[](int8_t longlink_id)->bool{
+    return false;
+};
+auto MakesureLonglinkConnected_ext = +[](int8_t longlink_id){};
+auto KeepSignalling_ext = +[](int8_t longlink_id){};
+auto StopSignalling_ext = +[](int8_t longlink_id){};
+auto RedoTasks_ext = +[](int8_t longlink_id){};
+auto ClearTasks_ext = +[](int8_t longlink_id){};
+auto Reset_ext = +[](int8_t longlink_id){};
+    
+
 void network_export_symbols_0(){}
 
 #ifndef ANDROID

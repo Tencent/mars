@@ -81,6 +81,7 @@ public:
     bool    limit_frequency;  // user
     
     bool        network_status_sensitive;  // user
+    int8_t      longlink_id;    //user, which longlink would be used, -1 as an invalid value
     int32_t     channel_strategy;
     int32_t     priority;  // user
     

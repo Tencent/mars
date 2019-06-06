@@ -84,7 +84,7 @@ namespace stn{
 
     // 'host' will be ignored when 'debugip' is not empty.
 	extern void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
-    
+
     // 'task.host' will be ignored when 'debugip' is not empty.
 	extern void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip);
     
@@ -137,6 +137,29 @@ namespace stn{
     // noop is used to keep longlink conected
     // get noop taskid
 	extern uint32_t (*getNoopTaskID)();
+    
+    //===----------------------------------------------------------------------===//
+    ///
+    /// Support multi longlinks for mars
+    /// these APIs are subject to change in developing
+    ///
+    //===----------------------------------------------------------------------===//
+    extern int8_t (*CreateLonglink_ext)(const std::string& name, const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
+    extern bool (*DestroyLonglink_ext)(int8_t longlink_id);
+    extern void (*SetLonglinkSvrAddr_ext)(int8_t longlink_id, const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
+    
+    extern int8_t (*GetLonglinkByName_ext)(const std::string& name);
+    extern std::vector<int8_t> (*GetAllLonglink_ext)();
+    extern std::string (*GetLonglinkById_ext)(int8_t longlink_id);
+    
+    extern bool (*LongLinkIsConnected_ext)(int8_t longlink_id);
+    extern void (*MakesureLonglinkConnected_ext)(int8_t longlink_id);
+    
+    extern void (*KeepSignalling_ext)(int8_t longlink_id);
+    extern void (*StopSignalling_ext)(int8_t longlink_id);
+    extern void (*RedoTasks_ext)(int8_t longlink_id);
+    extern void (*ClearTasks_ext)(int8_t longlink_id);
+    extern void (*Reset_ext)(int8_t longlink_id);
 }}
 
 #endif /* MARS_STN_LOGIC_H_ */
