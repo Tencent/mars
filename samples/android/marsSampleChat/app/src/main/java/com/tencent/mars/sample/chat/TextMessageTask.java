@@ -31,11 +31,11 @@ import com.tencent.mars.sample.wrapper.remote.NanoMarsTaskWrapper;
 @TaskProperty(
         host = "marsopen.cn",
         path = "/mars/sendmessage",
-        cmdID = Main.CMD_ID_SEND_MESSAGE,
+        cmdID = Main.CmdID.CMD_ID_SEND_MESSAGE_VALUE,
         longChannelSupport = true,
         shortChannelSupport = false
 )
-public class TextMessageTask extends NanoMarsTaskWrapper<Chat.SendMessageRequest, Chat.SendMessageResponse> {
+public class TextMessageTask extends NanoMarsTaskWrapper<Chat.SendMessageRequest.Builder, Chat.SendMessageResponse.Builder> {
 
     private Runnable callback = null;
 
@@ -45,25 +45,26 @@ public class TextMessageTask extends NanoMarsTaskWrapper<Chat.SendMessageRequest
     private Handler uiHandler = new Handler(Looper.getMainLooper());
 
     public TextMessageTask(String topicName, String text) {
-        super(new Chat.SendMessageRequest(), new Chat.SendMessageResponse());
+        super(Chat.SendMessageRequest.newBuilder(), Chat.SendMessageResponse.newBuilder());
 
         // TODO: Better not holding vm
 
-        request.accessToken = "test_token";
-        request.from = SampleApplicaton.accountInfo.userName;
-        request.to = "all";
-        request.text = text;
-        request.topic = topicName;
+        request.setAccessToken("test_token");
+        request.setFrom(SampleApplicaton.accountInfo.userName);
+        request.setTo("all");
+        request.setText(text);
+        request.setTopic(topicName);
+
     }
 
     @Override
-    public void onPreEncode(Chat.SendMessageRequest request) {
+    public void onPreEncode(Chat.SendMessageRequest.Builder request) {
         // TODO: Not thread-safe here
     }
 
     @Override
-    public void onPostDecode(Chat.SendMessageResponse response) {
-        if (response.errCode == Chat.SendMessageResponse.ERR_OK) {
+    public void onPostDecode(Chat.SendMessageResponse.Builder response) {
+        if (response.getErrCode() == Chat.SendMessageResponse.Error.ERR_OK_VALUE) {
             callback = onOK;
 
         } else {

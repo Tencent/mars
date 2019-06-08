@@ -3,12 +3,13 @@
 buildscript {
     repositories {
         mavenLocal()
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.3'
+        classpath 'com.android.tools.build:gradle:3.4.1'
         classpath "com.github.dcendents:android-maven-gradle-plugin:1.4.1"
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.7.6'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1"
     }
@@ -17,6 +18,7 @@ buildscript {
 subprojects {
     repositories {
         mavenLocal()
+        google()
         jcenter()
     }
 }
