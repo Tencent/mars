@@ -21,6 +21,10 @@
 #ifndef STN_SRC_NET_CORE_H_
 #define STN_SRC_NET_CORE_H_
 
+#include <vector>
+#include <string>
+#include <unordered_map>
+
 #include "mars/comm/singleton.h"
 #include "mars/comm/messagequeue/message_queue.h"
 
@@ -90,7 +94,7 @@ class NetCore {
     void AddServerBan(const std::string& _ip);
     
 #ifdef USE_LONG_LINK
-    LongLink& Longlink();
+     LongLink& Longlink();
 #endif
 
   private:
@@ -99,19 +103,23 @@ class NetCore {
     static void __Release(NetCore* _instance);
     
   private:
+    void    __InitLongLink();
+    void    __InitShortLink();
+    bool    __ValidAndInitDefault(Task& _task, XLogger& _group);
+    
     int     __CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime);
     void    __OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);
 
     void    __OnShortLinkResponse(int _status_code);
 
 #ifdef USE_LONG_LINK
-    void    __OnLongLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
+    void    __OnLongLinkNetworkError(int8_t _longlink_id, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     void    __OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status);
     void    __ResetLongLink();
 #endif
     
     void    __ConnStatusCallBack();
-    void    __OnTimerCheckSuc();
+    void    __OnTimerCheckSuc(int8_t longlink_id);
     
     void    __OnSignalActive(bool _isactive);
 
@@ -121,25 +129,26 @@ class NetCore {
     NetCore& operator=(const NetCore&);
 
   private:
-    MessageQueue::MessageQueueCreater   messagequeue_creater_;
-    MessageQueue::ScopeRegister         asyncreg_;
-    NetSource*                          net_source_;
-    NetCheckLogic*                      netcheck_logic_;
-    AntiAvalanche*                      anti_avalanche_;
+    MessageQueue::MessageQueueCreater           messagequeue_creater_;
+    MessageQueue::ScopeRegister                 asyncreg_;
+    NetSource*                                  net_source_;
+    NetCheckLogic*                              netcheck_logic_;
+    AntiAvalanche*                              anti_avalanche_;
     
-    DynamicTimeout*                     dynamic_timeout_;
-    ShortLinkTaskManager*               shortlink_task_manager_;
-    int                                 shortlink_error_count_;
+    DynamicTimeout*                             dynamic_timeout_;
+    ShortLinkTaskManager*                       shortlink_task_manager_;
+    int                                         shortlink_error_count_;
 
 #ifdef USE_LONG_LINK
-    ZombieTaskManager*                  zombie_task_manager_;
-    LongLinkTaskManager*                longlink_task_manager_;
-    SignallingKeeper*                   signalling_keeper_;
-    NetSourceTimerCheck*                netsource_timercheck_;
-    TimingSync*                         timing_sync_;
+    ZombieTaskManager*                          zombie_task_manager_;
+    std::vector<LongLinkTaskManager*>           longlink_task_managers_;
+    std::vector<SignallingKeeper*>              signalling_keepers_;
+    std::vector<NetSourceTimerCheck*>           netsource_timerchecks_;
+    TimingSync*                                 timing_sync_;
+    std::unordered_map<int8_t,std::string>      longlink_mapping_;
 #endif
-
-    bool                                shortlink_try_flag_;
+    
+    bool                                        shortlink_try_flag_;
 
 };
         

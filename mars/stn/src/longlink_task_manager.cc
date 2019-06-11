@@ -170,6 +170,14 @@ void LongLinkTaskManager::RedoTasks() {
     __RunLoop();
 }
 
+int8_t LongLinkTaskManager::GetLongLinkId(uint32_t _taskid){
+    auto res = __Locate(_taskid);
+    if(res!=lst_cmd_.end()){
+        return (*res).task.longlink_id;
+    }
+    return -1;// invalid
+}
+
 void LongLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid) {
     xverbose_function();
     __BatchErrorRespHandle(_err_type, _err_code, _fail_handle, _src_taskid, longlink_->Profile());

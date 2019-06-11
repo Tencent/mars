@@ -75,6 +75,7 @@ class LongLinkTaskManager {
 
     unsigned int GetTaskCount();
     unsigned int GetTasksContinuousFailCount();
+    int8_t GetLongLinkId(uint32_t _taskid);
 
   private:
     // from ILongLinkObserver
