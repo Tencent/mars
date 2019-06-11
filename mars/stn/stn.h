@@ -87,7 +87,7 @@ public:
     
     int32_t     retry_count;  // user
     int32_t     server_process_cost;  // user
-    int32_t     total_timetout;  // user ms
+    int32_t     total_timeout;  // user ms
     
     void*       user_context;  // user
     std::string report_arg;  // user for cgi report

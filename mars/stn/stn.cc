@@ -48,7 +48,7 @@ Task::Task(uint32_t _taskid) {
     
     retry_count = -1;
     server_process_cost = -1;
-    total_timetout = -1;
+    total_timeout = -1;
     user_context = NULL;
 
 }
