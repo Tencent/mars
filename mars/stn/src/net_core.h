@@ -97,7 +97,7 @@ class NetCore {
      LongLink& Longlink();
 #endif
     
-    
+
     int8_t              CreateLongLink(const std::string& _name);
     bool                DestroyLongLink(int8_t _longlink_id);
     int8_t              GetLonglinkByName(const std::string& _name);
