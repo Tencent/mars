@@ -144,7 +144,7 @@ namespace stn{
     /// these APIs are subject to change in developing
     ///
     //===----------------------------------------------------------------------===//
-    extern int8_t (*CreateLonglink_ext)(const std::string& name, const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
+    extern int8_t (*CreateLonglink_ext)(const std::string& name);
     extern bool (*DestroyLonglink_ext)(int8_t longlink_id);
     extern void (*SetLonglinkSvrAddr_ext)(int8_t longlink_id, const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
     

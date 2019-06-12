@@ -267,14 +267,14 @@ uint32_t (*getNoopTaskID)()
 };
 
 
-// +lambda syntax could apply a conversion between lambda and function pointer
+// [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
-auto CreateLonglink_ext = +[](const std::string& name,
-                         const std::string& host,
-                         const std::vector<uint16_t> ports,
-                         const std::string& debugip)->int8_t{
-    return 0;
+auto CreateLonglink_ext = +[](const std::string& name)->int8_t{
+    int8_t longlink_id = -1;
+    STN_WEAK_CALL_RETURN(CreateLongLink(name), longlink_id);
+    return longlink_id;
 };
+    
 auto DestroyLonglink_ext = +[](int8_t longlink_id)->bool{
     return false;
 };

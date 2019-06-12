@@ -96,6 +96,9 @@ class NetCore {
 #ifdef USE_LONG_LINK
      LongLink& Longlink();
 #endif
+    
+    
+    int8_t CreateLongLink(const std::string& name);
 
   private:
     NetCore();
@@ -129,6 +132,9 @@ class NetCore {
     NetCore& operator=(const NetCore&);
 
   private:
+    template<typename KeyType,typename ValueType>
+    using HashTable = std::unordered_map<KeyType,ValueType>;
+    
     MessageQueue::MessageQueueCreater           messagequeue_creater_;
     MessageQueue::ScopeRegister                 asyncreg_;
     NetSource*                                  net_source_;
@@ -141,11 +147,12 @@ class NetCore {
 
 #ifdef USE_LONG_LINK
     ZombieTaskManager*                          zombie_task_manager_;
-    std::vector<LongLinkTaskManager*>           longlink_task_managers_;
-    std::vector<SignallingKeeper*>              signalling_keepers_;
-    std::vector<NetSourceTimerCheck*>           netsource_timerchecks_;
+    HashTable<int8_t,LongLinkTaskManager*>      longlink_task_managers_;
+    HashTable<int8_t,SignallingKeeper*>         signalling_keepers_;
+    HashTable<int8_t,NetSourceTimerCheck*>      netsource_timerchecks_;
+    
     TimingSync*                                 timing_sync_;
-    std::unordered_map<int8_t,std::string>      longlink_mapping_;
+    int8_t                                      longlink_id_generator_;
 #endif
     
     bool                                        shortlink_try_flag_;

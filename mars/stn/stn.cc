@@ -41,7 +41,7 @@ Task::Task(uint32_t _taskid) {
     limit_flow = true;
     limit_frequency = true;
     
-    longlink_id = -1;
+    longlink_id = 0;
     channel_strategy = kChannelNormalStrategy;
     network_status_sensitive = false;
     priority = kTaskPriorityNormal;

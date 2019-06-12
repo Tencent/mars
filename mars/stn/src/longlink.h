@@ -117,7 +117,7 @@ class LongLink {
     boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
 
   public:
-    LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource);
+    LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const std::string& _longlink_name="unnamed");
     virtual ~LongLink();
 
     bool    Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task);
@@ -127,6 +127,7 @@ class LongLink {
     bool            MakeSureConnected(bool* _newone = NULL);
     void            Disconnect(TDisconnectInternalCode _scene);
     TLongLinkStatus ConnectStatus() const;
+    void            SetLongLinkName(const std::string& _longlink_name){ longlink_name_ = _longlink_name; }
 
     ConnectProfile  Profile() const   { return conn_profile_; }
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
@@ -159,6 +160,7 @@ class LongLink {
   protected:
     MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      netsource_;
+    std::string                     longlink_name_;
     
     Mutex                           mutex_;
     Thread                          thread_;
