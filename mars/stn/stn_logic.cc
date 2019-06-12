@@ -276,19 +276,27 @@ auto CreateLonglink_ext = +[](const std::string& name)->int8_t{
 };
     
 auto DestroyLonglink_ext = +[](int8_t longlink_id)->bool{
-    return false;
+    bool del_res = false;
+    STN_WEAK_CALL_RETURN(DestroyLongLink(longlink_id),del_res);
+    return del_res;
 };
-auto SetLonglinkSvrAddr_ext = +[](int8_t longlink_id, const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip){};
 
 auto GetLonglinkByName_ext = +[](const std::string& name)->int8_t{
-    return 0;
+    int8_t longlink_id = -1;
+    STN_WEAK_CALL_RETURN(GetLonglinkByName(name), longlink_id);
+    return longlink_id;
 };
 auto GetAllLonglink_ext = +[]()->std::vector<int8_t>{
-    return std::vector<int8_t>();
+    std::vector<int8_t> res;
+    STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
+    return res;
 };
 auto GetLonglinkById_ext = +[](int8_t longlink_id)->std::string{
-    return "null";
+    std::string longlink_name;
+    STN_WEAK_CALL_RETURN(GetLonglinkById(longlink_id), longlink_name);
+    return longlink_name;
 };
+    
 auto LongLinkIsConnected_ext = +[](int8_t longlink_id)->bool{
     return false;
 };

@@ -128,6 +128,7 @@ class LongLink {
     void            Disconnect(TDisconnectInternalCode _scene);
     TLongLinkStatus ConnectStatus() const;
     void            SetLongLinkName(const std::string& _longlink_name){ longlink_name_ = _longlink_name; }
+    std::string     GetLongLinkName()const { return longlink_name_; }
 
     ConnectProfile  Profile() const   { return conn_profile_; }
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }

@@ -117,13 +117,6 @@ NetCore::NetCore()
 
     __InitLongLink();
     __InitShortLink();
-
-        
-#ifdef USE_LONG_LINK
-    GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, signalling_keepers_[0], _1, _2, _3));
-	   signalling_keepers_[0]->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData, &longlink_task_managers_[0]->LongLinkChannel(), _1, _2, _3, Task::kSignallingKeeperTaskID);
-#endif
-
 }
 
 NetCore::~NetCore() {
@@ -134,20 +127,10 @@ NetCore::~NetCore() {
 
 
 #ifdef USE_LONG_LINK
-    for(auto& sk: signalling_keepers_){
-        GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, sk, _1, _2, _3));
-        delete sk.second;
+    for(auto longlink_id:GetAllLonglink()){
+        DestroyLongLink(longlink_id);
     }
-    
-    for(auto& ltm: longlink_task_managers_){
-        ltm.second->LongLinkChannel().SignalConnection.disconnect_all_slots();
-        ltm.second->LongLinkChannel().broadcast_linkstatus_signal_.disconnect_all_slots();
-        delete ltm.second;
-    }
-    
-    for(auto & nstc:netsource_timerchecks_){
-        delete nstc.second;
-    }
+    xassert2(longlink_task_managers_.empty());
 
     push_preprocess_signal_.disconnect_all_slots();
 
@@ -183,7 +166,7 @@ void NetCore::__InitLongLink(){
     zombie_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromZombie, _1, _2, _3, _4, _5);
 
     timing_sync_ = new TimingSync(*ActiveLogic::Singleton::Instance());
-    
+
     longlink_id_generator_ = 0;
 
     CreateLongLink("test-longlink");
@@ -800,7 +783,7 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
     return ConnectProfile();
 }
 
-int8_t NetCore::CreateLongLink(const std::string& name){
+int8_t NetCore::CreateLongLink(const std::string& _name){
     int8_t longlink_id = longlink_id_generator_++;
     auto ltm = new LongLinkTaskManager(*net_source_, *ActiveLogic::Singleton::Instance(),
                                        *dynamic_timeout_, messagequeue_creater_.GetMessageQueue());
@@ -817,14 +800,69 @@ int8_t NetCore::CreateLongLink(const std::string& name){
     ltm->LongLinkChannel().fun_network_report_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, longlink_id, _1, _2, _3, _4, _5);
     ltm->LongLinkChannel().SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
     ltm->LongLinkChannel().SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
-    ltm->LongLinkChannel().SetLongLinkName(name);
+    ltm->LongLinkChannel().SetLongLinkName(_name);
 #ifdef __APPLE__
     ltm->getLongLinkConnectMonitor().fun_longlink_reset_ = boost::bind(&NetCore::__ResetLongLink, this);
 #endif
+    GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, sk, _1, _2, _3));
+    sk->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData, &(ltm->LongLinkChannel()), _1, _2, _3, Task::kSignallingKeeperTaskID);
     
     longlink_task_managers_.emplace(longlink_id,ltm);
     signalling_keepers_.emplace(longlink_id,sk);
     netsource_timerchecks_.emplace(longlink_id,nstc);
-
+    
+    xinfo2(TSF"create long link %_ by given name %_", longlink_id, _name);
     return longlink_id;
+}
+
+bool NetCore::DestroyLongLink(int8_t _longlink_id){
+#ifdef USE_LONG_LINK
+    if(signalling_keepers_.count(_longlink_id)==0 ||
+       longlink_task_managers_.count(_longlink_id)==0||
+       netsource_timerchecks_.count(_longlink_id)==0){
+        xinfo2(TSF"destroy long link failure: no such long link exists %_", _longlink_id);
+        return false;
+    }
+    
+    GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, signalling_keepers_[_longlink_id], _1, _2, _3));
+    auto sk = signalling_keepers_.find(_longlink_id);
+    delete (*sk).second;
+    signalling_keepers_.erase(sk);
+    
+    auto ltm = longlink_task_managers_.find(_longlink_id);
+    (*ltm).second->LongLinkChannel().SignalConnection.disconnect_all_slots();
+    (*ltm).second->LongLinkChannel().broadcast_linkstatus_signal_.disconnect_all_slots();
+    delete (*ltm).second;
+    longlink_task_managers_.erase(ltm);
+    
+    auto nstc = netsource_timerchecks_.find(_longlink_id);
+    delete (*nstc).second;
+    netsource_timerchecks_.erase(nstc);
+    xinfo2(TSF"destroy long link %_ ", _longlink_id);
+    return true;
+#elif
+    return false;
+#endif
+}
+
+int8_t NetCore::GetLonglinkByName(const std::string& _name){
+    for(auto&pair:longlink_task_managers_){
+        if(pair.second->LongLinkChannel().GetLongLinkName()==_name){
+            return pair.first;
+        }
+    }
+    return -1;
+}
+std::vector<int8_t> NetCore::GetAllLonglink(){
+    std::vector<int8_t> res;
+    for(auto&pair:longlink_task_managers_){
+        res.push_back(pair.first);
+    }
+    return res;
+}
+std::string NetCore::GetLonglinkById(int8_t _id){
+    if(longlink_task_managers_.count(_id)){
+        return longlink_task_managers_[_id]->LongLinkChannel().GetLongLinkName();
+    }
+    return "";
 }

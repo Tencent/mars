@@ -98,7 +98,11 @@ class NetCore {
 #endif
     
     
-    int8_t CreateLongLink(const std::string& name);
+    int8_t CreateLongLink(const std::string& _name);
+    bool   DestroyLongLink(int8_t _longlink_id);
+    int8_t GetLonglinkByName(const std::string& _name);
+    std::vector<int8_t> GetAllLonglink();
+    std::string GetLonglinkById(int8_t _id);
 
   private:
     NetCore();

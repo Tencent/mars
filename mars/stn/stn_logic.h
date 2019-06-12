@@ -146,8 +146,6 @@ namespace stn{
     //===----------------------------------------------------------------------===//
     extern int8_t (*CreateLonglink_ext)(const std::string& name);
     extern bool (*DestroyLonglink_ext)(int8_t longlink_id);
-    extern void (*SetLonglinkSvrAddr_ext)(int8_t longlink_id, const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
-    
     extern int8_t (*GetLonglinkByName_ext)(const std::string& name);
     extern std::vector<int8_t> (*GetAllLonglink_ext)();
     extern std::string (*GetLonglinkById_ext)(int8_t longlink_id);
