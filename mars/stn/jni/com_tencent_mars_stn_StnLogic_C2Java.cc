@@ -112,9 +112,9 @@ std::vector<std::string> (*OnNewDns)(const std::string& _host)
 	return iplist;
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[II)Z")
-bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select)
-= [](uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select) -> bool {
+DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
+bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
+= [](uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) -> bool {
 
     xverbose_function();
 
@@ -134,7 +134,7 @@ bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbu
 
 	jintArray errcode_array = env->NewIntArray(2);
 
-	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_req2Buf, (jint)_taskid, _user_context, byte_array_output_stream_obj, errcode_array, _channel_select).z;
+	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_req2Buf, (jint)_taskid, _user_context, byte_array_output_stream_obj, errcode_array, _channel_select, ScopedJstring(env, _host.c_str()).GetJstr()).z;
 
 	if (ret) {
 		jbyteArray ret_byte_array = (jbyteArray)JNU_CallMethodByName(env, byte_array_output_stream_obj, "toByteArray", "()[B").l;
@@ -192,16 +192,16 @@ int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const AutoBuffer& _
 	return ret;
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_makesureAuthed, KC2Java, "makesureAuthed", "()Z")
-bool (*MakesureAuthed)()
-= []() -> bool {
+DEFINE_FIND_STATIC_METHOD(KC2Java_makesureAuthed, KC2Java, "makesureAuthed", "(Ljava/lang/String;)Z")
+bool (*MakesureAuthed)(const std::string& _host)
+= [](const std::string& _host) -> bool {
     xverbose_function();
 
     VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
 
-	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_makesureAuthed).z;
+	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_makesureAuthed, ScopedJstring(env, _host.c_str()).GetJstr()).z;
 
 	return ret;
 };
