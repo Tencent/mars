@@ -98,7 +98,7 @@ def build_ios_xlog(tag=''):
         return False
 
     dst_framework_path = INSTALL_PATH + '/mars.framework'
-    make_static_framework(lipo_dst_lib, dst_framework_path, XLOG_COPY_HEADER_FILES, '../../')
+    make_static_framework(lipo_dst_lib, dst_framework_path, XLOG_COPY_HEADER_FILES, '../')
 
     print('==================Output========================')
     print(dst_framework_path)

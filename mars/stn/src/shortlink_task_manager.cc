@@ -21,6 +21,7 @@
 #include "shortlink_task_manager.h"
 
 #include <algorithm>
+#include <set>
 
 #include "boost/bind.hpp"
 
@@ -44,6 +45,9 @@ using namespace mars::app;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
+
+boost::function<void (std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -225,8 +229,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
-    bool ismakesureauthruned = false;
     bool ismakesureauthsuccess = false;
+    std::set<std::string> has_makesureauth_host;
     uint64_t curtime = ::gettickcount();
     int sent_count = 0;
 
@@ -247,13 +251,21 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
+        Task task = first->task;
+        if (get_real_host_) {
+            get_real_host_(task.shortlink_host_list);
+        }
+        std::string host = task.shortlink_host_list.front();
+        xinfo2(TSF"host ip to callback is %_ ",host);
+
+        xinfo2(TSF"need auth cgi %_ , host %_ need auth %_ ", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
-
-            if (!ismakesureauthruned) {
-                ismakesureauthruned = true;
-                ismakesureauthsuccess = MakesureAuthed();
+            if (has_makesureauth_host.find(host) == has_makesureauth_host.end()) {
+                ismakesureauthsuccess = MakesureAuthed(host);
+                has_makesureauth_host.insert(host);
             }
+            xinfo2(TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
@@ -266,7 +278,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
-        if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelShort)) {
+        if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
@@ -353,6 +365,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
     int err_code = 0;
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, _body, _extension, err_code, Task::kChannelShort);
+    xinfo2(TSF"err_code %_ ",err_code);
 
     switch(handle_type){
         case kTaskFailHandleNoError:
@@ -519,6 +532,10 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
                 0 != _resp_length ? "" : string_cast(_it->transfer_profile.received_size).str(), _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time),
                         (curtime - _it->start_task_time), _it->remain_retry_count)
         (TSF"cgi:%_, taskid:%_, worker:%_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id);
+
+        if (task_connection_detail_) {
+            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);
+        }
 
         int cgi_retcode = fun_callback_(_err_type, _err_code, _fail_handle, _it->task, (unsigned int)(curtime - _it->start_task_time));
         int errcode = _err_code;
