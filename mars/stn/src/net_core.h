@@ -98,11 +98,17 @@ class NetCore {
 #endif
     
     
-    int8_t CreateLongLink(const std::string& _name);
-    bool   DestroyLongLink(int8_t _longlink_id);
-    int8_t GetLonglinkByName(const std::string& _name);
+    int8_t              CreateLongLink(const std::string& _name);
+    bool                DestroyLongLink(int8_t _longlink_id);
+    int8_t              GetLonglinkByName(const std::string& _name);
     std::vector<int8_t> GetAllLonglink();
-    std::string GetLonglinkById(int8_t _id);
+    std::string         GetLonglinkById(int8_t _longlink_id);
+    void                MakeSureLongLinkConnect_ext(int8_t _longlink_id);
+    bool                LongLinkIsConnected_ext(int8_t _longlink_id);
+    void                KeepSignalling_ext(int8_t longlink_id);
+    void                StopSignalling_ext(int8_t longlink_id);
+    void                RedoTasks_ext(int8_t longlink_id);
+    void                ClearTasks_ext(int8_t longlink_id);
 
   private:
     NetCore();

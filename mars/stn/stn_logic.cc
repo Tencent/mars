@@ -276,9 +276,9 @@ auto CreateLonglink_ext = +[](const std::string& name)->int8_t{
 };
     
 auto DestroyLonglink_ext = +[](int8_t longlink_id)->bool{
-    bool del_res = false;
-    STN_WEAK_CALL_RETURN(DestroyLongLink(longlink_id),del_res);
-    return del_res;
+    bool res = false;
+    STN_WEAK_CALL_RETURN(DestroyLongLink(longlink_id),res);
+    return res;
 };
 
 auto GetLonglinkByName_ext = +[](const std::string& name)->int8_t{
@@ -286,11 +286,13 @@ auto GetLonglinkByName_ext = +[](const std::string& name)->int8_t{
     STN_WEAK_CALL_RETURN(GetLonglinkByName(name), longlink_id);
     return longlink_id;
 };
+    
 auto GetAllLonglink_ext = +[]()->std::vector<int8_t>{
     std::vector<int8_t> res;
     STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
     return res;
 };
+    
 auto GetLonglinkById_ext = +[](int8_t longlink_id)->std::string{
     std::string longlink_name;
     STN_WEAK_CALL_RETURN(GetLonglinkById(longlink_id), longlink_name);
@@ -298,15 +300,30 @@ auto GetLonglinkById_ext = +[](int8_t longlink_id)->std::string{
 };
     
 auto LongLinkIsConnected_ext = +[](int8_t longlink_id)->bool{
-    return false;
+    bool res = false;
+    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(longlink_id),res);
+    return res;
 };
-auto MakesureLonglinkConnected_ext = +[](int8_t longlink_id){};
-auto KeepSignalling_ext = +[](int8_t longlink_id){};
-auto StopSignalling_ext = +[](int8_t longlink_id){};
-auto RedoTasks_ext = +[](int8_t longlink_id){};
-auto ClearTasks_ext = +[](int8_t longlink_id){};
-auto Reset_ext = +[](int8_t longlink_id){};
     
+auto MakesureLonglinkConnected_ext = +[](int8_t longlink_id){
+    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(longlink_id));
+};
+    
+auto KeepSignalling_ext = +[](int8_t longlink_id){
+    STN_WEAK_CALL(KeepSignalling_ext(longlink_id));
+};
+    
+auto StopSignalling_ext = +[](int8_t longlink_id){
+    STN_WEAK_CALL(StopSignalling_ext(longlink_id));
+};
+    
+auto RedoTasks_ext = +[](int8_t longlink_id){
+    STN_WEAK_CALL(RedoTasks_ext(longlink_id));
+};
+    
+auto ClearTasks_ext = +[](int8_t longlink_id){
+    STN_WEAK_CALL(ClearTasks_ext(longlink_id));
+};
 
 void network_export_symbols_0(){}
 

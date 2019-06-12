@@ -124,7 +124,6 @@ namespace stn{
     // keep signnaling once 'period' and last 'keeptime'
 	extern void (*KeepSignalling)();
     
-
 	extern void (*StopSignalling)();
     
     // connect quickly if longlink is not connected.
@@ -157,7 +156,6 @@ namespace stn{
     extern void (*StopSignalling_ext)(int8_t longlink_id);
     extern void (*RedoTasks_ext)(int8_t longlink_id);
     extern void (*ClearTasks_ext)(int8_t longlink_id);
-    extern void (*Reset_ext)(int8_t longlink_id);
 }}
 
 #endif /* MARS_STN_LOGIC_H_ */
