@@ -27,10 +27,10 @@
 #include "mars/stn/stn.h"
 
 #if true
-static const int kInactiveSpeed = (2 * 1024 * 1024 / 3600);
-static const int kActiveSpeed = (8 * 1024 * 1024 / 3600);
-static const int kInactiveMinvol = (6 * 1024 * 1024);
-static const int kMaxVol = (8 * 1024 * 1024);
+static const int kInactiveSpeed = (20 * 1024 * 1024 / 3600);
+static const int kActiveSpeed = (80 * 1024 * 1024 / 3600);
+static const int kInactiveMinvol = (60 * 1024 * 1024);
+static const int kMaxVol = (80 * 1024 * 1024);
 #else
 static const int kInactiveSpeed = (1);
 static const int kActiveSpeed = (3);
