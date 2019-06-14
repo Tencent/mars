@@ -341,11 +341,7 @@ void NetCore::StopTask(uint32_t _taskid) {
    ASYNC_BLOCK_START
     
 #ifdef USE_LONG_LINK
-    for(auto & ltm: longlink_task_managers_){
-        if(ltm.second->StopTask(_taskid)){
-            return;
-        }
-    }
+    if (longlink_task_managers_[0]->StopTask(_taskid)) return;
 
     if (zombie_task_manager_->StopTask(_taskid)) return;
 #endif
@@ -361,11 +357,7 @@ bool NetCore::HasTask(uint32_t _taskid) const {
 	WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::HasTask, this, _taskid));
 
 #ifdef USE_LONG_LINK
-    for(auto & ltm: longlink_task_managers_){
-        if(ltm.second->HasTask(_taskid)){
-            return true;
-        }
-    }
+    if (longlink_task_managers_.at(0)->HasTask(_taskid)) return true;
 
     if (zombie_task_manager_->HasTask(_taskid)) return true;
 #endif
@@ -426,9 +418,7 @@ void NetCore::OnNetworkChange() {
     }
     
 #ifdef USE_LONG_LINK
-    for(auto& nstc:netsource_timerchecks_){
-        nstc.second->CancelConnect();
-    }
+    netsource_timerchecks_[0]->CancelConnect();
 #endif
 
     net_source_->ClearCache();
@@ -436,11 +426,9 @@ void NetCore::OnNetworkChange() {
     dynamic_timeout_->ResetStatus();
 #ifdef USE_LONG_LINK
     timing_sync_->OnNetworkChange();
-    for(auto&ltm:longlink_task_managers_){
-        if(ltm.second->getLongLinkConnectMonitor().NetworkChange()){
-            ltm.second->RedoTasks();
-        }
-    }
+    if (longlink_task_managers_[0]->getLongLinkConnectMonitor().NetworkChange())
+        longlink_task_managers_[0]->RedoTasks();
+
     zombie_task_manager_->RedoTasks();
 #endif
     
@@ -749,8 +737,14 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
     return ConnectProfile();
 }
 
+//===----------------------------------------------------------------------===//
+///
+/// Multi long link APIs
+///
+//===----------------------------------------------------------------------===//
 int8_t NetCore::CreateLongLink(const std::string& _name){
     int8_t longlink_id = longlink_id_generator_++;
+#ifdef USE_LONG_LINK
     auto ltm = new LongLinkTaskManager(*net_source_, *ActiveLogic::Singleton::Instance(),
                                        *dynamic_timeout_, messagequeue_creater_.GetMessageQueue());
     auto nstc = new NetSourceTimerCheck(net_source_, *ActiveLogic::Singleton::Instance(),
@@ -778,6 +772,7 @@ int8_t NetCore::CreateLongLink(const std::string& _name){
     netsource_timerchecks_.emplace(longlink_id,nstc);
     
     xinfo2(TSF"create long link %_ by given name %_", longlink_id, _name);
+#endif
     return longlink_id;
 }
 
@@ -812,24 +807,30 @@ bool NetCore::DestroyLongLink(int8_t _longlink_id){
 }
 
 int8_t NetCore::GetLonglinkByName(const std::string& _name){
+#ifdef USE_LONG_LINK
     for(auto&pair:longlink_task_managers_){
         if(pair.second->LongLinkChannel().GetLongLinkName()==_name){
             return pair.first;
         }
     }
+#endif
     return -1;
 }
 std::vector<int8_t> NetCore::GetAllLonglink(){
     std::vector<int8_t> res;
+#ifdef USE_LONG_LINK
     for(auto&pair:longlink_task_managers_){
         res.push_back(pair.first);
     }
+#endif
     return res;
 }
 std::string NetCore::GetLonglinkById(int8_t _longlink_id){
+#ifdef USE_LONG_LINK
     if(longlink_task_managers_.count(_longlink_id)){
         return longlink_task_managers_[_longlink_id]->LongLinkChannel().GetLongLinkName();
     }
+#endif
     return "";
 }
 
@@ -857,19 +858,23 @@ bool NetCore::LongLinkIsConnected_ext(int8_t _longlink_id) {
 }
 
 void NetCore::KeepSignalling_ext(int8_t longlink_id){
+#ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
     if(signalling_keepers_.count(longlink_id)){
         signalling_keepers_[longlink_id]->Keep();
     }
     ASYNC_BLOCK_END
+#endif
 }
 
 void NetCore::StopSignalling_ext(int8_t longlink_id){
+#ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
     if(signalling_keepers_.count(longlink_id)){
         signalling_keepers_[longlink_id]->Stop();
     }
     ASYNC_BLOCK_END
+#endif
 }
 
 void NetCore::RedoTasks_ext(int8_t longlink_id){
