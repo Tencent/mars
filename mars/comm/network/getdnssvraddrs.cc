@@ -79,7 +79,7 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
     IP_ADDR_STRING* pIPAddr = fi.DnsServerList.Next;
     
     while (pIPAddr != NULL) {
-		_dnssvraddrs.push_back(socket_address(pIPAddr->IpAddress.String) );
+		_dnssvraddrs.push_back(socket_address(pIPAddr->IpAddress.String, 53) );
         pIPAddr = pIPAddr->Next;
     }
     
