@@ -166,7 +166,7 @@ void NetCore::__InitLongLink(){
 
     longlink_id_generator_ = 0;
 
-    auto default_longlink = CreateLongLink("default-longlink");
+    CreateLongLink("default-longlink");
 #endif
 }
 
@@ -214,8 +214,8 @@ bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {
         _task.retry_count = DEF_TASK_RETRY_COUNT;
     }
     
-    if(_task.longlink_id !=-1 && longlink_task_managers_.count(_task.longlink_id)==0){
-        return false;   //neither a short link task nor valid long link task
+    if(longlink_task_managers_.count(_task.longlink_id)==0){
+        return false;
     }
     
     return true;
@@ -277,7 +277,7 @@ void NetCore::StartTask(const Task& _task) {
 
 #ifdef USE_LONG_LINK
 
-    if (_task.longlink_id!=-1){
+    if (_task.longlink_id>=0){
         if( LongLink::kConnected != longlink_task_managers_[task.longlink_id]->LongLinkChannel().ConnectStatus()
            && (Task::kChannelLong & task.channel_select) && ActiveLogic::Singleton::Instance()->IsForeground()
            && (15 * 60 * 1000 >= gettickcount() - ActiveLogic::Singleton::Instance()->LastForegroundChangeTime())){
@@ -294,7 +294,7 @@ void NetCore::StartTask(const Task& _task) {
     case Task::kChannelBoth: {
 
 #ifdef USE_LONG_LINK
-        bool bUseLongLink = task.longlink_id!=-1
+        bool bUseLongLink = task.longlink_id>=0
         && LongLink::kConnected == longlink_task_managers_[task.longlink_id]->LongLinkChannel().ConnectStatus();
 
         if (bUseLongLink && task.channel_strategy == Task::kChannelFastStrategy) {
@@ -343,7 +343,7 @@ void NetCore::StopTask(uint32_t _taskid) {
 #ifdef USE_LONG_LINK
     for(auto & ltm: longlink_task_managers_){
         if(ltm.second->StopTask(_taskid)){
-            break;
+            return;
         }
     }
 
