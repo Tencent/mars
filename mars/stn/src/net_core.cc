@@ -745,6 +745,12 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 int8_t NetCore::CreateLongLink(const std::string& _name){
     int8_t longlink_id = longlink_id_generator_++;
 #ifdef USE_LONG_LINK
+    for(auto &ltm:longlink_task_managers_){
+        if(ltm.second->LongLinkChannel().GetLongLinkName()==_name){
+            xinfo2(TSF"long link %_  already exists", _name);
+            return ltm.first;
+        }
+    }
     auto ltm = new LongLinkTaskManager(*net_source_, *ActiveLogic::Singleton::Instance(),
                                        *dynamic_timeout_, messagequeue_creater_.GetMessageQueue());
     auto nstc = new NetSourceTimerCheck(net_source_, *ActiveLogic::Singleton::Instance(),
