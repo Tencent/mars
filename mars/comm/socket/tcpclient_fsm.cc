@@ -96,13 +96,13 @@ void TcpClientFSM::Close(bool _notify) {
     if (INVALID_SOCKET == sock_) return;
 
     if (remote_close_ || 0 != error_) {
+        xinfo2(TSF"sock:%_, (%_:%_), close local socket close, notify:%_", sock_, addr_.ip(), addr_.port(), _notify);
         socket_close(sock_);
         sock_ = INVALID_SOCKET;
         return;
     }
 
     xinfo2(TSF"sock:%_, (%_:%_), close local socket close, notify:%_", sock_, addr_.ip(), addr_.port(), _notify);
-
     socket_close(sock_);
     sock_ = INVALID_SOCKET;
 
