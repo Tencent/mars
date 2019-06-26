@@ -288,7 +288,7 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
     
     if (suc) {
         _alarm.Cancel();
-        _alarm.Start(need_active_timeout ? (5* 1000) : (8 * 1000), false);  //without system alarm
+        _alarm.Start(need_active_timeout ? (5* 1000) : (8 * 1000));
 #ifdef ANDROID
         wakelock_->Lock(8 * 1000);
 #endif
