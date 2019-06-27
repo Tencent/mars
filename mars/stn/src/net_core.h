@@ -98,17 +98,15 @@ class NetCore {
 #endif
     
 
-    int8_t              CreateLongLink(const std::string& _name);
-    bool                DestroyLongLink(int8_t _longlink_id);
-    int8_t              GetLonglinkByName(const std::string& _name);
-    std::vector<int8_t> GetAllLonglink();
-    std::string         GetLonglinkById(int8_t _longlink_id);
-    void                MakeSureLongLinkConnect_ext(int8_t _longlink_id);
-    bool                LongLinkIsConnected_ext(int8_t _longlink_id);
-    void                KeepSignalling_ext(int8_t longlink_id);
-    void                StopSignalling_ext(int8_t longlink_id);
-    void                RedoTasks_ext(int8_t longlink_id);
-    void                ClearTasks_ext(int8_t longlink_id);
+    void                CreateLongLink(const std::string& _name);
+    bool                DestroyLongLink(const std::string& _name);
+    std::vector<std::string> GetAllLonglink();
+    void                MakeSureLongLinkConnect_ext(const std::string& _name);
+    bool                LongLinkIsConnected_ext(const std::string& _name);
+    void                KeepSignalling_ext(const std::string& _name);
+    void                StopSignalling_ext(const std::string& _name);
+    void                RedoTasks_ext(const std::string& _name);
+    void                ClearTasks_ext(const std::string& _name);
 
   private:
     NetCore();
@@ -126,13 +124,13 @@ class NetCore {
     void    __OnShortLinkResponse(int _status_code);
 
 #ifdef USE_LONG_LINK
-    void    __OnLongLinkNetworkError(int8_t _longlink_id, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
+    void    __OnLongLinkNetworkError(const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     void    __OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status);
     void    __ResetLongLink();
 #endif
     
     void    __ConnStatusCallBack();
-    void    __OnTimerCheckSuc(int8_t longlink_id);
+    void    __OnTimerCheckSuc(const std::string& _name);
     
     void    __OnSignalActive(bool _isactive);
 
@@ -157,16 +155,14 @@ class NetCore {
 
 #ifdef USE_LONG_LINK
     ZombieTaskManager*                          zombie_task_manager_;
-    HashTable<int8_t,LongLinkTaskManager*>      longlink_task_managers_;
-    HashTable<int8_t,SignallingKeeper*>         signalling_keepers_;
-    HashTable<int8_t,NetSourceTimerCheck*>      netsource_timerchecks_;
+    HashTable<std::string,LongLinkTaskManager*> longlink_task_managers_;
+    HashTable<std::string,SignallingKeeper*>    signalling_keepers_;
+    HashTable<std::string,NetSourceTimerCheck*> netsource_timerchecks_;
     
     TimingSync*                                 timing_sync_;
-    int8_t                                      longlink_id_generator_;
 #endif
     
     bool                                        shortlink_try_flag_;
-
 };
         
 }}

@@ -41,7 +41,6 @@ Task::Task(uint32_t _taskid) {
     limit_flow = true;
     limit_frequency = true;
     
-    longlink_id = 0;
     channel_strategy = kChannelNormalStrategy;
     network_status_sensitive = false;
     priority = kTaskPriorityNormal;
@@ -50,6 +49,8 @@ Task::Task(uint32_t _taskid) {
     server_process_cost = -1;
     total_timeout = -1;
     user_context = NULL;
+    
+    channel_name="wechat-longlink";
 
 }
         

@@ -143,19 +143,17 @@ namespace stn{
     /// these APIs are subject to change in developing
     ///
     //===----------------------------------------------------------------------===//
-    extern int8_t (*CreateLonglink_ext)(const std::string& name);
-    extern bool (*DestroyLonglink_ext)(int8_t longlink_id);
-    extern int8_t (*GetLonglinkByName_ext)(const std::string& name);
-    extern std::vector<int8_t> (*GetAllLonglink_ext)();
-    extern std::string (*GetLonglinkById_ext)(int8_t longlink_id);
+    extern void (*CreateLonglink_ext)(const std::string& name);
+    extern bool (*DestroyLonglink_ext)(const std::string& name);
+    extern std::vector<std::string> (*GetAllLonglink_ext)();
     
-    extern bool (*LongLinkIsConnected_ext)(int8_t longlink_id);
-    extern void (*MakesureLonglinkConnected_ext)(int8_t longlink_id);
+    extern bool (*LongLinkIsConnected_ext)(const std::string& name);
+    extern void (*MakesureLonglinkConnected_ext)(const std::string& name);
     
-    extern void (*KeepSignalling_ext)(int8_t longlink_id);
-    extern void (*StopSignalling_ext)(int8_t longlink_id);
-    extern void (*RedoTasks_ext)(int8_t longlink_id);
-    extern void (*ClearTasks_ext)(int8_t longlink_id);
+    extern void (*KeepSignalling_ext)(const std::string& name);
+    extern void (*StopSignalling_ext)(const std::string& name);
+    extern void (*RedoTasks_ext)(const std::string& name);
+    extern void (*ClearTasks_ext)(const std::string& name);
 }}
 
 #endif /* MARS_STN_LOGIC_H_ */

@@ -81,7 +81,6 @@ public:
     bool    limit_frequency;  // user
     
     bool        network_status_sensitive;  // user
-    int8_t      longlink_id;    //user
     int32_t     channel_strategy;
     int32_t     priority;  // user
     
@@ -91,6 +90,7 @@ public:
     
     void*       user_context;  // user
     std::string report_arg;  // user for cgi report
+    std::string channel_name;
     
     std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;

@@ -269,60 +269,45 @@ uint32_t (*getNoopTaskID)()
 
 // [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
-auto CreateLonglink_ext = +[](const std::string& name)->int8_t{
-    int8_t longlink_id = -1;
-    STN_WEAK_CALL_RETURN(CreateLongLink(name), longlink_id);
-    return longlink_id;
+auto CreateLonglink_ext = +[](const std::string& name){
+    STN_WEAK_CALL(CreateLongLink(name));
 };
     
-auto DestroyLonglink_ext = +[](int8_t longlink_id)->bool{
+auto DestroyLonglink_ext = +[](const std::string& name)->bool{
     bool res = false;
-    STN_WEAK_CALL_RETURN(DestroyLongLink(longlink_id),res);
+    STN_WEAK_CALL_RETURN(DestroyLongLink(name),res);
     return res;
 };
-
-auto GetLonglinkByName_ext = +[](const std::string& name)->int8_t{
-    int8_t longlink_id = -1;
-    STN_WEAK_CALL_RETURN(GetLonglinkByName(name), longlink_id);
-    return longlink_id;
-};
-    
-auto GetAllLonglink_ext = +[]()->std::vector<int8_t>{
-    std::vector<int8_t> res;
+auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
+    std::vector<std::string> res;
     STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
     return res;
 };
-    
-auto GetLonglinkById_ext = +[](int8_t longlink_id)->std::string{
-    std::string longlink_name;
-    STN_WEAK_CALL_RETURN(GetLonglinkById(longlink_id), longlink_name);
-    return longlink_name;
-};
-    
-auto LongLinkIsConnected_ext = +[](int8_t longlink_id)->bool{
+
+auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
     bool res = false;
-    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(longlink_id),res);
+    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
     return res;
 };
     
-auto MakesureLonglinkConnected_ext = +[](int8_t longlink_id){
-    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(longlink_id));
+auto MakesureLonglinkConnected_ext = +[](const std::string& name){
+    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
     
-auto KeepSignalling_ext = +[](int8_t longlink_id){
-    STN_WEAK_CALL(KeepSignalling_ext(longlink_id));
+auto KeepSignalling_ext = +[](const std::string& name){
+    STN_WEAK_CALL(KeepSignalling_ext(name));
 };
     
-auto StopSignalling_ext = +[](int8_t longlink_id){
-    STN_WEAK_CALL(StopSignalling_ext(longlink_id));
+auto StopSignalling_ext = +[](const std::string& name){
+    STN_WEAK_CALL(StopSignalling_ext(name));
 };
     
-auto RedoTasks_ext = +[](int8_t longlink_id){
-    STN_WEAK_CALL(RedoTasks_ext(longlink_id));
+auto RedoTasks_ext = +[](const std::string& name){
+    STN_WEAK_CALL(RedoTasks_ext(name));
 };
     
-auto ClearTasks_ext = +[](int8_t longlink_id){
-    STN_WEAK_CALL(ClearTasks_ext(longlink_id));
+auto ClearTasks_ext = +[](const std::string& name){
+    STN_WEAK_CALL(ClearTasks_ext(name));
 };
 
 void network_export_symbols_0(){}
