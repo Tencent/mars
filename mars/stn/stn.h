@@ -93,6 +93,7 @@ public:
     
     std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
+	std::vector<std::string> longlink_host_list;
 };
 
 enum TaskFailHandleType {
@@ -217,7 +218,7 @@ struct IPPortItem {
     std::string 	str_host;
 };
         
-extern bool (*MakesureAuthed)();
+extern bool (*MakesureAuthed)(const std::string& _host);
 
 //流量统计
 extern void (*TrafficData)(ssize_t _send, ssize_t _recv);
@@ -227,7 +228,7 @@ extern std::vector<std::string> (*OnNewDns)(const std::string& host);
 //网络层收到push消息回调 
 extern void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 //底层获取task要发送的数据 
-extern bool (*Req2Buf)(uint32_t taskid, void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select);
+extern bool (*Req2Buf)(uint32_t taskid, void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
 //底层回包返回给上层解析 
 extern int (*Buf2Resp)(uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
 //任务执行结束 
