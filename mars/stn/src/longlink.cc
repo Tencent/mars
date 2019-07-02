@@ -321,6 +321,7 @@ bool LongLink::__NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, A
         _nooping = false;
         _alarm.Cancel();
         __NotifySmartHeartbeatHeartResult(true, false, _profile);
+        xinfo2(TSF"noop succ, interval:%_", lastheartbeat_);
 #ifdef ANDROID
         wakelock_->Lock(500);
 #endif
@@ -590,10 +591,10 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             
             first_noop_sent = true;
 
-            uint64_t noop_interval = __GetNextHeartbeatInterval();
-            xinfo2(TSF" last:(%_,%_), next:%_", last_noop_interval, last_noop_actual_interval, noop_interval) >> noop_xlog;
+            lastheartbeat_ = __GetNextHeartbeatInterval();
+            xinfo2(TSF" last:(%_,%_), next:%_", last_noop_interval, last_noop_actual_interval, lastheartbeat_) >> noop_xlog;
             alarmnoopinterval.Cancel();
-            alarmnoopinterval.Start((int)noop_interval);
+            alarmnoopinterval.Start((int)lastheartbeat_);
         }
         
         if (nooping && (alarmnooptimeout.Status() == Alarm::kInit || alarmnooptimeout.Status() == Alarm::kCancel)) {
@@ -693,9 +694,9 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             
             if (0 > writelen) writelen = 0;
             
-            unsigned long long noop_interval = __GetNextHeartbeatInterval();
+            lastheartbeat_ = __GetNextHeartbeatInterval();
             alarmnoopinterval.Cancel();
-            alarmnoopinterval.Start((int)noop_interval);
+            alarmnoopinterval.Start((int)lastheartbeat_);
             
             xinfo2(TSF"all send:%_, count:%_, ", writelen, lstsenddata_.size()) >> xlog_group;
             
@@ -808,7 +809,10 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
     
     
 End:
-    if (nooping) __NotifySmartHeartbeatHeartResult(false, (_errcode == kEctSocketRecvErr), _profile);
+    if (nooping) {
+        xerror2(TSF"noop fail timeout, interval:%_", lastheartbeat_);
+        __NotifySmartHeartbeatHeartResult(false, (_errcode == kEctSocketRecvErr), _profile);
+    }
         
     std::string netInfo;
     getCurrNetLabel(netInfo );
