@@ -102,13 +102,13 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
         report_smart_heart_(kActionDisconnect, current_net_heart_info_, _fail_of_timeout);
     }
     
-    xdebug2(TSF"heart result:%0, timeout:%1", _sucess, _fail_of_timeout);
+    xinfo2(TSF"heart result:%0, timeout:%1", _sucess, _fail_of_timeout);
     is_wait_heart_response_ = false;
 
     xassert2(!current_net_heart_info_.net_detail_.empty(), "something wrong,net_detail_ shoudn't be NULL");
     if (current_net_heart_info_.net_detail_.empty()) return;
     if(_sucess) success_heart_count_ += 1;
-    if (success_heart_count_ < NetStableTestCount) {
+    if (success_heart_count_ <= NetStableTestCount) {
         current_net_heart_info_.min_heart_fail_count_ = _sucess ? 0 : (current_net_heart_info_.min_heart_fail_count_ + 1);
         if(report_smart_heart_ && current_net_heart_info_.min_heart_fail_count_ >= 6 && ::isNetworkConnected()) {
             report_smart_heart_(kActionBadNetwork, current_net_heart_info_, false);
