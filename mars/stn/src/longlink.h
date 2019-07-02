@@ -177,6 +177,7 @@ class LongLink {
     
     SmartHeartbeat*                              smartheartbeat_;
     WakeUpLock*                                  wakelock_;
+    unsigned long long              lastheartbeat_;
 };
         
 }}
