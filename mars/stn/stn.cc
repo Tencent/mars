@@ -50,7 +50,7 @@ Task::Task(uint32_t _taskid) {
     total_timeout = -1;
     user_context = NULL;
     
-    channel_name="wechat-longlink";
+    channel_name=DEFAULT_LONGLINK_NAME;
 
 }
         

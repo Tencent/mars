@@ -143,7 +143,7 @@ namespace stn{
     /// these APIs are subject to change in developing
     ///
     //===----------------------------------------------------------------------===//
-    extern void (*CreateLonglink_ext)(const std::string& name);
+    extern void (*CreateLonglink_ext)(const LonglinkConfig& _config);
     extern bool (*DestroyLonglink_ext)(const std::string& name);
     extern std::vector<std::string> (*GetAllLonglink_ext)();
     

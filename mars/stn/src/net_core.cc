@@ -32,6 +32,7 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/stn/stn.h"
 
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
@@ -62,7 +63,6 @@ using namespace mars::app;
 #define AYNC_HANDLER asyncreg_.Get()
 
 static const int kShortlinkErrTime = 3;
-static const std::string DEFAULT_LONGLINK_NAME="wechat-longlink";
 
 NetCore::NetCore()
     : messagequeue_creater_(true, XLOGGER_TAG)
@@ -341,7 +341,9 @@ void NetCore::StopTask(uint32_t _taskid) {
    ASYNC_BLOCK_START
     
 #ifdef USE_LONG_LINK
-    if (longlink_task_managers_[DEFAULT_LONGLINK_NAME]->StopTask(_taskid)) return;
+    for(auto &ltm : longlink_task_managers_) {
+        if(ltm.second->StopTask(_taskid))   return;
+    }
 
     if (zombie_task_manager_->StopTask(_taskid)) return;
 #endif
@@ -357,7 +359,10 @@ bool NetCore::HasTask(uint32_t _taskid) const {
 	WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::HasTask, this, _taskid));
 
 #ifdef USE_LONG_LINK
-    if (longlink_task_managers_.at(0)->HasTask(_taskid)) return true;
+    for(auto &ltm : longlink_task_managers_) {
+        if(ltm.second->HasTask(_taskid))
+            return true;
+    }
 
     if (zombie_task_manager_->HasTask(_taskid)) return true;
 #endif
@@ -370,7 +375,9 @@ void NetCore::ClearTasks() {
     ASYNC_BLOCK_START
     
 #ifdef USE_LONG_LINK
-    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->ClearTasks();
+    for(auto &ltm : longlink_task_managers_) {
+        ltm.second->ClearTasks();
+    }
     zombie_task_manager_->ClearTasks();
 #endif
     shortlink_task_manager_->ClearTasks();
@@ -416,18 +423,19 @@ void NetCore::OnNetworkChange() {
         xassert2(false);
         break;
     }
-    
-#ifdef USE_LONG_LINK
-    netsource_timerchecks_[DEFAULT_LONGLINK_NAME]->CancelConnect();
-#endif
 
     net_source_->ClearCache();
     
     dynamic_timeout_->ResetStatus();
 #ifdef USE_LONG_LINK
     timing_sync_->OnNetworkChange();
-    if (longlink_task_managers_[DEFAULT_LONGLINK_NAME]->getLongLinkConnectMonitor().NetworkChange())
-        longlink_task_managers_[DEFAULT_LONGLINK_NAME]->RedoTasks();
+    for(auto &ltm : longlink_task_managers_) {
+        if(ltm.second->getLongLinkConnectMonitor().NetworkChange()) {
+            ltm.second->RedoTasks();
+        }
+        netsource_timerchecks_[ltm.second->]
+        netsource_timerchecks_[DEFAULT_LONGLINK_NAME]->CancelConnect();
+    }
 
     zombie_task_manager_->RedoTasks();
 #endif
@@ -452,8 +460,8 @@ void NetCore::StopSignal() {
 }
 
 #ifdef USE_LONG_LINK
-LongLink& NetCore::Longlink(){
-    return longlink_task_managers_[DEFAULT_LONGLINK_NAME]->LongLinkChannel();
+LongLink& NetCore::Longlink(const std::string& _name){
+    return longlink_task_managers_[_name]->LongLinkChannel();
 }
 
 #ifdef __APPLE__
@@ -742,11 +750,11 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 /// Multi long link APIs
 ///
 //===----------------------------------------------------------------------===//
-void NetCore::CreateLongLink(const std::string& _name){
+void NetCore::CreateLongLink(const LonglinkConfig& _config){
 #ifdef USE_LONG_LINK
     for(auto &ltm:longlink_task_managers_){
-        if(ltm.second->LongLinkChannel().GetLongLinkName()==_name){
-            xinfo2(TSF"long link %_  already exists", _name);
+        if(ltm.second->LongLinkChannel().GetLongLinkName()==_config.name){
+            xinfo2(TSF"long link %_  already exists", _config.name);
             return;
         }
     }
@@ -756,27 +764,27 @@ void NetCore::CreateLongLink(const std::string& _name){
                                        ltm->LongLinkChannel(), messagequeue_creater_.GetMessageQueue());
     auto sk = new SignallingKeeper(ltm->LongLinkChannel(), messagequeue_creater_.GetMessageQueue());
     
-    nstc->fun_time_check_suc_                  = boost::bind(&NetCore::__OnTimerCheckSuc, this, _name);
+    nstc->fun_time_check_suc_                  = boost::bind(&NetCore::__OnTimerCheckSuc, this, _config.name);
     ltm->fun_callback_                         = boost::bind(&NetCore::__CallBack, this, (int)kCallFromLong, _1, _2, _3, _4, _5);
     ltm->fun_notify_retry_all_tasks            = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4);
-    ltm->fun_notify_network_err_               = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _1, _2, _3, _4, _5);
+    ltm->fun_notify_network_err_               = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _config.name, _1, _2, _3, _4, _5);
     ltm->fun_anti_avalanche_check_             = boost::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
     ltm->fun_on_push_                          = boost::bind(&NetCore::__OnPush, this, _1, _2, _3, _4, _5);
-    ltm->LongLinkChannel().fun_network_report_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _1, _2, _3, _4, _5);
+    ltm->LongLinkChannel().fun_network_report_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _config.name, _1, _2, _3, _4, _5);
     ltm->LongLinkChannel().SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
     ltm->LongLinkChannel().SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
-    ltm->LongLinkChannel().SetLongLinkName(_name);
+    ltm->LongLinkChannel().SetLongLinkName(_config.name);
 #ifdef __APPLE__
     ltm->getLongLinkConnectMonitor().fun_longlink_reset_ = boost::bind(&NetCore::__ResetLongLink, this);
 #endif
     GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, sk, _1, _2, _3));
     sk->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData, &(ltm->LongLinkChannel()), _1, _2, _3, Task::kSignallingKeeperTaskID);
     
-    longlink_task_managers_.emplace(_name,ltm);
-    signalling_keepers_.emplace(_name,sk);
-    netsource_timerchecks_.emplace(_name,nstc);
+    longlink_task_managers_.emplace(_config.name,ltm);
+    signalling_keepers_.emplace(_na_config.nameme,sk);
+    netsource_timerchecks_.emplace(_config.name,nstc);
     
-    xinfo2(TSF"create long link %_", _name);
+    xinfo2(TSF"create long link %_", _config.name);
 #endif
     return;
 }

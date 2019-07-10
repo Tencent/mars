@@ -34,6 +34,7 @@
 namespace mars{
     namespace stn{
 
+static const std::string DEFAULT_LONGLINK_NAME="wechat-longlink";
 struct TaskProfile;
 struct DnsProfile;
 
@@ -95,6 +96,15 @@ public:
     std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
 	std::vector<std::string> longlink_host_list;
+};
+
+struct LonglinkConfig {
+public:
+    LonglinkConfig(const std::string& _name, const std::string& _host)
+        :name(_name),host(_host),is_keep_alive(false) {}
+    std::string     name;
+    std::string     host;
+    bool            is_keep_alive;     //if false, reconnect trig by task           
 };
 
 enum TaskFailHandleType {
