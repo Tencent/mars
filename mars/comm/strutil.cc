@@ -250,7 +250,7 @@ std::string Hex2Str(const char* _str, unsigned int _len) {
 }
 
 std::string Str2Hex(const char* _str, unsigned int _len) {
-    char outbuffer[64];
+    char outbuffer[256];
     
     unsigned int outoffset = 0;
     const char * ptr = _str;
