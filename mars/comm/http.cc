@@ -367,6 +367,17 @@ void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& 
 void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
     headers_[_headerfield.first] = _headerfield.second;
 }
+    
+void HeaderFields::Manipulate(const std::pair<const std::string, std::string>& _headerfield){
+    std::string v = _headerfield.second;
+    if (strutil::Trim(v).empty()){
+        // empty value means remove header
+        xwarn2(TSF"remove field %_ from request.", _headerfield.first);
+        headers_.erase(_headerfield.first);
+    }else{
+        InsertOrUpdate(_headerfield);
+    }
+}
 
 void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
     headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());

@@ -161,6 +161,7 @@ class HeaderFields {
     void HeaderFiled(const char* _name, const char* _value);
     void HeaderFiled(const std::pair<const std::string, std::string>& _headerfield);
     void InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield);
+    void Manipulate(const std::pair<const std::string, std::string>& _headerfield);
     void HeaderFiled(const HeaderFields& _headerfields);
     const char* HeaderField(const char* _key) const;
     std::map<const std::string, std::string, less>& GetHeaders() {return headers_;}
