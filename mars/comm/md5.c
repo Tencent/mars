@@ -11,7 +11,8 @@
 #define INIT_DATA_D (unsigned long)0x10325476L
 
 #if _BYTE_ORDER==_LITTLE_ENDIAN
-# define HOST_c2l(c,l) ((l)=*((const unsigned int *)(c)), (c)+=4, (l))
+// # define HOST_c2l(c,l) ((l)=(((const unsigned int *)(c))[0]), (c)+=4, (l))
+# define HOST_c2l(c,l) (memcpy(l, c, sizeof(unsigned int)), (c) += 4, (l))
 # define HOST_l2c(l,c) (*((unsigned int *)(c))=(unsigned int)(l), (c)+=4, (l))
 #endif
 
@@ -60,7 +61,7 @@
 static void md5_block_data_order(md5_t *c, const void *data_, size_t num)
 {
     const unsigned char *data = data_;
-    register unsigned long A, B, C, D, l;
+    unsigned long A, B, C, D, l;
     /* See comment in crypto/sha/sha_locl.h for details. */
     unsigned long XX0, XX1, XX2, XX3, XX4, XX5, XX6, XX7, XX8, XX9, XX10, XX11,
             XX12, XX13, XX14, XX15;
@@ -74,52 +75,53 @@ static void md5_block_data_order(md5_t *c, const void *data_, size_t num)
 
     for (; num--;)
     {
-        HOST_c2l(data, l);
-        X( 0) = l;
-        HOST_c2l(data, l);
+
+        HOST_c2l(data, (void*)&l);
+        X( 0) = l; 
+        HOST_c2l(data, (void*)&l);
         X( 1) = l;
         /* Round 0 */
         R0(A, B, C, D, X( 0), 7, 0xd76aa478L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 2) = l;
         R0(D, A, B, C, X( 1), 12, 0xe8c7b756L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 3) = l;
         R0(C, D, A, B, X( 2), 17, 0x242070dbL);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 4) = l;
         R0(B, C, D, A, X( 3), 22, 0xc1bdceeeL);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 5) = l;
         R0(A, B, C, D, X( 4), 7, 0xf57c0fafL);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 6) = l;
         R0(D, A, B, C, X( 5), 12, 0x4787c62aL);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 7) = l;
         R0(C, D, A, B, X( 6), 17, 0xa8304613L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 8) = l;
         R0(B, C, D, A, X( 7), 22, 0xfd469501L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X( 9) = l;
         R0(A, B, C, D, X( 8), 7, 0x698098d8L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X(10) = l;
         R0(D, A, B, C, X( 9), 12, 0x8b44f7afL);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X(11) = l;
         R0(C, D, A, B, X(10), 17, 0xffff5bb1L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X(12) = l;
         R0(B, C, D, A, X(11), 22, 0x895cd7beL);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X(13) = l;
         R0(A, B, C, D, X(12), 7, 0x6b901122L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X(14) = l;
         R0(D, A, B, C, X(13), 12, 0xfd987193L);
-        HOST_c2l(data, l);
+        HOST_c2l(data, (void*)&l);
         X(15) = l;
         R0(C, D, A, B, X(14), 17, 0xa679438eL);
         R0(B, C, D, A, X(15), 22, 0x49b40821L);
