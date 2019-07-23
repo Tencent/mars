@@ -169,10 +169,10 @@ class HeaderFields {
 
     bool IsTransferEncodingChunked() const;
     bool IsConnectionClose() const;
-    int64_t ContentLength() const ;
+    uint64_t ContentLength() const ;
 
     bool Range(long& _start, long& _end) const;
-    bool ContentRange(int64_t* start, int64_t* end, int64_t* total) const;
+    bool ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const;
 
     const std::string ToString() const;
 
