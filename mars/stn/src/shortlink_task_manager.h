@@ -96,6 +96,10 @@ class ShortLinkTaskManager {
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;
 #endif
+
+public:
+  std::string invaild_cgi_;
+
 };
         
     }

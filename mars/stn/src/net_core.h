@@ -141,6 +141,9 @@ class NetCore {
 
     bool                                shortlink_try_flag_;
 
+  public:
+    void SetcgiInvalid(const std::string& _cgi);
+
 };
         
 }}

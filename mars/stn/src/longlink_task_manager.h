@@ -103,6 +103,9 @@ class LongLinkTaskManager {
     LongLink*                       longlink_;
     LongLinkConnectMonitor*         longlinkconnectmon_;
     DynamicTimeout&                 dynamic_timeout_;
+  
+  public:
+    std::string invaild_cgi_;
 
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;

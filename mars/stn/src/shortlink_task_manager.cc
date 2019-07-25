@@ -278,6 +278,15 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
+        xinfo2(TSF"invaild_cgi_ is %_ ", invaild_cgi_);
+
+        if (!invaild_cgi_.empty() && first->task.cgi.find(invaild_cgi_) != std::string::npos) {
+//            __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, ConnectProfile());
+            __SingleRespHandle(first, kEctSocket, kEctSocketMakeSocketPrepared, kTaskFailHandleTaskEnd, 0, ConnectProfile());
+            first = next;
+            continue;
+        }
+
         if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;

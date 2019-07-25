@@ -326,6 +326,14 @@ void LongLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
+        xinfo2(TSF"invaild_cgi_ is %_ ", invaild_cgi_);
+
+        if (!invaild_cgi_.empty() && first->task.cgi.find(invaild_cgi_) != std::string::npos) {
+            __SingleRespHandle(first, kEctSocket, kEctSocketMakeSocketPrepared, kTaskFailHandleTaskEnd, longlink_->Profile());
+            first = next;
+            continue;
+        }
+
         if (!first->antiavalanche_checked) {
 			if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_->Profile());

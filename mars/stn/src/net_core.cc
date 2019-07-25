@@ -753,3 +753,10 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 #endif
     return ConnectProfile();
 }
+
+
+
+void NetCore::SetcgiInvalid(const std::string& _cgi) {
+    longlink_task_manager_->invaild_cgi_ = _cgi;
+    shortlink_task_manager_->invaild_cgi_ = _cgi;
+}
