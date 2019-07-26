@@ -177,6 +177,8 @@ void ShortLinkTaskManager::__RunLoop() {
 
 void ShortLinkTaskManager::__RunOnTimeout() {
     xverbose2(TSF"lst_cmd_ size=%0", lst_cmd_.size());
+    socket_pool_.CleanTimeout();
+
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
@@ -304,6 +306,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), AYNC_HANDLER);
+        worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         first->running_id = (intptr_t)worker;
 
         xassert2(worker && first->running_id);
@@ -338,6 +341,20 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
     fun_shortlink_response_(_status);
 
+    if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
+        if(_err_type != kEctOK) {
+            close(_conn_profile.socket_fd);
+            if(_conn_profile.is_reused_fd) {
+                socket_pool_.Report(false, false);
+            }
+        } else if(_conn_profile.ip_index >=0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
+            IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
+            CacheSocketItem cacheItem(item, _conn_profile.socket_fd, _conn_profile.keepalive_timeout);
+            if(!socket_pool_.AddCache(cacheItem)) {
+                close(cacheItem.socket_fd);
+            }
+        }
+    }
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);    // must used iter pWorker, not used aSelf. aSelf may be destroy already
 
     if (lst_cmd_.end() == it) {
@@ -366,6 +383,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     int err_code = 0;
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, _body, _extension, err_code, Task::kChannelShort);
     xinfo2(TSF"err_code %_ ",err_code);
+    if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET && _conn_profile.is_reused_fd) {
+        socket_pool_.Report(true, handle_type==kTaskFailHandleNoError);
+    }
 
     switch(handle_type){
         case kTaskFailHandleNoError:
@@ -466,6 +486,7 @@ void ShortLinkTaskManager::RedoTasks() {
         first = next;
     }
     
+    socket_pool_.Clear();
     __RunLoop();
 }
 
@@ -619,5 +640,9 @@ ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const{
         ++first;
     }
     return ConnectProfile();
+}
+
+SOCKET ShortLinkTaskManager::__OnGetCacheSocket(const IPPortItem& _address) {
+    return socket_pool_.GetSocket(_address);
 }
 
