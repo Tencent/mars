@@ -68,7 +68,7 @@ static void __GetIP(const std::string& host_name, DNS::DNSFunc dnsfunc, std::vec
             if(_result.empty()) {
                 xgroup2_define(log_group);
                 std::vector<socket_address> dnssvraddrs;
-                getdnssvraddrs(dnssvraddrs);
+                mars::comm::getdnssvraddrs(dnssvraddrs);
                 
                 xinfo2("dns server:") >> log_group;
                 for (std::vector<socket_address>::iterator iter = dnssvraddrs.begin(); iter != dnssvraddrs.end(); ++iter) {
