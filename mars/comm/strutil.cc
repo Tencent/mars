@@ -321,5 +321,19 @@ size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos
     if (it != str.end()) return it - str.begin();
     else return std::string::npos;  // not found
 }
+    
+std::string MD5DigestToBase16(const uint8_t digest[16]){
+    static char const zEncode[] = "0123456789abcdef";
+    
+    std::string ret;
+    ret.resize(32);
+    
+    for (int i = 0, j = 0; i < 16; i++, j += 2) {
+        uint8_t a = digest[i];
+        ret[j] = zEncode[(a >> 4) & 0xf];
+        ret[j + 1] = zEncode[a & 0xf];
+    }
+    return ret;
+}
 
 }

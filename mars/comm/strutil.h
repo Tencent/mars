@@ -144,6 +144,7 @@ std::string GetFileNameFromPath(const char* _path);
     
 // find substring (case insensitive)
 size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos);
+std::string MD5DigestToBase16(const uint8_t digest[16]);
 }
 
 #endif	// COMM_STRUTIL_H_

@@ -19,6 +19,8 @@
 
 #include "comm/network/getdnssvraddrs.h"
 
+namespace mars {
+    namespace comm {
 #ifdef ANDROID
 
 #include <sys/system_properties.h>
@@ -89,3 +91,5 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
 void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
 }
 #endif
+    }
+}
