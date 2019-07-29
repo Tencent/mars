@@ -22,9 +22,7 @@
 namespace mars {
     namespace comm {
 #ifdef ANDROID
-
 #include <sys/system_properties.h>
-#include <string>
 
 void getdnssvraddrs(std::vector<socket_address>& dnsServers) {
     char buf1[PROP_VALUE_MAX];
