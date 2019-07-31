@@ -341,7 +341,17 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
     fun_shortlink_response_(_status);
 
-    if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);    // must used iter pWorker, not used aSelf. aSelf may be destroy already
+
+    if (lst_cmd_.end() == it) {
+        xerror2(TSF"task no found: status:%_, worker:%_", _status, _worker);
+        return;
+    }
+    
+    bool ka = _worker->IsKeepAlive();
+    int fd = _conn_profile.socket_fd;
+    //    if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
+    if(ka && fd != INVALID_SOCKET) {
         if(_err_type != kEctOK) {
             close(_conn_profile.socket_fd);
             if(_conn_profile.is_reused_fd) {
@@ -353,13 +363,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             if(!socket_pool_.AddCache(cacheItem)) {
                 close(cacheItem.socket_fd);
             }
+        } else {
+            xassert2(false, "not match");
         }
-    }
-    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);    // must used iter pWorker, not used aSelf. aSelf may be destroy already
-
-    if (lst_cmd_.end() == it) {
-        xerror2(TSF"task no found: status:%_, worker:%_", _status, _worker);
-        return;
     }
 
     if (_err_type != kEctOK) {

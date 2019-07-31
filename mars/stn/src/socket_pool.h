@@ -74,6 +74,7 @@ namespace stn {
                     }
                     SOCKET fd = iter->socket_fd;
                     socket_pool_.erase(iter);
+                    xinfo2(TSF"get from cache: ip:%_, port:%_, host:%_, fd:%_, size:%_", _item.str_ip, _item.port, _item.str_host, fd, socket_pool_.size());
                     return fd;
                 }
                 iter++;
@@ -82,14 +83,15 @@ namespace stn {
         }
 
         bool AddCache(CacheSocketItem& item) {
-            auto iter = socket_pool_.begin();
-            while(iter != socket_pool_.end()) {
-                if(item.IsSame(iter->address_info)) {
-                    xassert2(false, "add item already exist, ip:%s, port:%d", iter->address_info.str_ip.c_str(), iter->address_info.port);
-                    return false;
-                }
-                iter++;
-            }
+//            auto iter = socket_pool_.begin();
+//            while(iter != socket_pool_.end()) {
+//                if(item.IsSame(iter->address_info)) {
+//                    xwarn2(TSF"add item already exist, ip:%_, port:%_", iter->address_info.str_ip, iter->address_info.port);
+//                    return false;
+//                }
+//                iter++;
+//            }
+            xinfo2(TSF"add item to socket pool, ip:%_, port:%_, host:%_, fd:%_, size:%_", item.address_info.str_ip, item.address_info.port, item.address_info.str_host, item.socket_fd, socket_pool_.size());
             socket_pool_.push_back(item);
             return true;
         }
@@ -99,6 +101,7 @@ namespace stn {
             while(iter != socket_pool_.end()) {
                 if(iter->HasTimeout()) {
                     close(iter->socket_fd);
+                    xinfo2(TSF"remove timeout socket: ip:%_, port:%_, host:%_, fd:%_", iter->address_info.str_ip, iter->address_info.port, iter->address_info.str_host, iter->socket_fd);
                     iter = socket_pool_.erase(iter);
                     continue;
                 }
@@ -106,7 +109,8 @@ namespace stn {
             }
         }
 
-        void Clear() { 
+        void Clear() {
+            xinfo2(TSF"clear cache sockets");
             std::for_each(socket_pool_.begin(), socket_pool_.end(), [](CacheSocketItem& value) {
                 if(value.socket_fd != INVALID_SOCKET)
                     close(value.socket_fd);
