@@ -22,9 +22,9 @@
 #define MMCOMM_SRC_SPECIAL_INI_H_
 
 #include "mars/comm/ini.h"
-#include "openssl/md5.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/strutil.h"
+#include "mars/openssl/include/openssl/md5.h"
 
 /**
  *	In order to allow the value of section is anything

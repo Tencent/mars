@@ -12,10 +12,10 @@ BUILD_OUT_PATH = 'cmake_build/iOS'
 INSTALL_PATH = BUILD_OUT_PATH + '/Darwin.out'
 
 IOS_BUILD_SIMULATOR_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=SIMULATOR -DIOS_ARCH="x86_64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install'
-IOS_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH="armv7;arm64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install'
+IOS_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH="arm64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install'
 
-GEN_IOS_OS_PROJ = 'cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH="armv7;arm64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1'
-
+GEN_IOS_OS_PROJ = 'cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_ARCH="arm64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1'
+OPEN_SSL_ARCHS = ['x86_64', 'arm64']
 
 
 def build_ios(tag=''):
@@ -49,9 +49,20 @@ def build_ios(tag=''):
     lipo_src_libs = []
     lipo_src_libs.append(libtool_os_dst_lib)
     lipo_src_libs.append(libtool_simulator_dst_lib)
+    ssl_lib = INSTALL_PATH + '/ssl'
+    if not lipo_thin_libs('openssl/openssl_lib_iOS/libssl.a', ssl_lib, OPEN_SSL_ARCHS):
+        return False
+
+    crypto_lib = INSTALL_PATH + '/crypto'
+    if not lipo_thin_libs('openssl/openssl_lib_iOS/libcrypto.a', crypto_lib, OPEN_SSL_ARCHS):
+        return False
+
+    lipo_src_libs.append(ssl_lib)
+    lipo_src_libs.append(crypto_lib)
+
     lipo_dst_lib = INSTALL_PATH + '/mars'
 
-    if not lipo_libs(lipo_src_libs, lipo_dst_lib):
+    if not libtool_libs(lipo_src_libs, lipo_dst_lib):
         return False
 
     dst_framework_path = INSTALL_PATH + '/mars.framework'
