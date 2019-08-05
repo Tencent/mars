@@ -25,6 +25,8 @@
 #include "mars/comm/tickcount.h"
 #include "mars/comm/socket/unix_socket.h"
 #include "mars/comm/xlogger/xlogger.h"
+#include "mars/comm/thread/mutex.h"
+#include "mars/comm/thread/lock.h"
 
 namespace mars {
 namespace stn {
@@ -61,16 +63,18 @@ namespace stn {
         }
 
         SOCKET GetSocket(const IPPortItem& _item) {
+            ScopedLock lock(mutex_);
             if(!use_cache_)
                 return INVALID_SOCKET;
 
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->IsSame(_item)) {
-                    if(iter->HasTimeout()) {
+                    if(iter->HasTimeout() || _IsSocketClosed(iter->socket_fd)) {
+                        xinfo2(TSF"remove timeout or closed socket, is timeout:%_", iter->HasTimeout());
                         close(iter->socket_fd);
-                        socket_pool_.erase(iter);
-                        return INVALID_SOCKET;
+                        iter = socket_pool_.erase(iter);
+                        continue;
                     }
                     SOCKET fd = iter->socket_fd;
                     socket_pool_.erase(iter);
@@ -79,24 +83,19 @@ namespace stn {
                 }
                 iter++;
             }
+            xinfo2(TSF"can not find socket ip:%_, port:%_, host:%_, size:%_", _item.str_ip, _item.port, _item.str_host, socket_pool_.size());
             return INVALID_SOCKET;
         }
 
         bool AddCache(CacheSocketItem& item) {
-//            auto iter = socket_pool_.begin();
-//            while(iter != socket_pool_.end()) {
-//                if(item.IsSame(iter->address_info)) {
-//                    xwarn2(TSF"add item already exist, ip:%_, port:%_", iter->address_info.str_ip, iter->address_info.port);
-//                    return false;
-//                }
-//                iter++;
-//            }
+            ScopedLock lock(mutex_);
             xinfo2(TSF"add item to socket pool, ip:%_, port:%_, host:%_, fd:%_, size:%_", item.address_info.str_ip, item.address_info.port, item.address_info.str_host, item.socket_fd, socket_pool_.size());
             socket_pool_.push_back(item);
             return true;
         }
 
         void CleanTimeout() {
+            ScopedLock lock(mutex_);
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->HasTimeout()) {
@@ -107,9 +106,11 @@ namespace stn {
                 }
                 iter++;
             }
+            xinfo2(TSF"after clean, size:%_", socket_pool_.size());
         }
 
         void Clear() {
+            ScopedLock lock(mutex_);
             xinfo2(TSF"clear cache sockets");
             std::for_each(socket_pool_.begin(), socket_pool_.end(), [](CacheSocketItem& value) {
                 if(value.socket_fd != INVALID_SOCKET)
@@ -121,8 +122,36 @@ namespace stn {
         void Report(bool hasReceived, bool isDecodeOk) {
             
         }
+        
+    private:
+        bool _IsSocketClosed(SOCKET fd) {
+            char buff[2];
+            int tryCount = 0;
+            while(tryCount < 2) {
+                tryCount += 1;
+#ifndef WIN32
+                ssize_t nrecv = ::recv(fd, buff, 1, MSG_PEEK|MSG_DONTWAIT);
+#else
+                ssize_t nrecv = ::recv(fd, buff, 1, MSG_PEEK);
+#endif
+                if (0 == nrecv) {
+                    xerror2(TSF"socket already closed");
+                    return true;
+                }
+                
+                if (0 > nrecv && !IS_NOBLOCK_READ_ERRNO(socket_errno)) {
+                    xerror2(TSF"socket error:(%_, %_)", socket_errno, strerror(socket_errno));
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
 
     private:
+        Mutex mutex_;
         bool use_cache_;
         std::vector<CacheSocketItem> socket_pool_;
     };

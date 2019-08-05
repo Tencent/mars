@@ -348,10 +348,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
         return;
     }
     
-    bool ka = _worker->IsKeepAlive();
-    int fd = _conn_profile.socket_fd;
-    //    if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
-    if(ka && fd != INVALID_SOCKET) {
+    if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
         if(_err_type != kEctOK) {
             close(_conn_profile.socket_fd);
             if(_conn_profile.is_reused_fd) {
