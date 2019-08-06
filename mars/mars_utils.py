@@ -133,19 +133,6 @@ def remove_cmake_files(path):
     for f in glob.glob(path + '/*.so'):
         os.remove(f)
 
-def clean_except(path, except_list):
-    for fpath, dirs, fs in os.walk(path):
-        in_except = False
-        for exc in except_list:
-            if exc in fpath:
-                in_except = True
-                break
-        if not in_except:
-            remove_cmake_files(fpath)
-
-    if not os.path.exists(path):
-        os.makedirs(path)    
-
 
 def clean(path, incremental=False):
     if not incremental:
