@@ -495,9 +495,9 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 		}
 		else if (parse_status == http::Parser::kEnd) {
             if(is_keep_alive_) {    //parse server keep-alive config
-                bool isClose = parser.Fields().IsConnectionClose();
-                xwarn2_if(isClose, "request keep-alive, but server return close");
-                if(!isClose) {
+                bool isKeepAlive = parser.Fields().IsConnectionKeepAlive();
+                xwarn2_if(!isKeepAlive, "request keep-alive, but server return close");
+                if(isKeepAlive) {
                     uint32_t timeout = parser.Fields().KeepAliveTimeout();
                     _conn_profile.keepalive_timeout = timeout;
                     _conn_profile.socket_fd = _socket;

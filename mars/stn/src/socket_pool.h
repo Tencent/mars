@@ -40,10 +40,8 @@ namespace stn {
             :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout) {}
 
         bool IsSame(const IPPortItem& _item) const {
-            if(_item.str_ip == address_info.str_ip && _item.port == address_info.port
-                && _item.str_host == address_info.str_host)
-                return true;
-            return false;
+            return (_item.str_ip == address_info.str_ip && _item.port == address_info.port
+                && _item.str_host == address_info.str_host);
         }
 
         bool HasTimeout() const {
@@ -67,7 +65,7 @@ namespace stn {
 
         SOCKET GetSocket(const IPPortItem& _item) {
             ScopedLock lock(mutex_);
-            if(!use_cache_ || _isBaned())
+            if(!use_cache_ || _isBaned() || socket_pool_.empty())
                 return INVALID_SOCKET;
 
             auto iter = socket_pool_.begin();
@@ -154,6 +152,8 @@ namespace stn {
                 if (0 > nrecv && !IS_NOBLOCK_READ_ERRNO(socket_errno)) {
                     xerror2(TSF"socket error:(%_, %_)", socket_errno, strerror(socket_errno));
                     return true;
+                } else if(0 > nrecv && IS_NOBLOCK_READ_ERRNO(socket_errno)) {
+                    continue;
                 } else {
                     return false;
                 }
