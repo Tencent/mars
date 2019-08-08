@@ -115,3 +115,7 @@ Debug-iphonesimulator
 *.build
 cmake_build
 *.settings
+/mars/openssl/openssl_lib_iOS/libcrypto_arm64
+/mars/openssl/openssl_lib_iOS/libcrypto_x86_64
+/mars/openssl/openssl_lib_iOS/libssl_arm64
+/mars/openssl/openssl_lib_iOS/libssl_x86_64

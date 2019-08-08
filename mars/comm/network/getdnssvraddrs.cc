@@ -22,9 +22,7 @@
 namespace mars {
     namespace comm {
 #ifdef ANDROID
-
 #include <sys/system_properties.h>
-#include <string>
 
 void getdnssvraddrs(std::vector<socket_address>& dnsServers) {
     char buf1[PROP_VALUE_MAX];
@@ -66,7 +64,7 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
 #elif defined _WIN32
 #include <stdio.h>
 #include <windows.h>
-#include <Iphlpapi.h>
+#include <IPHlpApi.h>
 
 #pragma comment(lib, "Iphlpapi.lib")
 
@@ -74,7 +72,7 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
     FIXED_INFO fi;
     ULONG ulOutBufLen = sizeof(fi);
     
-    if (::GetNetworkParams(&fi, &ulOutBufLen) != ERROR_SUCCESS) {
+    if (GetNetworkParams(&fi, &ulOutBufLen) != ERROR_SUCCESS) {
         return;
     }
     
