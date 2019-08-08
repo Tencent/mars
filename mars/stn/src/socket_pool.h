@@ -120,11 +120,11 @@ namespace stn {
             socket_pool_.clear();
         }
 
-        void Report(bool isReused, bool hasReceived, bool isDecodeOk) {
-            if(isReused && (!hasReceived || !isDecodeOk)) {
+        void Report(bool _is_reused, bool _has_received, bool _is_decode_ok) {
+            if(_is_reused && (!_has_received || !_is_decode_ok)) {
                 ban_start_tick_.gettickcount();
                 is_baned_ = true;
-            } else if(isReused && hasReceived && isDecodeOk) {
+            } else if(_is_reused && _has_received && _is_decode_ok) {
                 is_baned_ = false;
             }
         }
@@ -136,9 +136,9 @@ namespace stn {
 
         bool _IsSocketClosed(SOCKET fd) {
             char buff[2];
-            int tryCount = 0;
-            while(tryCount < 2) {
-                tryCount += 1;
+            int try_count = 0;
+            while(try_count < 2) {
+                try_count++;
 #ifndef WIN32
                 ssize_t nrecv = ::recv(fd, buff, 1, MSG_PEEK|MSG_DONTWAIT);
 #else
