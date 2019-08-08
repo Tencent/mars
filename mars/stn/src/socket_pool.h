@@ -27,9 +27,12 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/lock.h"
+#include "mars/comm/tickcount.h"
 
 namespace mars {
 namespace stn {
+
+#define BAN_INTERVAL (5*60*1000)
 
     class CacheSocketItem {
     public:
@@ -57,14 +60,14 @@ namespace stn {
     public:
         const int DEFAULT_MAX_KEEPALIVE_TIME = 5*1000;      //same as apache default
 
-        SocketPool():use_cache_(true) {}
+        SocketPool():use_cache_(true), is_baned_(false) {}
         ~SocketPool() {
             Clear();
         }
 
         SOCKET GetSocket(const IPPortItem& _item) {
             ScopedLock lock(mutex_);
-            if(!use_cache_)
+            if(!use_cache_ || _isBaned())
                 return INVALID_SOCKET;
 
             auto iter = socket_pool_.begin();
@@ -119,11 +122,20 @@ namespace stn {
             socket_pool_.clear();
         }
 
-        void Report(bool hasReceived, bool isDecodeOk) {
-            
+        void Report(bool isReused, bool hasReceived, bool isDecodeOk) {
+            if(isReused && (!hasReceived || !isDecodeOk)) {
+                ban_start_tick_.gettickcount();
+                is_baned_ = true;
+            } else if(isReused && hasReceived && isDecodeOk) {
+                is_baned_ = false;
+            }
         }
         
     private:
+        bool _isBaned() {
+            return is_baned_ && ban_start_tick_.isValid() && ban_start_tick_.gettickspan() <= BAN_INTERVAL;
+        }
+
         bool _IsSocketClosed(SOCKET fd) {
             char buff[2];
             int tryCount = 0;
@@ -154,6 +166,8 @@ namespace stn {
         Mutex mutex_;
         bool use_cache_;
         std::vector<CacheSocketItem> socket_pool_;
+        bool is_baned_;
+        tickcount_t ban_start_tick_;
     };
 
 }

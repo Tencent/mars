@@ -351,9 +351,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
         if(_err_type != kEctOK) {
             close(_conn_profile.socket_fd);
-            if(_conn_profile.is_reused_fd) {
-                socket_pool_.Report(false, false);
-            }
+            socket_pool_.Report(_conn_profile.is_reused_fd, false, false);
         } else if(_conn_profile.ip_index >=0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
             IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
             CacheSocketItem cacheItem(item, _conn_profile.socket_fd, _conn_profile.keepalive_timeout);
@@ -386,9 +384,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     int err_code = 0;
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, _body, _extension, err_code, Task::kChannelShort);
     xinfo2(TSF"err_code %_ ",err_code);
-    if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET && _conn_profile.is_reused_fd) {
-        socket_pool_.Report(true, handle_type==kTaskFailHandleNoError);
-    }
+    socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
 
     switch(handle_type){
         case kTaskFailHandleNoError:
