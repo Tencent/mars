@@ -171,8 +171,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     }
     
     bool use_proxy = use_proxy_ && _conn_profile.proxy_info.IsValid();
-    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
-
+    TLocalIPStack local_stack = local_ipstack_detect();
+    bool isnat64 = local_stack == ELocalIPStack_IPv6;
+    _conn_profile.local_net_stack = local_stack;
+    
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;

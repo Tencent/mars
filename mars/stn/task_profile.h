@@ -144,6 +144,7 @@ struct ConnectProfile {
 
     boost::shared_ptr<ProfileExtension> extension_ptr;
     mars::comm::ProxyInfo proxy_info;
+    int local_net_stack;
 };
 
         
