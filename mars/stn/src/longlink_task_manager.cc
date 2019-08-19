@@ -758,3 +758,14 @@ bool LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
     xinfo2(TSF"destroy long link %_ ", _name);
     return true;
 }
+
+bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, TDisconnectInternalCode _code) {
+    for(auto item : lst_cmd_) {
+        if(item.task.taskid == _taskid) {
+            auto longlink = GetLongLink(item.task.channel_name);
+            if(longlink) {
+                longlink->Disconnect(_code);
+            }
+        }
+    }
+}

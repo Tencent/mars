@@ -40,7 +40,7 @@
 
 #include "mars/stn/src/net_source.h"
 #include "mars/stn/src/longlink_identify_checker.h"
-#include "proto/longlink_packer.h"
+#include "mars/stn/proto/longlink_packer.h"
 
 class AutoBuffer;
 class XLogger;

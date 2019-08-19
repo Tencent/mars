@@ -94,15 +94,14 @@ class NetCore {
     void AddServerBan(const std::string& _ip);
     
 #ifdef USE_LONG_LINK
-     LongLink& Longlink(const std::string& _name);
-#endif
-    
+    void DisconnectLongLinkByTaskId(uint32_t _taskid, TDisconnectInternalCode _code);
 
     void                CreateLongLink(const LonglinkConfig& _config);
     bool                DestroyLongLink(const std::string& _name);
 //    std::vector<std::string> GetAllLonglink();
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
+#endif
 
   private:
     NetCore();

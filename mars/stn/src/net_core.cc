@@ -459,9 +459,9 @@ void NetCore::StopSignal() {
 }
 
 #ifdef USE_LONG_LINK
-//LongLink& NetCore::Longlink(const std::string& _name){
-//    return longlink_task_managers_[_name]->LongLinkChannel();
-//}
+void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, TDisconnectInternalCode){
+    longlink_task_manager_->DisconnectByTaskId(_taskid, _code);
+}
 
 //#ifdef __APPLE__
 //void NetCore::__ResetLongLink() {

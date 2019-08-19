@@ -25,7 +25,7 @@
 #include "netsource_timercheck.h"
 #include "signalling_keeper.h"
 #include "longlink.h"
-#include "stn.h"
+#include "mars/stn/stn.h"
 #include "mars/comm/messagequeue/message_queue.h"
 
 namespace mars {
