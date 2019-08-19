@@ -129,7 +129,7 @@ class HeaderFields {
     // HeaderFields& operator=(const HeaderFields&);
 
   public:
-    static std::pair<const std::string, std::string> MakeContentLength(int _len);
+    static std::pair<const std::string, std::string> MakeContentLength(uint64_t _len);
     static std::pair<const std::string, std::string> MakeTransferEncodingChunked();
     static std::pair<const std::string, std::string> MakeConnectionClose();
     static std::pair<const std::string, std::string> MakeConnectionKeepalive();
@@ -161,6 +161,7 @@ class HeaderFields {
     void HeaderFiled(const char* _name, const char* _value);
     void HeaderFiled(const std::pair<const std::string, std::string>& _headerfield);
     void InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield);
+    void Manipulate(const std::pair<const std::string, std::string>& _headerfield);
     void HeaderFiled(const HeaderFields& _headerfields);
     const char* HeaderField(const char* _key) const;
     std::map<const std::string, std::string, less>& GetHeaders() {return headers_;}
@@ -168,10 +169,10 @@ class HeaderFields {
 
     bool IsTransferEncodingChunked() const;
     bool IsConnectionClose() const;
-    int64_t ContentLength() const ;
+    uint64_t ContentLength() const ;
 
     bool Range(long& _start, long& _end) const;
-    bool ContentRange(int64_t* start, int64_t* end, int64_t* total) const;
+    bool ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const;
 
     const std::string ToString() const;
 

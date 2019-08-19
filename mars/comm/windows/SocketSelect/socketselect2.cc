@@ -205,8 +205,6 @@ int SocketSelect::Select(int _msec) {
             m_broken = Breaker().m_broken;
 
             if (autoclear_) Breaker().Clear();
-
-			xdebug2(TSF"return select, ret=%_", ret);
             goto END; //free eventarray and socketarrary
         }
     }

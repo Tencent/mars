@@ -227,7 +227,7 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
     alarm_.Cancel();
 
     if (LongLink::kConnectFailed == _status || LongLink::kDisConnected == _status) {
-        __AutoIntervalConnect();
+        alarm_.Start(500);
     } else if (LongLink::kConnected == _status) {
         xinfo2(TSF"cancel auto connect");
     }

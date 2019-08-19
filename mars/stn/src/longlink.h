@@ -184,6 +184,7 @@ class LongLink {
     WakeUpLock*                                  wakelock_;
     
     LongLinkEncoder&                             encoder_;
+    unsigned long long              lastheartbeat_;
 };
         
 }}

@@ -16,7 +16,7 @@ WIN_LIBS_INSTALL_PATH = BUILD_OUT_PATH + "/Windows.out/"
 WIN_RESULT_DIR = WIN_LIBS_INSTALL_PATH + 'win/'
 WIN_BUILD_CMD = 'cmake ../.. -G "Visual Studio 14 2015" -T v140_xp && cmake --build . --target install --config %s'
 WIN_GEN_PROJECT_CMD = 'cmake ../.. -G "Visual Studio 14 2015" -T v140_xp'
-
+SSL_ARCH = 'x86'
 
 def build_windows(incremental, tag='', config='Release'):
     before_time = time.time()
@@ -37,13 +37,17 @@ def build_windows(incremental, tag='', config='Release'):
         shutil.rmtree(WIN_RESULT_DIR)
     os.makedirs(WIN_RESULT_DIR)
         
-    merge_win_static_libs(glob.glob(WIN_LIBS_INSTALL_PATH + '*.lib'), WIN_RESULT_DIR + 'mars.lib')
+    src_libs = glob.glob(WIN_LIBS_INSTALL_PATH + '*.lib')
+    src_libs.append('openssl/openssl_lib_windows/%s/libcrypto.lib' %SSL_ARCH)
+    src_libs.append('openssl/openssl_lib_windows/%s/libssl.lib' %SSL_ARCH)
+    
+    merge_win_static_libs(src_libs, WIN_RESULT_DIR + 'mars.lib')
     
     headers = dict()
     headers.update(COMM_COPY_HEADER_FILES)
     headers.update(WIN_COPY_EXT_FILES)
     copy_file_mapping(headers, '../', WIN_RESULT_DIR)
-    
+    sub_folders = ["app", "baseevent", "comm", "boost", "xlog", "sdt", "stn"]
     copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)
 
     print('==================Output========================')
@@ -85,7 +89,7 @@ def build_windows_xlog(incremental, tag='', config='Release'):
     headers = dict()
     headers.update(XLOG_COPY_HEADER_FILES)
     headers.update(WIN_COPY_EXT_FILES)
-    copy_file_mapping(headers, '../../', WIN_RESULT_DIR)
+    copy_file_mapping(headers, '../', WIN_RESULT_DIR)
     
     sub_folders = ["comm", "boost", "xlog"]
     copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)

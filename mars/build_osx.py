@@ -15,7 +15,6 @@ OSX_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DENABLE_ARC=0 -DENAB
 
 GEN_OSX_PROJ = 'cmake ../.. -G Xcode -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=10.9 -DENABLE_BITCODE=0'
 
-
 def build_osx(tag=''):
     gen_mars_revision_file('comm', tag)
 
@@ -29,8 +28,13 @@ def build_osx(tag=''):
         print('!!!!!!!!!!!build fail!!!!!!!!!!!!!!!')
         return False
 
+    ssl_lib = 'openssl/openssl_lib_osx/libssl.a'
+    crypto_lib = 'openssl/openssl_lib_osx/libcrypto.a'
     libtool_os_dst_lib = INSTALL_PATH + '/mars'
-    if not libtool_libs(glob.glob(INSTALL_PATH + '/*.a'), libtool_os_dst_lib):
+    libtool_src_libs = glob.glob(INSTALL_PATH + '/*.a')
+    libtool_src_libs.append(ssl_lib)
+    libtool_src_libs.append(crypto_lib)
+    if not libtool_libs(libtool_src_libs, libtool_os_dst_lib):
         return False
 
     dst_framework_path = INSTALL_PATH + '/mars.framework'

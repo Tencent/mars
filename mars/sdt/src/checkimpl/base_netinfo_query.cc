@@ -93,7 +93,7 @@ void BaseNetInfo::__QueryNetConfig(){
     //DNS SVR
     XMessage xmsg2;
     std::vector<socket_address> dnssvraddrs;
-    getdnssvraddrs(dnssvraddrs);
+    mars::comm::getdnssvraddrs(dnssvraddrs);
     if (!dnssvraddrs.empty()) {
         for (size_t i = 0; i < dnssvraddrs.size(); ++i) {
             if (AF_INET == dnssvraddrs[i].address().sa_family) {

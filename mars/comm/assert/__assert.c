@@ -29,10 +29,10 @@ void __assert_rtn(const char *, const char *, int, const char *) __dead2;
 #define snprintf _snprintf
 #endif
 
-#ifdef DEBUG
-static int sg_enable_assert = 1;
-#else
+#if defined(NDEBUG)
 static int sg_enable_assert = 0;
+#else
+static int sg_enable_assert = 1;
 #endif
 
 void ENABLE_ASSERT() { sg_enable_assert = 1;}
@@ -62,7 +62,7 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
 
        xlogger_Write(&info, assertlog);
     
-    if (IS_ASSERT_ENABLE()) {
+    if (sg_enable_assert) {
 #if defined(ANDROID) //&& (defined(DEBUG))
         raise(SIGTRAP);
         __assert2(_pfile, _line, _pfunc, _pexpression);
@@ -98,7 +98,7 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
 
        xlogger_Write(&info, assertlog);
     
-    if (IS_ASSERT_ENABLE()) {
+    if (sg_enable_assert) {
 #if defined(ANDROID) //&& (defined(DEBUG))
         raise(SIGTRAP);
         __assert2(_pfile, _line, _pfunc, _pexpression);

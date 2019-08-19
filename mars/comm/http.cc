@@ -320,10 +320,8 @@ const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
 
 
-std::pair<const std::string, std::string> HeaderFields::MakeContentLength(int _len) {
-    char strLength[16] = {0};
-    snprintf(strLength, sizeof(strLength), "%d", _len);
-    return std::make_pair(KStringContentLength, strLength);
+std::pair<const std::string, std::string> HeaderFields::MakeContentLength(uint64_t _len) {
+    return std::make_pair(KStringContentLength, std::to_string(_len));
 }
 
 std::pair<const std::string, std::string> HeaderFields::MakeTransferEncodingChunked() {
@@ -367,6 +365,17 @@ void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& 
 void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
     headers_[_headerfield.first] = _headerfield.second;
 }
+    
+void HeaderFields::Manipulate(const std::pair<const std::string, std::string>& _headerfield){
+    std::string v = _headerfield.second;
+    if (strutil::Trim(v).empty()){
+        // empty value means remove header
+        xwarn2(TSF"remove field %_ from request.", _headerfield.first);
+        headers_.erase(_headerfield.first);
+    }else{
+        InsertOrUpdate(_headerfield);
+    }
+}
 
 void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
     headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
@@ -397,12 +406,12 @@ bool HeaderFields::IsConnectionClose() const{
     return false;
 }
 
-int64_t HeaderFields::ContentLength() const{
+uint64_t HeaderFields::ContentLength() const{
     const char* strContentLength = HeaderField(HeaderFields::KStringContentLength);
-    int64_t contentLength = 0;
+    uint64_t contentLength = 0;
 
     if (strContentLength) {
-        contentLength = strtoll(strContentLength, NULL, 10);
+        contentLength = strtoull(strContentLength, NULL, 10);
     }
 
     return contentLength;
@@ -433,7 +442,7 @@ bool HeaderFields::Range(long& _start, long& _end) const {
     return true;
 }
     
-bool HeaderFields::ContentRange(int64_t* start, int64_t* end, int64_t* total) const{
+bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const{
     // Content-Range: bytes 0-102400/102399
 
     *start = 0;
@@ -456,17 +465,17 @@ bool HeaderFields::ContentRange(int64_t* start, int64_t* end, int64_t* total) co
 
         if (std::string::npos != range_start) {
             std::string startstr = bytes.substr(0, range_start);
-            *start = strtoll(startstr.c_str(), NULL, 10);
+            *start = strtoull(startstr.c_str(), NULL, 10);
 
             size_t range_end = bytes.find("/", range_start + 1);
 
             if (range_end != std::string::npos) {
                 std::string endstr = bytes.substr(range_start + 1, range_end - range_start - 1);
-                *end = strtoll(endstr.c_str(), NULL, 10);
+                *end = strtoull(endstr.c_str(), NULL, 10);
 
 
                 std::string totalstr = bytes.substr(range_end + 1);
-                *total = strtoll(totalstr.c_str(), NULL, 10);
+                *total = strtoull(totalstr.c_str(), NULL, 10);
 
                 return true;
             }
