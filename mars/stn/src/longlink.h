@@ -40,6 +40,7 @@
 
 #include "mars/stn/src/net_source.h"
 #include "mars/stn/src/longlink_identify_checker.h"
+#include "proto/longlink_packer.h"
 
 class AutoBuffer;
 class XLogger;
@@ -113,11 +114,12 @@ class LongLink {
     
     boost::function< void (uint32_t _taskid)> OnSend;
     boost::function< void (uint32_t _taskid, size_t _cachedsize, size_t _package_size)> OnRecv;
-    boost::function< void (ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
+    boost::function< void (const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
     boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
+    
 
   public:
-    LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const std::string& _longlink_name="unnamed");
+    LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
     virtual ~LongLink();
 
     bool    Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task);
@@ -127,11 +129,11 @@ class LongLink {
     bool            MakeSureConnected(bool* _newone = NULL);
     void            Disconnect(TDisconnectInternalCode _scene);
     TLongLinkStatus ConnectStatus() const;
-    void            SetLongLinkName(const std::string& _longlink_name){ longlink_name_ = _longlink_name; }
-    std::string     GetLongLinkName()const { return longlink_name_; }
 
     ConnectProfile  Profile() const   { return conn_profile_; }
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
+    
+    LongLinkEncoder& Encoder() const { return encoder_; }
     
   private:
     LongLink(const LongLink&);
@@ -161,7 +163,7 @@ class LongLink {
   protected:
     MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      netsource_;
-    std::string                     longlink_name_;
+    LonglinkConfig                  config_;
     
     Mutex                           mutex_;
     Thread                          thread_;
@@ -173,13 +175,15 @@ class LongLink {
     ConnectProfile                              conn_profile_;
     TDisconnectInternalCode                     disconnectinternalcode_;
     
-    SocketBreaker                                        readwritebreak_;
-    LongLinkIdentifyChecker                              identifychecker_;
+    SocketBreaker                               readwritebreak_;
+    LongLinkIdentifyChecker                     identifychecker_;
     std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_;
-    tickcount_t                                          lastrecvtime_;
+    tickcount_t                                 lastrecvtime_;
     
-    SmartHeartbeat*                              smartheartbeat_;
+    static SmartHeartbeat*                       smartheartbeat_;
     WakeUpLock*                                  wakelock_;
+    
+    LongLinkEncoder&                             encoder_;
 };
         
 }}

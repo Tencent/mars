@@ -29,8 +29,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
 
-#include "longlink.h"
-#include "longlink_connect_monitor.h"
+#include "longlink_metadata.h"
 
 class AutoBuffer;
 class ActiveLogic;
@@ -71,15 +70,24 @@ class LongLinkTaskManager {
     void RedoTasks();
     void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
 
-    LongLink& LongLinkChannel() { return *longlink_; }
-    LongLinkConnectMonitor& getLongLinkConnectMonitor() { return *longlinkconnectmon_; }
+    // LongLink& LongLinkChannel(const std::string& _name) { return *longlink_; }
+    // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
+    std::shared_ptr<LongLinkMetaData> GetLongLink(const std::string& _name);
 
-    unsigned int GetTaskCount();
+    unsigned int GetTaskCount(const std::string& _name);
     unsigned int GetTasksContinuousFailCount();
+
+    bool AddLongLink(const LonglinkConfig& _config);
+    std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
+        return GetLongLink(DEFAULT_LONGLINK_NAME);
+    }
+    void OnNetworkChange();
+    ConnectProfile GetConnectProfile(uint32_t _taskid);
+    bool ReleaseLongLink(const std::string& _name);
 
   private:
     // from ILongLinkObserver
-    void __OnResponse(ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);
+    void __OnResponse(const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);
     void __OnSend(uint32_t _taskid);
     void __OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize);
     void __SignalConnection(LongLink::TLongLinkStatus _connect_status);
@@ -88,10 +96,15 @@ class LongLinkTaskManager {
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const ConnectProfile& _connect_profile, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile);
 
     std::list<TaskProfile>::iterator __Locate(uint32_t  _taskid);
+#ifdef __APPLE__
+    void __ResetLongLink(const std::string& _name);
+#endif
+    void __Disconnect(LongLink::TDisconnectInternalCode code);
+    void __RedoTasks(const std::string& _name);
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;
@@ -100,9 +113,11 @@ class LongLinkTaskManager {
     unsigned long                   retry_interval_;	//ms
     unsigned int                    tasks_continuous_fail_count_;
 
-    LongLink*                       longlink_;
-    LongLinkConnectMonitor*         longlinkconnectmon_;
+    std::map<std::string, std::shared_ptr<LongLinkMetaData> > longlink_metas_;
     DynamicTimeout&                 dynamic_timeout_;
+
+    NetSource&                      netsource_;
+    ActiveLogic&                    active_logic_;
 
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;

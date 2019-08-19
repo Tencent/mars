@@ -24,10 +24,11 @@
 #include <stdint.h>
 
 #include "mars/comm/autobuffer.h"
+#include "mars/stn/proto/longlink_packer.h"
 
 class LongLinkIdentifyChecker {
   public:
-    LongLinkIdentifyChecker();
+    LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder);
     ~LongLinkIdentifyChecker();
 
     bool GetIdentifyBuffer(AutoBuffer& _buffer, uint32_t& _cmd_id);
@@ -44,6 +45,7 @@ class LongLinkIdentifyChecker {
     uint32_t cmd_id_;
     uint32_t taskid_;
     AutoBuffer hash_code_buffer_;
+    mars::stn::LongLinkEncoder encoder_;
 };
 
 

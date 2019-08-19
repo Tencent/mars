@@ -278,11 +278,11 @@ auto DestroyLonglink_ext = +[](const std::string& name)->bool{
     STN_WEAK_CALL_RETURN(DestroyLongLink(name),res);
     return res;
 };
-auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
-    std::vector<std::string> res;
-    STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
-    return res;
-};
+//auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
+//    std::vector<std::string> res;
+//    STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
+//    return res;
+//};
 
 auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
     bool res = false;
@@ -294,21 +294,21 @@ auto MakesureLonglinkConnected_ext = +[](const std::string& name){
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
     
-auto KeepSignalling_ext = +[](const std::string& name){
-    STN_WEAK_CALL(KeepSignalling_ext(name));
-};
+//auto KeepSignalling_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(KeepSignalling_ext(name));
+//};
+//
+//auto StopSignalling_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(StopSignalling_ext(name));
+//};
     
-auto StopSignalling_ext = +[](const std::string& name){
-    STN_WEAK_CALL(StopSignalling_ext(name));
-};
-    
-auto RedoTasks_ext = +[](const std::string& name){
-    STN_WEAK_CALL(RedoTasks_ext(name));
-};
-    
-auto ClearTasks_ext = +[](const std::string& name){
-    STN_WEAK_CALL(ClearTasks_ext(name));
-};
+//auto RedoTasks_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(RedoTasks_ext(name));
+//};
+//    
+//auto ClearTasks_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(ClearTasks_ext(name));
+//};
 
 void network_export_symbols_0(){}
 

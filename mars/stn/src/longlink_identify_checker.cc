@@ -27,10 +27,11 @@
 
 using namespace mars::stn;
 
-LongLinkIdentifyChecker::LongLinkIdentifyChecker()
+LongLinkIdentifyChecker::LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder)
 :has_checked_(false)
 , cmd_id_(0)
 , taskid_(0)
+, encoder_(_encoder)
 { }
 
 LongLinkIdentifyChecker::~LongLinkIdentifyChecker() { }
@@ -72,7 +73,7 @@ bool LongLinkIdentifyChecker::GetIdentifyBuffer(AutoBuffer &_buffer, uint32_t &_
 void LongLinkIdentifyChecker::SetID(uint32_t  _taskid) { taskid_ = _taskid;}
 
 bool LongLinkIdentifyChecker::IsIdentifyResp(uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _buffer, const AutoBuffer& _extend) const {
-    return longlink_identify_isresp(taskid_, _cmdid, _taskid, _buffer, _extend);
+    return encoder_.longlink_identify_isresp(taskid_, _cmdid, _taskid, _buffer, _extend);
 }
 
 bool LongLinkIdentifyChecker::OnIdentifyResp(AutoBuffer& _buffer) {
