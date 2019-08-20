@@ -688,7 +688,7 @@ Parser::~Parser() {
     }
 }
 
-Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes) {
+Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes, bool only_parse_header/* = false*/) {
     if((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_==kBody) {
         xwarn2(TSF"status:%_", recvstatus_);
         recvstatus_ = kEnd;
@@ -811,6 +811,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                 }
                 
                 headerlength_ = headerslength;
+                if (only_parse_header){
+                    xwarn2(TSF"only parse headers.");
+                    return recvstatus_;
+                }
             }
                 break;
                 
