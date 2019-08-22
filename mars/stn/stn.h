@@ -27,9 +27,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <functional>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/projdef.h"
+#include "mars/stn/proto/longlink_packer.h"
 
 namespace mars{
     namespace stn{
@@ -96,19 +98,21 @@ public:
     
     std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
+    std::vector<std::string> longlink_host_list;
 };
 
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = "default-group")
-        :name(_name),is_keep_alive(false), group(_group) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr) {}
     bool IsMain() const {
         return name==DEFAULT_LONGLINK_NAME;
     }
     std::string     name;
     std::vector<std::string> host_list;
     bool            is_keep_alive;     //if false, reconnect trig by task    
-    std::string     group;       
+    std::string     group;   
+    LongLinkEncoder* longlink_encoder;   
 };
 
 enum TaskFailHandleType {
@@ -160,7 +164,7 @@ enum {
     kEctLongFirstPkgTimeout = -500,
     kEctLongPkgPkgTimeout = -501,
     kEctLongReadWriteTimeout = -502,
-   // kEctLongTaskTimeout = -503,
+    kEctLongTaskTimeout = -503,
 };
 
 // -600 ~ -500

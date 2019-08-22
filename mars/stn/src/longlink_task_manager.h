@@ -23,6 +23,7 @@
 
 #include <list>
 #include <stdint.h>
+#include <set>
 
 #include "boost/function.hpp"
 
@@ -52,7 +53,7 @@ class LongLinkTaskManager {
     boost::function<int (ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
 
     boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid)> fun_notify_retry_all_tasks;
-    boost::function<void (int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
+    boost::function<void (const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
     boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     
     boost::function<void (uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
@@ -84,7 +85,7 @@ class LongLinkTaskManager {
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     bool ReleaseLongLink(const std::string& _name);
-    bool DisconnectByTaskId(uint32_t _taskid, TDisconnectInternalCode _code);
+    bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
 
   private:
     // from ILongLinkObserver
@@ -97,14 +98,14 @@ class LongLinkTaskManager {
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandle(const std::string& _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile);
 
     std::list<TaskProfile>::iterator __Locate(uint32_t  _taskid);
 #ifdef __APPLE__
     void __ResetLongLink(const std::string& _name);
 #endif
-    void __Disconnect(LongLink::TDisconnectInternalCode code);
+    void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
 
   private:

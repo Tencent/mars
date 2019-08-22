@@ -45,7 +45,7 @@ class LongLinkIdentifyChecker {
     uint32_t cmd_id_;
     uint32_t taskid_;
     AutoBuffer hash_code_buffer_;
-    mars::stn::LongLinkEncoder encoder_;
+    mars::stn::LongLinkEncoder& encoder_;
 };
 
 

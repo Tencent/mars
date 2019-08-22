@@ -50,7 +50,7 @@ namespace mars {
             virtual ~longlink_tracker(){};
         };
         
-        struct LongLinkEncoder {
+        class LongLinkEncoder {
         public:
             LongLinkEncoder();
             
