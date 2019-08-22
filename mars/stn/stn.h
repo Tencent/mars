@@ -104,7 +104,7 @@ public:
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = "default-group")
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), dns_func(nullptr) {}
     bool IsMain() const {
         return name==DEFAULT_LONGLINK_NAME;
     }
@@ -112,7 +112,8 @@ public:
     std::vector<std::string> host_list;
     bool            is_keep_alive;     //if false, reconnect trig by task    
     std::string     group;   
-    LongLinkEncoder* longlink_encoder;   
+    LongLinkEncoder* longlink_encoder;
+    std::vector<std::string> (*dns_func)(const std::string& host);
 };
 
 enum TaskFailHandleType {

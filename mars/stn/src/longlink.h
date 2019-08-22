@@ -134,6 +134,9 @@ class LongLink {
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
     
     LongLinkEncoder& Encoder() const { return encoder_; }
+    void SetDnsFunc(DNS::DNSFunc _dns_func) {
+      dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
+    }
     
   private:
     LongLink(const LongLink&);
