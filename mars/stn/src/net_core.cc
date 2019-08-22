@@ -278,7 +278,7 @@ void NetCore::StartTask(const Task& _task) {
 #ifdef ANDROID
     if (kNoNet == ::getNetInfo() && !ActiveLogic::Singleton::Instance()->IsActive()
 #ifdef USE_LONG_LINK
-    && LongLink::kConnected != longlink_task_managers_[task.channel_name]->LongLinkChannel().ConnectStatus()
+    && LongLink::kConnected != longlink_task_manager_->GetLongLink(task.channel_name)->Channel()->ConnectStatus()
 #endif
     ){
         xerror2(TSF" error no net (%_, %_) return when no active", kEctLocal, kEctLocalNoNet) >> group;

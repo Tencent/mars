@@ -34,6 +34,7 @@ COMM_COPY_HEADER_FILES = {
             "mars/sdt/sdt_logic.h": "sdt",
             "mars/sdt/constants.h": "sdt",
             "mars/sdt/netchecker_profile.h": "sdt",
+            "mars/stn/proto/longlink_packer.h": "stn/proto",
             }        
 
 
