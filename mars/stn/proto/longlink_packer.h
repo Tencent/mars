@@ -90,7 +90,7 @@ namespace mars {
             std::function<bool (uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)> longlink_identify_isresp;
         };
         
-        static LongLinkEncoder gDefaultLongLinkEncoder;
+        extern LongLinkEncoder gDefaultLongLinkEncoder;
         
     }
 }
