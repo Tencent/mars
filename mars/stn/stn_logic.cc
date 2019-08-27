@@ -335,8 +335,8 @@ std::vector<std::string> (*OnNewDns)(const std::string& host)
 };
 
 //网络层收到push消息回调
-void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
 	xassert2(sg_callback != NULL);
 	sg_callback->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 };
@@ -385,16 +385,16 @@ void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::
     sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 };
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-int  (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid)
-= [](AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
+int  (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid)
+= [](const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->GetLonglinkIdentifyCheckBuffer(identify_buffer, buffer_hash, cmdid);
+	return sg_callback->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
 };
 //长连信令校验回包
-bool (*OnLonglinkIdentifyResponse)(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash)
-= [](const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
+bool (*OnLonglinkIdentifyResponse)(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash)
+= [](const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->OnLonglinkIdentifyResponse(response_buffer, identify_buffer_hash);
+	return sg_callback->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
 };
 
 void (*RequestSync)() 

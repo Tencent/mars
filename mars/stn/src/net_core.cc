@@ -549,7 +549,7 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 
 #ifdef USE_LONG_LINK
 
-void NetCore::__OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+void NetCore::__OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
     xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _body.Length());
     push_preprocess_signal_(_cmdid, _body);
     OnPush(_channel_id, _cmdid, _taskid, _body, _extend);

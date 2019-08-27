@@ -56,7 +56,7 @@ class LongLinkTaskManager {
     boost::function<void (const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
     boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     
-    boost::function<void (uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
+    boost::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
     
     static boost::function<void (std::vector<std::string>& _host_list)> get_real_host_;
 
