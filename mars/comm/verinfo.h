@@ -2,10 +2,10 @@
 #ifndef Mars_verinfo_h
 #define Mars_verinfo_h
 
-#define MARS_REVISION "51c7056"
-#define MARS_PATH "feature/2019JUN/game_to_push"
+#define MARS_REVISION "0a65602"
+#define MARS_PATH "rb/2019-JUN"
 #define MARS_URL ""
-#define MARS_BUILD_TIME "2019-08-05 20:24:42"
-#define MARS_TAG ""
+#define MARS_BUILD_TIME "2019-08-28 15:47:49"
+#define MARS_TAG "test"
 
 #endif
