@@ -153,6 +153,7 @@ struct ConnectProfile {
     SOCKET socket_fd;
     uint32_t keepalive_timeout;
     bool is_reused_fd;
+    int local_net_stack;
 };
 
         
