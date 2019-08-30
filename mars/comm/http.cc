@@ -416,7 +416,7 @@ bool HeaderFields::IsConnectionKeepAlive() const {
 
 uint32_t HeaderFields::KeepAliveTimeout() const {
     if(NULL == HeaderField(HeaderFields::KStringConnection))    return KDefaultKeepAliveTimeout;
-    std::string aliveConfig = HeaderField(HeaderFields::KStringKeepalive);
+    std::string aliveConfig = (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
     if(aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
         return KDefaultKeepAliveTimeout;
     }
