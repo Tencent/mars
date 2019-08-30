@@ -412,8 +412,8 @@ uint32_t HeaderFields::KeepAliveTimeout() const {
     while(iter != tokens.end()) {
         size_t pos = iter->find(KStringKeepAliveTimeout);
         if(pos != std::string::npos) {
-            const char* value = iter->c_str() + sizeof(KStringKeepAliveTimeout) - 1;
-            int timeout = strtol(value, NULL, 10);
+            const char* value = iter->c_str() + sizeof(KStringKeepAliveTimeout);
+            int timeout = (int)strtol(value, NULL, 10);
             if(timeout > 0 && timeout < 60)
                 return (uint32_t)timeout;
             return KDefaultKeepAliveTimeout;
