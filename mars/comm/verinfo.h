@@ -2,10 +2,10 @@
 #ifndef Mars_verinfo_h
 #define Mars_verinfo_h
 
-#define MARS_REVISION "7227a07"
-#define MARS_PATH "feature/20190724_shortlink_keepalive"
+#define MARS_REVISION "44ae915"
+#define MARS_PATH "feature/master/2019MAY_gamepush_keepalive"
 #define MARS_URL ""
-#define MARS_BUILD_TIME "2019-08-08 15:08:15"
-#define MARS_TAG ""
+#define MARS_BUILD_TIME "2019-08-30 11:12:10"
+#define MARS_TAG "test"
 
 #endif
