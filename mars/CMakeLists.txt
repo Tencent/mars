@@ -56,13 +56,6 @@ if(ANDROID)
 
     link_directories(${SELF_LIBS_OUT})
 
-if(NOT MSVC)
-    set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
-endif()
-    find_library(CRYPT_LIB crypto PATHS openssl/openssl_lib_android/${ANDROID_ABI} NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
-    find_library(SSL_LIB ssl PATHS openssl/openssl_lib_android/${ANDROID_ABI} NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
-
     target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
                         ${log-lib}
                         stn
@@ -71,9 +64,7 @@ endif()
                         baseevent
                         comm
                         mars-boost
-                        marsxlog
-                        ${SSL_LIB}
-                        ${CRYPT_LIB})
+                        marsxlog)
 
 elseif(APPLE)
 

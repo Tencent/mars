@@ -23,7 +23,6 @@
 
 #include "mars/openssl/include/openssl/md5.h"
 #include "mars/comm/ini.h"
-#include "openssl/md5.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/strutil.h"
 

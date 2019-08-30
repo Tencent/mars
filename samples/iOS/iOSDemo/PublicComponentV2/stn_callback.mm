@@ -38,7 +38,7 @@ void StnCallBack::Release() {
     instance_ = NULL;
 }
         
-bool StnCallBack::MakesureAuthed(const std::string& host) {
+bool StnCallBack::MakesureAuthed() {
     return true;
 }
 
@@ -61,7 +61,7 @@ void StnCallBack::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid
     
 }
 
-bool StnCallBack::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& host) {
+bool StnCallBack::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select) {
     NSData* requestData =  [[NetworkService sharedInstance] Request2BufferWithTaskID:_taskid userContext:_user_context];
     if (requestData == nil) {
         requestData = [[NSData alloc] init];

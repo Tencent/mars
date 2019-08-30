@@ -322,8 +322,10 @@ const char* const KStringKeepAliveTimeout = "timeout=";
 const uint32_t KDefaultKeepAliveTimeout = 5;
 
 
-std::pair<const std::string, std::string> HeaderFields::MakeContentLength(uint64_t _len) {
-    return std::make_pair(KStringContentLength, std::to_string(_len));
+std::pair<const std::string, std::string> HeaderFields::MakeContentLength(int _len) {
+    char strLength[16] = {0};
+    snprintf(strLength, sizeof(strLength), "%d", _len);
+    return std::make_pair(KStringContentLength, strLength);
 }
 
 std::pair<const std::string, std::string> HeaderFields::MakeTransferEncodingChunked() {
@@ -720,7 +722,7 @@ Parser::~Parser() {
     }
 }
 
-Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes, bool only_parse_header/* = false*/) {
+Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes) {
     if((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_==kBody) {
         xwarn2(TSF"status:%_", recvstatus_);
         recvstatus_ = kEnd;
@@ -843,10 +845,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                 }
                 
                 headerlength_ = headerslength;
-                if (only_parse_header){
-                    xwarn2(TSF"only parse headers.");
-                    return recvstatus_;
-                }
             }
                 break;
                 

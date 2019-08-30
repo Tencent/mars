@@ -42,7 +42,7 @@ void StnCallBack::Release() {
     instance_ = NULL;
 }
         
-bool StnCallBack::MakesureAuthed(const std::string& _host) {
+bool StnCallBack::MakesureAuthed() {
     return true;
 }
 
@@ -62,7 +62,7 @@ void StnCallBack::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid
     
 }
 
-bool StnCallBack::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) {
+bool StnCallBack::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select) {
 	
 	return NetworkService::Instance().Req2Buf(_taskid, _user_context, _outbuffer, _extend, _error_code, _channel_select);
 }

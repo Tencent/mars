@@ -129,7 +129,7 @@ class HeaderFields {
     // HeaderFields& operator=(const HeaderFields&);
 
   public:
-    static std::pair<const std::string, std::string> MakeContentLength(uint64_t _len);
+    static std::pair<const std::string, std::string> MakeContentLength(int _len);
     static std::pair<const std::string, std::string> MakeTransferEncodingChunked();
     static std::pair<const std::string, std::string> MakeConnectionClose();
     static std::pair<const std::string, std::string> MakeConnectionKeepalive();
@@ -319,7 +319,7 @@ class Parser {
     Parser& operator=(const Parser&);
 
   public:
-    TRecvStatus Recv(const void* _buffer, size_t _length, size_t* consumed_bytes = nullptr, bool only_parse_header = false);
+    TRecvStatus Recv(const void* _buffer, size_t _length, size_t* consumed_bytes = nullptr);
     TRecvStatus Recv(AutoBuffer& _recv_buffer);
     TRecvStatus RecvStatus() const;
 

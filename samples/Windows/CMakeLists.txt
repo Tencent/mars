@@ -148,12 +148,6 @@ set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
 
 link_directories(${SELF_LIBS_OUT})
 
-#find_library(CRYPT_LIB crypto PATHS ../../mars/openssl/openssl_lib_windows/x86 NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
-#find_library(SSL_LIB ssl PATHS ../../mars/openssl/openssl_lib_windows/x86 NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
-
-get_filename_component(CRYPT_LIB ../../mars/openssl/openssl_lib_windows/x86/libcrypto.lib ABSOLUTE)
-get_filename_component(SSL_LIB ../../mars/openssl/openssl_lib_windows/x86/libssl.lib ABSOLUTE)
-
 target_link_libraries(${PROJECT_NAME} ws2_32.lib comsuppw.lib
 						xlog
                         app
@@ -161,7 +155,5 @@ target_link_libraries(${PROJECT_NAME} ws2_32.lib comsuppw.lib
                         mars-boost
                         comm
                         sdt
-                        stn
-                        ${CRYPT_LIB}
-                        ${SSL_LIB})
+                        stn)
   

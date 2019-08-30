@@ -301,20 +301,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     }
     CFRelease(info);
     CFRelease(ifs);
-
-    // CNCopyCurrentNetworkInfo is now only available to your app in three cases:
-    // * Apps with permission to access location
-    // * Your app is the currently enabled VPN app
-    // * Your app configured the WiFi network the device is currently using via NEHotspotConfiguration
-    // otherwise return nil.
-    // But if you use 'NEHotspotConfiguration' and without permission to access location
-    // Instead, the information returned by default will be:
-    // * SSID: “Wi-Fi” or “WLAN” (“WLAN" will be returned for the China SKU)
-    // * BSSID: "00:00:00:00:00:00" 
-    static const std::string kConstSSID1 = "Wi-Fi";
-    static const std::string kConstSSID2 = "WLAN";
     
-    return kConstSSID1 != wifiInfo.ssid && kConstSSID2 != wifiInfo.ssid;
+    return true;
 #endif
 }
 
