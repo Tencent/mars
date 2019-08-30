@@ -309,15 +309,17 @@ const char* const HeaderFields::KStringRange = "Range";
 const char* const HeaderFields::KStringLocation = "Location";
 const char* const HeaderFields::KStringReferer = "Referer";
 const char* const HeaderFields::kStringServer = "Server";
+const char* const HeaderFields::KStringKeepalive = "Keep-Alive";
 
 const char* const KStringChunked = "chunked";
 const char* const KStringClose = "close";
-const char* const KStringKeepalive = "Keep-Alive";
 const char* const KStringAcceptAll = "*/*";
 const char* const KStringAcceptEncodingDeflate = "deflate";
 const char* const KStringAcceptEncodingGzip = "gzip";
 const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
+const char* const KStringKeepAliveTimeout = "timeout=";
+const uint32_t KDefaultKeepAliveTimeout = 5;
 
 
 std::pair<const std::string, std::string> HeaderFields::MakeContentLength(int _len) {
@@ -357,11 +359,11 @@ std::pair<const std::string, std::string> HeaderFields::MakeContentTypeOctetStre
 
 
 void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
-    headers_.insert(std::pair<const std::string, std::string>(_name, _value));
+    InsertOrUpdate(std::make_pair(_name, _value));
 }
 
 void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& _headerfield) {
-    headers_.insert(_headerfield);
+    InsertOrUpdate(_headerfield);
 }
     
 void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
@@ -397,7 +399,31 @@ bool HeaderFields::IsConnectionClose() const{
     return false;
 }
 
-int64_t HeaderFields::ContentLength() const{
+uint32_t HeaderFields::KeepAliveTimeout() const {
+    if(NULL == HeaderField(HeaderFields::KStringConnection))    return KDefaultKeepAliveTimeout;
+    std::string aliveConfig = HeaderField(HeaderFields::KStringKeepalive);
+    if(aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
+        return KDefaultKeepAliveTimeout;
+    }
+    
+    std::vector<std::string> tokens;
+    strutil::SplitToken(aliveConfig, ",", tokens);
+    auto iter = tokens.begin();
+    while(iter != tokens.end()) {
+        size_t pos = iter->find(KStringKeepAliveTimeout);
+        if(pos != std::string::npos) {
+            const char* value = iter->c_str() + sizeof(KStringKeepAliveTimeout) - 1;
+            int timeout = strtol(value, NULL, 10);
+            if(timeout > 0 && timeout < 60)
+                return (uint32_t)timeout;
+            return KDefaultKeepAliveTimeout;
+        }
+        iter++;
+    }
+    return KDefaultKeepAliveTimeout;
+}
+
+uint64_t HeaderFields::ContentLength() const{
     const char* strContentLength = HeaderField(HeaderFields::KStringContentLength);
     int64_t contentLength = 0;
 

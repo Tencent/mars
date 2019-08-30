@@ -157,6 +157,7 @@ class HeaderFields {
     static const char* const KStringLocation;
     static const char* const KStringReferer;
     static const char* const kStringServer;
+    static const char* const KStringKeepalive;
 
     void HeaderFiled(const char* _name, const char* _value);
     void HeaderFiled(const std::pair<const std::string, std::string>& _headerfield);
@@ -168,7 +169,8 @@ class HeaderFields {
 
     bool IsTransferEncodingChunked() const;
     bool IsConnectionClose() const;
-    int64_t ContentLength() const ;
+    uint64_t ContentLength() const ;
+    uint32_t KeepAliveTimeout() const;
 
     bool Range(long& _start, long& _end) const;
     bool ContentRange(int64_t* start, int64_t* end, int64_t* total) const;
