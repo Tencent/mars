@@ -97,7 +97,7 @@ namespace stn {
 
         void CleanTimeout() {
             ScopedLock lock(mutex_);
-            if(socket_pool_.empty())
+            if(socket_pool_.empty())    return;
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->HasTimeout()) {
