@@ -354,9 +354,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             socket_pool_.Report(_conn_profile.is_reused_fd, false, false);
         } else if(_conn_profile.ip_index >=0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
             IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
-            CacheSocketItem cacheItem(item, _conn_profile.socket_fd, _conn_profile.keepalive_timeout);
-            if(!socket_pool_.AddCache(cacheItem)) {
-                close(cacheItem.socket_fd);
+            CacheSocketItem cache_item(item, _conn_profile.socket_fd, _conn_profile.keepalive_timeout);
+            if(!socket_pool_.AddCache(cache_item)) {
+                close(cache_item.socket_fd);
             }
         } else {
             xassert2(false, "not match");
