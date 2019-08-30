@@ -393,8 +393,14 @@ bool HeaderFields::IsTransferEncodingChunked() const{
 }
 bool HeaderFields::IsConnectionClose() const{
     const char* conn = HeaderField(HeaderFields::KStringConnection);
-        
     if (conn && 0 == strcasecmp(conn, KStringClose)) return true;
+        
+    return false;
+}
+
+bool HeaderFields::IsConnectionKeepAlive() const {
+    const char* conn = HeaderField(HeaderFields::KStringConnection);    
+    if (conn && 0 == strcasecmp(conn, KStringKeepalive)) return true;
         
     return false;
 }
