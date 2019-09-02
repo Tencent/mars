@@ -64,7 +64,7 @@ namespace stn {
         }
 
         SOCKET GetSocket(const IPPortItem& _item) {
-            xverbose_info();
+            xverbose_function();
             ScopedLock lock(mutex_);
             if(!use_cache_ || _isBaned() || socket_pool_.empty())
                 return INVALID_SOCKET;
