@@ -245,7 +245,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_type = kIPSourceProxy;
     }
 
-    xinfo2(TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items));
+    xinfo2(TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items), is_keep_alive_);
 
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
