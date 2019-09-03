@@ -470,7 +470,7 @@ void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnect
 //    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->RedoTasks();
 //}
 //#endif
-#endif  // apple
+#endif
 
 void NetCore::RedoTasks() {
    ASYNC_BLOCK_START
@@ -495,17 +495,17 @@ void NetCore::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, 
 #endif
 }
 
-void NetCore::MakeSureLongLinkConnect(const std::string& _name) {
+void NetCore::MakeSureLongLinkConnect() {
 #ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
-    longlink_task_manager_->GetLongLink(_name)->Channel()->MakeSureConnected();
+    longlink_task_manager_->DefaultLongLink()->Channel()->MakeSureConnected();
     ASYNC_BLOCK_END
 #endif
 }
 
-bool NetCore::LongLinkIsConnected(const std::string& _name) {
+bool NetCore::LongLinkIsConnected() {
 #ifdef USE_LONG_LINK
-    return LongLink::kConnected == longlink_task_manager_->GetLongLink(_name)->Channel()->ConnectStatus();
+    return LongLink::kConnected == longlink_task_manager_->DefaultLongLink()->Channel()->ConnectStatus();
 #elif
     return false;
 #endif
@@ -560,7 +560,8 @@ void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrC
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateLongLinkInfo(longlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
-    if(_name == DEFAULT_LONGLINK_NAME) {
+    auto longlink = longlink_task_manager_->GetLongLink(_name);
+    if(longlink != nullptr && longlink->Config().IsMain()) {
         OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
     }
 

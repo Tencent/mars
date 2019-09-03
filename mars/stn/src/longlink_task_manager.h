@@ -80,7 +80,12 @@ class LongLinkTaskManager {
 
     bool AddLongLink(const LonglinkConfig& _config);
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
-        return GetLongLink(DEFAULT_LONGLINK_NAME);
+        for(auto& item : longlink_metas_) {
+            if(item.second->Config().IsMain()) {
+                return item.second;
+            }
+        }
+        return nullptr;
     }
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);

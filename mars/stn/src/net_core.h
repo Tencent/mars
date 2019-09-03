@@ -83,8 +83,8 @@ class NetCore {
     void    RedoTasks();
     void    RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
 
-    void    MakeSureLongLinkConnect(const std::string& _name = DEFAULT_LONGLINK_NAME);
-    bool    LongLinkIsConnected(const std::string& _name = DEFAULT_LONGLINK_NAME);
+    void    MakeSureLongLinkConnect();
+    bool    LongLinkIsConnected();
     void    OnNetworkChange();
 
     void	KeepSignal();

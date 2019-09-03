@@ -36,7 +36,8 @@
 namespace mars{
     namespace stn{
 
-static const std::string DEFAULT_LONGLINK_NAME="default-longlink";
+static const std::string DEFAULT_LONGLINK_NAME = "default-longlink";
+static const std::string DEFAULT_LONGLINK_GROUP = "default-group";
 struct TaskProfile;
 struct DnsProfile;
 
@@ -106,16 +107,17 @@ public:
 
 struct LonglinkConfig {
 public:
-    LonglinkConfig(const std::string& _name, const std::string& _group = "default-group")
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), dns_func(nullptr) {}
+    LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr) {}
     bool IsMain() const {
-        return name==DEFAULT_LONGLINK_NAME;
+        return isMain;
     }
     std::string     name;
     std::vector<std::string> host_list;
     bool            is_keep_alive;     //if false, reconnect trig by task    
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
+    bool            isMain;
     std::vector<std::string> (*dns_func)(const std::string& host);
 };
 

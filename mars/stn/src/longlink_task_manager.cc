@@ -746,6 +746,11 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
         return false;
     }
     
+    if(_config.IsMain()) {
+        xinfo2(TSF"change default longlink to name:%_, group:%_", _config.name, _config.group);
+        auto oldDefault = DefaultLongLink();
+        oldDefault->Config().isMain = false;
+    }
     longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue, _config.IsMain());
     longlink = GetLongLink(_config.name);
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
