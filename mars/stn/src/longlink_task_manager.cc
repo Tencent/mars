@@ -46,7 +46,7 @@ using namespace mars::stn;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
-boost::function<void (std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+boost::function<void (void* const _user_context, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
 
 LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
@@ -328,7 +328,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
 
         Task task = first->task;
         if (get_real_host_) {
-            get_real_host_(task.longlink_host_list);
+            get_real_host_(task.user_context, task.longlink_host_list);
         }
         std::string host = "";
         if (!task.longlink_host_list.empty()) {

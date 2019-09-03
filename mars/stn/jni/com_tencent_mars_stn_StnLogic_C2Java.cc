@@ -54,9 +54,9 @@ int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, int _error_type, i
 	return ret;
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_onPush, KC2Java, "onPush", "(I[B)V")
-void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+DEFINE_FIND_STATIC_METHOD(KC2Java_onPush, KC2Java, "onPush", "(Ljava/lang/String;II[B)V")
+void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
 
     xverbose_function();
 
@@ -73,7 +73,7 @@ void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const Au
 		xdebug2(TSF"the data.Lenght() < = 0");
 	}
 
-	JNU_CallStaticMethodByMethodInfo(env, KC2Java_onPush, (jint)_cmdid, data_jba);
+	JNU_CallStaticMethodByMethodInfo(env, KC2Java_onPush, ScopedJstring(env, _channel_id.c_str()).GetJstr(), (jint)_cmdid, (jint)_taskid, data_jba);
 
 	if (data_jba != NULL) {
 		JNU_FreeJbyteArray(env, data_jba);

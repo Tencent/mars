@@ -68,7 +68,9 @@ public:
     
     
     Task();
+    ~Task();
     Task(uint32_t _taskid);
+    Task(const Task& _task);
 
     //require
     uint32_t       taskid;
@@ -92,6 +94,7 @@ public:
     int32_t     total_timeout;  // user ms
     
     void*       user_context;  // user
+    size_t      user_context_length;
     std::string report_arg;  // use for cgi report
     std::string channel_name;
     std::string group_name;     //use for select decode method
