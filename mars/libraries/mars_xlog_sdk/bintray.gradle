@@ -87,7 +87,7 @@ publishing {
 }
 
 afterEvaluate {
-    publishing.publications.mavenJava.artifact(bundleRelease)
+    publishing.publications.mavenJava.artifact(bundleReleaseAar)
 }
 
 bintray {

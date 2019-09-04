@@ -8,9 +8,13 @@ android {
         targetSdkVersion 21
         ndk {
             // TODO: changes this for your application if needed
+            //"armeabi", "armeabi-v7a", "x86","arm64-v8a"
             moduleName = "mmnet"
             abiFilter "armeabi"
             abiFilter "armeabi-v7a"
+            abiFilter "arm64-v8a"
+            abiFilter "x86"
+            abiFilter "x86_64"
         }
     }
     sourceSets {
@@ -43,5 +47,4 @@ dependencies {
 }
 
 apply from: "${rootDir}/gradle/build_xlog_libraries.gradle"
-
 apply from: "bintray.gradle"
