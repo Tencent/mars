@@ -144,9 +144,9 @@ namespace stn{
     ///
     //===----------------------------------------------------------------------===//
     extern void (*CreateLonglink_ext)(const LonglinkConfig& _config);
-    extern bool (*DestroyLonglink_ext)(const std::string& name);
+    extern void (*DestroyLonglink_ext)(const std::string& name);
     extern std::vector<std::string> (*GetAllLonglink_ext)();
-    extern bool (*MarkMainLonglink_ext)(const std::string& name);
+    extern void (*MarkMainLonglink_ext)(const std::string& name);
     
     extern bool (*LongLinkIsConnected_ext)(const std::string& name);
     extern void (*MakesureLonglinkConnected_ext)(const std::string& name);

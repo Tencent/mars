@@ -32,6 +32,7 @@
 #include "mars/stn/config.h"
 #ifdef USE_LONG_LINK
 #include "mars/stn/src/longlink.h"
+#include "mars/stn/src/longlink_metadata.h"
 #endif
 
 namespace mars {
@@ -96,14 +97,15 @@ class NetCore {
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
 
-    void                CreateLongLink(const LonglinkConfig& _config);
-    bool                DestroyLongLink(const std::string& _name);
+    std::shared_ptr<LongLink>        CreateLongLink(const LonglinkConfig& _config);
+    void                DestroyLongLink(const std::string& _name);
 //    std::vector<std::string> GetAllLonglink();
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
-    bool                MarkMainLonglink_ext(const std::string& _name);
+    void                MarkMainLonglink_ext(const std::string& _name);
     std::shared_ptr<LongLink> DefaultLongLink();
-    std::shared_ptr<LongLink> GetLongLink(const std::string& _name);
+    std::shared_ptr<LongLinkMetaData> GetLongLink(const std::string& _name);
+    std::shared_ptr<LongLinkMetaData> DefaultLongLinkMeta();
 #endif
 
   private:

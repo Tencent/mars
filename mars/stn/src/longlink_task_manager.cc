@@ -759,17 +759,24 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     return true;
 }
 
-bool LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
-    xinfo_function();
+void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
+    xinfo_function(TSF"release longlink:%_", _name);
     auto longlink = GetLongLink(_name);
     if(longlink == nullptr)
-        return false;
+        return;
     
     longlink_metas_.erase(_name);
     longlink->Channel()->SignalConnection.disconnect_all_slots();
-    longlink.reset();
-    xinfo2(TSF"destroy long link %_ ", _name);
-    return true;
+    MessageQueue::AsyncInvoke([&] () {
+        longlink->Channel()->OnSend = NULL;
+        longlink->Channel()->OnRecv = NULL;
+        longlink->Channel()->OnResponse = NULL;
+#ifdef __APPLE__
+        longlink->Monitor()->fun_longlink_reset_ = NULL;
+#endif
+        longlink.reset();
+        xinfo2(TSF"destroy long link %_ ", _name);
+    }, AYNC_HANDLER);
 }
 
 bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {

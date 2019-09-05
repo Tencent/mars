@@ -273,10 +273,8 @@ auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
     STN_WEAK_CALL(CreateLongLink(_config));
 };
     
-auto DestroyLonglink_ext = +[](const std::string& name)->bool{
-    bool res = false;
-    STN_WEAK_CALL_RETURN(DestroyLongLink(name),res);
-    return res;
+auto DestroyLonglink_ext = +[](const std::string& name){
+    STN_WEAK_CALL(DestroyLongLink(name));
 };
 //auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
 //    std::vector<std::string> res;
@@ -290,10 +288,8 @@ auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
     return res;
 };
 
-auto MarkMainLonglink_ext = +[](const std::string& name)->bool{
-    bool res = false;
-    STN_WEAK_CALL_RETURN(MarkMainLonglink_ext(name), res);
-    return res;
+auto MarkMainLonglink_ext = +[](const std::string& name){
+    STN_WEAK_CALL(MarkMainLonglink_ext(name));
 };
     
 auto MakesureLonglinkConnected_ext = +[](const std::string& name){
