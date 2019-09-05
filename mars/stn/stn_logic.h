@@ -146,14 +146,10 @@ namespace stn{
     extern void (*CreateLonglink_ext)(const LonglinkConfig& _config);
     extern bool (*DestroyLonglink_ext)(const std::string& name);
     extern std::vector<std::string> (*GetAllLonglink_ext)();
+    extern bool (*MarkMainLonglink_ext)(const std::string& name);
     
     extern bool (*LongLinkIsConnected_ext)(const std::string& name);
     extern void (*MakesureLonglinkConnected_ext)(const std::string& name);
-    
-    extern void (*KeepSignalling_ext)(const std::string& name);
-    extern void (*StopSignalling_ext)(const std::string& name);
-    extern void (*RedoTasks_ext)(const std::string& name);
-    extern void (*ClearTasks_ext)(const std::string& name);
 }}
 
 #endif /* MARS_STN_LOGIC_H_ */

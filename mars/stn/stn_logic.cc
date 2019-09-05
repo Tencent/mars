@@ -289,6 +289,12 @@ auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
     STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
     return res;
 };
+
+auto MarkMainLonglink_ext = +[](const std::string& name)->bool{
+    bool res = false;
+    STN_WEAK_CALL_RETURN(MarkMainLonglink_ext(name), res);
+    return res;
+};
     
 auto MakesureLonglinkConnected_ext = +[](const std::string& name){
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));

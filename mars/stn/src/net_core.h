@@ -101,6 +101,7 @@ class NetCore {
 //    std::vector<std::string> GetAllLonglink();
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
+    bool                MarkMainLonglink_ext(const std::string& _name);
     std::shared_ptr<LongLink> DefaultLongLink();
     std::shared_ptr<LongLink> GetLongLink(const std::string& _name);
 #endif

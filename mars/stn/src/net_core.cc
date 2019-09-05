@@ -737,6 +737,14 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 //===----------------------------------------------------------------------===//
 #ifdef USE_LONG_LINK
 void NetCore::CreateLongLink(const LonglinkConfig& _config){
+    if(_config.IsMain()) {
+        xinfo2(TSF"change default longlink to name:%_, group:%_", _config.name, _config.group);
+        auto oldDefault = longlink_task_manager_->DefaultLongLink();
+        oldDefault->Channel()->fun_network_report_ = nullptr;   //todo astrozhou may crash
+        oldDefault->Channel()->SignalConnection.disconnect_all_slots();
+        GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink_task_manager_->GetLongLink(_config.name)->SignalKeeper().get(), _1, _2, _3));
+        oldDefault->Config().isMain = false;
+    }
     longlink_task_manager_->AddLongLink(_config);
     
     auto longlink_channel = longlink_task_manager_->GetLongLink(_config.name)->Channel();
@@ -791,6 +799,12 @@ bool NetCore::LongLinkIsConnected_ext(const std::string& _name) {
             return true;
         }
     }
+    return false;
+}
+
+bool NetCore::MarkMainLonglink_ext(const std::string& _name) {
+    // if(longlink_task_manager_->GetLongLink(_name) == )
+
     return false;
 }
 
