@@ -109,6 +109,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onSingalCrash(JNIEnv *, j
 JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onExceptionCrash(JNIEnv*, jclass) {
     mars::baseevent::OnExceptionCrash();
 }
+#endif
 
 }
 
