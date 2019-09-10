@@ -737,15 +737,16 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 //===----------------------------------------------------------------------===//
 #ifdef USE_LONG_LINK
 std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config){
-    if(_config.IsMain() && longlink_task_manager_->DefaultLongLink() != nullptr) {
+    auto oldDefault = longlink_task_manager_->DefaultLongLink();
+    longlink_task_manager_->AddLongLink(_config);
+    
+    if(_config.IsMain() && oldDefault != nullptr) {
         xinfo2(TSF"change default longlink to name:%_, group:%_", _config.name, _config.group);
-        auto oldDefault = longlink_task_manager_->DefaultLongLink();
         oldDefault->Channel()->SignalConnection.disconnect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
         oldDefault->Channel()->SignalConnection.disconnect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
         GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, oldDefault->SignalKeeper().get(), _1, _2, _3));
         oldDefault->Config().isMain = false;
     }
-    longlink_task_manager_->AddLongLink(_config);
     
     auto longlink_channel = longlink_task_manager_->GetLongLink(_config.name)->Channel();
     if(longlink_channel == nullptr) {

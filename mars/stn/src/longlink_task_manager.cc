@@ -61,14 +61,16 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 #ifdef ANDROID
     , wakeup_lock_(new WakeUpLock())
 #endif
+    , meta_mutex_(true)
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
 
 LongLinkTaskManager::~LongLinkTaskManager() {
     xinfo_function();
-    for(auto item : longlink_metas_) {
-        ReleaseLongLink(item.first);
+    while(!longlink_metas_.empty()) {
+        auto iter = longlink_metas_.begin();
+        ReleaseLongLink(iter->first);
     }
     asyncreg_.CancelAndWait();
     
@@ -132,9 +134,12 @@ bool LongLinkTaskManager::HasTask(uint32_t _taskid) const {
 
 void LongLinkTaskManager::ClearTasks() {
     xverbose_function();
+    ScopedLock lock(meta_mutex_);
     for(auto item : longlink_metas_) {
         item.second->Channel()->Disconnect(LongLink::kReset);
     }
+    lock.unlock();
+    
     MessageQueue::CancelMessage(asyncreg_.Get(), 0);
     lst_cmd_.clear();
 }
@@ -154,6 +159,7 @@ unsigned int LongLinkTaskManager::GetTasksContinuousFailCount() {
 
 void LongLinkTaskManager::RedoTasks() {
     xinfo_function();
+    ScopedLock lock(meta_mutex_);
     for(auto longlink : longlink_metas_) {
         longlink.second->Checker()->CancelConnect();
         longlink.second->Channel()->Disconnect(LongLink::kReset);
@@ -700,6 +706,7 @@ void LongLinkTaskManager::__SignalConnection(LongLink::TLongLinkStatus _connect_
 }
 
 std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLink(const std::string& _name) {
+    ScopedLock lock(meta_mutex_);
     for(auto& item : longlink_metas_) {
         if(item.first == _name) {
             return item.second;
@@ -709,6 +716,7 @@ std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLink(const std::st
 }
 
 void LongLinkTaskManager::OnNetworkChange() {
+    ScopedLock lock(meta_mutex_);
     for(auto& item : longlink_metas_) {
         if(item.second->Monitor()->NetworkChange()) {
             __RedoTasks(item.first);
@@ -746,6 +754,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
         return false;
     }
     
+    ScopedLock lock(meta_mutex_);
     longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue, _config.IsMain());
     longlink = GetLongLink(_config.name);
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
@@ -761,6 +770,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
 
 void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
     xinfo_function(TSF"release longlink:%_", _name);
+    ScopedLock lock(meta_mutex_);
     auto longlink = GetLongLink(_name);
     if(longlink == nullptr)
         return;

@@ -80,6 +80,7 @@ class LongLinkTaskManager {
 
     bool AddLongLink(const LonglinkConfig& _config);
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
+        ScopedLock lock(meta_mutex_);
         for(auto& item : longlink_metas_) {
             if(item.second->Config().IsMain()) {
                 return item.second;
@@ -129,6 +130,7 @@ class LongLinkTaskManager {
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;
 #endif
+    Mutex                           meta_mutex_;
 };
     }
 }
