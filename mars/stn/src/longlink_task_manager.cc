@@ -586,6 +586,12 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     RETURN_LONKLINK_SYNC2ASYNC_FUNC(boost::bind(&LongLinkTaskManager::__OnResponse, this, _name, _error_type, _error_code, _cmdid, _taskid, body, extension, _connect_profile));
     // svr push notify
     
+    auto longlink_meta = GetLongLink(_name);
+    if(longlink_meta == nullptr) {
+        xwarn2(TSF"longlink response but longlink destroyed name:%_", _name);
+        return;
+    }
+    
     std::shared_ptr<LongLink> longlink = GetLongLink(_name)->Channel();
     if (kEctOK == _error_type && longlink->Encoder().longlink_ispush(_cmdid, _taskid, body, extension))  {
         xinfo2(TSF"task push seq:%_, cmdid:%_, len:(%_, %_)", _taskid, _cmdid, body->Length(), extension->Length());
@@ -777,14 +783,13 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
     
     longlink_metas_.erase(_name);
     longlink->Channel()->SignalConnection.disconnect_all_slots();
-    MessageQueue::AsyncInvoke([&] () {
+    MessageQueue::AsyncInvoke([&,longlink] () {
         longlink->Channel()->OnSend = NULL;
         longlink->Channel()->OnRecv = NULL;
         longlink->Channel()->OnResponse = NULL;
 #ifdef __APPLE__
         longlink->Monitor()->fun_longlink_reset_ = NULL;
 #endif
-        longlink.reset();
         xinfo2(TSF"destroy long link %_ ", _name);
     }, AYNC_HANDLER);
 }
