@@ -42,7 +42,7 @@ static const std::string kLibName = "sdt";
     }\
 	sdt_ptr->func
 
-static void onCreate() {
+void onCreate() {
     xinfo2(TSF"sdt oncreate");
     SdtCore::Singleton::Instance();
 }

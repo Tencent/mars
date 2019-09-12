@@ -79,7 +79,7 @@ boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::st
     	ret = stn_ptr->func;\
     }
 
-static void onCreate() {
+void onCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -134,7 +134,7 @@ static void __initbind_baseprjevent() {
 #ifdef ANDROID
 	mars::baseevent::addLoadModule(kLibName);
 #endif
-    GetSignalOnCreate().connect(&onCreate);
+    // GetSignalOnCreate().connect(&onCreate);
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);

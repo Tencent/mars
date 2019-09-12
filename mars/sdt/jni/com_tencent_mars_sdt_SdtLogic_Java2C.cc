@@ -45,6 +45,12 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_sdt_SdtLogic_setHttpNetcheckCGI
 	SetHttpNetcheckCGI(ScopedJstring(_env, cgi).GetChar());
 }
 
+JNIEXPORT void JNICALL Java_com_tencent_mars_sdt_SdtLogic_onCreate
+(JNIEnv * env, jclass clz)
+{
+	onCreate();
+}
+
 }
 
 void ExportSDT() {

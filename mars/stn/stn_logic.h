@@ -75,6 +75,7 @@ namespace stn{
         //验证是否已登录 
     };
 
+    void onCreate();
     void SetCallback(Callback* const callback);
     
 
