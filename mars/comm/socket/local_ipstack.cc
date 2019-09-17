@@ -24,6 +24,7 @@
 #include <strings.h>
 #include "socket/unix_socket.h"
 #include "network/getifaddrs.h"
+#endif
 #if defined(__APPLE__)
 #include "network/getgateway.h"
 #include "network/getdnssvraddrs.h"
@@ -315,17 +316,17 @@ static void __local_info(std::string& _log) {
     _log += detail_net_info.Message();
 }
 
-#else
-#include <string>
-TLocalIPStack local_ipstack_detect() {
-    return ELocalIPStack_IPv4;
-}
-TLocalIPStack local_ipstack_detect_log(std::string& _log) {
-	_log = "no implement";
-   return local_ipstack_detect();
-}
+// #else
+// #include <string>
+// TLocalIPStack local_ipstack_detect() {
+//     return ELocalIPStack_IPv4;
+// }
+// TLocalIPStack local_ipstack_detect_log(std::string& _log) {
+// 	_log = "no implement";
+//    return local_ipstack_detect();
+// }
 
-#endif //__APPLE__
+// #endif //__APPLE__
 
 //TIPNetworkType IPNetworkTypeDetect_Gateway() {
 //    in6_addr addr6_gateway = {0};
