@@ -45,8 +45,8 @@ static const long long kCheckTimeSpanIncrementStep = 10 * 60 * 1000; //10 min
 
 
 static const uint32_t kValidBitsFilter = 0xFFFFFFFF;  //32 bits stands for recent 32 tasks status
-static const uint32_t kMostRecentTaskStartN[2]			={24, 8};
-static const uint32_t kSecondRecentTaskStartN[2] 		={16, 8};
+static const uint32_t kMostRecentTaskStartN[2]			={25, 8};
+static const uint32_t kSecondRecentTaskStartN[2] 		={17, 8};
 //static const uint32_t MOST_OLD_TASK_START_N[2]				={1, 16};
 
 static const uint32_t kCheckifBelowCount = 3;
@@ -95,7 +95,7 @@ static const uint32_t kCheckifAboveCount = 5;
 		uint32_t N_ = (N); \
 		uint32_t START_POS_ = (START_POS);\
 		if (START_POS_>32 || START_POS_<1) {START_POS_=1;} \
-		if (START_POS_+N_>32) {N_=32-START_POS_;}\
+		if (START_POS_+N_-1>32) {N_=32-START_POS_;}\
 		RETURN_RECORD = ((RECORDS << (START_POS_-1)) >> (32-N_)); \
 	}\
 	while(false)
