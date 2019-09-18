@@ -338,7 +338,9 @@ typedef union sockaddr_union {
 static const unsigned int kMaxLoopCount = 10;
 static int
 _test_connect(int pf, struct sockaddr *addr, size_t addrlen, struct sockaddr* local_addr, socklen_t local_addr_len) {
+    xinfo2(TSF"windows start connect pf is %_, ip is %_ ,ip is %_ ", pf, addr->sa_family, addr->sa_data);
     int s = socket(pf, SOCK_DGRAM, IPPROTO_UDP);
+    xinfo2(TSF"windows start connect socket is %_ ", s);
     if (s < 0)
         return 0;
     int ret;
@@ -349,6 +351,7 @@ _test_connect(int pf, struct sockaddr *addr, size_t addrlen, struct sockaddr* lo
     if (loop_count>=kMaxLoopCount) {
     	xerror2(TSF"connect error. loop_count = %_", loop_count);
     }
+    xinfo2(TSF"windows detect result is %_ ", ret);
     int success = (ret == 0);
     if (success) {
         memset(local_addr, 0, sizeof(struct sockaddr_storage));
@@ -376,31 +379,33 @@ _test_connect(int pf, struct sockaddr *addr, size_t addrlen, struct sockaddr* lo
 static int
 _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
 
-	 static  struct sockaddr_in6 sin6_test;
-	    sin6_test.sin6_family = AF_INET6;
-	    sin6_test.sin6_port = 80;
-		sin6_test.sin6_flowinfo = 0;
-		sin6_test.sin6_scope_id = 0;
-        memset(sin6_test.sin6_addr.s6_addr, 0 , sizeof(sin6_test.sin6_addr.s6_addr));
-		// bzero(sin6_test.sin6_addr.s6_addr, sizeof(sin6_test.sin6_addr.s6_addr));
-		sin6_test.sin6_addr.s6_addr[0] = 0x20;
-	    // sockaddr_union addr = { in6:sin6_test };
-        sockaddr_union addr;
-        addr.in6 = sin6_test;
+    xinfo2(TSF"windows start to detect v6");
+
+    static  struct sockaddr_in6 sin6_test;
+    sin6_test.sin6_family = AF_INET6;
+    sin6_test.sin6_port = htons(80);
+    sin6_test.sin6_flowinfo = 0;
+    sin6_test.sin6_scope_id = 0;
+    memset(sin6_test.sin6_addr.s6_addr, 0 , sizeof(sin6_test.sin6_addr.s6_addr));
+    // bzero(sin6_test.sin6_addr.s6_addr, sizeof(sin6_test.sin6_addr.s6_addr));
+    sin6_test.sin6_addr.s6_addr[0] = 0x20;
+    // sockaddr_union addr = { in6:sin6_test };
+    sockaddr_union addr;
+    addr.in6 = sin6_test;
 
     return _test_connect(PF_INET6, &addr.generic, sizeof(addr.in6), local_addr, local_addr_len);
 }
 
 static int
 _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
-
+    xinfo2(TSF"windows start to detect v4");
     // static struct sockaddr_in sin_test = {
     //     sin_family:AF_INET,
     //     sin_port:80,
     // };
     static struct sockaddr_in sin_test;
     sin_test.sin_family = AF_INET;
-    sin_test.sin_port = 80;
+    sin_test.sin_port = htons(80);
     sin_test.sin_addr.S_un.S_addr = htonl(0x08080808L); // 8.8.8.8
     // sockaddr_union addr = { in:sin_test };
     sockaddr_union addr;
@@ -411,6 +416,7 @@ _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
 
 
 TLocalIPStack __local_ipstack_detect(std::string& _log) {
+    xinfo2(TSF"windows __local_ipstack_detect");
     XMessage detail;
     detail("local_ipstack_detect ");
     sockaddr_storage v4_addr = {0};
@@ -421,12 +427,14 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
     if (have_ipv4) { local_stack |= ELocalIPStack_IPv4; }
     if (have_ipv6) { local_stack |= ELocalIPStack_IPv6; }
     
+    xinfo2(TSF"__local_ipstack_detect result v6 %_, v4 %_ ", have_ipv6, have_ipv4);
     detail("have_ipv4:%d have_ipv6:%d \n", have_ipv4, have_ipv6);
 
     return (TLocalIPStack)local_stack;
 }
 
 TLocalIPStack local_ipstack_detect() {
+    xinfo2(TSF"windows start to detect local stack");
     std::string log;
     return __local_ipstack_detect(log);
 }
