@@ -394,10 +394,13 @@ _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
 static int
 _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
 
-    static struct sockaddr_in sin_test = {
-        sin_family:AF_INET,
-        sin_port:80,
-    };
+    // static struct sockaddr_in sin_test = {
+    //     sin_family:AF_INET,
+    //     sin_port:80,
+    // };
+    static struct sockaddr_in sin_test;
+    sin_test.sin_family = AF_INET;
+    sin_test.sin_port = 80;
     sin_test.sin_addr.S_addr = htonl(0x08080808L); // 8.8.8.8
     // sockaddr_union addr = { in:sin_test };
     sockaddr_union addr;
