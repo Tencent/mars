@@ -40,17 +40,26 @@ BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 #define INACTIVE_TIMEOUT (10*60*1000) //ms
 
+#ifdef ANDROID
+static void onAlarm(int64_t id) {
+    Alarm::onAlarmImpl(id);
+}
+#endif
+
 ActiveLogic::ActiveLogic()
 : isforeground_(false), isactive_(true)
 , alarm_(boost::bind(&ActiveLogic::__OnInActive, this), false)
 , lastforegroundchangetime_(::gettickcount())
 {
-    xinfo_function();
+    xinfo_function(TSF"MQ:%_", MessageQueue::GetDefMessageQueue());
 #ifndef __APPLE__
         if (!alarm_.Start(INACTIVE_TIMEOUT))
        	{
             xerror2(TSF"m_alarm.Start false");
     	}
+#endif
+#ifdef ANDROID
+    GetSignalOnAlarm().connect(&onAlarm);
 #endif
 }
 
