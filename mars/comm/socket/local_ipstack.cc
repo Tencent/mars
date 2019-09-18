@@ -356,7 +356,7 @@ _test_connect(int pf, struct sockaddr *addr, size_t addrlen, struct sockaddr* lo
     }
     loop_count = 0;
     do {
-        ret = close(s);
+        ret = closesocket(s);
     } while (ret < 0 && errno == EINTR && loop_count++<kMaxLoopCount);
     if (loop_count>=kMaxLoopCount) {
     	xerror2(TSF"close error. loop_count = %_", loop_count);
@@ -384,7 +384,9 @@ _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
         memset(sin6_test.sin6_addr.s6_addr, 0 , sizeof(sin6_test.sin6_addr.s6_addr));
 		// bzero(sin6_test.sin6_addr.s6_addr, sizeof(sin6_test.sin6_addr.s6_addr));
 		sin6_test.sin6_addr.s6_addr[0] = 0x20;
-	    sockaddr_union addr = { in6:sin6_test };
+	    // sockaddr_union addr = { in6:sin6_test };
+        sockaddr_union addr;
+        addr.in6 = sin6_test;
 
     return _test_connect(PF_INET6, &addr.generic, sizeof(addr.in6), local_addr, local_addr_len);
 }
@@ -397,7 +399,9 @@ _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
         sin_port:80,
     };
     sin_test.sin_addr.S_addr = htonl(0x08080808L); // 8.8.8.8
-    sockaddr_union addr = { in:sin_test };
+    // sockaddr_union addr = { in:sin_test };
+    sockaddr_union addr;
+    addr.in = sin_test;
 
     return _test_connect(PF_INET, &addr.generic, sizeof(addr.in), local_addr, local_addr_len);
 }
