@@ -43,7 +43,7 @@ bool Alarm::Start(int _after, bool _needWake) {
 
     int64_t seq = sg_seq++;
     uint64_t starttime = gettickcount();
-    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, MessageQueue::GetDefMessageQueue(), "Alarm.broadcast"), MessageQueue::MessageTiming(_after+500));
+    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, MessageQueue::GetDefMessageQueue(), "Alarm.broadcast"), MessageQueue::MessageTiming(_after));
 
     if (MessageQueue::KNullPost == broadcast_msg_id_) {
         xerror2(TSF"mq alarm return null post, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
