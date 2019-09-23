@@ -382,14 +382,13 @@ _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
     xinfo2(TSF"windows start to detect v6");
 
     static  struct sockaddr_in6 sin6_test;
+    memset(&sin6_test, 0 , sizeof(struct sockaddr_in6));
     sin6_test.sin6_family = AF_INET6;
     sin6_test.sin6_port = htons(80);
     sin6_test.sin6_flowinfo = 0;
     sin6_test.sin6_scope_id = 0;
-    memset(sin6_test.sin6_addr.s6_addr, 0 , sizeof(sin6_test.sin6_addr.s6_addr));
-    // bzero(sin6_test.sin6_addr.s6_addr, sizeof(sin6_test.sin6_addr.s6_addr));
-    sin6_test.sin6_addr.s6_addr[0] = 0x20;
-    // sockaddr_union addr = { in6:sin6_test };
+    std::string ip = "2000::";
+    inet_pton(AF_INET6, ip.data(), &sin6_test);
     sockaddr_union addr;
     addr.in6 = sin6_test;
 
