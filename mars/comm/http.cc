@@ -406,6 +406,11 @@ bool HeaderFields::IsConnectionClose() const{
         
     return false;
 }
+    
+bool HeaderFields::IsConnectionClose(const std::string& _connection) {
+    if(0 == strcasecmp(_connection.c_str(), KStringClose)) return true;
+    return false;
+}
 
 bool HeaderFields::IsConnectionKeepAlive() const {
     const char* conn = HeaderField(HeaderFields::KStringConnection);    
@@ -413,10 +418,10 @@ bool HeaderFields::IsConnectionKeepAlive() const {
         
     return false;
 }
-
-uint32_t HeaderFields::KeepAliveTimeout() const {
-    if(NULL == HeaderField(HeaderFields::KStringConnection))    return KDefaultKeepAliveTimeout;
-    std::string aliveConfig = (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
+    
+uint32_t HeaderFields::KeepAliveTimeout(const std::string& _timeout) {
+    if(_timeout.empty())    return KDefaultKeepAliveTimeout;
+    std::string aliveConfig = _timeout;
     if(aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
         return KDefaultKeepAliveTimeout;
     }
@@ -436,6 +441,12 @@ uint32_t HeaderFields::KeepAliveTimeout() const {
         iter++;
     }
     return KDefaultKeepAliveTimeout;
+}
+
+uint32_t HeaderFields::KeepAliveTimeout() const {
+    if(NULL == HeaderField(HeaderFields::KStringConnection))    return KDefaultKeepAliveTimeout;
+    std::string aliveConfig = (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
+    return HeaderFields::KeepAliveTimeout(aliveConfig);
 }
 
 uint64_t HeaderFields::ContentLength() const{

@@ -171,6 +171,8 @@ class HeaderFields {
     bool IsTransferEncodingChunked() const;
     bool IsConnectionClose() const;
     bool IsConnectionKeepAlive() const;
+    static bool IsConnectionClose(const std::string& _connection);
+    static uint32_t KeepAliveTimeout(const std::string& _timeout);
     uint64_t ContentLength() const ;
     uint32_t KeepAliveTimeout() const;
 

@@ -259,7 +259,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             int fd = GetCacheSocket(_conn_profile.ip_items[i]);
             if(fd != INVALID_SOCKET) {
                 _conn_profile.conn_rtt = 0;
-                _conn_profile.ip_index = i;
+                _conn_profile.ip_index = (int)i;
                 _conn_profile.conn_cost = 0;
                 _conn_profile.ip_type = _conn_profile.ip_items[i].source_type;
                 _conn_profile.ip = _conn_profile.ip_items[i].str_ip;
