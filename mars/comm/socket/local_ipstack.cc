@@ -323,7 +323,11 @@ static void __local_info(std::string& _log) {
 #include <string>
 #include <WS2tcpip.h>
 #include <winsock.h>
+#include <Iphlpapi.h>
+#include <WinSock2.h>
 
+#pragma comment(lib,"Ws2_32.lib")
+#pragma comment(lib,"Iphlpapi.lib") //需要添加Iphlpapi.lib库
 typedef union sockaddr_union {
     struct sockaddr     generic;
     struct sockaddr_in  in;
@@ -414,14 +418,105 @@ _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
 }
 
 
+
+
+
+static bool GetWinV4GateWay() {
+	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
+	ULONG outBufLen = 0;
+	DWORD dwRetVal = 0;
+	char buff[100];
+	DWORD bufflen = 100;
+    bool result = false;
+
+	GetAdaptersAddresses(AF_UNSPEC, 0, NULL, pAddresses, &outBufLen);
+
+	pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+
+	if ((dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen)) == NO_ERROR) {
+
+		while (pAddresses) {
+			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pAddresses->FirstGatewayAddress;
+			if (gateway) {
+
+				SOCKET_ADDRESS gateway_address = gateway->Address;
+				if (gateway->Address.lpSockaddr->sa_family == AF_INET)
+				{
+					sockaddr_in *sa_in = (sockaddr_in *)gateway->Address.lpSockaddr;
+					xinfo2(TSF"gateway IPV4: %_", inet_ntop(AF_INET, &(sa_in->sin_addr), buff, bufflen));
+					struct sockaddr_in addr;
+					if (inet_pton(AF_INET, buff, &addr.sin_addr) == 1) {
+						xinfo2(TSF"this is true v4 !"); 
+                        result = true;
+					}
+				}
+			}
+			pAddresses = pAddresses->Next;
+		}
+	}
+	else {
+		xinfo2("Call to GetAdaptersAddresses failed.\n");
+	}
+	free(pAddresses);
+	return result;
+}
+
+
+static bool GetWinV6GateWay() {
+	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
+	ULONG outBufLen = 0;
+	DWORD dwRetVal = 0;
+	char buff[100];
+	DWORD bufflen = 100;
+    bool result = false;
+
+	GetAdaptersAddresses(AF_UNSPEC, 0, NULL, pAddresses, &outBufLen);
+
+	pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+
+	if ((dwRetVal = GetAdaptersAddresses(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen)) == NO_ERROR) {
+
+		while (pAddresses) {
+			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pAddresses->FirstGatewayAddress;
+			if (gateway) {
+
+				SOCKET_ADDRESS gateway_address = gateway->Address;
+				if (gateway->Address.lpSockaddr->sa_family == AF_INET6)
+				{
+					sockaddr_in6 *sa_in6 = (sockaddr_in6 *)gateway->Address.lpSockaddr;
+					xinfo2(TSF"gateway IPV6: %_", inet_ntop(AF_INET6, &(sa_in6->sin6_addr), buff, bufflen));
+					struct sockaddr_in6 addr6;
+					if (inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
+						std::string v6_s(buff);
+						if (v6_s == "::") {
+							xinfo2("the v6 is fake!");
+						} else {
+                            result = true;
+                        }
+					}
+				}
+			}
+			pAddresses = pAddresses->Next;
+		}
+	}
+	else {
+		xinfo2("Call to GetAdaptersAddresses failed.");
+	}
+	free(pAddresses);
+	return result;
+}
+
+
 TLocalIPStack __local_ipstack_detect(std::string& _log) {
     xinfo2(TSF"windows __local_ipstack_detect");
     XMessage detail;
     detail("local_ipstack_detect ");
     sockaddr_storage v4_addr = {0};
     sockaddr_storage v6_addr = {0};
-    int have_ipv4 = _have_ipv4((sockaddr*)&v4_addr, sizeof(v4_addr));
-    int have_ipv6 = _have_ipv6((sockaddr*)&v6_addr, sizeof(v6_addr));
+    // int have_ipv4 = _have_ipv4((sockaddr*)&v4_addr, sizeof(v4_addr));
+    // int have_ipv6 = _have_ipv6((sockaddr*)&v6_addr, sizeof(v6_addr));
+    bool have_ipv4 = GetWinV4GateWay();
+    bool have_ipv6 = GetWinV6GateWay();
     int local_stack = 0;
     if (have_ipv4) { local_stack |= ELocalIPStack_IPv4; }
     if (have_ipv6) { local_stack |= ELocalIPStack_IPv6; }
