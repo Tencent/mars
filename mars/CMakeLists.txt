@@ -40,9 +40,9 @@ if(ANDROID)
     get_filename_component(EXPORT_XLOG_EXP_FILE libraries/mars_android_sdk/jni/export.exp ABSOLUTE)
 
     target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections -Wl,--version-script=\"${EXPORT_XLOG_EXP_FILE}\""
+                            xlog
                             ${log-lib}
                             ${z-lib}
-                            xlog
                             mars-boost
                             comm)
  
