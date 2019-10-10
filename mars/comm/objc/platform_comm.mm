@@ -238,7 +238,7 @@ static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
     return kConstSSID1 != _wifi_info.ssid && kConstSSID2 != _wifi_info.ssid; 
 }
 
-bool getCurWifiInfo(WifiInfo& wifiInfo)
+bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
 {
     SCOPE_POOL();
     
@@ -284,7 +284,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     return true;
 #else
     ScopedLock lock(sg_wifiinfo_mutex);
-    if (!sg_wifiinfo.ssid.empty()) {
+    if (!sg_wifiinfo.ssid.empty() && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
         return __WiFiInfoIsValid(wifiInfo);
     }
