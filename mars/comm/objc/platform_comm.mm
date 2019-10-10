@@ -62,10 +62,12 @@ static MarsNetworkStatus __GetNetworkStatus()
 }
 
 static WifiInfo sg_wifiinfo;
+static Mutex sg_wifiinfo_mutex;
 
 void FlushReachability() {
 #if !TARGET_OS_WATCH
     [MarsReachability getCacheReachabilityStatus:YES];
+    ScopedLock lock(sg_wifiinfo_mutex);
     sg_wifiinfo.ssid.clear();
     sg_wifiinfo.bssid.clear();
 #endif
@@ -221,7 +223,7 @@ bool isNetworkConnected()
 #define IWATCH_NET_INFO "IWATCH"
 #define USE_WIRED  "wired"
 
-static bool __WiFiInfoIsValid(WifiInfo& _wifi_info) {
+static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
     // CNCopyCurrentNetworkInfo is now only available to your app in three cases:
     // * Apps with permission to access location
     // * Your app is the currently enabled VPN app
@@ -281,10 +283,12 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     wifiInfo.bssid = IWATCH_NET_INFO;
     return true;
 #else
+    ScopedLock lock(sg_wifiinfo_mutex);
     if (!sg_wifiinfo.ssid.empty()) {
         wifiInfo = sg_wifiinfo;
         return __WiFiInfoIsValid(wifiInfo);
     }
+    lock.unlock();
     NSArray *ifs = nil;
     @synchronized (@"CNCopySupportedInterfaces") {
         ifs = (id)CNCopySupportedInterfaces();
@@ -330,6 +334,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     // Instead, the information returned by default will be:
     // * SSID: “Wi-Fi” or “WLAN” (“WLAN" will be returned for the China SKU)
     // * BSSID: "00:00:00:00:00:00" 
+    lock.lock();
     sg_wifiinfo = wifiInfo;
     xinfo2(TSF"get wifi info:%_", sg_wifiinfo.ssid);
 
