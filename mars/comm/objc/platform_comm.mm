@@ -65,6 +65,7 @@ static WifiInfo sg_wifiinfo;
 static Mutex sg_wifiinfo_mutex;
 
 void FlushReachability() {
+    xinfo_function();
 #if !TARGET_OS_WATCH
     [MarsReachability getCacheReachabilityStatus:YES];
     ScopedLock lock(sg_wifiinfo_mutex);
@@ -240,6 +241,7 @@ static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
 
 bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
 {
+    xinfo_function();
     SCOPE_POOL();
     
 #if TARGET_IPHONE_SIMULATOR
@@ -293,7 +295,10 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
     @synchronized (@"CNCopySupportedInterfaces") {
         ifs = (id)CNCopySupportedInterfaces();
     }
-    if(ifs == nil) return false;
+    if(ifs == nil) {
+        xinfo2(TSF"get wifi info error");
+        return false;
+    }
         
     id info = nil;
     for (NSString *ifnam in ifs) {
@@ -310,6 +315,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
         
     if (info == nil) {
         CFRelease(ifs);
+        xinfo2(TSF"get wifi info error");
         return false;
     }
         
