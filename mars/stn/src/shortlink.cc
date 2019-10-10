@@ -231,7 +231,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         IPPortItem item;
         item.str_ip = "182.254.86.214";
         item.port = 80;
-        item.str_host = _conn_profile.ip_items[0].host;
+        item.str_host = _conn_profile.ip_items[0].str_host;
         item.source_type = kIPSourceDebug;
         _conn_profile.ip_items.clear();
         _conn_profile.ip_items.push_back(item);
