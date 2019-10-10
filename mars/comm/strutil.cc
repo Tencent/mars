@@ -337,7 +337,7 @@ std::string DigestToBase16(const uint8_t *digest, size_t length){
     std::string ret;
     ret.resize(length * 2);
     
-    for (int i = 0, j = 0; i < length; i++, j += 2) {
+    for (size_t i = 0, j = 0; i < length; i++, j += 2) {
         uint8_t a = digest[i];
         ret[j] = zEncode[(a >> 4) & 0xf];
         ret[j + 1] = zEncode[a & 0xf];

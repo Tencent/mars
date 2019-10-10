@@ -226,6 +226,16 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 			proxy_ip = _conn_profile.proxy_info.ip;
         }
     }
+
+    if(outter_vec_addr_.empty() && !_conn_profile.ip_items.empty()) {
+        IPPortItem item;
+        item.str_ip = "182.254.86.214";
+        item.port = 80;
+        item.str_host = _conn_profile.ip_items[0].host;
+        item.source_type = kIPSourceDebug;
+        _conn_profile.ip_items.clear();
+        _conn_profile.ip_items.push_back(item);
+    }
     
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
         vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(isnat64));
