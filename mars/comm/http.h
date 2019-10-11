@@ -157,6 +157,7 @@ class HeaderFields {
     static const char* const KStringLocation;
     static const char* const KStringReferer;
     static const char* const kStringServer;
+    static const char* const KStringKeepalive;
 
     void HeaderFiled(const char* _name, const char* _value);
     void HeaderFiled(const std::pair<const std::string, std::string>& _headerfield);
@@ -169,7 +170,9 @@ class HeaderFields {
 
     bool IsTransferEncodingChunked() const;
     bool IsConnectionClose() const;
+    bool IsConnectionKeepAlive() const;
     uint64_t ContentLength() const ;
+    uint32_t KeepAliveTimeout() const;
 
     bool Range(long& _start, long& _end) const;
     bool ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const;
@@ -316,7 +319,7 @@ class Parser {
     Parser& operator=(const Parser&);
 
   public:
-    TRecvStatus Recv(const void* _buffer, size_t _length, size_t* consumed_bytes = nullptr);
+    TRecvStatus Recv(const void* _buffer, size_t _length, size_t* consumed_bytes = nullptr, bool only_parse_header = false);
     TRecvStatus Recv(AutoBuffer& _recv_buffer);
     TRecvStatus RecvStatus() const;
 

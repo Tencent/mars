@@ -23,6 +23,7 @@
 
 #include <list>
 #include <stdint.h>
+#include <map>
 
 #include "boost/function.hpp"
 
@@ -31,6 +32,7 @@
 #include "mars/stn/task_profile.h"
 
 #include "shortlink.h"
+#include "socket_pool.h"
 
 class AutoBuffer;
 
@@ -83,6 +85,7 @@ class ShortLinkTaskManager {
     std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
 
     void __DeleteShortLink(intptr_t& _running_id);
+    SOCKET __OnGetCacheSocket(const IPPortItem& _address);
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;
@@ -96,9 +99,10 @@ class ShortLinkTaskManager {
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;
 #endif
+    SocketPool socket_pool_;
 };
         
-    }
+}
 }
 
 

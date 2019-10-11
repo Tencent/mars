@@ -57,6 +57,16 @@ static unsigned int KBufferSize = 8 * 1024;
 namespace mars{
 namespace stn{
 
+bool CheckKeepAlive(const Task& _task) {
+    auto iter = _task.headers.begin();
+    while(iter != _task.headers.end()) {
+        if(iter->first == http::HeaderFields::KStringConnection && iter->second == http::HeaderFields::KStringKeepalive)
+            return true;
+        iter++;
+    }
+    return false;
+}
+
 class ShortLinkConnectObserver : public MComplexConnect {
   public:
     ShortLinkConnectObserver(ShortLink& _shortlink): shortlink_(_shortlink), rtt_(0), last_err_(-1) {
@@ -108,6 +118,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
 	, thread_(boost::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
+    , is_keep_alive_(CheckKeepAlive(_task))
     {
     xinfo2(TSF"%_, handler:(%_,%_)",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq);
     xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
@@ -151,8 +162,12 @@ void ShortLink::__Run() {
 
     conn_profile.disconn_signal = ::getSignal(::getNetInfo() == kWifi);
     __UpdateProfile(conn_profile);
-
-    socket_close(fd_socket);
+    
+    if(!is_keep_alive_) {
+        socket_close(fd_socket);
+    } else {
+        xinfo2(TSF"keep alive, do not close socket:%_", fd_socket);
+    }
 }
 
 
@@ -230,13 +245,38 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_type = kIPSourceProxy;
     }
 
-    xinfo2(TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items));
+    xinfo2(TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items), is_keep_alive_);
 
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
         __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile, false);
         delete proxy_addr;
         return INVALID_SOCKET;
+    }
+
+    if(_conn_profile.ip_type != kIPSourceProxy && is_keep_alive_) {
+        for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
+            int fd = GetCacheSocket(_conn_profile.ip_items[i]);
+            if(fd != INVALID_SOCKET) {
+                _conn_profile.conn_rtt = 0;
+                _conn_profile.ip_index = i;
+                _conn_profile.conn_cost = 0;
+                _conn_profile.ip_type = _conn_profile.ip_items[i].source_type;
+                _conn_profile.ip = _conn_profile.ip_items[i].str_ip;
+                _conn_profile.conn_time = gettickcount();
+                _conn_profile.local_ip = socket_address::getsockname(fd).ip();
+                _conn_profile.local_port = socket_address::getsockname(fd).port();
+                _conn_profile.nat64 = isnat64;
+                _conn_profile.dns_endtime = ::gettickcount();
+                _conn_profile.host = _conn_profile.ip_items[i].str_host;
+                _conn_profile.port = _conn_profile.ip_items[i].port;
+                _conn_profile.socket_fd = fd;
+                _conn_profile.is_reused_fd = true;
+                __UpdateProfile(_conn_profile);
+                xinfo2(TSF"reused socket:%_", fd);
+                return fd;
+            }
+        }
     }
 
     _conn_profile.host = _conn_profile.ip_items[0].str_host;
@@ -455,6 +495,18 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			break;
 		}
 		else if (parse_status == http::Parser::kEnd) {
+            if(is_keep_alive_) {    //parse server keep-alive config
+                bool isKeepAlive = parser.Fields().IsConnectionKeepAlive();
+                xwarn2_if(!isKeepAlive, "request keep-alive, but server return close");
+                if(isKeepAlive) {
+                    uint32_t timeout = parser.Fields().KeepAliveTimeout();
+                    _conn_profile.keepalive_timeout = timeout;
+                    _conn_profile.socket_fd = _socket;
+                } else {
+                    is_keep_alive_ = false;
+                }
+            }
+
 			if (status_code != 200) {
 				xerror2(TSF"@%0, status_code != 200, code:%1, http dump:%2 \n headers size:%3", this, status_code, xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
 				__RunResponseError(kEctHttp, status_code, _conn_profile, true);

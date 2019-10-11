@@ -309,15 +309,17 @@ const char* const HeaderFields::KStringRange = "Range";
 const char* const HeaderFields::KStringLocation = "Location";
 const char* const HeaderFields::KStringReferer = "Referer";
 const char* const HeaderFields::kStringServer = "Server";
+const char* const HeaderFields::KStringKeepalive = "Keep-Alive";
 
 const char* const KStringChunked = "chunked";
 const char* const KStringClose = "close";
-const char* const KStringKeepalive = "Keep-Alive";
 const char* const KStringAcceptAll = "*/*";
 const char* const KStringAcceptEncodingDeflate = "deflate";
 const char* const KStringAcceptEncodingGzip = "gzip";
 const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
+const char* const KStringKeepAliveTimeout = "timeout=";
+const uint32_t KDefaultKeepAliveTimeout = 5;
 
 
 std::pair<const std::string, std::string> HeaderFields::MakeContentLength(uint64_t _len) {
@@ -355,11 +357,11 @@ std::pair<const std::string, std::string> HeaderFields::MakeContentTypeOctetStre
 
 
 void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
-    headers_.insert(std::pair<const std::string, std::string>(_name, _value));
+    InsertOrUpdate(std::make_pair(_name, _value));
 }
 
 void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& _headerfield) {
-    headers_.insert(_headerfield);
+    InsertOrUpdate(_headerfield);
 }
     
 void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
@@ -400,10 +402,40 @@ bool HeaderFields::IsTransferEncodingChunked() const{
 }
 bool HeaderFields::IsConnectionClose() const{
     const char* conn = HeaderField(HeaderFields::KStringConnection);
-        
     if (conn && 0 == strcasecmp(conn, KStringClose)) return true;
         
     return false;
+}
+
+bool HeaderFields::IsConnectionKeepAlive() const {
+    const char* conn = HeaderField(HeaderFields::KStringConnection);    
+    if (conn && 0 == strcasecmp(conn, KStringKeepalive)) return true;
+        
+    return false;
+}
+
+uint32_t HeaderFields::KeepAliveTimeout() const {
+    if(NULL == HeaderField(HeaderFields::KStringConnection))    return KDefaultKeepAliveTimeout;
+    std::string aliveConfig = (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
+    if(aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
+        return KDefaultKeepAliveTimeout;
+    }
+    
+    std::vector<std::string> tokens;
+    strutil::SplitToken(aliveConfig, ",", tokens);
+    auto iter = tokens.begin();
+    while(iter != tokens.end()) {
+        size_t pos = iter->find(KStringKeepAliveTimeout);
+        if(pos != std::string::npos) {
+            const char* value = iter->c_str() + sizeof(KStringKeepAliveTimeout);
+            int timeout = (int)strtol(value, NULL, 10);
+            if(timeout > 0 && timeout < 60)
+                return (uint32_t)timeout;
+            return KDefaultKeepAliveTimeout;
+        }
+        iter++;
+    }
+    return KDefaultKeepAliveTimeout;
 }
 
 uint64_t HeaderFields::ContentLength() const{
@@ -688,7 +720,7 @@ Parser::~Parser() {
     }
 }
 
-Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes) {
+Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes, bool only_parse_header/* = false*/) {
     if((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_==kBody) {
         xwarn2(TSF"status:%_", recvstatus_);
         recvstatus_ = kEnd;
@@ -811,6 +843,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                 }
                 
                 headerlength_ = headerslength;
+                if (only_parse_header){
+                    xwarn2(TSF"only parse headers.");
+                    return recvstatus_;
+                }
             }
                 break;
                 
