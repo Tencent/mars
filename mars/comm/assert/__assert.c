@@ -29,15 +29,11 @@ void __assert_rtn(const char *, const char *, int, const char *) __dead2;
 #define snprintf _snprintf
 #endif
 
-#ifdef DEBUG
-static int sg_enable_assert = 1;
+#ifndef NDEBUG
+#define IS_ASSERT_ENABLE() 1
 #else
-static int sg_enable_assert = 0;
+#define IS_ASSERT_ENABLE() 0
 #endif
-
-void ENABLE_ASSERT() { sg_enable_assert = 1;}
-void DISABLE_ASSERT() { sg_enable_assert = 0; }
-int IS_ASSERT_ENABLE() { return sg_enable_assert;}
 
 EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression) {
     XLoggerInfo info= {0};

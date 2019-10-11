@@ -80,7 +80,7 @@ static void __GetIP() {
         //
         xgroup2_define(log_group);
         std::vector<socket_address> dnssvraddrs;
-        getdnssvraddrs(dnssvraddrs);
+        mars::comm::getdnssvraddrs(dnssvraddrs);
         xinfo2("dns server:") >> log_group;
         for (std::vector<socket_address>::iterator iter = dnssvraddrs.begin(); iter != dnssvraddrs.end(); ++iter) {
             xinfo2(TSF"%_:%_ ", iter->ip(), iter->port()) >> log_group;

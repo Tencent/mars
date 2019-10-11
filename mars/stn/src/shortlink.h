@@ -56,6 +56,7 @@ class ShortLink : public ShortLinkInterface {
 
   protected:
     virtual void 	 SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
+    virtual bool IsKeepAlive() const { return is_keep_alive_; }
 
     virtual void     __Run();
     virtual SOCKET   __RunConnect(ConnectProfile& _conn_profile);
@@ -83,6 +84,7 @@ class ShortLink : public ShortLinkInterface {
     std::vector<IPPortItem>        outter_vec_addr_;
     
     boost::scoped_ptr<shortlink_tracker> tracker_;
+    bool                            is_keep_alive_;
 };
         
 }}

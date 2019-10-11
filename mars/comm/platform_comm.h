@@ -43,8 +43,8 @@ int getNetInfo();
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
 
 struct WifiInfo {
-    std::string ssid;
-    std::string bssid;
+    std::string ssid = "WiFi";
+    std::string bssid = "WiFi";
 };
 bool getCurWifiInfo(WifiInfo& _wifi_info);
 
