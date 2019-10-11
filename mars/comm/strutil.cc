@@ -152,14 +152,14 @@ std::string& URLEncode(const std::string& _url, std::string& _encode_url) {
 #define TOLOWER(T) T& ToLower(T& str)\
 {\
     T& t = str;\
-	std::transform(t.begin(), t.end(), t.begin(), ::tolower);\
+    std::transform(t.begin(), t.end(), t.begin(), ::tolower);\
     return t;\
 }
 
 #define TOUPPER(T) T& ToUpper(T& str)\
 {\
     T& t = str;\
-	std::transform(t.begin(), t.end(), t.begin(), ::toupper);\
+    std::transform(t.begin(), t.end(), t.begin(), ::toupper);\
     return t;\
 }
 
@@ -222,29 +222,33 @@ SPLITTOKEN(std::wstring)
 #ifdef WIN32
 #include <Windows.h>
 std::wstring String2WString(const std::string& _src, unsigned int _cp) {
-	const int len = static_cast<int>(_src.length());
-	std::wstring enc;
-	const int req = MultiByteToWideChar(_cp, 0, _src.c_str(), len, NULL, 0);
-	if (req > 0) {
-		enc.resize(static_cast<size_t>(req));
-		MultiByteToWideChar(_cp, 0, _src.c_str(), len, &enc[0], req);
-	}
-	return enc;
+    const int len = static_cast<int>(_src.length());
+    std::wstring enc;
+    const int req = MultiByteToWideChar(_cp, 0, _src.c_str(), len, NULL, 0);
+    if (req > 0) {
+        enc.resize(static_cast<size_t>(req));
+        MultiByteToWideChar(_cp, 0, _src.c_str(), len, &enc[0], req);
+    }
+    return enc;
 }
 
 std::wstring UTF8String2Wstring(const std::string& _src) {
-	return String2WString(_src, CP_UTF8);
+    return String2WString(_src, CP_UTF8);
 }
 #endif
 std::string Hex2Str(const char* _str, unsigned int _len) {
-    std::string outstr="";
-    for(unsigned int i = 0; i< _len;i++) {
-        char tmp[8];
-        memset(tmp,0,sizeof(tmp));
-        snprintf(tmp,sizeof(tmp)-1,"%02x",(unsigned char)_str[i]);
-        std::string tmpstr = tmp;
-        outstr = outstr+tmpstr;
-
+    std::string outstr = "";
+    static const char* HEX = "0123456789abcdef";
+    const uint8_t* input = (const uint8_t*)_str;
+    uint8_t t, a, b;
+    for (unsigned int i = 0; i < _len; i++) {
+        t = input[i];
+        // byte a = t / 16;
+        a = t >> 4;
+        // byte b = t % 16;
+        b = t & 0x0f;
+        outstr.append(1, HEX[a]);
+        outstr.append(1, HEX[b]);
     }
     return outstr;
 }
@@ -262,7 +266,7 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
     for(unsigned int i = 0; i< length;i++) {
         char tmp[4];
         
-        memset(tmp,0,sizeof(tmp));
+        memset(tmp, 0, sizeof(tmp));
         tmp[0] = ptr[i*2];
         tmp[1] = ptr[i*2+1];
         char *p = NULL;
@@ -276,15 +280,15 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
     
 
 std::string ReplaceChar(const char* const input_str, char be_replaced, char replace_with) {
-	std::string output_str(input_str);
-	size_t len = output_str.size();
-	xassert2(len<16*1024, TSF"input_str:%_", input_str);
-	for(size_t i=0; i<len; ++i) {
-		if (be_replaced == output_str[i]) {
-			output_str[i] = replace_with;
-		}
-	}
-	return output_str;
+    std::string output_str(input_str);
+    size_t len = output_str.size();
+    xassert2(len<16*1024, TSF"input_str:%_", input_str);
+    for(size_t i=0; i<len; ++i) {
+        if (be_replaced == output_str[i]) {
+            output_str[i] = replace_with;
+        }
+    }
+    return output_str;
 }
 std::string GetFileNameFromPath(const char* _path) {
     if (NULL == _path) return "";

@@ -89,7 +89,7 @@ def build_windows_xlog(incremental, tag='', config='Release'):
     headers = dict()
     headers.update(XLOG_COPY_HEADER_FILES)
     headers.update(WIN_COPY_EXT_FILES)
-    copy_file_mapping(headers, '../../', WIN_RESULT_DIR)
+    copy_file_mapping(headers, '../', WIN_RESULT_DIR)
     
     sub_folders = ["comm", "boost", "xlog"]
     copy_windows_pdb(BUILD_OUT_PATH, sub_folders, config, WIN_LIBS_INSTALL_PATH)

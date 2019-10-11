@@ -15,7 +15,7 @@ include_directories(..)
 include_directories(../..)
 include_directories(../comm)
 include_directories(../../..)
-include_directories(../openssl/include)
+include_directories(../../../mars/mars/openssl/include)
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/*.cc src/*.h)
 source_group(src FILES ${SELF_TEMP_SRC_FILES})
