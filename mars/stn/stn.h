@@ -97,7 +97,7 @@ public:
     void*       user_context;  // user
     size_t      user_context_length;
     std::string report_arg;  // use for cgi report
-    std::string channel_name;
+    std::string channel_name;   //longlink channel id
     std::string group_name;     //use for select decode method
     
     std::vector<std::string> shortlink_host_list;
@@ -112,7 +112,7 @@ public:
     bool IsMain() const {
         return isMain;
     }
-    std::string     name;
+    std::string     name;   //channel_id
     std::vector<std::string> host_list;
     bool            is_keep_alive;     //if false, reconnect trig by task    
     std::string     group;   
