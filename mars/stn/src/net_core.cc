@@ -506,7 +506,7 @@ void NetCore::MakeSureLongLinkConnect() {
 bool NetCore::LongLinkIsConnected() {
 #ifdef USE_LONG_LINK
     return LongLink::kConnected == longlink_task_manager_->DefaultLongLink()->Channel()->ConnectStatus();
-#elif
+#else
     return false;
 #endif
 }
