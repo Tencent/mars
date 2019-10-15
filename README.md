@@ -1,9 +1,9 @@
 ## Mars
 
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/Tencent/mars/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-1.2.2-red.svg)](https://github.com/Tencent/mars/releases)
+[![Release Version](https://img.shields.io/badge/release-1.2.3-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
-[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.2.2-red.svg)](https://github.com/Tencent/mars/wiki)
+[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.2.3-red.svg)](https://github.com/Tencent/mars/wiki)
 [![WeChat Approved](https://img.shields.io/badge/Platform(cmake)-%20iOS%20%7C%20OS%20X%20%7C%20Android(ndk16b)%20%7C%20Windows(vs2015)%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 (中文版本请参看[这里](#mars_cn))
@@ -41,7 +41,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.0'
+    compile 'com.tencent.mars:mars-wrapper:1.2.3'
 }
 ```
 
@@ -53,7 +53,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.2'
+    compile 'com.tencent.mars:mars-core:1.2.3'
 }
 ```
 **OR**
@@ -62,7 +62,7 @@ If you just want to user xlog, add dependencies by adding the following lines to
 note: xlog is included in mars-core and mars-wrapper.
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.0.7'
+    compile 'com.tencent.mars:mars-xlog:1.2.3'
 }
 ```
 
@@ -393,9 +393,9 @@ Mars is under the MIT license. See the [LICENSE](https://github.com/Tencent/mars
 ## <a name="mars_cn">Mars</a>
 
 [![license](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/Tencent/mars/blob/master/LICENSE)
-[![Release Version](https://img.shields.io/badge/release-1.1.9-red.svg)](https://github.com/Tencent/mars/releases)
+[![Release Version](https://img.shields.io/badge/release-1.2.3-red.svg)](https://github.com/Tencent/mars/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/mars/pulls)
-[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.1.9-red.svg)](https://github.com/Tencent/mars/wiki)
+[![WeChat Approved](https://img.shields.io/badge/Wechat_Approved-1.2.3-red.svg)](https://github.com/Tencent/mars/wiki)
 [![WeChat Approved](https://img.shields.io/badge/Platform-%20iOS%20%7C%20OS%20X%20%7C%20Android%20-brightgreen.svg)](https://github.com/Tencent/mars/wiki)
 
 Mars 是微信官方的跨平台跨业务的终端基础组件。
@@ -427,7 +427,7 @@ gradle 接入我们提供了两种接入方式：[mars-wrapper](#wrapper) 或者
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.0'
+    compile 'com.tencent.mars:mars-wrapper:1.2.3'
 }
 ```
 
@@ -440,7 +440,7 @@ dependencies {
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.2'
+    compile 'com.tencent.mars:mars-core:1.2.3'
 }
 ```
 **或者**
@@ -448,7 +448,7 @@ dependencies {
 如果只想使用 xlog,可以只加 xlog 的依赖(mars-core,mars-wrapper 中都已经包括 xlog)：
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.0.7'
+    compile 'com.tencent.mars:mars-xlog:1.2.3'
 }
 ```
 接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 或者 mars-xlog 的依赖

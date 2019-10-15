@@ -8,6 +8,8 @@ import com.tencent.mars.Mars;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StnLogic {
@@ -42,6 +44,7 @@ public class StnLogic {
 
         public Task() {
             this.taskID = ai.incrementAndGet();
+            this.headers = new HashMap<>();
         }
 
         public Task(final int channelselect, final int cmdid, final String cgi, final ArrayList<String> shortLinkHostList) {
@@ -63,6 +66,7 @@ public class StnLogic {
             this.serverProcessCost = 0;
             this.totalTimeout = 0;
             this.userContext = null;
+            this.headers = new HashMap<>();
         }
 
         //require
@@ -86,6 +90,7 @@ public class StnLogic {
         public int totalTimeout;    	//total timeout, in ms
         public Object userContext;      //user context
         public String reportArg;
+        public Map<String, String> headers;
     }
 
     public static final int INVALID_TASK_ID = -1;
@@ -174,7 +179,7 @@ public class StnLogic {
          * SDK要求上层做认证操作(可能新发起一个AUTH CGI)
          * @return
          */
-        boolean makesureAuthed();
+        boolean makesureAuthed(String host);
 
         /**
          * SDK要求上层做域名解析.上层可以实现传统DNS解析,或者自己实现的域名/IP映射
@@ -198,7 +203,7 @@ public class StnLogic {
          * @param errCode   组包的错误码
          * @return
          */
-        boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect);
+        boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect, final String host);
 
         /**
          * SDK要求上层对TASK解包
@@ -372,13 +377,13 @@ public class StnLogic {
      *  要求上层进行AUTH操作.
      *  如果一个TASK要求AUTH状态而当前没有AUTH态,组件就会回调此方法
      */
-    private static boolean makesureAuthed() {
+    private static boolean makesureAuthed(String host) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return false;
             }
-            return callBack.makesureAuthed();
+            return callBack.makesureAuthed(host);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -431,13 +436,13 @@ public class StnLogic {
      * @return
      */
 
-    private static boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect) {
+    private static boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect, final String host) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return false;
             }
-            return callBack.req2Buf(taskID, userContext, reqBuffer, errCode, channelSelect);
+            return callBack.req2Buf(taskID, userContext, reqBuffer, errCode, channelSelect, host);
         } catch (Exception e) {
             e.printStackTrace();
         }
