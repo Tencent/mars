@@ -328,12 +328,17 @@ size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos
 }
     
 std::string MD5DigestToBase16(const uint8_t digest[16]){
+    return DigestToBase16(&digest[0], 16);
+}
+
+std::string DigestToBase16(const uint8_t *digest, size_t length){
+    assert(length % 2 == 0);
     static char const zEncode[] = "0123456789abcdef";
     
     std::string ret;
-    ret.resize(32);
+    ret.resize(length * 2);
     
-    for (int i = 0, j = 0; i < 16; i++, j += 2) {
+    for (size_t i = 0, j = 0; i < length; i++, j += 2) {
         uint8_t a = digest[i];
         ret[j] = zEncode[(a >> 4) & 0xf];
         ret[j + 1] = zEncode[a & 0xf];

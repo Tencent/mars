@@ -61,9 +61,15 @@ static MarsNetworkStatus __GetNetworkStatus()
 #endif
 }
 
+static WifiInfo sg_wifiinfo;
+static Mutex sg_wifiinfo_mutex;
+
 void FlushReachability() {
 #if !TARGET_OS_WATCH
-   [MarsReachability getCacheReachabilityStatus:YES];
+    [MarsReachability getCacheReachabilityStatus:YES];
+    ScopedLock lock(sg_wifiinfo_mutex);
+    sg_wifiinfo.ssid.clear();
+    sg_wifiinfo.bssid.clear();
 #endif
 }
 
@@ -171,9 +177,6 @@ unsigned int getSignal(bool isWifi){
     return (unsigned int)0;
 }
 
-
-
-
 void ConsoleLog(const XLoggerInfo* _info, const char* _log)
 {
     SCOPE_POOL();
@@ -197,7 +200,6 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
     char log[16 * 1024] = {0};
     snprintf(log, sizeof(log), "[%s][%s][%s, %s, %d][%s", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, strFuncName, _info->line, _log);
     
-    
     NSLog(@"%@", [NSString stringWithUTF8String:log]);
 }
 
@@ -211,7 +213,7 @@ bool isNetworkConnected()
         case ReachableViaWiFi:
             return true;
         case ReachableViaWWAN:
-return true;
+            return true;
         default:
             return false;
     }
@@ -221,7 +223,22 @@ return true;
 #define IWATCH_NET_INFO "IWATCH"
 #define USE_WIRED  "wired"
 
-bool getCurWifiInfo(WifiInfo& wifiInfo)
+static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
+    // CNCopyCurrentNetworkInfo is now only available to your app in three cases:
+    // * Apps with permission to access location
+    // * Your app is the currently enabled VPN app
+    // * Your app configured the WiFi network the device is currently using via NEHotspotConfiguration
+    // otherwise return nil.
+    // But if you use 'NEHotspotConfiguration' and without permission to access location
+    // Instead, the information returned by default will be:
+    // * SSID: “Wi-Fi” or “WLAN” (“WLAN" will be returned for the China SKU)
+    // * BSSID: "00:00:00:00:00:00" 
+    static const std::string kConstSSID1 = "Wi-Fi";
+    static const std::string kConstSSID2 = "WLAN";
+    return kConstSSID1 != _wifi_info.ssid && kConstSSID2 != _wifi_info.ssid; 
+}
+
+bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
 {
     SCOPE_POOL();
     
@@ -266,6 +283,12 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     wifiInfo.bssid = IWATCH_NET_INFO;
     return true;
 #else
+    ScopedLock lock(sg_wifiinfo_mutex);
+    if (!sg_wifiinfo.ssid.empty() && !_force_refresh) {
+        wifiInfo = sg_wifiinfo;
+        return __WiFiInfoIsValid(wifiInfo);
+    }
+    lock.unlock();
     NSArray *ifs = nil;
     @synchronized (@"CNCopySupportedInterfaces") {
         ifs = (id)CNCopySupportedInterfaces();
@@ -311,10 +334,11 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     // Instead, the information returned by default will be:
     // * SSID: “Wi-Fi” or “WLAN” (“WLAN" will be returned for the China SKU)
     // * BSSID: "00:00:00:00:00:00" 
-    static const std::string kConstSSID1 = "Wi-Fi";
-    static const std::string kConstSSID2 = "WLAN";
-    
-    return kConstSSID1 != wifiInfo.ssid && kConstSSID2 != wifiInfo.ssid;
+    lock.lock();
+    sg_wifiinfo = wifiInfo;
+    xinfo2(TSF"get wifi info:%_", sg_wifiinfo.ssid);
+
+    return __WiFiInfoIsValid(wifiInfo);
 #endif
 }
 

@@ -46,7 +46,7 @@ struct WifiInfo {
     std::string ssid = "WiFi";
     std::string bssid = "WiFi";
 };
-bool getCurWifiInfo(WifiInfo& _wifi_info);
+bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false);
 
 struct SIMInfo {
     std::string isp_code;
