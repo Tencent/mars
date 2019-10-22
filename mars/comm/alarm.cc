@@ -28,7 +28,8 @@
 
 static Mutex sg_lock;
 static int64_t sg_seq = 1;
-static const MessageQueue::MessageTitle_t KALARM_MESSAGETITLE(0x1F1FF);
+const MessageQueue::MessageTitle_t KALARM_MESSAGETITLE(0x1F1FF);
+const MessageQueue::MessageTitle_t KALARM_SYSTEMTITLE(0x1F1F1E);
 
 #define MAX_LOCK_TIME (5000)
 #define INVAILD_SEQ (0)
@@ -42,7 +43,7 @@ bool Alarm::Start(int _after, bool _needWake) {
 
     int64_t seq = sg_seq++;
     uint64_t starttime = gettickcount();
-    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, 1, "Alarm.broadcast"), MessageQueue::MessageTiming(_after));
+    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, MessageQueue::GetDefMessageQueue(), "Alarm.broadcast"), MessageQueue::MessageTiming(_after));
 
     if (MessageQueue::KNullPost == broadcast_msg_id_) {
         xerror2(TSF"mq alarm return null post, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
@@ -65,7 +66,7 @@ bool Alarm::Start(int _after, bool _needWake) {
     endtime_ = 0;
     after_ = _after;
     seq_ = seq;
-    xinfo2(TSF"alarm id:%0, after:%1, seq:%2, po.reg.q:%3,po.reg.s:%4,po.s:%5", (uintptr_t)this, _after, seq, broadcast_msg_id_.reg.queue, broadcast_msg_id_.reg.seq, broadcast_msg_id_.seq);
+    xinfo2(TSF"alarm id:%_, after:%_, seq:%_, po.reg.q:%_,po.reg.s:%_,po.s:%_, MQ:%_", (uintptr_t)this, _after, seq, broadcast_msg_id_.reg.queue, broadcast_msg_id_.reg.seq, broadcast_msg_id_.seq, MessageQueue::GetDefMessageQueue());
 
     return true;
 }
@@ -118,7 +119,7 @@ int64_t Alarm::ElapseTime() const {
 }
 
 void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Message& _message) {
-    if (KALARM_MESSAGETITLE != _message.title) return;
+    if (KALARM_MESSAGETITLE != _message.title && KALARM_SYSTEMTITLE != _message.title) return;
 
     ScopedLock lock(sg_lock);
 
@@ -127,13 +128,21 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
         return;
     }
 
-    if (seq_ != boost::any_cast<int64_t>(_message.body1)) return;
+    bool isSystemAlarm = (KALARM_SYSTEMTITLE == _message.title);
+    MessageQueue::MessageQueue_t fromMQ = boost::any_cast<MessageQueue::MessageQueue_t>(_message.body2);
+
+    if (seq_ != boost::any_cast<int64_t>(_message.body1) || fromMQ != MessageQueue::GetDefMessageQueue()) {
+        if(fromMQ != MessageQueue::GetDefMessageQueue()) {
+            xinfo2(TSF"not match:(%_, %_), (%_, %_)", seq_, boost::any_cast<int64_t>(_message.body1), MessageQueue::GetDefMessageQueue(), fromMQ);
+        }
+        return;
+    }
 
     uint64_t  curtime = gettickcount();
     int64_t   elapseTime = curtime - starttime_;
     int64_t   missTime = after_ - elapseTime;
     xgroup2_define(group);
-    xinfo2(TSF"OnAlarm id:%_, seq:%_, elapsed:%_, after:%_, miss:%_, android alarm:%_, ", (uintptr_t)this, seq_, elapseTime, after_, -missTime, !bool(boost::any_cast<int>(_message.body2))) >> group;
+    xinfo2(TSF"OnAlarm id:%_, seq:%_, elapsed:%_, after:%_, miss:%_, android alarm:%_, MQ:%_", (uintptr_t)this, seq_, elapseTime, after_, -missTime, isSystemAlarm, MessageQueue::GetDefMessageQueue()) >> group;
 
 #ifdef ANDROID
 
@@ -175,5 +184,8 @@ const Thread& Alarm::RunThread() const {
 }
 
 #ifdef ANDROID
-#include "jni/OnAlarm.inl"
+void Alarm::onAlarmImpl(int64_t _id) {
+    xinfo2(TSF"onAlarm id:%_, MQ:%_", _id, MessageQueue::GetDefMessageQueue());
+    MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_SYSTEMTITLE, _id, MessageQueue::GetDefMessageQueue(), "KALARM_SYSTEMTITLE.id"));
+}
 #endif
