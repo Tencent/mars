@@ -34,7 +34,6 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/platform_comm.h"
-#include "mars/comm/alarm.h"
 #include "mars/boost/signals2.hpp"
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
@@ -126,13 +125,6 @@ static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) 
     }
 }
 
-#ifdef ANDROID
-//must dipatch by function in stn_logic.cc, to avoid static member bug
-static void onAlarm(int64_t _id) {
-    Alarm::onAlarmImpl(_id);
-}
-#endif
-
 static void __initbind_baseprjevent() {
 
 #ifdef WIN32
@@ -141,7 +133,6 @@ static void __initbind_baseprjevent() {
 
 #ifdef ANDROID
 	mars::baseevent::addLoadModule(kLibName);
-    GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
