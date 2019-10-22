@@ -74,7 +74,7 @@ namespace stn {
                 if(iter->IsSame(_item)) {
                     if(iter->HasTimeout() || _IsSocketClosed(iter->socket_fd)) {
                         xinfo2(TSF"remove timeout or closed socket, is timeout:%_", iter->HasTimeout());
-                        close(iter->socket_fd);
+                        socket_close(iter->socket_fd);
                         iter = socket_pool_.erase(iter);
                         continue;
                     }
@@ -103,7 +103,7 @@ namespace stn {
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->HasTimeout()) {
-                    close(iter->socket_fd);
+                    socket_close(iter->socket_fd);
                     xinfo2(TSF"remove timeout socket: ip:%_, port:%_, host:%_, fd:%_", iter->address_info.str_ip, iter->address_info.port, iter->address_info.str_host, iter->socket_fd);
                     iter = socket_pool_.erase(iter);
                     continue;
@@ -118,7 +118,7 @@ namespace stn {
             xinfo2(TSF"clear cache sockets");
             std::for_each(socket_pool_.begin(), socket_pool_.end(), [](CacheSocketItem& value) {
                 if(value.socket_fd != INVALID_SOCKET)
-                    close(value.socket_fd);
+                    socket_close(value.socket_fd);
             });
             socket_pool_.clear();
         }
