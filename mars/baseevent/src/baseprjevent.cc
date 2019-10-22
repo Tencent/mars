@@ -60,3 +60,8 @@ boost::signals2::signal<void (const char* _tag, ssize_t _send, ssize_t _recv)>& 
     static boost::signals2::signal<void (const char* _tag, ssize_t _send, ssize_t _recv)> SignalOnNetworkDataChange;
     return SignalOnNetworkDataChange;
 }
+
+boost::signals2::signal<void (int64_t _id)>& GetSignalOnAlarm() {
+    static boost::signals2::signal<void (int64_t _id)> SignalOnAlarm;
+    return SignalOnAlarm;
+}
