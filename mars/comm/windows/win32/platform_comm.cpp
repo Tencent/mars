@@ -48,7 +48,7 @@ bool isNetworkConnected() {
 static const char* const SIMULATOR_NET_INFO = "SIMULATOR";
 static const char* const USE_WIRED = "wired";
 
-bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
+bool getCurWifiInfo(WifiInfo& wifiInfo) {
     return false;
 }
 

@@ -237,16 +237,16 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
 
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo, KPlatformCommC2Java,
                           "getCurWifiInfo", "()Lcom/tencent/mars/comm/PlatformComm$WifiInfo;")
-bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
+bool getCurWifiInfo(WifiInfo& wifiInfo) {
     xverbose_function();
 
-    if (!_force_refresh && !g_wifi_info.ssid.empty()) {
+    if (!g_wifi_info.ssid.empty()) {
     	wifiInfo = g_wifi_info;
     	return true;
     }
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurWifiInfo, boost::ref(wifiInfo), _force_refresh));
+        return coroutine::MessageInvoke(boost::bind(&getCurWifiInfo, boost::ref(wifiInfo)));
                                         
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());

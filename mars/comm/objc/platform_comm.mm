@@ -177,6 +177,9 @@ unsigned int getSignal(bool isWifi){
     return (unsigned int)0;
 }
 
+
+
+
 void ConsoleLog(const XLoggerInfo* _info, const char* _log)
 {
     SCOPE_POOL();
@@ -199,6 +202,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
     
     char log[16 * 1024] = {0};
     snprintf(log, sizeof(log), "[%s][%s][%s, %s, %d][%s", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, strFuncName, _info->line, _log);
+    
     
     NSLog(@"%@", [NSString stringWithUTF8String:log]);
 }
