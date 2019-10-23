@@ -207,14 +207,16 @@ void TcpServer::__ListenThread() {
 
             observer_.OnAccept(this, client, client_addr);
         }
+        
+        xinfo2(TSF"listen end sock:(%_, %_:%_), ", listen_sock_, ip, ntohs(bind_addr_.sin_port)) << break_group;
+        
+        lock.lock();
+        if (INVALID_SOCKET != listen_sock_) {
+            socket_close(listen_sock_);
+            listen_sock_ = INVALID_SOCKET;
+        }
+        
     } while (false);
-
-    xinfo2(TSF"listen end sock:(%_, %_:%_), ", listen_sock_, ip, ntohs(bind_addr_.sin_port)) << break_group;
-
-    if (INVALID_SOCKET != listen_sock_) {
-        socket_close(listen_sock_);
-        listen_sock_ = INVALID_SOCKET;
-    }
 
     observer_.OnError(this, socket_errno);
 }
