@@ -142,11 +142,11 @@ def main(incremental, archs, target_option='', tag=''):
 
     gen_mars_revision_file(SCRIPT_PATH + '/comm', tag)
 
-    if os.path.exists(ANDROID_LIBS_PATH):
-        shutil.rmtree(ANDROID_LIBS_PATH)
+    # if os.path.exists(ANDROID_LIBS_PATH):
+    #     shutil.rmtree(ANDROID_LIBS_PATH)
 
-    if os.path.exists(ANDROID_SYMBOL_PATH):
-        shutil.rmtree(ANDROID_SYMBOL_PATH)
+    # if os.path.exists(ANDROID_SYMBOL_PATH):
+    #     shutil.rmtree(ANDROID_SYMBOL_PATH)
 
     for arch in archs:
         if not build_android(incremental, arch, target_option):
@@ -160,7 +160,7 @@ if __name__ == '__main__':
             main(False, archs, tag=sys.argv[1])
             break
         else:
-            archs = set(['armeabi'])
+            archs = set(['armeabi-v7a'])
             num = raw_input('Enter menu:\n1. Clean && build mars.\n2. Build incrementally mars.\n3. Clean && build xlog.\n4. Exit\n')
             if num == '1':
                 main(False, archs)

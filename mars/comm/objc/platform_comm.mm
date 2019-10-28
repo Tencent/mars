@@ -283,6 +283,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
     wifiInfo.bssid = IWATCH_NET_INFO;
     return true;
 #else
+    wifiInfo.ssid = "WiFi";
+    wifiInfo.bssid = "WiFi";
     ScopedLock lock(sg_wifiinfo_mutex);
     if (!sg_wifiinfo.ssid.empty() && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
