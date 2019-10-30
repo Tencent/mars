@@ -206,6 +206,21 @@ bool (*MakesureAuthed)(const std::string& _host)
 	return ret;
 };
 
+
+DEFINE_FIND_STATIC_METHOD(KC2Java_getTaskGroup, KC2Java, "getTaskGroup", "(Ljava/lang/String;)I")
+int (*GetTaskGroup)(const std::string& _host)
+= [](const std::string& _host) -> int {
+    xverbose_function();
+
+    VarCache* cache_instance = VarCache::Singleton();
+	ScopeJEnv scope_jenv(cache_instance->GetJvm());
+	JNIEnv *env = scope_jenv.GetEnv();
+
+	jint ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_getTaskGroup, ScopedJstring(env, _host.c_str()).GetJstr()).i;
+
+	return ret;
+};
+
 DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
 int (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid)
 = [](AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {

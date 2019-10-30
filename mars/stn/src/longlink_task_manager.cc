@@ -172,7 +172,7 @@ void LongLinkTaskManager::RedoTasks() {
     __RunLoop();
 }
 
-void LongLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid) {
+void LongLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, int _group) {
     xverbose_function();
     __BatchErrorRespHandle(_err_type, _err_code, _fail_handle, _src_taskid, longlink_->Profile());
     __RunLoop();
@@ -583,14 +583,14 @@ void LongLinkTaskManager::__OnResponse(ErrCmdType _error_type, int _error_code, 
         {
             xassert2(fun_notify_retry_all_tasks);
             xwarn2(TSF"task decode error session timeout taskid:%_, cmdid:%_, cgi:%_", it->task.taskid, it->task.cmdid, it->task.cgi);
-            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid, 0);
         }
             break;
         case kTaskFailHandleRetryAllTasks:
         {
             xassert2(fun_notify_retry_all_tasks);
             xwarn2(TSF"task decode error retry all task taskid:%_, cmdid:%_, cgi:%_", it->task.taskid, it->task.cmdid, it->task.cgi);
-            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid, 0);
         }
             break;
         case kTaskFailHandleTaskEnd:
