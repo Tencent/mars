@@ -253,10 +253,10 @@ def check_ndk_env():
         print("Error: parse source.properties fail")
         return False
 
-    if ndk_revision[:4] >= "16.1" and ndk_revision[:4] < '16.2':
+    if ndk_revision[:4] >= "16.1":
         return True
 
-    print("Error: make sure ndk's version == r16b")
+    print("Error: make sure ndk's version >= r16b")
     return False
 
 html_css = '''
