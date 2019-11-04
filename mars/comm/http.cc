@@ -355,7 +355,11 @@ std::pair<const std::string, std::string> HeaderFields::MakeContentTypeOctetStre
     return std::make_pair(KStringContentType, KStringOctetType);
 }
 
-
+void HeaderFields::CopyFrom(const HeaderFields& rhs){
+    headers_.clear();
+    headers_.insert(rhs.headers_.begin(), rhs.headers_.end());
+}
+    
 void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
     InsertOrUpdate(std::make_pair(_name, _value));
 }
@@ -379,9 +383,9 @@ void HeaderFields::Manipulate(const std::pair<const std::string, std::string>& _
     }
 }
 
-void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
-    headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
-}
+//void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
+//    headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
+//}
 
 const char* HeaderFields::HeaderField(const char* _key) const {
     std::map<const std::string, std::string, less>::const_iterator iter = headers_.find(_key);

@@ -53,19 +53,20 @@ class socket_address {
     bool valid_broadcast_ip() const;
 
     bool isv4mapped_address() const;
+    bool isv6() const;
+    bool isv4() const;
+
     socket_address& v4tov4mapped_address();
-
     socket_address& v4tonat64_address();
-
     socket_address& v4tov6_address(bool _nat64=false);
 
     bool is_ipport_equal(const socket_address& _sa) const {return 0==strncmp(ip(), _sa.ip(), sizeof(ip_)) && port()==_sa.port();}
-	bool fix_current_nat64_addr();
+	  bool fix_current_nat64_addr();
 
     static bool update_nat64_prefix();
   public:
     static socket_address getsockname(SOCKET _sock);
-	static socket_address getpeername(SOCKET _sock);
+	  static socket_address getpeername(SOCKET _sock);
 
   private:
     //    socket_address(const socket_address&);
