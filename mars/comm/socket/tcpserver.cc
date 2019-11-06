@@ -197,12 +197,7 @@ void TcpServer::__ListenThread() {
             }
 
             char cli_ip[16] = {0};
-#ifdef WIN32
 			socket_inet_ntop(AF_INET, &(client_addr.sin_addr), cli_ip, sizeof(cli_ip));
-#else
-			inet_ntop(AF_INET, &(client_addr.sin_addr), cli_ip, sizeof(cli_ip));
-#endif // WIN32
-            
             xinfo2(TSF"listen accept sock:(%_, %_:%_) cli:(%_, %_:%_)", listen_sock_, ip, ntohs(bind_addr_.sin_port), client, cli_ip, ntohs(client_addr.sin_port));
 
             observer_.OnAccept(this, client, client_addr);

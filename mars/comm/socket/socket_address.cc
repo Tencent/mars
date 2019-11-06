@@ -310,6 +310,13 @@ bool socket_address::isv4mapped_address() const {
     return false;
 }
 
+bool socket_address::isv6() const{
+    return AF_INET6 == addr_.sa.sa_family && !isv4mapped_address();
+}
+bool socket_address::isv4() const{
+    return AF_INET == addr_.sa.sa_family;
+}
+
 socket_address& socket_address::v4tov4mapped_address() {
     if (AF_INET == addr_.sa.sa_family) {
         sockaddr_in6 sock_addr6 = {0};
