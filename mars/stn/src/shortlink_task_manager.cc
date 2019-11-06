@@ -303,9 +303,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         first->use_proxy =  (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, first->use_proxy);
-        worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), AYNC_HANDLER);
-        worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), AYNC_HANDLER);
-        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), AYNC_HANDLER);
+        worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
+        worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
+        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         first->running_id = (intptr_t)worker;
 
@@ -350,13 +350,13 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     
     if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
         if(_err_type != kEctOK) {
-            close(_conn_profile.socket_fd);
+            socket_close(_conn_profile.socket_fd);
             socket_pool_.Report(_conn_profile.is_reused_fd, false, false);
         } else if(_conn_profile.ip_index >=0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
             IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
             CacheSocketItem cache_item(item, _conn_profile.socket_fd, _conn_profile.keepalive_timeout);
             if(!socket_pool_.AddCache(cache_item)) {
-                close(cache_item.socket_fd);
+                socket_close(cache_item.socket_fd);
             }
         } else {
             xassert2(false, "not match");

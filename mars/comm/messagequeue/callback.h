@@ -36,14 +36,17 @@ public:
 
     //if MessageQueue::KNullHandler, will callback in worker thread
     CallBack(const T& _func, MessageHandler_t _handler=MessageQueue::KNullHandler):cb_handler_(_handler), cb_func_(_func), valid_(true) {}
+
+    CallBack(const T& _func, MessageTitle_t _title, MessageHandler_t _handler=MessageQueue::KNullHandler):cb_handler_(_handler), title_(_title), cb_func_(_func), valid_(true) {}
     
     CallBack():cb_handler_(MessageQueue::KNullHandler), valid_(false) {}
     
-    void set(const T& _func, MessageHandler_t _handler=MessageQueue::KNullHandler) {
+    void set(const T& _func, MessageTitle_t _title = 0, MessageHandler_t _handler=MessageQueue::KNullHandler) {
         ScopedLock lock(mutex_);
         cb_handler_ = _handler;
         cb_func_ = _func;
         valid_ = true;
+        title_ = _title;
     }
     
     operator bool() {
@@ -70,11 +73,16 @@ public:
             func();
             return;
         }
-        MessageQueue::AsyncInvoke(func, cb_handler_);
+        if(title_ != 0) {
+            MessageQueue::AsyncInvoke(func, title_, cb_handler_);
+        } else {
+            MessageQueue::AsyncInvoke(func, cb_handler_);
+        }
     }
 
 private:
     MessageHandler_t cb_handler_;
+    MessageTitle_t title_;
     T cb_func_;
     Mutex mutex_;
     bool valid_;

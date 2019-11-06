@@ -51,7 +51,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
     static int error_count = 0;
     static int error_size = 0;
 
-    if (_log.MaxLength() <= _log.Length() + 5 * 1024) {  // allowd len(_log) <= 11K(16K - 5K)
+    if (_log.MaxLength() <= _log.Length() + 5 * 1024) {  // allowed len(_log) <= 11K(16K - 5K)
         ++error_count;
         error_size = (int)strnlen(_logbody, 1024 * 1024);
 
