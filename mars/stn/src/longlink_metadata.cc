@@ -26,7 +26,7 @@
 namespace mars {
     namespace stn {
 
-LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, ActiveLogic& _activeLogic, MessageQueue::MessageQueue_t _message_id, bool _enable_signel_keeper)
+LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, ActiveLogic& _activeLogic, MessageQueue::MessageQueue_t _message_id)
     :longlink_(LongLinkChannelFactory::Create(_message_id, _netsource, _config)), longlink_monitor_(nullptr), netsource_checker_(nullptr)
     , signal_keeper_(nullptr), config_(_config)
     , asyncreg_(MessageQueue::InstallAsyncHandler(_message_id)) {
@@ -37,10 +37,8 @@ LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _ne
         
         longlink_monitor_ = std::make_shared<LongLinkConnectMonitor>(_activeLogic, *(longlink_.get()), _message_id, _config.is_keep_alive);
 
-        if(_enable_signel_keeper) {
-            signal_keeper_ = std::make_shared<SignallingKeeper>(*(longlink_.get()), _message_id);
-            signal_keeper_->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData, longlink_.get(), _1, _2, _3, Task::kSignallingKeeperTaskID);
-        }
+        signal_keeper_ = std::make_shared<SignallingKeeper>(*(longlink_.get()), _message_id);
+        signal_keeper_->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData, longlink_.get(), _1, _2, _3, Task::kSignallingKeeperTaskID);
 }
 
 LongLinkMetaData::~LongLinkMetaData() {

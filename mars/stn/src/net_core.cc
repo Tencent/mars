@@ -758,7 +758,9 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
         longlink_channel->fun_network_report_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _config.name, _1, _2, _3, _4, _5);
         longlink_channel->SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
         longlink_channel->SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
-        GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink_task_manager_->GetLongLink(_config.name)->SignalKeeper().get(), _1, _2, _3));
+        if(longlink_task_manager_->GetLongLink(_config.name)->SignalKeeper() != nullptr) {
+            GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink_task_manager_->GetLongLink(_config.name)->SignalKeeper().get(), _1, _2, _3));
+        }
     }
 // #ifdef __APPLE__
 //     longlink_task_manager_->GetLongLink(_config.name)->Monitor()->fun_longlink_reset_ = boost::bind(&NetCore::__ResetLongLink, this);
@@ -804,7 +806,9 @@ void NetCore::MarkMainLonglink_ext(const std::string& _name) {
     newLink->fun_network_report_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _1, _2, _3, _4, _5);
     newLink->SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
     newLink->SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1));
-    GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink_task_manager_->GetLongLink(_name)->SignalKeeper().get(), _1, _2, _3));
+    if(longlink_task_manager_->GetLongLink(_name)->SignalKeeper() != nullptr) {
+        GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink_task_manager_->GetLongLink(_name)->SignalKeeper().get(), _1, _2, _3));
+    }
 
     return;
 }

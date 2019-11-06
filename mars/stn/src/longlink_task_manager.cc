@@ -761,7 +761,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     }
     
     ScopedLock lock(meta_mutex_);
-    longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue, _config.IsMain());
+    longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue);
     longlink = GetLongLink(_config.name);
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
     longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
