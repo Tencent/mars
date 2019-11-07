@@ -103,6 +103,8 @@ class SmartHeartbeat {
     
     unsigned int success_heart_count_;  // the total success heartbeat based on single alive TCP, And heartbeat interval can be different.
     unsigned int last_heart_;
+    unsigned int pre_heart_;
+    unsigned int cur_heart_;
     NetHeartbeatInfo current_net_heart_info_;
 
     SpecialINI ini_;
