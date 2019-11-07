@@ -738,7 +738,10 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 #ifdef USE_LONG_LINK
 std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config){
     auto oldDefault = longlink_task_manager_->DefaultLongLink();
-    longlink_task_manager_->AddLongLink(_config);
+    if(!longlink_task_manager_->AddLongLink(_config)) {
+        xwarn2(TSF"already has longlink named:%_", _config.name);
+        return longlink_task_manager_->GetLongLink(_config.name)->Channel();
+    }
     
     if(_config.IsMain() && oldDefault != nullptr) {
         xinfo2(TSF"change default longlink to name:%_, group:%_", _config.name, _config.group);
@@ -792,8 +795,8 @@ void NetCore::DestroyLongLink(const std::string& _name){
 void NetCore::MarkMainLonglink_ext(const std::string& _name) {
     auto oldLink = DefaultLongLink();
 	auto newLink = GetLongLink(_name)->Channel();
-	if(oldLink == nullptr || newLink == nullptr) {
-		xerror2(TSF"link nullptr, old:%_, new:%_", (oldLink==nullptr), (newLink==nullptr));
+	if(oldLink == nullptr || newLink == nullptr || DefaultLongLinkMeta()->Config().name == _name) {
+		xerror2(TSF"link nullptr, old:%_, new:%_, or same longlink", (oldLink==nullptr), (newLink==nullptr));
 		return;
 	}
 
