@@ -812,6 +812,7 @@ void NetCore::MarkMainLonglink_ext(const std::string& _name) {
     if(longlink_task_manager_->GetLongLink(_name)->SignalKeeper() != nullptr) {
         GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink_task_manager_->GetLongLink(_name)->SignalKeeper().get(), _1, _2, _3));
     }
+    GetLongLink(_name)->Config().isMain = true;
 
     return;
 }
