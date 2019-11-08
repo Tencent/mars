@@ -239,7 +239,7 @@ void SmartHeartbeat::JudgeDozeStyle() {
 
 
 bool SmartHeartbeat::__IsDozeStyle() {
-    return ((doze_mode_count_ > (2*normal_mode_count_)) && kMobile == ::getNetInfo());
+    return doze_mode_count_ >= 2 && doze_mode_count_ > (2*normal_mode_count_);
 }
 
 unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //
