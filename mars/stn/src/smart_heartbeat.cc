@@ -54,6 +54,7 @@ static const char* const kKeyHeartType       = "hearttype";
 static const char* const kKeyMinHeartFail    = "minheartfail";
 
 SmartHeartbeat::SmartHeartbeat(): report_smart_heart_(NULL), is_wait_heart_response_(false), success_heart_count_(0), last_heart_(MinHeartInterval),
+    pre_heart_(MinHeartInterval), cur_heart_(MinHeartInterval),
     ini_(mars::app::GetAppFilePath() + "/" + kFileName, false)
     , doze_mode_count_(0), normal_mode_count_(0), noop_start_tick_(false) {
     xinfo_function();
@@ -76,19 +77,20 @@ void SmartHeartbeat::OnLongLinkEstablished() {
     xdebug_function();
     __LoadINI();
     success_heart_count_ = 0;
+    pre_heart_ = cur_heart_ = MinHeartInterval;
 }
 
 void SmartHeartbeat::OnLongLinkDisconnect() {
     xinfo_function();
 
     OnHeartResult(false, false);
+    current_net_heart_info_.succ_heart_count_ = 0;
 
     if (!current_net_heart_info_.is_stable_) {
 		xinfo2(TSF"%0 not stable last heart:%1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
 		return;
 	}
 
-    current_net_heart_info_.succ_heart_count_ = 0;
     last_heart_ = MinHeartInterval;
 }
 
@@ -103,6 +105,8 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
     }
     
     xinfo2(TSF"heart result:%0, timeout:%1", _sucess, _fail_of_timeout);
+    pre_heart_ = cur_heart_;
+    cur_heart_ = last_heart_;
     is_wait_heart_response_ = false;
 
     xassert2(!current_net_heart_info_.net_detail_.empty(), "something wrong,net_detail_ shoudn't be NULL");
@@ -123,8 +127,10 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
     }
     
     if(_sucess) {
-        current_net_heart_info_.succ_heart_count_ += 1;
-        current_net_heart_info_.fail_heart_count_ = 0;
+        if (last_heart_ == pre_heart_) {
+            current_net_heart_info_.succ_heart_count_ += 1;
+            current_net_heart_info_.fail_heart_count_ = 0;
+        }
     }
     else {
         current_net_heart_info_.fail_heart_count_ += 1;
@@ -233,7 +239,7 @@ void SmartHeartbeat::JudgeDozeStyle() {
 
 
 bool SmartHeartbeat::__IsDozeStyle() {
-    return ((doze_mode_count_ > (2*normal_mode_count_)) && kMobile == ::getNetInfo());
+    return doze_mode_count_ >= 2 && doze_mode_count_ > (2*normal_mode_count_);
 }
 
 unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //

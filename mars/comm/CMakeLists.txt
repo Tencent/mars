@@ -127,8 +127,8 @@ elseif(APPLE)
 endif()
 
 
+list(FILTER SELF_SRC_FILES EXCLUDE REGEX ".*unittest.cc$")
 add_library(${PROJECT_NAME} STATIC ${SELF_SRC_FILES})
-
 install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${CMAKE_SYSTEM_NAME}.out)
     
     
