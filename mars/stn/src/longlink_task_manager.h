@@ -52,7 +52,7 @@ class LongLinkTaskManager {
   public:
     boost::function<int (ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
 
-    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, int _group)> fun_notify_retry_all_tasks;
+    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid)> fun_notify_retry_all_tasks;
     boost::function<void (int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
     boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     
@@ -69,7 +69,7 @@ class LongLinkTaskManager {
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
     void RedoTasks();
-    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, int _group = 0);
+    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
 
     LongLink& LongLinkChannel() { return *longlink_; }
     LongLinkConnectMonitor& getLongLinkConnectMonitor() { return *longlinkconnectmon_; }

@@ -265,16 +265,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         if (first->task.need_authed) {
             if (has_makesureauth_host.find(host) == has_makesureauth_host.end()) {
                 ismakesureauthsuccess = MakesureAuthed(host);
-
-                if (ismakesureauthsuccess) {
-                    int group = GetTaskGroup(host);
-                    // int group = fun_get_task_host(host);
-                    first->group = group;
-                }
-                
                 has_makesureauth_host.insert(host);
             }
-            xinfo2(TSF"auth result %_ host %_, group %_ ", ismakesureauthsuccess, host, first->group);
+            xinfo2(TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
@@ -405,15 +398,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
         case kTaskFailHandleSessionTimeout:
         {
             xassert2(fun_notify_retry_all_tasks);
-            xwarn2(TSF"task decode error session timeout taskid:%_, cmdid:%_, cgi:%_, group:%_", it->task.taskid, it->task.cmdid, it->task.cgi, it->group);
-            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid, it->group);
+            xwarn2(TSF"task decode error session timeout taskid:%_, cmdid:%_, cgi:%_", it->task.taskid, it->task.cmdid, it->task.cgi);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid);
         }
             break;
         case kTaskFailHandleRetryAllTasks:
         {
             xassert2(fun_notify_retry_all_tasks);
             xwarn2(TSF"task decode error retry all task taskid:%_, cmdid:%_, cgi:%_", it->task.taskid, it->task.cmdid, it->task.cgi);
-            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid, it->group);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid);
         }
             break;
         case kTaskFailHandleTaskEnd:
@@ -496,16 +489,16 @@ void ShortLinkTaskManager::RedoTasks() {
     __RunLoop();
 }
 
-void ShortLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, int _group) {
+void ShortLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid) {
     xverbose_function();
-    xinfo2(TSF"RetryTasks task group %_ id %_ ", _group, _src_taskid);
-    __BatchErrorRespHandle(_err_type, _err_code, _fail_handle, _src_taskid, true, _group);
+    xinfo2(TSF"RetryTasks taskid %_ ", _src_taskid);
+    __BatchErrorRespHandle(_err_type, _err_code, _fail_handle, _src_taskid);
     __RunLoop(); 
 }
 
-void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only, int _group) {
+void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
     xassert2(kEctOK != _err_type);
-    xdebug2(TSF"ect=%0, errcode=%1 group:%_", _err_type, _err_code, _group);
+    xdebug2(TSF"ect=%0, errcode=%1 taskid:%_", _err_type, _err_code, _src_taskid);
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
@@ -524,15 +517,14 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type, int _err
             continue;
         }
 
-        xinfo2(TSF"axauth sessiontime group %_, cgi %_ taskgroup %_", _group, first->task.cgi, first->group);
+        xinfo2(TSF"axauth sessiontime id %_, cgi %_ taskid %_", _src_taskid, first->task.cgi, first->task.taskid);
 
-
-        if (_fail_handle == kTaskFailHandleSessionTimeout && _group != 0 && first->group == _group && first->allow_sessiontimeout_retry) { //retry same group task when sessiontimeout
-            xinfo2(TSF"axauth to timeout queue %_, cgi %_, group %_ ", first->task.taskid, first->task.cgi, first->group);
+        if (_fail_handle == kTaskFailHandleSessionTimeout && _src_taskid != 0 && first->task.taskid == _src_taskid && first->allow_sessiontimeout_retry) { //retry task when sessiontimeout
+            xinfo2(TSF"axauth to timeout queue %_, cgi %_ ", first->task.taskid, first->task.cgi);
             first->allow_sessiontimeout_retry = false;
             first->remain_retry_count++;
-
             __DeleteShortLink(first->running_id);
+            first->PushHistory();
             first->InitSendParam();
             first = next;
             continue;

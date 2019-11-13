@@ -51,7 +51,7 @@ class ShortLinkTaskManager {
     boost::function<void (int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> fun_notify_network_err_;
     boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     boost::function<void (int _status_code)> fun_shortlink_response_;
-    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, int _group)> fun_notify_retry_all_tasks;
+    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid)> fun_notify_retry_all_tasks;
 
     static boost::function<void (std::vector<std::string>& _host_list)> get_real_host_;
     static boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
@@ -65,7 +65,7 @@ class ShortLinkTaskManager {
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
     void RedoTasks();
-    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, int _group);
+    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
 
     unsigned int GetTasksContinuousFailCount();
 
@@ -79,7 +79,7 @@ class ShortLinkTaskManager {
     void __OnSend(ShortLinkInterface* _worker);
     void __OnRecv(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size);
 
-    void __BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true, int _group = 0);
+    void __BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, size_t _resp_length, const ConnectProfile& _connect_profile);
 
     std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
