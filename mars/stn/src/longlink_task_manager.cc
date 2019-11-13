@@ -68,14 +68,17 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 
 LongLinkTaskManager::~LongLinkTaskManager() {
     xinfo_function();
+    for(auto iter = longlink_metas_.begin(); iter != longlink_metas_.end(); iter++) {
+        iter->second->Channel()->SignalConnection.disconnect_all_slots();
+    }
+    asyncreg_.CancelAndWait();
+    __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
+
     while(!longlink_metas_.empty()) {
         auto iter = longlink_metas_.begin();
         ReleaseLongLink(iter->first);
     }
-    asyncreg_.CancelAndWait();
-    
-    __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
-    
+
 #ifdef ANDROID
     delete wakeup_lock_;
 #endif
@@ -783,7 +786,9 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
     
     longlink_metas_.erase(_name);
     longlink->Channel()->SignalConnection.disconnect_all_slots();
-    MessageQueue::AsyncInvoke([&,longlink] () {
+    lock.unlock();
+    {
+    // MessageQueue::AsyncInvoke([&,longlink] () {
         longlink->Channel()->OnSend = NULL;
         longlink->Channel()->OnRecv = NULL;
         longlink->Channel()->OnResponse = NULL;
@@ -791,7 +796,8 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
         longlink->Monitor()->fun_longlink_reset_ = NULL;
 #endif
         xinfo2(TSF"destroy long link %_ ", _name);
-    }, AYNC_HANDLER);
+    // }, AYNC_HANDLER);
+    }
 }
 
 bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {
