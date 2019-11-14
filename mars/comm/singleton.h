@@ -103,6 +103,7 @@
                 std::thread t([=]() mutable {\
                     tmp_ptr.reset();\
                 });\
+                t.detach();\
             }\
         }\
         \
