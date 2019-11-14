@@ -234,9 +234,8 @@ static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
     // Instead, the information returned by default will be:
     // * SSID: “Wi-Fi” or “WLAN” (“WLAN" will be returned for the China SKU)
     // * BSSID: "00:00:00:00:00:00" 
-    static const std::string kConstSSID1 = "Wi-Fi";
-    static const std::string kConstSSID2 = "WLAN";
-    return kConstSSID1 != _wifi_info.ssid && kConstSSID2 != _wifi_info.ssid; 
+    static const std::string kConstBSSID = "00:00:00:00:00:00";
+    return !_wifi_info.bssid.empty() && kConstBSSID != _wifi_info.bssid;
 }
 
 bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
@@ -288,10 +287,10 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
     ScopedLock lock(sg_wifiinfo_mutex);
-    if (!sg_wifiinfo.ssid.empty() && !_force_refresh) {
+    if (!__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
         xinfo2(TSF"get cache:%_ %_", wifiInfo.ssid, sg_wifiinfo.ssid);
-        return __WiFiInfoIsValid(wifiInfo);
+        return true;
     }
     lock.unlock();
     NSArray *ifs = nil;
