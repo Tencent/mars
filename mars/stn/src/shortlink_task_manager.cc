@@ -232,7 +232,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
     bool ismakesureauthsuccess = false;
-    std::set<std::string> has_makesureauth_host;
+    std::map<std::string, bool> has_makesureauth_host;
     uint64_t curtime = ::gettickcount();
     int sent_count = 0;
 
@@ -264,9 +264,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         // make sure login
         if (first->task.need_authed) {
             if (has_makesureauth_host.find(host) == has_makesureauth_host.end()) {
-                ismakesureauthsuccess = MakesureAuthed(host);
-                has_makesureauth_host.insert(host);
+                has_makesureauth_host[host] = MakesureAuthed(host);
             }
+
+            ismakesureauthsuccess = has_makesureauth_host[host];
+            
             xinfo2(TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
