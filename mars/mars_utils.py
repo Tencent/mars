@@ -65,6 +65,16 @@ XLOG_COPY_HEADER_FILES = {
             "mars/log/appender.h": "xlog",
             }      
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    
 def libtool_libs(src_libs, dst_lib):
     src_lib_str = ''
     for l in src_libs:
