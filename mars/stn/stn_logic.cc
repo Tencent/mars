@@ -316,10 +316,10 @@ void network_export_symbols_0(){}
 
 #ifndef ANDROID
 	//callback functions
-bool (*MakesureAuthed)(const std::string& _host)
-= [](const std::string& _host) {
+bool (*MakesureAuthed)(const std::string& _host, void* const _user_context)
+= [](const std::string& _host, void* const _user_context) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->MakesureAuthed(_host);
+	return sg_callback->MakesureAuthed(_host, _user_context);
 };
 
 // 流量统计 

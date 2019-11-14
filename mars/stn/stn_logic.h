@@ -41,7 +41,7 @@ namespace stn{
     {
     public:
     	virtual ~Callback() {}
-        virtual bool MakesureAuthed(const std::string& _host) = 0;
+        virtual bool MakesureAuthed(const std::string& _host, void* const _user_context) = 0;
         
         //流量统计 
         virtual void TrafficData(ssize_t _send, ssize_t _recv) = 0;

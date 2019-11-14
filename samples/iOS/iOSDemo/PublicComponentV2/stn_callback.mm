@@ -38,7 +38,7 @@ void StnCallBack::Release() {
     instance_ = NULL;
 }
         
-bool StnCallBack::MakesureAuthed(const std::string& host) {
+bool StnCallBack::MakesureAuthed(const std::string& host, const void* _user_context) {
     return true;
 }
 

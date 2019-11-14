@@ -307,8 +307,6 @@ void LongLinkTaskManager::__RunOnStartTask() {
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
-    bool ismakesureauthruned = false;
-    bool ismakesureauthsuccess = false;
     uint64_t curtime = ::gettickcount();
 
     bool canretry = curtime - lastbatcherrortime_ >= retry_interval_;
@@ -347,11 +345,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
 
         // make sure login
         if (first->task.need_authed) {
-            if (!ismakesureauthruned) {
-                ismakesureauthruned = true;
-                ismakesureauthsuccess = MakesureAuthed(host);
-            }
-
+            bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_context);
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 0, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
                 first = next;
