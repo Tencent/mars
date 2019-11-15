@@ -16,6 +16,7 @@
 #define COMM_SINGLETON_H_
 
 #include <list>
+#include <thread>
 
 #include "boost/shared_ptr.hpp"
 #include "boost/weak_ptr.hpp"
@@ -87,6 +88,22 @@
                 SignalRelease()(instance_shared_ptr());\
                 instance_shared_ptr().reset();\
                 SignalReleaseEnd()();\
+            }\
+        }\
+        \
+        static void AsyncRelease()\
+        {\
+            ScopedLock  lock(singleton_mutex());\
+            if (instance_shared_ptr())\
+            {\
+                boost::shared_ptr<classname> tmp_ptr = instance_shared_ptr();\
+                SignalRelease()(tmp_ptr);\
+                instance_shared_ptr().reset();\
+                SignalReleaseEnd()();\
+                std::thread t([=]() mutable {\
+                    tmp_ptr.reset();\
+                });\
+                t.detach();\
             }\
         }\
         \

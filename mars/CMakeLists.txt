@@ -44,11 +44,12 @@ if(ANDROID)
         set(SELF_XLOG_LINKER_FLAG "-Wl,--gc-sections -Wl,--version-script='${EXPORT_XLOG_EXP_FILE}' -Wl,--no-warn-shared-textrel") 
     endif()
     target_link_libraries(${SELF_LIB_NAME} "${SELF_XLOG_LINKER_FLAG}"
-                            ${log-lib}
-                            ${z-lib}
                             xlog
                             mars-boost
-                            comm)
+                            comm
+                            ${log-lib}
+                            ${z-lib}
+                            )
  
     set(SELF_LIB_NAME marsstn)
 
