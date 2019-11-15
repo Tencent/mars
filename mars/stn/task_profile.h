@@ -260,6 +260,7 @@ struct TaskProfile {
         err_type = kEctOK;
         err_code = 0;
         link_type = 0;
+        allow_sessiontimeout_retry = true;
     }
     
     void InitSendParam() {
@@ -306,6 +307,7 @@ struct TaskProfile {
     ErrCmdType err_type;
     int err_code;
     int link_type;
+    bool allow_sessiontimeout_retry;
 
     std::vector<TransferProfile> history_transfer_profiles;
 };
