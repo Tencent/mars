@@ -287,9 +287,9 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
     ScopedLock lock(sg_wifiinfo_mutex);
-    if (!__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
+    if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
-        xinfo2(TSF"get cache:%_ %_", wifiInfo.ssid, sg_wifiinfo.ssid);
+        xinfo2(TSF"get cache:%_ %_", wifiInfo.bssid, sg_wifiinfo.bssid);
         return true;
     }
     lock.unlock();
