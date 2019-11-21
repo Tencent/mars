@@ -327,99 +327,7 @@ static void __local_info(std::string& _log) {
 #include <WinSock2.h>
 
 #pragma comment(lib,"Ws2_32.lib")
-#pragma comment(lib,"Iphlpapi.lib") //需要添加Iphlpapi.lib库
-typedef union sockaddr_union {
-    struct sockaddr     generic;
-    struct sockaddr_in  in;
-    struct sockaddr_in6 in6;
-} sockaddr_union;
-
-/*
- * Connect a UDP socket to a given unicast address. This will cause no network
- * traffic, but will fail fast if the system has no or limited reachability to
- * the destination (e.g., no IPv4 address, no IPv6 default route, ...).
- */
-static const unsigned int kMaxLoopCount = 10;
-static int
-_test_connect(int pf, struct sockaddr *addr, size_t addrlen, struct sockaddr* local_addr, socklen_t local_addr_len) {
-    xinfo2(TSF"windows start connect pf is %_, ip is %_ ,ip is %_ ", pf, addr->sa_family, addr->sa_data);
-    int s = socket(pf, SOCK_DGRAM, IPPROTO_UDP);
-    xinfo2(TSF"windows start connect socket is %_ ", s);
-    if (s < 0)
-        return 0;
-    int ret;
-    unsigned int loop_count = 0;
-    do {
-        ret = connect(s, addr, addrlen);
-    } while (ret < 0 && errno == EINTR && loop_count++<kMaxLoopCount);
-    if (loop_count>=kMaxLoopCount) {
-    	xerror2(TSF"connect error. loop_count = %_", loop_count);
-    }
-    xinfo2(TSF"windows detect result is %_ ", ret);
-    int success = (ret == 0);
-    if (success) {
-        memset(local_addr, 0, sizeof(struct sockaddr_storage));
-        getsockname(s, local_addr, &local_addr_len);
-    }
-    loop_count = 0;
-    do {
-        ret = closesocket(s);
-    } while (ret < 0 && errno == EINTR && loop_count++<kMaxLoopCount);
-    if (loop_count>=kMaxLoopCount) {
-    	xerror2(TSF"close error. loop_count = %_", loop_count);
-    }
-    return success;
-}
-
-/*
- * The following functions determine whether IPv4 or IPv6 connectivity is
- * available in order to implement AI_ADDRCONFIG.
- *
- * Strictly speaking, AI_ADDRCONFIG should not look at whether connectivity is
- * available, but whether addresses of the specified family are "configured
- * on the local system". However, bionic doesn't currently support getifaddrs,
- * so checking for connectivity is the next best thing.
- */
-static int
-_have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
-
-    xinfo2(TSF"windows start to detect v6");
-
-    static  struct sockaddr_in6 sin6_test;
-    memset(&sin6_test, 0 , sizeof(struct sockaddr_in6));
-    sin6_test.sin6_family = AF_INET6;
-    sin6_test.sin6_port = htons(80);
-    sin6_test.sin6_flowinfo = 0;
-    sin6_test.sin6_scope_id = 0;
-    std::string ip = "2000::";
-    inet_pton(AF_INET6, ip.data(), &sin6_test);
-    sockaddr_union addr;
-    addr.in6 = sin6_test;
-
-    return _test_connect(PF_INET6, &addr.generic, sizeof(addr.in6), local_addr, local_addr_len);
-}
-
-static int
-_have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
-    xinfo2(TSF"windows start to detect v4");
-    // static struct sockaddr_in sin_test = {
-    //     sin_family:AF_INET,
-    //     sin_port:80,
-    // };
-    static struct sockaddr_in sin_test;
-    sin_test.sin_family = AF_INET;
-    sin_test.sin_port = htons(80);
-    sin_test.sin_addr.S_un.S_addr = htonl(0x08080808L); // 8.8.8.8
-    // sockaddr_union addr = { in:sin_test };
-    sockaddr_union addr;
-    addr.in = sin_test;
-
-    return _test_connect(PF_INET, &addr.generic, sizeof(addr.in), local_addr, local_addr_len);
-}
-
-
-
-
+#pragma comment(lib,"Iphlpapi.lib")
 
 static bool GetWinV4GateWay() {
 	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
@@ -455,7 +363,7 @@ static bool GetWinV4GateWay() {
 		}
 	}
 	else {
-		xinfo2("Call to GetAdaptersAddresses failed.\n");
+		xinfo2("ipv4 stack detect GetAdaptersAddresses failed.");
 	}
 	free(pAddresses);
 	return result;
@@ -489,7 +397,7 @@ static bool GetWinV6GateWay() {
 					if (inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
 						std::string v6_s(buff);
 						if (v6_s == "::") {
-							xinfo2("the v6 is fake!");
+							xwarn2("the v6 is fake!");
 						} else {
                             result = true;
                         }
@@ -500,7 +408,7 @@ static bool GetWinV6GateWay() {
 		}
 	}
 	else {
-		xinfo2("Call to GetAdaptersAddresses failed.");
+		xinfo2("ipv6 stack detect GetAdaptersAddresses failed.");
 	}
 	free(pAddresses);
 	return result;
@@ -508,13 +416,9 @@ static bool GetWinV6GateWay() {
 
 
 TLocalIPStack __local_ipstack_detect(std::string& _log) {
-    xinfo2(TSF"windows __local_ipstack_detect");
-    XMessage detail;
-    detail("local_ipstack_detect ");
+    xinfo2(TSF"windows start to detect local stack");
     sockaddr_storage v4_addr = {0};
     sockaddr_storage v6_addr = {0};
-    // int have_ipv4 = _have_ipv4((sockaddr*)&v4_addr, sizeof(v4_addr));
-    // int have_ipv6 = _have_ipv6((sockaddr*)&v6_addr, sizeof(v6_addr));
     bool have_ipv4 = GetWinV4GateWay();
     bool have_ipv6 = GetWinV6GateWay();
     int local_stack = 0;
@@ -522,7 +426,6 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
     if (have_ipv6) { local_stack |= ELocalIPStack_IPv6; }
     
     xinfo2(TSF"__local_ipstack_detect result v6 %_, v4 %_ ", have_ipv6, have_ipv4);
-    detail("have_ipv4:%d have_ipv6:%d \n", have_ipv4, have_ipv6);
 
     return (TLocalIPStack)local_stack;
 }
