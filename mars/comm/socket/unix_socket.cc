@@ -314,7 +314,7 @@ static const char* inet_ntop_v6(const void* src, char* dst, socklen_t size) {
 }
 const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int size) {
     if (IsWindows7OrGreater()){
-      return inet_ntop(af, src, dst, size);
+      return inet_ntop(af, (PVOID)src, dst, size);
     }
 
   // for OS below WINDOWS 7
