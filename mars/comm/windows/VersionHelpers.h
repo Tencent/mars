@@ -8,18 +8,11 @@
 *  Copyright (c) Microsoft Corp.  All rights reserved.            *
 *                                                                 *
 ******************************************************************/
-#include <winapifamily.h>
+#include <Windows.h>
 
 #ifdef _MSC_VER
 #pragma once
 #endif  // _MSC_VER
-
-#pragma region Application Family
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-
-#include <specstrings.h>    // for _In_, etc.
-
-#if !defined(__midl) && !defined(SORTPP_PASS)
 
 #if (NTDDI_VERSION >= NTDDI_WINXP)
 
@@ -108,30 +101,6 @@ IsWindows7SP1OrGreater()
     return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN7), LOBYTE(_WIN32_WINNT_WIN7), 1);
 }
 
-// VERSIONHELPERAPI
-// IsWindows8OrGreater()
-// {
-//     return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN8), LOBYTE(_WIN32_WINNT_WIN8), 0);
-// }
-
-// VERSIONHELPERAPI
-// IsWindows8Point1OrGreater()
-// {
-//     return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WINBLUE), LOBYTE(_WIN32_WINNT_WINBLUE), 0);
-// }
-
-// VERSIONHELPERAPI
-// IsWindowsThresholdOrGreater()
-// {
-//     return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WINTHRESHOLD), LOBYTE(_WIN32_WINNT_WINTHRESHOLD), 0);
-// }
-
-// VERSIONHELPERAPI
-// IsWindows10OrGreater()
-// {
-//     return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WINTHRESHOLD), LOBYTE(_WIN32_WINNT_WINTHRESHOLD), 0);
-// }
-
 VERSIONHELPERAPI
 IsWindowsServer()
 {
@@ -144,9 +113,4 @@ IsWindowsServer()
 #endif // _VERSIONHELPERS_H_INCLUDED_
 
 #endif // NTDDI_VERSION
-
-#endif // defined(__midl)
-
-#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) */
-#pragma endregion
 
