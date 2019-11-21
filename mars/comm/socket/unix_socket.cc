@@ -13,7 +13,6 @@
 
 #ifndef _WIN32
 #include <fcntl.h>
-#include <VersionHelpers.h>
 #endif
 
 #include "socket/unix_socket.h"
@@ -45,6 +44,7 @@ int socket_set_nobio(SOCKET fd) {
 #include <windows.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
+#include "windows/VersionHelpers.h"
 #define NS_INADDRSZ 4
 typedef unsigned int uint32;
 typedef int int32;
@@ -190,11 +190,11 @@ static int socket_inet_pton6(const char* src, void* dst) {
   return 1;
 }
 int socket_inet_pton(int af, const char *src, void *dst) {
-    if (::IsWindows7OrGreater()){
-      return ::inet_pton(af, src, dst);
+    if (IsWindows7OrGreater()){
+      return inet_pton(af, src, dst);
     }
     
-    // for OS under WINDOWS 7
+    // for OS below WINDOWS 7
     switch (af) {
     case AF_INET :
         return socket_inet_pton4 (src, dst);
@@ -313,8 +313,8 @@ static const char* inet_ntop_v6(const void* src, char* dst, socklen_t size) {
   return dst;
 }
 const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int size) {
-    if (::IsWindows7OrGreater()){
-      return ::inet_ntop(af, src, dst, size);
+    if (IsWindows7OrGreater()){
+      return inet_ntop(af, src, dst, size);
     }
 
   // for OS below WINDOWS 7
