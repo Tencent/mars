@@ -76,6 +76,12 @@ namespace mars{
         void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv) {
             GetSignalOnNetworkDataChange()(_tag, _send, _recv);
         }
+
+#ifdef ANDROID
+        void OnAlarm(int64_t _id) {
+            GetSignalOnAlarm()(_id);
+        }
+#endif
     }
 }
 
