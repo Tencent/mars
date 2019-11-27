@@ -448,12 +448,14 @@ void NetCore::OnNetworkChange() {
 
 void NetCore::KeepSignal() {
     ASYNC_BLOCK_START
+    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
     longlink_task_manager_->DefaultLongLink()->SignalKeeper()->Keep();
     ASYNC_BLOCK_END
 }
 
 void NetCore::StopSignal() {
     ASYNC_BLOCK_START
+    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
     longlink_task_manager_->DefaultLongLink()->SignalKeeper()->Stop();
     ASYNC_BLOCK_END
 }
@@ -498,6 +500,7 @@ void NetCore::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, 
 void NetCore::MakeSureLongLinkConnect() {
 #ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
+    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
     longlink_task_manager_->DefaultLongLink()->Channel()->MakeSureConnected();
     ASYNC_BLOCK_END
 #endif
@@ -505,6 +508,7 @@ void NetCore::MakeSureLongLinkConnect() {
 
 bool NetCore::LongLinkIsConnected() {
 #ifdef USE_LONG_LINK
+    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return false;
     return LongLink::kConnected == longlink_task_manager_->DefaultLongLink()->Channel()->ConnectStatus();
 #else
     return false;
@@ -535,6 +539,7 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
     if (_status_code == 301 || _status_code == 302 || _status_code == 307) {
         
 #ifdef USE_LONG_LINK
+        if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
         LongLink::TLongLinkStatus longlink_status = longlink_task_manager_->DefaultLongLink()->Channel()->ConnectStatus();
         unsigned int continues_fail_count = longlink_task_manager_->GetTasksContinuousFailCount();
         xinfo2(TSF"status code:%0, long link status:%1, longlink task continue fail count:%2", _status_code, longlink_status, continues_fail_count);
@@ -639,6 +644,7 @@ void NetCore::__ConnStatusCallBack() {
     }
     int longlink_connstatus = kNetworkUnkown;
 #ifdef USE_LONG_LINK
+    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
     longlink_connstatus = longlink_task_manager_->DefaultLongLink()->Channel()->ConnectStatus();
     switch (longlink_connstatus) {
         case LongLink::kDisConnected:
