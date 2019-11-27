@@ -346,10 +346,8 @@ static bool GetWinV4GateWay() {
 		while (address_temp) {
 			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = address_temp->FirstGatewayAddress;
 			if (gateway) {
-
 				SOCKET_ADDRESS gateway_address = gateway->Address;
-				if (gateway->Address.lpSockaddr->sa_family == AF_INET)
-				{
+				if (gateway->Address.lpSockaddr->sa_family == AF_INET) {
 					sockaddr_in *sa_in = (sockaddr_in *)gateway->Address.lpSockaddr;
 					xinfo2(TSF"gateway IPV4: %_", inet_ntop(AF_INET, &(sa_in->sin_addr), buff, bufflen));
 					struct sockaddr_in addr;
@@ -361,8 +359,7 @@ static bool GetWinV4GateWay() {
 			}
 			address_temp = address_temp->Next;
 		}
-	}
-	else {
+	} else {
 		xinfo2("ipv4 stack detect GetAdaptersAddresses failed.");
 	}
 	free(pAddresses);
@@ -381,7 +378,6 @@ static bool GetWinV6GateWay() {
 	GetAdaptersAddresses(AF_UNSPEC, 0, NULL, pAddresses, &out_buf_len);
 
 	pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(out_buf_len);
-    PIP_ADAPTER_ADDRESSES pAddresses_temp = 
 
 	if ((dw_ret_val = GetAdaptersAddresses(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &out_buf_len)) == NO_ERROR) {
 
@@ -389,10 +385,8 @@ static bool GetWinV6GateWay() {
 		while (address_temp) {
 			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = address_temp->FirstGatewayAddress;
 			if (gateway) {
-
 				SOCKET_ADDRESS gateway_address = gateway->Address;
-				if (gateway->Address.lpSockaddr->sa_family == AF_INET6)
-				{
+				if (gateway->Address.lpSockaddr->sa_family == AF_INET6) {
 					sockaddr_in6 *sa_in6 = (sockaddr_in6 *)gateway->Address.lpSockaddr;
 					xinfo2(TSF"gateway IPV6: %_", inet_ntop(AF_INET6, &(sa_in6->sin6_addr), buff, bufflen));
 					struct sockaddr_in6 addr6;
@@ -408,8 +402,7 @@ static bool GetWinV6GateWay() {
 			}
 			address_temp = address_temp->Next;
 		}
-	}
-	else {
+	} else {
 		xinfo2("ipv6 stack detect GetAdaptersAddresses failed.");
 	}
 	free(pAddresses);
