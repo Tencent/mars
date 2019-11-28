@@ -788,7 +788,7 @@ void NetCore::DestroyLongLink(const std::string& _name){
     }
     
     if(longlink->SignalKeeper() != nullptr) {
-        GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper(), _1, _2, _3));
+        GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
     }
     longlink->Channel()->SignalConnection.disconnect_all_slots();
     longlink->Channel()->broadcast_linkstatus_signal_.disconnect_all_slots();
