@@ -140,6 +140,14 @@ LongLinkConnectMonitor::~LongLinkConnectMonitor() {
     asyncreg_.CancelAndWait();
 }
 
+void LongLinkConnectMonitor::DisconnectAllSlot() {
+    if(is_keep_alive_) {
+        longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
+        activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
+        activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+    }
+}
+
 bool LongLinkConnectMonitor::MakeSureConnected() {
     __IntervalConnect(kTaskConnect);
     return LongLink::kConnected == longlink_.ConnectStatus();

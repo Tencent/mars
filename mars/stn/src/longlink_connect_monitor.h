@@ -41,6 +41,7 @@ class LongLinkConnectMonitor {
   public:
     bool MakeSureConnected();
     bool NetworkChange();
+    void DisconnectAllSlot();
 
   public:
     boost::function<void ()> fun_longlink_reset_;

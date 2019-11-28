@@ -50,6 +50,7 @@ SignallingKeeper::SignallingKeeper(const LongLink& _longlink, MessageQueue::Mess
 
 SignallingKeeper::~SignallingKeeper()
 {
+    xinfo_function();
     Stop();
 }
 

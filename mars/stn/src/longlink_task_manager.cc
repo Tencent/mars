@@ -780,6 +780,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
     
     longlink_metas_.erase(_name);
     longlink->Channel()->SignalConnection.disconnect_all_slots();
+    longlink->Monitor()->DisconnectAllSlot();
     lock.unlock();
     {
     // MessageQueue::AsyncInvoke([&,longlink] () {
