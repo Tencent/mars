@@ -129,14 +129,15 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
 }
 
 LongLinkConnectMonitor::~LongLinkConnectMonitor() {
+    xinfo_function();
 #ifdef __APPLE__
     __StopTimer();
 #endif
-    if(is_keep_alive_) {
+//    if(is_keep_alive_) {
         longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
         activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
         activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
-    }
+//    }
     asyncreg_.CancelAndWait();
 }
 
