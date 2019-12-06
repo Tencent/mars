@@ -285,7 +285,7 @@ static char* sock_ntop_host(const struct sockaddr* sa, socklen_t salen) {
     case AF_INET6: {
         struct sockaddr_in6* sin6 = (struct sockaddr_in6*)sa;
 
-        if (inet_ntop
+        if (socket_inet_ntop
                 (AF_INET6, &sin6->sin6_addr, str,
                  sizeof(str)) == NULL)
             return (NULL);
