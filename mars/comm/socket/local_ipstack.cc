@@ -20,9 +20,9 @@
 #include "local_ipstack.h"
 #include <vector>
 #include "xlogger/xlogger.h"
+#include "socket/unix_socket.h"
 #if (defined(__APPLE__) || defined(ANDROID))
 #include <strings.h>
-#include "socket/unix_socket.h"
 #include "network/getifaddrs.h"
 #if defined(__APPLE__)
 #include "network/getgateway.h"
