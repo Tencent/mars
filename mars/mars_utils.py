@@ -43,6 +43,7 @@ WIN_COPY_EXT_FILES = {
             "mars/comm/windows/projdef.h": "comm/windows",
             "mars/comm/windows/sys/cdefs.h": "comm/windows/sys",
             "mars/comm/windows/sys/time.h": "comm/windows/sys",
+            "mars/comm/platform_comm.h": "comm",
 }
 
 XLOG_COPY_HEADER_FILES = {

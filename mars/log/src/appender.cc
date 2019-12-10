@@ -807,6 +807,36 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
     return (const char*)sg_tss_dumpfile.get();
 }
 
+const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
+    if (NULL == _dumpbuffer || 0 == _len) {
+        //        ASSERT(NULL!=_dumpbuffer);
+        //        ASSERT(0!=_len);
+        return "";
+    }
+
+    SCOPE_ERRNO();
+
+    if (NULL == sg_tss_dumpfile.get()) {
+        sg_tss_dumpfile.set(calloc(4096, 1));
+    } else {
+        memset(sg_tss_dumpfile.get(), 0, 4096);
+    }
+
+    ASSERT(NULL != sg_tss_dumpfile.get());
+
+    char* dump_log = (char*)sg_tss_dumpfile.get();
+    dump_log += snprintf(dump_log, 4096, "\n%zu bytes:\n",_len);
+
+    int dump_len = 0;
+
+    for (int x = 0; x < 32 && dump_len < (int)_len; ++x) {
+        dump_log += to_string((const char*)_dumpbuffer + dump_len, std::min(int(_len) - dump_len, 32), dump_log);
+        dump_len += std::min((int)_len - dump_len, 32);
+        *(dump_log++) = '\n';
+    }
+
+    return (const char*)sg_tss_dumpfile.get();
+}
 
 static void get_mark_info(char* _info, size_t _infoLen) {
     struct timeval tv;

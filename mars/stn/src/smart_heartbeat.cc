@@ -133,6 +133,9 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
         }
     }
     else {
+        if(_fail_of_timeout) {
+            current_net_heart_info_.succ_heart_count_ = 0;
+        }
         current_net_heart_info_.fail_heart_count_ += 1;
     }
     
