@@ -807,6 +807,11 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
     return (const char*)sg_tss_dumpfile.get();
 }
 
+static int calc_dump_required_length(int srcbytes){
+    //MUST CHANGE THIS IF YOU CHANGE `to_string` function.
+    return srcbytes * 6 + 1;
+}
+
 const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
     if (NULL == _dumpbuffer || 0 == _len) {
         //        ASSERT(NULL!=_dumpbuffer);
@@ -816,24 +821,47 @@ const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
 
     SCOPE_ERRNO();
 
+    const static int kMaxBufferLength = 4096;
     if (NULL == sg_tss_dumpfile.get()) {
-        sg_tss_dumpfile.set(calloc(4096, 1));
+        sg_tss_dumpfile.set(calloc(kMaxBufferLength, 1));
     } else {
-        memset(sg_tss_dumpfile.get(), 0, 4096);
+        memset(sg_tss_dumpfile.get(), 0, kMaxBufferLength);
     }
 
     ASSERT(NULL != sg_tss_dumpfile.get());
 
-    char* dump_log = (char*)sg_tss_dumpfile.get();
-    dump_log += snprintf(dump_log, 4096, "\n%zu bytes:\n",_len);
-
-    int dump_len = 0;
-
-    for (int x = 0; x < 32 && dump_len < (int)_len; ++x) {
-        dump_log += to_string((const char*)_dumpbuffer + dump_len, std::min(int(_len) - dump_len, 32), dump_log);
-        dump_len += std::min((int)_len - dump_len, 32);
-        *(dump_log++) = '\n';
+    char* dst_buffer = (char*)sg_tss_dumpfile.get();
+    const char* src_buffer = reinterpret_cast<const char*>(_dumpbuffer);
+    int round_bytes = snprintf(dst_buffer, kMaxBufferLength, "\n%zu bytes:\n",_len);
+    if (round_bytes <= 0){
+        return "<format log failed>";
     }
+    
+    int dst_offset = round_bytes;
+    int dst_upper = kMaxBufferLength - 1;
+    for(int src_offset = 0; src_offset < _len && dst_offset < dst_upper;){
+        int dst_leftbytes = dst_upper - dst_offset;
+        int bytes = std::min((int)_len - src_offset, 32);
+        
+        while (bytes > 0 && calc_dump_required_length(bytes) >= dst_leftbytes) {
+            --bytes;
+        }
+        if (bytes <= 0){
+            break;
+        }
+
+        round_bytes = to_string(src_buffer + src_offset, bytes, dst_buffer + dst_offset);
+               
+        dst_offset += round_bytes;
+        src_offset += bytes;
+        
+        //next line
+        *(dst_buffer + dst_offset) = '\n';
+        ++dst_offset;
+    }
+    
+    ASSERT(dst_offset < kMaxBufferLength);
+    *(dst_buffer+dst_offset) = '\0';
 
     return (const char*)sg_tss_dumpfile.get();
 }
