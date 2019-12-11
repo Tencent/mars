@@ -839,7 +839,7 @@ const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
     
     int dst_offset = round_bytes;
     int dst_upper = kMaxBufferLength - 1;
-    for(int src_offset = 0; src_offset < _len && dst_offset < dst_upper;){
+    for(int src_offset = 0; src_offset < (int)_len && dst_offset < dst_upper;){
         int dst_leftbytes = dst_upper - dst_offset;
         int bytes = std::min((int)_len - src_offset, 32);
         
