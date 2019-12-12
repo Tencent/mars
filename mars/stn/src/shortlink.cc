@@ -354,12 +354,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
 bool ShortLink::__ContainIPv6(const std::vector<socket_address>& _vecaddr) {
     if (!_vecaddr.empty()) {
-        for (unsigned int i = 0; i < _vecaddr.size(); ++i) {
-            in6_addr addr6 = IN6ADDR_ANY_INIT;
-            if (socket_inet_pton(AF_INET6, _vecaddr[i].ip(), &addr6)) {
-                xinfo2(TSF"ip %_ is v6", _vecaddr[i].ip());
-                return true;
-            }
+        in6_addr addr6 = IN6ADDR_ANY_INIT;
+        if (socket_inet_pton(AF_INET6, _vecaddr[0].ip(), &addr6)) { //first ip is ipv6
+            xinfo2(TSF"ip %_ is v6", _vecaddr[0].ip());
+            return true;
         }
     }
     return false;
