@@ -170,7 +170,6 @@ void ShortLink::__Run() {
     }
 }
 
-
 SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
@@ -291,7 +290,14 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
 
     ShortLinkConnectObserver connect_observer(*this);
-	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval);
+
+    ComplexConnect::EachIPConnectTimoutMode timoutMode = ComplexConnect::EachIPConnectTimoutMode::MODE_FIXED;
+    if (__ContainIPv6(vecaddr)) {
+        timoutMode = ComplexConnect::EachIPConnectTimoutMode::MODE_INCREASE;
+    } else {
+        xinfo2(TSF"address vector has no ipv6");
+    }
+	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval, timoutMode);
     
     SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
     delete proxy_addr;
@@ -343,6 +349,20 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
 //    xerror2_if(0 != setsockopt(sock, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger)), TSF"SO_LINGER %_(%_)", socket_errno, socket_strerror(socket_errno));
     return sock;
+}
+
+
+bool ShortLink::__ContainIPv6(const std::vector<socket_address>& _vecaddr) {
+    if (!_vecaddr.empty()) {
+        for (unsigned int i = 0; i < _vecaddr.size(); ++i) {
+            in6_addr addr6 = IN6ADDR_ANY_INIT;
+            if (socket_inet_pton(AF_INET6, _vecaddr[i].ip(), &addr6)) {
+                xinfo2(TSF"ip %_ is v6", _vecaddr[i].ip());
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, ConnectProfile& _conn_profile) {

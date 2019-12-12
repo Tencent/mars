@@ -27,6 +27,7 @@
 
 #include <limits.h>
 #include <algorithm>
+#include <math.h>
 
 #include "comm/xlogger/xlogger.h"
 #include "comm/socket/socketselect.h"
@@ -41,15 +42,23 @@
 #ifdef COMPLEX_CONNECT_NAMESPACE
 namespace COMPLEX_CONNECT_NAMESPACE {
 #endif
+
+static const unsigned int kTimeoutModeIncreaseInterval = 1000;
     
 ComplexConnect::ComplexConnect(unsigned int _timeout, unsigned int _interval)
     : timeout_(_timeout), interval_(_interval), error_interval_(_interval), max_connect_(3), trycount_(0), index_(-1), errcode_(0)
-    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false)
+    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false), each_IP_timeout_mode_(EachIPConnectTimoutMode::MODE_FIXED)
 {}
 
 ComplexConnect::ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, unsigned int _error_interval /*ms*/, unsigned int _max_connect)
     : timeout_(_timeout), interval_(_interval), error_interval_(_error_interval), max_connect_(_max_connect),  trycount_(0), index_(-1), errcode_(0)
-    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false)
+    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false), each_IP_timeout_mode_(EachIPConnectTimoutMode::MODE_FIXED)
+{}
+
+
+ComplexConnect::ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, EachIPConnectTimoutMode _mode)
+    : timeout_(_timeout), interval_(_interval), error_interval_(_interval), max_connect_(3), trycount_(0), index_(-1), errcode_(0)
+    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false), each_IP_timeout_mode_(_mode) 
 {}
 
 ComplexConnect::~ComplexConnect()
@@ -478,7 +487,13 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     }
 
     uint64_t  curtime = gettickcount();
-    uint64_t  laststart_connecttime = curtime - std::max(interval_, error_interval_);
+    uint64_t  laststart_connecttime = 0;
+    if (each_IP_timeout_mode_ == EachIPConnectTimoutMode::MODE_INCREASE) {
+        unsigned int timeout_interval = std::min(kTimeoutModeIncreaseInterval, interval_);
+        laststart_connecttime = curtime - std::min(timeout_interval, error_interval_);
+    } else {
+        laststart_connecttime = curtime - std::max(interval_, error_interval_);
+    }
 
     xdebug2(TSF"curtime:%_, laststart_connecttime:%_, @%_", curtime, laststart_connecttime, this);
 
@@ -492,7 +507,16 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         SocketSelect sel(_breaker);
         sel.PreSelect();
 
-        int next_connect_timeout = int(((0 == lasterror) ? interval_ : error_interval_) - (curtime - laststart_connecttime));
+        int next_connect_timeout = 0;
+        if (each_IP_timeout_mode_ == EachIPConnectTimoutMode::MODE_INCREASE) {
+            unsigned int timeout_interval = (unsigned int)(kTimeoutModeIncreaseInterval * pow(2, index));
+            int connect_internal = std::min(timeout_interval, interval_);
+            next_connect_timeout = int(connect_internal - (curtime - laststart_connecttime));
+        } else {
+            next_connect_timeout = int(((0 == lasterror) ? interval_ : error_interval_) - (curtime - laststart_connecttime));
+        }
+
+        xinfo2(TSF"next_connect_timeout %_", next_connect_timeout);
 
         int timeout = (int)timeout_;
         unsigned int runing_count = (unsigned int)std::count_if(vecsocketfsm.begin(), vecsocketfsm.end(), &__isconnecting);
@@ -507,7 +531,14 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         if (index < vecsocketfsm.size()
                 && 0 >= next_connect_timeout
                 && runing_count < max_connect_) {
-            if (runing_count + 1 < max_connect_) timeout = std::min(timeout, (int)interval_);
+            if (runing_count + 1 < max_connect_) {
+                if (each_IP_timeout_mode_ == EachIPConnectTimoutMode::MODE_INCREASE) {
+                    unsigned int timeout_interval = (unsigned int)(kTimeoutModeIncreaseInterval * pow(2, index));
+                    timeout = std::min(timeout, (int)std::min(interval_, timeout_interval));
+                } else {
+                    timeout = std::min(timeout, (int)interval_);
+                }
+            }
 
             laststart_connecttime = gettickcount();
             lasterror = 0;
@@ -532,6 +563,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             ret = sel.Select();
         } else {
             timeout = std::max(0, timeout);
+            xinfo2(TSF"select timeout %_ index is %_ ", timeout, index);
             ret = sel.Select(timeout);
         }
 
