@@ -351,7 +351,7 @@ static bool GetWinV4GateWay() {
 					sockaddr_in *sa_in = (sockaddr_in *)gateway->Address.lpSockaddr;
 					xinfo2(TSF"gateway IPV4: %_", socket_inet_ntop(AF_INET, &(sa_in->sin_addr), buff, bufflen));
 					struct sockaddr_in addr;
-					if (inet_pton(AF_INET, buff, &addr.sin_addr) == 1) {
+					if (socket_inet_pton(AF_INET, buff, &addr.sin_addr) == 1) {
 						xinfo2(TSF"this is true v4 !"); 
                         result = true;
 					}
@@ -390,7 +390,7 @@ static bool GetWinV6GateWay() {
 					sockaddr_in6 *sa_in6 = (sockaddr_in6 *)gateway->Address.lpSockaddr;
 					xinfo2(TSF"gateway IPV6: %_", socket_inet_ntop(AF_INET6, &(sa_in6->sin6_addr), buff, bufflen));
 					struct sockaddr_in6 addr6;
-					if (inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
+					if (socket_inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
 						std::string v6_s(buff);
 						if (v6_s == "::") {
 							xwarn2("the v6 is fake!");
