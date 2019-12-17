@@ -323,8 +323,9 @@ static void __local_info(std::string& _log) {
 #include <string>
 #include <WS2tcpip.h>
 #include <winsock.h>
-#include <WinSock2.h>
 #include <Iphlpapi.h>
+#include <WinSock2.h>
+#include "windows/VersionHelpers.h"
 
 #pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"Iphlpapi.lib")
@@ -430,9 +431,13 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
 }
 
 TLocalIPStack local_ipstack_detect() {
-    xinfo2(TSF"windows start to detect local stack");
-    std::string log;
-    return __local_ipstack_detect(log);
+    if (IsWindows7OrGreater()) {
+        xinfo2(TSF"windows start to detect local stack");
+        std::string log;
+        return __local_ipstack_detect(log);
+    }
+    xinfo2("windows version under 7");
+    return ELocalIPStack_IPv4;
 }
 TLocalIPStack local_ipstack_detect_log(std::string& _log) {
 	_log = "no implement";
