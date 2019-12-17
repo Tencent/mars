@@ -48,9 +48,9 @@ void getWatchDogPath(std::string& aPath)
 {
 }
 
-void getKVCommPath(std::string& aPath)
-{
-}
+// void getKVCommPath(std::string& aPath)
+// {
+// }
 
 
 void getCrashFilePath(std::string& filePath, int timespan) {
