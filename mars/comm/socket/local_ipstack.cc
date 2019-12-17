@@ -323,8 +323,8 @@ static void __local_info(std::string& _log) {
 #include <string>
 #include <WS2tcpip.h>
 #include <winsock.h>
-#include <Iphlpapi.h>
 #include <WinSock2.h>
+#include <Iphlpapi.h>
 
 #pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"Iphlpapi.lib")
@@ -347,6 +347,7 @@ static bool GetWinV4GateWay() {
 			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = address_temp->FirstGatewayAddress;
 			if (gateway) {
 				SOCKET_ADDRESS gateway_address = gateway->Address;
+
                 if (gateway->Address.lpSockaddr) {
                     if (gateway->Address.lpSockaddr->sa_family == AF_INET) {
                         sockaddr_in *sa_in = (sockaddr_in *)gateway->Address.lpSockaddr;
