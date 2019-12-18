@@ -21,12 +21,13 @@
 
 #ifdef __APPLE__
 #include <libkern/OSAtomic.h>
+#include <os/lock.h>
 
-#define splock OSSpinLock
-#define splockinit(lock) {*lock = OS_SPINLOCK_INIT;}
-#define splocklock OSSpinLockLock
-#define splockunlock OSSpinLockUnlock
-#define splocktrylock OSSpinLockTry
+#define splock os_unfair_lock
+#define splockinit(lock) {*lock = OS_UNFAIR_LOCK_INIT;}
+#define splocklock os_unfair_lock_lock
+#define splockunlock os_unfair_lock_unlock
+#define splocktrylock os_unfair_lock_trylock
 
 class SpinLock
 {
