@@ -49,8 +49,7 @@ template<int x> struct xlogger_static_assert_test{};
 										sizeof(::XLOGGER_STATIC_ASSERTION_FAILURE< ((__VA_ARGS__) == 0 ? false : true) >)>\
 										PP_CAT(boost_static_assert_typedef_, __LINE__)
 
-using TypeSafeFormat = void*;
-//const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
+struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
 const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
 const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
 
@@ -195,8 +194,8 @@ public:
 	}
 
 	XLogger& operator()() { return *this; }
-//	XLogger& operator()(const XLoggerInfoNull&) { m_isinfonull = true; return *this;}
-//	XLogger& operator()(const XLoggerTag&, const char* _tag) { m_info.tag = _tag; return *this;}
+	XLogger& operator()(const XLoggerInfoNull&) { m_isinfonull = true; return *this;}
+	XLogger& operator()(const XLoggerTag&, const char* _tag) { m_info.tag = _tag; return *this;}
 #ifdef __GNUC__
 	__attribute__((__format__ (printf, 2, 3)))
 #endif
@@ -709,8 +708,7 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xexitmsg_function_if(exp, ...)	   if((!exp)); else ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
 
 
-#define TSF alloca(1),
-//#define TSF  __tsf__,
+#define TSF  __tsf__,
 #define XTAG __xlogger_tag__,
 #define XNULL __xlogger_info_null__
 #define XENDL "\n"
