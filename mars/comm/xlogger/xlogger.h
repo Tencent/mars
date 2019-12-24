@@ -146,6 +146,9 @@ public:
 
 		gettimeofday(&m_info.timeval, NULL);
 		if (m_hook && !m_hook(m_info, m_message)) return;
+
+        xlogger_filter_t filter = xlogger_GetFilter();
+        if (filter && filter(&m_info, m_message.c_str()) <= 0)  return;
 		
 		if (m_isassert)
 			xlogger_Assert(m_isinfonull?NULL:&m_info, m_exp, m_message.c_str());
