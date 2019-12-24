@@ -83,12 +83,7 @@ void getWatchDogPath(std::string& _watchDogPath)
 	_watchDogPath = getAppFilePath();
 	_watchDogPath += "\\watchdog\\";
 }
-// void getKVCommPath(std::string& _kvCommPath)
-// {
-// 	xverbose_function();
-// 	_kvCommPath = getAppFilePath();
-// 	_kvCommPath += "\\kvcomm\\";
-// }
+
 void getCrashFilePath(std::string& filePath, int timespan)
 {
 	xverbose_function();
