@@ -110,6 +110,8 @@ struct ConnectProfile {
         socket_fd = INVALID_SOCKET;
         keepalive_timeout = 0;
         is_reused_fd = false;
+        req_byte_count = 0;
+        cgi.clear();
     }
     
     std::string net_type;
@@ -154,6 +156,8 @@ struct ConnectProfile {
     uint32_t keepalive_timeout;
     bool is_reused_fd;
     int local_net_stack;
+    uint64_t req_byte_count;
+    std::string cgi;
 };
 
         
