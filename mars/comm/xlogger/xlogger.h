@@ -51,8 +51,8 @@ template<int x> struct xlogger_static_assert_test{};
 
 
 struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
-const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
-const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
+struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
+struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
 
 
 class XMessage {
