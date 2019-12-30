@@ -100,7 +100,10 @@ namespace mars { namespace stn {
 using namespace mars::stn;
 
 SimpleIPPortSort::SimpleIPPortSort()
-: hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName) {
+: hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName)
+, IPv6_ban_flag_(0)
+, IPv4_ban_flag_(0) 
+, ban_v6_time_internal_(0) {
         
     if (!boost::filesystem::exists(hostpath_)){
         boost::filesystem::create_directory(hostpath_);
@@ -320,6 +323,52 @@ void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip,
         item.last_fail_time.gettickcount();
     
     _ban_fail_list_.push_back(item);
+}
+
+void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _success) {
+    if (__IsIPv6(_ip)) {
+        if (_success) {
+            SET_BIT(IPv6_ban_flag_, 0);
+        } else {
+            SET_BIT(IPv6_ban_flag_, 1);
+        }
+        IPv6_ban_flag_ &= 0x7F;
+        if (__BanTimes(IPv6_ban_flag_) >= 3) {
+            ban_v6_time_internal_ += (5 * 60 * 1000);
+            ban_v6_time_internal_ = std::min(ban_v6_time_internal_, 30 * 60 * 1000);
+            start_ban_time_ = gettickcount():
+        }
+    } else {
+        if (_success) {
+            SET_BIT(IPv4_ban_flag_, 0);
+        } else {
+            SET_BIT(IPv4_ban_flag_, 1);
+        }
+        IPv4_ban_flag_ &= 0x7F;
+        if (__BanTimes(IPv4_ban_flag_) >= 3) {
+            ban_v6_time_internal_ = 0;
+            start_ban_time_ = 0;
+        }
+    }
+}
+
+int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
+    int ban_times = 0;
+    uint8_t tmp_v6 = _flag;
+    while (tmp_v6 & 1) {
+        ban_times ++;
+        tmp_v6 = tmp_v6 >> 1;
+    }
+    return ban_times;
+}
+
+bool SimpleIPPortSort::CanUseIPv6() {
+    return !((gettickcount() - start_ban_time_) > ban_v6_time_internal_);
+}
+
+bool SimpleIPPortSort::__IsIPv6(const std::string& _ip) {
+    in6_addr addr6 = IN6ADDR_ANY_INIT;
+    return socket_inet_pton(AF_INET6, _ip.c_str(), &addr6);
 }
 
 bool SimpleIPPortSort::__CanUpdate(const std::string& _ip, uint16_t _port, bool _is_success) const {
