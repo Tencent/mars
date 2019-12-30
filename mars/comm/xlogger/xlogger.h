@@ -50,9 +50,15 @@ template<int x> struct xlogger_static_assert_test{};
 										PP_CAT(boost_static_assert_typedef_, __LINE__)
 
 
-struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
-struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
-struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
+#if defined(__APPLE__)
+	struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
+	struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
+	struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
+#else
+	const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
+	const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
+	const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
+#endif
 
 
 class XMessage {
