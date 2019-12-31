@@ -29,6 +29,7 @@
 #include "boost/bind.hpp"
 #include "boost/accumulators/numeric/functional.hpp"
 
+#include "mars/comm/socket/unix_socket.h"
 
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
@@ -103,7 +104,8 @@ SimpleIPPortSort::SimpleIPPortSort()
 : hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName)
 , IPv6_ban_flag_(0)
 , IPv4_ban_flag_(0) 
-, ban_v6_time_internal_(0) {
+, ban_v6_time_internal_(0)
+, start_ban_time_(0) {
         
     if (!boost::filesystem::exists(hostpath_)){
         boost::filesystem::create_directory(hostpath_);
@@ -301,6 +303,7 @@ bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
 }
 
 void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip, unsigned short _port) {
+    __UpdateBanFlagAndTime(_ip, _is_success);
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             SET_BIT(!_is_success, iter->records);
@@ -325,24 +328,38 @@ void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip,
     _ban_fail_list_.push_back(item);
 }
 
+
+static int decToBin(int dec) {
+	int result = 0, temp = dec, j = 1;
+	while(temp) {
+		result = result + j * (temp % 2);
+		temp = temp / 2;
+		j = j * 10;
+	}
+	return result;
+}
+
 void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _success) {
     if (__IsIPv6(_ip)) {
         if (_success) {
-            SET_BIT(IPv6_ban_flag_, 0);
+            SET_BIT(0, IPv6_ban_flag_);
         } else {
-            SET_BIT(IPv6_ban_flag_, 1);
+            SET_BIT(1, IPv6_ban_flag_);
         }
         IPv6_ban_flag_ &= 0x7F;
         if (__BanTimes(IPv6_ban_flag_) >= 3) {
             ban_v6_time_internal_ += (5 * 60 * 1000);
-            ban_v6_time_internal_ = std::min(ban_v6_time_internal_, 30 * 60 * 1000);
-            start_ban_time_ = gettickcount():
+            ban_v6_time_internal_ = std::min((int)ban_v6_time_internal_, 30 * 60 * 1000);
+            ban_v6_time_internal_ = std::max((int)ban_v6_time_internal_, 0);
+            if (start_ban_time_ != 0) {
+                start_ban_time_ = gettickcount();
+            }
         }
     } else {
         if (_success) {
-            SET_BIT(IPv4_ban_flag_, 0);
+            SET_BIT(0, IPv4_ban_flag_);
         } else {
-            SET_BIT(IPv4_ban_flag_, 1);
+            SET_BIT(1, IPv4_ban_flag_);
         }
         IPv4_ban_flag_ &= 0x7F;
         if (__BanTimes(IPv4_ban_flag_) >= 3) {
@@ -350,6 +367,7 @@ void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _succ
             start_ban_time_ = 0;
         }
     }
+    xdebug2(TSF"ip is %_, success is %_ , current v6 flag %_ , current v4 flag %_ , v6 ban time is %_ ,", _ip, _success, decToBin(IPv6_ban_flag_), decToBin(IPv4_ban_flag_), ban_v6_time_internal_);
 }
 
 int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
@@ -359,6 +377,7 @@ int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
         ban_times ++;
         tmp_v6 = tmp_v6 >> 1;
     }
+    xinfo2(TSF"flag is %_, ban time is %_ ", _flag, ban_times);
     return ban_times;
 }
 
