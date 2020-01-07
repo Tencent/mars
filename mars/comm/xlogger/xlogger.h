@@ -50,16 +50,9 @@ template<int x> struct xlogger_static_assert_test{};
 										PP_CAT(boost_static_assert_typedef_, __LINE__)
 
 
-#if defined(__APPLE__)
-	struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
-	struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
-	struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
-#else
-	const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
-	const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
-	const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
-#endif
-
+using TypeSafeFormat = void*;
+const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
+const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
 
 class XMessage {
 public:
@@ -718,7 +711,8 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xexitmsg_function_if(exp, ...)	   if((!exp)); else ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
 
 
-#define TSF __tsf__,
+// #define TSF __tsf__,
+#define TSF alloca(1),
 #define XTAG __xlogger_tag__,
 #define XNULL __xlogger_info_null__
 #define XENDL "\n"
