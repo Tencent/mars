@@ -46,7 +46,7 @@ using namespace mars::app;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<void (std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+boost::function<void (void* const _user_context, std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
@@ -231,8 +231,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
-    bool ismakesureauthsuccess = false;
-    std::map<std::string, bool> has_makesureauth_host;
     uint64_t curtime = ::gettickcount();
     int sent_count = 0;
 
@@ -255,7 +253,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         Task task = first->task;
         if (get_real_host_) {
-            get_real_host_(task.shortlink_host_list);
+            get_real_host_(task.user_context, task.shortlink_host_list);
         }
         std::string host = task.shortlink_host_list.front();
         xinfo2(TSF"host ip to callback is %_ ",host);
@@ -263,12 +261,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         xinfo2(TSF"need auth cgi %_ , host %_ need auth %_ ", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
-            if (has_makesureauth_host.find(host) == has_makesureauth_host.end()) {
-                has_makesureauth_host[host] = MakesureAuthed(host);
-            }
-
-            ismakesureauthsuccess = has_makesureauth_host[host];
-            
+            bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_context);
             xinfo2(TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {

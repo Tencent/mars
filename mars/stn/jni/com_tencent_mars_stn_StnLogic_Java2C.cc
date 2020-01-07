@@ -198,7 +198,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 
 	task.retry_count = retrycount;
 	task.server_process_cost = server_process_cost;
-	task.total_timetout = total_timetout;
+	task.total_timeout = total_timetout;
 	task.headers = headers;
 
 	if (NULL != report_arg) {

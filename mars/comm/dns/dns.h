@@ -53,6 +53,10 @@ class DNS {
     void SetMonitorFunc(const boost::function<void (int _key)>& _monitor_func) {
     	monitor_func_ = _monitor_func;
     }
+
+    void SetDnsFunc(DNSFunc _dnsfunc) {
+      dnsfunc_ = _dnsfunc;
+    }
   private:
     DNSFunc dnsfunc_;
     boost::function<void (int _key)> monitor_func_;

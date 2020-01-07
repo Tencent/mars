@@ -179,7 +179,7 @@ public class StnLogic {
          * SDK要求上层做认证操作(可能新发起一个AUTH CGI)
          * @return
          */
-        boolean makesureAuthed(String host);
+        boolean makesureAuthed(String host, Object userContext);
 
         /**
          * SDK要求上层做域名解析.上层可以实现传统DNS解析,或者自己实现的域名/IP映射
@@ -377,13 +377,13 @@ public class StnLogic {
      *  要求上层进行AUTH操作.
      *  如果一个TASK要求AUTH状态而当前没有AUTH态,组件就会回调此方法
      */
-    private static boolean makesureAuthed(String host) {
+    private static boolean makesureAuthed(String host, Object userContext) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return false;
             }
-            return callBack.makesureAuthed(host);
+            return callBack.makesureAuthed(host, userContext);
         } catch (Exception e) {
             e.printStackTrace();
         }
