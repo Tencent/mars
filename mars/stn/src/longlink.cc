@@ -362,8 +362,11 @@ void LongLink::__UpdateProfile(const ConnectProfile& _conn_profile) {
     if (0 != conn_profile_.disconn_time) broadcast_linkstatus_signal_(conn_profile_);
 }
 
-void LongLink::__OnAlarm() {
+void LongLink::__OnAlarm(bool _noop_timeout) {
     readwritebreak_.Break();
+    if (OnNoopAlarmReceived) {
+        OnNoopAlarmReceived(_noop_timeout);
+    }
 #ifdef ANDROID
     wakelock_->Lock(3 * 1000);
 #endif
@@ -559,8 +562,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 
 void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile) {
     
-    Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this), false);
-    Alarm alarmnooptimeout(boost::bind(&LongLink::__OnAlarm, this), false);
+    Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this, false), false);
+    Alarm alarmnooptimeout(boost::bind(&LongLink::__OnAlarm, this, true), false);
     
     std::map <uint32_t, StreamResp> sent_taskids;
     std::vector<LongLinkNWriteData> nsent_datas;
