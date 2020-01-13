@@ -37,7 +37,7 @@
 
 #ifdef __ANDROID__
 #include <sstream>
-#include "xlogger/android_xlog.h"
+#include <android/log.h>
 #endif
 
 using namespace mars::stn;
