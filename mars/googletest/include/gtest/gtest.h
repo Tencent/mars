@@ -2376,6 +2376,10 @@ GTEST_API_ std::string TempDir();
 #  pragma warning(pop)
 #endif
 
+// EXPORT FUNCTIONS IN STATIC LIB
+#define EXPORT_GTEST_SYMBOLS(func)  \
+  void func(){}
+
 // Dynamically registers a test with the framework.
 //
 // This is an advanced API only to be used when the `TEST` macros are

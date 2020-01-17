@@ -398,6 +398,7 @@ std::string get_local_route_table()
     }
     if (sysctl(mib, 6, buf, &needed, NULL, 0) < 0) {
         result = "fail: sysctl: net.route.0.0.dump";
+        free(buf);
         return result;
     }
     
@@ -408,7 +409,7 @@ std::string get_local_route_table()
         result += np_rtentry(rtm);
         next += rtm->rtm_msglen;
     }
-    
+    free(buf);
     return result;
 }
 
