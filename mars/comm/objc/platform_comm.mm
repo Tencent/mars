@@ -86,8 +86,6 @@ void FlushReachability() {
 }
 
 float publiccomponent_GetSystemVersion() {
-    //	float system_version = [UIDevice currentDevice].systemVersion.floatValue;
-    //	return system_version;
     NSString *versionString;
     NSDictionary * sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
     if (nil != sv){
@@ -411,8 +409,10 @@ NSLog(@"Current Radio Access Technology: %@", telephonyInfo.currentRadioAccessTe
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo)
 {
     SCOPE_POOL();
+    if (publiccomponent_GetSystemVersion() < 7.0){
+        return false;
+    }
     
-    if (!([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)) { return false;}
     static CTTelephonyNetworkInfo* s_networkinfo = [[CTTelephonyNetworkInfo alloc] init];
     
     NSString *currentRadioAccessTechnology = s_networkinfo.currentRadioAccessTechnology;

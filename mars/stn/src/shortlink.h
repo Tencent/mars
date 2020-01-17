@@ -67,6 +67,9 @@ class ShortLink : public ShortLinkInterface {
 
     void 			 __RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _conn_profile, bool _report = true);
     void 			 __OnResponse(ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, ConnectProfile& _conn_profile, bool _report = true);
+
+  private:
+    bool       __ContainIPv6(const std::vector<socket_address>& _vecaddr);
     
   protected:
     MessageQueue::ScopeRegister     asyncreg_;

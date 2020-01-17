@@ -190,9 +190,9 @@ static int socket_inet_pton6(const char* src, void* dst) {
   return 1;
 }
 int socket_inet_pton(int af, const char *src, void *dst) {
-    if (IsWindows7OrGreater()){
-      return inet_pton(af, src, dst);
-    }
+    // if (IsWindows7OrGreater()){
+    //   return inet_pton(af, src, dst);
+    // }
     
     // for OS below WINDOWS 7
     switch (af) {
@@ -313,9 +313,9 @@ static const char* inet_ntop_v6(const void* src, char* dst, socklen_t size) {
   return dst;
 }
 const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int size) {
-    if (IsWindows7OrGreater()){
-      return inet_ntop(af, (PVOID)src, dst, size);
-    }
+    // if (IsWindows7OrGreater()){
+    //   return inet_ntop(af, (PVOID)src, dst, size);
+    // }
 
   // for OS below WINDOWS 7
     switch (af) {
