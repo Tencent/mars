@@ -74,6 +74,40 @@ static unsigned long const sg_interval[][5]  = {
     {0,  0,  0,   0,   0},
 };
 
+static std::string alarm_reason;
+static std::string error_msg;
+
+static void __LongLinkStateToSystemLog(LongLink::TLongLinkStatus _status) {
+#ifdef __ANDROID__
+
+    xinfo_function();
+    std::stringstream logger;
+    logger << "longlink state: ";
+    uint64_t current_time = ::gettickcount();
+
+    switch (_status) {
+        case LongLink::kConnecting:
+            logger << "connecting time: ";
+            break;
+        case LongLink::kConnected:
+            logger << "connected time: ";
+            break;
+        case LongLink::kDisConnected:
+            logger << "disconnect reason " << error_msg << ", disconnected time: ";
+            break;
+        default:
+            return;
+    }
+    if (LongLink::kConnectFailed == _status || LongLink::kDisConnected == _status) {
+        alarm_reason = "prepare to reconnect alarm";
+    }   
+    logger << current_time;
+    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
+
+#endif
+}
+
+
 static int __CurActiveState(const ActiveLogic& _activeLogic) {
     if (!_activeLogic.IsActive()) return kInactive;
 
@@ -165,7 +199,11 @@ bool LongLinkConnectMonitor::NetworkChange() {
 #endif
     longlink_.Disconnect(LongLink::kNetworkChange);
 
-    progress_record_.networkchange_time = ::gettickcount();
+#ifdef __ANDROID__
+    std::stringstream logger;
+    logger << "network change time: " << ::gettickcount();
+    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
+#endif
 
     return 0 == __IntervalConnect(kNetworkChangeConnect);
 }
@@ -177,10 +215,15 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
     uint64_t buffer = activelogic_.IsActive() ? 0 : kInactiveBuffer;    //in case doze mode
 
-    progress_record_.foreground = activelogic_.IsForeground();
-    progress_record_.process_active = activelogic_.IsActive();
+#ifdef __ANDROID__
+    std::stringstream logger;
+    logger << "next connect interval: " << interval << ", "
+            << "process active state: " << activelogic_.IsActive() << ", "
+            << "process foreground: " << activelogic_.IsForeground();
+    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
+#endif
 
-    xinfo2(TSF"next connect interval: %_, posttime: %_, buffer: %_, _type: %_, foreground: %_, process_active: %_", interval, posttime, buffer, _type, progress_record_.foreground, progress_record_.process_active);
+    xinfo2(TSF"next connect interval: %_, posttime: %_, buffer: %_, _type: %_", interval, posttime, buffer, _type);
 
     
     if ((posttime + buffer) >= interval) {
@@ -203,9 +246,14 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
     xinfo2(TSF"start auto connect after:%0", remain);
     alarm_.Start((int)remain);
 
-    progress_record_.next_rebuild_time_interval = remain;
-    progress_record_.longlink_rebuild_start_alarm = ::gettickcount();
-    progress_record_.alarm_reason = "rebuild alarm";
+#ifdef __ANDROID__
+    std::stringstream logger;
+    logger  << "set rebuild alarm, reason: rebuild longlink alarm, "
+            << "current time: " << ::gettickcount()
+            <<  "next rebuild time interval: " << remain;
+    alarm_reason = "rebuild alarm";
+    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
+#endif
 
     return remain;
 }
@@ -242,7 +290,6 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
 
     if (LongLink::kConnectFailed == _status || LongLink::kDisConnected == _status) {
         alarm_.Start(500);
-        progress_record_.alarm_reason = "prepare to reconnect alarm";
     } else if (LongLink::kConnected == _status) {
         xinfo2(TSF"cancel auto connect");
     }
@@ -252,36 +299,22 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
     last_connect_net_type_ = ::getNetInfo();
 
 
-    switch (_status) {
-        case LongLink::kConnecting:
-            progress_record_.longlink_start_connect_time = last_connect_time_;
-            break;
-        case LongLink::kConnected:
-            progress_record_.longlink_connected_time = last_connect_time_;
-            break;
-        case LongLink::kDisConnected:
-            progress_record_.longlink_disconnect_time = last_connect_time_;
-            break;
-        default:
-            break;
-    }
-
     if (LongLink::kDisConnected == _status) {
         if (fun_get_disconnect_error_msg_) {
-            progress_record_.error_msg = fun_get_disconnect_error_msg_();
+            error_msg = fun_get_disconnect_error_msg_();
         }
-        // xinfo2(TSF"start to proint log");
-        // __PrintRecordToOSLogger();
-        // progress_record_.Reset();
-    }   
+    }
+
+    __LongLinkStateToSystemLog(_status);
 }
 
 void LongLinkConnectMonitor::__OnAlarm() {
     __AutoIntervalConnect();
-    progress_record_.alarm_after_time = alarm_.After();
-    xinfo2(TSF"print log from here");
-    __PrintRecordToOSLogger();
-    progress_record_.Reset();
+#ifdef __ANDROID__
+    std::stringstream logger;
+    logger << "onalarm log, reason: " << alarm_reason << ", alarm after " << alarm_.After() << " millsecond";
+    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
+#endif
 }
 
 #ifdef __APPLE__
@@ -356,48 +389,21 @@ void LongLinkConnectMonitor::__ReConnect() {
 
 
 void LongLinkConnectMonitor::OnHeartbeatAlarmSet(uint64_t _interval) {
-    progress_record_.noop_alarm_set_time = ::gettickcount();
-    progress_record_.noop_alarm_interval = _interval;
+#ifdef __ANDROID__
     std::stringstream logger;
-    logger << "on_heartbeat_set, time: " << progress_record_.noop_alarm_set_time << ", "
+    logger << "on_heartbeat_set, time: " << ::gettickcount() << ", "
            << "time interval:" << _interval;
 
     __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
+#endif
 }
 
 void LongLinkConnectMonitor::OnHeartbeatAlarmReceived(bool _is_noop_timeout) {
-    progress_record_.noop_timeout = _is_noop_timeout;
+#ifdef __ANDROID__
     std::stringstream logger;
     logger << "on_heartbeat_alarm, time: " << ::gettickcount() << ", "
            << "is_noop_timeout:" << _is_noop_timeout;
     __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
-}
-
-
-void LongLinkConnectMonitor::__PrintRecordToOSLogger() {
-#ifdef __ANDROID__
-    xinfo_function();
-    std::stringstream logger;
-    logger << "longlink_start_connect_time:" << progress_record_.longlink_start_connect_time << ", "
-           << "longlink_connected_time: " << progress_record_.longlink_connected_time << ", "
-           << "longlink_disconnect_time: " << progress_record_.longlink_disconnect_time << ", "
-           << "next_rebuild_time_interval: " << progress_record_.next_rebuild_time_interval << ", "
-           << "next_heartbeat_interval: " << progress_record_.next_heartbeat_interval << ", "
-           << "longlink_rebuild_start_alarm: " << progress_record_.longlink_rebuild_start_alarm << ", "
-           << "networkchange_time: " << progress_record_.networkchange_time << ", "
-           << "noop_alarm_set_time: " << progress_record_.noop_alarm_set_time << ", "
-           << "noop_alarm_interval: " << progress_record_.noop_alarm_interval << ", "
-           << "alarm_after_time: " << progress_record_.alarm_after_time << ", "
-           << "foreground: " << progress_record_.foreground << ", "
-           << "process_active: " << progress_record_.process_active << ", "
-           << "rebuild_from_alarm: " << progress_record_.rebuild_from_alarm << ", "
-           << "rebuild_from_netwrokchange: " << progress_record_.rebuild_from_netwrokchange << ", "
-           << "noop_timeout: " << progress_record_.noop_timeout << ", "
-           << "error_msg: " << progress_record_.error_msg << ", "
-           << "alarm_reason: " << progress_record_.alarm_reason;
-	
-    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
-
 #endif
 }
 

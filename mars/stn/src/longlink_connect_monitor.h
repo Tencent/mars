@@ -37,46 +37,6 @@ namespace mars {
         
 class LongLinkConnectMonitor {
 
-
-  public:
-    struct LongLinkProgressRecord {
-      uint64_t longlink_start_connect_time;
-      uint64_t longlink_connected_time;
-      uint64_t longlink_disconnect_time;
-      uint64_t next_rebuild_time_interval;
-      uint64_t next_heartbeat_interval;
-      uint64_t longlink_rebuild_start_alarm;
-      uint64_t networkchange_time;
-      uint64_t noop_alarm_set_time;
-      uint64_t noop_alarm_interval;
-      int      alarm_after_time;
-      bool foreground;
-      bool process_active;
-      bool rebuild_from_alarm;
-      bool rebuild_from_netwrokchange;
-      bool noop_timeout;
-      std::string error_msg;
-      std::string alarm_reason;
-
-      void Reset() {
-        longlink_start_connect_time = 0;
-        longlink_connected_time = 0;
-        longlink_disconnect_time = 0;
-        next_rebuild_time_interval = 0;
-        next_heartbeat_interval = 0;
-        longlink_rebuild_start_alarm = 0;
-        networkchange_time  = 0;
-        noop_alarm_set_time = 0;
-        noop_alarm_interval = 0;
-        alarm_after_time = 0;
-        rebuild_from_alarm = false;
-        rebuild_from_netwrokchange = false;
-        noop_timeout  = false;
-        error_msg = "";
-        alarm_reason = "";
-      }
-    };
-
   public:
     LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlinkk, MessageQueue::MessageQueue_t _id);
     ~LongLinkConnectMonitor();
@@ -108,8 +68,6 @@ class LongLinkConnectMonitor {
     bool __StopTimer();
 #endif
     void __ReConnect();
-
-    void __PrintRecordToOSLogger();
     
   private:
     LongLinkConnectMonitor(const LongLinkConnectMonitor&);
@@ -131,7 +89,6 @@ class LongLinkConnectMonitor {
 
     int conti_suc_count_;
     bool isstart_;
-    LongLinkProgressRecord progress_record_;
 };
         
 } }
