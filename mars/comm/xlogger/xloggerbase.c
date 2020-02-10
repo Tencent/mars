@@ -45,6 +45,15 @@ xlogger_appender_t xlogger_SetAppender(xlogger_appender_t _appender) {
     return __xlogger_SetAppender_impl(_appender);
 }
 
+static xlogger_filter_t sg_filter = NULL;
+void xlogger_SetFilter(xlogger_filter_t _filter) {
+    sg_filter = _filter;
+}
+
+xlogger_filter_t xlogger_GetFilter() {
+    return sg_filter;
+}
+
 void xlogger_Write(const XLoggerInfo* _info, const char* _log) {
 	if (NULL != &__xlogger_Write_impl)
 		__xlogger_Write_impl(_info, _log);

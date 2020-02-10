@@ -64,6 +64,10 @@ void xlogger_SetLevel(TLogLevel _level);
 int  xlogger_IsEnabledFor(TLogLevel _level);
 xlogger_appender_t xlogger_SetAppender(xlogger_appender_t _appender);
 
+typedef int (*xlogger_filter_t)(XLoggerInfo* _info, const char* _log);
+void xlogger_SetFilter(xlogger_filter_t _filter);
+xlogger_filter_t xlogger_GetFilter();
+
 // no level filter
 #ifdef __GNUC__
 __attribute__((__format__(printf, 3, 4)))
