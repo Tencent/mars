@@ -38,7 +38,7 @@ const char* const TLocalIPStackStr[] = {
     "ELocalIPStack_Dual",
 };
 
-TLocalIPStack local_ipstack_detect();
+TLocalIPStack local_ipstack_detect(bool _force_refresh = false);
     
 #ifdef __cplusplus
 }

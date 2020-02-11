@@ -238,7 +238,7 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
 #endif
 }
 
-TLocalIPStack local_ipstack_detect() {
+TLocalIPStack local_ipstack_detect(bool _force_refresh) {
     std::string log;
     return __local_ipstack_detect(log);
 }
@@ -330,6 +330,8 @@ static void __local_info(std::string& _log) {
 #pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"Iphlpapi.lib")
 
+static TLocalIPStack local_stack_cache_ = ELocalIPStack_IPv4;
+
 static bool GetWinV4GateWay() {
 	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
 	ULONG out_buf_len = 0;
@@ -397,7 +399,7 @@ static bool GetWinV6GateWay() {
                         struct sockaddr_in6 addr6;
                         if (socket_inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
                             std::string v6_s(buff);
-                            if (v6_s == "::") {
+                            if (v6_s.empty() || v6_s == "::" || v6_s.find(".") != std::string::npos) { // incase ::192.168.1.1
                                 xwarn2("the v6 is fake!");
                             } else {
                                 result = true;
@@ -430,23 +432,27 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
     return (TLocalIPStack)local_stack;
 }
 
-TLocalIPStack local_ipstack_detect() {
+TLocalIPStack local_ipstack_detect(bool _force_refresh) {
+    if (!_force_refresh) {
+        return local_stack_cache_;
+    }
     if (IsWindows7OrGreater()) {
         xinfo2(TSF"windows start to detect local stack");
         std::string log;
-        return __local_ipstack_detect(log);
+        local_stack_cache_ = __local_ipstack_detect(log);
+        return local_stack_cache_;
     }
     xinfo2("windows version under 7");
     return ELocalIPStack_IPv4;
 }
 TLocalIPStack local_ipstack_detect_log(std::string& _log) {
 	_log = "no implement";
-   return local_ipstack_detect();
+   return local_ipstack_detect(true);
 }
 
 #else
 
-TLocalIPStack local_ipstack_detect() {
+TLocalIPStack local_ipstack_detect(bool _force_refresh) {
     return ELocalIPStack_IPv4;
 }
 TLocalIPStack local_ipstack_detect_log(std::string& _log) {
