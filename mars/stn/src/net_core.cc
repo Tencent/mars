@@ -126,10 +126,6 @@ NetCore::~NetCore() {
     ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
 #ifdef USE_LONG_LINK
-//    for(auto longlink_name:GetAllLonglink()){
-//        DestroyLongLink(longlink_name);
-//    }
-//    xassert2(longlink_task_managers_.empty());
     delete longlink_task_manager_;
 
     push_preprocess_signal_.disconnect_all_slots();
@@ -152,7 +148,7 @@ void NetCore::__InitShortLink(){
     shortlink_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromShort, _1, _2, _3, _4, _5);
     
     // sync
-    shortlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4);
+    shortlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
     shortlink_task_manager_->fun_notify_network_err_ = boost::bind(&NetCore::__OnShortLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
     shortlink_task_manager_->fun_anti_avalanche_check_ = boost::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
     shortlink_task_manager_->fun_shortlink_response_ = boost::bind(&NetCore::__OnShortLinkResponse, this, _1);
@@ -167,15 +163,12 @@ void NetCore::__InitLongLink(){
     timing_sync_ = new TimingSync(*ActiveLogic::Singleton::Instance());
 
     longlink_task_manager_ = new LongLinkTaskManager(*net_source_, *ActiveLogic::Singleton::Instance(), *dynamic_timeout_, GetMessageQueueId());
-    // LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME);
-    // defaultConfig.is_keep_alive = true;
-    // CreateLongLink(defaultConfig);
     
     // async
     longlink_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromLong, _1, _2, _3, _4, _5);
     
     // sync
-    longlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4);
+    longlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
     longlink_task_manager_->fun_notify_network_err_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
     longlink_task_manager_->fun_anti_avalanche_check_ = boost::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
     
@@ -490,11 +483,11 @@ void NetCore::RedoTasks() {
    ASYNC_BLOCK_END
 }
 
-void NetCore::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid) {
+void NetCore::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id) {
     xinfo2(TSF"shortlink_task_manager retry task id %_ ", _src_taskid);
 	shortlink_task_manager_->RetryTasks(_err_type, _err_code, _fail_handle, _src_taskid);
 #ifdef USE_LONG_LINK
-    longlink_task_manager_->RetryTasks(_err_type, _err_code, _fail_handle, _src_taskid);
+    longlink_task_manager_->RetryTasks(_err_type, _err_code, _fail_handle, _src_taskid, _user_id);
 #endif
 }
 
@@ -749,6 +742,12 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
         xwarn2(TSF"already has longlink named:%_", _config.name);
         return longlink_task_manager_->GetLongLink(_config.name)->Channel();
     }
+
+    auto longlink_channel = longlink_task_manager_->GetLongLink(_config.name)->Channel();
+    if(longlink_channel == nullptr) {
+        xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
+        return nullptr;
+    }
     
     if(_config.IsMain() && oldDefault != nullptr) {
         xinfo2(TSF"change default longlink to name:%_, group:%_", _config.name, _config.group);
@@ -756,12 +755,6 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
         oldDefault->Channel()->SignalConnection.disconnect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1));
         GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, oldDefault->SignalKeeper().get(), _1, _2, _3));
         oldDefault->Config().isMain = false;
-    }
-    
-    auto longlink_channel = longlink_task_manager_->GetLongLink(_config.name)->Channel();
-    if(longlink_channel == nullptr) {
-        xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
-        return nullptr;
     }
     
     if(_config.IsMain()) {
@@ -772,9 +765,6 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
             GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink_task_manager_->GetLongLink(_config.name)->SignalKeeper().get(), _1, _2, _3));
         }
     }
-// #ifdef __APPLE__
-//     longlink_task_manager_->GetLongLink(_config.name)->Monitor()->fun_longlink_reset_ = boost::bind(&NetCore::__ResetLongLink, this);
-// #endif
     
     xinfo2(TSF"create long link %_", _config.name);
     return longlink_channel;

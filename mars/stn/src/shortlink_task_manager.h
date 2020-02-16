@@ -51,9 +51,9 @@ class ShortLinkTaskManager {
     boost::function<void (int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> fun_notify_network_err_;
     boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     boost::function<void (int _status_code)> fun_shortlink_response_;
-    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid)> fun_notify_retry_all_tasks;
+    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id)> fun_notify_retry_all_tasks;
 
-    static boost::function<void (void* const _user_context, std::vector<std::string>& _host_list)> get_real_host_;
+    static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
     static boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
 
   public:

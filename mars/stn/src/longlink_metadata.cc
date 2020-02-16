@@ -48,7 +48,11 @@ LongLinkMetaData::~LongLinkMetaData() {
 
 void LongLinkMetaData::__OnTimerCheckSuc(const std::string& _name) {
     SYNC2ASYNC_FUNC(boost::bind(&LongLinkMetaData::__OnTimerCheckSuc, this, _name));
-    
+
+    if(longlink_->Profile().ip_type != IPSourceType::kIPSourceBackup) {
+        xinfo2(TSF"longlink %_ is not using backip, ignore", _name);
+        return;
+    }
     longlink_->Disconnect(LongLink::kTimeCheckSucc);
 }
 

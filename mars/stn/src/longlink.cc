@@ -129,12 +129,6 @@ class LongLinkConnectObserver : public MComplexConnect {
 
 }
 
-#ifdef ANDROID
-SmartHeartbeat* LongLink::smartheartbeat_ = new SmartHeartbeat();
-#else
-SmartHeartbeat* LongLink::smartheartbeat_ = nullptr;
-#endif
-
 LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , netsource_(_netsource)
@@ -144,8 +138,10 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
 	, disconnectinternalcode_(kNone)
     , identifychecker_(_encoder, _config.name)
 #ifdef ANDROID
+    , smartheartbeat_(new SmartHeartbeat)
     , wakelock_(new WakeUpLock)
 #else
+    , smartheartbeat_(NULL)
     , wakelock_(NULL)
 #endif
     , encoder_(_encoder)
@@ -700,13 +696,10 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             }
             
             if (0 > writelen) writelen = 0;
-            
-            /*
-             * if have multi longlink, use only normal heartbeat
-             */
-//            unsigned long long noop_interval = __GetNextHeartbeatInterval();
-//            alarmnoopinterval.Cancel();
-//            alarmnoopinterval.Start((int)noop_interval);
+
+            unsigned long long noop_interval = __GetNextHeartbeatInterval();
+            alarmnoopinterval.Cancel();
+            alarmnoopinterval.Start((int)noop_interval);
             
             xinfo2(TSF"all send:%_, count:%_, ", writelen, lstsenddata_.size()) >> xlog_group;
             

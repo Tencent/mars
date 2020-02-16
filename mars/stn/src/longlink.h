@@ -183,7 +183,7 @@ class LongLink {
     std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_;
     tickcount_t                                 lastrecvtime_;
     
-    static SmartHeartbeat*                       smartheartbeat_;
+    SmartHeartbeat*                       smartheartbeat_;
     WakeUpLock*                                  wakelock_;
     
     LongLinkEncoder&                             encoder_;

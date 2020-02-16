@@ -82,7 +82,7 @@ class NetCore {
     bool    HasTask(uint32_t _taskid) const;
     void    ClearTasks();
     void    RedoTasks();
-    void    RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
+    void    RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id);
 
     void    MakeSureLongLinkConnect();
     bool    LongLinkIsConnected();
@@ -96,10 +96,8 @@ class NetCore {
     
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
-
     std::shared_ptr<LongLink>        CreateLongLink(const LonglinkConfig& _config);
     void                DestroyLongLink(const std::string& _name);
-//    std::vector<std::string> GetAllLonglink();
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
     void                MarkMainLonglink_ext(const std::string& _name);
@@ -126,7 +124,6 @@ class NetCore {
 #ifdef USE_LONG_LINK
     void    __OnLongLinkNetworkError(const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     void    __OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status);
-    // void    __ResetLongLink();
 #endif
     
     void    __ConnStatusCallBack();
@@ -140,9 +137,6 @@ class NetCore {
     NetCore& operator=(const NetCore&);
 
   private:
-    template<typename KeyType,typename ValueType>
-    using HashTable = std::unordered_map<KeyType,ValueType>;
-    
     MessageQueue::MessageQueueCreater           messagequeue_creater_;
     MessageQueue::ScopeRegister                 asyncreg_;
     NetSource*                                  net_source_;
