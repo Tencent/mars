@@ -45,6 +45,7 @@ bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
 struct WifiInfo {
     std::string ssid;
     std::string bssid;
+    uint64_t refresh_time;
 };
 bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false);
 
@@ -236,6 +237,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
 
 #ifdef __APPLE__
 void FlushReachability();
+bool WifiInfoCacheEmpty();
 float publiccomponent_GetSystemVersion();
 #endif
 
