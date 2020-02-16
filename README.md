@@ -201,7 +201,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
+appender_open(kAppenderAsync, [logPath UTF8String], "Test",  0, "");
 ```
 
 Close xlog in function "applicationWillTerminate"
@@ -318,7 +318,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
+appender_open(kAppenderAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
 ```
 
 Uninitialized xlog before your app exits
@@ -587,7 +587,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
+appender_open(kAppenderAsync, [logPath UTF8String], "Test",  0, "");
 ```
 
 在函数 "applicationWillTerminate" 中反初始化 Xlog
@@ -702,7 +702,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
+appender_open(kAppenderAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
 ```
 
 在程序退出前反初始化 Xlog

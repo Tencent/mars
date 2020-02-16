@@ -78,7 +78,7 @@
 extern void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log);
 extern void ConsoleLog(const XLoggerInfo* _info, const char* _log);
 
-static TAppenderMode sg_mode = kAppednerAsync;
+static TAppenderMode sg_mode = kAppenderAsync;
 
 static std::string sg_logdir;
 static std::string sg_cache_logdir;
@@ -545,7 +545,7 @@ static void __log2file(const void* _data, size_t _len, bool _move_file) {
     if (sg_cache_logdir.empty()) {
         if (__openlogfile(sg_logdir)) {
             __writefile(_data, _len, sg_logfile);
-            if (kAppednerAsync == sg_mode) {
+            if (kAppenderAsync == sg_mode) {
                 __closelogfile();
             }
         }
@@ -561,7 +561,7 @@ static void __log2file(const void* _data, size_t _len, bool _move_file) {
     bool cache_logs = __cache_logs();
     if ((cache_logs || boost::filesystem::exists(logcachefilepath)) && __openlogfile(sg_cache_logdir)) {
         __writefile(_data, _len, sg_logfile);
-        if (kAppednerAsync == sg_mode) {
+        if (kAppenderAsync == sg_mode) {
             __closelogfile();
         }
         
@@ -572,7 +572,7 @@ static void __log2file(const void* _data, size_t _len, bool _move_file) {
         char logfilepath[1024] = {0};
         __make_logfilename(tv, sg_logdir, sg_logfileprefix.c_str(), LOG_EXT, logfilepath , 1024);
         if (__append_file(logcachefilepath, logfilepath)) {
-            if (kAppednerSync == sg_mode) {
+            if (kAppenderSync == sg_mode) {
                 __closelogfile();
             }
             boost::filesystem::remove(logcachefilepath);
@@ -584,19 +584,19 @@ static void __log2file(const void* _data, size_t _len, bool _move_file) {
     bool open_success = __openlogfile(sg_logdir);
     if (open_success) {
         write_sucess = __writefile(_data, _len, sg_logfile);
-        if (kAppednerAsync == sg_mode) {
+        if (kAppenderAsync == sg_mode) {
             __closelogfile();
         }
     }
 
     if (!write_sucess) {
-        if (open_success && kAppednerSync == sg_mode) {
+        if (open_success && kAppenderSync == sg_mode) {
             __closelogfile();
         }
 
         if (__openlogfile(sg_cache_logdir)) {
             __writefile(_data, _len, sg_logfile);
-            if (kAppednerAsync == sg_mode) {
+            if (kAppenderAsync == sg_mode) {
                 __closelogfile();
             }
         }
@@ -714,7 +714,7 @@ void xlogger_appender(const XLoggerInfo* _info, const char* _log) {
             free(strrecursion);
         }
 
-        if (kAppednerSync == sg_mode)
+        if (kAppenderSync == sg_mode)
             __appender_sync(_info, _log);
         else
             __appender_async(_info, _log);
@@ -999,7 +999,7 @@ void appender_flush() {
 }
 
 void appender_flush_sync() {
-    if (kAppednerSync == sg_mode) {
+    if (kAppenderSync == sg_mode) {
         return;
     }
 
@@ -1057,7 +1057,7 @@ void appender_setmode(TAppenderMode _mode) {
 
     sg_cond_buffer_async.notifyAll();
 
-    if (kAppednerAsync == sg_mode && !sg_thread_async.isruning()) {
+    if (kAppenderAsync == sg_mode && !sg_thread_async.isruning()) {
         sg_thread_async.start();
     }
 }

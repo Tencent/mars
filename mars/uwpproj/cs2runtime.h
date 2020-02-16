@@ -142,7 +142,7 @@ namespace mars
 		property bool bRet; 
 	};
 
-	public enum class TAppenderModeRuntime { kAppednerAsync = 0, kAppednerSync = 1 };
+	public enum class TAppenderModeRuntime { kAppenderAsync = 0, kAppenderSync = 1 };
 	
 	public enum class TLogLevelRuntime {
 		kLevelAll = 0,

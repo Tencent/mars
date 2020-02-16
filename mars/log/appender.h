@@ -27,8 +27,8 @@
 
 enum TAppenderMode
 {
-    kAppednerAsync,
-    kAppednerSync,
+    kAppenderAsync,
+    kAppenderSync,
 };
 
 void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key);
