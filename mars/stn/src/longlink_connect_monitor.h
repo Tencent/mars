@@ -35,12 +35,13 @@ namespace mars {
         
 class LongLinkConnectMonitor {
   public:
-    LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlinkk, MessageQueue::MessageQueue_t _id);
+    LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlinkk, MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
     ~LongLinkConnectMonitor();
 
   public:
     bool MakeSureConnected();
     bool NetworkChange();
+    void DisconnectAllSlot();
 
   public:
     boost::function<void ()> fun_longlink_reset_;
@@ -82,6 +83,7 @@ class LongLinkConnectMonitor {
 
     int conti_suc_count_;
     bool isstart_;
+    bool is_keep_alive_;
 };
         
 } }

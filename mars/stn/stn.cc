@@ -47,9 +47,32 @@ Task::Task(uint32_t _taskid) {
     
     retry_count = -1;
     server_process_cost = -1;
-    total_timetout = -1;
+    total_timeout = -1;
     user_context = NULL;
+    user_context_length = 0;
+    
+    channel_name=DEFAULT_LONGLINK_NAME;
 
+}
+
+Task::Task(const Task& _task) {
+    *this = _task;
+#ifdef ANDROID
+    if(_task.user_context != NULL) {
+        if(user_context != NULL)    free(user_context);
+        user_context = malloc(_task.user_context_length);
+        memcpy(user_context, _task.user_context, _task.user_context_length);
+    }
+#endif
+}
+    
+Task::~Task() {
+#ifdef ANDROID
+    if(user_context != NULL) {
+        free(user_context);
+        user_context = NULL;
+    }
+#endif
 }
         
     }

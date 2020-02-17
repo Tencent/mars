@@ -105,8 +105,7 @@ void NetSourceTimerCheck::__StartCheck() {
 void NetSourceTimerCheck::__Check() {
 
     IPSourceType pre_iptype = longlink_.Profile().ip_type;
-    if (kIPSourceDebug == pre_iptype || kIPSourceNULL == pre_iptype
-    		|| kIPSourceNewDns == pre_iptype || kIPSourceDNS == pre_iptype) {
+    if (kIPSourceBackup != pre_iptype) {
     	return;
     }
 

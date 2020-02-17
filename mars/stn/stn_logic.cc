@@ -275,14 +275,60 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
+
+// [+] Lambda syntax could apply a conversion between lambda and function pointer
+// https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
+auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
+    STN_WEAK_CALL(CreateLongLink(_config));
+};
+    
+auto DestroyLonglink_ext = +[](const std::string& name){
+    STN_WEAK_CALL(DestroyLongLink(name));
+};
+//auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
+//    std::vector<std::string> res;
+//    STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
+//    return res;
+//};
+
+auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
+    bool res = false;
+    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
+    return res;
+};
+
+auto MarkMainLonglink_ext = +[](const std::string& name){
+    STN_WEAK_CALL(MarkMainLonglink_ext(name));
+};
+    
+auto MakesureLonglinkConnected_ext = +[](const std::string& name){
+    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
+};
+    
+//auto KeepSignalling_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(KeepSignalling_ext(name));
+//};
+//
+//auto StopSignalling_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(StopSignalling_ext(name));
+//};
+    
+//auto RedoTasks_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(RedoTasks_ext(name));
+//};
+//    
+//auto ClearTasks_ext = +[](const std::string& name){
+//    STN_WEAK_CALL(ClearTasks_ext(name));
+//};
+
 void network_export_symbols_0(){}
 
 #ifndef ANDROID
 	//callback functions
-bool (*MakesureAuthed)(const std::string& _host)
-= [](const std::string& _host) {
+bool (*MakesureAuthed)(const std::string& _host, void* const _user_context)
+= [](const std::string& _host, void* const _user_context) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->MakesureAuthed(_host);
+	return sg_callback->MakesureAuthed(_host, _user_context);
 };
 
 // 流量统计 
@@ -300,8 +346,8 @@ std::vector<std::string> (*OnNewDns)(const std::string& host)
 };
 
 //网络层收到push消息回调
-void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
 	xassert2(sg_callback != NULL);
 	sg_callback->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 };
@@ -350,16 +396,16 @@ void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::
     sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 };
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-int  (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid)
-= [](AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
+int  (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid)
+= [](const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->GetLonglinkIdentifyCheckBuffer(identify_buffer, buffer_hash, cmdid);
+	return sg_callback->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
 };
 //长连信令校验回包
-bool (*OnLonglinkIdentifyResponse)(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash)
-= [](const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
+bool (*OnLonglinkIdentifyResponse)(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash)
+= [](const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->OnLonglinkIdentifyResponse(response_buffer, identify_buffer_hash);
+	return sg_callback->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
 };
 
 void (*RequestSync)() 

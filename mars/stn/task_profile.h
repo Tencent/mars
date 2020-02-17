@@ -237,8 +237,8 @@ struct TaskProfile {
         
         uint64_t task_timeout = (readwritetimeout + 5 * 1000) * trycount;
         
-        if (0 < _task.total_timetout &&  (uint64_t)_task.total_timetout < task_timeout)
-            task_timeout = _task.total_timetout;
+        if (0 < _task.total_timeout &&  (uint64_t)_task.total_timeout < task_timeout)
+            task_timeout = _task.total_timeout;
         
         return  task_timeout;
     }
