@@ -325,10 +325,10 @@ void network_export_symbols_0(){}
 
 #ifndef ANDROID
 	//callback functions
-bool (*MakesureAuthed)(const std::string& _host, void* const _user_context)
-= [](const std::string& _host, void* const _user_context) {
+bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id)
+= [](const std::string& _host, const std::string& _user_id) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->MakesureAuthed(_host, _user_context);
+	return sg_callback->MakesureAuthed(_host, _user_id);
 };
 
 // 流量统计 
@@ -352,22 +352,22 @@ void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid
 	sg_callback->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 };
 //底层获取task要发送的数据 
-bool (*Req2Buf)(uint32_t taskid,  void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host)
-= [](uint32_t taskid,  void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
+bool (*Req2Buf)(uint32_t taskid,  void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host)
+= [](uint32_t taskid,  void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->Req2Buf(taskid, user_context, outbuffer, extend, error_code, channel_select, host);
+	return sg_callback->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
 };
 //底层回包返回给上层解析 
-int (*Buf2Resp)(uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select)
-= [](uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
+int (*Buf2Resp)(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select)
+= [](uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->Buf2Resp(taskid, user_context, inbuffer, extend, error_code, channel_select);
+	return sg_callback->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
 };
 //任务执行结束 
-int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, int error_type, int error_code)
-= [](uint32_t taskid, void* const user_context, int error_type, int error_code) {
+int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code)
+= [](uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code) {
 	xassert2(sg_callback != NULL);
-	return sg_callback->OnTaskEnd(taskid, user_context, error_type, error_code);
+	return sg_callback->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code);
  };
 
 //上报网络连接状态 

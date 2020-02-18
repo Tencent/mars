@@ -39,7 +39,7 @@ public:
     static StnCallBack* Instance();
     static void Release();
     
-    virtual bool MakesureAuthed(const std::string& _host, void* const _user_context);
+    virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
     
     //流量统计
     virtual void TrafficData(ssize_t _send, ssize_t _recv);

@@ -243,7 +243,7 @@ void NetCore::StartTask(const Task& _task) {
 
     Task task = _task;
     if (!__ValidAndInitDefault(task, group)) {
-        OnTaskEnd(task.taskid, task.user_context, kEctLocal, kEctLocalTaskParam);
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalTaskParam);
         return;
     }
     
@@ -254,7 +254,7 @@ void NetCore::StartTask(const Task& _task) {
     if (0 == task.channel_select) {
         xerror2(TSF"error channelType (%_, %_), ", kEctLocal, kEctLocalChannelSelect) >> group;
         
-        OnTaskEnd(task.taskid, task.user_context, kEctLocal, kEctLocalChannelSelect);
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalChannelSelect);
         return;
     }
     
@@ -264,7 +264,7 @@ void NetCore::StartTask(const Task& _task) {
 #endif
         ) {
         xerror2(TSF"error no net (%_, %_), ", kEctLocal, kEctLocalNoNet) >> group;
-        OnTaskEnd(task.taskid, task.user_context, kEctLocal, kEctLocalNoNet);
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet);
         return;
     }
     
@@ -275,7 +275,7 @@ void NetCore::StartTask(const Task& _task) {
 #endif
     ){
         xerror2(TSF" error no net (%_, %_) return when no active", kEctLocal, kEctLocalNoNet) >> group;
-        OnTaskEnd(task.taskid, task.user_context, kEctLocal, kEctLocalNoNet);
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet);
         return;
     }
 #endif
@@ -331,7 +331,7 @@ void NetCore::StartTask(const Task& _task) {
 
     if (!start_ok) {
         xerror2(TSF"taskid:%_, error starttask (%_, %_)", task.taskid, kEctLocal, kEctLocalStartTaskFail);
-        OnTaskEnd(task.taskid, task.user_context, kEctLocal, kEctLocalStartTaskFail);
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalStartTaskFail);
     } else {
 #ifdef USE_LONG_LINK
         zombie_task_manager_->OnNetCoreStartTask();
@@ -516,15 +516,15 @@ int NetCore::__CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fai
      }
 
     if (kEctOK == _err_type || kTaskFailHandleTaskEnd == _fail_handle)
-        return OnTaskEnd(_task.taskid, _task.user_context, _err_type, _err_code);
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);
 
     if (kCallFromZombie == _from)
-        return OnTaskEnd(_task.taskid, _task.user_context, _err_type, _err_code);
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);
 
 #ifdef USE_LONG_LINK
     if (!zombie_task_manager_->SaveTask(_task, _taskcosttime))
 #endif
-        return OnTaskEnd(_task.taskid, _task.user_context, _err_type, _err_code);
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);
 
     return 0;
 }
