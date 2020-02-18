@@ -93,15 +93,10 @@ static void __LongLinkStateToSystemLog(LongLink::TLongLinkStatus _status) {
             logger << "connected time: ";
             break;
         case LongLink::kDisConnected:
-            if (fun_get_disconnect_error_msg_) {
-                error_msg = fun_get_disconnect_error_msg_();
-            }
             logger << "disconnect reason " << error_msg << ", disconnected time: ";
             break;
         case LongLink::kConnectFailed:
-            if (fun_get_disconnect_error_msg_) {
-                error_msg = fun_get_disconnect_error_msg_();
-            }
+
             logger << "connect failed " << error_msg << ", disconnected time: ";
             break;
         default:
@@ -306,6 +301,13 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
     status_ = _status;
     last_connect_time_ = ::gettickcount();
     last_connect_net_type_ = ::getNetInfo();
+
+
+    if (LongLink::kDisConnected == _status || LongLink::kConnectFailed == _status) {
+        if (fun_get_disconnect_error_msg_) {
+            error_msg = fun_get_disconnect_error_msg_();
+        }
+    }
 
     __LongLinkStateToSystemLog(_status);
 }
