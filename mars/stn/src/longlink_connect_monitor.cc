@@ -93,7 +93,16 @@ static void __LongLinkStateToSystemLog(LongLink::TLongLinkStatus _status) {
             logger << "connected time: ";
             break;
         case LongLink::kDisConnected:
+            if (fun_get_disconnect_error_msg_) {
+                error_msg = fun_get_disconnect_error_msg_();
+            }
             logger << "disconnect reason " << error_msg << ", disconnected time: ";
+            break;
+        case LongLink::kConnectFailed:
+            if (fun_get_disconnect_error_msg_) {
+                error_msg = fun_get_disconnect_error_msg_();
+            }
+            logger << "connect failed " << error_msg << ", disconnected time: ";
             break;
         default:
             return;
@@ -298,13 +307,6 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
     last_connect_time_ = ::gettickcount();
     last_connect_net_type_ = ::getNetInfo();
 
-
-    if (LongLink::kDisConnected == _status) {
-        if (fun_get_disconnect_error_msg_) {
-            error_msg = fun_get_disconnect_error_msg_();
-        }
-    }
-
     __LongLinkStateToSystemLog(_status);
 }
 
@@ -312,7 +314,7 @@ void LongLinkConnectMonitor::__OnAlarm() {
     __AutoIntervalConnect();
 #ifdef __ANDROID__
     std::stringstream logger;
-    logger << "onalarm log, reason: " << alarm_reason << ", alarm after " << alarm_.After() << " millsecond";
+    logger << "onalarm log, reason: " << alarm_reason << ", alarm after " << alarm_.After() << " millsecond, spend time " << alarm_.ElapseTime();
     __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
 #endif
 }

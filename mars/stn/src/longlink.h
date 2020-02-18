@@ -133,7 +133,7 @@ class LongLink {
     ConnectProfile  Profile() const   { return conn_profile_; }
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
 
-    std::string     GetErrorText()    { return error_text_; }
+    std::string     GetErrorText()    { return longlink_error_text_; }
     
   private:
     LongLink(const LongLink&);
@@ -182,7 +182,7 @@ class LongLink {
     SmartHeartbeat*                              smartheartbeat_;
     WakeUpLock*                                  wakelock_;
     unsigned long long              lastheartbeat_;
-    std::string error_text_;
+    std::string longlink_error_text_;
 };
         
 }}
