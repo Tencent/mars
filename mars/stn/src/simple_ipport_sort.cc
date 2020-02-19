@@ -329,7 +329,7 @@ void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip,
 }
 
 
-static int decToBin(int dec) {
+static int DecToBin(int dec) {
 	int result = 0, temp = dec, j = 1;
 	while(temp) {
 		result = result + j * (temp % 2);
@@ -348,12 +348,13 @@ void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _succ
         }
         IPv6_ban_flag_ &= 0x7F;
         if (__BanTimes(IPv6_ban_flag_) >= 3) {
-            ban_v6_time_internal_ += (5 * 60 * 1000);
+            // ban_v6_time_internal_ += (5 * 60 * 1000);
+            ban_v6_time_internal_ += (5 * 1000);
             ban_v6_time_internal_ = std::min((int)ban_v6_time_internal_, 30 * 60 * 1000);
             ban_v6_time_internal_ = std::max((int)ban_v6_time_internal_, 0);
-            if (start_ban_time_ != 0) {
-                start_ban_time_ = gettickcount();
-            }
+            // if (start_ban_time_ != 0) {
+            start_ban_time_ = gettickcount();
+            // }
         }
     } else {
         if (_success) {
@@ -367,7 +368,7 @@ void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _succ
             start_ban_time_ = 0;
         }
     }
-    xdebug2(TSF"ip is %_, success is %_ , current v6 flag %_ , current v4 flag %_ , v6 ban time is %_ ,", _ip, _success, decToBin(IPv6_ban_flag_), decToBin(IPv4_ban_flag_), ban_v6_time_internal_);
+    xdebug2(TSF"ip is %_, success is %_ , current v6 flag %_ , current v4 flag %_ , start ban time %_, v6 ban time is %_ ,", _ip, _success, DecToBin(IPv6_ban_flag_), DecToBin(IPv4_ban_flag_), start_ban_time_, ban_v6_time_internal_);
 }
 
 int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
@@ -382,7 +383,13 @@ int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
 }
 
 bool SimpleIPPortSort::CanUseIPv6() {
-    return !((gettickcount() - start_ban_time_) > ban_v6_time_internal_);
+    xinfo2(TSF"start ban time %_, ban interval %_", start_ban_time_, ban_v6_time_internal_);
+    if ((gettickcount() - start_ban_time_) > ban_v6_time_internal_) {
+        start_ban_time_ = 0;
+        ban_v6_time_internal_ = 0;
+        return true;
+    }
+    return false;
 }
 
 bool SimpleIPPortSort::__IsIPv6(const std::string& _ip) {
