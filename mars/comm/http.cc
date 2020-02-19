@@ -914,15 +914,15 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                             }
                         }
                     } else {  // no chunk
-                        int contentLength = headfields_.ContentLength();
-                        int appendlen = 0;
+                        int64_t contentLength = headfields_.ContentLength();
+                        int64_t appendlen = 0;
                         if (Fields().IsConnectionClose() && 0==contentLength) {
-                            appendlen = int(recvbuf_.Length());
-                        } else if (int(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
-                            appendlen = int(recvbuf_.Length());
+                            appendlen = int64_t(recvbuf_.Length());
+                        } else if (int64_t(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
+                            appendlen = int64_t(recvbuf_.Length());
                         else {
                             xwarn2(TSF"recv len bigger than contentlen, (%_, %_, %_)", recvbuf_.Length(), bodyreceiver_->Length(), contentLength);
-                            appendlen = contentLength - int(bodyreceiver_->Length());
+                            appendlen = contentLength - int64_t(bodyreceiver_->Length());
                         }
                         
                         bodyreceiver_->AppendData(recvbuf_.Ptr(), (size_t)appendlen);
@@ -932,7 +932,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                             *consumed_bytes = origin_size - recvbuf_.Length();
                         }
                         
-                        if ((int)bodyreceiver_->Length() == contentLength) {
+                        if ((int64_t)bodyreceiver_->Length() == contentLength) {
                             recvstatus_ = kEnd;
                             bodyreceiver_->EndData();
                             return  recvstatus_;
@@ -1110,20 +1110,20 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
                         _recv_buffer.Move(-(trailerEnd - chunkSizeBegin + 2));
                     }
                 } else {  // no chunk
-                    int contentLength = headfields_.ContentLength();
-                    int appendlen = 0;
+                    int64_t contentLength = headfields_.ContentLength();
+                    int64_t appendlen = 0;
 
-                    if (int(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
-                        appendlen = int(_recv_buffer.Length());
+                    if (int64_t(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
+                        appendlen = int64_t(_recv_buffer.Length());
                     else {
-                        xwarn2(TSF"contentLength:%_, body.len:%_, recv len:%_", contentLength, int(bodyreceiver_->Length()), _recv_buffer.Length());
-                        appendlen = contentLength - int(bodyreceiver_->Length());
+                        xwarn2(TSF"contentLength:%_, body.len:%_, recv len:%_", contentLength, int64_t(bodyreceiver_->Length()), _recv_buffer.Length());
+                        appendlen = contentLength - int64_t(bodyreceiver_->Length());
                     }
 
                     bodyreceiver_->AppendData(_recv_buffer.Ptr(), (size_t)appendlen);
                     _recv_buffer.Move(-appendlen);
 
-                    if ((int)bodyreceiver_->Length() == contentLength) {
+                    if ((int64_t)bodyreceiver_->Length() == contentLength) {
                         recvstatus_ = kEnd;
                         bodyreceiver_->EndData();
                         return  recvstatus_;
