@@ -112,6 +112,7 @@ struct ConnectProfile {
         is_reused_fd = false;
         req_byte_count = 0;
         cgi.clear();
+        ipv6_connect_failed = false;
     }
     
     std::string net_type;
@@ -158,6 +159,7 @@ struct ConnectProfile {
     int local_net_stack;
     uint64_t req_byte_count;
     std::string cgi;
+    bool ipv6_connect_failed;
 };
 
         
