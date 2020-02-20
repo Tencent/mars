@@ -226,6 +226,7 @@ static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
 
 bool WifiInfoCacheEmpty() {
 #if !TARGET_OS_WATCH
+    ScopedLock lock(sg_wifiinfo_mutex);
     uint64_t curr_time = gettickcount();
     return (__WiFiInfoIsValid(sg_wifiinfo)) && (curr_time - sg_wifiinfo.refresh_time < 30 * 60 * 1000);
 #endif
