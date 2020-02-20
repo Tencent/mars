@@ -98,7 +98,7 @@ class LongLinkTaskManager {
     void __OnResponse(const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);
     void __OnSend(uint32_t _taskid);
     void __OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize);
-    void __SignalConnection(LongLink::TLongLinkStatus _connect_status);
+    void __SignalConnection(LongLink::TLongLinkStatus _connect_status, const std::string& _channel_id);
 
     void __RunLoop();
     void __RunOnTimeout();

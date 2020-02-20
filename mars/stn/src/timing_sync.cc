@@ -91,7 +91,7 @@ void TimingSync::OnNetworkChange()
     }
 }
 
-void TimingSync::OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status)
+void TimingSync::OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id)
 {
     xverbose_function();
     if (_status == LongLink::kConnected)

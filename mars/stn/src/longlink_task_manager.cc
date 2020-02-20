@@ -674,7 +674,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
             break;
         default:
         {
-			xassert2(false, TSF"task decode error fail_handle:%_, taskid:%_", handle_type, it->task.taskid);
+			xassert2(false, TSF"task decode error fail_handle:%_, taskid:%_, context id:%_", handle_type, it->task.taskid, it->task.user_id);
 			__BatchErrorRespHandle(it->task.channel_name, kEctEnDecode, err_code, handle_type, it->task.taskid);
 			xassert2(fun_notify_network_err_);
 			fun_notify_network_err_(_name, __LINE__, kEctEnDecode, handle_type, _connect_profile.ip, _connect_profile.port);
@@ -717,7 +717,7 @@ void LongLinkTaskManager::__OnRecv(uint32_t _taskid, size_t _cachedsize, size_t 
     }
 }
 
-void LongLinkTaskManager::__SignalConnection(LongLink::TLongLinkStatus _connect_status) {
+void LongLinkTaskManager::__SignalConnection(LongLink::TLongLinkStatus _connect_status, const std::string& _channel_id) {
 	if (LongLink::kConnected == _connect_status)
         __RunLoop();
 }
@@ -777,7 +777,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
     longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
-    longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1));
+    longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
 #ifdef __APPLE__
     longlink->Monitor()->fun_longlink_reset_ = boost::bind(&LongLinkTaskManager::__ResetLongLink, this, _config.name);
 #endif

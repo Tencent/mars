@@ -354,7 +354,7 @@ void LongLink::__ConnectStatus(TLongLinkStatus _status) {
     __NotifySmartHeartbeatConnectStatus(connectstatus_);
     if (kConnected==connectstatus_ && fun_network_report_)
         fun_network_report_(__LINE__, kEctOK, 0, conn_profile_.ip, conn_profile_.port);
-    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(boost::ref(SignalConnection), connectstatus_));
+    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(boost::ref(SignalConnection), connectstatus_, config_.name));
 }
 
 void LongLink::__UpdateProfile(const ConnectProfile& _conn_profile) {

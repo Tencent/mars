@@ -109,7 +109,7 @@ class LongLink {
         kTimeCheckSucc = 10019,
     };
   public:
-    boost::signals2::signal<void (TLongLinkStatus _connectStatus)> SignalConnection;
+    boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
     
     boost::function< void (uint32_t _taskid)> OnSend;
@@ -137,6 +137,7 @@ class LongLink {
     void SetDnsFunc(DNS::DNSFunc _dns_func) {
       dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
+    std::string ChannelId() { return config_.name; }
     
   private:
     LongLink(const LongLink&);

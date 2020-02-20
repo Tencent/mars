@@ -124,7 +124,7 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
         if(is_keep_alive_) {
             activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
             activelogic_.SignalForeground.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-            longlink_.SignalConnection.connect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
+            longlink_.SignalConnection.connect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
         }
 }
 
@@ -133,7 +133,7 @@ LongLinkConnectMonitor::~LongLinkConnectMonitor() {
 #ifdef __APPLE__
     __StopTimer();
 #endif
-    longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
+    longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
     activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
     activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
 
@@ -142,7 +142,7 @@ LongLinkConnectMonitor::~LongLinkConnectMonitor() {
 
 void LongLinkConnectMonitor::DisconnectAllSlot() {
     if(is_keep_alive_) {
-        longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
+        longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
         activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
         activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
     }
@@ -200,7 +200,7 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 
     if (0 == remain) return remain;
 
-    xinfo2(TSF"start auto connect after:%0", remain);
+    xinfo2(TSF"start auto connect after:%0, channel id:%1", remain, longlink_.ChannelId().c_str());
     alarm_.Start((int)remain);
     return remain;
 }
@@ -231,7 +231,7 @@ void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
     ASYNC_BLOCK_END
 }
 
-void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status) {
+void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
     alarm_.Cancel();
 
     if (LongLink::kConnectFailed == _status || LongLink::kDisConnected == _status) {

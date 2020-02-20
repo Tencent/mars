@@ -123,7 +123,7 @@ class NetCore {
 
 #ifdef USE_LONG_LINK
     void    __OnLongLinkNetworkError(const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
-    void    __OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status);
+    void    __OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
 #endif
     
     void    __ConnStatusCallBack();

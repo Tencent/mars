@@ -53,7 +53,7 @@ class LongLinkConnectMonitor {
   private:
     void __OnSignalForeground(bool _isforeground);
     void __OnSignalActive(bool _isactive);
-    void __OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status);
+    void __OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
     void __OnAlarm();
 
     void __Run();
