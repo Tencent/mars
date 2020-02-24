@@ -111,6 +111,9 @@ class NetSource {
     bool GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec);
     void ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec);
 
+    bool CanUseIPv6FromIpStrategy() {return ipportstrategy_.CanUseIPv6();}
+
+
   private:
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
