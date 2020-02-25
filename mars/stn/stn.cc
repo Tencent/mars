@@ -49,6 +49,8 @@ Task::Task(uint32_t _taskid) {
     server_process_cost = -1;
     total_timetout = -1;
     user_context = NULL;
+    long_polling = false;
+    long_polling_timeout = -1;
 
 }
         

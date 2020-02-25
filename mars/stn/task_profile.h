@@ -238,6 +238,9 @@ struct TaskProfile {
         trycount++;
         
         uint64_t task_timeout = (readwritetimeout + 5 * 1000) * trycount;
+        if (_task.long_polling) {
+            task_timeout = (_task.long_polling_timeout + 5 * 1000) * trycount;
+        }
         
         if (0 < _task.total_timetout &&  (uint64_t)_task.total_timetout < task_timeout)
             task_timeout = _task.total_timetout;
