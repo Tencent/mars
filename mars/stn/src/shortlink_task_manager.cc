@@ -194,10 +194,10 @@ void ShortLinkTaskManager::__RunOnTimeout() {
         if (cur_time - first->start_task_time >= first->task_timeout) {
             err_type = kEctLocal;
             socket_timeout_code = kEctLocalTaskTimeout;
-        } else if (first->running_id && first->transfer_profile.task.long_polling && 0 < first->transfer_profile.start_send_time && cur_time - first->transfer_profile.start_send_time >= (uint64_t)first->transfer_profile.task.long_polling_timeout) {
-            xerror2(TSF"task long-polling timeout, taskid:%_, wworker:%_, nStartSendTime:%_, nReadWriteTimeOut:%_", first->task.taskid, (void*)first->running_id, first->transfer_profile.start_send_time / 1000, first->transfer_profile.task.long_polling_timeout / 1000);
-            err_type = kEctHttp;
-            socket_timeout_code = kEctHttpLongPollingTimeout;
+            if (first->transfer_profile.task.long_polling) {
+                xerror2(TSF"task long-polling timeout, taskid:%_, wworker:%_, nStartSendTime:%_, nReadWriteTimeOut:%_", first->task.taskid, (void*)first->running_id, first->transfer_profile.start_send_time / 1000, first->transfer_profile.task.long_polling_timeout / 1000);
+                socket_timeout_code = kEctHttpLongPollingTimeout;
+            }
         } else if (first->running_id && !first->transfer_profile.task.long_polling && 0 < first->transfer_profile.start_send_time && cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.read_write_timeout) {
             xerror2(TSF"task read-write timeout, taskid:%_, wworker:%_, nStartSendTime:%_, nReadWriteTimeOut:%_", first->task.taskid, (void*)first->running_id, first->transfer_profile.start_send_time / 1000, first->transfer_profile.read_write_timeout / 1000);
             err_type = kEctHttp;
