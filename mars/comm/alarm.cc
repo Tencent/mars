@@ -146,6 +146,12 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
 
 #ifdef ANDROID
 
+
+    if (NULL == wakelock_) wakelock_ = new WakeUpLock();
+
+    wakelock_->Lock(1000);     // add 00ms
+    xinfo2(TSF"onalarm wakelock") >> group;
+
     if (missTime > 0) {
         if (missTime <= MAX_LOCK_TIME) {
             if (NULL == wakelock_) wakelock_ = new WakeUpLock();
