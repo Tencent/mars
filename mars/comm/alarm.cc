@@ -147,10 +147,6 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
 #ifdef ANDROID
 
 
-    if (NULL == wakelock_) wakelock_ = new WakeUpLock();
-
-    wakelock_->Lock(1000);     // add 00ms
-    xinfo2(TSF"onalarm wakelock") >> group;
 
     if (missTime > 0) {
         if (missTime <= MAX_LOCK_TIME) {
@@ -192,6 +188,10 @@ const Thread& Alarm::RunThread() const {
 #ifdef ANDROID
 void Alarm::onAlarmImpl(int64_t _id) {
     xinfo2(TSF"onAlarm id:%_, MQ:%_", _id, MessageQueue::GetDefMessageQueue());
+
+    if (NULL == wakelock_) wakelock_ = new WakeUpLock();
+    wakelock_->Lock(1000);     // add 00ms
+    xinfo2(TSF"onAlarmImpl wakelock");
     MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_SYSTEMTITLE, _id, MessageQueue::GetDefMessageQueue(), "KALARM_SYSTEMTITLE.id"));
 }
 #endif
