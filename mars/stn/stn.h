@@ -96,6 +96,14 @@ public:
 	std::vector<std::string> longlink_host_list;
 };
 
+struct NetworkStatus {
+    bool is_weak_network;
+    uint32_t last_weak_span;        //if current is weak network, last_weak_span is span from the last weak event 
+    int last_connect_rtt;           //if -1, last connect failed
+    int last_connect_span;
+    int last_cgi_cost;              //if -1, last cgi failed
+};
+
 enum TaskFailHandleType {
 	kTaskFailHandleNormal = 0,
 	kTaskFailHandleNoError = 0,
