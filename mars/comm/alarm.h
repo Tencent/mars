@@ -38,6 +38,8 @@ class Alarm {
         kOnAlarm,
     };
 
+    static boost::function<void ()> OnAlarm_;
+
   public:
     template<class T>
     explicit Alarm(const T& _op, bool _inthread = true)
@@ -53,6 +55,7 @@ class Alarm {
         , wakelock_(NULL)
 #endif
     {
+        Alarm::OnAlarm_ = boost::bind(&Alarm::StartWakeLock, this);
         xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
     }
 
@@ -70,6 +73,7 @@ class Alarm {
         , wakelock_(NULL)
 #endif
     {
+        Alarm::OnAlarm_ = boost::bind(&Alarm::StartWakeLock, this);
         xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
     }
 
@@ -90,6 +94,8 @@ class Alarm {
 
     bool Start(int _after, bool _needWake=true);  // ms
     bool Cancel();
+
+    void StartWakeLock();
 
     bool IsWaiting() const;
     int Status() const;

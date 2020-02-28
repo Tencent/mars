@@ -34,8 +34,14 @@ const MessageQueue::MessageTitle_t KALARM_SYSTEMTITLE(0x1F1F1E);
 #define MAX_LOCK_TIME (5000)
 #define INVAILD_SEQ (0)
 
+boost::function<void ()> Alarm::OnAlarm_;
+
 bool Alarm::Start(int _after, bool _needWake) {
     ScopedLock lock(sg_lock);
+    // if ( !OnAlarm_) {
+
+    //     OnAlarm_ = boost::bind(&Alarm::StartWakeLock, this);
+    // }
 
     if (INVAILD_SEQ != seq_) return false;
 
@@ -185,13 +191,21 @@ const Thread& Alarm::RunThread() const {
     return runthread_;
 }
 
+void Alarm::StartWakeLock() {
 #ifdef ANDROID
-void Alarm::onAlarmImpl(int64_t _id) {
-    xinfo2(TSF"onAlarm id:%_, MQ:%_", _id, MessageQueue::GetDefMessageQueue());
 
     if (NULL == wakelock_) wakelock_ = new WakeUpLock();
     wakelock_->Lock(1000);     // add 00ms
     xinfo2(TSF"onAlarmImpl wakelock");
+#endif
+}
+
+#ifdef ANDROID
+void Alarm::onAlarmImpl(int64_t _id) {
+    xinfo2(TSF"onAlarm id:%_, MQ:%_", _id, MessageQueue::GetDefMessageQueue());
+    if (OnAlarm_) {
+        OnAlarm_();
+    }
     MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_SYSTEMTITLE, _id, MessageQueue::GetDefMessageQueue(), "KALARM_SYSTEMTITLE.id"));
 }
 #endif
