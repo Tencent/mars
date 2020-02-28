@@ -198,7 +198,11 @@ void ShortLinkTaskManager::__RunOnTimeout() {
             xerror2(TSF"task read-write timeout, taskid:%_, wworker:%_, nStartSendTime:%_, nReadWriteTimeOut:%_", first->task.taskid, (void*)first->running_id, first->transfer_profile.start_send_time / 1000, first->transfer_profile.read_write_timeout / 1000);
             err_type = kEctHttp;
             socket_timeout_code = kEctHttpReadWriteTimeout;
-        } else if (first->running_id && 0 < first->transfer_profile.start_send_time && 0 == first->transfer_profile.last_receive_pkg_time && cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.first_pkg_timeout) {
+        } else if (first->running_id && first->transfer_profile.task.long_polling && 0 < first->transfer_profile.start_send_time && 0 == first->transfer_profile.last_receive_pkg_time && cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.task.long_polling) {
+            xerror2(TSF"task long-polling timeout, taskid:%_, wworker:%_, nStartSendTime:%_, nReadWriteTimeOut:%_", first->task.taskid, (void*)first->running_id, first->transfer_profile.start_send_time / 1000, first->transfer_profile.task.long_polling_timeout / 1000);
+            err_type = kEctHttp;
+            socket_timeout_code = kEctHttpLongPollingTimeout;
+        } else if (first->running_id && !first->transfer_profile.task.long_polling && 0 < first->transfer_profile.start_send_time && 0 == first->transfer_profile.last_receive_pkg_time && cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.first_pkg_timeout) {
             xerror2(TSF"task first-pkg timeout taskid:%_, wworker:%_, nStartSendTime:%_, nfirstpkgtimeout:%_", first->task.taskid, (void*)first->running_id, first->transfer_profile.start_send_time / 1000, first->transfer_profile.first_pkg_timeout / 1000);
             err_type = kEctHttp;
             socket_timeout_code = kEctHttpFirstPkgTimeout;
@@ -300,7 +304,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         first->transfer_profile.loop_start_task_time = ::gettickcount();
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
         first->current_dyntime_status = (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
-        first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
+        if (first->transfer_profile.task.long_polling) {
+            first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.task.long_polling_timeout);
+        } else {
+            first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
+        }
         first->transfer_profile.send_data_size = bufreq.Length();
 
         first->use_proxy =  (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;

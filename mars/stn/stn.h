@@ -87,6 +87,8 @@ public:
     int32_t     retry_count;  // user
     int32_t     server_process_cost;  // user
     int32_t     total_timetout;  // user ms
+    bool        long_polling;
+    int32_t     long_polling_timeout;
     
     void*       user_context;  // user
     std::string report_arg;  // user for cgi report
@@ -153,6 +155,7 @@ enum {
     kEctHttpFirstPkgTimeout = -500,
     kEctHttpPkgPkgTimeout = -501,
     kEctHttpReadWriteTimeout = -502,
+    kEctHttpLongPollingTimeout = -503,
   //  kEctHttpTaskTimeout = -503,
 };
 
