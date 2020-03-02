@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include "boost/filesystem.hpp"
+#include "xlogger/xlogger.h"
 
 bool IsMmapFileOpenSucc(const boost::iostreams::mapped_file& _mmmap_file) {
     return !_mmmap_file.operator !() && _mmmap_file.is_open();
