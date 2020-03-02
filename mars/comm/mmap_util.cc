@@ -84,6 +84,9 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         delete[] zero_data;
     }
 #endif
+    if(!is_open) {
+        xerror2(TSF"mmap file open fail:%_", errno);
+    }
     return is_open;
 }
 
