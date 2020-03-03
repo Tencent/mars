@@ -45,7 +45,9 @@ int main(int argc, char * argv[]) {
         xlogger_SetLevel(kLevelInfo);
         appender_set_console_log(false);
 #endif
-        appender_open(kAppednerAsync, [logPath UTF8String], "Test", "");
+        int compressLevel = 6;
+        XLogConfig config = {kAppednerAsync, [logPath UTF8String], "Test", "", ZSTD, compressLevel};
+        appender_open(config);
         
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
     }

@@ -71,7 +71,10 @@
 #include "mars/comm/objc/data_protect_attr.h"
 #endif
 
-#include "log_buffer.h"
+#import "appender.h"
+#include "log_zlib_buffer.h"
+#include "log_base_buffer.h"
+#include "log_zstd_buffer.h"
 
 #define LOG_EXT "xlog"
 
@@ -96,7 +99,7 @@ static Condition& sg_cond_buffer_async = *(new Condition());  // 改成引用, �
 static Condition sg_cond_buffer_async;
 #endif
 
-static LogBuffer* sg_log_buff = NULL;
+static LogBaseBuffer* sg_log_buff = NULL;
 
 static volatile bool sg_log_close = true;
 
@@ -469,6 +472,7 @@ static bool __openlogfile(const std::string& _log_dir) {
     }
 
     sg_logfile = fopen(logfilepath, "ab");
+    printf("logfilepath = %s\n", logfilepath);
 
     if (NULL == sg_logfile) {
         __writetips2console("open file error:%d %s, path:%s", errno, strerror(errno), logfilepath);
@@ -817,41 +821,49 @@ static void get_mark_info(char* _info, size_t _infoLen) {
     snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
 }
 
-void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key) {
-    assert(_dir);
-    assert(_nameprefix);
+void appender_open(XLogConfig config) {
+    assert(config._dir);
+    assert(config._nameprefix);
     
     if (!sg_log_close) {
-        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _dir, _nameprefix);
+        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", config._dir, config._nameprefix);
         return;
     }
 
     xlogger_SetAppender(&xlogger_appender);
     
-    boost::filesystem::create_directories(_dir);
+    boost::filesystem::create_directories(config._dir);
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, _dir)).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&__del_timeout_file, config._dir)).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
 #ifdef __APPLE__
-    setAttrProtectionNone(_dir);
+    setAttrProtectionNone(config._dir);
 #endif
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_dir:sg_cache_logdir.c_str(), _nameprefix);
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?config._dir:sg_cache_logdir.c_str(), config._nameprefix);
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _pub_key);
+        if (config.mode == ZSTD){
+            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, config._pub_key, config.compresslevel);
+        }else {
+            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, config._pub_key);
+        }
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        sg_log_buff = new LogBuffer(buffer, kBufferBlockLength, true, _pub_key);
+        if (config.mode == ZSTD){
+            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, config._pub_key, config.compresslevel);
+        } else {
+            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, config._pub_key);
+        }
         use_mmap = false;
     }
-
+    
     if (NULL == sg_log_buff->GetData().Ptr()) {
         if (use_mmap && sg_mmmap_file.is_open())  CloseMmapFile(sg_mmmap_file);
         return;
@@ -862,10 +874,10 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     sg_log_buff->Flush(buffer);
 
     ScopedLock lock(sg_mutex_log_file);
-    sg_logdir = _dir;
-    sg_logfileprefix = _nameprefix;
+    sg_logdir = config._dir;
+    sg_logfileprefix = config._nameprefix;
     sg_log_close = false;
-    appender_setmode(_mode);
+    appender_setmode(config._mode);
     lock.unlock();
     
     char mark_info[512] = {0};
@@ -893,7 +905,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     xlogger_appender(NULL, "MARS_BUILD_TIME: " MARS_BUILD_TIME);
     xlogger_appender(NULL, "MARS_BUILD_JOB: " MARS_TAG);
 
-    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_mode, use_mmap);
+    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)config._mode, use_mmap);
     xlogger_appender(NULL, logmsg);
     
     if (!sg_cache_logdir.empty()) {
@@ -931,7 +943,9 @@ void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir,
 #ifdef __APPLE__
     setAttrProtectionNone(_cachedir.c_str());
 #endif
-    appender_open(_mode, _logdir.c_str(), _nameprefix, _pub_key);
+    int compressLevel = 6;
+    XLogConfig config = {_mode, _logdir.c_str(), _nameprefix, _pub_key, ZSTD, compressLevel};
+    appender_open(config);
 
 }
 

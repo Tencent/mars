@@ -31,7 +31,21 @@ enum TAppenderMode
     kAppednerSync,
 };
 
-void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key);
+enum compressMode{
+    ZLIB,
+    ZSTD,
+};
+
+struct XLogConfig{
+    TAppenderMode _mode;
+    const char* _dir;
+    const char* _nameprefix;
+    const char* _pub_key;
+    compressMode mode;
+    int compresslevel;
+};
+
+void appender_open(XLogConfig config);
 void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir,
                               const char* _nameprefix, int _cache_days, const char* _pub_key);
 void appender_flush();
