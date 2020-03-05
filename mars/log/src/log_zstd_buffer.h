@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -11,31 +11,31 @@
 // limitations under the License.
 
 /*
- * log_zlib_buffer.h
+ * log_zstd_buffer.h
  *
- *  Created on: 2015-7-28
+ *  Created on: 2020-3-5
  *      Author: yanguoyue
  */
 
-#ifndef LOGZLIBBUFFER_H_
-#define LOGZLIBBUFFER_H_
+#ifndef LOGZSTDBUFFER_H_
+#define LOGZSTDBUFFER_H_
 
-#include <zlib.h>
 #include <string>
 #include <stdint.h>
 
+#include "zstd/zstd.h"
 #include "log_base_buffer.h"
 #include "mars/comm/ptrbuffer.h"
 #include "mars/comm/autobuffer.h"
 
 class LogCrypt;
 
-class LogZlibBuffer : public LogBaseBuffer{
+class LogZstdBuffer : public LogBaseBuffer{
     
 public:
     
-    LogZlibBuffer(void* _pbuffer, size_t _len, bool _is_compress, const char* _pubkey);
-    ~LogZlibBuffer();
+    LogZstdBuffer(void* _pbuffer, size_t _len, bool _is_compress, const char* _pubkey, int level);
+    ~LogZstdBuffer();
     
 public:
     
@@ -48,8 +48,7 @@ private:
 
 private:
     
-    z_stream cstream_;
+    ZSTD_CCtx* cctx;
 };
 
-
-#endif /* LOGBUFFER_H_ */
+#endif /* LOGZSTDBUFFER_H_ */
