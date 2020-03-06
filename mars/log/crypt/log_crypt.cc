@@ -33,10 +33,18 @@
 #include "micro-ecc-master/uECC.h"
 #endif
 
-static const char kMagicSyncStart = '\x06';
-static const char kMagicSyncNoCryptStart ='\x08';
-static const char kMagicAsyncStart ='\x07';
-static const char kMagicAsyncNoCryptStart ='\x09';
+extern int zlibMode;
+extern int zstdMode;
+
+static const char kMagicSyncZlibStart = '\x06';
+static const char kMagicSyncNoCryptZlibStart ='\x08';
+static const char kMagicAsyncZlibStart ='\x07';
+static const char kMagicAsyncNoCryptZlibStart ='\x09';
+
+static const char kMagicSyncZstdStart = '\x010';
+static const char kMagicSyncNoCryptZstdStart ='\x012';
+static const char kMagicAsyncZstdStart ='\x011';
+static const char kMagicAsyncNoCryptZstdStart ='\x013';
 
 static const char kMagicEnd  = '\0';
 
@@ -147,7 +155,7 @@ bool LogCrypt::GetLogHour(const char* const _data, size_t _len, int& _begin_hour
     if (_len < GetHeaderLen()) return false;
     
     char start = _data[0];
-    if (kMagicAsyncStart != start && kMagicSyncStart != start) return false;
+    if (kMagicAsyncZlibStart != start && kMagicSyncZlibStart != start && kMagicAsyncZstdStart != start && kMagicSyncZstdStart != start) return false;
     
     char begin_hour = _data[sizeof(char)+sizeof(uint16_t)];
     char end_hour = _data[sizeof(char)+sizeof(uint16_t)+sizeof(char)];
@@ -172,8 +180,10 @@ uint32_t LogCrypt::GetLogLen(const char*  const _data, size_t _len) {
     if (_len < GetHeaderLen()) return 0;
     
     char start = _data[0];
-    if (kMagicAsyncStart != start && kMagicSyncStart != start
-        && kMagicAsyncNoCryptStart != start && kMagicSyncNoCryptStart != start) {
+    if (kMagicAsyncZlibStart != start && kMagicSyncZlibStart != start
+        && kMagicAsyncNoCryptZlibStart != start && kMagicSyncNoCryptZlibStart != start
+        && kMagicAsyncZstdStart != start && kMagicSyncZstdStart != start
+        && kMagicAsyncNoCryptZstdStart != start && kMagicSyncNoCryptZstdStart != start) {
         return 0;
     }
     
@@ -188,23 +198,39 @@ void LogCrypt::UpdateLogLen(char* _data, uint32_t _add_len) {
     memcpy(_data + GetHeaderLen() - sizeof(uint32_t) - sizeof(char) * 64, &currentlen, sizeof(currentlen));
 }
 
-void LogCrypt::SetHeaderInfo(char* _data, bool _is_async) {
+void LogCrypt::SetHeaderInfo(char* _data, bool _is_async, int _compress_mode) {
     if (_is_async) {
         if (is_crypt_) {
-            memcpy(_data, &kMagicAsyncStart, sizeof(kMagicAsyncStart));
+            if (_compress_mode == zlibMode) {
+                memcpy(_data, &kMagicAsyncZlibStart, sizeof(kMagicAsyncZlibStart));
+            } else {
+                memcpy(_data, &kMagicAsyncZstdStart, sizeof(kMagicAsyncZstdStart));
+            }
         } else {
-            memcpy(_data, &kMagicAsyncNoCryptStart, sizeof(kMagicAsyncNoCryptStart));
+            if (_compress_mode == zlibMode) {
+                memcpy(_data, &kMagicAsyncNoCryptZlibStart, sizeof(kMagicAsyncNoCryptZlibStart));
+            } else {
+                memcpy(_data, &kMagicAsyncNoCryptZstdStart, sizeof(kMagicAsyncNoCryptZstdStart));
+            }
         }
     } else {
         if (is_crypt_) {
-            memcpy(_data, &kMagicSyncStart, sizeof(kMagicSyncStart));
+            if (_compress_mode == zlibMode) {
+                memcpy(_data, &kMagicSyncZlibStart, sizeof(kMagicSyncZlibStart));
+            } else {
+                memcpy(_data, &kMagicSyncZstdStart, sizeof(kMagicSyncZstdStart));
+            }
         } else {
-            memcpy(_data, &kMagicSyncNoCryptStart, sizeof(kMagicSyncNoCryptStart));
+            if (_compress_mode == zlibMode) {
+                memcpy(_data, &kMagicSyncNoCryptZlibStart, sizeof(kMagicSyncNoCryptZlibStart));
+            } else {
+                memcpy(_data, &kMagicSyncNoCryptZstdStart, sizeof(kMagicSyncNoCryptZstdStart));
+            }
         }
     }
     
     seq_ = __GetSeq(_is_async);
-    memcpy(_data + sizeof(kMagicAsyncStart), &seq_, sizeof(seq_));
+    memcpy(_data + sizeof(kMagicAsyncZlibStart), &seq_, sizeof(seq_));
 
     
     struct timeval tv;
@@ -213,13 +239,13 @@ void LogCrypt::SetHeaderInfo(char* _data, bool _is_async) {
     tm tm_tmp = *localtime((const time_t*)&sec);
     
     char hour = (char)tm_tmp.tm_hour;
-    memcpy(_data + sizeof(kMagicAsyncStart) + sizeof(seq_), &hour, sizeof(hour));
-    memcpy(_data + sizeof(kMagicAsyncStart) + sizeof(seq_) + sizeof(hour), &hour, sizeof(hour));
+    memcpy(_data + sizeof(kMagicAsyncZlibStart) + sizeof(seq_), &hour, sizeof(hour));
+    memcpy(_data + sizeof(kMagicAsyncZlibStart) + sizeof(seq_) + sizeof(hour), &hour, sizeof(hour));
 
     
     uint32_t len = 0;
-    memcpy(_data + sizeof(kMagicAsyncStart) + sizeof(seq_) + sizeof(hour) * 2, &len, sizeof(len));
-    memcpy(_data + sizeof(kMagicAsyncStart) + sizeof(seq_) + sizeof(hour) * 2 + sizeof(len), client_pubkey_, sizeof(client_pubkey_));
+    memcpy(_data + sizeof(kMagicAsyncZlibStart) + sizeof(seq_) + sizeof(hour) * 2, &len, sizeof(len));
+    memcpy(_data + sizeof(kMagicAsyncZlibStart) + sizeof(seq_) + sizeof(hour) * 2 + sizeof(len), client_pubkey_, sizeof(client_pubkey_));
 }
 
 void LogCrypt::SetTailerInfo(char* _data) {
@@ -284,8 +310,10 @@ bool LogCrypt::GetPeriodLogs(const char* const _log_path, int _begin_hour, int _
         bool fix = false;
         
         char start = *header_buff;
-        if (start != kMagicSyncStart && start != kMagicSyncNoCryptStart
-                && start != kMagicAsyncStart && start != kMagicAsyncNoCryptStart) {
+        if (start != kMagicSyncZlibStart && start != kMagicSyncNoCryptZlibStart
+                && start != kMagicAsyncZlibStart && start != kMagicAsyncNoCryptZlibStart
+                && start != kMagicSyncZstdStart && start != kMagicSyncNoCryptZstdStart
+                && start != kMagicAsyncZstdStart && start != kMagicAsyncNoCryptZstdStart) {
             fix = true;
         } else {
             uint32_t len = GetLogLen(header_buff, GetHeaderLen());
@@ -373,10 +401,10 @@ bool LogCrypt::GetPeriodLogs(const char* const _log_path, int _begin_hour, int _
 }
 
 
-void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff) {
+void LogCrypt::CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff, int compress_mode_) {
 	_out_buff.AllocWrite(GetHeaderLen() + GetTailerLen() + _input_len);
 
-    SetHeaderInfo((char*)_out_buff.Ptr(), false);
+    SetHeaderInfo((char*)_out_buff.Ptr(), false, compress_mode_);
     
     uint32_t header_len = GetHeaderLen();
     
@@ -435,12 +463,14 @@ bool LogCrypt::Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _ra
     }
     
     char start = _data[0];
-    if (kMagicAsyncStart != start && kMagicSyncStart != start
-        && kMagicAsyncNoCryptStart != start && kMagicSyncNoCryptStart != start) {
+    if (kMagicAsyncZlibStart != start && kMagicSyncZlibStart != start
+        && kMagicAsyncNoCryptZlibStart != start && kMagicSyncNoCryptZlibStart != start
+        && kMagicAsyncZstdStart != start && kMagicSyncZstdStart != start
+        && kMagicAsyncNoCryptZstdStart != start && kMagicSyncNoCryptZstdStart != start) {
         return false;
     }
     
-    if (kMagicSyncStart == start || kMagicSyncNoCryptStart == start) {
+    if (kMagicSyncZlibStart == start || kMagicSyncNoCryptZlibStart == start || kMagicSyncZstdStart == start || kMagicSyncNoCryptZstdStart == start) {
         _is_async = false;
     } else {
         _is_async = true;

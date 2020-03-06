@@ -27,13 +27,21 @@
 #include "mars/comm/ptrbuffer.h"
 #include "mars/comm/autobuffer.h"
 
+typedef enum {
+    ZLIB,
+    ZSTD,
+} compressMode;
+
+int zlibMode = ZLIB;
+int zstdMode = ZSTD;
+
 class LogCrypt;
 
 class LogBaseBuffer {
     
 public:
     
-    LogBaseBuffer(void* _pbuffer, size_t _len, bool _is_compress, const char* _pubkey);
+    LogBaseBuffer(void* _pbuffer, size_t _len, bool _is_compress, int _compress_mode, const char* _pubkey);
     int extracted();
     ~LogBaseBuffer();
 
@@ -61,6 +69,7 @@ protected:
     
     PtrBuffer buff_;
     bool is_compress_;
+    int compress_mode_;
     class LogCrypt* log_crypt_;
     size_t remain_nocrypt_len_;
 

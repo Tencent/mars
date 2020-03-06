@@ -821,45 +821,45 @@ static void get_mark_info(char* _info, size_t _infoLen) {
     snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
 }
 
-void appender_open(XLogConfig config) {
-    assert(config._dir);
-    assert(config._nameprefix);
+void appender_open(XLogConfig _config, int _compress_mode, int _compresslevel) {
+    assert(_config._dir);
+    assert(_config._nameprefix);
     
     if (!sg_log_close) {
-        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", config._dir, config._nameprefix);
+        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config._dir, _config._nameprefix);
         return;
     }
 
     xlogger_SetAppender(&xlogger_appender);
     
-    boost::filesystem::create_directories(config._dir);
+    boost::filesystem::create_directories(_config._dir);
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, config._dir)).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&__del_timeout_file, _config._dir)).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
 #ifdef __APPLE__
-    setAttrProtectionNone(config._dir);
+    setAttrProtectionNone(_config._dir);
 #endif
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?config._dir:sg_cache_logdir.c_str(), config._nameprefix);
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_config._dir:sg_cache_logdir.c_str(), _config._nameprefix);
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        if (config.mode == ZSTD){
-            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, config._pub_key, config.compresslevel);
+        if (_compress_mode == zstdMode){
+            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key, _compresslevel);
         }else {
-            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, config._pub_key);
+            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key);
         }
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        if (config.mode == ZSTD){
-            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, config._pub_key, config.compresslevel);
+        if (_compress_mode == zstdMode){
+            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config._pub_key, _compresslevel);
         } else {
-            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, config._pub_key);
+            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config._pub_key);
         }
         use_mmap = false;
     }
@@ -874,10 +874,10 @@ void appender_open(XLogConfig config) {
     sg_log_buff->Flush(buffer);
 
     ScopedLock lock(sg_mutex_log_file);
-    sg_logdir = config._dir;
-    sg_logfileprefix = config._nameprefix;
+    sg_logdir = _config._dir;
+    sg_logfileprefix = _config._nameprefix;
     sg_log_close = false;
-    appender_setmode(config._mode);
+    appender_setmode(_config._mode);
     lock.unlock();
     
     char mark_info[512] = {0};
@@ -905,7 +905,7 @@ void appender_open(XLogConfig config) {
     xlogger_appender(NULL, "MARS_BUILD_TIME: " MARS_BUILD_TIME);
     xlogger_appender(NULL, "MARS_BUILD_JOB: " MARS_TAG);
 
-    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)config._mode, use_mmap);
+    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_config._mode, use_mmap);
     xlogger_appender(NULL, logmsg);
     
     if (!sg_cache_logdir.empty()) {
@@ -944,8 +944,8 @@ void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir,
     setAttrProtectionNone(_cachedir.c_str());
 #endif
     int compressLevel = 6;
-    XLogConfig config = {_mode, _logdir.c_str(), _nameprefix, _pub_key, ZSTD, compressLevel};
-    appender_open(config);
+    XLogConfig config = {_mode, _logdir.c_str(), _nameprefix, _pub_key};
+    appender_open(config, zstdMode, compressLevel);
 
 }
 

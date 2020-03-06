@@ -38,8 +38,7 @@
 
 
 LogZlibBuffer::LogZlibBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey)
-    :LogBaseBuffer(_pbuffer, _len, _isCompress, _pubkey){
-
+    :LogBaseBuffer(_pbuffer, _len, _isCompress, zlibMode, _pubkey) {
 
     if (is_compress_) {
         memset(&cstream_, 0, sizeof(cstream_));
@@ -80,7 +79,7 @@ bool LogZlibBuffer::__Reset() {
     
    __Clear();
    
-   log_crypt_->SetHeaderInfo((char*)buff_.Ptr(), is_compress_);
+   log_crypt_->SetHeaderInfo((char*)buff_.Ptr(), is_compress_, compress_mode_);
    buff_.Length(log_crypt_->GetHeaderLen(), log_crypt_->GetHeaderLen());
 
     if (is_compress_) {

@@ -25,15 +25,13 @@
 #include <vector>
 #include <stdint.h>
 
+extern int zlibMode;
+extern int zstdMode;
+
 enum TAppenderMode
 {
     kAppednerAsync,
     kAppednerSync,
-};
-
-enum compressMode{
-    ZLIB,
-    ZSTD,
 };
 
 struct XLogConfig{
@@ -41,11 +39,9 @@ struct XLogConfig{
     const char* _dir;
     const char* _nameprefix;
     const char* _pub_key;
-    compressMode mode;
-    int compresslevel;
 };
 
-void appender_open(XLogConfig config);
+void appender_open(XLogConfig _config, int _compress_mode, int _compress_level);
 void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir,
                               const char* _nameprefix, int _cache_days, const char* _pub_key);
 void appender_flush();

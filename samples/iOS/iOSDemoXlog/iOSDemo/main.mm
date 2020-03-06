@@ -28,6 +28,9 @@
 
 #import "AppDelegate.h"
 
+extern int zlibMode;
+extern int zstdMode;
+
 int main(int argc, char * argv[]) {
     @autoreleasepool {
         NSString* logPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingString:@"/log"];
@@ -46,8 +49,8 @@ int main(int argc, char * argv[]) {
         appender_set_console_log(false);
 #endif
         int compressLevel = 6;
-        XLogConfig config = {kAppednerAsync, [logPath UTF8String], "Test", "", ZSTD, compressLevel};
-        appender_open(config);
+        XLogConfig config = {kAppednerAsync, [logPath UTF8String], "Test", ""};
+        appender_open(config, zstdMode, compressLevel);
         
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
     }
