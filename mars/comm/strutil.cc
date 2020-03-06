@@ -254,7 +254,11 @@ std::string Hex2Str(const char* _str, unsigned int _len) {
 }
 
 std::string Str2Hex(const char* _str, unsigned int _len) {
-    char outbuffer[256];
+    if (_len > 1024) {
+        xassert2(false, "string length %_ too long.", _len);
+        return "";
+    }
+    char outbuffer[512 + 1];
     
     unsigned int outoffset = 0;
     const char * ptr = _str;
