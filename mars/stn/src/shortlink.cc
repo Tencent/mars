@@ -170,6 +170,8 @@ void ShortLink::__Run() {
     }
 }
 
+static int times = 0;
+
 SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
@@ -290,6 +292,17 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
 
     ShortLinkConnectObserver connect_observer(*this);
+
+    if (times == 3) {
+        times = 0;
+        vecaddr.clear();
+        vecaddr.push_back(socket_address("240e:e1:a900:50::88", 80));
+        vecaddr.push_back(socket_address("240e:e1:a900:50::89", 80));
+        vecaddr.push_back(socket_address("101.89.15.100", 80));
+        vecaddr.push_back(socket_address("101.226.49.144", 80));
+        vecaddr.push_back(socket_address("101.226.49.141", 80));
+    }
+    times ++;
 
     ComplexConnect::EachIPConnectTimoutMode timoutMode = ComplexConnect::EachIPConnectTimoutMode::MODE_FIXED;
     bool contain_v6 = __ContainIPv6(vecaddr);
