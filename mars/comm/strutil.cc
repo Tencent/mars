@@ -255,7 +255,7 @@ std::string Hex2Str(const char* _str, unsigned int _len) {
 
 std::string Str2Hex(const char* _str, unsigned int _len) {
     if (_len > 1024) {
-        xassert2(false, "string length %_ too long.", _len);
+        xassert2(false, TSF"string length %_ too long.", _len);
         return "";
     }
     char outbuffer[512 + 1];
