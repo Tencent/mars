@@ -821,43 +821,64 @@ static void get_mark_info(char* _info, size_t _infoLen) {
     snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
 }
 
-void appender_open(XLogConfig _config, int _compress_mode, int _compresslevel) {
-    assert(_config._dir);
-    assert(_config._nameprefix);
+void appender_open(XLogConfig _config) {
     
+    if (_config._with_cache) {
+        assert(!_config._logdir.empty());
+        assert(!_config._cachedir.empty());
+        sg_logdir = _config._logdir;
+        sg_cache_log_days = _config._cache_days;
+
+        if (!_config._cachedir.empty()) {
+            sg_cache_logdir = _config._cachedir;
+            boost::filesystem::create_directories(_config._cachedir);
+
+            Thread(boost::bind(&__del_timeout_file, _config._cachedir)).start_after(2 * 60 * 1000);
+            // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
+            Thread(boost::bind(&__move_old_files, _config._cachedir, _config._logdir, std::string(_config._nameprefix))).start_after(3 * 60 * 1000);
+        }
+
+        #ifdef __APPLE__
+            setAttrProtectionNone(_config._cachedir.c_str());
+        #endif
+    }
+    
+    assert(_config._logdir.c_str());
+    assert(_config._nameprefix);
+        
     if (!sg_log_close) {
-        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config._dir, _config._nameprefix);
+        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config._logdir.c_str(), _config._nameprefix);
         return;
     }
 
     xlogger_SetAppender(&xlogger_appender);
     
-    boost::filesystem::create_directories(_config._dir);
+    boost::filesystem::create_directories(_config._logdir.c_str());
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, _config._dir)).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&__del_timeout_file, _config._logdir.c_str())).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
 #ifdef __APPLE__
-    setAttrProtectionNone(_config._dir);
+    setAttrProtectionNone(_config._logdir.c_str());
 #endif
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_config._dir:sg_cache_logdir.c_str(), _config._nameprefix);
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_config._logdir.c_str():sg_cache_logdir.c_str(), _config._nameprefix);
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        if (_compress_mode == zstdMode){
-            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key, _compresslevel);
+        if (_config._compress_mode == zstdMode){
+            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key, _config._compress_level);
         }else {
             sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key);
         }
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        if (_compress_mode == zstdMode){
-            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config._pub_key, _compresslevel);
+        if (_config._compress_mode == zstdMode){
+            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config._pub_key, _config._compress_level);
         } else {
             sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config._pub_key);
         }
@@ -874,7 +895,7 @@ void appender_open(XLogConfig _config, int _compress_mode, int _compresslevel) {
     sg_log_buff->Flush(buffer);
 
     ScopedLock lock(sg_mutex_log_file);
-    sg_logdir = _config._dir;
+    sg_logdir = _config._logdir.c_str();
     sg_logfileprefix = _config._nameprefix;
     sg_log_close = false;
     appender_setmode(_config._mode);
@@ -919,33 +940,6 @@ void appender_open(XLogConfig _config, int _compress_mode, int _compresslevel) {
     xlogger_appender(NULL, logmsg);
 
     BOOT_RUN_EXIT(appender_close);
-
-}
-
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir,
-                              const char* _nameprefix, int _cache_days, const char* _pub_key) {
-    assert(!_cachedir.empty());
-    assert(!_logdir.empty());
-    assert(_nameprefix);
-
-    sg_logdir = _logdir;
-    sg_cache_log_days = _cache_days;
-
-    if (!_cachedir.empty()) {
-        sg_cache_logdir = _cachedir;
-        boost::filesystem::create_directories(_cachedir);
-
-        Thread(boost::bind(&__del_timeout_file, _cachedir)).start_after(2 * 60 * 1000);
-        // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
-        Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
-    }
-
-#ifdef __APPLE__
-    setAttrProtectionNone(_cachedir.c_str());
-#endif
-    int compressLevel = 6;
-    XLogConfig config = {_mode, _logdir.c_str(), _nameprefix, _pub_key};
-    appender_open(config, zstdMode, compressLevel);
 
 }
 

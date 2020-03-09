@@ -36,14 +36,17 @@ enum TAppenderMode
 
 struct XLogConfig{
     TAppenderMode _mode;
-    const char* _dir;
+    const std::string& _logdir;
     const char* _nameprefix;
     const char* _pub_key;
+    int _compress_mode;
+    int _compress_level;
+    bool _with_cache;
+    const std::string& _cachedir;
+    int _cache_days;
 };
 
-void appender_open(XLogConfig _config, int _compress_mode, int _compress_level);
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir,
-                              const char* _nameprefix, int _cache_days, const char* _pub_key);
+void appender_open(XLogConfig _config);
 void appender_flush();
 void appender_flush_sync();
 void appender_close();

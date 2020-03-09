@@ -49,8 +49,10 @@ int main(int argc, char * argv[]) {
         appender_set_console_log(false);
 #endif
         int compressLevel = 6;
-        XLogConfig config = {kAppednerAsync, [logPath UTF8String], "Test", ""};
-        appender_open(config, zstdMode, compressLevel);
+        const std::string* logdir = new std::string([logPath UTF8String]);
+        const std::string* cachedir;
+        XLogConfig config = {kAppednerAsync, *logdir, "Test", "", zstdMode, compressLevel, false, *cachedir, 0};
+        appender_open(config);
         
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
     }
