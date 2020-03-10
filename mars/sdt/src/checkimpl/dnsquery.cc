@@ -494,11 +494,11 @@ void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
         res_ninit(&stat);
 
 //        if (stat.nsaddr_list != 0) {
-            struct sockaddr_in nsaddr;
+            struct sockaddr_in tmpaddrs;
 
             for (int i = 0; i < stat.nscount; i++) {
-                nsaddr = stat.nsaddr_list[i];
-                const char* nsIP = socket_address(nsaddr).ip();
+                tmpaddrs = stat.nsaddr_list[i];
+                const char* nsIP = socket_address(tmpaddrs).ip();
 
                 if (NULL != nsIP)
                 	_dns_servers.push_back(std::string(nsIP));
