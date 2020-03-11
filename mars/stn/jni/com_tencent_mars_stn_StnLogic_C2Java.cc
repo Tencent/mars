@@ -39,8 +39,8 @@ extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const 
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
     
 DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
-int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code)
-= [](uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) {
+int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code)
+= [](uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code) {
 
     xverbose_function();
 
@@ -113,8 +113,8 @@ std::vector<std::string> (*OnNewDns)(const std::string& _host)
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
-bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
-= [](uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) -> bool {
+bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
+= [](uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) -> bool {
 
     xverbose_function();
 
@@ -159,8 +159,8 @@ bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbu
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;[B[II)I")
-int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
-= [](uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
+int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
+= [](uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
 
     xverbose_function();
 
@@ -193,8 +193,8 @@ int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const AutoBuffer& _
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_makesureAuthed, KC2Java, "makesureAuthed", "(Ljava/lang/String;)Z")
-bool (*MakesureAuthed)(const std::string& _host)
-= [](const std::string& _host) -> bool {
+bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id)
+= [](const std::string& _host, const std::string& _user_id) -> bool {
     xverbose_function();
 
     VarCache* cache_instance = VarCache::Singleton();
