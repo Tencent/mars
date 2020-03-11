@@ -206,7 +206,7 @@ bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id)
 	return ret;
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;java/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
+DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
 int (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid)
 = [](const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     xverbose_function();
