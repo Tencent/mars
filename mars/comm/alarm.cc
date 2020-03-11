@@ -183,9 +183,18 @@ const Thread& Alarm::RunThread() const {
     return runthread_;
 }
 
+static void StartWakeLock() {
+#ifdef ANDROID
+    static WakeUpLock wakelock; 
+    wakelock.Lock(1000);    
+    xinfo2(TSF"StartWakeLock");
+#endif
+}
+
 #ifdef ANDROID
 void Alarm::onAlarmImpl(int64_t _id) {
     xinfo2(TSF"onAlarm id:%_, MQ:%_", _id, MessageQueue::GetDefMessageQueue());
+    StartWakeLock(); //wakelock need be acquired in onalarm thread, or will fail if try to acquire in other threads.
     MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_SYSTEMTITLE, _id, MessageQueue::GetDefMessageQueue(), "KALARM_SYSTEMTITLE.id"));
 }
 #endif
