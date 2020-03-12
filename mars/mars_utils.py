@@ -45,6 +45,11 @@ WIN_COPY_EXT_FILES = {
             "mars/comm/platform_comm.h": "comm",
 }
 
+UNIX_COPY_EXT_FILES = {
+            "mars/comm/platform_comm.h": "comm",
+            "mars/comm/xlogger/loginfo_extract.h": "xlog",
+}
+
 XLOG_COPY_HEADER_FILES = {
             "mars/comm/verinfo.h": "comm",
             "mars/comm/autobuffer.h": "comm",
