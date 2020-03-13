@@ -335,6 +335,7 @@ namespace MessageQueue {
         ScopedLock lock(sg_messagequeue_map_mutex);
         const MessageQueue_t& id = _handlerid.queue;
 
+        xinfo2(TSF"mq map size:%_, id:%_", sg_messagequeue_map.size(), id);
         std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
         if (sg_messagequeue_map.end() == pos) {
             //ASSERT2(false, "%" PRIu64, id);
