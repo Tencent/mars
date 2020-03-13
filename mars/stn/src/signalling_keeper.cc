@@ -85,8 +85,6 @@ void SignallingKeeper::OnNetWorkDataChanged(const char*, ssize_t, ssize_t)
     if (postid_ != MessageQueue::KNullPost) {
         MessageQueue::CancelMessage(postid_);
     }
-
-    abort();
     
     postid_ = MessageQueue::AsyncInvokeAfter(g_period, boost::bind(&SignallingKeeper::__OnTimeOut, this), msgreg_.Get(), "SignallingKeeper::__OnTimeOut");
 }
