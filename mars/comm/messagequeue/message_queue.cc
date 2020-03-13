@@ -309,6 +309,7 @@ namespace MessageQueue {
     }
 
     void UnInstallMessageHandler(const MessageHandler_t& _handlerid) {
+        xinfo_function();
         ASSERT(0 != _handlerid.queue);
         ASSERT(0 != _handlerid.seq);
 
@@ -556,6 +557,7 @@ namespace MessageQueue {
     }
 
     bool CancelMessage(const MessagePost_t& _postid) {
+        xinfo_function();
         ASSERT(0 != _postid.reg.queue);
         ASSERT(0 != _postid.seq);
 
@@ -572,19 +574,26 @@ namespace MessageQueue {
         }
 
         MessageQueueContent& content = pos->second;
-
+        MessageWrapper* tmpMessage = nullptr;
         for (std::list<MessageWrapper*>::iterator it = content.lst_message.begin(); it != content.lst_message.end(); ++it) {
             if (_postid == (*it)->postid) {
-                delete(*it);
+                tmpMessage = *it;
                 content.lst_message.erase(it);
-                return true;
+                break;
             }
+        }
+        lock.unlock();
+
+        if(tmpMessage != nullptr) {
+            delete tmpMessage;
+            return true;
         }
 
         return false;
     }
 
     void CancelMessage(const MessageHandler_t& _handlerid) {
+        xinfo_function();
         ASSERT(0 != _handlerid.queue);
 
         // 0==_handlerid.seq for BroadcastMessage
@@ -600,14 +609,20 @@ namespace MessageQueue {
         }
 
         MessageQueueContent& content = pos->second;
-
+        std::list<MessageWrapper*> lstMessages;
         for (std::list<MessageWrapper*>::iterator it = content.lst_message.begin(); it != content.lst_message.end();) {
             if (_handlerid == (*it)->postid.reg) {
-                delete(*it);
+                lstMessages.push_back(*it);
                 it = content.lst_message.erase(it);
             } else {
                 ++it;
             }
+        }
+        lock.unlock();
+
+        for (std::list<MessageWrapper*>::iterator it = lstMessages.begin(); it != lstMessages.end();) {
+            delete(*it);
+            it = lstMessages.erase(it);
         }
     }
 
@@ -627,14 +642,20 @@ namespace MessageQueue {
         }
 
         MessageQueueContent& content = pos->second;
-
+        std::list<MessageWrapper*> lstMessages;
         for (std::list<MessageWrapper*>::iterator it = content.lst_message.begin(); it != content.lst_message.end();) {
             if (_handlerid == (*it)->postid.reg && _title == (*it)->message.title) {
-                delete(*it);
+                lstMessages.push_back(*it);
                 it = content.lst_message.erase(it);
             } else {
                 ++it;
             }
+        }
+        lock.unlock();
+
+        for (std::list<MessageWrapper*>::iterator it = lstMessages.begin(); it != lstMessages.end();) {
+            delete(*it);
+            it = lstMessages.erase(it);
         }
     }
 
@@ -1028,10 +1049,12 @@ namespace MessageQueue {
     {return *m_reg;}
 
     void ScopeRegister::Cancel() const {
+        xinfo_function();
         UnInstallMessageHandler(*m_reg);
         CancelMessage(*m_reg);
     }
     void ScopeRegister::CancelAndWait() const {
+        xinfo_function();
         Cancel();
         WaitForRunningLockEnd(*m_reg);
     }
