@@ -668,7 +668,13 @@ namespace MessageQueue {
     }
 
     static void __AsyncInvokeHandler(const MessagePost_t& _id, Message& _message) {
-        (*boost::any_cast<boost::shared_ptr<AsyncInvokeFunction> >(_message.body1))();
+        
+        auto spfunc = boost::any_cast<boost::shared_ptr<AsyncInvokeFunction> >(_message.body1);
+        if(!spfunc || spfunc->empty()){
+            xerror2(TSF"!! call empty function: %_", _message.msg_name);
+        }
+        
+        (*spfunc)();
     }
 
     MessageHandler_t InstallAsyncHandler(const MessageQueue_t& id) {
