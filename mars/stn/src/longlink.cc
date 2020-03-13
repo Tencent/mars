@@ -357,7 +357,7 @@ void LongLink::__ConnectStatus(TLongLinkStatus _status) {
     STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(boost::ref(SignalConnection), connectstatus_, config_.name));
 }
 
-void LongLink::__UpdateProfile(const ConnectProfile& _conn_profile) {
+void LongLink::__UpdateProfile(const ConnectProfile _conn_profile) {
     STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLink::__UpdateProfile, this, _conn_profile));
     conn_profile_ = _conn_profile;
     

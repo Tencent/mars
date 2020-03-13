@@ -145,7 +145,7 @@ class LongLink {
 
   protected:
     void    __ConnectStatus(TLongLinkStatus _status);
-    void    __UpdateProfile(const ConnectProfile& _conn_profile);
+    void    __UpdateProfile(const ConnectProfile _conn_profile);
     void    __RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _profile, bool _networkreport = true);
 
     bool    __SendNoopWhenNoData();

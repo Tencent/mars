@@ -126,6 +126,13 @@ NetCore::~NetCore() {
     ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
 #ifdef USE_LONG_LINK
+    {   //must disconnect signal
+        auto longlink = longlink_task_manager_->DefaultLongLink();
+        if (longlink && longlink->SignalKeeper()) {
+            GetSignalOnNetworkDataChange().disconnect(
+                    boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+        }
+    }
     delete longlink_task_manager_;
 
     push_preprocess_signal_.disconnect_all_slots();
