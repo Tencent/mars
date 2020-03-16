@@ -129,8 +129,7 @@ NetCore::~NetCore() {
     {   //must disconnect signal
         auto longlink = longlink_task_manager_->DefaultLongLink();
         if (longlink && longlink->SignalKeeper()) {
-            GetSignalOnNetworkDataChange().disconnect(
-                    boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+            GetSignalOnNetworkDataChange().disconnect_all_slots();
         }
     }
     delete longlink_task_manager_;
