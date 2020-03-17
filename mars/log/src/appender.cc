@@ -71,7 +71,9 @@
 #include "mars/comm/objc/data_protect_attr.h"
 #endif
 
-#include "log_buffer.h"
+#include "log_zlib_buffer.h"
+#include "log_base_buffer.h"
+#include "log_zstd_buffer.h"
 
 #define LOG_EXT "xlog"
 
@@ -96,7 +98,7 @@ static Condition& sg_cond_buffer_async = *(new Condition());  // 改成引用, �
 static Condition sg_cond_buffer_async;
 #endif
 
-static LogBuffer* sg_log_buff = NULL;
+static LogBaseBuffer* sg_log_buff = NULL;
 
 static volatile bool sg_log_close = true;
 
@@ -876,41 +878,69 @@ static void get_mark_info(char* _info, size_t _infoLen) {
     snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
 }
 
-void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key) {
-    assert(_dir);
-    assert(_nameprefix);
+void appender_open(XLogConfig _config) {
+    if (_config._with_cache) {
+        assert(!_config._logdir.empty());
+        assert(!_config._cachedir.empty());
+        sg_logdir = _config._logdir;
+        sg_cache_log_days = _config._cache_days;
+
+        if (!_config._cachedir.empty()) {
+            sg_cache_logdir = _config._cachedir;
+            boost::filesystem::create_directories(_config._cachedir);
+
+            Thread(boost::bind(&__del_timeout_file, _config._cachedir)).start_after(2 * 60 * 1000);
+            // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
+            Thread(boost::bind(&__move_old_files, _config._cachedir, _config._logdir, std::string(_config._nameprefix))).start_after(3 * 60 * 1000);
+        }
+
+        #ifdef __APPLE__
+            setAttrProtectionNone(_config._cachedir.c_str());
+        #endif
+    }
     
+    assert(_config._logdir.c_str());
+    assert(_config._nameprefix);
+        
     if (!sg_log_close) {
-        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _dir, _nameprefix);
+        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config._logdir.c_str(), _config._nameprefix);
         return;
     }
 
     xlogger_SetAppender(&xlogger_appender);
     
-    boost::filesystem::create_directories(_dir);
+    boost::filesystem::create_directories(_config._logdir.c_str());
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, std::string(_dir))).start_after(30 * 1000);
+    Thread(boost::bind(&__del_timeout_file, _config._logdir.c_str())).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
 #ifdef __APPLE__
-    setAttrProtectionNone(_dir);
+    setAttrProtectionNone(_config._logdir.c_str());
 #endif
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_dir:sg_cache_logdir.c_str(), _nameprefix);
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_config._logdir.c_str():sg_cache_logdir.c_str(), _config._nameprefix);
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        sg_log_buff = new LogBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _pub_key);
+        if (_config._compress_mode == zstdMode){
+            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key, _config._compress_level);
+        }else {
+            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key);
+        }
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        sg_log_buff = new LogBuffer(buffer, kBufferBlockLength, true, _pub_key);
+        if (_config._compress_mode == zstdMode){
+            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config._pub_key, _config._compress_level);
+        } else {
+            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config._pub_key);
+        }
         use_mmap = false;
     }
-
+    
     if (NULL == sg_log_buff->GetData().Ptr()) {
         if (use_mmap && sg_mmmap_file.is_open())  CloseMmapFile(sg_mmmap_file);
         return;
@@ -921,10 +951,10 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     sg_log_buff->Flush(buffer);
 
     ScopedLock lock(sg_mutex_log_file);
-    sg_logdir = _dir;
-    sg_logfileprefix = _nameprefix;
+    sg_logdir = _config._logdir.c_str();
+    sg_logfileprefix = _config._nameprefix;
     sg_log_close = false;
-    appender_setmode(_mode);
+    appender_setmode(_config._mode);
     lock.unlock();
     
     char mark_info[512] = {0};
@@ -952,7 +982,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     xlogger_appender(NULL, "MARS_BUILD_TIME: " MARS_BUILD_TIME);
     xlogger_appender(NULL, "MARS_BUILD_JOB: " MARS_TAG);
 
-    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_mode, use_mmap);
+    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_config._mode, use_mmap);
     xlogger_appender(NULL, logmsg);
     
     if (!sg_cache_logdir.empty()) {
@@ -967,32 +997,9 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
 
     BOOT_RUN_EXIT(appender_close);
 
-}
-
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir,
-                              const char* _nameprefix, int _cache_days, const char* _pub_key) {
-    assert(!_cachedir.empty());
-    assert(!_logdir.empty());
-    assert(_nameprefix);
-
-    sg_logdir = _logdir;
-    sg_cache_log_days = _cache_days;
-
-    if (!_cachedir.empty()) {
-        sg_cache_logdir = _cachedir;
-        boost::filesystem::create_directories(_cachedir);
-
-        Thread(boost::bind(&__del_timeout_file, _cachedir)).start_after(2 * 60 * 1000);
-        // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
-        Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
-    }
-
-#ifdef __APPLE__
-    setAttrProtectionNone(_cachedir.c_str());
-#endif
-    appender_open(_mode, _logdir.c_str(), _nameprefix, _pub_key);
 
 }
+
 
 void appender_flush() {
     sg_cond_buffer_async.notifyAll();
