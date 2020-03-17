@@ -114,7 +114,9 @@ class LongLink {
     boost::function< void (uint32_t _taskid)> OnSend;
     boost::function< void (uint32_t _taskid, size_t _cachedsize, size_t _package_size)> OnRecv;
     boost::function< void (ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
-    boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
+    boost::function< void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
+    boost::function< void (uint64_t _interval)> OnNoopAlarmSet;
+    boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
 
   public:
     LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource);
@@ -130,6 +132,8 @@ class LongLink {
 
     ConnectProfile  Profile() const   { return conn_profile_; }
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
+
+    std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
     
   private:
     LongLink(const LongLink&);
@@ -144,7 +148,7 @@ class LongLink {
     bool    __NoopReq(XLogger& _xlog, Alarm& _alarm, bool need_active_timeout);
     bool    __NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, AutoBuffer& _extension, Alarm& _alarm, bool& _nooping, ConnectProfile& _profile);
 
-    virtual void     __OnAlarm();
+    virtual void     __OnAlarm(bool _noop_timeout);
     virtual void     __Run();
     virtual SOCKET   __RunConnect(ConnectProfile& _conn_profile);
     virtual void     __RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile);
@@ -178,6 +182,7 @@ class LongLink {
     SmartHeartbeat*                              smartheartbeat_;
     WakeUpLock*                                  wakelock_;
     unsigned long long              lastheartbeat_;
+    std::string longlink_disconnect_reason_text_;
 };
         
 }}
