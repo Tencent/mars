@@ -91,7 +91,7 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
         
         uInt avail_out = (uInt)(buff_.MaxLength() - buff_.Length());
         write_len = compress(_data, _length, buff_.PosPtr(), avail_out);
-        if (write_len == -1) {
+        if (write_len == (size_t)-1) {
             return false;
         }
         

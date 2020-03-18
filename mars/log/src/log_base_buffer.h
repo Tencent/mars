@@ -32,9 +32,6 @@ typedef enum {
     ZSTD,
 } compressMode;
 
-int zlibMode = ZLIB;
-int zstdMode = ZSTD;
-
 class LogCrypt;
 
 class LogBaseBuffer {
@@ -43,7 +40,7 @@ public:
     
     LogBaseBuffer(void* _pbuffer, size_t _len, bool _is_compress, int _compress_mode, const char* _pubkey);
     int extracted();
-    ~LogBaseBuffer();
+    virtual ~LogBaseBuffer();
 
 
 public:

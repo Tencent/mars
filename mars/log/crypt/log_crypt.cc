@@ -25,6 +25,8 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <mars/log/src/log_base_buffer.h>
+
 #ifdef WIN32
 #include <algorithm>
 #endif // WIN32
@@ -32,9 +34,6 @@
 #ifndef XLOG_NO_CRYPT
 #include "micro-ecc-master/uECC.h"
 #endif
-
-extern int zlibMode;
-extern int zstdMode;
 
 static const char kMagicSyncZlibStart = '\x06';
 static const char kMagicSyncNoCryptZlibStart ='\x08';
@@ -201,13 +200,13 @@ void LogCrypt::UpdateLogLen(char* _data, uint32_t _add_len) {
 void LogCrypt::SetHeaderInfo(char* _data, bool _is_async, int _compress_mode) {
     if (_is_async) {
         if (is_crypt_) {
-            if (_compress_mode == zlibMode) {
+            if (_compress_mode == ZLIB) {
                 memcpy(_data, &kMagicAsyncZlibStart, sizeof(kMagicAsyncZlibStart));
             } else {
                 memcpy(_data, &kMagicAsyncZstdStart, sizeof(kMagicAsyncZstdStart));
             }
         } else {
-            if (_compress_mode == zlibMode) {
+            if (_compress_mode == ZLIB) {
                 memcpy(_data, &kMagicAsyncNoCryptZlibStart, sizeof(kMagicAsyncNoCryptZlibStart));
             } else {
                 memcpy(_data, &kMagicAsyncNoCryptZstdStart, sizeof(kMagicAsyncNoCryptZstdStart));
@@ -215,13 +214,13 @@ void LogCrypt::SetHeaderInfo(char* _data, bool _is_async, int _compress_mode) {
         }
     } else {
         if (is_crypt_) {
-            if (_compress_mode == zlibMode) {
+            if (_compress_mode == ZLIB) {
                 memcpy(_data, &kMagicSyncZlibStart, sizeof(kMagicSyncZlibStart));
             } else {
                 memcpy(_data, &kMagicSyncZstdStart, sizeof(kMagicSyncZstdStart));
             }
         } else {
-            if (_compress_mode == zlibMode) {
+            if (_compress_mode == ZLIB) {
                 memcpy(_data, &kMagicSyncNoCryptZlibStart, sizeof(kMagicSyncNoCryptZlibStart));
             } else {
                 memcpy(_data, &kMagicSyncNoCryptZstdStart, sizeof(kMagicSyncNoCryptZstdStart));

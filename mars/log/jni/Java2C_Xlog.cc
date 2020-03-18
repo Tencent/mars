@@ -10,7 +10,12 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
+
+
 #include <jni.h>
+
 
 #include <vector>
 #include <string>
@@ -27,29 +32,53 @@
 DEFINE_FIND_CLASS(KXlog, "com/tencent/mars/xlog/Xlog")
 
 extern "C" {
-
-DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V")
+    
+DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(Lcom/tencent/mars/xlog/XLogConfig;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
-	(JNIEnv *env, jclass, jint level, jint mode, jstring _cache_dir, jstring _log_dir, jstring _nameprefix, jint _cache_log_days, jstring _pubkey) {
-	if (NULL == _log_dir || NULL == _nameprefix) {
-		return;
-	}
+	(JNIEnv *env, jclass clazz, jobject _log_config) {
 
-	std::string cache_dir;
-	if (NULL != _cache_dir) {
-		ScopedJstring cache_dir_jstr(env, _cache_dir);
-		cache_dir = cache_dir_jstr.GetChar();
-	}
+    if (NULL == _log_config) {
+        xerror2(TSF"logconfig is null");
+        return;
+    }
 
-	const char* pubkey = NULL;
-	ScopedJstring jstr_pubkey(env, _pubkey);
-	if (NULL != _pubkey) {
-		pubkey = jstr_pubkey.GetChar();
-	}
+    jint level = JNU_GetField(env, _log_config, "level", "I").i;
+    jint mode = JNU_GetField(env, _log_config, "mode", "I").i;
+    jstring logdir = (jstring)JNU_GetField(env, _log_config, "logdir", "Ljava/lang/String;").l;
+    jstring nameprefix = (jstring)JNU_GetField(env, _log_config, "nameprefix", "Ljava/lang/String;").l;
+    jstring pubkey = (jstring)JNU_GetField(env, _log_config, "pubkey", "Ljava/lang/String;").l;
+    jint compressmode = JNU_GetField(env, _log_config, "compressmode", "I").i;
+    jint compresslevel = JNU_GetField(env, _log_config, "compresslevel", "I").i;
+    jboolean withcache = JNU_GetField(env, _log_config, "withcache", "Z").z;
+    jstring cachedir = (jstring)JNU_GetField(env, _log_config, "cachedir", "Ljava/lang/String;").l;
+    jint cachedays = JNU_GetField(env, _log_config, "cachedays", "I").i;
 
-	ScopedJstring log_dir_jstr(env, _log_dir);
-	ScopedJstring nameprefix_jstr(env, _nameprefix);
-	appender_open_with_cache((TAppenderMode)mode, cache_dir.c_str(), log_dir_jstr.GetChar(), nameprefix_jstr.GetChar(), _cache_log_days, pubkey);
+    std::string* cachedir_str = NULL;
+	if (NULL != cachedir) {
+        ScopedJstring cache_dir_jstr(env, cachedir);
+        cachedir_str = new std::string(cache_dir_jstr.GetChar());
+    }
+
+    std::string* pubkey_str = NULL;
+    if (NULL != pubkey) {
+        ScopedJstring pubkey_jstr(env, pubkey);
+        pubkey_str = new std::string(pubkey_jstr.GetChar());
+    }
+
+    std::string* logdir_str = NULL;
+    if (NULL != logdir) {
+        ScopedJstring logdir_jstr(env, logdir);
+        logdir_str = new std::string(logdir_jstr.GetChar());
+    }
+
+    std::string* nameprefix_str = NULL;
+    if (NULL != nameprefix) {
+        ScopedJstring nameprefix_jstr(env, nameprefix);
+        nameprefix_str = new std::string(nameprefix_jstr.GetChar());
+    }
+
+    XLogConfig config = {(TAppenderMode)mode, *logdir_str, *nameprefix_str, *pubkey_str, compressmode, compresslevel, withcache == JNI_TRUE, *cachedir_str, cachedays};
+    appender_open(config);
 	xlogger_SetLevel((TLogLevel)level);
 
 }

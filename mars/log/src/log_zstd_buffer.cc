@@ -36,7 +36,7 @@
 
 
 LogZstdBuffer::LogZstdBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey, int level)
-:LogBaseBuffer(_pbuffer, _len, _isCompress, zstdMode, _pubkey) {
+:LogBaseBuffer(_pbuffer, _len, _isCompress, ZSTD, _pubkey) {
 
     if (is_compress_) {
         cctx = ZSTD_createCCtx();

@@ -38,7 +38,7 @@
 
 
 LogZlibBuffer::LogZlibBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey)
-    :LogBaseBuffer(_pbuffer, _len, _isCompress, zlibMode, _pubkey) {
+    :LogBaseBuffer(_pbuffer, _len, _isCompress, ZLIB, _pubkey) {
 
     if (is_compress_) {
         memset(&cstream_, 0, sizeof(cstream_));

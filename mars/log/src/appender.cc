@@ -900,10 +900,10 @@ void appender_open(XLogConfig _config) {
     }
     
     assert(_config._logdir.c_str());
-    assert(_config._nameprefix);
+    assert(_config._nameprefix.c_str());
         
     if (!sg_log_close) {
-        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config._logdir.c_str(), _config._nameprefix);
+        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config._logdir.c_str(), _config._nameprefix.c_str());
         return;
     }
 
@@ -921,22 +921,22 @@ void appender_open(XLogConfig _config) {
 #endif
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_config._logdir.c_str():sg_cache_logdir.c_str(), _config._nameprefix);
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_config._logdir.c_str():sg_cache_logdir.c_str(), _config._nameprefix.c_str());
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        if (_config._compress_mode == zstdMode){
-            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key, _config._compress_level);
+        if (_config._compress_mode == ZSTD){
+            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key.c_str(), _config._compress_level);
         }else {
-            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key);
+            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key.c_str());
         }
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        if (_config._compress_mode == zstdMode){
-            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config._pub_key, _config._compress_level);
+        if (_config._compress_mode == ZSTD){
+            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config._pub_key.c_str(), _config._compress_level);
         } else {
-            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config._pub_key);
+            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config._pub_key.c_str());
         }
         use_mmap = false;
     }

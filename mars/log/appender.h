@@ -33,13 +33,13 @@ enum TAppenderMode
 
 struct XLogConfig{
     TAppenderMode _mode;
-    const std::string& _logdir;
-    const char* _nameprefix;
-    const char* _pub_key;
+    const std::string _logdir;
+    const std::string _nameprefix;
+    const std::string _pub_key;
     int _compress_mode;
     int _compress_level;
     bool _with_cache;
-    const std::string& _cachedir;
+    const std::string _cachedir;
     int _cache_days;
 };
 

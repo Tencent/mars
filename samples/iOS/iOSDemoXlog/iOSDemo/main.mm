@@ -28,9 +28,6 @@
 
 #import "AppDelegate.h"
 
-extern int zlibMode;
-extern int zstdMode;
-
 int main(int argc, char * argv[]) {
     @autoreleasepool {
         NSString* logPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingString:@"/log"];
@@ -43,7 +40,7 @@ int main(int argc, char * argv[]) {
         // init xlog
 #if DEBUG
         xlogger_SetLevel(kLevelDebug);
-        appender_set_console_log(false);
+        appender_set_console_log(true);
 #else
         xlogger_SetLevel(kLevelInfo);
         appender_set_console_log(false);
@@ -53,9 +50,11 @@ int main(int argc, char * argv[]) {
 //
 //        appender_open's parameter:
 //        e8163215499a4c6d91b0691177127691e884ed409c49f2496102b626734f93f412de01d5df53772a7c7bd0c57f08062078b37d3f8b8ab995b9b3ec623b5bd2ff
+       
         int compressLevel = 6;
+        int zstdMode = 1;
         const std::string* logdir = new std::string([logPath UTF8String]);
-        const std::string* cachedir;
+        const std::string* cachedir = new std::string();
         XLogConfig config = {kAppednerAsync, *logdir, "Test", "", zstdMode, compressLevel, false, *cachedir, 0};
         appender_open(config);
         
