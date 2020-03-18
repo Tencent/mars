@@ -40,6 +40,7 @@ bool Alarm::Start(int _after, bool _needWake) {
     if (INVAILD_SEQ != seq_) return false;
 
     if (INVAILD_SEQ == sg_seq) sg_seq = 1;
+    xinfo2(TSF"alarm sg_seq is %_", sg_seq);
 
     int64_t seq = sg_seq++;
     uint64_t starttime = gettickcount();
@@ -52,7 +53,7 @@ bool Alarm::Start(int _after, bool _needWake) {
 
 #ifdef ANDROID
 
-    if (_needWake && !::startAlarm((int64_t) seq, _after)) {
+    if (_needWake && !::startAlarm(type_, (int64_t) seq, _after)) {
         xerror2(TSF"startAlarm error, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
         MessageQueue::CancelMessage(broadcast_msg_id_);
         broadcast_msg_id_ = MessageQueue::KNullPost;
@@ -72,6 +73,7 @@ bool Alarm::Start(int _after, bool _needWake) {
 }
 
 bool Alarm::Cancel() {
+    xinfo2(TSF"alarm cancel");
     ScopedLock lock(sg_lock);
     if (broadcast_msg_id_!=MessageQueue::KNullPost) {
         MessageQueue::CancelMessage(broadcast_msg_id_);
@@ -82,7 +84,9 @@ bool Alarm::Cancel() {
 
 #ifdef ANDROID
 
+        xinfo2(TSF"alarm cancel seq %_", seq_);
     if (!::stopAlarm((int64_t)seq_)) {
+        xinfo2(TSF"alarm cancel false ");
         xwarn2(TSF"stopAlarm error, id:%0, seq:%1", (uintptr_t)this, seq_);
         status_ = kCancel;
         endtime_ = gettickcount();
@@ -157,7 +161,7 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
 
         ::stopAlarm(seq_);
 
-        if (::startAlarm((int64_t) seq_, missTime)) return;
+        if (::startAlarm(type_, (int64_t) seq_, missTime)) return;
 
         xerror2(TSF"startAlarm err, continue") >> group;
     }
