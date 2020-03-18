@@ -82,6 +82,9 @@ bool ShortLinkTaskManager::StartTask(const Task& _task) {
         return false;
     }
 
+
+	xinfo2_if(_task.long_polling, TSF"after start task is long-polling task, cgi:%_, timeout:%_", _task.cgi, _task.long_polling_timeout);
+
     xdebug2(TSF"taskid:%0", _task.taskid);
 
     TaskProfile task(_task);
