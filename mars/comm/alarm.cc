@@ -73,7 +73,6 @@ bool Alarm::Start(int _after, bool _needWake) {
 }
 
 bool Alarm::Cancel() {
-    xinfo2(TSF"alarm cancel");
     ScopedLock lock(sg_lock);
     if (broadcast_msg_id_!=MessageQueue::KNullPost) {
         MessageQueue::CancelMessage(broadcast_msg_id_);
@@ -84,9 +83,7 @@ bool Alarm::Cancel() {
 
 #ifdef ANDROID
 
-        xinfo2(TSF"alarm cancel seq %_", seq_);
     if (!::stopAlarm((int64_t)seq_)) {
-        xinfo2(TSF"alarm cancel false ");
         xwarn2(TSF"stopAlarm error, id:%0, seq:%1", (uintptr_t)this, seq_);
         status_ = kCancel;
         endtime_ = gettickcount();
