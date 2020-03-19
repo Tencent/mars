@@ -89,7 +89,7 @@ bool ShortLinkTaskManager::StartTask(const Task& _task) {
 
     TaskProfile task(_task);
     task.link_type = Task::kChannelShort;
-	xinfo2(TSF"after in list, long-polling:%_", task.long_polling);
+	xinfo2(TSF"after in list, long-polling:%_", task.task.long_polling);
 
     lst_cmd_.push_back(task);
     lst_cmd_.sort(__CompareTask);
