@@ -89,7 +89,6 @@ bool ShortLinkTaskManager::StartTask(const Task& _task) {
 
     TaskProfile task(_task);
     task.link_type = Task::kChannelShort;
-	xinfo2(TSF"after in list, long-polling:%_", task.task.long_polling);
 
     lst_cmd_.push_back(task);
     lst_cmd_.sort(__CompareTask);
@@ -194,7 +193,6 @@ void ShortLinkTaskManager::__RunOnTimeout() {
 
         ErrCmdType err_type = kEctLocal;
         int socket_timeout_code = 0;
-	    xinfo2(TSF"task is long-polling task:%_,%_, cgi:%_, timeout:%_",first->task.long_polling, first->transfer_profile.task.long_polling, first->transfer_profile.task.cgi, first->transfer_profile.task.long_polling_timeout);
 
         if (cur_time - first->start_task_time >= first->task_timeout) {
             err_type = kEctLocal;
@@ -313,7 +311,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             xinfo2(TSF"this task is long-polling %_ ", first->transfer_profile.task.cgi);
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.task.long_polling_timeout);
         } else {
-            xinfo2(TSF"this task is not long-polling %_ ", first->transfer_profile.task.cgi);
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
         }
         first->transfer_profile.send_data_size = bufreq.Length();
