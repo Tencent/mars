@@ -1,3 +1,14 @@
+// Tencent is pleased to support the open source community by making Mars available.
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+
+// Licensed under the MIT License (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// http://opensource.org/licenses/MIT
+
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied. See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef STN_CALLBACK_BRIDGE_H_
 #define STN_CALLBACK_BRIDGE_H_
@@ -53,7 +64,17 @@ class StnCallbackBridge {
                                             const AutoBuffer& _identify_buffer_hash);
 
     virtual void RequestSync();
+
+    virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
+    virtual void ReportTaskProfile(const TaskProfile& _task_profile);
+    virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
+    virtual void ReportDnsProfile(const DnsProfile& _dns_profile);
 };
+
+// You must get `StnCallbackBridge` object through `GetStnCallbackBridge` firstly before invoke this function,
+// then store it or release it.
+void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
+StnCallbackBridge* GetStnCallbackBridge();
 
 }
 }
