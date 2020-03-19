@@ -922,7 +922,7 @@ void appender_open(const XLogConfig& _config) {
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        if (_config.compress_mode_ == ZSTD){
+        if (_config.compress_mode_ == kZstd){
             sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
         }else {
             sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
@@ -930,7 +930,7 @@ void appender_open(const XLogConfig& _config) {
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        if (_config.compress_mode_ == ZSTD){
+        if (_config.compress_mode_ == kZstd){
             sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
         } else {
             sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());

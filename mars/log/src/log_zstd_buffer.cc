@@ -17,6 +17,7 @@
  *      Author: yanguoyue
  */
 
+#include "log_zstd_buffer.h"
 #include <cstdio>
 #include <time.h>
 #include <algorithm>
@@ -26,7 +27,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "log_zstd_buffer.h"
+#include "log/crypt/log_magic_num.h"
 #include "log/crypt/log_crypt.h"
 
 
@@ -36,7 +37,7 @@
 
 
 LogZstdBuffer::LogZstdBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey, int level)
-:LogBaseBuffer(_pbuffer, _len, _isCompress, ZSTD, _pubkey) {
+:LogBaseBuffer(_pbuffer, _len, _isCompress, _pubkey) {
 
     if (is_compress_) {
         cctx_ = ZSTD_createCCtx();
@@ -77,15 +78,21 @@ size_t LogZstdBuffer::Compress(const void* src, size_t inLen, void* dst, size_t 
 }
 
 bool LogZstdBuffer::__Reset() {
+    if (!LogBaseBuffer::__Reset()) {
+        return false;
+    }
 
-    __Clear();
-   
-    log_crypt_->SetHeaderInfo((char*)buff_.Ptr(), is_compress_, compress_mode_);
-    buff_.Length(log_crypt_->GetHeaderLen(), log_crypt_->GetHeaderLen());
-    
     if (is_compress_) {
         ZSTD_CCtx_reset(cctx_, ZSTD_reset_session_only);
     }
 
     return true;
+}
+
+char LogZstdBuffer::__GetMagicSyncStart() {
+    return is_crypt_ ? LogMagicNum::kMagicSyncZstdStart : LogMagicNum::kMagicSyncNoCryptZstdStart;
+}
+
+char LogZstdBuffer::__GetMagicAsyncStart() {
+    return is_crypt_ ? LogMagicNum::kMagicAsyncZstdStart : LogMagicNum::kMagicAsyncNoCryptZstdStart;
 }

@@ -49,7 +49,6 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
     jstring pubkey = (jstring)JNU_GetField(env, _log_config, "pubkey", "Ljava/lang/String;").l;
     jint compressmode = JNU_GetField(env, _log_config, "compressmode", "I").i;
     jint compresslevel = JNU_GetField(env, _log_config, "compresslevel", "I").i;
-    jboolean withcache = JNU_GetField(env, _log_config, "withcache", "Z").z;
     jstring cachedir = (jstring)JNU_GetField(env, _log_config, "cachedir", "Ljava/lang/String;").l;
     jint cachedays = JNU_GetField(env, _log_config, "cachedays", "I").i;
 
@@ -77,7 +76,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
         nameprefix_str = new std::string(nameprefix_jstr.GetChar());
     }
 
-    XLogConfig config = {(TAppenderMode)mode, *logdir_str, *nameprefix_str, *pubkey_str, compressmode, compresslevel, withcache == JNI_TRUE, *cachedir_str, cachedays};
+    XLogConfig config = {(TAppenderMode)mode, *logdir_str, *nameprefix_str, *pubkey_str, (TCompressMode)compressmode, compresslevel, *cachedir_str, cachedays};
     appender_open(config);
 	xlogger_SetLevel((TLogLevel)level);
 

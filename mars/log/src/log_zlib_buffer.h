@@ -41,6 +41,8 @@ public:
 
 private:
     bool __Reset();
+    char __GetMagicSyncStart();
+    char __GetMagicAsyncStart();
 
 private:
     z_stream cstream_;

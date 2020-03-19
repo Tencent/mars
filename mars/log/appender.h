@@ -31,16 +31,20 @@ enum TAppenderMode
     kAppednerSync,
 };
 
+enum TCompressMode{
+    kZlib,
+    kZstd,
+};
+
 struct XLogConfig{
-    TAppenderMode mode_;
-    const std::string logdir_;
-    const std::string nameprefix_;
-    const std::string pub_key_;
-    int compress_mode_;
-    int compress_level_;
-    bool with_cache_;
-    const std::string cachedir_;
-    int cache_days_;
+    TAppenderMode mode_ = kAppednerAsync;
+    std::string logdir_;
+    std::string nameprefix_;
+    std::string pub_key_;
+    TCompressMode compress_mode_ = kZlib;
+    int compress_level_ = 6;
+    std::string cachedir_;
+    int cache_days_ = 0;
 };
 
 void appender_open(const XLogConfig& _config);
