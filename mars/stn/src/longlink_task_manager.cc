@@ -798,12 +798,12 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
     lock.unlock();
     {
     // MessageQueue::AsyncInvoke([&,longlink] () {
-        longlink->Channel()->OnSend = NULL;
-        longlink->Channel()->OnRecv = NULL;
-        longlink->Channel()->OnResponse = NULL;
-#ifdef __APPLE__
-        longlink->Monitor()->fun_longlink_reset_ = NULL;
-#endif
+//        longlink->Channel()->OnSend = NULL;
+//        longlink->Channel()->OnRecv = NULL;
+//        longlink->Channel()->OnResponse = NULL;
+//#ifdef __APPLE__
+//        longlink->Monitor()->fun_longlink_reset_ = NULL;
+//#endif
         xinfo2(TSF"destroy long link %_ ", _name);
     // }, AYNC_HANDLER);
     }
