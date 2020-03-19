@@ -38,10 +38,8 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
     
 }
 
-LogBaseBuffer::LogBaseBuffer(void* _pbuffer, size_t _len, bool _isCompress, int _compress_mode, const char* _pubkey){
-    this->is_compress_ = _isCompress;
-    this->log_crypt_ = new LogCrypt(_pubkey);
-    this->compress_mode_ = _compress_mode;
+LogBaseBuffer::LogBaseBuffer(void* _pbuffer, size_t _len, bool _isCompress, int _compress_mode, const char* _pubkey)
+: is_compress_(_isCompress), log_crypt_(new LogCrypt(_pubkey)), compress_mode_(_compress_mode) {
     buff_.Attach(_pbuffer, _len);
     __Fix();
 }
@@ -90,7 +88,7 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
     if (is_compress_) {
         
         uInt avail_out = (uInt)(buff_.MaxLength() - buff_.Length());
-        write_len = compress(_data, _length, buff_.PosPtr(), avail_out);
+        write_len = Compress(_data, _length, buff_.PosPtr(), avail_out);
         if (write_len == (size_t)-1) {
             return false;
         }

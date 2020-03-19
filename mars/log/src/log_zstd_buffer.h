@@ -33,22 +33,18 @@ class LogCrypt;
 class LogZstdBuffer : public LogBaseBuffer{
     
 public:
-    
     LogZstdBuffer(void* _pbuffer, size_t _len, bool _is_compress, const char* _pubkey, int level);
     ~LogZstdBuffer();
     
 public:
-    
-    virtual size_t compress(const void* src, size_t inLen, void* dst, size_t outLen);
+    virtual size_t Compress(const void* src, size_t inLen, void* dst, size_t outLen);
     virtual void Flush(AutoBuffer& _buff);
 
 private:
-    
     bool __Reset();
 
 private:
-    
-    ZSTD_CCtx* cctx;
+    ZSTD_CCtx* cctx_;
 };
 
 #endif /* LOGZSTDBUFFER_H_ */

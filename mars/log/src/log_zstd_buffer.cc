@@ -39,40 +39,39 @@ LogZstdBuffer::LogZstdBuffer(void* _pbuffer, size_t _len, bool _isCompress, cons
 :LogBaseBuffer(_pbuffer, _len, _isCompress, ZSTD, _pubkey) {
 
     if (is_compress_) {
-        cctx = ZSTD_createCCtx();
-        ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, level);
+        cctx_ = ZSTD_createCCtx();
+        ZSTD_CCtx_setParameter(cctx_, ZSTD_c_compressionLevel, level);
     }
 }
 
 LogZstdBuffer::~LogZstdBuffer() {
 
-    if (is_compress_ && cctx != nullptr) {
+    if (is_compress_ && cctx_ != nullptr) {
         ZSTD_inBuffer input = {nullptr, 0, 0};
         ZSTD_outBuffer output = {nullptr, 0, 0};
-        ZSTD_compressStream2(cctx, &output , &input, ZSTD_e_end);
+        ZSTD_compressStream2(cctx_, &output , &input, ZSTD_e_end);
+        ZSTD_freeCCtx(cctx_);
     }
-    
-    ZSTD_freeCCtx(cctx);
 }
 
 void LogZstdBuffer::Flush(AutoBuffer& _buff) {
 
-    if (is_compress_ && cctx != nullptr) {
+    if (is_compress_ && cctx_ != nullptr) {
         ZSTD_inBuffer input = {nullptr, 0, 0 };
         ZSTD_outBuffer output = {nullptr, 0, 0 };
-        ZSTD_compressStream2(cctx, &output , &input, ZSTD_e_end);
+        ZSTD_compressStream2(cctx_, &output , &input, ZSTD_e_end);
     }
 
     LogBaseBuffer::Flush(_buff);
 }
 
 
-size_t LogZstdBuffer::compress(const void* src, size_t inLen, void* dst, size_t outLen){
+size_t LogZstdBuffer::Compress(const void* src, size_t inLen, void* dst, size_t outLen){
 
     ZSTD_inBuffer input = { src, inLen, 0 };
     ZSTD_outBuffer output = { dst, outLen,  0};
     
-    ZSTD_compressStream2(cctx, &output, &input, ZSTD_e_flush);
+    ZSTD_compressStream2(cctx_, &output, &input, ZSTD_e_flush);
     
     return output.pos;
 }
@@ -85,7 +84,7 @@ bool LogZstdBuffer::__Reset() {
     buff_.Length(log_crypt_->GetHeaderLen(), log_crypt_->GetHeaderLen());
     
     if (is_compress_) {
-        ZSTD_CCtx_reset(cctx, ZSTD_reset_session_only);
+        ZSTD_CCtx_reset(cctx_, ZSTD_reset_session_only);
     }
 
     return true;

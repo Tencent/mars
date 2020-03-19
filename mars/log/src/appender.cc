@@ -878,65 +878,62 @@ static void get_mark_info(char* _info, size_t _infoLen) {
     snprintf(_info, _infoLen, "[%" PRIdMAX ",%" PRIdMAX "][%s]", xlogger_pid(), xlogger_tid(), tmp_time);
 }
 
-void appender_open(XLogConfig _config) {
-    if (_config._with_cache) {
-        assert(!_config._logdir.empty());
-        assert(!_config._cachedir.empty());
-        sg_logdir = _config._logdir;
-        sg_cache_log_days = _config._cache_days;
+void appender_open(const XLogConfig& _config) {
+    assert(!_config.logdir_.empty());
+    sg_logdir = _config.logdir_;
+    sg_cache_log_days = _config.cache_days_;
 
-        if (!_config._cachedir.empty()) {
-            sg_cache_logdir = _config._cachedir;
-            boost::filesystem::create_directories(_config._cachedir);
+    if (!_config.cachedir_.empty()) {
+        sg_cache_logdir = _config.cachedir_;
+        boost::filesystem::create_directories(_config.cachedir_);
 
-            Thread(boost::bind(&__del_timeout_file, _config._cachedir)).start_after(2 * 60 * 1000);
-            // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
-            Thread(boost::bind(&__move_old_files, _config._cachedir, _config._logdir, std::string(_config._nameprefix))).start_after(3 * 60 * 1000);
-        }
-
-        #ifdef __APPLE__
-            setAttrProtectionNone(_config._cachedir.c_str());
-        #endif
+        Thread(boost::bind(&__del_timeout_file, _config.cachedir_)).start_after(2 * 60 * 1000);
+        // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
+        Thread(boost::bind(&__move_old_files, _config.cachedir_, _config.logdir_, std::string(_config.nameprefix_))).start_after(3 * 60 * 1000);
     }
-    
-    assert(_config._logdir.c_str());
-    assert(_config._nameprefix.c_str());
+
+    #ifdef __APPLE__
+        setAttrProtectionNone(_config.cachedir_.c_str());
+    #endif
+
+    assert(_config.logdir_.c_str());
+    assert(_config.nameprefix_.c_str());
         
     if (!sg_log_close) {
-        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config._logdir.c_str(), _config._nameprefix.c_str());
+        __writetips2file("appender has already been opened. _dir:%s _nameprefix:%s", _config.logdir_.c_str(), _config.nameprefix_.c_str());
         return;
     }
 
     xlogger_SetAppender(&xlogger_appender);
     
-    boost::filesystem::create_directories(_config._logdir.c_str());
+    boost::filesystem::create_directories(_config.logdir_.c_str());
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, _config._logdir.c_str())).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&__del_timeout_file, _config.logdir_.c_str())).start_after(2 * 60 * 1000);
     
     tick.gettickcount();
 
 #ifdef __APPLE__
-    setAttrProtectionNone(_config._logdir.c_str());
+    setAttrProtectionNone(_config.logdir_.c_str());
 #endif
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty()?_config._logdir.c_str():sg_cache_logdir.c_str(), _config._nameprefix.c_str());
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty() ? _config.logdir_.c_str() : sg_cache_logdir.c_str(), _config.nameprefix_.c_str());
 
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
-        if (_config._compress_mode == ZSTD){
-            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key.c_str(), _config._compress_level);
+        if (_config.compress_mode_ == ZSTD){
+            sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
         }else {
-            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config._pub_key.c_str());
+            sg_log_buff = new LogZlibBuffer(sg_mmmap_file.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
         }
         use_mmap = true;
     } else {
         char* buffer = new char[kBufferBlockLength];
-        if (_config._compress_mode == ZSTD){
-            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config._pub_key.c_str(), _config._compress_level);
+        if (_config.compress_mode_ == ZSTD){
+            sg_log_buff = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
         } else {
-            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config._pub_key.c_str());
+            sg_log_buff = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());
         }
         use_mmap = false;
     }
@@ -951,10 +948,10 @@ void appender_open(XLogConfig _config) {
     sg_log_buff->Flush(buffer);
 
     ScopedLock lock(sg_mutex_log_file);
-    sg_logdir = _config._logdir.c_str();
-    sg_logfileprefix = _config._nameprefix;
+    sg_logdir = _config.logdir_.c_str();
+    sg_logfileprefix = _config.nameprefix_;
     sg_log_close = false;
-    appender_setmode(_config._mode);
+    appender_setmode(_config.mode_);
     lock.unlock();
     
     char mark_info[512] = {0};
@@ -982,7 +979,7 @@ void appender_open(XLogConfig _config) {
     xlogger_appender(NULL, "MARS_BUILD_TIME: " MARS_BUILD_TIME);
     xlogger_appender(NULL, "MARS_BUILD_JOB: " MARS_TAG);
 
-    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_config._mode, use_mmap);
+    snprintf(logmsg, sizeof(logmsg), "log appender mode:%d, use mmap:%d", (int)_config.mode_, use_mmap);
     xlogger_appender(NULL, logmsg);
     
     if (!sg_cache_logdir.empty()) {

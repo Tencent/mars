@@ -59,7 +59,7 @@ void LogZlibBuffer::Flush(AutoBuffer& _buff) {
     LogBaseBuffer::Flush(_buff);
 }
 
-size_t LogZlibBuffer::compress(const void* src, size_t inLen, void* dst, size_t outLen){
+size_t LogZlibBuffer::Compress(const void* src, size_t inLen, void* dst, size_t outLen){
 
     
     cstream_.avail_in = (uInt)inLen;

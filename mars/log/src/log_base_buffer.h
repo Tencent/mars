@@ -39,7 +39,6 @@ class LogBaseBuffer {
 public:
     
     LogBaseBuffer(void* _pbuffer, size_t _len, bool _is_compress, int _compress_mode, const char* _pubkey);
-    int extracted();
     virtual ~LogBaseBuffer();
 
 
@@ -50,7 +49,7 @@ public:
 public:
     
     PtrBuffer& GetData();
-    virtual size_t compress(const void* src, size_t inLen, void* dst, size_t outLen) = 0;
+    virtual size_t Compress(const void* src, size_t inLen, void* dst, size_t outLen) = 0;
     virtual void Flush(AutoBuffer& _buff);
     bool Write(const void* _data, size_t _length);
     bool Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff);

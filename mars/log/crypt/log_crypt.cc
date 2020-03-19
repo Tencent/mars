@@ -40,10 +40,10 @@ static const char kMagicSyncNoCryptZlibStart ='\x08';
 static const char kMagicAsyncZlibStart ='\x07';
 static const char kMagicAsyncNoCryptZlibStart ='\x09';
 
-static const char kMagicSyncZstdStart = '\x010';
-static const char kMagicSyncNoCryptZstdStart ='\x012';
-static const char kMagicAsyncZstdStart ='\x011';
-static const char kMagicAsyncNoCryptZstdStart ='\x013';
+static const char kMagicSyncZstdStart = '\x0A';
+static const char kMagicSyncNoCryptZstdStart ='\x0B';
+static const char kMagicAsyncZstdStart ='\x0C';
+static const char kMagicAsyncNoCryptZstdStart ='\x0D';
 
 static const char kMagicEnd  = '\0';
 
