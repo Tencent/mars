@@ -83,12 +83,13 @@ bool ShortLinkTaskManager::StartTask(const Task& _task) {
     }
 
 
-	xinfo2_if(_task.long_polling, TSF"after start task is long-polling task, cgi:%_, timeout:%_", _task.cgi, _task.long_polling_timeout);
+	xinfo2(TSF"task is long-polling task:%_, cgi:%_, timeout:%_",_task.long_polling, _task.cgi, _task.long_polling_timeout);
 
     xdebug2(TSF"taskid:%0", _task.taskid);
 
     TaskProfile task(_task);
     task.link_type = Task::kChannelShort;
+	xinfo2(TSF"after in list, long-polling:%_", task.long_polling);
 
     lst_cmd_.push_back(task);
     lst_cmd_.sort(__CompareTask);
@@ -193,6 +194,7 @@ void ShortLinkTaskManager::__RunOnTimeout() {
 
         ErrCmdType err_type = kEctLocal;
         int socket_timeout_code = 0;
+	    xinfo2(TSF"task is long-polling task:%_,%_, cgi:%_, timeout:%_",first->task.long_polling, first->transfer_profile.task.long_polling, first->transfer_profile.task.cgi, first->transfer_profile.task.long_polling_timeout);
 
         if (cur_time - first->start_task_time >= first->task_timeout) {
             err_type = kEctLocal;
@@ -267,7 +269,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         std::string host = task.shortlink_host_list.front();
         xinfo2(TSF"host ip to callback is %_ ",host);
 
-        xinfo2(TSF"need auth cgi %_ , host %_ need auth %_ ", first->task.cgi, host, first->task.need_authed);
+        xinfo2(TSF"need auth cgi %_ , host %_ need auth %_ , long-polling %_,%_", first->task.cgi, host, first->task.need_authed, first->task.long_polling, first->transfer_profile.task.long_polling);
         // make sure login
         if (first->task.need_authed) {
             if (has_makesureauth_host.find(host) == has_makesureauth_host.end()) {
@@ -308,8 +310,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
         first->current_dyntime_status = (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
         if (first->transfer_profile.task.long_polling) {
+            xinfo2(TSF"this task is long-polling %_ ", first->transfer_profile.task.cgi);
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.task.long_polling_timeout);
         } else {
+            xinfo2(TSF"this task is not long-polling %_ ", first->transfer_profile.task.cgi);
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
         }
         first->transfer_profile.send_data_size = bufreq.Length();
@@ -332,9 +336,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->func_network_report.set(fun_notify_network_err_);
         worker->SendRequest(bufreq, buffer_extension);
 
-        xinfo2(TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, useProxy:%_",
+        xinfo2(TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, long-polling:%_,%_, useProxy:%_",
                first->task.cgi, first->task.cmdid, first->task.taskid, (ShortLinkInterface*)first->running_id, first->transfer_profile.send_data_size, first->transfer_profile.first_pkg_timeout / 1000,
-               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, first->use_proxy);
+               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, first->task.long_polling, first->transfer_profile.task.long_polling, first->use_proxy);
         ++sent_count;
         first = next;
     }
