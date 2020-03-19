@@ -33,7 +33,7 @@ DEFINE_FIND_CLASS(KXlog, "com/tencent/mars/xlog/Xlog")
 
 extern "C" {
     
-DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(Lcom/tencent/mars/xlog/XLogConfig;)V")
+DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(Lcom/tencent/mars/xlog/Xlog$XLogConfig;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
 	(JNIEnv *env, jclass clazz, jobject _log_config) {
 
@@ -52,34 +52,33 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
     jstring cachedir = (jstring)JNU_GetField(env, _log_config, "cachedir", "Ljava/lang/String;").l;
     jint cachedays = JNU_GetField(env, _log_config, "cachedays", "I").i;
 
-    std::string* cachedir_str = NULL;
+    std::string cachedir_str;
 	if (NULL != cachedir) {
         ScopedJstring cache_dir_jstr(env, cachedir);
-        cachedir_str = new std::string(cache_dir_jstr.GetChar());
+        cachedir_str = cache_dir_jstr.GetChar();
     }
 
-    std::string* pubkey_str = NULL;
+    std::string pubkey_str;
     if (NULL != pubkey) {
         ScopedJstring pubkey_jstr(env, pubkey);
-        pubkey_str = new std::string(pubkey_jstr.GetChar());
+        pubkey_str = pubkey_jstr.GetChar();
     }
 
-    std::string* logdir_str = NULL;
+    std::string logdir_str;
     if (NULL != logdir) {
         ScopedJstring logdir_jstr(env, logdir);
-        logdir_str = new std::string(logdir_jstr.GetChar());
+        logdir_str = logdir_jstr.GetChar();
     }
 
-    std::string* nameprefix_str = NULL;
+    std::string nameprefix_str;
     if (NULL != nameprefix) {
         ScopedJstring nameprefix_jstr(env, nameprefix);
-        nameprefix_str = new std::string(nameprefix_jstr.GetChar());
+        nameprefix_str = nameprefix_jstr.GetChar();
     }
 
-    XLogConfig config = {(TAppenderMode)mode, *logdir_str, *nameprefix_str, *pubkey_str, (TCompressMode)compressmode, compresslevel, *cachedir_str, cachedays};
+    XLogConfig config = {(TAppenderMode)mode, logdir_str, nameprefix_str, pubkey_str, (TCompressMode)compressmode, compresslevel, cachedir_str, cachedays};
     appender_open(config);
 	xlogger_SetLevel((TLogLevel)level);
-
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderClose(JNIEnv *env, jobject) {

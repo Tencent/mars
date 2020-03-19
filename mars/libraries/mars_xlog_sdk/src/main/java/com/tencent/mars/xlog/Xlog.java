@@ -39,20 +39,19 @@ public class Xlog implements Log.LogImp {
 		public long maintid;
 	}
 
-//	static class XLogConfig {
-//		public int level;
-//		public int mode;
-//		public String logdir;
-//		public String nameprefix;
-//		public String pubkey;
-//		public int compressmode;
-//		public int compresslevel;
-//		public boolean withcache;
-//		public String cachedir;
-//		public int cachedays;
-//	}
+    static class XLogConfig {
+        public int level;
+        public int mode;
+        public String logdir;
+        public String nameprefix;
+        public String pubkey;
+        public int compressmode;
+        public int compresslevel;
+        public String cachedir;
+        public int cachedays;
+    }
 
-	public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
+    public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
 		if (isLoadLib) {
 			System.loadLibrary("c++_shared");
 			System.loadLibrary("marsxlog");
