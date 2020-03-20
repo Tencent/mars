@@ -50,12 +50,16 @@ int main(int argc, char * argv[]) {
 //
 //        appender_open's parameter:
 //        e8163215499a4c6d91b0691177127691e884ed409c49f2496102b626734f93f412de01d5df53772a7c7bd0c57f08062078b37d3f8b8ab995b9b3ec623b5bd2ff
-       
-        int compressLevel = 6;
-        int zstdMode = 1;
-        const std::string* logdir = new std::string([logPath UTF8String]);
-        const std::string* cachedir = new std::string();
-        XLogConfig config = {kAppednerAsync, *logdir, "Test", "", zstdMode, compressLevel, false, *cachedir, 0};
+        
+        XLogConfig config;
+        config.mode_ = kAppednerAsync;
+        config.logdir_ = [logPath UTF8String];
+        config.nameprefix_ = "Test";
+        config.pub_key_ = "";
+        config.compress_mode_ = kZlib;
+        config.compress_level_ = 0;
+        config.cachedir_ = "";
+        config.cache_days_ = 0;
         appender_open(config);
         
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));

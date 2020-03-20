@@ -17,8 +17,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#include <mars/comm/xlogger/android_xlog.h>
+#include <android/log.h>
 
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/xlogger/loginfo_extract.h"
