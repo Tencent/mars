@@ -55,21 +55,21 @@ bool startAlarm(int type, int64_t id, int after) {
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
     jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_startAlarm, (jint)type, (jint)id, (jint)after).z;
-    xdebug2(TSF"id= %0, after= %1, ret= %2", id, after, (bool)ret);
+    xdebug2(TSF"id= %0, after= %1, type= %2, ret= %3", id, after, type, (bool)ret);
     return (bool)ret;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_stopAlarm, KPlatformCommC2Java, "stopAlarm", "(I)Z")
-bool stopAlarm(int64_t  id) {
+DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_stopAlarm, KPlatformCommC2Java, "stopAlarm", "(II)Z")
+bool stopAlarm(int type, int64_t  id) {
     xverbose_function();
     
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&stopAlarm, id));
+        return coroutine::MessageInvoke(boost::bind(&stopAlarm, type, id));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
-    jboolean ret = JNU_CallStaticMethodByMethodInfo(scopeJEnv.GetEnv(), KPlatformCommC2Java_stopAlarm, (jint)id).z;
-    xdebug2(TSF"id= %0, ret= %1", id, (bool)ret);
+    jboolean ret = JNU_CallStaticMethodByMethodInfo(scopeJEnv.GetEnv(), KPlatformCommC2Java_stopAlarm, (jint)type, (jint)id).z;
+    xdebug2(TSF"id= %0, type= %1, ret= %2", id, type, (bool)ret);
     return (bool)ret;
 }
 #endif
