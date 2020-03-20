@@ -301,11 +301,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         first->transfer_profile.loop_start_task_time = ::gettickcount();
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
         first->current_dyntime_status = (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
-        if (first->task.long_polling) {
-            xinfo2(TSF"this task is long-polling %_ ", first->task.cgi);
-            first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->task.long_polling_timeout);
+        if (first->transfer_profile.task.long_polling) {
+            xinfo2(TSF"this task is long-polling %_ ", first->transfer_profile.task.cgi);
+            first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.task.long_polling_timeout);
         } else {
-            xinfo2(TSF"this task is not long-polling %_ ", first->task.cgi);
+            xinfo2(TSF"this task is not long-polling %_ ", first->transfer_profile.task.cgi);
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
         }
         first->transfer_profile.send_data_size = bufreq.Length();
