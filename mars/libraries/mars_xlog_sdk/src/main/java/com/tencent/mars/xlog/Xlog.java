@@ -40,15 +40,15 @@ public class Xlog implements Log.LogImp {
 	}
 
     static class XLogConfig {
-        public int level;
-        public int mode;
+        public int level = LEVEL_INFO;
+        public int mode = AppednerModeAsync;
         public String logdir;
         public String nameprefix;
-        public String pubkey;
-        public int compressmode;
-        public int compresslevel;
+        public String pubkey = "";
+        public int compressmode = ZSTD_MODE;
+        public int compresslevel = COMPRESS_LEVEL6;
         public String cachedir;
-        public int cachedays;
+        public int cachedays = 0;
     }
 
     public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
