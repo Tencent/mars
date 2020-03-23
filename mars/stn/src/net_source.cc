@@ -176,7 +176,7 @@ void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
 	_ports = sg_longlink_ports;
 }
 
-bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util) {
+bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::vector<std::string>& _host_list) {
     xinfo_function();
     ScopedLock lock(sg_ip_mutex);
 
@@ -186,7 +186,9 @@ bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil
     
     lock.unlock();
 
- 	std::vector<std::string> longlink_hosts = NetSource::GetLongLinkHosts();
+    std::vector<std::string> longlink_hosts = _host_list;
+    if(longlink_hosts.empty())
+        longlink_hosts = NetSource::GetLongLinkHosts();
  	if (longlink_hosts.empty()) {
  		xerror2("longlink host empty.");
  		return false;

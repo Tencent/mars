@@ -41,7 +41,7 @@ namespace stn{
     {
     public:
     	virtual ~Callback() {}
-        virtual bool MakesureAuthed(const std::string& _host) = 0;
+        virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id) = 0;
         
         //流量统计 
         virtual void TrafficData(ssize_t _send, ssize_t _recv) = 0;
@@ -49,13 +49,13 @@ namespace stn{
         //底层询问上层该host对应的ip列表 
         virtual std::vector<std::string> OnNewDns(const std::string& host) = 0;
         //网络层收到push消息回调 
-        virtual void OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) = 0;
+        virtual void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) = 0;
         //底层获取task要发送的数据 
-        virtual bool Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) = 0;
+        virtual bool Req2Buf(uint32_t _taskid, void* const _user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) = 0;
         //底层回包返回给上层解析 
-        virtual int Buf2Resp(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) = 0;
+        virtual int Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id,  const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) = 0;
         //任务执行结束 
-        virtual int  OnTaskEnd(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) = 0;
+        virtual int  OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code) = 0;
 
 
         //上报网络连接状态 
@@ -65,9 +65,9 @@ namespace stn{
         
         virtual void OnLongLinkStatusChange(int _status) {}
         //长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2 
-        virtual int  GetLonglinkIdentifyCheckBuffer(AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) = 0;
+        virtual int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) = 0;
         //长连信令校验回包 
-        virtual bool OnLonglinkIdentifyResponse(const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) = 0;
+        virtual bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) = 0;
         
         
         virtual void RequestSync() = 0;
@@ -84,7 +84,7 @@ namespace stn{
 
     // 'host' will be ignored when 'debugip' is not empty.
 	extern void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
-    
+
     // 'task.host' will be ignored when 'debugip' is not empty.
 	extern void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip);
     
@@ -124,7 +124,6 @@ namespace stn{
     // keep signnaling once 'period' and last 'keeptime'
 	extern void (*KeepSignalling)();
     
-
 	extern void (*StopSignalling)();
     
     // connect quickly if longlink is not connected.
@@ -137,6 +136,20 @@ namespace stn{
     // noop is used to keep longlink conected
     // get noop taskid
 	extern uint32_t (*getNoopTaskID)();
+    
+    //===----------------------------------------------------------------------===//
+    ///
+    /// Support multi longlinks for mars
+    /// these APIs are subject to change in developing
+    ///
+    //===----------------------------------------------------------------------===//
+    extern void (*CreateLonglink_ext)(const LonglinkConfig& _config);
+    extern void (*DestroyLonglink_ext)(const std::string& name);
+    extern std::vector<std::string> (*GetAllLonglink_ext)();
+    extern void (*MarkMainLonglink_ext)(const std::string& name);
+    
+    extern bool (*LongLinkIsConnected_ext)(const std::string& name);
+    extern void (*MakesureLonglinkConnected_ext)(const std::string& name);
 }}
 
 #endif /* MARS_STN_LOGIC_H_ */

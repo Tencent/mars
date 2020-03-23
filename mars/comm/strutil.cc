@@ -28,6 +28,7 @@
 #include <locale>
 
 #include "comm/xlogger/xlogger.h"
+#include "mars/openssl/include/openssl/md5.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -347,6 +348,13 @@ std::string DigestToBase16(const uint8_t *digest, size_t length){
         ret[j + 1] = zEncode[a & 0xf];
     }
     return ret;
+}
+
+std::string BufferMD5(const void* buffer, size_t size)
+{
+    uint8_t md5[MD5_DIGEST_LENGTH] = {0};
+    MD5((const unsigned char*)buffer, (unsigned int)size, md5);
+    return MD5DigestToBase16(md5);
 }
 
 }

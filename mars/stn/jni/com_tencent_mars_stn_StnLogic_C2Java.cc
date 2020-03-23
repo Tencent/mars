@@ -39,8 +39,8 @@ extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const 
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
     
 DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
-int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code)
-= [](uint32_t _taskid, void* const _user_context, int _error_type, int _error_code) {
+int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code)
+= [](uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code) {
 
     xverbose_function();
 
@@ -54,9 +54,9 @@ int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, int _error_type, i
 	return ret;
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_onPush, KC2Java, "onPush", "(I[B)V")
-void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+DEFINE_FIND_STATIC_METHOD(KC2Java_onPush, KC2Java, "onPush", "(Ljava/lang/String;II[B)V")
+void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+= [](const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
 
     xverbose_function();
 
@@ -73,7 +73,7 @@ void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const Au
 		xdebug2(TSF"the data.Lenght() < = 0");
 	}
 
-	JNU_CallStaticMethodByMethodInfo(env, KC2Java_onPush, (jint)_cmdid, data_jba);
+	JNU_CallStaticMethodByMethodInfo(env, KC2Java_onPush, ScopedJstring(env, _channel_id.c_str()).GetJstr(), (jint)_cmdid, (jint)_taskid, data_jba);
 
 	if (data_jba != NULL) {
 		JNU_FreeJbyteArray(env, data_jba);
@@ -113,8 +113,8 @@ std::vector<std::string> (*OnNewDns)(const std::string& _host)
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
-bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
-= [](uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) -> bool {
+bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
+= [](uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) -> bool {
 
     xverbose_function();
 
@@ -159,8 +159,8 @@ bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, AutoBuffer& _outbu
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;[B[II)I")
-int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
-= [](uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
+int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
+= [](uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
 
     xverbose_function();
 
@@ -193,8 +193,8 @@ int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const AutoBuffer& _
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_makesureAuthed, KC2Java, "makesureAuthed", "(Ljava/lang/String;)Z")
-bool (*MakesureAuthed)(const std::string& _host)
-= [](const std::string& _host) -> bool {
+bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id)
+= [](const std::string& _host, const std::string& _user_id) -> bool {
     xverbose_function();
 
     VarCache* cache_instance = VarCache::Singleton();
@@ -206,9 +206,9 @@ bool (*MakesureAuthed)(const std::string& _host)
 	return ret;
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
-int (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid)
-= [](AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
+DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
+int (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid)
+= [](const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     xverbose_function();
     
     VarCache* cache_instance = VarCache::Singleton();
@@ -228,7 +228,7 @@ int (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& _identify_buffer, AutoBuffer& 
     jintArray jcmdid_array = env->NewIntArray(2);
     
 	jint ret = 0;
-	ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_getLongLinkIdentifyCheckBuffer, byte_array_outputstream_obj, byte_array_outputstream_hash, jcmdid_array).i;
+	ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_getLongLinkIdentifyCheckBuffer, ScopedJstring(env, _channel_id.c_str()).GetJstr(), byte_array_outputstream_obj, byte_array_outputstream_hash, jcmdid_array).i;
 	if (ret == kCheckNext || ret == kCheckNever)
 	{
 		xwarn2(TSF"getLongLinkIdentifyCheckBuffer uin == 0, not ready");
@@ -276,9 +276,9 @@ int (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& _identify_buffer, AutoBuffer& 
 	return ret;
 };
 
-DEFINE_FIND_STATIC_METHOD(KC2Java_onLongLinkIdentifyResp, KC2Java, "onLongLinkIdentifyResp", "([B[B)Z")
-bool (*OnLonglinkIdentifyResponse)(const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash)
-= [](const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {
+DEFINE_FIND_STATIC_METHOD(KC2Java_onLongLinkIdentifyResp, KC2Java, "onLongLinkIdentifyResp", "(Ljava/lang/String;[B[B)Z")
+bool (*OnLonglinkIdentifyResponse)(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash)
+= [](const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {
     xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
@@ -301,7 +301,7 @@ bool (*OnLonglinkIdentifyResponse)(const AutoBuffer& _response_buffer, const Aut
 		xdebug2(TSF"the hashCodeBuffer.Lenght() < = 0");
 	}
 
-	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_onLongLinkIdentifyResp, data_jba, hash_jba).z;
+	jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_onLongLinkIdentifyResp, ScopedJstring(env, _channel_id.c_str()).GetJstr(),data_jba, hash_jba).z;
 
 	if (data_jba != NULL) {
 		JNU_FreeJbyteArray(env, data_jba);

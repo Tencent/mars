@@ -47,9 +47,13 @@ void (*Destory)(ShortLinkInterface* _short_link_channel)
 
 namespace LongLinkChannelFactory {
 
-LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource)
-= [](const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource) {
-	return new LongLink(_messagequeueid, _netsource);
+LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config)
+= [](const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config) {
+	LongLink* longlink = new LongLink(_messagequeueid, _netsource, _config, gDefaultLongLinkEncoder);
+	if(_config.dns_func != nullptr) {
+		longlink->SetDnsFunc(_config.dns_func);
+	}
+	return longlink;
 };
 
 void (*Destory)(LongLink* _long_link_channel)
