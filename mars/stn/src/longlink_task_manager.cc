@@ -799,10 +799,6 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
     longlink_metas_.erase(_name);
     longlink->Channel()->SignalConnection.disconnect_all_slots();
     longlink->Monitor()->DisconnectAllSlot();
-#ifdef ANDROID
-    longlink->Channel()->OnNoopAlarmSet.disconnect_all_slots();
-    longlink->Channel()->OnNoopAlarmReceived.disconnect_all_slots();
-#enfid
     lock.unlock();
     {
     // MessageQueue::AsyncInvoke([&,longlink] () {
