@@ -257,6 +257,8 @@ extern void ReportTaskProfile(const TaskProfile& _task_profile);
 extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
 //底层上报域名dns结果 
 extern void ReportDnsProfile(const DnsProfile& _dns_profile);
+//.生成taskid.
+extern uint32_t GenTaskID();
         
 }}
 #endif // NETWORK_SRC_NET_COMM_H_
