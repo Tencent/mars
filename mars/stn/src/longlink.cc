@@ -496,6 +496,9 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_type = kIPSourceProxy;
 
     }
+
+    vecaddr.clear();
+    vecaddr.push_back(socket_address("121.51.8.103", 80));
     
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
     
