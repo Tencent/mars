@@ -686,6 +686,9 @@ void xlogger_appender(const XLoggerInfo* _info, const char* _log) {
     static Tss s_recursion_str(free);
 
     if (sg_consolelog_open) ConsoleLog(_info,  _log);
+#ifdef ANDROID
+    else if (_info->traceLog == 1) ConsoleLog(_info, _log);
+#endif
 
     if (2 <= (int)recursion.Get() && NULL == s_recursion_str.get()) {
         if ((int)recursion.Get() > 10) return;

@@ -82,15 +82,8 @@ static unsigned long const sg_interval[][5]  = {
 static std::string alarm_reason;
 static std::string error_msg;
 
-static void __AddLogToSystemLogger(const std::stringstream& _logger) {
-#ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", _logger.str().data());
-#endif
-}
-
 static void __LongLinkStateToSystemLog(LongLink::TLongLinkStatus _status) {
 #ifdef __ANDROID__
-
     xinfo_function();
     std::stringstream logger;
     logger << "longlink state: ";
@@ -117,8 +110,7 @@ static void __LongLinkStateToSystemLog(LongLink::TLongLinkStatus _status) {
         alarm_reason = "prepare to reconnect alarm";
     }   
     logger << current_time;
-    __android_log_print(ANDROID_LOG_INFO, "longlink_progress", "%s", logger.str().data());
-
+    xinfo_trace(TSF"longlink_progress %_", logger.str().data());
 #endif
 }
 
@@ -230,11 +222,7 @@ bool LongLinkConnectMonitor::NetworkChange() {
 #endif
     longlink_.Disconnect(LongLink::kNetworkChange);
 
-#ifdef __ANDROID__
-    std::stringstream logger;
-    logger << "network change time: " << ::gettickcount();
-    __AddLogToSystemLogger(logger);
-#endif
+    xinfo_trace(TSF"longlink_progress network change time: %_", gettickcount());
 
     return 0 == __IntervalConnect(kNetworkChangeConnect);
 }
@@ -246,17 +234,9 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
     uint64_t buffer = activelogic_.IsActive() ? 0 : kInactiveBuffer;    //in case doze mode
 
-#ifdef __ANDROID__
-    std::stringstream logger;
-    logger << "next connect interval: " << interval << ", "
-            << "process active state: " << activelogic_.IsActive() << ", "
-            << "process foreground: " << activelogic_.IsForeground();
-    __AddLogToSystemLogger(logger);
-#endif
-
+    xinfo_trace(TSF"longlink_progress next connect interval: %_, process active state: %_, process foreground: %_", interval, activelogic_.IsActive(), activelogic_.IsForeground());
     xinfo2(TSF"next connect interval: %_, posttime: %_, buffer: %_, _type: %_", interval, posttime, buffer, _type);
 
-    
     if ((posttime + buffer) >= interval) {
         bool newone = false;
         bool ret = longlink_.MakeSureConnected(&newone);
@@ -278,13 +258,9 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
     xinfo2(TSF"start auto connect after:%0, channel id:%1", remain, longlink_.ChannelId().c_str());
     alarm_.Start((int)remain);
 
+    xinfo_trace(TSF"longlink_progress set rebuild alarm, reason: rebuild longlink alarm, current time: %_, next rebuild time interval: %_", gettickcount(), remain);
 #ifdef __ANDROID__
-    std::stringstream logger;
-    logger  << "set rebuild alarm, reason: rebuild longlink alarm, "
-            << "current time: " << ::gettickcount()
-            <<  "next rebuild time interval: " << remain;
     alarm_reason = "rebuild alarm";
-    __AddLogToSystemLogger(logger);
 #endif
 
     return remain;
@@ -340,11 +316,7 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
 
 void LongLinkConnectMonitor::__OnAlarm() {
     __AutoIntervalConnect();
-#ifdef __ANDROID__
-    std::stringstream logger;
-    logger << "onalarm log, reason: " << alarm_reason << ", alarm after " << alarm_.After() << " millsecond, spend time " << alarm_.ElapseTime();
-    __AddLogToSystemLogger(logger);
-#endif
+    xinfo_trace(TSF"longlink_progress onalarm log, reason: %_, alarm after %_ millsecond, spend time %_", alarm_reason, alarm_.After(), alarm_.ElapseTime());
 }
 
 #ifdef __APPLE__
@@ -419,22 +391,11 @@ void LongLinkConnectMonitor::__ReConnect() {
 
 
 void LongLinkConnectMonitor::OnHeartbeatAlarmSet(uint64_t _interval) {
-#ifdef __ANDROID__
-    std::stringstream logger;
-    logger << "on_heartbeat_set, time: " << ::gettickcount() << ", "
-           << "time interval:" << _interval;
-
-    __AddLogToSystemLogger(logger);
-#endif
+    xinfo_trace(TSF"longlink_progress on_heartbeat_set, time: %_, time interval:%_", gettickcount(), _interval);
 }
 
 void LongLinkConnectMonitor::OnHeartbeatAlarmReceived(bool _is_noop_timeout) {
-#ifdef __ANDROID__
-    std::stringstream logger;
-    logger << "on_heartbeat_alarm, time: " << ::gettickcount() << ", "
-           << "is_noop_timeout:" << _is_noop_timeout;
-    __AddLogToSystemLogger(logger);
-#endif
+    xinfo_trace(TSF"longlink_progress on_heartbeat_alarm, time: %_, is_noop_timeout:%_", gettickcount(), _is_noop_timeout);
 }
 
 

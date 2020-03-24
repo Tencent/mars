@@ -125,7 +125,7 @@ private:
 
 class XLogger {
 public:
-    XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool (*_hook)(XLoggerInfo& _info, std::string& _log))
+    XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace = false, bool (*_hook)(XLoggerInfo& _info, std::string& _log) = NULL)
     :m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_isinfonull(false) {
         m_info.level = _level;
         m_info.tag = _tag;
@@ -137,6 +137,7 @@ public:
         m_info.pid = -1;
         m_info.tid = -1;
         m_info.maintid = -1;
+        m_info.traceLog = _trace ? 1 : 0;
 
         m_message.reserve(512);
     }
@@ -622,12 +623,12 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 
 #define xlogger2(level, tag, file, func, line, ...)		 if ((!xlogger_IsEnabledFor(level)));\
                                                               else { XLoggerInfo info= {level, tag, file, func, line,\
-                                                                     {0, 0}, -1, -1, -1};\ gettimeofday(&info.m_tv, NULL);\
+                                                                     {0, 0}, -1, -1, -1, false};\ gettimeofday(&info.m_tv, NULL);\
                                                                      XLOGGER_ROUTER_OUTPUT(__xlogger_c_write(&info, __VA_ARGS__),xlogger_Print(&info, __VA_ARGS__), __VA_ARGS__);}
 
 #define xlogger2_if(exp, level, tag, file, func, line, ...)    if (!(exp) || !xlogger_IsEnabledFor(level));\
                                                                     else { XLoggerInfo info= {level, tag, file, func, line,\
-                                                                           {0, 0}, -1, -1, -1}; gettimeofday(&info.timeval, NULL);\
+                                                                           {0, 0}, -1, -1, -1, false}; gettimeofday(&info.timeval, NULL);\
                                                                            XLOGGER_ROUTER_OUTPUT(__xlogger_c_write(&info, __VA_ARGS__),xlogger_Print(&info, __VA_ARGS__), __VA_ARGS__);}
 
 #define __xlogger_c_impl(level,  ...)			xlogger2(level, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, __VA_ARGS__)
@@ -649,7 +650,7 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 
 #define xassert2(exp, ...)	  if (((exp) || !xlogger_IsEnabledFor(kLevelFatal)));else {\
                                     XLoggerInfo info= {kLevelFatal, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__,\
-                                    {0, 0}, -1, -1, -1};\
+                                    {0, 0}, -1, -1, -1, false};\
                                     gettimeofday(&info.m_tv, NULL);\
                                     xlogger_AssertP(&info, #exp, __VA_ARGS__);}
 //"##__VA_ARGS__" remove "," if NULL
@@ -660,19 +661,24 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #endif
 
 #define xlogger(level, tag, file, func, line, ...)	   if ((!xlogger_IsEnabledFor(level)));\
-                                                       else XLogger(level, tag, file, func, line, XLOGGER_HOOK)\
+                                                       else XLogger(level, tag, file, func, line, false, XLOGGER_HOOK)\
                                                              XLOGGER_ROUTER_OUTPUT(.WriteNoFormat(TSF __VA_ARGS__),(TSF __VA_ARGS__), __VA_ARGS__)
 
 #define xlogger2(level, tag, file, func, line, ...)		if ((!xlogger_IsEnabledFor(level)));\
-                                                        else XLogger(level, tag, file, func, line, XLOGGER_HOOK)\
+                                                        else XLogger(level, tag, file, func, line, false, XLOGGER_HOOK)\
                                                              XLOGGER_ROUTER_OUTPUT(.WriteNoFormat(__VA_ARGS__),(__VA_ARGS__), __VA_ARGS__)
 
 #define xlogger2_if(exp, level, tag, file, func, line, ...)		if ((!(exp) || !xlogger_IsEnabledFor(level)));\
-                                                                else XLogger(level, tag, file, func, line, XLOGGER_HOOK)\
+                                                                else XLogger(level, tag, file, func, line, false, XLOGGER_HOOK)\
                                                                      XLOGGER_ROUTER_OUTPUT(.WriteNoFormat(__VA_ARGS__),(__VA_ARGS__), __VA_ARGS__)
+
+#define xlogger_trace(level, tag, file, func, line, ...)		if ((!xlogger_IsEnabledFor(level)));\
+                                                        else XLogger(level, tag, file, func, line, true, XLOGGER_HOOK)\
+                                                             XLOGGER_ROUTER_OUTPUT(.WriteNoFormat(__VA_ARGS__),(__VA_ARGS__), __VA_ARGS__)
 
 #define __xlogger_cpp_impl2(level, ...)				 xlogger2(level, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, __VA_ARGS__)
 #define __xlogger_cpp_impl_if(level, exp, ...)	   xlogger2_if(exp, level, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, __VA_ARGS__)
+#define __xlogger_cpp_impl_trace(level, ...)        xlogger_trace(level,  XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, __VA_ARGS__)
 
 #define xverbose2(...)			   __xlogger_cpp_impl2(kLevelVerbose, __VA_ARGS__)
 #define xdebug2(...)			   __xlogger_cpp_impl2(kLevelDebug, __VA_ARGS__)
@@ -690,12 +696,19 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xfatal2_if(exp, ...)	   __xlogger_cpp_impl_if(kLevelFatal, exp, __VA_ARGS__)
 #define xlog2_if(level, ...)	   __xlogger_cpp_impl_if(level, __VA_ARGS__)
 
+#define xverbose_trace(...)			   __xlogger_cpp_impl_trace(kLevelVerbose, __VA_ARGS__)
+#define xdebug_trace(...)			   __xlogger_cpp_impl_trace(kLevelDebug, __VA_ARGS__)
+#define xinfo_trace(...)				   __xlogger_cpp_impl_trace(kLevelInfo, __VA_ARGS__)
+#define xwarn_trace(...)				   __xlogger_cpp_impl_trace(kLevelWarn, __VA_ARGS__)
+#define xerror_trace(...)			   __xlogger_cpp_impl_trace(kLevelError, __VA_ARGS__)
+#define xfatal_trace(...)			   __xlogger_cpp_impl_trace(kLevelFatal, __VA_ARGS__)
+
 #define xgroup2_define(group)	   XLogger group(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_HOOK)
-#define xgroup2(...)			   XLogger(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_HOOK)(__VA_ARGS__)
-#define xgroup2_if(exp, ...)	   if ((!(exp))); else XLogger(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_HOOK)(__VA_ARGS__)
+#define xgroup2(...)			   XLogger(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, false, XLOGGER_HOOK)(__VA_ARGS__)
+#define xgroup2_if(exp, ...)	   if ((!(exp))); else XLogger(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, false, XLOGGER_HOOK)(__VA_ARGS__)
 
 #define xassert2(exp, ...)	  if (((exp) || !xlogger_IsEnabledFor(kLevelFatal)));\
-                             else XLogger(kLevelFatal, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_HOOK).Assert(#exp)\
+                             else XLogger(kLevelFatal, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, false, XLOGGER_HOOK).Assert(#exp)\
                                   XLOGGER_ROUTER_OUTPUT(.WriteNoFormat(__VA_ARGS__),(__VA_ARGS__), __VA_ARGS__)
 
 #define xmessage2_define(name, ...)		XMessage name; name XLOGGER_ROUTER_OUTPUT(.WriteNoFormat(__VA_ARGS__),(__VA_ARGS__), __VA_ARGS__)
