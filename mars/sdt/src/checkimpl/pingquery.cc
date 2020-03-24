@@ -643,7 +643,9 @@ int PingQuery::__runReadWrite(int& _errcode) {
         if (send_next <= gettickcount() && sendcount_ > 0) {
             send_next = gettickcount() + interval_ * 1000;
             alarm_.Cancel();
-            alarm_.SetType(kAlarmType);
+            #ifdef __ANDROID__
+                alarm_.SetType(kAlarmType);
+            #endif
             alarm_.Start(interval_ * 1000);  // m_interval*1000 convert m_interval from s to ms
             should_send = true;
         }
