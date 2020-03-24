@@ -50,6 +50,7 @@ typedef struct XLoggerInfo_t {
     intmax_t pid;
     intmax_t tid;
     intmax_t maintid;
+    int traceLog;
 } XLoggerInfo;
 
 extern intmax_t xlogger_pid();
