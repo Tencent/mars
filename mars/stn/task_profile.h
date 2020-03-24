@@ -188,7 +188,7 @@ struct TransferProfile {
         error_code = 0;
     }
     
-    const Task& task;
+    const Task task; //change "const Task& task" to "const Task task". fix a memory reuse bug.
     ConnectProfile connect_profile;
     
     uint64_t loop_start_task_time;  // ms
