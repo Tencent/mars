@@ -576,6 +576,11 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
                         (curtime - _it->start_task_time), _it->remain_retry_count)
         (TSF"cgi:%_, taskid:%_, worker:%_, context id:%_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id, _it->task.user_id);
 
+        if(_err_type != kEctOK && _err_type != kEctServer) {
+            xinfo_trace(TSF"cgi trace error: (%_, %_), cost:%_, rtt:%_, svr:(%_, %_, %_)", _err_type, _err_code, (curtime - _it->start_task_time), _connect_profile.conn_rtt,
+                        _connect_profile.ip, _connect_profile.port, IPSourceTypeString[_connect_profile.ip_type]);
+        }
+
         if (task_connection_detail_) {
             task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);
         }
