@@ -30,11 +30,11 @@ android {
     }
 
 
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ["jniLibs/jni"]
-        }
-    }
+//     sourceSets {
+//         main {
+//             jniLibs.srcDirs = ["src/main/jniLibs/jni"]
+//         }
+//     }
 
     externalNativeBuild {
 
