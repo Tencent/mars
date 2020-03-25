@@ -140,7 +140,6 @@ static void __initbind_baseprjevent() {
 #endif
 
 #ifdef ANDROID
-	mars::baseevent::addLoadModule(kLibName);
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
@@ -277,7 +276,7 @@ uint32_t (*getNoopTaskID)()
 
 void network_export_symbols_0(){}
 
-#ifndef ANDROID
+#if !defined(ANDROID) || defined (CPP_CALL_BACK)
 	//callback functions
 bool (*MakesureAuthed)(const std::string& _host)
 = [](const std::string& _host) {
