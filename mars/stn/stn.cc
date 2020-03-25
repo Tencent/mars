@@ -47,10 +47,13 @@ Task::Task(uint32_t _taskid) {
     
     retry_count = -1;
     server_process_cost = -1;
-    total_timetout = -1;
+    total_timeout = -1;
     user_context = NULL;
     long_polling = false;
     long_polling_timeout = -1;
+    
+    channel_name=DEFAULT_LONGLINK_NAME;
+
 
 }
         

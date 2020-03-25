@@ -38,15 +38,17 @@ namespace mars {
 class LongLinkConnectMonitor {
 
   public:
-    LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlinkk, MessageQueue::MessageQueue_t _id);
+    LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlinkk, MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
     ~LongLinkConnectMonitor();
 
   public:
     bool MakeSureConnected();
     bool NetworkChange();
+
     void OnHeartbeatAlarmSet(uint64_t _interval);
     void OnHeartbeatAlarmReceived(bool _is_noop_timeout);
 
+    void DisconnectAllSlot();
 
   public:
     boost::function<void ()> fun_longlink_reset_;
@@ -58,7 +60,7 @@ class LongLinkConnectMonitor {
   private:
     void __OnSignalForeground(bool _isforeground);
     void __OnSignalActive(bool _isactive);
-    void __OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status);
+    void __OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
     void __OnAlarm();
 
     void __Run();
@@ -88,6 +90,7 @@ class LongLinkConnectMonitor {
 
     int conti_suc_count_;
     bool isstart_;
+    bool is_keep_alive_;
 };
         
 } }

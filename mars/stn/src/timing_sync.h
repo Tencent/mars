@@ -39,7 +39,7 @@ class TimingSync {
     TimingSync(ActiveLogic& _active_logic);
     ~TimingSync();
 
-    void OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status);
+    void OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
     void OnActiveChanged(bool _is_actived);
     void OnNetworkChange();
 

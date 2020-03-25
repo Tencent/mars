@@ -27,13 +27,17 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <functional>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/projdef.h"
+#include "mars/stn/proto/longlink_packer.h"
 
 namespace mars{
     namespace stn{
 
+static const std::string DEFAULT_LONGLINK_NAME = "default-longlink";
+static const std::string DEFAULT_LONGLINK_GROUP = "default-group";
 struct TaskProfile;
 struct DnsProfile;
 
@@ -86,16 +90,35 @@ public:
     
     int32_t     retry_count;  // user
     int32_t     server_process_cost;  // user
-    int32_t     total_timetout;  // user ms
+    int32_t     total_timeout;  // user ms
     bool        long_polling;
     int32_t     long_polling_timeout;
     
     void*       user_context;  // user
-    std::string report_arg;  // user for cgi report
+    std::string report_arg;  // use for cgi report
+    std::string channel_name;   //longlink channel id
+    std::string group_name;     //use for select decode method
+    std::string user_id;        //use for identify multi users
     
     std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
-	std::vector<std::string> longlink_host_list;
+    std::vector<std::string> longlink_host_list;
+};
+
+struct LonglinkConfig {
+public:
+    LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr) {}
+    bool IsMain() const {
+        return isMain;
+    }
+    std::string     name;   //channel_id
+    std::vector<std::string> host_list;
+    bool            is_keep_alive;     //if false, reconnect trig by task    
+    std::string     group;   
+    LongLinkEncoder* longlink_encoder;
+    bool            isMain;
+    std::vector<std::string> (*dns_func)(const std::string& host);
 };
 
 enum TaskFailHandleType {
@@ -147,7 +170,7 @@ enum {
     kEctLongFirstPkgTimeout = -500,
     kEctLongPkgPkgTimeout = -501,
     kEctLongReadWriteTimeout = -502,
-   // kEctLongTaskTimeout = -503,
+    kEctLongTaskTimeout = -503,
 };
 
 // -600 ~ -500
@@ -221,7 +244,7 @@ struct IPPortItem {
     std::string 	str_host;
 };
         
-extern bool (*MakesureAuthed)(const std::string& _host);
+extern bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id);
 
 //流量统计
 extern void (*TrafficData)(ssize_t _send, ssize_t _recv);
@@ -229,13 +252,13 @@ extern void (*TrafficData)(ssize_t _send, ssize_t _recv);
 //底层询问上层该host对应的ip列表 
 extern std::vector<std::string> (*OnNewDns)(const std::string& host);
 //网络层收到push消息回调 
-extern void (*OnPush)(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
+extern void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 //底层获取task要发送的数据 
-extern bool (*Req2Buf)(uint32_t taskid, void* const user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
+extern bool (*Req2Buf)(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
 //底层回包返回给上层解析 
-extern int (*Buf2Resp)(uint32_t taskid, void* const user_context, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
+extern int (*Buf2Resp)(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
 //任务执行结束 
-extern int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, int error_type, int error_code);
+extern int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code);
 
 //上报网络连接状态 
 extern void (*ReportConnectStatus)(int status, int longlink_status);
@@ -245,9 +268,9 @@ extern void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, cons
     
 extern void (*OnLongLinkStatusChange)(int _status);
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-extern int  (*GetLonglinkIdentifyCheckBuffer)(AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid);
+extern int  (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid);
 //长连信令校验回包 
-extern bool (*OnLonglinkIdentifyResponse)(const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash);
+extern bool (*OnLonglinkIdentifyResponse)(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash);
 
 extern void (*RequestSync)();
 //验证是否已登录

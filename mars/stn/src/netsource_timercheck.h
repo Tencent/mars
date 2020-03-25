@@ -37,6 +37,9 @@ namespace mars {
         
 class LongLink;
 
+/*
+ * If longlink is using backup, check if other ips are usable, if are usable, notify longlink to change ip
+ */
 class NetSourceTimerCheck {
   public:
     NetSourceTimerCheck(NetSource* _net_source, ActiveLogic& _active_logic, LongLink& _longlink, MessageQueue::MessageQueue_t  _messagequeue_id);

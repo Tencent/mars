@@ -46,7 +46,7 @@ using namespace mars::app;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<void (std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
@@ -89,7 +89,6 @@ bool ShortLinkTaskManager::StartTask(const Task& _task) {
 
     TaskProfile task(_task);
     task.link_type = Task::kChannelShort;
-	xinfo2(TSF"after in list, long-polling:%_", task.task.long_polling);
 
     lst_cmd_.push_back(task);
     lst_cmd_.sort(__CompareTask);
@@ -240,8 +239,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
-    bool ismakesureauthsuccess = false;
-    std::map<std::string, bool> has_makesureauth_host;
     uint64_t curtime = ::gettickcount();
     int sent_count = 0;
 
@@ -264,7 +261,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         Task task = first->task;
         if (get_real_host_) {
-            get_real_host_(task.shortlink_host_list);
+            get_real_host_(task.user_id, task.shortlink_host_list);
         }
         std::string host = task.shortlink_host_list.front();
         xinfo2(TSF"host ip to callback is %_ ",host);
@@ -272,12 +269,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         xinfo2(TSF"need auth cgi %_ , host %_ need auth %_ , long-polling %_", first->task.cgi, host, first->task.need_authed, first->task.long_polling);
         // make sure login
         if (first->task.need_authed) {
-            if (has_makesureauth_host.find(host) == has_makesureauth_host.end()) {
-                has_makesureauth_host[host] = MakesureAuthed(host);
-            }
-
-            ismakesureauthsuccess = has_makesureauth_host[host];
-            
+            bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
             xinfo2(TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
@@ -291,7 +283,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
-        if (!Req2Buf(first->task.taskid, first->task.user_context, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
+        if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
@@ -399,7 +391,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
-    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, _body, _extension, err_code, Task::kChannelShort);
+    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
     xinfo2(TSF"err_code %_ ",err_code);
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
 
@@ -416,14 +408,14 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
         {
             xassert2(fun_notify_retry_all_tasks);
             xwarn2(TSF"task decode error session timeout taskid:%_, cmdid:%_, cgi:%_", it->task.taskid, it->task.cmdid, it->task.cgi);
-            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid, it->task.user_id);
         }
             break;
         case kTaskFailHandleRetryAllTasks:
         {
             xassert2(fun_notify_retry_all_tasks);
             xwarn2(TSF"task decode error retry all task taskid:%_, cmdid:%_, cgi:%_", it->task.taskid, it->task.cmdid, it->task.cgi);
-            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, it->task.taskid, it->task.user_id);
         }
             break;
         case kTaskFailHandleTaskEnd:
@@ -441,7 +433,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             break;
         default:
         {
-            xassert2(false, TSF"task decode error fail_handle:%_, taskid:%_", handle_type, it->task.taskid);
+            xassert2(false, TSF"task decode error fail_handle:%_, taskid:%_, context id:%_", handle_type, it->task.taskid, it->task.user_id);
             __SingleRespHandle(it, kEctEnDecode, err_code, handle_type, (unsigned int)it->transfer_profile.receive_data_size, _conn_profile);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(__LINE__, kEctEnDecode, handle_type, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
@@ -582,7 +574,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, 0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size, 0 != _resp_length ? "" : "/",
                 0 != _resp_length ? "" : string_cast(_it->transfer_profile.received_size).str(), _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time),
                         (curtime - _it->start_task_time), _it->remain_retry_count)
-        (TSF"cgi:%_, taskid:%_, worker:%_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id);
+        (TSF"cgi:%_, taskid:%_, worker:%_, context id:%_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id, _it->task.user_id);
 
         if (task_connection_detail_) {
             task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);

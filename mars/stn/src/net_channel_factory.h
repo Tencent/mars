@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 
+#include "mars/stn/stn.h"
+#include "mars/stn/proto/longlink_packer.h"
 #include "mars/comm/messagequeue/message_queue.h"
 
 
@@ -44,7 +46,7 @@ extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 
 namespace LongLinkChannelFactory {
 
-extern LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource);
+extern LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config);
 
 extern void (*Destory)(LongLink* _long_link_channel);
 

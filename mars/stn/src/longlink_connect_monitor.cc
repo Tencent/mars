@@ -164,7 +164,7 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
 #define AYNC_HANDLER asyncreg_.Get()
 
-LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id)
+LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_id))
     , activelogic_(_activelogic), longlink_(_longlink), alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this), _id)
     , status_(LongLink::kDisConnected)
@@ -172,24 +172,37 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
     , last_connect_net_type_(kNoNet)
     , thread_(boost::bind(&LongLinkConnectMonitor::__Run, this), XLOGGER_TAG"::con_mon")
     , conti_suc_count_(0)
-    , isstart_(false) {
-    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
-    activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
-    activelogic_.SignalForeground.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-    longlink_.SignalConnection.connect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
+    , isstart_(false)
+    , is_keep_alive_(_is_keep_alive) {
+        xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
+        if(is_keep_alive_) {
+            activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+            activelogic_.SignalForeground.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
+            longlink_.SignalConnection.connect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
+        }
 #ifdef __ANDROID__
-    alarm_.SetType(kAlarmType);
+        alarm_.SetType(kAlarmType);
 #endif
 }
 
 LongLinkConnectMonitor::~LongLinkConnectMonitor() {
+    xinfo_function();
 #ifdef __APPLE__
     __StopTimer();
 #endif
-    longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1));
+    longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
     activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
     activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+
     asyncreg_.CancelAndWait();
+}
+
+void LongLinkConnectMonitor::DisconnectAllSlot() {
+    if(is_keep_alive_) {
+        longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
+        activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
+        activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+    }
 }
 
 bool LongLinkConnectMonitor::MakeSureConnected() {
@@ -257,11 +270,12 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
 uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
     alarm_.Cancel();
+    
     uint64_t remain = __IntervalConnect(kLongLinkConnect);
 
     if (0 == remain) return remain;
 
-    xinfo2(TSF"start auto connect after:%0", remain);
+    xinfo2(TSF"start auto connect after:%0, channel id:%1", remain, longlink_.ChannelId().c_str());
     alarm_.Start((int)remain);
 
 #ifdef __ANDROID__
@@ -302,7 +316,7 @@ void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
     ASYNC_BLOCK_END
 }
 
-void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status) {
+void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
     xinfo2(TSF"longlink status change: %_ ", _status);
     alarm_.Cancel();
 

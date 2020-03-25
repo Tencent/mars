@@ -40,6 +40,7 @@
 
 #include "mars/stn/src/net_source.h"
 #include "mars/stn/src/longlink_identify_checker.h"
+#include "mars/stn/proto/longlink_packer.h"
 
 class AutoBuffer;
 class XLogger;
@@ -108,18 +109,18 @@ class LongLink {
         kTimeCheckSucc = 10019,
     };
   public:
-    boost::signals2::signal<void (TLongLinkStatus _connectStatus)> SignalConnection;
+    boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
     
     boost::function< void (uint32_t _taskid)> OnSend;
     boost::function< void (uint32_t _taskid, size_t _cachedsize, size_t _package_size)> OnRecv;
-    boost::function< void (ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
-    boost::function< void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
+    boost::function< void (const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
+    boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
     boost::function< void (uint64_t _interval)> OnNoopAlarmSet;
     boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
 
   public:
-    LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource);
+    LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
     virtual ~LongLink();
 
     bool    Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task);
@@ -135,13 +136,19 @@ class LongLink {
 
     std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
     
+    LongLinkEncoder& Encoder() const { return encoder_; }
+    void SetDnsFunc(DNS::DNSFunc _dns_func) {
+      dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
+    }
+    std::string ChannelId() { return config_.name; }
+    
   private:
     LongLink(const LongLink&);
     LongLink& operator=(const LongLink&);
 
   protected:
     void    __ConnectStatus(TLongLinkStatus _status);
-    void    __UpdateProfile(const ConnectProfile& _conn_profile);
+    void    __UpdateProfile(const ConnectProfile _conn_profile);
     void    __RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _profile, bool _networkreport = true);
 
     bool    __SendNoopWhenNoData();
@@ -163,6 +170,7 @@ class LongLink {
   protected:
     MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      netsource_;
+    LonglinkConfig                  config_;
     
     Mutex                           mutex_;
     Thread                          thread_;
@@ -174,13 +182,15 @@ class LongLink {
     ConnectProfile                              conn_profile_;
     TDisconnectInternalCode                     disconnectinternalcode_;
     
-    SocketBreaker                                        readwritebreak_;
-    LongLinkIdentifyChecker                              identifychecker_;
+    SocketBreaker                               readwritebreak_;
+    LongLinkIdentifyChecker                     identifychecker_;
     std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_;
-    tickcount_t                                          lastrecvtime_;
+    tickcount_t                                 lastrecvtime_;
     
-    SmartHeartbeat*                              smartheartbeat_;
+    SmartHeartbeat*                       smartheartbeat_;
     WakeUpLock*                                  wakelock_;
+    
+    LongLinkEncoder&                             encoder_;
     unsigned long long              lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
 };

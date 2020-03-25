@@ -63,7 +63,7 @@ class ShortLink : public ShortLinkInterface {
     virtual void     __RunReadWrite(SOCKET _sock, int& _errtype, int& _errcode, ConnectProfile& _conn_profile);
     void             __CancelAndWaitWorkerThread();
 
-    void			 __UpdateProfile(const ConnectProfile& _conn_profile);
+    void			 __UpdateProfile(const ConnectProfile _conn_profile);
 
     void 			 __RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _conn_profile, bool _report = true);
     void 			 __OnResponse(ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, ConnectProfile& _conn_profile, bool _report = true);
