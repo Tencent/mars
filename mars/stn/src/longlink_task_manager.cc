@@ -65,6 +65,8 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
     longlink_->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink_->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7);
     longlink_->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1));
+    longlink_->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlinkconnectmon_, _1);
+    longlink_->OnNoopAlarmReceived = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlinkconnectmon_, _1);
 }
 
 LongLinkTaskManager::~LongLinkTaskManager() {

@@ -38,6 +38,11 @@ using namespace mars::app;
 #define NONET_SALT_RATE  (3)
 
 
+#ifdef __ANDROID__
+static const int kAlarmType = 105;
+#endif
+
+
 static int GetAlarmTime(bool _is_actived)
 {
     int time = 0;
@@ -64,6 +69,9 @@ TimingSync::TimingSync(ActiveLogic& _active_logic)
 , active_logic_(_active_logic)
 {
     timing_sync_active_connection_ = _active_logic.SignalActive.connect(boost::bind(&TimingSync::OnActiveChanged, this, _1));
+#ifdef __ANDROID__
+    alarm_.SetType(kAlarmType);
+#endif
     alarm_.Start(GetAlarmTime(active_logic_.IsActive()));
 }
 

@@ -52,6 +52,8 @@ static void clearPingStatus(struct PingStatus& _ping_status) {
 
 #define MAXLINE (512) /* max text line length */
 
+static const int kAlarmType = 101;
+
 void str_split(char _spliter, std::string _pingresult, std::vector<std::string>& _vec_pingres) {
     int find_begpos = 0;
     int findpos = 0;
@@ -641,6 +643,9 @@ int PingQuery::__runReadWrite(int& _errcode) {
         if (send_next <= gettickcount() && sendcount_ > 0) {
             send_next = gettickcount() + interval_ * 1000;
             alarm_.Cancel();
+            #ifdef __ANDROID__
+                alarm_.SetType(kAlarmType);
+            #endif
             alarm_.Start(interval_ * 1000);  // m_interval*1000 convert m_interval from s to ms
             should_send = true;
         }

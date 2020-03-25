@@ -44,17 +44,17 @@
 DEFINE_FIND_CLASS(KPlatformCommC2Java, "com/tencent/mars/comm/PlatformComm$C2Java")
 
 #ifdef ANDROID
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_startAlarm, KPlatformCommC2Java, "startAlarm", "(II)Z")
-bool startAlarm(int64_t id, int after) {
+DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_startAlarm, KPlatformCommC2Java, "startAlarm", "(III)Z")
+bool startAlarm(int type, int64_t id, int after) {
     xverbose_function();
     
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&startAlarm, id, after));
+        return coroutine::MessageInvoke(boost::bind(&startAlarm, type, id, after));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
-    jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_startAlarm, (jint)id, (jint)after).z;
+    jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_startAlarm, (jint)type, (jint)id, (jint)after).z;
     xdebug2(TSF"id= %0, after= %1, ret= %2", id, after, (bool)ret);
     return (bool)ret;
 }

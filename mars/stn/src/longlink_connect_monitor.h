@@ -21,6 +21,8 @@
 #ifndef STN_SRC_LONGLINK_CONNECT_MONITOR_H_
 #define STN_SRC_LONGLINK_CONNECT_MONITOR_H_
 
+#include <string>
+
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/messagequeue/message_queue.h"
@@ -34,6 +36,7 @@ namespace mars {
     namespace stn {
         
 class LongLinkConnectMonitor {
+
   public:
     LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlinkk, MessageQueue::MessageQueue_t _id);
     ~LongLinkConnectMonitor();
@@ -41,6 +44,9 @@ class LongLinkConnectMonitor {
   public:
     bool MakeSureConnected();
     bool NetworkChange();
+    void OnHeartbeatAlarmSet(uint64_t _interval);
+    void OnHeartbeatAlarmReceived(bool _is_noop_timeout);
+
 
   public:
     boost::function<void ()> fun_longlink_reset_;

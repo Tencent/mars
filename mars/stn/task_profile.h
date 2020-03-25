@@ -188,7 +188,7 @@ struct TransferProfile {
         error_code = 0;
     }
     
-    const Task& task;
+    const Task task; //change "const Task& task" to "const Task task". fix a memory reuse bug.
     ConnectProfile connect_profile;
     
     uint64_t loop_start_task_time;  // ms
@@ -238,6 +238,9 @@ struct TaskProfile {
         trycount++;
         
         uint64_t task_timeout = (readwritetimeout + 5 * 1000) * trycount;
+        if (_task.long_polling) {
+            task_timeout = (_task.long_polling_timeout + 5 * 1000);
+        }
         
         if (0 < _task.total_timetout &&  (uint64_t)_task.total_timetout < task_timeout)
             task_timeout = _task.total_timetout;

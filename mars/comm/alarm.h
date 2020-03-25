@@ -51,6 +51,7 @@ class Alarm {
         , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
 #ifdef ANDROID
         , wakelock_(NULL)
+        , type_(-1)
 #endif
     {
         xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
@@ -68,6 +69,7 @@ class Alarm {
         , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
 #ifdef ANDROID
         , wakelock_(NULL)
+        , type_(-1)
 #endif
     {
         xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
@@ -86,6 +88,7 @@ class Alarm {
 
 #ifdef ANDROID
     static void onAlarmImpl(int64_t _id);
+    void SetType(int _type) {type_ = _type;}
 #endif
 
     bool Start(int _after, bool _needWake=true);  // ms
@@ -122,6 +125,7 @@ class Alarm {
     MessageQueue::ScopeRegister reg_;
 #ifdef ANDROID
     WakeUpLock*                 wakelock_;
+    int                         type_;
 #endif
 };
 
