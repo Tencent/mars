@@ -50,11 +50,8 @@
 namespace mars {
 namespace stn {
 
-static Callback* sg_callback = NULL;
 static const std::string kLibName = "stn";
 
-boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
-boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
 
 #define STN_WEAK_CALL(func) \
     boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
@@ -158,10 +155,7 @@ static void __initbind_baseprjevent() {
 }
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
-    
-void SetCallback(Callback* const callback) {
-	sg_callback = callback;
-}
+
 
 bool (*StartTask)(const Task& _task)
 = [](const Task& _task) {
@@ -322,114 +316,6 @@ auto MakesureLonglinkConnected_ext = +[](const std::string& name){
 //};
 
 void network_export_symbols_0(){}
-
-#ifndef ANDROID
-	//callback functions
-bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id)
-= [](const std::string& _host, const std::string& _user_id) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->MakesureAuthed(_host, _user_id);
-};
-
-// 流量统计 
-void (*TrafficData)(ssize_t _send, ssize_t _recv)
-= [](ssize_t _send, ssize_t _recv) {
-    xassert2(sg_callback != NULL);
-    return sg_callback->TrafficData(_send, _recv);
-};
-
-//底层询问上层该host对应的ip列表 
-std::vector<std::string> (*OnNewDns)(const std::string& host)
-= [](const std::string& host) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->OnNewDns(host);
-};
-
-//网络层收到push消息回调
-void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
-	xassert2(sg_callback != NULL);
-	sg_callback->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
-};
-//底层获取task要发送的数据 
-bool (*Req2Buf)(uint32_t taskid,  void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host)
-= [](uint32_t taskid,  void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
-};
-//底层回包返回给上层解析 
-int (*Buf2Resp)(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select)
-= [](uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
-};
-//任务执行结束 
-int  (*OnTaskEnd)(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code)
-= [](uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code);
- };
-
-//上报网络连接状态 
-void (*ReportConnectStatus)(int status, int longlink_status)
-= [](int status, int longlink_status) {
-	xassert2(sg_callback != NULL);
-	sg_callback->ReportConnectStatus(status, longlink_status);
-};
-
-void (*OnLongLinkStatusChange)(int _status)
-= [](int _status) {
-    xassert2(sg_callback != NULL);
-    sg_callback->OnLongLinkStatusChange(_status);
-};
-void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
-= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
-    xassert2(sg_callback != NULL);
-    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
-    sg_callback->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
-};
-    
-void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
-= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    xassert2(sg_callback != NULL);
-    SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-    sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-};
-//长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-int  (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid)
-= [](const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
-};
-//长连信令校验回包
-bool (*OnLonglinkIdentifyResponse)(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash)
-= [](const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
-	xassert2(sg_callback != NULL);
-	return sg_callback->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
-};
-
-void (*RequestSync)() 
-= []() {
-	xassert2(sg_callback != NULL);
-	sg_callback->RequestSync();
-};
-
-void (*RequestNetCheckShortLinkHosts)(std::vector<std::string>& _hostlist)
-= [](std::vector<std::string>& _hostlist) {
-};
-
-void (*ReportTaskProfile)(const TaskProfile& _task_profile)
-= [](const TaskProfile& _task_profile) {
-};
-
-void (*ReportTaskLimited)(int _check_type, const Task& _task, unsigned int& _param)
-= [](int _check_type, const Task& _task, unsigned int& _param) {
-};
-
-void (*ReportDnsProfile)(const DnsProfile& _dns_profile)
-= [](const DnsProfile& _dns_profile) {
-};
-#endif
 
 }
 }

@@ -18,6 +18,7 @@
 #include <jni.h>
 #include <vector>
 
+#include "stn_logic_C2Java.h"
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/jni/util/var_cache.h"
@@ -39,8 +40,7 @@ extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const 
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
     
 DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
-int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code)
-= [](uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code) {
+int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code){
 
     xverbose_function();
 
@@ -55,8 +55,7 @@ int (*OnTaskEnd)(uint32_t _taskid, void* const _user_context, const std::string&
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_onPush, KC2Java, "onPush", "(Ljava/lang/String;II[B)V")
-void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
-= [](const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+void C2Java_OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend){
 
     xverbose_function();
 
@@ -82,8 +81,7 @@ void (*OnPush)(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_onNewDns, KC2Java, "onNewDns", "(Ljava/lang/String;)[Ljava/lang/String;")
-std::vector<std::string> (*OnNewDns)(const std::string& _host)
-= [](const std::string& _host) {
+std::vector<std::string>  C2Java_OnNewDns(const std::string& _host){
 	xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
@@ -113,9 +111,7 @@ std::vector<std::string> (*OnNewDns)(const std::string& _host)
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
-bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
-= [](uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) -> bool {
-
+bool C2Java_Req2Buf(uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host){
     xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
@@ -159,9 +155,7 @@ bool (*Req2Buf)(uint32_t _taskid,  void* const _user_context, const std::string&
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;[B[II)I")
-int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
-= [](uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
-
+int C2Java_Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select){
     xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
@@ -193,8 +187,7 @@ int (*Buf2Resp)(uint32_t _taskid, void* const _user_context, const std::string& 
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_makesureAuthed, KC2Java, "makesureAuthed", "(Ljava/lang/String;)Z")
-bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id)
-= [](const std::string& _host, const std::string& _user_id) -> bool {
+bool C2Java_MakesureAuthed(const std::string& _host, const std::string& _user_id){
     xverbose_function();
 
     VarCache* cache_instance = VarCache::Singleton();
@@ -207,8 +200,7 @@ bool (*MakesureAuthed)(const std::string& _host, const std::string& _user_id)
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
-int (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid)
-= [](const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
+int C2Java_GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid){
     xverbose_function();
     
     VarCache* cache_instance = VarCache::Singleton();
@@ -277,8 +269,7 @@ int (*GetLonglinkIdentifyCheckBuffer)(const std::string& _channel_id, AutoBuffer
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_onLongLinkIdentifyResp, KC2Java, "onLongLinkIdentifyResp", "(Ljava/lang/String;[B[B)Z")
-bool (*OnLonglinkIdentifyResponse)(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash)
-= [](const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {
+bool C2Java_OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash){
     xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
@@ -316,8 +307,7 @@ bool (*OnLonglinkIdentifyResponse)(const std::string& _channel_id, const AutoBuf
 
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_trafficData, KC2Java, "trafficData", "(II)V")
-void (*TrafficData)(ssize_t _send, ssize_t _recv) 
-= [](ssize_t _send, ssize_t _recv) {
+void C2Java_TrafficData(ssize_t _send, ssize_t _recv) {
 
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -328,8 +318,7 @@ void (*TrafficData)(ssize_t _send, ssize_t _recv)
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_reportNetConnectInfo, KC2Java, "reportConnectStatus", "(II)V")
-void (*ReportConnectStatus)(int _all_connstatus, int _longlink_connstatus)
-= [](int _all_connstatus, int _longlink_connstatus) {
+void C2Java_ReportConnectStatus(int _all_connstatus, int _longlink_connstatus){
     xverbose_function();
 
     VarCache* cache_instance = VarCache::Singleton();
@@ -345,8 +334,7 @@ void reportCrashStatistics(const char* _raw, const char* _type)
 }
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_requestSync, KC2Java, "requestDoSync", "()V")
-void (*RequestSync)()
-= []() {
+void C2Java_RequestSync(){
     xverbose_function();
 
     VarCache* cache_instance = VarCache::Singleton();
@@ -357,8 +345,7 @@ void (*RequestSync)()
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_requestNetCheckShortLinkHosts, KC2Java, "requestNetCheckShortLinkHosts", "()[Ljava/lang/String;")
-void (*RequestNetCheckShortLinkHosts)(std::vector<std::string>& _hostlist)
-= [](std::vector<std::string>& _hostlist) {
+void C2Java_RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist){
 	xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
@@ -382,8 +369,7 @@ void (*RequestNetCheckShortLinkHosts)(std::vector<std::string>& _hostlist)
 };
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_reportTaskProfile, KC2Java, "reportTaskProfile", "(Ljava/lang/String;)V")
-void (*ReportTaskProfile)(const TaskProfile& _task_profile)
-= [](const TaskProfile& _task_profile) {
+void C2Java_ReportTaskProfile(const TaskProfile& _task_profile){
 	xverbose_function();
 
 	VarCache* cache_instance = VarCache::Singleton();
@@ -433,30 +419,5 @@ void (*ReportTaskProfile)(const TaskProfile& _task_profile)
 
 	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportTaskProfile, ScopedJstring(env, report_task_str.c_str()).GetJstr());
 };
-
-void (*ReportTaskLimited)(int _check_type, const Task& _task, unsigned int& _param)
-= [](int _check_type, const Task& _task, unsigned int& _param) {
-
-};
-
-void (*ReportDnsProfile)(const DnsProfile& _dns_profile)
-= [](const DnsProfile& _dns_profile) {
-};
-
-void (*OnLongLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)
-= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
-    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
-};
-    
-void (*OnShortLinkNetworkError)(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)
-= [](ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-};
-void (*OnLongLinkStatusChange)(int _status)
-= [](int _status) {
-
-};
 }
 }
-
-
