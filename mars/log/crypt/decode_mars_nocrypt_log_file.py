@@ -114,9 +114,9 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
     try:
 
 
-        if MAGIC_NO_COMPRESS_START1==_buffer[_offset] or MAGIC_COMPRESS_START2==_buffer[_offset]:
+        if MAGIC_NO_COMPRESS_START1==_buffer[_offset] or MAGIC_COMPRESS_START2==_buffer[_offset] or MAGIC_SYNC_ZSTD_START==_buffer[_offset] or MAGIC_ASYNC_ZSTD_START==_buffer[_offset]:
             print("use wrong decode script")
-        elif MAGIC_ASYNC_NO_CRYPT_ZSTD_START == _buffer[_offset]:# 13
+        elif MAGIC_ASYNC_NO_CRYPT_ZSTD_START == _buffer[_offset]:
             decompressor = zstd.ZstdDecompressor()
             tmpbuffer = next(decompressor.read_from(ZstdDecompressReader(str(tmpbuffer)), 150000, 150000))
         elif MAGIC_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_NO_CRYPT_START==_buffer[_offset]:
