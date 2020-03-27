@@ -112,7 +112,7 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
     tmpbuffer[:] = _buffer[_offset+headerLen:_offset+headerLen+length]
 
     try:
-        decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
+
 
         if MAGIC_NO_COMPRESS_START1==_buffer[_offset] or MAGIC_COMPRESS_START2==_buffer[_offset]:
             print("use wrong decode script")
@@ -120,6 +120,7 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
             decompressor = zstd.ZstdDecompressor()
             tmpbuffer = next(decompressor.read_from(ZstdDecompressReader(str(tmpbuffer)), 150000, 150000))
         elif MAGIC_COMPRESS_START==_buffer[_offset] or MAGIC_COMPRESS_NO_CRYPT_START==_buffer[_offset]:
+            decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
             tmpbuffer = decompressor.decompress(str(tmpbuffer))
         elif MAGIC_COMPRESS_START1==_buffer[_offset]:
             decompress_data = bytearray()
@@ -128,6 +129,7 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
                 decompress_data.extend(tmpbuffer[2:single_log_len+2])
                 tmpbuffer[:] = tmpbuffer[single_log_len+2:len(tmpbuffer)]
 
+            decompressor = zlib.decompressobj(-zlib.MAX_WBITS)
             tmpbuffer = decompressor.decompress(str(decompress_data))
 
         else:
