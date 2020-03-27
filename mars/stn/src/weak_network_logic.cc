@@ -83,6 +83,7 @@ namespace stn {
     }
     
     void WeakNetworkLogic::__ReportWeakLogic(int _key, int _value, bool _is_important) {
+        xinfo2(TSF"weak idkey:(%_, %_)", _key, _value);
         if (report_weak_logic_) {
             report_weak_logic_(_key, _value, _is_important);
         }
@@ -115,6 +116,7 @@ namespace stn {
     }
     
     void WeakNetworkLogic::OnConnectEvent(bool _is_suc, int _rtt, int _index) {
+        xdebug2(TSF"connect(%_, %_, %_", _is_suc, _rtt, _index);
         if(_is_suc) {
             last_connect_fail_tick_.setInvalid();
             last_connect_suc_tick_.gettickcount();
@@ -126,7 +128,8 @@ namespace stn {
         
         if(!ActiveLogic::Singleton::Instance()->IsForeground())
             return;
-        
+
+        xdebug2(TSF"connect in foreground");
         if(is_curr_weak_)   ++connect_after_weak_;
         if(!_is_suc) {
             if(is_curr_weak_ && last_mark_tick_.gettickspan() >= WEAK_LEAST_SPAN) {
@@ -134,8 +137,8 @@ namespace stn {
                 __ReportWeakLogic(kExitSceneConnect, 1, false);
                 if(connect_after_weak_ <= 1 && first_mark_tick_.gettickspan() < SURE_WEAK_SPAN) __ReportWeakLogic(kExitQuickConnectNoNet, 1, false);
                 xinfo2(TSF"weak network end");
-                return;
             }
+            return;
         }
         
         bool is_weak = false;
