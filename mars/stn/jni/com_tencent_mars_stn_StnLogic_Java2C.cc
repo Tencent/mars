@@ -108,7 +108,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setShortlinkSvrAddr
 
 	std::string debug_ip = (NULL == _debug_ip ? "" : ScopedJstring(_env, _debug_ip).GetChar());
 	SetShortlinkSvrAddr(_port, debug_ip);
-  
+
 }
 
 /*
@@ -344,6 +344,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setClientVersion
 JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_generateTaskID
 (JNIEnv *_env, jclass) {
     return (jint)mars::stn::GenTaskID();
+}
 }
 
 void ExportSTN() {
