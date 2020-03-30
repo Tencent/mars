@@ -241,7 +241,7 @@ float publiccomponent_GetSystemVersion();
 
 #ifdef ANDROID
 bool startAlarm(int type, int64_t id, int after);
-bool stopAlarm(int type, int64_t id);
+bool stopAlarm(int64_t id);
 
 void* wakeupLock_new();
 void  wakeupLock_delete(void* _object);
