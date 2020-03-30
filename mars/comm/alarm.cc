@@ -83,7 +83,7 @@ bool Alarm::Cancel() {
 
 #ifdef ANDROID
 
-    if (!::stopAlarm(type_, (int64_t)seq_)) {
+        if (!::stopAlarm((int64_t)seq_)) {
         xwarn2(TSF"stopAlarm error, id:%0, seq:%1", (uintptr_t)this, seq_);
         status_ = kCancel;
         endtime_ = gettickcount();
@@ -156,7 +156,7 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
             return;
         }
 
-        ::stopAlarm(type_, seq_);
+        ::stopAlarm(seq_);
 
         if (::startAlarm(type_, (int64_t) seq_, missTime)) return;
 
