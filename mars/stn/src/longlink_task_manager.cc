@@ -108,6 +108,11 @@ bool LongLinkTaskManager::StopTask(uint32_t _taskid) {
         if (_taskid == first->task.taskid) {
             xinfo2(TSF"find the task taskid:%0", _taskid);
 
+            if(GetLongLink(first->task.channel_name) == nullptr) {
+                xwarn2(TSF"longlink nullptr name:%_", first->task.channel_name);
+                return false;
+            }
+
             GetLongLink(first->task.channel_name)->Channel()->Stop(first->task.taskid);
             lst_cmd_.erase(first);
             return true;
