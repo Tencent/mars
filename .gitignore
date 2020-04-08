@@ -114,3 +114,4 @@ Debug-iphonesimulator
 *.build
 cmake_build
 *.settings
+mars/cmake-build-debug
