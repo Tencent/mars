@@ -43,6 +43,8 @@ public:
     bool IsForeground() const;
     uint64_t LastForegroundChangeTime() const;
 
+    void SwitchActiveStateForDebug(bool _active);
+
 private:
     void __OnInActive();
 

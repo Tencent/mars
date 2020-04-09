@@ -135,3 +135,9 @@ void ActiveLogic::__OnInActive()
     xinfo2(TSF"active change:%0", isactive_);
     SignalActive(isactive);
 }
+
+
+void ActiveLogic::SwitchActiveStateForDebug(bool _active) {
+    isactive_ = _active;
+    __OnInActive();
+}
