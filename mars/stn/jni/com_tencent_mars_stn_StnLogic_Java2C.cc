@@ -341,7 +341,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setClientVersion
 	mars::stn::SetClientVersion(_client_version);
 }
 
-JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_generateTaskID
+JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genTaskID
 (JNIEnv *_env, jclass) {
     return (jint)mars::stn::GenTaskID();
 }
