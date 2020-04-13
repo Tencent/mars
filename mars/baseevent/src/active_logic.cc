@@ -53,15 +53,16 @@ ActiveLogic::ActiveLogic()
 , lastforegroundchangetime_(::gettickcount())
 {
     xinfo_function(TSF"MQ:%_", MessageQueue::GetDefMessageQueue());
+
+#ifdef __ANDROID__
+    GetSignalOnAlarm().connect(&onAlarm);
+    alarm_.SetType(kAlarmType);
+#endif
 #ifndef __APPLE__
         if (!alarm_.Start(INACTIVE_TIMEOUT))
        	{
             xerror2(TSF"m_alarm.Start false");
     	}
-#endif
-#ifdef ANDROID
-    GetSignalOnAlarm().connect(&onAlarm);
-    alarm_.SetType(kAlarmType);
 #endif
 }
 
