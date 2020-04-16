@@ -208,6 +208,7 @@ void LongLinkConnectMonitor::DisconnectAllSlot() {
 }
 
 bool LongLinkConnectMonitor::MakeSureConnected() {
+    xdebug_function();
     __IntervalConnect(kTaskConnect);
     return LongLink::kConnected == longlink_.ConnectStatus();
 }
@@ -252,7 +253,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     xinfo_trace(TSF"longlink_progress next connect interval: %_, process active state: %_, process foreground: %_", interval, activelogic_.IsActive(), activelogic_.IsForeground());
     xinfo2(TSF"next connect interval: %_, posttime: %_, buffer: %_, _type: %_", interval, posttime, buffer, _type);
 
-    if (activelogic_.IsActive()) {
+    if (activelogic_.IsActive() || _type == kNetworkChangeConnect) {
         if ((posttime + buffer) >= interval) {
         bool newone = false;
         bool ret = longlink_.MakeSureConnected(&newone);
@@ -300,6 +301,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 }
 
 uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
+    xdebug_function();
     rebuild_alarm_.Cancel();
     wake_alarm_.Cancel();
     
