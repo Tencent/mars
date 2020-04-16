@@ -90,7 +90,7 @@ class LongLinkTaskManager {
     }
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);
-    void ReleaseLongLink(const std::string& _name);
+    void ReleaseLongLink(const std::string _name);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
 
   private:

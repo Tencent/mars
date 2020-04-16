@@ -799,7 +799,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     return true;
 }
 
-void LongLinkTaskManager::ReleaseLongLink(const std::string& _name) {
+void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     xinfo_function(TSF"release longlink:%_", _name);
     ScopedLock lock(meta_mutex_);
     auto longlink = GetLongLink(_name);
