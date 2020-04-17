@@ -54,8 +54,7 @@ static const unsigned long kNoAccountInfoSaltRate = 2;
 static const unsigned long kNoAccountInfoSaltRise = 300;
 
 static const unsigned long kNoAccountInfoInactiveInterval = (7 * 24 * 60 * 60);  // s
-// static const unsigned int  kUpOrDownThreshold = 60 * 10 * 1000;      // 10min
-static const unsigned int  kUpOrDownThreshold = 3 * 60  * 1000;      // 3min for debug
+static const unsigned int  kUpOrDownThreshold = 60 * 10 * 1000;      // 10min
 
 
 #ifdef __ANDROID__
@@ -82,8 +81,7 @@ static unsigned long const sg_interval[][5]  = {
     {0,  0,  0,   0,   0},
 };
 
-// static int const reconnect_interval[6] = {0, 60, 120, 240, 360, 480};
-static int const reconnect_interval[6] = {0, 20, 40, 60, 80, 120};
+static int const reconnect_interval[6] = {0, 60, 120, 240, 360, 480};
 
 static std::string alarm_reason;
 static std::string error_msg;
