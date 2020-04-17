@@ -273,7 +273,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     
     if (posttime < kUpOrDownThreshold) {
         current_interval_index_ ++;
-        current_interval_index_ = std::min(current_interval_index_, sizeof(reconnect_interval) / sizeof(reconnect_interval[0]));
+        current_interval_index_ = std::min(current_interval_index_, (int)(sizeof(reconnect_interval) / sizeof(reconnect_interval[0])));
     } else {
         current_interval_index_ --;
         current_interval_index_ = std::max(current_interval_index_, 0);
