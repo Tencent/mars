@@ -56,7 +56,6 @@ class LongLinkConnectMonitor {
   private:
     uint64_t  __IntervalConnect(int _type);
     uint64_t  __AutoIntervalConnect();
-    bool      __InBackground();
 
   private:
     void __OnSignalForeground(bool _isforeground);

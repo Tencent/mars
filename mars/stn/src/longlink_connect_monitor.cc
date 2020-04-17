@@ -81,7 +81,7 @@ static unsigned long const sg_interval[][5]  = {
     {0,  0,  0,   0,   0},
 };
 
-static int const reconnect_interval[6] = {0, 60, 120, 240, 360, 480};
+static int const reconnect_interval[6] = {0, 60, 120, 240, 360, 480, 600};
 
 static std::string alarm_reason;
 static std::string error_msg;
@@ -236,10 +236,6 @@ bool LongLinkConnectMonitor::NetworkChange() {
     return 0 == __IntervalConnect(kNetworkChangeConnect);
 }
 
-
-bool LongLinkConnectMonitor::__InBackground() {
-    return activelogic_.IsForeground();
-}
 
 uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
