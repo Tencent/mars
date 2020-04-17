@@ -253,10 +253,10 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
     if (activelogic_.IsActive() || _type == kNetworkChangeConnect) {
         if ((posttime + buffer) >= interval) {
-        bool newone = false;
-        bool ret = longlink_.MakeSureConnected(&newone);
-        xinfo2(TSF"process active made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
-        return 0;
+            bool newone = false;
+            bool ret = longlink_.MakeSureConnected(&newone);
+            xinfo2(TSF"process active made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
+            return 0;
         } else {
             uint64_t inter = interval - posttime;
             xinfo2(TSF"final interval %_", inter);
@@ -277,7 +277,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     
     if (posttime < kUpOrDownThreshold) {
         current_interval_index_ ++;
-        current_interval_index_ = std::min(current_interval_index_, 5);
+        current_interval_index_ = std::min(current_interval_index_, sizeof(reconnect_interval) / sizeof(reconnect_interval[0]));
     } else {
         current_interval_index_ --;
         current_interval_index_ = std::max(current_interval_index_, 0);
