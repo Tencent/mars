@@ -67,9 +67,9 @@ static const int kShortlinkErrTime = 3;
 NetCore::NetCore()
     : messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
-    , net_source_(new NetSource(*ActiveLogic::Singleton::Instance()))
+    , net_source_(new NetSource(*ActiveLogic::Instance()))
     , netcheck_logic_(new NetCheckLogic())
-    , anti_avalanche_(new AntiAvalanche(ActiveLogic::Singleton::Instance()->IsActive()))
+    , anti_avalanche_(new AntiAvalanche(ActiveLogic::Instance()->IsActive()))
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
@@ -114,7 +114,7 @@ NetCore::NetCore()
                    
     xinfo_function();
 
-    ActiveLogic::Singleton::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
+    ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
     __InitLongLink();
     __InitShortLink();
@@ -123,7 +123,7 @@ NetCore::NetCore()
 NetCore::~NetCore() {
     xinfo_function();
 
-    ActiveLogic::Singleton::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
+    ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
 #ifdef USE_LONG_LINK
     {   //must disconnect signal
@@ -166,9 +166,9 @@ void NetCore::__InitLongLink(){
     zombie_task_manager_->fun_start_task_ = boost::bind(&NetCore::StartTask, this, _1);
     zombie_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromZombie, _1, _2, _3, _4, _5);
 
-    timing_sync_ = new TimingSync(*ActiveLogic::Singleton::Instance());
+    timing_sync_ = new TimingSync(*ActiveLogic::Instance());
 
-    longlink_task_manager_ = new LongLinkTaskManager(*net_source_, *ActiveLogic::Singleton::Instance(), *dynamic_timeout_, GetMessageQueueId());
+    longlink_task_manager_ = new LongLinkTaskManager(*net_source_, *ActiveLogic::Instance(), *dynamic_timeout_, GetMessageQueueId());
     
     // async
     longlink_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromLong, _1, _2, _3, _4, _5);
@@ -275,7 +275,7 @@ void NetCore::StartTask(const Task& _task) {
     }
     
 #ifdef ANDROID
-    if (kNoNet == ::getNetInfo() && !ActiveLogic::Singleton::Instance()->IsActive()
+    if (kNoNet == ::getNetInfo() && !ActiveLogic::Instance()->IsActive()
 #ifdef USE_LONG_LINK
     && LongLink::kConnected != longlink_task_manager_->GetLongLink(task.channel_name)->Channel()->ConnectStatus()
 #endif
@@ -292,8 +292,8 @@ void NetCore::StartTask(const Task& _task) {
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
     
     if (longlink != nullptr && LongLink::kConnected != longlink->Channel()->ConnectStatus()
-           && (Task::kChannelLong & task.channel_select) && ActiveLogic::Singleton::Instance()->IsForeground()
-           && (15 * 60 * 1000 >= gettickcount() - ActiveLogic::Singleton::Instance()->LastForegroundChangeTime())) {
+           && (Task::kChannelLong & task.channel_select) && ActiveLogic::Instance()->IsForeground()
+           && (15 * 60 * 1000 >= gettickcount() - ActiveLogic::Instance()->LastForegroundChangeTime())) {
         longlink->Monitor()->MakeSureConnected();
     }
 #endif

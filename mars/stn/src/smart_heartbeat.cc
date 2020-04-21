@@ -226,7 +226,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
 
 void SmartHeartbeat::JudgeDozeStyle() {
     
-    if(ActiveLogic::Singleton::Instance()->IsActive())  return;
+    if(ActiveLogic::Instance()->IsActive())  return;
     if(!noop_start_tick_.isValid()) return;
     if(kMobile != ::getNetInfo())   return;
     
@@ -248,7 +248,7 @@ bool SmartHeartbeat::__IsDozeStyle() {
 unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //
     // xinfo_function();
     
-    if(ActiveLogic::Singleton::Instance()->IsActive()) {
+    if(ActiveLogic::Instance()->IsActive()) {
         last_heart_ = MinHeartInterval;
         return MinHeartInterval;
     }
