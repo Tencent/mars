@@ -206,7 +206,7 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
     __RunLoop();
 }
 
-void LongLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id) {
+void LongLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id) {
     xverbose_function();
     __BatchErrorRespHandleByUserId(_user_id, _err_type, _err_code, _fail_handle, _src_taskid);
     __RunLoop();
