@@ -69,7 +69,7 @@ class LongLinkTaskManager {
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
     void RedoTasks();
-    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id);
+    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id);
 
     // LongLink& LongLinkChannel(const std::string& _name) { return *longlink_; }
     // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
@@ -90,7 +90,7 @@ class LongLinkTaskManager {
     }
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);
-    void ReleaseLongLink(const std::string& _name);
+    void ReleaseLongLink(const std::string _name);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
 
   private:
