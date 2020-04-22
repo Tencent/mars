@@ -31,9 +31,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
         "F"  // fatal
     };
     
-    char strFuncName[128]  = {0};
-    ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
-    
+    const char* strFuncName  = NULL == _info->func_name ? "" : _info->func_name;
     const char* file_name = ExtractFileName(_info->filename);
     
     char log[16 * 1024] = {0};
