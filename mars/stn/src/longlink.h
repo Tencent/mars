@@ -135,6 +135,7 @@ class LongLink {
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
 
     std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
+	virtual void    OnForegroundChange(bool _isforeground) {}
     
     LongLinkEncoder& Encoder() const { return encoder_; }
     void SetDnsFunc(DNS::DNSFunc _dns_func) {
@@ -152,9 +153,9 @@ class LongLink {
     void    __RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _profile, bool _networkreport = true);
 
     bool    __SendNoopWhenNoData();
-    bool    __NoopReq(XLogger& _xlog, Alarm& _alarm, bool need_active_timeout);
     bool    __NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, AutoBuffer& _extension, Alarm& _alarm, bool& _nooping, ConnectProfile& _profile);
 
+    virtual bool     __NoopReq(XLogger& _xlog, Alarm& _alarm, bool _need_active_timeout);
     virtual void     __OnAlarm(bool _noop_timeout);
     virtual void     __Run();
     virtual SOCKET   __RunConnect(ConnectProfile& _conn_profile);

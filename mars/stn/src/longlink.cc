@@ -277,7 +277,7 @@ void LongLink::Disconnect(TDisconnectInternalCode _scene) {
     }
 }
 
-bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout) {
+bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool _need_active_timeout) {
     AutoBuffer buffer;
     uint32_t req_cmdid = 0;
     bool suc = false;
@@ -295,7 +295,7 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
     
     if (suc) {
         _alarm.Cancel();
-        _alarm.Start(need_active_timeout ? (5* 1000) : (8 * 1000));
+        _alarm.Start(_need_active_timeout ? (5* 1000) : (8 * 1000));
 #ifdef ANDROID
         wakelock_->Lock(8 * 1000);
 #endif
