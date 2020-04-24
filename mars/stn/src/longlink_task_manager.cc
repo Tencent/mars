@@ -557,21 +557,16 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
             continue;
         }
 
-        bool erased_from_list = false;
         auto longlink = GetLongLink(first->task.channel_name);
         if(longlink != nullptr) {
 	        const ConnectProfile &profile = longlink->Channel()->Profile();
 	        if (_src_taskid == Task::kInvalidTaskID || _src_taskid == first->task.taskid)
-		        erased_from_list = __SingleRespHandle(first, _err_type, _err_code, _fail_handle, profile);
+		        __SingleRespHandle(first, _err_type, _err_code, _fail_handle, profile);
 	        else
-		        erased_from_list = __SingleRespHandle(first, _err_type, 0, _fail_handle, profile);
+		        __SingleRespHandle(first, _err_type, 0, _fail_handle, profile);
         }
 
         first = next;
-        if (erased_from_list){
-            // fallback iterator to begin
-            first = lst_cmd_.begin();
-        }
     }
 
     lastbatcherrortime_ = ::gettickcount();
