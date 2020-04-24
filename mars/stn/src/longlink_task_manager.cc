@@ -510,8 +510,9 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
 }
 
 void LongLinkTaskManager::__BatchErrorRespHandleByUserId(const std::string& _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
-    auto first = lst_cmd_.begin();
-    while(first != lst_cmd_.end()) {
+    std::list<TaskProfile> temp = lst_cmd_;
+    auto first = temp.begin();
+    while(first != temp.end()) {
         if(first->task.user_id != _user_id) {
             ++first;
             continue;
@@ -543,13 +544,18 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
             continue;
         }
         
+        bool erased_from_list = false;
         const ConnectProfile& profile = GetLongLink(first->task.channel_name)->Channel()->Profile();
         if (_src_taskid == Task::kInvalidTaskID || _src_taskid == first->task.taskid)
-            __SingleRespHandle(first, _err_type, _err_code, _fail_handle, profile);
+            erased_from_list = __SingleRespHandle(first, _err_type, _err_code, _fail_handle, profile);
         else
-            __SingleRespHandle(first, _err_type, 0, _fail_handle, profile);
-
-        first = next;
+            erased_from_list = __SingleRespHandle(first, _err_type, 0, _fail_handle, profile);
+        
+        first = next;    
+        if (erased_from_list){
+            // fallback iterator to begin
+            first = lst_cmd_.begin();
+        }
     }
 
     lastbatcherrortime_ = ::gettickcount();
