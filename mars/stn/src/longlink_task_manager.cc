@@ -352,7 +352,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         if (!task.longlink_host_list.empty()) {
             host = task.longlink_host_list.front();
         }
-        xinfo2(TSF"host ip to callback is %_ ",host);
+        xinfo2(TSF"host ip to callback is %_, task's channel name:%_", host, first->task.channel_name);
 
         // make sure login
         if (first->task.need_authed) {
@@ -438,9 +438,8 @@ void LongLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, curtime:%_, start_send_time:%_,",
-               first->task.cgi, first->task.cmdid, first->task.taskid, first->transfer_profile.send_data_size, first->transfer_profile.first_pkg_timeout / 1000,
-               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, curtime, first->start_task_time);
+        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, channel name:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, curtime:%_, start_send_time:%_, sendonly:%_", first->task.cgi, first->task.cmdid, first->task.taskid, first->transfer_profile.send_data_size, first->task.channel_name,  first->transfer_profile.first_pkg_timeout / 1000,
+               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, curtime, first->start_task_time, first->task.send_only);
 
         if (first->task.send_only) {
             __SingleRespHandle(first, kEctOK, 0, kTaskFailHandleNoError, longlink_channel->Profile());
@@ -452,11 +451,14 @@ void LongLinkTaskManager::__RunOnStartTask() {
 }
 
 bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile) {
-    xverbose_function();
+    xinfo_function();
     xassert2(kEctServer != _err_type);
     xassert2(_it != lst_cmd_.end());
 
-    if(_it == lst_cmd_.end())return false;
+    if(_it == lst_cmd_.end()) {
+        xerror2(TSF"TaskProfile is in the end");
+        return false;
+    }
     
     _it->transfer_profile.connect_profile = _connect_profile;
     
@@ -537,6 +539,7 @@ void LongLinkTaskManager::__BatchErrorRespHandleByUserId(const std::string& _use
 }
 
 void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
+    xinfo2(TSF"batch error, channel name:%_, src id:%_ callback:%_, errcode:%_, errtype:%_, fail handle", _name, _src_taskid, _callback_runing_task_only, _err_code, _err_type, _fail_handle);
     xassert2(kEctOK != _err_type);
     xassert2(kTaskFailHandleTaskTimeout != _fail_handle);
 
@@ -548,11 +551,13 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
         ++next;
 
         if (_callback_runing_task_only && !first->running_id) {
+            xwarn2(TSF"runnng id %_", first->running_id);
             first = next;
             continue;
         }
 
         if(!_name.empty() && first->task.channel_name != _name) {
+            xwarn2(TSF"task channel name:%_", first->task.channel_name);
             first = next;
             continue;
         }
@@ -564,6 +569,9 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
 		        __SingleRespHandle(first, _err_type, _err_code, _fail_handle, profile);
 	        else
 		        __SingleRespHandle(first, _err_type, 0, _fail_handle, profile);
+        } else {
+            xerror2(TSF"didn't find longlink, task channel name:%_", first->task.channel_name);
+            __DumpLongLinkChannelInfo();
         }
 
         first = next;
@@ -868,4 +876,11 @@ bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDiscon
         }
     }
     return false;
+}
+
+void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
+    ScopedLock lock(meta_mutex_);
+    for(auto& item : longlink_metas_) {
+        xinfo2(TSF"longlink channel name:%_, null:%_", item.first, item.second == nullptr);
+    }
 }
