@@ -162,7 +162,7 @@ enum {
 	kEctLocalTaskParam = -12,
 	kEctLocalCgiFrequcencyLimit = -13,
 	kEctLocalChannelID = -14,
-    
+    kEctLocalLongLinkReleased = -15,
 };
 
 // -600 ~ -500
