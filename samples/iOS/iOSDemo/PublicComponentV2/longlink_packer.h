@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <functional>
 
 #define LONGLINK_UNPACK_CONTINUE (-2)
 #define LONGLINK_UNPACK_FALSE (-1)
@@ -48,6 +49,48 @@ public:
 public:
     virtual ~longlink_tracker(){};
 };
+
+class LongLinkEncoder {
+ public:
+    LongLinkEncoder();
+
+    /**
+     * package the request data
+     * _cmdid: business identifier
+     * _seq: task id
+     * _raw: business send buffer
+     * _packed: business send buffer + request header
+     */
+    std::function<void (uint32_t _cmdid, uint32_t _seq, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _packed, longlink_tracker* _tracker)> longlink_pack;
+
+    /**
+     * unpackage the response data
+     * _packed: data received from server
+     * _cmdid: business identifier
+     * _seq: task id
+     * _package_len:
+     * _body: business receive buffer
+     * return: 0 if unpackage succ
+     */
+    std::function<int (const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body, AutoBuffer& _extension, longlink_tracker* _tracker)> longlink_unpack;
+
+    //heartbeat signal to keep longlink network alive
+    std::function<uint32_t ()> longlink_noop_cmdid;
+    std::function<bool (uint32_t _taskid, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)> longlink_noop_isresp;
+    std::function<uint32_t ()> signal_keep_cmdid;
+    std::function<void (AutoBuffer& _body, AutoBuffer& _extend)> longlink_noop_req_body;
+    std::function<void (const AutoBuffer& _body, const AutoBuffer& _extend)> longlink_noop_resp_body;
+    std::function<uint32_t ()> longlink_noop_interval;
+    std::function<bool ()> longlink_complexconnect_need_verify;
+
+    /**
+     * return: whether the received data is pushing from server or not
+     */
+    std::function<bool (uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> longlink_ispush;
+    std::function<bool (uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)> longlink_identify_isresp;
+};
+
+extern LongLinkEncoder gDefaultLongLinkEncoder;
 
 /**
  * package the request data
