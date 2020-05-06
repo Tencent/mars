@@ -253,7 +253,7 @@ void LongLinkTaskManager::__RunLoop() {
 }
 
 void LongLinkTaskManager::__RunOnTimeout() {
-    xinfo_function();
+    xdebug_function();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
@@ -326,7 +326,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
 }
 
 void LongLinkTaskManager::__RunOnStartTask() {
-    xinfo_function();
+    xdebug_function();
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
@@ -601,7 +601,9 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
 
     if (kTaskFailHandleSessionTimeout == _fail_handle || kTaskFailHandleRetryAllTasks == _fail_handle) {
         __Disconnect(_name, LongLink::kDecodeErr);
-        MessageQueue::CancelMessage(asyncreg_.Get(), 0);
+        if (!__OtherChannelHasRunningTask(_name)) {
+            MessageQueue::CancelMessage(asyncreg_.Get(), 0);
+        }
         retry_interval_ = 0;
     }
 
@@ -609,12 +611,16 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
         if (kEctDns != _err_type && kEctSocket != _err_type) {  // not longlink callback
             __Disconnect(_name, LongLink::kDecodeErr);
         }
-        MessageQueue::CancelMessage(asyncreg_.Get(), 0);
+        if (!__OtherChannelHasRunningTask(_name)) {
+            MessageQueue::CancelMessage(asyncreg_.Get(), 0);
+        }
     }
 
     if (kEctNetMsgXP == _err_type) {
         __Disconnect(_name, LongLink::kTaskTimeout);
-        MessageQueue::CancelMessage(asyncreg_.Get(), 0);
+        if (!__OtherChannelHasRunningTask(_name)) {
+            MessageQueue::CancelMessage(asyncreg_.Get(), 0);
+        }
     }
 }
 
@@ -900,3 +906,19 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
         xinfo2(TSF"longlink channel name:%_, null:%_", item.first, item.second == nullptr);
     }
 }
+
+bool LongLinkTaskManager::__OtherChannelHasRunningTask(const std::string& _name) {
+    ScopedLock lock(meta_mutex_);
+    if (lst_cmd_.empty()) {
+        xinfo2(TSF"there is no task in task list");
+        return false;
+    }
+    for (auto item : lst_cmd_) {
+        if (item.task.channel_name != _name && item.running_id) {
+            xinfo2(TSF"find running task, id:%_, channel name:%_", item.task.taskid, item.task.channel_name);
+            return true;
+        }
+    }
+    return false;
+}
+
