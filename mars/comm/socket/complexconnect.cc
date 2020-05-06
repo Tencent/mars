@@ -592,7 +592,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
             xgroup2_define(group);
             vecsocketfsm[i]->AfterSelect(sel, group);
-            xgroup2_if(!group.Empty(), TSF"index:%_, @%_, ", i, this) << group;
+            xgroup2_if(!group.Empty(), TSF"index:%_, @%_, status:%_,%_", i, this, vecsocketfsm[i]->Status(), vecsocketfsm[i]->CheckStatus()) << group;
 
             if (TcpClientFSM::EEnd == vecsocketfsm[i]->Status()) {
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
@@ -603,6 +603,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 delete vecsocketfsm[i];
                 vecsocketfsm[i] = NULL;
                 lasterror = -1;
+                xerror2(TSF"socket error, code:%_", errcode_);
                 continue;
             }
 
@@ -615,6 +616,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 delete vecsocketfsm[i];
                 vecsocketfsm[i] = NULL;
                 lasterror = -1;
+                xerror2(TSF"socket error, code:%_", errcode_);
                 continue;
             }
 
