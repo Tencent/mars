@@ -81,7 +81,8 @@ static unsigned long const sg_interval[][5]  = {
     {0,  0,  0,   0,   0},
 };
 
-static int const reconnect_interval[7] = {0, 60, 120, 240, 360, 480, 600};
+static int const reconnect_interval[7] = {0, 60, 120, 240, 360, 480, 600}; // if modify this varible ,do not forget to modify varible: "kInternalMaxIndex"
+static int const kInternalMaxIndex = 6; //max index of "reconnect_interval" array
 
 static std::string alarm_reason;
 static std::string error_msg;
@@ -273,7 +274,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     
     if (posttime < kUpOrDownThreshold) {
         current_interval_index_ ++;
-        current_interval_index_ = std::min(current_interval_index_, (int)(sizeof(reconnect_interval) / sizeof(reconnect_interval[0])));
+        current_interval_index_ = std::min(current_interval_index_, kInternalMaxIndex);
     } else {
         current_interval_index_ --;
         current_interval_index_ = std::max(current_interval_index_, 0);
