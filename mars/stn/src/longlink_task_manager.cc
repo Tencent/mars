@@ -45,8 +45,11 @@ using namespace mars::stn;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
+#define RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+
+static int longlink_id = 0;
 
 LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
@@ -146,6 +149,7 @@ void LongLinkTaskManager::ClearTasks() {
     ScopedLock lock(meta_mutex_);
     for(auto item : longlink_metas_) {
         item.second->Channel()->Disconnect(LongLink::kReset);
+        MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[item.second->Config().name]);
     }
     lock.unlock();
     
@@ -212,7 +216,8 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
     
     retry_interval_ = 0;
     
-    MessageQueue::CancelMessage(asyncreg_.Get(), 0);
+    
+    MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
     __RunLoop();
 }
 
@@ -601,9 +606,7 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
 
     if (kTaskFailHandleSessionTimeout == _fail_handle || kTaskFailHandleRetryAllTasks == _fail_handle) {
         __Disconnect(_name, LongLink::kDecodeErr);
-        if (!__OtherChannelHasRunningTask(_name)) {
-            MessageQueue::CancelMessage(asyncreg_.Get(), 0);
-        }
+        MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
         retry_interval_ = 0;
     }
 
@@ -611,16 +614,12 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
         if (kEctDns != _err_type && kEctSocket != _err_type) {  // not longlink callback
             __Disconnect(_name, LongLink::kDecodeErr);
         }
-        if (!__OtherChannelHasRunningTask(_name)) {
-            MessageQueue::CancelMessage(asyncreg_.Get(), 0);
-        }
+        MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
     }
 
     if (kEctNetMsgXP == _err_type) {
         __Disconnect(_name, LongLink::kTaskTimeout);
-        if (!__OtherChannelHasRunningTask(_name)) {
-            MessageQueue::CancelMessage(asyncreg_.Get(), 0);
-        }
+        MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
     }
 }
 
@@ -652,7 +651,7 @@ std::list<TaskProfile>::iterator LongLinkTaskManager::__Locate(uint32_t _taskid)
 void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile) {
     move_wrapper<AutoBuffer> body(_body);
     move_wrapper<AutoBuffer> extension(_extension);
-    RETURN_LONKLINK_SYNC2ASYNC_FUNC(boost::bind(&LongLinkTaskManager::__OnResponse, this, _name, _error_type, _error_code, _cmdid, _taskid, body, extension, _connect_profile));
+    RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(boost::bind(&LongLinkTaskManager::__OnResponse, this, _name, _error_type, _error_code, _cmdid, _taskid, body, extension, _connect_profile), longlink_id_[_name]);
     // svr push notify
     
     auto longlink_meta = GetLongLink(_name);
@@ -832,6 +831,12 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     }
     
     ScopedLock lock(meta_mutex_);
+    longlink_id ++;
+    if (longlink_id == INT_MAX) {
+        longlink_id = 1;
+    }
+    longlink_id_[_config.name] = longlink_id;
+    xinfo2(TSF"new longlink name:%_, id:%_", _config.name, longlink_id);
     longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue);
     longlink = GetLongLink(_config.name);
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
@@ -905,20 +910,5 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
     for(auto& item : longlink_metas_) {
         xinfo2(TSF"longlink channel name:%_, null:%_", item.first, item.second == nullptr);
     }
-}
-
-bool LongLinkTaskManager::__OtherChannelHasRunningTask(const std::string& _name) {
-    ScopedLock lock(meta_mutex_);
-    if (lst_cmd_.empty()) {
-        xinfo2(TSF"there is no task in task list");
-        return false;
-    }
-    for (auto item : lst_cmd_) {
-        if (item.task.channel_name != _name && item.running_id) {
-            xinfo2(TSF"find running task, id:%_, channel name:%_", item.task.taskid, item.task.channel_name);
-            return true;
-        }
-    }
-    return false;
 }
 

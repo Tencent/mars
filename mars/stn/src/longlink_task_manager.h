@@ -115,7 +115,6 @@ class LongLinkTaskManager {
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
     void __DumpLongLinkChannelInfo();
-    bool __OtherChannelHasRunningTask(const std::string& _name);
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;
@@ -125,6 +124,7 @@ class LongLinkTaskManager {
     unsigned int                    tasks_continuous_fail_count_;
 
     std::map<std::string, std::shared_ptr<LongLinkMetaData> > longlink_metas_;
+    std::map<std::string, int>      longlink_id_;
     DynamicTimeout&                 dynamic_timeout_;
 
     NetSource&                      netsource_;
