@@ -472,7 +472,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     std::vector<ConnectCheckFSM*> vecsocketfsm;
 
     for (unsigned int i = 0; i < _vecaddr.size(); ++i) {
-        xinfo2(TSF"complex.conn %_", _vecaddr[i].url());
+        xdebug2(TSF"complex.conn %_", _vecaddr[i].url());
 
         ConnectCheckFSM* ic = NULL;
         if (mars::comm::kProxyHttpTunel == _proxy_type && _proxy_addr) {
