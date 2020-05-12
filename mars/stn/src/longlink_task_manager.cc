@@ -183,7 +183,11 @@ void LongLinkTaskManager::RedoTasks() {
 }
 
 void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
-    xinfo_function();
+    xinfo_function(TSF"channel name:%_", _name);
+
+    if (lst_cmd_.empty()) {
+        xerror2(TSF"task list is empty!");
+    }
     
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
@@ -193,6 +197,7 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
         ++next;
         
         if(!_name.empty() && first->task.channel_name != _name) {
+            xwarn2(TSF"task channel name:%_", first->task.channel_name);
             first = next;
             continue;
         }
@@ -201,6 +206,9 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
         if (longlink && first->running_id) {
             xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
             __SingleRespHandle(first, kEctLocal, kEctLocalCancel, kTaskFailHandleDefault, longlink->Channel()->Profile());
+        } else {
+            xerror2(TSF"didn't find longlink or running id is empty, task channel name:%_, running id:%_", first->task.channel_name, first->running_id);
+            __DumpLongLinkChannelInfo();
         }
         
         first = next;
@@ -221,8 +229,9 @@ void LongLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _f
 
 
 void LongLinkTaskManager::__RunLoop() {
-    
+    xinfo_function();
     if (lst_cmd_.empty()) {
+        xerror2(TSF"task list is empty!");
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
         wakeup_lock_->Lock(500);
@@ -249,7 +258,8 @@ void LongLinkTaskManager::__RunLoop() {
 }
 
 void LongLinkTaskManager::__RunOnTimeout() {
-    xinfo_function();
+    xdebug_function();
+
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
@@ -532,8 +542,9 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
 }
 
 void LongLinkTaskManager::__BatchErrorRespHandleByUserId(const std::string& _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
-    auto first = lst_cmd_.begin();
-    while(first != lst_cmd_.end()) {
+    std::list<TaskProfile> temp = lst_cmd_;
+    auto first = temp.begin();
+    while(first != temp.end()) {
         if(first->task.user_id != _user_id) {
             ++first;
             continue;
@@ -551,6 +562,10 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
+
+    if (lst_cmd_.empty()) {
+        xerror2(TSF"task list is empty!");
+    }
 
     while (first != last) {
         std::list<TaskProfile>::iterator next = first;
