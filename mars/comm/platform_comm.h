@@ -201,7 +201,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
         WifiInfo wifiInfo;
 
         if (getCurWifiInfo(wifiInfo)) {
-            netInfo = wifiInfo.ssid;
+            netInfo = wifiInfo.ssid.empty() ? "empty_ssid" : wifiInfo.ssid;
         } else {
             netInfo = "no_ssid_wifi";
         }
@@ -213,7 +213,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
         SIMInfo simInfo;
 
         if (getCurSIMInfo(simInfo)) {
-            netInfo = simInfo.isp_code;
+            netInfo = simInfo.isp_code.empty() ? "empty_ispCode" : simInfo.isp_code;
         } else {
             netInfo = "no_ispCode_mobile";
         }
