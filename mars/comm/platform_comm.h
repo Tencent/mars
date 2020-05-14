@@ -40,6 +40,19 @@ enum NetType {
 };
 int getNetInfo();
 
+enum NetTypeForStatistics{
+    NETTYPE_NON = -1,
+    NETTYPE_NOT_WIFI = 0,
+    NETTYPE_WIFI = 1,
+    NETTYPE_WAP = 2,
+    NETTYPE_2G = 3,
+    NETTYPE_3G = 4,
+    NETTYPE_4G = 5,
+    NETTYPE_UNKNOWN = 6,    //ignore, DO NOT reuse
+    NETTYPE_5G = 7,
+};
+int getNetTypeForStatistics();
+
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
 
 struct WifiInfo {
