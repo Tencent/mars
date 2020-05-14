@@ -196,13 +196,13 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
         std::list<TaskProfile>::iterator next = first;
         ++next;
         
+        xinfo2(TSF"task channel name:%_, cgi:%_", first->task.channel_name, first->task.cgi);
         if(!_name.empty() && first->task.channel_name != _name) {
-            xwarn2(TSF"task channel name:%_", first->task.channel_name);
             first = next;
             continue;
         }
         first->last_failed_dyntime_status = 0;
-        auto longlink = GetLongLink(_name);
+        auto longlink = GetLongLink(_name.empty() ? first->task.channel_name : _name);
         if (longlink && first->running_id) {
             xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
             __SingleRespHandle(first, kEctLocal, kEctLocalCancel, kTaskFailHandleDefault, longlink->Channel()->Profile());
@@ -216,8 +216,7 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
     
     retry_interval_ = 0;
     
-    
-    MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
+    MessageQueue::CancelMessage(asyncreg_.Get());
     __RunLoop();
 }
 
@@ -374,6 +373,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         // make sure login
         if (first->task.need_authed) {
             bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
+            xinfo2(TSF"makesureauth host:%_, auth result:%_, cgi:%_, channal name:%_", host, ismakesureauthsuccess,first->task.cgi, first->task.channel_name);
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 0, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
                 first = next;
@@ -556,7 +556,7 @@ void LongLinkTaskManager::__BatchErrorRespHandleByUserId(const std::string& _use
 }
 
 void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
-    xinfo2(TSF"batch error, channel name:%_, src id:%_ callback:%_, errcode:%_, errtype:%_, fail handle", _name, _src_taskid, _callback_runing_task_only, _err_code, _err_type, _fail_handle);
+    xinfo2(TSF"batch error, channel name:%_, src id:%_ callback:%_, errcode:%_, errtype:%_, fail handle:%_", _name, _src_taskid, _callback_runing_task_only, _err_code, _err_type, _fail_handle);
     xassert2(kEctOK != _err_type);
     xassert2(kTaskFailHandleTaskTimeout != _fail_handle);
 
@@ -611,7 +611,7 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string& _name, ErrCm
     }
 
     if (kTaskFailHandleDefault == _fail_handle) {
-        if (kEctDns != _err_type && kEctSocket != _err_type) {  // not longlink callback
+        if (kEctDns != _err_type && kEctSocket != _err_type && kEctCanceld != _err_type) {  // not longlink callback
             __Disconnect(_name, LongLink::kDecodeErr);
         }
         MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
