@@ -40,7 +40,7 @@ enum NetType {
 };
 int getNetInfo();
 
-enum NetTypeForStatistics{
+enum class NetTypeForStatistics{
     NETTYPE_NON = -1,
     NETTYPE_NOT_WIFI = 0,
     NETTYPE_WIFI = 1,
