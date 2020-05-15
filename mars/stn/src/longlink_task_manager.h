@@ -93,6 +93,8 @@ class LongLinkTaskManager {
     void ReleaseLongLink(const std::string _name);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
 
+    void IntoHeartBeatMode();
+
   private:
     // from ILongLinkObserver
     void __OnResponse(const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);

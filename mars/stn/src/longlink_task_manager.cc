@@ -869,3 +869,8 @@ bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDiscon
     }
     return false;
 }
+
+void LongLinkTaskManager::IntoHeartBeatMode() {
+    xinfo_function("longlink_with_mmtls");
+    DefaultLongLink()->Channel()->EnterHeartbeatDeposit();
+}

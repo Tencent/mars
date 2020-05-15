@@ -853,4 +853,8 @@ std::shared_ptr<LongLinkMetaData> NetCore::DefaultLongLinkMeta() {
 std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name) {
     return longlink_task_manager_->GetLongLink(_name);
 }
+
+void NetCore::IntoHeartBeatMode() {
+    longlink_task_manager_->IntoHeartBeatMode();
+}
 #endif
