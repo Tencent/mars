@@ -216,7 +216,11 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
     
     retry_interval_ = 0;
     
-    MessageQueue::CancelMessage(asyncreg_.Get());
+    if (_name.empty()) {
+        MessageQueue::CancelMessage(asyncreg_.Get());
+    } else {
+        MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
+    }
     __RunLoop();
 }
 
