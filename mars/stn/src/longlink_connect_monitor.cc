@@ -331,6 +331,7 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
     }
 
 #endif
+    longlink_.OnForegroundChange(_isForeground);
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
 }
