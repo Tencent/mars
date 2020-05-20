@@ -6,8 +6,9 @@ import android.os.Looper;
 import android.os.Process;
 import android.widget.Toast;
 
+
 /**
- * @author zhaoyuan orehzhang
+ * @author zhaoyuan zhangweizang
  */
 public class Log {
     private static final String TAG = "mars.xlog.log";
@@ -221,7 +222,7 @@ public class Log {
     public static void f(String tag, final String format, final Object... obj) {
         if (logImp != null) {
             final String log = obj == null ? format : String.format(format, obj);
-            logImp.logF(tag, "", "", 0, Process.myPid(), Process.myTid(), Looper.getMainLooper().getThread().getId(), log);
+            logImp.logF(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }
 
@@ -231,7 +232,7 @@ public class Log {
             if (log == null) {
                 log = "";
             }
-            logImp.logE(tag, "", "", 0, Process.myPid(), Process.myTid(), Looper.getMainLooper().getThread().getId(), log);
+            logImp.logE(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }
 
@@ -241,7 +242,7 @@ public class Log {
             if (log == null) {
                 log = "";
             }
-            logImp.logW(tag, "", "", 0, Process.myPid(), Process.myTid(), Looper.getMainLooper().getThread().getId(), log);
+            logImp.logW(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }
 
@@ -251,7 +252,7 @@ public class Log {
             if (log == null) {
                 log = "";
             }
-            logImp.logI(tag, "", "", 0, Process.myPid(), Process.myTid(), Looper.getMainLooper().getThread().getId(), log);
+            logImp.logI(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }
 
@@ -261,7 +262,7 @@ public class Log {
             if (log == null) {
                 log = "";
             }
-            logImp.logD(tag, "", "", 0, Process.myPid(), Process.myTid(), Looper.getMainLooper().getThread().getId(), log);
+            logImp.logD(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }
 
@@ -271,7 +272,7 @@ public class Log {
             if (log == null) {
                 log = "";
             }
-            logImp.logV(tag, "", "", 0, Process.myPid(), Process.myTid(), Looper.getMainLooper().getThread().getId(), log);
+            logImp.logV(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }
 
@@ -282,7 +283,7 @@ public class Log {
                 log = "";
             }
             log += "  " + android.util.Log.getStackTraceString(tr);
-            logImp.logE(tag, "", "", 0, Process.myPid(), Process.myTid(), Looper.getMainLooper().getThread().getId(), log);
+            logImp.logE(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }
 
