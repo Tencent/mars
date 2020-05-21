@@ -33,7 +33,7 @@ DEFINE_FIND_CLASS(KXlog, "com/tencent/mars/xlog/Xlog")
 
 extern "C" {
     
-DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(Lcom/tencent/mars/xlog/XLogConfig;)V")
+DEFINE_FIND_STATIC_METHOD(KXlog_appenderOpenWithMultipathWithLevel, KXlog, "appenderOpen", "(Lcom/tencent/mars/xlog/Xlog$XLogConfig;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
 	(JNIEnv *env, jclass clazz, jobject _log_config) {
 
