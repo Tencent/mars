@@ -1,6 +1,9 @@
 package com.tencent.mars.xlog;
 
 
+import static com.tencent.mars.xlog.Xlog.AppednerModeAsync;
+import static com.tencent.mars.xlog.Xlog.LEVEL_INFO;
+
 public class Xlog implements Log.LogImp {
 
 	public static final int LEVEL_ALL = 0;
@@ -39,17 +42,17 @@ public class Xlog implements Log.LogImp {
 		public long maintid;
 	}
 
-    static class XLogConfig {
-        public int level = LEVEL_INFO;
-        public int mode = AppednerModeAsync;
-        public String logdir;
-        public String nameprefix;
-        public String pubkey = "";
-        public int compressmode = ZSTD_MODE;
-        public int compresslevel = COMPRESS_LEVEL6;
-        public String cachedir;
-        public int cachedays = 0;
-    }
+	public static class XLogConfig {
+		public int level = LEVEL_INFO;
+		public int mode = AppednerModeAsync;
+		public String logdir;
+		public String nameprefix;
+		public String pubkey = "";
+		public int compressmode = ZSTD_MODE;
+		public int compresslevel = COMPRESS_LEVEL6;
+		public String cachedir;
+		public int cachedays = 0;
+	}
 
     public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
 		if (isLoadLib) {
@@ -65,7 +68,6 @@ public class Xlog implements Log.LogImp {
 		logConfig.pubkey = pubkey;
 		logConfig.compressmode = ZSTD_MODE;
 		logConfig.compresslevel = COMPRESS_LEVEL6;
-		logConfig.withcache = false;
 		logConfig.cachedir = cacheDir;
 		logConfig.cachedays = 0;
 		appenderOpen(logConfig);
