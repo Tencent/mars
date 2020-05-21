@@ -42,7 +42,7 @@ LogZstdBuffer::LogZstdBuffer(void* _pbuffer, size_t _len, bool _isCompress, cons
     if (is_compress_) {
         cctx_ = ZSTD_createCCtx();
         ZSTD_CCtx_setParameter(cctx_, ZSTD_c_compressionLevel, level);
-        ZSTD_CCtx_setParameter(cctx, ZSTD_c_windowLog, 16);
+        ZSTD_CCtx_setParameter(cctx_, ZSTD_c_windowLog, 16);
     }
 }
 
