@@ -44,8 +44,8 @@ public class Xlog implements Log.LogImp {
 		public String logdir;
 		public String nameprefix;
 		public String pubkey = "";
-		public int compressmode = ZSTD_MODE;
-		public int compresslevel = COMPRESS_LEVEL6;
+		public int compressmode = ZLIB_MODE;
+		public int compresslevel = 0;
 		public String cachedir;
 		public int cachedays = 0;
 	}
@@ -62,8 +62,8 @@ public class Xlog implements Log.LogImp {
 		logConfig.logdir = logDir;
 		logConfig.nameprefix = nameprefix;
 		logConfig.pubkey = pubkey;
-		logConfig.compressmode = ZSTD_MODE;
-		logConfig.compresslevel = COMPRESS_LEVEL6;
+		logConfig.compressmode = ZLIB_MODE;
+		logConfig.compresslevel = 0;
 		logConfig.cachedir = cacheDir;
 		logConfig.cachedays = 0;
 		appenderOpen(logConfig);

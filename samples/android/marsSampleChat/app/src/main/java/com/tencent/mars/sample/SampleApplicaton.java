@@ -115,7 +115,6 @@ public class SampleApplicaton extends Application {
         String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
 
         Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
-//        logConfig.level = Xlog.LEVEL_DEBUG;
         logConfig.mode = Xlog.AppednerModeAsync;
         logConfig.logdir = logPath;
         logConfig.nameprefix = logFileName;
@@ -126,11 +125,9 @@ public class SampleApplicaton extends Application {
         logConfig.cachedays = 0;
         if (BuildConfig.DEBUG) {
             logConfig.level = Xlog.LEVEL_VERBOSE;
-//            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
             Xlog.setConsoleLogOpen(true);
         } else {
             logConfig.level = Xlog.LEVEL_INFO;
-//            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
             Xlog.setConsoleLogOpen(false);
         }
         Xlog.appenderOpen(logConfig);
