@@ -47,7 +47,9 @@ if(MSVC)
     include_directories(../comm/windows)
     
 elseif(ANDROID)
-    file(GLOB SELF_ANDROID_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} jni/*.cc)
+    if(NOT CPP_CALL_BACK)
+        file(GLOB SELF_ANDROID_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} jni/*.cc)
+    endif()
         
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 endif()        

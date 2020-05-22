@@ -8,7 +8,6 @@ add_definitions(-DXLOGGER_TAG="mars::${PROJECT_NAME}")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-
 if(MSVC)
     # add DEBUG macro .. release has NDEBUG defaultly
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DDEBUG")
@@ -44,6 +43,11 @@ endif()
     
 
 if(ANDROID)
+    option(CPP_CALL_BACK "use cpp callback" OFF)
+
+    if(CPP_CALL_BACK)
+        add_definitions(-DCPP_CALL_BACK)
+    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
 
