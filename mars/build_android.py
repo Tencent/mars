@@ -165,7 +165,7 @@ if __name__ == '__main__':
             main(False, archs, tag=sys.argv[1])
             break
         else:
-            archs = set(['armeabi-v7a'])
+            archs = {'armeabi-v7a', 'arm64-v8a'}
             num = raw_input('Enter menu:\n1. Clean && build mars.\n2. Build incrementally mars.\n3. Clean && build xlog.\n4. Exit\n')
             if num == '1':
                 main(False, archs)

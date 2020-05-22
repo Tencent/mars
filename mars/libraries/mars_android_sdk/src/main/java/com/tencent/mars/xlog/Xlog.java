@@ -11,8 +11,21 @@ public class Xlog implements Log.LogImp {
 	public static final int LEVEL_FATAL = 5;
 	public static final int LEVEL_NONE = 6;
 
+	public static final int COMPRESS_LEVEL1 = 1;
+	public static final int COMPRESS_LEVEL2 = 2;
+	public static final int COMPRESS_LEVEL3 = 3;
+	public static final int COMPRESS_LEVEL4 = 4;
+	public static final int COMPRESS_LEVEL5 = 5;
+	public static final int COMPRESS_LEVEL6 = 6;
+	public static final int COMPRESS_LEVEL7 = 7;
+	public static final int COMPRESS_LEVEL8 = 8;
+	public static final int COMPRESS_LEVEL9 = 9;
+
 	public static final int AppednerModeAsync = 0;
 	public static final int AppednerModeSync = 1;
+
+	public static final int ZLIB_MODE = 0;
+	public static final int ZSTD_MODE = 1;
 
 	static class XLoggerInfo {
 		public int level;
@@ -25,13 +38,35 @@ public class Xlog implements Log.LogImp {
 		public long maintid;
 	}
 
-	public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
+	public static class XLogConfig {
+		public int level = LEVEL_INFO;
+		public int mode = AppednerModeAsync;
+		public String logdir;
+		public String nameprefix;
+		public String pubkey = "";
+		public int compressmode = ZSTD_MODE;
+		public int compresslevel = COMPRESS_LEVEL6;
+		public String cachedir;
+		public int cachedays = 0;
+	}
+
+    public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
 		if (isLoadLib) {
 			System.loadLibrary("c++_shared");
 			System.loadLibrary("marsxlog");
 		}
 
-		appenderOpen(level, mode, cacheDir, logDir, nameprefix, 0, pubkey);
+		XLogConfig logConfig = new XLogConfig();
+		logConfig.level = level;
+		logConfig.mode = mode;
+		logConfig.logdir = logDir;
+		logConfig.nameprefix = nameprefix;
+		logConfig.pubkey = pubkey;
+		logConfig.compressmode = ZSTD_MODE;
+		logConfig.compresslevel = COMPRESS_LEVEL6;
+		logConfig.cachedir = cacheDir;
+		logConfig.cachedays = 0;
+		appenderOpen(logConfig);
 	}
 
 	private static String decryptTag(String tag) {
@@ -84,7 +119,7 @@ public class Xlog implements Log.LogImp {
 
 	public static native void setErrLogOpen(boolean isOpen);	//set whether the  prints err log into a separate file
 
-	public static native void appenderOpen(int level, int mode, String cacheDir, String logDir, String nameprefix, int cacheDays, String pubkey);
+	public static native void appenderOpen(XLogConfig logConfig);
 
 	public static native void setMaxFileSize(long size);
 

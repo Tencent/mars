@@ -1,9 +1,5 @@
 package com.tencent.mars.xlog;
 
-
-import static com.tencent.mars.xlog.Xlog.AppednerModeAsync;
-import static com.tencent.mars.xlog.Xlog.LEVEL_INFO;
-
 public class Xlog implements Log.LogImp {
 
 	public static final int LEVEL_ALL = 0;

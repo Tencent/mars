@@ -39,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
         logConfig.logdir = logPath;
         logConfig.nameprefix = "LOGSAMPLE";
         logConfig.pubkey = "";
-        logConfig.compressmode = Xlog.ZSTD_MODE;
-        logConfig.compresslevel = Xlog.COMPRESS_LEVEL6;
+        logConfig.compressmode = Xlog.ZLIB_MODE;
+        logConfig.compresslevel = 0;
         logConfig.cachedir = "";
         logConfig.cachedays = 0;
         Xlog.appenderOpen(logConfig);
