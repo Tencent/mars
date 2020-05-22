@@ -169,7 +169,12 @@ void NetCore::__InitLongLink(){
     timing_sync_ = new TimingSync(*ActiveLogic::Instance());
 
     longlink_task_manager_ = new LongLinkTaskManager(*net_source_, *ActiveLogic::Instance(), *dynamic_timeout_, GetMessageQueueId());
-    
+
+    LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
+    defaultConfig.is_keep_alive = true;
+    defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    CreateLongLink(defaultConfig);
+
     // async
     longlink_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromLong, _1, _2, _3, _4, _5);
     

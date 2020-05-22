@@ -31,7 +31,6 @@
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/projdef.h"
-#include "mars/stn/proto/longlink_packer.h"
 
 namespace mars{
     namespace stn{
@@ -40,6 +39,7 @@ static const std::string DEFAULT_LONGLINK_NAME = "default-longlink";
 static const std::string DEFAULT_LONGLINK_GROUP = "default-group";
 struct TaskProfile;
 struct DnsProfile;
+class LongLinkEncoder;
 
 struct Task {
 public:
