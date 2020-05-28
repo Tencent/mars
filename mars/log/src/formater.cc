@@ -70,8 +70,13 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
 
     if (NULL != _info) {
         const char* filename = ExtractFileName(_info->filename);
+
+#if _WIN32
         char strFuncName [128] = {0};
         ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
+#else
+        const char* strFuncName = NULL == _info->func_name ? "" : _info->func_name;
+#endif
 
         char temp_time[64] = {0};
 
