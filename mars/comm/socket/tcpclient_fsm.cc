@@ -243,6 +243,8 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
 
     error_ = socket_error(sock_);
     
+    xinfo2(TSF"socket error:%_, ", error_) >> _log;
+    
     if (0 != error_) {
         xwarn2(TSF"close connect error:(%_, %_), ", error_, socket_strerror(error_)) >> _log;
         end_connecttime_ = gettickcount();

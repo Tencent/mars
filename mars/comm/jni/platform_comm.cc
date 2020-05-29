@@ -147,6 +147,17 @@ int getNetInfo() {
     return (int)netType;
 }
 
+DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getStatisticsNetType, KPlatformCommC2Java, "getStatisticsNetType", "()I")
+int getNetTypeForStatistics(){
+    xverbose_function();
+
+    VarCache* cacheInstance = VarCache::Singleton();
+    ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
+    JNIEnv* env = scopeJEnv.GetEnv();
+
+    return (int)JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getStatisticsNetType).i;
+}
+
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo, KPlatformCommC2Java, "getCurRadioAccessNetworkInfo", "()I")
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     xverbose_function();
