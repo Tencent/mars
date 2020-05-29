@@ -172,7 +172,7 @@ void NetCore::__InitLongLink(){
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
-    defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+//    defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
     CreateLongLink(defaultConfig);
 
     // async
