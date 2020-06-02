@@ -109,6 +109,9 @@ namespace stn{
     // reconnect longlink and redo all task
     // when you change svr ip, you must call this function.
 	extern void (*RedoTasks)();
+
+    //need longlink channel
+    extern void (*BuildLongLink)();
     
     // stop and clear all task
 	extern void (*ClearTasks)();

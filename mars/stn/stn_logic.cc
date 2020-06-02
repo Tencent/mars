@@ -174,6 +174,11 @@ bool (*HasTask)(uint32_t _taskid)
 	return has_task;
 };
 
+void (*BuildLongLink)()
+= []() {
+   STN_WEAK_CALL(BuildLongLink());
+};
+
 void (*RedoTasks)()
 = []() {
    STN_WEAK_CALL(RedoTasks());

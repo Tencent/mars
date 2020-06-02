@@ -76,6 +76,8 @@ class NetCore {
     NetSource& GetNetSourceRef() {return *net_source_;}
     
     void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
+
+    void    BuildLongLink();
     
     void    StartTask(const Task& _task);
     void    StopTask(uint32_t _taskid);
@@ -87,6 +89,7 @@ class NetCore {
     void    MakeSureLongLinkConnect();
     bool    LongLinkIsConnected();
     void    OnNetworkChange();
+    bool    UseLongLink() {return need_use_longlink_; }
 
     void	KeepSignal();
     void	StopSignal();
@@ -155,6 +158,7 @@ class NetCore {
 #endif
     
     bool                                        shortlink_try_flag_;
+    bool                                        need_use_longlink_;
 };
         
 }}
