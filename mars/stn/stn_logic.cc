@@ -174,9 +174,9 @@ bool (*HasTask)(uint32_t _taskid)
 	return has_task;
 };
 
-void (*BuildLongLink)()
+void (*DisableLongLink)()
 = []() {
-   STN_WEAK_CALL(BuildLongLink());
+    NetCore::need_use_longlink_ = false;
 };
 
 void (*RedoTasks)()

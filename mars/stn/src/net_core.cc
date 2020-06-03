@@ -64,6 +64,8 @@ using namespace mars::app;
 
 static const int kShortlinkErrTime = 3;
 
+bool NetCore::need_use_longlink_ = true;
+
 NetCore::NetCore()
     : messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
@@ -73,8 +75,7 @@ NetCore::NetCore()
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
-    , shortlink_try_flag_(false)
-    , need_use_longlink_(false) {
+    , shortlink_try_flag_(false) {
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
     xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
@@ -118,6 +119,10 @@ NetCore::NetCore()
     ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
     __InitShortLink();
+    xinfo2(TSF"need longlink channel %:_", need_use_longlink_);
+    if (need_use_longlink_) {
+        __InitLongLink();
+    }
 }
 
 NetCore::~NetCore() {
@@ -126,13 +131,14 @@ NetCore::~NetCore() {
     ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
 #ifdef USE_LONG_LINK
+    if (need_use_longlink_)
     {   //must disconnect signal
         auto longlink = longlink_task_manager_->DefaultLongLink();
         if (longlink && longlink->SignalKeeper()) {
             GetSignalOnNetworkDataChange().disconnect_all_slots();
         }
+        delete longlink_task_manager_;
     }
-    delete longlink_task_manager_;
 
     push_preprocess_signal_.disconnect_all_slots();
 
@@ -241,11 +247,6 @@ bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {
     return true;
 }
 
-
-void NetCore::BuildLongLink() {
-    __InitLongLink();
-}
-
 void NetCore::StartTask(const Task& _task) {
     
     ASYNC_BLOCK_START
@@ -276,10 +277,13 @@ void NetCore::StartTask(const Task& _task) {
         return;
     }
 
-    auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
+    std::shared_ptr<LongLinkMetaData> longlink = nullptr;
+    if (need_use_longlink_) {
+        longlink = longlink_task_manager_->GetLongLink(task.channel_name);
+    }
     if (task.network_status_sensitive && kNoNet ==::getNetInfo()
 #ifdef USE_LONG_LINK
-        && need_use_longlink_ && longlink != nullptr && LongLink::kConnected != longlink->Channel()->ConnectStatus()
+        && longlink != nullptr && LongLink::kConnected != longlink->Channel()->ConnectStatus()
 #endif
         ) {
         xerror2(TSF"error no net (%_, %_), ", kEctLocal, kEctLocalNoNet) >> group;
@@ -290,7 +294,7 @@ void NetCore::StartTask(const Task& _task) {
 #ifdef ANDROID
     if (kNoNet == ::getNetInfo() && !ActiveLogic::Instance()->IsActive()
 #ifdef USE_LONG_LINK
-    && need_use_longlink_ && LongLink::kConnected != longlink_task_manager_->GetLongLink(task.channel_name)->Channel()->ConnectStatus()
+    && longlink != nullptr && LongLink::kConnected != longlink->Channel()->ConnectStatus()
 #endif
     ){
         xerror2(TSF" error no net (%_, %_) return when no active", kEctLocal, kEctLocalNoNet) >> group;
@@ -472,6 +476,9 @@ void NetCore::OnNetworkChange() {
 
 void NetCore::KeepSignal() {
     ASYNC_BLOCK_START
+    if (!need_use_longlink_) {
+        return;
+    }
     if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
     longlink_task_manager_->DefaultLongLink()->SignalKeeper()->Keep();
     ASYNC_BLOCK_END
@@ -479,6 +486,9 @@ void NetCore::KeepSignal() {
 
 void NetCore::StopSignal() {
     ASYNC_BLOCK_START
+    if (!need_use_longlink_) {
+        return;
+    }
     if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
     longlink_task_manager_->DefaultLongLink()->SignalKeeper()->Stop();
     ASYNC_BLOCK_END
@@ -850,6 +860,10 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
 
 void NetCore::DestroyLongLink(const std::string& _name){
 	WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::DestroyLongLink, this, _name));
+    if (!need_use_longlink_) {
+        xwarn2("doesn't use longlink channel");
+        return;
+    }
     auto longlink = longlink_task_manager_->GetLongLink(_name);
     if(longlink == nullptr) {
         xwarn2(TSF"destroy long link failure: no such long link exists %_",_name);
@@ -895,6 +909,9 @@ void NetCore::MarkMainLonglink_ext(const std::string& _name) {
 
 void NetCore::MakeSureLongLinkConnect_ext(const std::string& _name) {
     ASYNC_BLOCK_START
+    if (!need_use_longlink_) {
+        return;
+    }
     auto longlink = longlink_task_manager_->GetLongLink(_name);
     if(longlink != nullptr){
         longlink->Channel()->MakeSureConnected();
@@ -903,6 +920,9 @@ void NetCore::MakeSureLongLinkConnect_ext(const std::string& _name) {
 }
 
 bool NetCore::LongLinkIsConnected_ext(const std::string& _name) {
+    if (!need_use_longlink_) {
+        return false;
+    }
 	auto longlink = longlink_task_manager_->GetLongLink(_name);
     if(longlink != nullptr){
         if(longlink->Channel()->ConnectStatus()==LongLink::kConnected){
@@ -913,16 +933,25 @@ bool NetCore::LongLinkIsConnected_ext(const std::string& _name) {
 }
 
 std::shared_ptr<LongLink> NetCore::DefaultLongLink() {
+    if (!need_use_longlink_) {
+        return nullptr;
+    }
     if(longlink_task_manager_->DefaultLongLink() == nullptr)
         return nullptr;
     return longlink_task_manager_->DefaultLongLink()->Channel();
 }
 
 std::shared_ptr<LongLinkMetaData> NetCore::DefaultLongLinkMeta() {
+    if (!need_use_longlink_) {
+        return nullptr;
+    }
     return longlink_task_manager_->DefaultLongLink();
 }
 
 std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name) {
+    if (!need_use_longlink_) {
+        return nullptr;
+    }
     return longlink_task_manager_->GetLongLink(_name);
 }
 #endif

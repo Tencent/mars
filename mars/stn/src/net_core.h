@@ -76,8 +76,6 @@ class NetCore {
     NetSource& GetNetSourceRef() {return *net_source_;}
     
     void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
-
-    void    BuildLongLink();
     
     void    StartTask(const Task& _task);
     void    StopTask(uint32_t _taskid);
@@ -139,6 +137,9 @@ class NetCore {
     NetCore(const NetCore&);
     NetCore& operator=(const NetCore&);
 
+  public:
+    static bool need_use_longlink_;
+
   private:
     MessageQueue::MessageQueueCreater           messagequeue_creater_;
     MessageQueue::ScopeRegister                 asyncreg_;
@@ -158,7 +159,6 @@ class NetCore {
 #endif
     
     bool                                        shortlink_try_flag_;
-    bool                                        need_use_longlink_;
 };
         
 }}

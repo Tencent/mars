@@ -111,7 +111,7 @@ namespace stn{
 	extern void (*RedoTasks)();
 
     //need longlink channel
-    extern void (*BuildLongLink)();
+    extern void (*DisableLongLink)();
     
     // stop and clear all task
 	extern void (*ClearTasks)();
