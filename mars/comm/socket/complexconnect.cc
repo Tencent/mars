@@ -472,7 +472,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     std::vector<ConnectCheckFSM*> vecsocketfsm;
 
     for (unsigned int i = 0; i < _vecaddr.size(); ++i) {
-        xdebug2(TSF"complex.conn %_", _vecaddr[i].url());
+        xverbose2(TSF"complex.conn %_", _vecaddr[i].url());
 
         ConnectCheckFSM* ic = NULL;
         if (mars::comm::kProxyHttpTunel == _proxy_type && _proxy_addr) {
@@ -516,7 +516,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             next_connect_timeout = int(((0 == lasterror) ? interval_ : error_interval_) - (curtime - laststart_connecttime));
         }
 
-        xinfo2(TSF"next_connect_timeout %_", next_connect_timeout);
+        xverbose2(TSF"next_connect_timeout %_", next_connect_timeout);
 
         int timeout = (int)timeout_;
         unsigned int runing_count = (unsigned int)std::count_if(vecsocketfsm.begin(), vecsocketfsm.end(), &__isconnecting);
@@ -563,7 +563,6 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             ret = sel.Select();
         } else {
             timeout = std::max(0, timeout);
-            xinfo2(TSF"select timeout %_ index is %_ ", timeout, index);
             ret = sel.Select(timeout);
         }
 
