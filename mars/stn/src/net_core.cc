@@ -119,7 +119,7 @@ NetCore::NetCore()
     ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
     __InitShortLink();
-    xinfo2(TSF"need longlink channel %:_", need_use_longlink_);
+    xinfo2(TSF"need longlink channel %_", need_use_longlink_);
     if (need_use_longlink_) {
         __InitLongLink();
     }
