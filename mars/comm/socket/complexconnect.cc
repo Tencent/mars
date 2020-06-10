@@ -460,6 +460,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     index_conn_totalcost_ = 0;
     totalcost_ = 0;
     is_interrupted_ = false;
+    is_connective_check_failed_ = false;
 
     if (_vecaddr.empty()) {
         xwarn2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
@@ -609,7 +610,8 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             if (TcpClientFSM::EReadWrite == vecsocketfsm[i]->Status() && ConnectCheckFSM::ECheckFail == vecsocketfsm[i]->CheckStatus()) {
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
-
+                
+                is_connective_check_failed_ = true;
                 errcode_ = vecsocketfsm[i]->Error();
                 vecsocketfsm[i]->Close();
                 delete vecsocketfsm[i];
