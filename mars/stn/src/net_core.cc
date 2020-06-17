@@ -137,6 +137,7 @@ NetCore::~NetCore() {
         if (longlink && longlink->SignalKeeper()) {
             GetSignalOnNetworkDataChange().disconnect_all_slots();
         }
+        longlink.reset();
         delete longlink_task_manager_;
     }
 
