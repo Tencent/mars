@@ -104,9 +104,9 @@ class LongLinkTaskManager {
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __BatchErrorRespHandle(std::string _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandle(const std::string _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile);
-    void __BatchErrorRespHandleByUserId(std::string _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandleByUserId(const std::string& _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
 
     std::list<TaskProfile>::iterator __Locate(uint32_t  _taskid);
 #ifdef __APPLE__
