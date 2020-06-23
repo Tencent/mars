@@ -1050,12 +1050,12 @@ namespace MessageQueue {
 
     void ScopeRegister::Cancel() const {
         xinfo_function();
-        UnInstallMessageHandler(*m_reg);
         CancelMessage(*m_reg);
     }
     void ScopeRegister::CancelAndWait() const {
         xinfo_function();
         Cancel();
         WaitForRunningLockEnd(*m_reg);
+	    UnInstallMessageHandler(*m_reg);
     }
 }  // namespace MessageQueue
