@@ -502,8 +502,16 @@ void NetCore::MakeSureLongLinkConnect() {
 #ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
     auto longlink = longlink_task_manager_->DefaultLongLink();
-    if(!longlink)    return;
-    longlink->Channel()->MakeSureConnected();
+    if(!longlink) {
+        xassert2(false, TSF"longlink meta is null @%_", longlink);
+        return;
+    }   
+    auto longlink_channel = longlink->Channel();
+    if (longlink_channel) {
+        longlink_channel->MakeSureConnected();
+    } else {
+        xassert2(false, TSF"longlink channel is null @%_", longlink);
+    }
     ASYNC_BLOCK_END
 #endif
 }
