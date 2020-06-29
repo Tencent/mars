@@ -460,6 +460,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     index_conn_totalcost_ = 0;
     totalcost_ = 0;
     is_interrupted_ = false;
+    is_connective_check_failed_ = false;
 
     if (_vecaddr.empty()) {
         xwarn2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
@@ -472,7 +473,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     std::vector<ConnectCheckFSM*> vecsocketfsm;
 
     for (unsigned int i = 0; i < _vecaddr.size(); ++i) {
-        xdebug2(TSF"complex.conn %_", _vecaddr[i].url());
+        xverbose2(TSF"complex.conn %_", _vecaddr[i].url());
 
         ConnectCheckFSM* ic = NULL;
         if (mars::comm::kProxyHttpTunel == _proxy_type && _proxy_addr) {
@@ -516,7 +517,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             next_connect_timeout = int(((0 == lasterror) ? interval_ : error_interval_) - (curtime - laststart_connecttime));
         }
 
-        xinfo2(TSF"next_connect_timeout %_", next_connect_timeout);
+        xverbose2(TSF"next_connect_timeout %_", next_connect_timeout);
 
         int timeout = (int)timeout_;
         unsigned int runing_count = (unsigned int)std::count_if(vecsocketfsm.begin(), vecsocketfsm.end(), &__isconnecting);
@@ -563,7 +564,6 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             ret = sel.Select();
         } else {
             timeout = std::max(0, timeout);
-            xinfo2(TSF"select timeout %_ index is %_ ", timeout, index);
             ret = sel.Select(timeout);
         }
 
@@ -610,7 +610,8 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             if (TcpClientFSM::EReadWrite == vecsocketfsm[i]->Status() && ConnectCheckFSM::ECheckFail == vecsocketfsm[i]->CheckStatus()) {
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
-
+                
+                is_connective_check_failed_ = true;
                 errcode_ = vecsocketfsm[i]->Error();
                 vecsocketfsm[i]->Close();
                 delete vecsocketfsm[i];

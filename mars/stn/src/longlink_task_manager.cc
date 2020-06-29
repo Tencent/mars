@@ -309,12 +309,12 @@ void LongLinkTaskManager::__RunOnTimeout() {
 	        auto longlink_channel = longlink->Channel();
             xerror2(TSF"task timeout, taskid:%_, nStartSendTime=%_, cur_time=%_, timeout:%_",
                     first->task.taskid, first->transfer_profile.start_send_time / 1000, cur_time / 1000, first->task_timeout / 1000);
-            __SingleRespHandle(first, kEctLocal, kEctLocalTaskTimeout, kTaskFailHandleTaskTimeout, longlink_channel->Profile());
             if(batchMap.find(first->task.channel_name) == batchMap.end()) {
                 socket_timeout_code = kEctLongTaskTimeout;
                 src_taskid = first->task.taskid;
                 batchMap[first->task.channel_name] = std::make_pair(socket_timeout_code, src_taskid);
             }
+            __SingleRespHandle(first, kEctLocal, kEctLocalTaskTimeout, kTaskFailHandleTaskTimeout, longlink_channel->Profile());
         }
 
         first = next;
@@ -324,11 +324,11 @@ void LongLinkTaskManager::__RunOnTimeout() {
         if(item.second.first == kEctLongTaskTimeout) {
             __BatchErrorRespHandle(item.first, kEctNetMsgXP, kEctLocalTaskTimeout, kTaskFailHandleDefault, item.second.second);
         } else {
+	        xassert2(fun_notify_network_err_);
+	        auto longlink_channel = GetLongLink(item.first)->Channel();
+	        if(longlink_channel)
+		        fun_notify_network_err_(item.first, __LINE__, kEctNetMsgXP, item.second.first, longlink_channel->Profile().ip,  longlink_channel->Profile().port);
             __BatchErrorRespHandle(item.first, kEctNetMsgXP, item.second.first, kTaskFailHandleDefault, item.second.second);
-            xassert2(fun_notify_network_err_);
-            auto longlink_channel = GetLongLink(item.first)->Channel();
-            if(longlink_channel)
-                fun_notify_network_err_(item.first, __LINE__, kEctNetMsgXP, item.second.first, longlink_channel->Profile().ip,  longlink_channel->Profile().port);
         }
     }
 }
@@ -545,7 +545,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     return false;
 }
 
-void LongLinkTaskManager::__BatchErrorRespHandleByUserId(std::string _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
+void LongLinkTaskManager::__BatchErrorRespHandleByUserId(const std::string& _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
     std::list<TaskProfile> temp = lst_cmd_;
     auto first = temp.begin();
     while(first != temp.end()) {
@@ -559,7 +559,7 @@ void LongLinkTaskManager::__BatchErrorRespHandleByUserId(std::string _user_id, E
     }
 }
 
-void LongLinkTaskManager::__BatchErrorRespHandle(std::string _name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
+void LongLinkTaskManager::__BatchErrorRespHandle(const std::string _name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only) {
     xinfo2(TSF"batch error, channel name:%_, src id:%_ callback:%_, errcode:%_, errtype:%_, fail handle:%_", _name, _src_taskid, _callback_runing_task_only, _err_code, _err_type, _fail_handle);
     xassert2(kEctOK != _err_type);
     xassert2(kTaskFailHandleTaskTimeout != _fail_handle);

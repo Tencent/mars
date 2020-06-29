@@ -148,7 +148,6 @@ class HTTPDetector {
      return: 0 for start succ
             <0 for start fail
      */
-    int StartAsync(DetectEndCallBack _callback);
     int StartSync(HTTPDectectResult& result);
     int StartSync(const std::vector<std::string>& _prior_ips, HTTPDectectResult& _result);
     
