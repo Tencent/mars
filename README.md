@@ -41,7 +41,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.4'
+    compile 'com.tencent.mars:mars-wrapper:1.2.3'
 }
 ```
 
@@ -53,7 +53,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.4'
+    compile 'com.tencent.mars:mars-core:1.2.3'
 }
 ```
 **OR**
@@ -62,7 +62,7 @@ If you just want to user xlog, add dependencies by adding the following lines to
 note: xlog is included in mars-core and mars-wrapper.
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.2.4'
+    compile 'com.tencent.mars:mars-xlog:1.2.3'
 }
 ```
 
@@ -85,23 +85,15 @@ final String logPath = SDCARD + "/marssample/log";
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
-Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
-logConfig.mode = Xlog.AppednerModeAsync;
-logConfig.logdir = logPath;
-logConfig.nameprefix = logFileName;
-logConfig.pubkey = "";
-logConfig.compressmode = Xlog.ZLIB_MODE;
-logConfig.compresslevel = 0;
-logConfig.cachedir = "";
-logConfig.cachedays = 0;
 if (BuildConfig.DEBUG) {
-    logConfig.level = Xlog.LEVEL_VERBOSE;
+    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(true);
+
 } else {
-    logConfig.level = Xlog.LEVEL_INFO;
+    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(false);
 }
-Xlog.appenderOpen(logConfig);
+
 Log.setLogImp(new Xlog());
 ```
 
@@ -209,16 +201,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-XLogConfig config;
-config.mode_ = kAppednerAsync;
-config.logdir_ = [logPath UTF8String];
-config.nameprefix_ = "Test";
-config.pub_key_ = "";
-config.compress_mode_ = kZlib;
-config.compress_level_ = 0;
-config.cachedir_ = "";
-config.cache_days_ = 0;
-appender_open(config);
+appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
 ```
 
 Close xlog in function "applicationWillTerminate"
@@ -444,7 +427,7 @@ gradle 接入我们提供了两种接入方式：[mars-wrapper](#wrapper) 或者
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.4'
+    compile 'com.tencent.mars:mars-wrapper:1.2.3'
 }
 ```
 
@@ -457,7 +440,7 @@ dependencies {
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.4'
+    compile 'com.tencent.mars:mars-core:1.2.3'
 }
 ```
 **或者**
@@ -465,7 +448,7 @@ dependencies {
 如果只想使用 xlog,可以只加 xlog 的依赖(mars-core,mars-wrapper 中都已经包括 xlog)：
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.2.4'
+    compile 'com.tencent.mars:mars-xlog:1.2.3'
 }
 ```
 接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 或者 mars-xlog 的依赖
@@ -486,20 +469,12 @@ final String logPath = SDCARD + "/marssample/log";
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
-Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
-logConfig.mode = Xlog.AppednerModeAsync;
-logConfig.logdir = logPath;
-logConfig.nameprefix = logFileName;
-logConfig.pubkey = "";
-logConfig.compressmode = Xlog.ZLIB_MODE;
-logConfig.compresslevel = 0;
-logConfig.cachedir = "";
-logConfig.cachedays = 0;
 if (BuildConfig.DEBUG) {
-    logConfig.level = Xlog.LEVEL_VERBOSE;
+    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(true);
+
 } else {
-    logConfig.level = Xlog.LEVEL_INFO;
+    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
     Xlog.setConsoleLogOpen(false);
 }
 
@@ -612,17 +587,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-
-XLogConfig config;
-config.mode_ = kAppednerAsync;
-config.logdir_ = [logPath UTF8String];
-config.nameprefix_ = "Test";
-config.pub_key_ = "";
-config.compress_mode_ = kZlib;
-config.compress_level_ = 0;
-config.cachedir_ = "";
-config.cache_days_ = 0;
-appender_open(config);
+appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
 ```
 
 在函数 "applicationWillTerminate" 中反初始化 Xlog

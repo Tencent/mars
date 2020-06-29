@@ -31,10 +31,7 @@ def build_ios(tag=''):
         return False
 
     libtool_os_dst_lib = INSTALL_PATH + '/os'
-    libtool_src_lib = glob.glob(INSTALL_PATH + '/*.a')
-    libtool_src_lib.append(BUILD_OUT_PATH + '/zstd/libzstd.a')
-
-    if not libtool_libs(libtool_src_lib, libtool_os_dst_lib):
+    if not libtool_libs(glob.glob(INSTALL_PATH + '/*.a'), libtool_os_dst_lib):
         return False
 
     clean(BUILD_OUT_PATH)
@@ -46,7 +43,7 @@ def build_ios(tag=''):
         return False
     
     libtool_simulator_dst_lib = INSTALL_PATH + '/simulator'
-    if not libtool_libs(libtool_src_lib, libtool_simulator_dst_lib):
+    if not libtool_libs(glob.glob(INSTALL_PATH + '/*.a'), libtool_simulator_dst_lib):
         return False
 
     lipo_src_libs = []
@@ -88,11 +85,7 @@ def build_ios_xlog(tag=''):
         return False
 
     libtool_os_dst_lib = INSTALL_PATH + '/os'
-    libtool_src_libs = [INSTALL_PATH + '/libcomm.a',
-                        INSTALL_PATH + '/libmars-boost.a',
-                        INSTALL_PATH + '/libxlog.a',
-                        BUILD_OUT_PATH + '/zstd/libzstd.a']
-    if not libtool_libs(libtool_src_libs, libtool_os_dst_lib):
+    if not libtool_libs([INSTALL_PATH + '/libcomm.a', INSTALL_PATH + '/libmars-boost.a', INSTALL_PATH + '/libxlog.a'], libtool_os_dst_lib):
         return False
 
     clean(BUILD_OUT_PATH)
@@ -104,7 +97,7 @@ def build_ios_xlog(tag=''):
         return False
     
     libtool_simulator_dst_lib = INSTALL_PATH + '/simulator'
-    if not libtool_libs(libtool_src_libs, libtool_simulator_dst_lib):
+    if not libtool_libs([INSTALL_PATH + '/libcomm.a', INSTALL_PATH + '/libmars-boost.a', INSTALL_PATH + '/libxlog.a'], libtool_simulator_dst_lib):
         return False
 
     lipo_src_libs = []
@@ -152,7 +145,7 @@ def main():
                 break
             if num == '2':
                 build_ios_xlog()
-                break
+                break;
             elif num == '3':
                 gen_ios_project()
                 break

@@ -71,7 +71,7 @@ public class SampleApplicaton extends Application {
         });
 
         // temporary fix: ip is invalid, ip:127.0.0.1. it will be remove in future.
-//        StnLogic.setDebugIP("localhost", "127.0.0.1");
+        StnLogic.setDebugIP("localhost", "127.0.0.1");
         // NOTE: MarsServiceProxy is for client/caller
         // Initialize MarsServiceProxy for local client, can be moved to other place
         MarsServiceProxy.init(this, getMainLooper(), null);
@@ -114,23 +114,13 @@ public class SampleApplicaton extends Application {
 
         String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
 
-        Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
-        logConfig.mode = Xlog.AppednerModeAsync;
-        logConfig.logdir = logPath;
-        logConfig.nameprefix = logFileName;
-        logConfig.pubkey = "";
-        logConfig.compressmode = Xlog.ZLIB_MODE;
-        logConfig.compresslevel = 0;
-        logConfig.cachedir = "";
-        logConfig.cachedays = 0;
         if (BuildConfig.DEBUG) {
-            logConfig.level = Xlog.LEVEL_VERBOSE;
+            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
             Xlog.setConsoleLogOpen(true);
         } else {
-            logConfig.level = Xlog.LEVEL_INFO;
+            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
             Xlog.setConsoleLogOpen(false);
         }
-        Xlog.appenderOpen(logConfig);
         Log.setLogImp(new Xlog());
     }
 

@@ -13,13 +13,6 @@ add_subdirectory(log xlog)
 add_subdirectory(sdt sdt)
 add_subdirectory(stn stn)
 
-# for zstd
-option(ZSTD_BUILD_STATIC "BUILD STATIC LIBRARIES" ON)
-option(ZSTD_BUILD_SHARED "BUILD SHARED LIBRARIES" OFF)
-set(ZSTD_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zstd")
-set(LIBRARY_DIR ${ZSTD_SOURCE_DIR}/lib)
-include(GNUInstallDirs)
-add_subdirectory(zstd/build/cmake/lib zstd)
 
 project (mars)
 
@@ -35,7 +28,7 @@ if(ANDROID)
     find_library(log-lib log)
     find_library(z-lib z)
 
-    link_directories(app baseevent log sdt stn comm boost zstd)
+    link_directories(app baseevent log sdt stn comm boost)
 
     # marsxlog
     set(SELF_LIB_NAME marsxlog)
@@ -56,7 +49,6 @@ if(ANDROID)
                             xlog
                             mars-boost
                             comm
-                            libzstd_static
                             ${log-lib}
                             ${z-lib}
                             )
