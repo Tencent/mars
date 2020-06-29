@@ -34,6 +34,7 @@ def build_osx(tag=''):
     libtool_src_libs = glob.glob(INSTALL_PATH + '/*.a')
     libtool_src_libs.append(ssl_lib)
     libtool_src_libs.append(crypto_lib)
+    libtool_src_libs.append(BUILD_OUT_PATH + '/zstd/libzstd.a')
     if not libtool_libs(libtool_src_libs, libtool_os_dst_lib):
         return False
 

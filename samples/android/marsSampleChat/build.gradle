@@ -25,9 +25,9 @@ subprojects {
 
 ext {
     GROUP = 'com.tencent.mars.sample'
-    VERSION_NAME_PREFIX = '1.2.3'
+    VERSION_NAME_PREFIX = '1.2.4'
     VERSION_NAME_SUFFIX = '' // '-SNAPSHOT'
-    WRAPPER_VERSION_NAME_PREFIX = '1.2.3'
+    WRAPPER_VERSION_NAME_PREFIX = '1.2.4'
     WRAPPER_VERSION_NAME_SUFFIX = '' // '-SNAPSHOT'
 
     minSdkVersion = 16
