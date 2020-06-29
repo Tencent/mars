@@ -88,7 +88,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
             
 #ifdef ANDROID
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.3s %02d:%02d:%02d.%.3ld", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
-                     tm.tm_gmtoff / 3600.0, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
+                     gmt.c_str(), tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
 #elif _WIN32
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.3s %02d:%02d:%02d.%.3d", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
                      (-_timezone) / 3600.0, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
