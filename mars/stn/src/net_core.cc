@@ -480,8 +480,9 @@ void NetCore::KeepSignal() {
     if (!need_use_longlink_) {
         return;
     }
-    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
-    longlink_task_manager_->DefaultLongLink()->SignalKeeper()->Keep();
+    auto longlink = longlink_task_manager_->DefaultLongLink();
+    if(!longlink)    return;
+    longlink->SignalKeeper()->Keep();
     ASYNC_BLOCK_END
 }
 
@@ -490,8 +491,9 @@ void NetCore::StopSignal() {
     if (!need_use_longlink_) {
         return;
     }
-    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
-    longlink_task_manager_->DefaultLongLink()->SignalKeeper()->Stop();
+    auto longlink = longlink_task_manager_->DefaultLongLink();
+    if(!longlink)    return;
+    longlink->SignalKeeper()->Stop();
     ASYNC_BLOCK_END
 }
 
@@ -545,8 +547,17 @@ void NetCore::MakeSureLongLinkConnect() {
     }
 #ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
-    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
-    longlink_task_manager_->DefaultLongLink()->Channel()->MakeSureConnected();
+    auto longlink = longlink_task_manager_->DefaultLongLink();
+    if(!longlink) {
+        xassert2(false, TSF"longlink meta is null");
+        return;
+    }   
+    auto longlink_channel = longlink->Channel();
+    if (longlink_channel) {
+        longlink_channel->MakeSureConnected();
+    } else {
+        xassert2(false, TSF"longlink channel is null");
+    }
     ASYNC_BLOCK_END
 #endif
 }
@@ -556,8 +567,9 @@ bool NetCore::LongLinkIsConnected() {
         return false;
     }
 #ifdef USE_LONG_LINK
-    if(longlink_task_manager_->DefaultLongLink() == nullptr)    return false;
-    return LongLink::kConnected == longlink_task_manager_->DefaultLongLink()->Channel()->ConnectStatus();
+	auto longlink = longlink_task_manager_->DefaultLongLink();
+	if(!longlink)    return false;
+    return LongLink::kConnected == longlink->Channel()->ConnectStatus();
 #else
     return false;
 #endif
@@ -594,8 +606,9 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
         
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
-        if(longlink_task_manager_->DefaultLongLink() == nullptr)    return;
-        LongLink::TLongLinkStatus longlink_status = longlink_task_manager_->DefaultLongLink()->Channel()->ConnectStatus();
+	    auto longlink = longlink_task_manager_->DefaultLongLink();
+	    if(!longlink)    return;
+        LongLink::TLongLinkStatus longlink_status = longlink->Channel()->ConnectStatus();
         unsigned int continues_fail_count = longlink_task_manager_->GetTasksContinuousFailCount();
         xinfo2(TSF"status code:%0, long link status:%1, longlink task continue fail count:%2", _status_code, longlink_status, continues_fail_count);
         
@@ -883,8 +896,10 @@ void NetCore::DestroyLongLink(const std::string& _name){
 
 void NetCore::MarkMainLonglink_ext(const std::string& _name) {
     auto oldLink = DefaultLongLink();
-	auto newLink = GetLongLink(_name)->Channel();
-	if(oldLink == nullptr || newLink == nullptr || DefaultLongLinkMeta()->Config().name == _name) {
+    auto oldMeta = DefaultLongLinkMeta();
+    auto newLinkMeta = GetLongLink(_name);
+	auto newLink = newLinkMeta ? newLinkMeta->Channel() : nullptr;
+	if(oldLink == nullptr || newLink == nullptr || oldMeta == nullptr || oldMeta->Config().name == _name) {
 		xerror2(TSF"link nullptr, old:%_, new:%_, or same longlink", (oldLink==nullptr), (newLink==nullptr));
 		return;
 	}

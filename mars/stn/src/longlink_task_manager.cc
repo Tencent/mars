@@ -309,12 +309,12 @@ void LongLinkTaskManager::__RunOnTimeout() {
 	        auto longlink_channel = longlink->Channel();
             xerror2(TSF"task timeout, taskid:%_, nStartSendTime=%_, cur_time=%_, timeout:%_",
                     first->task.taskid, first->transfer_profile.start_send_time / 1000, cur_time / 1000, first->task_timeout / 1000);
-            __SingleRespHandle(first, kEctLocal, kEctLocalTaskTimeout, kTaskFailHandleTaskTimeout, longlink_channel->Profile());
             if(batchMap.find(first->task.channel_name) == batchMap.end()) {
                 socket_timeout_code = kEctLongTaskTimeout;
                 src_taskid = first->task.taskid;
                 batchMap[first->task.channel_name] = std::make_pair(socket_timeout_code, src_taskid);
             }
+            __SingleRespHandle(first, kEctLocal, kEctLocalTaskTimeout, kTaskFailHandleTaskTimeout, longlink_channel->Profile());
         }
 
         first = next;
@@ -324,11 +324,11 @@ void LongLinkTaskManager::__RunOnTimeout() {
         if(item.second.first == kEctLongTaskTimeout) {
             __BatchErrorRespHandle(item.first, kEctNetMsgXP, kEctLocalTaskTimeout, kTaskFailHandleDefault, item.second.second);
         } else {
-            __BatchErrorRespHandle(item.first, kEctNetMsgXP, item.second.first, kTaskFailHandleDefault, item.second.second);
             xassert2(fun_notify_network_err_);
             auto longlink_channel = GetLongLink(item.first)->Channel();
             if(longlink_channel)
                 fun_notify_network_err_(item.first, __LINE__, kEctNetMsgXP, item.second.first, longlink_channel->Profile().ip,  longlink_channel->Profile().port);
+            __BatchErrorRespHandle(item.first, kEctNetMsgXP, item.second.first, kTaskFailHandleDefault, item.second.second);
         }
     }
 }
