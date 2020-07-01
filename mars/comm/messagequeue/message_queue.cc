@@ -1056,6 +1056,6 @@ namespace MessageQueue {
         xinfo_function();
         Cancel();
         WaitForRunningLockEnd(*m_reg);
-	    UnInstallMessageHandler(*m_reg);
+	    // UnInstallMessageHandler(*m_reg);
     }
 }  // namespace MessageQueue
