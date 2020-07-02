@@ -136,7 +136,7 @@ TcpServerFSM::TSocketStatus TcpServerFSM::AfterReadWriteSelect(const SocketSelec
     char ip[16] = { 0 };
     int timeout = ReadWriteTimeout();
 
-    xdebug2(TSF"sock:%_, (%_:%_), ", sock_, socket_inet_ntop(AF_INET, &(addr_.sin_addr), ip, sizeof(ip)), ntohs(addr_.sin_port)) >> _log;
+    xinfo2(TSF"sock:%_, (%_:%_), ", sock_, socket_inet_ntop(AF_INET, &(addr_.sin_addr), ip, sizeof(ip)), ntohs(addr_.sin_port)) >> _log;
 
     if (_sel.Exception_FD_ISSET(sock_)) {
         int error = 0;
@@ -159,7 +159,7 @@ TcpServerFSM::TSocketStatus TcpServerFSM::AfterReadWriteSelect(const SocketSelec
 
         if (0 < ret) {
             send_buf_.Move(-ret);
-            xdebug2_if(0 == send_buf_.Length(), TSF"all buffer send:%_, m_send_buf:%_", ret, send_buf_.Length()) >> _log;
+            xinfo2_if(0 == send_buf_.Length(), TSF"all buffer send:%_, m_send_buf:%_", ret, send_buf_.Length()) >> _log;
             _OnSend(send_buf_, ret);
         } else if (IS_NOBLOCK_SEND_ERRNO(socket_errno)) {
             xwarn2(TSF"buffer full wait for next select, send err:(%_, %_, %_)", ret, socket_errno, socket_strerror(socket_errno)) >> _log;
@@ -181,7 +181,7 @@ TcpServerFSM::TSocketStatus TcpServerFSM::AfterReadWriteSelect(const SocketSelec
         ssize_t ret = recv(sock_, ((char*) recv_buf_.Ptr() + recv_buf_.Length()), recv_buf_.Capacity() - recv_buf_.Length(), 0);
 
         if (0 < ret) {
-            xdebug2_if(0 == recv_buf_.Length(), TSF"first buffer recv:%_, m_recv_buf:%_", ret, recv_buf_.Length()) >> _log;
+            xinfo2_if(0 == recv_buf_.Length(), TSF"first buffer recv:%_, m_recv_buf:%_", ret, recv_buf_.Length()) >> _log;
             recv_buf_.Length(recv_buf_.Pos(), recv_buf_.Length() + ret);
             _OnRecv(recv_buf_, ret);
         } else if (0 == ret) {
