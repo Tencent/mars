@@ -309,7 +309,6 @@ namespace MessageQueue {
     }
 
     void UnInstallMessageHandler(const MessageHandler_t& _handlerid) {
-        xinfo_function();
         ASSERT(0 != _handlerid.queue);
         ASSERT(0 != _handlerid.seq);
 
@@ -557,7 +556,6 @@ namespace MessageQueue {
     }
 
     bool CancelMessage(const MessagePost_t& _postid) {
-        xinfo_function();
         ASSERT(0 != _postid.reg.queue);
         ASSERT(0 != _postid.seq);
 
@@ -593,7 +591,6 @@ namespace MessageQueue {
     }
 
     void CancelMessage(const MessageHandler_t& _handlerid) {
-        xinfo_function();
         ASSERT(0 != _handlerid.queue);
 
         // 0==_handlerid.seq for BroadcastMessage
@@ -1049,13 +1046,11 @@ namespace MessageQueue {
     {return *m_reg;}
 
     void ScopeRegister::Cancel() const {
-        xinfo_function();
+        UnInstallMessageHandler(*m_reg);
         CancelMessage(*m_reg);
     }
     void ScopeRegister::CancelAndWait() const {
-        xinfo_function();
         Cancel();
         WaitForRunningLockEnd(*m_reg);
-	    UnInstallMessageHandler(*m_reg);
     }
 }  // namespace MessageQueue
