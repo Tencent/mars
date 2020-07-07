@@ -29,12 +29,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         String logPath = Environment.getExternalStorageDirectory().getPath() + "/logsample/xlog";
         Log.d("test", logPath);
         Xlog.setConsoleLogOpen(true);
-        Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, "", logPath, "LOGSAMPLE", 0, "");
 
+        Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
+        logConfig.level = Xlog.LEVEL_DEBUG;
+        logConfig.mode = Xlog.AppednerModeAsync;
+        logConfig.logdir = logPath;
+        logConfig.nameprefix = "LOGSAMPLE";
+        logConfig.pubkey = "";
+        logConfig.compressmode = Xlog.ZLIB_MODE;
+        logConfig.compresslevel = 0;
+        logConfig.cachedir = "";
+        logConfig.cachedays = 0;
+        Xlog.appenderOpen(logConfig);
 
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
