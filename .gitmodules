@@ -1,3 +1,0 @@
-[submodule "mars/zstd"]
-	path = mars/zstd
-	url = https://github.com/facebook/zstd.git
