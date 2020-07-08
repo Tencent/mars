@@ -387,7 +387,7 @@ void LongLink::__Run() {
     }
     
     uint64_t cur_time = gettickcount();
-    xinfo_function(TSF"LongLink Rebuild span:%_, net:%_", conn_profile_.disconn_time != 0 ? cur_time - conn_profile_.disconn_time : 0, getNetInfo());
+    xinfo_function(TSF"LongLink Rebuild span:%_, net:%_, channel name:%_", conn_profile_.disconn_time != 0 ? cur_time - conn_profile_.disconn_time : 0, getNetInfo(), config_.name);
     
     ConnectProfile conn_profile;
     conn_profile.start_time = cur_time;

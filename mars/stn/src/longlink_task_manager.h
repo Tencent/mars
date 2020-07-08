@@ -106,7 +106,7 @@ class LongLinkTaskManager {
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __BatchErrorRespHandle(const std::string& _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandle(const std::string _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile);
     void __BatchErrorRespHandleByUserId(const std::string& _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
 
@@ -116,6 +116,7 @@ class LongLinkTaskManager {
 #endif
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
+    void __DumpLongLinkChannelInfo();
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;
@@ -125,6 +126,7 @@ class LongLinkTaskManager {
     unsigned int                    tasks_continuous_fail_count_;
 
     std::map<std::string, std::shared_ptr<LongLinkMetaData> > longlink_metas_;
+    std::map<std::string, int>      longlink_id_;
     DynamicTimeout&                 dynamic_timeout_;
 
     NetSource&                      netsource_;
