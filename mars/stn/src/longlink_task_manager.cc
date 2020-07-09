@@ -916,3 +916,8 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
     }
 }
 
+void LongLinkTaskManager::IntoHeartBeatMode() {
+    xinfo_function("longlink_with_mmtls");
+    DefaultLongLink()->Channel()->EnterHeartbeatDeposit();
+}
+

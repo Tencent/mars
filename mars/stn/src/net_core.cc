@@ -276,7 +276,7 @@ void NetCore::StartTask(const Task& _task) {
     }
     
 #ifdef ANDROID
-    if (kNoNet == ::getNetInfo() && !ActiveLogic::Singleton::Instance()->IsActive()
+    if (kNoNet == ::getNetInfo() && !ActiveLogic::Instance()->IsActive()
 #ifdef USE_LONG_LINK
     && LongLink::kConnected != longlink_task_manager_->GetLongLink(task.channel_name)->Channel()->ConnectStatus()
 #endif
