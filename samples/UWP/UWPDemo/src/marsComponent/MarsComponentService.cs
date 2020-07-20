@@ -21,7 +21,7 @@ namespace UWPDemo.marsComponent
             StnComponent.SetShortlinkSvrAddr(8080);
             StnComponent.MakesureLonglinkConnected();
 
-            LogComponent.AppenderOpen(TAppenderModeRuntime.kAppednerSync, ApplicationData.Current.LocalFolder.Path + "\\log", "sample");
+            LogComponent.AppenderOpen(TAppenderModeRuntime.kAppenderSync, ApplicationData.Current.LocalFolder.Path + "\\log", "sample");
             LogComponent.AppenderSetConsoleLog(true);
             LogComponent.SetLogLevel(TLogLevelRuntime.kLevelDebug);
             //LogComponent.LogWrite(TLogLevelRuntime.kLevelDebug, "uwp sample", "", "", 0, 0, 0, 0, "test log");
