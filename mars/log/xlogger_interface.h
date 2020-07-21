@@ -37,10 +37,7 @@ namespace mars {
 namespace xlog {
 
 
-mars::comm::XloggerCategory* NewXloggerInstance(TLogLevel _level, TAppenderMode _mode,
-                                                    const char* _cachedir, const char* _logdir,
-                                                    const char* _nameprefix, int _cache_days,
-                                                    const char* _pub_key);
+mars::comm::XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level);
 
 
 mars::comm::XloggerCategory* GetXloggerInstance(const char* _nameprefix);

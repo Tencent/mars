@@ -42,7 +42,7 @@ enum TCompressMode{
 };
 
 struct XLogConfig{
-    TAppenderMode mode_ = kAppednerAsync;
+    TAppenderMode mode_ = kAppenderAsync;
     std::string logdir_;
     std::string nameprefix_;
     std::string pub_key_;

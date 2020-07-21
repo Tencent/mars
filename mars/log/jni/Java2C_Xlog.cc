@@ -55,9 +55,8 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
 
     ScopedJstring log_dir_jstr(env, _log_dir);
     ScopedJstring nameprefix_jstr(env, _nameprefix);
-    mars::comm::XloggerCategory* category = mars::xlog::NewXloggerInstance((TLogLevel)level, (TAppenderMode)mode,
-                                        cache_dir.c_str(), log_dir_jstr.GetChar(),
-                                        nameprefix_jstr.GetChar(), _cache_log_days, pubkey);
+    XLogConfig config = {(TAppenderMode)mode, log_dir_jstr.GetChar(), nameprefix_jstr.GetChar(), pubkey, kZlib, 6, cache_dir.c_str(), _cache_log_days};
+    mars::comm::XloggerCategory* category = mars::xlog::NewXloggerInstance(config, (TLogLevel)level);
     if (nullptr == category) {
         return -1;
     }

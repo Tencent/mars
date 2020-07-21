@@ -32,29 +32,25 @@ namespace xlog {
 
 static Mutex sg_mutex;
 static std::map<std::string, XloggerCategory*> sg_map;
-XloggerCategory* NewXloggerInstance(TLogLevel _level, TAppenderMode _mode, const char* _cachedir,
-                                    const char* _logdir, const char* _nameprefix, int _cache_days,
-                                    const char* _pub_key) {
+XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level) {
 
-    if (nullptr == _logdir || nullptr == _nameprefix) {
+    if (_config.logdir_.empty() || _config.nameprefix_.empty()) {
         return nullptr;
     }
 
     ScopedLock lock(sg_mutex);
-    auto it = sg_map.find(_nameprefix);
+    auto it = sg_map.find(_config.nameprefix_);
     if (it != sg_map.end()) {
         return it->second;
     }
 
-    XloggerAppender* appender = XloggerAppender::NewInstance(_mode, _cachedir,
-                                                            _logdir, _nameprefix,
-                                                            _cache_days, _pub_key);
+    XloggerAppender* appender = XloggerAppender::NewInstance(_config);
 
     using namespace std::placeholders;
     XloggerCategory* category = XloggerCategory::NewInstance(reinterpret_cast<uintptr_t>(appender),
                                                                 std::bind(&XloggerAppender::Write, appender, _1, _2));
     category->SetLevel(_level);
-    sg_map[_nameprefix] = category;
+    sg_map[_config.nameprefix_] = category;
     return category;
 }
 

@@ -178,7 +178,7 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
 }
 
 void XloggerAppender::SetMode(TAppenderMode _mode) {
-    mode_ = _mode;
+    config_.mode_ = _mode;
 
     cond_buffer_async_.notifyAll();
 
