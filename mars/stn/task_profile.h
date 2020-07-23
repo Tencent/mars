@@ -270,7 +270,6 @@ struct TaskProfile {
         err_code = 0;
         link_type = 0;
         allow_sessiontimeout_retry = true;
-        force_normal_protocol = false;
     }
     
     void InitSendParam() {
@@ -318,7 +317,6 @@ struct TaskProfile {
     int err_code;
     int link_type;
     bool allow_sessiontimeout_retry;
-    bool force_normal_protocol;
 
     std::vector<TransferProfile> history_transfer_profiles;
 };
