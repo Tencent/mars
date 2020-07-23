@@ -48,6 +48,8 @@ using namespace mars::app;
 
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
+boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
+boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -326,7 +328,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
 
         worker->func_network_report.set(fun_notify_network_err_);
-        worker->ForceUseNormalProtocol(first->force_normal_protocol);
+        if (choose_protocol_) {
+            worker->SetUseProtocol(choose_protocol_(*first));
+        }
         worker->SendRequest(bufreq, buffer_extension);
 
         xinfo2(TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, long-polling:%_, useProxy:%_",
@@ -601,6 +605,9 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         _it->err_code = errcode;
         _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
+        if (on_timeout_or_remote_shutdown_) {
+            on_timeout_or_remote_shutdown_(*_it);
+        }
         ReportTaskProfile(*_it);
         WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
@@ -623,12 +630,13 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->remain_retry_count--;
     _it->transfer_profile.error_type = _err_type;
     _it->transfer_profile.error_code = _err_code;
-    if (_err_code == kEctHttpFirstPkgTimeout) {
-        _it->force_normal_protocol = true;
-    }
-
+    _it->err_type = _err_type;
+    _it->err_code = _err_code;
     __DeleteShortLink(_it->running_id);
     _it->PushHistory();
+    if (on_timeout_or_remote_shutdown_) {
+        on_timeout_or_remote_shutdown_(*_it);
+    }
     _it->InitSendParam();
 
     _it->retry_start_time = ::gettickcount();
