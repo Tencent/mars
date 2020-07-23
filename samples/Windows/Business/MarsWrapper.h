@@ -35,13 +35,14 @@ class ChatMsgObserver
 public:
 	virtual void OnRecvChatMsg(const ChatMsg& msg) = 0;
 };
+
 class MarsWrapper : public PushObserver
 {
 public:
 	static MarsWrapper& Instance();
 
 
-	virtual void OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
+	virtual void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 
 	void setChatMsgObserver(ChatMsgObserver* _observer);
 	void sendChatMsg(const ChatMsg& _chat_msg);

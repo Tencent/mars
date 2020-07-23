@@ -324,7 +324,7 @@ private:
 // find substring (case insensitive)
 size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos){
     const std::locale& loc = std::locale();
-    typename std::string::const_iterator it = std::search(str.begin() + pos, str.end(),
+    auto it = std::search(str.begin() + pos, str.end(),
                                                 sub.begin(), sub.end(), my_equal<typename std::string::value_type>(loc));
     
     if (it != str.end()) return it - str.begin();

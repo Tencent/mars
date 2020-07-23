@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <functional>
 
 #define LONGLINK_UNPACK_CONTINUE (-2)
 #define LONGLINK_UNPACK_FALSE (-1)

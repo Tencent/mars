@@ -55,7 +55,7 @@ MarsWrapper::MarsWrapper()
 	appender_open(kAppednerAsync, logPath.c_str(), "Sample", pubKey.c_str());
 }
 
-void MarsWrapper::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+void MarsWrapper::OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
 {
 	com::tencent::mars::sample::chat::proto::MessagePush msg;
 	msg.ParseFromArray(_body.Ptr(), _body.Length());

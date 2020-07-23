@@ -88,21 +88,21 @@ int NetworkService::startTask(CGITask* task)
 	return ctask.taskid;
 }
 
-bool NetworkService::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select)
+bool NetworkService::Req2Buf(uint32_t _taskid, void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
 {
 	auto it = map_task_.find(_taskid);
 	if (it == map_task_.end())return false;
-	return it->second->Req2Buf(_taskid, _user_context, _outbuffer, _extend, _error_code, _channel_select);
+	return it->second->Req2Buf(_taskid, _user_context, _user_id, _outbuffer, _extend, _error_code, _channel_select, _host);
 }
 
-int NetworkService::Buf2Resp(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
+int NetworkService::Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
 {
 	auto it = map_task_.find(_taskid);
 	if (it == map_task_.end())return mars::stn::kTaskFailHandleDefault;
-	return it->second->Buf2Resp(_taskid, _user_context, _inbuffer, _extend, _error_code, _channel_select);
+	return it->second->Buf2Resp(_taskid, _user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select);
 }
 
-int NetworkService::OnTaskEnd(uint32_t _taskid, void* const _user_context, int _error_type, int _error_code)
+int NetworkService::OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code)
 {
 	auto it = map_task_.find(_taskid);
 	if (it != map_task_.end())
@@ -113,7 +113,7 @@ int NetworkService::OnTaskEnd(uint32_t _taskid, void* const _user_context, int _
 	return 0;
 }
 
-void NetworkService::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+void NetworkService::OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
 {
 	auto it = map_push_observer_.find(_cmdid);
 	if (it != map_push_observer_.end() && it->second)
