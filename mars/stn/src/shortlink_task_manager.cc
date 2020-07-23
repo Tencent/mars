@@ -326,6 +326,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
 
         worker->func_network_report.set(fun_notify_network_err_);
+        worker->ForceUseNormalProtocol(first->force_normal_protocol);
         worker->SendRequest(bufreq, buffer_extension);
 
         xinfo2(TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, long-polling:%_, useProxy:%_",
@@ -622,6 +623,9 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->remain_retry_count--;
     _it->transfer_profile.error_type = _err_type;
     _it->transfer_profile.error_code = _err_code;
+    if (_err_code == kEctHttpFirstPkgTimeout) {
+        _it->force_normal_protocol = true;
+    }
 
     __DeleteShortLink(_it->running_id);
     _it->PushHistory();

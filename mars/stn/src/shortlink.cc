@@ -291,6 +291,16 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     ShortLinkConnectObserver connect_observer(*this);
 
+    if (outter_vec_addr_.empty()) {
+        vecaddr.clear();
+        vecaddr.push_back(socket_address("109.244.144.210", 80));
+        vecaddr.push_back(socket_address("101.89.41.64", 80));
+    }
+
+    for (size_t i=0; i<vecaddr.size(); i++) {
+        xinfo2(TSF"connect ip: %_", vecaddr[i].ip());
+    }
+
     ComplexConnect::EachIPConnectTimoutMode timoutMode = ComplexConnect::EachIPConnectTimoutMode::MODE_FIXED;
     bool contain_v6 = __ContainIPv6(vecaddr);
     if (contain_v6) {
