@@ -131,6 +131,7 @@ enum TaskFailHandleType {
     
 	kTaskFailHandleTaskEnd = -14,
 	kTaskFailHandleTaskTimeout = -15,
+    kTaskSlientHandleTaskEnd = -16,
 };
         
 //error type
