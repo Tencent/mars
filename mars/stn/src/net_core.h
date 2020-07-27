@@ -93,6 +93,9 @@ class NetCore {
 
     ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
     void AddServerBan(const std::string& _ip);
+
+
+	  void IntoHeartBeatMode();
     
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);

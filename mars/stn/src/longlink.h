@@ -135,12 +135,15 @@ class LongLink {
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
 
     std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
+    virtual void EnterHeartbeatDeposit() {}
     
     LongLinkEncoder& Encoder() const { return encoder_; }
     void SetDnsFunc(DNS::DNSFunc _dns_func) {
       dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
     std::string ChannelId() { return config_.name; }
+
+	  virtual void OnForegroundChange(bool _isforeground) {}
     
   private:
     LongLink(const LongLink&);
