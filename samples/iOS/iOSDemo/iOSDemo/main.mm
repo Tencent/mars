@@ -46,7 +46,16 @@ int main(int argc, char * argv[]) {
         xlogger_SetLevel(kLevelInfo);
         appender_set_console_log(false);
 #endif
-        appender_open(kAppednerAsync, [logPath UTF8String], "Test", "");
+        XLogConfig config;
+        config.mode_ = kAppednerAsync;
+        config.logdir_ = [logPath UTF8String];
+        config.nameprefix_ = "Test";
+        config.pub_key_ = "";
+        config.compress_mode_ = kZlib;
+        config.compress_level_ = 0;
+        config.cachedir_ = "";
+        config.cache_days_ = 0;
+        appender_open(config);
         
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
     }

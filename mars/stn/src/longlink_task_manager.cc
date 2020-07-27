@@ -234,7 +234,6 @@ void LongLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _f
 void LongLinkTaskManager::__RunLoop() {
     xinfo_function();
     if (lst_cmd_.empty()) {
-        xerror2(TSF"task list is empty!");
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
         wakeup_lock_->Lock(500);
@@ -731,6 +730,15 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
             __BatchErrorRespHandle(it->task.channel_name, kEctEnDecode, err_code, handle_type, it->task.taskid);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(_name, __LINE__, kEctEnDecode, err_code, _connect_profile.ip, _connect_profile.port);
+        }
+            break;
+        case kTaskSlientHandleTaskEnd:
+        {
+            xinfo2(TSF"task slient error taskid:%_, svr(%_:%_, %_, %_), handle_type:%_, err_code:%_, body dump:%_", it->task.taskid, _connect_profile.ip,
+                    _connect_profile.port, IPSourceTypeString[_connect_profile.ip_type], _connect_profile.host, handle_type, err_code,
+                    xlogger_memory_dump(body->Ptr(), std::min<size_t>(body->Length(), 1024)));
+            
+            lst_cmd_.erase(it);
         }
             break;
         default:

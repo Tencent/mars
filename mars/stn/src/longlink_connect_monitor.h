@@ -61,7 +61,7 @@ class LongLinkConnectMonitor {
     void __OnSignalForeground(bool _isforeground);
     void __OnSignalActive(bool _isactive);
     void __OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
-    void __OnAlarm();
+    void __OnAlarm(bool _rebuild_longlink);
 
     void __Run();
 #ifdef __APPLE__
@@ -78,7 +78,8 @@ class LongLinkConnectMonitor {
     MessageQueue::ScopeRegister     asyncreg_;
     ActiveLogic& activelogic_;
     LongLink& longlink_;
-    Alarm         alarm_;
+    Alarm         rebuild_alarm_;
+    Alarm         wake_alarm_;
     Mutex         mutex_;
 
     LongLink::TLongLinkStatus status_;
@@ -91,6 +92,8 @@ class LongLinkConnectMonitor {
     int conti_suc_count_;
     bool isstart_;
     bool is_keep_alive_;
+    int current_interval_index_;
+    bool rebuild_longlink_;
 };
         
 } }

@@ -25,13 +25,15 @@
 #include "mars/comm/alarm.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/singleton.h"
+#include <memory>
 
 class ActiveLogic
 {
 public:
-    SINGLETON_INTRUSIVE(ActiveLogic, new ActiveLogic, delete);
+//    SINGLETON_INTRUSIVE(ActiveLogic, new ActiveLogic, delete);
     boost::signals2::signal<void (bool _isForeground)> SignalForeground;
     boost::signals2::signal<void (bool _isactive)> SignalActive;
+    static std::shared_ptr<ActiveLogic> Instance();
 
 public:
     ActiveLogic();
@@ -42,6 +44,8 @@ public:
 
     bool IsForeground() const;
     uint64_t LastForegroundChangeTime() const;
+
+    void SwitchActiveStateForDebug(bool _active);
 
 private:
     void __OnInActive();

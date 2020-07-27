@@ -59,19 +59,12 @@ HTTPDetector::HTTPDetector(const HTTPDetectReq& _req)
     
 }
 HTTPDetector::~HTTPDetector(){
+    xinfo_function();
     CancelAndWait();
 }
 
-int HTTPDetector::StartAsync(DetectEndCallBack _callback) {
-    ScopedLock lock(mutex_);
-    if (worker_thread_.isruning()) {
-        xwarn2(TSF"@%_ HTTPDetect is running.", this);
-        return -1;
-    }
-    callback_ = _callback;
-    return worker_thread_.start();
-}
 int HTTPDetector::StartSync(HTTPDectectResult& _result) {
+    xinfo_function();
     if (worker_thread_.isruning()) {
         xwarn2(TSF"@%_ HTTPDetect is running.", this);
         return -1;

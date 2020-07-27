@@ -181,6 +181,31 @@ int getNetInfo() {
     }
 }
 
+int getNetTypeForStatistics(){
+    int type = getNetInfo();
+    if (kWifi == type){
+        return (int)NetTypeForStatistics::NETTYPE_WIFI;
+    }
+    if (kNoNet == type){
+        return (int)NetTypeForStatistics::NETTYPE_NON;
+    }
+    
+    RadioAccessNetworkInfo rani;
+    if (!getCurRadioAccessNetworkInfo(rani)){
+        return (int)NetTypeForStatistics::NETTYPE_NON;
+    }
+    
+    if (rani.Is2G()){
+        return (int)NetTypeForStatistics::NETTYPE_2G;
+    }else if(rani.Is3G()){
+        return (int)NetTypeForStatistics::NETTYPE_3G;
+    }else if(rani.Is4G()){
+        return (int)NetTypeForStatistics::NETTYPE_4G;
+    }
+    
+    return (int)NetTypeForStatistics::NETTYPE_NON;
+}
+
 unsigned int getSignal(bool isWifi){
     xverbose_function();
     SCOPE_POOL();

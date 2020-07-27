@@ -64,9 +64,11 @@
 - (int)onPostDecode:(NSData*)responseData {
     helloResponse = [HelloResponse parseFromData:responseData error:nil];
     if ([helloResponse hasErrmsg]) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:helloResponse.errmsg preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-        [self presentViewController:alert animated:YES completion:nil];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:helloResponse.errmsg preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+            [self presentViewController:alert animated:YES completion:nil];
+        });
         LOG_INFO(kModuleViewController, @"recv hello response: %@", helloResponse.errmsg);
     }
     

@@ -17,6 +17,7 @@
  *  Created on: 2014-2-26
  *      Author: yerungui
  */
+#include <algorithm>
 
 #include "longlink_connect_monitor.h"
 
@@ -53,6 +54,7 @@ static const unsigned long kNoAccountInfoSaltRate = 2;
 static const unsigned long kNoAccountInfoSaltRise = 300;
 
 static const unsigned long kNoAccountInfoInactiveInterval = (7 * 24 * 60 * 60);  // s
+static const unsigned int  kUpOrDownThreshold = 60 * 10 * 1000;      // 10min
 
 
 #ifdef __ANDROID__
@@ -78,6 +80,9 @@ static unsigned long const sg_interval[][5]  = {
     {15, 30, 240, 300, 600},
     {0,  0,  0,   0,   0},
 };
+
+static int const reconnect_interval[7] = {0, 60, 120, 240, 360, 480, 600}; // if modify this varible ,do not forget to modify varible: "kInternalMaxIndex"
+static int const kInternalMaxIndex = 6; //max index of "reconnect_interval" array
 
 static std::string alarm_reason;
 static std::string error_msg;
@@ -158,14 +163,17 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
 LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_id))
-    , activelogic_(_activelogic), longlink_(_longlink), alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this), _id)
+    , activelogic_(_activelogic), longlink_(_longlink), rebuild_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, true), _id)
+    , wake_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, false), _id)
     , status_(LongLink::kDisConnected)
     , last_connect_time_(0)
     , last_connect_net_type_(kNoNet)
     , thread_(boost::bind(&LongLinkConnectMonitor::__Run, this), XLOGGER_TAG"::con_mon")
     , conti_suc_count_(0)
     , isstart_(false)
-    , is_keep_alive_(_is_keep_alive) {
+    , is_keep_alive_(_is_keep_alive)
+    , current_interval_index_(0)
+    , rebuild_longlink_(false) {
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
         if(is_keep_alive_) {
             activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
@@ -173,7 +181,8 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
             longlink_.SignalConnection.connect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
         }
 #ifdef __ANDROID__
-        alarm_.SetType(kAlarmType);
+        rebuild_alarm_.SetType(kAlarmType);
+        wake_alarm_.SetType(kAlarmType);
 #endif
 }
 
@@ -198,6 +207,7 @@ void LongLinkConnectMonitor::DisconnectAllSlot() {
 }
 
 bool LongLinkConnectMonitor::MakeSureConnected() {
+    xdebug_function();
     __IntervalConnect(kTaskConnect);
     return LongLink::kConnected == longlink_.ConnectStatus();
 }
@@ -227,6 +237,7 @@ bool LongLinkConnectMonitor::NetworkChange() {
     return 0 == __IntervalConnect(kNetworkChangeConnect);
 }
 
+
 uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
@@ -237,26 +248,64 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     xinfo_trace(TSF"longlink_progress next connect interval: %_, process active state: %_, process foreground: %_", interval, activelogic_.IsActive(), activelogic_.IsForeground());
     xinfo2(TSF"next connect interval: %_, posttime: %_, buffer: %_, _type: %_", interval, posttime, buffer, _type);
 
-    if ((posttime + buffer) >= interval) {
+    if (activelogic_.IsActive() || _type == kNetworkChangeConnect) {
+        if ((posttime + buffer) >= interval) {
+            bool newone = false;
+            bool ret = longlink_.MakeSureConnected(&newone);
+            xinfo2(TSF"process active made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
+            return 0;
+        } else {
+            uint64_t inter = interval - posttime;
+            xinfo2(TSF"final interval %_", inter);
+            return inter;
+        }
+    }
+
+    if (rebuild_longlink_) {
+
+        rebuild_longlink_ = false;
         bool newone = false;
         bool ret = longlink_.MakeSureConnected(&newone);
-        xinfo2(TSF"made interval connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
+        xinfo2(TSF"rebuild now");
         return 0;
+    }
 
+    rebuild_longlink_ = false;
+    
+    if (posttime < kUpOrDownThreshold) {
+        current_interval_index_ ++;
+        current_interval_index_ = std::min(current_interval_index_, kInternalMaxIndex);
     } else {
-        return interval - posttime;
+        current_interval_index_ --;
+        current_interval_index_ = std::max(current_interval_index_, 0);
+    }
+    int time_interval = reconnect_interval[current_interval_index_];
+    int interval_final = time_interval * 1000 - posttime;
+    xinfo2(TSF"after select interval_final %_ ", interval_final);
+    interval_final = std::max(interval_final, 0);
+    interval_final = std::min(interval_final, (int)kUpOrDownThreshold);
+    xinfo2(TSF"index %_ posttime %_, interval_final %_", current_interval_index_, posttime, interval_final);
+    if (interval_final == 0) {
+        bool newone = false;
+        bool ret = longlink_.MakeSureConnected(&newone);
+        xinfo2(TSF"rebuild now, connect interval:%0, posttime:%_, newone:%_, connectstatus:%_, ret:%_", interval, posttime, newone, longlink_.ConnectStatus(), ret);
+        return 0;
+    } else {
+        return (uint64_t)interval_final;
     }
 }
 
 uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
-    alarm_.Cancel();
+    xdebug_function();
+    rebuild_alarm_.Cancel();
+    wake_alarm_.Cancel();
     
     uint64_t remain = __IntervalConnect(kLongLinkConnect);
 
     if (0 == remain) return remain;
 
     xinfo2(TSF"start auto connect after:%0, channel id:%1", remain, longlink_.ChannelId().c_str());
-    alarm_.Start((int)remain);
+    rebuild_alarm_.Start((int)remain);
 
     xinfo_trace(TSF"longlink_progress set rebuild alarm, reason: rebuild longlink alarm, current time: %_, next rebuild time interval: %_", gettickcount(), remain);
 #ifdef __ANDROID__
@@ -294,10 +343,11 @@ void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
     xinfo2(TSF"longlink status change: %_ ", _status);
-    alarm_.Cancel();
+    rebuild_alarm_.Cancel();
+    wake_alarm_.Cancel();
 
     if (LongLink::kConnectFailed == _status || LongLink::kDisConnected == _status) {
-        alarm_.Start(500);
+        wake_alarm_.Start(500);
     } else if (LongLink::kConnected == _status) {
         xinfo2(TSF"cancel auto connect");
     }
@@ -314,9 +364,13 @@ void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus 
     __LongLinkStateToSystemLog(_status);
 }
 
-void LongLinkConnectMonitor::__OnAlarm() {
+void LongLinkConnectMonitor::__OnAlarm(bool _rebuild_longlink) {
+    xinfo2(TSF"rebuild longlink %_", _rebuild_longlink);
+    rebuild_longlink_ = _rebuild_longlink;
     __AutoIntervalConnect();
-    xinfo_trace(TSF"longlink_progress onalarm log, reason: %_, alarm after %_ millsecond, spend time %_", alarm_reason, alarm_.After(), alarm_.ElapseTime());
+    if (rebuild_longlink_) {
+        xinfo_trace(TSF"longlink_progress onalarm log, reason: %_, alarm after %_ millsecond, spend time %_", alarm_reason, rebuild_alarm_.After(), rebuild_alarm_.ElapseTime());
+    }
 }
 
 #ifdef __APPLE__

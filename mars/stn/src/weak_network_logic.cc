@@ -67,11 +67,11 @@ namespace stn {
     
     WeakNetworkLogic::WeakNetworkLogic():is_curr_weak_(false), connect_after_weak_(0)
         , last_connect_fail_tick_(false), last_connect_suc_tick_(false), cgi_fail_num_(0) {
-        ActiveLogic::Singleton::Instance()->SignalForeground.connect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+        ActiveLogic::Instance()->SignalForeground.connect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
     }
     
     WeakNetworkLogic::~WeakNetworkLogic() {
-        ActiveLogic::Singleton::Instance()->SignalForeground.disconnect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+        ActiveLogic::Instance()->SignalForeground.disconnect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
     }
     
     void WeakNetworkLogic::__SignalForeground(bool _is_foreground) {
@@ -126,8 +126,10 @@ namespace stn {
             last_connect_suc_tick_.setInvalid();
         }
         
-        if(!ActiveLogic::Singleton::Instance()->IsForeground())
-            return;
+        if(!ActiveLogic::Instance()->IsForeground()) {
+        	xdebug2(TSF"is background, this:%_", ActiveLogic::Instance().get());
+	        return;
+        }
 
         xdebug2(TSF"connect in foreground");
         if(is_curr_weak_)   ++connect_after_weak_;
@@ -162,7 +164,7 @@ namespace stn {
     }
     
     void WeakNetworkLogic::OnPkgEvent(bool _is_firstpkg, int _span) {
-        if(!ActiveLogic::Singleton::Instance()->IsForeground())
+        if(!ActiveLogic::Instance()->IsForeground())
             return;
         
         bool is_weak = (_span > WEAK_PKG_SPAN);
@@ -178,7 +180,7 @@ namespace stn {
     }
     
     void WeakNetworkLogic::OnTaskEvent(const TaskProfile& _task_profile) {
-        if(!ActiveLogic::Singleton::Instance()->IsForeground())
+        if(!ActiveLogic::Instance()->IsForeground())
             return;
         
         bool old_weak = is_curr_weak_;
