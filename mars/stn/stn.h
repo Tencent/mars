@@ -99,6 +99,7 @@ public:
     std::string channel_name;   //longlink channel id
     std::string group_name;     //use for select decode method
     std::string user_id;        //use for identify multi users
+    int protocol;
     
     std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;

@@ -55,6 +55,8 @@ class ShortLinkTaskManager {
 
     static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
     static boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
+    static boost::function<int (TaskProfile& _profile)> choose_protocol_;
+    static boost::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
 
   public:
     ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid);
