@@ -28,6 +28,13 @@ MAGIC_END = 0x00
 
 lastseq = 0
 
+class ZstdDecompressReader:
+    def __init__(self, buffer):
+        self.buffer = buffer
+
+    def read(self, size):
+        return self.buffer
+
 PRIV_KEY = "145aa7717bf9745b91e9569b80bbf1eedaa6cc6cd0e26317d810e35710f44cf8"
 PUB_KEY = "572d1e2710ae5fbca54c76a382fdd44050b3a675cb2bf39feebe85ef63d947aff0fa4943f1112e8b6af34bebebbaefa1a0aae055d9259b89a1858f7cc9af9df1"
 
