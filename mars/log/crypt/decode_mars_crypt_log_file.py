@@ -19,10 +19,10 @@ MAGIC_COMPRESS_START1 = 0x05
 MAGIC_COMPRESS_START2 = 0x07
 MAGIC_COMPRESS_NO_CRYPT_START = 0x09
 
-MAGIC_SYNC_ZSTD_START = 0x0A;
-MAGIC_SYNC_NO_CRYPT_ZSTD_START = 0x0B;
-MAGIC_ASYNC_ZSTD_START = 0x0C;
-MAGIC_ASYNC_NO_CRYPT_ZSTD_START = 0x0D;
+MAGIC_SYNC_ZSTD_START = 0x0A
+MAGIC_SYNC_NO_CRYPT_ZSTD_START = 0x0B
+MAGIC_ASYNC_ZSTD_START = 0x0C
+MAGIC_ASYNC_NO_CRYPT_ZSTD_START = 0x0D
 
 MAGIC_END = 0x00
 
@@ -30,6 +30,14 @@ lastseq = 0
 
 PRIV_KEY = "145aa7717bf9745b91e9569b80bbf1eedaa6cc6cd0e26317d810e35710f44cf8"
 PUB_KEY = "572d1e2710ae5fbca54c76a382fdd44050b3a675cb2bf39feebe85ef63d947aff0fa4943f1112e8b6af34bebebbaefa1a0aae055d9259b89a1858f7cc9af9df1"
+
+
+class ZstdDecompressReader:
+    def __init__(self, buffer):
+        self.buffer = buffer
+
+    def read(self, size):
+        return self.buffer
 
 def tea_decipher(v, k):
     op = 0xffffffffL
