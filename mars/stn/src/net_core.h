@@ -97,6 +97,8 @@ class NetCore {
 
 	  void IntoHeartBeatMode();
 
+    void IntoDebugMode();
+
     void MsgArriveDelayTime(uint64_t _interval);
     
 #ifdef USE_LONG_LINK

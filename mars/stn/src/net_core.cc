@@ -889,6 +889,9 @@ std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name)
 void NetCore::IntoHeartBeatMode() {
     longlink_task_manager_->IntoHeartBeatMode();
 }
+void NetCore::IntoDebugMode() {
+    longlink_task_manager_->IntoDebugMode();
+}
 
 
 void NetCore::MsgArriveDelayTime(uint64_t _interval) {

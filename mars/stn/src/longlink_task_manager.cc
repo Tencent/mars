@@ -928,6 +928,10 @@ void LongLinkTaskManager::IntoHeartBeatMode() {
     DefaultLongLink()->Channel()->EnterHeartbeatDeposit();
 }
 
+void LongLinkTaskManager::IntoDebugMode() {
+    DefaultLongLink()->Channel()->IntoDebugMode();
+}
+
 
 void LongLinkTaskManager::MsgArriveDelayTime(uint64_t _interval) {
     DefaultLongLink()->Channel()->MsgArriveDelayTime(_interval);

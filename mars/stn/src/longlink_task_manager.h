@@ -95,6 +95,8 @@ class LongLinkTaskManager {
 
     void IntoHeartBeatMode();
 
+    void IntoDebugMode();
+
     void MsgArriveDelayTime(uint64_t _interval);
 
   private:
