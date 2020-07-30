@@ -95,6 +95,8 @@ class LongLinkTaskManager {
 
     void IntoHeartBeatMode();
 
+    void MsgArriveDelayTime(uint64_t _interval);
+
   private:
     // from ILongLinkObserver
     void __OnResponse(const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);

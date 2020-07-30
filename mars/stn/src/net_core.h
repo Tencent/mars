@@ -96,6 +96,8 @@ class NetCore {
 
 
 	  void IntoHeartBeatMode();
+
+    void MsgArriveDelayTime(uint64_t _interval);
     
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);

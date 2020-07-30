@@ -925,8 +925,12 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
 }
 
 void LongLinkTaskManager::IntoHeartBeatMode() {
-    xinfo_function("longlink_with_mmtls");
     DefaultLongLink()->Channel()->EnterHeartbeatDeposit();
+}
+
+
+void LongLinkTaskManager::MsgArriveDelayTime(uint64_t _interval) {
+    DefaultLongLink()->Channel()->MsgArriveDelayTime(_interval);
 }
 
 

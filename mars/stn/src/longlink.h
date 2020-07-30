@@ -136,6 +136,8 @@ class LongLink {
 
     std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
     virtual void EnterHeartbeatDeposit() {}
+
+    virtual void MsgArriveDelayTime(uint64_t _interval) {}
     
     LongLinkEncoder& Encoder() const { return encoder_; }
     void SetDnsFunc(DNS::DNSFunc _dns_func) {
