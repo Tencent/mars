@@ -74,6 +74,7 @@
 #include "log_zlib_buffer.h"
 #include "log_base_buffer.h"
 #include "log_zstd_buffer.h"
+#include "xlogger_appender.h"
 
 #define LOG_EXT "xlog"
 
