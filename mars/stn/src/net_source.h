@@ -90,14 +90,14 @@ class NetSource {
     
   public:
     NetSource(ActiveLogic& _active_logic);
-    ~NetSource();
+    virtual ~NetSource();
 
   public:
     // for long link
     bool GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::vector<std::string>& _host_list);
 
     // for short link
-    bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
+    virtual bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
 
     void AddServerBan(const std::string& _ip);
     
