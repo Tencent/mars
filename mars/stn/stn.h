@@ -251,30 +251,29 @@ extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id
 extern void TrafficData(ssize_t _send, ssize_t _recv);
         
 //底层询问上层该host对应的ip列表 
-extern std::vector<std::string> OnNewDns(const std::string& host);
+extern std::vector<std::string> OnNewDns(const std::string& _host);
 //网络层收到push消息回调 
 extern void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 //底层获取task要发送的数据 
-extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
+extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host);
 //底层回包返回给上层解析 
-extern int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
+extern int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select);
 //任务执行结束 
-extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code);
+extern int OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code);
 
 //上报网络连接状态 
-extern void ReportConnectStatus(int status, int longlink_status);
+extern void ReportConnectStatus(int _status, int _longlink_status);
         
 extern void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
 extern void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);
     
 extern void OnLongLinkStatusChange(int _status);
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-extern int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid);
+extern int GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid);
 //长连信令校验回包 
-extern bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash);
+extern bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash);
 
 extern void RequestSync();
-//验证是否已登录
 
 //底层询问上层http网络检查的域名列表 
 extern void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
