@@ -1,5 +1,5 @@
 // Tencent is pleased to support the open source community by making Mars available.
-// Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in 
 // compliance with the License. You may obtain a copy of the License at
@@ -11,11 +11,11 @@
 // limitations under the License.
 
 /*
-*  shortlink_packer.h
-*
-*  Created on: 2017-7-7
-*      Author: chenzihao
-*/
+ * shortlink_packer.h
+ *
+ *  Created on: 2016-03-15
+ *      Author: yanguoyue
+ */
 
 #ifndef SRC_SHORTLINK_PACKER_H_
 #define SRC_SHORTLINK_PACKER_H_
@@ -35,7 +35,7 @@ public:
     virtual ~shortlink_tracker(){};
 };
     
-extern void (*shortlink_pack)(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _out_buff, shortlink_tracker* _tracker);
+    extern void (*shortlink_pack)(const std::string& _url, const std::map<std::string, std::string>& _headers, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _out_buff, shortlink_tracker* _tracker);
 
 }}
 

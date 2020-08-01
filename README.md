@@ -324,18 +324,24 @@ python build_windows.py
 Initialize Xlog when your app starts. Remember to use an exclusive folder to save the log files, no other files are acceptable in the folder since they would be removed by the cleansing function in Xlog automatically.
 
 ```cpp
-std::string logPath = ""; //use your log path
-std::string pubKey = ""; //use you pubkey for log encrypt
-
 // init xlog
-#if DEBUG
-xlogger_SetLevel(kLevelDebug);
-appender_set_console_log(true);
+#if _DEBUG
+	xlogger_SetLevel(kLevelDebug);
+	appender_set_console_log(true);
+	extern std::function<void(char* _log)> g_console_log_fun;
+	g_console_log_fun = [](char* _log) {
+		::OutputDebugStringA(_log);
+	};
 #else
-xlogger_SetLevel(kLevelInfo);
-appender_set_console_log(false);
+	xlogger_SetLevel(kLevelInfo);
+	appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
+
+	XLogConfig config;
+	config.logdir_ = "Log"; //use your log path
+	config.nameprefix_ = "Sample";
+	config.pub_key_ = ""; //use you pubkey for log encrypt
+	appender_open(config);
 ```
 
 Uninitialized xlog before your app exits
@@ -386,7 +392,10 @@ Firstly, you should call the setCalBack interface, and secondly, the Mars.init. 
 If you want to destroy STN or exit App:
 
 ```cpp
-mars::baseevent::OnDestroy();
+void Cleanup()
+{
+    mars::baseevent::OnDestroy();
+}
 ```
 
 ## Support
@@ -726,18 +735,24 @@ python build_windows.py
 在程序启动加载 Xlog 后紧接着初始化 Xlog。但要注意保存 log 的目录请使用单独的目录，不要存放任何其他文件防止被 xlog 自动清理功能误删。
 
 ```cpp
-std::string logPath = ""; //use your log path
-std::string pubKey = ""; //use you pubkey for log encrypt
-
 // init xlog
-#if DEBUG
-xlogger_SetLevel(kLevelDebug);
-appender_set_console_log(true);
+#if _DEBUG
+	xlogger_SetLevel(kLevelDebug);
+	appender_set_console_log(true);
+	extern std::function<void(char* _log)> g_console_log_fun;
+	g_console_log_fun = [](char* _log) {
+		::OutputDebugStringA(_log);
+	};
 #else
-xlogger_SetLevel(kLevelInfo);
-appender_set_console_log(false);
+	xlogger_SetLevel(kLevelInfo);
+	appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
+
+	XLogConfig config;
+	config.logdir_ = "Log"; //use your log path
+	config.nameprefix_ = "Sample";
+	config.pub_key_ = ""; //use you pubkey for log encrypt
+	appender_open(config);
 ```
 
 在程序退出前反初始化 Xlog
@@ -755,10 +770,12 @@ void setShortLinkDebugIP(const std::string& _ip, unsigned short _port)
 {
 	mars::stn::SetShortlinkSvrAddr(_port, _ip);
 }
+
 void setShortLinkPort(unsigned short _port)
 {
 	mars::stn::SetShortlinkSvrAddr(_port, "");
 }
+
 void setLongLinkAddress(const std::string& _ip, unsigned short _port, const std::string& _debug_ip)
 {
 	vector<uint16_t> ports;
@@ -788,7 +805,15 @@ void Init()
 需要释放 STN 或者退出程序时:
 
 ```cpp
-mars::baseevent::OnDestroy();
+void Cleanup()
+{
+    mars::baseevent::OnDestroy();
+}
+```
+
+**注意：有关WeakNetworkLogic的相关代码为mars的扩展,使用的时候建议开发者将其注视掉不然会导致一些错误**
+```cpp
+WeakNetworkLogic::Singleton::Instance()
 ```
 
 ## Support

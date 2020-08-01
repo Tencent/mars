@@ -28,8 +28,8 @@ boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::st
 boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
 
 
-void SetCallback(Callback* const callback) {
-    sg_callback = callback;
+void SetCallback(Callback* const _callback) {
+    sg_callback = _callback;
 }
 
 void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
@@ -61,12 +61,12 @@ void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
 #endif
 }
 
-std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& host) {
+std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host) {
 #ifndef ANDROID
     xassert2(sg_callback != NULL);
-    return sg_callback->OnNewDns(host);
+    return sg_callback->OnNewDns(_host);
 #else
-    return C2Java_OnNewDns(host);
+    return C2Java_OnNewDns(_host);
 #endif
 }
 
@@ -86,16 +86,16 @@ void StnCallbackBridge::OnPush(const std::string& _channel_id,
 bool StnCallbackBridge::Req2Buf(uint32_t _taskid,
                                 void* const _user_context,
                                 const std::string& _user_id,
-                                AutoBuffer& outbuffer,
-                                AutoBuffer& extend,
-                                int& error_code,
-                                const int channel_select,
-                                const std::string& host) {
+                                AutoBuffer& _outbuffer,
+                                AutoBuffer& _extend,
+                                int& _error_code,
+                                const int _channel_select,
+                                const std::string& _host) {
 #ifndef ANDROID
     xassert2(sg_callback != NULL);
-    return sg_callback->Req2Buf(_taskid, _user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+    return sg_callback->Req2Buf(_taskid, _user_context, _user_id, _outbuffer, _extend, _error_code, _channel_select, _host);
 #else
-    return C2Java_Req2Buf(_taskid, _user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+    return C2Java_Req2Buf(_taskid, _user_context, _user_id, _outbuffer, _extend, _error_code, _channel_select, _host);
 #endif
 }
 

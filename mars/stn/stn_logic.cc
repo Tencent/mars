@@ -272,31 +272,54 @@ uint32_t (*getNoopTaskID)()
 
 // [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
-auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
-    STN_WEAK_CALL(CreateLongLink(_config));
+// auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
+//     STN_WEAK_CALL(CreateLongLink(_config));
+// };
+void(*CreateLonglink_ext)(const LonglinkConfig& _config)
+= [](const LonglinkConfig& _config) {
+	STN_WEAK_CALL(CreateLongLink(_config));
 };
     
-auto DestroyLonglink_ext = +[](const std::string& name){
-    STN_WEAK_CALL(DestroyLongLink(name));
+// auto DestroyLonglink_ext = +[](const std::string& name) {
+// 	STN_WEAK_CALL(DestroyLongLink(name));
+// };
+void(*DestroyLonglink_ext)(const std::string& name)
+= [](const std::string& name) {
+	STN_WEAK_CALL(DestroyLongLink(name));
 };
+
 //auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
 //    std::vector<std::string> res;
 //    STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
 //    return res;
 //};
 
-auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
-    bool res = false;
-    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
-    return res;
+// auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
+//     bool res = false;
+//     STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
+//     return res;
+// };
+bool(*LongLinkIsConnected_ext)(const std::string& name)
+= [](const std::string& name) {
+	bool res = false;
+	STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name), res);
+	return res;
 };
 
-auto MarkMainLonglink_ext = +[](const std::string& name){
-    STN_WEAK_CALL(MarkMainLonglink_ext(name));
+// auto MarkMainLonglink_ext = +[](const std::string& name){
+//     STN_WEAK_CALL(MarkMainLonglink_ext(name));
+// };
+void(*MarkMainLonglink_ext)(const std::string& name)
+= [](const std::string& name) {
+	STN_WEAK_CALL(MarkMainLonglink_ext(name));
 };
     
-auto MakesureLonglinkConnected_ext = +[](const std::string& name){
-    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
+// auto MakesureLonglinkConnected_ext = +[](const std::string& name){
+//     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
+// };
+void(*MakesureLonglinkConnected_ext)(const std::string& name)
+= [](const std::string& name) {
+	STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
     
 //auto KeepSignalling_ext = +[](const std::string& name){

@@ -10,10 +10,12 @@ CChatDlg::CChatDlg()
 {
 	::LoadLibrary(CRichEditCtrl::GetLibraryName());
 }
+
 CChatDlg::~CChatDlg()
 {
 	MarsWrapper::Instance().setChatMsgObserver(NULL);
 }
+
 BOOL CChatDlg::PreTranslateMessage(MSG* pMsg)
 {
 	return CWindow::IsDialogMessage(pMsg);
@@ -24,6 +26,7 @@ BOOL CChatDlg::OnIdle()
 	UIUpdateChildWindows();
 	return FALSE;
 }
+
 LRESULT CChatDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	m_edit = GetDlgItem(IDC_EDITMSG);
@@ -53,7 +56,6 @@ LRESULT CChatDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
 	return true;
 }
-
 
 LRESULT CChatDlg::OnBnClickedBtnsendmsg(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -88,6 +90,7 @@ LRESULT CChatDlg::OnBnClickedBtnsendmsg(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 	return 0;
 }
+
 void CChatDlg::OnRecvChatMsg(const ChatMsg& msg)
 {
 	m_editMsgFlow.SetSelNone();
@@ -104,7 +107,6 @@ void CChatDlg::OnRecvChatMsg(const ChatMsg& msg)
 
 	m_editMsgFlow.PostMessage(WM_VSCROLL, SB_BOTTOM);
 }
-
 
 void CChatDlg::SetChatInfo(const std::string& name, const std::string& topic)
 {

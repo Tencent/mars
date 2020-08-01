@@ -27,7 +27,7 @@ class StnCallbackBridge {
 
     virtual void TrafficData(ssize_t _send, ssize_t _recv);
 
-    virtual std::vector<std::string> OnNewDns(const std::string& host);
+    virtual std::vector<std::string> OnNewDns(const std::string& _host);
     virtual void OnPush(const std::string& _channel_id,
                         uint32_t _cmdid,
                         uint32_t _taskid,
@@ -36,11 +36,11 @@ class StnCallbackBridge {
     virtual bool Req2Buf(uint32_t _taskid,
                          void* const _user_context,
                          const std::string& _user_id,
-                         AutoBuffer& outbuffer,
-                         AutoBuffer& extend,
-                         int& error_code,
-                         const int channel_select,
-                         const std::string& host);
+                         AutoBuffer& _outbuffer,
+                         AutoBuffer& _extend,
+                         int& _error_code,
+                         const int _channel_select,
+                         const std::string& _host);
     virtual int Buf2Resp(uint32_t _taskid,
                          void* const _user_context,
                          const std::string& _user_id,

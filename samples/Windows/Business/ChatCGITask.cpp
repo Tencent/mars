@@ -23,7 +23,7 @@
 #include "mars/stn/stn_logic.h"
 using namespace std;
 
-bool ChatCGITask::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select)
+bool ChatCGITask::Req2Buf(uint32_t _taskid, void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host)
 {
 	string data;
 	com::tencent::mars::sample::chat::proto::SendMessageRequest request;
@@ -37,7 +37,8 @@ bool ChatCGITask::Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffe
 	_outbuffer.Write(data.c_str(), data.size());
 	return true;
 }
-int ChatCGITask::Buf2Resp(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
+
+int ChatCGITask::Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select)
 {
 	com::tencent::mars::sample::chat::proto::SendMessageResponse response;
 	response.ParseFromArray(_inbuffer.Ptr(), _inbuffer.Length());

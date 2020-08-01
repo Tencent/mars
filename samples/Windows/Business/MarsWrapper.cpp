@@ -24,10 +24,11 @@
 #include "GetConvListCGITask.h"
 #include "proto/generate/main.pb.h"
 #include "proto/generate/messagepush.pb.h"
-#include "mars/comm/xlogger/xloggerbase.h"
-#include "mars/log/appender.h"
 
-static const char* g_host = "marsopen.cn";
+// modify to yours
+static const char* sg_host = "marsopen.cn";
+static const int sg_longlink_port = 8081;
+static const int sg_shortlink_port = 8080;
 
 MarsWrapper& MarsWrapper::Instance()
 {
@@ -38,24 +39,10 @@ MarsWrapper& MarsWrapper::Instance()
 MarsWrapper::MarsWrapper()
 	: chat_msg_observer_(nullptr)
 {
-	std::string logPath = "Log"; //use your log path
-	std::string pubKey = ""; //use you pubkey for log encrypt
 
-#if _DEBUG
-	xlogger_SetLevel(kLevelDebug);
-	appender_set_console_log(true);
-	extern std::function<void(char* _log)> g_console_log_fun;
-	g_console_log_fun = [](char* _log) {
-		::OutputDebugStringA(_log);
-	};
-#else
-	xlogger_SetLevel(kLevelInfo);
-	appender_set_console_log(false);
-#endif
-	appender_open(kAppednerAsync, logPath.c_str(), "Sample", pubKey.c_str());
 }
 
-void MarsWrapper::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
+void MarsWrapper::OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)
 {
 	com::tencent::mars::sample::chat::proto::MessagePush msg;
 	msg.ParseFromArray(_body.Ptr(), _body.Length());
@@ -72,8 +59,8 @@ void MarsWrapper::OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid
 void MarsWrapper::start()
 {
 	NetworkService::Instance().setClientVersion(200);
-	NetworkService::Instance().setShortLinkDebugIP(g_host, 8080);
-	NetworkService::Instance().setLongLinkAddress(g_host, 8081, "");
+	NetworkService::Instance().setShortLinkDebugIP(sg_host, sg_shortlink_port);
+	NetworkService::Instance().setLongLinkAddress(sg_host, sg_longlink_port, "");
 	NetworkService::Instance().start();	
 
 	NetworkService::Instance().setPushObserver(com::tencent::mars::sample::proto::CMD_ID_PUSH, this);
@@ -89,7 +76,7 @@ void MarsWrapper::pingServer(const std::string& _name, const std::string& _text,
 	task->channel_select_ = ChannelType_All;
 	task->cmdid_ = com::tencent::mars::sample::proto::CMD_ID_HELLO;
 	task->cgi_ = "/mars/hello";
-	task->host_ = g_host;
+	task->host_ = sg_host;
 	NetworkService::Instance().startTask(task);
 }
 
@@ -105,7 +92,7 @@ void MarsWrapper::sendChatMsg(const ChatMsg& _chat_msg)
 	task->channel_select_ = ChannelType_LongConn;
 	task->cmdid_ = com::tencent::mars::sample::proto::CMD_ID_SEND_MESSAGE;
 	task->cgi_ = "/mars/sendmessage";
-	task->host_ = g_host;
+	task->host_ = sg_host;
 	task->text_ = _chat_msg.content_;
 
 	task->user_ = _chat_msg.from_;
@@ -121,7 +108,7 @@ void MarsWrapper::getConversationList(boost::weak_ptr<GetConvListCGICallback> _c
 	task->channel_select_ = ChannelType_ShortConn;
 	task->cmdid_ = com::tencent::mars::sample::proto::CMD_ID_CONVERSATION_LIST;
 	task->cgi_ = "/mars/getconvlist";
-	task->host_ = g_host;
+	task->host_ = sg_host;
 	task->access_token_ = "";
 	task->callback_ = _callback;
 	NetworkService::Instance().startTask(task);
