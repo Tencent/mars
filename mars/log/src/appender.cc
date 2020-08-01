@@ -924,7 +924,7 @@ void appender_open(const XLogConfig& _config) {
     snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3", sg_cache_logdir.empty() ? _config.logdir_.c_str() : sg_cache_logdir.c_str(), _config.nameprefix_.c_str());
 
     bool use_mmap = false;
-	bool use_compress = true;
+    bool use_compress = true;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, sg_mmmap_file))  {
         if (_config.compress_mode_ == kZstd){
             sg_log_buff = new LogZstdBuffer(sg_mmmap_file.data(), kBufferBlockLength, use_compress, _config.pub_key_.c_str(), _config.compress_level_);
