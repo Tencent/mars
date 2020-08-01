@@ -235,7 +235,7 @@ void TrafficData(ssize_t _send, ssize_t _recv) {
 //底层询问上层该host对应的ip列表
 std::vector<std::string> OnNewDns(const std::string& _host) {
     xassert2(sg_callback_bridge != NULL);
-    return sg_callback_bridge->OnNewDns(host);
+    return sg_callback_bridge->OnNewDns(_host);
 };
 
 //网络层收到push消息回调
