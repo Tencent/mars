@@ -841,7 +841,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
         return false;
     }
     
-    ScopedLock lock(meta_mutex_);
+//    ScopedLock lock(meta_mutex_);
     longlink_id ++;
     if (longlink_id == INT_MAX) {
         longlink_id = 1;

@@ -269,6 +269,7 @@ void OnLongLinkStatusChange(int _status) {
     xassert2(sg_callback_bridge != NULL);
     sg_callback_bridge->OnLongLinkStatusChange(_status);
 };
+
 void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     xassert2(sg_callback_bridge != NULL);
     SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
@@ -281,7 +282,7 @@ void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::str
     sg_callback_bridge->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 };
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
+int GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->GetLonglinkIdentifyCheckBuffer(_channel_id, _identify_buffer, _buffer_hash, _cmdid);
 };

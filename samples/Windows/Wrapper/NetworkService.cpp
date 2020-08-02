@@ -96,7 +96,8 @@ void NetworkService::__Openlog()
 	XLogConfig config;
 	config.logdir_ = "Log"; //use your log path
 	config.nameprefix_ = "Sample";
-	config.pub_key_ = ""; //use you pubkey for log encrypt
+	config.pub_key_ = ""; //use your pubkey for log encrypt
+	config.cachedir_ = ""; //use your cache path
 	appender_open(config);
 }
 
