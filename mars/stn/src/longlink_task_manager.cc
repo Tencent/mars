@@ -867,7 +867,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
 
 void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     xinfo_function(TSF"release longlink:%_", _name);
-    ScopedLock lock(meta_mutex_);
+//    ScopedLock lock(meta_mutex_);
     auto longlink = GetLongLink(_name);
     if(longlink == nullptr)
         return;
@@ -889,7 +889,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     longlink_metas_.erase(_name);
     longlink->Channel()->SignalConnection.disconnect_all_slots();
     longlink->Monitor()->DisconnectAllSlot();
-    lock.unlock();
+//    lock.unlock();
     {
     // MessageQueue::AsyncInvoke([&,longlink] () {
 //        longlink->Channel()->OnSend = NULL;
