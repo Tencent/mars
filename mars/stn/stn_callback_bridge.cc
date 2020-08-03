@@ -220,7 +220,7 @@ void StnCallbackBridge::ReportTaskLimited(int _check_type, const Task& _task, un
 void StnCallbackBridge::ReportDnsProfile(const DnsProfile& _dns_profile) {
 }
 
-//callback functions
+// callback functions
 bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->MakesureAuthed(_host, _user_id);
@@ -232,34 +232,34 @@ void TrafficData(ssize_t _send, ssize_t _recv) {
     return sg_callback_bridge->TrafficData(_send, _recv);
 };
 
-//底层询问上层该host对应的ip列表
+// 底层询问上层该host对应的ip列表
 std::vector<std::string> OnNewDns(const std::string& _host) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->OnNewDns(_host);
 };
 
-//网络层收到push消息回调
+// 网络层收到push消息回调
 void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
     xassert2(sg_callback_bridge != NULL);
     sg_callback_bridge->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 };
-//底层获取task要发送的数据
+// 底层获取task要发送的数据
 bool Req2Buf(uint32_t taskid,  void* const user_context, const std::string& _user_id, AutoBuffer& _outbuffer, AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->Req2Buf(taskid, user_context, _user_id, _outbuffer, _extend, _error_code, _channel_select, _host);
 };
-//底层回包返回给上层解析
+// 底层回包返回给上层解析
 int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->Buf2Resp(taskid, user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select);
 };
-//任务执行结束
+// 任务执行结束
 int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int _error_type, int _error_code) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->OnTaskEnd(taskid, user_context, _user_id, _error_type, _error_code);
 };
 
-//上报网络连接状态
+// 上报网络连接状态
 void ReportConnectStatus(int _status, int _longlink_status) {
     xassert2(sg_callback_bridge != NULL);
     sg_callback_bridge->ReportConnectStatus(_status, _longlink_status);
@@ -281,12 +281,12 @@ void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::str
     SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
     sg_callback_bridge->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 };
-//长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
+// 长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 int GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->GetLonglinkIdentifyCheckBuffer(_channel_id, _identify_buffer, _buffer_hash, _cmdid);
 };
-//长连信令校验回包
+// 长连信令校验回包
 bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->OnLonglinkIdentifyResponse(_channel_id, _response_buffer, _identify_buffer_hash);
