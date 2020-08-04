@@ -126,7 +126,6 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
     , is_keep_alive_(CheckKeepAlive(_task))
     {
     xinfo2(TSF"%_, handler:(%_,%_)",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq);
-    xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
 }
 
 ShortLink::~ShortLink() {
@@ -297,7 +296,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     ShortLinkConnectObserver connect_observer(*this);
 
-    SOCKET sock = socketOperator_->Connect(vecaddr, breaker_, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
+    SOCKET sock = socketOperator_->Connect(vecaddr, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
     delete proxy_addr;
     bool contain_v6 = __ContainIPv6(vecaddr);
 
@@ -314,7 +313,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());
         _conn_profile.conn_errcode = profile.errorCode;
 
-        if (!breaker_.IsBreak()) {
+        if (!socketOperator_->Breaker().IsBreak()) {
             __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
         }
         else {
@@ -429,7 +428,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	xgroup2_define(group_send);
 	xinfo2(TSF"task socket send sock:%_, %_ http len:%_, ", _socket, message.String(), out_buff.Length()) >> group_send;
 
-	int send_ret = socketOperator_->Send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), breaker_, _err_code);
+	int send_ret = socketOperator_->Send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), _err_code);
 
 	if (send_ret < 0) {
 		xerror2(TSF"Send Request Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
@@ -439,7 +438,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
     
     GetSignalOnNetworkDataChange()(XLOGGER_TAG, send_ret, 0);
 
-    if (breaker_.IsBreak()) {
+    if (socketOperator_->Breaker().IsBreak()) {
         xwarn2(TSF"Send Request break, sent:%_ nread:%_, nwrite:%_", send_ret, socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
         return;
     }
@@ -463,7 +462,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	while (true) {
 
-		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, breaker_, _err_code, 5000);
+		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
 
 		if (recv_ret < 0) {
 			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
@@ -471,7 +470,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			break;
 		}
 
-		if (breaker_.IsBreak()) {
+		if (socketOperator_->Breaker().IsBreak()) {
 			xinfo2(TSF"user cancel, nread:%_, nwrite:%_", socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
         	_conn_profile.disconn_errtype = kEctCanceld;
 			break;
@@ -603,11 +602,8 @@ void ShortLink::__CancelAndWaitWorkerThread() {
 
     if (!thread_.isruning()) return;
 
-    xassert2(breaker_.IsCreateSuc());
-
-    if (!breaker_.Break()) {
+    if (!socketOperator_->Breaker().Break()) {
         xassert2(false, "breaker fail");
-        breaker_.Close();
     }
 
     dns_util_.Cancel();

@@ -79,7 +79,6 @@ class ShortLink : public ShortLinkInterface {
     Task                            task_;
     Thread                          thread_;
 
-    SocketBreaker                   breaker_;
     ConnectProfile                  conn_profile_;
     NetSource::DnsUtil              dns_util_;
     const bool                      use_proxy_;

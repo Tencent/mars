@@ -21,7 +21,24 @@ bool ContainIPv6(const std::vector<socket_address>& _vecaddr) {
 	return false;
 }
 
-SOCKET TcpSocketOperator::Connect(const std::vector<socket_address> &_vecaddr, SocketBreaker &_breaker,
+class TcpBreaker : public Breaker {
+public:
+	TcpBreaker(SocketBreaker& _breaker):breaker_(_breaker) {}
+	virtual bool IsBreak() {
+		return breaker_.IsBreak();
+	}
+	virtual bool Break() {
+		return breaker_.Break();
+	}
+private:
+	SocketBreaker& breaker_;
+};
+
+TcpSocketOperator::TcpSocketOperator(MComplexConnect* _observer):observer_(_observer) {
+	breaker_ = new TcpBreaker(sBreaker_);
+}
+
+SOCKET TcpSocketOperator::Connect(const std::vector<socket_address> &_vecaddr,
                mars::comm::ProxyType _proxy_type,
                const socket_address *_proxy_addr,
                const std::string &_proxy_username, const std::string &_proxy_pwd) {
@@ -33,7 +50,7 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address> &_vecaddr, S
 		xinfo2(TSF"address vector has no ipv6");
 	}
 	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval, timoutMode);
-	SOCKET sock = conn.ConnectImpatient(_vecaddr, _breaker, observer_, _proxy_type, _proxy_addr, _proxy_username, _proxy_pwd);
+	SOCKET sock = conn.ConnectImpatient(_vecaddr, sBreaker_, observer_, _proxy_type, _proxy_addr, _proxy_username, _proxy_pwd);
 	xinfo2(TSF"connect result socket: %_", sock);
 	profile_.index = conn.Index();
 	profile_.rtt = conn.IndexRtt();
@@ -42,13 +59,13 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address> &_vecaddr, S
 	return sock;
 }
 
-int TcpSocketOperator::Send(SOCKET _sock, const void *_buffer, size_t _len, SocketBreaker &_breaker, int &_errcode, int _timeout) {
-	return block_socket_send(_sock, _buffer, _len, _breaker, _errcode);
+int TcpSocketOperator::Send(SOCKET _sock, const void *_buffer, size_t _len, int &_errcode, int _timeout) {
+	return block_socket_send(_sock, _buffer, _len, sBreaker_, _errcode);
 }
 
-int TcpSocketOperator::Recv(SOCKET _sock, AutoBuffer &_buffer, size_t _max_size, SocketBreaker &_breaker, int &_errcode, int _timeout,
+int TcpSocketOperator::Recv(SOCKET _sock, AutoBuffer &_buffer, size_t _max_size, int &_errcode, int _timeout,
 bool _wait_full_size) {
-	return block_socket_recv(_sock, _buffer, _max_size, _breaker, _errcode, _timeout);
+	return block_socket_recv(_sock, _buffer, _max_size, sBreaker_, _errcode, _timeout);
 }
 
 std::string TcpSocketOperator::ErrorDesc(int _errcode) {
