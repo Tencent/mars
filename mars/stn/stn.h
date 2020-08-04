@@ -35,8 +35,8 @@
 namespace mars{
     namespace stn{
 
-#define DEFAULT_LONGLINK_NAME = "default-longlink";
-#define DEFAULT_LONGLINK_GROUP = "default-group";
+#define DEFAULT_LONGLINK_NAME "default-longlink";
+#define DEFAULT_LONGLINK_GROUP "default-group";
 struct TaskProfile;
 struct DnsProfile;
 class LongLinkEncoder;
