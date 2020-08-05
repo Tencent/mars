@@ -19,6 +19,7 @@
 
 
 #include "mars/log/xlogger_interface.h"
+#include "xlogger_appender.h"
 
 #include <functional>
 #include <map>
@@ -86,11 +87,7 @@ void ReleaseXloggerInstance(const char* _nameprefix) {
     sg_map.erase(it);
 }
 
-void XloggerWrite(int64_t _instance_ptr, const XLoggerInfo* _info, const char* _log) {
-    if (_instance_ptr < 0) {
-        return;
-    }
-
+void XloggerWrite(uintptr_t _instance_ptr, const XLoggerInfo* _info, const char* _log) {
     if (0 == _instance_ptr) {
         xlogger_Write(_info, _log);
     } else {
@@ -99,11 +96,7 @@ void XloggerWrite(int64_t _instance_ptr, const XLoggerInfo* _info, const char* _
     }
 }
 
-bool IsEnabledFor(int64_t _instance_ptr, TLogLevel _level) {
-    if (_instance_ptr < 0) {
-        return false;
-    }
-
+bool IsEnabledFor(uintptr_t _instance_ptr, TLogLevel _level) {
     if (0 == _instance_ptr) {
         return xlogger_IsEnabledFor(_level);
     } else {
@@ -112,11 +105,7 @@ bool IsEnabledFor(int64_t _instance_ptr, TLogLevel _level) {
     }
 }
 
-TLogLevel GetLevel(int64_t _instance_ptr) {
-    if (_instance_ptr < 0) {
-        return kLevelNone;
-    }
-
+TLogLevel GetLevel(uintptr_t _instance_ptr) {
     if (0 == _instance_ptr) {
         return xlogger_Level();
     } else {
@@ -126,11 +115,7 @@ TLogLevel GetLevel(int64_t _instance_ptr) {
     }
 }
 
-void SetLevel(int64_t _instance_ptr, TLogLevel _level) {
-    if (_instance_ptr < 0) {
-        return;
-    }
-
+void SetLevel(uintptr_t _instance_ptr, TLogLevel _level) {
     if (0 == _instance_ptr) {
         xlogger_SetLevel(_level);
     } else {
@@ -139,11 +124,7 @@ void SetLevel(int64_t _instance_ptr, TLogLevel _level) {
     }
 }
 
-void SetAppenderMode(int64_t _instance_ptr, TAppenderMode _mode) {
-    if (_instance_ptr < 0) {
-        return;
-    }
-
+void SetAppenderMode(uintptr_t _instance_ptr, TAppenderMode _mode) {
     if (0 == _instance_ptr) {
         appender_setmode(_mode);
     } else {
@@ -153,11 +134,7 @@ void SetAppenderMode(int64_t _instance_ptr, TAppenderMode _mode) {
     }
 }
 
-void Flush(int64_t _instance_ptr, bool _is_sync) {
-    if (_instance_ptr < 0) {
-        return;
-    }
-
+void Flush(uintptr_t _instance_ptr, bool _is_sync) {
     if (0 == _instance_ptr) {
         _is_sync ? appender_flush_sync() : appender_flush();
     } else {
@@ -167,11 +144,7 @@ void Flush(int64_t _instance_ptr, bool _is_sync) {
     }
 }
 
-void SetConsoleLogOpen(int64_t _instance_ptr, bool _is_open) {
-    if (_instance_ptr < 0) {
-        return;
-    }
-
+void SetConsoleLogOpen(uintptr_t _instance_ptr, bool _is_open) {
     if (0 == _instance_ptr) {
        appender_set_console_log(_is_open);
     } else {
@@ -181,11 +154,7 @@ void SetConsoleLogOpen(int64_t _instance_ptr, bool _is_open) {
     }
 }
 
-void SetMaxFileSize(int64_t _instance_ptr, long _max_file_size) {
-    if (_instance_ptr < 0) {
-        return;
-    }
-
+void SetMaxFileSize(uintptr_t _instance_ptr, long _max_file_size) {
     if (0 == _instance_ptr) {
        appender_set_max_file_size(_max_file_size);
     } else {
@@ -195,11 +164,7 @@ void SetMaxFileSize(int64_t _instance_ptr, long _max_file_size) {
     }
 }
 
-void SetMaxAliveTime(int64_t _instance_ptr, long _alive_seconds) {
-    if (_instance_ptr < 0) {
-        return;
-    }
-
+void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds) {
     if (0 == _instance_ptr) {
        appender_set_max_alive_duration(_alive_seconds);
     } else {

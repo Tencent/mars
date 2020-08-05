@@ -44,23 +44,23 @@ mars::comm::XloggerCategory* GetXloggerInstance(const char* _nameprefix);
 
 void ReleaseXloggerInstance(const char* _nameprefix);
 
-void XloggerWrite(int64_t _instance_ptr, const XLoggerInfo* _info, const char* _log);
+void XloggerWrite(uintptr_t _instance_ptr, const XLoggerInfo* _info, const char* _log);
 
-bool IsEnabledFor(int64_t _instance_ptr, TLogLevel _level);
+bool IsEnabledFor(uintptr_t _instance_ptr, TLogLevel _level);
 
-TLogLevel GetLevel(int64_t _instance_ptr);
+TLogLevel GetLevel(uintptr_t _instance_ptr);
 
-void SetLevel(int64_t _instance_ptr, TLogLevel _level);
+void SetLevel(uintptr_t _instance_ptr, TLogLevel _level);
 
-void SetAppenderMode(int64_t _instance_ptr, TAppenderMode _mode);
+void SetAppenderMode(uintptr_t _instance_ptr, TAppenderMode _mode);
 
-void Flush(int64_t _instance_ptr, bool _is_sync);
+void Flush(uintptr_t _instance_ptr, bool _is_sync);
 
-void SetConsoleLogOpen(int64_t _instance_ptr, bool _is_open);
+void SetConsoleLogOpen(uintptr_t _instance_ptr, bool _is_open);
 
-void SetMaxFileSize(int64_t _instance_ptr, long _max_file_size);
+void SetMaxFileSize(uintptr_t _instance_ptr, long _max_file_size);
 
-void SetMaxAliveTime(int64_t _instance_ptr, long _alive_seconds);
+void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds);
 
 }
 }
