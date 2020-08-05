@@ -582,13 +582,11 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xdebug_scope(name, ...)			__xscope_impl(kLevelDebug, name, __VA_ARGS__)
 #define xinfo_scope(name, ...)			__xscope_impl(kLevelInfo, name, __VA_ARGS__)
 
-#define __xfunction_scope_impl(level, name, ...)	XScopeTracer ____xloger_anonymous_function_scope_20151022____(level, XLOGGER_TAG, name, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_SCOPE_MESSAGE(__VA_ARGS__))
+#define __xfunction_scope_impl(level, name, ...)	XScopeTracer __ANONYMOUS_VARIABLE__(_xfunction_)(level, XLOGGER_TAG, name, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_SCOPE_MESSAGE(__VA_ARGS__))
 
 #define xverbose_function(...)			__xfunction_scope_impl(kLevelVerbose, __FUNCTION__, __VA_ARGS__)
 #define xdebug_function(...)			__xfunction_scope_impl(kLevelDebug, __FUNCTION__, __VA_ARGS__)
 #define xinfo_function(...)				__xfunction_scope_impl(kLevelInfo, __FUNCTION__, __VA_ARGS__)
-#define xexitmsg_function(...)			   ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
-#define xexitmsg_function_if(exp, ...)	   if((!exp)); else ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
 
 // #define TSF __tsf__,
 #define TSF alloca(1),
