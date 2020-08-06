@@ -724,7 +724,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 if (0 == it->second->Pos() && OnSend) OnSend(it->first.taskid);
                 
                 if ((size_t)writelen >= it->second->PosLength()) {
-                    xinfo2(TSF"sub send taskid:%_, cmdid:%_, %_, len(S:%_, %_/%_), ", it->first.taskid, it->first.cmdid, it->first.cgi, it->second->PosLength(), it->second->PosLength(), it->second->Length()) >> xlog_group;
+                    xinfo2(TSF"sub send taskid:%_, cmdid:%_, cgi:%_, len(S:%_, %_/%_), ", it->first.taskid, it->first.cmdid, it->first.cgi, it->second->PosLength(), it->second->PosLength(), it->second->Length()) >> xlog_group;
                     writelen -= it->second->PosLength();
                     if (!it->first.send_only) { sent_taskids[it->first.taskid].task = it->first; }
                     
@@ -733,7 +733,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                     
                     it = lstsenddata_.erase(it);
                 } else {
-                    xinfo2(TSF"sub send taskid:%_, cmdid:%_, %_, len(S:%_, %_/%_), ", it->first.taskid, it->first.cmdid, it->first.cgi, writelen, it->second->PosLength(), it->second->Length()) >> xlog_group;
+                    xinfo2(TSF"sub send taskid:%_, cmdid:%_, cgi:%_, len(S:%_, %_/%_), ", it->first.taskid, it->first.cmdid, it->first.cgi, writelen, it->second->PosLength(), it->second->Length()) >> xlog_group;
                     it->second->Seek(writelen, AutoBuffer::ESeekCur);
                     writelen = 0;
                 }
