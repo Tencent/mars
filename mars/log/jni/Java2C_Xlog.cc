@@ -296,7 +296,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxFileSize
 DEFINE_FIND_METHOD(KXlog_setMaxAliveTime, KXlog, "setMaxAliveTime", "(JJ)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxAliveTime
         (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_time) {
-    mars::xlog::SetMaxFileSize(_log_instance_ptr, _max_time);
+    mars::xlog::SetMaxAliveTime(_log_instance_ptr, _max_time);
 }
 }
 
