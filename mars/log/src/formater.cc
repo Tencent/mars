@@ -90,8 +90,8 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.3s %02d:%02d:%02d.%.3ld", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
                      gmt.c_str(), tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
 #elif _WIN32
-            snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.1f %02d:%02d:%02d.%.3d", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
-                     (-_timezone) / 3600.0, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
+            snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.1ld %02d:%02d:%02d.%.3ld", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
+                     (_timezone) / (long)3600, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / (long)1000);
 #else
             std::string gmt = std::to_string(tm.tm_gmtoff / 360);
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.3s %02d:%02d:%02d.%.3d", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
