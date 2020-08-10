@@ -5,8 +5,9 @@
 #ifndef MMNET_TCPSOCKETOPERATOR_H
 #define MMNET_TCPSOCKETOPERATOR_H
 
-#include <mars/mars/comm/socket/socketbreaker.h>
 #include "socket_operator.h"
+
+#include "comm/socket/socketbreaker.h"
 #include "comm/socket/complexconnect.h"
 
 namespace mars {
@@ -24,16 +25,20 @@ public:
 	                       mars::comm::ProxyType _proxy_type = mars::comm::kProxyNone,
 	                       const socket_address *_proxy_addr = NULL,
 	                       const std::string &_proxy_username = "", const std::string &_proxy_pwd = "");
+    
+    virtual void Close(SOCKET _sock) override;
+    virtual SocketCloseFunction GetCloseFunction() const override;
 
 	virtual int
-	Send(SOCKET _sock, const void *_buffer, size_t _len, int &_errcode, int _timeout);
+	Send(SOCKET _sock, const void *_buffer, size_t _len, int &_errcode, int _timeout) override;
 
 	virtual int
 	Recv(SOCKET _sock, AutoBuffer &_buffer, size_t _max_size, int &_errcode, int _timeout,
-	     bool _wait_full_size);
+	     bool _wait_full_size) override;
 
-	virtual std::string ErrorDesc(int _errcode);
-
+	virtual std::string ErrorDesc(int _errcode) override;
+    
+    std::string Identify(SOCKET _sock) const override;
 private:
 	MComplexConnect* observer_;
 	SocketBreaker sBreaker_;

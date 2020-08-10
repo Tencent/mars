@@ -6,6 +6,7 @@
 #include "config.h"
 #include <comm/xlogger/xlogger.h>
 #include <comm/socket/block_socket.h>
+#include "mars/comm/socket/unix_socket.h"   // for socket_close
 
 namespace mars {
 	namespace stn {
@@ -58,7 +59,15 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address> &_vecaddr,
 	profile_.totalCost = conn.TotalCost();
 	return sock;
 }
+    
+void TcpSocketOperator::Close(int _sock){
+    socket_close(_sock);
+}
 
+SocketCloseFunction TcpSocketOperator::GetCloseFunction() const{
+    return &close;
+}
+    
 int TcpSocketOperator::Send(SOCKET _sock, const void *_buffer, size_t _len, int &_errcode, int _timeout) {
 	return block_socket_send(_sock, _buffer, _len, sBreaker_, _errcode);
 }
@@ -70,6 +79,13 @@ bool _wait_full_size) {
 
 std::string TcpSocketOperator::ErrorDesc(int _errcode) {
 	return strerror(_errcode);
+}
+
+std::string TcpSocketOperator::Identify(int _sock) const{
+    char szmsg[64];
+    snprintf(szmsg, sizeof(szmsg), "%d@TCP", _sock);
+    
+    return std::string(szmsg);
 }
 
 	}

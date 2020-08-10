@@ -45,7 +45,6 @@
 #include "weak_network_logic.h"
 #include "tcp_socket_operator.h"
 
-
 #define AYNC_HANDLER asyncreg_.Get()
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
@@ -111,14 +110,10 @@ class ShortLinkConnectObserver : public MComplexConnect {
 
 }}
 ///////////////////////////////////////////////////////////////////////////////////////
-TcpSocketOperator* DefaultSocketOperator(ShortLink& _channel) {
-	return new TcpSocketOperator(new ShortLinkConnectObserver(_channel));
-}
-
-ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, SocketOperator* _operator)
+ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 	, net_source_(_netsource)
-	, socketOperator_(_operator == nullptr ? DefaultSocketOperator(*this) : _operator)
+	, socketOperator_(_operator == nullptr ? std::make_unique<TcpSocketOperator>(new ShortLinkConnectObserver(*this)) : std::move(_operator))
 	, task_(_task)
 	, thread_(boost::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
     , use_proxy_(_use_proxy)
@@ -132,7 +127,6 @@ ShortLink::~ShortLink() {
     xinfo_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
-    delete socketOperator_;
 }
 
 void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
@@ -169,7 +163,7 @@ void ShortLink::__Run() {
     __UpdateProfile(conn_profile);
     
     if(!is_keep_alive_) {
-        socket_close(fd_socket);
+        socketOperator_->Close(fd_socket);
     } else {
         xinfo2(TSF"keep alive, do not close socket:%_", fd_socket);
     }
@@ -275,6 +269,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.host = _conn_profile.ip_items[i].str_host;
                 _conn_profile.port = _conn_profile.ip_items[i].port;
                 _conn_profile.socket_fd = fd;
+                _conn_profile.closefunc = socketOperator_->GetCloseFunction();
+                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
                 _conn_profile.is_reused_fd = true;
                 __UpdateProfile(_conn_profile);
                 xinfo2(TSF"reused socket:%_", fd);
@@ -344,7 +340,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     __UpdateProfile(_conn_profile);
 
-    xinfo2(TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, net:%_", sock, message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
+    xinfo2(TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, net:%_", socketOperator_->Identify(sock), message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
 
 
 //    struct linger so_linger;

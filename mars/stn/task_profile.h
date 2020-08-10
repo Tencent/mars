@@ -154,6 +154,7 @@ struct ConnectProfile {
 
     //keep alive config
     SOCKET socket_fd;
+    int (*closefunc)(int) = &close;
     uint32_t keepalive_timeout;
     bool is_reused_fd;
     int local_net_stack;
