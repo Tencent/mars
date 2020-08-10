@@ -1122,6 +1122,7 @@ bool XloggerAppender::MakeLogfileName(int _timespan, const char* _prefix,
 ////////////////////////////////////////////////////////////////////////////////////
 static XloggerAppender* sg_default_appender = nullptr;
 static bool sg_release_guard = true; 
+static bool sg_default_console_log_open = false;
 static Mutex sg_mutex;
 void xlogger_appender(const XLoggerInfo* _info, const char* _log) {
     if (sg_release_guard) {
@@ -1150,11 +1151,12 @@ void appender_open(const XLogConfig& _config) {
     assert(!_config.logdir_.empty());
 
     if (nullptr != sg_default_appender) {
-        sg_default_appender->WriteTips2File("appender has already ben opened. _dir:%s _nameprefix:%s", _config.logdir_.c_str(), _config.nameprefix_.c_str());
+        sg_default_appender->WriteTips2File("appender has already been opened. _dir:%s _nameprefix:%s", _config.logdir_.c_str(), _config.nameprefix_.c_str());
         return; 
     }
 
     sg_default_appender = XloggerAppender::NewInstance(_config);
+    sg_default_appender->SetConsoleLog(sg_default_console_log_open);
     sg_release_guard = false;
     xlogger_SetAppender(&xlogger_appender);
     BOOT_RUN_EXIT(appender_release_default_appender);
@@ -1207,6 +1209,7 @@ bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len) {
 }
 
 void appender_set_console_log(bool _is_open) {
+    sg_default_console_log_open = _is_open;
     if (sg_release_guard) {
         return;
     }
