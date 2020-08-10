@@ -220,47 +220,9 @@ private:
 
 class XScopeTracer {
 public:
-    XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log)
-    :m_enable(xlogger_IsEnabledFor(_level)), m_info(), m_tv() {
-        m_info.level = _level;
+    XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log);
 
-        if (m_enable) {
-            m_info.tag = _tag;
-            m_info.filename = _file;
-            m_info.func_name = _func;
-            m_info.line = _line;
-            gettimeofday(&m_info.timeval, NULL);
-            m_info.pid = -1;
-            m_info.tid = -1;
-            m_info.maintid = -1;
-
-            strncpy(m_name, _name, sizeof(m_name));
-            m_name[sizeof(m_name)-1] = '\0';
-
-            m_tv = m_info.timeval;
-            char strout[1024] = {'\0'};
-            snprintf(strout, sizeof(strout), "-> %s %s", m_name, NULL!=_log? _log:"");
-            xlogger_filter_t filter = xlogger_GetFilter();
-            if (NULL == filter || filter(&m_info, strout) > 0) {
-                xlogger_Write(&m_info, strout);
-            }
-        }
-    }
-
-    ~XScopeTracer() {
-        if (m_enable) {
-            timeval tv;
-            gettimeofday(&tv, NULL);
-            m_info.timeval = tv;
-            long timeSpan = (tv.tv_sec - m_tv.tv_sec) * 1000 + (tv.tv_usec - m_tv.tv_usec) / 1000;
-            char strout[1024] = {'\0'};
-            snprintf(strout, sizeof(strout), "<- %s +%ld, %s", m_name, timeSpan, m_exitmsg.c_str());
-            xlogger_filter_t filter = xlogger_GetFilter();
-            if (NULL == filter || filter(&m_info, strout) > 0) {
-                xlogger_Write(&m_info, strout);
-            }
-        }
-    }
+    ~XScopeTracer();
     
     void Exit(const std::string& _exitmsg) { m_exitmsg += _exitmsg; }
     
