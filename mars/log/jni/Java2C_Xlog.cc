@@ -34,7 +34,7 @@ DEFINE_FIND_CLASS(KXlog, "com/tencent/mars/xlog/Xlog")
 
 extern "C" {
 
-DEFINE_FIND_METHOD(KXlog_newXlogInstance, KXlog, "newXlogInstance", "(Lcom/tencent/mars/xlog/Xlog$XLogConfig;)V")
+DEFINE_FIND_METHOD(KXlog_newXlogInstance, KXlog, "newXlogInstance", "(Lcom/tencent/mars/xlog/Xlog$XLogConfig;)J")
 JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
     (JNIEnv *env, jobject, jobject _log_config) {
 
