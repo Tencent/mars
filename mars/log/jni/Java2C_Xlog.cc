@@ -34,9 +34,9 @@ DEFINE_FIND_CLASS(KXlog, "com/tencent/mars/xlog/Xlog")
 
 extern "C" {
 
-DEFINE_FIND_STATIC_METHOD(KXlog_newXlogInstance, KXlog, "newXlogInstance", "(Lcom/tencent/mars/xlog/Xlog$XLogConfig;)V")
+DEFINE_FIND_METHOD(KXlog_newXlogInstance, KXlog, "newXlogInstance", "(Lcom/tencent/mars/xlog/Xlog$XLogConfig;)V")
 JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
-    (JNIEnv *env, jclass clazz, jobject _log_config) {
+    (JNIEnv *env, jobject, jobject _log_config) {
 
     if (NULL == _log_config) {
         xerror2(TSF"logconfig is null");
@@ -85,9 +85,9 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
     return reinterpret_cast<uintptr_t>(category);
 }
 
-DEFINE_FIND_STATIC_METHOD(KXlog_getXlogInstance, KXlog, "getXlogInstance", "(Ljava/lang/String;)J")
+DEFINE_FIND_METHOD(KXlog_getXlogInstance, KXlog, "getXlogInstance", "(Ljava/lang/String;)J")
 JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
-    (JNIEnv *env, jclass, jstring _nameprefix) {
+    (JNIEnv *env, jobject, jstring _nameprefix) {
     ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::comm::XloggerCategory* category = mars::xlog::GetXloggerInstance(nameprefix_jstr.GetChar());
     if (nullptr == category) {
@@ -96,9 +96,9 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
     return reinterpret_cast<uintptr_t>(category);
 }
 
-DEFINE_FIND_STATIC_METHOD(KXlog_releaseXlogInstance, KXlog, "releaseXlogInstance", "(Ljava/lang/String;)V")
+DEFINE_FIND_METHOD(KXlog_releaseXlogInstance, KXlog, "releaseXlogInstance", "(Ljava/lang/String;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_releaseXlogInstance
-    (JNIEnv *env, jclass, jstring _nameprefix) {
+    (JNIEnv *env, jobject, jstring _nameprefix) {
     ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::xlog::ReleaseXloggerInstance(nameprefix_jstr.GetChar());
 }
