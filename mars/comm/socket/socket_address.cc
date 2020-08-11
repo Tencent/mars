@@ -117,6 +117,7 @@ void  socket_address::__init(const sockaddr* _addr) {
 
 		snprintf(url_, sizeof(url_), "[%s]:%u", ip_, port());
 	} else {
+        xassert2(false);
     	addr_.sa.sa_family = AF_UNSPEC;
     }
 }
