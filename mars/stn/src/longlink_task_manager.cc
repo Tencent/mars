@@ -609,7 +609,7 @@ void LongLinkTaskManager::__OnResponse(ErrCmdType _error_type, int _error_code, 
             break;
         default:
         {
-			xassert2(false, TSF"task decode error fail_handle:%_, taskid:%_", handle_type, it->task.taskid);
+			xerror2(TSF"task decode error fail_handle:%_, taskid:%_", handle_type, it->task.taskid);
 			__BatchErrorRespHandle(kEctEnDecode, err_code, handle_type, it->task.taskid, _connect_profile);
 			xassert2(fun_notify_network_err_);
 			fun_notify_network_err_(__LINE__, kEctEnDecode, handle_type, _connect_profile.ip, _connect_profile.port);
