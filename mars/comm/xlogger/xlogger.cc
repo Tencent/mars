@@ -17,6 +17,23 @@
 
 #include "xlogger.h"
 
+XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace, bool (*_hook)(XLoggerInfo& _info, std::string& _log))
+:m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_isinfonull(false) {
+	m_info.level = _level;
+	m_info.tag = _tag;
+	m_info.filename = _file;
+	m_info.func_name = _func;
+	m_info.line = _line;
+	m_info.timeval.tv_sec = 0;
+	m_info.timeval.tv_usec = 0;
+	m_info.pid = -1;
+	m_info.tid = -1;
+	m_info.maintid = -1;
+	m_info.traceLog = _trace ? 1 : 0;
+
+	m_message.reserve(512);
+}
+
 XLogger::~XLogger() {
 	if (!m_isassert && m_message.empty()) return;
 
@@ -204,6 +221,94 @@ XScopeTracer::~XScopeTracer() {
 		xlogger_filter_t filter = xlogger_GetFilter();
 		if (NULL == filter || filter(&m_info, strout) > 0) {
 			xlogger_Write(&m_info, strout);
+		}
+	}
+}
+
+///////////////////////////XMessage////////////////////
+XMessage& XMessage::operator<< (const string_cast& _value) {
+	if (NULL != _value.str()) {
+		m_message += _value.str();
+	} else {
+		assert(false);
+	}
+	return *this;
+}
+
+XMessage& XMessage::operator>> (const string_cast& _value) {
+	if (NULL != _value.str()) {
+		m_message.insert(0,  _value.str());
+	} else {
+		assert(false);
+	}
+	return *this;
+}
+
+XMessage& XMessage::VPrintf(const char* _format, va_list _list) {
+	if (_format == NULL) {
+		assert(false);
+		return *this;
+	}
+
+	char temp[4096] = {'\0'};
+	vsnprintf(temp, 4096, _format, _list);
+	m_message += temp;
+	return *this;
+}
+
+XMessage& XMessage::operator()(const char* _format, ...) {
+	if (_format == NULL) {
+		assert(false);
+		return *this;
+	}
+
+	va_list valist;
+	va_start(valist, _format);
+	VPrintf(_format, valist);
+	va_end(valist);
+	return *this;
+}
+
+void XMessage::DoTypeSafeFormat(const char* _format, const string_cast** _args) {
+
+	const char* current = _format;
+	int count = 0;
+	while ('\0' != *current)
+	{
+		if ('%' != *current)
+		{
+			m_message += *current;
+			++current;
+			continue;
+		}
+
+		char nextch = *(current+1);
+		if (('0' <=nextch  && nextch <= '9') || nextch == '_')
+		{
+			int argIndex = count;
+			if (nextch != '_') argIndex = nextch - '0';
+
+			if (_args[argIndex] != NULL)
+			{
+				if (NULL != _args[argIndex]->str())
+				{
+					m_message += _args[argIndex]->str();
+				} else {
+					m_message += "(null)";
+					assert(false);
+				}
+			} else {
+				assert(false);
+			}
+			count++;
+			current += 2;
+		}
+		else if (nextch == '%') {
+			m_message += '%';
+			current += 2;
+		} else {
+			++current;
+			assert(false);
 		}
 	}
 }
