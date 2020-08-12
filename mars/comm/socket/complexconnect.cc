@@ -101,6 +101,8 @@ class ConnectCheckFSM : public TcpClientFSM {
 
         if (!observer_) return;
 
+	    xinfo2(TSF"add dump:%_", xdump(&addr_.address(), addr_.address_length()));
+        xinfo2(TSF"add log address:%_, %_, %_, %_, %_, %_", addr_.url(), addr_.ip(), addr_.port(), addr_.address_length(), addr_.isv4(), addr_.ipv6());
         observer_->OnConnected(index_, addr_, sock_, 0, _rtt);
 
         if (ECheckOK == CheckStatus()) {
@@ -561,6 +563,12 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             xgroup2_define(group);
             vecsocketfsm[i]->AfterSelect(sel, group);
             xgroup2_if(!group.Empty(), TSF"index:%_, @%_, ", i, this) << group;
+
+            const sockaddr& addr_tmp = vecsocketfsm[i]->Address();
+            socket_address addr2(&addr_tmp);
+	        xinfo2(TSF"add dump:%_", xdump(&addr2.address(), addr2.address_length()));
+	        xinfo2(TSF"add log address:%_, %_, %_, %_, %_, %_, %_, %_", vecsocketfsm[i]->IP(), vecsocketfsm[i]->Port(), addr2.url(), addr2.ip(), addr2.port(), addr2.address_length(), addr2.isv4(), addr2.ipv6());
+
 
             if (TcpClientFSM::EEnd == vecsocketfsm[i]->Status()) {
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),

@@ -161,6 +161,8 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
     xassert2(EStart == status_, "%d", status_);
     _OnCreate();
 
+    xinfo2(TSF"add dump:%_", xdump(&addr_.address(), addr_.address_length()));
+	xinfo2(TSF"add log address:%_, %_, %_, %_, %_, %_", addr_.url(), addr_.ip(), addr_.port(), addr_.address_length(), addr_.isv4(), addr_.ipv6());
     xinfo2(TSF"addr:(%_:%_), ", addr_.ip(), addr_.port()) >> _log;
 
     sock_ = socket(addr_.address().sa_family, SOCK_STREAM, IPPROTO_TCP);
@@ -256,6 +258,8 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
         end_connecttime_ = gettickcount();
         last_status_ = status_;
         status_ = EReadWrite;
+	    xinfo2(TSF"add dump:%_", xdump(&addr_.address(), addr_.address_length()));
+	    xinfo2(TSF"add log address:%_, %_, %_, %_, %_, %_", addr_.url(), addr_.ip(), addr_.port(), addr_.address_length(), addr_.isv4(), addr_.ipv6());
         xinfo2(TSF"sock:%_, (%_:%_), ", sock_, addr_.ip(), addr_.port()) >> _log;
         xinfo2(TSF"connected Rtt:%_, ", Rtt()) >> _log;
         _OnConnected(Rtt());
