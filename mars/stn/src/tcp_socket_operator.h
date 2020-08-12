@@ -16,7 +16,7 @@ namespace mars {
 class TcpSocketOperator : public SocketOperator {
 public:
 	TcpSocketOperator(MComplexConnect* _observer);
-	virtual ~TcpSocketOperator() {
+	virtual ~TcpSocketOperator() override{
 		delete observer_;
 		delete breaker_;
 	}
@@ -24,7 +24,7 @@ public:
 	virtual SOCKET Connect(const std::vector<socket_address> &_vecaddr,
 	                       mars::comm::ProxyType _proxy_type = mars::comm::kProxyNone,
 	                       const socket_address *_proxy_addr = NULL,
-	                       const std::string &_proxy_username = "", const std::string &_proxy_pwd = "");
+	                       const std::string &_proxy_username = "", const std::string &_proxy_pwd = "") override;
     
     virtual void Close(SOCKET _sock) override;
     virtual SocketCloseFunction GetCloseFunction() const override;
