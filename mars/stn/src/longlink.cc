@@ -746,7 +746,8 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                     nsent_datas.push_back(nwrite);
 
                     if (nsent_datas.size() >= kMaxLongLinkNWriteDataLength) {
-                        ShowLongLinkNWriteData(nsent_datas, xlog_group);
+                        xgroup2_define(nwrite_log);
+                        ShowLongLinkNWriteDataList(nsent_datas, nwrite_log);
                     }
                     
                     it = lstsenddata_.erase(it);
@@ -856,7 +857,7 @@ End:
     int nread_size = socket_nread(_sock);
     if (nwrite_size > 0) {
         xinfo2(TSF", info nwrite:%_ ", nwrite_size) >> close_log;
-        ShowLongLinkNWriteData(nsent_datas, close_log);
+        ShowLongLinkNWriteDataList(nsent_datas, close_log);
     }
     nsent_datas.clear();
     
