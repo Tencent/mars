@@ -747,6 +747,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
 
                     if (nsent_datas.size() >= kMaxLongLinkNWriteDataLength) {
                         xgroup2_define(nwrite_log);
+                        xinfo2(TSF"info nwrite: ") >> nwrite_log;
                         ShowLongLinkNWriteDataList(nsent_datas, nwrite_log);
                     }
                     
@@ -859,7 +860,6 @@ End:
         xinfo2(TSF", info nwrite:%_ ", nwrite_size) >> close_log;
         ShowLongLinkNWriteDataList(nsent_datas, close_log);
     }
-    nsent_datas.clear();
     
     if (nread_size > 0 && _errtype != kEctNetMsgXP && _errcode != kEctNetMsgXPHandleBufferErr) {
         xinfo2(TSF", info nread:%_ ", nread_size) >> close_log;
