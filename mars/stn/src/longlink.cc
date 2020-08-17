@@ -58,6 +58,20 @@ static const int kAlarmNoopTimeOutType = 104;
 #endif
 
 namespace {
+
+static const int kMaxLongLinkNWriteDataLength = 1024;
+
+void ShowLongLinkNWriteDataList(std::vector<LongLinkNWriteData> &nsent_datas, XLogger &group) {
+    if(!nsent_datas.empty()) {
+        for (auto it = nsent_datas.rbegin(); it != nsent_datas.rend(); ++it) {
+            xinfo2(TSF"taskid:%_, cmdid:%_, cgi:%_ ; ", it->task.taskid, it->task.cmdid, it->task.cgi) >> group;
+        }
+        std::vector<LongLinkNWriteData>().swap(nsent_datas);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+
 class LongLinkConnectObserver : public MComplexConnect {
   public:
     LongLinkConnectObserver(LongLink& _longlink, const std::vector<IPPortItem>& _iplist): longlink_(_longlink), ip_items_(_iplist) {
@@ -730,6 +744,10 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                     
                     LongLinkNWriteData nwrite(it->second->Length(), it->first);
                     nsent_datas.push_back(nwrite);
+
+                    if (nsent_datas.size() >= kMaxLongLinkNWriteDataLength) {
+                        ShowLongLinkNWriteData(nsent_datas, xlog_group);
+                    }
                     
                     it = lstsenddata_.erase(it);
                 } else {
@@ -836,18 +854,9 @@ End:
     
     int nwrite_size = socket_nwrite(_sock);
     int nread_size = socket_nread(_sock);
-    if (nwrite_size > 0 && !nsent_datas.empty()) {
+    if (nwrite_size > 0) {
         xinfo2(TSF", info nwrite:%_ ", nwrite_size) >> close_log;
-        ssize_t maxnwrite = 0;
-        for (std::vector<LongLinkNWriteData>::reverse_iterator it = nsent_datas.rbegin(); it != nsent_datas.rend(); ++it) {
-            if (nwrite_size <= (maxnwrite + it->writelen)) {
-                xinfo2(TSF"taskid:%_, cmdid:%_, cgi:%_ ; ", it->task.taskid, it->task.cmdid, it->task.cgi) >> close_log;
-                break;
-            } else {
-                maxnwrite += it->writelen;
-                xinfo2(TSF"taskid:%_, cmdid:%_, cgi:%_ ; ", it->task.taskid, it->task.cmdid, it->task.cgi) >> close_log;
-            }
-        }
+        ShowLongLinkNWriteData(nsent_datas, close_log);
     }
     nsent_datas.clear();
     
