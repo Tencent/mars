@@ -78,22 +78,18 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
     }
 
     XLogConfig config = {(TAppenderMode)mode, logdir_str, nameprefix_str, pubkey_str, (TCompressMode)compressmode, compresslevel, cachedir_str, cachedays};
-    mars::comm::XloggerCategory* category = mars::xlog::NewXloggerInstance(config, (TLogLevel)level);
-    if (nullptr == category) {
-        return -1;
-    }
-    return reinterpret_cast<uintptr_t>(category);
+    uintptr_t ptr = mars::xlog::NewXloggerInstance(config, (TLogLevel)level);
+
+    return ptr;
 }
 
 DEFINE_FIND_METHOD(KXlog_getXlogInstance, KXlog, "getXlogInstance", "(Ljava/lang/String;)J")
 JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
     (JNIEnv *env, jobject, jstring _nameprefix) {
     ScopedJstring nameprefix_jstr(env, _nameprefix);
-    mars::comm::XloggerCategory* category = mars::xlog::GetXloggerInstance(nameprefix_jstr.GetChar());
-    if (nullptr == category) {
-        return -1;
-    }
-    return reinterpret_cast<uintptr_t>(category);
+    uintptr_t ptr = mars::xlog::GetXloggerInstance(nameprefix_jstr.GetChar());
+
+    return ptr;
 }
 
 DEFINE_FIND_METHOD(KXlog_releaseXlogInstance, KXlog, "releaseXlogInstance", "(Ljava/lang/String;)V")

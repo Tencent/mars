@@ -75,6 +75,7 @@
 #include "log_base_buffer.h"
 #include "log_zstd_buffer.h"
 #include "xlogger_appender.h"
+#include "xlogger_interface.h"
 
 #define LOG_EXT "xlog"
 
@@ -251,14 +252,14 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     if (!config_.cachedir_.empty()) {
         boost::filesystem::create_directories(config_.cachedir_);
 
-        Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_)).start_after(2 * 60 * 1000);
+        Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_)).start_after(30 * 1000);
         Thread(boost::bind(&XloggerAppender::__MoveOldFiles, this, config_.cachedir_, config_.logdir_, config_.nameprefix_)).start_after(3 * 60 * 1000);
 #ifdef __APPLE__
         setAttrProtectionNone(config_.cachedir_.c_str());
 #endif
     }
 
-    Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.logdir_)).start_after(2 * 60 * 1000);
+    Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.logdir_)).start_after(30 * 1000);
     boost::filesystem::create_directories(config_.logdir_);
 #ifdef __APPLE__
     setAttrProtectionNone(config_.logdir_.c_str());
@@ -1155,11 +1156,15 @@ void appender_open(const XLogConfig& _config) {
         return; 
     }
 
-    sg_default_appender = XloggerAppender::NewInstance(_config);
-    sg_default_appender->SetConsoleLog(sg_default_console_log_open);
-    sg_release_guard = false;
-    xlogger_SetAppender(&xlogger_appender);
-    BOOT_RUN_EXIT(appender_release_default_appender);
+    bool openSuccess = mars::xlog::OpenDefault(_config.nameprefix_);
+
+    if (openSuccess) {
+        sg_default_appender = XloggerAppender::NewInstance(_config);
+        sg_default_appender->SetConsoleLog(sg_default_console_log_open);
+        sg_release_guard = false;
+        xlogger_SetAppender(&xlogger_appender);
+        BOOT_RUN_EXIT(appender_release_default_appender);
+    }
 }
 
 void appender_flush() {

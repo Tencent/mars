@@ -37,10 +37,10 @@ namespace mars {
 namespace xlog {
 
 
-mars::comm::XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level);
+uintptr_t NewXloggerInstance(const XLogConfig& _config, TLogLevel _level);
 
 
-mars::comm::XloggerCategory* GetXloggerInstance(const char* _nameprefix);
+uintptr_t GetXloggerInstance(const char* _nameprefix);
 
 void ReleaseXloggerInstance(const char* _nameprefix);
 
@@ -62,6 +62,7 @@ void SetMaxFileSize(uintptr_t _instance_ptr, long _max_file_size);
 
 void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds);
 
+bool OpenDefault(std::string _nameprefix);
 }
 }
 

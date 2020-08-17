@@ -33,16 +33,25 @@ namespace xlog {
 
 static Mutex sg_mutex;
 static std::map<std::string, XloggerCategory*> sg_map;
-XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level) {
+static std::string default_nameprefix;
+static bool is_default_open;
+static XloggerCategory* default_ptr = nullptr;
+
+uintptr_t NewXloggerInstance(const XLogConfig& _config, TLogLevel _level) {
 
     if (_config.logdir_.empty() || _config.nameprefix_.empty()) {
-        return nullptr;
+        return -1;
     }
+
+    if(_config.nameprefix_.compare(default_nameprefix) == 0){
+        return 0;
+    }
+
 
     ScopedLock lock(sg_mutex);
     auto it = sg_map.find(_config.nameprefix_);
     if (it != sg_map.end()) {
-        return it->second;
+        return reinterpret_cast<uintptr_t>(it->second);
     }
 
     XloggerAppender* appender = XloggerAppender::NewInstance(_config);
@@ -52,21 +61,32 @@ XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level)
                                                                 std::bind(&XloggerAppender::Write, appender, _1, _2));
     category->SetLevel(_level);
     sg_map[_config.nameprefix_] = category;
-    return category;
+    return reinterpret_cast<uintptr_t>(category);
 }
 
-mars::comm::XloggerCategory* GetXloggerInstance(const char* _nameprefix) {
+bool OpenDefault(std::string _nameprefix) {
+    auto it = sg_map.find(_nameprefix);
+    if (it != sg_map.end()) {
+        default_ptr = it->second;
+        return false;
+    }
+    default_nameprefix = _nameprefix;
+    is_default_open = true;
+    return true;
+}
+
+uintptr_t GetXloggerInstance(const char* _nameprefix) {
     if (nullptr == _nameprefix) {
-        return nullptr;
+        return -1;
     }
 
     ScopedLock lock(sg_mutex);
     auto it = sg_map.find(_nameprefix);
     if (it != sg_map.end()) {
-        return it->second;
+        return reinterpret_cast<uintptr_t>(it->second);
     }
 
-    return nullptr;
+    return -1;
 }
 
 void ReleaseXloggerInstance(const char* _nameprefix) {
@@ -88,27 +108,40 @@ void ReleaseXloggerInstance(const char* _nameprefix) {
 }
 
 void XloggerWrite(uintptr_t _instance_ptr, const XLoggerInfo* _info, const char* _log) {
-    if (0 == _instance_ptr) {
-        xlogger_Write(_info, _log);
-    } else {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
+        return xlogger_Write(_info, _log);
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        return default_ptr->Write(_info, _log);
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
-        category->Write(_info, _log);
+        return category->Write(_info, _log);
     }
 }
 
 bool IsEnabledFor(uintptr_t _instance_ptr, TLogLevel _level) {
-    if (0 == _instance_ptr) {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
         return xlogger_IsEnabledFor(_level);
-    } else {
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        return default_ptr->IsEnabledFor(_level);
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         return category->IsEnabledFor(_level);
     }
 }
 
 TLogLevel GetLevel(uintptr_t _instance_ptr) {
-    if (0 == _instance_ptr) {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
         return xlogger_Level();
-    } else {
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        TLogLevel level =  default_ptr->GetLevel();
+        return level;
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         TLogLevel level = category->GetLevel();
         return level;
@@ -116,18 +149,27 @@ TLogLevel GetLevel(uintptr_t _instance_ptr) {
 }
 
 void SetLevel(uintptr_t _instance_ptr, TLogLevel _level) {
-    if (0 == _instance_ptr) {
-        xlogger_SetLevel(_level);
-    } else {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
+        return xlogger_SetLevel(_level);
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        return default_ptr->SetLevel(_level);
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         return category->SetLevel(_level);
     }
 }
 
 void SetAppenderMode(uintptr_t _instance_ptr, TAppenderMode _mode) {
-    if (0 == _instance_ptr) {
-        appender_setmode(_mode);
-    } else {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
+        return appender_setmode(_mode);
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(default_ptr->GetAppender());
+        return appender->SetMode(_mode);
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
         return appender->SetMode(_mode);
@@ -135,19 +177,29 @@ void SetAppenderMode(uintptr_t _instance_ptr, TAppenderMode _mode) {
 }
 
 void Flush(uintptr_t _instance_ptr, bool _is_sync) {
-    if (0 == _instance_ptr) {
-        _is_sync ? appender_flush_sync() : appender_flush();
-    } else {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
+        return _is_sync ? appender_flush_sync() : appender_flush();
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(default_ptr->GetAppender());
+        return _is_sync ? appender->FlushSync() : appender->Flush();
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
-        _is_sync ? appender->FlushSync() : appender->Flush();
+        return _is_sync ? appender->FlushSync() : appender->Flush();
     }
 }
 
 void SetConsoleLogOpen(uintptr_t _instance_ptr, bool _is_open) {
-    if (0 == _instance_ptr) {
-       appender_set_console_log(_is_open);
-    } else {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
+        return appender_set_console_log(_is_open);
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(default_ptr->GetAppender());
+        return appender->SetConsoleLog(_is_open);
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
         return appender->SetConsoleLog(_is_open);
@@ -155,9 +207,14 @@ void SetConsoleLogOpen(uintptr_t _instance_ptr, bool _is_open) {
 }
 
 void SetMaxFileSize(uintptr_t _instance_ptr, long _max_file_size) {
-    if (0 == _instance_ptr) {
-       appender_set_max_file_size(_max_file_size);
-    } else {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
+        return appender_set_max_file_size(_max_file_size);
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(default_ptr->GetAppender());
+        return appender->SetMaxFileSize(_max_file_size);
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
         return appender->SetMaxFileSize(_max_file_size);
@@ -165,9 +222,14 @@ void SetMaxFileSize(uintptr_t _instance_ptr, long _max_file_size) {
 }
 
 void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds) {
-    if (0 == _instance_ptr) {
-       appender_set_max_alive_duration(_alive_seconds);
-    } else {
+    if (0 == _instance_ptr && default_ptr == nullptr) {
+        return appender_set_max_alive_duration(_alive_seconds);
+    }
+    else if (0 == _instance_ptr && default_ptr != nullptr) {
+        XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(default_ptr->GetAppender());
+        return appender->SetMaxAliveDuration(_alive_seconds);
+    }
+    else {
         XloggerCategory* category  = reinterpret_cast<XloggerCategory*>(_instance_ptr);
         XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
         return appender->SetMaxAliveDuration(_alive_seconds);
