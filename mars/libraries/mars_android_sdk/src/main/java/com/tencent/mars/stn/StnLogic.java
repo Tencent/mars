@@ -516,7 +516,7 @@ public class StnLogic {
      * @param status 综合状态，即长连+短连的状态
      *               kNetworkUnkown = -1, kNetworkUnavailable = 0, kGateWayFailed = 1, kServerFailed = 2, kConnecting = 3, kConnected = 4, kServerDown = 5
      * @param longlinkstatus  长连状态
-     *                       kConnectIdle = 0, kConnecting = 1, kConnected, kDisConnected = 3, kConnectFailed = 4
+     *               kNetworkUnkown = -1, kNetworkUnavailable = 0, kGateWayFailed = 1, kServerFailed = 2, kConnecting = 3, kConnected = 4, kServerDown = 5
      */
     private static void reportConnectStatus(int status, int longlinkstatus) {
         try {
