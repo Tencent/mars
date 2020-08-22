@@ -84,8 +84,13 @@ static void onCreate() {
 
     xinfo2(TSF"stn oncreate");
     ActiveLogic::Instance();
-    NetCore::Singleton::Instance();
+    // NetCore::Singleton::Instance();
 
+}
+
+static void onInit(int _encoder_version) {
+    xinfo2(TSF"stn oninit: %_", _encoder_version);
+    NetCore::Singleton::Instance(boost::bind(&NetCore::NetCoreOnCreate, _encoder_version));
 }
 
 static void onDestroy() {
@@ -141,6 +146,7 @@ static void __initbind_baseprjevent() {
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
+    GetSignalOnInit().connect(boost::bind(&onInit, _1));
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
@@ -184,11 +190,11 @@ void (*ClearTasks)()
    STN_WEAK_CALL(ClearTasks());
 };
 
-void (*Reset)()
-= []() {
+void (*Reset)(int _packer_encoder_version)
+= [](int _packer_encoder_version) {
 	xinfo2(TSF "stn reset");
 	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
+	NetCore::Singleton::Instance(boost::bind(&NetCore::NetCoreOnCreate, _packer_encoder_version));
 };
 
 void (*MakesureLonglinkConnected)()

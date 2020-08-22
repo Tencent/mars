@@ -118,6 +118,7 @@ public:
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
+    int             packer_encoder_version = 1;
     std::vector<std::string> (*dns_func)(const std::string& host);
 };
 
