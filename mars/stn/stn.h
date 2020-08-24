@@ -41,6 +41,13 @@ struct TaskProfile;
 struct DnsProfile;
 class LongLinkEncoder;
 
+
+enum PackerEncoderVersion {
+  kOld = 1,
+  kNew = 2,
+};
+
+
 struct Task {
 public:
     //channel type
@@ -228,11 +235,6 @@ enum IPSourceType {
     kIPSourceNewDns,
     kIPSourceProxy,
     kIPSourceBackup,
-};
-
-enum PackerEncoderVersion {
-  kOld = 1,
-  kNew = 2,
 };
 
 const char* const IPSourceTypeString[] = {
