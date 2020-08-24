@@ -64,7 +64,7 @@ using namespace mars::app;
 
 static const int kShortlinkErrTime = 3;
 
-NetCore::NetCore()
+NetCore::NetCore(int _packer_encoder_version)
     : messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
     , net_source_(new NetSource(*ActiveLogic::Instance()))
@@ -73,10 +73,12 @@ NetCore::NetCore()
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
-    , shortlink_try_flag_(false){
+    , shortlink_try_flag_(false)
+    , packer_encoder_version_(_packer_encoder_version) {
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
     xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
+    xinfo2(TSF"net packer encoder version: %_", packer_encoder_version_);
 
     std::string printinfo;
 
@@ -237,6 +239,11 @@ bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {
 //    }
     
     return true;
+}
+
+
+NetCore* NetCore::NetCoreOnCreate(int _packer_encoder_version) {
+	return new NetCore(_packer_encoder_version);
 }
 
 void NetCore::StartTask(const Task& _task) {
@@ -885,4 +892,10 @@ std::shared_ptr<LongLinkMetaData> NetCore::DefaultLongLinkMeta() {
 std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name) {
     return longlink_task_manager_->GetLongLink(_name);
 }
+
+
+  void NetCore::SetDebugHost(const std::string& _host) {
+    shortlink_task_manager_->SetDebugHost(_host);
+  }
+
 #endif
