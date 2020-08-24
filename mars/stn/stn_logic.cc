@@ -88,9 +88,9 @@ static void onCreate() {
 
 }
 
-static void onInit(int _encoder_version) {
-    xinfo2(TSF"stn oninit: %_", _encoder_version);
-    NetCore::Singleton::Instance(boost::bind(&NetCore::NetCoreOnCreate, _encoder_version));
+static void onInit(int _packer_encoder_version) {
+    xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
+    NetCore::Singleton::Instance(boost::bind(&NetCore::NetCoreOnCreate, _packer_encoder_version));
 }
 
 static void onDestroy() {

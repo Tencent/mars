@@ -118,7 +118,7 @@ public:
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
-    int             packer_encoder_version = 1;
+    int             packer_encoder_version = PackerEncoderVersion::kOld;
     std::vector<std::string> (*dns_func)(const std::string& host);
 };
 
@@ -228,6 +228,11 @@ enum IPSourceType {
     kIPSourceNewDns,
     kIPSourceProxy,
     kIPSourceBackup,
+};
+
+enum PackerEncoderVersion {
+  kOld = 1,
+  kNew = 2,
 };
 
 const char* const IPSourceTypeString[] = {
