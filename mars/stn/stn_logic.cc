@@ -192,7 +192,7 @@ void (*ClearTasks)()
 
 void (*Reset)(int _packer_encoder_version)
 = [](int _packer_encoder_version) {
-	xinfo2(TSF "stn reset");
+	xinfo2(TSF "stn reset: %_", _packer_encoder_version);
 	NetCore::Singleton::Release();
 	NetCore::Singleton::Instance(boost::bind(&NetCore::NetCoreOnCreate, _packer_encoder_version));
 };
