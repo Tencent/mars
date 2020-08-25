@@ -25,10 +25,12 @@
 #include <vector>
 #include <stdint.h>
 
+
+
 enum TAppenderMode
 {
-    kAppednerAsync,
-    kAppednerSync,
+    kAppenderAsync,
+    kAppenderSync,
 };
 
 enum TCompressMode{
@@ -37,7 +39,7 @@ enum TCompressMode{
 };
 
 struct XLogConfig{
-    TAppenderMode mode_ = kAppednerAsync;
+    TAppenderMode mode_ = kAppenderAsync;
     std::string logdir_;
     std::string nameprefix_;
     std::string pub_key_;
@@ -72,5 +74,7 @@ void appender_set_max_file_size(uint64_t _max_byte_size);
  * @param _max_time    Max alive duration of a single log file in seconds, default is 10 days
  */
 void appender_set_max_alive_duration(long _max_time);
+
+
 
 #endif /* APPENDER_H_ */
