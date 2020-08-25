@@ -24,6 +24,9 @@
 
 #include "boost/bind.hpp"
 
+#if defined(__ANDROID__)
+#include "longlink_history.h"
+#endif
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/thread/lock.h"
@@ -403,6 +406,13 @@ void LongLink::__Run() {
 #ifdef ANDROID
     wakelock_->Lock(1000);
 #endif
+
+#if defined(__ANDROID__)
+	auto connectInfo = LongLinkHistory::Singleton::Instance()->ConnectInfo(config_.name);
+	connectInfo.connectTime = timeMs();
+	connectInfo.netType = getNetTypeForStatistics();
+	connectInfo.retType = (sock != INVALID_SOCKET) ? 0 : conn_profile.conn_errcode;
+#endif
     
     if (INVALID_SOCKET == sock) {
         conn_profile.disconn_time = ::gettickcount();
@@ -580,6 +590,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
     
     std::map <uint32_t, StreamResp> sent_taskids;
     std::vector<LongLinkNWriteData> nsent_datas;
+    tickcount_t lastReadTick(true);
     
     AutoBuffer bufrecv;
     bool first_noop_sent = false;
@@ -617,6 +628,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             xassert2(false, "noop but alarmnooptimeout not running, take as noop timeout");
             _errtype = kEctSocket;
             _errcode = kEctSocketRecvErr;
+	        disconnectinternalcode_ = kUnknownErr;
             goto End;
         }
         
@@ -644,6 +656,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             xfatal2(TSF"task socket close sock:%0, 0 > retsel, errno:%_, nread:%_, nwrite:%_", _sock, sel.Errno(), socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
             _errtype = kEctSocket;
             _errcode = sel.Errno();
+	        disconnectinternalcode_ = kReset;
             goto End;
         }
         
@@ -651,6 +664,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             xerror2(TSF"task socket close sock:%0, socketselect excptoin:%1(%2), nread:%_, nwrite:%_", _sock, socket_errno, socket_strerror(socket_errno), socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
             _errtype = kEctSocket;
             _errcode = socket_errno;
+            disconnectinternalcode_ = kUnknownErr;
             goto End;
         }
         
@@ -659,6 +673,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             xerror2(TSF"task socket close sock:%0, excptoin:%1(%2), nread:%_, nwrite:%_", _sock, error, socket_strerror(error), socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
             _errtype = kEctSocket;
             _errcode = error;
+            disconnectinternalcode_ = kUnknownErr;
             goto End;
         }
         
@@ -667,6 +682,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
 //            __NotifySmartHeartbeatJudgeDozeStyle();
             _errtype = kEctSocket;
             _errcode = kEctSocketRecvErr;
+            disconnectinternalcode_ = kNoopTimeout;
             goto End;
         }
         
@@ -689,7 +705,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 
                 ++offset;
             }
-            
+
             ssize_t writelen = writev(_sock, vecwrite, (int)lstsenddata_.size());
             
             free(vecwrite);
@@ -705,6 +721,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 _errtype = kEctSocket;
                 _errcode = error;
                 xerror2(TSF"sock:%0, send:%1(%2)", _sock, error, socket_strerror(error)) >> xlog_group;
+	            disconnectinternalcode_ = kUnknownWrite;
                 goto End;
             }
             
@@ -750,6 +767,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 _errtype = kEctSocket;
                 _errcode = kEctSocketShutdown;
                 xwarn2(TSF"task socket close sock:%0, remote disconnect", _sock) >> close_log;
+	            disconnectinternalcode_ = kRemoteClosed;
                 goto End;
             }
             
@@ -757,11 +775,13 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 _errtype = kEctSocket;
                 _errcode = socket_errno;
                 xerror2(TSF"task socket close sock:%0, recv len: %1 errno:%2(%3)", _sock, recvlen, socket_errno, socket_strerror(socket_errno)) >> close_log;
+	            disconnectinternalcode_ = kUnknownRead;
                 goto End;
             }
             
             if (0 > recvlen) recvlen = 0;
-            
+
+	        lastReadTick.gettickcount();
             GetSignalOnNetworkDataChange()(XLOGGER_TAG, 0, recvlen);
             
             bufrecv.Length(bufrecv.Pos() + recvlen, bufrecv.Length() + recvlen);
@@ -780,6 +800,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                     xerror2(TSF"task socket recv sock:%0, unpack error dump:%1", _sock, xdump(bufrecv.Ptr(), bufrecv.Length()));
                     _errtype = kEctNetMsgXP;
                     _errcode = kEctNetMsgXPHandleBufferErr;
+	                disconnectinternalcode_ = kDecodeError;
                     goto End;
                 }
                 
@@ -825,6 +846,15 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
     
     
 End:
+#if defined(__ANDROID__)
+	auto disconnectInfo = LongLinkHistory::Singleton::Instance()->DisconnectInfo(config_.name);
+    disconnectInfo.disconnectTime = timeMs();
+    disconnectInfo.retType = disconnectinternalcode_;
+    disconnectInfo.dataSpan = lastReadTick.gettickspan() / 1000;
+    disconnectInfo.noopExpected = lastheartbeat_ / 1000;
+    disconnectInfo.isForeground = ActiveLogic::Instance()->IsForeground();
+#endif
+
     if (nooping) {
         xerror2(TSF"noop fail timeout, interval:%_", lastheartbeat_);
         __NotifySmartHeartbeatHeartResult(false, (_errcode == kEctSocketRecvErr), _profile);
