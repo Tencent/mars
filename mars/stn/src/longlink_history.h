@@ -107,6 +107,7 @@ namespace mars {
 		void _Trim(const std::string& _name) {
 			auto info = Life(_name);
 			if(info.size() < 200)   return;
+			size_t oldLen = info.size();
 
 			auto iter = info.begin();
 			uint64_t now = timeMs();
@@ -118,6 +119,8 @@ namespace mars {
 
 				iter = info.erase(iter);
 			}
+
+			xinfo2(TSF"his size:(%_, %_)", oldLen, info.size());
 		}
 
 	private:
