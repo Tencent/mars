@@ -350,11 +350,25 @@ socket_address socket_address::getpeername(SOCKET _sock) {
     struct sockaddr_storage addr = {0};
     socklen_t addr_len = sizeof(addr);
     
-    if (0 == ::getpeername(_sock, (sockaddr*)&addr, &addr_len)) {
+    if (0 == ::getpeername(_sock, reinterpret_cast<sockaddr*>(&addr), &addr_len)) {
+        char ip[128] = {0};
         if (AF_INET == addr.ss_family) {
+            socket_inet_ntop(AF_INET, &(reinterpret_cast<const sockaddr_in*>(&addr)->sin_addr), &ip[0], sizeof(sockaddr_in));
+            uint16_t port = reinterpret_cast<const sockaddr_in*>(&addr)->sin_port;
+            xinfo2(TSF"getpeername v4 sock %_ ip %_ port %_", _sock, ip, ntohs(port));
             return socket_address((const sockaddr_in&)addr);
         } else if (AF_INET6 == addr.ss_family) {
+            const sockaddr_in6* pv6 = reinterpret_cast<const sockaddr_in6*>(&addr);
+            bool v4comp = IN6_IS_ADDR_V4COMPAT(&pv6->sin6_addr);
+            bool v4maped = IN6_IS_ADDR_V4MAPPED(&pv6->sin6_addr);
+        
+            socket_inet_ntop(AF_INET6, &(reinterpret_cast<const sockaddr_in6*>(&addr)->sin6_addr), &ip[0], sizeof(sockaddr_in6));
+            uint16_t port = reinterpret_cast<const sockaddr_in*>(&addr)->sin_port;
+            
+            xinfo2(TSF"getpeername v6 sock %_ ip %_ port %_ comp %_ map %_", _sock, ip, ntohs(port), v4comp, v4maped);
             return socket_address((const sockaddr_in6&)addr);
+        } else {
+            xerror2(TSF"invalid famiray %_", addr.ss_family);
         }
     }
 
