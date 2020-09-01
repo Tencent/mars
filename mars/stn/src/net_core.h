@@ -121,7 +121,7 @@ public:
     static void __Release(NetCore* _instance);
     
   private:
-    void    __InitLongLink();
+    void    __InitLongLink(int _packer_version);
     void    __InitShortLink();
     bool    __ValidAndInitDefault(Task& _task, XLogger& _group);
     
