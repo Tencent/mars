@@ -355,6 +355,8 @@ socket_address socket_address::getpeername(SOCKET _sock) {
             return socket_address((const sockaddr_in&)addr);
         } else if (AF_INET6 == addr.ss_family) {
             return socket_address((const sockaddr_in6&)addr);
+        } else {
+            xerror2(TSF"invalid famiray %_", addr.ss_family);
         }
     }
 
