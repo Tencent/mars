@@ -118,7 +118,7 @@ NetCore::NetCore(int _packer_encoder_version)
 
     ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
-    __InitLongLink();
+    __InitLongLink(packer_encoder_version_);
     __InitShortLink();
 }
 
@@ -162,7 +162,7 @@ void NetCore::__InitShortLink(){
     shortlink_task_manager_->fun_shortlink_response_ = boost::bind(&NetCore::__OnShortLinkResponse, this, _1);
 }
 
-void NetCore::__InitLongLink(){
+void NetCore::__InitLongLink(int _packer_version){
 #ifdef USE_LONG_LINK
     zombie_task_manager_ = new ZombieTaskManager(messagequeue_creater_.GetMessageQueue());
     zombie_task_manager_->fun_start_task_ = boost::bind(&NetCore::StartTask, this, _1);
@@ -174,7 +174,10 @@ void NetCore::__InitLongLink(){
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
-    defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    defaultConfig.packer_encoder_version = _packer_version;
+    if (_packer_version == mars::stn::PackerEncoderVersion::kOld) {
+      defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    }
     CreateLongLink(defaultConfig);
 
     // async
