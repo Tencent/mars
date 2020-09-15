@@ -52,7 +52,7 @@ int main(int argc, char * argv[]) {
 //        e8163215499a4c6d91b0691177127691e884ed409c49f2496102b626734f93f412de01d5df53772a7c7bd0c57f08062078b37d3f8b8ab995b9b3ec623b5bd2ff
         
         XLogConfig config;
-        config.mode_ = kAppednerAsync;
+        config.mode_ = kAppenderAsync;
         config.logdir_ = [logPath UTF8String];
         config.nameprefix_ = "Test";
         config.pub_key_ = "";

@@ -40,7 +40,7 @@ int main(int argc, const char * argv[]) {
     appender_set_console_log(false);
 #endif
     XLogConfig config;
-    config.mode_ = kAppednerAsync;
+    config.mode_ = kAppenderAsync;
     config.logdir_ = [[libraryDirectory stringByAppendingString:@"/log/"] UTF8String];
     config.nameprefix_ = "Test";
     config.pub_key_ = "";
