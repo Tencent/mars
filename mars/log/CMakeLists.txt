@@ -46,6 +46,7 @@ if(MSVC)
 elseif(ANDROID)
     file(GLOB SELF_ANDROID_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR}
             ../comm/xlogger/xloggerbase.c
+            ../comm/xlogger/xlogger.cc
             jni/*.cc
             ../mk_template/JNI_OnLoad.cpp)
         

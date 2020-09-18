@@ -125,24 +125,7 @@ private:
 
 class XLogger {
 public:
-    XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace = false, bool (*_hook)(XLoggerInfo& _info, std::string& _log) = NULL)
-    :m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_isinfonull(false) {
-        m_info.level = _level;
-        m_info.tag = _tag;
-        m_info.filename = _file;
-        m_info.func_name = _func;
-        m_info.line = _line;
-        m_info.timeval.tv_sec = 0;
-        m_info.timeval.tv_usec = 0;
-        m_info.pid = -1;
-        m_info.tid = -1;
-        m_info.maintid = -1;
-        m_info.traceLog = _trace ? 1 : 0;
-
-        m_message.reserve(512);
-    }
-    
-    
+    XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace = false, bool (*_hook)(XLoggerInfo& _info, std::string& _log) = NULL);
     ~XLogger();
 
 public:
@@ -220,47 +203,9 @@ private:
 
 class XScopeTracer {
 public:
-    XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log)
-    :m_enable(xlogger_IsEnabledFor(_level)), m_info(), m_tv() {
-        m_info.level = _level;
+    XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log);
 
-        if (m_enable) {
-            m_info.tag = _tag;
-            m_info.filename = _file;
-            m_info.func_name = _func;
-            m_info.line = _line;
-            gettimeofday(&m_info.timeval, NULL);
-            m_info.pid = -1;
-            m_info.tid = -1;
-            m_info.maintid = -1;
-
-            strncpy(m_name, _name, sizeof(m_name));
-            m_name[sizeof(m_name)-1] = '\0';
-
-            m_tv = m_info.timeval;
-            char strout[1024] = {'\0'};
-            snprintf(strout, sizeof(strout), "-> %s %s", m_name, NULL!=_log? _log:"");
-            xlogger_filter_t filter = xlogger_GetFilter();
-            if (NULL == filter || filter(&m_info, strout) > 0) {
-                xlogger_Write(&m_info, strout);
-            }
-        }
-    }
-
-    ~XScopeTracer() {
-        if (m_enable) {
-            timeval tv;
-            gettimeofday(&tv, NULL);
-            m_info.timeval = tv;
-            long timeSpan = (tv.tv_sec - m_tv.tv_sec) * 1000 + (tv.tv_usec - m_tv.tv_usec) / 1000;
-            char strout[1024] = {'\0'};
-            snprintf(strout, sizeof(strout), "<- %s +%ld, %s", m_name, timeSpan, m_exitmsg.c_str());
-            xlogger_filter_t filter = xlogger_GetFilter();
-            if (NULL == filter || filter(&m_info, strout) > 0) {
-                xlogger_Write(&m_info, strout);
-            }
-        }
-    }
+    ~XScopeTracer();
     
     void Exit(const std::string& _exitmsg) { m_exitmsg += _exitmsg; }
     
@@ -276,50 +221,6 @@ private:
     
     std::string m_exitmsg;
 };
-
-///////////////////////////XMessage////////////////////
-inline XMessage& XMessage::operator<< (const string_cast& _value) {
-    if (NULL != _value.str()) {
-        m_message += _value.str();
-    } else {
-        assert(false);
-    }
-    return *this;
-}
-
-inline XMessage& XMessage::operator>> (const string_cast& _value) {
-    if (NULL != _value.str()) {
-        m_message.insert(0,  _value.str());
-    } else {
-        assert(false);
-    }
-    return *this;
-}
-
-inline XMessage& XMessage::VPrintf(const char* _format, va_list _list) {
-    if (_format == NULL) {
-        assert(false);
-        return *this;
-    }
-
-    char temp[4096] = {'\0'};
-    vsnprintf(temp, 4096, _format, _list);
-    m_message += temp;
-    return *this;
-}
-
-inline XMessage& XMessage::operator()(const char* _format, ...) {
-    if (_format == NULL) {
-        assert(false);
-        return *this;
-    }
-
-    va_list valist;
-    va_start(valist, _format);
-    VPrintf(_format, valist);
-    va_end(valist);
-    return *this;
-}
 
 #define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const string_cast& a)
 #define XLOGGER_VARIANT_ARGS(n) PP_ENUM_PARAMS(n, &a)
@@ -355,50 +256,6 @@ XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(16, 0)
 #undef XLOGGER_VARIANT_ARGS
 #undef XLOGGER_VARIANT_ARGS_NULL
 #undef XLOGGER_TYPESAFE_FORMAT_IMPLEMENT
-
-inline void XMessage::DoTypeSafeFormat(const char* _format, const string_cast** _args) {
-
-    const char* current = _format;
-    int count = 0;
-    while ('\0' != *current)
-    {
-       if ('%' != *current)
-       {
-           m_message += *current;
-            ++current;
-            continue;
-       }
-
-        char nextch = *(current+1);
-        if (('0' <=nextch  && nextch <= '9') || nextch == '_')
-        {
-            int argIndex = count;
-            if (nextch != '_') argIndex = nextch - '0';
-
-            if (_args[argIndex] != NULL)
-            {
-                if (NULL != _args[argIndex]->str())
-                {
-                    m_message += _args[argIndex]->str();
-                } else {
-                    m_message += "(null)";
-                    assert(false);
-                }
-            } else {
-                assert(false);
-            }
-            count++;
-            current += 2;
-        }
-        else if (nextch == '%') {
-            m_message += '%';
-            current += 2;
-        } else {
-            ++current;
-            assert(false);
-        }
-    }
-}
 
 #define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const string_cast& a)
 #define XLOGGER_VARIANT_ARGS(n) PP_ENUM_PARAMS(n, &a)
@@ -582,13 +439,11 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xdebug_scope(name, ...)			__xscope_impl(kLevelDebug, name, __VA_ARGS__)
 #define xinfo_scope(name, ...)			__xscope_impl(kLevelInfo, name, __VA_ARGS__)
 
-#define __xfunction_scope_impl(level, name, ...)	XScopeTracer ____xloger_anonymous_function_scope_20151022____(level, XLOGGER_TAG, name, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_SCOPE_MESSAGE(__VA_ARGS__))
+#define __xfunction_scope_impl(level, name, ...)	XScopeTracer __ANONYMOUS_VARIABLE__(_xfunction_)(level, XLOGGER_TAG, name, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_SCOPE_MESSAGE(__VA_ARGS__))
 
 #define xverbose_function(...)			__xfunction_scope_impl(kLevelVerbose, __FUNCTION__, __VA_ARGS__)
 #define xdebug_function(...)			__xfunction_scope_impl(kLevelDebug, __FUNCTION__, __VA_ARGS__)
 #define xinfo_function(...)				__xfunction_scope_impl(kLevelInfo, __FUNCTION__, __VA_ARGS__)
-#define xexitmsg_function(...)			   ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
-#define xexitmsg_function_if(exp, ...)	   if((!exp)); else ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
 
 // #define TSF __tsf__,
 #define TSF alloca(1),

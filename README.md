@@ -210,7 +210,7 @@ xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
 XLogConfig config;
-config.mode_ = kAppednerAsync;
+config.mode_ = kAppenderAsync;
 config.logdir_ = [logPath UTF8String];
 config.nameprefix_ = "Test";
 config.pub_key_ = "";
@@ -335,7 +335,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
+appender_open(kAppenderAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
 ```
 
 Uninitialized xlog before your app exits
@@ -614,7 +614,7 @@ appender_set_console_log(false);
 #endif
 
 XLogConfig config;
-config.mode_ = kAppednerAsync;
+config.mode_ = kAppenderAsync;
 config.logdir_ = [logPath UTF8String];
 config.nameprefix_ = "Test";
 config.pub_key_ = "";
@@ -737,7 +737,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
+appender_open(kAppenderAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
 ```
 
 在程序退出前反初始化 Xlog
