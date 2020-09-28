@@ -17,10 +17,10 @@ package com.tencent.mars.xlogsample;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.tencent.mars.xlog.Xlog;
+import com.tencent.mars.xlog.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,20 +30,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         String logPath = Environment.getExternalStorageDirectory().getPath() + "/logsample/xlog";
-        Log.d("test", logPath);
-        Xlog.setConsoleLogOpen(true);
-
-        Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
-        logConfig.level = Xlog.LEVEL_DEBUG;
-        logConfig.mode = Xlog.AppednerModeAsync;
-        logConfig.logdir = logPath;
-        logConfig.nameprefix = "LOGSAMPLE";
-        logConfig.pubkey = "";
-        logConfig.compressmode = Xlog.ZLIB_MODE;
-        logConfig.compresslevel = 0;
-        logConfig.cachedir = "";
-        logConfig.cachedays = 0;
-        Xlog.appenderOpen(logConfig);
+        Xlog xlog = new Xlog();
+        Log.setLogImp(xlog);
+        Log.setConsoleLogOpen(true);
+        Log.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, "", logPath, "LOGSAMPLE", 0);
 
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
