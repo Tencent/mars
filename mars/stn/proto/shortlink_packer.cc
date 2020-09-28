@@ -19,6 +19,7 @@
 
 #include "shortlink_packer.h"
 #include "mars/comm/http.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 
 using namespace http;
@@ -50,6 +51,9 @@ void (*shortlink_pack)(const std::string& _url, const std::map<std::string, std:
 
 	req_builder.Request().Url(_url);
 	req_builder.HeaderToBuffer(_out_buff);
+
+	xinfo2(TSF"shortlink_pack http request %_", xlogger_memory_dump(_out_buff.Ptr(), _out_buff.Length()));
+
 	_out_buff.Write(_body.Ptr(), _body.Length());
 };
 
