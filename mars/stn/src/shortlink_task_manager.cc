@@ -318,6 +318,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
+        
+        if (!debug_host_.empty()) {
+          worker->SetDebugHost(debug_host_);
+        }
+
         first->running_id = (intptr_t)worker;
 
         xassert2(worker && first->running_id);

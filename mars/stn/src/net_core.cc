@@ -64,7 +64,7 @@ using namespace mars::app;
 
 static const int kShortlinkErrTime = 3;
 
-NetCore::NetCore()
+NetCore::NetCore(int _packer_encoder_version)
     : messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
     , net_source_(new NetSource(*ActiveLogic::Instance()))
@@ -73,10 +73,12 @@ NetCore::NetCore()
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
-    , shortlink_try_flag_(false){
+    , shortlink_try_flag_(false)
+    , packer_encoder_version_(_packer_encoder_version) {
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
     xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
+    xinfo2(TSF"net packer encoder version: %_", packer_encoder_version_);
 
     std::string printinfo;
 
@@ -116,7 +118,7 @@ NetCore::NetCore()
 
     ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
-    __InitLongLink();
+    __InitLongLink(packer_encoder_version_);
     __InitShortLink();
 }
 
@@ -160,7 +162,7 @@ void NetCore::__InitShortLink(){
     shortlink_task_manager_->fun_shortlink_response_ = boost::bind(&NetCore::__OnShortLinkResponse, this, _1);
 }
 
-void NetCore::__InitLongLink(){
+void NetCore::__InitLongLink(int _packer_version){
 #ifdef USE_LONG_LINK
     zombie_task_manager_ = new ZombieTaskManager(messagequeue_creater_.GetMessageQueue());
     zombie_task_manager_->fun_start_task_ = boost::bind(&NetCore::StartTask, this, _1);
@@ -172,7 +174,10 @@ void NetCore::__InitLongLink(){
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
-    defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    defaultConfig.packer_encoder_version = _packer_version;
+    if (_packer_version == mars::stn::PackerEncoderVersion::kOld) {
+      defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    }
     CreateLongLink(defaultConfig);
 
     // async
@@ -237,6 +242,11 @@ bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {
 //    }
     
     return true;
+}
+
+
+NetCore* NetCore::NetCoreOnCreate(int _packer_encoder_version) {
+	return new NetCore(_packer_encoder_version);
 }
 
 void NetCore::StartTask(const Task& _task) {
@@ -885,4 +895,10 @@ std::shared_ptr<LongLinkMetaData> NetCore::DefaultLongLinkMeta() {
 std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name) {
     return longlink_task_manager_->GetLongLink(_name);
 }
+
+
+  void NetCore::SetDebugHost(const std::string& _host) {
+    shortlink_task_manager_->SetDebugHost(_host);
+  }
+
 #endif
