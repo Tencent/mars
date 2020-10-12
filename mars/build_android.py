@@ -34,7 +34,7 @@ ANDROID_LIBS_INSTALL_PATH = BUILD_OUT_PATH + '/'
 ANDROID_BUILD_CMD = 'cmake "%s" %s -DANDROID_ABI="%s" ' \
                     '-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake ' \
                     '-DANDROID_TOOLCHAIN=clang -DANDROID_NDK=%s ' \
-                    '-DANDROID_PLATFORM=android-16 ' \
+                    '-DANDROID_PLATFORM=android-21 ' \
                     '-DANDROID_STL="c++_shared" ' \
                     '&& cmake --build . %s --config Release -- -j8'
 ANDROID_SYMBOL_PATH = 'libraries/mars_android_sdk/obj/local/'

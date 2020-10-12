@@ -2,6 +2,7 @@
 global:
     xlogger_Write;
     xlogger_dump; 
+    xlogger_memory_dump;
     xlogger_IsEnabledFor; 
     xlogger_Assert; 
     xlogger_AssertP; 
