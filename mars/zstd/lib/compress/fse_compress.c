@@ -109,6 +109,7 @@ size_t FSE_buildCTable_wksp(FSE_CTable* ct,
      * http://fastcompression.blogspot.fr/2014/02/fse-distributing-symbol-values.html */
 
      #ifdef __clang_analyzer__
+    bbb
      memset(tableSymbol, 0, sizeof(*tableSymbol) * tableSize);   /* useless initialization, just to keep scan-build happy */
      #endif
 
