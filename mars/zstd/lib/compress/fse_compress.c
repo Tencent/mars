@@ -108,9 +108,11 @@ size_t FSE_buildCTable_wksp(FSE_CTable* ct,
     /* For explanations on how to distribute symbol values over the table :
      * http://fastcompression.blogspot.fr/2014/02/fse-distributing-symbol-values.html */
 
-//     #ifdef __clang_analyzer__
+     #ifdef __clang_analyzer__
+    //add some compile error code, to make sure __clang_analyzer__ undefined
+    test compile
 //     memset(tableSymbol, 0, sizeof(*tableSymbol) * tableSize);   /* useless initialization, just to keep scan-build happy */
-//     #endif
+     #endif
 
     /* symbol start positions */
     {   U32 u;
