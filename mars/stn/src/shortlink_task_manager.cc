@@ -84,7 +84,7 @@ bool ShortLinkTaskManager::StartTask(const Task& _task) {
     }
 
 
-	  xinfo2(TSF"task is long-polling task:%_, cgi:%_, timeout:%_",_task.long_polling, _task.cgi, _task.long_polling_timeout);
+    xinfo2(TSF"task is long-polling task:%_, cgi:%_, timeout:%_",_task.long_polling, _task.cgi, _task.long_polling_timeout);
 
     xdebug2(TSF"taskid:%0", _task.taskid);
 
@@ -265,11 +265,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             get_real_host_(task.user_id, task.shortlink_host_list);
         }
         std::string host = task.shortlink_host_list.front();
-        xinfo2_if(first->task.long_polling == false, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
+        xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
             bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
-            xinfo2_if(first->task.long_polling == false, TSF"auth result %_ host %_", ismakesureauthsuccess, host);
+            xinfo2_if(!first->task.long_polling, TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);

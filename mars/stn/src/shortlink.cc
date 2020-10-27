@@ -296,9 +296,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     if (contain_v6) {
         timoutMode = ComplexConnect::EachIPConnectTimoutMode::MODE_INCREASE;
     } else {
-        xinfo2_if(task_.long_polling == false, TSF"address vector has no ipv6");
+        xinfo2_if(!task_.long_polling, TSF"address vector has no ipv6");
     }
 	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval, timoutMode);
+    conn.SetNeedDetailLog(!task_.long_polling);
     
     SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
     delete proxy_addr;
@@ -362,7 +363,7 @@ bool ShortLink::__ContainIPv6(const std::vector<socket_address>& _vecaddr) {
     if (!_vecaddr.empty()) {
         in6_addr addr6 = IN6ADDR_ANY_INIT;
         if (socket_inet_pton(AF_INET6, _vecaddr[0].ip(), &addr6)) { //first ip is ipv6
-            xinfo2_if(task_.long_polling == false, TSF"ip %_ is v6", _vecaddr[0].ip());
+            xinfo2_if(!task_.long_polling, TSF"ip %_ is v6", _vecaddr[0].ip());
             return true;
         }
     }
@@ -450,7 +451,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	xgroup2_define(group_close);
 	xgroup2_define(group_recv);
     
-  xinfo2(TSF"task socket close sock:%_, %_, ", _socket, message.String()) >> group_close;
+    xinfo2(TSF"task socket close sock:%_, %_, ", _socket, message.String()) >> group_close;
 	xinfo2(TSF"task socket recv sock:%_,  %_, ", _socket, message.String()) >> group_recv;
 
 	//recv response
