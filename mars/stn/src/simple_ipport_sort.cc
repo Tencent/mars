@@ -595,12 +595,12 @@ void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needc
     ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
     for (size_t i=0; i<_items.size(); i++) {
-		xinfo2(TSF"after FilterbyBanned list ip: %_ ", _items[i].str_ip);
+		xdebug2(TSF"after FilterbyBanned list ip: %_ ", _items[i].str_ip);
 	}
     __SortbyBanned(_items, _use_IPv6);
 
     for (size_t i=0; i<_items.size(); i++) {
-		xinfo2(TSF"after SortbyBanned list ip: %_ ", _items[i].str_ip);
+		xdebug2(TSF"after SortbyBanned list ip: %_ ", _items[i].str_ip);
 	}
     
     if (_needcount < (int)_items.size()) _items.resize(_needcount);
