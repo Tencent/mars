@@ -114,7 +114,7 @@ void ZombieTaskManager::ClearTasks()
 
 void ZombieTaskManager::RedoTasks()
 {
-    xinfo_function();
+    xinfo2("redo task");
     __StartTask();
 }
 

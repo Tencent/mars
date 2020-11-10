@@ -269,7 +269,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         // make sure login
         if (first->task.need_authed) {
             bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
-            xinfo2_if(!first->task.long_polling, TSF"auth result %_ host %_", ismakesureauthsuccess, host);
+            xinfo2_if(!first->task.long_polling && first->task.priority >= 0, TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
@@ -392,7 +392,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
     int err_code = 0;
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
-    xinfo2(TSF"err_code %_ ",err_code);
+    xinfo2_if(it->task.priority >= 0,  TSF"err_code %_ ",err_code);
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
 
     switch(handle_type){
