@@ -120,7 +120,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
     , tracker_(shortlink_tracker::Create())
     , is_keep_alive_(CheckKeepAlive(_task))
     {
-    xinfo2(TSF"%_, handler:(%_,%_), long polling: %_ ",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq, _task.long_polling);
+    xinfo2(TSF"%_, handler:(%_,%_), long polling: %_ ",this, asyncreg_.Get().queue, asyncreg_.Get().seq, _task.long_polling);
     xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
 }
 
@@ -349,7 +349,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     __UpdateProfile(_conn_profile);
 
-    xinfo2(TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, net:%_", sock, message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
+    xinfo2_if(task_.priority>=0, TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, net:%_", sock, message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
 
 
 //    struct linger so_linger;
@@ -448,7 +448,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         return;
     }
 
-	xgroup2() << group_send;
+    task_.priority >= 0 ? (xgroup2() << group_send) : (group_send.Clear());
 
 	xgroup2_define(group_close);
 	xgroup2_define(group_recv);
@@ -551,7 +551,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	xdebug2(TSF"read with nonblock socket http response, length:%_, ", recv_buf.Length()) >> group_recv;
 
-	xgroup2() << group_recv;
+    task_.priority >= 0 ? (xgroup2() << group_recv) : (group_recv.Clear());
 #if defined(__ANDROID__) || defined(__APPLE__)
 	struct tcp_info _info;
 	if (getsocktcpinfo(_socket, &_info) == 0) {

@@ -155,6 +155,8 @@ class NetCore {
 #endif
     
     bool                                        shortlink_try_flag_;
+    int all_connect_status_ = 0;
+    int longlink_connect_status_ = 0;
 };
         
 }}

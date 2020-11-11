@@ -498,7 +498,7 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
    //merge
     _items.clear();
 
-    xinfo2(TSF"use ipv6 %_ ", _use_IPv6);
+//    xinfo2(TSF"use ipv6 %_ ", _use_IPv6);
 
     //v6 version
     if (!_use_IPv6) {//not use V6
@@ -591,7 +591,7 @@ void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items, std::
 
 
 void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const {
-    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
+//    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
     ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
     for (size_t i=0; i<_items.size(); i++) {
