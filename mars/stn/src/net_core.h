@@ -30,6 +30,7 @@
 
 #include "mars/stn/stn.h"
 #include "mars/stn/config.h"
+#include "mars/stn/task_profile.h"
 #ifdef USE_LONG_LINK
 #include "mars/stn/src/longlink.h"
 #include "mars/stn/src/longlink_metadata.h"
@@ -144,7 +145,9 @@ class NetCore {
     MessageQueue::MessageQueueCreater           messagequeue_creater_;
     MessageQueue::ScopeRegister                 asyncreg_;
     NetSource*                                  net_source_;
+#ifndef MIN_VERSION
     NetCheckLogic*                              netcheck_logic_;
+#endif
     AntiAvalanche*                              anti_avalanche_;
     
     DynamicTimeout*                             dynamic_timeout_;

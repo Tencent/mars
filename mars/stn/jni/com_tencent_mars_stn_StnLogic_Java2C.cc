@@ -70,6 +70,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_reset
 	Reset();
 }
 
+#ifdef USE_LONG_LINK
 /*
  * Class:     com_tencent_mars_stn_StnLogic_Java2C
  * Method:    setLonglinkSvrAddr
@@ -96,6 +97,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setLonglinkSvrAddr
 
 	SetLonglinkSvrAddr(host, ports, debug_ip);
 }
+#endif
 
 /*
  * Class:     com_tencent_mars_stn_StnLogic_Java2C
@@ -288,6 +290,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_clearTask
 	ClearTasks();
 }
 
+#ifdef USE_LONG_LINK
 /*
  * Class:     com_tencent_mars_stn_StnLogic_Java2C
  * Method:    makesureLongLinkConnected
@@ -299,6 +302,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_makesureLongLinkConnec
 
 	MakesureLonglinkConnected();
 }
+#endif
 
 /*
  * Class:     com_tencent_mars_stn_StnLogic_Java2C

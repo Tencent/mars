@@ -45,6 +45,7 @@ void (*Destory)(ShortLinkInterface* _short_link_channel)
     
 }
 
+#ifdef USE_LONG_LINK
 namespace LongLinkChannelFactory {
 
 LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config)
@@ -63,5 +64,7 @@ void (*Destory)(LongLink* _long_link_channel)
 };
 
 }
+#endif
+
 }
 }

@@ -24,7 +24,10 @@ list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} *.cc *.h)
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
-        
+if(MIN_VERSION)
+    list(FILTER SELF_SRC_FILES EXCLUDE REGEX "src/.*longlink.*.cc$")
+    list(REMOVE_ITEM SELF_SRC_FILES "src/signalling_keeper.cc" "src/timing_sync.cc" "src/net_check_logic.cc" "src/smart_heartbeat.cc")
+endif()
 
 if(MSVC)
     add_definitions(/FI"../../comm/projdef.h")

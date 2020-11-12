@@ -174,10 +174,12 @@ bool (*HasTask)(uint32_t _taskid)
 	return has_task;
 };
 
+#ifdef USE_LONG_LINK
 void (*DisableLongLink)()
 = []() {
     NetCore::need_use_longlink_ = false;
 };
+#endif
 
 void (*RedoTasks)()
 = []() {
@@ -196,6 +198,8 @@ void (*Reset)()
 	NetCore::Singleton::Instance();
 };
 
+
+#ifdef USE_LONG_LINK
 void (*MakesureLonglinkConnected)()
 = []() {
     xinfo2(TSF "make sure longlink connect");
@@ -208,6 +212,7 @@ bool (*LongLinkIsConnected)()
     STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
     return connected;
 };
+#endif
     
 bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
 = [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
@@ -220,7 +225,7 @@ bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::st
 //	SetLonglinkSvrAddr(host, ports, "");
 //};
 
-
+#ifdef USE_LONG_LINK
 void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip)
 = [](const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
 	std::vector<std::string> hosts;
@@ -229,6 +234,7 @@ void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> 
 	}
 	NetSource::SetLongLink(hosts, ports, debugip);
 };
+#endif
 
 //void SetShortlinkSvrAddr(const uint16_t port)
 //{
@@ -252,7 +258,9 @@ void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& ip
 
 void (*SetSignallingStrategy)(long _period, long _keepTime)
 = [](long _period, long _keepTime) {
+#ifdef USE_LONG_LINK
     SignallingKeeper::SetStrategy((unsigned int)_period, (unsigned int)_keepTime);
+#endif
 };
 
 void (*KeepSignalling)()
@@ -274,7 +282,7 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
-
+#ifdef USE_LONG_LINK
 // [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
 auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
@@ -303,6 +311,7 @@ auto MarkMainLonglink_ext = +[](const std::string& name){
 auto MakesureLonglinkConnected_ext = +[](const std::string& name){
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
+#endif
     
 //auto KeepSignalling_ext = +[](const std::string& name){
 //    STN_WEAK_CALL(KeepSignalling_ext(name));

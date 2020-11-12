@@ -70,7 +70,9 @@ NetCore::NetCore()
     : messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
     , net_source_(new NetSource(*ActiveLogic::Instance()))
-    , netcheck_logic_(new NetCheckLogic())
+#ifndef MIN_VERSION
+    , netcheck_logic_(new NetCheckLogic())sdfsd
+#endif
     , anti_avalanche_(new AntiAvalanche(ActiveLogic::Instance()->IsActive()))
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
@@ -150,7 +152,9 @@ NetCore::~NetCore() {
     delete dynamic_timeout_;
     
     delete anti_avalanche_;
+#ifndef MIN_VERSION
     delete netcheck_logic_;
+#endif
     delete net_source_;
     
     MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
@@ -278,10 +282,14 @@ void NetCore::StartTask(const Task& _task) {
         return;
     }
 
+#ifdef USE_LONG_LINK
+
     std::shared_ptr<LongLinkMetaData> longlink = nullptr;
     if (need_use_longlink_) {
         longlink = longlink_task_manager_->GetLongLink(task.channel_name);
     }
+#endif
+
     if (task.network_status_sensitive && kNoNet ==::getNetInfo()
 #ifdef USE_LONG_LINK
         && longlink != nullptr && LongLink::kConnected != longlink->Channel()->ConnectStatus()
@@ -291,6 +299,7 @@ void NetCore::StartTask(const Task& _task) {
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet);
         return;
     }
+
     
 #ifdef ANDROID
     if (kNoNet == ::getNetInfo() && !ActiveLogic::Instance()->IsActive()
@@ -476,6 +485,7 @@ void NetCore::OnNetworkChange() {
 }
 
 void NetCore::KeepSignal() {
+#ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
     if (!need_use_longlink_) {
         return;
@@ -484,9 +494,11 @@ void NetCore::KeepSignal() {
     if(!longlink)    return;
     longlink->SignalKeeper()->Keep();
     ASYNC_BLOCK_END
+#endif
 }
 
 void NetCore::StopSignal() {
+#ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
     if (!need_use_longlink_) {
         return;
@@ -495,6 +507,7 @@ void NetCore::StopSignal() {
     if(!longlink)    return;
     longlink->SignalKeeper()->Stop();
     ASYNC_BLOCK_END
+#endif
 }
 
 #ifdef USE_LONG_LINK
@@ -662,7 +675,9 @@ void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _er
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnShortLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _host, _port));
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
+#ifndef MIN_VERSION
     netcheck_logic_->UpdateShortLinkInfo(shortlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
+#endif
     OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 
     shortlink_try_flag_ = true;
