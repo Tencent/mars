@@ -26,7 +26,9 @@ list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
 if(MIN_VERSION)
     list(FILTER SELF_SRC_FILES EXCLUDE REGEX "src/.*longlink.*.cc$")
-    list(REMOVE_ITEM SELF_SRC_FILES "src/signalling_keeper.cc" "src/timing_sync.cc" "src/net_check_logic.cc" "src/smart_heartbeat.cc")
+    list(REMOVE_ITEM SELF_SRC_FILES "src/signalling_keeper.cc" "src/timing_sync.cc" "src/net_check_logic.cc" "src/smart_heartbeat.cc"
+            "src/anti_avalanche.cc" "src/flow_limit.cc" "src/frequency_limit.cc" "src/netsource_timercheck.cc"
+            "src/weak_network_logic.cc" "src/zombie_task_manager.cc")
 endif()
 
 if(MSVC)

@@ -147,9 +147,8 @@ class NetCore {
     NetSource*                                  net_source_;
 #ifndef MIN_VERSION
     NetCheckLogic*                              netcheck_logic_;
-#endif
     AntiAvalanche*                              anti_avalanche_;
-    
+#endif
     DynamicTimeout*                             dynamic_timeout_;
     ShortLinkTaskManager*                       shortlink_task_manager_;
     int                                         shortlink_error_count_;

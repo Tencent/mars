@@ -72,8 +72,8 @@ NetCore::NetCore()
     , net_source_(new NetSource(*ActiveLogic::Instance()))
 #ifndef MIN_VERSION
     , netcheck_logic_(new NetCheckLogic())sdfsd
-#endif
     , anti_avalanche_(new AntiAvalanche(ActiveLogic::Instance()->IsActive()))
+#endif
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
@@ -150,9 +150,9 @@ NetCore::~NetCore() {
 #endif
     delete shortlink_task_manager_;
     delete dynamic_timeout_;
+#ifndef MIN_VERSION
     
     delete anti_avalanche_;
-#ifndef MIN_VERSION
     delete netcheck_logic_;
 #endif
     delete net_source_;
@@ -167,7 +167,9 @@ void NetCore::__InitShortLink(){
     // sync
     shortlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
     shortlink_task_manager_->fun_notify_network_err_ = boost::bind(&NetCore::__OnShortLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
+#ifndef MIN_VERSION
     shortlink_task_manager_->fun_anti_avalanche_check_ = boost::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
+#endif
     shortlink_task_manager_->fun_shortlink_response_ = boost::bind(&NetCore::__OnShortLinkResponse, this, _1);
 }
 
@@ -194,7 +196,9 @@ void NetCore::__InitLongLink(){
     // sync
     longlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
     longlink_task_manager_->fun_notify_network_err_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
+    #ifndef MIN_VERSION
     longlink_task_manager_->fun_anti_avalanche_check_ = boost::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
+    #endif
     
     longlink_task_manager_->fun_on_push_ = boost::bind(&NetCore::__OnPush, this, _1, _2, _3, _4, _5);
 #endif
@@ -818,11 +822,13 @@ void NetCore::__ConnStatusCallBack() {
 }
 
 void NetCore::__OnSignalActive(bool _isactive) {
+#ifndef MIN_VERSION
     ASYNC_BLOCK_START
     
     anti_avalanche_->OnSignalActive(_isactive);
     
     ASYNC_BLOCK_END
+#endif
 }
 
 void NetCore::AddServerBan(const std::string& _ip) {
