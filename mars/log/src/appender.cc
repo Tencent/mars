@@ -48,7 +48,7 @@
 #include <string>
 #include <algorithm>
 
-#include "boost/bind.hpp"
+#include <functional>
 #include "boost/iostreams/device/mapped_file.hpp"
 #include "boost/filesystem.hpp"
 
@@ -117,7 +117,7 @@ void XloggerAppender::DelayRelease(XloggerAppender* _appender) {
         return;
     }
     _appender->Close();
-    Thread(boost::bind(&Release, _appender)).start_after(5000);
+    Thread(std::bind(&Release, _appender)).start_after(5000);
 }
 
 void XloggerAppender::Release(XloggerAppender*& _appender) {
@@ -127,7 +127,7 @@ void XloggerAppender::Release(XloggerAppender*& _appender) {
 }
 
 XloggerAppender::XloggerAppender(const XLogConfig& _config)
-                        : thread_async_(boost::bind(&XloggerAppender::__AsyncLogThread, this)) {
+                        : thread_async_(std::bind(&XloggerAppender::__AsyncLogThread, this)) {
     Open(_config);
 }
 
@@ -251,14 +251,14 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     if (!config_.cachedir_.empty()) {
         boost::filesystem::create_directories(config_.cachedir_);
 
-        Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_)).start_after(2 * 60 * 1000);
-        Thread(boost::bind(&XloggerAppender::__MoveOldFiles, this, config_.cachedir_, config_.logdir_, config_.nameprefix_)).start_after(3 * 60 * 1000);
+        Thread(std::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_)).start_after(2 * 60 * 1000);
+        Thread(std::bind(&XloggerAppender::__MoveOldFiles, this, config_.cachedir_, config_.logdir_, config_.nameprefix_)).start_after(3 * 60 * 1000);
 #ifdef __APPLE__
         setAttrProtectionNone(config_.cachedir_.c_str());
 #endif
     }
 
-    Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.logdir_)).start_after(2 * 60 * 1000);
+    Thread(std::bind(&XloggerAppender::__DelTimeoutFile, this, config_.logdir_)).start_after(2 * 60 * 1000);
     boost::filesystem::create_directories(config_.logdir_);
 #ifdef __APPLE__
     setAttrProtectionNone(config_.logdir_.c_str());

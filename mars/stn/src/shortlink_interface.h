@@ -39,11 +39,11 @@ class ShortLinkInterface {
     virtual void SetDebugHost(const std::string& _host) {}
 
 
-    CallBack<boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, const std::string& _host, uint16_t _port)> > func_network_report;
-    CallBack<boost::function<void (ShortLinkInterface* _worker, ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, bool _cancel_retry, ConnectProfile& _conn_profile)> > OnResponse;
-    CallBack<boost::function<void (ShortLinkInterface* _worker)> > OnSend;
-	  CallBack<boost::function<void (ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> > OnRecv;
-    boost::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
+    CallBack<std::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, const std::string& _host, uint16_t _port)> > func_network_report;
+    CallBack<std::function<void (ShortLinkInterface* _worker, ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, bool _cancel_retry, ConnectProfile& _conn_profile)> > OnResponse;
+    CallBack<std::function<void (ShortLinkInterface* _worker)> > OnSend;
+	  CallBack<std::function<void (ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> > OnRecv;
+    std::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
 };
     
 }

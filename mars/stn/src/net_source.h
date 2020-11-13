@@ -25,7 +25,7 @@
 #include <string>
 #include <map>
 
-#include "boost/function.hpp"
+#include <functional>
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/thread/mutex.h"
@@ -64,7 +64,7 @@ class NetSource {
     };
 
   public:
-    boost::function<bool ()> fun_need_use_IPv6_;
+    std::function<bool ()> fun_need_use_IPv6_;
 
   public:
     //set longlink host and ports

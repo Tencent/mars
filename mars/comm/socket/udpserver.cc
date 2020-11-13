@@ -20,7 +20,7 @@
 
 #include "udpserver.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "xlogger/xlogger.h"
 #include "socket/socket_address.h"
@@ -43,7 +43,7 @@ UdpServer::UdpServer(int _port, IAsyncUdpServerEvent* _event)
     : fd_socket_(INVALID_SOCKET)
     , event_(_event)
     , selector_(breaker_, true) {
-    thread_ = new Thread(boost::bind(&UdpServer::__RunLoop, this));
+    thread_ = new Thread(std::bind(&UdpServer::__RunLoop, this));
 
     __InitSocket(_port);
     thread_->start();

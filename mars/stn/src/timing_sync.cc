@@ -21,7 +21,7 @@
 
 #include "timing_sync.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/app/app.h"
 #include "mars/comm/thread/lock.h"
@@ -31,6 +31,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace  std::placeholders;
 
 #define ACTIVE_SYNC_INTERVAL (90*1000)
 #define UNLOGIN_SYNC_INTERVAL (4*60*1000)
@@ -65,10 +66,10 @@ static int GetAlarmTime(bool _is_actived)
 }
 
 TimingSync::TimingSync(ActiveLogic& _active_logic)
-:alarm_(boost::bind(&TimingSync::__OnAlarm, this), false)
+:alarm_(std::bind(&TimingSync::__OnAlarm, this), false)
 , active_logic_(_active_logic)
 {
-    timing_sync_active_connection_ = _active_logic.SignalActive.connect(boost::bind(&TimingSync::OnActiveChanged, this, _1));
+    _active_logic.SignalActive.connect(this, &TimingSync::OnActiveChanged);
 #ifdef __ANDROID__
     alarm_.SetType(kAlarmType);
 #endif
@@ -77,6 +78,7 @@ TimingSync::TimingSync(ActiveLogic& _active_logic)
 
 TimingSync::~TimingSync()
 {
+    active_logic_.SignalActive.disconnect(this);
     alarm_.Cancel();
 }
 

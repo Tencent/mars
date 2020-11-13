@@ -24,6 +24,7 @@
 
 #include "TestUtils.h"
 
+using namespace  std::placeholders;
 
 class LongLinkScene : public BaseScene
 {
@@ -299,9 +300,9 @@ void test(TestCaseInfo& _info)
 	ActiveLogic activelogic;
 	MMLongLink2 longlink(longlinkobs, &netsource, activelogic);
 
-	longlink.SignalConnection.connect(boost::bind(&OnLongLinkStatuChanged, _1));
+	longlink.SignalConnection.connect(&OnLongLinkStatuChanged);
 
-	longlink.FuncNetworkReport = boost::bind(&__OnLongLinkNetworkError, _1, _2, _3, _4, _5);;
+	longlink.FuncNetworkReport = std::bind(&__OnLongLinkNetworkError, _1, _2, _3, _4, _5);;
 	longlink.MakeSureConnected();
 	
 	_info.m_isPassed = true;

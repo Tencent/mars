@@ -21,7 +21,7 @@
 
 #include "zombie_task_manager.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/time_utils.h"
 #include "mars/comm/messagequeue/message_queue.h"
@@ -69,7 +69,7 @@ bool ZombieTaskManager::SaveTask(const Task& _task, unsigned int _taskcosttime)
 
     MessageQueue::SingletonMessage(false, asyncreg_.Get(),
                                     MessageQueue::Message((MessageQueue::MessageTitle_t)this,
-                                    boost::bind(&ZombieTaskManager::__TimerChecker, this), "ZombieTaskManager::__TimerChecker"),
+                                    std::bind(&ZombieTaskManager::__TimerChecker, this), "ZombieTaskManager::__TimerChecker"),
                                     MessageQueue::MessageTiming(3000, 3000));
     return true;
 }

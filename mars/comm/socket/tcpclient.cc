@@ -20,7 +20,7 @@
 
 #include "tcpclient.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "autobuffer.h"
 #include "xlogger/xlogger.h"
@@ -36,7 +36,7 @@
 TcpClient::TcpClient(const char* _ip, uint16_t _port, MTcpEvent& _event, int _timeout)
     : ip_(strdup(_ip)) , port_(_port) , event_(_event)
     , socket_(INVALID_SOCKET) , have_read_data_(false) , will_disconnect_(false) , writedbufid_(0)
-    , thread_(boost::bind(&TcpClient::__RunThread, this))
+    , thread_(std::bind(&TcpClient::__RunThread, this))
     , timeout_(_timeout), status_(kTcpInit) {
     if (!pipe_.IsCreateSuc()) status_ = kTcpInitErr;
 }

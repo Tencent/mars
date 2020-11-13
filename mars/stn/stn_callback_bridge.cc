@@ -12,7 +12,7 @@
 
 #include "stn_callback_bridge.h"
 
-#include "mars/boost/signals2.hpp"
+#include "mars/comm/owl/signalslot/signalslot.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "stn_logic.h"
 #ifdef ANDROID
@@ -24,8 +24,8 @@ namespace stn {
 
 static Callback* sg_callback = NULL;
 static StnCallbackBridge* sg_callback_bridge = new StnCallbackBridge();
-boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
-boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
+owl::xsignal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
+owl::xsignal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
 
 
 void SetCallback(Callback* const callback) {

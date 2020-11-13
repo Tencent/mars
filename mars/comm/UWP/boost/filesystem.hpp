@@ -430,7 +430,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 		class directory_iterator
 		{
 		private:
-			mars_boost::shared_ptr< dir_itr_imp >  m_imp;
+			mars_std::shared_ptr< dir_itr_imp >  m_imp;
 			
 			bool dir_itr_first(void *& handle, const path& dir, std::string & target, file_status & sf, file_status & symlink_sf)
 			{

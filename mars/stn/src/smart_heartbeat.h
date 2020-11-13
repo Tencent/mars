@@ -75,7 +75,7 @@ class NetHeartbeatInfo {
 
 class SmartHeartbeat {
   public:
-    boost::function<void (TSmartHeartBeatAction _action, const NetHeartbeatInfo& _heart_info, bool _fail_timeout)> report_smart_heart_;
+    std::function<void (TSmartHeartBeatAction _action, const NetHeartbeatInfo& _heart_info, bool _fail_timeout)> report_smart_heart_;
     
 	SmartHeartbeat();
 	~SmartHeartbeat();

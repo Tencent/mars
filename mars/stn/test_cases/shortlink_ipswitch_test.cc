@@ -36,6 +36,7 @@
 #define NEWDNS_SERVER_IP	"127.0.0.89"
 #define NEWDNS_SERVER_PORT	8181
 
+using namespace  std::placeholders;
 
 struct STCmdShortLinkTask
 {
@@ -367,7 +368,7 @@ static bool req2Buf( const int hashCode, AutoBuffer& encodeBuffer)
 }
 static void ChangeBindFunc(CMMNetCore* _netcore)
 {
-	_netcore->m_shortLinkTaskManager->funCallback = boost::bind(&CallBack, 0, _1, _2, _3, _4, _5, _6);
+	_netcore->m_shortLinkTaskManager->funCallback = std::bind(&CallBack, 0, _1, _2, _3, _4, _5, _6);
 	_netcore->m_shortLinkTaskManager->funbuf2Resp = buf2Resp;
 	_netcore->m_shortLinkTaskManager->funreq2Buf = req2Buf;
 }
