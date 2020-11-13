@@ -146,13 +146,18 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
         BaseEvent.onForeground(isForeground == 1);
     }
 
+//    @Override
+//    public boolean makesureAuthed(String host) {
+//        //
+//        // Allow you to block all tasks which need to be sent before certain 'AUTHENTICATED' actions
+//        // Usually we use this to exchange encryption keys, sessions, etc.
+//        //
+//        return true;
+//    }
+
     @Override
-    public boolean makesureAuthed(String host) {
-        //
-        // Allow you to block all tasks which need to be sent before certain 'AUTHENTICATED' actions
-        // Usually we use this to exchange encryption keys, sessions, etc.
-        //
-        return true;
+    public boolean makesureAuthed(String host, Object userContext) {
+        return false;
     }
 
     @Override

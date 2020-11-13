@@ -41,7 +41,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.4'
+    compile 'com.tencent.mars:mars-wrapper:1.2.5'
 }
 ```
 
@@ -53,16 +53,17 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.4'
+    compile 'com.tencent.mars:mars-core:1.2.5'
 }
 ```
 **OR**
 #### <a name="">mars-xlog</a>
 If you just want to user xlog, add dependencies by adding the following lines to your app/build.gradle.
 note: xlog is included in mars-core and mars-wrapper.
+
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.2.4'
+    compile 'com.tencent.mars:mars-xlog:1.2.5'
 }
 ```
 
@@ -85,24 +86,17 @@ final String logPath = SDCARD + "/marssample/log";
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
-Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
-logConfig.mode = Xlog.AppednerModeAsync;
-logConfig.logdir = logPath;
-logConfig.nameprefix = logFileName;
-logConfig.pubkey = "";
-logConfig.compressmode = Xlog.ZLIB_MODE;
-logConfig.compresslevel = 0;
-logConfig.cachedir = "";
-logConfig.cachedays = 0;
+Xlog xlog = new Xlog();
+Log.setLogImp(xlog);
+
 if (BuildConfig.DEBUG) {
-    logConfig.level = Xlog.LEVEL_VERBOSE;
-    Xlog.setConsoleLogOpen(true);
+    Log.setConsoleLogOpen(true);
+  	Log.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, "", logPath, logFileName, 0);
 } else {
-    logConfig.level = Xlog.LEVEL_INFO;
-    Xlog.setConsoleLogOpen(false);
+    Log.setConsoleLogOpen(false);
+  	Log.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName, 0);
 }
-Xlog.appenderOpen(logConfig);
-Log.setLogImp(new Xlog());
+
 ```
 
 Uninitialized Xlog when your app exits
@@ -444,7 +438,7 @@ gradle 接入我们提供了两种接入方式：[mars-wrapper](#wrapper) 或者
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.4'
+    compile 'com.tencent.mars:mars-wrapper:1.2.5'
 }
 ```
 
@@ -457,7 +451,7 @@ dependencies {
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.4'
+    compile 'com.tencent.mars:mars-core:1.2.5'
 }
 ```
 **或者**
@@ -465,7 +459,7 @@ dependencies {
 如果只想使用 xlog,可以只加 xlog 的依赖(mars-core,mars-wrapper 中都已经包括 xlog)：
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.2.4'
+    compile 'com.tencent.mars:mars-xlog:1.2.5'
 }
 ```
 接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 或者 mars-xlog 的依赖
