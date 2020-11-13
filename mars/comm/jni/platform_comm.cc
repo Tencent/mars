@@ -26,8 +26,7 @@
 #include "util/scoped_jstring.h"
 #include "util/var_cache.h"
 
-#include "mars/boost/bind.hpp"
-#include "mars/boost/ref.hpp"
+#include <functional>
 
 #include "mars/comm/thread/lock.h"
 

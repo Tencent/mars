@@ -29,15 +29,15 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
-#include "mars/boost/signals2.hpp"
+#include "mars/comm/owl/signalslot/signalslot.h"
 
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnLogic")
 
 namespace mars {
 namespace stn {
 
-extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
-extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
+extern owl::xsignal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
+extern owl::xsignal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
     
 DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
 int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code){

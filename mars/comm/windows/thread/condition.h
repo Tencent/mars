@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <climits>
 
-#include "boost/thread/condition.hpp"
+#include <condition_variable>
 
 #include "assert/__assert.h"
 #include "thread/atomic_oper.h"
@@ -95,7 +95,7 @@ class Condition {
     Condition(const Condition&);
     Condition& operator=(const Condition&);
   private:
-    boost::condition condition_;
+    std::condition_variable condition_;
     Mutex mutex_;
     volatile unsigned int anyway_notify_;
 };

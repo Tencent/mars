@@ -23,7 +23,7 @@
 #include <map>
 #include <string>
 
-#include "boost/any.hpp"
+#include "comm/std_wrapper/any.h"
 
 #include "singleton.h"
 
@@ -43,7 +43,7 @@ class Spy {
     }
 
     template <class var> var* Variable(const char* _key) const
-    { return boost::any_cast<var>(m_variablemap.find(_key)->second); }
+    { return mars::any_cast<var>(m_variablemap.find(_key)->second); }
 
     void* This() const {return m_this;}
 
@@ -53,7 +53,7 @@ class Spy {
 
   private:
     void* m_this;
-    std::map<const std::string, boost::any> m_variablemap;
+    std::map<const std::string, mars::any> m_variablemap;
 };
 
 class SpyCore {

@@ -17,7 +17,7 @@
  *      Author: yerungui
  */
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseprjevent.h"
@@ -68,7 +68,7 @@ void ActiveLogic::Release() {
 
 ActiveLogic::ActiveLogic()
 : isforeground_(false), isactive_(true)
-, alarm_(boost::bind(&ActiveLogic::__OnInActive, this), false)
+, alarm_(std::bind(&ActiveLogic::__OnInActive, this), false)
 , lastforegroundchangetime_(::gettickcount())
 {
     xinfo_function(TSF"MQ:%_, this:%_", MessageQueue::GetDefMessageQueue(), this);
@@ -96,7 +96,7 @@ void ActiveLogic::OnForeground(bool _isforeground)
 {
 	if (MessageQueue::GetDefMessageQueue()!=MessageQueue::CurrentThreadMessageQueue())
 	{
-        MessageQueue::AsyncInvoke(boost::bind(&ActiveLogic::OnForeground, this, _isforeground), (MessageQueue::MessageTitle_t)this, mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()), "ActiveLogic::OnForeground");
+        MessageQueue::AsyncInvoke(std::bind(&ActiveLogic::OnForeground, this, _isforeground), (MessageQueue::MessageTitle_t)this, mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()), "ActiveLogic::OnForeground");
 		return;
 	}
 

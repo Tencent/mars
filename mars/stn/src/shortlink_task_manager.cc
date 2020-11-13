@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <set>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/app/app.h"
 #include "mars/comm/thread/lock.h"
@@ -42,12 +42,15 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace  std::placeholders;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
-boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
+std::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+std::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
+std::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
+std::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -168,7 +171,7 @@ void ShortLinkTaskManager::__RunLoop() {
         wakeup_lock_->Lock(60 * 1000);
 #endif
         MessageQueue::FasterMessage(asyncreg_.Get(),
-                                    MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&ShortLinkTaskManager::__RunLoop, this), "ShortLinkTaskManager::__RunLoop"),
+                                    MessageQueue::Message((MessageQueue::MessageTitle_t)this, std::bind(&ShortLinkTaskManager::__RunLoop, this), "ShortLinkTaskManager::__RunLoop"),
                                     MessageQueue::MessageTiming(1000));
     } else {
 #ifdef ANDROID
@@ -312,10 +315,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         first->use_proxy =  (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, first->use_proxy);
-        worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
-        worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
-        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
-        worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         first->running_id = (intptr_t)worker;
 
         xassert2(worker && first->running_id);

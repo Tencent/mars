@@ -20,7 +20,7 @@
 
 #include "shortlink.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/complexconnect.h"
@@ -115,7 +115,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 	, net_source_(_netsource)
 	, task_(_task)
-	, thread_(boost::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
+	, thread_(std::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     , is_keep_alive_(CheckKeepAlive(_task))
@@ -561,7 +561,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 }
 
 void ShortLink::__UpdateProfile(const ConnectProfile _conn_profile) {
-	STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
+	STATIC_RETURN_SYNC2ASYNC_FUNC(std::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
 	conn_profile_ = _conn_profile;
 }
 

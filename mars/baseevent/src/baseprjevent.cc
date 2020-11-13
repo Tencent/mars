@@ -19,49 +19,56 @@
 
 #include "mars/baseevent/baseprjevent.h"
 
-boost::signals2::signal<void ()>& GetSignalOnCreate()
+owl::xsignal<void ()>& GetSignalOnCreate()
 {
-	static boost::signals2::signal<void ()> SignalOnCreate;
+	static owl::xsignal<void ()> SignalOnCreate;
 	return SignalOnCreate;
 }
 
-boost::signals2::signal<void ()>& GetSignalOnDestroy()
+
+owl::xsignal<void (int _encoder_version)>& GetSignalOnInit() {
+	
+	static owl::xsignal<void (int _encoder_version)> SignalOnInit;
+	return SignalOnInit;
+}
+
+owl::xsignal<void ()>& GetSignalOnDestroy()
 {
-	static boost::signals2::signal<void ()> SignalOnDestroy;
+	static owl::xsignal<void ()> SignalOnDestroy;
 	return SignalOnDestroy;
 }
 
-boost::signals2::signal<void (int _sig)>& GetSignalOnSingalCrash()
+owl::xsignal<void (int _sig)>& GetSignalOnSingalCrash()
 {
-	static boost::signals2::signal<void (int _sig)> SignalOnSingalCrash;
+	static owl::xsignal<void (int _sig)> SignalOnSingalCrash;
 	return SignalOnSingalCrash;
 }
 
-boost::signals2::signal<void ()>& GetSignalOnExceptionCrash()
+owl::xsignal<void ()>& GetSignalOnExceptionCrash()
 {
-	static boost::signals2::signal<void ()> SignalOnExceptionCrash;
+	static owl::xsignal<void ()> SignalOnExceptionCrash;
 	return SignalOnExceptionCrash;
 }
 
-boost::signals2::signal<void (bool _isForeground)>& GetSignalOnForeground()
+owl::xsignal<void (bool _isForeground)>& GetSignalOnForeground()
 {
-	static boost::signals2::signal<void (bool _isForeground)> SignalOnForeground;
+	static owl::xsignal<void (bool _isForeground)> SignalOnForeground;
 	return SignalOnForeground;
 }
 
-boost::signals2::signal<void ()>& GetSignalOnNetworkChange()
+owl::xsignal<void ()>& GetSignalOnNetworkChange()
 {
-	static boost::signals2::signal<void ()> SignalOnNetworkChange;
+	static owl::xsignal<void ()> SignalOnNetworkChange;
 	return SignalOnNetworkChange;
 }
 
 
-boost::signals2::signal<void (const char* _tag, ssize_t _send, ssize_t _recv)>& GetSignalOnNetworkDataChange() {
-    static boost::signals2::signal<void (const char* _tag, ssize_t _send, ssize_t _recv)> SignalOnNetworkDataChange;
+owl::xsignal<void (const char* _tag, ssize_t _send, ssize_t _recv)>& GetSignalOnNetworkDataChange() {
+    static owl::xsignal<void (const char* _tag, ssize_t _send, ssize_t _recv)> SignalOnNetworkDataChange;
     return SignalOnNetworkDataChange;
 }
 
-boost::signals2::signal<void (int64_t _id)>& GetSignalOnAlarm() {
-    static boost::signals2::signal<void (int64_t _id)> SignalOnAlarm;
+owl::xsignal<void (int64_t _id)>& GetSignalOnAlarm() {
+    static owl::xsignal<void (int64_t _id)> SignalOnAlarm;
     return SignalOnAlarm;
 }

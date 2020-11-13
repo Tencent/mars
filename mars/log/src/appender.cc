@@ -48,7 +48,7 @@
 #include <string>
 #include <algorithm>
 
-#include "boost/bind.hpp"
+#include <functional>
 #include "boost/iostreams/device/mapped_file.hpp"
 #include "boost/filesystem.hpp"
 
@@ -893,7 +893,7 @@ void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefi
     boost::filesystem::create_directories(_dir);
     tickcount_t tick;
     tick.gettickcount();
-    Thread(boost::bind(&__del_timeout_file, std::string(_dir))).start_after(30 * 1000);
+    Thread(std::bind(&__del_timeout_file, std::string(_dir))).start_after(30 * 1000);
     
     tick.gettickcount();
 
@@ -985,9 +985,9 @@ void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir,
         sg_cache_logdir = _cachedir;
         boost::filesystem::create_directories(_cachedir);
 
-        Thread(boost::bind(&__del_timeout_file, _cachedir)).start_after(2 * 60 * 1000);
+        Thread(std::bind(&__del_timeout_file, _cachedir)).start_after(2 * 60 * 1000);
         // "_nameprefix" must explicitly convert to "std::string", or when the thread is ready to run, "_nameprefix" has been released.
-        Thread(boost::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
+        Thread(std::bind(&__move_old_files, _cachedir, _logdir, std::string(_nameprefix))).start_after(3 * 60 * 1000);
     }
 
 #ifdef __APPLE__

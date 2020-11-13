@@ -23,7 +23,7 @@
 #include "mars/comm/thread/thread.h"
 #include "message_queue.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "boost/bind.hpp"
+#include <functional>
 
 namespace mars {
 
@@ -32,7 +32,7 @@ namespace mars {
 template<class T>
 class CallBack {
 public:
-    typedef boost::function<void ()> invoke_function;
+    typedef std::function<void ()> invoke_function;
 
     //if MessageQueue::KNullHandler, will callback in worker thread
     CallBack(const T& _func, MessageHandler_t _handler=MessageQueue::KNullHandler):cb_handler_(_handler), cb_func_(_func), valid_(true) {}
@@ -68,7 +68,7 @@ public:
             return;
         }
         
-        boost::function<void ()> func = boost::bind(cb_func_, rest...);
+        std::function<void ()> func = std::bind(cb_func_, rest...);
         if(MessageQueue::KNullHandler == cb_handler_) {
             func();
             return;

@@ -23,7 +23,7 @@
 #include "Wrapper/CGITask.h"
 
 #include "proto/generate/main.pb.h"
-#include "mars/boost/weak_ptr.hpp"
+#include <memory>
 class HelloCGITask;
 class HelloCGICallback
 {
@@ -38,7 +38,7 @@ public:
 
 	std::string user_;
 	std::string text_;
-	boost::weak_ptr<HelloCGICallback> callback_;
+	std::weak_ptr<HelloCGICallback> callback_;
 };
 
 #endif

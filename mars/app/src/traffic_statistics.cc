@@ -43,7 +43,7 @@ TrafficStatistics::~TrafficStatistics() {
     xinfo_function();
     // Flush();
 }
-void TrafficStatistics::SetCallback(const boost::function<void (int32_t, int32_t, int32_t, int32_t)>& _func_report_flow) {
+void TrafficStatistics::SetCallback(const std::function<void (int32_t, int32_t, int32_t, int32_t)>& _func_report_flow) {
     ScopedLock lock(mutex_);
     xassert2(!func_report_flow_);
     func_report_flow_ = _func_report_flow;

@@ -25,7 +25,7 @@
 #include <list>
 #include <stdint.h>
 
-#include "boost/function.hpp"
+#include <functional>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
@@ -37,8 +37,8 @@ namespace mars {
 
 class ZombieTaskManager {
   public:
-    boost::function<void (const Task& _task)> fun_start_task_;
-    boost::function<int (ErrCmdType _errtype, int _errcode, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
+    std::function<void (const Task& _task)> fun_start_task_;
+    std::function<int (ErrCmdType _errtype, int _errcode, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
 
   public:
     ZombieTaskManager(MessageQueue::MessageQueue_t _messagequeueid);

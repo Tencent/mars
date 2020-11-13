@@ -20,7 +20,7 @@
 #ifndef MMCOMM_SRC_ACTIVE_LOGIC_H_
 #define MMCOMM_SRC_ACTIVE_LOGIC_H_
 
-#include "boost/signals2.hpp"
+#include "mars/comm/owl/signalslot/signalslot.h"
 
 #include "mars/comm/alarm.h"
 #include "mars/comm/thread/mutex.h"
@@ -31,8 +31,8 @@ class ActiveLogic
 {
 public:
 //    SINGLETON_INTRUSIVE(ActiveLogic, new ActiveLogic, delete);
-    boost::signals2::signal<void (bool _isForeground)> SignalForeground;
-    boost::signals2::signal<void (bool _isactive)> SignalActive;
+    owl::xsignal<void (bool _isForeground)> SignalForeground;
+    owl::xsignal<void (bool _isactive)> SignalActive;
     static std::shared_ptr<ActiveLogic> Instance();
     static void Release();
 

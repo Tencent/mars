@@ -21,7 +21,7 @@
 #include "udpclient.h"
 
 #include "comm/xlogger/xlogger.h"
-#include "mars/boost/bind.hpp"
+#include <functional>
 #include "comm/socket/socket_address.h"
 
 #define DELETE_AND_NULL(a) {if (a) delete a; a = NULL;}
@@ -51,7 +51,7 @@ UdpClient::UdpClient(const std::string& _ip, int _port, IAsyncUdpClientEvent* _e
 , event_(_event)
 , selector_(breaker_, true)
 {
-    thread_ = new Thread(boost::bind(&UdpClient::__RunLoop, this));
+    thread_ = new Thread(std::bind(&UdpClient::__RunLoop, this));
     
     __InitSocket(_ip, _port);
 }

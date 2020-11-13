@@ -16,15 +16,13 @@
 #define MUTEX_H_
 
 #include <errno.h>
-
-#include "boost/thread/mutex.hpp"
-#include "boost/thread/recursive_mutex.hpp"
+#include <mutex>
 
 #include "assert/__assert.h"
 
 class Mutex {
   public:
-    typedef  boost::mutex handle_type;
+    typedef  std::mutex handle_type;
     Mutex() {
     }
 
@@ -59,12 +57,12 @@ class Mutex {
     Mutex(const Mutex&);
     Mutex& operator=(const Mutex&);
   private:
-    boost::mutex mutex_;
+    std::mutex mutex_;
 };
 
 class RecursiveMutex {
   public:
-    typedef  boost::recursive_mutex handle_type;
+    typedef  std::recursive_mutex handle_type;
     RecursiveMutex() {
     }
 
@@ -99,7 +97,7 @@ class RecursiveMutex {
     RecursiveMutex(const RecursiveMutex&);
     RecursiveMutex& operator=(const RecursiveMutex&);
   private:
-    boost::recursive_mutex m_mutex;
+    std::recursive_mutex m_mutex;
 };
 
 

@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/function.hpp"
+#include <functional>
 
 struct DNSBreaker {
 	DNSBreaker(): isbreak(false), dnsstatus(NULL) {}
@@ -50,7 +50,7 @@ class DNS {
     void Cancel(const std::string& _host_name = std::string());
     void Cancel(DNSBreaker& _breaker);
     
-    void SetMonitorFunc(const boost::function<void (int _key)>& _monitor_func) {
+    void SetMonitorFunc(const std::function<void (int _key)>& _monitor_func) {
     	monitor_func_ = _monitor_func;
     }
 
@@ -59,7 +59,7 @@ class DNS {
     }
   private:
     DNSFunc dnsfunc_;
-    boost::function<void (int _key)> monitor_func_;
+    std::function<void (int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
 };
 

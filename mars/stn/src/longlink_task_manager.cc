@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/xlogger/xlogger.h"
@@ -42,12 +42,13 @@
 #include "weak_network_logic.h"
 
 using namespace mars::stn;
+using namespace  std::placeholders;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+std::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
 
 static int longlink_id = 0;
 
@@ -72,7 +73,7 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 LongLinkTaskManager::~LongLinkTaskManager() {
     xinfo_function();
     for(auto iter = longlink_metas_.begin(); iter != longlink_metas_.end(); iter++) {
-        iter->second->Channel()->SignalConnection.disconnect_all_slots();
+        iter->second->Channel()->SignalConnection.disconnect_all();
     }
     asyncreg_.CancelAndWait();
     __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
@@ -250,7 +251,7 @@ void LongLinkTaskManager::__RunLoop() {
         wakeup_lock_->Lock(30 * 1000);
 #endif
       MessageQueue::FasterMessage(asyncreg_.Get(),
-                                  MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&LongLinkTaskManager::__RunLoop, this), "LongLinkTaskManager::__RunLoop"),
+                                  MessageQueue::Message((MessageQueue::MessageTitle_t)this, std::bind(&LongLinkTaskManager::__RunLoop, this), "LongLinkTaskManager::__RunLoop"),
                                   MessageQueue::MessageTiming(1000));
     } else {
 #ifdef ANDROID
@@ -655,7 +656,7 @@ std::list<TaskProfile>::iterator LongLinkTaskManager::__Locate(uint32_t _taskid)
 void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile) {
     move_wrapper<AutoBuffer> body(_body);
     move_wrapper<AutoBuffer> extension(_extension);
-    RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(boost::bind(&LongLinkTaskManager::__OnResponse, this, _name, _error_type, _error_code, _cmdid, _taskid, body, extension, _connect_profile), longlink_id_[_name]);
+    RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(std::bind(&LongLinkTaskManager::__OnResponse, this, _name, _error_type, _error_code, _cmdid, _taskid, body, extension, _connect_profile), longlink_id_[_name]);
     // svr push notify
     
     auto longlink_meta = GetLongLink(_name);
@@ -746,7 +747,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
 }
 
 void LongLinkTaskManager::__OnSend(uint32_t _taskid) {
-    RETURN_LONKLINK_SYNC2ASYNC_FUNC(boost::bind(&LongLinkTaskManager::__OnSend, this, _taskid));
+    RETURN_LONKLINK_SYNC2ASYNC_FUNC(std::bind(&LongLinkTaskManager::__OnSend, this, _taskid));
     xverbose_function();
 
     std::list<TaskProfile>::iterator it = __Locate(_taskid);
@@ -760,7 +761,7 @@ void LongLinkTaskManager::__OnSend(uint32_t _taskid) {
 }
 
 void LongLinkTaskManager::__OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize) {
-    RETURN_LONKLINK_SYNC2ASYNC_FUNC(boost::bind(&LongLinkTaskManager::__OnRecv, this, _taskid, _cachedsize, _totalsize));
+    RETURN_LONKLINK_SYNC2ASYNC_FUNC(std::bind(&LongLinkTaskManager::__OnRecv, this, _taskid, _cachedsize, _totalsize));
     xverbose_function();
     std::list<TaskProfile>::iterator it = __Locate(_taskid);
 
@@ -843,16 +844,16 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     xinfo2(TSF"new longlink name:%_, id:%_", _config.name, longlink_id);
     longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue);
     longlink = GetLongLink(_config.name);
-    longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
-    longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
-    longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
-    longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
+    longlink->Channel()->OnSend = std::bind(&LongLinkTaskManager::__OnSend, this, _1);
+    longlink->Channel()->OnRecv = std::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
+    longlink->Channel()->OnResponse = std::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
+    longlink->Channel()->SignalConnection.connect(this, &LongLinkTaskManager::__SignalConnection);
 #ifdef ANDROID
-    longlink->Channel()->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
-    longlink->Channel()->OnNoopAlarmReceived = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
+    longlink->Channel()->OnNoopAlarmSet = std::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
+    longlink->Channel()->OnNoopAlarmReceived = std::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
 #endif
 #ifdef __APPLE__
-    longlink->Monitor()->fun_longlink_reset_ = boost::bind(&LongLinkTaskManager::__ResetLongLink, this, _config.name);
+    longlink->Monitor()->fun_longlink_reset_ = std::bind(&LongLinkTaskManager::__ResetLongLink, this, _config.name);
 #endif
                               
     return true;
@@ -880,7 +881,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     }
 
     longlink_metas_.erase(_name);
-    longlink->Channel()->SignalConnection.disconnect_all_slots();
+    longlink->Channel()->SignalConnection.disconnect_all();
     longlink->Monitor()->DisconnectAllSlot();
     lock.unlock();
     {

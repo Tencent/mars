@@ -23,7 +23,7 @@
 #include <map>
 #include <vector>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/thread/lock.h"
