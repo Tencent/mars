@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 3.6)
 
-add_definitions(-DMIN_VERSION)
+if(MIN_VERSION)
+    add_definitions(-DMIN_VERSION)
+endif()
+if(_MARS_CPP17_)
+    add_definitions(-D_MARS_CPP17_)
+endif()
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation directory" FORCE)
 message(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
