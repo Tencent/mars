@@ -48,6 +48,7 @@ using namespace mars::stn;
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+boost::function<void (uint32_t _version)> LongLinkTaskManager::on_handshake_ready_;
 
 static int longlink_id = 0;
 
@@ -65,6 +66,7 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
     , wakeup_lock_(new WakeUpLock())
 #endif
     , meta_mutex_(true)
+    , tls_version_(0)
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -924,3 +926,9 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
     }
 }
 
+void LongLinkTaskManager::__OnHandshakeCompleted(uint32_t _version) {
+    if (on_handshake_ready_) {
+        on_handshake_ready_(_version);
+    }
+    xinfo2(TSF"receive tls version: %_", _version);
+}

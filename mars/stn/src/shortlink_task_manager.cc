@@ -50,6 +50,7 @@ boost::function<void (const std::string& _user_id, std::vector<std::string>& _ho
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
+boost::function<void (uint32_t _version)> ShortLinkTaskManager::on_handshake_ready_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -683,5 +684,13 @@ ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const{
 
 SOCKET ShortLinkTaskManager::__OnGetCacheSocket(const IPPortItem& _address) {
     return socket_pool_.GetSocket(_address);
+}
+
+
+void ShortLinkTaskManager::__OnHandshakeCompleted(uint32_t _version) {
+    xinfo2(TSF"receive tls version: %_", _version);
+    if (on_handshake_ready_) {
+        on_handshake_ready_(_version);
+    }
 }
 
