@@ -477,6 +477,26 @@ namespace MessageQueue {
         return messagewrapper->postid;
     }
 
+    MessagePost_t PostMessageAtFirst(const MessageHandler_t& _handlerid, const Message& _message){
+        ScopedLock lock(sg_messagequeue_map_mutex);
+        const MessageQueue_t& id = _handlerid.queue;
+        
+        std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+        if (sg_messagequeue_map.end() == pos) return KNullPost;
+        
+        MessageQueueContent& content = pos->second;
+        if(content.lst_message.size() >= MAX_MQ_SIZE) {
+            xwarn2(TSF"%_", DumpMessage(content.lst_message));
+            ASSERT2(false, "Over MAX_MQ_SIZE");
+            return KNullPost;
+        }
+        
+        MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, kImmediately, __MakeSeq());
+        content.lst_message.push_front(messagewrapper);
+        content.breaker->Notify(lock);
+        return messagewrapper->postid;
+    }
+
     bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs) {
         bool is_in_mq = Handler2Queue(Post2Handler(_message)) == CurrentThreadMessageQueue();
 

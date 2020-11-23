@@ -64,10 +64,10 @@ JNIEXPORT jobject JNICALL Java_com_tencent_mars_stn_StnLogic_getLoadLibraries
  * Method:    reset
  * Signature: ()V
  */
-DEFINE_FIND_STATIC_METHOD(KJava2C_reset, KNetJava2C, "reset", "()V")
+DEFINE_FIND_STATIC_METHOD(KJava2C_reset, KNetJava2C, "reset", "(I)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_reset
-  (JNIEnv *_env, jclass clz) {
-	Reset();
+  (JNIEnv *_env, jclass clz, jint _packer_encoder_version) {
+	Reset(_packer_encoder_version);
 }
 
 /*
