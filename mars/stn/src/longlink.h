@@ -142,7 +142,7 @@ class LongLink {
       dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
     std::string ChannelId() { return config_.name; }
-    virtual void OnHandshakeCompleted() {}
+    virtual void OnConnectHandshakeCompleted() {}
     
   private:
     LongLink(const LongLink&);

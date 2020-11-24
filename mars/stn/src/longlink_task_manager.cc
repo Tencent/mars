@@ -66,7 +66,6 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
     , wakeup_lock_(new WakeUpLock())
 #endif
     , meta_mutex_(true)
-    , tls_version_(0)
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }

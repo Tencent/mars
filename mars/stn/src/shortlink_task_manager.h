@@ -58,6 +58,7 @@ class ShortLinkTaskManager {
     static boost::function<int (TaskProfile& _profile)> choose_protocol_;
     static boost::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
     static boost::function<void (uint32_t _version)> on_handshake_ready_;
+    static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
 
   public:
     ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid);

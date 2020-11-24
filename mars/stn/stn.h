@@ -116,7 +116,7 @@ public:
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr), need_tls(true) {}
     bool IsMain() const {
         return isMain;
     }
@@ -128,6 +128,14 @@ public:
     bool            isMain;
     int             packer_encoder_version = PackerEncoderVersion::kOld;
     std::vector<std::string> (*dns_func)(const std::string& host);
+    bool            need_tls;
+};
+
+struct ShortlinkConfig {
+public:
+    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls){}
+    bool use_proxy = false;
+    bool use_tls = true;
 };
 
 enum TaskFailHandleType {
