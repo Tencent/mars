@@ -487,7 +487,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     socket_address* proxy_addr = NULL;
     
-    if (use_proxy) {
+    //.如果有debugip则不走代理逻辑.
+    if (use_proxy && kIPSourceDebug != _conn_profile.ip_type) {
         std::string proxy_ip = proxy_info.ip;
         if (proxy_info.ip.empty() && !proxy_info.host.empty()) {
             std::vector<std::string> ips;
