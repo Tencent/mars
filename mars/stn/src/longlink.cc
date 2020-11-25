@@ -143,6 +143,8 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , smartheartbeat_(NULL)
     , wakelock_(NULL)
 #endif
+    , alarmnooptimeout_(boost::bind(&LongLink::__OnAlarm, this), false)
+    , isnooping_(false)
 {
     xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -268,6 +270,11 @@ void LongLink::Disconnect(TDisconnectInternalCode _scene) {
         connectbreak_.ReCreate();
         readwritebreak_.ReCreate();
     }
+}
+
+void LongLink::TrigNoop() {
+    xgroup2_define(noop_xlog);
+    isnooping_ = __NoopReq(noop_xlog, alarmnooptimeout_, false);
 }
 
 bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout) {
@@ -560,14 +567,12 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile) {
     
     Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this), false);
-    Alarm alarmnooptimeout(boost::bind(&LongLink::__OnAlarm, this), false);
     
     std::map <uint32_t, StreamResp> sent_taskids;
     std::vector<LongLinkNWriteData> nsent_datas;
     
     AutoBuffer bufrecv;
     bool first_noop_sent = false;
-    bool nooping = false;
     xgroup2_define(close_log);
     
     while (true) {
@@ -584,8 +589,8 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             uint64_t last_noop_actual_interval = (alarmnoopinterval.Status() == Alarm::kOnAlarm) ? alarmnoopinterval.ElapseTime() : 0;
             bool has_late_toomuch = (last_noop_actual_interval >= (15*60*1000));
             
-            if (__NoopReq(noop_xlog, alarmnooptimeout, has_late_toomuch)) {
-                nooping = true;
+            if (__NoopReq(noop_xlog, alarmnooptimeout_, has_late_toomuch)) {
+                isnooping_ = true;
                 __NotifySmartHeartbeatHeartReq(_profile, last_noop_interval, last_noop_actual_interval);
             }
             
@@ -594,10 +599,12 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             lastheartbeat_ = __GetNextHeartbeatInterval();
             xinfo2(TSF" last:(%_,%_), next:%_", last_noop_interval, last_noop_actual_interval, lastheartbeat_) >> noop_xlog;
             alarmnoopinterval.Cancel();
-            alarmnoopinterval.Start((int)lastheartbeat_);
+            if(lastheartbeat_ != 0) {
+                alarmnoopinterval.Start((int) lastheartbeat_);
+            }
         }
         
-        if (nooping && (alarmnooptimeout.Status() == Alarm::kInit || alarmnooptimeout.Status() == Alarm::kCancel)) {
+        if (isnooping_ && (alarmnooptimeout_.Status() == Alarm::kInit || alarmnooptimeout_.Status() == Alarm::kCancel)) {
             xassert2(false, "noop but alarmnooptimeout not running, take as noop timeout");
             _errtype = kEctSocket;
             _errcode = kEctSocketRecvErr;
@@ -646,7 +653,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             goto End;
         }
         
-        if (nooping && alarmnooptimeout.Status() == Alarm::kOnAlarm) {
+        if (isnooping_ && alarmnooptimeout_.Status() == Alarm::kOnAlarm) {
             xerror2(TSF"task socket close sock:%0, noop timeout, nread:%_, nwrite:%_", _sock, socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
 //            __NotifySmartHeartbeatJudgeDozeStyle();
             _errtype = kEctSocket;
@@ -696,7 +703,9 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             
             lastheartbeat_ = __GetNextHeartbeatInterval();
             alarmnoopinterval.Cancel();
-            alarmnoopinterval.Start((int)lastheartbeat_);
+            if(lastheartbeat_ != 0) {
+                alarmnoopinterval.Start((int) lastheartbeat_);
+            }
             
             xinfo2(TSF"all send:%_, count:%_, ", writelen, lstsenddata_.size()) >> xlog_group;
             
@@ -798,7 +807,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 if (LONGLINK_UNPACK_STREAM_PACKAGE == unpackret) {
                     if (OnRecv)
                         OnRecv(taskid, packlen, packlen);
-                } else if (!__NoopResp(cmdid, taskid, stream_resp.stream, stream_resp.extension, alarmnooptimeout, nooping, _profile)) {
+                } else if (!__NoopResp(cmdid, taskid, stream_resp.stream, stream_resp.extension, alarmnooptimeout_, isnooping_, _profile)) {
                     if (OnResponse)
                         OnResponse(kEctOK, 0, cmdid, taskid, stream_resp.stream, stream_resp.extension, _profile);
 					sent_taskids.erase(taskid);
@@ -809,7 +818,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
     
     
 End:
-    if (nooping) {
+    if (isnooping_) {
         xerror2(TSF"noop fail timeout, interval:%_", lastheartbeat_);
         __NotifySmartHeartbeatHeartResult(false, (_errcode == kEctSocketRecvErr), _profile);
     }

@@ -130,6 +130,8 @@ class LongLink {
 
     ConnectProfile  Profile() const   { return conn_profile_; }
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
+
+    void TrigNoop();
     
   private:
     LongLink(const LongLink&);
@@ -178,6 +180,8 @@ class LongLink {
     SmartHeartbeat*                              smartheartbeat_;
     WakeUpLock*                                  wakelock_;
     unsigned long long              lastheartbeat_;
+    Alarm alarmnooptimeout_;
+    bool isnooping_;
 };
         
 }}
