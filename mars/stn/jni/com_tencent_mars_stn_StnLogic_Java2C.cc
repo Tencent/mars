@@ -335,6 +335,12 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setClientVersion
 	mars::stn::SetClientVersion(_client_version);
 }
 
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setHeartBeat
+(JNIEnv *_env, jclass, jlong _heart) {
+    if(_heart < 0)  return;
+    SmartHeartbeat::SetHeartBeat((unsigned int)_heart);
+}
+
 }
 
 void ExportSTN() {
