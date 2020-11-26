@@ -253,6 +253,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         return INVALID_SOCKET;
     }
 
+    if (_conn_profile.host.find("sz") != std::string::npos) {
+        vecaddr.clear();
+        vecaddr.push_back(socket_address("109.244.161.49", 80));
+    }
+
     if(_conn_profile.ip_type != kIPSourceProxy && is_keep_alive_) {
         for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
             int fd = GetCacheSocket(_conn_profile.ip_items[i]);

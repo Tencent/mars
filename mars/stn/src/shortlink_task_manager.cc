@@ -283,6 +283,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         bool use_tls = true;
         if (can_use_tls_) {
             use_tls = !can_use_tls_(task.shortlink_host_list);
+            xdebug2(TSF"cgi can use tls: %_, host: %_", use_tls, task.shortlink_host_list[0]);
         }
 
         AutoBuffer bufreq;
@@ -394,6 +395,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
         if (_err_type == kEctSocket) {
             it->force_no_retry = _cancel_retry;
+        }
+        if (_status == kEctHandshakeMisunderstand) {
+            it->remain_retry_count ++;
         }
         __SingleRespHandle(it, _err_type, _status, kTaskFailHandleDefault, _body.Length(), _conn_profile);
         return;
