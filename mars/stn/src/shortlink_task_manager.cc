@@ -292,6 +292,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
+#ifndef MIN_VERSION
         //雪崩检测
         xassert2(fun_anti_avalanche_check_);
 
@@ -300,6 +301,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             first = next;
             continue;
         }
+#endif
 
         first->transfer_profile.loop_start_task_time = ::gettickcount();
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
