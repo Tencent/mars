@@ -191,6 +191,15 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     bool isnat64 = local_stack == ELocalIPStack_IPv6;
     _conn_profile.local_net_stack = local_stack;
     
+    //.如果有debugip则不走代理逻辑.
+    if (use_proxy) {
+        net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
+        if (!_conn_profile.ip_items.empty() && kIPSourceDebug == _conn_profile.ip_items.front().source_type){
+            xwarn2(TSF"forbid proxy when debugip present.");
+            use_proxy = false;
+        }
+    }
+    
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;
