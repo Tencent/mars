@@ -126,7 +126,7 @@ bool SocketBreaker::Clear()
 
     if (ret < 0)
     {
-        xverbose2(TSF"Ret=%0", ret);
+        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, errno, strerror(errno));
         return false;
     }
 
