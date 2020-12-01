@@ -42,6 +42,7 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
 
     if (NULL == _log_path || _end_hour <= _begin_hour) {
         snprintf(msg, sizeof(msg), "NULL == _logPath || _endHour <= _beginHour, %d, %d", _begin_hour, _end_hour);
+        _err_msg += msg;
         return false;
     }
 
@@ -133,6 +134,9 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
 
         if (begin_hour > end_hour)  begin_hour = end_hour;
 
+        if (_err_msg.size() < 1024 * 1024) {
+            _err_msg += std::to_string(begin_hour) + "-" + std::to_string(end_hour) + " ";
+        }
 
         if (!find_begin_pos) {
             if (_begin_hour > begin_hour && _begin_hour <= end_hour) {

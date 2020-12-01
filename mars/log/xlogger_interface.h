@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 #include "appender.h"
-#include "mars/comm/xlogger/xloggerbase.h"
+#include "xloggerbase.h"
 
 namespace mars {
 namespace comm {

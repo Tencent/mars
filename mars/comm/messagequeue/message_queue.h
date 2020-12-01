@@ -212,6 +212,7 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
 MessagePost_t SingletonMessage(bool _replace, const MessageHandler_t& _handlerid, const Message& _message, const MessageTiming& _timing = KDefTiming);
 MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Message& _message, const MessageTiming& _timing = KDefTiming);
 MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _message, const MessageTiming& _timing = KDefTiming);
+MessagePost_t PostMessageAtFirst(const MessageHandler_t& _handlerid, const Message& _message);
 
 bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs = -1);
 bool FoundMessage(const MessagePost_t& _message);
@@ -253,6 +254,11 @@ MessagePost_t  AsyncInvokeAfter(int64_t _after, const F& _func, const MessageTit
 template<class F>
 MessagePost_t  AsyncInvokePeriod(int64_t _after, int64_t _period, const F& _func, const MessageTitle_t& _title, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
     return PostMessage(_handlerid, Message(_title, _func, _msg_name), MessageTiming(kPeriod, _after, _period));
+}
+
+template<class F>
+MessagePost_t  AsyncInvokeAtFirst(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessageAtFirst(_handlerid, Message(0, _func, _msg_name));
 }
     //~title
 //---~with message name

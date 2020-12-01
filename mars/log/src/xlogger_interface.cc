@@ -18,7 +18,7 @@
  */
 
 
-#include "mars/log/xlogger_interface.h"
+#include "xlogger_interface.h"
 #include "xlogger_appender.h"
 
 #include <functional>

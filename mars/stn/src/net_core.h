@@ -94,12 +94,16 @@ class NetCore {
     ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
     void AddServerBan(const std::string& _ip);
 
+    int  GetPackerEncoderVersion() {return packer_encoder_version_;}
 
-	  void IntoHeartBeatMode();
-
+    void SetDebugHost(const std::string& _host);
+	void IntoHeartBeatMode();
     void IntoDebugMode();
-
     void MsgArriveDelayTime(uint64_t _interval);
+
+public:
+
+    static NetCore* NetCoreOnCreate(int _packer_encoder_version);
     
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
@@ -114,12 +118,13 @@ class NetCore {
 #endif
 
   private:
-    NetCore();
+  NetCore();
+    NetCore(int _encoder_version);
     virtual ~NetCore();
     static void __Release(NetCore* _instance);
     
   private:
-    void    __InitLongLink();
+    void    __InitLongLink(int _packer_version);
     void    __InitShortLink();
     bool    __ValidAndInitDefault(Task& _task, XLogger& _group);
     
@@ -162,6 +167,7 @@ class NetCore {
 #endif
     
     bool                                        shortlink_try_flag_;
+    int                                         packer_encoder_version_;
 };
         
 }}

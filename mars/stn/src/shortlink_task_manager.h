@@ -68,6 +68,7 @@ class ShortLinkTaskManager {
     void ClearTasks();
     void RedoTasks();
     void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
+    void SetDebugHost(const std::string& _host) {debug_host_ = _host;}
 
     unsigned int GetTasksContinuousFailCount();
 
@@ -98,6 +99,7 @@ class ShortLinkTaskManager {
     bool                            default_use_proxy_;
     unsigned int                    tasks_continuous_fail_count_;
     DynamicTimeout&                 dynamic_timeout_;
+    std::string                     debug_host_;
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;
 #endif

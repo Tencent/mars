@@ -32,6 +32,10 @@ namespace mars{
             GetSignalOnCreate()();
         }
         
+        void OnInit(int _encoder_status) {
+            GetSignalOnInit()(_encoder_status);
+        }
+        
         void OnDestroy()
         {
             GetSignalOnDestroy()();
