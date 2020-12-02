@@ -477,6 +477,26 @@ namespace MessageQueue {
         return messagewrapper->postid;
     }
 
+    MessagePost_t PostMessageAtFirst(const MessageHandler_t& _handlerid, const Message& _message){
+        ScopedLock lock(sg_messagequeue_map_mutex);
+        const MessageQueue_t& id = _handlerid.queue;
+        
+        std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+        if (sg_messagequeue_map.end() == pos) return KNullPost;
+        
+        MessageQueueContent& content = pos->second;
+        if(content.lst_message.size() >= MAX_MQ_SIZE) {
+            xwarn2(TSF"%_", DumpMessage(content.lst_message));
+            ASSERT2(false, "Over MAX_MQ_SIZE");
+            return KNullPost;
+        }
+        
+        MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, kImmediately, __MakeSeq());
+        content.lst_message.push_front(messagewrapper);
+        content.breaker->Notify(lock);
+        return messagewrapper->postid;
+    }
+
     bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs) {
         bool is_in_mq = Handler2Queue(Post2Handler(_message)) == CurrentThreadMessageQueue();
 
@@ -745,7 +765,8 @@ namespace MessageQueue {
     const static int kMQCallANRId = 110;
     const static long kWaitANRTimeout = 15 * 1000;
     static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageHandler_t _mq_id) {
-        if(MessageQueue2TID(_mq_id.queue) == 0) {
+        thread_tid tid = MessageQueue2TID(_mq_id.queue);
+        if(tid == 0) {
             xwarn2(TSF"messagequeue already destroy, handler:(%_,%_)", _mq_id.queue, _mq_id.seq);
             return;
         }
@@ -753,8 +774,9 @@ namespace MessageQueue {
         __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
                   _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
 #ifdef ANDROID
-        __FATAL_ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s",
-                    _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style?"true":"false");
+        pthread_kill(tid, SIGILL);
+//        __FATAL_ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s",
+//                    _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style?"true":"false");
 #endif
     }
 
