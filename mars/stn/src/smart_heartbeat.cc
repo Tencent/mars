@@ -52,7 +52,7 @@ static const char* const kKeyStable          = "stable";
 static const char* const kKeyNetType         = "netType";
 static const char* const kKeyHeartType       = "hearttype";
 static const char* const kKeyMinHeartFail    = "minheartfail";
-unsigned int SmartHeartbeat::outer_setted_heart_ = 0;
+int SmartHeartbeat::outer_setted_heart_ = -1;
 
 SmartHeartbeat::SmartHeartbeat(): report_smart_heart_(NULL), is_wait_heart_response_(false), success_heart_count_(0), last_heart_(MinHeartInterval),
     pre_heart_(MinHeartInterval), cur_heart_(MinHeartInterval),
@@ -248,7 +248,7 @@ bool SmartHeartbeat::__IsDozeStyle() {
 
 unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //
     // xinfo_function();
-    if(outer_setted_heart_ != 0) {
+    if(outer_setted_heart_ != -1 && outer_setted_heart_ >= 0) {
         last_heart_ = outer_setted_heart_;
         return outer_setted_heart_;
     }

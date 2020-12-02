@@ -116,7 +116,7 @@ class SmartHeartbeat {
     int normal_mode_count_;
     tickcount_t noop_start_tick_;
 
-    static unsigned int outer_setted_heart_;
+    static int outer_setted_heart_;
 };
 
 #endif // STN_SRC_SMART_HEARTBEAT_H_
