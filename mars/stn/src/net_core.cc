@@ -736,8 +736,11 @@ void NetCore::__ConnStatusCallBack() {
         all_connstatus = kConnected;
     }
 #endif
-    
-    xinfo2(TSF"reportNetConnectInfo all_connstatus:%_, longlink_connstatus:%_", all_connstatus, longlink_connstatus);
+    if(all_connstatus != all_connect_status_ || longlink_connstatus != longlink_connect_status_) {      // logs limits
+        all_connect_status_ = all_connstatus;
+        longlink_connect_status_ = longlink_connstatus;
+        xinfo2(TSF"reportNetConnectInfo all_connstatus:%_, longlink_connstatus:%_", all_connstatus, longlink_connstatus);
+    }
     ReportConnectStatus(all_connstatus, longlink_connstatus);
 }
 

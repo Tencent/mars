@@ -134,6 +134,7 @@ public:
     bool Empty() const { return !m_isassert && m_message.empty();}
     const std::string& Message() const { return m_message;}
     void ForwardToSysTrace(){   m_info.traceLog = 1;    }
+    void Clear() { m_message.clear(); }
 
 #ifdef __GNUC__
     __attribute__((__format__ (printf, 2, 0)))

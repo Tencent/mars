@@ -164,7 +164,9 @@ public:
 #endif
     
     bool                                        shortlink_try_flag_;
-    int                                         packer_encoder_version_;
+    int all_connect_status_ = 0;
+    int longlink_connect_status_ = 0;
+	int                                         packer_encoder_version_;
 };
         
 }}

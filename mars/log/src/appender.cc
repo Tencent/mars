@@ -874,12 +874,12 @@ void XloggerAppender::__WriteSync(const XLoggerInfo* _info, const char* _log) {
 
 
 void XloggerAppender::__WriteAsync(const XLoggerInfo* _info, const char* _log) {
-    ScopedLock lock(mutex_buffer_async_);
-    if (nullptr == log_buff_) return;
-
     char temp[16*1024] = {0};       //tell perry,ray if you want modify size.
     PtrBuffer log_buff(temp, 0, sizeof(temp));
     log_formater(_info, _log, log_buff);
+
+    ScopedLock lock(mutex_buffer_async_);
+    if (nullptr == log_buff_) return;
 
     if (log_buff_->GetData().Length() >= kBufferBlockLength*4/5) {
        int ret = snprintf(temp, sizeof(temp), "[F][ sg_buffer_async.Length() >= BUFFER_BLOCK_LENTH*4/5, len: %d\n", (int)log_buff_->GetData().Length());

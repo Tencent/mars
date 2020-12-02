@@ -470,7 +470,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         return INVALID_SOCKET;
     }
 
-    xinfo2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
+    xinfo2_if(need_detail_log_, TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
     
     uint64_t  starttime = gettickcount();
     std::vector<ConnectCheckFSM*> vecsocketfsm;
@@ -556,7 +556,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
             xgroup2_define(group);
             vecsocketfsm[i]->PreSelect(sel, group);
-            xgroup2_if(!group.Empty() && need_detail_log_, TSF"index:%_, @%_, ", i, this) << group;
+            need_detail_log_&&!group.Empty() ? (xgroup2(TSF"index:%_, @%_, ", i, this) << group) : group.Clear();
             timeout = std::min(timeout, vecsocketfsm[i]->Timeout());
         }
 
@@ -595,7 +595,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
             xgroup2_define(group);
             vecsocketfsm[i]->AfterSelect(sel, group);
-            xgroup2_if(!group.Empty() && need_detail_log_, TSF"index:%_, @%_, status:%_,%_", i, this, vecsocketfsm[i]->Status(), vecsocketfsm[i]->CheckStatus()) << group;
+            (!group.Empty() && need_detail_log_) ? (xgroup2(TSF"index:%_, @%_, status:%_,%_", i, this, vecsocketfsm[i]->Status(), vecsocketfsm[i]->CheckStatus()) << group) : group.Clear();
 
             if (TcpClientFSM::EEnd == vecsocketfsm[i]->Status()) {
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
