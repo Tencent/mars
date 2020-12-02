@@ -576,7 +576,10 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
     xgroup2_define(close_log);
     
     while (true) {
-        if (!alarmnoopinterval.IsWaiting()) {
+        while (!alarmnoopinterval.IsWaiting()) {
+            if(lastheartbeat_ == 0) {
+                break;
+            }
             if (first_noop_sent && alarmnoopinterval.Status() != Alarm::kOnAlarm) {
                 xassert2(false, "noop interval alarm not running");
             }
@@ -602,6 +605,8 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             if(lastheartbeat_ != 0) {
                 alarmnoopinterval.Start((int) lastheartbeat_);
             }
+
+            break;
         }
         
         if (isnooping_ && (alarmnooptimeout_.Status() == Alarm::kInit || alarmnooptimeout_.Status() == Alarm::kCancel)) {
