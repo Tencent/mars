@@ -116,7 +116,7 @@ public:
     
 struct CgiProfile {
     CgiProfile() {
-        tart_time = 0;
+        start_time = 0;
         start_connect_time = 0;
         connect_successful_time = 0;
         start_tls_handshake_time = 0;
