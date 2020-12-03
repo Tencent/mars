@@ -118,12 +118,13 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
                                 void* const _user_context, 
                                 const std::string& _user_id,
                                 int _error_type, 
-                                int _error_code) {
+                                int _error_code,
+                                const ConnectProfile& _profile) {
 #ifndef ANDROID
     xassert2(sg_callback != NULL);
     return sg_callback->OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code);
 #else
-    return C2Java_OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code);
+    return C2Java_OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code, _profile);
 #endif
 }
 
@@ -254,9 +255,9 @@ int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user
     return sg_callback_bridge->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
 };
 //任务执行结束
-int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code) {
+int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
     xassert2(sg_callback_bridge != NULL);
-    return sg_callback_bridge->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code);
+    return sg_callback_bridge->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
 };
 
 //上报网络连接状态

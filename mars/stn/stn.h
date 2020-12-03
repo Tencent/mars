@@ -39,6 +39,7 @@ namespace mars{
 #define DEFAULT_LONGLINK_GROUP "default-group"
 struct TaskProfile;
 struct DnsProfile;
+struct ConnectProfile;
 class LongLinkEncoder;
 
 
@@ -268,7 +269,7 @@ extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string
 //底层回包返回给上层解析 
 extern int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
 //任务执行结束 
-extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code);
+extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile);
 
 //上报网络连接状态 
 extern void ReportConnectStatus(int status, int longlink_status);
