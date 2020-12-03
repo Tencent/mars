@@ -311,8 +311,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     }
 	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval, timoutMode);
     conn.SetNeedDetailLog(!task_.long_polling && task_.priority >= 0);
-    
+    _conn_profile.start_connect_time = ::gettickcount();
     SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
+	_conn_profile.connect_successful_time = ::gettickcount();
     delete proxy_addr;
 
     _conn_profile.conn_rtt = conn.IndexRtt();

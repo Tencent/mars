@@ -24,7 +24,8 @@ int C2Java_OnTaskEnd(uint32_t _taskid,
                     void* const _user_context, 
                     const std::string& _user_id, 
                     int _error_type, 
-                    int _error_code);
+                    int _error_code,
+                    const ConnectProfile& _profile);
 
 void C2Java_OnPush(const std::string& _channel_id,
                    uint32_t _cmdid,
