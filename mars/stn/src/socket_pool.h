@@ -36,8 +36,8 @@ namespace stn {
 
     class CacheSocketItem {
     public:
-        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout)
-            :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout) {}
+        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout, int (*_closefunc)(int) = &close)
+            :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout), closefunc(_closefunc) {}
 
         bool IsSame(const IPPortItem& _item) const {
             return (_item.str_ip == address_info.str_ip && _item.port == address_info.port
@@ -47,11 +47,17 @@ namespace stn {
         bool HasTimeout() const {
             return start_tick.gettickspan() >= (timeout*1000);
         }
+        
+        void CloseSocket(){
+            closefunc(socket_fd);
+            socket_fd = INVALID_SOCKET;
+        }
 
         IPPortItem address_info;
         tickcount_t start_tick;
         SOCKET socket_fd;
         uint32_t timeout;   //in seconds
+        int (*closefunc)(int) = nullptr;
     };
 
     class SocketPool {
@@ -74,7 +80,7 @@ namespace stn {
                 if(iter->IsSame(_item)) {
                     if(iter->HasTimeout() || _IsSocketClosed(iter->socket_fd)) {
                         xinfo2(TSF"remove timeout or closed socket, is timeout:%_", iter->HasTimeout());
-                        socket_close(iter->socket_fd);
+                        iter->CloseSocket();
                         iter = socket_pool_.erase(iter);
                         continue;
                     }
@@ -103,8 +109,8 @@ namespace stn {
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->HasTimeout()) {
-                    socket_close(iter->socket_fd);
                     xinfo2(TSF"remove timeout socket: ip:%_, port:%_, host:%_, fd:%_", iter->address_info.str_ip, iter->address_info.port, iter->address_info.str_host, iter->socket_fd);
+                    iter->CloseSocket();
                     iter = socket_pool_.erase(iter);
                     continue;
                 }
@@ -118,7 +124,7 @@ namespace stn {
             xinfo2(TSF"clear cache sockets");
             std::for_each(socket_pool_.begin(), socket_pool_.end(), [](CacheSocketItem& value) {
                 if(value.socket_fd != INVALID_SOCKET)
-                    socket_close(value.socket_fd);
+                    value.CloseSocket();
             });
             socket_pool_.clear();
         }

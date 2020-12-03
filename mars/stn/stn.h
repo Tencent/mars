@@ -54,6 +54,7 @@ public:
     static const int kChannelShort = 0x1;
     static const int kChannelLong = 0x2;
     static const int kChannelBoth = 0x3;
+    static const int kChannelShortOverQUIC = 0x4;
     
     static const int kChannelNormalStrategy = 0;
     static const int kChannelFastStrategy = 1;
@@ -128,6 +129,19 @@ public:
     bool            isMain;
     int             packer_encoder_version = PackerEncoderVersion::kOld;
     std::vector<std::string> (*dns_func)(const std::string& host);
+};
+    
+struct QuicParameters{
+    bool enable_0rtt = true;
+    std::string alpn;
+};
+struct ShortlinkConfig {
+public:
+    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls){}
+    bool use_proxy = false;
+    bool use_tls = true;
+    bool use_quic = false;
+    QuicParameters quic;
 };
 
 enum TaskFailHandleType {

@@ -154,12 +154,16 @@ struct ConnectProfile {
 
     //keep alive config
     SOCKET socket_fd;
+    int (*closefunc)(int) = &close;
     uint32_t keepalive_timeout;
     bool is_reused_fd;
     int local_net_stack;
     uint64_t req_byte_count;
     std::string cgi;
     bool ipv6_connect_failed;
+    
+    //opreator identify
+    std::string connection_identify;
 };
 
         
