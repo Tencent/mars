@@ -263,7 +263,8 @@ void NetCore::StartTask(const Task& _task) {
 
     Task task = _task;
     if (!__ValidAndInitDefault(task, group)) {
-        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalTaskParam);
+        ConnectProfile profile;
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalTaskParam, profile);
         return;
     }
     
@@ -273,8 +274,8 @@ void NetCore::StartTask(const Task& _task) {
 
     if (0 == task.channel_select) {
         xerror2(TSF"error channelType (%_, %_), ", kEctLocal, kEctLocalChannelSelect) >> group;
-        
-        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalChannelSelect);
+        ConnectProfile profile;
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalChannelSelect, profile);
         return;
     }
 
@@ -285,7 +286,8 @@ void NetCore::StartTask(const Task& _task) {
 #endif
         ) {
         xerror2(TSF"error no net (%_, %_), ", kEctLocal, kEctLocalNoNet) >> group;
-        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet);
+        ConnectProfile profile;
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet, profile);
         return;
     }
     
@@ -296,7 +298,8 @@ void NetCore::StartTask(const Task& _task) {
 #endif
     ){
         xerror2(TSF" error no net (%_, %_) return when no active", kEctLocal, kEctLocalNoNet) >> group;
-        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet);
+        ConnectProfile profile;
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet, profile);
         return;
     }
 #endif
@@ -350,7 +353,8 @@ void NetCore::StartTask(const Task& _task) {
 
     if (!start_ok) {
         xerror2(TSF"taskid:%_, error starttask (%_, %_)", task.taskid, kEctLocal, kEctLocalStartTaskFail);
-        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalStartTaskFail);
+        ConnectProfile profile;
+        OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalStartTaskFail, profile);
     } else {
 #ifdef USE_LONG_LINK
         zombie_task_manager_->OnNetCoreStartTask();
@@ -545,17 +549,17 @@ int NetCore::__CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fai
         xwarn2(TSF"task_callback_hook let task return. taskid:%_, cgi%_.", _task.taskid, _task.cgi);
         return 0;
      }
-
+    ConnectProfile profile;
     if (kEctOK == _err_type || kTaskFailHandleTaskEnd == _fail_handle)
-        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, GetConnectProfile(_task.taskid, Task::kChannelShort));
 
     if (kCallFromZombie == _from)
-        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
 
 #ifdef USE_LONG_LINK
     if (!zombie_task_manager_->SaveTask(_task, _taskcosttime))
 #endif
-        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
 
     return 0;
 }

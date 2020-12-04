@@ -16,6 +16,7 @@
 #include <string>
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/task_profile.h"
 
 namespace mars {
 namespace stn {
@@ -52,7 +53,8 @@ class StnCallbackBridge {
                         void* const _user_context, 
                         const std::string& _user_id,
                         int _error_type, 
-                        int _error_code);
+                        int _error_code,
+                        const ConnectProfile& _profile);
 
     virtual void ReportConnectStatus(int _status, int _longlink_status);
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
