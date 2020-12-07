@@ -44,7 +44,7 @@ DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang
 int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const ConnectProfile& _profile){
 
     xverbose_function();
-    xinfo2(TSF"recieve task profile: %_, %_, %_", _profile.start_connect_time, _profile.start_send_packet_time, _profile.read_packet_finished_time);
+    xdebug2(TSF"recieve task profile: %_, %_, %_", _profile.start_connect_time, _profile.start_send_packet_time, _profile.read_packet_finished_time);
 
 	VarCache* cache_instance = VarCache::Singleton();
 
