@@ -21,6 +21,7 @@ WEAK_FUNC void __xlogger_Assert_impl(const XLoggerInfo* _info, const char* _expr
 
 #ifndef WIN32
 WEAK_FUNC const char* xlogger_dump(const void* _dumpbuffer, size_t _len) { return "";}
+WEAK_FUNC const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) { return "";}
 #endif
 
 TLogLevel   xlogger_Level() {

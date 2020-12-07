@@ -588,7 +588,7 @@ static const char* __my_xlogger_tag = "prefix_"XLOGGER_TAG"_suffix";
 #define XLOGGER_TAG __my_xlogger_tag
 */
 
-#define xdump xlogger_dump
+#define xdump xlogger_memory_dump
 #define XLOGGER_ROUTER_OUTPUT(op1,op,...) PP_IF(PP_NUM_PARAMS(__VA_ARGS__),PP_IF(PP_DEC(PP_NUM_PARAMS(__VA_ARGS__)),op,op1), )
 
 #if !defined(__cplusplus)
