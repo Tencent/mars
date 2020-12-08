@@ -58,6 +58,7 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
         return -1;
     }
 
+    jfieldID fid_taskStartTime = env->GetFieldID(cgiProfileCls, "taskStartTime","J");
     jfieldID fid_startConnectTime = env->GetFieldID(cgiProfileCls, "startConnectTime","J");
     jfieldID fid_connectSuccessfulTime = env->GetFieldID(cgiProfileCls, "connectSuccessfulTime","J");
     jfieldID fid_startHandshakeTime = env->GetFieldID(cgiProfileCls, "startHandshakeTime","J");
@@ -66,9 +67,11 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
     jfieldID fid_startReadPacketTime = env->GetFieldID(cgiProfileCls, "startReadPacketTime","J");
     jfieldID fid_readPacketFinishedTime = env->GetFieldID(cgiProfileCls, "readPacketFinishedTime","J");
 
+    uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
+    env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
     env->SetLongField(jobj_cgiItem, fid_startConnectTime, _profile.start_connect_time);
     env->SetLongField(jobj_cgiItem, fid_connectSuccessfulTime, _profile.connect_successful_time);
-    env->SetLongField(jobj_cgiItem, fid_startHandshakeTime, _profile.start_tls_handshake_time);
+    env->SetLongField(jobj_cgiItem, fid_startHandshakeTime,tls_start_time);
     env->SetLongField(jobj_cgiItem, fid_handshakeSuccessfulTime, _profile.tls_handshake_successful_time);
     env->SetLongField(jobj_cgiItem, fid_startSendPacketTime, _profile.start_send_packet_time);
     env->SetLongField(jobj_cgiItem, fid_startReadPacketTime, _profile.start_read_packet_time);

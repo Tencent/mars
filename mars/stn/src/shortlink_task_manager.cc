@@ -673,7 +673,7 @@ ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const{
     std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
     
     while (first != last) {
-        if (_taskid == first->task.taskid) {
+        if ((first->running_id) && _taskid == first->task.taskid) {
             return ((ShortLinkInterface*)(first->running_id))->Profile();
         }
         ++first;
