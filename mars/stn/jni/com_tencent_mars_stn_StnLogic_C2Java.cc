@@ -32,7 +32,7 @@
 #include "mars/boost/signals2.hpp"
 
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnLogic")
-DEFINE_FIND_CLASS(KC2JavaStnCgiProfile,"com/tencent/mars/stn/StnLogic$CgiProfile");
+// DEFINE_FIND_CLASS(KC2JavaStnCgiProfile,"com/tencent/mars/stn/StnLogic$CgiProfile");
 
 namespace mars {
 namespace stn {
@@ -40,7 +40,8 @@ namespace stn {
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
     
-DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
+// DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
+DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
 int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const ConnectProfile& _profile){
 
     xverbose_function();
@@ -50,34 +51,34 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
 
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
-    jclass cgiProfileCls = cache_instance->GetClass(env, KC2JavaStnCgiProfile);
-    jmethodID jobj_init = env->GetMethodID(cgiProfileCls, "<init>", "()V");
-    jobject jobj_cgiItem = env->NewObject(cgiProfileCls, jobj_init);
-    if (nullptr == jobj_cgiItem) {
-        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
-        return -1;
-    }
+    // jclass cgiProfileCls = cache_instance->GetClass(env, KC2JavaStnCgiProfile);
+    // jmethodID jobj_init = env->GetMethodID(cgiProfileCls, "<init>", "()V");
+    // jobject jobj_cgiItem = env->NewObject(cgiProfileCls, jobj_init);
+    // if (nullptr == jobj_cgiItem) {
+    //     env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
+    //     return -1;
+    // }
 
-    jfieldID fid_taskStartTime = env->GetFieldID(cgiProfileCls, "taskStartTime","J");
-    jfieldID fid_startConnectTime = env->GetFieldID(cgiProfileCls, "startConnectTime","J");
-    jfieldID fid_connectSuccessfulTime = env->GetFieldID(cgiProfileCls, "connectSuccessfulTime","J");
-    jfieldID fid_startHandshakeTime = env->GetFieldID(cgiProfileCls, "startHandshakeTime","J");
-    jfieldID fid_handshakeSuccessfulTime = env->GetFieldID(cgiProfileCls, "handshakeSuccessfulTime","J");
-    jfieldID fid_startSendPacketTime = env->GetFieldID(cgiProfileCls, "startSendPacketTime","J");
-    jfieldID fid_startReadPacketTime = env->GetFieldID(cgiProfileCls, "startReadPacketTime","J");
-    jfieldID fid_readPacketFinishedTime = env->GetFieldID(cgiProfileCls, "readPacketFinishedTime","J");
+    // jfieldID fid_taskStartTime = env->GetFieldID(cgiProfileCls, "taskStartTime","J");
+    // jfieldID fid_startConnectTime = env->GetFieldID(cgiProfileCls, "startConnectTime","J");
+    // jfieldID fid_connectSuccessfulTime = env->GetFieldID(cgiProfileCls, "connectSuccessfulTime","J");
+    // jfieldID fid_startHandshakeTime = env->GetFieldID(cgiProfileCls, "startHandshakeTime","J");
+    // jfieldID fid_handshakeSuccessfulTime = env->GetFieldID(cgiProfileCls, "handshakeSuccessfulTime","J");
+    // jfieldID fid_startSendPacketTime = env->GetFieldID(cgiProfileCls, "startSendPacketTime","J");
+    // jfieldID fid_startReadPacketTime = env->GetFieldID(cgiProfileCls, "startReadPacketTime","J");
+    // jfieldID fid_readPacketFinishedTime = env->GetFieldID(cgiProfileCls, "readPacketFinishedTime","J");
 
-    uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
-    env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
-    env->SetLongField(jobj_cgiItem, fid_startConnectTime, _profile.start_connect_time);
-    env->SetLongField(jobj_cgiItem, fid_connectSuccessfulTime, _profile.connect_successful_time);
-    env->SetLongField(jobj_cgiItem, fid_startHandshakeTime,tls_start_time);
-    env->SetLongField(jobj_cgiItem, fid_handshakeSuccessfulTime, _profile.tls_handshake_successful_time);
-    env->SetLongField(jobj_cgiItem, fid_startSendPacketTime, _profile.start_send_packet_time);
-    env->SetLongField(jobj_cgiItem, fid_startReadPacketTime, _profile.start_read_packet_time);
-    env->SetLongField(jobj_cgiItem, fid_readPacketFinishedTime, _profile.read_packet_finished_time);
+    // uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
+    // env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
+    // env->SetLongField(jobj_cgiItem, fid_startConnectTime, _profile.start_connect_time);
+    // env->SetLongField(jobj_cgiItem, fid_connectSuccessfulTime, _profile.connect_successful_time);
+    // env->SetLongField(jobj_cgiItem, fid_startHandshakeTime,tls_start_time);
+    // env->SetLongField(jobj_cgiItem, fid_handshakeSuccessfulTime, _profile.tls_handshake_successful_time);
+    // env->SetLongField(jobj_cgiItem, fid_startSendPacketTime, _profile.start_send_packet_time);
+    // env->SetLongField(jobj_cgiItem, fid_startReadPacketTime, _profile.start_read_packet_time);
+    // env->SetLongField(jobj_cgiItem, fid_readPacketFinishedTime, _profile.read_packet_finished_time);
 
-	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code, jobj_cgiItem).i;
+	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code).i;
 
 	return ret;
 };
