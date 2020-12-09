@@ -283,6 +283,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 __SingleRespHandle(first, kEctLocal, kEctLocalTaskParam, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
                 first = next;
                 continue;
+            } else {
+                xdebug2(TSF"cgi host is auth host");
             }
         }
 
