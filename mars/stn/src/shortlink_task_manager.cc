@@ -50,6 +50,7 @@ boost::function<void (const std::string& _user_id, std::vector<std::string>& _ho
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
+boost::function<bool (const std::string& _user_id, const std::string& _host)> ShortLinkTaskManager::confirm_auth_host_exist_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -273,6 +274,13 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
+                first = next;
+                continue;
+            }
+        } else if (first->task.confirm_auth_host_exist) {
+            if (confirm_auth_host_exist_ && !confirm_auth_host_exist_(first->task.user_id, host)) {
+                xerror2(TSF"cgi host is invalid: %_", first->task.cgi);
+                __SingleRespHandle(first, kEctLocal, kEctLocalTaskParam, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
                 first = next;
                 continue;
             }

@@ -91,6 +91,7 @@ public:
     bool    need_authed;  // user
     bool    limit_flow;  // user
     bool    limit_frequency;  // user
+    bool    confirm_auth_host_exist; //user
     
     bool        network_status_sensitive;  // user
     int32_t     channel_strategy;

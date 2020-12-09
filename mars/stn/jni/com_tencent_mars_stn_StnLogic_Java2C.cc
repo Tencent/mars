@@ -169,6 +169,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 	jboolean need_authed = JNU_GetField(_env, _task, "needAuthed", "Z").z;
 	jboolean limit_flow = JNU_GetField(_env, _task, "limitFlow", "Z").z;
 	jboolean limit_frequency = JNU_GetField(_env, _task, "limitFrequency", "Z").z;
+	jboolean confirm_auth_host_exist = JNU_GetField(_env, _task, "comfirmAuthHostExist", "Z").z;
 
 	jint channel_strategy = JNU_GetField(_env, _task, "channelStrategy", "I").i;
 	jboolean network_status_sensitive = JNU_GetField(_env, _task, "networkStatusSensitive", "Z").z;
@@ -194,6 +195,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 	task.need_authed = need_authed;
 	task.limit_flow = limit_flow;
 	task.limit_frequency = limit_frequency;
+	task.confirm_auth_host_exist = confirm_auth_host_exist;
 
 	task.channel_strategy = channel_strategy;
 	task.network_status_sensitive = network_status_sensitive;
