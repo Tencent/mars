@@ -40,7 +40,6 @@ Task::Task(uint32_t _taskid) {
     need_authed = false;
     limit_flow = true;
     limit_frequency = true;
-    confirm_auth_host_exist = false;
     
     channel_strategy = kChannelNormalStrategy;
     network_status_sensitive = false;
