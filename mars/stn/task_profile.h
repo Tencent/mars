@@ -336,6 +336,7 @@ struct TaskProfile {
     bool allow_sessiontimeout_retry;
 
     std::vector<TransferProfile> history_transfer_profiles;
+    std::string channel_name;
 };
         
 

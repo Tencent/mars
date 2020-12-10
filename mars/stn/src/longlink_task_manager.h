@@ -64,7 +64,7 @@ class LongLinkTaskManager {
     LongLinkTaskManager(mars::stn::NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, int _channel);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -74,11 +74,13 @@ class LongLinkTaskManager {
     // LongLink& LongLinkChannel(const std::string& _name) { return *longlink_; }
     // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
     std::shared_ptr<LongLinkMetaData> GetLongLink(const std::string& _name);
+    void FixMinorRealhost(Task& _task);
 
     unsigned int GetTaskCount(const std::string& _name);
     unsigned int GetTasksContinuousFailCount();
 
     bool AddLongLink(const LonglinkConfig& _config);
+    bool AddMinorLink(Task& _task, int _pack_version);
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
         ScopedLock lock(meta_mutex_);
         for(auto& item : longlink_metas_) {

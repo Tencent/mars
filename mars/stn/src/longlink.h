@@ -141,6 +141,12 @@ class LongLink {
       dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
     std::string ChannelId() { return config_.name; }
+    void SvrTrigOff() {
+        svr_trig_off_ = false;
+    }
+    bool IsSvrTrigOff() {
+        return config_.link_type == Task::kChannelMinorLong && svr_trig_off_;
+    }
     
   private:
     LongLink(const LongLink&);
@@ -193,6 +199,7 @@ class LongLink {
     LongLinkEncoder&                             encoder_;
     unsigned long long              lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
+    bool            svr_trig_off_;       //with minor longlink, if server close the socket, do not auto rebuild until task
 };
         
 }}

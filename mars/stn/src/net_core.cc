@@ -248,6 +248,33 @@ NetCore* NetCore::NetCoreOnCreate(int _packer_encoder_version) {
 	return new NetCore(_packer_encoder_version);
 }
 
+int NetCore::__ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong) {
+    bool longlinkOk = (_longlink != nullptr);
+    longlinkOk = longlinkOk && LongLink::kConnected == _longlink->Channel()->ConnectStatus();
+
+    if (longlinkOk && _task.channel_strategy == Task::kChannelFastStrategy) {
+        xinfo2(TSF"long link task count:%0, ", longlink_task_manager_->GetTaskCount(_task.channel_name));
+        longlinkOk = longlinkOk && (longlink_task_manager_->GetTaskCount(_task.channel_name) <= kFastSendUseLonglinkTaskCntLimit);
+    }
+
+    bool minorOk = (_minorLong != nullptr) && LongLink::kConnected == _minorLong->Channel()->ConnectStatus();
+    int channel = _task.channel_select;
+    switch(_task.channel_select) {
+        case Task::kChannelAll:
+            channel = minorOk ? Task::kChannelMinorLong : (longlinkOk ? Task::kChannelLong : Task::kChannelShort);
+            break;
+        case Task::kChannelNormal:
+            channel = minorOk ? Task::kChannelMinorLong : Task::kChannelShort;
+            break;
+        case Task::kChannelBoth:
+            channel = longlinkOk ? Task::kChannelLong : Task::kChannelShort;
+            break;
+        default:
+            break;
+    }
+    return channel;
+}
+
 void NetCore::StartTask(const Task& _task) {
     
     ASYNC_BLOCK_START
@@ -280,6 +307,13 @@ void NetCore::StartTask(const Task& _task) {
     }
 
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
+    std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
+    if((task.channel_select & Task::kChannelMinorLong) && !task.minorlong_host_list.empty()) {
+        longlink_task_manager_->FixMinorRealhost(task);
+        std::string host = task.minorlong_host_list.empty()? "" : task.minorlong_host_list.front();
+        if(!host.empty())
+            minorlonglink = longlink_task_manager_->GetLongLink(host);
+    }
     if (task.network_status_sensitive && kNoNet ==::getNetInfo()
 #ifdef USE_LONG_LINK
         && longlink && LongLink::kConnected != longlink->Channel()->ConnectStatus()
@@ -312,33 +346,27 @@ void NetCore::StartTask(const Task& _task) {
            && (15 * 60 * 1000 >= gettickcount() - ActiveLogic::Instance()->LastForegroundChangeTime())) {
         longlink->Monitor()->MakeSureConnected();
     }
+    if ((Task::kChannelMinorLong & task.channel_select) && ActiveLogic::Instance()->IsForeground()) {
+        if(!minorlonglink) {
+            bool ret = longlink_task_manager_->AddMinorLink(task, packer_encoder_version_);
+            if(ret) {
+                minorlonglink = longlink_task_manager_->GetLongLink(task.minorlong_host_list.front());
+            }
+        } else if(LongLink::kConnected != minorlonglink->Channel()->ConnectStatus()) {
+            minorlonglink->Channel()->SvrTrigOff();
+            minorlonglink->Monitor()->MakeSureConnected();
+        }
+    }
 #endif
 
     xgroup2() << group;
 
-    switch (task.channel_select) {
-    case Task::kChannelBoth: {
-
+    int channel = __ChooseChannel(task, longlink, minorlonglink);
+    switch (channel) {
 #ifdef USE_LONG_LINK
-        bool bUseLongLink = (longlink != nullptr)
-        && LongLink::kConnected == longlink->Channel()->ConnectStatus();
-
-        if (bUseLongLink && task.channel_strategy == Task::kChannelFastStrategy) {
-            xinfo2(TSF"long link task count:%0, ", longlink_task_manager_->GetTaskCount(task.channel_name));
-            bUseLongLink = bUseLongLink && (longlink_task_manager_->GetTaskCount(task.channel_name) <= kFastSendUseLonglinkTaskCntLimit);
-        }
-
-        if (bUseLongLink)
-            start_ok = longlink_task_manager_->StartTask(task);
-        else
-#endif
-            start_ok = shortlink_task_manager_->StartTask(task);
-    }
-    break;
-#ifdef USE_LONG_LINK
-
+    case Task::kChannelMinorLong:
     case Task::kChannelLong:
-        start_ok = longlink_task_manager_->StartTask(task);
+        start_ok = longlink_task_manager_->StartTask(task, channel);
         break;
 #endif
 

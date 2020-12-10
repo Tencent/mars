@@ -150,6 +150,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , wakelock_(NULL)
 #endif
     , encoder_(_encoder)
+    , svr_trig_off_(false)
 {
     xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -225,6 +226,10 @@ bool LongLink::Stop(uint32_t _taskid) {
 
 
 bool LongLink::MakeSureConnected(bool* _newone) {
+    if(IsSvrTrigOff()) {
+        xwarn2(TSF"make connected but svr trig off");
+        svr_trig_off_ = false;
+    }
     if (_newone) *_newone = false;
 
     ScopedLock lock(mutex_);
@@ -750,6 +755,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             if (0 == recvlen) {
                 _errtype = kEctSocket;
                 _errcode = kEctSocketShutdown;
+                svr_trig_off_ = true;
                 xwarn2(TSF"task socket close sock:%0, remote disconnect", _sock) >> close_log;
                 goto End;
             }

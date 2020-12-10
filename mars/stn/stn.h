@@ -55,6 +55,9 @@ public:
     static const int kChannelShort = 0x1;
     static const int kChannelLong = 0x2;
     static const int kChannelBoth = 0x3;
+    static const int kChannelMinorLong = 0x4;
+    static const int kChannelNormal = 0x5;
+    static const int kChannelAll = 0x7;
     
     static const int kChannelNormalStrategy = 0;
     static const int kChannelFastStrategy = 1;
@@ -82,7 +85,7 @@ public:
     //require
     uint32_t       taskid;
     uint32_t       cmdid;
-    uint64_t       channel_id;
+    uint64_t       channel_id;      // not used
     int32_t        channel_select;
     std::string    cgi;    // user
 
@@ -112,6 +115,7 @@ public:
     std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
     std::vector<std::string> longlink_host_list;
+    std::vector<std::string> minorlong_host_list;
 };
     
 struct CgiProfile {
@@ -145,11 +149,12 @@ public:
     }
     std::string     name;   //channel_id
     std::vector<std::string> host_list;
-    bool            is_keep_alive;     //if false, reconnect trig by task    
+    bool            is_keep_alive;     //if false, reconnect trig by task
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
     int             packer_encoder_version = PackerEncoderVersion::kOld;
+    int             link_type = Task::kChannelLong;
     std::vector<std::string> (*dns_func)(const std::string& host);
 };
 
