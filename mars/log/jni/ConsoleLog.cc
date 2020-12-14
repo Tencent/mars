@@ -26,7 +26,7 @@
 
 //这里不能加日志，会导致循环调用
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
-	char result_log[2048] = {0};
+	char result_log[16*1024] = {0};
     if (_info) {
         const char* filename = ExtractFileName(_info->filename);
         const char* strFuncName  = NULL == _info->func_name ? "" : _info->func_name;
