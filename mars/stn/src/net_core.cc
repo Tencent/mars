@@ -351,6 +351,7 @@ void NetCore::StartTask(const Task& _task) {
             bool ret = longlink_task_manager_->AddMinorLink(task, packer_encoder_version_);
             if(ret) {
                 minorlonglink = longlink_task_manager_->GetLongLink(task.minorlong_host_list.front());
+                minorlonglink->Monitor()->MakeSureConnected();
             }
         } else if(LongLink::kConnected != minorlonglink->Channel()->ConnectStatus()) {
             minorlonglink->Channel()->SvrTrigOff();
@@ -793,7 +794,7 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
         return shortlink_task_manager_->GetConnectProfile(_taskid);
     }
 #ifdef USE_LONG_LINK
-    else if (_channel_select == Task::kChannelLong) {
+    else if (_channel_select == Task::kChannelLong || _channel_select == Task::kChannelMinorLong) {
         return longlink_task_manager_->GetConnectProfile(_taskid);
     }
 #endif

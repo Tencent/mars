@@ -406,7 +406,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         auto longlink_channel = longlink->Channel();
 
         if (!first->antiavalanche_checked) {
-			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
+			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -440,7 +440,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         
 		if (0 == bufreq.Length()) {
 
-			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
+			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -702,7 +702,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
     
     int err_code = 0;
-    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, Task::kChannelLong);
+    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, longlink_meta->Config().link_type);
     
     switch(handle_type){
         case kTaskFailHandleNoError:
