@@ -114,7 +114,9 @@ namespace stn{
 	extern void (*ClearTasks)();
     
     // the same as ClearTasks(), but also reinitialize network.
-	extern void (*Reset)(int _packer_encoder_version);
+	extern void (*Reset)();
+
+	extern void (*ResetAndInitEncoderVersion)(int _encoder_version);
     
     //setting signalling's parameters.
     //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s

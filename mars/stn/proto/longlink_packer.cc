@@ -90,6 +90,9 @@ static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmd
 #define NOOP_CMDID 6
 #define SIGNALKEEP_CMDID 243
 #define PUSH_DATA_TASKID 0
+
+    int LongLinkEncoder::packer_encoder_version = PackerEncoderVersion::kOld;
+    void LongLinkEncoder::SetEncoderVersion(int _version) {packer_encoder_version = _version;}
     
     LongLinkEncoder::LongLinkEncoder() {
         longlink_pack = [](uint32_t _cmdid, uint32_t _seq, const AutoBuffer& _body, const AutoBuffer& _extension, AutoBuffer& _packed, longlink_tracker* _tracker) {
