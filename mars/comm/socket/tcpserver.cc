@@ -186,7 +186,6 @@ void TcpServer::__ListenThread() {
 #endif
 
             struct sockaddr_in client_addr = {0};
-
             socklen_t client_addr_len = sizeof(client_addr);
 
             SOCKET client = accept(listen_sock_, (struct sockaddr*) &client_addr, &client_addr_len);

@@ -42,11 +42,13 @@ SocketBreaker::~SocketBreaker()
 
 bool SocketBreaker::IsCreateSuc() const
 {
+    ScopedLock lock(mutex_);
     return create_success_;
 }
 
 bool SocketBreaker::ReCreate()
 {
+    ScopedLock lock(mutex_);
     if(pipes_[1] >= 0)
         close(pipes_[1]);
     if(pipes_[0] >= 0)
@@ -136,6 +138,7 @@ bool SocketBreaker::Clear()
 
 void SocketBreaker::Close()
 {
+    ScopedLock lock(mutex_);
     broken_ =  true;
     if(pipes_[1] >= 0)
         close(pipes_[1]);
@@ -147,10 +150,12 @@ void SocketBreaker::Close()
 
 int SocketBreaker::BreakerFD() const
 {
+    ScopedLock lock(mutex_);
     return pipes_[0];
 }
 
 bool SocketBreaker::IsBreak() const
 {
+    ScopedLock lock(mutex_);
     return broken_;
 }

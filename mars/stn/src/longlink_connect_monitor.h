@@ -90,7 +90,7 @@ class LongLinkConnectMonitor {
     Mutex testmutex_;
 
     int conti_suc_count_;
-    bool isstart_;
+    bool isstart_ GUARDED_BY(testmutex_);
     bool is_keep_alive_;
     int current_interval_index_;
     bool rebuild_longlink_;

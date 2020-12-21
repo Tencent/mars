@@ -175,16 +175,16 @@ class LongLink {
     Mutex                           mutex_;
     Thread                          thread_;
 
-    boost::scoped_ptr<longlink_tracker>         tracker_;
+    boost::scoped_ptr<longlink_tracker>         tracker_ GUARDED_BY(mutex_);
     NetSource::DnsUtil                          dns_util_;
     SocketBreaker                               connectbreak_;
-    TLongLinkStatus                             connectstatus_;
+    TLongLinkStatus                             connectstatus_ GUARDED_BY(mutex_);
     ConnectProfile                              conn_profile_;
-    TDisconnectInternalCode                     disconnectinternalcode_;
+    TDisconnectInternalCode                     disconnectinternalcode_ GUARDED_BY(mutex_);
     
     SocketBreaker                               readwritebreak_;
     LongLinkIdentifyChecker                     identifychecker_;
-    std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_;
+    std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_ GUARDED_BY(mutex_);
     tickcount_t                                 lastrecvtime_;
     
     SmartHeartbeat*                       smartheartbeat_;

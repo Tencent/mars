@@ -37,7 +37,7 @@
 #define splocktrylock OSSpinLockTry
 #endif
 
-class SpinLock
+class CAPABILITY("mutex") SpinLock
 {
 public:
     typedef splock handle_type;

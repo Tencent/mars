@@ -23,7 +23,7 @@
 #include "comm/assert/__assert.h"
 #include "comm/time_utils.h"
 
-class Mutex {
+class CAPABILITY("mutex") Mutex {
   public:
     typedef pthread_mutex_t handle_type;
     Mutex(bool _recursive = false)

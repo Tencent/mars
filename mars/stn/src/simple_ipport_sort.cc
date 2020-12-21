@@ -110,31 +110,33 @@ SimpleIPPortSort::SimpleIPPortSort()
         boost::filesystem::create_directory(hostpath_);
     }
         
-    ScopedLock lock(mutex_);
     __LoadXml();
-    lock.unlock();
     InitHistory2BannedList(false);
 }
 
 SimpleIPPortSort::~SimpleIPPortSort() {
-    ScopedLock lock(mutex_);
     __SaveXml();
 }
 
 void SimpleIPPortSort::__SaveXml() {
     __RemoveTimeoutXml();
+    ScopedLock lock(mutex_);
     recordsxml_.SaveFile((hostpath_ + IPPORT_RECORDS_FILENAME).c_str());
 }
 
 void SimpleIPPortSort::__LoadXml() {
+    ScopedLock lock(mutex_);
     tinyxml2::XMLError error = recordsxml_.LoadFile((hostpath_ + IPPORT_RECORDS_FILENAME).c_str());
     if (tinyxml2::XML_SUCCESS != error) return;
+    
+    lock.unlock();
     __RemoveTimeoutXml();
 }
 
 void SimpleIPPortSort::__RemoveTimeoutXml() {
     std::vector<tinyxml2::XMLElement*> remove_ele_ptr_list;
-
+    
+    ScopedLock lock(mutex_);
     for (tinyxml2::XMLElement* record = recordsxml_.FirstChildElement(kRecord);
             NULL != record; record = record->NextSiblingElement(kRecord)) {
         const char* lasttime_chr = record->Attribute(kTime);
@@ -159,9 +161,9 @@ void SimpleIPPortSort::__RemoveTimeoutXml() {
 }
 
 void SimpleIPPortSort::InitHistory2BannedList(bool _savexml) {
-    ScopedLock lock(mutex_);
     if (_savexml) __SaveXml();
     
+    ScopedLock lock(mutex_);
     _ban_fail_list_.clear();
     
     std::string curr_netinfo;
@@ -214,14 +216,13 @@ void SimpleIPPortSort::Update(const std::string& _ip, uint16_t _port, bool _is_s
     std::string curr_net_info;
     if (kNoNet == getCurrNetLabel(curr_net_info)) return;
 
-    ScopedLock lock(mutex_);
-    
     if (!__CanUpdate(_ip, _port, _is_success)) return;
     
     __UpdateBanList(_is_success,  _ip,  _port);
 
     tinyxml2::XMLElement* record = NULL;
-
+    
+    ScopedLock lock(mutex_);
     for (record = recordsxml_.FirstChildElement(kRecord);
             NULL != record; record = record->NextSiblingElement(kRecord)) {
         const char* netinfo_chr = record->Attribute(kNetInfo);
@@ -265,6 +266,7 @@ void SimpleIPPortSort::Update(const std::string& _ip, uint16_t _port, bool _is_s
 std::vector<BanItem>::iterator  SimpleIPPortSort::__FindBannedIter(const std::string& _ip, unsigned short _port) const {
     std::vector<BanItem>::iterator iter;
 
+    ScopedLock lock(mutex_);
     for (iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             return iter;
@@ -279,6 +281,7 @@ bool SimpleIPPortSort::__IsBanned(const std::string& _ip, unsigned short _port) 
 }
 
 bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
+    ScopedLock lock(mutex_);
     if (_iter == _ban_fail_list_.end()) return false;
 
     bool baned =  CAL_BIT_COUNT(_iter->records) >= kBanFailCount;
@@ -303,6 +306,7 @@ bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
 
 void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip, unsigned short _port) {
     __UpdateBanFlagAndTime(_ip, _is_success);
+    ScopedLock lock(mutex_);
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             SET_BIT(!_is_success, iter->records);
@@ -339,6 +343,7 @@ static int DecToBin(int _dec) {
 }
 
 void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _success) {
+    ScopedLock lock(mutex_);
     if (__IsIPv6(_ip)) {
         if (_success) {
             SET_BIT(0, IPv6_ban_flag_);
@@ -375,6 +380,7 @@ int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
 }
 
 bool SimpleIPPortSort::CanUseIPv6() {
+    ScopedLock lock(mutex_);
     return !ban_v6_;
 }
 
@@ -384,6 +390,7 @@ bool SimpleIPPortSort::__IsIPv6(const std::string& _ip) {
 }
 
 bool SimpleIPPortSort::__CanUpdate(const std::string& _ip, uint16_t _port, bool _is_success) const {
+    ScopedLock lock(mutex_);
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             if (_is_success) {
@@ -398,6 +405,7 @@ bool SimpleIPPortSort::__CanUpdate(const std::string& _ip, uint16_t _port, bool 
 }
 
 void SimpleIPPortSort::__FilterbyBanned(std::vector<IPPortItem>& _items) const {
+    ScopedLock lock(mutex_);
     for (std::vector<IPPortItem>::iterator it = _items.begin(); it != _items.end();) {
         if (__IsBanned(it->str_ip, it->port) || __IsServerBan(it->str_ip)) {
             xwarn2(TSF"ip:%0, port:%1, is ban!!", it->str_ip, it->port);
@@ -409,6 +417,7 @@ void SimpleIPPortSort::__FilterbyBanned(std::vector<IPPortItem>& _items) const {
 }
 
 bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
+    ScopedLock lock(mutex_);
     std::map<std::string, uint64_t>::iterator iter = _server_bans_.find(_ip);
 
     if (iter == _server_bans_.end()) return false;
@@ -425,6 +434,7 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
 }
 
 void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const {
+
     srand((unsigned int)gettickcount());
     //random_shuffle new and history
     std::random_shuffle(_items.begin(), _items.end());
@@ -454,6 +464,7 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     std::deque<IPPortItem> items_history(_items.size());
     std::deque<IPPortItem> items_new(_items.size());
     auto find_lambda = [&](const IPPortItem& _v) {
+        ScopedLock lock(mutex_);
         for (std::vector<BanItem>::const_iterator it_banned = _ban_fail_list_.begin(); it_banned != _ban_fail_list_.end(); ++it_banned) {
             if (it_banned->ip == _v.str_ip && it_banned->port == _v.port) {
                 return true;
@@ -467,6 +478,7 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     xassert2(_items.size() == items_history.size()+items_new.size(), TSF"_item:%_, history:%_, new:%_", _items.size(), items_history.size(), items_new.size());
     
     //sort history
+    ScopedLock lock(mutex_);
     std::sort(items_history.begin(), items_history.end(),
               [&](const IPPortItem& _l, const IPPortItem& _r){
                   auto find_lr_lambda  = [](const BanItem& _v, const IPPortItem& _find) {
@@ -592,7 +604,6 @@ void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items, std::
 
 void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const {
 //    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
-    ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
     for (size_t i=0; i<_items.size(); i++) {
 		xdebug2(TSF"after FilterbyBanned list ip: %_ ", _items[i].str_ip);

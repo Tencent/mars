@@ -117,13 +117,14 @@ class LongLinkTaskManager {
     void __DumpLongLinkChannelInfo();
 
   private:
+    Mutex                           meta_mutex_;
     MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
     uint64_t                        lastbatcherrortime_;   // ms
     unsigned long                   retry_interval_;	//ms
     unsigned int                    tasks_continuous_fail_count_;
 
-    std::map<std::string, std::shared_ptr<LongLinkMetaData> > longlink_metas_;
+    std::map<std::string, std::shared_ptr<LongLinkMetaData> > longlink_metas_ GUARDED_BY(meta_mutex_);
     std::map<std::string, int>      longlink_id_;
     DynamicTimeout&                 dynamic_timeout_;
 
@@ -133,7 +134,6 @@ class LongLinkTaskManager {
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;
 #endif
-    Mutex                           meta_mutex_;
 };
     }
 }

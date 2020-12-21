@@ -23,21 +23,21 @@
 #include "comm/time_utils.h"
 
 template <typename MutexType>
-class BaseScopedLock {
+class SCOPED_CAPABILITY BaseScopedLock {
   public:
-    explicit BaseScopedLock(MutexType& mutex, bool initiallyLocked = true)
+    explicit BaseScopedLock(MutexType& mutex, bool initiallyLocked = true) ACQUIRE(mutex)
         : mutex_(mutex) , islocked_(false) {
         if (!initiallyLocked) return;
 
         lock();
     }
 
-    explicit BaseScopedLock(MutexType& mutex, long _millisecond)
+    explicit BaseScopedLock(MutexType& mutex, long _millisecond) ACQUIRE(mutex)
         : mutex_(mutex) , islocked_(false) {
         timedlock(_millisecond);
     }
 
-    ~BaseScopedLock() {
+    ~BaseScopedLock() RELEASE() {
         if (islocked_) unlock();
     }
 
@@ -45,7 +45,7 @@ class BaseScopedLock {
         return islocked_;
     }
 
-    void lock() {
+    void lock() ACQUIRE() {
         ASSERT(!islocked_);
 
         if (!islocked_ && mutex_.lock()) {
@@ -55,7 +55,7 @@ class BaseScopedLock {
         ASSERT(islocked_);
     }
 
-    void unlock() {
+    void unlock() RELEASE() {
         ASSERT(islocked_);
 
         if (islocked_) {
@@ -64,7 +64,7 @@ class BaseScopedLock {
         }
     }
 
-    bool trylock() {
+    bool trylock() TRY_ACQUIRE(true){
         if (islocked_) return false;
 
         islocked_ = mutex_.trylock();
@@ -81,7 +81,7 @@ class BaseScopedLock {
         return islocked_;
     }
 #else
-    bool timedlock(long _millisecond) {
+    bool timedlock(long _millisecond) TRY_ACQUIRE(true){
         ASSERT(!islocked_);
 
         if (islocked_) return true;

@@ -9,7 +9,7 @@
 
 #include "comm/compiler_util.h"
 
-WEAK_FUNC  TLogLevel   __xlogger_Level_impl();
+WEAK_FUNC  TLogLevel   __xlogger_Level_impl(void);
 WEAK_FUNC  void        __xlogger_SetLevel_impl(TLogLevel _level);
 WEAK_FUNC  int         __xlogger_IsEnabledFor_impl(TLogLevel _level);
 WEAK_FUNC xlogger_appender_t __xlogger_SetAppender_impl(xlogger_appender_t _appender);

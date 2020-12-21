@@ -92,18 +92,18 @@ class TcpClient {
     char* ip_;
     uint16_t port_;
     MTcpEvent& event_;
-
-    SOCKET socket_;
-    bool have_read_data_;
-    bool will_disconnect_;
-    int writedbufid_;
-    std::list<AutoBuffer*> lst_buffer_;
-
-    Thread thread_;
+    
     mutable Mutex write_mutex_;
     mutable Mutex read_disconnect_mutex_;
     Mutex connect_mutex_;
 
+    SOCKET socket_;
+    bool have_read_data_;
+    bool will_disconnect_;
+    int writedbufid_ GUARDED_BY(write_mutex_);
+    std::list<AutoBuffer*> lst_buffer_ GUARDED_BY(write_mutex_);
+
+    Thread thread_;
     SocketBreaker pipe_;
 
     int timeout_;

@@ -43,10 +43,10 @@ class SocketBreaker {
     SocketBreaker& operator=(const SocketBreaker&);
 
   private:
-    int   pipes_[2];
-    bool  create_success_;
-    bool  broken_;
     Mutex mutex_;
+    int   pipes_[2] GUARDED_BY(mutex_);
+    bool  create_success_ GUARDED_BY(mutex_);
+    bool  broken_ GUARDED_BY(mutex_);
 };
 
 #endif

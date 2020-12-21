@@ -51,9 +51,10 @@ static std::string DNSInfoToString(const struct dnsinfo& _info) {
     msg(TSF"info:%_, threadid:%_, dns:%_, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
     return msg.Message();
 }
-static std::vector<dnsinfo> sg_dnsinfo_vec;
+
 static Condition sg_condition;
 static Mutex sg_mutex;
+static std::vector<dnsinfo> sg_dnsinfo_vec GUARDED_BY(sg_mutex);
 
 static void __GetIP() {
     xverbose_function();

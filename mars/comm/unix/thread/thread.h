@@ -86,7 +86,7 @@ class Thread {
         }
 
         void AddRef() { count++;}
-        void RemoveRef(ScopedSpinLock& _lock) {
+        void RemoveRef(ScopedSpinLock& _lock) RELEASE(_lock){
             ASSERT(0 < count);
             ASSERT(_lock.islocked());
 

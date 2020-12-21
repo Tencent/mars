@@ -45,20 +45,19 @@ using namespace mars::stn;
 static const char* const kItemDelimiter = ":";
 
 static const int kNumMakeCount = 5;
+static Mutex sg_ip_mutex;
 
 //mmnet ipport settings
-static std::vector<std::string> sg_longlink_hosts;
-static std::vector<uint16_t> sg_longlink_ports;
-static std::string sg_longlink_debugip;
+static std::vector<std::string> sg_longlink_hosts GUARDED_BY(sg_ip_mutex);
+static std::vector<uint16_t> sg_longlink_ports GUARDED_BY(sg_ip_mutex);
+static std::string sg_longlink_debugip GUARDED_BY(sg_ip_mutex);
 
-static int sg_shortlink_port;
-static std::string sg_shortlink_debugip;
-static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
-static std::vector<uint16_t> sg_lowpriority_longlink_ports;
+static int sg_shortlink_port GUARDED_BY(sg_ip_mutex);
+static std::string sg_shortlink_debugip GUARDED_BY(sg_ip_mutex);
+static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping GUARDED_BY(sg_ip_mutex);
+static std::vector<uint16_t> sg_lowpriority_longlink_ports GUARDED_BY(sg_ip_mutex);
+static std::map< std::string, std::string > sg_host_debugip_mapping GUARDED_BY(sg_ip_mutex);
 
-static std::map< std::string, std::string > sg_host_debugip_mapping;
-
-static Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil():
 new_dns_(OnNewDns) {

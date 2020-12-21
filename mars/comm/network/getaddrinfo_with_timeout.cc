@@ -66,10 +66,9 @@ struct DnsItem {
     }
 };
 
-static std::vector<DnsItem> sg_dnsitem_vec;
 static Condition sg_condition;
 static Mutex sg_mutex;
-
+static std::vector<DnsItem> sg_dnsitem_vec GUARDED_BY(sg_mutex);
 
 static void __WorkerFunc() {
     xverbose_function();
