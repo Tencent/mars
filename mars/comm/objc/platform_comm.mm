@@ -48,6 +48,7 @@
 #include "comm/thread/mutex.h"
 #include "comm/thread/lock.h"
 #include "comm/network/getifaddrs.h"
+#include "comm/time_utils.h"
 
 #if !TARGET_OS_IPHONE
 static float __GetSystemVersion() {
@@ -82,6 +83,7 @@ void FlushReachability() {
     ScopedLock lock(sg_wifiinfo_mutex);
     sg_wifiinfo.ssid.clear();
     sg_wifiinfo.bssid.clear();
+    sg_wifiinfo.refresh_time = 0;
 #endif
 }
 
@@ -246,6 +248,15 @@ static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
     return !_wifi_info.bssid.empty() && kConstBSSID != _wifi_info.bssid;
 }
 
+
+bool WifiInfoCacheEmpty() {
+#if !TARGET_OS_WATCH
+    ScopedLock lock(sg_wifiinfo_mutex);
+    uint64_t curr_time = gettickcount();
+    return (__WiFiInfoIsValid(sg_wifiinfo)) && (curr_time - sg_wifiinfo.refresh_time < 30 * 60 * 1000);
+#endif
+}
+
 bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
 {
     SCOPE_POOL();
@@ -336,6 +347,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
     }
     CFRelease(info);
     CFRelease(ifs);
+    wifiInfo.refresh_time = gettickcount();
 
     // CNCopyCurrentNetworkInfo is now only available to your app in three cases:
     // * Apps with permission to access location
