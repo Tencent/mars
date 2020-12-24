@@ -116,6 +116,7 @@ public:
     std::map<std::string, std::string> headers;
     std::vector<std::string> longlink_host_list;
     std::vector<std::string> minorlong_host_list;
+    int32_t max_minorlinks;
 };
     
 struct CgiProfile {

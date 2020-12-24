@@ -80,7 +80,9 @@ class LongLinkTaskManager {
     unsigned int GetTasksContinuousFailCount();
 
     bool AddLongLink(const LonglinkConfig& _config);
-    bool AddMinorLink(Task& _task, int _pack_version);
+    bool AddMinorLink(const std::vector<std::string>& _hosts, int _pack_version);
+    bool IsMinorAvailable(const Task& _task);
+    
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
         ScopedLock lock(meta_mutex_);
         for(auto& item : longlink_metas_) {

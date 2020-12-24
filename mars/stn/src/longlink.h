@@ -145,7 +145,8 @@ class LongLink {
         svr_trig_off_ = false;
     }
     bool IsSvrTrigOff() {
-        return config_.link_type == Task::kChannelMinorLong && svr_trig_off_;
+        return false;       // 暂时不用这个功能
+//        return config_.link_type == Task::kChannelMinorLong && svr_trig_off_;
     }
     
   private:

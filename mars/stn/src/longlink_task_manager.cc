@@ -816,22 +816,44 @@ void LongLinkTaskManager::FixMinorRealhost(Task& _task) {
     }
 }
 
-bool LongLinkTaskManager::AddMinorLink(Task& _task, int _pack_version) {
-    std::string host = "";
-    if (!_task.minorlong_host_list.empty()) {
-        host = _task.minorlong_host_list.front();
+bool LongLinkTaskManager::AddMinorLink(const std::vector<std::string>& _hosts, int _pack_version) {
+    if(_hosts.empty()) {
+        return false;
     }
+    std::string host = "";
+    host = _hosts.front();
 
     LonglinkConfig defaultConfig(host, DEFAULT_LONGLINK_GROUP, false);
     defaultConfig.is_keep_alive = true;
     defaultConfig.packer_encoder_version = _pack_version;
-    defaultConfig.host_list = _task.minorlong_host_list;
+    defaultConfig.host_list = _hosts;
     defaultConfig.link_type = Task::kChannelMinorLong;
     if (_pack_version == mars::stn::PackerEncoderVersion::kOld) {
         defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
     }
     return AddLongLink(defaultConfig);
 }
+
+bool LongLinkTaskManager::IsMinorAvailable(const Task& _task) {
+    if(_task.minorlong_host_list.empty()) {
+        return false;
+    }
+    std::string host = _task.minorlong_host_list.front();
+    size_t linkCnt = 0;
+    for(auto& item : longlink_metas_) {
+        if(item.first == host) {
+            linkCnt += 1;
+            if(item.second->Channel()->ConnectStatus() != LongLink::kConnected || GetTaskCount(host) > 0)
+                continue;
+            return true;
+        }
+    }
+    if((int)linkCnt >= _task.max_minorlinks)
+        return false;
+    else
+        return true;
+}
+
 
 void LongLinkTaskManager::OnNetworkChange() {
     ScopedLock lock(meta_mutex_);

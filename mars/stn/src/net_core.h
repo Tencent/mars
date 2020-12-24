@@ -105,6 +105,7 @@ public:
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
     std::shared_ptr<LongLink>        CreateLongLink(const LonglinkConfig& _config);
+    bool AddMinorLongLink(const std::vector<std::string>& _hosts);
     void                DestroyLongLink(const std::string& _name);
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
