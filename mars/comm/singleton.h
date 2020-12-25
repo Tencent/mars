@@ -85,8 +85,13 @@
             ScopedLock    lock(singleton_mutex());\
             if (instance_shared_ptr())\
             {\
-                SignalRelease()(instance_shared_ptr());\
-                instance_shared_ptr().reset();\
+                SignalRelease()(instance_shared_ptr());    \
+                instance_shared_ptr().reset();              \
+                int waitCnt = 0;                            \
+                while(instance_shared_ptr() && instance_shared_ptr().use_count() > 0 && waitCnt < 40) {    \
+                    usleep(5000);                             \
+                    waitCnt++;                             \
+                }   \
                 SignalReleaseEnd()();\
             }\
         }\
