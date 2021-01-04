@@ -274,7 +274,11 @@ void LongLink::Disconnect(TDisconnectInternalCode _scene) {
 
 void LongLink::TrigNoop() {
     xgroup2_define(noop_xlog);
-    isnooping_ = __NoopReq(noop_xlog, alarmnooptimeout_, false);
+    isnooping_ = true;      // 预防网络比函数调用更快
+    bool ret = __NoopReq(noop_xlog, alarmnooptimeout_, false);
+    ScopedLock lock(mutex_);
+    if(!ret && isnooping_)
+        isnooping_ = false;
 }
 
 bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout) {
