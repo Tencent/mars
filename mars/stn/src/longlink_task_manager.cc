@@ -679,7 +679,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
 
     if (kEctOK != _error_type) {
         xwarn2(TSF"task error, taskid:%_, cmdid:%_, error_type:%_, error_code:%_", _taskid, _cmdid, _error_type, _error_code);
-        if (_error_code == kEctHandshakeMisunderstand && it != st_cmd_.end()) {
+        if (_error_code == kEctHandshakeMisunderstand && it != lst_cmd_.end()) {
             it->remain_retry_count ++;
         }
         __BatchErrorRespHandle(_name, _error_type, _error_code, kTaskFailHandleDefault, 0);
