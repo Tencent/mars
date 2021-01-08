@@ -675,13 +675,17 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
         return;
     }
     
+    std::list<TaskProfile>::iterator it = __Locate(_taskid);
+
     if (kEctOK != _error_type) {
         xwarn2(TSF"task error, taskid:%_, cmdid:%_, error_type:%_, error_code:%_", _taskid, _cmdid, _error_type, _error_code);
+        if (_error_code == kEctHandshakeMisunderstand && it != st_cmd_.end()) {
+            it->remain_retry_count ++;
+        }
         __BatchErrorRespHandle(_name, _error_type, _error_code, kTaskFailHandleDefault, 0);
         return;
     }
     
-    std::list<TaskProfile>::iterator it = __Locate(_taskid);
     
     if (lst_cmd_.end() == it) {
         xwarn2_if(Task::kInvalidTaskID != _taskid, TSF"task no found task:%0, cmdid:%1, ect:%2, errcode:%3",
