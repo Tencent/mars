@@ -50,6 +50,8 @@ boost::function<void (const std::string& _user_id, std::vector<std::string>& _ho
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
+boost::function<void (uint32_t _version)> ShortLinkTaskManager::on_handshake_ready_;
+boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -278,6 +280,12 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             }
         }
 
+        bool use_tls = true;
+        if (can_use_tls_) {
+            use_tls = !can_use_tls_(task.shortlink_host_list);
+            xdebug2(TSF"cgi can use tls: %_, host: %_", use_tls, task.shortlink_host_list[0]);
+        }
+
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
         int error_code = 0;
@@ -307,12 +315,14 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->transfer_profile.send_data_size = bufreq.Length();
 
-        first->use_proxy =  (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
-        ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, first->use_proxy);
+        first->use_proxy = (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
+        ShortlinkConfig config(first->use_proxy, use_tls);
+        ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
+        worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1);
         
         if (!debug_host_.empty()) {
           worker->SetDebugHost(debug_host_);
@@ -333,9 +343,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         worker->SendRequest(bufreq, buffer_extension);
 
-        xinfo2_if(first->task.priority>=0, TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, long-polling:%_, useProxy:%_",
+        xinfo2_if(first->task.priority>=0, TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, long-polling:%_, useProxy:%_, tls:%_",
                first->task.cgi, first->task.cmdid, first->task.taskid, (ShortLinkInterface*)first->running_id, first->transfer_profile.send_data_size, first->transfer_profile.first_pkg_timeout / 1000,
-               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, first->task.long_polling, first->use_proxy);
+               first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, first->task.long_polling, first->use_proxy, use_tls);
         ++sent_count;
         first = next;
     }
@@ -385,6 +395,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
         if (_err_type == kEctSocket) {
             it->force_no_retry = _cancel_retry;
+        }
+        if (_status == kEctHandshakeMisunderstand) {
+            it->remain_retry_count ++;
         }
         __SingleRespHandle(it, _err_type, _status, kTaskFailHandleDefault, _body.Length(), _conn_profile);
         return;
@@ -683,5 +696,13 @@ ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const{
 
 SOCKET ShortLinkTaskManager::__OnGetCacheSocket(const IPPortItem& _address) {
     return socket_pool_.GetSocket(_address);
+}
+
+
+void ShortLinkTaskManager::__OnHandshakeCompleted(uint32_t _version) {
+    xinfo2(TSF"receive tls version: %_", _version);
+    if (on_handshake_ready_) {
+        on_handshake_ready_(_version);
+    }
 }
 
