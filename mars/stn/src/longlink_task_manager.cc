@@ -709,6 +709,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
             fun_notify_network_err_(_name, __LINE__, kEctOK, err_code, _connect_profile.ip, _connect_profile.port);
         }
             break;
+        case kTaskFailHandleEcdhVersionMismatch:
         case kTaskFailHandleSessionTimeout:
         {
             xassert2(fun_notify_retry_all_tasks);

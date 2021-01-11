@@ -422,6 +422,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             fun_notify_network_err_(__LINE__, kEctOK, err_code, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
         }
             break;
+        case kTaskFailHandleEcdhVersionMismatch:
         case kTaskFailHandleSessionTimeout:
         {
             xassert2(fun_notify_retry_all_tasks);
@@ -539,7 +540,7 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type, int _err
             continue;
         }
         
-        if (_fail_handle == kTaskFailHandleSessionTimeout && !first->task.need_authed) {
+        if ((_fail_handle == kTaskFailHandleSessionTimeout || _fail_handle == kTaskFailHandleEcdhVersionMismatch) && !first->task.need_authed) {
             first = next;
             continue;
         }
