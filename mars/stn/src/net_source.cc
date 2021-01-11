@@ -55,7 +55,7 @@ static std::string sg_longlink_debugip GUARDED_BY(sg_ip_mutex);
 static int sg_shortlink_port GUARDED_BY(sg_ip_mutex);
 static std::string sg_shortlink_debugip GUARDED_BY(sg_ip_mutex);
 static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping GUARDED_BY(sg_ip_mutex);
-static std::vector<uint16_t> sg_lowpriority_longlink_ports GUARDED_BY(sg_ip_mutex);
+static std::vector<uint16_t> sg_lowpriority_longlink_ports;
 static std::map< std::string, std::string > sg_host_debugip_mapping GUARDED_BY(sg_ip_mutex);
 
 
@@ -260,19 +260,19 @@ uint16_t NetSource::GetShortLinkPort() {
 	return sg_shortlink_port;
 }
 
-bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist) {
-	if (!sg_shortlink_debugip.empty()) {
-		return true;
-	}
-
-	for (std::vector<std::string>::const_iterator host = _hostlist.begin(); host != _hostlist.end(); ++host) {
-		if (sg_host_debugip_mapping.find(*host) != sg_host_debugip_mapping.end()) {
-			return true;
-		}
-	}
-
-	return false;
-}
+//bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist) {
+//	if (!sg_shortlink_debugip.empty()) {
+//		return true;
+//	}
+//
+//	for (std::vector<std::string>::const_iterator host = _hostlist.begin(); host != _hostlist.end(); ++host) {
+//		if (sg_host_debugip_mapping.find(*host) != sg_host_debugip_mapping.end()) {
+//			return true;
+//		}
+//	}
+//
+//	return false;
+//}
 
 bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util) {
 	

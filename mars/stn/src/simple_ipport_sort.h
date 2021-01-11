@@ -62,7 +62,7 @@ class SimpleIPPortSort {
     bool __CanUpdate(const std::string& _ip, uint16_t _port, bool _is_success) const;
 
     void __FilterbyBanned(std::vector<IPPortItem>& _items) const;
-    void __SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const;
+    void __SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const NO_THREAD_SAFETY_ANALYSIS;
     bool __IsServerBan(const std::string& _ip) const;
     bool __IsV6Ip(const IPPortItem& item) const;
     void __PickIpItemRandom(std::vector<IPPortItem>& _items, std::deque<IPPortItem>& _items_history, std::deque<IPPortItem>& _items_new) const;
@@ -79,7 +79,7 @@ class SimpleIPPortSort {
 
     mutable Mutex mutex_;
     tinyxml2::XMLDocument recordsxml_ GUARDED_BY(mutex_);
-    mutable std::vector<BanItem> _ban_fail_list_ GUARDED_BY(mutex_);
+    mutable std::vector<BanItem> _ban_fail_list_;
     mutable std::map<std::string, uint64_t> _server_bans_ GUARDED_BY(mutex_);
 
     uint8_t IPv6_ban_flag_;

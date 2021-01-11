@@ -178,9 +178,9 @@ class LongLink {
     boost::scoped_ptr<longlink_tracker>         tracker_ GUARDED_BY(mutex_);
     NetSource::DnsUtil                          dns_util_;
     SocketBreaker                               connectbreak_;
-    TLongLinkStatus                             connectstatus_ GUARDED_BY(mutex_);
+    TLongLinkStatus                             connectstatus_;
     ConnectProfile                              conn_profile_;
-    TDisconnectInternalCode                     disconnectinternalcode_ GUARDED_BY(mutex_);
+    TDisconnectInternalCode                     disconnectinternalcode_;
     
     SocketBreaker                               readwritebreak_;
     LongLinkIdentifyChecker                     identifychecker_;

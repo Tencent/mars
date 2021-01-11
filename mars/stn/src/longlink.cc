@@ -775,7 +775,11 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 AutoBuffer body;
                 AutoBuffer extension;
                 
-                int unpackret = Encoder().longlink_unpack(bufrecv, cmdid, taskid, packlen, body, extension, tracker_.get());
+                int unpackret = LONGLINK_UNPACK_FALSE;
+                {
+                    ScopedLock lock(mutex_);
+                    unpackret = Encoder().longlink_unpack(bufrecv, cmdid, taskid, packlen, body, extension, tracker_.get());
+                }
                 
                 if (LONGLINK_UNPACK_FALSE == unpackret) {
                     xerror2(TSF"task socket recv sock:%0, unpack error dump:%1", _sock, xdump(bufrecv.Ptr(), bufrecv.Length()));
@@ -869,7 +873,11 @@ End:
 				AutoBuffer body;
 				AutoBuffer extension;
 
-				int unpackret = Encoder().longlink_unpack(bufrecv, cmdid, taskid, packlen, body, extension, tracker_.get());
+                int unpackret = LONGLINK_UNPACK_FALSE;
+                {
+                    ScopedLock lock(mutex_);
+                    unpackret = Encoder().longlink_unpack(bufrecv, cmdid, taskid, packlen, body, extension, tracker_.get());
+                }
 				xinfo2(TSF"taskid:%_, cmdid:%_, cgi:%_; ", taskid, cmdid, sent_taskids[taskid].task.cgi) >> close_log;
 				if (LONGLINK_UNPACK_CONTINUE == unpackret || LONGLINK_UNPACK_FALSE == unpackret) {
 					break;

@@ -116,10 +116,10 @@ class NetSource {
 
   private:
     
-    bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
+//    bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
     
-    bool __GetLonglinkDebugIPPort(std::vector<IPPortItem>& _ipport_items);
-    bool __GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items);
+    bool __GetLonglinkDebugIPPort(std::vector<IPPortItem>& _ipport_items) NO_THREAD_SAFETY_ANALYSIS;
+    bool __GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items) NO_THREAD_SAFETY_ANALYSIS;
 
     void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const std::vector<std::string>& _hostlist, DnsUtil& _dns_util, bool _islonglink);
     size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string& _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink);
