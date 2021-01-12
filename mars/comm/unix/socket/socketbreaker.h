@@ -33,7 +33,7 @@ class SocketBreaker {
     void Close();
 
     bool Break();
-    bool Clear();
+    bool Clear(int *outerr = nullptr);
 
     bool IsBreak() const;
     int  BreakerFD() const;

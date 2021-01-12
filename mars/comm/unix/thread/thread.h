@@ -377,7 +377,7 @@ class Thread {
         runableref->isinthread = true;
         
         char szthreadname[128] = {0};
-#if defined(__APPLE__) || defined(ANDROID)
+#if defined(__APPLE__)
         //append tid on thread name
         uint64_t tid = 0;
         pthread_threadid_np(nullptr, &tid);

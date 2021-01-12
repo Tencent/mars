@@ -118,15 +118,17 @@ bool SocketBreaker::Break()
     return broken_;
 }
 
-bool SocketBreaker::Clear()
+bool SocketBreaker::Clear(int *outerr)
 {
     ScopedLock lock(mutex_);
     char dummy[128];
     int ret = (int)read(pipes_[0], dummy, sizeof(dummy));
-
     if (ret < 0)
     {
-        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, errno, strerror(errno));
+        int error = errno;
+        if (outerr)
+            *outerr = error;
+        xerror2_if(error != EWOULDBLOCK, TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, error, strerror(error));
         return false;
     }
 
