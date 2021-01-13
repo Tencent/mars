@@ -38,6 +38,8 @@
 #define SOCKET int
 #define TLongLinkStatus MMLongLink2::TLongLinkStatus
 using std::string;
+using namespace  std::placeholders;
+
 namespace{
 class CDetour /* add ": public CMember" to enable access to member variables... */
 {
@@ -543,7 +545,7 @@ static int buf2Resp(
 
 static void ChangeBindFunc(CMMNetCore* _netcore)
 {
-	_netcore->m_longLinkTaskManager->funCallback = boost::bind(&CallBack, 0, _1, _2, _3, _4, _5, _6);
+	_netcore->m_longLinkTaskManager->funCallback = std::bind(&CallBack, 0, _1, _2, _3, _4, _5, _6);
 	_netcore->m_longLinkTaskManager->funbuf2Resp = buf2Resp;
 }
 

@@ -20,17 +20,17 @@
 #ifndef BASEPRJEVENT_H_
 #define BASEPRJEVENT_H_
 
-#include "boost/signals2.hpp"
+#include "mars/comm/owl/signalslot/signalslot.h"
 
-extern boost::signals2::signal<void ()>& GetSignalOnCreate();
-extern boost::signals2::signal<void (int _encoder_version)>& GetSignalOnInitBeforeOnCreate();
-extern boost::signals2::signal<void ()>& GetSignalOnDestroy();
-extern boost::signals2::signal<void (int _sig)>& GetSignalOnSingalCrash();
-extern boost::signals2::signal<void ()>& GetSignalOnExceptionCrash();
-extern boost::signals2::signal<void (bool _isForeground)>& GetSignalOnForeground();
-extern boost::signals2::signal<void ()>& GetSignalOnNetworkChange();
+extern owl::xsignal<void ()>& GetSignalOnCreate();
+extern owl::xsignal<void (int _encoder_version)>& GetSignalOnInitBeforeOnCreate();
+extern owl::xsignal<void ()>& GetSignalOnDestroy();
+extern owl::xsignal<void (int _sig)>& GetSignalOnSingalCrash();
+extern owl::xsignal<void ()>& GetSignalOnExceptionCrash();
+extern owl::xsignal<void (bool _isForeground)>& GetSignalOnForeground();
+extern owl::xsignal<void ()>& GetSignalOnNetworkChange();
 
-extern boost::signals2::signal<void (const char* _tag, ssize_t _send, ssize_t _recv)>& GetSignalOnNetworkDataChange();
-extern boost::signals2::signal<void (int64_t _id)>& GetSignalOnAlarm();
+extern owl::xsignal<void (const char* _tag, ssize_t _send, ssize_t _recv)>& GetSignalOnNetworkDataChange();
+extern owl::xsignal<void (int64_t _id)>& GetSignalOnAlarm();
 
 #endif /* BASEPRJEVENT_H_ */

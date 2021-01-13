@@ -26,8 +26,8 @@
 #include <algorithm>
 
 #include "boost/filesystem.hpp"
-#include "boost/bind.hpp"
-#include "boost/accumulators/numeric/functional.hpp"
+#include <functional>
+#include <random>
 
 #include "mars/comm/socket/unix_socket.h"
 
@@ -427,7 +427,9 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
 void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const {
     srand((unsigned int)gettickcount());
     //random_shuffle new and history
-    std::random_shuffle(_items.begin(), _items.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(_items.begin(), _items.end(), g);
 
 	int cnt = _items.size();
 	for (int i = 1; i < cnt - 1; ++i)
@@ -453,7 +455,7 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     //separate new and history
     std::deque<IPPortItem> items_history(_items.size());
     std::deque<IPPortItem> items_new(_items.size());
-    auto find_lambda = [&](const IPPortItem& _v) {
+    std::function<bool (const IPPortItem&)> find_lambda = [&](const IPPortItem& _v) {
         for (std::vector<BanItem>::const_iterator it_banned = _ban_fail_list_.begin(); it_banned != _ban_fail_list_.end(); ++it_banned) {
             if (it_banned->ip == _v.str_ip && it_banned->port == _v.port) {
                 return true;
@@ -462,7 +464,7 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
         return false;
     };
     
-    items_history.erase(std::remove_copy_if(_items.begin(), _items.end(), items_history.begin(), !boost::bind<bool>(find_lambda, _1)), items_history.end());
+    items_history.erase(std::remove_copy_if(_items.begin(), _items.end(), items_history.begin(), std::not1(find_lambda)), items_history.end());
     items_new.erase(std::remove_copy_if(_items.begin(), _items.end(), items_new.begin(), find_lambda), items_new.end());
     xassert2(_items.size() == items_history.size()+items_new.size(), TSF"_item:%_, history:%_, new:%_", _items.size(), items_history.size(), items_new.size());
     
@@ -473,8 +475,8 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
                       return _v.ip == _find.str_ip && _v.port == _find.port;
                   };
                       
-                  std::vector<BanItem>::const_iterator  l = std::find_if(_ban_fail_list_.begin(), _ban_fail_list_.end(), boost::bind<bool>(find_lr_lambda, _1, _l));
-                  std::vector<BanItem>::const_iterator  r = std::find_if(_ban_fail_list_.begin(), _ban_fail_list_.end(), boost::bind<bool>(find_lr_lambda, _1, _r));
+                  std::vector<BanItem>::const_iterator  l = std::find_if(_ban_fail_list_.begin(), _ban_fail_list_.end(), std::bind<bool>(find_lr_lambda, std::placeholders::_1, _l));
+                  std::vector<BanItem>::const_iterator  r = std::find_if(_ban_fail_list_.begin(), _ban_fail_list_.end(), std::bind<bool>(find_lr_lambda, std::placeholders::_1, _r));
                       
                   xassert2(l != _ban_fail_list_.end());
                   xassert2(r != _ban_fail_list_.end());

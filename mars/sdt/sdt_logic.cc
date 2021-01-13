@@ -35,7 +35,7 @@ static Callback* sg_callback = NULL;
 static const std::string kLibName = "sdt";
 
 #define SDT_WEAK_CALL(func) \
-    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
     if (!sdt_ptr) {\
         xwarn2(TSF"sdt uncreate");\
         return;\
@@ -58,7 +58,7 @@ static void __initbind_baseprjevent() {
 	mars::baseevent::addLoadModule(kLibName);
 #endif
 	GetSignalOnCreate().connect(&onCreate);
-	GetSignalOnDestroy().connect(5, &onDestroy);
+	GetSignalOnDestroy().connect('5', &onDestroy);
 }
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);

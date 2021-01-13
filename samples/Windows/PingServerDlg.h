@@ -8,12 +8,12 @@
 #include "Wrapper/CGITask.h"
 #include "Business/HelloCGITask.h"
 #include "Business/GetConvListCGITask.h"
-# include "mars/boost/enable_shared_from_this.hpp"
+#include <memory>
 #include <string>
 
 class CMainDlg;
 class CPingServerDlg : public CDialogImpl<CPingServerDlg>, public CUpdateUI<CPingServerDlg>,
-	public CMessageFilter, public CIdleHandler, public boost::enable_shared_from_this<CPingServerDlg>, public HelloCGICallback, public GetConvListCGICallback
+	public CMessageFilter, public CIdleHandler, public std::enable_shared_from_this<CPingServerDlg>, public HelloCGICallback, public GetConvListCGICallback
 {
 public:
 	enum { IDD = IDD_DIALOGPINGSERVER };

@@ -125,16 +125,16 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
     ScopedLock lock(sg_lock);
 
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(reg_async_.Get())) {
-        MessageQueue::AsyncInvoke(boost::bind(&Alarm::OnAlarm, this, _id, _message), (MessageQueue::MessageTitle_t)this, reg_async_.Get(), "Alarm::OnAlarm");
+        MessageQueue::AsyncInvoke(std::bind(&Alarm::OnAlarm, this, _id, _message), (MessageQueue::MessageTitle_t)this, reg_async_.Get(), "Alarm::OnAlarm");
         return;
     }
 
     bool isSystemAlarm = (KALARM_SYSTEMTITLE == _message.title);
-    MessageQueue::MessageQueue_t fromMQ = boost::any_cast<MessageQueue::MessageQueue_t>(_message.body2);
+    MessageQueue::MessageQueue_t fromMQ = mars::any_cast<MessageQueue::MessageQueue_t>(_message.body2);
 
-    if (seq_ != boost::any_cast<int64_t>(_message.body1) || fromMQ != MessageQueue::GetDefMessageQueue()) {
+    if (seq_ != mars::any_cast<int64_t>(_message.body1) || fromMQ != MessageQueue::GetDefMessageQueue()) {
         if(fromMQ != MessageQueue::GetDefMessageQueue()) {
-            xinfo2(TSF"not match:(%_, %_), (%_, %_)", seq_, boost::any_cast<int64_t>(_message.body1), MessageQueue::GetDefMessageQueue(), fromMQ);
+            xinfo2(TSF"not match:(%_, %_), (%_, %_)", seq_, mars::any_cast<int64_t>(_message.body1), MessageQueue::GetDefMessageQueue(), fromMQ);
         }
         return;
     }
@@ -173,7 +173,7 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
     if (inthread_)
         runthread_.start();
     else
-        MessageQueue::AsyncInvoke(boost::bind(&Alarm::__Run, this), (MessageQueue::MessageTitle_t)this, reg_async_.Get(), "Alarm::__Run");
+        MessageQueue::AsyncInvoke(std::bind(&Alarm::__Run, this), (MessageQueue::MessageTitle_t)this, reg_async_.Get(), "Alarm::__Run");
 }
 
 void Alarm::__Run() {

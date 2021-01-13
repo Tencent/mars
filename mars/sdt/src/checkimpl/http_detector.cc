@@ -7,11 +7,12 @@
 //
 
 #include <string.h>
+#include <random>
 
 #include "http_detector.h"
 #include "http_url_parser.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/strutil.h"
 #include "mars/comm/http.h"
@@ -54,7 +55,7 @@ static std::string GetCurTimeStr() {
 
 HTTPDetector::HTTPDetector(const HTTPDetectReq& _req)
 : req_(_req)
-, worker_thread_(boost::bind(&HTTPDetector::__Run, this), XLOGGER_TAG "::HTTPDetector")
+, worker_thread_(std::bind(&HTTPDetector::__Run, this), XLOGGER_TAG "::HTTPDetector")
 , callback_(NULL){
     
 }
@@ -176,7 +177,9 @@ void HTTPDetector::__Detect() {
             bool ret = dns_.GetHostByName(host, vec_ip, kDefaultDNSTimeout<remain_timeout?kDefaultDNSTimeout:remain_timeout, &dns_breaker_);
             result_.dns_cost_ = detect_tick.gettickspan();
             if (ret && !vec_ip.empty()) {
-                std::random_shuffle(vec_ip.begin(), vec_ip.end());
+                std::random_device rd;
+                std::mt19937 g(rd());
+                std::shuffle(vec_ip.begin(), vec_ip.end(), g);
                 svr_ip = vec_ip[0];
                 for (auto ip : vec_ip)
                     result_.dns_resolved_ip_.push_back(ip);

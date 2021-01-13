@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "mars/boost/signals2.hpp"
+#include "mars/comm/owl/signalslot/signalslot.h"
 
 #if !defined(ANDROID) && !defined(__APPLE__)
 #define ANR_CHECK_DISABLE
@@ -76,7 +76,7 @@ class scope_anr {
 };
 
 
-extern boost::signals2::signal<void (bool _iOS_style, const mars::comm::check_content& _content)>& GetSignalCheckHit();
+extern owl::xsignal<void (bool _iOS_style, const mars::comm::check_content& _content)>& GetSignalCheckHit();
 
 #define SCOPE_ANR_AUTO(timeout, id, extra_info) scope_anr __anr__var__anonymous_variable__(__FILE__, __func__, __LINE__, id, extra_info); __anr__var__anonymous_variable__.anr(timeout)
 #define SCOPE_ANR_OBJ(objname) scope_anr objname(__FILE__, __func__, __LINE__)

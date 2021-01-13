@@ -51,7 +51,7 @@ class LongLinkConnectMonitor {
     void DisconnectAllSlot();
 
   public:
-    boost::function<void ()> fun_longlink_reset_;
+    std::function<void ()> fun_longlink_reset_;
 
   private:
     uint64_t  __IntervalConnect(int _type);

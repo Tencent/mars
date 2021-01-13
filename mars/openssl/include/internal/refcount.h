@@ -6,8 +6,8 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-#ifndef HEADER_INTERNAL_REFCOUNT_H
-# define HEADER_INTERNAL_REFCOUNT_H
+#ifndef OSSL_INTERNAL_REFCOUNT_H
+# define OSSL_INTERNAL_REFCOUNT_H
 
 /* Used to checking reference counts, most while doing perl5 stuff :-) */
 # if defined(OPENSSL_NO_STDIO)
@@ -105,7 +105,7 @@ static __inline int CRYPTO_DOWN_REF(volatile int *val, int *ret, void *lock)
 #    if _WIN32_WCE >= 0x600
       extern long __cdecl _InterlockedExchangeAdd(long volatile*, long);
 #    else
-      // under Windows CE we still have old-style Interlocked* functions
+      /* under Windows CE we still have old-style Interlocked* functions */
       extern long __cdecl InterlockedExchangeAdd(long volatile*, long);
 #     define _InterlockedExchangeAdd InterlockedExchangeAdd
 #    endif

@@ -23,7 +23,7 @@
 #include <vector>
 #include <string>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/socket/udpclient.h"
 #include "mars/comm/time_utils.h"
@@ -86,7 +86,7 @@ void SignallingKeeper::OnNetWorkDataChanged(const char*, ssize_t, ssize_t)
         MessageQueue::CancelMessage(postid_);
     }
     
-    postid_ = MessageQueue::AsyncInvokeAfter(g_period, boost::bind(&SignallingKeeper::__OnTimeOut, this), msgreg_.Get(), "SignallingKeeper::__OnTimeOut");
+    postid_ = MessageQueue::AsyncInvokeAfter(g_period, std::bind(&SignallingKeeper::__OnTimeOut, this), msgreg_.Get(), "SignallingKeeper::__OnTimeOut");
 }
 
 

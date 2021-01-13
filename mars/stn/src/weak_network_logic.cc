@@ -67,11 +67,11 @@ namespace stn {
     
     WeakNetworkLogic::WeakNetworkLogic():is_curr_weak_(false), connect_after_weak_(0)
         , last_connect_fail_tick_(false), last_connect_suc_tick_(false), cgi_fail_num_(0) {
-        ActiveLogic::Instance()->SignalForeground.connect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+        ActiveLogic::Instance()->SignalForeground.connect(this, &WeakNetworkLogic::__SignalForeground);
     }
     
     WeakNetworkLogic::~WeakNetworkLogic() {
-        ActiveLogic::Instance()->SignalForeground.disconnect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+        ActiveLogic::Instance()->SignalForeground.disconnect(this);
     }
     
     void WeakNetworkLogic::__SignalForeground(bool _is_foreground) {

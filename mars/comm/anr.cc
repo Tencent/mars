@@ -41,8 +41,8 @@
 
 using namespace mars::comm;
 
-boost::signals2::signal<void (bool _iOS_style, const check_content& _content)>& GetSignalCheckHit() {
-	static boost::signals2::signal<void (bool _iOS_style, const check_content& _content)> SignalCheckHit;
+owl::xsignal<void (bool _iOS_style, const check_content& _content)>& GetSignalCheckHit() {
+	static owl::xsignal<void (bool _iOS_style, const check_content& _content)> SignalCheckHit;
 	return SignalCheckHit;
 }
 

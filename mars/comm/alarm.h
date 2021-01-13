@@ -21,7 +21,7 @@
 #ifndef COMM_ALARM_H_
 #define COMM_ALARM_H_
 
-#include <boost/bind.hpp>
+#include <functional>
 #include "messagequeue/message_queue.h"
 #include "comm/xlogger/xlogger.h"
 
@@ -29,6 +29,7 @@
 #include "android/wakeuplock.h"
 #endif
 
+using namespace  std::placeholders;
 class Alarm {
   public:
     enum {
@@ -44,11 +45,11 @@ class Alarm {
         : target_(detail::transform(_op))
         , reg_async_(MessageQueue::InstallAsyncHandler(MessageQueue::GetDefMessageQueue()))
         , broadcast_msg_id_(MessageQueue::KNullPost)
-        , runthread_(boost::bind(&Alarm::__Run, this), "alarm")
+        , runthread_(std::bind(&Alarm::__Run, this), "alarm")
         , inthread_(_inthread)
         , seq_(0), status_(kInit)
         , after_(0) , starttime_(0) , endtime_(0)
-        , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
+        , reg_(MessageQueue::InstallMessageHandler(std::bind(&Alarm::OnAlarm, this, std::placeholders::_1, std::placeholders::_2), true))
 #ifdef ANDROID
         , wakelock_(NULL)
         , type_(-1)
@@ -62,11 +63,11 @@ class Alarm {
         : target_(detail::transform(_op))
         , reg_async_(MessageQueue::InstallAsyncHandler(_id))
         , broadcast_msg_id_(MessageQueue::KNullPost)
-        , runthread_(boost::bind(&Alarm::__Run, this), "alarm")
+        , runthread_(std::bind(&Alarm::__Run, this), "alarm")
         , inthread_(false)
         , seq_(0), status_(kInit)
         , after_(0) , starttime_(0) , endtime_(0)
-        , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
+        , reg_(MessageQueue::InstallMessageHandler(std::bind(&Alarm::OnAlarm, this, std::placeholders::_1, std::placeholders::_2), true))
 #ifdef ANDROID
         , wakelock_(NULL)
         , type_(-1)

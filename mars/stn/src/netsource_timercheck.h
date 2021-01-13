@@ -21,7 +21,7 @@
 #ifndef STN_SRC_NETSOURCE_TIMERCHECK_H_
 #define STN_SRC_NETSOURCE_TIMERCHECK_H_
 
-#include "boost/signals2.hpp"
+#include "mars/comm/owl/signalslot/signalslot.h"
 
 #include "mars/comm/thread/thread.h"
 #include "mars/baseevent/active_logic.h"
@@ -47,7 +47,7 @@ class NetSourceTimerCheck {
     void CancelConnect();
 
   public:
-    boost::function<void ()> fun_time_check_suc_;
+    std::function<void ()> fun_time_check_suc_;
 
   private:
     void __Run(const std::string& _host);
@@ -59,7 +59,6 @@ class NetSourceTimerCheck {
 
   private:
     Thread thread_;
-    boost::signals2::scoped_connection active_connection_;
     NetSource* net_source_;
     SocketBreaker breaker_;
     SocketSelect seletor_;

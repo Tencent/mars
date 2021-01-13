@@ -35,7 +35,6 @@
 #include "mars/comm/bootrun.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/alarm.h"
-#include "mars/boost/signals2.hpp"
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
@@ -54,7 +53,7 @@ static const std::string kLibName = "stn";
 
 
 #define STN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (!stn_ptr) {\
         xwarn2(TSF"stn uncreate");\
         return;\
@@ -62,7 +61,7 @@ static const std::string kLibName = "stn";
     stn_ptr->func
     
 #define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (!stn_ptr) {\
         xwarn2(TSF"stn uncreate");\
         return false;\
@@ -71,7 +70,7 @@ static const std::string kLibName = "stn";
     return true
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+	std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (stn_ptr) \
     {\
     	ret = stn_ptr->func;\
@@ -88,7 +87,6 @@ static void onCreate() {
 #endif
     xinfo2(TSF"stn oncreate");
     ActiveLogic::Instance();
-    NetCore::Singleton::Instance();
 }
 
 static void onDestroy() {
@@ -144,11 +142,11 @@ static void __initbind_baseprjevent() {
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
+    GetSignalOnInitBeforeOnCreate().connect(std::bind(&onInitConfigBeforeOnCreate, _1));
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+    GetSignalOnNetworkChange().connect('5', &onNetworkChange);    //define group 5
 
     
 #ifndef XLOGGER_TAG
@@ -199,8 +197,8 @@ void (*ResetAndInitEncoderVersion)(int _packer_encoder_version)
 = [](int _packer_encoder_version) {
 	xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
     LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
-	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
+    NetCore::Singleton::Release();
+    NetCore::Singleton::Instance();
 };
 
 void (*MakesureLonglinkConnected)()

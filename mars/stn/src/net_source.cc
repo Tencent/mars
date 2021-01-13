@@ -26,7 +26,8 @@
 #include <algorithm>
 #include <set>
 
-#include "boost/bind.hpp"
+#include <functional>
+#include <random>
 
 #include "mars/comm/marcotoolkit.h"
 #include "mars/comm/socket/unix_socket.h"
@@ -471,7 +472,9 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 	else {
 		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
 		srand((unsigned)gettickcount());
-		std::random_shuffle(_ip_items.begin() + len, _ip_items.end());
+        std::random_device rd;
+        std::mt19937 g(rd());
+		std::shuffle(_ip_items.begin() + len, _ip_items.end(), g);
 		_ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
 	}
 

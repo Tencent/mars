@@ -28,6 +28,7 @@
 #include "mars/comm/xlogger/xlogger_category.h"
 
 using namespace mars::comm;
+using namespace  std::placeholders;
 namespace mars {
 namespace xlog {
 

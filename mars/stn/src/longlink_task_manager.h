@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <set>
 
-#include "boost/function.hpp"
+#include <functional>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
@@ -50,15 +50,15 @@ class LongLinkConnectMonitor;
 
 class LongLinkTaskManager {
   public:
-    boost::function<int (ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
+    std::function<int (ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
 
-    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id)> fun_notify_retry_all_tasks;
-    boost::function<void (const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
-    boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
+    std::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id)> fun_notify_retry_all_tasks;
+    std::function<void (const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
+    std::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     
-    boost::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
+    std::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
     
-    static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
+    static std::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
 
   public:
     LongLinkTaskManager(mars::stn::NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeueid);
