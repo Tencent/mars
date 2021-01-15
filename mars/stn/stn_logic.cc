@@ -92,11 +92,8 @@ static void onCreate() {
 static void onDestroy() {
     xinfo2(TSF"stn onDestroy");
 
-    NetCore::Singleton::Release();
+    SINGLETON_RELEASE(NetCore);
     SINGLETON_RELEASE_ALL();
-    
-    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
-    // ActiveLogic::Singleton::Release();
 }
 
 static void onSingalCrash(int _sig) {

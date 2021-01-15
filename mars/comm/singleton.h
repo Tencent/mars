@@ -173,8 +173,8 @@ class Singleton {
             return ptr;
         }
         static Mutex& singleton_mutex() {
-            static Mutex s_mutex;
-            return s_mutex;
+            static Mutex* s_mutex = new Mutex();    // intentional leak
+            return *s_mutex;
         }
     };
 
