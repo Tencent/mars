@@ -69,19 +69,36 @@ information and acquired knowledge:
 #           endif
 #       endif
 #   endif
-#   if defined(__BYTE_ORDER)
-#       if defined(__BIG_ENDIAN) && (__BYTE_ORDER == __BIG_ENDIAN)
-#           undef BOOST_ENDIAN_BIG_BYTE
-#           define BOOST_ENDIAN_BIG_BYTE BOOST_VERSION_NUMBER_AVAILABLE
-#       endif
-#       if defined(__LITTLE_ENDIAN) && (__BYTE_ORDER == __LITTLE_ENDIAN)
-#           undef BOOST_ENDIAN_LITTLE_BYTE
-#           define BOOST_ENDIAN_LITTLE_BYTE BOOST_VERSION_NUMBER_AVAILABLE
-#       endif
-#       if defined(__PDP_ENDIAN) && (__BYTE_ORDER == __PDP_ENDIAN)
-#           undef BOOST_ENDIAN_LITTLE_WORD
-#           define BOOST_ENDIAN_LITTLE_WORD BOOST_VERSION_NUMBER_AVAILABLE
-#       endif
+#   ifdef WIN32
+#		if defined(__BYTE_ORDER)
+#		    if defined(__BIG_ENDIAN) && __BYTE_ORDER == __BIG_ENDIAN
+#		        undef BOOST_ENDIAN_BIG_BYTE
+#		        define BOOST_ENDIAN_BIG_BYTE BOOST_VERSION_NUMBER_AVAILABLE
+#		    endif
+#		    if defined(__LITTLE_ENDIAN) && __BYTE_ORDER == __LITTLE_ENDIAN
+#		        undef BOOST_ENDIAN_LITTLE_BYTE
+#		        define BOOST_ENDIAN_LITTLE_BYTE BOOST_VERSION_NUMBER_AVAILABLE
+#		    endif
+#		    if defined(__PDP_ENDIAN) &&  __BYTE_ORDER == __PDP_ENDIAN
+#		        undef BOOST_ENDIAN_LITTLE_WORD
+#		        define BOOST_ENDIAN_LITTLE_WORD BOOST_VERSION_NUMBER_AVAILABLE
+#		    endif
+#		endif
+#   else
+#		if defined(__BYTE_ORDER)
+#		    if defined(__BIG_ENDIAN) && (__BYTE_ORDER == __BIG_ENDIAN)
+#		        undef BOOST_ENDIAN_BIG_BYTE
+#		        define BOOST_ENDIAN_BIG_BYTE BOOST_VERSION_NUMBER_AVAILABLE
+#		    endif
+#		    if defined(__LITTLE_ENDIAN) && (__BYTE_ORDER == __LITTLE_ENDIAN)
+#		        undef BOOST_ENDIAN_LITTLE_BYTE
+#		        define BOOST_ENDIAN_LITTLE_BYTE BOOST_VERSION_NUMBER_AVAILABLE
+#		    endif
+#		    if defined(__PDP_ENDIAN) &&  (__BYTE_ORDER == __PDP_ENDIAN)
+#		        undef BOOST_ENDIAN_LITTLE_WORD
+#		        define BOOST_ENDIAN_LITTLE_WORD BOOST_VERSION_NUMBER_AVAILABLE
+#		    endif
+#		endif
 #   endif
 #   if !defined(__BYTE_ORDER) && defined(_BYTE_ORDER)
 #       if defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN)

@@ -64,7 +64,9 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 #ifdef ANDROID
     , wakeup_lock_(new WakeUpLock())
 #endif
+#ifndef WIN32
     , meta_mutex_(true)
+#endif
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }

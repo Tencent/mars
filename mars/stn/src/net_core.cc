@@ -780,12 +780,16 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
 
     auto longlink = longlink_task_manager_->GetLongLink(_config.name);
     if(!longlink) {
+#ifndef WIN32
 	    xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
+#endif
 	    return nullptr;
     }
     auto longlink_channel = longlink->Channel();
     if(!longlink_channel) {
-        xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
+#ifndef WIN32
+		xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
+#endif
         return nullptr;
     }
     

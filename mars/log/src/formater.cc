@@ -128,7 +128,9 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         if (0 != _info->timeval.tv_sec) {
             time_t sec = _info->timeval.tv_sec;
             struct tm tm = *localtime((const time_t*)&sec);
+#if defined(ANDROID)
             std::string gmt = std::to_string(tm.tm_gmtoff / 360);
+#endif
             
 #ifdef ANDROID
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.3s %02d:%02d:%02d.%.3ld", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,

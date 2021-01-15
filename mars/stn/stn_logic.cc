@@ -281,7 +281,7 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
-
+#ifndef WIN32
 // [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
 auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
@@ -310,6 +310,7 @@ auto MarkMainLonglink_ext = +[](const std::string& name){
 auto MakesureLonglinkConnected_ext = +[](const std::string& name){
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
+#endif
     
 //auto KeepSignalling_ext = +[](const std::string& name){
 //    STN_WEAK_CALL(KeepSignalling_ext(name));

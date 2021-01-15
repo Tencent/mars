@@ -17,7 +17,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <thr/threads.h>
+#include <xthreads.h>
 
 #include "assert/__assert.h"
 #include "condition.h"
@@ -33,8 +33,10 @@
 #include <boost/thread/thread.hpp>
 typedef boost::thread*  thread_handler;
 #else
-#include <thr/threads.h>
-typedef thrd_t*  thread_handler;
+#include <thread>
+typedef _Thrd_t*  thread_handler;
+typedef _Thrd_t thrd_t;
+#define thrd_detach _Thrd_detach;
 #endif
 
 #define thrd_success 0
@@ -49,7 +51,7 @@ class ThreadUtil {
 #ifdef  USED_BOOST_THREAD_LIB
         boost::this_thread::yield();
 #else
-        thrd_yield();
+        std::this_thread::yield();
 #endif
     }
 
@@ -57,21 +59,21 @@ class ThreadUtil {
         struct xtime xt = {0, 0};
         xtime_get(&xt, TIME_UTC);
         xt.sec += _sec;
-        thrd_sleep(&xt);
+        _Thrd_sleep(&xt);
     }
 
     static void usleep(unsigned int _usec) {
         struct xtime xt = {0, 0};
         xtime_get(&xt, TIME_UTC);
         xt.nsec += _usec;
-        thrd_sleep(&xt);
+        _Thrd_sleep(&xt);
     }
 
     static thread_tid currentthreadid() {
 #ifdef  USED_BOOST_THREAD_LIB
         return boost::detail::win32::GetCurrentThreadId();
 #else
-        return thrd_current()._Id;
+        return std::hash<std::thread::id>{}(std::this_thread::get_id());
 #endif
     }
 
@@ -98,8 +100,11 @@ class ThreadUtil {
             delete pth;
         }
 
-        pth = new thrd_t();
-        return thrd_create(pth, (thrd_start_t)proc, (void*)args);
+        std::thread* t = new std::thread(proc, args);
+        pth = new _Thrd_t();
+        pth->_Hnd = t->native_handle();
+        pth->_Id = std::hash<std::thread::id>{}(t->get_id());
+        return 1;
 #endif
     }
 
@@ -110,7 +115,7 @@ class ThreadUtil {
 #ifdef  USED_BOOST_THREAD_LIB
         pth->join();
 #else
-        thrd_join(*pth, 0);
+        _Thrd_join(*pth, 0);
 #endif
     }
 
