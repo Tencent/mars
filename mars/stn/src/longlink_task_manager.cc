@@ -87,12 +87,19 @@ LongLinkTaskManager::~LongLinkTaskManager() {
 #endif
 }
 
-bool LongLinkTaskManager::StartTask(const Task& _task) {
+bool LongLinkTaskManager::StartTask(const Task& _task, int _channel) {
     xverbose_function();
     xdebug2(TSF"taskid=%0", _task.taskid);
 
     TaskProfile task(_task);
-    task.link_type = Task::kChannelLong;
+    task.link_type = _channel;
+
+    if(_channel == Task::kChannelMinorLong) {   //already fixed host redirect, getted real host
+        xassert2(!_task.minorlong_host_list.empty());
+        task.channel_name = _task.minorlong_host_list.empty() ? "" : _task.minorlong_host_list.front();
+    } else {
+        task.channel_name = _task.channel_name;
+    }
 
     lst_cmd_.push_back(task);
     lst_cmd_.sort(__CompareTask);
@@ -111,9 +118,9 @@ bool LongLinkTaskManager::StopTask(uint32_t _taskid) {
         if (_taskid == first->task.taskid) {
             xinfo2(TSF"find the task taskid:%0", _taskid);
 
-            auto longlink = GetLongLink(first->task.channel_name);
+            auto longlink = GetLongLink(first->channel_name);
             if(longlink == nullptr) {
-                xwarn2(TSF"longlink nullptr name:%_", first->task.channel_name);
+                xwarn2(TSF"longlink nullptr name:%_", first->channel_name);
                 return false;
             }
 
@@ -160,7 +167,7 @@ void LongLinkTaskManager::ClearTasks() {
 unsigned int LongLinkTaskManager::GetTaskCount(const std::string& _name) {
     unsigned int count = 0;
     for(auto item : lst_cmd_) {
-        if(item.task.channel_name == _name)
+        if(item.channel_name == _name)
             count += 1;
     }
     return count;
@@ -176,6 +183,7 @@ void LongLinkTaskManager::RedoTasks() {
     for(auto longlink : longlink_metas_) {
         longlink.second->Checker()->CancelConnect();
         longlink.second->Channel()->Disconnect(LongLink::kReset);
+        longlink.second->Channel()->SvrTrigOff();
         longlink.second->Channel()->MakeSureConnected();
     }
 
@@ -196,18 +204,18 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
         std::list<TaskProfile>::iterator next = first;
         ++next;
         
-        xinfo2(TSF"task channel name:%_, cgi:%_", first->task.channel_name, first->task.cgi);
-        if(!_name.empty() && first->task.channel_name != _name) {
+        xinfo2(TSF"task channel name:%_, cgi:%_", first->channel_name, first->task.cgi);
+        if(!_name.empty() && first->channel_name != _name) {
             first = next;
             continue;
         }
         first->last_failed_dyntime_status = 0;
-        auto longlink = GetLongLink(_name.empty() ? first->task.channel_name : _name);
+        auto longlink = GetLongLink(_name.empty() ? first->channel_name : _name);
         if (longlink && first->running_id) {
             xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
             __SingleRespHandle(first, kEctLocal, kEctLocalCancel, kTaskFailHandleDefault, longlink->Channel()->Profile());
         } else {
-            xerror2(TSF"didn't find longlink or running id is empty, task channel name:%_, running id:%_", first->task.channel_name, first->running_id);
+            xerror2(TSF"didn't find longlink or running id is empty, task channel name:%_, running id:%_", first->channel_name, first->running_id);
             __DumpLongLinkChannelInfo();
         }
         
@@ -281,7 +289,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
                         first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.first_pkg_timeout / 1000);
                 socket_timeout_code = kEctLongFirstPkgTimeout;
                 src_taskid = first->task.taskid;
-                batchMap[first->task.channel_name] = std::make_pair(socket_timeout_code, src_taskid);
+                batchMap[first->channel_name] = std::make_pair(socket_timeout_code, src_taskid);
                 __SetLastFailedStatus(first);
             }
 
@@ -290,7 +298,7 @@ void LongLinkTaskManager::__RunOnTimeout() {
                         first->task.taskid, first->transfer_profile.last_receive_pkg_time / 1000, ((kMobile != getNetInfo()) ? kWifiPackageInterval : kGPRSPackageInterval) / 1000);
                 socket_timeout_code = kEctLongPkgPkgTimeout;
                 src_taskid = first->task.taskid;
-                batchMap[first->task.channel_name] = std::make_pair(socket_timeout_code, src_taskid);
+                batchMap[first->channel_name] = std::make_pair(socket_timeout_code, src_taskid);
             }
             
             if (cur_time - first->transfer_profile.start_send_time >= first->transfer_profile.read_write_timeout) {
@@ -298,20 +306,20 @@ void LongLinkTaskManager::__RunOnTimeout() {
                         first->task.taskid, first->transfer_profile.start_send_time / 1000, first->transfer_profile.read_write_timeout / 1000);
                 socket_timeout_code = kEctLongReadWriteTimeout;
                 src_taskid = first->task.taskid;
-                batchMap[first->task.channel_name] = std::make_pair(socket_timeout_code, src_taskid);
+                batchMap[first->channel_name] = std::make_pair(socket_timeout_code, src_taskid);
             }
         }
 
-        auto longlink = GetLongLink(first->task.channel_name);
+        auto longlink = GetLongLink(first->channel_name);
 
         if (longlink && cur_time - first->start_task_time >= first->task_timeout) {
 	        auto longlink_channel = longlink->Channel();
             xerror2(TSF"task timeout, taskid:%_, nStartSendTime=%_, cur_time=%_, timeout:%_",
                     first->task.taskid, first->transfer_profile.start_send_time / 1000, cur_time / 1000, first->task_timeout / 1000);
-            if(batchMap.find(first->task.channel_name) == batchMap.end()) {
+            if(batchMap.find(first->channel_name) == batchMap.end()) {
                 socket_timeout_code = kEctLongTaskTimeout;
                 src_taskid = first->task.taskid;
-                batchMap[first->task.channel_name] = std::make_pair(socket_timeout_code, src_taskid);
+                batchMap[first->channel_name] = std::make_pair(socket_timeout_code, src_taskid);
             }
             __SingleRespHandle(first, kEctLocal, kEctLocalTaskTimeout, kTaskFailHandleTaskTimeout, longlink_channel->Profile());
         }
@@ -371,12 +379,12 @@ void LongLinkTaskManager::__RunOnStartTask() {
         if (!task.longlink_host_list.empty()) {
             host = task.longlink_host_list.front();
         }
-        xinfo2(TSF"host ip to callback is %_, task's channel name:%_", host, first->task.channel_name);
+        xinfo2(TSF"host ip to callback is %_, task's channel name:%_", host, first->channel_name);
 
         // make sure login
         if (first->task.need_authed) {
             bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
-            xinfo2(TSF"makesureauth host:%_, auth result:%_, cgi:%_, channal name:%_", host, ismakesureauthsuccess,first->task.cgi, first->task.channel_name);
+            xinfo2(TSF"makesureauth host:%_, auth result:%_, cgi:%_, channal name:%_", host, ismakesureauthsuccess,first->task.cgi, first->channel_name);
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 0, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
                 first = next;
@@ -388,9 +396,9 @@ void LongLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
-        auto longlink = GetLongLink(first->task.channel_name);
+        auto longlink = GetLongLink(first->channel_name);
 	    if(longlink == nullptr) {
-		    xerror2(TSF"longlink nullptr:%_", first->task.channel_name);
+		    xerror2(TSF"longlink nullptr:%_", first->channel_name);
 		    first = next;
 		    continue;
 	    }
@@ -398,7 +406,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         auto longlink_channel = longlink->Channel();
 
         if (!first->antiavalanche_checked) {
-			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
+			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -414,6 +422,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         }
 
         xassert2(first->antiavalanche_checked);
+        longlink->Channel()->SvrTrigOff();
 		if (!longlink->Monitor()->MakeSureConnected()) {
             if (0 != first->task.channel_id) {
                 __SingleRespHandle(first, kEctLocal, kEctLocalChannelID, kTaskFailHandleTaskEnd, longlink_channel->Profile());
@@ -431,7 +440,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         
 		if (0 == bufreq.Length()) {
 
-			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelLong, host)) {
+			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -458,7 +467,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, channel name:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, curtime:%_, start_send_time:%_, sendonly:%_", first->task.cgi, first->task.cmdid, first->task.taskid, first->transfer_profile.send_data_size, first->task.channel_name,  first->transfer_profile.first_pkg_timeout / 1000,
+        xinfo2(TSF"task add into longlink readwrite suc cgi:%_, cmdid:%_, taskid:%_, size:%_, channel name:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, curtime:%_, start_send_time:%_, sendonly:%_", first->task.cgi, first->task.cmdid, first->task.taskid, first->transfer_profile.send_data_size, first->channel_name,  first->transfer_profile.first_pkg_timeout / 1000,
                first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, curtime, first->start_task_time, first->task.send_only);
 
         if (first->task.send_only) {
@@ -553,7 +562,7 @@ void LongLinkTaskManager::__BatchErrorRespHandleByUserId(const std::string& _use
             continue;
         }
 
-        __BatchErrorRespHandle(first->task.channel_name, _err_type, _err_code, _fail_handle, _src_taskid, _callback_runing_task_only);
+        __BatchErrorRespHandle(first->channel_name, _err_type, _err_code, _fail_handle, _src_taskid, _callback_runing_task_only);
         ++first;
     }
 }
@@ -580,13 +589,13 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string _name, ErrCmd
             continue;
         }
 
-        if(!_name.empty() && first->task.channel_name != _name) {
-            xwarn2(TSF"task channel name:%_", first->task.channel_name);
+        if(!_name.empty() && first->channel_name != _name) {
+            xwarn2(TSF"task channel name:%_", first->channel_name);
             first = next;
             continue;
         }
 
-        auto longlink = GetLongLink(first->task.channel_name);
+        auto longlink = GetLongLink(first->channel_name);
         if(longlink != nullptr) {
 	        const ConnectProfile &profile = longlink->Channel()->Profile();
 	        if (_src_taskid == Task::kInvalidTaskID || _src_taskid == first->task.taskid)
@@ -594,7 +603,7 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string _name, ErrCmd
 	        else
 		        __SingleRespHandle(first, _err_type, 0, _fail_handle, profile);
         } else {
-            xerror2(TSF"didn't find longlink, task channel name:%_", first->task.channel_name);
+            xerror2(TSF"didn't find longlink, task channel name:%_", first->channel_name);
             __DumpLongLinkChannelInfo();
         }
 
@@ -693,7 +702,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
     
     int err_code = 0;
-    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, Task::kChannelLong);
+    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, longlink_meta->Config().link_type);
     
     switch(handle_type){
         case kTaskFailHandleNoError:
@@ -727,7 +736,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
         case kTaskFailHandleDefault:
         {
             xerror2(TSF"task decode error taskid:%_, handle_type:%_, err_code:%_, body dump:%_", it->task.taskid, handle_type, err_code, xdump(body->Ptr(), body->Length()));
-            __BatchErrorRespHandle(it->task.channel_name, kEctEnDecode, err_code, handle_type, it->task.taskid);
+            __BatchErrorRespHandle(it->channel_name, kEctEnDecode, err_code, handle_type, it->task.taskid);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(_name, __LINE__, kEctEnDecode, err_code, _connect_profile.ip, _connect_profile.port);
         }
@@ -744,7 +753,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
         default:
         {
 			xassert2(false, TSF"task decode error fail_handle:%_, taskid:%_, context id:%_", handle_type, it->task.taskid, it->task.user_id);
-			__BatchErrorRespHandle(it->task.channel_name, kEctEnDecode, err_code, handle_type, it->task.taskid);
+			__BatchErrorRespHandle(it->channel_name, kEctEnDecode, err_code, handle_type, it->task.taskid);
 			xassert2(fun_notify_network_err_);
 			fun_notify_network_err_(_name, __LINE__, kEctEnDecode, handle_type, _connect_profile.ip, _connect_profile.port);
 			break;
@@ -801,6 +810,51 @@ std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLink(const std::st
     return nullptr;
 }
 
+void LongLinkTaskManager::FixMinorRealhost(Task& _task) {
+    if (get_real_host_) {
+        get_real_host_(_task.user_id, _task.minorlong_host_list);
+    }
+}
+
+bool LongLinkTaskManager::AddMinorLink(const std::vector<std::string>& _hosts, int _pack_version) {
+    if(_hosts.empty()) {
+        return false;
+    }
+    std::string host = "";
+    host = _hosts.front();
+
+    LonglinkConfig defaultConfig(host, DEFAULT_LONGLINK_GROUP, false);
+    defaultConfig.is_keep_alive = true;
+    defaultConfig.packer_encoder_version = _pack_version;
+    defaultConfig.host_list = _hosts;
+    defaultConfig.link_type = Task::kChannelMinorLong;
+    if (_pack_version == mars::stn::PackerEncoderVersion::kOld) {
+        defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    }
+    return AddLongLink(defaultConfig);
+}
+
+bool LongLinkTaskManager::IsMinorAvailable(const Task& _task) {
+    if(_task.minorlong_host_list.empty()) {
+        return false;
+    }
+    std::string host = _task.minorlong_host_list.front();
+    size_t linkCnt = 0;
+    for(auto& item : longlink_metas_) {
+        if(item.first == host) {
+            linkCnt += 1;
+            if(item.second->Channel()->ConnectStatus() != LongLink::kConnected || GetTaskCount(host) > 0)
+                continue;
+            return true;
+        }
+    }
+    if((int)linkCnt >= _task.max_minorlinks)
+        return false;
+    else
+        return true;
+}
+
+
 void LongLinkTaskManager::OnNetworkChange() {
     ScopedLock lock(meta_mutex_);
     for(auto& item : longlink_metas_) {
@@ -826,7 +880,7 @@ void LongLinkTaskManager::__ResetLongLink(const std::string& _name) {
 ConnectProfile LongLinkTaskManager::GetConnectProfile(uint32_t _taskid) {
     for(auto item : lst_cmd_) {
         if(item.task.taskid == _taskid) {
-            auto longlink = GetLongLink(item.task.channel_name);
+            auto longlink = GetLongLink(item.channel_name);
             if(longlink) {
                 return longlink->Channel()->Profile();
             }
@@ -875,7 +929,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
 
     auto task = lst_cmd_.begin();
     while(task != lst_cmd_.end()) {
-		if(task->task.channel_name == _name) {
+		if(task->channel_name == _name) {
             if (__SingleRespHandle(task, kEctLocal, kEctLocalLongLinkReleased, kTaskFailHandleTaskEnd, longlink->Channel()->Profile())){
                 // task erased
                 task = lst_cmd_.begin();
@@ -907,7 +961,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
 bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {
     for(auto item : lst_cmd_) {
         if(item.task.taskid == _taskid) {
-            auto longlink = GetLongLink(item.task.channel_name);
+            auto longlink = GetLongLink(item.channel_name);
             if(longlink) {
                 longlink->Channel()->Disconnect(_code);
                 return true;

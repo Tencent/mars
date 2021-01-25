@@ -100,6 +100,7 @@ public:
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
     std::shared_ptr<LongLink>        CreateLongLink(const LonglinkConfig& _config);
+    bool AddMinorLongLink(const std::vector<std::string>& _hosts);
     void                DestroyLongLink(const std::string& _name);
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
@@ -135,6 +136,7 @@ public:
     void    __OnSignalActive(bool _isactive);
 
     void    __OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
+    int __ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong);
   private:
     NetCore(const NetCore&);
     NetCore& operator=(const NetCore&);

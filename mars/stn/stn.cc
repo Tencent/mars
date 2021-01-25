@@ -53,8 +53,7 @@ Task::Task(uint32_t _taskid) {
     long_polling_timeout = -1;
     
     channel_name=DEFAULT_LONGLINK_NAME;
-
-
+    max_minorlinks = 1;
 }
 
 uint32_t GenTaskID(){
