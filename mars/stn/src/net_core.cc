@@ -338,7 +338,7 @@ void NetCore::StartTask(const Task& _task) {
     }
     if ((Task::kChannelMinorLong & task.channel_select) && ActiveLogic::Instance()->IsForeground()) {
         if(!minorlonglink) {
-            bool ret = longlink_task_manager_->AddMinorLink(task.minorlong_host_list, packer_encoder_version_);
+            bool ret = longlink_task_manager_->AddMinorLink(task.minorlong_host_list);
             if(ret) {
                 minorlonglink = longlink_task_manager_->GetLongLink(task.minorlong_host_list.front());
                 minorlonglink->Monitor()->MakeSureConnected();
@@ -840,7 +840,7 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
 }
 
 bool NetCore::AddMinorLongLink(const std::vector<std::string>& _hosts) {
-    return longlink_task_manager_->AddMinorLink(_hosts, packer_encoder_version_);
+    return longlink_task_manager_->AddMinorLink(_hosts);
 }
 
 void NetCore::DestroyLongLink(const std::string& _name){

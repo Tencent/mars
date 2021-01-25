@@ -816,7 +816,7 @@ void LongLinkTaskManager::FixMinorRealhost(Task& _task) {
     }
 }
 
-bool LongLinkTaskManager::AddMinorLink(const std::vector<std::string>& _hosts, int _pack_version) {
+bool LongLinkTaskManager::AddMinorLink(const std::vector<std::string>& _hosts) {
     if(_hosts.empty()) {
         return false;
     }
@@ -825,12 +825,10 @@ bool LongLinkTaskManager::AddMinorLink(const std::vector<std::string>& _hosts, i
 
     LonglinkConfig defaultConfig(host, DEFAULT_LONGLINK_GROUP, false);
     defaultConfig.is_keep_alive = true;
-    defaultConfig.packer_encoder_version = _pack_version;
     defaultConfig.host_list = _hosts;
     defaultConfig.link_type = Task::kChannelMinorLong;
-    if (_pack_version == mars::stn::PackerEncoderVersion::kOld) {
-        defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
-    }
+    defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+
     return AddLongLink(defaultConfig);
 }
 
