@@ -22,6 +22,8 @@
  */
 
 #include "tinyxml2.h"
+#include "mars/comm/xlogger/xlogger.h"
+#include <string>
 
 #include <new>		// yes, this one new style header, is in the Android SDK.
 #if defined(ANDROID_NDK) || defined(__BORLANDC__) || defined(__QNXNTO__)
@@ -731,6 +733,11 @@ namespace tinyxml2
     
     XMLNode::~XMLNode()
     {
+        // if (Value()) {
+        //     xinfo2(TSF"node name: %_, %_", std::string(Value()), this);
+        // } else {
+        //     xinfo2(TSF"node name: @%0", this);
+        // }
         DeleteChildren();
         if ( _parent ) {
             _parent->Unlink( this );
@@ -758,6 +765,11 @@ namespace tinyxml2
     
     void XMLNode::DeleteChildren()
     {
+        // if (Value()) {
+        //     xinfo2(TSF"node name: %_, %_", std::string(Value()), this);
+        // } else {
+        //     xinfo2(TSF"node name: @%0", this);
+        // }
         while( _firstChild ) {
             TIXMLASSERT( _lastChild );
             DeleteChild( _firstChild );
@@ -793,6 +805,11 @@ namespace tinyxml2
         TIXMLASSERT( node );
         TIXMLASSERT( node->_document == _document );
         TIXMLASSERT( node->_parent == this );
+        // if (Value()) {
+        //     xinfo2(TSF"node name: %_, %_", std::string(Value()), this);
+        // } else {
+        //     xinfo2(TSF"node name: @%0", this);
+        // }
         Unlink( node );
         DeleteNode( node );
     }
@@ -1037,6 +1054,13 @@ namespace tinyxml2
             return;
         }
         MemPool* pool = node->_memPool;
+        if (!pool) {
+            if (node->Value()) {
+                xerror2(TSF"pool is null: @%0, %1", node, node->Value());
+            } else {
+                xerror2(TSF"pool is null: @%0", node);
+            }
+        }
         node->~XMLNode();
         pool->Free( node );
     }
@@ -1706,6 +1730,9 @@ namespace tinyxml2
             return;
         }
         MemPool* pool = attribute->_memPool;
+        if (!pool) {
+            xerror2(TSF"pool is null: @%0", attribute);
+        }
         attribute->~XMLAttribute();
         pool->Free( attribute );
     }
@@ -2065,6 +2092,7 @@ namespace tinyxml2
     
     XMLError XMLDocument::Parse( const char* p, size_t len )
     {
+        xinfo2(TSF"Parse: %_", len);
         Clear();
         
         if ( len == 0 || !p || !*p ) {
