@@ -88,12 +88,13 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
             proxy_ip = proxy_ips.front();
         }
     }
-    
-    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect();
+
+    TLocalIPStack localstack = local_ipstack_detect();
+    bool isnat64 = ELocalIPStack_IPv6 == localstack;
     std::vector<socket_address> vecaddr;
     
     if (mars::comm::kProxyHttp == _proxy_info.type) {
-        vecaddr.push_back(socket_address(proxy_ip.c_str(), _proxy_info.port).v4tov6_address(isnat64));
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _proxy_info.port).v4tov6_address(localstack));
     } else {
         std::vector<std::string> test_ips;
         if (!dns_util_.GetDNS().GetHostByName(_host, test_ips) || test_ips.empty()) {
@@ -106,7 +107,7 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
 
         for (size_t i = 0; i < test_ips.size(); ++i) {
             if (mars::comm::kProxyNone == _proxy_info.type) {
-                vecaddr.push_back(socket_address(test_ips[i].c_str(), TEST_PORT).v4tov6_address(isnat64));
+                vecaddr.push_back(socket_address(test_ips[i].c_str(), TEST_PORT).v4tov6_address(localstack));
             } else {
                 vecaddr.push_back(socket_address(test_ips[i].c_str(), TEST_PORT));
             }
@@ -122,7 +123,7 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     socket_address* proxy_addr = NULL;
     
     if (mars::comm::kProxyNone != _proxy_info.type && mars::comm::kProxyHttp != _proxy_info.type) {
-        proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(isnat64));
+        proxy_addr = &((new socket_address(proxy_ip.c_str(), _proxy_info.port))->v4tov6_address(localstack));
     }
     
     ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);
