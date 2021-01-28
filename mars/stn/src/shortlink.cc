@@ -227,11 +227,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     }
     
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
-        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(isnat64));
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(local_stack));
     } else {
         for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
             if (!use_proxy || mars::comm::kProxyNone == _conn_profile.proxy_info.type) {
-                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port).v4tov6_address(isnat64));
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port).v4tov6_address(local_stack));
             } else {
                 vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port));
             }
@@ -240,7 +240,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     
 	socket_address* proxy_addr = NULL;
     if (use_proxy && (mars::comm::kProxyHttpTunel == _conn_profile.proxy_info.type || mars::comm::kProxySocks5 == _conn_profile.proxy_info.type)) {
-		proxy_addr = &((new socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port))->v4tov6_address(isnat64));
+		proxy_addr = &((new socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port))->v4tov6_address(local_stack));
         _conn_profile.ip_type = kIPSourceProxy;
     }
 

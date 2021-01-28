@@ -457,14 +457,15 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::string log;
     std::string netInfo;
     getCurrNetLabel(netInfo);
-    bool isnat64 = ELocalIPStack_IPv6 == local_ipstack_detect_log(log);//local_ipstack_detect();
+    TLocalIPStack localstack = local_ipstack_detect_log(log);
+    bool isnat64 = ELocalIPStack_IPv6 == localstack;//local_ipstack_detect();
     xinfo2(TSF"ipstack log:%_, netInfo:%_", log, netInfo);
     
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
         if (use_proxy) {
             vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port));
         } else {
-            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(isnat64));
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(localstack));
         }
     }
     
@@ -498,10 +499,10 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
                 return INVALID_SOCKET;
             }
             
-			proxy_addr = &((new socket_address(ips.front().c_str(), proxy_info.port))->v4tov6_address(isnat64));
+			proxy_addr = &((new socket_address(ips.front().c_str(), proxy_info.port))->v4tov6_address(localstack));
 
         } else {
-			proxy_addr = &((new socket_address(proxy_ip.c_str(), proxy_info.port))->v4tov6_address(isnat64));
+			proxy_addr = &((new socket_address(proxy_ip.c_str(), proxy_info.port))->v4tov6_address(localstack));
         }
         
         _conn_profile.ip_type = kIPSourceProxy;
