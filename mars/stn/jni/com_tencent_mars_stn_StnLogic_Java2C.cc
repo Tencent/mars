@@ -39,6 +39,7 @@
 #include "stn/src/signalling_keeper.h"
 #include "stn/config.h"
 #include "stn/proto/stnproto_logic.h"
+#include "stn/src/smart_heartbeat.h"
 
 #include <android/log.h>
 
@@ -338,7 +339,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setClientVersion
 JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_trigNooping
 (JNIEnv *_env, jclass) {
     SmartHeartbeat::SetHeartBeat(0);
-    NetCore::Singleton::Instance()->LongLink().TrigNoop();
+    NetCore::Singleton::Instance()->Longlink().TrigNoop();
 }
 
 }
