@@ -63,6 +63,11 @@ public:
     static const int kChannelFastStrategy = 1;
     static const int kChannelDisasterRecoveryStategy = 2;
     
+    static const int kTransportProtocolDefault = 0; // TCP
+    static const int kTransportProtocolTCP = 1;     // TCP
+    static const int kTransportProtocolQUIC = 2;    // QUIC
+    static const int kTransportProtocolMixed = 3;   // TCP or QUIC
+    
     static const int kTaskPriorityHighest = 0;
     static const int kTaskPriority0 = 0;
     static const int kTaskPriority1 = 1;
@@ -87,6 +92,7 @@ public:
     uint32_t       cmdid;
     uint64_t       channel_id;      // not used
     int32_t        channel_select;
+    int32_t        transport_protocol;  // see kTransportProtocol...
     std::string    cgi;    // user
 
     //optional
@@ -112,10 +118,11 @@ public:
     std::string user_id;        //use for identify multi users
     int protocol;
     
-    std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
+    std::vector<std::string> shortlink_host_list;
     std::vector<std::string> longlink_host_list;
     std::vector<std::string> minorlong_host_list;
+    std::vector<std::string> quic_host_list;
     int32_t max_minorlinks;
 };
     
@@ -156,6 +163,19 @@ public:
     bool            isMain;
     int             link_type = Task::kChannelLong;
     std::vector<std::string> (*dns_func)(const std::string& host);
+};
+    
+struct QuicParameters{
+    bool enable_0rtt = true;
+    std::string alpn;
+};
+struct ShortlinkConfig {
+public:
+    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls){}
+    bool use_proxy = false;
+    bool use_tls = true;
+    bool use_quic = false;
+    QuicParameters quic;
 };
 
 enum TaskFailHandleType {

@@ -96,6 +96,7 @@ struct ConnectProfile {
         local_ip.clear();
         local_port = 0;
         ip_index = -1;
+        transport_protocol = Task::kTransportProtocolTCP;
         
         disconn_time = 0;
         disconn_errtype = kEctOK;
@@ -147,6 +148,7 @@ struct ConnectProfile {
     std::string local_ip;
     uint16_t local_port;
     int ip_index;
+    int transport_protocol;
     
     uint64_t disconn_time;
     ErrCmdType disconn_errtype;
@@ -162,14 +164,17 @@ struct ConnectProfile {
 
     //keep alive config
     SOCKET socket_fd;
+    int (*closefunc)(int) = &close;
     uint32_t keepalive_timeout;
     bool is_reused_fd;
     int local_net_stack;
     uint64_t req_byte_count;
     std::string cgi;
     bool ipv6_connect_failed;
-
-    //for cgi caller
+    //opreator identify
+    std::string connection_identify;
+	
+	//for cgi caller
     uint64_t start_connect_time;
     uint64_t connect_successful_time;
     uint64_t start_tls_handshake_time;
