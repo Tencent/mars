@@ -574,7 +574,11 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 void ShortLink::__UpdateProfile(const ConnectProfile _conn_profile) {
 	STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
+    ConnectProfile profile = conn_profile_;
 	conn_profile_ = _conn_profile;
+	conn_profile_.tls_handshake_successful_time = profile.tls_handshake_successful_time;
+    conn_profile_.tls_handshake_mismatch = profile.tls_handshake_mismatch;
+    conn_profile_.tls_handshake_success = profile.tls_handshake_success;
 }
 
 void ShortLink::__RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _conn_profile, bool _report) {
