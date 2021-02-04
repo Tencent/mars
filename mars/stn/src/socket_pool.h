@@ -66,8 +66,9 @@ namespace stn {
         SOCKET GetSocket(const IPPortItem& _item) {
             xverbose_function();
             ScopedLock lock(mutex_);
-            if(!use_cache_ || _isBaned() || socket_pool_.empty())
+            if(!use_cache_ || _isBaned() || socket_pool_.empty()) {
                 return INVALID_SOCKET;
+            }
 
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
@@ -85,7 +86,7 @@ namespace stn {
                 }
                 iter++;
             }
-            xinfo2(TSF"can not find socket ip:%_, port:%_, host:%_, size:%_", _item.str_ip, _item.port, _item.str_host, socket_pool_.size());
+            xdebug2(TSF"can not find socket ip:%_, port:%_, host:%_, size:%_", _item.str_ip, _item.port, _item.str_host, socket_pool_.size());
             return INVALID_SOCKET;
         }
 
@@ -127,6 +128,7 @@ namespace stn {
             if(_is_reused && (!_has_received || !_is_decode_ok)) {
                 ban_start_tick_.gettickcount();
                 is_baned_ = true;
+                xinfo2(TSF"report ban");
             } else if(_is_reused && _has_received && _is_decode_ok) {
                 is_baned_ = false;
             }
@@ -134,7 +136,9 @@ namespace stn {
         
     private:
         bool _isBaned() {
-            return is_baned_ && ban_start_tick_.isValid() && ban_start_tick_.gettickspan() <= BAN_INTERVAL;
+            bool ret = is_baned_ && ban_start_tick_.isValid() && ban_start_tick_.gettickspan() <= BAN_INTERVAL;
+            xverbose2_if(ret, TSF"isban:%_", ret);
+            return ret;
         }
 
         bool _IsSocketClosed(SOCKET fd) {

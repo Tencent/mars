@@ -375,7 +375,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
         if(_err_type != kEctOK) {
             socket_close(_conn_profile.socket_fd);
-            socket_pool_.Report(_conn_profile.is_reused_fd, false, false);
+            if(_status != kEctSocketShutdown) { // ignore server close error
+                socket_pool_.Report(_conn_profile.is_reused_fd, false, false);
+            }
         } else if(_conn_profile.ip_index >=0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
             IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
             CacheSocketItem cache_item(item, _conn_profile.socket_fd, _conn_profile.keepalive_timeout);
