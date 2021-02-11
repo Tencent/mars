@@ -298,6 +298,12 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxAliveTime
         (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_time) {
     mars::xlog::SetMaxAliveTime(_log_instance_ptr, _max_time);
 }
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setInfiniteLoopThreshold
+        (JNIEnv *env, jobject, jlong _threshold) {
+    mars::xlog::SetInfiniteLoopThreshold(_threshold);
+}
+
 }
 
 void ExportXlog() {}
