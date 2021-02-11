@@ -28,6 +28,7 @@
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/xlogger/loginfo_extract.h"
 #include "mars/comm/ptrbuffer.h"
+#include "mars/comm/time_utils.h"
 
 #ifdef _WIN32
 #define PRIdMAX "lld"
@@ -79,6 +80,82 @@ static int logger_itoa(int num, char* str, int len, int min) {
     reverse(str, i);
     return i;
 }
+
+void format_time(char buffer[64]) {
+    thread_local uint64_t init_count = 0;
+    thread_local struct tm tm;
+    thread_local struct timeval init_timeval;
+    thread_local float gmtoff = tm.tm_gmtoff / 3600;
+
+    static const uint64_t kInterval = 20 * 60 * 1000;
+
+    uint64_t now_count = gettickcount();
+
+    if (0 == init_count || (now_count - init_count) > kInterval) {
+        init_count = now_count;
+        gettimeofday(&init_timeval, NULL);
+        memset(&tm, 0, sizeof(tm));
+        localtime_r((const time_t*)&init_timeval.tv_sec, &tm);
+        gmtoff = tm.tm_gmtoff / 3600;
+    }
+
+    int year = 1900 + tm.tm_year;
+    int mon = 1+tm.tm_mon;
+    int day = tm.tm_mday;
+    int hour = tm.tm_hour;
+    int min = tm.tm_min;
+    int sec = tm.tm_sec;
+    int msec = init_timeval.tv_usec / 1000 + (now_count - init_count);
+
+    do {
+        if (msec < 1000) {
+            break;
+        }
+        int cnt = msec / 1000;
+        msec -= cnt * 1000;
+        sec += cnt;
+        if (sec < 60) {
+            break;
+        }
+        cnt = sec / 60;
+        sec -= cnt * 60;
+        min += cnt;
+        if (min < 60) {
+            break;
+        }
+        cnt = min / 60;
+        min -= cnt * 60;
+        hour += cnt;
+        if (hour < 24) {
+            break;
+        }
+        cnt = hour / 24;
+        hour -= cnt * 24;
+        int base_day = 0;
+        if (1 == mon || 3 == mon || 5 == mon || 7 == mon || 8 == mon || 10 == mon || 12 == mon) {
+            base_day = 31;
+        } else if (2 == mon) {
+            if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+                base_day = 29;
+            } else {
+                base_day = 28;
+            }
+        } else {
+            base_day = 30;
+        }
+        day += cnt;
+        if (day < base_day + 1) {
+            break;
+        }
+        day -= base_day;
+        if (++mon < 13) {
+            break;
+        }
+        mon -=12;
+        year++;
+    } while (false);
+    snprintf(buffer, 64, "%d-%02d-%02d +%.1f %02d:%02d:%02d.%.3d\n", year, mon, day, gmtoff, hour, min, sec, msec);
+}
 #endif
 
 void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
@@ -126,11 +203,11 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         char temp_time[64] = {0};
 
         if (0 != _info->timeval.tv_sec) {
+#if defined(ANDROID) || _WIN32
             time_t sec = _info->timeval.tv_sec;
             struct tm tm;
             memset(&tm, 0, sizeof(tm));
             localtime_r((const time_t*)&sec, &tm);
-#if defined(ANDROID) || _WIN32
             std::string gmt = std::to_string(tm.tm_gmtoff / 360);
 #endif
             
@@ -141,49 +218,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.3s %02d:%02d:%02d.%.3d", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
                      (-_timezone) / 3600.0, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
 #else
-            do {
-                int len = 0;
-                int total_len = sizeof(temp_time);
-                len += logger_itoa(1900 + tm.tm_year, temp_time + len, total_len - len, 4);
-                if (len >= total_len - 1) {
-                    break;
-                }
-                temp_time[len++] = '-';
-                len += logger_itoa(1 + tm.tm_mon, temp_time + len, total_len - len, 2);
-                if (len >= total_len - 1) {
-                    break;
-                }
-                temp_time[len++] = '-';
-                len += logger_itoa(tm.tm_mday, temp_time + len, total_len - len, 2);
-                if (len >= total_len - 2) {
-                    break;
-                }
-                temp_time[len++] = ' ';
-                if (tm.tm_gmtoff > 0) {
-                    temp_time[len++] = '+';
-                }
-                len += logger_itoa(tm.tm_gmtoff / 360, temp_time + len, total_len - len, 0);
-                if (len >= total_len - 1) {
-                    break;
-                }
-                temp_time[len++] = ' ';
-                len += logger_itoa(tm.tm_hour, temp_time + len, total_len - len, 2);
-                if (len >= total_len - 1) {
-                    break;
-                }
-                temp_time[len++] = ':';
-                len += logger_itoa(tm.tm_min, temp_time + len, total_len - len, 2);
-                if (len >= total_len - 1) {
-                    break;
-                }
-                temp_time[len++] = ':';
-                len += logger_itoa(tm.tm_sec, temp_time + len, total_len - len, 2);
-                if (len >= total_len - 1) {
-                    break;
-                }
-                temp_time[len++] = '.';
-                len += logger_itoa(_info->timeval.tv_usec / 1000, temp_time + len, total_len - len, 3);
-            } while (false);
+            format_time(temp_time);
 #endif
         }
 
