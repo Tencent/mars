@@ -112,25 +112,25 @@ void format_time(char buffer[64]) {
             break;
         }
         int cnt = msec / 1000;
-        msec -= cnt * 1000;
+        msec %= 1000;
         sec += cnt;
         if (sec < 60) {
             break;
         }
         cnt = sec / 60;
-        sec -= cnt * 60;
+        sec %= 60;
         min += cnt;
         if (min < 60) {
             break;
         }
         cnt = min / 60;
-        min -= cnt * 60;
+        min %= 60;
         hour += cnt;
         if (hour < 24) {
             break;
         }
         cnt = hour / 24;
-        hour -= cnt * 24;
+        hour %= 24;
         int base_day = 0;
         if (1 == mon || 3 == mon || 5 == mon || 7 == mon || 8 == mon || 10 == mon || 12 == mon) {
             base_day = 31;
