@@ -92,7 +92,7 @@ static void onCreate() {
 static void onDestroy() {
     xinfo2(TSF"stn onDestroy");
 
-    SINGLETON_RELEASE(NetCore);
+    NetCore::Singleton::Release();
     SINGLETON_RELEASE_ALL();
 }
 

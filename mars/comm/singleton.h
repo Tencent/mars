@@ -35,7 +35,7 @@
     {\
       public:\
         static std::shared_ptr<classname>& instance_shared_ptr() { static std::shared_ptr<classname> s_ptr;return s_ptr;}\
-        static Mutex& singleton_mutex() {static Mutex s_mutex; return s_mutex;}\
+        static Mutex& singleton_mutex() {   static Mutex* s_mutex = new Mutex(); return *s_mutex;}\
         static owl::xsignal<void ()>& SignalInstanceBegin() { static owl::xsignal<void ()> s_signal; return s_signal;} \
         static owl::xsignal<void (std::shared_ptr<classname>)>& SignalInstance() { static owl::xsignal<void (std::shared_ptr<classname>)> s_signal; return s_signal;} \
         static owl::xsignal<void (std::shared_ptr<classname>)>& SignalRelease() { static owl::xsignal<void (std::shared_ptr<classname>)> s_signal; return s_signal;} \
