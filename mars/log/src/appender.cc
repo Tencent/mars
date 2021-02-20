@@ -47,7 +47,6 @@
 
 #include <string>
 #include <algorithm>
-#include <atomic>
 
 #include "boost/bind.hpp"
 #include "boost/iostreams/device/mapped_file.hpp"
@@ -86,8 +85,6 @@ static Tss sg_tss_dumpfile(&free);
 
 static const unsigned int kBufferBlockLength = 150 * 1024;
 static const long kMinLogAliveTime = 24 * 60 * 60;    // 1 days in second
-
-static std::atomic_uint64_t kInfiniteLoopThreshold(2 * 60 * 60);  // 2 hours in second
 
 static Mutex sg_mutex_dir_attr;
 
@@ -845,38 +842,15 @@ void XloggerAppender::WriteTips2File(const char* _tips_format, ...) {
 
 
 void XloggerAppender::__AsyncLogThread() {
-    static const unsigned long kSleep = 500 * 1000; 
-    time_t first_lock_fail_time = 0;
-    time_t last_lock_fail_time = 0;
     while (true) {
-        ScopedLock lock_buffer(mutex_buffer_async_, false);
-        if (!lock_buffer.trylock()) {
-            usleep(kSleep);
-            time_t now = time(NULL);
-            if (first_lock_fail_time == 0 || first_lock_fail_time > now || last_lock_fail_time > now
-                || (now >= last_lock_fail_time && (uint64_t)(now - last_lock_fail_time) >= 100 * kSleep)) {
-                last_lock_fail_time = first_lock_fail_time = now;
-                continue;
-            }
-            
-            last_lock_fail_time = now;
 
-            // give up locking when has an infinite loop.
-            // may be crashed without lock.
-            if ((uint64_t)(now - first_lock_fail_time) >= kInfiniteLoopThreshold) {
-                WriteTips2File("try lock fail, now:%ld, last fail:%ld, threshold:%" PRIu64 ", an infinite loop may occur", now, first_lock_fail_time, (uint64_t)kInfiniteLoopThreshold);
-            } else {
-                continue;
-            }
-        }
-        first_lock_fail_time = last_lock_fail_time = 0;
+        ScopedLock lock_buffer(mutex_buffer_async_);
+
         if (nullptr == log_buff_) break;
 
         AutoBuffer tmp;
         log_buff_->Flush(tmp);
-        if (lock_buffer.islocked()) {
-            lock_buffer.unlock();
-        }
+        lock_buffer.unlock();
 
         if (nullptr != tmp.Ptr())  __Log2File(tmp.Ptr(), tmp.Length(), true);
 
@@ -1254,10 +1228,6 @@ void appender_set_max_alive_duration(long _max_time) {
         return;
     }
     sg_default_appender->SetMaxAliveDuration(_max_time);
-}
-
-void appender_set_infiniteloop_threshold(uint64_t _threshold) {
-    kInfiniteLoopThreshold = _threshold;
 }
 
 bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec) {
