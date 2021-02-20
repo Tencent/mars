@@ -62,8 +62,6 @@ void SetMaxFileSize(uintptr_t _instance_ptr, long _max_file_size);
 
 void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds);
 
-void SetInfiniteLoopThreshold(uint64_t _threashold);
-
 }
 }
 
