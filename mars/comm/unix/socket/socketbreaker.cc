@@ -55,11 +55,7 @@ bool SocketBreaker::ReCreate()
     pipes_[0] = -1;
     pipes_[1] = -1;
 
-    int Ret;
-    Ret = pipe(pipes_);
-    xassert2(-1 != Ret, "pipe errno=%d", errno);
-
-    if (Ret == -1)
+    if (-1 == pipe(pipes_))
     {
         pipes_[0] = -1;
         pipes_[1] = -1;
@@ -123,9 +119,8 @@ bool SocketBreaker::Clear()
     ScopedLock lock(mutex_);
     char dummy[128];
     int ret = (int)read(pipes_[0], dummy, sizeof(dummy));
-
-    if (ret < 0)
-    {
+    int lasterror = errno;
+    if (ret < 0 && EWOULDBLOCK != lasterror){
         xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, errno, strerror(errno));
         return false;
     }

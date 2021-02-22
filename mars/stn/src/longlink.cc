@@ -141,7 +141,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , thread_(boost::bind(&LongLink::__Run, this), XLOGGER_TAG "::lonklink")
 	, connectstatus_(kConnectIdle)
 	, disconnectinternalcode_(kNone)
-    , identifychecker_(_encoder, _config.name)
+    , identifychecker_(_encoder, _config.name, Task::kChannelMinorLong == _config.link_type)
 #ifdef ANDROID
     , smartheartbeat_(new SmartHeartbeat)
     , wakelock_(new WakeUpLock)

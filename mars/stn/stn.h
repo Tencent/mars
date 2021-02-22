@@ -82,6 +82,7 @@ public:
     static const uint32_t kNoopTaskID = 0xFFFFFFFF;
     static const uint32_t kLongLinkIdentifyCheckerTaskID = 0xFFFFFFFE;
     static const uint32_t kSignallingKeeperTaskID = 0xFFFFFFFD;
+    static const uint32_t kMinorLonglinkCmdMask = 0xFF000000;
     
     
     Task();
