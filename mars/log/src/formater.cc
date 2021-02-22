@@ -154,7 +154,7 @@ void format_time(char buffer[64]) {
         mon -=12;
         year++;
     } while (false);
-    snprintf(buffer, 64, "%d-%02d-%02d +%.1f %02d:%02d:%02d.%.3d\n", year, mon, day, gmtoff, hour, min, sec, msec);
+    snprintf(buffer, 64, "%d-%02d-%02d +%.1f %02d:%02d:%02d.%.3d", year, mon, day, gmtoff, hour, min, sec, msec);
 }
 #endif
 
