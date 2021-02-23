@@ -72,16 +72,15 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 
 LongLinkTaskManager::~LongLinkTaskManager() {
     xinfo_function();
-    for(auto iter = longlink_metas_.begin(); iter != longlink_metas_.end(); iter++) {
-        iter->second->Channel()->SignalConnection.disconnect_all();
-    }
+
     asyncreg_.CancelAndWait();
     __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
-
-    while(!longlink_metas_.empty()) {
-        auto iter = longlink_metas_.begin();
-        ReleaseLongLink(iter->first);
+    
+    ScopedLock lock(meta_mutex_);
+    for(auto kv : longlink_metas_){
+        ReleaseLongLink(kv.second);
     }
+    longlink_metas_.clear();
 
 #ifdef ANDROID
     delete wakeup_lock_;
@@ -892,17 +891,29 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     longlink->Channel()->SignalConnection.disconnect_all();
     longlink->Monitor()->DisconnectAllSlot();
     lock.unlock();
-    {
-    // MessageQueue::AsyncInvoke([&,longlink] () {
-//        longlink->Channel()->OnSend = NULL;
-//        longlink->Channel()->OnRecv = NULL;
-//        longlink->Channel()->OnResponse = NULL;
-//#ifdef __APPLE__
-//        longlink->Monitor()->fun_longlink_reset_ = NULL;
-//#endif
-        xinfo2(TSF"destroy long link %_ ", _name);
-    // }, AYNC_HANDLER);
+    xinfo2(TSF"destroy long link %_ ", _name);
+}
+
+void LongLinkTaskManager::ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta){
+    std::string name = _linkmeta->Config().name;
+    xinfo_function(TSF"release longlink:%_", name);
+
+    auto task = lst_cmd_.begin();
+    while(task != lst_cmd_.end()) {
+		if(task->task.channel_name == name) {
+            if (__SingleRespHandle(task, kEctLocal, kEctLocalLongLinkReleased, kTaskFailHandleTaskEnd, _linkmeta->Channel()->Profile())){
+                // task erased
+                task = lst_cmd_.begin();
+            }else{
+                task++;
+            }
+		} else {
+			task++;
+		}
     }
+
+    _linkmeta->Channel()->SignalConnection.disconnect_all();
+    _linkmeta->Monitor()->DisconnectAllSlot();
 }
 
 bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {
