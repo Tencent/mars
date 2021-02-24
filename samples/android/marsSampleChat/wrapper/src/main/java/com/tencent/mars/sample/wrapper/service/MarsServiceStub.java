@@ -156,7 +156,7 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
 //    }
 
     @Override
-    public boolean makesureAuthed(String host, Object userContext) {
+    public boolean makesureAuthed(String host) {
         return false;
     }
 
@@ -167,7 +167,7 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
     }
 
     @Override
-    public void onPush(int cmdid, byte[] data) {
+    public void onPush(int cmdid, final int taskid, byte[] data) {
         for (MarsPushMessageFilter filter : filters) {
             try {
                 if (filter.onRecv(cmdid, data)) {
@@ -182,7 +182,7 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
 
     @Override
     public void trafficData(int send, int recv) {
-        onPush(BaseConstants.FLOW_CMDID, String.format("%d,%d", send, recv).getBytes(Charset.forName("UTF-8")));
+        onPush(BaseConstants.FLOW_CMDID, 0, String.format("%d,%d", send, recv).getBytes(Charset.forName("UTF-8")));
     }
 
     @Override
@@ -219,7 +219,7 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
     }
 
     @Override
-    public int onTaskEnd(int taskID, Object userContext, int errType, int errCode) {
+    public int onTaskEnd(int taskID, Object userContext, int errType, int errCode, StnLogic.CgiProfile profile) {
         final MarsTaskWrapper wrapper = TASK_ID_TO_WRAPPER.remove(taskID);
         if (wrapper == null) {
             Log.w(TAG, "stn task onTaskEnd callback may fail, null wrapper, taskID=%d", taskID);
@@ -277,12 +277,12 @@ public class MarsServiceStub extends MarsService.Stub implements StnLogic.ICallB
 
     @Override
     public void reportTaskProfile(String reportString) {
-        onPush(BaseConstants.CGIHISTORY_CMDID, reportString.getBytes(Charset.forName("UTF-8")));
+        onPush(BaseConstants.CGIHISTORY_CMDID, 0, reportString.getBytes(Charset.forName("UTF-8")));
     }
 
     @Override
     public void reportSignalDetectResults(String reportString) {
-        onPush(BaseConstants.SDTRESULT_CMDID, reportString.getBytes(Charset.forName("UTF-8")));
+        onPush(BaseConstants.SDTRESULT_CMDID, 0, reportString.getBytes(Charset.forName("UTF-8")));
     }
 
     @Override

@@ -28,7 +28,7 @@ task clean(type: Delete) {
 
 ext {
     GROUP = 'com.tencent.mars'
-    VERSION_NAME = '1.2.5'
+    VERSION_NAME = '1.2.6'
     VERSION_NAME_SUFFIX = ''
 }
 
