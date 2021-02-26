@@ -123,10 +123,9 @@ bool SocketBreaker::Clear()
     ScopedLock lock(mutex_);
     char dummy[128];
     int ret = (int)read(pipes_[0], dummy, sizeof(dummy));
-
-    if (ret < 0)
-    {
-        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, errno, strerror(errno));
+    int lasterror = errno;
+    if (ret < 0 && EWOULDBLOCK != lasterror){
+        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, lasterror, strerror(lasterror));
         return false;
     }
 

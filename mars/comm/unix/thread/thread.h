@@ -20,6 +20,11 @@
 #include <string.h>
 #include <signal.h>
 
+#ifndef _WIN32
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+#endif
+
 #include "comm/assert/__assert.h"
 #include "comm/thread/condition.h"
 #include "comm/thread/runnable.h"
@@ -370,12 +375,22 @@ class Thread {
         ASSERT(!runableref->isinthread);
 
         runableref->isinthread = true;
+        
+        char szthreadname[128] = {0};
+#if defined(__APPLE__)
+        //append tid on thread name
+        uint64_t tid = 0;
+        pthread_threadid_np(nullptr, &tid);
+        snprintf(szthreadname, sizeof(szthreadname), "%s *%" PRIu64, runableref->thread_name, tid);
+#else
+        strncpy(szthreadname, (const char*)runableref->thread_name, sizeof(szthreadname));
+#endif
 
-        if (0 < strnlen((const char*)runableref->thread_name, sizeof(runableref->thread_name))) {
+        if (0 < strnlen(szthreadname, sizeof(szthreadname))) {
 #ifdef __APPLE__
-            pthread_setname_np((const char*)runableref->thread_name);
+            pthread_setname_np(szthreadname);
 #elif defined(ANDROID)
-            pthread_setname_np(runableref->tid, (const char*)runableref->thread_name);
+            pthread_setname_np(runableref->tid, szthreadname);
 #else
             
 #endif
