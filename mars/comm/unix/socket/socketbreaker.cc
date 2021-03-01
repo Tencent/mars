@@ -55,7 +55,11 @@ bool SocketBreaker::ReCreate()
     pipes_[0] = -1;
     pipes_[1] = -1;
 
-    if (-1 == pipe(pipes_))
+    int Ret;
+    Ret = pipe(pipes_);
+    xassert2(-1 != Ret, "pipe errno=%d", errno);
+
+    if (Ret == -1)
     {
         pipes_[0] = -1;
         pipes_[1] = -1;
@@ -121,7 +125,7 @@ bool SocketBreaker::Clear()
     int ret = (int)read(pipes_[0], dummy, sizeof(dummy));
     int lasterror = errno;
     if (ret < 0 && EWOULDBLOCK != lasterror){
-        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, errno, strerror(errno));
+        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, lasterror, strerror(lasterror));
         return false;
     }
 
