@@ -48,6 +48,7 @@ using namespace mars::stn;
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+boost::function<void (uint32_t _version)> LongLinkTaskManager::on_handshake_ready_;
 
 static int longlink_id = 0;
 
@@ -681,13 +682,17 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
         return;
     }
     
+    std::list<TaskProfile>::iterator it = __Locate(_taskid);
+
     if (kEctOK != _error_type) {
         xwarn2(TSF"task error, taskid:%_, cmdid:%_, error_type:%_, error_code:%_", _taskid, _cmdid, _error_type, _error_code);
+        if (_error_code == kEctHandshakeMisunderstand && it != lst_cmd_.end()) {
+            it->remain_retry_count ++;
+        }
         __BatchErrorRespHandle(_name, _error_type, _error_code, kTaskFailHandleDefault, 0);
         return;
     }
     
-    std::list<TaskProfile>::iterator it = __Locate(_taskid);
     
     if (lst_cmd_.end() == it) {
         xwarn2_if(Task::kInvalidTaskID != _taskid, TSF"task no found task:%0, cmdid:%1, ect:%2, errcode:%3",
@@ -905,6 +910,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
     longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
+    longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted, this, _1);
 #ifdef ANDROID
     longlink->Channel()->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
     longlink->Channel()->OnNoopAlarmReceived = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
@@ -996,3 +1002,9 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
     }
 }
 
+void LongLinkTaskManager::__OnHandshakeCompleted(uint32_t _version) {
+    if (on_handshake_ready_) {
+        on_handshake_ready_(_version);
+    }
+    xinfo2(TSF"receive tls version: %_", _version);
+}

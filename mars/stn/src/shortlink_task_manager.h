@@ -57,6 +57,8 @@ class ShortLinkTaskManager {
     static boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
     static boost::function<int (TaskProfile& _profile)> choose_protocol_;
     static boost::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
+    static boost::function<void (uint32_t _version)> on_handshake_ready_;
+    static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
 
   public:
     ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid);
@@ -89,6 +91,7 @@ class ShortLinkTaskManager {
 
     void __DeleteShortLink(intptr_t& _running_id);
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
+    void __OnHandshakeCompleted(uint32_t _version);
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;
