@@ -33,11 +33,12 @@ class SocketBreaker {
     void Close();
 
     bool Break();
+    bool Break(int reason);
     bool Clear();
 
     bool IsBreak() const;
     int  BreakerFD() const;
-
+    int  BreakReason() const;
   private:
     SocketBreaker(const SocketBreaker&);
     SocketBreaker& operator=(const SocketBreaker&);
@@ -46,6 +47,7 @@ class SocketBreaker {
     int   pipes_[2];
     bool  create_success_;
     bool  broken_;
+    int reason_;
     Mutex mutex_;
 };
 

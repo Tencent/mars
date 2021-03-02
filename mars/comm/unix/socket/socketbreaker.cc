@@ -118,6 +118,12 @@ bool SocketBreaker::Break()
     return broken_;
 }
 
+bool SocketBreaker::Break(int reason)
+{
+    reason_ = reason;
+    return Break();
+}
+
 bool SocketBreaker::Clear()
 {
     ScopedLock lock(mutex_);
@@ -152,4 +158,8 @@ int SocketBreaker::BreakerFD() const
 bool SocketBreaker::IsBreak() const
 {
     return broken_;
+}
+
+int SocketBreaker::BreakReason() const{
+    return reason_;
 }
