@@ -152,7 +152,7 @@ struct CgiProfile {
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr), need_tls(true) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr) {}
     bool IsMain() const {
         return isMain;
     }
@@ -164,9 +164,8 @@ public:
     bool            isMain;
     int             link_type = Task::kChannelLong;
     std::vector<std::string> (*dns_func)(const std::string& host);
-    bool            need_tls;
 };
-
+    
 struct QuicParameters{
     bool enable_0rtt = true;
     std::string alpn;
@@ -254,7 +253,6 @@ enum {
     kEctSocketNoopTimeout = -10093,
     kEctSocketNoopAlarmTooLate = -10094,
     kEctSocketUserBreak = -10095,
-    kEctHandshakeMisunderstand = -10096,
 
     kEctHttpSplitHttpHeadAndBody = -10194,
     kEctHttpParseStatusLine = -10195,

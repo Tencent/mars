@@ -369,10 +369,7 @@ void LongLink::__ConnectStatus(TLongLinkStatus _status) {
 
 void LongLink::__UpdateProfile(const ConnectProfile _conn_profile) {
     STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLink::__UpdateProfile, this, _conn_profile));
-    ConnectProfile profile = conn_profile_;
     conn_profile_ = _conn_profile;
-    conn_profile_.tls_handshake_mismatch = profile.tls_handshake_mismatch;
-    conn_profile_.tls_handshake_success = profile.tls_handshake_success;
     
     if (0 != conn_profile_.disconn_time) broadcast_linkstatus_signal_(conn_profile_);
 }
