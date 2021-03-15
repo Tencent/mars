@@ -27,7 +27,7 @@
 
 
 SocketBreaker::SocketBreaker()
-: create_success_(true),
+: create_success_(false),
 broken_(false)
 {
     pipes_[0] = -1;
@@ -57,10 +57,9 @@ bool SocketBreaker::ReCreate()
 
     int Ret;
     Ret = pipe(pipes_);
-    xassert2(-1 != Ret, "pipe errno=%d", errno);
-
     if (Ret == -1)
     {
+        xerror2(TSF"pipe errno=%_,%_", errno, strerror(errno));
         pipes_[0] = -1;
         pipes_[1] = -1;
         create_success_ = false;
