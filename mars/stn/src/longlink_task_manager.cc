@@ -51,6 +51,7 @@ boost::function<void (const std::string& _user_id, std::vector<std::string>& _ho
 boost::function<void (uint32_t _version)> LongLinkTaskManager::on_handshake_ready_;
 
 static int longlink_id = 0;
+std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
 
 LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
@@ -890,7 +891,7 @@ ConnectProfile LongLinkTaskManager::GetConnectProfile(uint32_t _taskid) {
     return ConnectProfile();
 }
 
-bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
+bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
     auto longlink = GetLongLink(_config.name);
     if(longlink != nullptr) {
         xwarn2(TSF"already have longlink name:%_", _config.name);
@@ -904,6 +905,7 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     }
     longlink_id_[_config.name] = longlink_id;
     xinfo2(TSF"new longlink name:%_, id:%_", _config.name, longlink_id);
+    _config.need_tls = !__ForbidUseTls(_config.host_list);
     longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue);
     longlink = GetLongLink(_config.name);
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
@@ -990,6 +992,38 @@ bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDiscon
                 longlink->Channel()->Disconnect(_code);
                 return true;
             }
+        }
+    }
+    return false;
+}
+
+void LongLinkTaskManager::AddForbidTlsHost(const std::vector<std::string>& _host) {
+	ScopedLock lock(mutex_);
+    if (_host.empty()) {
+        return;
+    }
+    std::string host_str = "";
+    for (std::string h : _host) {
+        if (h.find("long") == std::string::npos) {
+            continue;
+        }
+        host_str += h;
+        host_str += "," ;
+        forbid_tls_host_.insert(h);
+    }
+    xinfo2(TSF"forbid tls hosts: %_", host_str);
+}
+
+bool LongLinkTaskManager::__ForbidUseTls(const std::vector<std::string>& _host_list) {
+	ScopedLock lock(mutex_);
+    xinfo2(TSF"host size: %_, %_", _host_list.size(), forbid_tls_host_.size());
+    if (_host_list.empty() || forbid_tls_host_.empty()) {
+        return false;
+    }
+    for (size_t i=0; i<_host_list.size(); i++) {
+        xinfo2(TSF"host: %_", _host_list[i]);
+        if (forbid_tls_host_.find(_host_list[i]) != forbid_tls_host_.end()) {
+            return true;
         }
     }
     return false;

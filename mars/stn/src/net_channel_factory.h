@@ -47,7 +47,6 @@ extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 
 namespace LongLinkChannelFactory {
 
-extern std::function<bool (const std::vector<std::string>& _host_list)> can_use_tls_hook_;
 extern LongLink* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config);
 
 extern void (*Destory)(LongLink* _long_link_channel);

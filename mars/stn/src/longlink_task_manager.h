@@ -80,7 +80,7 @@ class LongLinkTaskManager {
     unsigned int GetTaskCount(const std::string& _name);
     unsigned int GetTasksContinuousFailCount();
 
-    bool AddLongLink(const LonglinkConfig& _config);
+    bool AddLongLink(LonglinkConfig& _config);
     bool AddMinorLink(const std::vector<std::string>& _hosts);
     bool IsMinorAvailable(const Task& _task);
     
@@ -98,6 +98,7 @@ class LongLinkTaskManager {
     void ReleaseLongLink(const std::string _name);
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+    void AddForbidTlsHost(const std::vector<std::string>& _host);
 
   private:
     // from ILongLinkObserver
@@ -122,6 +123,7 @@ class LongLinkTaskManager {
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
     void __DumpLongLinkChannelInfo();
+    bool __ForbidUseTls(const std::vector<std::string>& _host_list);
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;
@@ -141,6 +143,8 @@ class LongLinkTaskManager {
     WakeUpLock*                     wakeup_lock_;
 #endif
     Mutex                           meta_mutex_;
+    Mutex                           mutex_;
+    static std::set<std::string>    forbid_tls_host_;
 };
     }
 }
