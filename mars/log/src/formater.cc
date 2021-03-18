@@ -85,9 +85,9 @@ void format_time(char buffer[64]) {
     thread_local uint64_t init_count = 0;
     thread_local struct tm tm;
     thread_local struct timeval init_timeval;
-    thread_local float gmtoff = tm.tm_gmtoff / 3600;
+    thread_local int gmtoff = tm.tm_gmtoff / 360;
 
-    static const uint64_t kInterval = 20 * 60 * 1000;
+    static const uint64_t kInterval = 30 * 60 * 1000;
 
     uint64_t now_count = gettickcount();
 
@@ -96,7 +96,7 @@ void format_time(char buffer[64]) {
         gettimeofday(&init_timeval, NULL);
         memset(&tm, 0, sizeof(tm));
         localtime_r((const time_t*)&init_timeval.tv_sec, &tm);
-        gmtoff = tm.tm_gmtoff / 3600;
+        gmtoff = tm.tm_gmtoff / 360;
     }
 
     int year = 1900 + tm.tm_year;
@@ -154,7 +154,52 @@ void format_time(char buffer[64]) {
         mon -=12;
         year++;
     } while (false);
-    snprintf(buffer, 64, "%d-%02d-%02d +%.1f %02d:%02d:%02d.%.3d", year, mon, day, gmtoff, hour, min, sec, msec);
+    // snprintf(buffer, 64, "%d-%02d-%02d +%.1f %02d:%02d:%02d.%.3d", year, mon, day, gmtoff, hour, min, sec, msec);
+
+    do {
+        int len = 0;
+        int total_len = 64;
+        len += logger_itoa(year, buffer + len, total_len - len, 4);
+        if (len >= total_len - 1) {
+            break;
+        }
+        buffer[len++] = '-';
+        len += logger_itoa(mon, buffer + len, total_len - len, 2);
+        if (len >= total_len - 1) {
+            break;
+        }
+        buffer[len++] = '-';
+        len += logger_itoa(day, buffer + len, total_len - len, 2);
+        if (len >= total_len - 2) {
+            break;
+        }
+        buffer[len++] = ' ';
+        if (gmtoff > 0) {
+            buffer[len++] = '+';
+        }
+        len += logger_itoa(gmtoff, buffer + len, total_len - len, 0);
+        if (len >= total_len - 1) {
+            break;
+        }
+        buffer[len++] = ' ';
+        len += logger_itoa(hour, buffer + len, total_len - len, 2);
+        if (len >= total_len - 1) {
+            break;
+        }
+        buffer[len++] = ':';
+        len += logger_itoa(min, buffer + len, total_len - len, 2);
+        if (len >= total_len - 1) {
+            break;
+        }
+        buffer[len++] = ':';
+        len += logger_itoa(sec, buffer + len, total_len - len, 2);
+        if (len >= total_len - 1) {
+            break;
+        }
+        buffer[len++] = '.';
+        len += logger_itoa(msec, buffer + len, total_len - len, 3);
+    } while (false);
+
 }
 #endif
 
