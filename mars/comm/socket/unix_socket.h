@@ -111,6 +111,7 @@ int socket_fix_tcp_mss(SOCKET sockfd);    // make mss=mss-40
 int socket_disable_nagle(SOCKET sock, int nagle);
 int socket_error(SOCKET sock);
 int socket_reuseaddr(SOCKET sock, int optval);
+int socket_reserve_sendbuf(SOCKET sock, uint32_t buflen);
 
 int socket_get_nwrite(SOCKET _sock, int* _nwriteLen);
 int socket_get_nread(SOCKET _sock, int* _nreadLen);
