@@ -25,7 +25,7 @@
 namespace mars{
 namespace baseevent{
     void OnCreate();
-    void OnInit(int _encoder_status);
+    void OnInitBeforeOnCreate(int _encoder_status);
     void OnDestroy();
     void OnSingalCrash(int _sig);
     void OnExceptionCrash();

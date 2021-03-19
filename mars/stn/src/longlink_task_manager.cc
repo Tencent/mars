@@ -48,8 +48,10 @@ using namespace mars::stn;
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> LongLinkTaskManager::on_handshake_ready_;
 
 static int longlink_id = 0;
+std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
 
 LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
@@ -674,13 +676,17 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
         return;
     }
     
+    std::list<TaskProfile>::iterator it = __Locate(_taskid);
+
     if (kEctOK != _error_type) {
         xwarn2(TSF"task error, taskid:%_, cmdid:%_, error_type:%_, error_code:%_", _taskid, _cmdid, _error_type, _error_code);
+        if (_error_code == kEctHandshakeMisunderstand && it != lst_cmd_.end()) {
+            it->remain_retry_count ++;
+        }
         __BatchErrorRespHandle(_name, _error_type, _error_code, kTaskFailHandleDefault, 0);
         return;
     }
     
-    std::list<TaskProfile>::iterator it = __Locate(_taskid);
     
     if (lst_cmd_.end() == it) {
         xwarn2_if(Task::kInvalidTaskID != _taskid, TSF"task no found task:%0, cmdid:%1, ect:%2, errcode:%3",
@@ -835,7 +841,7 @@ ConnectProfile LongLinkTaskManager::GetConnectProfile(uint32_t _taskid) {
     return ConnectProfile();
 }
 
-bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
+bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
     auto longlink = GetLongLink(_config.name);
     if(longlink != nullptr) {
         xwarn2(TSF"already have longlink name:%_", _config.name);
@@ -849,12 +855,14 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     }
     longlink_id_[_config.name] = longlink_id;
     xinfo2(TSF"new longlink name:%_, id:%_", _config.name, longlink_id);
+    _config.need_tls = !__ForbidUseTls(_config.host_list);
     longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue);
     longlink = GetLongLink(_config.name);
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
     longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
     longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
+    longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
 #ifdef ANDROID
     longlink->Channel()->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
     longlink->Channel()->OnNoopAlarmReceived = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
@@ -917,6 +925,38 @@ bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLink::TDiscon
     return false;
 }
 
+void LongLinkTaskManager::AddForbidTlsHost(const std::vector<std::string>& _host) {
+	ScopedLock lock(mutex_);
+    if (_host.empty()) {
+        return;
+    }
+    std::string host_str = "";
+    for (std::string h : _host) {
+        if (h.find("long") == std::string::npos) {
+            continue;
+        }
+        host_str += h;
+        host_str += "," ;
+        forbid_tls_host_.insert(h);
+    }
+    xinfo2(TSF"forbid tls hosts: %_", host_str);
+}
+
+bool LongLinkTaskManager::__ForbidUseTls(const std::vector<std::string>& _host_list) {
+	ScopedLock lock(mutex_);
+    xinfo2(TSF"host size: %_, %_", _host_list.size(), forbid_tls_host_.size());
+    if (_host_list.empty() || forbid_tls_host_.empty()) {
+        return false;
+    }
+    for (size_t i=0; i<_host_list.size(); i++) {
+        xinfo2(TSF"host: %_", _host_list[i]);
+        if (forbid_tls_host_.find(_host_list[i]) != forbid_tls_host_.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
     ScopedLock lock(meta_mutex_);
     for(auto& item : longlink_metas_) {
@@ -924,3 +964,9 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
     }
 }
 
+void LongLinkTaskManager::__OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from) {
+    if (on_handshake_ready_) {
+        on_handshake_ready_(_version, _from);
+    }
+    xinfo2(TSF"receive tls version: %_", _version);
+}

@@ -116,7 +116,7 @@ public:
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr), need_tls(true) {}
     bool IsMain() const {
         return isMain;
     }
@@ -126,8 +126,21 @@ public:
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
-    int             packer_encoder_version = PackerEncoderVersion::kOld;
     std::vector<std::string> (*dns_func)(const std::string& host);
+    bool            need_tls;
+};
+    
+struct QuicParameters{
+    bool enable_0rtt = true;
+    std::string alpn;
+};
+struct ShortlinkConfig {
+public:
+    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls){}
+    bool use_proxy = false;
+    bool use_tls = true;
+    bool use_quic = false;
+    QuicParameters quic;
 };
 
 enum TaskFailHandleType {
@@ -204,6 +217,7 @@ enum {
     kEctSocketNoopTimeout = -10093,
     kEctSocketNoopAlarmTooLate = -10094,
     kEctSocketUserBreak = -10095,
+    kEctHandshakeMisunderstand = -10096,
 
     kEctHttpSplitHttpHeadAndBody = -10194,
     kEctHttpParseStatusLine = -10195,
@@ -236,6 +250,13 @@ enum IPSourceType {
     kIPSourceNewDns,
     kIPSourceProxy,
     kIPSourceBackup,
+};
+    
+enum TlsHandshakeFrom {
+    kNoHandshaking = -1,
+    kFromSetting = 0,
+    kFromLongLink  = 1,
+    kFromShortLink = 2,
 };
 
 const char* const IPSourceTypeString[] = {

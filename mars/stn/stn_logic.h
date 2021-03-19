@@ -114,7 +114,9 @@ namespace stn{
 	extern void (*ClearTasks)();
     
     // the same as ClearTasks(), but also reinitialize network.
-	extern void (*Reset)(int _packer_encoder_version);
+	extern void (*Reset)();
+
+	extern void (*ResetAndInitEncoderVersion)(int _encoder_version);
     
     //setting signalling's parameters.
     //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
@@ -143,7 +145,7 @@ namespace stn{
     /// these APIs are subject to change in developing
     ///
     //===----------------------------------------------------------------------===//
-    extern void (*CreateLonglink_ext)(const LonglinkConfig& _config);
+    extern void (*CreateLonglink_ext)(LonglinkConfig& _config);
     extern void (*DestroyLonglink_ext)(const std::string& name);
     extern std::vector<std::string> (*GetAllLonglink_ext)();
     extern void (*MarkMainLonglink_ext)(const std::string& name);
