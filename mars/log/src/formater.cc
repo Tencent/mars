@@ -28,7 +28,6 @@
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/xlogger/loginfo_extract.h"
 #include "mars/comm/ptrbuffer.h"
-#include "mars/comm/time_utils.h"
 
 #ifdef _WIN32
 #define PRIdMAX "lld"
