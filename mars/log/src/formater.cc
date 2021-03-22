@@ -81,43 +81,33 @@ static int logger_itoa(int num, char* str, int len, int min) {
     return i;
 }
 
-void format_time(char buffer[64]) {
-    thread_local uint64_t init_count = 0;
+void format_time(char buffer[64], time_t _seconds, suseconds_t _microseconds) {
+    thread_local time_t init_seconds = 0;
     thread_local struct tm tm;
-    thread_local struct timeval init_timeval;
     thread_local int gmtoff = tm.tm_gmtoff / 360;
 
-    static const uint64_t kInterval = 30 * 60 * 1000;
+    static const uint64_t kInterval = 30 * 60;
 
-    uint64_t now_count = gettickcount();
-
-    if (0 == init_count || (now_count - init_count) > kInterval) {
-        init_count = now_count;
-        gettimeofday(&init_timeval, NULL);
+    if (0 == init_seconds || _seconds < init_seconds || (_seconds - init_seconds) > kInterval) {
+        init_seconds = _seconds;
         memset(&tm, 0, sizeof(tm));
-        localtime_r((const time_t*)&init_timeval.tv_sec, &tm);
+        localtime_r((const time_t*)&_seconds, &tm);
         gmtoff = tm.tm_gmtoff / 360;
     }
 
     int year = 1900 + tm.tm_year;
-    int mon = 1+tm.tm_mon;
+    int mon = 1 + tm.tm_mon;
     int day = tm.tm_mday;
     int hour = tm.tm_hour;
     int min = tm.tm_min;
-    int sec = tm.tm_sec;
-    int msec = init_timeval.tv_usec / 1000 + (now_count - init_count);
+    int sec = tm.tm_sec + (_seconds - init_seconds);
+    int msec = _microseconds / 1000;
 
     do {
-        if (msec < 1000) {
-            break;
-        }
-        int cnt = msec / 1000;
-        msec %= 1000;
-        sec += cnt;
         if (sec < 60) {
             break;
         }
-        cnt = sec / 60;
+        int cnt = sec / 60;
         sec %= 60;
         min += cnt;
         if (min < 60) {
@@ -263,7 +253,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d +%.3s %02d:%02d:%02d.%.3d", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
                      (-_timezone) / 3600.0, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
 #else
-            format_time(temp_time);
+            format_time(temp_time, _info->timeval.tv_sec, _info->timeval.tv_usec);
 #endif
         }
 
