@@ -294,7 +294,7 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
         xinfo2(TSF"start noop synccheck taskid:%0, cmdid:%1, ", Task::kLongLinkIdentifyCheckerTaskID, req_cmdid) >> _log;
     } else {
         suc = __SendNoopWhenNoData();
-        xinfo2(TSF"start noop taskid:%0, cmdid:%1, ", Task::kNoopTaskID, longlink_noop_cmdid()) >> _log;
+        xinfo2(TSF"start noop taskid:%0, cmdid:%1, suc: %_", Task::kNoopTaskID, longlink_noop_cmdid(), suc) >> _log;
     }
     
     if (suc) {
