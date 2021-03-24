@@ -285,6 +285,12 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
     AutoBuffer buffer;
     uint32_t req_cmdid = 0;
     bool suc = false;
+
+    _alarm.Cancel();
+    _alarm.Start(need_active_timeout ? (5* 1000) : (8 * 1000));
+#ifdef ANDROID
+    wakelock_->Lock(8 * 1000);
+#endif
     
     if (identifychecker_.GetIdentifyBuffer(buffer, req_cmdid)) {
         Task task(Task::kLongLinkIdentifyCheckerTaskID);
@@ -297,13 +303,8 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
         xinfo2(TSF"start noop taskid:%0, cmdid:%1, suc: %_", Task::kNoopTaskID, longlink_noop_cmdid(), suc) >> _log;
     }
     
-    if (suc) {
+    if (!suc) {
         _alarm.Cancel();
-        _alarm.Start(need_active_timeout ? (5* 1000) : (8 * 1000));
-#ifdef ANDROID
-        wakelock_->Lock(8 * 1000);
-#endif
-    } else {
         xerror2("send noop fail");
     }
     
