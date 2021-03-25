@@ -25,7 +25,6 @@
 
 #include "comm/socket/ipv6_address_utils.h"
 #include "comm/socket/nat64_prefix_util.h"
-#include "comm/socket/local_ipstack.h"
 #include "comm/strutil.h"
 #include "comm/xlogger/xlogger.h"
 
@@ -317,11 +316,12 @@ socket_address& socket_address::v4tonat64_address() {
     return *this;
 }
 
-socket_address& socket_address::v4tov6_address(bool _nat64) {
-	if (_nat64)
+socket_address& socket_address::v4tov6_address(TLocalIPStack stack) {
+	if (stack == ELocalIPStack_IPv6)
 		return v4tonat64_address();
-	else
-	{
+	else if (stack == ELocalIPStack_IPv4) {
+	    return *this;
+	} else {
 #ifdef WIN32
 		return *this;
 #else

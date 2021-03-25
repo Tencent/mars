@@ -27,7 +27,7 @@
 
 
 SocketBreaker::SocketBreaker()
-: create_success_(true),
+: create_success_(false),
 broken_(false)
 {
     pipes_[0] = -1;
@@ -57,10 +57,9 @@ bool SocketBreaker::ReCreate()
 
     int Ret;
     Ret = pipe(pipes_);
-    xassert2(-1 != Ret, "pipe errno=%d", errno);
-
     if (Ret == -1)
     {
+        xerror2(TSF"pipe errno=%_,%_", errno, strerror(errno));
         pipes_[0] = -1;
         pipes_[1] = -1;
         create_success_ = false;
@@ -118,15 +117,20 @@ bool SocketBreaker::Break()
     return broken_;
 }
 
+bool SocketBreaker::Break(int reason)
+{
+    reason_ = reason;
+    return Break();
+}
+
 bool SocketBreaker::Clear()
 {
     ScopedLock lock(mutex_);
     char dummy[128];
     int ret = (int)read(pipes_[0], dummy, sizeof(dummy));
-
-    if (ret < 0)
-    {
-        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, errno, strerror(errno));
+    int lasterror = errno;
+    if (ret < 0 && EWOULDBLOCK != lasterror){
+        xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, lasterror, strerror(lasterror));
         return false;
     }
 
@@ -153,4 +157,8 @@ int SocketBreaker::BreakerFD() const
 bool SocketBreaker::IsBreak() const
 {
     return broken_;
+}
+
+int SocketBreaker::BreakReason() const{
+    return reason_;
 }

@@ -112,6 +112,7 @@ class LongLink {
     boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
     
+    boost::function< void (uint32_t _tls_version)> OnHandshakeCompleted;
     boost::function< void (uint32_t _taskid)> OnSend;
     boost::function< void (uint32_t _taskid, size_t _cachedsize, size_t _package_size)> OnRecv;
     boost::function< void (const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
@@ -141,6 +142,14 @@ class LongLink {
       dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
     std::string ChannelId() { return config_.name; }
+    void SvrTrigOff() {
+        svr_trig_off_ = false;
+    }
+    bool IsSvrTrigOff() {
+        return false;       // 暂时不用这个功能
+//        return config_.link_type == Task::kChannelMinorLong && svr_trig_off_;
+    }
+    virtual void OnConnectHandshakeCompleted() {}
     
   private:
     LongLink(const LongLink&);
@@ -193,6 +202,7 @@ class LongLink {
     LongLinkEncoder&                             encoder_;
     unsigned long long              lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
+    bool            svr_trig_off_;       //with minor longlink, if server close the socket, do not auto rebuild until task
 };
         
 }}

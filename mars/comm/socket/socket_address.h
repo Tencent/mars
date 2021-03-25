@@ -22,6 +22,7 @@
 #define SOCKET_ADDRESS_H_
 
 #include "unix_socket.h"
+#include "comm/socket/local_ipstack.h"
 
 #include <string.h>
 
@@ -61,7 +62,7 @@ class socket_address {
 
     socket_address& v4tov4mapped_address();
     socket_address& v4tonat64_address();
-    socket_address& v4tov6_address(bool _nat64=false);
+    socket_address& v4tov6_address(TLocalIPStack stack=ELocalIPStack_IPv4);
 
     bool is_ipport_equal(const socket_address& _sa) const {return 0==strncmp(ip(), _sa.ip(), sizeof(ip_)) && port()==_sa.port();}
 	  bool fix_current_nat64_addr();

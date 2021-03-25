@@ -238,6 +238,33 @@ bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {
     return true;
 }
 
+int NetCore::__ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong) {
+    bool longlinkOk = (_longlink != nullptr);
+    longlinkOk = longlinkOk && LongLink::kConnected == _longlink->Channel()->ConnectStatus();
+
+    if (longlinkOk && _task.channel_strategy == Task::kChannelFastStrategy) {
+        xinfo2(TSF"long link task count:%0, ", longlink_task_manager_->GetTaskCount(_task.channel_name));
+        longlinkOk = longlinkOk && (longlink_task_manager_->GetTaskCount(_task.channel_name) <= kFastSendUseLonglinkTaskCntLimit);
+    }
+
+    bool minorOk = _task.minorlong_host_list.empty() ? false : longlink_task_manager_->IsMinorAvailable(_task);
+    int channel = _task.channel_select;
+    switch(_task.channel_select) {
+        case Task::kChannelAll:
+            channel = minorOk ? Task::kChannelMinorLong : (longlinkOk ? Task::kChannelLong : Task::kChannelShort);
+            break;
+        case Task::kChannelNormal:
+            channel = minorOk ? Task::kChannelMinorLong : Task::kChannelShort;
+            break;
+        case Task::kChannelBoth:
+            channel = longlinkOk ? Task::kChannelLong : Task::kChannelShort;
+            break;
+        default:
+            break;
+    }
+    return channel;
+}
+
 void NetCore::StartTask(const Task& _task) {
     
     ASYNC_BLOCK_START
@@ -270,6 +297,13 @@ void NetCore::StartTask(const Task& _task) {
     }
 
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
+    std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
+    if((task.channel_select & Task::kChannelMinorLong) && !task.minorlong_host_list.empty()) {
+        longlink_task_manager_->FixMinorRealhost(task);
+        std::string host = task.minorlong_host_list.empty()? "" : task.minorlong_host_list.front();
+        if(!host.empty())
+            minorlonglink = longlink_task_manager_->GetLongLink(host);
+    }
     if (task.network_status_sensitive && kNoNet ==::getNetInfo()
 #ifdef USE_LONG_LINK
         && longlink && LongLink::kConnected != longlink->Channel()->ConnectStatus()
@@ -302,33 +336,28 @@ void NetCore::StartTask(const Task& _task) {
            && (15 * 60 * 1000 >= gettickcount() - ActiveLogic::Instance()->LastForegroundChangeTime())) {
         longlink->Monitor()->MakeSureConnected();
     }
+    if ((Task::kChannelMinorLong & task.channel_select) && ActiveLogic::Instance()->IsForeground()) {
+        if(!minorlonglink) {
+            bool ret = longlink_task_manager_->AddMinorLink(task.minorlong_host_list);
+            if(ret) {
+                minorlonglink = longlink_task_manager_->GetLongLink(task.minorlong_host_list.front());
+                minorlonglink->Monitor()->MakeSureConnected();
+            }
+        } else if(LongLink::kConnected != minorlonglink->Channel()->ConnectStatus()) {
+            minorlonglink->Channel()->SvrTrigOff();
+            minorlonglink->Monitor()->MakeSureConnected();
+        }
+    }
 #endif
 
     xgroup2() << group;
 
-    switch (task.channel_select) {
-    case Task::kChannelBoth: {
-
+    int channel = __ChooseChannel(task, longlink, minorlonglink);
+    switch (channel) {
 #ifdef USE_LONG_LINK
-        bool bUseLongLink = (longlink != nullptr)
-        && LongLink::kConnected == longlink->Channel()->ConnectStatus();
-
-        if (bUseLongLink && task.channel_strategy == Task::kChannelFastStrategy) {
-            xinfo2(TSF"long link task count:%0, ", longlink_task_manager_->GetTaskCount(task.channel_name));
-            bUseLongLink = bUseLongLink && (longlink_task_manager_->GetTaskCount(task.channel_name) <= kFastSendUseLonglinkTaskCntLimit);
-        }
-
-        if (bUseLongLink)
-            start_ok = longlink_task_manager_->StartTask(task);
-        else
-#endif
-            start_ok = shortlink_task_manager_->StartTask(task);
-    }
-    break;
-#ifdef USE_LONG_LINK
-
+    case Task::kChannelMinorLong:
     case Task::kChannelLong:
-        start_ok = longlink_task_manager_->StartTask(task);
+        start_ok = longlink_task_manager_->StartTask(task, channel);
         break;
 #endif
 
@@ -755,7 +784,7 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
         return shortlink_task_manager_->GetConnectProfile(_taskid);
     }
 #ifdef USE_LONG_LINK
-    else if (_channel_select == Task::kChannelLong) {
+    else if (_channel_select == Task::kChannelLong || _channel_select == Task::kChannelMinorLong) {
         return longlink_task_manager_->GetConnectProfile(_taskid);
     }
 #endif
@@ -768,7 +797,7 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 ///
 //===----------------------------------------------------------------------===//
 #ifdef USE_LONG_LINK
-std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config){
+std::shared_ptr<LongLink> NetCore::CreateLongLink(LonglinkConfig& _config){
     auto oldDefault = longlink_task_manager_->DefaultLongLink();
     if(!longlink_task_manager_->AddLongLink(_config)) {
         auto longlink = longlink_task_manager_->GetLongLink(_config.name);
@@ -808,6 +837,15 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
     
     xinfo2(TSF"create long link %_", _config.name);
     return longlink_channel;
+}
+
+bool NetCore::AddMinorLongLink(const std::vector<std::string>& _hosts) {
+    return longlink_task_manager_->AddMinorLink(_hosts);
+}
+
+
+void NetCore::ForbidLonglinkTlsHost(const std::vector<std::string>& _host) {
+    longlink_task_manager_->AddForbidTlsHost(_host);
 }
 
 void NetCore::DestroyLongLink(const std::string& _name){

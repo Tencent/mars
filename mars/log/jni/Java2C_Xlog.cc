@@ -32,6 +32,9 @@
 #define LONGTHREADID2INT(a) ((a >> 32)^((a & 0xFFFF)))
 DEFINE_FIND_CLASS(KXlog, "com/tencent/mars/xlog/Xlog")
 
+#define CHECK_LOG_INSTANCE(log_instance) \
+    if (log_instance < 0) return
+
 extern "C" {
 
 DEFINE_FIND_METHOD(KXlog_newXlogInstance, KXlog, "newXlogInstance", "(Lcom/tencent/mars/xlog/Xlog$XLogConfig;)J")
@@ -156,6 +159,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderClose(JNIEnv *env
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderFlush(JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_sync) {
+    CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::Flush(_log_instance_ptr, _is_sync);
 }
 
@@ -208,6 +212,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
   (JNIEnv *env, jclass, jlong _log_instance_ptr, int _level, jstring _tag, jstring _filename,
           jstring _funcname, jint _line, jint _pid, jlong _tid, jlong _maintid, jstring _log) {
 
+    CHECK_LOG_INSTANCE(_log_instance_ptr);
     if (!mars::xlog::IsEnabledFor(_log_instance_ptr, (TLogLevel)_level)) {
         return;
     }
@@ -266,36 +271,42 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
 
 JNIEXPORT jint JNICALL Java_com_tencent_mars_xlog_Xlog_getLogLevel
   (JNIEnv *, jobject, jlong _log_instance_ptr) {
+    if (_log_instance_ptr < 0) return kLevelNone;
     return mars::xlog::GetLevel(_log_instance_ptr);
 }
 
 //DEFINE_FIND_STATIC_METHOD(KXlog_setLogLevel, KXlog, "setLogLevel", "(I)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setLogLevel
   (JNIEnv *, jobject, jlong _log_instance_ptr, jint _log_level) {
+    CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetLevel(_log_instance_ptr, (TLogLevel)_log_level);
 }
 
 DEFINE_FIND_METHOD(KXlog_setAppenderMode, KXlog, "setAppenderMode", "(JI)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setAppenderMode
   (JNIEnv *, jobject, jlong _log_instance_ptr, jint _mode) {
+    CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetAppenderMode(_log_instance_ptr, (TAppenderMode)_mode);
 }
 
 DEFINE_FIND_METHOD(KXlog_setConsoleLogOpen, KXlog, "setConsoleLogOpen", "(JZ)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setConsoleLogOpen
   (JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_open) {
+    CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetConsoleLogOpen(_log_instance_ptr, _is_open);
 }
 
 DEFINE_FIND_METHOD(KXlog_setMaxFileSize, KXlog, "setMaxFileSize", "(JJ)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxFileSize
         (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_size) {
+    CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetMaxFileSize(_log_instance_ptr, _max_size);
 }
 
 DEFINE_FIND_METHOD(KXlog_setMaxAliveTime, KXlog, "setMaxAliveTime", "(JJ)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxAliveTime
         (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_time) {
+    CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetMaxAliveTime(_log_instance_ptr, _max_time);
 }
 }

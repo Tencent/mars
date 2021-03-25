@@ -55,10 +55,18 @@ public:
     static const int kChannelShort = 0x1;
     static const int kChannelLong = 0x2;
     static const int kChannelBoth = 0x3;
+    static const int kChannelMinorLong = 0x4;
+    static const int kChannelNormal = 0x5;
+    static const int kChannelAll = 0x7;
     
     static const int kChannelNormalStrategy = 0;
     static const int kChannelFastStrategy = 1;
     static const int kChannelDisasterRecoveryStategy = 2;
+    
+    static const int kTransportProtocolDefault = 0; // TCP
+    static const int kTransportProtocolTCP = 1;     // TCP
+    static const int kTransportProtocolQUIC = 2;    // QUIC
+    static const int kTransportProtocolMixed = 3;   // TCP or QUIC
     
     static const int kTaskPriorityHighest = 0;
     static const int kTaskPriority0 = 0;
@@ -74,6 +82,7 @@ public:
     static const uint32_t kNoopTaskID = 0xFFFFFFFF;
     static const uint32_t kLongLinkIdentifyCheckerTaskID = 0xFFFFFFFE;
     static const uint32_t kSignallingKeeperTaskID = 0xFFFFFFFD;
+    static const uint32_t kMinorLonglinkCmdMask = 0xFF000000;
     
     
     Task();
@@ -82,8 +91,9 @@ public:
     //require
     uint32_t       taskid;
     uint32_t       cmdid;
-    uint64_t       channel_id;
+    uint64_t       channel_id;      // not used
     int32_t        channel_select;
+    int32_t        transport_protocol;  // see kTransportProtocol...
     std::string    cgi;    // user
 
     //optional
@@ -109,9 +119,12 @@ public:
     std::string user_id;        //use for identify multi users
     int protocol;
     
-    std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
+    std::vector<std::string> shortlink_host_list;
     std::vector<std::string> longlink_host_list;
+    std::vector<std::string> minorlong_host_list;
+    std::vector<std::string> quic_host_list;
+    int32_t max_minorlinks;
 };
     
 struct CgiProfile {
@@ -139,17 +152,32 @@ struct CgiProfile {
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr), need_tls(true) {}
     bool IsMain() const {
         return isMain;
     }
     std::string     name;   //channel_id
     std::vector<std::string> host_list;
-    bool            is_keep_alive;     //if false, reconnect trig by task    
+    bool            is_keep_alive;     //if false, reconnect trig by task
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
+    int             link_type = Task::kChannelLong;
     std::vector<std::string> (*dns_func)(const std::string& host);
+    bool            need_tls;
+};
+
+struct QuicParameters{
+    bool enable_0rtt = true;
+    std::string alpn;
+};
+struct ShortlinkConfig {
+public:
+    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls){}
+    bool use_proxy = false;
+    bool use_tls = true;
+    bool use_quic = false;
+    QuicParameters quic;
 };
 
 enum TaskFailHandleType {
@@ -226,6 +254,7 @@ enum {
     kEctSocketNoopTimeout = -10093,
     kEctSocketNoopAlarmTooLate = -10094,
     kEctSocketUserBreak = -10095,
+    kEctHandshakeMisunderstand = -10096,
 
     kEctHttpSplitHttpHeadAndBody = -10194,
     kEctHttpParseStatusLine = -10195,

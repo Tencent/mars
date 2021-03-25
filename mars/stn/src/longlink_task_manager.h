@@ -59,12 +59,13 @@ class LongLinkTaskManager {
     boost::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
     
     static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
+    static boost::function<void (uint32_t _version)> on_handshake_ready_;
 
   public:
     LongLinkTaskManager(mars::stn::NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, int _channel);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -74,11 +75,15 @@ class LongLinkTaskManager {
     // LongLink& LongLinkChannel(const std::string& _name) { return *longlink_; }
     // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
     std::shared_ptr<LongLinkMetaData> GetLongLink(const std::string& _name);
+    void FixMinorRealhost(Task& _task);
 
     unsigned int GetTaskCount(const std::string& _name);
     unsigned int GetTasksContinuousFailCount();
 
-    bool AddLongLink(const LonglinkConfig& _config);
+    bool AddLongLink(LonglinkConfig& _config);
+    bool AddMinorLink(const std::vector<std::string>& _hosts);
+    bool IsMinorAvailable(const Task& _task);
+    
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
         ScopedLock lock(meta_mutex_);
         for(auto& item : longlink_metas_) {
@@ -91,7 +96,9 @@ class LongLinkTaskManager {
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     void ReleaseLongLink(const std::string _name);
+    void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+    void AddForbidTlsHost(const std::vector<std::string>& _host);
 
   private:
     // from ILongLinkObserver
@@ -99,6 +106,7 @@ class LongLinkTaskManager {
     void __OnSend(uint32_t _taskid);
     void __OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize);
     void __SignalConnection(LongLink::TLongLinkStatus _connect_status, const std::string& _channel_id);
+    void __OnHandshakeCompleted(uint32_t _version);
 
     void __RunLoop();
     void __RunOnTimeout();
@@ -115,6 +123,7 @@ class LongLinkTaskManager {
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
     void __DumpLongLinkChannelInfo();
+    bool __ForbidUseTls(const std::vector<std::string>& _host_list);
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;
@@ -134,6 +143,8 @@ class LongLinkTaskManager {
     WakeUpLock*                     wakeup_lock_;
 #endif
     Mutex                           meta_mutex_;
+    Mutex                           mutex_;
+    static std::set<std::string>    forbid_tls_host_;
 };
     }
 }

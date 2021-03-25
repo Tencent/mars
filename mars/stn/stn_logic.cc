@@ -284,7 +284,7 @@ uint32_t (*getNoopTaskID)()
 
 // [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
-auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
+auto CreateLonglink_ext = +[](LonglinkConfig& _config){
     STN_WEAK_CALL(CreateLongLink(_config));
 };
     
