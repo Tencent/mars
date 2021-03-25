@@ -22,6 +22,7 @@
  */
 
 #include "tinyxml2.h"
+#include "xlogger/xlogger.h"
 
 #include <new>		// yes, this one new style header, is in the Android SDK.
 #if defined(ANDROID_NDK) || defined(__BORLANDC__) || defined(__QNXNTO__)
@@ -1931,10 +1932,14 @@ namespace tinyxml2
         FILE* fp = 0;
         errno_t err = fopen_s( &fp, filepath, mode );
         if ( err ) {
+            xerror2(TSF"err:%_", err);
             return 0;
         }
 #else
         FILE* fp = fopen( filepath, mode );
+        if (!fp) {
+            xerror2(TSF"errno:%_", errno);
+        }
 #endif
         return fp;
     }
