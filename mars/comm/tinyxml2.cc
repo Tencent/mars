@@ -1928,19 +1928,19 @@ namespace tinyxml2
     {
         TIXMLASSERT( filepath );
         TIXMLASSERT( mode );
-#if defined(_MSC_VER) && (_MSC_VER >= 1400 ) && (!defined WINCE)
-        FILE* fp = 0;
-        errno_t err = fopen_s( &fp, filepath, mode );
-        if ( err ) {
-            xerror2(TSF"err:%_", err);
-            return 0;
-        }
-#else
+// #if defined(_MSC_VER) && (_MSC_VER >= 1400 ) && (!defined WINCE)
+//         FILE* fp = 0;
+//         errno_t err = fopen( &fp, filepath, mode );
+//         if ( err ) {
+//             xerror2(TSF"err:%_", err);
+//             return 0;
+//         }
+// #else
         FILE* fp = fopen( filepath, mode );
         if (!fp) {
             xerror2(TSF"errno:%_", errno);
         }
-#endif
+// #endif
         return fp;
     }
     
