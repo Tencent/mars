@@ -33,8 +33,9 @@
 #include <netinet/in.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
+
 #include "mars/comm/assert/__assert.h"
-#include "mars/comm/xlogger/xlogger.h"
+
 
 typedef struct NetlinkList
 {
@@ -48,7 +49,6 @@ static int netlink_socket(void)
     int l_socket = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
     if(l_socket < 0)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         return -1;
     }
     
@@ -57,7 +57,6 @@ static int netlink_socket(void)
     l_addr.nl_family = AF_NETLINK;
     if(bind(l_socket, (struct sockaddr *)&l_addr, sizeof(l_addr)) < 0)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         close(l_socket);
         return -1;
     }
@@ -104,7 +103,6 @@ static int netlink_recv(int p_socket, void *p_buffer, size_t p_len)
         
         if(l_result < 0)
         {
-            xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
             if(errno == EINTR)
             {
                 continue;
@@ -114,7 +112,6 @@ static int netlink_recv(int p_socket, void *p_buffer, size_t p_len)
         
         if(l_msg.msg_flags & MSG_TRUNC)
         { // buffer was too small
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
             return -1;
         }
         return l_result;
@@ -170,7 +167,6 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
                 
                 if(l_hdr->nlmsg_type == NLMSG_ERROR)
                 {
-                    xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
                     free(l_buffer);
                     return NULL;
                 }
@@ -224,7 +220,6 @@ static NetlinkList *getResultList(int p_socket, int p_request)
         struct nlmsghdr *l_hdr = getNetlinkResponse(p_socket, &l_size, &l_done);
         if(!l_hdr)
         { // error
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
             freeResultList(l_list);
             return NULL;
         }
@@ -232,7 +227,6 @@ static NetlinkList *getResultList(int p_socket, int p_request)
         NetlinkList *l_item = newListItem(l_hdr, l_size);
         if (!l_item)
         {
-            xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
             freeResultList(l_list);
             return NULL;
         }
@@ -341,7 +335,6 @@ static int interpretLink(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList)
     struct ifaddrs *l_entry = malloc(sizeof(struct ifaddrs) + sizeof(int) + l_nameSize + l_addrSize + l_dataSize);
     if (l_entry == NULL)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         return -1;
     }
     memset(l_entry, 0, sizeof(struct ifaddrs));
@@ -427,7 +420,6 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
     
     if(l_info->ifa_family == AF_PACKET)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         return 0;
     }
 
@@ -468,7 +460,6 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
     struct ifaddrs *l_entry = malloc(sizeof(struct ifaddrs) + l_nameSize + l_addrSize);
     if (l_entry == NULL)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         return -1;
     }
     memset(l_entry, 0, sizeof(struct ifaddrs));
@@ -595,7 +586,6 @@ static int interpretLinks(int p_socket, NetlinkList *p_netlinkList, struct ifadd
             {
                 if(interpretLink(l_hdr, p_resultList) == -1)
                 {
-                    xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
                     return -1;
                 }
                 ++l_numLinks;
@@ -636,7 +626,6 @@ static int interpretAddrs(int p_socket, NetlinkList *p_netlinkList, struct ifadd
             {
                 if (interpretAddr(l_hdr, p_resultList, p_numLinks) == -1)
                 {
-                    xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
                     return -1;
                 }
             }
@@ -656,14 +645,12 @@ int getifaddrs(struct ifaddrs **ifap)
     int l_socket = netlink_socket();
     if(l_socket < 0)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         return -1;
     }
     
     NetlinkList *l_linkResults = getResultList(l_socket, RTM_GETLINK);
     if(!l_linkResults)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         close(l_socket);
         return -1;
     }
@@ -671,7 +658,6 @@ int getifaddrs(struct ifaddrs **ifap)
     NetlinkList *l_addrResults = getResultList(l_socket, RTM_GETADDR);
     if(!l_addrResults)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         close(l_socket);
         freeResultList(l_linkResults);
         return -1;
@@ -681,7 +667,6 @@ int getifaddrs(struct ifaddrs **ifap)
     int l_numLinks = interpretLinks(l_socket, l_linkResults, ifap);
     if(l_numLinks == -1 || interpretAddrs(l_socket, l_addrResults, ifap, l_numLinks) == -1)
     {
-        xerror2(TSF"error %_, %_:%_", __LINE__, errno, strerror(errno));
         l_result = -1;
     }
     
