@@ -18,6 +18,7 @@
 //
 
 #include "comm/network/getifaddrs.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 #if (!UWP && !WIN32)
 #include <arpa/inet.h>
@@ -35,11 +36,13 @@ bool getifaddrs_ipv4(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
 
     getifaddrs(&ifap);
 
+    xerror2_if(ifap == nullptr, "getifaddrs failed");
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in* sa = (struct sockaddr_in*) ifa->ifa_addr;
 
         if (NULL == sa) continue;
 
+        xinfo2(TSF"ifa fam %_ flag %_", ifa->ifa_addr->sa_family,ifa->ifa_flags);
         if (ifa->ifa_addr->sa_family == AF_INET && 0 == (ifa->ifa_flags & IFF_LOOPBACK)) {
             ifaddrinfo_ipv4_t addr;
             addr.ifa_name = ifa->ifa_name;
