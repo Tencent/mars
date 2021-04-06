@@ -25,11 +25,11 @@
 #include <sys/socket.h>
 #include <net/if.h>
 
-#ifdef ANDROID
-#include "comm/jni/ifaddrs.h"
-#else
+// #ifdef ANDROID
+// #include "comm/jni/ifaddrs.h"
+// #else
 #include <ifaddrs.h>
-#endif
+// #endif
 
 bool getifaddrs_ipv4(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
     struct ifaddrs* ifap, *ifa;
