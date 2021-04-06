@@ -91,6 +91,8 @@ bool getifaddrs_ipv4_lan(ifaddrinfo_ipv4_t& _addr) {
 
         if (NULL == sa) continue;
 
+        xinfo2(TSF"ifa.name %_ flags %_", ifa->ifa_name, ifa->ifa_flags);
+
         if (ifa->ifa_addr->sa_family == AF_INET
                 && !(ifa->ifa_flags & IFF_LOOPBACK)
                 && !(ifa->ifa_flags & IFF_POINTOPOINT)
