@@ -69,7 +69,7 @@ inline void IN6_SET_ADDR_NAT64(in6_addr* a6, const in_addr* a4) {
 	a6->s6_bytes[15] = ((CONST UCHAR *) a4)[3];
 }
 
-inline bool IN6_IS_ADDR_NAT64(const in6_addr* a6) {
+inline bool IN6_IS_ADDR_NAT64(in6_addr* a6) {
 	return a6->s6_words[0] == htons(0x0064) && a6->s6_words[1] == htons(0x0064);
 }
 
