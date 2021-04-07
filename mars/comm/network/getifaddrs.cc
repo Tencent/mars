@@ -24,7 +24,7 @@
 #include <sys/socket.h>
 #include <net/if.h>
 
-#ifdef ANDROID
+#if defined(__ANDROID__)
 #include "comm/jni/ifaddrs.h"
 #else
 #include <ifaddrs.h>

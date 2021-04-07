@@ -22,6 +22,8 @@
 
 #include "ifaddrs.h"
 
+#if defined(__ANDROID__) && __ANDROID_API__ < 24
+
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -33,7 +35,11 @@
 #include <netinet/in.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
+#include <android/api-level.h>
+#include <dlfcn.h>
+
 #include "mars/comm/assert/__assert.h"
+
 typedef struct NetlinkList
 {
     struct NetlinkList *m_next;
@@ -46,6 +52,7 @@ static int netlink_socket(void)
     int l_socket = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
     if(l_socket < 0)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         return -1;
     }
     
@@ -54,6 +61,7 @@ static int netlink_socket(void)
     l_addr.nl_family = AF_NETLINK;
     if(bind(l_socket, (struct sockaddr *)&l_addr, sizeof(l_addr)) < 0)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         close(l_socket);
         return -1;
     }
@@ -104,11 +112,13 @@ static int netlink_recv(int p_socket, void *p_buffer, size_t p_len)
             {
                 continue;
             }
+            ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
             return -2;
         }
         
         if(l_msg.msg_flags & MSG_TRUNC)
         { // buffer was too small
+            ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
             return -1;
         }
         return l_result;
@@ -126,6 +136,7 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
         l_buffer = malloc(l_size);
         if (l_buffer == NULL)
         {
+            ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
             return NULL;
         }
         
@@ -133,6 +144,7 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
         *p_size = l_read;
         if(l_read == -2)
         {
+            ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
             free(l_buffer);
             return NULL;
         }
@@ -164,11 +176,12 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
                 
                 if(l_hdr->nlmsg_type == NLMSG_ERROR)
                 {
+                    ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
                     free(l_buffer);
                     return NULL;
                 }
             }
-            return l_buffer;
+            return (struct nlmsghdr *)l_buffer;
         }
         
         l_size *= 2;
@@ -177,9 +190,10 @@ static struct nlmsghdr *getNetlinkResponse(int p_socket, int *p_size, int *p_don
 
 static NetlinkList *newListItem(struct nlmsghdr *p_data, unsigned int p_size)
 {
-    NetlinkList *l_item = malloc(sizeof(NetlinkList));
+    NetlinkList *l_item = (NetlinkList *)malloc(sizeof(NetlinkList));
     if (l_item == NULL)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         return NULL;
     }
 
@@ -205,6 +219,7 @@ static NetlinkList *getResultList(int p_socket, int p_request)
 {
     if(netlink_send(p_socket, p_request) < 0)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         return NULL;
     }
     
@@ -217,6 +232,7 @@ static NetlinkList *getResultList(int p_socket, int p_request)
         struct nlmsghdr *l_hdr = getNetlinkResponse(p_socket, &l_size, &l_done);
         if(!l_hdr)
         { // error
+            ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
             freeResultList(l_list);
             return NULL;
         }
@@ -224,6 +240,7 @@ static NetlinkList *getResultList(int p_socket, int p_request)
         NetlinkList *l_item = newListItem(l_hdr, l_size);
         if (!l_item)
         {
+            ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
             freeResultList(l_list);
             return NULL;
         }
@@ -329,18 +346,21 @@ static int interpretLink(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList)
         }
     }
     
-    struct ifaddrs *l_entry = malloc(sizeof(struct ifaddrs) + sizeof(int) + l_nameSize + l_addrSize + l_dataSize);
+    struct ifaddrs *l_entry = (struct ifaddrs *)malloc(sizeof(struct ifaddrs) + sizeof(int) + l_nameSize + l_addrSize + l_dataSize);
     if (l_entry == NULL)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         return -1;
     }
     memset(l_entry, 0, sizeof(struct ifaddrs));
-    l_entry->ifa_name = "";
     
     char *l_index = ((char *)l_entry) + sizeof(struct ifaddrs);
     char *l_name = l_index + sizeof(int);
     char *l_addr = l_name + l_nameSize;
     char *l_data = l_addr + l_addrSize;
+
+    strcpy(l_name, "");
+    l_entry->ifa_name = l_name;
     
     // save the interface index so we can look it up when handling the addresses.
     memcpy(l_index, &l_info->ifi_index, sizeof(int));
@@ -373,7 +393,7 @@ static int interpretLink(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList)
                 break;
             }
             case IFLA_IFNAME:
-                strncpy(l_name, l_rtaData, l_rtaDataSize);
+                strncpy(l_name, (const char*)l_rtaData, l_rtaDataSize);
                 l_name[l_rtaDataSize] = '\0';
                 l_entry->ifa_name = l_name;
                 break;
@@ -407,6 +427,7 @@ static struct ifaddrs *findInterface(int p_index, struct ifaddrs **p_links, int 
         l_cur = l_cur->ifa_next;
         ++l_num;
     }
+    ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
     return NULL;
 }
 
@@ -454,17 +475,18 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
         }
     }
     
-    struct ifaddrs *l_entry = malloc(sizeof(struct ifaddrs) + l_nameSize + l_addrSize);
+    struct ifaddrs *l_entry = (struct ifaddrs *)malloc(sizeof(struct ifaddrs) + l_nameSize + l_addrSize);
     if (l_entry == NULL)
     {
         return -1;
     }
     memset(l_entry, 0, sizeof(struct ifaddrs));
-    l_entry->ifa_name = (l_interface ? l_interface->ifa_name : "");
     
     char *l_name = ((char *)l_entry) + sizeof(struct ifaddrs);
     char *l_addr = l_name + l_nameSize;
-    
+
+    strcpy(l_name, "");
+    l_entry->ifa_name = (l_interface ? l_interface->ifa_name : l_name);
     l_entry->ifa_flags = l_info->ifa_flags;
     if(l_interface)
     {
@@ -496,7 +518,7 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
                 { // apparently in a point-to-point network IFA_ADDRESS contains the dest address and IFA_LOCAL contains the local address
                     if(l_entry->ifa_addr)
                     {
-                        l_entry->ifa_dstaddr = (struct sockaddr *)l_addr;
+                        l_entry->ifa_ifu.ifu_dstaddr = (struct sockaddr *)l_addr;
                     }
                     else
                     {
@@ -507,7 +529,7 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
                 {
                     if(l_entry->ifa_addr)
                     {
-                        l_entry->ifa_dstaddr = l_entry->ifa_addr;
+                        l_entry->ifa_ifu.ifu_dstaddr = l_entry->ifa_addr;
                     }
                     l_entry->ifa_addr = (struct sockaddr *)l_addr;
                 }
@@ -519,7 +541,7 @@ static int interpretAddr(struct nlmsghdr *p_hdr, struct ifaddrs **p_resultList, 
                 break;
             }
             case IFA_LABEL:
-                strncpy(l_name, l_rtaData, l_rtaDataSize);
+                strncpy(l_name, (const char*)l_rtaData, l_rtaDataSize);
                 l_name[l_rtaDataSize] = '\0';
                 l_entry->ifa_name = l_name;
                 break;
@@ -631,23 +653,63 @@ static int interpretAddrs(int p_socket, NetlinkList *p_netlinkList, struct ifadd
     return 0;
 }
 
+
+class ScopedDL{
+public:
+    ScopedDL(const char* sopath){ 
+        handle_ = dlopen(sopath, RTLD_NOW|RTLD_LOCAL);
+    }
+    ~ScopedDL(){
+        if (handle_ != nullptr)
+            dlclose(handle_);
+        
+        handle_ = nullptr;
+    }
+
+    template<typename FN> FN GetSymbol(const char* signature){
+        if (!handle_)   return nullptr;
+        void* pfn = dlsym(handle_, signature);
+        if (!pfn) return nullptr;
+        
+        return reinterpret_cast<FN>(pfn);
+    }
+
+private:
+    void* handle_ = nullptr;
+};
+
+ScopedDL g_libcdl("libc.so");
+
+// 
+typedef int (*getifaddrs_proc)(struct ifaddrs **ifap);
+typedef void (*freeifaddrs_proc)(struct ifaddrs *ifa);
+
 int getifaddrs(struct ifaddrs **ifap)
 {
     if(!ifap)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         return -1;
     }
     *ifap = NULL;
+
+    getifaddrs_proc api = g_libcdl.GetSymbol<getifaddrs_proc>("getifaddrs");
+    if (api != nullptr){
+        ASSERT2(0, "use getifaddrs system api.");
+        return api(ifap);
+    }
     
     int l_socket = netlink_socket();
     if(l_socket < 0)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         return -1;
     }
     
     NetlinkList *l_linkResults = getResultList(l_socket, RTM_GETLINK);
     if(!l_linkResults)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         close(l_socket);
         return -1;
     }
@@ -655,6 +717,7 @@ int getifaddrs(struct ifaddrs **ifap)
     NetlinkList *l_addrResults = getResultList(l_socket, RTM_GETADDR);
     if(!l_addrResults)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         close(l_socket);
         freeResultList(l_linkResults);
         return -1;
@@ -664,6 +727,7 @@ int getifaddrs(struct ifaddrs **ifap)
     int l_numLinks = interpretLinks(l_socket, l_linkResults, ifap);
     if(l_numLinks == -1 || interpretAddrs(l_socket, l_addrResults, ifap, l_numLinks) == -1)
     {
+        ASSERT2(0, "line %d error %d, %s", __LINE__, errno, strerror(errno));
         l_result = -1;
     }
     
@@ -675,6 +739,13 @@ int getifaddrs(struct ifaddrs **ifap)
 
 void freeifaddrs(struct ifaddrs *ifa)
 {
+    freeifaddrs_proc api = g_libcdl.GetSymbol<freeifaddrs_proc>("freeifaddrs");
+    if (api != nullptr){
+        ASSERT2(0, "use freeifaddrs system api.");
+        api(ifa);
+        return;
+    }
+
     struct ifaddrs *l_cur;
     while(ifa)
     {
@@ -683,3 +754,4 @@ void freeifaddrs(struct ifaddrs *ifa)
         free(l_cur);
     }
 }
+#endif
