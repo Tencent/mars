@@ -147,15 +147,15 @@ int SocketSelect::Select(int _msec) {
     ASSERT(-1 <= _msec);
 
 	//create eventarray and socketarray
-    int eventfd_count = 1 + lstevents_.size();
+    int eventfd_count = 1 + vec_events_.size();
 
 	WSAEVENT* eventarray = (WSAEVENT*)calloc(m_filter_map.size() + eventfd_count, sizeof(WSAEVENT));
     SOCKET* socketarray = (SOCKET*)calloc(m_filter_map.size() + eventfd_count, sizeof(SOCKET));
     eventarray[0] = Breaker().BreakerFD();
     socketarray[0] = INVALID_SOCKET;
 
-    for(size_t i = 0; i < lstevents_.size(); i++){
-        eventarray[1 + i] = lstevents_[i];
+    for(size_t i = 0; i < vec_events_.size(); i++){
+        eventarray[1 + i] = vec_events_[i];
         socketarray[1 + i] = INVALID_SOCKET;
     }
 
@@ -308,7 +308,7 @@ END:
         ++index;
     }
 
-    lstevents_.clear();
+    vec_events_.clear();
     free(eventarray);
     free(socketarray);
 
@@ -335,7 +335,7 @@ void SocketSelect::Exception_FD_SET(SOCKET _socket) {
 }
 
 void SocketSelect::Event_FD_SET(WSAEVENT event){
-    lstevents_.push_back(event);
+    vec_events_.push_back(event);
 }
 
 int SocketSelect::Read_FD_ISSET(SOCKET _socket) const {

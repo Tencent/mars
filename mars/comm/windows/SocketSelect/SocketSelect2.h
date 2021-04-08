@@ -16,7 +16,7 @@
 #define _SOCKSTSELECT_
 
 #include <map>
-#include <list>
+#include <vector>
 #include "thread/lock.h"
 #include "socket/unix_socket.h"
 
@@ -69,7 +69,7 @@ class SocketSelect {
     int Read_FD_ISSET(SOCKET _socket) const;
     int Write_FD_ISSET(SOCKET _socket) const;
     int Exception_FD_ISSET(SOCKET _socket) const;
-    bool Event_FD_ISSET(WSAEVENT event) const;
+    bool Event_FD_ISSET(WSAEVENT event);
 
     bool IsBreak() const;
     bool IsException() const;
@@ -86,7 +86,7 @@ class SocketSelect {
     bool m_broken;
 
     std::map<SOCKET, int> m_filter_map;
-    std::list<WSAEVENT> lstevents_;
+    std::vector<WSAEVENT> vec_events_;
     int errno_;
 
     fd_set writefd_;
