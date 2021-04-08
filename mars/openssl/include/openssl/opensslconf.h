@@ -40,6 +40,12 @@
 # error Unable to determine arch not included in OpenSSL build
 #endif /* __defined(__ANDROID__)*/
 
-#elif defined(__WIN32__)
+#elif defined(_WIN32)
+// see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-160
+#if defined(_WIN64)
+#include <openssl/opensslconf_windows-x86_64.h>
+#else
+#include <openssl/opensslconf_windows-x86.h>
+#endif
 
 #endif

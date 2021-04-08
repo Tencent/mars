@@ -378,6 +378,12 @@ def check_vs_env():
     if not vs_tool_dir:
         print("You must install visual studio 2015 for build.")
         return False
+
+    print('vs.dir: ' + vs_tool_dir)
+    envbat = vs_tool_dir + "../../vc/vcvarsall.bat"
+    print('vsvar.dir: ' + envbat)
+    p = subprocess.Popen(envbat)
+    p.wait()
     
     return True
     
