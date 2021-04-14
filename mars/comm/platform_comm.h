@@ -96,6 +96,8 @@ __CXX11_CONSTEXPR__ static const char* const CDMA  = "CDMA";
 __CXX11_CONSTEXPR__ static const char* const HSPA = "HSPA";
 __CXX11_CONSTEXPR__ static const char* const IDEN = "IDEN";
 __CXX11_CONSTEXPR__ static const char* const HSPAP = "HSPA+";
+__CXX11_CONSTEXPR__ static const char* const G5 = "5G";
+__CXX11_CONSTEXPR__ static const char* const WIFI = "WIFI";
 
 
 struct RadioAccessNetworkInfo {
@@ -185,12 +187,15 @@ struct RadioAccessNetworkInfo {
         LTE TDD：世博会展出对象，尖端技术，比FDD早发展一年，网速和FDD差不多，但不成熟，兼容性弱！（湖北移动、上海移动已启动试运营，国家大力推广）
     ***/
 
+
+
     std::string  radio_access_network;
 
     bool Is2G() const { return radio_access_network == GPRS || radio_access_network == CDMA1x || radio_access_network == Edge || radio_access_network == CDMAEVDORev0 || radio_access_network == UMTS || radio_access_network == CDMA;}
     bool Is3G() const { return radio_access_network == WCDMA || radio_access_network == CDMAEVDORevA || radio_access_network == HSDPA || radio_access_network == HSUPA || radio_access_network == CDMAEVDORevB || radio_access_network == eHRPD || radio_access_network == HSPAP || radio_access_network == HSPA;}
     bool Is4G() const { return radio_access_network == LTE;}
-    bool IsUnknown() const { return !Is2G() && !Is3G() && !Is4G();}
+    bool Is5G() const { return radio_access_network == G5;}
+    bool IsUnknown() const { return !Is2G() && !Is3G() && !Is4G() && !Is5G();}
 };
 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);

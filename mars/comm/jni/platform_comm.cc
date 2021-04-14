@@ -161,85 +161,52 @@ int getNetTypeForStatistics(){
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo, KPlatformCommC2Java, "getCurRadioAccessNetworkInfo", "()I")
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     xverbose_function();
+    int netType = getNetTypeForStatistics(); // change interface calling to "getNetTypeForStatistics", because of Android's network info method calling restrictions
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurRadioAccessNetworkInfo, boost::ref(_raninfo)));
-    
-    VarCache* cacheInstance = VarCache::Singleton();
-    ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
-    JNIEnv* env = scopeJEnv.GetEnv();
 
-    jint netType = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getCurRadioAccessNetworkInfo).i;
+    /**
+        NETTYPE_NOT_WIFI = 0;
+        NETTYPE_WIFI = 1;
+        NETTYPE_WAP = 2;
+        NETTYPE_2G = 3;
+        NETTYPE_3G = 4;
+        NETTYPE_4G = 5;
+        NETTYPE_UNKNOWN = 6;	
+        NETTYPE_5G = 7;
+        NETTYPE_NON = -1;
+    **/
 
-    xverbose2(TSF"netInfo= %0", netType);
-
-    switch ((int)netType) {
+    switch (netType) {
+    case -1:
     case 0:
+    case 6:
         break;
-
     case 1:
-        _raninfo.radio_access_network = GPRS;
+        _raninfo.radio_access_network = WIFI;
         break;
 
     case 2:
-        _raninfo.radio_access_network = Edge;
-        break;
-
     case 3:
-        _raninfo.radio_access_network = UMTS;
+        _raninfo.radio_access_network = GPRS;
         break;
 
     case 4:
-        _raninfo.radio_access_network = CDMA;
+        _raninfo.radio_access_network = WCDMA;
         break;
 
     case 5:
-        _raninfo.radio_access_network = CDMAEVDORev0;
-        break;
-
-    case 6:
-        _raninfo.radio_access_network = CDMAEVDORevA;
-        break;
-
-    case 7:
-        _raninfo.radio_access_network = CDMA1x;
-        break;
-
-    case 8:
-        _raninfo.radio_access_network = HSDPA;
-        break;
-
-    case 9:
-        _raninfo.radio_access_network = HSUPA;
-        break;
-
-    case 10:
-        _raninfo.radio_access_network = HSPA;
-        break;
-
-    case 11:
-        _raninfo.radio_access_network = IDEN;
-        break;
-
-    case 12:
-        _raninfo.radio_access_network = CDMAEVDORevB;
-        break;
-
-    case 13:
         _raninfo.radio_access_network = LTE;
         break;
 
-    case 14:
-        _raninfo.radio_access_network = eHRPD;
-        break;
-
-    case 15:
-        _raninfo.radio_access_network = HSPAP;
+    case 7: 
+        // _raninfo.radio_access_network = G5;  // consider it to "4G" though it may be real "5G".
+        _raninfo.radio_access_network = LTE;
         break;
 
     default:
         break;
     }
+    xverbose2(TSF"netInfo= %0, %1", netType, _raninfo.radio_access_network);
 
     return !_raninfo.radio_access_network.empty();
 }
