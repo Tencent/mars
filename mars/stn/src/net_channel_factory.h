@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "mars/stn/stn.h"
 #include "mars/stn/proto/longlink_packer.h"
@@ -38,7 +39,7 @@ class ShortLinkInterface;
 
 namespace ShortLinkChannelFactory {
 
-extern ShortLinkInterface* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy);
+extern ShortLinkInterface* (*Create)(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, const ShortlinkConfig& _config);
 
 extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 

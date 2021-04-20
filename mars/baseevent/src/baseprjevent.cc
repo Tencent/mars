@@ -26,10 +26,10 @@ boost::signals2::signal<void ()>& GetSignalOnCreate()
 }
 
 
-boost::signals2::signal<void (int _encoder_version)>& GetSignalOnInit() {
+boost::signals2::signal<void (int _encoder_version)>& GetSignalOnInitBeforeOnCreate() {
 	
-	static boost::signals2::signal<void (int _encoder_version)> SignalOnInit;
-	return SignalOnInit;
+	static boost::signals2::signal<void (int _encoder_version)> SignalOnInitBeforeOnCreate;
+	return SignalOnInitBeforeOnCreate;
 }
 
 boost::signals2::signal<void ()>& GetSignalOnDestroy()

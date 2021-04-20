@@ -93,18 +93,14 @@ class NetCore {
 
     ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
     void AddServerBan(const std::string& _ip);
-
-    int  GetPackerEncoderVersion() {return packer_encoder_version_;}
-
     void SetDebugHost(const std::string& _host);
+    void ForbidLonglinkTlsHost(const std::vector<std::string>& _host);
 
 public:
-
-    static NetCore* NetCoreOnCreate(int _packer_encoder_version);
     
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
-    std::shared_ptr<LongLink>        CreateLongLink(const LonglinkConfig& _config);
+    std::shared_ptr<LongLink>        CreateLongLink(LonglinkConfig& _config);
     void                DestroyLongLink(const std::string& _name);
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
@@ -115,13 +111,12 @@ public:
 #endif
 
   private:
-  NetCore();
-    NetCore(int _encoder_version);
+    NetCore();
     virtual ~NetCore();
     static void __Release(NetCore* _instance);
     
   private:
-    void    __InitLongLink(int _packer_version);
+    void    __InitLongLink();
     void    __InitShortLink();
     bool    __ValidAndInitDefault(Task& _task, XLogger& _group);
     
@@ -166,7 +161,6 @@ public:
     bool                                        shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
-	int                                         packer_encoder_version_;
 };
         
 }}

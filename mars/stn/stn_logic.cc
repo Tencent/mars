@@ -77,20 +77,18 @@ static const std::string kLibName = "stn";
     	ret = stn_ptr->func;\
     }
 
+static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
+    xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
+    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
+}
+
 static void onCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
 #endif
-
     xinfo2(TSF"stn oncreate");
     ActiveLogic::Instance();
-    // NetCore::Singleton::Instance();
-
-}
-
-static void onInit(int _packer_encoder_version) {
-    xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
-    NetCore::Singleton::Instance(boost::bind(&NetCore::NetCoreOnCreate, _packer_encoder_version));
+    NetCore::Singleton::Instance();
 }
 
 static void onDestroy() {
@@ -146,7 +144,7 @@ static void __initbind_baseprjevent() {
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnInit().connect(boost::bind(&onInit, _1));
+    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
@@ -190,11 +188,19 @@ void (*ClearTasks)()
    STN_WEAK_CALL(ClearTasks());
 };
 
-void (*Reset)(int _packer_encoder_version)
-= [](int _packer_encoder_version) {
+void (*Reset)()
+= []() {
 	xinfo2(TSF "stn reset");
 	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance(boost::bind(&NetCore::NetCoreOnCreate, _packer_encoder_version));
+	NetCore::Singleton::Instance();
+};
+
+void (*ResetAndInitEncoderVersion)(int _packer_encoder_version)
+= [](int _packer_encoder_version) {
+	xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
+    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
+	NetCore::Singleton::Release();
+	NetCore::Singleton::Instance();
 };
 
 void (*MakesureLonglinkConnected)()
@@ -278,7 +284,7 @@ uint32_t (*getNoopTaskID)()
 
 // [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
-auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
+auto CreateLonglink_ext = +[](LonglinkConfig& _config){
     STN_WEAK_CALL(CreateLongLink(_config));
 };
     
