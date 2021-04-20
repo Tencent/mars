@@ -18,7 +18,7 @@
 //
 
 #include "http.h"
-
+#include <stdio.h>
 #include <cstddef>
 #include <stdlib.h>
 #ifdef WIN32

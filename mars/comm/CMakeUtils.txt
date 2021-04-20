@@ -48,7 +48,7 @@ if(ANDROID)
     if(CPP_CALL_BACK)
         add_definitions(-DCPP_CALL_BACK)
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14 -Wno-deprecated-register")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
 
 elseif(APPLE)
@@ -87,7 +87,7 @@ elseif(APPLE)
     endif()
 
 elseif(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -ffunction-sections -fdata-sections -Os")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14 -fPIC -ffunction-sections -fdata-sections -Os")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -ffunction-sections -fdata-sections -Os")
 endif()
  
