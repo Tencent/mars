@@ -94,12 +94,13 @@ class NetCore {
     ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
     void AddServerBan(const std::string& _ip);
     void SetDebugHost(const std::string& _host);
+    void ForbidLonglinkTlsHost(const std::vector<std::string>& _host);
 
 public:
     
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
-    std::shared_ptr<LongLink>        CreateLongLink(const LonglinkConfig& _config);
+    std::shared_ptr<LongLink>        CreateLongLink(LonglinkConfig& _config);
     bool AddMinorLongLink(const std::vector<std::string>& _hosts);
     void                DestroyLongLink(const std::string& _name);
     void                MakeSureLongLinkConnect_ext(const std::string& _name);

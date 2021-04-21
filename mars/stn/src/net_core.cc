@@ -797,7 +797,7 @@ ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select)
 ///
 //===----------------------------------------------------------------------===//
 #ifdef USE_LONG_LINK
-std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config){
+std::shared_ptr<LongLink> NetCore::CreateLongLink(LonglinkConfig& _config){
     auto oldDefault = longlink_task_manager_->DefaultLongLink();
     if(!longlink_task_manager_->AddLongLink(_config)) {
         auto longlink = longlink_task_manager_->GetLongLink(_config.name);
@@ -841,6 +841,11 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
 
 bool NetCore::AddMinorLongLink(const std::vector<std::string>& _hosts) {
     return longlink_task_manager_->AddMinorLink(_hosts);
+}
+
+
+void NetCore::ForbidLonglinkTlsHost(const std::vector<std::string>& _host) {
+    longlink_task_manager_->AddForbidTlsHost(_host);
 }
 
 void NetCore::DestroyLongLink(const std::string& _name){

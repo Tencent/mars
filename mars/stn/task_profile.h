@@ -122,6 +122,9 @@ struct ConnectProfile {
         start_send_packet_time = 0;
         start_read_packet_time = 0;
         read_packet_finished_time = 0;
+		
+        tls_handshake_mismatch = false;
+        tls_handshake_success = false;
     }
     
     std::string net_type;
@@ -173,6 +176,8 @@ struct ConnectProfile {
     bool ipv6_connect_failed;
     //opreator identify
     std::string connection_identify;
+    bool tls_handshake_mismatch;
+    bool tls_handshake_success;
 	
 	//for cgi caller
     uint64_t start_connect_time;

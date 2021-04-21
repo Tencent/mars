@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "mars/stn/stn.h"
 #include "mars/stn/proto/longlink_packer.h"
