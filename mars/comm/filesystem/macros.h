@@ -1,0 +1,6 @@
+#ifndef MARS_FILESYSTEM_MACROS_H_
+#define MARS_FILESYSTEM_MACROS_H_
+
+#define MARS_FILESYSTEM_INLINE inline
+
+#endif
