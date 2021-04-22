@@ -59,7 +59,7 @@ class LongLinkTaskManager {
     boost::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
     
     static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
-    static boost::function<void (uint32_t _version)> on_handshake_ready_;
+    static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
 
   public:
     LongLinkTaskManager(mars::stn::NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeueid);
@@ -106,7 +106,7 @@ class LongLinkTaskManager {
     void __OnSend(uint32_t _taskid);
     void __OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize);
     void __SignalConnection(LongLink::TLongLinkStatus _connect_status, const std::string& _channel_id);
-    void __OnHandshakeCompleted(uint32_t _version);
+    void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
 
     void __RunLoop();
     void __RunOnTimeout();

@@ -166,7 +166,7 @@ public:
     std::vector<std::string> (*dns_func)(const std::string& host);
     bool            need_tls;
 };
-
+    
 struct QuicParameters{
     bool enable_0rtt = true;
     std::string alpn;
@@ -287,6 +287,13 @@ enum IPSourceType {
     kIPSourceNewDns,
     kIPSourceProxy,
     kIPSourceBackup,
+};
+    
+enum TlsHandshakeFrom {
+    kNoHandshaking = -1,
+    kFromSetting = 0,
+    kFromLongLink  = 1,
+    kFromShortLink = 2,
 };
 
 const char* const IPSourceTypeString[] = {

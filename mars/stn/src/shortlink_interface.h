@@ -44,7 +44,7 @@ class ShortLinkInterface {
     CallBack<boost::function<void (ShortLinkInterface* _worker, ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, bool _cancel_retry, ConnectProfile& _conn_profile)> > OnResponse;
     CallBack<boost::function<void (ShortLinkInterface* _worker)> > OnSend;
     CallBack<boost::function<void (ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> > OnRecv;
-    boost::function<void (uint32_t _tls_version)> OnHandshakeCompleted;
+    boost::function<void (uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
 };
     
