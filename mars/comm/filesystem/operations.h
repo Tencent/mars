@@ -81,23 +81,27 @@ class MARS_FILESYSTEM_API directory_entry {
 public:
     directory_entry() noexcept = default;
     directory_entry(const path& _p, std::error_code& _ec);
-    ~directory_entry();
+    MARS_FILESYSTEM_INLINE ~directory_entry() = default;
 
-    void refresh(std::error_code& ec) noexcept;
-    bool exists() const;
-    bool is_block_file() const;
-    bool is_character_file() const;
-    bool is_directory() const;
-    bool is_regular_file() const;
-    uintmax_t file_size() const;
-    file_time_type last_write_time() const;
-    file_status status() const;
+    const filesystem::path& path() const noexcept;
+
+    void refresh(std::error_code& _ec) noexcept;
+    bool exists(std::error_code& _ec) const;
+    bool is_block_file(std::error_code& _ec) const;
+    bool is_character_file(std::error_code& _ec) const;
+    bool is_directory(std::error_code& _ec) const;
+    bool is_regular_file(std::error_code& _ec) const;
+    uintmax_t file_size(std::error_code& _ec) const;
+    file_time_type last_write_time(std::error_code& _ec) const;
+    file_status status(std::error_code& _ec) const;
 
 private:
-    file_type status_file_type() const;
+    file_type status_file_type(std::error_code& _ec) const;
     path path_;
     file_status status_;
-    uintmax_t file_size_;
+    file_status symlink_status_;
+    uintmax_t file_size_ = static_cast<uintmax_t>(-1);
+    uintmax_t hard_link_count_ = static_cast<uintmax_t>(-1);
     time_t last_write_time_ = 0;
 
 };

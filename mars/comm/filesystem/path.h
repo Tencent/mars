@@ -43,7 +43,7 @@ public:
 
     size_type root_directory_start(const string_type& _path, size_type _size) const;
 
-    const char* c_str() {return m_pathname.c_str();}
+    const char* c_str() const noexcept {return m_pathname.c_str();}
     string_type string() const;
 
 
