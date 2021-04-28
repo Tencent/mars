@@ -205,10 +205,12 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 	struct addrinfo hints, *res=NULL, *res0=NULL;
 	int error = 0;
 
+    xdebug2("00000");
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = PF_INET6;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_ADDRCONFIG;
+    xdebug2("11111");
 
 	char v4_ip[16] = {0};
 	socket_inet_ntop(AF_INET, &_v4_addr, v4_ip, sizeof(v4_ip));
@@ -218,11 +220,13 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 		error = getaddrinfo_with_timeout(v4_ip, NULL, &hints, &res0, is_timeout, 2000);
 	} else {//lower than iOS9.2 or other platform
 #endif
+    xdebug2("22222");
 		error = getaddrinfo_with_timeout("ipv4only.arpa", NULL, &hints, &res0, is_timeout, 2000);
 #ifdef __APPLE__
 	}
 #endif
 
+    xdebug2("33333");
 	bool ret = false;
     if (error==0) {
     	for (res = res0; res; res = res->ai_next) {
@@ -238,18 +242,23 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 				} else { //lower than iOS9.2 or other platform
 #endif
 
+    xdebug2("44444");
 	    			if (IsNat64AddrValid((struct in6_addr*)&(((sockaddr_in6*)res->ai_addr)->sin6_addr))) {
+    xdebug2("55555");
 						ReplaceNat64WithV4IP((struct in6_addr*)&(((sockaddr_in6*)res->ai_addr)->sin6_addr) , &_v4_addr);
 #ifdef WIN32
+    xdebug2("66666");
                         memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).u), 16);
 #else
 						memcpy ( (char*)&_v6_addr, (char*)&((((sockaddr_in6*)res->ai_addr)->sin6_addr).s6_addr16), 16);
 #endif
+    xdebug2("77777");
 						const char* ip_str = socket_inet_ntop(AF_INET6, &_v6_addr, ip_buf, sizeof(ip_buf));
 						xdebug2(TSF"AF_INET6 v4_ip=%_, nat64 ip_str = %_", v4_ip, ip_str);
 		    			ret = true;
 		    			break;
 	    			} else {
+    xdebug2("88888");
 	    				xerror2(TSF"Nat64 addr invalid, =%_",
 	    						strutil::Hex2Str((char*)&(((sockaddr_in6*)res->ai_addr)->sin6_addr), 16));
 	    				ret = false;
@@ -272,6 +281,7 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
         xerror2(TSF" getaddrinfo error = %_, res0:@%_", error, res0);
     	ret = false;
     }
+    xdebug2("99999");
     if (NULL != res0)
         freeaddrinfo(res0);
     return ret;
@@ -280,17 +290,23 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 
 bool ConvertV4toNat64V6(const std::string& _v4_ip, std::string& _nat64_v6_ip) {
 	struct in_addr v4_addr = {0};
+    xdebug2("aaaaa");
 	int pton_ret = socket_inet_pton(AF_INET, _v4_ip.c_str(), &v4_addr);
+    xdebug2("bbbbb");
 	if (0==pton_ret) {
     	xwarn2(TSF"param error. %_ is not v4 ip", _v4_ip.c_str());
     	return false;
     }
 
+    xdebug2("ccccc");
 	struct in6_addr v6_addr = {{{0}}};
 	if (ConvertV4toNat64V6(v4_addr, v6_addr)) {
+    xdebug2("ddddd");
 		char v6_ip[64] = {0};
 		socket_inet_ntop(AF_INET6, &v6_addr, v6_ip, sizeof(v6_ip));
+    xdebug2("eeeee");
 		_nat64_v6_ip = std::string(v6_ip);
+    xdebug2("fffff");
 		return true;
 	}
 	return false;
