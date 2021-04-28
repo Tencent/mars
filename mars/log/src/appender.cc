@@ -49,8 +49,8 @@
 #include <algorithm>
 
 #include "boost/bind.hpp"
-#include "boost/iostreams/device/mapped_file.hpp"
-#include "boost/filesystem.hpp"
+#include "comm/filesystem/operations.h"
+#include "comm/filesystem/path.h"
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/condition.h"
@@ -249,7 +249,7 @@ void XloggerAppender::Open(const XLogConfig& _config) {
 
     ScopedLock dir_attr_lock(sg_mutex_dir_attr);
     if (!config_.cachedir_.empty()) {
-        boost::filesystem::create_directories(config_.cachedir_);
+        mars::filesystem::create_directories(config_.cachedir_);
 
         Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_)).start_after(2 * 60 * 1000);
         Thread(boost::bind(&XloggerAppender::__MoveOldFiles, this, config_.cachedir_, config_.logdir_, config_.nameprefix_)).start_after(3 * 60 * 1000);
@@ -259,7 +259,7 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     }
 
     Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.logdir_)).start_after(2 * 60 * 1000);
-    boost::filesystem::create_directories(config_.logdir_);
+    mars::filesystem::create_directories(config_.logdir_);
 #ifdef __APPLE__
     setAttrProtectionNone(config_.logdir_.c_str());
 #endif
@@ -331,12 +331,12 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     Write(nullptr, logmsg);
     
     if (!config_.cachedir_.empty()) {
-        boost::filesystem::space_info info = boost::filesystem::space(config_.cachedir_);
+        mars::filesystem::space_info info = mars::filesystem::space(config_.cachedir_);
         snprintf(logmsg, sizeof(logmsg), "cache dir space info, capacity:%" PRIuMAX" free:%" PRIuMAX" available:%" PRIuMAX, info.capacity, info.free, info.available);
         Write(nullptr, logmsg);
     }
     
-    boost::filesystem::space_info info = boost::filesystem::space(config_.logdir_);
+    mars::filesystem::space_info info = mars::filesystem::space(config_.logdir_);
     snprintf(logmsg, sizeof(logmsg), "log dir space info, capacity:%" PRIuMAX" free:%" PRIuMAX" available:%" PRIuMAX, info.capacity, info.free, info.available);
     Write(nullptr, logmsg);
 }
@@ -358,16 +358,16 @@ void XloggerAppender::__GetFileNamesByPrefix(const std::string& _logdir,
                                                 const std::string& _fileprefix,
                                                 const std::string& _fileext,
                                                 std::vector<std::string>& _filename_vec) {
-    boost::filesystem::path path(_logdir);
-    if (!boost::filesystem::is_directory(path)) {
+    mars::filesystem::path path(_logdir);
+    if (!mars::filesystem::is_directory(path)) {
         return;
     }
     
-    boost::filesystem::directory_iterator end_iter;
+    mars::filesystem::directory_iterator end_iter;
     std::string filename;
     
-    for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
-        if (boost::filesystem::is_regular_file(iter->status())) {
+    for (mars::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
+        if (mars::filesystem::is_regular_file(iter->status())) {
             filename = iter->path().filename().string();
             if (strutil::StartsWith(filename, _fileprefix) && strutil::EndsWith(filename, _fileext)) {
                 _filename_vec.push_back(filename);
@@ -423,13 +423,13 @@ long XloggerAppender::__GetNextFileIndex(const std::string& _fileprefix, const s
     
     uint64_t filesize = 0;
     std::string logfilepath = config_.logdir_ + "/" + last_filename;
-    if (boost::filesystem::exists(logfilepath)) {
-        filesize += boost::filesystem::file_size(logfilepath);
+    if (mars::filesystem::exists(logfilepath)) {
+        filesize += mars::filesystem::file_size(logfilepath);
     }
     if (!config_.cachedir_.empty()) {
         logfilepath = config_.cachedir_ + "/" + last_filename;
-        if (boost::filesystem::exists(logfilepath)) {
-            filesize += boost::filesystem::file_size(logfilepath);
+        if (mars::filesystem::exists(logfilepath)) {
+            filesize += mars::filesystem::file_size(logfilepath);
         }
     }
     return (filesize > max_file_size_) ? index + 1 : index;
@@ -468,22 +468,22 @@ void XloggerAppender::__DelTimeoutFile(const std::string& _log_path) {
     ScopedLock dir_attr_lock(sg_mutex_dir_attr);
     time_t now_time = time(nullptr);
     
-    boost::filesystem::path path(_log_path);
+    mars::filesystem::path path(_log_path);
     
-    if (boost::filesystem::exists(path) && boost::filesystem::is_directory(path)){
-        boost::filesystem::directory_iterator end_iter;
-        for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
-            time_t file_modify_time = boost::filesystem::last_write_time(iter->path());
+    if (mars::filesystem::exists(path) && mars::filesystem::is_directory(path)){
+        mars::filesystem::directory_iterator end_iter;
+        for (mars::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
+            time_t file_modify_time = std::chrono::system_clock::to_time_t(mars::filesystem::last_write_time(iter->path()));
             
             if (now_time > file_modify_time && now_time - file_modify_time > max_alive_time_) {
-                if(boost::filesystem::is_regular_file(iter->status())
+                if(mars::filesystem::is_regular_file(iter->status())
                 && iter->path().extension() == (std::string(".") + LOG_EXT)) {
-                    boost::filesystem::remove(iter->path());
+                    mars::filesystem::remove(iter->path());
                 } 
-                if (boost::filesystem::is_directory(iter->status())) {
+                if (mars::filesystem::is_directory(iter->status())) {
                     std::string filename = iter->path().filename().string();
                     if (filename.size() == 8 && filename.find_first_not_of("0123456789") == std::string::npos) {
-                        boost::filesystem::remove_all(iter->path());
+                        mars::filesystem::remove_all(iter->path());
                     }
                 }
             }
@@ -496,11 +496,11 @@ bool XloggerAppender::__AppendFile(const std::string& _src_file, const std::stri
         return false;
     }
 
-    if (!boost::filesystem::exists(_src_file)) {
+    if (!mars::filesystem::exists(_src_file)) {
         return false;
     }
     
-    if (0 == boost::filesystem::file_size(_src_file)){
+    if (0 == mars::filesystem::file_size(_src_file)){
         return true;
     }
 
@@ -558,23 +558,23 @@ void XloggerAppender::__MoveOldFiles(const std::string& _src_path, const std::st
         return;
     }
 
-    boost::filesystem::path path(_src_path);
-    if (!boost::filesystem::is_directory(path)) {
+    mars::filesystem::path path(_src_path);
+    if (!mars::filesystem::is_directory(path)) {
         return;
     }
     
     ScopedLock lock_file(mutex_log_file_);
     time_t now_time = time(nullptr);
     
-    boost::filesystem::directory_iterator end_iter;
-    for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
+    mars::filesystem::directory_iterator end_iter;
+    for (mars::filesystem::directory_iterator iter(path); iter != end_iter; ++iter) {
         
         if (!strutil::StartsWith(iter->path().filename().string(), _nameprefix) || !strutil::EndsWith(iter->path().string(), LOG_EXT)) {
             continue;
         }
         
         if (config_.cache_days_ > 0) {
-            time_t file_modify_time = boost::filesystem::last_write_time(iter->path());
+            time_t file_modify_time = std::chrono::system_clock::to_time_t(mars::filesystem::last_write_time(iter->path()));
             if (now_time > file_modify_time && (now_time - file_modify_time) < config_.cache_days_ * 24 * 60 * 60) {
                 continue;
             }
@@ -584,7 +584,7 @@ void XloggerAppender::__MoveOldFiles(const std::string& _src_path, const std::st
             break;
         }
         
-        boost::filesystem::remove(iter->path());
+        mars::filesystem::remove(iter->path());
     }
 }
 
@@ -742,12 +742,12 @@ bool XloggerAppender::__CacheLogs() {
     gettimeofday(&tv, nullptr);
     char logfilepath[1024] = {0};
     __MakeLogFileName(tv, config_.logdir_, config_.nameprefix_.c_str(), LOG_EXT, logfilepath , 1024);
-    if (boost::filesystem::exists(logfilepath)) {
+    if (mars::filesystem::exists(logfilepath)) {
         return false;
     }
     
     static const uintmax_t kAvailableSizeThreshold = (uintmax_t)1 * 1024 * 1024 * 1024;   // 1G
-    boost::filesystem::space_info info = boost::filesystem::space(config_.cachedir_);
+    mars::filesystem::space_info info = mars::filesystem::space(config_.cachedir_);
     if (info.available < kAvailableSizeThreshold) {
         return false;
     }
@@ -779,7 +779,7 @@ void XloggerAppender::__Log2File(const void* _data, size_t _len, bool _move_file
     __MakeLogFileName(tv, config_.cachedir_, config_.nameprefix_.c_str(), LOG_EXT, logcachefilepath , 1024);
     
     bool cache_logs = __CacheLogs();
-    if ((cache_logs || boost::filesystem::exists(logcachefilepath)) && __OpenLogFile(config_.cachedir_)) {
+    if ((cache_logs || mars::filesystem::exists(logcachefilepath)) && __OpenLogFile(config_.cachedir_)) {
         __WriteFile(_data, _len, logfile_);
         if (kAppenderAsync == config_.mode_) {
             __CloseLogFile();
@@ -795,7 +795,7 @@ void XloggerAppender::__Log2File(const void* _data, size_t _len, bool _move_file
             if (kAppenderSync == config_.mode_) {
                 __CloseLogFile();
             }
-            boost::filesystem::remove(logcachefilepath);
+            mars::filesystem::remove(logcachefilepath);
         }
         return;
     }
@@ -946,8 +946,8 @@ const char* XloggerAppender::Dump(const void* _dumpbuffer, size_t _len) {
 
     std::string filepath =  config_.logdir_ + "/" + forder_name + "/";
 
-    if (!boost::filesystem::exists(filepath))
-        boost::filesystem::create_directory(filepath);
+    if (!mars::filesystem::exists(filepath))
+        mars::filesystem::create_directory(filepath);
     
 
     char file_name [128] = {0};
@@ -1104,15 +1104,15 @@ bool XloggerAppender::MakeLogfileName(int _timespan, const char* _prefix,
     char cache_log_path[2048] = { 0 };
     __MakeLogFileName(tv, config_.cachedir_, _prefix, LOG_EXT, cache_log_path, sizeof(cache_log_path));
     
-    if (boost::filesystem::exists(log_path)) {
+    if (mars::filesystem::exists(log_path)) {
         _filepath_vec.push_back(log_path);
     }
     
-    if (boost::filesystem::exists(cache_log_path)) {
+    if (mars::filesystem::exists(cache_log_path)) {
         _filepath_vec.push_back(cache_log_path);
     }
     
-    if (!boost::filesystem::exists(log_path) && !boost::filesystem::exists(cache_log_path)) {
+    if (!mars::filesystem::exists(log_path) && !mars::filesystem::exists(cache_log_path)) {
         _filepath_vec.push_back(log_path);
     }
     

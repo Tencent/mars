@@ -25,7 +25,7 @@
 #include <deque>
 #include <algorithm>
 
-#include "boost/filesystem.hpp"
+#include "comm/filesystem/operations.h"
 #include "boost/bind.hpp"
 #include "boost/accumulators/numeric/functional.hpp"
 
@@ -106,8 +106,8 @@ SimpleIPPortSort::SimpleIPPortSort()
 , IPv4_ban_flag_(0) 
 , ban_v6_(false) {
         
-    if (!boost::filesystem::exists(hostpath_)){
-        boost::filesystem::create_directory(hostpath_);
+    if (!mars::filesystem::exists(hostpath_)){
+        mars::filesystem::create_directory(hostpath_);
     }
         
     ScopedLock lock(mutex_);

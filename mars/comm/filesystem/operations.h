@@ -4,12 +4,45 @@
 #include <dirent.h>
 #include <system_error>
 #include <chrono>
+#include <memory>
+
+#include "macros.h"
 #include "path.h"
+
 
 namespace mars {
 namespace filesystem {
 
 using file_time_type = std::chrono::time_point<std::chrono::system_clock>;
+
+class file_status;
+
+struct space_info {
+    uintmax_t capacity;
+    uintmax_t free;
+    uintmax_t available;
+};
+
+std::error_code make_system_error(int _err = 0);
+bool is_directory(const path& _p);
+bool is_regular_file(file_status s) ;
+bool is_regular_file(const path& _p) ;
+bool exists(const path& p) ;
+bool exists(const path& p, std::error_code& ec) noexcept;
+intmax_t file_size(const path& _p);
+uintmax_t file_size(const path& _p, std::error_code& _ec) noexcept;
+file_time_type last_write_time(const path& _p);
+file_time_type last_write_time(const path& p, std::error_code& ec) noexcept;
+bool remove(const path& p);
+bool is_directory(file_status s);
+uintmax_t remove_all(const path& p);
+space_info space(const path& p);
+bool create_directory(const path& p);
+bool create_directory(const path& p, std::error_code& ec) noexcept;
+bool create_directories(const path& p);
+bool create_directories(const path& _p, std::error_code& _ec) noexcept;
+bool remove(const path& p, std::error_code& ec) noexcept;
+void resize_file(const path& p, uintmax_t size, std::error_code& ec) noexcept;
 
 enum class directory_options  : uint16_t {
     none = 0,
@@ -60,7 +93,7 @@ enum class perms : uint16_t {
 class MARS_FILESYSTEM_API file_status {
 public:
     file_status() noexcept;
-    explicit file_status(mars::filesystem::file_type _ft, perms _prms = perms::unknown) noexcept;
+    explicit file_status(mars::filesystem::file_type _ft, mars::filesystem::perms _prms = mars::filesystem::perms::unknown) noexcept;
     file_status(const file_status& _other) noexcept;
     file_status(file_status&& _other) noexcept;
     ~file_status() = default;
@@ -85,19 +118,22 @@ public:
 
     const filesystem::path& path() const noexcept;
 
-    void refresh(std::error_code& _ec) noexcept;
-    bool exists(std::error_code& _ec) const;
-    bool is_block_file(std::error_code& _ec) const;
-    bool is_character_file(std::error_code& _ec) const;
-    bool is_directory(std::error_code& _ec) const;
-    bool is_regular_file(std::error_code& _ec) const;
-    uintmax_t file_size(std::error_code& _ec) const;
-    file_time_type last_write_time(std::error_code& _ec) const;
-    file_status status(std::error_code& _ec) const;
+    void refresh() noexcept;
+    bool exists() const;
+    bool is_block_file() const;
+    bool is_character_file() const;
+    bool is_directory() const;
+    bool is_regular_file() const;
+    uintmax_t file_size() const;
+    file_time_type last_write_time() const;
+    file_status status() const;
+    bool is_symlink() const;
 
 private:
-    file_type status_file_type(std::error_code& _ec) const;
-    path path_;
+    friend class directory_iterator;
+
+    file_type status_file_type() const;
+    mars::filesystem::path path_;
     file_status status_;
     file_status symlink_status_;
     uintmax_t file_size_ = static_cast<uintmax_t>(-1);
@@ -109,15 +145,103 @@ private:
 class MARS_FILESYSTEM_API directory_iterator {
 public:
     directory_iterator() noexcept;
-    explicit directory_iterator(const path& _p);
+    directory_iterator(const path& _p) noexcept;
+    directory_iterator(const directory_iterator& _rhs);
+    directory_iterator(const directory_iterator&& _rhs) noexcept;
+    ~directory_iterator() {};
+    directory_iterator& operator=(const directory_iterator &_rhs);
+    directory_iterator& operator=(directory_iterator&& _rhs) noexcept;
     directory_iterator& operator++();
+    bool operator==(const directory_iterator& _rhs) const;
+    bool operator!=(const directory_iterator& _rhs) const;
+    const directory_entry& operator*() const;
+    const directory_entry* operator->() const;
+
+private:
     class impl;
+    std::shared_ptr<impl> impl_;
 };
 
 class MARS_FILESYSTEM_API directory_iterator::impl {
 public:
-    impl(const path& _p, directory_options _op) {
+    impl(const path& _p, directory_options _op)
+    : path_(_p)
+    , options_(_op)
+    , dir_(nullptr)
+    , entry_(nullptr) {
+        if (!path_.empty()) {
+            dir_ = ::opendir(path_.string().c_str());
+            if (!dir_) {
+                auto error = errno;
+                path_ = mars::filesystem::path();
+                if ((error != EACCES && error != EPERM) || (options_ & directory_options::skip_permission_denied) == directory_options::none) {
+                    ec_ = make_system_error();
+                }
+            } else {
+                increment(ec_);
+            }
+        }
+    }
+    impl(const impl& _i) = delete;
+    ~impl() {
+        if (dir_) {
+            ::closedir(dir_);
+        }
+    }
 
+    void increment(std::error_code& ec)
+    {
+        if (dir_) {
+            bool skip;
+            do {
+                skip = false;
+                errno = 0;
+                entry_ = ::readdir(dir_);
+                if (entry_) {
+                    dir_entry_.path_ = path_;
+                    dir_entry_.path_.append_name(entry_->d_name);
+                    copyToDirEntry();
+                    if (ec && (ec.value() == EACCES || ec.value() == EPERM) && (options_ & mars::filesystem::directory_options::skip_permission_denied) == mars::filesystem::directory_options::skip_permission_denied) {
+                        ec.clear();
+                        skip = true;
+                    }
+                }
+                else {
+                    ::closedir(dir_);
+                    dir_ = nullptr;
+                    dir_entry_.path_.clear();
+                    if (errno) {
+                        ec = make_system_error();
+                    }
+                    break;
+                }
+            } while (skip || std::strcmp(entry_->d_name, ".") == 0 || std::strcmp(entry_->d_name, "..") == 0);
+        }
+    }
+
+    void copyToDirEntry()
+    {
+        dir_entry_.symlink_status_.permissions(mars::filesystem::perms::unknown);
+        switch(entry_->d_type) {
+            case DT_BLK:  dir_entry_.symlink_status_.type(mars::filesystem::file_type::block); break;
+            case DT_CHR:  dir_entry_.symlink_status_.type(mars::filesystem::file_type::character); break;
+            case DT_DIR:  dir_entry_.symlink_status_.type(mars::filesystem::file_type::directory); break;
+            case DT_FIFO: dir_entry_.symlink_status_.type(mars::filesystem::file_type::fifo); break;
+            case DT_LNK:  dir_entry_.symlink_status_.type(mars::filesystem::file_type::symlink); break;
+            case DT_REG:  dir_entry_.symlink_status_.type(mars::filesystem::file_type::regular); break;
+            case DT_SOCK: dir_entry_.symlink_status_.type(mars::filesystem::file_type::socket); break;
+            default:      dir_entry_.symlink_status_.type(mars::filesystem::file_type::unknown); break;
+        }
+        if (entry_->d_type != DT_LNK) {
+            dir_entry_.status_ = dir_entry_.symlink_status_;
+        }
+        else {
+            dir_entry_.status_.type(mars::filesystem::file_type::none);
+            dir_entry_.status_.permissions(mars::filesystem::perms::unknown);
+        }
+        dir_entry_.file_size_ = static_cast<uintmax_t>(-1);
+        dir_entry_.hard_link_count_ = static_cast<uintmax_t>(-1);
+        dir_entry_.last_write_time_ = 0;
     }
 
 public:
@@ -125,7 +249,8 @@ public:
     directory_options options_;
     DIR* dir_;
     struct ::dirent* entry_;
-
+    directory_entry dir_entry_;
+    std::error_code ec_;
 
 };
 

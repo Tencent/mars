@@ -27,8 +27,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "boost/filesystem.hpp"
-
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/singleton.h"
