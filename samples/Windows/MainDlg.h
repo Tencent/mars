@@ -7,6 +7,7 @@
 #include "atlctrls.h"
 #include "atlctrlx.h"
 #include "resource.h"
+#include <memory>
 
 #include "PingServerDlg.h"
 #include "ChatDlg.h"
@@ -62,6 +63,6 @@ protected:
 	void DestoryAllChatTab();
 private:
 	CTabView m_tabView;
-	boost::shared_ptr<CPingServerDlg> m_pingServerDlg;
+	std::shared_ptr<CPingServerDlg> m_pingServerDlg;
 	std::map<std::string, CChatDlg*> m_chatDlgList;
 };

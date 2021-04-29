@@ -17,6 +17,7 @@
 
 #include <list>
 #include <climits>
+#include <memory>
 
 #include "coroutine.h"
 #include "comm/socket/socket_address.h"
@@ -135,12 +136,12 @@ static void __Coro_Poll(int _msec, ::SocketPoll& _socket_poll) {
         return;
     }
     
-    boost::shared_ptr<mq::RunloopCond> cond = mq::RunloopCond::CurrentCond();
+    std::shared_ptr<mq::RunloopCond> cond = mq::RunloopCond::CurrentCond();
     TaskInfo task(coroutine::RunningCoroutine(), _socket_poll);
     if (0 <= _msec) { task.abs_timeout_.gettickcount() += _msec;};
     
     //messagequeue for coro select
-    if (cond && cond->type() == boost::typeindex::type_id<coroutine::RunloopCond>()) {
+    if (cond && cond->type() == std::typeindex::type_id<coroutine::RunloopCond>()) {
         static_cast<coroutine::RunloopCond*>(cond.get())->Add(task);
         coroutine::Yield();
         return;
@@ -178,8 +179,8 @@ void RunloopCond::Add(TaskInfo& _task) {
     multiplexing_->Add(_task);
 }
     
-const boost::typeindex::type_info& RunloopCond::type() const {
-    return boost::typeindex::type_id<coroutine::RunloopCond>().type_info();
+const std::typeindex::type_info& RunloopCond::type() const {
+    return std::typeindex::type_id<coroutine::RunloopCond>().type_info();
 }
     
 void RunloopCond::Wait(ScopedLock& _lock, long _millisecond) {

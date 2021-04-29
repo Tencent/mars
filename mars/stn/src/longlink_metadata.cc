@@ -18,6 +18,10 @@
  */
 
 #include "longlink_metadata.h"
+
+#include <memory>
+#include <functional>
+
 #include "net_channel_factory.h"
 
 #define AYNC_HANDLER asyncreg_.Get()
@@ -33,12 +37,12 @@ LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _ne
         xinfo_function(TSF"create longlink with name:%_, group:%_", _config.name, _config.group);
 
         netsource_checker_ = std::make_shared<NetSourceTimerCheck>(&_netsource, _activeLogic, *(longlink_.get()), _message_id);
-        netsource_checker_->fun_time_check_suc_ = boost::bind(&LongLinkMetaData::__OnTimerCheckSuc, this, config_.name);
+        netsource_checker_->fun_time_check_suc_ = std::bind(&LongLinkMetaData::__OnTimerCheckSuc, this, config_.name);
         
         longlink_monitor_ = std::make_shared<LongLinkConnectMonitor>(_activeLogic, *(longlink_.get()), _message_id, _config.is_keep_alive);
 
         signal_keeper_ = std::make_shared<SignallingKeeper>(*(longlink_.get()), _message_id);
-        signal_keeper_->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData, longlink_.get(), _1, _2, _3, Task::kSignallingKeeperTaskID);
+        signal_keeper_->fun_send_signalling_buffer_ = std::bind(&LongLink::SendWhenNoData, longlink_.get(), _1, _2, _3, Task::kSignallingKeeperTaskID);
 }
 
 LongLinkMetaData::~LongLinkMetaData() {
@@ -47,7 +51,7 @@ LongLinkMetaData::~LongLinkMetaData() {
 }
 
 void LongLinkMetaData::__OnTimerCheckSuc(const std::string& _name) {
-    SYNC2ASYNC_FUNC(boost::bind(&LongLinkMetaData::__OnTimerCheckSuc, this, _name));
+    SYNC2ASYNC_FUNC(std::bind(&LongLinkMetaData::__OnTimerCheckSuc, this, _name));
 
     if(longlink_->Profile().ip_type != IPSourceType::kIPSourceBackup) {
         xinfo2(TSF"longlink %_ is not using backip, ignore", _name);

@@ -20,6 +20,8 @@
 #ifndef SRC_SHORTLINK_INTERFACE_H_
 #define SRC_SHORTLINK_INTERFACE_H_
 
+#include <functional>
+
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
@@ -40,12 +42,12 @@ class ShortLinkInterface {
     virtual void OnConnectHandshakeCompleted() {}
 
 
-    CallBack<boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, const std::string& _host, uint16_t _port)> > func_network_report;
-    CallBack<boost::function<void (ShortLinkInterface* _worker, ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, bool _cancel_retry, ConnectProfile& _conn_profile)> > OnResponse;
-    CallBack<boost::function<void (ShortLinkInterface* _worker)> > OnSend;
-    CallBack<boost::function<void (ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> > OnRecv;
-    boost::function<void (uint32_t _tls_version)> OnHandshakeCompleted;
-    boost::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
+    CallBack<std::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, const std::string& _host, uint16_t _port)> > func_network_report;
+    CallBack<std::function<void (ShortLinkInterface* _worker, ErrCmdType _err_type, int _status, AutoBuffer& _body, AutoBuffer& _extension, bool _cancel_retry, ConnectProfile& _conn_profile)> > OnResponse;
+    CallBack<std::function<void (ShortLinkInterface* _worker)> > OnSend;
+    CallBack<std::function<void (ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> > OnRecv;
+    std::function<void (uint32_t _tls_version)> OnHandshakeCompleted;
+    std::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
 };
     
 }

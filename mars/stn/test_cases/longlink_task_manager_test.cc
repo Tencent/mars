@@ -8,6 +8,9 @@
 
 #ifdef LONGLINK_TASKMANAGER_TEST
 
+#include <functional>
+#include <memory>
+
 #include "gtest/gtest.h"
 #include "thread/thread.h"
 
@@ -89,14 +92,14 @@ static int CallBack(int _from, ErrCmdType _eErrType, int _nErrCode, const AutoBu
 static void initLongLinkTaskManager (CMMLongLinkTaskManager& _longLinkTaskManager, LongLinkSvrPush& _longLinkSvrPush)
 {
 
-	_longLinkTaskManager.funNotify = boost::bind(&LongLinkSvrPush::OnLongLinkResponse, &_longLinkSvrPush, _1, _2, _3);
-	_longLinkTaskManager.funCallback = boost::bind(&CallBack, 0, _1, _2, _3, _4, _5, _6);
-	_longLinkTaskManager.funAntiAvalancheCheck = boost::bind(Check, _1, _2, _3);
+	_longLinkTaskManager.funNotify = std::bind(&LongLinkSvrPush::OnLongLinkResponse, &_longLinkSvrPush, _1, _2, _3);
+	_longLinkTaskManager.funCallback = std::bind(&CallBack, 0, _1, _2, _3, _4, _5, _6);
+	_longLinkTaskManager.funAntiAvalancheCheck = std::bind(Check, _1, _2, _3);
 	_longLinkTaskManager.funmakeSureAuth = ::makeSureAuth;
 	_longLinkTaskManager.funreq2Buf = ::req2Buf;
 	_longLinkTaskManager.funbuf2Resp = ::buf2Resp;
-	_longLinkTaskManager.LongLinkChannel().FuncNetworkReport = boost::bind(&OnLongLinkNetworkError, _1, _2, _3, _4, _5);
-	_longLinkTaskManager.funNotifyNetworkError = boost::bind(&OnLongLinkNetworkError, _1, _2, _3, _4, _5);
+	_longLinkTaskManager.LongLinkChannel().FuncNetworkReport = std::bind(&OnLongLinkNetworkError, _1, _2, _3, _4, _5);
+	_longLinkTaskManager.funNotifyNetworkError = std::bind(&OnLongLinkNetworkError, _1, _2, _3, _4, _5);
 }
 
 class CDetour /* add ": public CMember" to enable access to member variables... */

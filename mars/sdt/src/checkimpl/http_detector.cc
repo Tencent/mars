@@ -11,7 +11,7 @@
 #include "http_detector.h"
 #include "http_url_parser.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/strutil.h"
 #include "mars/comm/http.h"
@@ -54,7 +54,7 @@ static std::string GetCurTimeStr() {
 
 HTTPDetector::HTTPDetector(const HTTPDetectReq& _req)
 : req_(_req)
-, worker_thread_(boost::bind(&HTTPDetector::__Run, this), XLOGGER_TAG "::HTTPDetector")
+, worker_thread_(std::bind(&HTTPDetector::__Run, this), XLOGGER_TAG "::HTTPDetector")
 , callback_(NULL){
     
 }

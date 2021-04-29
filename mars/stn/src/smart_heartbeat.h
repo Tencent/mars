@@ -22,6 +22,7 @@
 #define STN_SRC_SMART_HEARTBEAT_H_
 
 #include <string>
+#include <functional>
 
 #include "mars/comm/singleton.h"
 #include "mars/comm/tickcount.h"
@@ -75,7 +76,7 @@ class NetHeartbeatInfo {
 
 class SmartHeartbeat {
   public:
-    boost::function<void (TSmartHeartBeatAction _action, const NetHeartbeatInfo& _heart_info, bool _fail_timeout)> report_smart_heart_;
+    std::function<void (TSmartHeartBeatAction _action, const NetHeartbeatInfo& _heart_info, bool _fail_timeout)> report_smart_heart_;
     
 	SmartHeartbeat();
 	~SmartHeartbeat();

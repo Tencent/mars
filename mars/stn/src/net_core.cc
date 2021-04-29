@@ -22,8 +22,7 @@
 
 #include <stdlib.h>
 
-#include "boost/bind.hpp"
-#include "boost/ref.hpp"
+#include <functional>
 
 
 #include "mars/comm/messagequeue/message_queue.h"
@@ -114,7 +113,7 @@ NetCore::NetCore()
                    
     xinfo_function();
 
-    ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
+    ActiveLogic::Instance()->SignalActive.connect(std::bind(&NetCore::__OnSignalActive, this, _1));
 
     __InitLongLink();
     __InitShortLink();
@@ -123,7 +122,7 @@ NetCore::NetCore()
 NetCore::~NetCore() {
     xinfo_function();
 
-    ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
+    ActiveLogic::Instance()->SignalActive.disconnect(std::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
 #ifdef USE_LONG_LINK
     {   //must disconnect signal
@@ -151,20 +150,20 @@ NetCore::~NetCore() {
 
 void NetCore::__InitShortLink(){
     // async
-    shortlink_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromShort, _1, _2, _3, _4, _5);
+    shortlink_task_manager_->fun_callback_ = std::bind(&NetCore::__CallBack, this, (int)kCallFromShort, _1, _2, _3, _4, _5);
     
     // sync
-    shortlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
-    shortlink_task_manager_->fun_notify_network_err_ = boost::bind(&NetCore::__OnShortLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
-    shortlink_task_manager_->fun_anti_avalanche_check_ = boost::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
-    shortlink_task_manager_->fun_shortlink_response_ = boost::bind(&NetCore::__OnShortLinkResponse, this, _1);
+    shortlink_task_manager_->fun_notify_retry_all_tasks = std::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
+    shortlink_task_manager_->fun_notify_network_err_ = std::bind(&NetCore::__OnShortLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
+    shortlink_task_manager_->fun_anti_avalanche_check_ = std::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
+    shortlink_task_manager_->fun_shortlink_response_ = std::bind(&NetCore::__OnShortLinkResponse, this, _1);
 }
 
 void NetCore::__InitLongLink(){
 #ifdef USE_LONG_LINK
     zombie_task_manager_ = new ZombieTaskManager(messagequeue_creater_.GetMessageQueue());
-    zombie_task_manager_->fun_start_task_ = boost::bind(&NetCore::StartTask, this, _1);
-    zombie_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromZombie, _1, _2, _3, _4, _5);
+    zombie_task_manager_->fun_start_task_ = std::bind(&NetCore::StartTask, this, _1);
+    zombie_task_manager_->fun_callback_ = std::bind(&NetCore::__CallBack, this, (int)kCallFromZombie, _1, _2, _3, _4, _5);
 
     timing_sync_ = new TimingSync(*ActiveLogic::Instance());
 
@@ -175,20 +174,20 @@ void NetCore::__InitLongLink(){
     CreateLongLink(defaultConfig);
 
     // async
-    longlink_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromLong, _1, _2, _3, _4, _5);
+    longlink_task_manager_->fun_callback_ = std::bind(&NetCore::__CallBack, this, (int)kCallFromLong, _1, _2, _3, _4, _5);
     
     // sync
-    longlink_task_manager_->fun_notify_retry_all_tasks = boost::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
-    longlink_task_manager_->fun_notify_network_err_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
-    longlink_task_manager_->fun_anti_avalanche_check_ = boost::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
+    longlink_task_manager_->fun_notify_retry_all_tasks = std::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
+    longlink_task_manager_->fun_notify_network_err_ = std::bind(&NetCore::__OnLongLinkNetworkError, this, _1, _2, _3, _4, _5, _6);
+    longlink_task_manager_->fun_anti_avalanche_check_ = std::bind(&AntiAvalanche::Check, anti_avalanche_, _1, _2, _3);
     
-    longlink_task_manager_->fun_on_push_ = boost::bind(&NetCore::__OnPush, this, _1, _2, _3, _4, _5);
+    longlink_task_manager_->fun_on_push_ = std::bind(&NetCore::__OnPush, this, _1, _2, _3, _4, _5);
 #endif
 }
 
 void NetCore::__Release(NetCore* _instance) {
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(_instance->asyncreg_.Get())) {
-        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
+        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)std::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
         return;
     }
     
@@ -400,7 +399,7 @@ void NetCore::StopTask(uint32_t _taskid) {
 }
 
 bool NetCore::HasTask(uint32_t _taskid) const {
-	WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::HasTask, this, _taskid));
+	WAIT_SYNC2ASYNC_FUNC(std::bind(&NetCore::HasTask, this, _taskid));
 
 #ifdef USE_LONG_LINK
     if(longlink_task_manager_->HasTask(_taskid))    return true;
@@ -426,7 +425,7 @@ void NetCore::ClearTasks() {
 
 void NetCore::OnNetworkChange() {
     
-    SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
+    SYNC2ASYNC_FUNC(std::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
 
@@ -504,7 +503,7 @@ void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnect
 
 //#ifdef __APPLE__
 //void NetCore::__ResetLongLink() {
-//    SYNC2ASYNC_FUNC(boost::bind(&NetCore::__ResetLongLink, this));
+//    SYNC2ASYNC_FUNC(std::bind(&NetCore::__ResetLongLink, this));
 //    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->LongLinkChannel().Disconnect(LongLink::kNetworkChange);
 //    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->RedoTasks();
 //}
@@ -610,7 +609,7 @@ void NetCore::__OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t
 }
 
 void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
-    SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _line, _err_type,  _err_code, _ip, _port));
+    SYNC2ASYNC_FUNC(std::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _line, _err_type,  _err_code, _ip, _port));
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateLongLinkInfo(longlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
@@ -635,7 +634,7 @@ void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrC
 #endif
 
 void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnShortLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _host, _port));
+    SYNC2ASYNC_FUNC(std::bind(&NetCore::__OnShortLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _host, _port));
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateShortLinkInfo(shortlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
@@ -820,18 +819,18 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(LonglinkConfig& _config){
     
     if(_config.IsMain() && oldDefault) {
         xinfo2(TSF"change default longlink to name:%_, group:%_", _config.name, _config.group);
-        oldDefault->Channel()->SignalConnection.disconnect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
-        oldDefault->Channel()->SignalConnection.disconnect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-        GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, oldDefault->SignalKeeper().get(), _1, _2, _3));
+        oldDefault->Channel()->SignalConnection.disconnect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
+        oldDefault->Channel()->SignalConnection.disconnect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
+        GetSignalOnNetworkDataChange().disconnect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, oldDefault->SignalKeeper().get(), _1, _2, _3));
         oldDefault->Config().isMain = false;
     }
     
     if(_config.IsMain()) {
-        longlink_channel->fun_network_report_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _config.name, _1, _2, _3, _4, _5);
-        longlink_channel->SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-        longlink_channel->SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
+        longlink_channel->fun_network_report_ = std::bind(&NetCore::__OnLongLinkNetworkError, this, _config.name, _1, _2, _3, _4, _5);
+        longlink_channel->SignalConnection.connect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
+        longlink_channel->SignalConnection.connect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
         if(longlink->SignalKeeper()) {
-            GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+            GetSignalOnNetworkDataChange().connect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
         }
     }
     
@@ -849,7 +848,7 @@ void NetCore::ForbidLonglinkTlsHost(const std::vector<std::string>& _host) {
 }
 
 void NetCore::DestroyLongLink(const std::string& _name){
-	WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::DestroyLongLink, this, _name));
+	WAIT_SYNC2ASYNC_FUNC(std::bind(&NetCore::DestroyLongLink, this, _name));
     auto longlink = longlink_task_manager_->GetLongLink(_name);
     if(!longlink) {
         xwarn2(TSF"destroy long link failure: no such long link exists %_",_name);
@@ -857,7 +856,7 @@ void NetCore::DestroyLongLink(const std::string& _name){
     }
     
     if(longlink->SignalKeeper()) {
-        GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+        GetSignalOnNetworkDataChange().disconnect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
     }
     longlink->Channel()->SignalConnection.disconnect_all_slots();
     longlink->Channel()->broadcast_linkstatus_signal_.disconnect_all_slots();
@@ -878,18 +877,18 @@ void NetCore::MarkMainLonglink_ext(const std::string& _name) {
 	}
 
     xinfo2(TSF"change default longlink to name:%_", _name);
-    oldLink->SignalConnection.disconnect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
-    oldLink->SignalConnection.disconnect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-    GetSignalOnNetworkDataChange().disconnect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, oldMeta->SignalKeeper().get(), _1, _2, _3));
+    oldLink->SignalConnection.disconnect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
+    oldLink->SignalConnection.disconnect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
+    GetSignalOnNetworkDataChange().disconnect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, oldMeta->SignalKeeper().get(), _1, _2, _3));
 	oldMeta->Config().isMain = false;
     
-    newLink->fun_network_report_ = boost::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _1, _2, _3, _4, _5);
-    newLink->SignalConnection.connect(boost::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-    newLink->SignalConnection.connect(boost::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
+    newLink->fun_network_report_ = std::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _1, _2, _3, _4, _5);
+    newLink->SignalConnection.connect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
+    newLink->SignalConnection.connect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
 
     auto longlink = GetLongLink(_name);
     if(longlink && longlink->SignalKeeper()) {
-        GetSignalOnNetworkDataChange().connect(boost::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+        GetSignalOnNetworkDataChange().connect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
     }
 	longlink->Config().isMain = true;
 

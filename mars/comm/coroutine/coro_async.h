@@ -10,6 +10,8 @@
 
 #include "coroutine.h"
 
+#include <memory>
+
 #include "mars/comm/thread/thread.h"
 
 namespace coroutine {
@@ -40,17 +42,17 @@ public:
     ~WaitThread() {}
     
     template <typename F>
-    typename boost::disable_if<typename boost::is_void<typename boost::result_of<F()>::type>, typename boost::result_of<F()>::type>::type
+    typename boost::disable_if<typename std::is_void<typename std::result_of<F()>::type>, typename std::result_of<F()>::type>::type
     operator ()(const F& _block_func, int64_t _timeout = -1, int* _status = NULL) {
         
-        boost::shared_ptr<Wrapper_> wrapper = wrapper_;
+        std::shared_ptr<Wrapper_> wrapper = wrapper_;
         ScopedLock lock(wrapper_->mutex);
         wrapper->wrapper = RunningCoroutine();
         
         if (0 <= _timeout) { wrapper->message_timeout = Resume(wrapper->wrapper, _timeout); }
         
-        typedef typename boost::result_of<F()>::type R;
-        boost::shared_ptr<R> result(new R);
+        typedef typename std::result_of<F()>::type R;
+        std::shared_ptr<R> result(new R);
         
         mq::AsyncResult<R> async_result(_block_func, [wrapper, result](const R& _result, bool _valid) {
             
@@ -77,10 +79,10 @@ public:
     }
    
     template <typename F>
-    typename boost::enable_if<typename boost::is_void<typename boost::result_of<F()>::type>>::type
+    typename boost::enable_if<typename std::is_void<typename std::result_of<F()>::type>>::type
     operator ()(const F& _block_func, int64_t _timeout = -1, int* _status = NULL) {
         
-        boost::shared_ptr<Wrapper_> wrapper = wrapper_;
+        std::shared_ptr<Wrapper_> wrapper = wrapper_;
         ScopedLock lock(wrapper_->mutex);
         wrapper->wrapper = RunningCoroutine();
         
@@ -128,14 +130,14 @@ private:
     
 private:
     Thread  thread_;
-    boost::shared_ptr<Wrapper_> wrapper_;
+    std::shared_ptr<Wrapper_> wrapper_;
 };
 
 template <typename F>
-typename boost::result_of< F()>::type MessageInvoke(const F& _func) {
+typename std::result_of< F()>::type MessageInvoke(const F& _func) {
     boost::intrusive_ptr<Wrapper> wrapper = RunningCoroutine();
     
-    typedef typename boost::result_of<F()>::type R;
+    typedef typename std::result_of<F()>::type R;
     mq::AsyncResult<R> result(
                               [_func, wrapper](){
                                 Resume(wrapper);

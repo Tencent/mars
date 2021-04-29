@@ -20,9 +20,9 @@
 
 #include <stdlib.h>
 
+#include <functional>
 #include "tcpserver.h"
 
-#include "boost/bind.hpp"
 
 #include "comm/thread/lock.h"
 #include "comm/xlogger/xlogger.h"
@@ -30,7 +30,7 @@
 
 TcpServer::TcpServer(const char* _ip, uint16_t _port, MTcpServer& _observer, int _backlog)
     : observer_(_observer)
-    , thread_(boost::bind(&TcpServer::__ListenThread, this))
+    , thread_(std::bind(&TcpServer::__ListenThread, this))
     , listen_sock_(INVALID_SOCKET), backlog_(_backlog) {
     memset(&bind_addr_, 0, sizeof(bind_addr_));
     bind_addr_ = *(struct sockaddr_in*)(&socket_address(_ip, _port).address());
@@ -38,7 +38,7 @@ TcpServer::TcpServer(const char* _ip, uint16_t _port, MTcpServer& _observer, int
 
 TcpServer::TcpServer(uint16_t _port, MTcpServer& _observer, int _backlog)
     : observer_(_observer)
-    , thread_(boost::bind(&TcpServer::__ListenThread, this))
+    , thread_(std::bind(&TcpServer::__ListenThread, this))
     , listen_sock_(INVALID_SOCKET), backlog_(_backlog) {
     memset(&bind_addr_, 0, sizeof(bind_addr_));
     bind_addr_.sin_family = AF_INET;
@@ -48,7 +48,7 @@ TcpServer::TcpServer(uint16_t _port, MTcpServer& _observer, int _backlog)
 
 TcpServer::TcpServer(const sockaddr_in& _bindaddr, MTcpServer& _observer, int _backlog)
     : observer_(_observer)
-    , thread_(boost::bind(&TcpServer::__ListenThread, this))
+    , thread_(std::bind(&TcpServer::__ListenThread, this))
     , listen_sock_(INVALID_SOCKET), bind_addr_(_bindaddr), backlog_(_backlog)
 {}
 

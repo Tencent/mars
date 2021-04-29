@@ -19,6 +19,7 @@
 #include "../platform_comm.h"
 
 #include <jni.h>
+#include <functional>
 
 #include "../xlogger/xlogger.h"
 #include "util/comm_function.h"
@@ -26,8 +27,6 @@
 #include "util/scoped_jstring.h"
 #include "util/var_cache.h"
 
-#include "mars/boost/bind.hpp"
-#include "mars/boost/ref.hpp"
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/coroutine/coroutine.h"
@@ -49,7 +48,7 @@ bool startAlarm(int type, int64_t id, int after) {
     xverbose_function();
     
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&startAlarm, type, id, after));
+        return coroutine::MessageInvoke(std::bind(&startAlarm, type, id, after));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -64,7 +63,7 @@ bool stopAlarm(int64_t  id) {
     xverbose_function();
     
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&stopAlarm, id));
+        return coroutine::MessageInvoke(std::bind(&stopAlarm, id));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -79,7 +78,7 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     xverbose_function();
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getProxyInfo, boost::ref(port), boost::ref(strProxy), _host));
+        return coroutine::MessageInvoke(std::bind(&getProxyInfo, std::ref(port), std::ref(strProxy), _host));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -224,7 +223,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     }
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurWifiInfo, boost::ref(wifiInfo), _force_refresh));
+        return coroutine::MessageInvoke(std::bind(&getCurWifiInfo, std::ref(wifiInfo), _force_refresh));
                                         
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -268,7 +267,7 @@ bool getCurSIMInfo(SIMInfo& simInfo) {
     }
     
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurSIMInfo, boost::ref(simInfo)));
+        return coroutine::MessageInvoke(std::bind(&getCurSIMInfo, std::ref(simInfo)));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -322,7 +321,7 @@ bool getAPNInfo(APNInfo& info) {
     }
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getAPNInfo, boost::ref(info)));
+        return coroutine::MessageInvoke(std::bind(&getAPNInfo, std::ref(info)));
                                         
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -365,7 +364,7 @@ unsigned int getSignal(bool isWifi) {
     xverbose_function();
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getSignal, isWifi));
+        return coroutine::MessageInvoke(std::bind(&getSignal, isWifi));
                                         
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -428,7 +427,7 @@ void  wakeupLock_delete(void* _object) {
     if (NULL == _object) return;
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_delete, _object));
+        return coroutine::MessageInvoke(std::bind(&wakeupLock_delete, _object));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -442,7 +441,7 @@ void  wakeupLock_Lock(void* _object) {
     xdebug2(TSF"_object= %0", _object);
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_Lock, _object));
+        return coroutine::MessageInvoke(std::bind(&wakeupLock_Lock, _object));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -457,7 +456,7 @@ void  wakeupLock_Lock_Timeout(void* _object, int64_t _timeout) {
     xverbose2(TSF"_object= %0, _timeout= %1", _object, _timeout);
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_Lock_Timeout, _object, _timeout));
+        return coroutine::MessageInvoke(std::bind(&wakeupLock_Lock_Timeout, _object, _timeout));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -471,7 +470,7 @@ void  wakeupLock_Unlock(void* _object) {
     xdebug2(TSF"_object= %0", _object);
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_Unlock, _object));
+        return coroutine::MessageInvoke(std::bind(&wakeupLock_Unlock, _object));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -484,7 +483,7 @@ bool  wakeupLock_IsLocking(void* _object) {
     xassert2(_object);
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_IsLocking, _object));
+        return coroutine::MessageInvoke(std::bind(&wakeupLock_IsLocking, _object));
     
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());

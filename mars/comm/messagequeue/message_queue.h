@@ -23,10 +23,9 @@
 
 #include <string.h>
 #include <string>
-
-#include "boost/function.hpp"
+#include <memory>
+#include <functional>
 #include "boost/any.hpp"
-#include "boost/smart_ptr.hpp"
 
 #if UWP //???andrewu temp compile pass
 #include "boost/utility/result_of.hpp"
@@ -49,7 +48,7 @@
 namespace MessageQueue {
 
 typedef uint64_t MessageQueue_t;
-typedef boost::function<void ()> AsyncInvokeFunction;
+typedef std::function<void ()> AsyncInvokeFunction;
 
 const MessageQueue_t KInvalidQueueID = 0;
 
@@ -78,7 +77,7 @@ struct MessagePost_t {
 
 struct MessageTitle_t {
     MessageTitle_t(): title(0) {}
-    template<typename T> MessageTitle_t(const T& _title): title((uintptr_t)_title) { BOOST_STATIC_ASSERT(sizeof(T) <= sizeof(uintptr_t));}
+    template<typename T> MessageTitle_t(const T& _title): title((uintptr_t)_title) { std::static_assert(sizeof(T) <= sizeof(uintptr_t));}
 
     bool operator == (const MessageTitle_t& _rhs) const { return title == _rhs.title;}
     bool operator!=(const MessageTitle_t& _rhs) const { return !operator==(_rhs);}
@@ -94,14 +93,14 @@ struct Message {
     
     template <class F>
     Message(const MessageTitle_t& _title, const F& _func, const std::string& _name = "")
-    : title(_title), body1(boost::make_shared<AsyncInvokeFunction>()), body2(), anr_timeout(10*60*1000), msg_name(_name), create_time(::gettickcount()), execute_time(0) {
+    : title(_title), body1(std::make_shared<AsyncInvokeFunction>()), body2(), anr_timeout(10*60*1000), msg_name(_name), create_time(::gettickcount()), execute_time(0) {
         if (msg_name.empty()){
             const char* funcname = typeid(_func).name();
             if (funcname != nullptr){
                 msg_name = funcname;
             }
         }
-        *boost::any_cast<boost::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
+        *boost::any_cast<std::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
     }
     
     
@@ -178,7 +177,7 @@ const TMessageTiming kPeriod = MessageTiming::TMessageTiming::kPeriod;
 const TMessageTiming kImmediately = MessageTiming::TMessageTiming::kImmediately;
 
 
-typedef boost::function<void (const MessagePost_t& _id, Message& _message)> MessageHandler;
+typedef std::function<void (const MessagePost_t& _id, Message& _message)> MessageHandler;
 
 const MessageTiming     KDefTiming;
 const MessageHandler_t  KNullHandler;
@@ -309,8 +308,8 @@ class RunLoop {
      RunLoop& operator=(const RunLoop&);
     
  private:
-    boost::function<bool ()> breaker_func_;
-    boost::function<void ()> duty_func_;
+    std::function<bool ()> breaker_func_;
+    std::function<void ()> duty_func_;
 };
     
 class RunloopCond {
@@ -318,10 +317,10 @@ public:
     RunloopCond() {};
     virtual ~RunloopCond() {};
     
-    static boost::shared_ptr<RunloopCond> CurrentCond();
+    static std::shared_ptr<RunloopCond> CurrentCond();
     
 public:
-    virtual const boost::typeindex::type_info& type() const = 0;
+    virtual const std::typeindex::type_info& type() const = 0;
     virtual void  Wait(ScopedLock& _lock, long _millisecond) = 0;
     virtual void  Notify(ScopedLock& _lock) = 0;
     
@@ -334,7 +333,7 @@ private:
 class MessageQueueCreater {
   public:
     MessageQueueCreater(bool _iscreate = false, const char* _msg_queue_name = NULL);
-    MessageQueueCreater(boost::shared_ptr<RunloopCond> _breaker, bool _iscreate = false, const char* _msg_queue_name = NULL);
+    MessageQueueCreater(std::shared_ptr<RunloopCond> _breaker, bool _iscreate = false, const char* _msg_queue_name = NULL);
     ~MessageQueueCreater();
 
     MessageQueue_t GetMessageQueue();
@@ -342,8 +341,8 @@ class MessageQueueCreater {
     void CancelAndWait();
 
     static MessageQueue_t CreateNewMessageQueue(const char* _messagequeue_name = NULL);
-    static MessageQueue_t CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, const char* _messagequeue_name = NULL);
-    static MessageQueue_t CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, thread_tid _tid);
+    static MessageQueue_t CreateNewMessageQueue(std::shared_ptr<RunloopCond> _breaker, const char* _messagequeue_name = NULL);
+    static MessageQueue_t CreateNewMessageQueue(std::shared_ptr<RunloopCond> _breaker, thread_tid _tid);
     static void ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id); // block api
 
   private:
@@ -357,7 +356,7 @@ class MessageQueueCreater {
     Thread                              thread_;
     Mutex                               messagequeue_mutex_;
     MessageQueue_t                      messagequeue_id_;
-    boost::shared_ptr<RunloopCond>      breaker_;
+    std::shared_ptr<RunloopCond>      breaker_;
 };
 
 template <typename R>
@@ -375,8 +374,8 @@ class AsyncResult {
         
         R*  result_holder;
 
-        boost::function<R()> invoke_function;
-        boost::function<void (const R&, bool)> callback_function;
+        std::function<R()> invoke_function;
+        std::function<void (const R&, bool)> callback_function;
 
         bool result_valid;
         R* result;
@@ -387,7 +386,7 @@ class AsyncResult {
     AsyncResult(const T& _func)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, R>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -396,7 +395,7 @@ class AsyncResult {
     AsyncResult(const T& _func, R* _result_holder)
         : wrapper_(new AsyncResultWrapper(_result_holder)) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, R>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -405,7 +404,7 @@ class AsyncResult {
     AsyncResult(const T& _func, const C& _callback)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, R>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -415,7 +414,7 @@ class AsyncResult {
     AsyncResult(const T& _func, const C& _callback, R* _result_holder)
         : wrapper_(new AsyncResultWrapper(_result_holder)) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, R>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -438,7 +437,7 @@ class AsyncResult {
     // AsyncResult(const AsyncResult& _ref);
 
   private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <>
@@ -451,8 +450,8 @@ class AsyncResult<void> {
                 callback_function(false);
         }
 
-        boost::function<void ()> invoke_function;
-        boost::function<void (bool)> callback_function;
+        std::function<void ()> invoke_function;
+        std::function<void (bool)> callback_function;
         bool result_valid;
     };
 
@@ -461,7 +460,7 @@ class AsyncResult<void> {
     AsyncResult(const T& _func, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, void>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, void>::value);
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -470,7 +469,7 @@ class AsyncResult<void> {
     AsyncResult(const T& _func, const C& _callback, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, void>::value);
+        std::static_cast(std::is_same<typename std::result_of<T()>::type, void>::value);
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -492,7 +491,7 @@ class AsyncResult<void> {
     // AsyncResult(const AsyncResult& _ref);
 
   private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <typename R>
@@ -505,8 +504,8 @@ class AsyncResult <R&> {
                 callback_function(*result, false);
         }
 
-        boost::function<R& ()> invoke_function;
-        boost::function<void (R&, bool)> callback_function;
+        std::function<R& ()> invoke_function;
+        std::function<void (R&, bool)> callback_function;
 
         bool result_valid;
         R* result;
@@ -517,7 +516,7 @@ class AsyncResult <R&> {
     AsyncResult(const T& _func, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, R&>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, R&>::value);
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -526,7 +525,7 @@ class AsyncResult <R&> {
     AsyncResult(const T& _func, const C& _callback, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, R&>::value);
+        std::static_assert(boostdst::is_same<typename std::result_of<T()>::type, R&>::value);
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -548,7 +547,7 @@ class AsyncResult <R&> {
     // AsyncResult(const AsyncResult& _ref);
 
   private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <typename R>
@@ -561,8 +560,8 @@ class AsyncResult <const R&> {
                 callback_function(*result, false);
         }
 
-        boost::function<const R& ()> invoke_function;
-        boost::function<void (const R&, bool)> callback_function;
+        std::function<const R& ()> invoke_function;
+        std::function<void (const R&, bool)> callback_function;
 
         bool result_valid;
         const R* result;
@@ -573,7 +572,7 @@ class AsyncResult <const R&> {
     AsyncResult(const T& _func, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, const R&>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, const R&>::value);
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -582,7 +581,7 @@ class AsyncResult <const R&> {
     AsyncResult(const T& _func, const C& _callback, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        BOOST_STATIC_ASSERT(boost::is_same<typename boost::result_of<T()>::type, const R&>::value);
+        std::static_assert(std::is_same<typename std::result_of<T()>::type, const R&>::value);
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -604,7 +603,7 @@ class AsyncResult <const R&> {
     // AsyncResult(const AsyncResult& _ref);
 
   private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <typename R>
@@ -620,13 +619,13 @@ template <typename R>
 }
     
 template <typename F>
-typename boost::result_of< F()>::type  WaitInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
+typename std::result_of< F()>::type  WaitInvoke(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name="default_name") {
     
     if (CurrentThreadMessageQueue() == Handler2Queue(_handlerid)) {
         return _func();
     } else {
         
-        typedef typename boost::result_of<F()>::type R;
+        typedef typename std::result_of<F()>::type R;
         MessageQueue::AsyncResult<R> result(_func);
         
         WaitMessage(AsyncInvoke(result, _handlerid, _msg_name));
@@ -640,7 +639,7 @@ template <typename F, typename R>
     if (CurrentThreadMessageQueue() == Handler2Queue(_handlerid)) {
         return _func();
     } else {
-        // typedef typename boost::result_of<F()>::type R;
+        // typedef typename std::result_of<F()>::type R;
         MessageQueue::AsyncResult<R> result(_func);
         
         bool hasRun = WaitMessage(AsyncInvoke(result, _handlerid, _msg_name), _timeout);

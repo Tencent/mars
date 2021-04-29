@@ -26,9 +26,6 @@
 #include <vector>
 #include <memory>
 
-#include "boost/signals2.hpp"
-#include "boost/function.hpp"
-
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/http.h"
@@ -88,7 +85,7 @@ class ShortLink : public ShortLinkInterface {
     
     std::vector<IPPortItem>        outter_vec_addr_;
     
-    boost::scoped_ptr<shortlink_tracker> tracker_;
+    std::unique_ptr<shortlink_tracker> tracker_;
     bool                            is_keep_alive_;
 };
         

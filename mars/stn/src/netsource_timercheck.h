@@ -21,6 +21,8 @@
 #ifndef STN_SRC_NETSOURCE_TIMERCHECK_H_
 #define STN_SRC_NETSOURCE_TIMERCHECK_H_
 
+#include <functional>
+
 #include "boost/signals2.hpp"
 
 #include "mars/comm/thread/thread.h"
@@ -47,7 +49,7 @@ class NetSourceTimerCheck {
     void CancelConnect();
 
   public:
-    boost::function<void ()> fun_time_check_suc_;
+    std::function<void ()> fun_time_check_suc_;
 
   private:
     void __Run(const std::string& _host);

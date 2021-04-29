@@ -21,7 +21,7 @@
 
 #include "longlink_connect_monitor.h"
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
@@ -163,12 +163,12 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
 LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_id))
-    , activelogic_(_activelogic), longlink_(_longlink), rebuild_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, true), _id)
-    , wake_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, false), _id)
+    , activelogic_(_activelogic), longlink_(_longlink), rebuild_alarm_(std::bind(&LongLinkConnectMonitor::__OnAlarm, this, true), _id)
+    , wake_alarm_(std::bind(&LongLinkConnectMonitor::__OnAlarm, this, false), _id)
     , status_(LongLink::kDisConnected)
     , last_connect_time_(0)
     , last_connect_net_type_(kNoNet)
-    , thread_(boost::bind(&LongLinkConnectMonitor::__Run, this), XLOGGER_TAG"::con_mon")
+    , thread_(std::bind(&LongLinkConnectMonitor::__Run, this), XLOGGER_TAG"::con_mon")
     , conti_suc_count_(0)
     , isstart_(false)
     , is_keep_alive_(_is_keep_alive)
@@ -176,9 +176,9 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
     , rebuild_longlink_(false) {
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
         if(is_keep_alive_) {
-            activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
-            activelogic_.SignalForeground.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-            longlink_.SignalConnection.connect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
+            activelogic_.SignalActive.connect(std::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+            activelogic_.SignalForeground.connect(std::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
+            longlink_.SignalConnection.connect(std::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
         }
 #ifdef __ANDROID__
         rebuild_alarm_.SetType(kAlarmType);
@@ -191,18 +191,18 @@ LongLinkConnectMonitor::~LongLinkConnectMonitor() {
 #ifdef __APPLE__
     __StopTimer();
 #endif
-    longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
-    activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-    activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+    longlink_.SignalConnection.disconnect(std::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
+    activelogic_.SignalForeground.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
+    activelogic_.SignalActive.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
 
     asyncreg_.CancelAndWait();
 }
 
 void LongLinkConnectMonitor::DisconnectAllSlot() {
     if(is_keep_alive_) {
-        longlink_.SignalConnection.disconnect(boost::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
-        activelogic_.SignalForeground.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-        activelogic_.SignalActive.disconnect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+        longlink_.SignalConnection.disconnect(std::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
+        activelogic_.SignalForeground.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
+        activelogic_.SignalActive.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
     }
 }
 

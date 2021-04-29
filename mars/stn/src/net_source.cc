@@ -26,8 +26,6 @@
 #include <algorithm>
 #include <set>
 
-#include "boost/bind.hpp"
-
 #include "mars/comm/marcotoolkit.h"
 #include "mars/comm/socket/unix_socket.h"
 #include "mars/comm/xlogger/xlogger.h"

@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/socket/unix_socket.h"
 
@@ -63,7 +63,7 @@ class PingQuery {
         readcount_(0),
         interval_(0),
         timeout_(0),
-        alarm_(boost::bind(&PingQuery::__onAlarm, this), false),
+        alarm_(std::bind(&PingQuery::__onAlarm, this), false),
         readwrite_breaker_()
 #endif
         , traffic_monitor_(trafficMonitor)

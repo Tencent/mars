@@ -18,6 +18,7 @@
  */
 
 #include "mars/sdt/sdt_logic.h"
+#include <memory>
 
 #include "mars/baseevent/baseevent.h"
 #include "mars/baseevent/baseprjevent.h"
@@ -35,7 +36,7 @@ static Callback* sg_callback = NULL;
 static const std::string kLibName = "sdt";
 
 #define SDT_WEAK_CALL(func) \
-    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
     if (!sdt_ptr) {\
         xwarn2(TSF"sdt uncreate");\
         return;\

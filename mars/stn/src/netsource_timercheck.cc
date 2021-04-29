@@ -22,7 +22,7 @@
 
 #include <unistd.h>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/comm_frequency_limit.h"
 #include "mars/comm/xlogger/xlogger.h"
@@ -52,7 +52,7 @@ NetSourceTimerCheck::NetSourceTimerCheck(NetSource* _net_source, ActiveLogic& _a
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     frequency_limit_ = new CommFrequencyLimit(kMaxSpeedTestCount, kIntervalTime);
 
-    active_connection_ = _active_logic.SignalActive.connect(boost::bind(&NetSourceTimerCheck::__OnActiveChanged, this, _1));
+    active_connection_ = _active_logic.SignalActive.connect(std::bind(&NetSourceTimerCheck::__OnActiveChanged, this, _1));
 
     if (_active_logic.IsActive()) {
     	__StartCheck();
@@ -78,7 +78,7 @@ NetSourceTimerCheck::~NetSourceTimerCheck() {
 }
 
 void NetSourceTimerCheck::CancelConnect() {
-	RETURN_NETCORE_SYNC2ASYNC_FUNC(boost::bind(&NetSourceTimerCheck::CancelConnect, this));
+	RETURN_NETCORE_SYNC2ASYNC_FUNC(std::bind(&NetSourceTimerCheck::CancelConnect, this));
     xinfo_function();
 
     if (!thread_.isruning()) {
@@ -93,12 +93,12 @@ void NetSourceTimerCheck::CancelConnect() {
 
 void NetSourceTimerCheck::__StartCheck() {
 
-	RETURN_NETCORE_SYNC2ASYNC_FUNC(boost::bind(&NetSourceTimerCheck::__StartCheck, this));
+	RETURN_NETCORE_SYNC2ASYNC_FUNC(std::bind(&NetSourceTimerCheck::__StartCheck, this));
     xdebug_function();
 
     if (asyncpost_ != MessageQueue::KNullPost) return;
 
-    asyncpost_ = MessageQueue::AsyncInvokePeriod(kTimeCheckPeriod, kTimeCheckPeriod, boost::bind(&NetSourceTimerCheck::__Check, this), asyncreg_.Get(), "NetSourceTimerCheck::__Check()");
+    asyncpost_ = MessageQueue::AsyncInvokePeriod(kTimeCheckPeriod, kTimeCheckPeriod, std::bind(&NetSourceTimerCheck::__Check, this), asyncreg_.Get(), "NetSourceTimerCheck::__Check()");
 
 }
 
@@ -127,13 +127,13 @@ void NetSourceTimerCheck::__Check() {
     std::string linkedhost = longlink_.Profile().host;
     xdebug2(TSF"current host:%0", linkedhost);
 
-    thread_.start(boost::bind(&NetSourceTimerCheck::__Run, this, linkedhost));
+    thread_.start(std::bind(&NetSourceTimerCheck::__Run, this, linkedhost));
 
 }
 
 void NetSourceTimerCheck::__StopCheck() {
 
-	RETURN_NETCORE_SYNC2ASYNC_FUNC(boost::bind(&NetSourceTimerCheck::__StopCheck, this));
+	RETURN_NETCORE_SYNC2ASYNC_FUNC(std::bind(&NetSourceTimerCheck::__StopCheck, this));
 
     xdebug_function();
 

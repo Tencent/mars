@@ -24,8 +24,9 @@
 #include <string>
 #include <list>
 
+#include <functional>
+#include <memory>
 #include "boost/signals2.hpp"
-#include "boost/function.hpp"
 
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
@@ -112,13 +113,13 @@ class LongLink {
     boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
     
-    boost::function< void (uint32_t _tls_version)> OnHandshakeCompleted;
-    boost::function< void (uint32_t _taskid)> OnSend;
-    boost::function< void (uint32_t _taskid, size_t _cachedsize, size_t _package_size)> OnRecv;
-    boost::function< void (const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
-    boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
-    boost::function< void (uint64_t _interval)> OnNoopAlarmSet;
-    boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
+    std::function< void (uint32_t _tls_version)> OnHandshakeCompleted;
+    std::function< void (uint32_t _taskid)> OnSend;
+    std::function< void (uint32_t _taskid, size_t _cachedsize, size_t _package_size)> OnRecv;
+    std::function< void (const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
+    std::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
+    std::function< void (uint64_t _interval)> OnNoopAlarmSet;
+    std::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
 
   public:
     LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
@@ -184,7 +185,7 @@ class LongLink {
     Mutex                           mutex_;
     Thread                          thread_;
 
-    boost::scoped_ptr<longlink_tracker>         tracker_;
+    std::unique_ptr<longlink_tracker>         tracker_;
     NetSource::DnsUtil                          dns_util_;
     SocketBreaker                               connectbreak_;
     TLongLinkStatus                             connectstatus_;

@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
@@ -138,7 +138,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , netsource_(_netsource)
     , config_(_config)
-    , thread_(boost::bind(&LongLink::__Run, this), XLOGGER_TAG "::lonklink")
+    , thread_(std::bind(&LongLink::__Run, this), XLOGGER_TAG "::lonklink")
 	, connectstatus_(kConnectIdle)
 	, disconnectinternalcode_(kNone)
     , identifychecker_(_encoder, _config.name, Task::kChannelMinorLong == _config.link_type)
@@ -364,11 +364,11 @@ void LongLink::__ConnectStatus(TLongLinkStatus _status) {
     __NotifySmartHeartbeatConnectStatus(connectstatus_);
     if (kConnected==connectstatus_ && fun_network_report_)
         fun_network_report_(__LINE__, kEctOK, 0, conn_profile_.ip, conn_profile_.port);
-    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(boost::ref(SignalConnection), connectstatus_, config_.name));
+    STATIC_RETURN_SYNC2ASYNC_FUNC(std::bind(std::ref(SignalConnection), connectstatus_, config_.name));
 }
 
 void LongLink::__UpdateProfile(const ConnectProfile _conn_profile) {
-    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLink::__UpdateProfile, this, _conn_profile));
+    STATIC_RETURN_SYNC2ASYNC_FUNC(std::bind(&LongLink::__UpdateProfile, this, _conn_profile));
     ConnectProfile profile = conn_profile_;
     conn_profile_ = _conn_profile;
     conn_profile_.tls_handshake_mismatch = profile.tls_handshake_mismatch;
@@ -580,8 +580,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 
 void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile) {
     
-    Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this, false), false);
-    Alarm alarmnooptimeout(boost::bind(&LongLink::__OnAlarm, this, true), false);
+    Alarm alarmnoopinterval(std::bind(&LongLink::__OnAlarm, this, false), false);
+    Alarm alarmnooptimeout(std::bind(&LongLink::__OnAlarm, this, true), false);
     
 #ifdef __ANDROID__
     alarmnoopinterval.SetType(kAlarmNoopInternalType);

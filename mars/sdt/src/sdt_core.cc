@@ -20,7 +20,7 @@
 
 #include <algorithm>
 
-#include "boost/bind.hpp"
+#include <functional>
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/xlogger/xlogger.h"
@@ -39,7 +39,7 @@ using namespace mars::sdt;
 #define RETURN_NETCHECKER_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, async_reg_.Get(), )
 
 SdtCore::SdtCore()
-    : thread_(boost::bind(&SdtCore::__RunOn, this))
+    : thread_(std::bind(&SdtCore::__RunOn, this))
     , check_list_(std::list<BaseChecker*>())
     , cancel_(false)
     , checking_(false) {
