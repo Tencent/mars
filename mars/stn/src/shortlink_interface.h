@@ -38,6 +38,7 @@ class ShortLinkInterface {
     virtual void SetUseProtocol(int _protocol) {}
     virtual void SetDebugHost(const std::string& _host) {}
     virtual void OnConnectHandshakeCompleted() {}
+    virtual void OnNetTimeout() {}
 
 
     CallBack<boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, const std::string& _host, uint16_t _port)> > func_network_report;

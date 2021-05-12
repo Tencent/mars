@@ -24,6 +24,7 @@
 #include <list>
 #include <stdint.h>
 #include <map>
+#include <functional>
 
 #include "boost/function.hpp"
 
@@ -92,6 +93,7 @@ class ShortLinkTaskManager {
     void __DeleteShortLink(intptr_t& _running_id);
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
+    void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
 
   private:
     MessageQueue::ScopeRegister     asyncreg_;

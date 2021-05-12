@@ -228,6 +228,7 @@ void ShortLinkTaskManager::__RunOnTimeout() {
             std::string host = first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile().host : "";
             int port = first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile().port : 0;
             dynamic_timeout_.CgiTaskStatistic(first->task.cgi, kDynTimeTaskFailedPkgLen, 0);
+            __OnRequestTimeout(reinterpret_cast<ShortLinkInterface*>(first->running_id), socket_timeout_code);
             __SetLastFailedStatus(first);
             __SingleRespHandle(first, err_type, socket_timeout_code, err_type == kEctLocal ? kTaskFailHandleTaskTimeout : kTaskFailHandleDefault, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             xassert2(fun_notify_network_err_);
@@ -718,6 +719,12 @@ void ShortLinkTaskManager::__OnHandshakeCompleted(uint32_t _version, mars::stn::
     xinfo2(TSF"receive tls version: %_", _version);
     if (on_handshake_ready_) {
         on_handshake_ready_(_version, _from);
+    }
+}
+
+void ShortLinkTaskManager::__OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode) {
+    if (kEctLocalTaskTimeout != _errorcode && _worker) {
+        _worker->OnNetTimeout();
     }
 }
 

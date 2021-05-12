@@ -66,6 +66,11 @@ void str_split(char _spliter, std::string _pingresult, std::vector<std::string>&
 }
 
 int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, const char* dest, unsigned int packetSize) {  // use popen
+    int rtt(0);
+    return RunPingQuery(_querycount, interval, timeout, dest, packetSize, &rtt);
+}
+
+int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, const char* dest, unsigned int packetSize, int* rtt) {
     xinfo2(TSF"in runpingquery");
     xassert2(_querycount >= 0, "ping count should be more than 0");
     xassert2(interval >= 0, "interval should be more than 0");
@@ -167,8 +172,10 @@ int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/
         xinfo2(TSF"remote host is not available, pingresult_:%_", pingresult_);
         return -1;
     }
+    xdebug2("ping rtt: %d, %d", (int)pingStatusTemp.avgrtt, (int)pingStatusTemp.maxrtt);
+    *rtt = static_cast<int>(pingStatusTemp.avgrtt);
 
-    xinfo2(TSF"m_strPingResult = %0", pingresult_);
+    xinfo2(TSF"m_strPingResult = %0, %1", pingresult_, *rtt);
     return 0;
 }
 

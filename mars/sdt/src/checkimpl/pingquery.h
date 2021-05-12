@@ -88,6 +88,9 @@ class PingQuery {
     int RunPingQuery(int queryCount, int interval/*S*/, int timeout/*S*/,
                        const char* dest, unsigned int packetSize = 0);
 
+    int RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, 
+                       const char* dest, unsigned int packetSize, int* rtt);
+
 #ifdef __APPLE__
   private:
     void proc_v4(char* ptr, ssize_t len, struct msghdr* msg, struct timeval* tvrecv);
