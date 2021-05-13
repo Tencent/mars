@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 
 #include "comm/socket/ipv6_address_utils.h"
 #include "comm/socket/nat64_prefix_util.h"
@@ -317,8 +318,14 @@ socket_address& socket_address::v4tonat64_address() {
     return *this;
 }
 
+bool isV6(const std::string& _ip) {
+    return (_ip.find(":") != std::string::npos) && (_ip.find(".") == std::string::npos);
+}
+
 socket_address& socket_address::v4tov6_address(bool _nat64) {
-	if (_nat64)
+    bool is_v6ip = isV6(ip());
+    xdebug2(TSF"is v6: %_, ip: %_", is_v6ip, ip());
+	if (_nat64 && is_v6ip)
 		return v4tonat64_address();
 	else
 	{
