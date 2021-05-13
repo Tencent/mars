@@ -318,14 +318,14 @@ socket_address& socket_address::v4tonat64_address() {
     return *this;
 }
 
-bool isV6(const std::string& _ip) {
-    return (_ip.find(":") != std::string::npos) && (_ip.find(".") == std::string::npos);
+bool isV4(const std::string& _ip) {
+    return (_ip.find(".") != std::string::npos);
 }
 
 socket_address& socket_address::v4tov6_address(bool _nat64) {
-    bool is_v6ip = isV6(ip());
-    xdebug2(TSF"is v6: %_, ip: %_", is_v6ip, ip());
-	if (_nat64 && is_v6ip)
+    bool is_v4ip = isV4(ip());
+    xdebug2(TSF"is v4: %_, ip: %_", is_v4ip, ip());
+	if (_nat64 && is_v4ip)
 		return v4tonat64_address();
 	else
 	{
