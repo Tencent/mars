@@ -31,6 +31,8 @@
 
 #include "mars/app/app_logic.h"
 
+#include <functional>
+
 #ifdef __APPLE__
 #include <TargetConditionals.h>
 #include "mars/comm/objc/data_protect_attr.h"
@@ -141,7 +143,7 @@ void SetCallback(Callback* const callback) {
         if (!lock.timedlock(500))   return mars::comm::ProxyInfo();
         
         if (sg_slproxycount < 3 || 5 * 1000 > gettickspan(sg_slporxytimetick)) {
-            sg_slproxyThread.start(boost::bind(&__GetProxyInfo, _host, sg_slporxytimetick));
+            sg_slproxyThread.start(std::bind(&__GetProxyInfo, _host, sg_slporxytimetick));
         }
         
         if (sg_gotProxy) {
