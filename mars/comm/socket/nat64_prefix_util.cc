@@ -254,6 +254,11 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 #endif
     xdebug2("77777");
 						const char* ip_str = socket_inet_ntop(AF_INET6, &_v6_addr, ip_buf, sizeof(ip_buf));
+                        if (!ip_str || !v4_ip) {
+                            xerror2(TSF"convert failed: %_: %_", (ip_str == NULL), (v4_ip == NULL));
+                            ret = false;
+                            break;
+                        }
 						xdebug2(TSF"AF_INET6 v4_ip=%_, nat64 ip_str = %_", v4_ip, ip_str);
 		    			ret = true;
 		    			break;
