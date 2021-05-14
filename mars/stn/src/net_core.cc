@@ -847,7 +847,7 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(const LonglinkConfig& _config)
     auto longlink = longlink_task_manager_->GetLongLink(_config.name);
     auto longlink_channel = longlink->Channel();
     if(longlink == nullptr || longlink_channel == nullptr) {
-        xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
+        xassert2(false, TSF"get longlink nullptr with name:%_", _config.name.c_str());
         return nullptr;
     }
     

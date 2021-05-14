@@ -41,6 +41,13 @@ struct STChannelResp;
 class WakeUpLock;
 #endif
 
+#ifndef _WIN32
+#define PlatformSLock ScopedLock
+#else
+#define PlatformSLock ScopedRecursiveLock
+#endif
+
+
 namespace mars {
     namespace stn {
 
@@ -80,7 +87,7 @@ class LongLinkTaskManager {
 
     bool AddLongLink(const LonglinkConfig& _config);
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
-        ScopedLock lock(meta_mutex_);
+        PlatformSLock lock(meta_mutex_);
         for(auto& item : longlink_metas_) {
             if(item.second->Config().IsMain()) {
                 return item.second;
@@ -133,7 +140,11 @@ class LongLinkTaskManager {
 #ifdef ANDROID
     WakeUpLock*                     wakeup_lock_;
 #endif
+#ifdef _WIN32
+    RecursiveMutex    meta_mutex_;
+#else
     Mutex                           meta_mutex_;
+#endif
 };
     }
 }

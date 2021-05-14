@@ -277,7 +277,7 @@ uint32_t (*getNoopTaskID)()
 
 // [+] Lambda syntax could apply a conversion between lambda and function pointer
 // https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
 void(*CreateLonglink_ext)(const LonglinkConfig& _config) = [](const LonglinkConfig& _config) {
 #else
 auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
@@ -285,7 +285,7 @@ auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
     STN_WEAK_CALL(CreateLongLink(_config));
 };
 
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
 void(*DestroyLonglink_ext)(const std::string& name) = [](const std::string& name) {
 #else
 auto DestroyLonglink_ext = +[](const std::string& name){
@@ -298,7 +298,7 @@ auto DestroyLonglink_ext = +[](const std::string& name){
 //    return res;
 //};
 
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
 bool(*LongLinkIsConnected_ext)(const std::string& name) = [](const std::string& name) {
 #else
 auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
@@ -308,7 +308,7 @@ auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
     return res;
 };
 
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
 void(*MarkMainLonglink_ext)(const std::string& name) = [](const std::string& name) {
 #else
 auto MarkMainLonglink_ext = +[](const std::string& name){
@@ -316,7 +316,7 @@ auto MarkMainLonglink_ext = +[](const std::string& name){
     STN_WEAK_CALL(MarkMainLonglink_ext(name));
 };
 
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
 void(*MakesureLonglinkConnected_ext)(const std::string& name) = [](const std::string& name) {
 #else
 auto MakesureLonglinkConnected_ext = +[](const std::string& name){
