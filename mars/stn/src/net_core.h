@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include <functional>
 
+#include "mars/comm/signal/signalslot.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/messagequeue/message_queue.h"
 
@@ -70,7 +71,7 @@ class NetCore {
   public:
     std::function<void (Task& _task)> task_process_hook_;
     std::function<int (int _from, ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task)> task_callback_hook_;
-    boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
+    owl::xsignal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
 
   public:
     MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }

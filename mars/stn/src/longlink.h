@@ -26,7 +26,7 @@
 
 #include <functional>
 #include <memory>
-#include "boost/signals2.hpp"
+#include "mars/comm/signal/signalslot.h"
 
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
@@ -110,8 +110,8 @@ class LongLink {
         kTimeCheckSucc = 10019,
     };
   public:
-    boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
-    boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
+    owl::xsignal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
+    owl::xsignal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
     
     std::function< void (uint32_t _tls_version)> OnHandshakeCompleted;
     std::function< void (uint32_t _taskid)> OnSend;

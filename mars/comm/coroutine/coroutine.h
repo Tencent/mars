@@ -19,6 +19,7 @@
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/assert/__assert.h"
+#include "mars/comm/mpl/any.h"
 
 namespace coroutine {
 
@@ -63,7 +64,7 @@ private:
 inline boost::intrusive_ptr<Wrapper> RunningCoroutine() {
     const mq::Message& running_msg = mq::RunningMessage();
     ASSERT(running_msg.body2.type() == boost::typeindex::type_id<boost::intrusive_ptr<Wrapper> >());
-    return (boost::any_cast<boost::intrusive_ptr<Wrapper> >(running_msg.body2));
+    return (owl::any_cast<boost::intrusive_ptr<Wrapper> >(running_msg.body2));
 }
     
 inline bool isCoroutine() {

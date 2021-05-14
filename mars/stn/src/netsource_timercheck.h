@@ -23,8 +23,6 @@
 
 #include <functional>
 
-#include "boost/signals2.hpp"
-
 #include "mars/comm/thread/thread.h"
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/socket/socketselect.h"
@@ -61,7 +59,6 @@ class NetSourceTimerCheck {
 
   private:
     Thread thread_;
-    boost::signals2::scoped_connection active_connection_;
     NetSource* net_source_;
     SocketBreaker breaker_;
     SocketSelect seletor_;

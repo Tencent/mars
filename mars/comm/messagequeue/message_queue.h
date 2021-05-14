@@ -25,7 +25,7 @@
 #include <string>
 #include <memory>
 #include <functional>
-#include "boost/any.hpp"
+#include "mars/comm/mpl/any.h"
 
 #if UWP //???andrewu temp compile pass
 #include "boost/utility/result_of.hpp"
@@ -87,7 +87,7 @@ struct MessageTitle_t {
 
 struct Message {
     Message(): title(0), anr_timeout(0), create_time(0), execute_time(0) {}
-    Message(const MessageTitle_t& _title, const boost::any& _body1, const boost::any& _body2, const std::string& _name = "")
+    Message(const MessageTitle_t& _title, const owl::any& _body1, const owl::any& _body2, const std::string& _name = "")
     : title(_title), body1(_body1), body2(_body2), anr_timeout(10*60*1000), msg_name(_name), create_time(::gettickcount()),
     execute_time(0){}
     
@@ -100,7 +100,7 @@ struct Message {
                 msg_name = funcname;
             }
         }
-        *boost::any_cast<std::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
+        *owl::any_cast<std::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
     }
     
     
@@ -113,8 +113,8 @@ struct Message {
     }
     
     MessageTitle_t  title;
-    boost::any      body1;
-    boost::any      body2;
+    owl::any      body1;
+    owl::any      body2;
     int64_t         anr_timeout;
     
     std::string     msg_name;

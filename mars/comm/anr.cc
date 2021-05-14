@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <algorithm>
+#include "mars/comm/signal/signalslot.h"
 
 #ifndef _WIN32
 #define __STDC_FORMAT_MACROS
@@ -41,8 +42,8 @@
 
 using namespace mars::comm;
 
-boost::signals2::signal<void (bool _iOS_style, const check_content& _content)>& GetSignalCheckHit() {
-	static boost::signals2::signal<void (bool _iOS_style, const check_content& _content)> SignalCheckHit;
+owl::xsignal<void (bool _iOS_style, const check_content& _content)>& GetSignalCheckHit() {
+	static owl::xsignal<void (bool _iOS_style, const check_content& _content)> SignalCheckHit;
 	return SignalCheckHit;
 }
 

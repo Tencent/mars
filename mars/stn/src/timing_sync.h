@@ -22,9 +22,6 @@
 #ifndef STN_SRC_TIMING_SYNC_H_
 #define STN_SRC_TIMING_SYNC_H_
 
-#include "boost/function.hpp"
-#include "boost/signals2.hpp"
-
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/alarm.h"
 #include "mars/comm/thread/mutex.h"
@@ -50,7 +47,6 @@ class TimingSync {
     Alarm alarm_;
 
     ActiveLogic& active_logic_;
-    boost::signals2::scoped_connection timing_sync_active_connection_;
 };
 
     }
