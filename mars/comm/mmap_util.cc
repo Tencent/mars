@@ -24,12 +24,13 @@
 
 #include "comm/filesystem/operations.h"
 #include "comm/filesystem/path.h"
+#include "mars/comm/filesystem/mapped_file.h"
 
-bool IsMmapFileOpenSucc(const boost::iostreams::mapped_file& _mmmap_file) {
+bool IsMmapFileOpenSucc(const mars::filesystem::mapped_file& _mmmap_file) {
     return !_mmmap_file.operator !() && _mmmap_file.is_open();
 }
 
-bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::mapped_file& _mmmap_file) {
+bool OpenMmapFile(const char* _filepath, unsigned int _size, mars::filesystem::mapped_file& _mmmap_file) {
 
     if (NULL == _filepath || 0 == strnlen(_filepath, 128) || 0 == _size) {
         return false;
@@ -43,9 +44,9 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         return false;
     }
 
-    boost::iostreams::basic_mapped_file_params<mars::filesystem::path> param;
+    mars::filesystem::basic_mapped_file_params<mars::filesystem::path> param;
     param.path = mars::filesystem::path(_filepath);
-    param.flags = boost::iostreams::mapped_file_base::readwrite;
+    param.flags = mars::filesystem::mapped_file_base::readwrite;
 
     bool file_exist = mars::filesystem::exists(_filepath);
     if (!file_exist) {
@@ -84,7 +85,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
     return is_open;
 }
 
-void CloseMmapFile(boost::iostreams::mapped_file& _mmmap_file) {
+void CloseMmapFile(mars::filesystem::mapped_file& _mmmap_file) {
     if (_mmmap_file.is_open()) {
         _mmmap_file.close();
     }

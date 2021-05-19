@@ -20,13 +20,13 @@
 #ifndef MMAP_UTIL_H_
 #define MMAP_UTIL_H_
 
-#include "boost/iostreams/device/mapped_file.hpp"
+#include "mars/comm/filesystem/mapped_file.h"
 
-bool IsMmapFileOpenSucc(const boost::iostreams::mapped_file& _mmmap_file);
+bool IsMmapFileOpenSucc(const mars::filesystem::mapped_file& _mmmap_file);
 
-bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::mapped_file& _mmmap_file);
+bool OpenMmapFile(const char* _filepath, unsigned int _size, mars::filesystem::mapped_file& _mmmap_file);
 
-void CloseMmapFile(boost::iostreams::mapped_file& _mmmap_file);
+void CloseMmapFile(mars::filesystem::mapped_file& _mmmap_file);
 
 
 

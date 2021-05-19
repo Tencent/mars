@@ -1,6 +1,6 @@
 #include "mars/log/appender.h"
 
-#include "boost/iostreams/device/mapped_file.hpp"
+#include "mars/comm/filesystem/mapped_file.h"
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/thread/condition.h"
@@ -72,7 +72,7 @@ class XloggerAppender {
  private:
     XLogConfig config_;
     LogBaseBuffer* log_buff_ = nullptr;
-    boost::iostreams::mapped_file mmap_file_;
+    mars::filesystem::mapped_file mmap_file_;
     Thread thread_async_;
     Mutex mutex_buffer_async_;
     Mutex mutex_log_file_;
