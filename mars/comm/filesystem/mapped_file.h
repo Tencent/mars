@@ -277,12 +277,6 @@ struct basic_mapped_file_params
 {
     typedef mapped_file_params_base base_type;
 
-    // For wide paths, instantiate basic_mapped_file_params 
-    // with mars_boost::filesystem::wpath
-// #ifndef BOOST_IOSTREAMS_NO_WIDE_STREAMS
-//     BOOST_STATIC_ASSERT((!is_same<Path, std::wstring>::value));
-// #endif
-
     // Default constructor
     basic_mapped_file_params() { }
 
@@ -458,7 +452,6 @@ private:
     typedef mapped_file_source                      delegate_type;
     typedef delegate_type::safe_bool                safe_bool;
     typedef basic_mapped_file_params<path>  param_type;
-    // friend struct mars_boost::iostreams::operations<mapped_file >;
     friend class mapped_file_sink;
 public:
     typedef char                                    char_type;
@@ -558,7 +551,6 @@ private:
 
 class mapped_file_sink : private mapped_file {
 public:
-    // friend struct mars_boost::iostreams::operations<mapped_file_sink>;
     using mapped_file::mapmode;
     using mapped_file::readonly;
     using mapped_file::readwrite;
