@@ -165,6 +165,9 @@ public:
     bool                                        shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
+
+    owl::signal_conn_t                          longlink_connection_signal_slot_;
+    owl::signal_conn_t                          signal_active_slot_;
 };
         
 }}

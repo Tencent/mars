@@ -176,9 +176,9 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
     , rebuild_longlink_(false) {
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
         if(is_keep_alive_) {
-            activelogic_.SignalActive.connect(std::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
-            activelogic_.SignalForeground.connect(std::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-            longlink_.SignalConnection.connect(std::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
+            activelogic_.SignalActiveSlot = activelogic_.SignalActive.connect(std::bind(&LongLinkConnectMonitor::__OnSignalActive, this, std::placeholders::_1));
+            activelogic_.SignalForegroundSlot = activelogic_.SignalForeground.connect(std::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, std::placeholders::_1));
+            longlink_.SignalConnection_slot = longlink_.SignalConnection.connect(std::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, std::placeholders::_1, std::placeholders::_2));
         }
 #ifdef __ANDROID__
         rebuild_alarm_.SetType(kAlarmType);
@@ -191,18 +191,18 @@ LongLinkConnectMonitor::~LongLinkConnectMonitor() {
 #ifdef __APPLE__
     __StopTimer();
 #endif
-    longlink_.SignalConnection.disconnect(std::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
-    activelogic_.SignalForeground.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-    activelogic_.SignalActive.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+    longlink_.SignalConnection.disconnect(longlink_.SignalConnection_slot);
+    activelogic_.SignalForeground.disconnect(activelogic_.SignalForegroundSlot);
+    activelogic_.SignalActive.disconnect(activelogic_.SignalActiveSlot);
 
     asyncreg_.CancelAndWait();
 }
 
 void LongLinkConnectMonitor::DisconnectAllSlot() {
     if(is_keep_alive_) {
-        longlink_.SignalConnection.disconnect(std::bind(&LongLinkConnectMonitor::__OnLongLinkStatuChanged, this, _1, _2));
-        activelogic_.SignalForeground.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
-        activelogic_.SignalActive.disconnect(std::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
+        longlink_.SignalConnection.disconnect(longlink_.SignalConnection_slot);
+        activelogic_.SignalForeground.disconnect(activelogic_.SignalForegroundSlot);
+        activelogic_.SignalActive.disconnect(activelogic_.SignalActiveSlot);
     }
 }
 

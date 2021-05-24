@@ -46,7 +46,8 @@ bool Alarm::Start(int _after, bool _needWake) {
 
     int64_t seq = sg_seq++;
     uint64_t starttime = gettickcount();
-    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, (int64_t)seq, MessageQueue::GetDefMessageQueue(), "Alarm.broadcast"), MessageQueue::MessageTiming(_after));
+    // owl::any anyq(seq);
+    broadcast_msg_id_ = MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_MESSAGETITLE, seq, MessageQueue::GetDefMessageQueue(), "Alarm.broadcast"), MessageQueue::MessageTiming(_after));
 
     if (MessageQueue::KNullPost == broadcast_msg_id_) {
         xerror2(TSF"mq alarm return null post, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
@@ -132,11 +133,11 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
     }
 
     bool isSystemAlarm = (KALARM_SYSTEMTITLE == _message.title);
-    MessageQueue::MessageQueue_t fromMQ = std::any_cast<MessageQueue::MessageQueue_t>(_message.body2);
+    MessageQueue::MessageQueue_t fromMQ = owl::any_cast<MessageQueue::MessageQueue_t>(_message.body2);
 
-    if (seq_ != std::any_cast<int64_t>(_message.body1) || fromMQ != MessageQueue::GetDefMessageQueue()) {
+    if (seq_ != owl::any_cast<int64_t>(_message.body1) || fromMQ != MessageQueue::GetDefMessageQueue()) {
         if(fromMQ != MessageQueue::GetDefMessageQueue()) {
-            xinfo2(TSF"not match:(%_, %_), (%_, %_)", seq_, std::any_cast<int64_t>(_message.body1), MessageQueue::GetDefMessageQueue(), fromMQ);
+            xinfo2(TSF"not match:(%_, %_), (%_, %_)", seq_, owl::any_cast<int64_t>(_message.body1), MessageQueue::GetDefMessageQueue(), fromMQ);
         }
         return;
     }

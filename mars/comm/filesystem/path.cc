@@ -44,11 +44,19 @@ size_type filename_pos(const string_type & str,
         : pos + 1;
 }
 
-path::path(string_type&& _path)
-: pathname(std::move(_path)) {
+path::path() noexcept {}
 
+
+path::path(const path& _p)
+: pathname(_p.pathname) {
+    
 }
 
+path::path(path&& _p) noexcept
+    : pathname(std::move(_p.pathname)){}
+
+path::path(string_type&& _path)
+: pathname(std::move(_path)) {}
 
 path::path(string_type& _p) 
 : pathname(_p) {
@@ -75,9 +83,7 @@ path::path(InputIterator first, InputIterator last) {
 }
 
 MARS_FILESYSTEM_INLINE path path::root_name() const {
-    path temp(root_name());
-    if (!root_directory().empty()) temp.pathname += root_directory().c_str();
-    return temp;
+    return path(pathname.substr(prefixLength_, root_name_length()));
 }
 
 path path::root_directory() const {
@@ -187,6 +193,16 @@ MARS_FILESYSTEM_INLINE bool path::has_stem() const {
 
 MARS_FILESYSTEM_INLINE bool path::has_extension() const {
     return !extension().empty();
+}
+
+MARS_FILESYSTEM_INLINE path& path::operator=(const path& _p) {
+    pathname = _p.pathname;
+    return *this;
+}
+
+MARS_FILESYSTEM_INLINE path& path::operator=(path&& _p) noexcept {
+    pathname = std::move(_p.pathname);
+    return *this;
 }
 
 MARS_FILESYSTEM_INLINE path& path::operator/=(const path& p) {

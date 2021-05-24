@@ -17,14 +17,15 @@
 #include "function_base.h"
 #include "signal_base.h"
 #include "function.h"
-#include "mpl/preprocessor.h"
-#include "mpl/meta_function.h"
-#include "mpl/scope.h"
+#include "../mpl/preprocessor.h"
+#include "../mpl/meta_function.h"
+#include "../mpl/scope.h"
 
 namespace owl {
 
 class signal_conn_t {
 public:
+    signal_conn_t():ptr_(nullptr) {}
     signal_conn_t(void* ptr):ptr_(ptr) {}
     void* ptr() const { return ptr_; }
     
@@ -81,6 +82,10 @@ public:
 	void connect(xsignal_type& sig) {
 		connect_impl(&sig, &xsignal_type::operator(), std::is_base_of<trackable, xsignal_type>());
 	}
+
+    bool empty() {
+        return stdfn_slot_list_->list.empty();
+    }
 
 private:
 	typedef std::function<R (Args...)> stdfunction_type;

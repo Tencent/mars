@@ -37,7 +37,6 @@
 #include "mars/comm/bootrun.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/alarm.h"
-#include "mars/boost/signals2.hpp"
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
@@ -146,11 +145,11 @@ static void __initbind_baseprjevent() {
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnInitBeforeOnCreate().connect(std::bind(&onInitConfigBeforeOnCreate, _1));
+    GetSignalOnInitBeforeOnCreate().connect(std::bind(&onInitConfigBeforeOnCreate, std::placeholders::_1));
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+    GetSignalOnNetworkChange().connect(&onNetworkChange);    //define group 5
 
     
 #ifndef XLOGGER_TAG

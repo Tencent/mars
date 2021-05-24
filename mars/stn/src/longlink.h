@@ -111,7 +111,9 @@ class LongLink {
     };
   public:
     owl::xsignal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
+    owl::signal_conn_t SignalConnection_slot;
     owl::xsignal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
+    owl::signal_conn_t broadcast_linkstatus_slot;
     
     std::function< void (uint32_t _tls_version)> OnHandshakeCompleted;
     std::function< void (uint32_t _taskid)> OnSend;

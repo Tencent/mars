@@ -68,7 +68,7 @@ TimingSync::TimingSync(ActiveLogic& _active_logic)
 :alarm_(std::bind(&TimingSync::__OnAlarm, this), false)
 , active_logic_(_active_logic)
 {
-    _active_logic.SignalActive.connect(std::bind(&TimingSync::OnActiveChanged, this, _1));
+    _active_logic.SignalActive.connect(std::bind(&TimingSync::OnActiveChanged, this, std::placeholders::_1));
 #ifdef __ANDROID__
     alarm_.SetType(kAlarmType);
 #endif

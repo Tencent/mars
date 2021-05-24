@@ -132,8 +132,23 @@ MARS_FILESYSTEM_INLINE file_status status(const path& _p) {
     return status_ex(_p, ec);
 }
 
+
+MARS_FILESYSTEM_INLINE file_status status(const path& _p, std::error_code& _ec) noexcept {
+    return status_ex(_p, _ec);
+}
+
 MARS_FILESYSTEM_INLINE bool is_directory(file_status s) {
     return s.type() == mars::filesystem::file_type::directory;
+}
+
+
+MARS_FILESYSTEM_INLINE void rename(const path& from, const path& to, std::error_code& ec) noexcept {
+    ec.clear();
+    if (from != to) {
+        if (::rename(from.c_str(), to.c_str()) != 0) {
+            ec = make_system_error();
+        }
+    }
 }
 
 MARS_FILESYSTEM_INLINE bool is_directory(const path& _p) {
@@ -173,7 +188,7 @@ MARS_FILESYSTEM_INLINE uintmax_t remove_all(const path& p, std::error_code& ec) 
 {
     ec.clear();
     uintmax_t count = 0;
-    if (p == "/") {
+    if (p == path("/")) {
         ec = make_system_error(-5);
         return static_cast<uintmax_t>(-1);
     }
@@ -249,8 +264,18 @@ MARS_FILESYSTEM_INLINE bool create_directory(const path& p, std::error_code& ec)
         ec = make_system_error();
         return false;
     }
+    return true;
 }
 
+MARS_FILESYSTEM_INLINE directory_iterator begin(directory_iterator iter) noexcept
+{
+    return iter;
+}
+
+MARS_FILESYSTEM_INLINE directory_iterator end(const directory_iterator&) noexcept
+{
+    return directory_iterator();
+}
 
 MARS_FILESYSTEM_INLINE bool create_directories(const path& _p) {
     sec ec;

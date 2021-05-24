@@ -43,6 +43,9 @@ bool create_directories(const path& p);
 bool create_directories(const path& _p, std::error_code& _ec) noexcept;
 bool remove(const path& p, std::error_code& ec) noexcept;
 void resize_file(const path& p, uintmax_t size, std::error_code& ec) noexcept;
+file_status status(const path& _p);
+file_status status(const path& _p, std::error_code& _ec) noexcept;
+void rename(const path& from, const path& to, std::error_code& ec) noexcept;
 
 enum class directory_options  : uint16_t {
     none = 0,
@@ -162,6 +165,10 @@ private:
     std::shared_ptr<impl> impl_;
 };
 
+
+directory_iterator begin(directory_iterator iter) noexcept;
+directory_iterator end(const directory_iterator&) noexcept;
+
 class MARS_FILESYSTEM_API directory_iterator::impl {
 public:
     impl(const path& _p, directory_options _op)
@@ -174,7 +181,7 @@ public:
             if (!dir_) {
                 auto error = errno;
                 path_ = mars::filesystem::path();
-                if ((error != EACCES && error != EPERM) || (options_ & directory_options::skip_permission_denied) == directory_options::none) {
+                if ((error != EACCES && error != EPERM) || (static_cast<uint16_t>(options_) & static_cast<uint16_t>(directory_options::skip_permission_denied)) == static_cast<uint16_t>(directory_options::none)) {
                     ec_ = make_system_error();
                 }
             } else {
@@ -201,7 +208,8 @@ public:
                     dir_entry_.path_ = path_;
                     dir_entry_.path_.append_name(entry_->d_name);
                     copyToDirEntry();
-                    if (ec && (ec.value() == EACCES || ec.value() == EPERM) && (options_ & mars::filesystem::directory_options::skip_permission_denied) == mars::filesystem::directory_options::skip_permission_denied) {
+                    if (ec && (ec.value() == EACCES || ec.value() == EPERM) && (static_cast<uint16_t>(options_) & 
+                                static_cast<uint16_t>(mars::filesystem::directory_options::skip_permission_denied)) == static_cast<uint16_t>(mars::filesystem::directory_options::skip_permission_denied)) {
                         ec.clear();
                         skip = true;
                     }

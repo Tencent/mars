@@ -42,6 +42,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace std::placeholders;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )

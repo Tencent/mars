@@ -59,7 +59,7 @@ static void __initbind_baseprjevent() {
 	mars::baseevent::addLoadModule(kLibName);
 #endif
 	GetSignalOnCreate().connect(&onCreate);
-	GetSignalOnDestroy().connect(5, &onDestroy);
+	GetSignalOnDestroy().connect(&onDestroy);
 }
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);

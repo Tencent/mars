@@ -52,7 +52,7 @@ NetSourceTimerCheck::NetSourceTimerCheck(NetSource* _net_source, ActiveLogic& _a
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     frequency_limit_ = new CommFrequencyLimit(kMaxSpeedTestCount, kIntervalTime);
 
-    active_connection_ = _active_logic.SignalActive.connect(std::bind(&NetSourceTimerCheck::__OnActiveChanged, this, _1));
+    _active_logic.SignalActiveSlot = _active_logic.SignalActive.connect(std::bind(&NetSourceTimerCheck::__OnActiveChanged, this, std::placeholders::_1));
 
     if (_active_logic.IsActive()) {
     	__StartCheck();

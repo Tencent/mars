@@ -33,6 +33,8 @@ public:
 //    SINGLETON_INTRUSIVE(ActiveLogic, new ActiveLogic, delete);
     owl::xsignal<void (bool _isForeground)> SignalForeground;
     owl::xsignal<void (bool _isactive)> SignalActive;
+    owl::signal_conn_t SignalForegroundSlot;
+    owl::signal_conn_t SignalActiveSlot;
     static std::shared_ptr<ActiveLogic> Instance();
 
 public:

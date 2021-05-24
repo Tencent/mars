@@ -57,6 +57,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace std::placeholders;
 
 
 #define AYNC_HANDLER asyncreg_.Get()
@@ -113,7 +114,7 @@ NetCore::NetCore()
                    
     xinfo_function();
 
-    ActiveLogic::Instance()->SignalActive.connect(std::bind(&NetCore::__OnSignalActive, this, _1));
+    signal_active_slot_ = ActiveLogic::Instance()->SignalActive.connect(std::bind(&NetCore::__OnSignalActive, this, _1));
 
     __InitLongLink();
     __InitShortLink();
@@ -122,18 +123,18 @@ NetCore::NetCore()
 NetCore::~NetCore() {
     xinfo_function();
 
-    ActiveLogic::Instance()->SignalActive.disconnect(std::bind(&NetCore::__OnSignalActive, this, _1));
+    ActiveLogic::Instance()->SignalActive.disconnect(signal_active_slot_);
     asyncreg_.Cancel();
 #ifdef USE_LONG_LINK
     {   //must disconnect signal
         auto longlink = longlink_task_manager_->DefaultLongLink();
         if (longlink && longlink->SignalKeeper()) {
-            GetSignalOnNetworkDataChange().disconnect_all_slots();
+            GetSignalOnNetworkDataChange().disconnect_all();
         }
     }
     delete longlink_task_manager_;
 
-    push_preprocess_signal_.disconnect_all_slots();
+    push_preprocess_signal_.disconnect_all();
 
     delete timing_sync_;
     delete zombie_task_manager_;
@@ -150,7 +151,7 @@ NetCore::~NetCore() {
 
 void NetCore::__InitShortLink(){
     // async
-    shortlink_task_manager_->fun_callback_ = std::bind(&NetCore::__CallBack, this, (int)kCallFromShort, _1, _2, _3, _4, _5);
+    shortlink_task_manager_->fun_callback_ = std::bind(&NetCore::__CallBack, this, (int)kCallFromShort, _1,_2, _3, _4, _5);
     
     // sync
     shortlink_task_manager_->fun_notify_retry_all_tasks = std::bind(&NetCore::RetryTasks, this, _1, _2, _3, _4, _5);
@@ -819,18 +820,18 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(LonglinkConfig& _config){
     
     if(_config.IsMain() && oldDefault) {
         xinfo2(TSF"change default longlink to name:%_, group:%_", _config.name, _config.group);
-        oldDefault->Channel()->SignalConnection.disconnect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
-        oldDefault->Channel()->SignalConnection.disconnect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-        GetSignalOnNetworkDataChange().disconnect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, oldDefault->SignalKeeper().get(), _1, _2, _3));
+        oldDefault->Channel()->SignalConnection.disconnect(longlink_connection_signal_slot_);
+        oldDefault->Channel()->SignalConnection.disconnect(timing_sync_->longlink_connection_signal_slot_);
+        GetSignalOnNetworkDataChange().disconnect(oldDefault->SignalKeeper().get()->onnetworkchange_signal_slot_);
         oldDefault->Config().isMain = false;
     }
     
     if(_config.IsMain()) {
         longlink_channel->fun_network_report_ = std::bind(&NetCore::__OnLongLinkNetworkError, this, _config.name, _1, _2, _3, _4, _5);
-        longlink_channel->SignalConnection.connect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-        longlink_channel->SignalConnection.connect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
+        timing_sync_->longlink_connection_signal_slot_ = longlink_channel->SignalConnection.connect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
+        longlink_connection_signal_slot_ = longlink_channel->SignalConnection.connect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
         if(longlink->SignalKeeper()) {
-            GetSignalOnNetworkDataChange().connect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+            longlink->SignalKeeper().get()->onnetworkchange_signal_slot_ = GetSignalOnNetworkDataChange().connect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
         }
     }
     
@@ -856,10 +857,10 @@ void NetCore::DestroyLongLink(const std::string& _name){
     }
     
     if(longlink->SignalKeeper()) {
-        GetSignalOnNetworkDataChange().disconnect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+        GetSignalOnNetworkDataChange().disconnect(longlink->SignalKeeper().get()->onnetworkchange_signal_slot_);
     }
-    longlink->Channel()->SignalConnection.disconnect_all_slots();
-    longlink->Channel()->broadcast_linkstatus_signal_.disconnect_all_slots();
+    longlink->Channel()->SignalConnection.disconnect_all();
+    longlink->Channel()->broadcast_linkstatus_signal_.disconnect_all();
     longlink.reset();   // do not hold the shared_ptr
 
     longlink_task_manager_->ReleaseLongLink(_name);
@@ -877,18 +878,18 @@ void NetCore::MarkMainLonglink_ext(const std::string& _name) {
 	}
 
     xinfo2(TSF"change default longlink to name:%_", _name);
-    oldLink->SignalConnection.disconnect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
-    oldLink->SignalConnection.disconnect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-    GetSignalOnNetworkDataChange().disconnect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, oldMeta->SignalKeeper().get(), _1, _2, _3));
+    oldLink->SignalConnection.disconnect(longlink_connection_signal_slot_);
+    oldLink->SignalConnection.disconnect(timing_sync_->longlink_connection_signal_slot_);
+    GetSignalOnNetworkDataChange().disconnect(oldMeta->SignalKeeper().get()->onnetworkchange_signal_slot_);
 	oldMeta->Config().isMain = false;
     
     newLink->fun_network_report_ = std::bind(&NetCore::__OnLongLinkNetworkError, this, _name, _1, _2, _3, _4, _5);
-    newLink->SignalConnection.connect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
-    newLink->SignalConnection.connect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
+    timing_sync_->longlink_connection_signal_slot_ = newLink->SignalConnection.connect(std::bind(&TimingSync::OnLongLinkStatuChanged, timing_sync_, _1, _2));
+    longlink_connection_signal_slot_ = newLink->SignalConnection.connect(std::bind(&NetCore::__OnLongLinkConnStatusChange, this, _1, _2));
 
     auto longlink = GetLongLink(_name);
     if(longlink && longlink->SignalKeeper()) {
-        GetSignalOnNetworkDataChange().connect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
+        oldMeta->SignalKeeper().get()->onnetworkchange_signal_slot_ = GetSignalOnNetworkDataChange().connect(std::bind(&SignallingKeeper::OnNetWorkDataChanged, longlink->SignalKeeper().get(), _1, _2, _3));
     }
 	longlink->Config().isMain = true;
 

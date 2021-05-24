@@ -22,6 +22,8 @@ include_directories(network)
 include_directories(socket)
 include_directories(thread)
 include_directories(xlogger)
+include_directories(signal)
+include_directories(mpl)
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} *.cc *.c *.h)
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
@@ -53,6 +55,10 @@ list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} dns/*.cc dns/*.h)
 source_group(dns FILES ${SELF_TEMP_SRC_FILES})
+list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
+
+file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} filesystem/*.c filesystem/*.cc filesystem/*.h)
+source_group(xlogger FILES ${SELF_TEMP_SRC_FILES})
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} messagequeue/*.cc messagequeue/*.h)

@@ -25,7 +25,7 @@ public:
     path(const string_type& _p);
     template<class InputIterator>
     path(InputIterator first, InputIterator last);
-    ~path();
+    ~path() = default;
 
     path& operator=(const path& _p);
     path& operator=(path&& _p) noexcept;

@@ -98,6 +98,7 @@ namespace mars { namespace stn {
 }}
 
 using namespace mars::stn;
+using namespace std::placeholders;
 
 SimpleIPPortSort::SimpleIPPortSort()
 : hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName)
@@ -455,13 +456,13 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
     auto find_lambda = [&](const IPPortItem& _v) {
         for (std::vector<BanItem>::const_iterator it_banned = _ban_fail_list_.begin(); it_banned != _ban_fail_list_.end(); ++it_banned) {
             if (it_banned->ip == _v.str_ip && it_banned->port == _v.port) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     };
     
-    items_history.erase(std::remove_copy_if(_items.begin(), _items.end(), items_history.begin(), !std::bind<bool>(find_lambda, _1)), items_history.end());
+    items_history.erase(std::remove_copy_if(_items.begin(), _items.end(), items_history.begin(), find_lambda), items_history.end());
     items_new.erase(std::remove_copy_if(_items.begin(), _items.end(), items_new.begin(), find_lambda), items_new.end());
     xassert2(_items.size() == items_history.size()+items_new.size(), TSF"_item:%_, history:%_, new:%_", _items.size(), items_history.size(), items_new.size());
     

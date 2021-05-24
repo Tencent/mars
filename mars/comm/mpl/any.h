@@ -14,6 +14,9 @@
 
 #include <typeinfo>
 
+#include <string>
+#include <unordered_map>
+
 namespace owl {
 
 namespace detail {
@@ -54,9 +57,9 @@ public:
 	any()
 	:content(nullptr) {}
 
-	template <typename ValueType>
+    template <typename ValueType, typename std::enable_if<!std::is_same<any, typename std::decay<ValueType>::type>::value>::type* = nullptr>
 	any(ValueType&& value)
-    :content(new detail::holder<ValueType>(std::forward<ValueType>(value))) {}
+    :content(new detail::holder<typename std::decay<ValueType>::type>(std::forward<ValueType>(value))) {}
 
 	any(const any& other)
 	:content(other.content ? other.content->clone() : nullptr) {}
@@ -77,7 +80,7 @@ public:
 		return *this;
 	}
 
-	template <typename ValueType>
+    template <typename ValueType, typename std::enable_if<!std::is_same<any, typename std::decay<ValueType>::type>::value>::type* = nullptr>
 	any& operator=(ValueType&& rhs) {
         any(std::forward<ValueType>(rhs)).swap(*this);
 		return *this;
@@ -138,6 +141,13 @@ inline const ValueType* any_cast(const any* operand) {
 template <typename ValueType>
 inline ValueType& any_cast(any& operand) {
 	ValueType* result = any_cast<ValueType>(&operand);
+	if (!result) {
+		//TODO
+	}
+	return *result;
+}
+inline std::unordered_map<unsigned, std::string>& any_cast(any& operand) {
+	std::unordered_map<unsigned, std::string>* result = any_cast<std::unordered_map<unsigned, std::string> >(&operand);
 	if (!result) {
 		//TODO
 	}

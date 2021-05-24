@@ -48,6 +48,7 @@ class SignallingKeeper: IAsyncUdpClientEvent {
     virtual void OnDataSent(UdpClient* _this);
   public:
     std::function<unsigned int (const AutoBuffer&, const AutoBuffer&, int)> fun_send_signalling_buffer_;
+    owl::signal_conn_t onnetworkchange_signal_slot_;
 
   private:
     void __SendSignallingBuffer();

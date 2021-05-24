@@ -42,6 +42,7 @@
 #include "weak_network_logic.h"
 
 using namespace mars::stn;
+using namespace std::placeholders;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
@@ -946,7 +947,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     }
 
     longlink_metas_.erase(_name);
-    longlink->Channel()->SignalConnection.disconnect_all_slots();
+    longlink->Channel()->SignalConnection.disconnect_all();
     longlink->Monitor()->DisconnectAllSlot();
     lock.unlock();
     {
@@ -980,7 +981,7 @@ void LongLinkTaskManager::ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _lin
         }
     }
     
-    _linkmeta->Channel()->SignalConnection.disconnect_all_slots();
+    _linkmeta->Channel()->SignalConnection.disconnect_all();
     _linkmeta->Monitor()->DisconnectAllSlot();
 }
 

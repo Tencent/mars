@@ -25,21 +25,17 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <cassert>
+#include <typeindex>
 #include "mars/comm/mpl/any.h"
 
 #if UWP //???andrewu temp compile pass
 #include "boost/utility/result_of.hpp"
 #endif
 
-#if __cplusplus >= 201103L
-#include "boost/static_assert.hpp"
-#include "boost/utility/result_of.hpp"
-#include "boost/type_traits/is_same.hpp"
-#else 
 #ifdef WIN32
 #include "boost/utility/result_of.hpp"
 #endif // DEBUG
-#endif 
 
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
@@ -77,7 +73,7 @@ struct MessagePost_t {
 
 struct MessageTitle_t {
     MessageTitle_t(): title(0) {}
-    template<typename T> MessageTitle_t(const T& _title): title((uintptr_t)_title) { std::static_assert(sizeof(T) <= sizeof(uintptr_t));}
+    template<typename T> MessageTitle_t(const T& _title): title((uintptr_t)_title) { static_assert(sizeof(T) <= sizeof(uintptr_t), "no more detail message");}
 
     bool operator == (const MessageTitle_t& _rhs) const { return title == _rhs.title;}
     bool operator!=(const MessageTitle_t& _rhs) const { return !operator==(_rhs);}
@@ -320,7 +316,7 @@ public:
     static std::shared_ptr<RunloopCond> CurrentCond();
     
 public:
-    virtual const std::typeindex::type_info& type() const = 0;
+    virtual const std::type_info& type() const = 0;
     virtual void  Wait(ScopedLock& _lock, long _millisecond) = 0;
     virtual void  Notify(ScopedLock& _lock) = 0;
     
@@ -386,7 +382,7 @@ class AsyncResult {
     AsyncResult(const T& _func)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, R>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -395,7 +391,7 @@ class AsyncResult {
     AsyncResult(const T& _func, R* _result_holder)
         : wrapper_(new AsyncResultWrapper(_result_holder)) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, R>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -404,7 +400,7 @@ class AsyncResult {
     AsyncResult(const T& _func, const C& _callback)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, R>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -414,7 +410,7 @@ class AsyncResult {
     AsyncResult(const T& _func, const C& _callback, R* _result_holder)
         : wrapper_(new AsyncResultWrapper(_result_holder)) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, R>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, R>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -460,7 +456,7 @@ class AsyncResult<void> {
     AsyncResult(const T& _func, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, void>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, void>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -469,7 +465,7 @@ class AsyncResult<void> {
     AsyncResult(const T& _func, const C& _callback, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_cast(std::is_same<typename std::result_of<T()>::type, void>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, void>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -516,7 +512,7 @@ class AsyncResult <R&> {
     AsyncResult(const T& _func, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, R&>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, R&>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -525,7 +521,7 @@ class AsyncResult <R&> {
     AsyncResult(const T& _func, const C& _callback, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_assert(boostdst::is_same<typename std::result_of<T()>::type, R&>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, R&>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;
@@ -572,7 +568,7 @@ class AsyncResult <const R&> {
     AsyncResult(const T& _func, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, const R&>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, const R&>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
     }
@@ -581,7 +577,7 @@ class AsyncResult <const R&> {
     AsyncResult(const T& _func, const C& _callback, const void* _place_holder = NULL)
         : wrapper_(new AsyncResultWrapper()) {
 #if __cplusplus >= 201103L
-        std::static_assert(std::is_same<typename std::result_of<T()>::type, const R&>::value);
+        static_assert(std::is_same<typename std::result_of<T()>::type, const R&>::value, "no more detail message");
 #endif
         wrapper_->invoke_function = _func;
         wrapper_->callback_function = _callback;

@@ -501,6 +501,7 @@ public:
     // open overload taking a parameters object
     template<typename Path>
     void open(const basic_mapped_file_params<Path>& p);
+    void open(const basic_mapped_file_params<mars::filesystem::path>& p);
 
     // open overload taking a list of parameters
     template<typename Path>

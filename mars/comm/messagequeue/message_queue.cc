@@ -23,7 +23,7 @@
 #include <string>
 #include <algorithm>
 #include <memory>
-#include <function>
+#include <functional>
 #ifndef _WIN32
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -37,6 +37,7 @@
 #ifdef __APPLE__
 #include "comm/debugger/debugger_utils.h"
 #endif
+#include "comm/signal/signalslot.h"
 
 #ifdef ANDROID
 #include "android/fatal_assert.h"
@@ -108,8 +109,8 @@ namespace MessageQueue {
         Cond(){}
 
     public:
-        const std::typeindex::type_info& type() const {
-            return std::typeindex::type_id<Cond>().type_info();
+        const std::type_info& type() const {
+            return typeid(Cond);
         }
 
         virtual void Wait(ScopedLock& _lock, long _millisecond) {
@@ -708,8 +709,8 @@ namespace MessageQueue {
 
     static void __AsyncInvokeHandler(const MessagePost_t& _id, Message& _message) {
         
-        auto spfunc = std::any_cast<std::shared_ptr<AsyncInvokeFunction> >(_message.body1);
-        if(!spfunc || spfunc->empty()){
+        auto spfunc = owl::any_cast<std::shared_ptr<AsyncInvokeFunction> >(_message.body1);
+        if(!spfunc){
             xerror2(TSF"!! call empty function: %_", _message.msg_name);
         }
         
@@ -802,11 +803,12 @@ namespace MessageQueue {
     }
 #ifndef ANR_CHECK_DISABLE
 
+    static owl::signal_conn_t* signal_wrapper;
     static void __RgisterANRCheckCallback() {
-        GetSignalCheckHit().connect(5, std::bind(&__ANRCheckCallback, _1, _2));
+        *signal_wrapper = GetSignalCheckHit().connect(std::bind(&__ANRCheckCallback, std::placeholders::_1, std::placeholders::_2));
     }
     static void __UnregisterANRCheckCallback() {
-        GetSignalCheckHit().disconnect(5);
+        GetSignalCheckHit().disconnect(*signal_wrapper);
     }
 
     BOOT_RUN_STARTUP(__RgisterANRCheckCallback);

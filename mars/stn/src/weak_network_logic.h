@@ -56,6 +56,7 @@ private:
     tickcount_t last_connect_fail_tick_;
     tickcount_t last_connect_suc_tick_;
     uint32_t cgi_fail_num_;
+    owl::signal_conn_t foreground_signal_slot_;
 };
     
 }

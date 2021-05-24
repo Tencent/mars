@@ -42,7 +42,8 @@ LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _ne
         longlink_monitor_ = std::make_shared<LongLinkConnectMonitor>(_activeLogic, *(longlink_.get()), _message_id, _config.is_keep_alive);
 
         signal_keeper_ = std::make_shared<SignallingKeeper>(*(longlink_.get()), _message_id);
-        signal_keeper_->fun_send_signalling_buffer_ = std::bind(&LongLink::SendWhenNoData, longlink_.get(), _1, _2, _3, Task::kSignallingKeeperTaskID);
+        signal_keeper_->fun_send_signalling_buffer_ = std::bind(&LongLink::SendWhenNoData, longlink_.get()
+                    , std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, Task::kSignallingKeeperTaskID);
 }
 
 LongLinkMetaData::~LongLinkMetaData() {

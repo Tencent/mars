@@ -135,7 +135,9 @@ class LongLinkConnectObserver : public MComplexConnect {
 }
 
 LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder)
-    : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
+    : SignalConnection_slot(nullptr)
+    , broadcast_linkstatus_slot(nullptr)
+    , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , netsource_(_netsource)
     , config_(_config)
     , thread_(std::bind(&LongLink::__Run, this), XLOGGER_TAG "::lonklink")

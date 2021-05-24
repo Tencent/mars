@@ -40,6 +40,9 @@ class TimingSync {
     void OnActiveChanged(bool _is_actived);
     void OnNetworkChange();
 
+  public:
+    owl::signal_conn_t longlink_connection_signal_slot_;
+
   private:
     void __OnAlarm();
 
