@@ -926,6 +926,10 @@ const char* XloggerAppender::Dump(const void* _dumpbuffer, size_t _len) {
         return "";
     }
 
+    if (config_.logdir_.empty()) {
+        return "";
+    }
+
     SCOPE_ERRNO();
 
     if (nullptr == sg_tss_dumpfile.get()) {
