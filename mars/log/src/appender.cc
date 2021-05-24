@@ -756,6 +756,7 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
         //        ASSERT(0!=_len);
         return "";
     }
+    if (sg_logdir.empty()) return "";
 
     SCOPE_ERRNO();
 
