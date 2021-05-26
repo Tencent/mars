@@ -96,6 +96,9 @@ bool getifaddrs_ipv4_lan(ifaddrinfo_ipv4_t& _addr) {
             _addr.ifa_name = ifa->ifa_name;
             _addr.ifa_ip = sa->sin_addr.s_addr;
             inet_ntop(sa->sin_family,  &(sa->sin_addr), _addr.ip, sizeof(_addr.ip));
+            if (strncmp(_addr.ip, "169.254.", 8) == 0) {
+                continue;
+            }
 
             freeifaddrs(ifap);
             return true;
@@ -126,7 +129,16 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
             addr.ifa_name = ifa->ifa_name;
             addr.ifa_ip = sa->sin_addr.s_addr;
             inet_ntop(sa->sin_family,  &(sa->sin_addr), addr.ip, sizeof(addr.ip));
-
+            // iOS 14.5 return：
+            // 1. en2 169.254.x.x  invalid
+            // 2. en0 192.168.x.x
+            // 169.254.0.0/16 - This is the "link local" block.  As described in
+            // [RFC3927], it is allocated for communication between hosts on a
+            // single link.  Hosts obtain these addresses by auto-configuration,
+            // such as when a DHCP server cannot be found.
+            if (strncmp(addr.ip, "169.254.", 8) == 0) {
+                continue;
+            }
             _addrs.push_back(addr);
         }
     }

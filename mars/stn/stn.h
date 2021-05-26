@@ -162,7 +162,8 @@ public:
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
-    int             link_type = Task::kChannelLong;
+	int             link_type = Task::kChannelLong;
+    int             packer_encoder_version = PackerEncoderVersion::kOld;
     std::vector<std::string> (*dns_func)(const std::string& host);
     bool            need_tls;
 };

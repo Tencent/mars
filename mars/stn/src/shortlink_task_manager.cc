@@ -292,6 +292,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 continue;
             }
         }
+
         bool use_tls = true;
         if (can_use_tls_) {
             use_tls = !can_use_tls_(task.shortlink_host_list);
