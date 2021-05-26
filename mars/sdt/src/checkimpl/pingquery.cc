@@ -727,6 +727,11 @@ int PingQuery::__runReadWrite(int& _errcode) {
     return 0;
 }
 
+int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, const char* dest, unsigned int packetSize, int* rtt) {
+    *rtt = 1;
+    return RunPingQuery(_querycount, interval, timeout, dest, packetSize);
+}
+    
 int PingQuery::RunPingQuery(int _querycount, int _interval/*S*/, int _timeout/*S*/, const char* _dest, unsigned int _packet_size) {
     xassert2(_querycount >= 0);
     xdebug2(TSF"dest=%0", _dest);
