@@ -803,12 +803,14 @@ namespace MessageQueue {
     }
 #ifndef ANR_CHECK_DISABLE
 
-    static owl::signal_conn_t* signal_wrapper;
+    static owl::signal_conn_t signal_wrapper;
     static void __RgisterANRCheckCallback() {
-        *signal_wrapper = GetSignalCheckHit().connect(std::bind(&__ANRCheckCallback, std::placeholders::_1, std::placeholders::_2));
+        xerror2("__RgisterANRCheckCallback 1");
+        signal_wrapper = GetSignalCheckHit().connect(std::bind(&__ANRCheckCallback, std::placeholders::_1, std::placeholders::_2));
+        xerror2("__RgisterANRCheckCallback 2");
     }
     static void __UnregisterANRCheckCallback() {
-        GetSignalCheckHit().disconnect(*signal_wrapper);
+        GetSignalCheckHit().disconnect(signal_wrapper);
     }
 
     BOOT_RUN_STARTUP(__RgisterANRCheckCallback);

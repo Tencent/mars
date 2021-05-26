@@ -56,7 +56,8 @@ path::path(path&& _p) noexcept
     : pathname(std::move(_p.pathname)){}
 
 path::path(string_type&& _path)
-: pathname(std::move(_path)) {}
+: pathname(std::move(_path)) {
+}
 
 path::path(string_type& _p) 
 : pathname(_p) {
@@ -64,7 +65,6 @@ path::path(string_type& _p)
 
 path::path(const string_type& _p) 
 : pathname(_p){
-
 }
 path::path(char_type* _p)
 : pathname(_p) {
@@ -76,11 +76,8 @@ path::path(const char_type* _p)
 }
 
 template<class InputIterator>
-path::path(InputIterator first, InputIterator last) {
-    if (first != last) {
-        path(std::basic_string<typename std::iterator_traits<InputIterator>::value_type>(first, last));
-    }
-}
+path::path(InputIterator first, InputIterator last)
+:path(std::basic_string<typename std::iterator_traits<InputIterator>::value_type>(first, last)) {}
 
 MARS_FILESYSTEM_INLINE path path::root_name() const {
     return path(pathname.substr(prefixLength_, root_name_length()));
