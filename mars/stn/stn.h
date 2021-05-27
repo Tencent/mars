@@ -305,6 +305,17 @@ const char* const IPSourceTypeString[] = {
     "ProxyIP",
     "BackupIP",
 };
+    
+const char* const ChannelTypeString[] = {
+    "",
+    "Short",
+    "Long",
+    "",
+    "MinorLong",
+    "",
+    "",
+    "",
+};
 
 struct IPPortItem {
     std::string		str_ip;

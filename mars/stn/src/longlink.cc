@@ -152,7 +152,8 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , encoder_(_encoder)
     , svr_trig_off_(false)
 {
-    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+    xinfo2(TSF"handler:(%_,%_) linktype:%_", asyncreg_.Get().queue, asyncreg_.Get().seq, ChannelTypeString[_config.link_type]);
+    conn_profile_.link_type = _config.link_type;
 }
 
 LongLink::~LongLink() {
@@ -242,6 +243,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
     if (newone) {
         connectstatus_ = kConnectIdle;
         conn_profile_.Reset();
+        conn_profile_.link_type = config_.link_type;
         identifychecker_.Reset();
         disconnectinternalcode_ = kNone;
         readwritebreak_.Clear();
@@ -395,7 +397,8 @@ void LongLink::__Run() {
     }
     
     uint64_t cur_time = gettickcount();
-    xinfo_function(TSF"LongLink Rebuild span:%_, net:%_, channel name:%_", conn_profile_.disconn_time != 0 ? cur_time - conn_profile_.disconn_time : 0, getNetInfo(), config_.name);
+    xinfo_function(TSF"LongLink Rebuild span:%_, net:%_, channel name:%_, linktype:%_", conn_profile_.disconn_time != 0 ? cur_time - conn_profile_.disconn_time : 0,
+                   getNetInfo(), config_.name, ChannelTypeString[config_.link_type]);
     
     ConnectProfile conn_profile;
     conn_profile.start_time = cur_time;
@@ -561,8 +564,11 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();
     
-    xinfo2(TSF"task socket connect suc sock:%_, host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, costtime:%_, rtt:%_, totalcost:%_, index:%_, net:%_",
-           sock, _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], com_connect.TotalCost(), com_connect.IndexRtt(), com_connect.IndexTotalCost(), com_connect.Index(), ::getNetInfo());
+    xinfo2(TSF"task socket connect suc sock:%_, host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_,"
+           "linktype:%_, costtime:%_, rtt:%_, totalcost:%_, index:%_, net:%_",
+           sock, _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip,
+           _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], ChannelTypeString[_conn_profile.link_type],
+           com_connect.TotalCost(), com_connect.IndexRtt(), com_connect.IndexTotalCost(), com_connect.Index(), ::getNetInfo());
     __ConnectStatus(kConnected);
     __UpdateProfile(_conn_profile);
     
