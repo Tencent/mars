@@ -283,6 +283,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.closefunc = socketOperator_->GetCloseFunction();
                 static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
                 _conn_profile.is_reused_fd = true;
+                _conn_profile.transport_protocol = Task::kTransportProtocolTCP;
+                if (fd >= 65535){
+                    //quic fd
+                    _conn_profile.transport_protocol = Task::kTransportProtocolQUIC;
+                }
                 __UpdateProfile(_conn_profile);
                 xinfo2(TSF"reused socket:%_", fd);
                 return fd;
