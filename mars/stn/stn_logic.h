@@ -50,6 +50,8 @@ namespace stn{
         virtual std::vector<std::string> OnNewDns(const std::string& host) = 0;
         //网络层收到push消息回调 
         virtual void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) = 0;
+        //网络层收到action notify消息，必须返回ActionResult 值之一
+        virtual int OnActionNotify(const std::string& uuid, uint32_t code, const std::string& data, const std::string& ctx) = 0;
         //底层获取task要发送的数据 
         virtual bool Req2Buf(uint32_t _taskid, void* const _user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) = 0;
         //底层回包返回给上层解析 

@@ -297,6 +297,13 @@ enum TlsHandshakeFrom {
     kFromLongLink  = 1,
     kFromShortLink = 2,
 };
+    
+enum ActionResult{
+    ACTION_ACK_OK = 0,  //.succeed
+    ACTION_ACK_MALFORMED = 1,   // invalid ctx or data
+    ACTION_ACK_UNSUPPORTED = 2, // unsupported code
+    ACTION_ACK_FAILED = 3,  // failed
+};
 
 const char* const IPSourceTypeString[] = {
     "NullIP",
@@ -335,6 +342,8 @@ extern void TrafficData(ssize_t _send, ssize_t _recv);
 extern std::vector<std::string> OnNewDns(const std::string& host);
 //网络层收到push消息回调 
 extern void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
+//网络层收到action notify消息回调, 必须返回 ActionResult 之一
+extern int OnActionNotify(const std::string& uuid, uint32_t code, const std::string& data, const std::string& ctx);
 //底层获取task要发送的数据 
 extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
 //底层回包返回给上层解析 

@@ -138,6 +138,12 @@ std::vector<std::string>  C2Java_OnNewDns(const std::string& _host){
 	return iplist;
 };
 
+// DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
+int C2Java_OnActionNotify(const std::string &uuid, uint32_t code, const std::string &data, const std::string &ctx){
+	//TODO
+	return ActionResult::ACTION_ACK_UNSUPPORTED;
+}
+
 DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
 bool C2Java_Req2Buf(uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host){
     xverbose_function();
