@@ -263,8 +263,15 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        Task task = first->task;
+        if (0 == first->err_code){
+            first->task.shortlink_fallback_hostlist = first->task.shortlink_host_list;
+        }else{
+            //retry task, don't use quic
+            first->task.shortlink_host_list = first->task.shortlink_fallback_hostlist;
+        }
         
+        Task task = first->task;
+        std::vector<std::string> hosts = task.shortlink_host_list;
         ShortlinkConfig config(first->use_proxy, /*use_tls=*/true);
         if (!task.quic_host_list.empty() && (first->task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
             //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
@@ -273,13 +280,15 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             config.quic.alpn = "h1";
             config.quic.enable_0rtt = true;
             
-            task.shortlink_host_list = task.quic_host_list; //..因为后面代码直接用了 shortlink_host_list 成员..
+            hosts = task.quic_host_list;
         }
         
         if (get_real_host_) {
-            get_real_host_(task.user_id, task.shortlink_host_list);
+            get_real_host_(task.user_id, hosts);
         }
-        std::string host = task.shortlink_host_list.front();
+        first->task.shortlink_host_list = hosts;
+        
+        std::string host = hosts.front();
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
@@ -295,9 +304,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         bool use_tls = true;
         if (can_use_tls_) {
-            use_tls = !can_use_tls_(task.shortlink_host_list);
-            xdebug2(TSF"cgi can use tls: %_, host: %_", use_tls, task.shortlink_host_list[0]);
+            use_tls = !can_use_tls_(hosts);
+            xdebug2(TSF"cgi can use tls: %_, host: %_", use_tls, hosts[0]);
         }
+        config.use_tls = use_tls;
 
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
@@ -329,7 +339,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         first->transfer_profile.send_data_size = bufreq.Length();
 
         first->use_proxy = (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
-        config.use_tls = use_tls;
+        
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
@@ -387,16 +397,17 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     
     if(_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
         if(_err_type != kEctOK) {
-            socket_close(_conn_profile.socket_fd);
+            _conn_profile.closefunc(_conn_profile.socket_fd);
             if(_status != kEctSocketShutdown) { // ignore server close error
                 socket_pool_.Report(_conn_profile.is_reused_fd, false, false);
             }
         } else if(_conn_profile.ip_index >=0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
             IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
             CacheSocketItem cache_item(item, _conn_profile.socket_fd, _conn_profile.keepalive_timeout,
-                                       _conn_profile.transport_protocol, _conn_profile.closefunc);
+                                       _conn_profile.closefunc, _conn_profile.createstream_func,
+                                       _conn_profile.issubstream_func);
             if(!socket_pool_.AddCache(cache_item)) {
-                socket_close(cache_item.socket_fd);
+                _conn_profile.closefunc(cache_item.socket_fd);
             }
         } else {
             xassert2(false, "not match");

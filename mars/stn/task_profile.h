@@ -170,6 +170,8 @@ struct ConnectProfile {
     //keep alive config
     SOCKET socket_fd;
     int (*closefunc)(int) = &close;
+    int (*createstream_func)(int) = nullptr;
+    bool (*issubstream_func)(int) = nullptr;
     uint32_t keepalive_timeout;
     bool is_reused_fd;
     int local_net_stack;
@@ -322,7 +324,7 @@ struct TaskProfile {
         return kStepOther;
     }
 
-    const Task task;
+    Task task;
     TransferProfile transfer_profile;
     intptr_t running_id;
     

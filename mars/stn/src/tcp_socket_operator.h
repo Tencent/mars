@@ -10,6 +10,7 @@
 
 #include "comm/socket/socketbreaker.h"
 #include "comm/socket/complexconnect.h"
+#include "mars/stn/stn.h"
 
 namespace mars {
 	namespace stn {
@@ -26,8 +27,15 @@ public:
 	                       const std::string &_proxy_username = "", const std::string &_proxy_pwd = "") override;
     
     virtual void Close(SOCKET _sock) override;
-    virtual SocketCloseFunction GetCloseFunction() const override;
-
+    SocketCloseFunc GetCloseFunction() const override{
+        return &close;
+    }
+    CreateStreamFunc GetCreateStreamFunc() const override{
+        return nullptr;
+    }
+    IsSubStreamFunc GetIsSubStreamFunc() const override{
+        return nullptr;
+    }
 	virtual int
 	Send(SOCKET _sock, const void *_buffer, size_t _len, int &_errcode, int _timeout) override;
 
@@ -38,6 +46,12 @@ public:
 	virtual std::string ErrorDesc(int _errcode) override;
     
     std::string Identify(SOCKET _sock) const override;
+    int Protocol() const override{
+        return Task::kTransportProtocolTCP;
+    }
+    virtual SOCKET CreateStream(SOCKET _sock) override{
+        return INVALID_SOCKET;
+    }
 private:
     std::shared_ptr<MComplexConnect> observer_;
 	SocketBreaker sBreaker_;

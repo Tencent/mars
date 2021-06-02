@@ -35,7 +35,7 @@ private:
 	SocketBreaker& breaker_;
 };
 
-TcpSocketOperator::TcpSocketOperator(std::shared_ptr<MComplexConnect> _observer):SocketOperator(kOperatorProtocolTCP), observer_(_observer) {
+TcpSocketOperator::TcpSocketOperator(std::shared_ptr<MComplexConnect> _observer):SocketOperator(), observer_(_observer) {
 	breaker_ = std::make_unique<TcpBreaker>(sBreaker_);
 }
 
@@ -64,10 +64,6 @@ void TcpSocketOperator::Close(int _sock){
     socket_close(_sock);
 }
 
-SocketCloseFunction TcpSocketOperator::GetCloseFunction() const{
-    return &close;
-}
-    
 int TcpSocketOperator::Send(SOCKET _sock, const void *_buffer, size_t _len, int &_errcode, int _timeout) {
 	return block_socket_send(_sock, _buffer, _len, sBreaker_, _errcode);
 }

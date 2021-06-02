@@ -325,13 +325,13 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const s
 		for (std::vector<std::string>::const_iterator iter = _hostlist.begin(); iter != _hostlist.end(); ++iter) {
 			if (merge_type_count == 1 && _ipport_items.size() == kNumMakeCount) makelist_count = kNumMakeCount + 1;
 
-			if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, false, _islonglink)) merge_type_count++;
+			if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/false, _islonglink)) merge_type_count++;
 		}
 
 		for (std::vector<std::string>::const_iterator iter = _hostlist.begin(); iter != _hostlist.end(); ++iter) {
 			if (merge_type_count == 1 && _ipport_items.size() == kNumMakeCount) makelist_count = kNumMakeCount + 1;
 
-			if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, true, _islonglink)) merge_type_count++;
+			if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/true, _islonglink)) merge_type_count++;
 		}
 	}
 	else {
@@ -343,12 +343,12 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const s
 
 		for (std::vector<std::string>::const_iterator host_iter = _hostlist.begin(); host_iter != _hostlist.end() && count < kNumMakeCount - 1; ++host_iter) {
 			count += i < ret2 ? ret + 1 : ret;
-			__MakeIPPorts(_ipport_items, *host_iter, count, _dns_util, false, _islonglink);
+			__MakeIPPorts(_ipport_items, *host_iter, count, _dns_util, /*_isbackup=*/false, _islonglink);
 			i++;
 		}
 
 		for (std::vector<std::string>::const_iterator host_iter = _hostlist.begin(); host_iter != _hostlist.end() && count < kNumMakeCount; ++host_iter) {
-			__MakeIPPorts(_ipport_items, *host_iter, kNumMakeCount, _dns_util, true, _islonglink);
+			__MakeIPPorts(_ipport_items, *host_iter, kNumMakeCount, _dns_util, /*_isbackup=*/true, _islonglink);
 		}
 	}
 }

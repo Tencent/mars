@@ -120,7 +120,8 @@ public:
     int protocol;
     
     std::map<std::string, std::string> headers;
-    std::vector<std::string> shortlink_host_list;
+    std::vector<std::string> shortlink_host_list;   // current using hosts, may be quic host or tcp host
+    std::vector<std::string> shortlink_fallback_hostlist;   // for fallback
     std::vector<std::string> longlink_host_list;
     std::vector<std::string> minorlong_host_list;
     std::vector<std::string> quic_host_list;
@@ -322,6 +323,7 @@ struct IPPortItem {
     uint16_t 		port;
     IPSourceType 	source_type;
     std::string 	str_host;
+    int transport_protocol = Task::kTransportProtocolTCP; // tcp or quic?
 };
         
 extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);

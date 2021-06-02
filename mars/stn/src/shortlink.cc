@@ -147,6 +147,7 @@ void ShortLink::__Run() {
     getCurrNetLabel(conn_profile.net_type);
     conn_profile.start_time = ::gettickcount();
     conn_profile.tid = xlogger_tid();
+    conn_profile.link_type = Task::kChannelShort;
     __UpdateProfile(conn_profile);
 
     SOCKET fd_socket = __RunConnect(conn_profile);
@@ -165,6 +166,7 @@ void ShortLink::__Run() {
     __UpdateProfile(conn_profile);
     
     if(!is_keep_alive_) {
+        xinfo2(TSF"taskid:%_ sock %_ closed.", task_.taskid, fd_socket);
         socketOperator_->Close(fd_socket);
     } else {
         xinfo2(TSF"keep alive, do not close socket:%_", fd_socket);
@@ -211,6 +213,13 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             _conn_profile.ip_items = outter_vec_addr_;
         } else {
             net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
+        }
+        
+        if (socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+            xassert2(!use_proxy);
+            for (auto& ip : _conn_profile.ip_items){
+                ip.transport_protocol = Task::kTransportProtocolQUIC;
+            }
         }
         
         if (!_conn_profile.ip_items.empty()) {
@@ -281,13 +290,15 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.port = _conn_profile.ip_items[i].port;
                 _conn_profile.socket_fd = fd;
                 _conn_profile.closefunc = socketOperator_->GetCloseFunction();
+                _conn_profile.createstream_func = socketOperator_->GetCreateStreamFunc();
+                _conn_profile.issubstream_func = socketOperator_->GetIsSubStreamFunc();
                 static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
+                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.createstream_func)>::value, "must static or global function.");
+                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value, "must static or global function.");
                 _conn_profile.is_reused_fd = true;
-                _conn_profile.transport_protocol = Task::kTransportProtocolTCP;
-                if (fd >= 65535){
-                    //quic fd
-                    _conn_profile.transport_protocol = Task::kTransportProtocolQUIC;
-                }
+                _conn_profile.transport_protocol = _conn_profile.ip_items[i].transport_protocol;
+                _conn_profile.connection_identify = socketOperator_->Identify(fd) + "@REUSE";
+                
                 __UpdateProfile(_conn_profile);
                 xinfo2(TSF"reused socket:%_", fd);
                 return fd;
@@ -301,11 +312,13 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.port = _conn_profile.ip_items[0].port;
     _conn_profile.nat64 = isnat64;
     _conn_profile.dns_endtime = ::gettickcount();
-    if (kOperatorProtocolTCP == socketOperator_->Protocol()){
-        _conn_profile.transport_protocol = Task::kTransportProtocolTCP;
-    }else if (kOperatorProtocolQUIC == socketOperator_->Protocol()){
-        _conn_profile.transport_protocol = Task::kTransportProtocolQUIC;
-    }
+    _conn_profile.transport_protocol = socketOperator_->Protocol();
+    _conn_profile.closefunc = socketOperator_->GetCloseFunction();
+    _conn_profile.createstream_func = socketOperator_->GetCreateStreamFunc();
+    _conn_profile.issubstream_func = socketOperator_->GetIsSubStreamFunc();
+    static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
+    static_assert(!std::is_member_function_pointer<decltype(_conn_profile.createstream_func)>::value, "must static or global function.");
+    static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value, "must static or global function.");
     getCurrNetLabel(_conn_profile.net_type);
     __UpdateProfile(_conn_profile);
 
@@ -452,6 +465,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	if (send_ret < 0) {
 		xerror2(TSF"Send Request Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
+        is_keep_alive_ = false;
 		__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketWritenWithNonBlock : _err_code, _conn_profile, true);
 		return;
 	}
@@ -501,8 +515,10 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
             continue;
 		}
 		if (recv_ret == 0) {
-			xerror2(TSF"remote disconnect, nread:%_, nwrite:%_", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-			__RunResponseError(kEctSocket, kEctSocketShutdown, _conn_profile, true);
+			xerror2(TSF"remote disconnect error:(%_,%_), nread:%_, nwrite:%_", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
+            bool report_fail = true;
+            if (_conn_profile.is_reused_fd && _conn_profile.transport_protocol == Task::kTransportProtocolQUIC) report_fail = false;
+			__RunResponseError(kEctSocket, kEctSocketShutdown, _conn_profile, /*report=*/report_fail);
 			break;
 		}
 
@@ -543,8 +559,9 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
                 xwarn2_if(!isKeepAlive, "request keep-alive, but server return close");
                 if(isKeepAlive) {
                     uint32_t timeout = parser.Fields().KeepAliveTimeout();
-                    _conn_profile.keepalive_timeout = timeout;
+                    _conn_profile.keepalive_timeout = _conn_profile.transport_protocol == Task::kTransportProtocolQUIC ? 30 : timeout;
                     _conn_profile.socket_fd = _socket;
+                    xinfo2(TSF"svr keepalive %_ seconds for url %_:%_", timeout, _conn_profile.ip, _conn_profile.port);
                 } else {
                     is_keep_alive_ = false;
                 }

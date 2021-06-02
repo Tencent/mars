@@ -21,6 +21,7 @@
 #ifndef SOCKET_POOL_
 #define SOCKET_POOL_
 
+#include <list>
 #include "mars/stn/stn.h"
 #include "mars/comm/tickcount.h"
 #include "mars/comm/socket/unix_socket.h"
@@ -36,18 +37,16 @@ namespace stn {
 
     class CacheSocketItem {
     public:
-        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout, int _protocol, int (*_closefunc)(int) = &close)
-            :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout), protocol(_protocol), closefunc(_closefunc) {}
+        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout, int (*_closefunc)(int),
+                        int (*_createstream_func)(int), bool (*_issubstream_func)(int))
+            :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout), closefunc(_closefunc),
+             createstream_func(_createstream_func), issubstream_func(_issubstream_func){}
 
-        bool IsSame(const IPPortItem& _item, int expect_protocol) const {
-            return  protocol == expect_protocol &&
+        bool IsSame(const IPPortItem& _item) const {
+            return  _item.transport_protocol == address_info.transport_protocol &&
                     _item.str_ip == address_info.str_ip &&
                     _item.port == address_info.port &&
                     _item.str_host == address_info.str_host;
-        }
-        
-        bool IsSame(const IPPortItem& _item) const {
-            return IsSame(_item, Task::kTransportProtocolTCP);
         }
 
         bool HasTimeout() const {
@@ -58,13 +57,28 @@ namespace stn {
             closefunc(socket_fd);
             socket_fd = INVALID_SOCKET;
         }
+        
+        bool IsSubStream() const{
+            if (!issubstream_func)              return false;
+            if (socket_fd == INVALID_SOCKET)    return false;
+            return issubstream_func(socket_fd);
+        }
+        int CreateStream(){
+            if (!createstream_func)             return INVALID_SOCKET;
+            if (socket_fd == INVALID_SOCKET)    return INVALID_SOCKET;
+            return createstream_func(socket_fd);
+        }
+        void ResetTimeout(){
+            start_tick.gettickcount();
+        }
 
         IPPortItem address_info;
         tickcount_t start_tick;
         SOCKET socket_fd;
         uint32_t timeout;   //in seconds
-        int protocol;   // tcp or quic?
         int (*closefunc)(int) = nullptr;
+        int (*createstream_func)(int) = nullptr;
+        bool (*issubstream_func)(int) = nullptr;
     };
 
     class SocketPool {
@@ -86,27 +100,43 @@ namespace stn {
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->IsSame(_item)) {
-                    if(iter->HasTimeout() || _IsSocketClosed(iter->socket_fd)) {
+                    if(iter->HasTimeout() || (_item.transport_protocol == Task::kTransportProtocolTCP && _IsSocketClosed(iter->socket_fd))) {
                         xinfo2(TSF"remove timeout or closed socket, is timeout:%_", iter->HasTimeout());
                         iter->CloseSocket();
                         iter = socket_pool_.erase(iter);
                         continue;
                     }
-                    SOCKET fd = iter->socket_fd;
-                    socket_pool_.erase(iter);
-                    xinfo2(TSF"get from cache: ip:%_, port:%_, host:%_, fd:%_, size:%_", _item.str_ip, _item.port, _item.str_host, fd, socket_pool_.size());
-                    return fd;
+                    
+                    if (_item.transport_protocol == Task::kTransportProtocolTCP || iter->IsSubStream()){
+                        SOCKET fd = iter->socket_fd;
+                        socket_pool_.erase(iter);
+                        xinfo2(TSF"get from cache: ip:%_, port:%_, host:%_, fd:%_, size:%_", _item.str_ip, _item.port, _item.str_host, fd, socket_pool_.size());
+                        return fd;
+                    }
+                    
+                    //create sub stream for quic
+                    xassert2(_item.transport_protocol == Task::kTransportProtocolQUIC);
+                    int subfd = iter->CreateStream();
+                    if (subfd == INVALID_SOCKET){
+                        xwarn2(TSF"create substream failed. url %_:%_ fd %_", _item.str_ip, _item.port, iter->socket_fd);
+                        socket_pool_.erase(iter);
+                        return INVALID_SOCKET;
+                    }
+                    // recalc keepalive time
+                    xinfo2(TSF"get from cache url %_:%_ owner %_ stream %_", _item.str_ip, _item.port, iter->socket_fd, subfd);
+                    iter->ResetTimeout();
+                    return subfd;
                 }
                 iter++;
             }
             xdebug2(TSF"can not find socket ip:%_, port:%_, host:%_, size:%_", _item.str_ip, _item.port, _item.str_host, socket_pool_.size());
             return INVALID_SOCKET;
         }
-
+        
         bool AddCache(CacheSocketItem& item) {
             ScopedLock lock(mutex_);
-            xinfo2(TSF"add item to socket pool, ip:%_, port:%_, host:%_, fd:%_, size:%_", item.address_info.str_ip, item.address_info.port, item.address_info.str_host, item.socket_fd, socket_pool_.size());
-            socket_pool_.push_back(item);
+            xinfo2(TSF"add item to socket pool, ip:%_, port:%_, host:%_, fd:%_, timeout %_s size:%_", item.address_info.str_ip, item.address_info.port, item.address_info.str_host, item.socket_fd, item.timeout, socket_pool_.size());
+            socket_pool_.push_front(item);
             return true;
         }
 
@@ -183,7 +213,7 @@ namespace stn {
     private:
         Mutex mutex_;
         bool use_cache_;
-        std::vector<CacheSocketItem> socket_pool_;
+        std::list<CacheSocketItem> socket_pool_;
         bool is_baned_;
         tickcount_t ban_start_tick_;
     };
