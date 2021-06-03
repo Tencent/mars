@@ -138,10 +138,34 @@ std::vector<std::string>  C2Java_OnNewDns(const std::string& _host){
 	return iplist;
 };
 
-// DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
+DEFINE_FIND_STATIC_METHOD(KC2Java_OnActionNotify, KC2Java, "OnActionNotify", "(Ljava/lang/String;J[B[B)I")
 int C2Java_OnActionNotify(const std::string &uuid, uint32_t code, const std::string &data, const std::string &ctx){
-	//TODO
-	return ActionResult::ACTION_ACK_UNSUPPORTED;
+	xverbose_function();
+    
+    VarCache* cache_instance = VarCache::Singleton();
+	ScopeJEnv scope_jenv(cache_instance->GetJvm());
+	JNIEnv *env = scope_jenv.GetEnv();
+
+	jbyteArray badata = JNU_Buffer2JbyteArray(env, data.data(), data.length());
+	jbyteArray bactx = JNU_Buffer2JbyteArray(env, ctx.data(), ctx.length());
+
+	if (!badata || !bactx){
+		xerror2(TSF"alloc data or ctx failed.");
+		return ACTION_ACK_FAILED;
+	}
+	
+	jint ret = JNU_CallStaticMethodByMethodInfo(
+					env, 
+					KC2Java_OnActionNotify, 
+					ScopedJstring(env, uuid.c_str()).GetJstr(), 
+					(jlong)code,
+					badata,
+					bactx).i;
+
+	env->DeleteLocalRef(badata);
+	env->DeleteLocalRef(bactx);
+
+	return ret;
 }
 
 DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
