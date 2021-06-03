@@ -87,8 +87,13 @@ typedef unsigned short in_port_t;
 #define socket_inet_ntop inet_ntop
 #define socket_inet_pton inet_pton
 
+#ifndef SOCKET
 #define SOCKET int
+#endif
+
+#ifndef INVALID_SOCKET
 #define INVALID_SOCKET -1
+#endif
 
 #define IS_NOBLOCK_CONNECT_ERRNO(err) ((err) == SOCKET_ERRNO(EINPROGRESS))
 
