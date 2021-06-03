@@ -34,10 +34,6 @@ class StnCallbackBridge {
                         uint32_t _taskid,
                         const AutoBuffer& _body,
                         const AutoBuffer& _extend);
-    virtual int OnActionNotify(const std::string& uuid,
-                                uint32_t code,
-                                const std::string& data,
-                                const std::string& ctx);
     virtual bool Req2Buf(uint32_t _taskid,
                          void* const _user_context,
                          const std::string& _user_id,

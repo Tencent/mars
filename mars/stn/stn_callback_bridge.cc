@@ -83,15 +83,6 @@ void StnCallbackBridge::OnPush(const std::string& _channel_id,
 #endif
 }
 
-int StnCallbackBridge::OnActionNotify(const std::string &uuid, uint32_t code, const std::string &data, const std::string &ctx){
-#ifndef ANDROID
-    xassert2(sg_callback != NULL);
-    return sg_callback->OnActionNotify(uuid, code, data, ctx);
-#else
-    return C2Java_OnActionNotify(uuid, code, data, ctx);
-#endif
-}
-
 bool StnCallbackBridge::Req2Buf(uint32_t _taskid,
                                 void* const _user_context,
                                 const std::string& _user_id,
@@ -262,11 +253,7 @@ void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, c
     xassert2(sg_callback_bridge != NULL);
     sg_callback_bridge->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 };
-//网络层收到action notify消息回调
-int OnActionNotify(const std::string& uuid, uint32_t code, const std::string& data, const std::string& ctx){
-    xassert2(sg_callback_bridge != NULL);
-    return sg_callback_bridge->OnActionNotify(uuid, code, data, ctx);
-}
+
 //底层获取task要发送的数据
 bool Req2Buf(uint32_t taskid,  void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
     xassert2(sg_callback_bridge != NULL);
