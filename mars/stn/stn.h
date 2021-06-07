@@ -37,6 +37,7 @@ namespace mars{
 
 #define DEFAULT_LONGLINK_NAME "default-longlink"
 #define DEFAULT_LONGLINK_GROUP "default-group"
+#define RUNON_MAIN_LONGLINK_NAME "!run-on-main!"
 struct TaskProfile;
 struct DnsProfile;
 struct ConnectProfile;
@@ -225,6 +226,7 @@ enum {
 	kEctLocalCgiFrequcencyLimit = -13,
 	kEctLocalChannelID = -14,
     kEctLocalLongLinkReleased = -15,
+    kEctMainLongLinkUnAvailable = -16,
 };
 
 // -600 ~ -500

@@ -297,6 +297,17 @@ void NetCore::StartTask(const Task& _task) {
     }
 
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
+    if (task.channel_name == RUNON_MAIN_LONGLINK_NAME){
+        longlink = longlink_task_manager_->DefaultLongLink();
+        xassert2(longlink && longlink->Channel()->ConnectStatus() == LongLink::kConnected);
+        if (!longlink || longlink->Channel()->ConnectStatus() != LongLink::kConnected){
+            xerror2(TSF"error main longlink unavailable. (%_, %_), ", kEctLocal, kEctMainLongLinkUnAvailable) >> group;
+            return;
+        }
+        
+        xassert2(longlink->Config().IsMain());
+        task.channel_name = longlink->Config().name;
+    }
     std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
     if((task.channel_select & Task::kChannelMinorLong) && !task.minorlong_host_list.empty()) {
         longlink_task_manager_->FixMinorRealhost(task);
