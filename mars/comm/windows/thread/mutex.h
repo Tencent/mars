@@ -25,7 +25,7 @@
 class Mutex {
   public:
     typedef  boost::mutex handle_type;
-    Mutex() {
+    Mutex(bool _recursive = false) {
     }
 
     ~Mutex() {
