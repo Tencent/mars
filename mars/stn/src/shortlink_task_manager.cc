@@ -265,8 +265,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         if (0 == first->err_code){
             first->task.shortlink_fallback_hostlist = first->task.shortlink_host_list;
-        }else{
+        }
+        
+        if (first->task.transport_protocol & Task::kTransportProtocolQUIC && first->err_code != 0){
             //retry task, don't use quic
+            xwarn2(TSF"taskid:%_ retry, forbid quic.", first->task.taskid);
             first->task.shortlink_host_list = first->task.shortlink_fallback_hostlist;
         }
         
