@@ -10,8 +10,9 @@
 #ifndef STN_SRC_TRAFFIC_STATISTICS_H_
 #define STN_SRC_TRAFFIC_STATISTICS_H_
 
-#include "boost/signals2.hpp"
-#include "boost/function.hpp"
+#include <functional>
+
+#include "mars/comm/signal/signalslot.h"
 
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/singleton.h"
@@ -27,7 +28,7 @@ class TrafficStatistics {
     ~TrafficStatistics();
     void Data(unsigned int _send, unsigned int _recv);
     void Flush();
-    void SetCallback(const boost::function<void (int32_t, int32_t, int32_t, int32_t)>& _func_report_flow);
+    void SetCallback(const std::function<void (int32_t, int32_t, int32_t, int32_t)>& _func_report_flow);
   private:
 
     TrafficStatistics(const TrafficStatistics&);
@@ -41,7 +42,7 @@ class TrafficStatistics {
     const unsigned long report_timeout_;
     const unsigned int report_size_threshold_;
     
-    boost::function<void (int32_t wifi_recv, int32_t wifi_send, int32_t mobile_recv, int32_t mobile_send)> func_report_flow_;
+    std::function<void (int32_t wifi_recv, int32_t wifi_send, int32_t mobile_recv, int32_t mobile_send)> func_report_flow_;
     
     unsigned int wifi_recv_data_size_;
     unsigned int wifi_send_data_size_;
