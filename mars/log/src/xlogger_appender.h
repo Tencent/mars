@@ -5,6 +5,9 @@
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/thread/condition.h"
 
+namespace mars {
+namespace xlog {
+
 class LogBaseBuffer;
 class XloggerAppender {
  public:
@@ -73,9 +76,9 @@ class XloggerAppender {
     XLogConfig config_;
     LogBaseBuffer* log_buff_ = nullptr;
     boost::iostreams::mapped_file mmap_file_;
-    Thread thread_async_;
-    Mutex mutex_buffer_async_;
-    Mutex mutex_log_file_;
+    comm::Thread thread_async_;
+    comm::Mutex mutex_buffer_async_;
+    comm::Mutex mutex_log_file_;
     FILE* logfile_ = nullptr;
     time_t openfiletime_ = 0;
 #ifdef DEBUG
@@ -84,7 +87,7 @@ class XloggerAppender {
     bool consolelog_open_ = false;
 #endif
     bool log_close_ = true;
-    Condition cond_buffer_async_;
+    comm::Condition cond_buffer_async_;
     uint64_t max_file_size_ = 0; // 0, will not split log file.
     long max_alive_time_ = 10 * 24 * 60 * 60;    // 10 days in second
 
@@ -92,3 +95,6 @@ class XloggerAppender {
     uint64_t last_tick_ = 0;
     char last_file_path_[1024] = {0};
 };
+
+}
+}

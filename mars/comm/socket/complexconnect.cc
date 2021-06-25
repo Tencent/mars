@@ -39,9 +39,8 @@
 #include "comm/crypt/ibase64.h"
 #include "comm/platform_comm.h"
 
-#ifdef COMPLEX_CONNECT_NAMESPACE
-namespace COMPLEX_CONNECT_NAMESPACE {
-#endif
+namespace mars {
+namespace comm {
 
 static const unsigned int kTimeoutModeIncreaseInterval = 1000;
     
@@ -671,6 +670,5 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     return retsocket;
 }
 
-#ifdef COMPLEX_CONNECT_NAMESPACE
 }
-#endif
+}

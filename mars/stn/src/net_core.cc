@@ -58,6 +58,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 
 
 #define AYNC_HANDLER asyncreg_.Get()

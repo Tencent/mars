@@ -27,13 +27,13 @@
 #include "unix_socket.h"
 #include "comm_data.h"
 
-class SocketBreaker;
 class socket_address;
 class AutoBuffer;
 
-#ifdef COMPLEX_CONNECT_NAMESPACE
-namespace COMPLEX_CONNECT_NAMESPACE {
-#endif
+namespace mars {
+namespace comm {
+
+class SocketBreaker;
 
 class MComplexConnect {
   public:
@@ -108,8 +108,7 @@ class ComplexConnect {
     bool need_detail_log_;
 };
 
-#ifdef COMPLEX_CONNECT_NAMESPACE
 }
-#endif
+}
 
 #endif

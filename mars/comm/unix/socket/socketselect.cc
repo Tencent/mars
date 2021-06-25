@@ -16,6 +16,8 @@
 
 #include "comm/xlogger/xlogger.h"
 
+namespace mars {
+namespace comm {
 
 #if 0/*TARGET_OS_MAC*/
 SocketSelect::SocketSelect(SocketBreaker& _breaker, bool _autoclear)
@@ -226,3 +228,5 @@ SocketPoll& SocketSelect::Poll() { return socket_poll_; }
 
 #endif
 
+}
+}

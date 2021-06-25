@@ -28,6 +28,7 @@
 #include "mars/stn/config.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 DynamicTimeout::DynamicTimeout()
     : dyntime_status_(kEValuating)

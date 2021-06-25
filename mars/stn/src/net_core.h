@@ -72,7 +72,7 @@ class NetCore {
     boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
 
   public:
-    MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
+    comm::MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
     NetSource& GetNetSourceRef() {return *net_source_;}
     
     void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
@@ -143,8 +143,8 @@ public:
     NetCore& operator=(const NetCore&);
 
   private:
-    MessageQueue::MessageQueueCreater           messagequeue_creater_;
-    MessageQueue::ScopeRegister                 asyncreg_;
+    comm::MessageQueue::MessageQueueCreater           messagequeue_creater_;
+    comm::MessageQueue::ScopeRegister                 asyncreg_;
     NetSource*                                  net_source_;
     NetCheckLogic*                              netcheck_logic_;
     AntiAvalanche*                              anti_avalanche_;

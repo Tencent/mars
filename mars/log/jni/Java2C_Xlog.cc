@@ -80,7 +80,8 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
         nameprefix_str = nameprefix_jstr.GetChar();
     }
 
-    XLogConfig config = {(TAppenderMode)mode, logdir_str, nameprefix_str, pubkey_str, (TCompressMode)compressmode, compresslevel, cachedir_str, cachedays};
+    mars::xlog::XLogConfig config = {(mars::xlog::TAppenderMode)mode, logdir_str, nameprefix_str, pubkey_str,
+                                     (mars::xlog::TCompressMode)compressmode, compresslevel, cachedir_str, cachedays};
     mars::comm::XloggerCategory* category = mars::xlog::NewXloggerInstance(config, (TLogLevel)level);
     if (nullptr == category) {
         return -1;
@@ -149,13 +150,14 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
         nameprefix_str = nameprefix_jstr.GetChar();
     }
 
-    XLogConfig config = {(TAppenderMode)mode, logdir_str, nameprefix_str, pubkey_str, (TCompressMode)compressmode, compresslevel, cachedir_str, cachedays};
+    mars::xlog::XLogConfig config = {(mars::xlog::TAppenderMode)mode, logdir_str, nameprefix_str, pubkey_str,
+                                     (mars::xlog::TCompressMode)compressmode, compresslevel, cachedir_str, cachedays};
     appender_open(config);
 	xlogger_SetLevel((TLogLevel)level);
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderClose(JNIEnv *env, jobject) {
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderFlush(JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_sync) {
@@ -286,7 +288,7 @@ DEFINE_FIND_METHOD(KXlog_setAppenderMode, KXlog, "setAppenderMode", "(JI)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setAppenderMode
   (JNIEnv *, jobject, jlong _log_instance_ptr, jint _mode) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
-    mars::xlog::SetAppenderMode(_log_instance_ptr, (TAppenderMode)_mode);
+    mars::xlog::SetAppenderMode(_log_instance_ptr, (mars::xlog::TAppenderMode)_mode);
 }
 
 DEFINE_FIND_METHOD(KXlog_setConsoleLogOpen, KXlog, "setConsoleLogOpen", "(JZ)V")

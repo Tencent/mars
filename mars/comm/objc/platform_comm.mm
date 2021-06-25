@@ -49,6 +49,7 @@
 #include "comm/thread/lock.h"
 #include "comm/network/getifaddrs.h"
 
+
 #if !TARGET_OS_IPHONE
 static float __GetSystemVersion() {
     //	float system_version = [UIDevice currentDevice].systemVersion.floatValue;
@@ -73,13 +74,13 @@ static MarsNetworkStatus __GetNetworkStatus()
 #endif
 }
 
-static WifiInfo sg_wifiinfo;
-static Mutex sg_wifiinfo_mutex;
+static mars::comm::WifiInfo sg_wifiinfo;
+static mars::comm::Mutex sg_wifiinfo_mutex;
 
 void FlushReachability() {
 #if !TARGET_OS_WATCH
     [MarsReachability getCacheReachabilityStatus:YES];
-    ScopedLock lock(sg_wifiinfo_mutex);
+    mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     sg_wifiinfo.ssid.clear();
     sg_wifiinfo.bssid.clear();
 #endif
@@ -165,45 +166,45 @@ int getNetInfo() {
     SCOPE_POOL();
     
 #if TARGET_IPHONE_SIMULATOR || TARGET_OS_WATCH
-    return kWifi;
+    return mars::comm::kWifi;
 #endif
 
     switch (__GetNetworkStatus())
     {
         case NotReachable:
-            return kNoNet;
+            return mars::comm::kNoNet;
         case ReachableViaWiFi:
-            return kWifi;
+            return mars::comm::kWifi;
         case ReachableViaWWAN:
-            return kMobile;
+            return mars::comm::kMobile;
         default:
-            return kNoNet;
+            return mars::comm::kNoNet;
     }
 }
 
 int getNetTypeForStatistics(){
     int type = getNetInfo();
-    if (kWifi == type){
-        return (int)NetTypeForStatistics::NETTYPE_WIFI;
+    if (mars::comm::kWifi == type){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
     }
-    if (kNoNet == type){
-        return (int)NetTypeForStatistics::NETTYPE_NON;
+    if (mars::comm::kNoNet == type){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
     }
     
-    RadioAccessNetworkInfo rani;
+    mars::comm::RadioAccessNetworkInfo rani;
     if (!getCurRadioAccessNetworkInfo(rani)){
-        return (int)NetTypeForStatistics::NETTYPE_NON;
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
     }
     
     if (rani.Is2G()){
-        return (int)NetTypeForStatistics::NETTYPE_2G;
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_2G;
     }else if(rani.Is3G()){
-        return (int)NetTypeForStatistics::NETTYPE_3G;
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_3G;
     }else if(rani.Is4G()){
-        return (int)NetTypeForStatistics::NETTYPE_4G;
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_4G;
     }
     
-    return (int)NetTypeForStatistics::NETTYPE_NON;
+    return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
 }
 
 unsigned int getSignal(bool isWifi){
@@ -232,7 +233,7 @@ bool isNetworkConnected()
 #define IWATCH_NET_INFO "IWATCH"
 #define USE_WIRED  "wired"
 
-static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
+static bool __WiFiInfoIsValid(const mars::comm::WifiInfo& _wifi_info) {
     // CNCopyCurrentNetworkInfo is now only available to your app in three cases:
     // * Apps with permission to access location
     // * Your app is the currently enabled VPN app
@@ -246,7 +247,7 @@ static bool __WiFiInfoIsValid(const WifiInfo& _wifi_info) {
     return !_wifi_info.bssid.empty() && kConstBSSID != _wifi_info.bssid;
 }
 
-bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
+bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
 {
     SCOPE_POOL();
     
@@ -256,8 +257,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
     return true;
 #elif !TARGET_OS_IPHONE
     
-    static Mutex mutex;
-    ScopedLock lock(mutex);
+    static mars::comm::Mutex mutex;
+    mars::comm::ScopedLock lock(mutex);
     
     static float version = 0.0;
     
@@ -293,7 +294,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
 #else
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
-    ScopedLock lock(sg_wifiinfo_mutex);
+    mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
         return true;
@@ -355,10 +356,10 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
 }
 
 #if TARGET_OS_IPHONE && !TARGET_OS_WATCH
-bool getCurSIMInfo(SIMInfo& simInfo)
+bool getCurSIMInfo(mars::comm::SIMInfo& simInfo)
 {
-    static Mutex mutex;
-    ScopedLock lock(mutex);
+    static mars::comm::Mutex mutex;
+    mars::comm::ScopedLock lock(mutex);
     
     SCOPE_POOL();
     static CTTelephonyNetworkInfo* s_networkinfo = [[CTTelephonyNetworkInfo alloc] init];
@@ -389,13 +390,13 @@ bool getCurSIMInfo(SIMInfo& simInfo)
 }
 #endif
 
-bool getAPNInfo(APNInfo& info)
+bool getAPNInfo(mars::comm::APNInfo& info)
 {
-    RadioAccessNetworkInfo raninfo;
-    if (kMobile != getNetInfo()) return false;
-    if (!getCurRadioAccessNetworkInfo(raninfo)) return false;
+    mars::comm::RadioAccessNetworkInfo raninfo;
+    if (mars::comm::kMobile != getNetInfo()) return false;
+    if (!mars::comm::getCurRadioAccessNetworkInfo(raninfo)) return false;
     
-    info.nettype = kMobile;
+    info.nettype = mars::comm::kMobile;
     info.extra_info = raninfo.radio_access_network;
     return true;
 }
@@ -431,7 +432,7 @@ NSLog(@"Current Radio Access Technology: %@", telephonyInfo.currentRadioAccessTe
 **/
 
 #if TARGET_OS_IPHONE && !TARGET_OS_WATCH
-bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo)
+bool getCurRadioAccessNetworkInfo(mars::comm::RadioAccessNetworkInfo& _raninfo)
 {
     SCOPE_POOL();
     if (publiccomponent_GetSystemVersion() < 7.0){

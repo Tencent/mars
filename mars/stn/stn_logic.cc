@@ -47,6 +47,8 @@
 #include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
 #endif
 
+using namespace mars::comm;
+
 namespace mars {
 namespace stn {
 
@@ -102,11 +104,11 @@ static void onDestroy() {
 }
 
 static void onSingalCrash(int _sig) {
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 static void onExceptionCrash() {
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 static void onNetworkChange() {

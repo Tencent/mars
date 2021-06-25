@@ -24,6 +24,8 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/thread/lock.h"
 
+using namespace mars::comm;
+
 namespace mars{
     namespace baseevent{
 

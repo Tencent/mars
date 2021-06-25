@@ -8,6 +8,8 @@
 #include <comm/socket/block_socket.h>
 #include "mars/comm/socket/unix_socket.h"   // for socket_close
 
+using namespace mars::comm;
+
 namespace mars {
 	namespace stn {
 

@@ -50,7 +50,7 @@ class NetCheckTrafficMonitor {
     unsigned long wifi_data_threshold_;
     unsigned long mobile_data_threshold_;
     bool is_ignore_recv_data_;
-    Mutex mutex_;
+    mars::comm::Mutex mutex_;
 };
 
 

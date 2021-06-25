@@ -32,6 +32,9 @@
 #error "C++ only"
 #endif
 
+namespace mars {
+namespace comm {
+
 enum NetType {
     kNoNet = -1,
     kWifi = 1,
@@ -276,5 +279,7 @@ bool  wakeupLock_IsLocking(void* _object);
 	extern APNInfo g_apn_info;
 	extern Mutex g_net_mutex;
 #endif
+
+}}
 
 #endif /* COMM_PLATFORM_COMM_H_ */

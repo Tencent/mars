@@ -43,6 +43,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 
 static const unsigned int kTimeCheckPeriod = 10 * 1000;     // 10s
 static const unsigned int kStartCheckPeriod = 3 * 1000;     // 3s

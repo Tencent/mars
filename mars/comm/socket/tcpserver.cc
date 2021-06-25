@@ -28,6 +28,8 @@
 #include "comm/xlogger/xlogger.h"
 #include "comm/socket/socket_address.h"
 
+using namespace mars::comm;
+
 TcpServer::TcpServer(const char* _ip, uint16_t _port, MTcpServer& _observer, int _backlog)
     : observer_(_observer)
     , thread_(boost::bind(&TcpServer::__ListenThread, this))

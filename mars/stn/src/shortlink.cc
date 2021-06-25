@@ -50,6 +50,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 using namespace http;
 
 static unsigned int KBufferSize = 8 * 1024;

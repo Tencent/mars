@@ -28,6 +28,9 @@
 #include "mars/comm/ptrbuffer.h"
 #include "mars/comm/autobuffer.h"
 
+namespace mars {
+namespace xlog {
+
 class LogCrypt;
 
 class LogZstdBuffer : public LogBaseBuffer{
@@ -47,5 +50,8 @@ private:
 private:
     ZSTD_CCtx* cctx_;
 };
+
+}
+}
 
 #endif /* LOGZSTDBUFFER_H_ */

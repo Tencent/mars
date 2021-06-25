@@ -61,7 +61,7 @@ void TcpChecker::__DoCheck(CheckRequestProfile& _check_request) {
 			profile.netcheck_type = kTcpCheck;
     		profile.ip = (*ipport).ip;
     		profile.port = (*ipport).port;
-			profile.network_type = ::getNetInfo();
+			profile.network_type = comm::getNetInfo();
 
     		unsigned int timeout = UNUSE_TIMEOUT == _check_request.total_timeout ? DEFAULT_TCP_CONN_TIMEOUT : _check_request.total_timeout;
 			xinfo2(TSF"tcp check ip: %0, port: %1, timeout: %2", profile.ip, profile.port, timeout);

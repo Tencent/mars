@@ -30,15 +30,17 @@
 
 #include "longlink.h"
 
-class ActiveLogic;
 
 namespace mars {
+namespace comm {
+    class ActiveLogic;
+}
     namespace stn {
         
 class LongLinkConnectMonitor {
 
   public:
-    LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlinkk, MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
+    LongLinkConnectMonitor(comm::ActiveLogic& _activelogic, LongLink& _longlinkk, comm::MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
     ~LongLinkConnectMonitor();
 
   public:
@@ -75,19 +77,19 @@ class LongLinkConnectMonitor {
     LongLinkConnectMonitor& operator=(const LongLinkConnectMonitor&);
 
   private:
-    MessageQueue::ScopeRegister     asyncreg_;
-    ActiveLogic& activelogic_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
+    comm::ActiveLogic& activelogic_;
     LongLink& longlink_;
-    Alarm         rebuild_alarm_;
-    Alarm         wake_alarm_;
-    Mutex         mutex_;
+    comm::Alarm         rebuild_alarm_;
+    comm::Alarm         wake_alarm_;
+    comm::Mutex         mutex_;
 
     LongLink::TLongLinkStatus status_;
     uint64_t last_connect_time_;
     int last_connect_net_type_;
 
-    Thread thread_;
-    Mutex testmutex_;
+    comm::Thread thread_;
+    comm::Mutex testmutex_;
 
     int conti_suc_count_;
     bool isstart_;

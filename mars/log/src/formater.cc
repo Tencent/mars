@@ -37,6 +37,9 @@
 #include <inttypes.h>
 #endif
 
+namespace mars {
+namespace xlog {
+
 #if !defined(ANDROID) && !_WIN32
 static char* reverse(char *str, int len) {
     char* p1 = str;
@@ -335,3 +338,5 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
     if (*((char*)_log.PosPtr() - 1) != nextline) _log.Write(&nextline, 1);
 }
 
+}
+}

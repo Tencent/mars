@@ -30,6 +30,9 @@
 
 #include "comm/platform_comm.h"
 
+namespace mars {
+namespace comm {
+
 TcpClientFSM::TcpClientFSM(const sockaddr& _addr):addr_(&_addr) {
     status_ = EStart;
     last_status_ = EStart;
@@ -174,7 +177,7 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
         return;
     }
 
-    if (::getNetInfo() == kWifi && socket_fix_tcp_mss(sock_) < 0) {
+    if (getNetInfo() == kWifi && socket_fix_tcp_mss(sock_) < 0) {
 #ifdef ANDROID
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
@@ -373,3 +376,6 @@ int TcpClientFSM::ReadWriteTimeout() const { return INT_MAX; }
 int TcpClientFSM::ConnectAbsTimeout() const { return INT_MAX; }
 int TcpClientFSM::ReadWriteAbsTimeout() const { return INT_MAX;}
 int TcpClientFSM::Rtt() const { return int(end_connecttime_ - start_connecttime_);}
+
+}
+}

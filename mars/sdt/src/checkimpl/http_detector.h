@@ -160,14 +160,14 @@ class HTTPDetector {
     HTTPDetectReq      req_;
     HTTPDectectResult   result_;
     
-    Mutex               mutex_;
-    Thread              worker_thread_;
-    SocketBreaker       breaker_;
+    mars::comm::Mutex               mutex_;
+    mars::comm::Thread              worker_thread_;
+    mars::comm::SocketBreaker       breaker_;
     
     DetectEndCallBack   callback_;
     
-    DNS                 dns_;
-    DNSBreaker          dns_breaker_;
+    mars::comm::DNS                 dns_;
+    mars::comm::DNSBreaker          dns_breaker_;
     
 };
 

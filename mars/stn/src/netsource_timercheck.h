@@ -42,7 +42,7 @@ class LongLink;
  */
 class NetSourceTimerCheck {
   public:
-    NetSourceTimerCheck(NetSource* _net_source, ActiveLogic& _active_logic, LongLink& _longlink, MessageQueue::MessageQueue_t  _messagequeue_id);
+    NetSourceTimerCheck(NetSource* _net_source, comm::ActiveLogic& _active_logic, LongLink& _longlink, comm::MessageQueue::MessageQueue_t  _messagequeue_id);
     ~NetSourceTimerCheck();
     void CancelConnect();
 
@@ -58,16 +58,16 @@ class NetSourceTimerCheck {
     void __StopCheck();
 
   private:
-    Thread thread_;
+    comm::Thread thread_;
     boost::signals2::scoped_connection active_connection_;
     NetSource* net_source_;
-    SocketBreaker breaker_;
-    SocketSelect seletor_;
+    comm::SocketBreaker breaker_;
+    comm::SocketSelect seletor_;
     CommFrequencyLimit* frequency_limit_;
     LongLink& longlink_;
 
-    MessageQueue::ScopeRegister asyncreg_;
-    MessageQueue::MessagePost_t asyncpost_;
+    comm::MessageQueue::ScopeRegister asyncreg_;
+    comm::MessageQueue::MessagePost_t asyncpost_;
     NetSource::DnsUtil dns_util_;
 };
         

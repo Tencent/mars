@@ -17,7 +17,7 @@ namespace mars {
 
 class TcpSocketOperator : public SocketOperator {
 public:
-	TcpSocketOperator(std::shared_ptr<MComplexConnect> _observer);
+	TcpSocketOperator(std::shared_ptr<comm::MComplexConnect> _observer);
 	virtual ~TcpSocketOperator() override{
 	}
 
@@ -53,8 +53,8 @@ public:
         return INVALID_SOCKET;
     }
 private:
-    std::shared_ptr<MComplexConnect> observer_;
-	SocketBreaker sBreaker_;
+    std::shared_ptr<comm::MComplexConnect> observer_;
+	comm::SocketBreaker sBreaker_;
 };
 
 }

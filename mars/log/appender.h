@@ -25,7 +25,8 @@
 #include <vector>
 #include <stdint.h>
 
-
+namespace mars {
+namespace xlog {
 
 enum TAppenderMode
 {
@@ -75,6 +76,8 @@ void appender_set_max_file_size(uint64_t _max_byte_size);
  */
 void appender_set_max_alive_duration(long _max_time);
 
+}
+}
 
 
 #endif /* APPENDER_H_ */

@@ -29,6 +29,9 @@
 #include "comm/thread/condition.h"
 #include "comm/thread/runnable.h"
 
+namespace mars {
+namespace comm {
+
 typedef pthread_t thread_tid;
 //注意！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 // 如果在pthread_join途中，其他线程进行pthread_detach, 会出现join函数不能退出的情况
@@ -483,4 +486,6 @@ inline bool operator!=(const Thread& lhs, const Thread& rhs) {
     return pthread_equal(lhs.tid(), rhs.tid()) == 0;
 }
 
+}
+}
 #endif /* THREAD_H_ */

@@ -42,6 +42,7 @@
 #include "weak_network_logic.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )

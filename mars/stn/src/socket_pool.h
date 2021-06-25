@@ -92,7 +92,7 @@ namespace stn {
 
         SOCKET GetSocket(const IPPortItem& _item) {
             xverbose_function();
-            ScopedLock lock(mutex_);
+            comm::ScopedLock lock(mutex_);
             if(!use_cache_ || _isBaned() || socket_pool_.empty()) {
                 return INVALID_SOCKET;
             }
@@ -134,14 +134,14 @@ namespace stn {
         }
         
         bool AddCache(CacheSocketItem& item) {
-            ScopedLock lock(mutex_);
+            comm::ScopedLock lock(mutex_);
             xinfo2(TSF"add item to socket pool, ip:%_, port:%_, host:%_, fd:%_, timeout %_s size:%_", item.address_info.str_ip, item.address_info.port, item.address_info.str_host, item.socket_fd, item.timeout, socket_pool_.size());
             socket_pool_.push_front(item);
             return true;
         }
 
         void CleanTimeout() {
-            ScopedLock lock(mutex_);
+            comm::ScopedLock lock(mutex_);
             if(socket_pool_.empty())    return;
             
             auto iter = socket_pool_.begin();
@@ -158,7 +158,7 @@ namespace stn {
         }
 
         void Clear() {
-            ScopedLock lock(mutex_);
+            comm::ScopedLock lock(mutex_);
             xinfo2(TSF"clear cache sockets");
             std::for_each(socket_pool_.begin(), socket_pool_.end(), [](CacheSocketItem& value) {
                 if(value.socket_fd != INVALID_SOCKET)
@@ -211,7 +211,7 @@ namespace stn {
         }
 
     private:
-        Mutex mutex_;
+        comm::Mutex mutex_;
         bool use_cache_;
         std::list<CacheSocketItem> socket_pool_;
         bool is_baned_;

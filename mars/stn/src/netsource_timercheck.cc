@@ -33,6 +33,7 @@
 #include "longlink_speed_test.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 static const unsigned int kTimeCheckPeriod = 2.5 * 60 * 1000;     // 2.5min
 // const static unsigned int TIME_CHECK_PERIOD = 30 * 1000;     //30min

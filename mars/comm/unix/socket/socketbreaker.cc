@@ -25,6 +25,8 @@
 
 #include "comm/xlogger/xlogger.h"
 
+namespace mars {
+namespace comm {
 
 SocketBreaker::SocketBreaker()
 : create_success_(false),
@@ -161,4 +163,7 @@ bool SocketBreaker::IsBreak() const
 
 int SocketBreaker::BreakReason() const{
     return reason_;
+}
+
+}
 }

@@ -22,6 +22,8 @@
 #include "comm/thread/spinlock.h"
 #include "comm/time_utils.h"
 
+namespace mars {
+namespace comm {
 template <typename MutexType>
 class BaseScopedLock {
   public:
@@ -111,5 +113,7 @@ class BaseScopedLock {
 
 typedef BaseScopedLock<Mutex> ScopedLock;
 typedef BaseScopedLock<SpinLock> ScopedSpinLock;
+
+}}
 
 #endif /* LOCK_H_ */

@@ -36,6 +36,8 @@
 #define snprintf _snprintf
 #endif
 
+namespace mars {
+namespace xlog {
 
 LogZlibBuffer::LogZlibBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey)
     :LogBaseBuffer(_pbuffer, _len, _isCompress, _pubkey) {
@@ -99,3 +101,5 @@ char LogZlibBuffer::__GetMagicAsyncStart() {
     return is_crypt_ ? LogMagicNum::kMagicAsyncZlibStart: LogMagicNum::kMagicAsyncNoCryptZlibStart;
 }
 
+}
+}
