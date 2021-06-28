@@ -15,6 +15,8 @@
 
 #include "xlogger/xlogger.h"
 
+using namespace mars::comm;
+
 static DWORD __SO_RCVTIMEO(SOCKET _sock) {
     DWORD optval = 0;
     int optlen = sizeof(optval);

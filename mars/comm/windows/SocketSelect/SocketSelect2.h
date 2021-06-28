@@ -19,6 +19,9 @@
 #include "thread/lock.h"
 #include "socket/unix_socket.h"
 
+namespace mars {
+namespace comm {
+
 class SocketSelect;
 class SocketBreaker {
     friend SocketSelect;
@@ -89,5 +92,6 @@ class SocketSelect {
     fd_set readfd_;
     fd_set exceptionfd_;
 };
-
+}
+}
 #endif

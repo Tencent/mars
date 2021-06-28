@@ -25,6 +25,8 @@
 #include "thread/atomic_oper.h"
 #include "thread/lock.h"
 
+namespace mars {
+namespace comm {
 class Condition {
   public:
     Condition(): condition_(), mutex_(), anyway_notify_(0) {
@@ -100,6 +102,7 @@ class Condition {
     volatile unsigned int anyway_notify_;
 };
 
-
+}
+}
 
 #endif

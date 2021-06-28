@@ -39,6 +39,9 @@ typedef thrd_t*  thread_handler;
 
 #define thrd_success 0
 
+namespace mars {
+namespace comm {
+
 typedef unsigned int thread_tid;
 
 typedef void* (*THREAD_START_PROC)(void*  arg);
@@ -473,6 +476,8 @@ class Thread {
 	bool outside_join_;
 };
 
+}
+}
 
 // inline bool operator==(const thread_t& lhs, const thread_t& rhs)
 //{
