@@ -16,6 +16,9 @@
 #include "comm/xlogger/loginfo_extract.h"
 #import "comm/objc/scope_autoreleasepool.h"
 
+namespace mars{
+namespace xlog{
+
 void ConsoleLog(const XLoggerInfo* _info, const char* _log)
 {
     SCOPE_POOL();
@@ -39,3 +42,6 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
     
     NSLog(@"%@", [NSString stringWithUTF8String:log]);
 }
+
+}//xlog
+}//mars

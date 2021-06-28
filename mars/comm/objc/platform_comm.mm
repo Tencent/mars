@@ -77,6 +77,9 @@ static MarsNetworkStatus __GetNetworkStatus()
 static mars::comm::WifiInfo sg_wifiinfo;
 static mars::comm::Mutex sg_wifiinfo_mutex;
 
+namespace mars{
+namespace comm{
+
 void FlushReachability() {
 #if !TARGET_OS_WATCH
     [MarsReachability getCacheReachabilityStatus:YES];
@@ -457,6 +460,10 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo)
    return false;
 }
 #endif
+
+
+}   // namespace comm
+}   // namespace mars
 
 void comm_export_symbols_1(){}
 
