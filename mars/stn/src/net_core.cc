@@ -374,6 +374,7 @@ void NetCore::StartTask(const Task& _task) {
 #endif
 
     case Task::kChannelShort:
+        task.shortlink_fallback_hostlist = task.shortlink_host_list;
         start_ok = shortlink_task_manager_->StartTask(task);
         break;
 

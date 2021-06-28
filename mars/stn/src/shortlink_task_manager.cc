@@ -264,13 +264,14 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        if (0 == first->err_code){
-            first->task.shortlink_fallback_hostlist = first->task.shortlink_host_list;
-        }
-        
-        if (first->task.transport_protocol & Task::kTransportProtocolQUIC && first->err_code != 0){
-            //retry task, don't use quic
-            xwarn2(TSF"taskid:%_ retry, forbid quic.", first->task.taskid);
+        //
+        if (!first->history_transfer_profiles.empty()){
+            // retry task, force use tcp.
+            xassert2(!first->task.shortlink_fallback_hostlist.empty());
+            xwarn2(TSF"taskid:%_ retry, fallback to tcp with host.cnt %_", first->task.taskid,
+                   first->task.shortlink_fallback_hostlist.size());
+            
+            first->task.transport_protocol = Task::kTransportProtocolTCP;
             first->task.shortlink_host_list = first->task.shortlink_fallback_hostlist;
         }
         
