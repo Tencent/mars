@@ -17,7 +17,24 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <thr/threads.h>
+
+#include <xthreads.h>
+typedef _Thrd_t thrd_t;
+using _Thrd_start_t = int (*)(void*);
+typedef _Thrd_start_t thrd_start_t;
+
+_CRTIMP2_PURE int __cdecl _Thrd_create(_Thrd_t*, _Thrd_start_t, void*);
+_CRTIMP2_PURE _Thrd_t __cdecl _Thrd_current(void);
+
+#define thrd_create(thr, fun, arg)	_Thrd_create(thr, fun, arg)
+
+#define thrd_detach(thr)		_Thrd_detach(thr)
+
+#define thrd_join(thr, res)		_Thrd_join(thr, res)
+#define thrd_sleep(tm)			_Thrd_sleep(tm)
+#define thrd_yield				_Thrd_yield
+#define thrd_current			_Thrd_current
+
 
 #include "assert/__assert.h"
 #include "condition.h"
@@ -33,7 +50,7 @@
 #include <boost/thread/thread.hpp>
 typedef boost::thread*  thread_handler;
 #else
-#include <thr/threads.h>
+#include <xthreads.h>
 typedef thrd_t*  thread_handler;
 #endif
 

@@ -62,7 +62,7 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address> &_vecaddr,
 	return sock;
 }
     
-void TcpSocketOperator::Close(int _sock){
+void TcpSocketOperator::Close(SOCKET _sock){
     socket_close(_sock);
 }
 
@@ -79,7 +79,7 @@ std::string TcpSocketOperator::ErrorDesc(int _errcode) {
 	return strerror(_errcode);
 }
 
-std::string TcpSocketOperator::Identify(int _sock) const{
+std::string TcpSocketOperator::Identify(SOCKET _sock) const{
     char szmsg[64];
     snprintf(szmsg, sizeof(szmsg), "%d@TCP", _sock);
     

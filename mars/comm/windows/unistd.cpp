@@ -1,5 +1,6 @@
 
-#include <thr/threads.h>
+#include <xthreads.h>
+#define thrd_sleep(tm)			_Thrd_sleep(tm)
 
 static void thread_sleep(unsigned long _sec, unsigned long _nanosec)
 {
@@ -21,12 +22,3 @@ void usleep(unsigned long _usec)
     thread_sleep(0, _usec);
 }
 
-#ifdef WP8
-#include <windows.h>
-
-int getpid(void)
-{
-    return GetCurrentProcessId();
-}
-
-#endif

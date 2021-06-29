@@ -16,7 +16,9 @@
 #define TSSGC_H_
 
 #include <windows.h>
-#include <thr/threads.h>
+#include <xthreads.h>
+typedef void (*_Tss_dtor_t)(void*);
+typedef _Tss_dtor_t tss_dtor_t;
 #include <list>
 #include  <map>
 #include  <set>

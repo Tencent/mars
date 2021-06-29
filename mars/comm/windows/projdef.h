@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <io.h>	// for close
 
 #ifdef __cplusplus 
 extern "C" {
