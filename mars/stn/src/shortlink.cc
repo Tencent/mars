@@ -499,7 +499,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	while (true) {
 
 		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
-        xinfo2(TSF"sock %_ recv %_", _socket, recv_ret);
+        xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
 		if (recv_ret < 0) {
 			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
 			__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, _conn_profile, true);
