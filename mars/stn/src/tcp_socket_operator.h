@@ -28,7 +28,7 @@ public:
     
     virtual void Close(SOCKET _sock) override;
     SocketCloseFunc GetCloseFunction() const override{
-        return &close;
+        return &socket_close;
     }
     CreateStreamFunc GetCreateStreamFunc() const override{
         return nullptr;

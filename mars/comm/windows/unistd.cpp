@@ -1,12 +1,8 @@
 
-<<<<<<< HEAD:mars/comm/windows/unistd.cpp
-#include <xthreads.h>
-#define thrd_sleep(tm)			_Thrd_sleep(tm)
-=======
 #include "unistd.h"
 #include <chrono>
 #include <thread>
->>>>>>> alanzyzhang/master/windows_vs2019:mars/comm/windows/unistd.cc
+
 
 static void thread_sleep(unsigned long _sec, unsigned long _nanosec)
 {

@@ -37,8 +37,8 @@ namespace stn {
 
     class CacheSocketItem {
     public:
-        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout, int (*_closefunc)(int),
-                        int (*_createstream_func)(int), bool (*_issubstream_func)(int))
+        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout, int (*_closefunc)(SOCKET),
+                        SOCKET (*_createstream_func)(SOCKET), bool (*_issubstream_func)(SOCKET))
             :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout), closefunc(_closefunc),
              createstream_func(_createstream_func), issubstream_func(_issubstream_func){}
 
@@ -76,9 +76,9 @@ namespace stn {
         tickcount_t start_tick;
         SOCKET socket_fd;
         uint32_t timeout;   //in seconds
-        int (*closefunc)(int) = nullptr;
-        int (*createstream_func)(int) = nullptr;
-        bool (*issubstream_func)(int) = nullptr;
+        int (*closefunc)(SOCKET) = nullptr;
+        SOCKET (*createstream_func)(SOCKET) = nullptr;
+        bool (*issubstream_func)(SOCKET) = nullptr;
     };
 
     class SocketPool {
