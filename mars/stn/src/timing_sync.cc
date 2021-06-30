@@ -39,7 +39,7 @@ using namespace mars::app;
 
 
 #ifdef __ANDROID__
-static const int kAlarmType = 105;
+static const int kAlarmType = 119;
 #endif
 
 

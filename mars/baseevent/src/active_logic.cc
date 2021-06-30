@@ -46,7 +46,7 @@ BOOT_RUN_STARTUP(__initbind_baseprjevent);
 static void onAlarm(int64_t id) {
     Alarm::onAlarmImpl(id);
 }
-static const int kAlarmType = 100;
+static const int kAlarmType = 114;
 #endif
 
 std::shared_ptr<ActiveLogic> ActiveLogic::inst_ = nullptr;

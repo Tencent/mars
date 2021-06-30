@@ -58,7 +58,7 @@ static const unsigned int  kUpOrDownThreshold = 60 * 10 * 1000;      // 10min
 
 
 #ifdef __ANDROID__
-static const int kAlarmType = 102;
+static const int kAlarmType = 116;
 #endif
 
 enum {

@@ -53,8 +53,8 @@ using namespace mars::stn;
 using namespace mars::app;
 
 #ifdef __ANDROID__
-static const int kAlarmNoopInternalType = 103;
-static const int kAlarmNoopTimeOutType = 104;
+static const int kAlarmNoopInternalType = 117;
+static const int kAlarmNoopTimeOutType = 118;
 #endif
 
 namespace {
