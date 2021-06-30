@@ -667,7 +667,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
 
     xlog2(kEctOK == _err_type ? kLevelInfo : kLevelWarn, TSF"task end retry short cmdid:%_, err(%_, %_, %_), ", _it->task.cmdid, _err_type, _err_code, _fail_handle)
     (TSF"svr(%_:%_, %_, %_), ", _connect_profile.ip, _connect_profile.port, IPSourceTypeString[_connect_profile.ip_type], _connect_profile.host)
-    (TSF"cli(%_, n:%_, sig:%_), ", _connect_profile.local_ip, _connect_profile.net_type, _connect_profile.disconn_signal)
+    (TSF"cli(%_, %_, %_, n:%_, sig:%_), ", _it->transfer_profile.external_ip, _connect_profile.local_ip, _connect_profile.connection_identify, _connect_profile.net_type, _connect_profile.disconn_signal)
     (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, 0 != _resp_length ? _resp_length : _it->transfer_profile.received_size,
             0 != _resp_length ? "" : "/", 0 != _resp_length ? "" : string_cast(_it->transfer_profile.receive_data_size).str(), _connect_profile.conn_rtt,
                     (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time), (curtime - _it->start_task_time), _it->remain_retry_count)
@@ -688,6 +688,11 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->retry_start_time = ::gettickcount();
     // session timeout 应该立刻重试
     if (kTaskFailHandleSessionTimeout == _fail_handle) {
+        _it->retry_start_time = 0;
+    }
+    // .quic失败立刻换tcp重试.
+    if (_connect_profile.transport_protocol == Task::kTransportProtocolQUIC){
+        xwarn2(TSF"taskid:%_ quic failed, retry with tcp immediately.", _it->task.taskid);
         _it->retry_start_time = 0;
     }
 
