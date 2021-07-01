@@ -384,7 +384,7 @@ int socket_reserve_sendbuf(SOCKET sock, uint32_t buflen){
     int rv = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, &prevsize, &prevlen);
     if (rv != 0 || prevsize >= buflen)    return rv;
     
-    return setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &buflen, sizeof(buflen));
+    return setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (const char*)&buflen, sizeof(buflen));
 }
 
 int socket_get_nwrite(SOCKET _sock, int* _nwriteLen) {

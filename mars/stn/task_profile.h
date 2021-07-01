@@ -169,9 +169,9 @@ struct ConnectProfile {
 
     //keep alive config
     SOCKET socket_fd;
-    int (*closefunc)(int) = &close;
-    int (*createstream_func)(int) = nullptr;
-    bool (*issubstream_func)(int) = nullptr;
+    int (*closefunc)(SOCKET) = &socket_close;
+    SOCKET (*createstream_func)(SOCKET) = nullptr;
+    bool (*issubstream_func)(SOCKET) = nullptr;
     uint32_t keepalive_timeout;
     bool is_reused_fd;
     int local_net_stack;

@@ -14,6 +14,7 @@
 
 
 using namespace std;
+using namespace mars::comm;
 
 bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     xverbose_function();
