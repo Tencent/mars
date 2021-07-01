@@ -267,6 +267,37 @@ void  wakeupLock_Lock(void* _object);
 void  wakeupLock_Lock_Timeout(void* _object, int64_t _timeout);
 void  wakeupLock_Unlock(void* _object);
 bool  wakeupLock_IsLocking(void* _object);
+
+#ifdef NATIVE_CALLBACK
+    #include <memory>
+    class AndroidNativeCallback {
+        virtual int getNetInfo() {return -1;}
+        virtual int getNetTypeForStatistics();
+        virtual bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info) {return false;}
+        virtual bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false) {return false;}
+        virtual bool getCurSIMInfo(SIMInfo& _sim_info) {return false;}
+        virtual bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {return false;}
+        virtual unsigned int getSignal(bool isWifi) {return -1;}
+        virtual bool isNetworkConnected() {return false;}
+        virtual bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {return false;}
+        virtual int getCurrNetLabel(std::string& netInfo) {return -1;}
+
+        bool startAlarm(int type, int64_t id, int after) {return false;}
+        bool stopAlarm(int64_t id) {return false;}
+        void* wakeupLock_new() {return nullptr;}
+        void  wakeupLock_delete(void* _object) {}
+        void  wakeupLock_Lock(void* _object) {}
+        void  wakeupLock_Lock_Timeout(void* _object, int64_t _timeout) {}
+        void  wakeupLock_Unlock(void* _object) {}
+        bool  wakeupLock_IsLocking(void* _object) {return false;}
+    };
+    void SetNativeCallbackInstance(std::shared_ptr<AndroidNativeCallback> _cb) {
+        native_callback_instance = _cb;
+    }
+    extern std::weak_ptr<AndroidNativeCallback> native_callback_instance;
+
+#endif
+
 #endif
 
 #ifdef ANDROID

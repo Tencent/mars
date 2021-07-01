@@ -25,6 +25,11 @@ set(SELF_LIBS_OUT ${CMAKE_SYSTEM_NAME}.out)
 
 if(ANDROID)
 
+    if(NATIVE_CALLBACK)
+        message("native callback")
+        add_definitions(-DNATIVE_CALLBACK)
+    endif()
+
     find_library(log-lib log)
     find_library(z-lib z)
 
