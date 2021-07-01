@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <io.h>	// for close
 
 #ifdef __cplusplus 
 extern "C" {
@@ -105,5 +106,9 @@ typedef SSIZE_T ssize_t;
 #if defined(WIN32) && !defined(SIZE_T_MAX)
 #define SIZE_T_MAX  UINT_MAX
 #endif
+
+struct tcp_info {
+	void* dummy;
+};
 
 #endif
