@@ -15,7 +15,7 @@
 
 #include "xlogger/xlogger.h"
 
-using namespace mars::comm;
+
 
 static DWORD __SO_RCVTIMEO(SOCKET _sock) {
     DWORD optval = 0;
@@ -50,6 +50,8 @@ static void __WOULDBLOCK(SOCKET _sock, bool _block) {
     __SO_RCVTIMEO(_sock, (ret & (~0x1)) + _block);
 }
 
+namespace mars {
+namespace comm {
 SocketBreaker::SocketBreaker()
     : m_broken(false)
     , m_create_success(true), m_exception(0) {
@@ -381,3 +383,5 @@ int SocketSelect::Errno() const {
     return errno_;
 }
 
+}
+}
