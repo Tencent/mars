@@ -41,6 +41,7 @@ class MComplexConnect {
 
     virtual void OnCreated(unsigned int _index, const socket_address& _addr, SOCKET _socket) {}
     virtual void OnConnect(unsigned int _index, const socket_address& _addr, SOCKET _socket)  {}
+    virtual void OnBeforeConnect(int _socket_fd) {}
     virtual void OnConnected(unsigned int _index, const socket_address& _addr, SOCKET _socket, int _error, int _rtt) {}
 
     virtual bool OnShouldVerify(unsigned int _index, const socket_address& _addr) { return false;}

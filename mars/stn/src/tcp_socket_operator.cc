@@ -51,7 +51,7 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address> &_vecaddr,
 		xinfo2(TSF"address vector has no ipv6");
 	}
 	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval, timoutMode);
-	SOCKET sock = conn.ConnectImpatient(_vecaddr, sBreaker_, observer_.get(), _proxy_type, _proxy_addr, _proxy_username, _proxy_pwd);
+    SOCKET sock = conn.ConnectImpatient(_vecaddr, sBreaker_, observer_.get(), _proxy_type, _proxy_addr, _proxy_username, _proxy_pwd);   
 	xinfo2(TSF"connect result socket: %_", sock);
 	profile_.index = conn.Index();
 	profile_.rtt = conn.IndexRtt();

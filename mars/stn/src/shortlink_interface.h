@@ -20,6 +20,8 @@
 #ifndef SRC_SHORTLINK_INTERFACE_H_
 #define SRC_SHORTLINK_INTERFACE_H_
 
+#include <functional>
+
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
@@ -47,6 +49,8 @@ class ShortLinkInterface {
     CallBack<boost::function<void (ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> > OnRecv;
     boost::function<void (uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
+
+    std::function<void(int _socket_fd, const std::string& _description)> handle_fd_before_connect;
 };
     
 }

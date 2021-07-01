@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <set>
+#include <memory>
 
 #include "boost/bind.hpp"
 
@@ -52,6 +53,7 @@ boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protoc
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
 boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
+std::function<void(int _socket_fd, const std::string& _description)> ShortLinkTaskManager::handle_socket_before_connect_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -349,6 +351,12 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+        worker->handle_fd_before_connect = std::bind(&ShortLinkTaskManager::__HandleSocketBeforeConnect, this, std::placeholders::_1, std::placeholders::_2);
+        
+        // if (first->task.cgi.find("getnetworkinfo") != std::string::npos) {
+        //     xinfo2(TSF"zyzhang add netid: %_", id);
+        //     worker->handle_fd_before_connect = std::bind(&ShortLinkTaskManager::__HandleSocketBeforeConnect, this, std::placeholders::_1, std::placeholders::_1);
+        // }
         
         if (!debug_host_.empty()) {
           worker->SetDebugHost(debug_host_);
@@ -740,6 +748,13 @@ void ShortLinkTaskManager::__OnHandshakeCompleted(uint32_t _version, mars::stn::
 void ShortLinkTaskManager::__OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode) {
     if (kEctLocalTaskTimeout != _errorcode && _worker) {
         _worker->OnNetTimeout();
+    }
+}
+
+void ShortLinkTaskManager::__HandleSocketBeforeConnect(int _socket_fd, const std::string& _description) {
+    xinfo2(TSF"handle socket: %_, %_", _socket_fd, _description);
+    if (handle_socket_before_connect_) {
+        handle_socket_before_connect_(_socket_fd, _description);
     }
 }
 

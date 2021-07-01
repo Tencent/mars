@@ -55,10 +55,11 @@ class ShortLink : public ShortLinkInterface {
     ConnectProfile   Profile() const { return conn_profile_;}
     
     void              FillOutterIPAddr(const std::vector<IPPortItem>& _out_addr);
+    virtual void      BeforeConnect(int _socket_fd) {}
 
   protected:
     virtual void 	 SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
-    virtual bool IsKeepAlive() const { return is_keep_alive_; }
+    virtual bool     IsKeepAlive() const { return is_keep_alive_; }
 
     virtual void     __Run();
     virtual SOCKET   __RunConnect(ConnectProfile& _conn_profile);

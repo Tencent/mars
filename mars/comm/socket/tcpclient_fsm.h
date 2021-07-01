@@ -86,6 +86,7 @@ class TcpClientFSM {
     virtual void _OnRequestSend(AutoBuffer& _send_buff) {}
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) = 0;
     virtual void _OnClose(TSocketStatus _status, int _error, bool _userclose) = 0;
+    virtual void _OnBeforeConnect(int _socket_fd) {};
 
 
   protected:

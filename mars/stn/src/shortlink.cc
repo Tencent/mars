@@ -93,6 +93,11 @@ class ShortLinkConnectObserver : public MComplexConnect {
         }
     }
 
+    void OnBeforeConnect(int _socket_fd) {
+        xinfo2(TSF"before connect: %_", _socket_fd);
+        shortlink_.BeforeConnect(_socket_fd);
+    }
+
     int LastErrorCode() const {return last_err_;}
     int Rtt() const {return rtt_;}
 
