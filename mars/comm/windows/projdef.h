@@ -107,4 +107,8 @@ typedef SSIZE_T ssize_t;
 #define SIZE_T_MAX  UINT_MAX
 #endif
 
+struct tcp_info {
+	void* dummy;
+};
+
 #endif
