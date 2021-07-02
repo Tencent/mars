@@ -270,13 +270,16 @@ bool  wakeupLock_IsLocking(void* _object);
 
 #ifdef NATIVE_CALLBACK
     #include <memory>
-    class AndroidNativeCallback {
+    class PlatformNativeCallback {
+    public:
+        PlatformNativeCallback() = default;
+        virtual ~PlatformNativeCallback() = default;
+
         virtual int getNetInfo() {return -1;}
         virtual int getNetTypeForStatistics();
         virtual bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info) {return false;}
         virtual bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false) {return false;}
         virtual bool getCurSIMInfo(SIMInfo& _sim_info) {return false;}
-        virtual bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {return false;}
         virtual unsigned int getSignal(bool isWifi) {return -1;}
         virtual bool isNetworkConnected() {return false;}
         virtual bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {return false;}
@@ -291,10 +294,8 @@ bool  wakeupLock_IsLocking(void* _object);
         void  wakeupLock_Unlock(void* _object) {}
         bool  wakeupLock_IsLocking(void* _object) {return false;}
     };
-    void SetNativeCallbackInstance(std::shared_ptr<AndroidNativeCallback> _cb) {
-        native_callback_instance = _cb;
-    }
-    extern std::weak_ptr<AndroidNativeCallback> native_callback_instance;
+    extern std::weak_ptr<PlatformNativeCallback> platform_native_callback_instance;
+    extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCallback> _cb);
 
 #endif
 

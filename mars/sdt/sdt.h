@@ -25,6 +25,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace mars {
 namespace sdt {
@@ -106,6 +107,17 @@ enum CheckStatus {
 } ;
 
 extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
+
+#ifdef NATIVE_CALLBACK
+    class SdtNativeCallback {
+    public:
+        SdtNativeCallback() = default;
+        virtual ~SdtNativeCallback() = default;
+        virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
+    };
+    extern std::weak_ptr<SdtNativeCallback> sdn_native_callback_instance;
+    extern void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
+#endif
 
 }}
 

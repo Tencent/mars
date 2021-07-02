@@ -42,35 +42,52 @@
 #endif
 
 #ifdef NATIVE_CALLBACK
-    std::weak_ptr<AndroidNativeCallback> native_callback_instance;
+    std::weak_ptr<PlatformNativeCallback> platform_native_callback_instance;
+
+    void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCallback> _cb) {
+        platform_native_callback_instance = _cb;
+    }
 
     #define CALL_NATIVE_CALLBACK_RETURN_FUN(fun, default_value) \
     {\
-        auto cb = native_callback_instance.lock();\
+        auto cb = platform_native_callback_instance.lock();\
         if (cb) {\
             return (cb->fun);\
         }\
-        xwarn2("native callback is null");\
+        xwarn2("platform native callback is null");\
         return (default_value);\
     }
 
     #define CALL_NATIVE_CALLBACK_VOID_FUN(fun)\
     {\
-        auto cb = native_callback_instance.lock();\
+        auto cb = platform_native_callback_instance.lock();\
         if (cb) {\
             (cb->fun);\
             return;\
         }\
-        xwarn2("native callback is null");\
+        xwarn2("platform native callback is null");\
+        return;\
     }
-    
+
+#define DEFINE_FIND_EMPTY_STATIC_METHOD(methodid) \
+        const static JniMethodInfo methodid = JniMethodInfo("", "", "");
+
 #endif //NATIVE_CALLBACK
 
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_CLASS(KPlatformCommC2Java, "com/tencent/mars/ilink/comm/PlatformComm$C2Java")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java)
+#endif
 
 #ifdef ANDROID
+
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_startAlarm, KPlatformCommC2Java, "startAlarm", "(III)Z")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_startAlarm)
+#endif
 bool startAlarm(int type, int64_t id, int after) {
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -88,7 +105,11 @@ bool startAlarm(int type, int64_t id, int after) {
     return (bool)ret;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_stopAlarm, KPlatformCommC2Java, "stopAlarm", "(I)Z")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_stopAlarm)
+#endif
 bool stopAlarm(int64_t  id) {
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -107,7 +128,11 @@ bool stopAlarm(int64_t  id) {
 }
 #endif
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getProxyInfo, KPlatformCommC2Java, "getProxyInfo", "(Ljava/lang/StringBuffer;)I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getProxyInfo)
+#endif
 bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     xverbose_function();
 
@@ -163,7 +188,11 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     return !strProxy.empty();
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getNetInfo, KPlatformCommC2Java, "getNetInfo", "()I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getNetInfo)
+#endif
 int getNetInfo() {
 	xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -187,7 +216,11 @@ int getNetInfo() {
     return (int)netType;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getStatisticsNetType, KPlatformCommC2Java, "getStatisticsNetType", "()I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getStatisticsNetType)
+#endif
 int getNetTypeForStatistics(){
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -201,7 +234,11 @@ int getNetTypeForStatistics(){
     return (int)JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getStatisticsNetType).i;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo, KPlatformCommC2Java, "getCurRadioAccessNetworkInfo", "()I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo)
+#endif
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -259,8 +296,12 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
 
 
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo, KPlatformCommC2Java,
                           "getCurWifiInfo", "()Lcom/tencent/mars/ilink/comm/PlatformComm$WifiInfo;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo)
+#endif
 bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -306,8 +347,12 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     return true;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo, KPlatformCommC2Java, "getCurSIMInfo",
                           "()Lcom/tencent/mars/ilink/comm/PlatformComm$SIMInfo;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo)
+#endif
 bool getCurSIMInfo(SIMInfo& simInfo) {
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -364,7 +409,11 @@ bool getCurSIMInfo(SIMInfo& simInfo) {
     return true;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo, KPlatformCommC2Java, "getAPNInfo", "()Lcom/tencent/mars/ilink/comm/PlatformComm$APNInfo;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo)
+#endif
 bool getAPNInfo(APNInfo& info) {
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -414,7 +463,11 @@ bool getAPNInfo(APNInfo& info) {
     return true;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getSignal, KPlatformCommC2Java, "getSignal", "(Z)J")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getSignal)
+#endif
 
 unsigned int getSignal(bool isWifi) {
     xverbose_function();
@@ -434,7 +487,11 @@ unsigned int getSignal(bool isWifi) {
     return (unsigned int)signal;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_isNetworkConnected, KPlatformCommC2Java, "isNetworkConnected", "()Z")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_isNetworkConnected)
+#endif
 bool isNetworkConnected() {
     xverbose_function();
     #ifdef NATIVE_CALLBACK
@@ -458,8 +515,12 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
 }
 
 #ifdef ANDROID
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new, KPlatformCommC2Java, "wakeupLock_new",
                           "()Lcom/tencent/mars/ilink/comm/WakerLock;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new)
+#endif
 void* wakeupLock_new() {
     xverbose_function();
     #ifdef NATIVE_CALLBACK

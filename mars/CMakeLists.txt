@@ -26,7 +26,7 @@ set(SELF_LIBS_OUT ${CMAKE_SYSTEM_NAME}.out)
 if(ANDROID)
 
     if(NATIVE_CALLBACK)
-        message("native callback")
+        message("common native callback")
         add_definitions(-DNATIVE_CALLBACK)
     endif()
 
