@@ -112,8 +112,6 @@ void C2Java_ReportTaskProfile(const TaskProfile& _task_profile);
         virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {}
         virtual void ReportTaskProfile(const TaskProfile& _task_profile) {}
     };
-
-    extern std::weak_ptr<StnNativeCallback> stn_native_callback_instance;
     extern void SetStnNativeCallback(std::shared_ptr<StnNativeCallback> _cb) ;
 
 #endif

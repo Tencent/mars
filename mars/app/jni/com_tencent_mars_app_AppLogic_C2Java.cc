@@ -50,7 +50,7 @@ namespace mars {
 namespace app {
 
 #ifdef NATIVE_CALLBACK
-std::weak_ptr<AppLogicNativeCallback> applogic_native_callback_instance;
+static std::weak_ptr<AppLogicNativeCallback> applogic_native_callback_instance;
 
 void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
     applogic_native_callback_instance = _cb;

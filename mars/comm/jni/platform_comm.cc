@@ -42,7 +42,7 @@
 #endif
 
 #ifdef NATIVE_CALLBACK
-    std::weak_ptr<PlatformNativeCallback> platform_native_callback_instance;
+    static std::weak_ptr<PlatformNativeCallback> platform_native_callback_instance;
 
     void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCallback> _cb) {
         platform_native_callback_instance = _cb;

@@ -65,9 +65,6 @@ extern double GetOsVersion();
         virtual unsigned int GetClientVersion() {return 0;}
         virtual DeviceInfo GetDeviceInfo() {return DeviceInfo();}
     };
-
-    extern std::weak_ptr<AppLogicNativeCallback> applogic_native_callback_instance;
-
     extern void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
 
 #endif //NATIVE_CALLBACK

@@ -42,7 +42,7 @@ extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const 
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
 
 #ifdef NATIVE_CALLBACK
-    std::weak_ptr<StnNativeCallback> stn_native_callback_instance;
+    static std::weak_ptr<StnNativeCallback> stn_native_callback_instance;
     void SetStnNativeCallback(std::shared_ptr<StnNativeCallback> _cb) {
         stn_native_callback_instance = _cb;
     }

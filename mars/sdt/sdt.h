@@ -115,7 +115,6 @@ extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _chec
         virtual ~SdtNativeCallback() = default;
         virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
     };
-    extern std::weak_ptr<SdtNativeCallback> sdn_native_callback_instance;
     extern void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
 #endif
 

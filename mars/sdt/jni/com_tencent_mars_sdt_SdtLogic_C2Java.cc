@@ -38,7 +38,7 @@ namespace mars {
 namespace sdt {
 
 #ifdef NATIVE_CALLBACK
-std::weak_ptr<SdtNativeCallback> sdn_native_callback_instance;
+static std::weak_ptr<SdtNativeCallback> sdn_native_callback_instance;
 void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb) {
     sdn_native_callback_instance = _cb;
 }

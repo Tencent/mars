@@ -294,7 +294,6 @@ bool  wakeupLock_IsLocking(void* _object);
         void  wakeupLock_Unlock(void* _object) {}
         bool  wakeupLock_IsLocking(void* _object) {return false;}
     };
-    extern std::weak_ptr<PlatformNativeCallback> platform_native_callback_instance;
     extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCallback> _cb);
 
 #endif
