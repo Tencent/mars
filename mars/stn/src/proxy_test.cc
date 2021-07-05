@@ -44,6 +44,7 @@
 static unsigned int BUFFER_SIZE = 8 * 1024;
 static const uint16_t TEST_PORT = 80;
 using namespace mars::stn;
+using namespace mars::comm;
 
 ProxyTest::~ProxyTest() {
 

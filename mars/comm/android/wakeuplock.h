@@ -25,6 +25,9 @@
 
 #include <stdint.h>
 
+namespace mars {
+namespace comm {
+
 class WakeUpLock {
   public:
     WakeUpLock();
@@ -38,6 +41,9 @@ class WakeUpLock {
   private:
     void* object_;
 };
+
+}
+}
 
 #endif
 

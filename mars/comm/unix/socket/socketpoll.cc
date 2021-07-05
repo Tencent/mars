@@ -23,6 +23,8 @@
 
 #include "comm/xlogger/xlogger.h"
 
+namespace mars {
+namespace comm {
 
 PollEvent::PollEvent():poll_event_({0}), user_data_(NULL) { }
 bool  PollEvent::Readable() const { return poll_event_.revents & POLLIN; }
@@ -234,3 +236,5 @@ SocketBreaker& SocketPoll::Breaker() {
     return breaker_;
 }
 
+}
+}

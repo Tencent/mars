@@ -31,6 +31,7 @@
 #include "mars/stn/proto/longlink_packer.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 static unsigned int g_period = 5 * 1000;  // ms
 static unsigned int g_keepTime = 20 *1000;  // ms

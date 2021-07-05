@@ -33,6 +33,9 @@
 #include "mars/comm/coroutine/coroutine.h"
 #include "mars/comm/coroutine/coro_async.h"
 
+namespace mars {
+namespace comm {
+
 #ifdef ANDROID
 	int g_NetInfo = 0;    // global cache netinfo for android
 	WifiInfo g_wifi_info;
@@ -494,6 +497,8 @@ bool  wakeupLock_IsLocking(void* _object) {
     return (bool)ret;
 }
 
+}
+}
 #endif
 
 

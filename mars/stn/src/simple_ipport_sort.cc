@@ -37,6 +37,8 @@
 
 #include "mars/app/app.h"
 
+using namespace mars::comm;
+
 #define IPPORT_RECORDS_FILENAME "/ipportrecords2.xml"
 
 static const time_t kRecordTimeout = 60 * 60 * 24;

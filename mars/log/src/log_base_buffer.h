@@ -27,6 +27,9 @@
 #include "mars/comm/ptrbuffer.h"
 #include "mars/comm/autobuffer.h"
 
+namespace mars {
+namespace xlog {
+
 class LogCrypt;
 
 class LogBaseBuffer {
@@ -63,5 +66,7 @@ protected:
     size_t remain_nocrypt_len_;
 };
 
+}
+}
 
 #endif /* LOGBASEBUFFER_H_ */

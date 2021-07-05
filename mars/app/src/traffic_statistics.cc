@@ -18,6 +18,7 @@
 #include "mars/comm/platform_comm.h"
 
 using namespace mars::app;
+using namespace mars::comm;
 
 TrafficStatistics::TrafficStatistics()
 : report_timeout_(10 * 1000/*10s*/)

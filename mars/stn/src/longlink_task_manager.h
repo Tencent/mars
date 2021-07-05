@@ -33,15 +33,16 @@
 #include "longlink_metadata.h"
 
 class AutoBuffer;
-class ActiveLogic;
 
 struct STChannelResp;
 
+namespace mars {
+namespace comm {
+class ActiveLogic;
 #ifdef ANDROID
 class WakeUpLock;
 #endif
-
-namespace mars {
+}
     namespace stn {
 
 struct TaskProfile;
@@ -62,7 +63,7 @@ class LongLinkTaskManager {
     static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
 
   public:
-    LongLinkTaskManager(mars::stn::NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeueid);
+    LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
     bool StartTask(const Task& _task, int _channel);
@@ -85,7 +86,7 @@ class LongLinkTaskManager {
     bool IsMinorAvailable(const Task& _task);
     
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
-        ScopedLock lock(meta_mutex_);
+        comm::ScopedLock lock(meta_mutex_);
         for(auto& item : longlink_metas_) {
             if(item.second->Config().IsMain()) {
                 return item.second;
@@ -126,7 +127,7 @@ class LongLinkTaskManager {
     bool __ForbidUseTls(const std::vector<std::string>& _host_list);
 
   private:
-    MessageQueue::ScopeRegister     asyncreg_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
     uint64_t                        lastbatcherrortime_;   // ms
     unsigned long                   retry_interval_;	//ms
@@ -137,13 +138,13 @@ class LongLinkTaskManager {
     DynamicTimeout&                 dynamic_timeout_;
 
     NetSource&                      netsource_;
-    ActiveLogic&                    active_logic_;
+    comm::ActiveLogic&              active_logic_;
 
 #ifdef ANDROID
-    WakeUpLock*                     wakeup_lock_;
+    comm::WakeUpLock*                     wakeup_lock_;
 #endif
-    Mutex                           meta_mutex_;
-    Mutex                           mutex_;
+    comm::Mutex                     meta_mutex_;
+    comm::Mutex                     mutex_;
     static std::set<std::string>    forbid_tls_host_;
 };
     }

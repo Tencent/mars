@@ -26,6 +26,9 @@
 
 #include "boost/function.hpp"
 
+namespace mars {
+namespace comm {
+
 struct DNSBreaker {
 	DNSBreaker(): isbreak(false), dnsstatus(NULL) {}
 	bool isbreak;
@@ -62,6 +65,7 @@ class DNS {
     boost::function<void (int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
 };
-
+}
+}
 
 #endif /* COMM_COMM_DNS_H_ */

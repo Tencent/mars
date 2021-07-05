@@ -36,11 +36,15 @@
 
 class AutoBuffer;
 
+
+namespace mars {
+
+namespace comm {
 #ifdef ANDROID
 class WakeUpLock;
 #endif
+}
 
-namespace mars {
     namespace stn {
 
 class DynamicTimeout;
@@ -63,7 +67,7 @@ class ShortLinkTaskManager {
     static std::function<void(int _socket_fd, const std::string& _description)> handle_socket_before_connect_;
 
   public:
-    ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid);
+    ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task);
@@ -99,7 +103,7 @@ class ShortLinkTaskManager {
     void __HandleSocketBeforeConnect(int _socket_fd, const std::string& _description);
 
   private:
-    MessageQueue::ScopeRegister     asyncreg_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      net_source_;
     
     std::list<TaskProfile>          lst_cmd_;
@@ -109,7 +113,7 @@ class ShortLinkTaskManager {
     DynamicTimeout&                 dynamic_timeout_;
     std::string                     debug_host_;
 #ifdef ANDROID
-    WakeUpLock*                     wakeup_lock_;
+    comm::WakeUpLock*                     wakeup_lock_;
 #endif
     SocketPool socket_pool_;
 };

@@ -24,6 +24,8 @@
 #include "comm/xlogger/xlogger.h"
 #include "comm/platform_comm.h"
 
+namespace mars {
+namespace comm {
 /*
  * param: timeoutInMs if set 0, then select timeout param is NULL, not timeval(0)
  * return value:
@@ -49,7 +51,7 @@ SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _bre
         return INVALID_SOCKET;
     }
     
-    if (::getNetInfo() == kWifi && socket_fix_tcp_mss(sock) < 0) {
+    if (getNetInfo() == kWifi && socket_fix_tcp_mss(sock) < 0) {
 #ifdef ANDROID
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
@@ -247,4 +249,7 @@ int block_socket_recv(SOCKET _sock, AutoBuffer& _buffer, size_t _max_size, Socke
             return -1;
         }
     }
+}
+
+}
 }

@@ -40,6 +40,8 @@
 #include "mars/stn/config.h"
 #include <algorithm>
 
+using namespace mars::comm;
+
 #define KV_KEY_SMARTHEART 11249
 
 static const std::string kFileName = "Heartbeat.ini";

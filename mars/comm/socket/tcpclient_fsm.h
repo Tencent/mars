@@ -26,6 +26,10 @@
 #include "socket/socket_address.h"
 
 class XLogger;
+
+namespace mars {
+namespace comm {
+
 class SocketSelect;
 
 class TcpClientFSM {
@@ -105,5 +109,8 @@ class TcpClientFSM {
     AutoBuffer send_buf_;
     AutoBuffer recv_buf_;
 };
+
+}
+}
 
 #endif /* TCPCLIENTFSM_H_ */

@@ -14,6 +14,9 @@
 #ifndef LOG_MAGIC_NUM_H_
 #define LOG_MAGIC_NUM_H_
 
+namespace mars {
+namespace xlog {
+
 class LogMagicNum {
 public:
     LogMagicNum() = delete;
@@ -39,5 +42,7 @@ public:
 
 };
 
+}
+}
 
 #endif /* LOG_MAGIC_NUM_H_ */

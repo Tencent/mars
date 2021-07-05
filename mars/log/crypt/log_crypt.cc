@@ -36,6 +36,9 @@
 #include "micro-ecc-master/uECC.h"
 #endif
 
+namespace mars {
+namespace xlog {
+
 const static int TEA_BLOCK_LEN = 8;
 
 static void __TeaEncrypt (uint32_t* v, uint32_t* k) {
@@ -288,4 +291,7 @@ bool LogCrypt::Fix(char* _data, size_t _data_len, uint32_t& _raw_log_len) {
 
 bool LogCrypt::IsCrypt() {
     return is_crypt_;
+}
+
+}
 }

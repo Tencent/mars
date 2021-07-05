@@ -78,6 +78,11 @@
 
 #define LOG_EXT "xlog"
 
+using namespace mars::comm;
+
+namespace mars {
+namespace xlog {
+
 extern void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log);
 extern void ConsoleLog(const XLoggerInfo* _info, const char* _log);
 
@@ -988,60 +993,6 @@ static int calc_dump_required_length(int srcbytes){
     return srcbytes * 6 + 1;
 }
 
-const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
-    if (NULL == _dumpbuffer || 0 == _len) {
-        //        ASSERT(NULL!=_dumpbuffer);
-        //        ASSERT(0!=_len);
-        return "";
-    }
-
-    SCOPE_ERRNO();
-
-    const static int kMaxBufferLength = 4096;
-    if (NULL == sg_tss_dumpfile.get()) {
-        sg_tss_dumpfile.set(calloc(kMaxBufferLength, 1));
-    } else {
-        memset(sg_tss_dumpfile.get(), 0, kMaxBufferLength);
-    }
-
-    ASSERT(NULL != sg_tss_dumpfile.get());
-
-    char* dst_buffer = (char*)sg_tss_dumpfile.get();
-    const char* src_buffer = reinterpret_cast<const char*>(_dumpbuffer);
-    int round_bytes = snprintf(dst_buffer, kMaxBufferLength, "\n%zu bytes:\n",_len);
-    if (round_bytes <= 0){
-        return "<format log failed>";
-    }
-    
-    int dst_offset = round_bytes;
-    int dst_upper = kMaxBufferLength - 1;
-    for(int src_offset = 0; src_offset < (int)_len && dst_offset < dst_upper;){
-        int dst_leftbytes = dst_upper - dst_offset;
-        int bytes = std::min((int)_len - src_offset, 32);
-        
-        while (bytes > 0 && calc_dump_required_length(bytes) >= dst_leftbytes) {
-            --bytes;
-        }
-        if (bytes <= 0){
-            break;
-        }
-
-        round_bytes = to_string(src_buffer + src_offset, bytes, dst_buffer + dst_offset);
-               
-        dst_offset += round_bytes;
-        src_offset += bytes;
-        
-        //next line
-        *(dst_buffer + dst_offset) = '\n';
-        ++dst_offset;
-    }
-    
-    ASSERT(dst_offset < kMaxBufferLength);
-    *(dst_buffer+dst_offset) = '\0';
-
-    return (const char*)sg_tss_dumpfile.get();
-}
-
 bool XloggerAppender::GetCurrentLogPath(char* _log_path, unsigned int _len) {
     if (nullptr == _log_path || 0 == _len) return false;
 
@@ -1134,15 +1085,6 @@ void xlogger_appender(const XLoggerInfo* _info, const char* _log) {
     }
     sg_default_appender->Write(_info, _log);
 }
-
-
-const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
-    if (sg_release_guard) {
-        return "";
-    }
-    return sg_default_appender->Dump(_dumpbuffer, _len);
-}
-
 
 static void appender_release_default_appender() {
     if (sg_release_guard) {
@@ -1246,4 +1188,70 @@ bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<
         return false;
     }
     return sg_default_appender->MakeLogfileName(_timespan, _prefix, _filepath_vec);
+}
+
+}
+}
+
+using namespace mars::xlog;
+
+const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
+    if (sg_release_guard) {
+        return "";
+    }
+    return sg_default_appender->Dump(_dumpbuffer, _len);
+}
+
+const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
+    if (NULL == _dumpbuffer || 0 == _len) {
+        //        ASSERT(NULL!=_dumpbuffer);
+        //        ASSERT(0!=_len);
+        return "";
+    }
+
+    SCOPE_ERRNO();
+
+    const static int kMaxBufferLength = 4096;
+    if (NULL == sg_tss_dumpfile.get()) {
+        sg_tss_dumpfile.set(calloc(kMaxBufferLength, 1));
+    } else {
+        memset(sg_tss_dumpfile.get(), 0, kMaxBufferLength);
+    }
+
+    ASSERT(NULL != sg_tss_dumpfile.get());
+
+    char* dst_buffer = (char*)sg_tss_dumpfile.get();
+    const char* src_buffer = reinterpret_cast<const char*>(_dumpbuffer);
+    int round_bytes = snprintf(dst_buffer, kMaxBufferLength, "\n%zu bytes:\n",_len);
+    if (round_bytes <= 0){
+        return "<format log failed>";
+    }
+    
+    int dst_offset = round_bytes;
+    int dst_upper = kMaxBufferLength - 1;
+    for(int src_offset = 0; src_offset < (int)_len && dst_offset < dst_upper;){
+        int dst_leftbytes = dst_upper - dst_offset;
+        int bytes = std::min((int)_len - src_offset, 32);
+        
+        while (bytes > 0 && calc_dump_required_length(bytes) >= dst_leftbytes) {
+            --bytes;
+        }
+        if (bytes <= 0){
+            break;
+        }
+
+        round_bytes = to_string(src_buffer + src_offset, bytes, dst_buffer + dst_offset);
+               
+        dst_offset += round_bytes;
+        src_offset += bytes;
+        
+        //next line
+        *(dst_buffer + dst_offset) = '\n';
+        ++dst_offset;
+    }
+    
+    ASSERT(dst_offset < kMaxBufferLength);
+    *(dst_buffer+dst_offset) = '\0';
+
+    return (const char*)sg_tss_dumpfile.get();
 }

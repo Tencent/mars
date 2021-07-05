@@ -58,6 +58,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 
 
 #define AYNC_HANDLER asyncreg_.Get()
@@ -373,6 +374,7 @@ void NetCore::StartTask(const Task& _task) {
 #endif
 
     case Task::kChannelShort:
+        task.shortlink_fallback_hostlist = task.shortlink_host_list;
         start_ok = shortlink_task_manager_->StartTask(task);
         break;
 
@@ -820,12 +822,12 @@ std::shared_ptr<LongLink> NetCore::CreateLongLink(LonglinkConfig& _config){
 
     auto longlink = longlink_task_manager_->GetLongLink(_config.name);
     if(!longlink) {
-	    xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
+	    xassert2(false, TSF"get longlink nullptr with name:%_", _config.name.c_str());
 	    return nullptr;
     }
     auto longlink_channel = longlink->Channel();
     if(!longlink_channel) {
-        xassert2(false, "get longlink nullptr with name:%s", _config.name.c_str());
+        xassert2(false, TSF"get longlink nullptr with name:%_", _config.name.c_str());
         return nullptr;
     }
     

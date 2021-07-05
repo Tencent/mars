@@ -30,6 +30,8 @@
 
 #include "netinfo_util.h"
 
+using namespace mars::comm;
+
 NetworkType GetNetworkType() {
     NetworkType network_type = kNetworkTypeUnknown;
     int netinfo = getNetInfo();

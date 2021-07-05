@@ -37,6 +37,7 @@
 #include "sdt/src/tools/netchecker_trafficmonitor.h"
 
 using namespace mars::sdt;
+using namespace mars::comm;
 
 #define TRAFFIC_LIMIT_RET_CODE (INT_MIN)
 

@@ -120,8 +120,8 @@ class PingQuery {
     int                     timeout_;
     struct sockaddr          sendaddr_;
     struct sockaddr            recvaddr_;
-    Alarm                   alarm_;
-    SocketBreaker     readwrite_breaker_;
+    mars::comm::Alarm                   alarm_;
+    mars::comm::SocketBreaker     readwrite_breaker_;
 #endif
     NetCheckTrafficMonitor* traffic_monitor_;
 };

@@ -29,6 +29,10 @@
 
 #include "network/getdnssvraddrs.h"
 #include "socket/local_ipstack.h"
+
+namespace mars {
+namespace comm {
+
 enum {
     kGetIPDoing,
     kGetIPTimeout,
@@ -311,4 +315,7 @@ void DNS::Cancel(DNSBreaker& _breaker) {
     if (_breaker.dnsstatus) *(_breaker.dnsstatus) = kGetIPCancel;
 
     sg_condition.notifyAll();
+}
+
+}
 }

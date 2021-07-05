@@ -36,7 +36,7 @@
     {\
       public:\
         static boost::shared_ptr<classname>& instance_shared_ptr() { static boost::shared_ptr<classname> s_ptr;return s_ptr;}\
-        static Mutex& singleton_mutex() {static Mutex s_mutex; return s_mutex;}\
+        static mars::comm::Mutex& singleton_mutex() {static mars::comm::Mutex s_mutex; return s_mutex;}\
         static boost::signals2::signal<void ()>& SignalInstanceBegin() { static boost::signals2::signal<void ()> s_signal; return s_signal;} \
         static boost::signals2::signal<void (boost::shared_ptr<classname>)>& SignalInstance() { static boost::signals2::signal<void (boost::shared_ptr<classname>)> s_signal; return s_signal;} \
         static boost::signals2::signal<void (boost::shared_ptr<classname>)>& SignalRelease() { static boost::signals2::signal<void (boost::shared_ptr<classname>)> s_signal; return s_signal;} \
@@ -50,7 +50,7 @@
             boost::shared_ptr<classname> ret = instance_shared_ptr();\
             if (ret) return ret;\
             \
-            ScopedLock    lock(singleton_mutex());\
+            mars::comm::ScopedLock    lock(singleton_mutex());\
             if (!instance_shared_ptr())\
             {\
                 SignalInstanceBegin()();\
@@ -67,7 +67,7 @@
             boost::shared_ptr<classname> ret = instance_shared_ptr();\
             if (ret) return ret;\
             \
-            ScopedLock    lock(singleton_mutex());\
+            mars::comm::ScopedLock lock(singleton_mutex());\
             if (!instance_shared_ptr())\
             {\
                 SignalInstanceBegin()();\
@@ -82,7 +82,7 @@
         \
         static void Release()\
         {\
-            ScopedLock    lock(singleton_mutex());\
+            mars::comm::ScopedLock lock(singleton_mutex());\
             if (instance_shared_ptr())\
             {\
                 SignalRelease()(instance_shared_ptr());    \
@@ -98,7 +98,7 @@
         \
         static void AsyncRelease()\
         {\
-            ScopedLock  lock(singleton_mutex());\
+            mars::comm::ScopedLock lock(singleton_mutex());\
             if (instance_shared_ptr())\
             {\
                 boost::shared_ptr<classname> tmp_ptr = instance_shared_ptr();\
@@ -114,7 +114,7 @@
         \
         static boost::shared_ptr<classname>  Reset()\
         {\
-            ScopedLock    lock(singleton_mutex());\
+            mars::comm::ScopedLock lock(singleton_mutex());\
             if (instance_shared_ptr())\
             {\
                 SignalResetOld()(*const_cast<classname*>(instance_shared_ptr().get()));\
@@ -173,8 +173,8 @@ class Singleton {
             static boost::shared_ptr<T> ptr;
             return ptr;
         }
-        static Mutex& singleton_mutex() {
-            static Mutex s_mutex;
+        static mars::comm::Mutex& singleton_mutex() {
+            static mars::comm::Mutex s_mutex;
             return s_mutex;
         }
     };
@@ -184,7 +184,7 @@ class Singleton {
       public:
         SingletonInfoImpl() {}
         virtual void DoRelease() {
-            ScopedLock    lock(SingletonInstance<T>::singleton_mutex());
+            mars::comm::ScopedLock    lock(SingletonInstance<T>::singleton_mutex());
 
             if (SingletonInstance<T>::instance_shared_ptr()) {
                 SingletonInstance<T>::instance_shared_ptr().reset();
@@ -214,7 +214,7 @@ class Singleton {
 
         if (ret) return ret;
 
-        ScopedLock    lock(SingletonInstance<T>::singleton_mutex());
+        mars::comm::ScopedLock    lock(SingletonInstance<T>::singleton_mutex());
 
         if (!SingletonInstance<T>::instance_shared_ptr()) {
             _AddSigleton(new SingletonInfoImpl<T>());

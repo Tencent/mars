@@ -25,6 +25,7 @@
 #include "longlink.h"
 #include "shortlink.h"
 
+using namespace mars::comm;
 namespace mars {
 namespace stn {
 

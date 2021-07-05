@@ -78,7 +78,7 @@ class SimpleIPPortSort {
     std::string hostpath_;
     tinyxml2::XMLDocument recordsxml_;
 
-    mutable Mutex mutex_;
+    mutable comm::Mutex mutex_;
     mutable std::vector<BanItem> _ban_fail_list_;
     mutable std::map<std::string, uint64_t> _server_bans_;
 

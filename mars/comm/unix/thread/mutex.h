@@ -23,6 +23,8 @@
 #include "comm/assert/__assert.h"
 #include "comm/time_utils.h"
 
+namespace mars {
+namespace comm {
 class Mutex {
   public:
     typedef pthread_mutex_t handle_type;
@@ -204,6 +206,6 @@ class Mutex {
     pthread_mutex_t mutex_;
     pthread_mutexattr_t attr_;
 };
-
+}}
 
 #endif /* MUTEX_H_ */

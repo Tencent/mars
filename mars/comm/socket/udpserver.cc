@@ -29,6 +29,9 @@
 #define DELETE_AND_NULL(a) {if (a) delete a; a = NULL;}
 #define MAX_DATAGRAM 65536
 
+namespace mars {
+namespace comm {
+
 struct UdpServerSendData {
     explicit UdpServerSendData(struct sockaddr_in* _addr) {
         memcpy(&addr, _addr, sizeof(sockaddr_in));
@@ -276,5 +279,5 @@ int UdpServer::__DoSelect(bool _bReadSet, bool _bWriteSet, void* _buf, size_t _l
     return -1;
 }
 
-
-
+}
+}

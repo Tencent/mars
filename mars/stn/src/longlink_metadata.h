@@ -33,7 +33,7 @@ namespace mars {
 
 class LongLinkMetaData {
 public: 
-    LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, ActiveLogic& _activeLogic, MessageQueue::MessageQueue_t _message_id);
+    LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, comm::ActiveLogic& _activeLogic, comm::MessageQueue::MessageQueue_t _message_id);
 
     virtual ~LongLinkMetaData();
     std::shared_ptr<LongLink> Channel() {
@@ -66,7 +66,7 @@ private:
     std::shared_ptr<NetSourceTimerCheck> netsource_checker_;
     std::shared_ptr<SignallingKeeper> signal_keeper_;
     LonglinkConfig config_;
-    MessageQueue::ScopeRegister asyncreg_;
+    comm::MessageQueue::ScopeRegister asyncreg_;
 };
 
     }

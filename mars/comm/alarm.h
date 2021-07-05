@@ -29,6 +29,9 @@
 #include "android/wakeuplock.h"
 #endif
 
+namespace mars {
+namespace comm {
+
 class Alarm {
   public:
     enum {
@@ -129,4 +132,5 @@ class Alarm {
 #endif
 };
 
+}}
 #endif /* COMM_ALARM_H_ */

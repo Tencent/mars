@@ -22,6 +22,8 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/platform_comm.h"
 
+using namespace mars::comm;
+
 NetCheckTrafficMonitor::NetCheckTrafficMonitor(unsigned long mobileDataThreshold, bool isIgnoreRecvData, unsigned long wifiDataThreshold)
     : wifi_recv_data_size_(0)
     , wifi_send_data_size_(0)

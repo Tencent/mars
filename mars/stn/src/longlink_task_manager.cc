@@ -42,6 +42,7 @@
 #include "weak_network_logic.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
@@ -66,7 +67,9 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 #ifdef ANDROID
     , wakeup_lock_(new WakeUpLock())
 #endif
+#ifndef _WIN32
     , meta_mutex_(true)
+#endif
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }

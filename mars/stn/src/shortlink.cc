@@ -50,6 +50,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 using namespace http;
 
 static unsigned int KBufferSize = 8 * 1024;
@@ -467,7 +468,8 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	xinfo2(TSF"task socket send sock:%_, %_ http len:%_, ", _socket, message.String(), out_buff.Length()) >> group_send;
 
 	int send_ret = socketOperator_->Send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), _err_code);
-
+    xinfo2(TSF"sent %_", send_ret) >> group_send;
+    
 	if (send_ret < 0) {
 		xerror2(TSF"Send Request Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
         is_keep_alive_ = false;
@@ -502,7 +504,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	while (true) {
 
 		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
-
+        xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
 		if (recv_ret < 0) {
 			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
 			__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, _conn_profile, true);

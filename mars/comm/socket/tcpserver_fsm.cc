@@ -25,6 +25,9 @@
 #include "comm/socket/socketselect.h"
 #include "comm/socket/tcpserver_fsm.h"
 
+namespace mars {
+namespace comm {
+
 TcpServerFSM::TcpServerFSM(SOCKET _socket)
     : status_(kAccept), sock_(_socket), is_write_fd_set_(false) {
     xassert2(INVALID_SOCKET != sock_);
@@ -219,3 +222,6 @@ TcpServerFSM::TSocketStatus TcpServerFSM::AfterReadWriteSelect(const SocketSelec
 
 int TcpServerFSM::ReadWriteTimeout() const { return INT_MAX; }
 int TcpServerFSM::ReadWriteAbsTimeout() const { return INT_MAX;}
+
+}
+}

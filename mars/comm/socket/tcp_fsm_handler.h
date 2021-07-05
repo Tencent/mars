@@ -24,12 +24,12 @@
 #include "comm/xlogger/xlogger.h"
 
 template<class InputIterator>
-bool TcpFSMHandler(InputIterator _first, InputIterator _last, SocketBreaker& _breaker, bool _select_anyway)
+bool TcpFSMHandler(InputIterator _first, InputIterator _last, mars::comm::SocketBreaker& _breaker, bool _select_anyway)
 {
 	xverbose_function();
     xgroup2_define(group);
 
-    SocketSelect sel(_breaker, true);
+    mars::comm::SocketSelect sel(_breaker, true);
     sel.PreSelect();
 
     bool have_runing_status = false;
@@ -73,7 +73,7 @@ bool TcpFSMHandler(InputIterator _first, InputIterator _last, SocketBreaker& _br
 }
 
 template<class InputIterator>
-void TcpFSMHandlerRunloop(InputIterator _first, InputIterator _last, SocketBreaker& _breaker, bool _select_anyway)
+void TcpFSMHandlerRunloop(InputIterator _first, InputIterator _last, mars::comm::SocketBreaker& _breaker, bool _select_anyway)
 {
     xinfo_function();
 

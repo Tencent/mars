@@ -27,6 +27,9 @@
 #define DELETE_AND_NULL(a) {if (a) delete a; a = NULL;}
 #define MAX_DATAGRAM 65536
 
+namespace mars {
+namespace comm {
+
 struct UdpSendData
 {
     UdpSendData() {}
@@ -280,3 +283,5 @@ int UdpClient::__DoSelect(bool _bReadSet, bool _bWriteSet, void* _buf, size_t _l
     return -1;
 }
 
+}
+}

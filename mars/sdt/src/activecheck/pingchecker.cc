@@ -65,7 +65,7 @@ void PingChecker::__DoCheck(CheckRequestProfile& _check_request) {
 			std::string host = (*ipport).ip.empty() ? DEFAULT_PING_HOST : (*ipport).ip;
 			profile.ip = host;
 			profile.netcheck_type = kPingCheck;
-			profile.network_type = ::getNetInfo();
+			profile.network_type = comm::getNetInfo();
 
 			uint64_t start_time = gettickcount();
 			PingQuery ping_query;

@@ -31,6 +31,9 @@
 
 class AutoBuffer;
 
+namespace mars {
+namespace comm {
+
 class MTcpEvent {
   public:
     virtual ~MTcpEvent() {}
@@ -109,5 +112,7 @@ class TcpClient {
     int timeout_;
     volatile TTcpStatus status_;
 };
+}
+}
 
 #endif

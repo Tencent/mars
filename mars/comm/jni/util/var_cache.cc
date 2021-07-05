@@ -61,7 +61,7 @@ VarCache::~VarCache() {
     JNIEnv* env = scopeJEnv.GetEnv();
 
 
-    ScopedSpinLock lock(class_map_lock_);
+    mars::comm::ScopedSpinLock lock(class_map_lock_);
 
     for (std::map<std::string, jclass>::iterator iter = class_map_.begin();
             iter != class_map_.end(); ++iter) {
@@ -105,7 +105,7 @@ jclass VarCache::GetClass(JNIEnv* _env, const char* const _class_path) {
     ASSERT(_env != NULL);
     ASSERT(_class_path != NULL);
 
-    ScopedSpinLock lock(class_map_lock_);
+    mars::comm::ScopedSpinLock lock(class_map_lock_);
     std::map<std::string, jclass>::iterator iter = class_map_.find(_class_path);
 
     if (iter != class_map_.end()) {
@@ -143,7 +143,7 @@ void VarCache::CacheClass(const char* const _class_path, jclass _clz) {
         return;
     }
 
-    ScopedSpinLock lock(class_map_lock_);
+    mars::comm::ScopedSpinLock lock(class_map_lock_);
     std::map<std::string, jclass>::iterator iter = class_map_.find(_class_path);
 
     if (iter == class_map_.end()) {

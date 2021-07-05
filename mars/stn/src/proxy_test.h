@@ -51,7 +51,7 @@ private:
     int __ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_info, const std::string& _host);
     
 private:
-    SocketBreaker testproxybreak_;
+    comm::SocketBreaker testproxybreak_;
 
 };
         

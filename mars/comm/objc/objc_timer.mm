@@ -23,6 +23,8 @@
 #include "comm/thread/lock.h"
 #include "comm/alarm.h"
 
+using namespace mars::comm;
+
 void onAlarm(long long _id)
 {
 //    Alarm::OnAlarm(reinterpret_cast<Alarm*>(_id));

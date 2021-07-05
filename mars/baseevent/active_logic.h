@@ -27,6 +27,9 @@
 #include "mars/comm/singleton.h"
 #include <memory>
 
+namespace mars {
+namespace comm {
+
 class ActiveLogic
 {
 public:
@@ -57,4 +60,6 @@ private:
     uint64_t lastforegroundchangetime_;
 };
 
+}
+}
 #endif // MMCOMM_SRC_ACTIVE_LOGIC_H_

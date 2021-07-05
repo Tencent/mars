@@ -29,6 +29,8 @@
 #define WEAK_LEAST_SPAN (8*1000)
 //#define LAST_CONNECTINFO_VALID_SPAN (10*1000)
 
+using namespace mars::comm;
+
 namespace mars {
 namespace stn {
 

@@ -15,9 +15,9 @@
 
 namespace mars {
 	namespace stn {
-        typedef int (*SocketCloseFunc)(int);
-        typedef int (*CreateStreamFunc)(int);
-        typedef bool (*IsSubStreamFunc)(int);
+        typedef int(*SocketCloseFunc)(SOCKET);
+        typedef SOCKET(*CreateStreamFunc)(SOCKET);
+        typedef bool (*IsSubStreamFunc)(SOCKET);
 		struct SocketProfile {
 			SocketProfile():rtt(0),index(-1),errorCode(-1),totalCost(0) {}
 			uint32_t rtt;

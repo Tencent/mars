@@ -41,7 +41,7 @@ public:
 	 * -4 --- PIPE select error
 	 * >=0 --- suc
 	 */
-	static SOCKET makeNonBlockSocket(SocketSelect& sel, const std::string& strIp, int port, unsigned int timeoutInMs, int& errCode)
+	static SOCKET makeNonBlockSocket(mars::comm::SocketSelect& sel, const std::string& strIp, int port, unsigned int timeoutInMs, int& errCode)
 	{
 		xverbose_function();
         xdebug2(TSF"makeNonBlockSocket, ip: %0, port: %1", strIp, port);
@@ -190,7 +190,7 @@ public:
 	 *              0  --- suc
      *          others --- error
 	 */
-	static TcpErrCode writenWithNonBlock(int fdSocket, SocketSelect& sel, unsigned int timeoutMs, const unsigned char* buff, unsigned int unSize, int &errcode)
+	static TcpErrCode writenWithNonBlock(int fdSocket, mars::comm::SocketSelect& sel, unsigned int timeoutMs, const unsigned char* buff, unsigned int unSize, int &errcode)
 	{
 		xverbose_function();
         xinfo2(TSF"writenWithNonBlock with Socket:%0, timeoutMs:%1, unSize:%2", fdSocket, timeoutMs, unSize);
@@ -312,7 +312,7 @@ public:
 	 *              1  ------ suc and socket close
      *          others ------ error
 	 */
-	static TcpErrCode readnWithNonBlock(int fdSocket, SocketSelect& sel, unsigned int timeoutMs, AutoBuffer& recvBuf, unsigned int unSize, int &errcode)
+	static TcpErrCode readnWithNonBlock(int fdSocket, mars::comm::SocketSelect& sel, unsigned int timeoutMs, AutoBuffer& recvBuf, unsigned int unSize, int &errcode)
 	{
 	    xverbose_function();
 		xdebug2(TSF"readnWithNonBlock socket:%0, timeoutMs:%1", fdSocket, timeoutMs);

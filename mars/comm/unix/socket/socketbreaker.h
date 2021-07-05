@@ -23,6 +23,9 @@
 
 #include "comm/thread/lock.h"
 
+namespace mars {
+namespace comm {
+
 class SocketBreaker {
   public:
     SocketBreaker();
@@ -50,5 +53,8 @@ class SocketBreaker {
     int reason_;
     Mutex mutex_;
 };
+
+}
+}
 
 #endif

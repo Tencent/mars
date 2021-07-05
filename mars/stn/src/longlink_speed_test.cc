@@ -30,6 +30,7 @@
 #include "mars/stn/proto/longlink_packer.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 static const unsigned int kCmdIdOutOfBand = 72;
 static const int kTimeout = 10*1000;  // s

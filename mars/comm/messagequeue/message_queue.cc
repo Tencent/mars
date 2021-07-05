@@ -44,6 +44,8 @@
 
 #undef min
 
+namespace mars {
+namespace comm {
 namespace MessageQueue {
 
 #define MAX_MQ_SIZE 5000
@@ -1076,3 +1078,4 @@ namespace MessageQueue {
         WaitForRunningLockEnd(*m_reg);
     }
 }  // namespace MessageQueue
+}}

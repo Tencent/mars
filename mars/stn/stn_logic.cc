@@ -47,6 +47,8 @@
 #include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
 #endif
 
+using namespace mars::comm;
+
 namespace mars {
 namespace stn {
 
@@ -102,11 +104,11 @@ static void onDestroy() {
 }
 
 static void onSingalCrash(int _sig) {
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 static void onExceptionCrash() {
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 static void onNetworkChange() {
@@ -281,51 +283,32 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
-
-// [+] Lambda syntax could apply a conversion between lambda and function pointer
-// https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
-auto CreateLonglink_ext = +[](LonglinkConfig& _config){
+void (*CreateLonglink_ext)(LonglinkConfig& _config)
+= [](LonglinkConfig & _config){
     STN_WEAK_CALL(CreateLongLink(_config));
 };
     
-auto DestroyLonglink_ext = +[](const std::string& name){
+void (*DestroyLonglink_ext)(const std::string& name)
+= [](const std::string& name){
     STN_WEAK_CALL(DestroyLongLink(name));
 };
-//auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
-//    std::vector<std::string> res;
-//    STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
-//    return res;
-//};
 
-auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
+bool (*LongLinkIsConnected_ext)(const std::string& name)
+= [](const std::string& name){
     bool res = false;
     STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
     return res;
 };
 
-auto MarkMainLonglink_ext = +[](const std::string& name){
+void (*MarkMainLonglink_ext)(const std::string& name)
+= [](const std::string& name){
     STN_WEAK_CALL(MarkMainLonglink_ext(name));
 };
     
-auto MakesureLonglinkConnected_ext = +[](const std::string& name){
+void (*MakesureLonglinkConnected_ext)(const std::string& name)
+= [](const std::string& name){
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
-    
-//auto KeepSignalling_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(KeepSignalling_ext(name));
-//};
-//
-//auto StopSignalling_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(StopSignalling_ext(name));
-//};
-    
-//auto RedoTasks_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(RedoTasks_ext(name));
-//};
-//    
-//auto ClearTasks_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(ClearTasks_ext(name));
-//};
 
 void network_export_symbols_0(){}
 

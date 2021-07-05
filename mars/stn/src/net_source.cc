@@ -41,6 +41,7 @@
 #include "mars/stn/config.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 static const char* const kItemDelimiter = ":";
 

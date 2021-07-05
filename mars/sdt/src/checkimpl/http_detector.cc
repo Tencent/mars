@@ -28,6 +28,7 @@
 
 
 using namespace mars::sdt;
+using namespace mars::comm;
 
 static const int kComplexConnectTimeout = 5 * 1000; //ms
 static const int kComplexConnectInterval = 3 * 1000; //ms

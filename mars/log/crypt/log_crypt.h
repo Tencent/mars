@@ -25,7 +25,8 @@
 
 #include "mars/comm/autobuffer.h"
 
-
+namespace mars {
+namespace xlog {
 
 class LogCrypt {
 public:
@@ -69,6 +70,8 @@ private:
 
 };
 
+}
+}
 
 
 #endif /* LOG_CRYPT_H_ */
