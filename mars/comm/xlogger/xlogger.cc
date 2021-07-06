@@ -18,7 +18,7 @@
 #include "xlogger.h"
 
 XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace, bool (*_hook)(XLoggerInfo& _info, std::string& _log))
-:m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_isinfonull(false) {
+:m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_hook2(nullptr), m_ctx(nullptr), m_isinfonull(false){
 	m_info.level = _level;
 	m_info.tag = _tag;
 	m_info.filename = _file;
@@ -34,11 +34,30 @@ XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const ch
 	m_message.reserve(512);
 }
 
+XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line,
+                 bool (*_hook)(XLoggerInfo& _info, std::string& _log, void* _ctx), void* _ctx)
+:m_info(), m_message(), m_isassert(false), m_exp(NULL), m_hook(nullptr), m_hook2(_hook), m_ctx(_ctx), m_isinfonull(false){
+    m_info.level = _level;
+    m_info.tag = _tag;
+    m_info.filename = _file;
+    m_info.func_name = _func;
+    m_info.line = _line;
+    m_info.timeval.tv_sec = 0;
+    m_info.timeval.tv_usec = 0;
+    m_info.pid = -1;
+    m_info.tid = -1;
+    m_info.maintid = -1;
+    m_info.traceLog = 0;
+
+    m_message.reserve(512);
+}
+
 XLogger::~XLogger() {
 	if (!m_isassert && m_message.empty()) return;
 
 	gettimeofday(&m_info.timeval, NULL);
 	if (m_hook && !m_hook(m_info, m_message)) return;
+    if (m_hook2 && !m_hook2(m_info, m_message, m_ctx)) return;
 
 	xlogger_filter_t filter = xlogger_GetFilter();
 	if (filter && filter(&m_info, m_message.c_str()) <= 0)  return;
