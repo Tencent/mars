@@ -18,7 +18,7 @@
 #include "xlogger.h"
 
 XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace, bool (*_hook)(XLoggerInfo& _info, std::string& _log))
-:m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_hook2(nullptr), m_ctx(nullptr), m_isinfonull(false){
+:m_info(), m_message(), m_isassert(false), m_exp(NULL), m_isinfonull(false), m_hook(_hook), m_hook2(nullptr), m_ctx(nullptr){
 	m_info.level = _level;
 	m_info.tag = _tag;
 	m_info.filename = _file;
@@ -36,7 +36,7 @@ XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const ch
 
 XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line,
                  bool (*_hook)(XLoggerInfo& _info, std::string& _log, void* _ctx), void* _ctx)
-:m_info(), m_message(), m_isassert(false), m_exp(NULL), m_hook(nullptr), m_hook2(_hook), m_ctx(_ctx), m_isinfonull(false){
+:m_info(), m_message(), m_isassert(false), m_exp(NULL), m_isinfonull(false), m_hook(nullptr), m_hook2(_hook), m_ctx(_ctx){
     m_info.level = _level;
     m_info.tag = _tag;
     m_info.filename = _file;
