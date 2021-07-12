@@ -56,6 +56,10 @@ elseif(ANDROID)
     get_filename_component(EXPORT_EXP_FILE jni/export.exp ABSOLUTE)
     set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script=${EXPORT_EXP_FILE}")
 
+    link_directories(../comm)
+    link_libraries(comm)
+    link_directories(../boost)
+    link_libraries(mars-boost)
 
 endif()
 
