@@ -126,7 +126,6 @@ private:
 class XLogger {
 public:
     XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace = false, bool (*_hook)(XLoggerInfo& _info, std::string& _log) = NULL);
-    XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool (*_hook)(XLoggerInfo& _info, std::string& _log, void* _ctx), void* _ctx);
     ~XLogger();
 
 public:
@@ -198,10 +197,8 @@ private:
     std::string m_message;
     bool m_isassert;
     const char* m_exp;
-    bool m_isinfonull;
     bool (*m_hook)(XLoggerInfo& _info, std::string& _log);
-    bool (*m_hook2)(XLoggerInfo& _info, std::string& _log, void* _ctx);
-    void* m_ctx;
+    bool m_isinfonull;
 };
 
 
@@ -424,8 +421,7 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xerror_trace(...)			   __xlogger_cpp_impl_trace(kLevelError, __VA_ARGS__)
 #define xfatal_trace(...)			   __xlogger_cpp_impl_trace(kLevelFatal, __VA_ARGS__)
 
-#define xgroup2_define(group)	   XLogger group(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, false, XLOGGER_HOOK)
-#define xgroup2_withhook(group, hook, ctx)       XLogger group(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, hook, ctx)
+#define xgroup2_define(group)	   XLogger group(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_HOOK)
 #define xgroup2(...)			   XLogger(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, false, XLOGGER_HOOK)(__VA_ARGS__)
 #define xgroup2_if(exp, ...)	   if ((!(exp))); else XLogger(kLevelAll, XLOGGER_TAG, __XFILE__, __XFUNCTION__, __LINE__, false, XLOGGER_HOOK)(__VA_ARGS__)
 
