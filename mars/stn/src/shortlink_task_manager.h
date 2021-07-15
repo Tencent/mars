@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <map>
 #include <functional>
-
 #include "boost/function.hpp"
 
 #include "mars/comm/messagequeue/message_queue.h"
@@ -65,6 +64,9 @@ class ShortLinkTaskManager {
     static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
     static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
 
+    static std::function<void(int _socket_fd, const std::string& _description)> handle_socket_before_connect_;
+    static std::function<void (std::vector<std::string>& _ip)> prepare_mobile_backup_ip_;
+
   public:
     ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
@@ -98,6 +100,8 @@ class ShortLinkTaskManager {
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
+
+    void __HandleSocketBeforeConnect(int _socket_fd, const std::string& _description);
 
   private:
     comm::MessageQueue::ScopeRegister     asyncreg_;

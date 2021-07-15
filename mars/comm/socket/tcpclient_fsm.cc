@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <limits.h>
+#include <sys/socket.h>
 
 #include "comm/xlogger/xlogger.h"
 #include "comm/socket/socketselect.h"
@@ -176,6 +177,8 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
         xerror2(TSF"close socket err:(%_, %_)", error_, socket_strerror(error_)) >> _log;
         return;
     }
+
+    _OnBeforeConnect(sock_);
 
     if (getNetInfo() == kWifi && socket_fix_tcp_mss(sock_) < 0) {
 #ifdef ANDROID
