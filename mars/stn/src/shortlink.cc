@@ -126,7 +126,7 @@ ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _n
 
 ShortLink::~ShortLink() {
     if (task_.priority >= 0) {
-        xinfo_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
+        xdebug_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
