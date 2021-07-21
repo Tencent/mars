@@ -434,7 +434,7 @@ bool getAPNInfo(APNInfo& info) {
 
     ScopedLock lock(g_net_mutex);
 
-    jobject retObj = JNU_CallStaticMethodByName(env, cacheInstance->GetClass(env, KPlatformCommC2Java), "getAPNInfo", "()Lcom/tencent/mars/ilink/comm/PlatformComm$APNInfo;").l;
+    jobject retObj = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getAPNInfo).l;
 
     if (NULL == retObj) {
         xinfo2(TSF"getAPNInfo error return null");
@@ -550,7 +550,7 @@ void  wakeupLock_delete(void* _object) {
     xverbose_function();
     xdebug2(TSF"_object= %0", _object);
     #ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_delete());
+    CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_delete(_object));
     #endif
 
     if (NULL == _object) return;
@@ -620,7 +620,7 @@ bool  wakeupLock_IsLocking(void* _object) {
     xverbose_function();
     xassert2(_object);
     #ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_IsLocking(_object));
+    CALL_NATIVE_CALLBACK_RETURN_FUN(wakeupLock_IsLocking(_object), false);
     #endif
 
     if (coroutine::isCoroutine())

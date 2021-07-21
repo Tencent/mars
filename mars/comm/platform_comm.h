@@ -274,7 +274,8 @@ bool  wakeupLock_IsLocking(void* _object);
     public:
         PlatformNativeCallback() = default;
         virtual ~PlatformNativeCallback() = default;
-
+        bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host){return false;}
+        bool getAPNInfo(APNInfo& info){return false;}
         virtual int getNetInfo() {return -1;}
         virtual int getNetTypeForStatistics();
         virtual bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info) {return false;}
