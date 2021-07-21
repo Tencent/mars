@@ -285,8 +285,8 @@ bool  wakeupLock_IsLocking(void* _object);
         virtual bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {return false;}
         virtual int getCurrNetLabel(std::string& netInfo) {return -1;}
 
-        bool startAlarm(int type, int64_t id, int after) {return false;}
-        bool stopAlarm(int64_t id) {return false;}
+        virtual bool startAlarm(int type, int64_t id, int after) {return false;}
+        virtual bool stopAlarm(int64_t id) {return false;}
         void* wakeupLock_new() {return nullptr;}
         void  wakeupLock_delete(void* _object) {}
         void  wakeupLock_Lock(void* _object) {}
