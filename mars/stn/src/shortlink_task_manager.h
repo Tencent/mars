@@ -65,7 +65,7 @@ class ShortLinkTaskManager {
     static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
 
     static std::function<void(int _socket_fd, const std::string& _description)> handle_socket_before_connect_;
-    static std::function<void (std::vector<std::string>& _ip)> prepare_mobile_backup_ip_;
+    static std::function<void (const std::string& _host, std::vector<std::string>& _ip)> prepare_mobile_backup_ip_;
 
   public:
     ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);

@@ -55,7 +55,7 @@ boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_tim
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
 boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
 std::function<void(int _socket_fd, const std::string& _description)> ShortLinkTaskManager::handle_socket_before_connect_;
-std::function<void (std::vector<std::string>& _ip)> ShortLinkTaskManager::prepare_mobile_backup_ip_;
+std::function<void (const std::string& _host, std::vector<std::string>& _ip)> ShortLinkTaskManager::prepare_mobile_backup_ip_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -379,6 +379,20 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         if (choose_protocol_) {
             worker->SetUseProtocol(choose_protocol_(*first));
         }
+
+        if (prepare_mobile_backup_ip_) {
+            std::vector<std::string> backup_ip;
+            prepare_mobile_backup_ip_(hosts.front(), backup_ip);
+            if (!backup_ip.empty()) {
+                std::vector<mars::stn::IPPortItem> ip_items;
+                for (auto ip : backup_ip) {
+                    mars::stn::IPPortItem item(ip, 80, mars::IPSourceType::kIPSourceNewDns, hosts.front());
+                    ip_items.push_back(item);
+                }
+                worker->FillOutterIPAddr(ip_items);
+            }
+        }
+
         worker->SendRequest(bufreq, buffer_extension);
 
         xinfo2_if(first->task.priority>=0, TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, long-polling:%_, useProxy:%_, tls:%_",

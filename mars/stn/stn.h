@@ -321,6 +321,11 @@ const char* const ChannelTypeString[] = {
 };
 
 struct IPPortItem {
+    IPPortItem() {}
+    IPPortItem(const std::string& _i, int _p, 
+                IPSourceType _s, const std::string& _h)
+                : str_ip(_i), port(_p), source_type(_s), str_host(_h) {}
+
     std::string		str_ip;
     uint16_t 		port;
     IPSourceType 	source_type;
