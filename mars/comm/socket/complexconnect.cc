@@ -43,6 +43,7 @@ namespace mars {
 namespace comm {
 
 static const unsigned int kTimeoutModeIncreaseInterval = 1000;
+static const int kMaxConnectingLoopCount = 30;
     
 ComplexConnect::ComplexConnect(unsigned int _timeout, unsigned int _interval)
     : timeout_(_timeout), interval_(_interval), error_interval_(_interval), max_connect_(3), trycount_(0), index_(-1), errcode_(0)
@@ -503,6 +504,8 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     int lasterror = 0;
     unsigned int index = 0;
     SOCKET retsocket = INVALID_SOCKET;
+    
+    int loop_count = 0;
 
     do {
         curtime = gettickcount();
@@ -565,7 +568,10 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         if (INT_MAX == timeout) {
             ret = sel.Select();
         } else {
-            timeout = std::max(0, timeout);
+            if (timeout <= 0) { // timeout may be 0, which causes dead loop
+                xwarn2(TSF"invalid timeout %_", timeout);
+                timeout = 1000;
+            }
             ret = sel.Select(timeout);
         }
 
@@ -652,6 +658,13 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         }
 
         if (all_invalid || INVALID_SOCKET != retsocket) break;
+        
+        loop_count ++;
+        if (loop_count > kMaxConnectingLoopCount) {
+            xwarn2(TSF"too much loop running, may be in dead loop");
+            break;
+        }
+        
     } while (true);
 
     for (unsigned int i = 0; i < vecsocketfsm.size(); ++i) {

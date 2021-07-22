@@ -263,6 +263,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             first = next;
             continue;
         }
+        
+        //proxy
+        first->use_proxy = (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
 
         //
         if (!first->history_transfer_profiles.empty()){
@@ -343,8 +346,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->transfer_profile.send_data_size = bufreq.Length();
 
-        first->use_proxy = (first->remain_retry_count == 0 && first->task.retry_count > 0) ? !default_use_proxy_ : default_use_proxy_;
-        
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
