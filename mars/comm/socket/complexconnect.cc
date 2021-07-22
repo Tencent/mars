@@ -565,7 +565,9 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         if (INT_MAX == timeout) {
             ret = sel.Select();
         } else {
-            timeout = std::max(0, timeout);
+            if (timeout <= 0) { // timeout may be 0, which causes dead loop
+                timeout = 1000;
+            }
             ret = sel.Select(timeout);
         }
 
