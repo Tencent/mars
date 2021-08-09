@@ -386,7 +386,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             if (!backup_ip.empty()) {
                 std::vector<mars::stn::IPPortItem> ip_items;
                 for (auto ip : backup_ip) {
-                    mars::stn::IPPortItem item(ip, 80, mars::IPSourceType::kIPSourceNewDns, hosts.front());
+                    mars::stn::IPPortItem item(ip, 80, mars::stn::IPSourceType::kIPSourceNewDns, hosts.front());
                     ip_items.push_back(item);
                 }
                 worker->FillOutterIPAddr(ip_items);
