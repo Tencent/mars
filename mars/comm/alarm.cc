@@ -43,7 +43,6 @@ bool Alarm::Start(int _after, bool _needWake) {
     if (INVAILD_SEQ != seq_) return false;
 
     if (INVAILD_SEQ == sg_seq) sg_seq = 1;
-    xinfo2(TSF"alarm sg_seq is %_", sg_seq);
 
     int64_t seq = sg_seq++;
     uint64_t starttime = gettickcount();
