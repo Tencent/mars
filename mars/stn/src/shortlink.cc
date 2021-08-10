@@ -541,16 +541,12 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         }
 
 		if (parse_status == http::Parser::kFirstLineError) {
-			xerror2(TSF"http head not receive yet,but socket closed, length:%_, nread:%_, nwrite:%_ dump:%_ ",
-                    recv_buf.Length(), socket_nread(_socket), socket_nwrite(_socket),
-                    xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length())) >> group_close;
+			xerror2(TSF"http head not receive yet,but socket closed, length:%0, nread:%_, nwrite:%_ ", recv_buf.Length(), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
 			__RunResponseError(kEctHttp, kEctHttpParseStatusLine, _conn_profile, true);
 			break;
 		}
 		else if (parse_status == http::Parser::kHeaderFieldsError) {
-			xerror2(TSF"parse http head failed, but socket closed, length:%0, nread:%_, nwrite:%_ dump:%_ ",
-                    recv_buf.Length(), socket_nread(_socket), socket_nwrite(_socket),
-                    xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length())) >> group_close;
+			xerror2(TSF"parse http head failed, but socket closed, length:%0, nread:%_, nwrite:%_ ", recv_buf.Length(), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
 			__RunResponseError(kEctHttp, kEctHttpSplitHttpHeadAndBody, _conn_profile, true);
 			break;
 		}

@@ -485,15 +485,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
         default:
         {
             xerror2(TSF"task decode error fail_handle:%_, taskid:%_, context id:%_", handle_type, it->task.taskid, it->task.user_id);
-#ifdef __APPLE__
-            //.test only.
-            const char* pbuffer = (const char*)_body.Ptr();
-            for (size_t off = 0; off < _body.Length();){
-                size_t len = std::min((size_t)512, _body.Length() - off);
-                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-                off += len;
-            }
-#endif
+//#ifdef __APPLE__
+//            //.test only.
+//            const char* pbuffer = (const char*)_body.Ptr();
+//            for (size_t off = 0; off < _body.Length();){
+//                size_t len = std::min((size_t)512, _body.Length() - off);
+//                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+//                off += len;
+//            }
+//#endif
             __SingleRespHandle(it, kEctEnDecode, err_code, handle_type, (unsigned int)it->transfer_profile.receive_data_size, _conn_profile);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(__LINE__, kEctEnDecode, handle_type, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
