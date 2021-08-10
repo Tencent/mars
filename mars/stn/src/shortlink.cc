@@ -516,10 +516,10 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			xerror2(TSF"read timeout error:(%_,%_), nread:%_, nwrite:%_ ", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
             continue;
 		}
-		if (recv_ret == 0) {
+		if (recv_ret == 0 && socketOperator_->Protocol() != Task::kTransportProtocolQUIC) {
 			xerror2(TSF"remote disconnect error:(%_,%_), nread:%_, nwrite:%_", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
             bool report_fail = true;
-            if (_conn_profile.is_reused_fd && _conn_profile.transport_protocol == Task::kTransportProtocolQUIC) report_fail = false;
+            if (_conn_profile.is_reused_fd) report_fail = false;
 			__RunResponseError(kEctSocket, kEctSocketShutdown, _conn_profile, /*report=*/report_fail);
 			break;
 		}
