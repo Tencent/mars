@@ -297,7 +297,20 @@ void NetCore::StartTask(const Task& _task) {
         return;
     }
 
+    static int send_times = 1;
+
+    if (task.cgi.find("sendmsg") != std::string::npos) {
+        send_times ++;
+    }
+
+    xdebug2(TSF"longlink size: %_", longlink_task_manager_->GetLongLinkSize());
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
+
+    if (send_times % 3 == 0) {
+        longlink = longlink_task_manager_->GetLongLink("MobileBackUpLonglink");
+        task.channel_name = "MobileBackUpLonglink";
+        xdebug2("to backup longlink");
+    }
     if (task.channel_name == RUNON_MAIN_LONGLINK_NAME){
         longlink = longlink_task_manager_->DefaultLongLink();
         xassert2(longlink && longlink->Channel()->ConnectStatus() == LongLink::kConnected);
@@ -365,6 +378,9 @@ void NetCore::StartTask(const Task& _task) {
     xgroup2() << group;
 
     int channel = __ChooseChannel(task, longlink, minorlonglink);
+    if (task.cgi.find("sendmsg") != std::string::npos) {
+        channel = Task::kChannelShort;
+    }
     switch (channel) {
 #ifdef USE_LONG_LINK
     case Task::kChannelMinorLong:

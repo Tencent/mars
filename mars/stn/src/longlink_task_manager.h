@@ -77,6 +77,7 @@ class LongLinkTaskManager {
     // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
     std::shared_ptr<LongLinkMetaData> GetLongLink(const std::string& _name);
     void FixMinorRealhost(Task& _task);
+    int GetLongLinkSize();
 
     unsigned int GetTaskCount(const std::string& _name);
     unsigned int GetTasksContinuousFailCount();

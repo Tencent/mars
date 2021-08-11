@@ -817,6 +817,12 @@ std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLink(const std::st
     }
     return nullptr;
 }
+int LongLinkTaskManager::GetLongLinkSize() {
+    for (auto item : longlink_metas_) {
+        xdebug2(TSF"longlink name: %_", item.second->Config().name);
+    }
+    return longlink_metas_.size();
+}
 
 void LongLinkTaskManager::FixMinorRealhost(Task& _task) {
     if (get_real_host_) {

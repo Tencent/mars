@@ -228,6 +228,7 @@ bool LongLink::Stop(uint32_t _taskid) {
 
 
 bool LongLink::MakeSureConnected(bool* _newone) {
+    xdebug2(TSF"MakeSureConnected : %_", config_.name);
     if(IsSvrTrigOff()) {
         xwarn2(TSF"make connected but svr trig off");
         svr_trig_off_ = false;
