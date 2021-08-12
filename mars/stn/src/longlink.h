@@ -152,6 +152,8 @@ class LongLink {
 	
     virtual void OnConnectHandshakeCompleted() {}
     
+    std::function<void(int _socket_fd, const std::string& _description)> handle_fd_before_connect;
+    
   private:
     LongLink(const LongLink&);
     LongLink& operator=(const LongLink&);

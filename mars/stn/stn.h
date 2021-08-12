@@ -154,7 +154,8 @@ struct CgiProfile {
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr), need_tls(true) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr)
+        , need_tls(true), bind_mobile_network(false) {}
     bool IsMain() const {
         return isMain;
     }
@@ -168,6 +169,7 @@ public:
     int             packer_encoder_version = PackerEncoderVersion::kOld;
     std::vector<std::string> (*dns_func)(const std::string& host);
     bool            need_tls;
+    bool            bind_mobile_network;
 };
     
 struct QuicParameters{
