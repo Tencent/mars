@@ -51,7 +51,7 @@ class ShortLinkInterface {
     boost::function<void (uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
 
-    std::function<void(int _socket_fd, const std::string& _description)> handle_fd_before_connect;
+    std::function<bool (int _socket_fd, const std::string& _description)> handle_fd_before_connect;
 };
     
 }

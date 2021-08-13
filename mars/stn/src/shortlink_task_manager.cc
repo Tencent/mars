@@ -774,7 +774,7 @@ void ShortLinkTaskManager::__OnRequestTimeout(ShortLinkInterface* _worker, int _
     }
 }
 
-void ShortLinkTaskManager::__HandleSocketBeforeConnect(int _socket_fd, const std::string& _description) {
+bool ShortLinkTaskManager::__HandleSocketBeforeConnect(int _socket_fd, const std::string& _description) {
     xinfo2(TSF"handle socket: %_, %_", _socket_fd, _description);
     if (handle_socket_before_connect_) {
         xdebug2(TSF"callback to mmcore");

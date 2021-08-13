@@ -64,7 +64,7 @@ class ShortLinkTaskManager {
     static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
     static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
 
-    static std::function<void(int _socket_fd, const std::string& _description)> handle_socket_before_connect_;
+    static std::function<bool (int _socket_fd, const std::string& _description)> handle_socket_before_connect_;
     static std::function<void (const std::string& _host, std::vector<std::string>& _ip)> prepare_mobile_backup_ip_;
 
   public:
