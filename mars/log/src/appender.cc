@@ -1090,7 +1090,10 @@ static void appender_release_default_appender() {
     if (sg_release_guard) {
         return;
     }
-    XloggerAppender::Release(sg_default_appender);
+    sg_release_guard = true;
+    sg_default_appender->Close();
+    //  本函数只会在 exit 的时候调用，所以干脆不释放对象了，防止多线程导致的 crash
+    // XloggerAppender::Release(sg_default_appender);
 }
 
 void appender_open(const XLogConfig& _config) {
