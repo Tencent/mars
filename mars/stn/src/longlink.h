@@ -150,6 +150,7 @@ class LongLink {
         return false;       // 暂时不用这个功能
 //        return config_.link_type == Task::kChannelMinorLong && svr_trig_off_;
     }
+     LonglinkConfig& Config() { return config_; }
 	
     virtual void OnConnectHandshakeCompleted() {}
     
