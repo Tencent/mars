@@ -119,6 +119,7 @@ class LongLink {
     boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, uint16_t _port)> fun_network_report_;
     boost::function< void (uint64_t _interval)> OnNoopAlarmSet;
     boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
+    std::function<void ()>OnConnectFailedTooMuch;
 
   public:
     LongLink(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
@@ -152,7 +153,9 @@ class LongLink {
 	
     virtual void OnConnectHandshakeCompleted() {}
     
-    std::function<void(int _socket_fd, const std::string& _description)> handle_fd_before_connect;
+    std::function<bool (int _socket_fd, const std::string& _description)> handle_fd_before_connect;
+
+    virtual bool SleepLonglink() {return false;}
     
   private:
     LongLink(const LongLink&);
@@ -206,6 +209,7 @@ class LongLink {
     unsigned long long              lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
     bool            svr_trig_off_;       //with minor longlink, if server close the socket, do not auto rebuild until task
+    int connect_failed_times_;
 };
         
 }}

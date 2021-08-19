@@ -69,7 +69,7 @@ class NetCore {
   public:
     boost::function<void (Task& _task)> task_process_hook_;
     boost::function<int (int _from, ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task)> task_callback_hook_;
-    boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
+    boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer, const std::string& _channelid)> push_preprocess_signal_;
 
   public:
     comm::MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
@@ -95,6 +95,11 @@ class NetCore {
     void AddServerBan(const std::string& _ip);
     void SetDebugHost(const std::string& _host);
     void ForbidLonglinkTlsHost(const std::vector<std::string>& _host);
+    uint32_t TotalMobileBackupDataUsage();
+    ShortLinkTaskManager* ShortLinkTaskManagerInstance();
+#ifdef USE_LONG_LINK
+    LongLinkTaskManager* LonglinkTaskManagerInstance();
+#endif
 
 public:
     

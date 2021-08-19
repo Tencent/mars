@@ -55,6 +55,7 @@ Task::Task(uint32_t _taskid) {
     
     channel_name=DEFAULT_LONGLINK_NAME;
     max_minorlinks = 1;
+    use_mobile_backup_net = false;
 }
 
 uint32_t GenTaskID(){

@@ -40,6 +40,7 @@
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
+#include "mars/comm/adler32.h"
 
 using namespace mars::stn;
 using namespace mars::comm;
@@ -50,6 +51,8 @@ using namespace mars::comm;
 
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> LongLinkTaskManager::on_handshake_ready_;
+std::function<bool (std::string& _backup_longlink_name)> LongLinkTaskManager::use_mobile_backup_channel_;
+std::function<void (uint64_t _cgi_cost, bool mobile_backup_net, bool _long_link, bool _successfully, bool _push)> LongLinkTaskManager::on_mobile_backup_task_finish_;
 
 static int longlink_id = 0;
 std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
@@ -70,6 +73,7 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 #ifndef _WIN32
     , meta_mutex_(true)
 #endif
+    , total_mobile_backup_flow_usage_(0)
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -398,13 +402,25 @@ void LongLinkTaskManager::__RunOnStartTask() {
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
         int error_code = 0;
+        
+        std::shared_ptr<LongLinkMetaData> longlink = nullptr;
+        if (use_mobile_backup_channel_ && (first->link_type != Task::kChannelMinorLong)) {
+            std::string backup_longlink_name = "";
+            if (use_mobile_backup_channel_(backup_longlink_name)) {
+                longlink = GetLongLink(backup_longlink_name);
+                first->task.use_mobile_backup_net = true;
+                xinfo2(TSF"use backup channel name: %_, %_", (longlink == nullptr), backup_longlink_name);
+            }
+        }
 
-        auto longlink = GetLongLink(first->channel_name);
-	    if(longlink == nullptr) {
-		    xerror2(TSF"longlink nullptr:%_", first->channel_name);
-		    first = next;
-		    continue;
-	    }
+        if (!longlink) {
+            longlink = GetLongLink(first->channel_name);
+            if(longlink == nullptr) {
+                xerror2(TSF"longlink nullptr:%_", first->channel_name);
+                first = next;
+                continue;
+            }
+        }
 
         auto longlink_channel = longlink->Channel();
 
@@ -529,6 +545,14 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
 			}
 		}
 
+        if (_it->task.use_mobile_backup_net) {
+            total_mobile_backup_flow_usage_ += _it->transfer_profile.send_data_size;
+            total_mobile_backup_flow_usage_ += receive_data_size;
+        }
+        if (on_mobile_backup_task_finish_) {
+            on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false);
+        }
+
         _it->end_task_time = ::gettickcount();
         _it->err_code = errcode;
         _it->err_type = _err_type;
@@ -548,7 +572,16 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, receive_data_size-received_size? string_cast(received_size).str():"", receive_data_size-received_size? "/":"", receive_data_size, _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time), (curtime - _it->start_task_time), _it->remain_retry_count)
     (TSF"cgi:%_, taskid:%_, tid:%_", _it->task.cgi, _it->task.taskid, _connect_profile.tid);
 
+    if (_it->task.use_mobile_backup_net) {
+        total_mobile_backup_flow_usage_ += _it->transfer_profile.send_data_size;
+        total_mobile_backup_flow_usage_ += receive_data_size;
+    }
+    if (on_mobile_backup_task_finish_) {
+        on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false);
+    }
+
     _it->remain_retry_count--;
+    _it->retry_start_time = ::gettickcount();
     _it->transfer_profile.error_type = _err_type;
     _it->transfer_profile.error_code = _err_code;
     _it->PushHistory();
@@ -678,12 +711,16 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     
     auto longlink = longlink_meta->Channel();
     if (kEctOK == _error_type && longlink->Encoder().longlink_ispush(_cmdid, _taskid, body, extension))  {
-        xinfo2(TSF"task push seq:%_, cmdid:%_, len:(%_, %_)", _taskid, _cmdid, body->Length(), extension->Length());
+        xinfo2(TSF"task push seq:%_, cmdid:%_, len:(%_, %_), %_", _taskid, _cmdid, body->Length(), extension->Length(), longlink->ChannelId());
         
         if (fun_on_push_)
             fun_on_push_(_name, _cmdid, _taskid, body, extension);
         else
             xassert2(false);
+
+        if (on_mobile_backup_task_finish_) {
+            on_mobile_backup_task_finish_(0, longlink_meta->Config().bind_mobile_network, true, true, true);
+        }
         return;
     }
     

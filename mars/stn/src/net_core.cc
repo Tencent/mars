@@ -297,20 +297,10 @@ void NetCore::StartTask(const Task& _task) {
         return;
     }
 
-    static int send_times = 1;
-
-    if (task.cgi.find("sendmsg") != std::string::npos) {
-        send_times ++;
-    }
 
     xdebug2(TSF"longlink size: %_", longlink_task_manager_->GetLongLinkSize());
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
 
-    if (send_times % 3 == 0) {
-        longlink = longlink_task_manager_->GetLongLink("MobileBackUpLonglink");
-        task.channel_name = "MobileBackUpLonglink";
-        xdebug2("to backup longlink");
-    }
     if (task.channel_name == RUNON_MAIN_LONGLINK_NAME){
         longlink = longlink_task_manager_->DefaultLongLink();
         xassert2(longlink && longlink->Channel()->ConnectStatus() == LongLink::kConnected);
@@ -378,9 +368,6 @@ void NetCore::StartTask(const Task& _task) {
     xgroup2() << group;
 
     int channel = __ChooseChannel(task, longlink, minorlonglink);
-    if (task.cgi.find("sendmsg") != std::string::npos) {
-        channel = Task::kChannelShort;
-    }
     switch (channel) {
 #ifdef USE_LONG_LINK
     case Task::kChannelMinorLong:
@@ -633,8 +620,8 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 #ifdef USE_LONG_LINK
 
 void NetCore::__OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
-    xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _body.Length());
-    push_preprocess_signal_(_cmdid, _body);
+    xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_, %_", _taskid, _cmdid, _body.Length(), _channel_id);
+    push_preprocess_signal_(_cmdid, _body, _channel_id);
     OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 }
 
@@ -960,8 +947,24 @@ std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name)
 }
 
 
-  void NetCore::SetDebugHost(const std::string& _host) {
+void NetCore::SetDebugHost(const std::string& _host) {
     shortlink_task_manager_->SetDebugHost(_host);
-  }
+}
 
+uint32_t NetCore::TotalMobileBackupDataUsage() {
+    uint32_t length = shortlink_task_manager_->TotalMobileBackupDataUsage();
+#ifdef USE_LONG_LINK
+    length += longlink_task_manager_->TotalMobileBackupDataUsage();
+#endif
+    return length;
+}
+
+#ifdef USE_LONG_LINK
+LongLinkTaskManager* NetCore::LonglinkTaskManagerInstance() {
+    return longlink_task_manager_;
+}
+#endif
+ShortLinkTaskManager* NetCore::ShortLinkTaskManagerInstance() {
+    return shortlink_task_manager_;
+}
 #endif

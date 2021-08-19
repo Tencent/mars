@@ -54,8 +54,9 @@ boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protoc
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
 boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
-std::function<void(int _socket_fd, const std::string& _description)> ShortLinkTaskManager::handle_socket_before_connect_;
-std::function<void (const std::string& _host, std::vector<std::string>& _ip)> ShortLinkTaskManager::prepare_mobile_backup_ip_;
+std::function<bool (int _socket_fd, const std::string& _description)> ShortLinkTaskManager::handle_socket_before_connect_;
+std::function<bool (const std::string& _host, std::vector<std::string>& _ip)> ShortLinkTaskManager::prepare_mobile_backup_ip_;
+std::function<void (uint64_t _cgi_cost, bool mobile_backup_net, bool _long_link, bool _successfully, bool _pus)> ShortLinkTaskManager::on_mobile_backup_task_finish_;
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -66,6 +67,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout
 #ifdef ANDROID
     , wakeup_lock_(new WakeUpLock())
 #endif
+    , total_mobile_backup_flow_usage_(0)
 {
     xinfo_function(TSF"handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_", asyncreg_.Get().queue, asyncreg_.Get().seq, MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
@@ -355,7 +357,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
-        worker->handle_fd_before_connect = std::bind(&ShortLinkTaskManager::__HandleSocketBeforeConnect, this, std::placeholders::_1, std::placeholders::_2);
         
         // if (first->task.cgi.find("getnetworkinfo") != std::string::npos) {
         //     xinfo2(TSF"zyzhang add netid: %_", id);
@@ -382,14 +383,17 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         if (prepare_mobile_backup_ip_) {
             std::vector<std::string> backup_ip;
-            prepare_mobile_backup_ip_(hosts.front(), backup_ip);
-            if (!backup_ip.empty()) {
+            first->task.use_mobile_backup_net = prepare_mobile_backup_ip_(hosts.front(), backup_ip);
+            xinfo2(TSF"cgi use mobile net: %_, %_", first->task.cgi, backup_ip.size());
+            if (first->task.use_mobile_backup_net && !backup_ip.empty()) {
                 std::vector<mars::stn::IPPortItem> ip_items;
                 for (auto ip : backup_ip) {
                     mars::stn::IPPortItem item(ip, 80, mars::stn::IPSourceType::kIPSourceNewDns, hosts.front());
                     ip_items.push_back(item);
                 }
                 worker->FillOutterIPAddr(ip_items);
+                worker->SetUseMobileBackupNetwork(true);
+                worker->handle_fd_before_connect = std::bind(&ShortLinkTaskManager::__HandleSocketBeforeConnect, this, std::placeholders::_1, std::placeholders::_2);
             }
         }
 
@@ -648,7 +652,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, 0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size, 0 != _resp_length ? "" : "/",
                 0 != _resp_length ? "" : string_cast(_it->transfer_profile.received_size).str(), _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time),
                         (curtime - _it->start_task_time), _it->remain_retry_count)
-        (TSF"cgi:%_, taskid:%_, worker:%_, context id:%_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id, _it->task.user_id);
+        (TSF"cgi:%_, taskid:%_, worker:%_, context id:%_, backup net: %_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id, _it->task.user_id, _it->task.use_mobile_backup_net);
 
         if(_err_type != kEctOK && _err_type != kEctServer) {
             xinfo_trace(TSF"cgi trace error: (%_, %_), cost:%_, rtt:%_, svr:(%_, %_, %_)", _err_type, _err_code, (curtime - _it->start_task_time), _connect_profile.conn_rtt,
@@ -661,6 +665,13 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
 
         int cgi_retcode = fun_callback_(_err_type, _err_code, _fail_handle, _it->task, (unsigned int)(curtime - _it->start_task_time));
         int errcode = _err_code;
+        if (_it->task.use_mobile_backup_net) {
+            total_mobile_backup_flow_usage_ += _it->transfer_profile.send_data_size;
+            total_mobile_backup_flow_usage_ += (0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size);
+        }
+        if (on_mobile_backup_task_finish_) {
+            on_mobile_backup_task_finish_(curtime - _it->transfer_profile.loop_start_task_time, _it->task.use_mobile_backup_net, false, kEctOK == _err_type, false);
+        }
 
         if (_it->running_id) {
             if (kEctOK == _err_type) {
@@ -696,6 +707,14 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
             0 != _resp_length ? "" : "/", 0 != _resp_length ? "" : string_cast(_it->transfer_profile.receive_data_size).str(), _connect_profile.conn_rtt,
                     (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time), (curtime - _it->start_task_time), _it->remain_retry_count)
     (TSF"cgi:%_, taskid:%_, worker:%_", _it->task.cgi, _it->task.taskid,(void*) _it->running_id);
+
+    if (_it->task.use_mobile_backup_net) {
+        total_mobile_backup_flow_usage_ += _it->transfer_profile.send_data_size;
+        total_mobile_backup_flow_usage_ += (0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size);
+    }
+    if (on_mobile_backup_task_finish_) {
+        on_mobile_backup_task_finish_(curtime - _it->transfer_profile.loop_start_task_time, _it->task.use_mobile_backup_net, false, kEctOK == _err_type, false);
+    }
 
     _it->remain_retry_count--;
     _it->transfer_profile.error_type = _err_type;
@@ -778,9 +797,9 @@ bool ShortLinkTaskManager::__HandleSocketBeforeConnect(int _socket_fd, const std
     xinfo2(TSF"handle socket: %_, %_", _socket_fd, _description);
     if (handle_socket_before_connect_) {
         xdebug2(TSF"callback to mmcore");
-        handle_socket_before_connect_(_socket_fd, _description);
-    } else {
-        xwarn2(TSF"no find callback");
+        return handle_socket_before_connect_(_socket_fd, _description);
     }
+    xwarn2(TSF"no find callback");
+    return false;
 }
 

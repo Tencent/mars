@@ -115,6 +115,7 @@ struct ConnectProfile {
         req_byte_count = 0;
         cgi.clear();
         ipv6_connect_failed = false;
+        tcp_rtt = 0;
 
         start_connect_time = 0;
         connect_successful_time = 0;
@@ -182,6 +183,7 @@ struct ConnectProfile {
     std::string connection_identify;
     bool tls_handshake_mismatch;
     bool tls_handshake_success;
+    uint64_t tcp_rtt;
 	
 	//for cgi caller
     uint64_t start_connect_time;

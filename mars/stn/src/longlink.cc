@@ -152,6 +152,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
 #endif
     , encoder_(_encoder)
     , svr_trig_off_(false)
+    , connect_failed_times_(0)
 {
     xinfo2(TSF"handler:(%_,%_) linktype:%_", asyncreg_.Get().queue, asyncreg_.Get().seq, ChannelTypeString[_config.link_type]);
     conn_profile_.link_type = _config.link_type;
@@ -284,6 +285,7 @@ void LongLink::Disconnect(TDisconnectInternalCode _scene) {
         connectbreak_.ReCreate();
         readwritebreak_.ReCreate();
     }
+    connect_failed_times_ = 0;
 }
 
 bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout) {

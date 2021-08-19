@@ -61,6 +61,8 @@ class LongLinkTaskManager {
     
     static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
     static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
+    static std::function<bool (std::string& _backup_longlink_name)> use_mobile_backup_channel_;
+    static std::function<void (uint64_t _cgi_cost, bool mobile_backup_net, bool _long_link, bool _successfully, bool _pus)> on_mobile_backup_task_finish_;
 
   public:
     LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
@@ -101,6 +103,7 @@ class LongLinkTaskManager {
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
+    uint32_t TotalMobileBackupDataUsage() {return total_mobile_backup_flow_usage_;}
 
   private:
     // from ILongLinkObserver
@@ -147,6 +150,7 @@ class LongLinkTaskManager {
     comm::Mutex                     meta_mutex_;
     comm::Mutex                     mutex_;
     static std::set<std::string>    forbid_tls_host_;
+    uint32_t                        total_mobile_backup_flow_usage_;
 };
     }
 }

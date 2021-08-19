@@ -119,6 +119,7 @@ public:
     std::string group_name;     //use for select decode method
     std::string user_id;        //use for identify multi users
     int protocol;
+    bool        use_mobile_backup_net;
     
     std::map<std::string, std::string> headers;
     std::vector<std::string> shortlink_host_list;   // current using hosts, may be quic host or tcp host

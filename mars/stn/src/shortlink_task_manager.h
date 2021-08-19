@@ -65,7 +65,8 @@ class ShortLinkTaskManager {
     static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
 
     static std::function<bool (int _socket_fd, const std::string& _description)> handle_socket_before_connect_;
-    static std::function<void (const std::string& _host, std::vector<std::string>& _ip)> prepare_mobile_backup_ip_;
+    static std::function<bool (const std::string& _host, std::vector<std::string>& _ip)> prepare_mobile_backup_ip_;
+    static std::function<void (uint64_t _cgi_cost, bool _mobile_backup_net, bool _long_link, bool _successfully, bool _pus)> on_mobile_backup_task_finish_;
 
   public:
     ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
@@ -80,6 +81,7 @@ class ShortLinkTaskManager {
     void SetDebugHost(const std::string& _host) {debug_host_ = _host;}
 
     unsigned int GetTasksContinuousFailCount();
+    uint32_t TotalMobileBackupDataUsage() {return total_mobile_backup_flow_usage_;}
 
     ConnectProfile GetConnectProfile(uint32_t _taskid) const;
   private:
@@ -101,7 +103,7 @@ class ShortLinkTaskManager {
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
 
-    void __HandleSocketBeforeConnect(int _socket_fd, const std::string& _description);
+    bool __HandleSocketBeforeConnect(int _socket_fd, const std::string& _description);
 
   private:
     comm::MessageQueue::ScopeRegister     asyncreg_;
@@ -117,6 +119,7 @@ class ShortLinkTaskManager {
     comm::WakeUpLock*                     wakeup_lock_;
 #endif
     SocketPool socket_pool_;
+    uint32_t                        total_mobile_backup_flow_usage_;
 };
         
 }

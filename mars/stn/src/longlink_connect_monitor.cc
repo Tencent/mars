@@ -248,7 +248,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
         xinfo2(TSF"server trig off");
         return 0;
     }
-    if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
+    if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus() || longlink_.SleepLonglink()) return 0;
 
     uint64_t interval =  __Interval(_type, activelogic_) * 1000ULL;
     uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
