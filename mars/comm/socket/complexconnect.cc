@@ -109,7 +109,7 @@ class ConnectCheckFSM : public TcpClientFSM {
     virtual void _OnCreate() { if (observer_) observer_->OnCreated(index_, addr_, sock_);}
     virtual void _OnConnect() { if (observer_) observer_->OnConnect(index_, addr_, sock_);}
 
-    virtual void _OnBeforeConnect(int _socket_fd) {observer_->OnBeforeConnect(_socket_fd);};
+    virtual void _OnBeforeConnect(int _socket_fd) {if (observer_) observer_->OnBeforeConnect(_socket_fd);};
 
     virtual void _OnConnected(int _rtt) {
         checkfintime_ = ::gettickcount();
