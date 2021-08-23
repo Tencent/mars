@@ -57,7 +57,7 @@ public:
                       AutoBuffer& _out_buff,
                       char _magic_start,
                       char _magic_end);
-    void CryptAsyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff, size_t& _remain_nocrypt_len);
+    void CryptAsyncLog(const char* const _log_data, size_t _input_len, std::string& _out_buff, size_t& _remain_nocrypt_len);
     
     bool Fix(char* _data, size_t _data_len, uint32_t& _raw_log_len);
     bool IsCrypt();
