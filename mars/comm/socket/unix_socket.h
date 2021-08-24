@@ -34,10 +34,11 @@
 #ifdef _WIN32
 
 #include "winsock2.h"
-
 #define SOCKET_ERRNO(error) WSA##error
 
-#define socket_close closesocket
+
+int __win_closesocket(SOCKET s);
+#define socket_close __win_closesocket
 
 #define socket_errno WSAGetLastError()
 #define socket_strerror gai_strerrorA//gai_strerror

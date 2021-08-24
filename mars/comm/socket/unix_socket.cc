@@ -328,6 +328,11 @@ const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int s
         return NULL;
     }
 }
+
+int __win_closesocket(SOCKET s){
+    return closesocket(s);
+}
+
 #endif
 
 //not support in windows
