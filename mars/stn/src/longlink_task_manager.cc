@@ -52,7 +52,7 @@ using namespace mars::comm;
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> LongLinkTaskManager::on_handshake_ready_;
 std::function<bool (std::string& _backup_longlink_name)> LongLinkTaskManager::use_mobile_backup_channel_;
-std::function<void (uint64_t _cgi_cost, bool mobile_backup_net, bool _long_link, bool _successfully, bool _push)> LongLinkTaskManager::on_mobile_backup_task_finish_;
+std::function<void (uint64_t _rtt, bool mobile_backup_net, bool _long_link, bool _successfully, bool _push, size_t _data_size)> LongLinkTaskManager::on_mobile_backup_task_finish_;
 
 static int longlink_id = 0;
 std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
@@ -73,7 +73,6 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 #ifndef _WIN32
     , meta_mutex_(true)
 #endif
-    , total_mobile_backup_flow_usage_(0)
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -408,8 +407,13 @@ void LongLinkTaskManager::__RunOnStartTask() {
             std::string backup_longlink_name = "";
             if (use_mobile_backup_channel_(backup_longlink_name)) {
                 longlink = GetLongLink(backup_longlink_name);
-                first->task.use_mobile_backup_net = true;
                 xinfo2(TSF"use backup channel name: %_, %_", (longlink == nullptr), backup_longlink_name);
+                if (longlink && longlink->Channel() && longlink->Channel()->ConnectStatus() == LongLink::kConnected) {
+                    first->task.use_mobile_backup_net = true;
+                } else {
+                    xwarn2("mobile longlink is not connected");
+                    longlink = nullptr;
+                }
             }
         }
 
@@ -545,12 +549,8 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
 			}
 		}
 
-        if (_it->task.use_mobile_backup_net) {
-            total_mobile_backup_flow_usage_ += _it->transfer_profile.send_data_size;
-            total_mobile_backup_flow_usage_ += receive_data_size;
-        }
         if (on_mobile_backup_task_finish_) {
-            on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false);
+            on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false, _it->transfer_profile.send_data_size + receive_data_size);
         }
 
         _it->end_task_time = ::gettickcount();
@@ -572,12 +572,8 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, receive_data_size-received_size? string_cast(received_size).str():"", receive_data_size-received_size? "/":"", receive_data_size, _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time), (curtime - _it->start_task_time), _it->remain_retry_count)
     (TSF"cgi:%_, taskid:%_, tid:%_", _it->task.cgi, _it->task.taskid, _connect_profile.tid);
 
-    if (_it->task.use_mobile_backup_net) {
-        total_mobile_backup_flow_usage_ += _it->transfer_profile.send_data_size;
-        total_mobile_backup_flow_usage_ += receive_data_size;
-    }
     if (on_mobile_backup_task_finish_) {
-        on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false);
+        on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false, _it->transfer_profile.send_data_size + receive_data_size);
     }
 
     _it->remain_retry_count--;
@@ -719,7 +715,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
             xassert2(false);
 
         if (on_mobile_backup_task_finish_) {
-            on_mobile_backup_task_finish_(0, longlink_meta->Config().bind_mobile_network, true, true, true);
+            on_mobile_backup_task_finish_(0, longlink_meta->Config().bind_mobile_network, true, true, true, body->Length());
         }
         return;
     }

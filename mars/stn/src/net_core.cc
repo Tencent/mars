@@ -951,14 +951,6 @@ void NetCore::SetDebugHost(const std::string& _host) {
     shortlink_task_manager_->SetDebugHost(_host);
 }
 
-uint32_t NetCore::TotalMobileBackupDataUsage() {
-    uint32_t length = shortlink_task_manager_->TotalMobileBackupDataUsage();
-#ifdef USE_LONG_LINK
-    length += longlink_task_manager_->TotalMobileBackupDataUsage();
-#endif
-    return length;
-}
-
 #ifdef USE_LONG_LINK
 LongLinkTaskManager* NetCore::LonglinkTaskManagerInstance() {
     return longlink_task_manager_;

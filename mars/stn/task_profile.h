@@ -303,6 +303,7 @@ struct TaskProfile {
         err_code = 0;
         link_type = 0;
         allow_sessiontimeout_retry = true;
+        last_error_status = 0;
     }
     
     void InitSendParam() {
@@ -353,6 +354,7 @@ struct TaskProfile {
 
     std::vector<TransferProfile> history_transfer_profiles;
     std::string channel_name;
+    int last_error_status;
 };
         
 

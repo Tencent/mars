@@ -95,7 +95,6 @@ class NetCore {
     void AddServerBan(const std::string& _ip);
     void SetDebugHost(const std::string& _host);
     void ForbidLonglinkTlsHost(const std::vector<std::string>& _host);
-    uint32_t TotalMobileBackupDataUsage();
     ShortLinkTaskManager* ShortLinkTaskManagerInstance();
 #ifdef USE_LONG_LINK
     LongLinkTaskManager* LonglinkTaskManagerInstance();
