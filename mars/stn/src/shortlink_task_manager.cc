@@ -459,6 +459,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             xdebug2(TSF"can add retry count: %_", _status);
             it->remain_retry_count ++;
             it->last_error_status = _status;
+            it->task.use_mobile_backup_net = false;
         }
         __SingleRespHandle(it, _err_type, _status, kTaskFailHandleDefault, _body.Length(), _conn_profile);
         return;
@@ -666,7 +667,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
 
         int cgi_retcode = fun_callback_(_err_type, _err_code, _fail_handle, _it->task, (unsigned int)(curtime - _it->start_task_time));
         int errcode = _err_code;
-        if (on_mobile_backup_task_finish_) {
+        if (errcode != kEctBindMobileNetFailed && on_mobile_backup_task_finish_) {
             on_mobile_backup_task_finish_(_connect_profile.tcp_rtt, _it->task.use_mobile_backup_net, false, kEctOK == _err_type, 
                                         false, _it->transfer_profile.send_data_size + (0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size));
         }
@@ -705,7 +706,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
             0 != _resp_length ? "" : "/", 0 != _resp_length ? "" : string_cast(_it->transfer_profile.receive_data_size).str(), _connect_profile.conn_rtt,
                     (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time), (curtime - _it->start_task_time), _it->remain_retry_count)
     (TSF"cgi:%_, taskid:%_, worker:%_, backup net: %_", _it->task.cgi, _it->task.taskid,(void*) _it->running_id, _it->task.use_mobile_backup_net);
-    if (on_mobile_backup_task_finish_) {
+    if (_err_code != kEctBindMobileNetFailed && on_mobile_backup_task_finish_) {
         on_mobile_backup_task_finish_(_connect_profile.tcp_rtt, _it->task.use_mobile_backup_net, false, kEctOK == _err_type, 
                                     false, _it->transfer_profile.send_data_size + (0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size));
     }
