@@ -653,7 +653,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, 0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size, 0 != _resp_length ? "" : "/",
                 0 != _resp_length ? "" : string_cast(_it->transfer_profile.received_size).str(), _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time),
                         (curtime - _it->start_task_time), _it->remain_retry_count)
-        (TSF"cgi:%_, taskid:%_, worker:%_, context id:%_, backup net: %_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id, _it->task.user_id, ((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork());
+        (TSF"cgi:%_, taskid:%_, worker:%_, context id:%_, backup net: %_", _it->task.cgi, _it->task.taskid, (ShortLinkInterface*)_it->running_id, _it->task.user_id, 
+                                                        _it->running_id ? (((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork() ): false);
 
         if(_err_type != kEctOK && _err_type != kEctServer) {
             xinfo_trace(TSF"cgi trace error: (%_, %_), cost:%_, rtt:%_, svr:(%_, %_, %_)", _err_type, _err_code, (curtime - _it->start_task_time), _connect_profile.conn_rtt,
@@ -667,7 +668,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         int cgi_retcode = fun_callback_(_err_type, _err_code, _fail_handle, _it->task, (unsigned int)(curtime - _it->start_task_time));
         int errcode = _err_code;
         if (on_mobile_backup_task_finish_) {
-            on_mobile_backup_task_finish_(_connect_profile.tcp_rtt, ((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork(), false, kEctOK == _err_type, 
+            on_mobile_backup_task_finish_(_connect_profile.tcp_rtt, _it->running_id ? (((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork() ): false, false, kEctOK == _err_type, 
                                         false, _it->transfer_profile.send_data_size + (0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size));
         }
 
@@ -704,9 +705,9 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, 0 != _resp_length ? _resp_length : _it->transfer_profile.received_size,
             0 != _resp_length ? "" : "/", 0 != _resp_length ? "" : string_cast(_it->transfer_profile.receive_data_size).str(), _connect_profile.conn_rtt,
                     (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time), (curtime - _it->start_task_time), _it->remain_retry_count)
-    (TSF"cgi:%_, taskid:%_, worker:%_, backup net: %_", _it->task.cgi, _it->task.taskid,(void*) _it->running_id, ((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork());
+    (TSF"cgi:%_, taskid:%_, worker:%_, backup net: %_", _it->task.cgi, _it->task.taskid,(void*) _it->running_id, _it->running_id ? (((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork() ): false);
     if (on_mobile_backup_task_finish_) {
-        on_mobile_backup_task_finish_(_connect_profile.tcp_rtt, ((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork(), false, kEctOK == _err_type, 
+        on_mobile_backup_task_finish_(_connect_profile.tcp_rtt, _it->running_id ? (((ShortLinkInterface*)_it->running_id)->UseMobileBackupNetwork()): false, false, kEctOK == _err_type, 
                                     false, _it->transfer_profile.send_data_size + (0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size));
     }
 
