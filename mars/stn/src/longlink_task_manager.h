@@ -101,6 +101,7 @@ class LongLinkTaskManager {
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     void ReleaseLongLink(const std::string _name);
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
+    void ReleaseMobileBackupLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
 

@@ -43,6 +43,7 @@ class ShortLinkInterface {
     virtual void OnNetTimeout() {}
     virtual void FillOutterIPAddr(const std::vector<IPPortItem>& _out_addr) {}
     virtual void SetUseMobileBackupNetwork(bool _use_backup_net) {}
+    virtual bool UseMobileBackupNetwork() {return false;}
 
 
     CallBack<boost::function<void (int _line, ErrCmdType _errtype, int _errcode, const std::string& _ip, const std::string& _host, uint16_t _port)> > func_network_report;

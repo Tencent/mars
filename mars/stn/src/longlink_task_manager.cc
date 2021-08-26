@@ -549,7 +549,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
 			}
 		}
 
-        if (on_mobile_backup_task_finish_) {
+        if (_err_code != kEctLocalLongLinkReleased && on_mobile_backup_task_finish_) {
             on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false, _it->transfer_profile.send_data_size + receive_data_size);
         }
 
@@ -572,7 +572,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     (TSF"cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ", _it->transfer_profile.send_data_size, receive_data_size-received_size? string_cast(received_size).str():"", receive_data_size-received_size? "/":"", receive_data_size, _connect_profile.conn_rtt, (_it->transfer_profile.start_send_time == 0 ? 0 : curtime - _it->transfer_profile.start_send_time), (curtime - _it->start_task_time), _it->remain_retry_count)
     (TSF"cgi:%_, taskid:%_, tid:%_", _it->task.cgi, _it->task.taskid, _connect_profile.tid);
 
-    if (on_mobile_backup_task_finish_) {
+    if (_err_code != kEctLocalLongLinkReleased && on_mobile_backup_task_finish_) {
         on_mobile_backup_task_finish_(0, _it->task.use_mobile_backup_net, true, kEctOK == _err_type, false, _it->transfer_profile.send_data_size + receive_data_size);
     }
 
@@ -907,6 +907,13 @@ void LongLinkTaskManager::OnNetworkChange() {
             __RedoTasks(item.first);
         }
     }
+    auto backup_longlink =  std::find_if(longlink_metas_.begin(), longlink_metas_.end(), [&](const std::pair<std::string, std::shared_ptr<LongLinkMetaData> >& item) {
+            return item.second->Config().bind_mobile_network;
+        });
+    if (backup_longlink != longlink_metas_.end()) {
+        ReleaseMobileBackupLongLink(backup_longlink->second);
+        longlink_metas_.erase(backup_longlink);
+    }
 }
 
 #ifdef __APPLE__
@@ -1012,6 +1019,28 @@ void LongLinkTaskManager::ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _lin
     auto task = lst_cmd_.begin();
     while(task != lst_cmd_.end()) {
         if(task->task.channel_name == name) {
+            if (__SingleRespHandle(task, kEctLocal, kEctLocalLongLinkReleased, kTaskFailHandleTaskEnd, _linkmeta->Channel()->Profile())){
+                // task erased
+                task = lst_cmd_.begin();
+            }else{
+                task++;
+            }
+        } else {
+            task++;
+        }
+    }
+    
+    _linkmeta->Channel()->SignalConnection.disconnect_all_slots();
+    _linkmeta->Monitor()->DisconnectAllSlot();
+}
+
+void LongLinkTaskManager::ReleaseMobileBackupLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta) {
+    std::string name = _linkmeta->Config().name;
+    xinfo_function(TSF"release longlink:%_", name);
+    
+    auto task = lst_cmd_.begin();
+    while(task != lst_cmd_.end()) {
+        if(task->task.use_mobile_backup_net) {
             if (__SingleRespHandle(task, kEctLocal, kEctLocalLongLinkReleased, kTaskFailHandleTaskEnd, _linkmeta->Channel()->Profile())){
                 // task erased
                 task = lst_cmd_.begin();
