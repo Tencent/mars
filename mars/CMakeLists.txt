@@ -87,6 +87,7 @@ endif()
                         comm
                         mars-boost
                         marsxlog
+                        zstd
                         ${SSL_LIB}
                         ${CRYPT_LIB})
 

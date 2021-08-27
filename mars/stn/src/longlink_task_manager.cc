@@ -810,13 +810,18 @@ void LongLinkTaskManager::__SignalConnection(LongLink::TLongLinkStatus _connect_
 
 std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLink(const std::string& _name) {
     ScopedLock lock(meta_mutex_);
-    for(auto& item : longlink_metas_) {
-        if(item.first == _name) {
+    return GetLongLinkNoLock(_name);
+}
+
+std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLinkNoLock(const std::string& _name) {
+    for (auto& item : longlink_metas_) {
+        if (item.first == _name) {
             return item.second;
         }
     }
     return nullptr;
 }
+
 
 void LongLinkTaskManager::FixMinorRealhost(Task& _task) {
     if (get_real_host_) {
@@ -911,7 +916,7 @@ bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
     xinfo2(TSF"new longlink name:%_, id:%_", _config.name, longlink_id);
     _config.need_tls = !__ForbidUseTls(_config.host_list);
     longlink_metas_[_config.name] = std::make_shared<LongLinkMetaData>(_config, netsource_, active_logic_, asyncreg_.Get().queue);
-    longlink = GetLongLink(_config.name);
+    longlink = GetLongLinkNoLock(_config.name);
     longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
     longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
@@ -931,7 +936,7 @@ bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
 void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     xinfo_function(TSF"release longlink:%_", _name);
     ScopedLock lock(meta_mutex_);
-    auto longlink = GetLongLink(_name);
+    auto longlink = GetLongLinkNoLock(_name);
     if(longlink == nullptr)
         return;
 

@@ -99,12 +99,12 @@ else ()
     message(STATUS "ZSTD_MULTITHREAD_SUPPORT is disabled")
 endif ()
 
-option(ZSTD_BUILD_PROGRAMS "BUILD PROGRAMS" ON)
+option(ZSTD_BUILD_PROGRAMS "BUILD PROGRAMS" OFF)
 option(ZSTD_BUILD_CONTRIB "BUILD CONTRIB" OFF)
 option(ZSTD_BUILD_TESTS "BUILD TESTS" OFF)
-if (MSVC)
-    option(ZSTD_USE_STATIC_RUNTIME "LINK TO STATIC RUN-TIME LIBRARIES" OFF)
-endif ()
+# if (MSVC)
+#     option(ZSTD_USE_STATIC_RUNTIME "LINK TO STATIC RUN-TIME LIBRARIES" OFF)
+# endif ()
 
 #-----------------------------------------------------------------------------
 # External dependencies

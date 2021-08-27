@@ -9,6 +9,11 @@
 
 project(libzstd)
 
+if (WX_ZSTD_USE_STATIC_RUNTIME)
+    include(../../../../comm/CMakeUtils.txt)
+    include(../../../../comm/CMakeExtraFlags.txt)
+endif()
+
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 option(ZSTD_BUILD_STATIC "BUILD STATIC LIBRARIES" ON)
 option(ZSTD_BUILD_SHARED "BUILD SHARED LIBRARIES" ON)
