@@ -283,6 +283,7 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
+#ifdef USE_LONG_LINK
 void (*CreateLonglink_ext)(LonglinkConfig& _config)
 = [](LonglinkConfig & _config){
     STN_WEAK_CALL(CreateLongLink(_config));
@@ -309,6 +310,7 @@ void (*MakesureLonglinkConnected_ext)(const std::string& name)
 = [](const std::string& name){
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
+#endif //USE_LONG_LINK
 
 void network_export_symbols_0(){}
 

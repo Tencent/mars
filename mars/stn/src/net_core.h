@@ -129,6 +129,7 @@ public:
 #ifdef USE_LONG_LINK
     void    __OnLongLinkNetworkError(const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     void    __OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
+    int     __ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong);
 #endif
     
     void    __ConnStatusCallBack();
@@ -137,7 +138,6 @@ public:
     void    __OnSignalActive(bool _isactive);
 
     void    __OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
-    int __ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong);
   private:
     NetCore(const NetCore&);
     NetCore& operator=(const NetCore&);

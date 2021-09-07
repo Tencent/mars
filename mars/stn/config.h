@@ -23,7 +23,7 @@
 
 
 //if do not use newdns IP, comment the macro
-#define USE_LONG_LINK
+// #define USE_LONG_LINK
 //task attribute max value
 #define DEF_TASK_TIME_OUT (40*1000)
 #define DEF_TASK_RETRY_COUNT (1)

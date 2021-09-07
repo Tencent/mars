@@ -239,6 +239,7 @@ bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {
     return true;
 }
 
+#ifdef USE_LONG_LINK
 int NetCore::__ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong) {
     bool longlinkOk = (_longlink != nullptr);
     longlinkOk = longlinkOk && LongLink::kConnected == _longlink->Channel()->ConnectStatus();
@@ -265,6 +266,7 @@ int NetCore::__ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData
     }
     return channel;
 }
+#endif // USE_LONG_LINK
 
 void NetCore::StartTask(const Task& _task) {
     
@@ -296,7 +298,7 @@ void NetCore::StartTask(const Task& _task) {
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalChannelSelect, profile);
         return;
     }
-
+#ifdef USE_LONG_LINK
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
     if (task.channel_name == RUNON_MAIN_LONGLINK_NAME){
         longlink = longlink_task_manager_->DefaultLongLink();
@@ -316,6 +318,8 @@ void NetCore::StartTask(const Task& _task) {
         if(!host.empty())
             minorlonglink = longlink_task_manager_->GetLongLink(host);
     }
+#endif //USE_LONG_LINK
+
     if (task.network_status_sensitive && kNoNet ==::getNetInfo()
 #ifdef USE_LONG_LINK
         && longlink && LongLink::kConnected != longlink->Channel()->ConnectStatus()
@@ -364,7 +368,12 @@ void NetCore::StartTask(const Task& _task) {
 
     xgroup2() << group;
 
+#ifdef USE_LONG_LINK
     int channel = __ChooseChannel(task, longlink, minorlonglink);
+#else
+    int channel = Task::kChannelShort;
+#endif
+
     switch (channel) {
 #ifdef USE_LONG_LINK
     case Task::kChannelMinorLong:
@@ -495,19 +504,23 @@ void NetCore::OnNetworkChange() {
 }
 
 void NetCore::KeepSignal() {
+#ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
     auto longlink = longlink_task_manager_->DefaultLongLink();
     if(!longlink)    return;
     longlink->SignalKeeper()->Keep();
     ASYNC_BLOCK_END
+#endif
 }
 
 void NetCore::StopSignal() {
+#ifdef USE_LONG_LINK
     ASYNC_BLOCK_START
     auto longlink = longlink_task_manager_->DefaultLongLink();
     if(!longlink)    return;
     longlink->SignalKeeper()->Stop();
     ASYNC_BLOCK_END
+#endif
 }
 
 #ifdef USE_LONG_LINK
