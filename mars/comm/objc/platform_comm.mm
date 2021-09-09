@@ -17,6 +17,7 @@
 #include "comm/platform_comm.h"
 
 #import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
 
 #include "comm/xlogger/xlogger.h"
 #include "comm/xlogger/loginfo_extract.h"
@@ -297,6 +298,11 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
 #else
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        return false;
+    }
+    
     mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
