@@ -55,6 +55,7 @@ Task::Task(uint32_t _taskid) {
     
     channel_name=DEFAULT_LONGLINK_NAME;
     max_minorlinks = 1;
+    implemented_by_caller = false;
 }
 
 uint32_t GenTaskID(){

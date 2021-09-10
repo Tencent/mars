@@ -79,6 +79,8 @@ static const std::string kLibName = "stn";
     	ret = stn_ptr->func;\
     }
 
+#define NO_LONGLINK_WARN xwarn2("no lonlink implement");
+
 static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
     xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
     LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
@@ -283,34 +285,53 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
-#ifdef USE_LONG_LINK
 void (*CreateLonglink_ext)(LonglinkConfig& _config)
 = [](LonglinkConfig & _config){
+#ifdef USE_LONG_LINK
     STN_WEAK_CALL(CreateLongLink(_config));
+#else
+    NO_LONGLINK_WARN
+#endif
 };
     
 void (*DestroyLonglink_ext)(const std::string& name)
 = [](const std::string& name){
+#ifdef USE_LONG_LINK
     STN_WEAK_CALL(DestroyLongLink(name));
+#else
+    NO_LONGLINK_WARN
+#endif
 };
 
 bool (*LongLinkIsConnected_ext)(const std::string& name)
 = [](const std::string& name){
+#ifdef USE_LONG_LINK
     bool res = false;
     STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
     return res;
+#else
+    NO_LONGLINK_WARN
+    return false;
+#endif
 };
 
 void (*MarkMainLonglink_ext)(const std::string& name)
 = [](const std::string& name){
+#ifdef USE_LONG_LINK
     STN_WEAK_CALL(MarkMainLonglink_ext(name));
+#else
+    NO_LONGLINK_WARN
+#endif
 };
     
 void (*MakesureLonglinkConnected_ext)(const std::string& name)
 = [](const std::string& name){
+#ifdef USE_LONG_LINK
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
+#else
+    NO_LONGLINK_WARN
+#endif
 };
-#endif //USE_LONG_LINK
 
 void network_export_symbols_0(){}
 

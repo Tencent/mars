@@ -31,6 +31,7 @@
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/projdef.h"
+// #include "src/shortlink_interface.h"
 
 namespace mars{
     namespace stn{
@@ -42,6 +43,7 @@ struct TaskProfile;
 struct DnsProfile;
 struct ConnectProfile;
 class LongLinkEncoder;
+class ShortLinkInterface;
 
 
 enum PackerEncoderVersion {
@@ -49,6 +51,17 @@ enum PackerEncoderVersion {
   kNew = 2,
 };
 
+class ShortlinkCallbackBridge {
+public:
+    ShortlinkCallbackBridge() = default;
+    virtual ~ShortlinkCallbackBridge() = default;
+public:
+    virtual void OnSendData(const std::string& _body, const std::string& _extern_body) {}
+    virtual void OnReceiveData(const std::string& _data) {}
+    virtual void CancelTask() {}
+    virtual void SetShortlinkInstance(ShortLinkInterface* _instance) {}
+
+};
 
 struct Task {
 public:
@@ -119,6 +132,7 @@ public:
     std::string group_name;     //use for select decode method
     std::string user_id;        //use for identify multi users
     int protocol;
+    bool implemented_by_caller;
     
     std::map<std::string, std::string> headers;
     std::vector<std::string> shortlink_host_list;   // current using hosts, may be quic host or tcp host
@@ -127,6 +141,7 @@ public:
     std::vector<std::string> minorlong_host_list;
     std::vector<std::string> quic_host_list;
     int32_t max_minorlinks;
+    std::shared_ptr<ShortlinkCallbackBridge> shortlink_callback_bridge_;
 };
     
 struct CgiProfile {
@@ -180,6 +195,7 @@ public:
     bool use_proxy = false;
     bool use_tls = true;
     bool use_quic = false;
+    bool implemented_by_caller = false;
     QuicParameters quic;
 };
 

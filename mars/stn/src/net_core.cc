@@ -955,10 +955,10 @@ std::shared_ptr<LongLinkMetaData> NetCore::DefaultLongLinkMeta() {
 std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name) {
     return longlink_task_manager_->GetLongLink(_name);
 }
+#endif //USE_LONG_LINK
 
 
-  void NetCore::SetDebugHost(const std::string& _host) {
+void NetCore::SetDebugHost(const std::string& _host) {
     shortlink_task_manager_->SetDebugHost(_host);
-  }
+}
 
-#endif

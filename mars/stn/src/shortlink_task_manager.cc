@@ -290,6 +290,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             
             hosts = task.quic_host_list;
         }
+        config.implemented_by_caller = first->task.implemented_by_caller;
+        if (config.implemented_by_caller) {
+            xdebug2(TSF"this is empty task: %_", first->task.cgi);
+        }
         
         if (get_real_host_) {
             get_real_host_(task.user_id, hosts);
@@ -321,7 +325,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
-        if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
+        if (!first->task.implemented_by_caller && !Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
@@ -664,7 +668,9 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         if (on_timeout_or_remote_shutdown_) {
             on_timeout_or_remote_shutdown_(*_it);
         }
-        ReportTaskProfile(*_it);
+        if (!_it->task.implemented_by_caller) {
+            ReportTaskProfile(*_it);
+        }
         WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         __DeleteShortLink(_it->running_id);
