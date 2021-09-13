@@ -450,6 +450,7 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xinfo_function(...)				__xfunction_scope_impl(kLevelInfo, __FUNCTION__, __VA_ARGS__)
 
 #ifdef __APPLE__
+#include <pthread.h>
 #define TSF pthread_self(),
 #else
 #define TSF __tsf__,
