@@ -450,7 +450,7 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xinfo_function(...)				__xfunction_scope_impl(kLevelInfo, __FUNCTION__, __VA_ARGS__)
 
 #ifdef __APPLE__
-#define TSF nullptr,
+#define TSF __builtin_return_address(0),
 #else
 #define TSF __tsf__,
 #endif
