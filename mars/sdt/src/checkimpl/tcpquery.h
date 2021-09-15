@@ -59,8 +59,8 @@ class TcpQuery {
     char* ip_;
     uint16_t port_;
     SOCKET sock_;
-    SocketBreaker pipe_;
-    SocketSelect select_;
+    comm::SocketBreaker pipe_;
+    comm::SocketSelect select_;
     TcpStatus status_;
     int errcode_;
     unsigned int conn_timeout_;

@@ -17,6 +17,8 @@
 #include "comm/xlogger/xlogger.h"
 #include "comm/time_utils.h"
 
+namespace mars {
+namespace comm {
 
 enum {
     kGetADDRNotBegin,
@@ -241,4 +243,7 @@ int getaddrinfo_with_timeout(const char *node, const char *service, const struct
     }
     
     return kRetCodeInternalStateError;
+}
+
+}
 }

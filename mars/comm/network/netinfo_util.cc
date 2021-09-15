@@ -30,6 +30,8 @@
 
 #include "netinfo_util.h"
 
+using namespace mars::comm;
+
 NetworkType GetNetworkType() {
     NetworkType network_type = kNetworkTypeUnknown;
     int netinfo = getNetInfo();
@@ -105,7 +107,7 @@ std::string GetDetailNetInfo() {
     }
 
     std::vector<socket_address> dnssvraddrs;
-    getdnssvraddrs(dnssvraddrs);
+    mars::comm::getdnssvraddrs(dnssvraddrs);
     if (!dnssvraddrs.empty()) {
         for (size_t i = 0; i < dnssvraddrs.size(); ++i) {
             if (AF_INET == dnssvraddrs[i].address().sa_family) {

@@ -32,6 +32,9 @@
 #error "C++ only"
 #endif
 
+namespace mars {
+namespace comm {
+
 enum NetType {
     kNoNet = -1,
     kWifi = 1,
@@ -40,13 +43,26 @@ enum NetType {
 };
 int getNetInfo();
 
+enum class NetTypeForStatistics{
+    NETTYPE_NON = -1,
+    NETTYPE_NOT_WIFI = 0,
+    NETTYPE_WIFI = 1,
+    NETTYPE_WAP = 2,
+    NETTYPE_2G = 3,
+    NETTYPE_3G = 4,
+    NETTYPE_4G = 5,
+    NETTYPE_UNKNOWN = 6,    //ignore, DO NOT reuse
+    NETTYPE_5G = 7,
+};
+int getNetTypeForStatistics();
+
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
 
 struct WifiInfo {
     std::string ssid;
     std::string bssid;
 };
-bool getCurWifiInfo(WifiInfo& _wifi_info);
+bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false);
 
 struct SIMInfo {
     std::string isp_code;
@@ -83,6 +99,8 @@ __CXX11_CONSTEXPR__ static const char* const CDMA  = "CDMA";
 __CXX11_CONSTEXPR__ static const char* const HSPA = "HSPA";
 __CXX11_CONSTEXPR__ static const char* const IDEN = "IDEN";
 __CXX11_CONSTEXPR__ static const char* const HSPAP = "HSPA+";
+__CXX11_CONSTEXPR__ static const char* const G5 = "5G";
+__CXX11_CONSTEXPR__ static const char* const WIFI = "WIFI";
 
 
 struct RadioAccessNetworkInfo {
@@ -172,12 +190,15 @@ struct RadioAccessNetworkInfo {
         LTE TDD：世博会展出对象，尖端技术，比FDD早发展一年，网速和FDD差不多，但不成熟，兼容性弱！（湖北移动、上海移动已启动试运营，国家大力推广）
     ***/
 
+
+
     std::string  radio_access_network;
 
     bool Is2G() const { return radio_access_network == GPRS || radio_access_network == CDMA1x || radio_access_network == Edge || radio_access_network == CDMAEVDORev0 || radio_access_network == UMTS || radio_access_network == CDMA;}
     bool Is3G() const { return radio_access_network == WCDMA || radio_access_network == CDMAEVDORevA || radio_access_network == HSDPA || radio_access_network == HSUPA || radio_access_network == CDMAEVDORevB || radio_access_network == eHRPD || radio_access_network == HSPAP || radio_access_network == HSPA;}
     bool Is4G() const { return radio_access_network == LTE;}
-    bool IsUnknown() const { return !Is2G() && !Is3G() && !Is4G();}
+    bool Is5G() const { return radio_access_network == G5;}
+    bool IsUnknown() const { return !Is2G() && !Is3G() && !Is4G() && !Is5G();}
 };
 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
@@ -201,7 +222,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
         WifiInfo wifiInfo;
 
         if (getCurWifiInfo(wifiInfo)) {
-            netInfo = wifiInfo.ssid;
+            netInfo = wifiInfo.ssid.empty() ? "empty_ssid" : wifiInfo.ssid;
         } else {
             netInfo = "no_ssid_wifi";
         }
@@ -213,7 +234,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
         SIMInfo simInfo;
 
         if (getCurSIMInfo(simInfo)) {
-            netInfo = simInfo.isp_code;
+            netInfo = simInfo.isp_code.empty() ? "empty_ispCode" : simInfo.isp_code;
         } else {
             netInfo = "no_ispCode_mobile";
         }
@@ -240,7 +261,7 @@ float publiccomponent_GetSystemVersion();
 #endif
 
 #ifdef ANDROID
-bool startAlarm(int64_t id, int after);
+bool startAlarm(int type, int64_t id, int after);
 bool stopAlarm(int64_t id);
 
 void* wakeupLock_new();
@@ -258,5 +279,7 @@ bool  wakeupLock_IsLocking(void* _object);
 	extern APNInfo g_apn_info;
 	extern Mutex g_net_mutex;
 #endif
+
+}}
 
 #endif /* COMM_PLATFORM_COMM_H_ */

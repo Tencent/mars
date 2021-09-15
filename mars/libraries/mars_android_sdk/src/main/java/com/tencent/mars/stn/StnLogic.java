@@ -8,6 +8,8 @@ import com.tencent.mars.Mars;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StnLogic {
@@ -38,14 +40,15 @@ public class StnLogic {
         public static final int EShort = 0x1;
         public static final int ELong = 0x2;
         public static final int EBoth = 0x3;
-        private static AtomicInteger ai = new AtomicInteger(0);
+        // private static AtomicInteger ai = new AtomicInteger(0);
 
         public Task() {
-            this.taskID = ai.incrementAndGet();
+            this.taskID = genTaskID();  //ai.incrementAndGet();
+            this.headers = new HashMap<>();
         }
 
         public Task(final int channelselect, final int cmdid, final String cgi, final ArrayList<String> shortLinkHostList) {
-            this.taskID = ai.incrementAndGet();
+            this.taskID = genTaskID();  //ai.incrementAndGet();
             this.channelSelect = channelselect;
             this.cmdID = cmdid;
             this.cgi = cgi;
@@ -63,6 +66,9 @@ public class StnLogic {
             this.serverProcessCost = 0;
             this.totalTimeout = 0;
             this.userContext = null;
+            this.headers = new HashMap<>();
+            this.longPolling = false;
+            this.longPollingTimeout = 0;
         }
 
         //require
@@ -86,6 +92,9 @@ public class StnLogic {
         public int totalTimeout;    	//total timeout, in ms
         public Object userContext;      //user context
         public String reportArg;
+        public Map<String, String> headers;
+        public boolean longPolling;
+        public int longPollingTimeout;
     }
 
     public static final int INVALID_TASK_ID = -1;
@@ -150,6 +159,20 @@ public class StnLogic {
 
     private static ICallBack callBack = null;
 
+    public static class CgiProfile {
+        public long taskStartTime = 0;
+        public long startConnectTime = 0;
+        public long connectSuccessfulTime = 0;
+        public long startHandshakeTime = 0;
+        public long handshakeSuccessfulTime = 0;
+        public long startSendPacketTime = 0;
+        public long startReadPacketTime = 0;
+        public long readPacketFinishedTime = 0;
+
+        public CgiProfile(){}
+
+    }
+
     /**
      * 初始化网络层回调实例 App实现NetworkCallBack接口
      * @param _callBack native网络层调用java上层时的回调
@@ -174,7 +197,7 @@ public class StnLogic {
          * SDK要求上层做认证操作(可能新发起一个AUTH CGI)
          * @return
          */
-        boolean makesureAuthed();
+        boolean makesureAuthed(String host);
 
         /**
          * SDK要求上层做域名解析.上层可以实现传统DNS解析,或者自己实现的域名/IP映射
@@ -188,7 +211,7 @@ public class StnLogic {
          * @param cmdid
          * @param data
          */
-        void onPush(final int cmdid, final byte[] data);
+        void onPush(final int cmdid, final int taskid, final byte[] data);
 
         /**
          * SDK要求上层对TASK组包
@@ -198,7 +221,7 @@ public class StnLogic {
          * @param errCode   组包的错误码
          * @return
          */
-        boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect);
+        boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect, final String host);
 
         /**
          * SDK要求上层对TASK解包
@@ -218,7 +241,7 @@ public class StnLogic {
          * @param errCode           错误码
          * @return
          */
-        int onTaskEnd(final int taskID, Object userContext, final int errType, final int errCode);
+        int onTaskEnd(final int taskID, Object userContext, final int errType, final int errCode, StnLogic.CgiProfile profile);
 
         /**
          * 流量统计
@@ -326,6 +349,11 @@ public class StnLogic {
     public static native void reset();
 
     /**
+     * 停止并清除所有未完成任务并重新初始化, 重新设置encoder version
+     */
+    public static native void resetAndInitEncoderVersion(int packerEncoderVersion);
+
+    /**
      * 设置备份IP,用于long/short svr均不可用的场景下
      * @param host  域名
      * @param ips   域名对应的IP列表
@@ -368,17 +396,19 @@ public class StnLogic {
      */
     private static native ArrayList<String> getLoadLibraries();
 
+    public static native int genTaskID();
+
     /**
      *  要求上层进行AUTH操作.
      *  如果一个TASK要求AUTH状态而当前没有AUTH态,组件就会回调此方法
      */
-    private static boolean makesureAuthed() {
+    private static boolean makesureAuthed(String host) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return false;
             }
-            return callBack.makesureAuthed();
+            return callBack.makesureAuthed(host);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -409,14 +439,14 @@ public class StnLogic {
      * @param cmdid     PUSH的CMDID,这个应该是APP跟SVR约定的值
      * @param data      PUSH下来的数据
      */
-    private static void onPush(final int cmdid, final byte[] data) {
+    private static void onPush(final String channelID, final int cmdid, final int taskid, final byte[] data) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return;
             }
 
-            callBack.onPush(cmdid, data);
+            callBack.onPush(cmdid, taskid, data);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -431,13 +461,13 @@ public class StnLogic {
      * @return
      */
 
-    private static boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect) {
+    private static boolean req2Buf(final int taskID, Object userContext, ByteArrayOutputStream reqBuffer, int[] errCode, int channelSelect, final String host) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return false;
             }
-            return callBack.req2Buf(taskID, userContext, reqBuffer, errCode, channelSelect);
+            return callBack.req2Buf(taskID, userContext, reqBuffer, errCode, channelSelect, host);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -475,13 +505,13 @@ public class StnLogic {
      * @param errCode
      * @return
      */
-    private static int onTaskEnd(final int taskID, Object userContext, final int errType, final int errCode){
+    private static int onTaskEnd(final int taskID, Object userContext, final int errType, final int errCode, final StnLogic.CgiProfile profile){
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
                 return 0;
             }
-            return callBack.onTaskEnd(taskID, userContext, errType, errCode);
+            return callBack.onTaskEnd(taskID, userContext, errType, errCode, profile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -532,7 +562,7 @@ public class StnLogic {
      * @param cmdID         校验包的CMDID
      * @return  ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2
      */
-    private static int getLongLinkIdentifyCheckBuffer(ByteArrayOutputStream reqBuf, ByteArrayOutputStream reqBufHash, int[] cmdID) {
+    private static int getLongLinkIdentifyCheckBuffer(final String channelID, ByteArrayOutputStream reqBuf, ByteArrayOutputStream reqBufHash, int[] cmdID) {
         try {
             if (callBack == null) {
                 new NullPointerException("callback is null").printStackTrace();
@@ -552,7 +582,7 @@ public class StnLogic {
      * @param reqBufHash    对应的CLIENT校验数据HASH
      * @return true false
      */
-    private static boolean onLongLinkIdentifyResp(final byte[] respBuf, final byte[] reqBufHash) {
+    private static boolean onLongLinkIdentifyResp(final String channelID, final byte[] respBuf, final byte[] reqBufHash) {
         try {
 
             if (callBack == null) {

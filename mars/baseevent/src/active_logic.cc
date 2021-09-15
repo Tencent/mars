@@ -28,8 +28,13 @@
 #include "mars/comm/bootrun.h"
 #include "mars/comm/messagequeue/message_queue.h"
 
+#include "mars/comm/thread/mutex.h"
+
+namespace mars {
+namespace comm {
+
 static void onForeground(bool _isforeground) {
-    ActiveLogic::Singleton::Instance()->OnForeground(_isforeground);
+    ActiveLogic::Instance()->OnForeground(_isforeground);
 }
 
 static void __initbind_baseprjevent() {
@@ -40,12 +45,37 @@ BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 #define INACTIVE_TIMEOUT (10*60*1000) //ms
 
+#ifdef ANDROID
+static void onAlarm(int64_t id) {
+    Alarm::onAlarmImpl(id);
+}
+static const int kAlarmType = 100;
+#endif
+
+std::shared_ptr<ActiveLogic> ActiveLogic::Instance() {
+	static std::shared_ptr<ActiveLogic> inst = nullptr;
+	static Mutex mtx;
+	if(!inst) {
+		ScopedLock lock(mtx);
+		if(!inst) {
+			inst = std::make_shared<ActiveLogic>();
+		}
+	}
+
+	return inst;
+}
+
 ActiveLogic::ActiveLogic()
 : isforeground_(false), isactive_(true)
 , alarm_(boost::bind(&ActiveLogic::__OnInActive, this), false)
 , lastforegroundchangetime_(::gettickcount())
 {
-    xinfo_function();
+    xinfo_function(TSF"MQ:%_, this:%_", MessageQueue::GetDefMessageQueue(), this);
+
+#ifdef __ANDROID__
+    GetSignalOnAlarm().connect(&onAlarm);
+    alarm_.SetType(kAlarmType);
+#endif
 #ifndef __APPLE__
         if (!alarm_.Start(INACTIVE_TIMEOUT))
        	{
@@ -70,7 +100,7 @@ void ActiveLogic::OnForeground(bool _isforeground)
 	}
 
     xgroup2_define(group);
-    xinfo2(TSF"OnForeground:%0, change:%1, ", _isforeground, _isforeground!=isforeground_) >> group;
+    xinfo2(TSF"OnForeground:%0, change:%1, this:%2", _isforeground, _isforeground!=isforeground_, this) >> group;
 
     if (_isforeground == isforeground_) return;
 
@@ -123,4 +153,13 @@ void ActiveLogic::__OnInActive()
     bool  isactive = isactive_;
     xinfo2(TSF"active change:%0", isactive_);
     SignalActive(isactive);
+}
+
+
+void ActiveLogic::SwitchActiveStateForDebug(bool _active) {
+    isactive_ = _active;
+    __OnInActive();
+}
+
+}
 }

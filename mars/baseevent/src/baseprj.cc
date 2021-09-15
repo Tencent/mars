@@ -24,12 +24,18 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/thread/lock.h"
 
+using namespace mars::comm;
+
 namespace mars{
     namespace baseevent{
 
         void OnCreate()
         {
             GetSignalOnCreate()();
+        }
+        
+        void OnInitBeforeOnCreate(int _encoder_status) {
+            GetSignalOnInitBeforeOnCreate()(_encoder_status);
         }
         
         void OnDestroy()
@@ -76,6 +82,12 @@ namespace mars{
         void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv) {
             GetSignalOnNetworkDataChange()(_tag, _send, _recv);
         }
+
+#ifdef ANDROID
+        void OnAlarm(int64_t _id) {
+            GetSignalOnAlarm()(_id);
+        }
+#endif
     }
 }
 

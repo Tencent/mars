@@ -30,8 +30,6 @@ elseif(ANDROID)
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 endif()
     
-add_library(${PROJECT_NAME} STATIC ${SELF_SRC_FILES})
-
-install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${CMAKE_SYSTEM_NAME}.out)
+BuildWithUnitTest("${PROJECT_NAME}" "${SELF_SRC_FILES}")
     
     

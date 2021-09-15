@@ -26,6 +26,8 @@
 #include "platform_comm.h"
 #include "mars/comm/network/getaddrinfo_with_timeout.h"
 
+using namespace mars::comm;
+
 static const uint8_t kWellKnownV4Addr1[4] = {192, 0, 0, 170};
 static const uint8_t kWellKnownV4Addr2[4] = {192, 0, 0, 171};
 static const uint8_t kOurDefineV4Addr[4] = {192, 0, 2, 1};
@@ -218,7 +220,7 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
 		error = getaddrinfo_with_timeout(v4_ip, NULL, &hints, &res0, is_timeout, 2000);
 	} else {//lower than iOS9.2 or other platform
 #endif
-		error = getaddrinfo_with_timeout("ipv4only.arpa", NULL, &hints, &res0, is_timeout, 2000);
+		error = mars::comm::getaddrinfo_with_timeout("ipv4only.arpa", NULL, &hints, &res0, is_timeout, 2000);
 #ifdef __APPLE__
 	}
 #endif

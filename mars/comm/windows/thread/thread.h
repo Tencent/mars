@@ -17,142 +17,84 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <thr/threads.h>
+#include <xtimec.h>
+
 
 #include "assert/__assert.h"
 #include "condition.h"
 #include "thread/runnable.h"
 
+typedef HANDLE  thread_handler;
+#define thrd_success (0)
 
-#ifndef _WINRT_DLL   // for wp8 
-//#define USED_BOOST_THREAD_LIB   // else used vc11 std thread 
-#endif
+namespace mars {
+namespace comm {
 
-
-#ifdef USED_BOOST_THREAD_LIB
-#include <boost/thread/thread.hpp>
-typedef boost::thread*  thread_handler;
-#else
-#include <thr/threads.h>
-typedef thrd_t*  thread_handler;
-#endif
-
-#define thrd_success 0
-
-typedef unsigned int thread_tid;
+typedef DWORD thread_tid;
 
 typedef void* (*THREAD_START_PROC)(void*  arg);
 
 class ThreadUtil {
   public:
     static void yield() {
-#ifdef  USED_BOOST_THREAD_LIB
-        boost::this_thread::yield();
-#else
-        thrd_yield();
-#endif
+        ::SwitchToThread();
     }
 
     static void sleep(unsigned int _sec) {
-        struct xtime xt = {0, 0};
-        xtime_get(&xt, TIME_UTC);
-        xt.sec += _sec;
-        thrd_sleep(&xt);
+        ::Sleep(_sec * 1000);
     }
 
     static void usleep(unsigned int _usec) {
-        struct xtime xt = {0, 0};
-        xtime_get(&xt, TIME_UTC);
-        xt.nsec += _usec;
-        thrd_sleep(&xt);
+        ::Sleep(_usec / 1000);
     }
 
     static thread_tid currentthreadid() {
-#ifdef  USED_BOOST_THREAD_LIB
-        return boost::detail::win32::GetCurrentThreadId();
-#else
-        return thrd_current()._Id;
-#endif
+        return ::GetCurrentThreadId();
     }
 
-    static bool isruning(thread_tid /*_id*/);
-    //{
-    //    ASSERT(false);
-    //    return false;
-    //}
+    static bool isruning(thread_tid _id) {
+        HANDLE handle = OpenThread(THREAD_ALL_ACCESS, FALSE, _id);
+        if (handle == NULL) return false;
+        return ::WaitForSingleObject(handle, 0) == WAIT_OBJECT_0;
+    }
 
     static int createThread(thread_handler& pth, THREAD_START_PROC proc, void* args) {
-#ifdef  USED_BOOST_THREAD_LIB
+        HANDLE handle = ::CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)proc, args, 0, nullptr);
+        if (handle == nullptr)  return -1;
 
-        if (pth) {
-            pth->detach();
-            delete pth;
-            pth = NULL;
-        }
-
-        pth = new boost::thread(proc, args);
+        pth = handle;
         return thrd_success;
-#else
-
-        if (pth != NULL) {
-            delete pth;
-        }
-
-        pth = new thrd_t();
-        return thrd_create(pth, (thrd_start_t)proc, (void*)args);
-#endif
     }
 
     static void join(thread_handler& pth) {
         if (pth == NULL)
             return ;
 
-#ifdef  USED_BOOST_THREAD_LIB
-        pth->join();
-#else
-        thrd_join(*pth, 0);
-#endif
+        ASSERT(pth != ::GetCurrentThread());
+        ::WaitForSingleObject(pth, INFINITE);
     }
 
 	static void join (thread_tid _tid) {
-	
-#ifdef USED_BOOST_THREAD_LIB
-	#error "todo"
-#else
-	HANDLE handler = OpenThread(THREAD_ALL_ACCESS, FALSE, _tid);
-	if (NULL == handler) {
-		ASSERT(false);
-		return;
-	}
-	thrd_t thrd;
-	thrd._Hnd = &handler;
-	thrd._Id = _tid;
-	thread_handler th = &thrd;
-	join(th);
-	CloseHandle(handler);
-#endif
+        ASSERT(_tid != currentthreadid());
+        HANDLE handler = OpenThread(THREAD_ALL_ACCESS, FALSE, _tid);
+        if (NULL == handler) {
+            return;
+        }
+        ::WaitForSingleObject(handler, INFINITE);
 	}
 
     static void detach(thread_handler& pth) {
         if (pth == NULL)
             return ;
-
-#ifdef  USED_BOOST_THREAD_LIB
-        pth->detach();
-#else
-        thrd_detach(*pth);
-#endif
+        ::CloseHandle(pth);
+        pth = NULL;
     }
 
     static thread_tid getThreadId(thread_handler& pth) {
         if (pth == NULL)
             return 0;
 
-#ifdef  USED_BOOST_THREAD_LIB
-        return pth->get_thread_info()->id;
-#else
-        return  pth->_Id;
-#endif
+        return ::GetThreadId(pth);
     }
 };
 
@@ -176,7 +118,7 @@ class Thread {
             ASSERT(isended);
 
             if (m_th != NULL) {
-                delete m_th;
+                ::CloseHandle(m_th);
                 m_th = NULL;
             }
         }
@@ -204,7 +146,7 @@ class Thread {
         Runnable* target;
         int count;
         // thrd_t tid;
-        thread_handler m_th;
+        thread_handler m_th = NULL;
         bool isjoined;
         bool isended;
         unsigned int aftertime;
@@ -473,6 +415,8 @@ class Thread {
 	bool outside_join_;
 };
 
+}
+}
 
 // inline bool operator==(const thread_t& lhs, const thread_t& rhs)
 //{

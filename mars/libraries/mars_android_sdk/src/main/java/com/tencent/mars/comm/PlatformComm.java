@@ -184,7 +184,7 @@ public class PlatformComm {
 		 * @param after
          * @return
          */
-	    public static boolean startAlarm(final int id, final int after) {
+	    public static boolean startAlarm(final int type, final int id, final int after) {
 	        if (null==context){
 	            return false;
 	        }

@@ -109,7 +109,7 @@ def createStartScript(int serverType) {
         print "open ${cmdFile}".execute().text
     }
     else if(Os.isFamily(Os.FAMILY_UNIX)) {
-        cmdFile.append("./gradlew " + runtty)
+        cmdFile.append("./gradlew " + runtty + "\n")
     }
 
 
@@ -146,8 +146,8 @@ task startProxyServer(dependsOn: 'startWebServer') {
 
             cmdFile.append("cd ${buildDir}/tmp/\n")
 
-            cmdFile.append("chmod a+x start-proxy-server.sh && nohup ./start-proxy-server.sh > proxyRun.log&\n")
-            cmdFile.append("chmod a+x start-web-server.sh && nohup ./start-web-server.sh > webRun.log&\n")
+            cmdFile.append("chmod a+x start-proxy-server.sh && nohup ./start-proxy-server.sh > proxyRun.log 2>&1 &\n")
+            cmdFile.append("chmod a+x start-web-server.sh && nohup ./start-web-server.sh > webRun.log 2>&1 &\n")
             print "chmod a+x ${cmdFile}".execute().text
             print "${cmdFile}".execute().text
         }

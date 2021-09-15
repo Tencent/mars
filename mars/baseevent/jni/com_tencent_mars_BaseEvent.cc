@@ -55,32 +55,36 @@ namespace baseevent {
 
 extern "C" {
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onCreate(JNIEnv* env, jclass)
-{
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onCreate(JNIEnv* env, jclass) {
     mars::baseevent::OnCreate();
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onDestroy(JNIEnv* env, jclass)
-{
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onInitConfigBeforeOnCreate(JNIEnv* env, jclass, jint _packer_encoder_version) {
+    mars::baseevent::OnInitBeforeOnCreate(_packer_encoder_version);
+}
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onDestroy(JNIEnv* env, jclass) {
     mars::baseevent::OnDestroy();
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onForeground (JNIEnv *, jclass, jboolean _isforeground)
-{
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onForeground (JNIEnv *, jclass, jboolean _isforeground) {
     mars::baseevent::OnForeground(_isforeground);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onNetworkChange (JNIEnv *, jclass)
-{
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onNetworkChange (JNIEnv *, jclass) {
 	mars::baseevent::OnNetworkChange();
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onSingalCrash(JNIEnv *, jclass, jint _sig){
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onSingalCrash(JNIEnv *, jclass, jint _sig) {
     mars::baseevent::OnSingalCrash((int)_sig);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onExceptionCrash(JNIEnv*, jclass){
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onExceptionCrash(JNIEnv*, jclass) {
     mars::baseevent::OnExceptionCrash();
+}
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_comm_Alarm_onAlarm(JNIEnv * env, jclass, jlong _id) {
+    mars::baseevent::OnAlarm((int64_t)_id);
 }
 
 }

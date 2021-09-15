@@ -15,50 +15,66 @@
 
 using namespace std;
 
-bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
-    xverbose_function();
+namespace mars{
+    namespace comm {
 
-    return getProxyInfoImpl(port, strProxy, _host);
-}
 
-bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& info) {
-    xverbose_function();
-    return false;
-}
+        bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
+            xverbose_function();
 
-int getNetInfo() {
-    xverbose_function();
+            return getProxyInfoImpl(port, strProxy, _host);
+        }
 
-    return isNetworkConnected() ? kWifi : kNoNet;
-}
+        bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& info) {
+            xverbose_function();
+            return false;
+        }
 
-unsigned int getSignal(bool isWifi) {
-    xverbose_function();
-    return (unsigned int)0;
-}
+        int getNetInfo() {
+            xverbose_function();
 
-bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
-	return false;
-}
+            return isNetworkConnected() ? kWifi : kNoNet;
+        }
 
-bool isNetworkConnected() {
-    return isNetworkConnectedImpl();
-}
+        unsigned int getSignal(bool isWifi) {
+            xverbose_function();
+            return (unsigned int)0;
+        }
 
-static const char* const SIMULATOR_NET_INFO = "SIMULATOR";
-static const char* const USE_WIRED = "wired";
+        bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
+            return false;
+        }
 
-bool getCurWifiInfo(WifiInfo& wifiInfo) {
-    return false;
-}
+        bool isNetworkConnected() {
+            return isNetworkConnectedImpl();
+        }
 
-bool getCurSIMInfo(SIMInfo& bsinfo) {
-    return false;
-}
+        static const char* const SIMULATOR_NET_INFO = "SIMULATOR";
+        static const char* const USE_WIRED = "wired";
 
-bool getAPNInfo(APNInfo& info) {
-    return false;
-}
+        bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
+            return false;
+        }
+
+        bool getCurSIMInfo(SIMInfo& bsinfo) {
+            return false;
+        }
+
+        bool getAPNInfo(APNInfo& info) {
+            return false;
+        }
+
+        int getNetTypeForStatistics() {
+            int type = getNetInfo();
+            if (mars::comm::kWifi == type) {
+                return (int)mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
+            }
+
+            return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
+        }
+    }// comm namespace
+
+namespace xlog{
 
 #ifdef NDEBUG
 std::function<void (char* _log)> g_console_log_fun = nullptr;
@@ -87,3 +103,5 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
         g_console_log_fun(log);
     }
 }
+}   // namespace xlog
+}  // namespace

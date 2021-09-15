@@ -15,6 +15,8 @@
 
 #include "xlogger/xlogger.h"
 
+
+
 static DWORD __SO_RCVTIMEO(SOCKET _sock) {
     DWORD optval = 0;
     int optlen = sizeof(optval);
@@ -48,6 +50,8 @@ static void __WOULDBLOCK(SOCKET _sock, bool _block) {
     __SO_RCVTIMEO(_sock, (ret & (~0x1)) + _block);
 }
 
+namespace mars {
+namespace comm {
 SocketBreaker::SocketBreaker()
     : m_broken(false)
     , m_create_success(true), m_exception(0) {
@@ -86,6 +90,11 @@ bool SocketBreaker::Break() {
     return m_broken;
 }
 
+bool SocketBreaker::Break(int reason){
+    m_reason = reason;
+    return Break();
+}
+
 bool SocketBreaker::Clear() {
     ScopedLock lock(m_mutex);
 
@@ -111,6 +120,10 @@ void SocketBreaker::Close() {
 
 WSAEVENT SocketBreaker::BreakerFD() const {
     return m_event;
+}
+
+int SocketBreaker::BreakReason() const{
+    return m_reason;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,12 +160,19 @@ int SocketSelect::Select(int _msec) {
     ASSERT(-1 <= _msec);
 
 	//create eventarray and socketarray
-	WSAEVENT* eventarray = (WSAEVENT*)calloc(m_filter_map.size() + 1, sizeof(WSAEVENT));
-    SOCKET* socketarray = (SOCKET*)calloc(m_filter_map.size() + 1, sizeof(SOCKET));
+    int eventfd_count = 1 + vec_events_.size();
+
+	WSAEVENT* eventarray = (WSAEVENT*)calloc(m_filter_map.size() + eventfd_count, sizeof(WSAEVENT));
+    SOCKET* socketarray = (SOCKET*)calloc(m_filter_map.size() + eventfd_count, sizeof(SOCKET));
     eventarray[0] = Breaker().BreakerFD();
     socketarray[0] = INVALID_SOCKET;
 
-    int index = 1;
+    for(size_t i = 0; i < vec_events_.size(); i++){
+        eventarray[1 + i] = vec_events_[i];
+        socketarray[1 + i] = INVALID_SOCKET;
+    }
+
+    int index = eventfd_count;
 
     for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
         eventarray[index] = WSACreateEvent();
@@ -205,8 +225,6 @@ int SocketSelect::Select(int _msec) {
             m_broken = Breaker().m_broken;
 
             if (autoclear_) Breaker().Clear();
-
-			xdebug2(TSF"return select, ret=%_", ret);
             goto END; //free eventarray and socketarrary
         }
     }
@@ -235,12 +253,12 @@ int SocketSelect::Select(int _msec) {
     }
 
     // WSAWaitForMultipleEvents
-    ret = WSAWaitForMultipleEvents(m_filter_map.size() + 1, eventarray, FALSE, _msec, FALSE);
+    ret = WSAWaitForMultipleEvents(m_filter_map.size() + eventfd_count, eventarray, FALSE, _msec, FALSE);
     ASSERT2(WSA_WAIT_FAILED != ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
 
     if (WSA_WAIT_FAILED == ret) errno_ = WSAGetLastError();
 
-    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && 0 < ret - WSA_WAIT_EVENT_0) {
+    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && ret >= WSA_WAIT_EVENT_0 + eventfd_count) {
         WSANETWORKEVENTS networkevents = {0};
         int event_index = ret;
         ret = WSAEnumNetworkEvents(socketarray[event_index - WSA_WAIT_EVENT_0], eventarray[event_index - WSA_WAIT_EVENT_0], &networkevents);
@@ -296,13 +314,14 @@ int SocketSelect::Select(int _msec) {
 
 END:
 	//free eventarray and socketarray
-    index = 1;
+    index = eventfd_count;
 
     for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
         ASSERT2(WSACloseEvent(eventarray[index]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
         ++index;
     }
 
+    vec_events_.clear();
     free(eventarray);
     free(socketarray);
 
@@ -328,6 +347,10 @@ void SocketSelect::Exception_FD_SET(SOCKET _socket) {
     m_filter_map[_socket] |= (FD_CLOSE);
 }
 
+void SocketSelect::Event_FD_SET(WSAEVENT event){
+    vec_events_.push_back(event);
+}
+
 int SocketSelect::Read_FD_ISSET(SOCKET _socket) const {
     return FD_ISSET(_socket, &readfd_);
 }
@@ -338,6 +361,10 @@ int SocketSelect::Write_FD_ISSET(SOCKET _socket) const {
 
 int SocketSelect::Exception_FD_ISSET(SOCKET _socket) const {
     return FD_ISSET(_socket, &exceptionfd_);
+}
+
+bool SocketSelect::Event_FD_ISSET(WSAEVENT event){
+    return WaitForSingleObject(event, 0) == WAIT_OBJECT_0;
 }
 
 bool SocketSelect::IsException() const {
@@ -356,3 +383,5 @@ int SocketSelect::Errno() const {
     return errno_;
 }
 
+}
+}

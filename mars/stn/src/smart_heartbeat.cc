@@ -40,6 +40,8 @@
 #include "mars/stn/config.h"
 #include <algorithm>
 
+using namespace mars::comm;
+
 #define KV_KEY_SMARTHEART 11249
 
 static const std::string kFileName = "Heartbeat.ini";
@@ -54,6 +56,7 @@ static const char* const kKeyHeartType       = "hearttype";
 static const char* const kKeyMinHeartFail    = "minheartfail";
 
 SmartHeartbeat::SmartHeartbeat(): report_smart_heart_(NULL), is_wait_heart_response_(false), success_heart_count_(0), last_heart_(MinHeartInterval),
+    pre_heart_(MinHeartInterval), cur_heart_(MinHeartInterval),
     ini_(mars::app::GetAppFilePath() + "/" + kFileName, false)
     , doze_mode_count_(0), normal_mode_count_(0), noop_start_tick_(false) {
     xinfo_function();
@@ -76,19 +79,20 @@ void SmartHeartbeat::OnLongLinkEstablished() {
     xdebug_function();
     __LoadINI();
     success_heart_count_ = 0;
+    pre_heart_ = cur_heart_ = MinHeartInterval;
 }
 
 void SmartHeartbeat::OnLongLinkDisconnect() {
     xinfo_function();
 
     OnHeartResult(false, false);
+    current_net_heart_info_.succ_heart_count_ = 0;
 
     if (!current_net_heart_info_.is_stable_) {
 		xinfo2(TSF"%0 not stable last heart:%1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
 		return;
 	}
 
-    current_net_heart_info_.succ_heart_count_ = 0;
     last_heart_ = MinHeartInterval;
 }
 
@@ -102,13 +106,15 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
         report_smart_heart_(kActionDisconnect, current_net_heart_info_, _fail_of_timeout);
     }
     
-    xdebug2(TSF"heart result:%0, timeout:%1", _sucess, _fail_of_timeout);
+    xinfo2(TSF"heart result:%0, timeout:%1", _sucess, _fail_of_timeout);
+    pre_heart_ = cur_heart_;
+    cur_heart_ = last_heart_;
     is_wait_heart_response_ = false;
 
     xassert2(!current_net_heart_info_.net_detail_.empty(), "something wrong,net_detail_ shoudn't be NULL");
     if (current_net_heart_info_.net_detail_.empty()) return;
     if(_sucess) success_heart_count_ += 1;
-    if (success_heart_count_ < NetStableTestCount) {
+    if (success_heart_count_ <= NetStableTestCount) {
         current_net_heart_info_.min_heart_fail_count_ = _sucess ? 0 : (current_net_heart_info_.min_heart_fail_count_ + 1);
         if(report_smart_heart_ && current_net_heart_info_.min_heart_fail_count_ >= 6 && ::isNetworkConnected()) {
             report_smart_heart_(kActionBadNetwork, current_net_heart_info_, false);
@@ -123,10 +129,15 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
     }
     
     if(_sucess) {
-        current_net_heart_info_.succ_heart_count_ += 1;
-        current_net_heart_info_.fail_heart_count_ = 0;
+        if (last_heart_ == pre_heart_) {
+            current_net_heart_info_.succ_heart_count_ += 1;
+            current_net_heart_info_.fail_heart_count_ = 0;
+        }
     }
     else {
+        if(_fail_of_timeout) {
+            current_net_heart_info_.succ_heart_count_ = 0;
+        }
         current_net_heart_info_.fail_heart_count_ += 1;
     }
     
@@ -217,7 +228,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
 
 void SmartHeartbeat::JudgeDozeStyle() {
     
-    if(ActiveLogic::Singleton::Instance()->IsActive())  return;
+    if(ActiveLogic::Instance()->IsActive())  return;
     if(!noop_start_tick_.isValid()) return;
     if(kMobile != ::getNetInfo())   return;
     
@@ -233,13 +244,13 @@ void SmartHeartbeat::JudgeDozeStyle() {
 
 
 bool SmartHeartbeat::__IsDozeStyle() {
-    return ((doze_mode_count_ > (2*normal_mode_count_)) && kMobile == ::getNetInfo());
+    return doze_mode_count_ >= 2 && doze_mode_count_ > (2*normal_mode_count_);
 }
 
 unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //
     // xinfo_function();
     
-    if(ActiveLogic::Singleton::Instance()->IsActive()) {
+    if(ActiveLogic::Instance()->IsActive()) {
         last_heart_ = MinHeartInterval;
         return MinHeartInterval;
     }

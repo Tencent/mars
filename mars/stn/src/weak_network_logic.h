@@ -45,6 +45,7 @@ private:
     virtual ~WeakNetworkLogic();
     void __SignalForeground(bool _is_foreground);
     void __ReportWeakLogic(int _key, int _value, bool _is_important);
+    void __MarkWeak(bool _isWeak);
     
 private:
     tickcount_t first_mark_tick_;
@@ -53,6 +54,7 @@ private:
     unsigned int connect_after_weak_;
     tickcount_t last_connect_fail_tick_;
     tickcount_t last_connect_suc_tick_;
+    uint32_t cgi_fail_num_;
 };
     
 }

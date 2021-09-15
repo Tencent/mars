@@ -29,6 +29,9 @@
 #include "android/wakeuplock.h"
 #endif
 
+namespace mars {
+namespace comm {
+
 class Alarm {
   public:
     enum {
@@ -51,6 +54,7 @@ class Alarm {
         , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
 #ifdef ANDROID
         , wakelock_(NULL)
+        , type_(-1)
 #endif
     {
         xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
@@ -68,6 +72,7 @@ class Alarm {
         , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
 #ifdef ANDROID
         , wakelock_(NULL)
+        , type_(-1)
 #endif
     {
         xinfo2(TSF"handler:(%_,%_)", reg_async_.Get().queue, reg_async_.Get().seq);
@@ -84,7 +89,12 @@ class Alarm {
 #endif
     }
 
-    bool Start(int _after);  // ms
+#ifdef ANDROID
+    static void onAlarmImpl(int64_t _id);
+    void SetType(int _type) {type_ = _type;}
+#endif
+
+    bool Start(int _after, bool _needWake=true);  // ms
     bool Cancel();
 
     bool IsWaiting() const;
@@ -118,7 +128,9 @@ class Alarm {
     MessageQueue::ScopeRegister reg_;
 #ifdef ANDROID
     WakeUpLock*                 wakelock_;
+    int                         type_;
 #endif
 };
 
+}}
 #endif /* COMM_ALARM_H_ */

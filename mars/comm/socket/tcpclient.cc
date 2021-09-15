@@ -33,6 +33,9 @@
 #define strdup _strdup
 #endif
 
+namespace mars {
+namespace comm {
+
 TcpClient::TcpClient(const char* _ip, uint16_t _port, MTcpEvent& _event, int _timeout)
     : ip_(strdup(_ip)) , port_(_port) , event_(_event)
     , socket_(INVALID_SOCKET) , have_read_data_(false) , will_disconnect_(false) , writedbufid_(0)
@@ -166,7 +169,7 @@ void TcpClient::__Run() {
         return;
     }
 
-    if (::getNetInfo() == kWifi && socket_fix_tcp_mss(socket_) < 0) {
+    if (getNetInfo() == kWifi && socket_fix_tcp_mss(socket_) < 0) {
 #ifdef ANDROID
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
@@ -361,4 +364,7 @@ void TcpClient::__RunThread() {
 
 void TcpClient::__SendBreak() {
     pipe_.Break();
+}
+
+}
 }

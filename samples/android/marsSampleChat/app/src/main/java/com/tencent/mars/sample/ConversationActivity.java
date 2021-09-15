@@ -56,7 +56,7 @@ public class ConversationActivity extends AppCompatActivity {
 
     private static final String CONVERSATION_HOST = "marsopen.cn"; // using preset ports
 
-    private int conversationFilterType = Main.ConversationListRequest.DEFAULT;
+    private int conversationFilterType = Main.ConversationListRequest.FilterType.DEFAULT_VALUE;
 
     @BindView(R.id.conversation_list)
     RecyclerView conversationListView;
@@ -183,7 +183,7 @@ public class ConversationActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private NanoMarsTaskWrapper<Main.ConversationListRequest, Main.ConversationListResponse> taskGetConvList = null;
+    private NanoMarsTaskWrapper<Main.ConversationListRequest.Builder, Main.ConversationListResponse.Builder> taskGetConvList = null;
 
     /**
      * pull conversation list from server.
@@ -198,21 +198,21 @@ public class ConversationActivity extends AppCompatActivity {
 
         swipeRefreshLayout.setRefreshing(true);
 
-        taskGetConvList = new NanoMarsTaskWrapper<Main.ConversationListRequest, Main.ConversationListResponse>(
-                new Main.ConversationListRequest(),
-                new Main.ConversationListResponse()
+        taskGetConvList = new NanoMarsTaskWrapper<Main.ConversationListRequest.Builder, Main.ConversationListResponse.Builder>(
+                Main.ConversationListRequest.newBuilder(),
+                Main.ConversationListResponse.newBuilder()
         ) {
 
             private List<Conversation> dataList = new LinkedList<>();
 
             @Override
-            public void onPreEncode(Main.ConversationListRequest req) {
-                req.type = conversationFilterType;
-                req.accessToken = ""; // TODO:
+            public void onPreEncode(Main.ConversationListRequest.Builder req) {
+                req.setType(conversationFilterType);
+                req.setAccessToken(""); // TODO:
             }
 
             @Override
-            public void onPostDecode(Main.ConversationListResponse response) {
+            public void onPostDecode(Main.ConversationListResponse.Builder response) {
 
             }
 
@@ -223,8 +223,8 @@ public class ConversationActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (response != null) {
-                            for (Main.Conversation conv : response.list) {
-                                dataList.add(new Conversation(conv.name, conv.topic, conv.notice));
+                            for (Main.Conversation conv : response.getListList()) {
+                                dataList.add(new Conversation(conv.getName(), conv.getTopic(), conv.getNotice()));
                             }
                         }
 

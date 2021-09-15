@@ -23,26 +23,26 @@
 
 #include <list>
 #include <stdint.h>
+#include <set>
 
 #include "boost/function.hpp"
 
 #include "mars/comm/messagequeue/message_queue.h"
-#include "mars/comm/alarm.h"
 #include "mars/stn/stn.h"
 
-#include "longlink.h"
-#include "longlink_connect_monitor.h"
+#include "longlink_metadata.h"
 
 class AutoBuffer;
-class ActiveLogic;
 
 struct STChannelResp;
 
+namespace mars {
+namespace comm {
+class ActiveLogic;
 #ifdef ANDROID
 class WakeUpLock;
 #endif
-
-namespace mars {
+}
     namespace stn {
 
 struct TaskProfile;
@@ -53,60 +53,100 @@ class LongLinkTaskManager {
   public:
     boost::function<int (ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
 
-    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid)> fun_notify_retry_all_tasks;
-    boost::function<void (int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
+    boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const std::string& _user_id)> fun_notify_retry_all_tasks;
+    boost::function<void (const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> fun_notify_network_err_;
     boost::function<bool (const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     
-    boost::function<void (uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
+    boost::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
     
+    static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
+    static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
 
   public:
-    LongLinkTaskManager(mars::stn::NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeueid);
+    LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, int _channel);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
     void RedoTasks();
-    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
+    void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id);
 
-    LongLink& LongLinkChannel() { return *longlink_; }
-    LongLinkConnectMonitor& getLongLinkConnectMonitor() { return *longlinkconnectmon_; }
+    // LongLink& LongLinkChannel(const std::string& _name) { return *longlink_; }
+    // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
+    std::shared_ptr<LongLinkMetaData> GetLongLink(const std::string& _name);
+    std::shared_ptr<LongLinkMetaData> GetLongLinkNoLock(const std::string& _name);
+    void FixMinorRealhost(Task& _task);
 
-    unsigned int GetTaskCount();
+    unsigned int GetTaskCount(const std::string& _name);
     unsigned int GetTasksContinuousFailCount();
+
+    bool AddLongLink(LonglinkConfig& _config);
+    bool AddMinorLink(const std::vector<std::string>& _hosts);
+    bool IsMinorAvailable(const Task& _task);
+    
+    std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
+        comm::ScopedLock lock(meta_mutex_);
+        for(auto& item : longlink_metas_) {
+            if(item.second->Config().IsMain()) {
+                return item.second;
+            }
+        }
+        return nullptr;
+    }
+    void OnNetworkChange();
+    ConnectProfile GetConnectProfile(uint32_t _taskid);
+    void ReleaseLongLink(const std::string _name);
+    void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
+    bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+    void AddForbidTlsHost(const std::vector<std::string>& _host);
 
   private:
     // from ILongLinkObserver
-    void __OnResponse(ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);
+    void __OnResponse(const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _connect_profile);
     void __OnSend(uint32_t _taskid);
     void __OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize);
-    void __SignalConnection(LongLink::TLongLinkStatus _connect_status);
+    void __SignalConnection(LongLink::TLongLinkStatus _connect_status, const std::string& _channel_id);
+    void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
 
     void __RunLoop();
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __BatchErrorRespHandle(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, const ConnectProfile& _connect_profile, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandle(const std::string _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile);
+    void __BatchErrorRespHandleByUserId(const std::string& _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
 
     std::list<TaskProfile>::iterator __Locate(uint32_t  _taskid);
+#ifdef __APPLE__
+    void __ResetLongLink(const std::string& _name);
+#endif
+    void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
+    void __RedoTasks(const std::string& _name);
+    void __DumpLongLinkChannelInfo();
+    bool __ForbidUseTls(const std::vector<std::string>& _host_list);
 
   private:
-    MessageQueue::ScopeRegister     asyncreg_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
     uint64_t                        lastbatcherrortime_;   // ms
     unsigned long                   retry_interval_;	//ms
     unsigned int                    tasks_continuous_fail_count_;
 
-    LongLink*                       longlink_;
-    LongLinkConnectMonitor*         longlinkconnectmon_;
+    std::map<std::string, std::shared_ptr<LongLinkMetaData> > longlink_metas_;
+    std::map<std::string, int>      longlink_id_;
     DynamicTimeout&                 dynamic_timeout_;
 
+    NetSource&                      netsource_;
+    comm::ActiveLogic&              active_logic_;
+
 #ifdef ANDROID
-    WakeUpLock*                     wakeup_lock_;
+    comm::WakeUpLock*                     wakeup_lock_;
 #endif
+    comm::Mutex                     meta_mutex_;
+    comm::Mutex                     mutex_;
+    static std::set<std::string>    forbid_tls_host_;
 };
     }
 }

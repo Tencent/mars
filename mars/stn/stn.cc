@@ -19,9 +19,9 @@
 //
 
 #include "mars/stn/stn.h"
-
+#include "mars/boost/config.hpp"
 #include "mars/comm/thread/atomic_oper.h"
-
+static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
 namespace mars{
     namespace stn{
@@ -35,6 +35,7 @@ Task::Task(uint32_t _taskid) {
     cmdid = 0;
     channel_id = 0;
     channel_select = 0;
+    transport_protocol = kTransportProtocolTCP;
     
     send_only = false;
     need_authed = false;
@@ -47,9 +48,20 @@ Task::Task(uint32_t _taskid) {
     
     retry_count = -1;
     server_process_cost = -1;
-    total_timetout = -1;
+    total_timeout = -1;
     user_context = NULL;
+    long_polling = false;
+    long_polling_timeout = -1;
+    
+    channel_name=DEFAULT_LONGLINK_NAME;
+    max_minorlinks = 1;
+}
 
+uint32_t GenTaskID(){
+    if (BOOST_UNLIKELY(atomic_read32(&gs_taskid) >= kReservedTaskIDStart)) {
+        atomic_write32(&gs_taskid, 1);
+    }
+    return atomic_inc32(&gs_taskid);
 }
         
     }

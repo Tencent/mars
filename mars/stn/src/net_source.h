@@ -34,8 +34,6 @@
 
 #include "simple_ipport_sort.h"
 
-class ActiveLogic;
-
 namespace mars {
     namespace stn {
 
@@ -49,8 +47,8 @@ class NetSource {
         ~DnsUtil();
         
     public:
-        DNS& GetNewDNS() {	return new_dns_;}
-        DNS& GetDNS() {	return dns_;}
+        comm::DNS& GetNewDNS() {	return new_dns_;}
+        comm::DNS& GetDNS() {	return dns_;}
 
         void Cancel(const std::string& host = "");
         
@@ -59,9 +57,12 @@ class NetSource {
         DnsUtil& operator=(const DnsUtil&);
         
     private:
-        DNS new_dns_;
-        DNS dns_;
+        comm::DNS new_dns_;
+        comm::DNS dns_;
     };
+
+  public:
+    boost::function<bool ()> fun_need_use_IPv6_;
 
   public:
     //set longlink host and ports
@@ -86,12 +87,12 @@ class NetSource {
     static std::string DumpTable(const std::vector<IPPortItem>& _ipport_items);
     
   public:
-    NetSource(ActiveLogic& _active_logic);
+    NetSource(comm::ActiveLogic& _active_logic);
     ~NetSource();
 
   public:
     // for long link
-    bool GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
+    bool GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::vector<std::string>& _host_list);
 
     // for short link
     bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
@@ -108,6 +109,9 @@ class NetSource {
     bool GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec);
     void ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec);
 
+    bool CanUseIPv6FromIpStrategy() {return ipportstrategy_.CanUseIPv6();}
+
+
   private:
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
@@ -119,7 +123,7 @@ class NetSource {
     size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string& _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink);
 
   private:
-    ActiveLogic&        active_logic_;
+    comm::ActiveLogic&  active_logic_;
     SimpleIPPortSort    ipportstrategy_;
 };
         

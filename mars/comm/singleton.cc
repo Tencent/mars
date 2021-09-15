@@ -14,6 +14,8 @@
 
 #include "comm/singleton.h"
 
+using namespace mars::comm;
+
 namespace design_patterns {
 
 static Mutex sg_singleton_mutex;

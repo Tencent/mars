@@ -31,11 +31,17 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 
 #define ACTIVE_SYNC_INTERVAL (90*1000)
 #define UNLOGIN_SYNC_INTERVAL (4*60*1000)
 #define INACTIVE_SYNC_INTERVAL (10*60*1000)
 #define NONET_SALT_RATE  (3)
+
+
+#ifdef __ANDROID__
+static const int kAlarmType = 105;
+#endif
 
 
 static int GetAlarmTime(bool _is_actived)
@@ -64,6 +70,9 @@ TimingSync::TimingSync(ActiveLogic& _active_logic)
 , active_logic_(_active_logic)
 {
     timing_sync_active_connection_ = _active_logic.SignalActive.connect(boost::bind(&TimingSync::OnActiveChanged, this, _1));
+#ifdef __ANDROID__
+    alarm_.SetType(kAlarmType);
+#endif
     alarm_.Start(GetAlarmTime(active_logic_.IsActive()));
 }
 
@@ -91,7 +100,7 @@ void TimingSync::OnNetworkChange()
     }
 }
 
-void TimingSync::OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status)
+void TimingSync::OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id)
 {
     xverbose_function();
     if (_status == LongLink::kConnected)

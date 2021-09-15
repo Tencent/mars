@@ -31,7 +31,12 @@ except KeyError as identifier:
 
 BUILD_OUT_PATH = 'cmake_build/Android'
 ANDROID_LIBS_INSTALL_PATH = BUILD_OUT_PATH + '/'
-ANDROID_BUILD_CMD = 'cmake "%s" %s -DANDROID_ABI="%s" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake -DANDROID_TOOLCHAIN=gcc -DANDROID_NDK=%s -DANDROID_PLATFORM=android-14 -DANDROID_STL="c++_shared" && cmake --build . %s --config Release -- -j8'
+ANDROID_BUILD_CMD = 'cmake "%s" %s -DANDROID_ABI="%s" ' \
+                    '-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake ' \
+                    '-DANDROID_TOOLCHAIN=clang -DANDROID_NDK=%s ' \
+                    '-DANDROID_PLATFORM=android-21 ' \
+                    '-DANDROID_STL="c++_shared" ' \
+                    '&& cmake --build . %s --config Release -- -j8'
 ANDROID_SYMBOL_PATH = 'libraries/mars_android_sdk/obj/local/'
 ANDROID_LIBS_PATH = 'libraries/mars_android_sdk/libs/'
 ANDROID_XLOG_SYMBOL_PATH = 'libraries/mars_xlog_sdk/obj/local/'
@@ -142,11 +147,11 @@ def main(incremental, archs, target_option='', tag=''):
 
     gen_mars_revision_file(SCRIPT_PATH + '/comm', tag)
 
-    if os.path.exists(ANDROID_LIBS_PATH):
-        shutil.rmtree(ANDROID_LIBS_PATH)
+    # if os.path.exists(ANDROID_LIBS_PATH):
+    #     shutil.rmtree(ANDROID_LIBS_PATH)
 
-    if os.path.exists(ANDROID_SYMBOL_PATH):
-        shutil.rmtree(ANDROID_SYMBOL_PATH)
+    # if os.path.exists(ANDROID_SYMBOL_PATH):
+    #     shutil.rmtree(ANDROID_SYMBOL_PATH)
 
     for arch in archs:
         if not build_android(incremental, arch, target_option):
@@ -160,7 +165,7 @@ if __name__ == '__main__':
             main(False, archs, tag=sys.argv[1])
             break
         else:
-            archs = set(['armeabi'])
+            archs = {'armeabi-v7a', 'arm64-v8a'}
             num = raw_input('Enter menu:\n1. Clean && build mars.\n2. Build incrementally mars.\n3. Clean && build xlog.\n4. Exit\n')
             if num == '1':
                 main(False, archs)
@@ -169,7 +174,7 @@ if __name__ == '__main__':
                 main(True, archs)
                 break
             elif num == '3':
-                main(False, archs, '--target marsxlog')
+                main(False, archs, '--target libzstd_static marsxlog')
                 break
             elif num == '4':
                 break

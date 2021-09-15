@@ -42,8 +42,9 @@ int socket_set_nobio(SOCKET fd) {
 #ifdef _WIN32
 #include <string.h>
 #include <windows.h>
-#include <WS2tcpip.h>
+#include <ws2tcpip.h>
 #include <stdio.h>
+#include "windows/VersionHelpers.h"
 #define NS_INADDRSZ 4
 typedef unsigned int uint32;
 typedef int int32;
@@ -189,6 +190,11 @@ static int socket_inet_pton6(const char* src, void* dst) {
   return 1;
 }
 int socket_inet_pton(int af, const char *src, void *dst) {
+    // if (IsWindows7OrGreater()){
+    //   return inet_pton(af, src, dst);
+    // }
+    
+    // for OS below WINDOWS 7
     switch (af) {
     case AF_INET :
         return socket_inet_pton4 (src, dst);
@@ -307,16 +313,26 @@ static const char* inet_ntop_v6(const void* src, char* dst, socklen_t size) {
   return dst;
 }
 const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int size) {
+    // if (IsWindows7OrGreater()){
+    //   return inet_ntop(af, (PVOID)src, dst, size);
+    // }
+
+  // for OS below WINDOWS 7
     switch (af) {
     case AF_INET :
         return inet_ntop_v4 (src, dst, size);
-	case AF_INET6 :
+	  case AF_INET6 :
         return inet_ntop_v6 (src, dst, size);		
     default :
         //xerror("EAFNOSUPPORT");
         return NULL;
     }
 }
+
+int __win_closesocket(SOCKET s){
+    return closesocket(s);
+}
+
 #endif
 
 //not support in windows
@@ -365,6 +381,15 @@ int socket_isnonetwork(int error) {
 
 int socket_reuseaddr(SOCKET sock, int optval) {
     return setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval , sizeof(int));
+}
+
+int socket_reserve_sendbuf(SOCKET sock, uint32_t buflen){
+    uint32_t prevsize = 0;
+    socklen_t prevlen = sizeof(prevsize);
+    int rv = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, &prevsize, &prevlen);
+    if (rv != 0 || prevsize >= buflen)    return rv;
+    
+    return setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (const char*)&buflen, sizeof(buflen));
 }
 
 int socket_get_nwrite(SOCKET _sock, int* _nwriteLen) {

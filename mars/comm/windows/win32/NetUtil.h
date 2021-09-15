@@ -13,8 +13,15 @@
 
 #include <string>
 
+namespace mars{
+    namespace comm{
+        
+
 bool getProxyInfoImpl(int& port, std::string& strProxy, const std::string& _host);
 
 bool isNetworkConnectedImpl();
 
 DWORD getNetworkStatus();
+
+    }
+}

@@ -12,7 +12,6 @@ obj/
 xcuserdata
 xcshareddata
 
-/mars/comm/verinfo.h
 /mars/libraries/*/
 /mars/*/libs/
 !/mars/boost/libs/
@@ -115,3 +114,4 @@ Debug-iphonesimulator
 *.build
 cmake_build
 *.settings
+mars/cmake-build-debug

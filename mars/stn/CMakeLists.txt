@@ -15,6 +15,7 @@ include_directories(..)
 include_directories(../..)
 include_directories(../comm)
 include_directories(../../..)
+include_directories(../openssl/include)
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/*.cc src/*.h)
 source_group(src FILES ${SELF_TEMP_SRC_FILES})
@@ -35,6 +36,4 @@ elseif(ANDROID)
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 endif()
 
-add_library(${PROJECT_NAME} STATIC ${SELF_SRC_FILES})
-
-install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${CMAKE_SYSTEM_NAME}.out)
+BuildWithUnitTest("${PROJECT_NAME}" "${SELF_SRC_FILES}")

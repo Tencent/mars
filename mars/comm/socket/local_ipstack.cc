@@ -273,7 +273,7 @@ static void __local_info(std::string& _log) {
     }
     
     std::vector<socket_address> dnssvraddrs;
-    getdnssvraddrs(dnssvraddrs);
+    mars::comm::getdnssvraddrs(dnssvraddrs);
     if (!dnssvraddrs.empty()) {
         for (size_t i = 0; i < dnssvraddrs.size(); ++i) {
             if (AF_INET == dnssvraddrs[i].address().sa_family) {
@@ -315,8 +315,132 @@ static void __local_info(std::string& _log) {
     _log += detail_net_info.Message();
 }
 
-#else
+
+
+
+
+#elif defined(_WIN32)
 #include <string>
+#include <WS2tcpip.h>
+#include <winsock.h>
+#include <Iphlpapi.h>
+#include <WinSock2.h>
+
+#pragma comment(lib,"Ws2_32.lib")
+#pragma comment(lib,"Iphlpapi.lib")
+
+static bool GetWinV4GateWay() {
+	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
+	ULONG outBufLen = 0;
+	DWORD dwRetVal = 0;
+	char buff[100];
+	DWORD bufflen = 100;
+    bool result = false;
+
+	GetAdaptersAddresses(AF_UNSPEC, 0, NULL, pAddresses, &outBufLen);
+
+	pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+
+	if ((dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen)) == NO_ERROR) {
+
+		while (pAddresses) {
+			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pAddresses->FirstGatewayAddress;
+			if (gateway) {
+
+				SOCKET_ADDRESS gateway_address = gateway->Address;
+				if (gateway->Address.lpSockaddr->sa_family == AF_INET)
+				{
+					sockaddr_in *sa_in = (sockaddr_in *)gateway->Address.lpSockaddr;
+					xinfo2(TSF"gateway IPV4: %_", inet_ntop(AF_INET, &(sa_in->sin_addr), buff, bufflen));
+					struct sockaddr_in addr;
+					if (inet_pton(AF_INET, buff, &addr.sin_addr) == 1) {
+						xinfo2(TSF"this is true v4 !"); 
+                        result = true;
+					}
+				}
+			}
+			pAddresses = pAddresses->Next;
+		}
+	}
+	else {
+		xinfo2("ipv4 stack detect GetAdaptersAddresses failed.");
+	}
+	free(pAddresses);
+	return result;
+}
+
+
+static bool GetWinV6GateWay() {
+	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
+	ULONG outBufLen = 0;
+	DWORD dwRetVal = 0;
+	char buff[100];
+	DWORD bufflen = 100;
+    bool result = false;
+
+	GetAdaptersAddresses(AF_UNSPEC, 0, NULL, pAddresses, &outBufLen);
+
+	pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+
+	if ((dwRetVal = GetAdaptersAddresses(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen)) == NO_ERROR) {
+
+		while (pAddresses) {
+			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pAddresses->FirstGatewayAddress;
+			if (gateway) {
+
+				SOCKET_ADDRESS gateway_address = gateway->Address;
+				if (gateway->Address.lpSockaddr->sa_family == AF_INET6)
+				{
+					sockaddr_in6 *sa_in6 = (sockaddr_in6 *)gateway->Address.lpSockaddr;
+					xinfo2(TSF"gateway IPV6: %_", inet_ntop(AF_INET6, &(sa_in6->sin6_addr), buff, bufflen));
+					struct sockaddr_in6 addr6;
+					if (inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
+						std::string v6_s(buff);
+						if (v6_s == "::") {
+							xwarn2("the v6 is fake!");
+						} else {
+                            result = true;
+                        }
+					}
+				}
+			}
+			pAddresses = pAddresses->Next;
+		}
+	}
+	else {
+		xinfo2("ipv6 stack detect GetAdaptersAddresses failed.");
+	}
+	free(pAddresses);
+	return result;
+}
+
+
+TLocalIPStack __local_ipstack_detect(std::string& _log) {
+    sockaddr_storage v4_addr = {0};
+    sockaddr_storage v6_addr = {0};
+    bool have_ipv4 = GetWinV4GateWay();
+    bool have_ipv6 = GetWinV6GateWay();
+    int local_stack = 0;
+    if (have_ipv4) { local_stack |= ELocalIPStack_IPv4; }
+    if (have_ipv6) { local_stack |= ELocalIPStack_IPv6; }
+    
+    xinfo2(TSF"__local_ipstack_detect result v6 %_, v4 %_ ", have_ipv6, have_ipv4);
+
+    return (TLocalIPStack)local_stack;
+}
+
+TLocalIPStack local_ipstack_detect() {
+    xinfo2(TSF"windows start to detect local stack");
+    std::string log;
+    return __local_ipstack_detect(log);
+}
+TLocalIPStack local_ipstack_detect_log(std::string& _log) {
+	_log = "no implement";
+   return local_ipstack_detect();
+}
+
+#else
+
 TLocalIPStack local_ipstack_detect() {
     return ELocalIPStack_IPv4;
 }
@@ -326,21 +450,3 @@ TLocalIPStack local_ipstack_detect_log(std::string& _log) {
 }
 
 #endif //__APPLE__
-
-//TIPNetworkType IPNetworkTypeDetect_Gateway() {
-//    in6_addr addr6_gateway = {0};
-//    if (0 != getdefaultgateway6(&addr6_gateway))
-//        return EIPv4;
-//    
-//    if (IN6_IS_ADDR_UNSPECIFIED(&addr6_gateway))
-//        return EIPv4;
-//    
-//    in_addr addr_gateway = {0};
-//    if (0 != getdefaultgateway(&addr_gateway))
-//        return EIPv6;
-//    
-//    if (INADDR_NONE == addr_gateway.s_addr || INADDR_ANY == addr_gateway.s_addr )
-//        return EIPv6;
-//    
-//    return EIPv46;
-//}

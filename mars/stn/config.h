@@ -37,8 +37,8 @@
 #define HeartStep (60 * 1000)      // try to increse current heartbeat by HeartStep
 #define SuccessStep  (20 * 1000)   // when finish compute choose successHeart-=SuccessStep as the stable heartbeat
 
-#define MaxHeartFailCount (3)
-#define BaseSuccCount (3)
+#define MaxHeartFailCount (2)
+#define BaseSuccCount (5)
 #define NetStableTestCount (3)     //We think it's time to test after NetStableCount times heartbeat using MinHeartInterval
 
 //signalling transmits timeout related constants

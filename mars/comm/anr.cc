@@ -132,7 +132,7 @@ static void __anr_checker_thread() {
             if (use_cpu_time_2>=use_cpu_time_1) {
                 it->used_cpu_time += (use_cpu_time_2-use_cpu_time_1);
             } else {
-                xassert2(false, TSF"use_cpu_time_2:%_, use_cpu_time_1:%_, use_cpu_clock_2:%_, use_cpu_clock_1:%_, CLOCKS_PER_SEC:%_", use_cpu_time_2, use_cpu_time_1,
+                xerror2(TSF"use_cpu_time_2:%_, use_cpu_time_1:%_, use_cpu_clock_2:%_, use_cpu_clock_1:%_, CLOCKS_PER_SEC:%_", use_cpu_time_2, use_cpu_time_1,
                          use_cpu_clock_2, use_cpu_clock_1, CLOCKS_PER_SEC);
             }
         }

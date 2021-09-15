@@ -14,6 +14,7 @@ COMM_COPY_HEADER_FILES = {
             "mars/comm/string_cast.h": "comm",
             "mars/comm/comm_data.h": "comm",
             "mars/comm/projdef.h": "comm",
+            "mars/comm/platform_comm.h": "comm",
             "mars/comm/socket/local_ipstack.h": "comm",
             "mars/comm/socket/nat64_prefix_util.h": "comm",
             "mars/comm/has_member.h" : "comm",
@@ -27,12 +28,14 @@ COMM_COPY_HEADER_FILES = {
             "mars/comm/xlogger/xloggerbase.h": "xlog",
             "mars/comm/xlogger/xlogger.h": "xlog",
             "mars/log/appender.h": "xlog",
+            "mars/log/xlogger_interface.h": "xlog",
             "mars/app/app.h": "app",
             "mars/app/app_logic.h": "app",
             "mars/sdt/sdt.h": "sdt",
             "mars/sdt/sdt_logic.h": "sdt",
             "mars/sdt/constants.h": "sdt",
             "mars/sdt/netchecker_profile.h": "sdt",
+            "mars/stn/proto/longlink_packer.h": "stn/proto",
             }        
 
 
@@ -41,6 +44,7 @@ WIN_COPY_EXT_FILES = {
             "mars/comm/windows/projdef.h": "comm/windows",
             "mars/comm/windows/sys/cdefs.h": "comm/windows/sys",
             "mars/comm/windows/sys/time.h": "comm/windows/sys",
+            "mars/comm/platform_comm.h": "comm",
 }
 
 UNIX_COPY_EXT_FILES = {
@@ -66,15 +70,26 @@ XLOG_COPY_HEADER_FILES = {
             "mars/comm/xlogger/xloggerbase.h": "xlog",
             "mars/comm/xlogger/xlogger.h": "xlog",
             "mars/log/appender.h": "xlog",
+            "mars/log/xlogger_interface.h": "xlog",
             }      
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    
 def libtool_libs(src_libs, dst_lib):
     src_lib_str = ''
     for l in src_libs:
         src_lib_str = '%s %s'%(src_lib_str, l)
 
     print(src_lib_str)
-    ret = os.system('libtool -static -o %s %s' %(dst_lib, src_lib_str))
+    ret = os.system('libtool -static -no_warning_for_no_symbols -o %s %s' %(dst_lib, src_lib_str))
     if ret != 0:
         print('!!!!!!!!!!!libtool %s fail!!!!!!!!!!!!!!!' %(dst_lib))
         return False
@@ -136,6 +151,19 @@ def remove_cmake_files(path):
         os.remove(f)
     for f in glob.glob(path + '/*.so'):
         os.remove(f)
+
+def clean_except(path, except_list):
+    for fpath, dirs, fs in os.walk(path):
+        in_except = False
+        for exc in except_list:
+            if exc in fpath:
+                in_except = True
+                break
+        if not in_except:
+            remove_cmake_files(fpath)
+
+    if not os.path.exists(path):
+        os.makedirs(path)    
 
 
 def clean(path, incremental=False):
@@ -244,10 +272,10 @@ def check_ndk_env():
         print("Error: parse source.properties fail")
         return False
 
-    if ndk_revision[:4] >= "16.1" and ndk_revision[:4] < '16.2':
+    if ndk_revision[:4] >= "16.1":
         return True
 
-    print("Error: make sure ndk's version == r16b")
+    print("Error: make sure ndk's version >= r16b")
     return False
 
 html_css = '''
@@ -355,6 +383,12 @@ def check_vs_env():
     if not vs_tool_dir:
         print("You must install visual studio 2015 for build.")
         return False
+
+    print('vs.dir: ' + vs_tool_dir)
+    envbat = vs_tool_dir + "../../vc/vcvarsall.bat"
+    print('vsvar.dir: ' + envbat)
+    p = subprocess.Popen(envbat)
+    p.wait()
     
     return True
     

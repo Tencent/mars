@@ -26,6 +26,7 @@ import com.tencent.mars.sample.wrapper.service.DebugMarsServiceProfile;
 import com.tencent.mars.sample.wrapper.service.MarsServiceNative;
 import com.tencent.mars.sample.wrapper.service.MarsServiceProfile;
 import com.tencent.mars.sample.wrapper.service.MarsServiceProfileFactory;
+import com.tencent.mars.stn.StnLogic;
 import com.tencent.mars.xlog.Log;
 import com.tencent.mars.xlog.Xlog;
 
@@ -69,6 +70,8 @@ public class SampleApplicaton extends Application {
             }
         });
 
+        // temporary fix: ip is invalid, ip:127.0.0.1. it will be remove in future.
+//        StnLogic.setDebugIP("localhost", "127.0.0.1");
         // NOTE: MarsServiceProxy is for client/caller
         // Initialize MarsServiceProxy for local client, can be moved to other place
         MarsServiceProxy.init(this, getMainLooper(), null);
@@ -111,14 +114,17 @@ public class SampleApplicaton extends Application {
 
         String logFileName = processName.indexOf(":") == -1 ? "MarsSample" : ("MarsSample_" + processName.substring(processName.indexOf(":") + 1));
 
+        int level;
+        Xlog xlog = new Xlog();
         if (BuildConfig.DEBUG) {
-            Xlog.appenderOpen(Xlog.LEVEL_VERBOSE, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
-            Xlog.setConsoleLogOpen(true);
+            level = Xlog.LEVEL_VERBOSE;
+            xlog.setConsoleLogOpen(0, true);
         } else {
-            Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName, 0, "");
-            Xlog.setConsoleLogOpen(false);
+            level = Xlog.LEVEL_INFO;
+            xlog.setConsoleLogOpen(0, false);
         }
-        Log.setLogImp(new Xlog());
+        xlog.appenderOpen(level, Xlog.AppednerModeAsync, "", logPath, logFileName, 0);
+        Log.setLogImp(xlog);
     }
 
     public static Context getContext() {

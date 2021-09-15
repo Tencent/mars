@@ -129,7 +129,7 @@ class HeaderFields {
     // HeaderFields& operator=(const HeaderFields&);
 
   public:
-    static std::pair<const std::string, std::string> MakeContentLength(int _len);
+    static std::pair<const std::string, std::string> MakeContentLength(uint64_t _len);
     static std::pair<const std::string, std::string> MakeTransferEncodingChunked();
     static std::pair<const std::string, std::string> MakeConnectionClose();
     static std::pair<const std::string, std::string> MakeConnectionKeepalive();
@@ -157,21 +157,25 @@ class HeaderFields {
     static const char* const KStringLocation;
     static const char* const KStringReferer;
     static const char* const kStringServer;
+    static const char* const KStringKeepalive;
 
     void HeaderFiled(const char* _name, const char* _value);
     void HeaderFiled(const std::pair<const std::string, std::string>& _headerfield);
     void InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield);
-    void HeaderFiled(const HeaderFields& _headerfields);
+    void Manipulate(const std::pair<const std::string, std::string>& _headerfield);
     const char* HeaderField(const char* _key) const;
+    void CopyFrom(const HeaderFields& rhs);
     std::map<const std::string, std::string, less>& GetHeaders() {return headers_;}
     std::list<std::pair<const std::string, const std::string>> GetAsList() const;
 
     bool IsTransferEncodingChunked() const;
     bool IsConnectionClose() const;
-    int ContentLength() const ;
+    bool IsConnectionKeepAlive() const;
+    uint64_t ContentLength() const ;
+    uint32_t KeepAliveTimeout() const;
 
     bool Range(long& _start, long& _end) const;
-    bool ContentRange(int* start, int* end, int* total) const;
+    bool ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const;
 
     const std::string ToString() const;
 
@@ -315,7 +319,7 @@ class Parser {
     Parser& operator=(const Parser&);
 
   public:
-    TRecvStatus Recv(const void* _buffer, size_t _length, size_t* consumed_bytes = nullptr);
+    TRecvStatus Recv(const void* _buffer, size_t _length, size_t* consumed_bytes = nullptr, bool only_parse_header = false);
     TRecvStatus Recv(AutoBuffer& _recv_buffer);
     TRecvStatus RecvStatus() const;
 

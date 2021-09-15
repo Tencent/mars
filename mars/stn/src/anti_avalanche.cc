@@ -50,7 +50,7 @@ bool AntiAvalanche::Check(const Task& _task, const void* _buffer, int _len) {
     	return false;
     }
 
-    if (kMobile == getNetInfo() && !flow_limit_->Check(_task, _buffer, _len)) {
+    if (comm::kMobile == comm::getNetInfo() && !flow_limit_->Check(_task, _buffer, _len)) {
     	ReportTaskLimited(kFlowLimit, _task, (unsigned int&)_len);
 		return false;
     }

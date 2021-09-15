@@ -3,7 +3,7 @@ if(ANDROID)
     set(SELF_EXTRA_FLAGS "-Werror -Wall -Werror=sign-compare -Wtype-limits -Wuninitialized -Wempty-body")
 
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-       set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wconsumed -Wno-error=char-subscripts -Wno-error=gnu-designator -Wno-error=unused-variable") 
+       set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wconsumed -Wno-error=char-subscripts -Wno-error=gnu-designator -Wno-error=unused-variable -Wno-error=missing-braces") 
     else()
         set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wclobbered")
     endif()
@@ -16,5 +16,7 @@ if(ANDROID)
 elseif(APPLE)
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall")
 
-
+elseif(MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4003 /wd4819 /wd4996 /wd4244 /wd4101 /wd4200 /wd4800 /wd4005 /wd4334")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4003 /wd4819 /wd4996 /wd4244 /wd4101 /wd4200 /wd4800 /wd4005 /wd4334")
 endif()

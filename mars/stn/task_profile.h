@@ -29,6 +29,7 @@
 #include "mars/comm/comm_data.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/config.h"
+#include "mars/comm/socket/unix_socket.h"
 
 namespace mars {
 namespace stn  {
@@ -95,6 +96,8 @@ struct ConnectProfile {
         local_ip.clear();
         local_port = 0;
         ip_index = -1;
+        transport_protocol = Task::kTransportProtocolTCP;
+        link_type = Task::kChannelLong;
         
         disconn_time = 0;
         disconn_errtype = kEctOK;
@@ -106,6 +109,23 @@ struct ConnectProfile {
         noop_profiles.clear();
         if (extension_ptr)
         		extension_ptr->Reset();
+        socket_fd = INVALID_SOCKET;
+        keepalive_timeout = 0;
+        is_reused_fd = false;
+        req_byte_count = 0;
+        cgi.clear();
+        ipv6_connect_failed = false;
+
+        start_connect_time = 0;
+        connect_successful_time = 0;
+        start_tls_handshake_time = 0;
+        tls_handshake_successful_time = 0;
+        start_send_packet_time = 0;
+        start_read_packet_time = 0;
+        read_packet_finished_time = 0;
+		
+        tls_handshake_mismatch = false;
+        tls_handshake_success = false;
     }
     
     std::string net_type;
@@ -132,6 +152,8 @@ struct ConnectProfile {
     std::string local_ip;
     uint16_t local_port;
     int ip_index;
+    int transport_protocol;
+    int link_type;
     
     uint64_t disconn_time;
     ErrCmdType disconn_errtype;
@@ -144,6 +166,31 @@ struct ConnectProfile {
 
     boost::shared_ptr<ProfileExtension> extension_ptr;
     mars::comm::ProxyInfo proxy_info;
+
+    //keep alive config
+    SOCKET socket_fd;
+    int (*closefunc)(SOCKET) = &socket_close;
+    SOCKET (*createstream_func)(SOCKET) = nullptr;
+    bool (*issubstream_func)(SOCKET) = nullptr;
+    uint32_t keepalive_timeout;
+    bool is_reused_fd;
+    int local_net_stack;
+    uint64_t req_byte_count;
+    std::string cgi; 
+    bool ipv6_connect_failed;
+    //opreator identify
+    std::string connection_identify;
+    bool tls_handshake_mismatch;
+    bool tls_handshake_success;
+	
+	//for cgi caller
+    uint64_t start_connect_time;
+    uint64_t connect_successful_time;
+    uint64_t start_tls_handshake_time;
+    uint64_t tls_handshake_successful_time;
+    uint64_t start_send_packet_time;
+    uint64_t start_read_packet_time;
+    uint64_t read_packet_finished_time;
 };
 
         
@@ -172,7 +219,7 @@ struct TransferProfile {
         error_code = 0;
     }
     
-    const Task& task;
+    const Task task; //change "const Task& task" to "const Task task". fix a memory reuse bug.
     ConnectProfile connect_profile;
     
     uint64_t loop_start_task_time;  // ms
@@ -222,9 +269,12 @@ struct TaskProfile {
         trycount++;
         
         uint64_t task_timeout = (readwritetimeout + 5 * 1000) * trycount;
+        if (_task.long_polling) {
+            task_timeout = (_task.long_polling_timeout + 5 * 1000);
+        }
         
-        if (0 < _task.total_timetout &&  (uint64_t)_task.total_timetout < task_timeout)
-            task_timeout = _task.total_timetout;
+        if (0 < _task.total_timeout &&  (uint64_t)_task.total_timeout < task_timeout)
+            task_timeout = _task.total_timeout;
         
         return  task_timeout;
     }
@@ -250,6 +300,7 @@ struct TaskProfile {
         err_type = kEctOK;
         err_code = 0;
         link_type = 0;
+        allow_sessiontimeout_retry = true;
     }
     
     void InitSendParam() {
@@ -273,7 +324,7 @@ struct TaskProfile {
         return kStepOther;
     }
 
-    const Task task;
+    Task task;
     TransferProfile transfer_profile;
     intptr_t running_id;
     
@@ -296,8 +347,10 @@ struct TaskProfile {
     ErrCmdType err_type;
     int err_code;
     int link_type;
+    bool allow_sessiontimeout_retry;
 
     std::vector<TransferProfile> history_transfer_profiles;
+    std::string channel_name;
 };
         
 

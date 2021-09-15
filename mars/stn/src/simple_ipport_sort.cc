@@ -29,12 +29,15 @@
 #include "boost/bind.hpp"
 #include "boost/accumulators/numeric/functional.hpp"
 
+#include "mars/comm/socket/unix_socket.h"
 
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/platform_comm.h"
 
 #include "mars/app/app.h"
+
+using namespace mars::comm;
 
 #define IPPORT_RECORDS_FILENAME "/ipportrecords2.xml"
 
@@ -100,7 +103,10 @@ namespace mars { namespace stn {
 using namespace mars::stn;
 
 SimpleIPPortSort::SimpleIPPortSort()
-: hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName) {
+: hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName)
+, IPv6_ban_flag_(0)
+, IPv4_ban_flag_(0) 
+, ban_v6_(false) {
         
     if (!boost::filesystem::exists(hostpath_)){
         boost::filesystem::create_directory(hostpath_);
@@ -298,6 +304,7 @@ bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
 }
 
 void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip, unsigned short _port) {
+    __UpdateBanFlagAndTime(_ip, _is_success);
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             SET_BIT(!_is_success, iter->records);
@@ -320,6 +327,62 @@ void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip,
         item.last_fail_time.gettickcount();
     
     _ban_fail_list_.push_back(item);
+}
+
+
+static int DecToBin(int _dec) {
+	int result = 0, temp = _dec, j = 1;
+	while(temp) {
+		result = result + j * (temp % 2);
+		temp /= 2;
+		j = j * 10;
+	}
+	return result;
+}
+
+void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _success) {
+    if (__IsIPv6(_ip)) {
+        if (_success) {
+            SET_BIT(0, IPv6_ban_flag_);
+        } else {
+            SET_BIT(1, IPv6_ban_flag_);
+        }
+        IPv6_ban_flag_ &= 0x7F;
+        if (__BanTimes(IPv6_ban_flag_) >= 3) {
+            ban_v6_ = true;
+        }
+    } else {
+        if (_success) {
+            SET_BIT(0, IPv4_ban_flag_);
+        } else {
+            SET_BIT(1, IPv4_ban_flag_);
+        }
+        IPv4_ban_flag_ &= 0x7F;
+        if (__BanTimes(IPv4_ban_flag_) >= 3) {
+            ban_v6_ = false;
+        }
+    }
+    xdebug2(TSF"ip is %_, success is %_ , current v6 flag %_ , current v4 flag %_", _ip, _success, DecToBin(IPv6_ban_flag_), DecToBin(IPv4_ban_flag_));
+}
+
+int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
+    int ban_times = 0;
+    uint8_t tmp_v6 = _flag;
+    while (tmp_v6 & 1) {
+        ban_times ++;
+        tmp_v6 = tmp_v6 >> 1;
+    }
+    xinfo2(TSF"flag is %_, ban time is %_ ", _flag, ban_times);
+    return ban_times;
+}
+
+bool SimpleIPPortSort::CanUseIPv6() {
+    return !ban_v6_;
+}
+
+bool SimpleIPPortSort::__IsIPv6(const std::string& _ip) {
+    in6_addr addr6 = IN6ADDR_ANY_INIT;
+    return socket_inet_pton(AF_INET6, _ip.c_str(), &addr6);
 }
 
 bool SimpleIPPortSort::__CanUpdate(const std::string& _ip, uint16_t _port, bool _is_success) const {
@@ -363,7 +426,7 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
     return false;
 }
 
-void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
+void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const {
     srand((unsigned int)gettickcount());
     //random_shuffle new and history
     std::random_shuffle(_items.begin(), _items.end());
@@ -436,25 +499,111 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items) const {
     
    //merge
     _items.clear();
-    while ( !items_history.empty() || !items_new.empty()) {
-        int ran = rand()%(items_history.size()+items_new.size());
-        if (0 <= ran && ran < (int)items_history.size()) {
-            _items.push_back(items_history.front());
-            items_history.pop_front();
-        } else if ((int)items_history.size() <= ran && ran < (int)(items_history.size()+items_new.size())) {
-            _items.push_back(items_new.front());
-            items_new.pop_front();
-        } else {
-            xassert2(false, TSF"ran:%_, history:%_, new:%_", ran, items_history.size(), items_new.size());
+
+//    xinfo2(TSF"use ipv6 %_ ", _use_IPv6);
+
+    //v6 version
+    if (!_use_IPv6) {//not use V6
+    
+        while ( !items_history.empty() || !items_new.empty()) {
+            __PickIpItemRandom(_items, items_history, items_new);
         }
+        
+        return;
+    }
+
+    std::deque<IPPortItem> items_new_V6;
+    std::deque<IPPortItem> items_new_V4;
+    
+    for (auto item : items_new) {
+        if (__IsV6Ip(item)) {
+            items_new_V6.push_back(item);
+        } else {
+            items_new_V4.push_back(item);
+        }
+    }
+
+    std::deque<IPPortItem> items_V6_history;
+    std::deque<IPPortItem> items_V4_history;
+    for (auto item : items_history) {
+        if (__IsV6Ip(item)) {
+            items_V6_history.push_back(item);
+        } else {
+            items_V4_history.push_back(item);
+        }
+    }
+    items_history.clear();
+
+    std::deque<IPPortItem>::iterator iterV6 = items_V6_history.begin();
+    std::deque<IPPortItem>::iterator iterV4 = items_V4_history.begin();
+
+    while(iterV6 != items_V6_history.end()) {
+        items_history.push_back(*iterV6);
+        if (iterV4 != items_V4_history.end()) {
+            items_history.push_back(*iterV4);
+            iterV4 ++;
+        }
+        iterV6 ++;
+    }
+    items_history.insert(items_history.end(), iterV4, items_V4_history.end());
+
+    bool pick_V6 = true;    
+    while (!items_history.empty() || !items_new_V6.empty() || !items_new_V4.empty()) {
+        if (pick_V6) {
+            if (!items_history.empty() && __IsV6Ip(items_history.front())) {
+                __PickIpItemRandom(_items, items_history, items_new_V6);
+            } else { // items_history empty
+                if (!items_new_V6.empty()) {
+                    _items.push_back(items_new_V6.front());
+                    items_new_V6.pop_front();
+                }
+            }
+        } else { //pick v4
+            if (!items_history.empty() && !__IsV6Ip(items_history.front())) {
+                __PickIpItemRandom(_items, items_history, items_new_V4);
+            } else { // items_history empty
+                if (!items_new_V4.empty()) {
+                    _items.push_back(items_new_V4.front());
+                    items_new_V4.pop_front();
+                }
+            }
+        }
+        pick_V6 = !pick_V6;
+    }
+
+}
+
+bool SimpleIPPortSort::__IsV6Ip(const IPPortItem& item) const {
+    return item.str_ip.find(".") == std::string::npos;
+}
+
+void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items, std::deque<IPPortItem>& _items_history, std::deque<IPPortItem>& _items_new) const {
+    int ran = rand() % (_items_history.size() + _items_new.size());
+    if (0 <= ran && ran < (int)_items_history.size()) {
+        _items.push_back(_items_history.front());
+        _items_history.pop_front();
+    } else if ((int)_items_history.size() <= ran && ran < (int)(_items_history.size() + _items_new.size())) {
+        _items.push_back(_items_new.front());
+        _items_new.pop_front();
+    } else {
+        xassert2(false, TSF"ran:%_, history:%_, new:%_", ran, _items_history.size(), _items_new.size());
     }
 }
 
 
-void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount) const {
+
+void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const {
+//    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
     ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
-    __SortbyBanned(_items);
+    for (size_t i=0; i<_items.size(); i++) {
+		xdebug2(TSF"after FilterbyBanned list ip: %_ ", _items[i].str_ip);
+	}
+    __SortbyBanned(_items, _use_IPv6);
+
+    for (size_t i=0; i<_items.size(); i++) {
+		xdebug2(TSF"after SortbyBanned list ip: %_ ", _items[i].str_ip);
+	}
     
     if (_needcount < (int)_items.size()) _items.resize(_needcount);
 }

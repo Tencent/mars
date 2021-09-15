@@ -18,6 +18,8 @@
 #include <winsock2.h>
 #include "thread/lock.h"
 
+namespace mars {
+namespace comm {
 class SocketSelectBreaker {
   public:
     SocketSelectBreaker();
@@ -87,4 +89,6 @@ class SocketSelect {
     bool autoclear_;
 };
 
+}
+}
 #endif

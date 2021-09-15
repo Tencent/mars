@@ -18,7 +18,9 @@
 extern "C" {
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <Windows.h>
 #include <winsock2.h>
 // #ifndef _WINSOCK2API_

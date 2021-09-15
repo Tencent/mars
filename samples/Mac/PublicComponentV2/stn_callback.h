@@ -40,7 +40,7 @@ public:
     static StnCallBack* Instance();
     static void Release();
     
-    virtual bool MakesureAuthed();
+    virtual bool MakesureAuthed(const std::string& _host, void* const _user_context);
     
     //流量统计
     virtual void TrafficData(ssize_t _send, ssize_t _recv);
@@ -50,7 +50,7 @@ public:
     //网络层收到push消息回调
     virtual void OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
     //底层获取task要发送的数据
-    virtual bool Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select);
+    virtual bool Req2Buf(uint32_t _taskid, void* const _user_context, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
     //底层回包返回给上层解析
     virtual int Buf2Resp(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select);
     //任务执行结束

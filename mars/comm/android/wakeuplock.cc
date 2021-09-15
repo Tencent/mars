@@ -26,8 +26,11 @@
 
 #include "platform_comm.h"
 
+namespace mars {
+namespace comm {
+
 WakeUpLock::WakeUpLock() {
-    object_ = ::wakeupLock_new();
+    object_ = wakeupLock_new();
     ASSERT(object_);
     xinfo2("new wakeuplock:%p", object_);
 }
@@ -37,25 +40,27 @@ WakeUpLock::~WakeUpLock() {
     xinfo2("delete wakeuplock:%p", object_);
 
     if (IsLocking())
-        ::wakeupLock_Unlock(object_);
+        wakeupLock_Unlock(object_);
 
-    ::wakeupLock_delete(object_);
+    wakeupLock_delete(object_);
 }
 
 void WakeUpLock::Lock(int64_t _timelock) {
-    ::wakeupLock_Lock_Timeout(object_, _timelock);
+    wakeupLock_Lock_Timeout(object_, _timelock);
 }
 
 void WakeUpLock::Lock() {
-    ::wakeupLock_Lock(object_);
+    wakeupLock_Lock(object_);
 }
 
 void WakeUpLock::Unlock() {
-    ::wakeupLock_Unlock(object_);
+    wakeupLock_Unlock(object_);
 }
 
 bool WakeUpLock::IsLocking() {
-    return ::wakeupLock_IsLocking(object_);
+    return wakeupLock_IsLocking(object_);
 }
 
+}
+}
 #endif

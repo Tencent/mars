@@ -29,6 +29,10 @@
 
 #include "network/getdnssvraddrs.h"
 #include "socket/local_ipstack.h"
+
+namespace mars {
+namespace comm {
+
 enum {
     kGetIPDoing,
     kGetIPTimeout,
@@ -77,8 +81,17 @@ static void __GetIP() {
 
     if (NULL == dnsfunc) {
         
+        //
+        xgroup2_define(log_group);
+        std::vector<socket_address> dnssvraddrs;
+        mars::comm::getdnssvraddrs(dnssvraddrs);
+        xinfo2("dns server:") >> log_group;
+        for (std::vector<socket_address>::iterator iter = dnssvraddrs.begin(); iter != dnssvraddrs.end(); ++iter) {
+            xinfo2(TSF"%_:%_ ", iter->ip(), iter->port()) >> log_group;
+        }
+        
+        //
         struct addrinfo hints, *single, *result;
-
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = PF_INET;
         hints.ai_socktype = SOCK_STREAM;
@@ -103,7 +116,7 @@ static void __GetIP() {
         }
 
         if (error != 0) {
-            xwarn2(TSF"error, error:%_, hostname:%_, ipstack:%_", error, host_name.c_str(), ipstack);
+            xwarn2(TSF"error, error:%_/%_, hostname:%_, ipstack:%_", error, strerror(error), host_name.c_str(), ipstack);
 
             if (iter != sg_dnsinfo_vec.end()) iter->status = kGetIPFail;
 
@@ -138,16 +151,12 @@ static void __GetIP() {
 
                 iter->result.push_back(ip);
             }
-
-            if (iter->result.empty()) {
-                xgroup2_define(log_group);
-                std::vector<socket_address> dnssvraddrs;
-                getdnssvraddrs(dnssvraddrs);
-                
-                xinfo2("dns server:") >> log_group;
-                for (std::vector<socket_address>::iterator iter = dnssvraddrs.begin(); iter != dnssvraddrs.end(); ++iter) {
-                    xinfo2(TSF"%_:%_ ", iter->ip(), iter->port()) >> log_group;
-                }
+            
+            //
+            xgroup2_define(ip_group);
+            xinfo2(TSF"host %_ resolved iplist: ", host_name) >> ip_group;
+            for(auto ip : iter->result){
+                xinfo2(TSF"%_,", ip) >> ip_group;
             }
             
             freeaddrinfo(result);
@@ -306,4 +315,7 @@ void DNS::Cancel(DNSBreaker& _breaker) {
     if (_breaker.dnsstatus) *(_breaker.dnsstatus) = kGetIPCancel;
 
     sg_condition.notifyAll();
+}
+
+}
 }

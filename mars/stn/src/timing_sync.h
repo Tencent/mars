@@ -36,10 +36,10 @@ namespace mars {
 
 class TimingSync {
   public:
-    TimingSync(ActiveLogic& _active_logic);
+    TimingSync(comm::ActiveLogic& _active_logic);
     ~TimingSync();
 
-    void OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status);
+    void OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
     void OnActiveChanged(bool _is_actived);
     void OnNetworkChange();
 
@@ -47,9 +47,9 @@ class TimingSync {
     void __OnAlarm();
 
   private:
-    Alarm alarm_;
+    comm::Alarm alarm_;
 
-    ActiveLogic& active_logic_;
+    comm::ActiveLogic& active_logic_;
     boost::signals2::scoped_connection timing_sync_active_connection_;
 };
 

@@ -164,8 +164,8 @@ DeviceInfo GetDeviceInfo() {
 
 	jstring devicename_jstr = (jstring)JNU_GetField(env, ret_obj, "devicename", "Ljava/lang/String;").l;
 
-	static Mutex mutex;
-	ScopedLock lock(mutex);
+	static comm::Mutex mutex;
+	comm::ScopedLock lock(mutex);
 
 	if (NULL != devicename_jstr) {
 		ScopedJstring scoped_jstr(env, devicename_jstr);

@@ -40,8 +40,8 @@ class FlowLimit {
     void __FlashCurVol();
 
   private:
-    int funnel_speed_;
-    int cur_funnel_vol_;
+    uint64_t funnel_speed_;
+    uint64_t cur_funnel_vol_;
     uint64_t time_lastflow_computer_;
 };
 

@@ -1,17 +1,24 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 26
+    buildToolsVersion "28.0.3"
     defaultConfig {
         applicationId "com.tencent.mars.xlogsample"
         minSdkVersion 16
-        targetSdkVersion 23
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
-            abiFilters "armeabi"
+            abiFilters "armeabi-v7a"
+            abiFilters "arm64-v8a"
+//            abiFilters "x86"
+        }
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared"
+            }
         }
 
     }
@@ -22,27 +29,48 @@ android {
         }
     }
 
-    copy {
-        from "build/intermediates/exploded-aar/com.tencent.mars/mars-xlog/${VERSION_NAME}${VERSION_NAME_SUFFIX}/jni/armeabi/"
-        into "src/main/jni/export_include"
 
-    }
+//    sourceSets {
+//        main {
+//            jniLibs.srcDirs = ["src/main/jniLibs/jni"]
+//        }
+//    }
 
     externalNativeBuild {
 
-        ndkBuild {
-            path "src/main/jni/Android.mk"
+        cmake {
+            path "src/main/jni/CMakeLists.txt"
         }
     }
 
 }
 
+configurations {
+    cmake_depends
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    testCompile 'junit:junit:4.12'
-    compile "com.tencent.mars:mars-xlog:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    testImplementation 'junit:junit:4.12'
+    implementation "com.tencent.mars:mars-xlog:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
+    cmake_depends "com.tencent.mars:mars-xlog:${VERSION_NAME}${VERSION_NAME_SUFFIX}"
 }
+
+task resolveDependencies {
+    project.configurations.each { configuration ->
+        if ("cmake_depends".equalsIgnoreCase(configuration.name)) {
+            def lib = configuration.resolve()[0]
+            copy {
+                from zipTree(lib)
+                into "${project.rootDir}/${project.name}/src/main/jniLibs/"
+                include "jni/**/*.so"
+            }
+        }
+    }
+}
+
+build.dependsOn resolveDependencies

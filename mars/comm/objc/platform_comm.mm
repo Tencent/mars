@@ -1,3 +1,15 @@
+// Tencent is pleased to support the open source community by making Mars available.
+// Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
+
+// Licensed under the MIT License (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// http://opensource.org/licenses/MIT
+
+// Unless required by applicable law or agreed to in writing, software distributed under the License is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+// either express or implied. See the License for the specific language governing permissions and
+// limitations under the License.
+
 /**
  * created on : 2012-11-28
  * author : yerungui
@@ -5,6 +17,7 @@
 #include "comm/platform_comm.h"
 
 #import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
 
 #include "comm/xlogger/xlogger.h"
 #include "comm/xlogger/loginfo_extract.h"
@@ -37,6 +50,7 @@
 #include "comm/thread/lock.h"
 #include "comm/network/getifaddrs.h"
 
+
 #if !TARGET_OS_IPHONE
 static float __GetSystemVersion() {
     //	float system_version = [UIDevice currentDevice].systemVersion.floatValue;
@@ -61,15 +75,22 @@ static MarsNetworkStatus __GetNetworkStatus()
 #endif
 }
 
+static mars::comm::WifiInfo sg_wifiinfo;
+static mars::comm::Mutex sg_wifiinfo_mutex;
+
+namespace mars{
+namespace comm{
+
 void FlushReachability() {
 #if !TARGET_OS_WATCH
-   [MarsReachability getCacheReachabilityStatus:YES];
+    [MarsReachability getCacheReachabilityStatus:YES];
+    mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
+    sg_wifiinfo.ssid.clear();
+    sg_wifiinfo.bssid.clear();
 #endif
 }
 
 float publiccomponent_GetSystemVersion() {
-    //	float system_version = [UIDevice currentDevice].systemVersion.floatValue;
-    //	return system_version;
     NSString *versionString;
     NSDictionary * sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
     if (nil != sv){
@@ -149,56 +170,51 @@ int getNetInfo() {
     SCOPE_POOL();
     
 #if TARGET_IPHONE_SIMULATOR || TARGET_OS_WATCH
-    return kWifi;
+    return mars::comm::kWifi;
 #endif
 
     switch (__GetNetworkStatus())
     {
         case NotReachable:
-            return kNoNet;
+            return mars::comm::kNoNet;
         case ReachableViaWiFi:
-            return kWifi;
+            return mars::comm::kWifi;
         case ReachableViaWWAN:
-            return kMobile;
+            return mars::comm::kMobile;
         default:
-            return kNoNet;
+            return mars::comm::kNoNet;
     }
+}
+
+int getNetTypeForStatistics(){
+    int type = getNetInfo();
+    if (mars::comm::kWifi == type){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
+    }
+    if (mars::comm::kNoNet == type){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
+    }
+    
+    mars::comm::RadioAccessNetworkInfo rani;
+    if (!getCurRadioAccessNetworkInfo(rani)){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
+    }
+    
+    if (rani.Is2G()){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_2G;
+    }else if(rani.Is3G()){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_3G;
+    }else if(rani.Is4G()){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_4G;
+    }
+    
+    return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
 }
 
 unsigned int getSignal(bool isWifi){
     xverbose_function();
     SCOPE_POOL();
     return (unsigned int)0;
-}
-
-
-
-
-void ConsoleLog(const XLoggerInfo* _info, const char* _log)
-{
-    SCOPE_POOL();
-
-    if (NULL==_info || NULL==_log) return;
-    
-    static const char* levelStrings[] = {
-        "V",
-        "D",  // debug
-        "I",  // info
-        "W",  // warn
-        "E",  // error
-        "F"  // fatal
-    };
-    
-    char strFuncName[128]  = {0};
-    ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
-    
-    const char* file_name = ExtractFileName(_info->filename);
-    
-    char log[16 * 1024] = {0};
-    snprintf(log, sizeof(log), "[%s][%s][%s, %s, %d][%s", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, strFuncName, _info->line, _log);
-    
-    
-    NSLog(@"%@", [NSString stringWithUTF8String:log]);
 }
 
 bool isNetworkConnected()
@@ -211,7 +227,7 @@ bool isNetworkConnected()
         case ReachableViaWiFi:
             return true;
         case ReachableViaWWAN:
-return true;
+            return true;
         default:
             return false;
     }
@@ -221,7 +237,21 @@ return true;
 #define IWATCH_NET_INFO "IWATCH"
 #define USE_WIRED  "wired"
 
-bool getCurWifiInfo(WifiInfo& wifiInfo)
+static bool __WiFiInfoIsValid(const mars::comm::WifiInfo& _wifi_info) {
+    // CNCopyCurrentNetworkInfo is now only available to your app in three cases:
+    // * Apps with permission to access location
+    // * Your app is the currently enabled VPN app
+    // * Your app configured the WiFi network the device is currently using via NEHotspotConfiguration
+    // otherwise return nil.
+    // But if you use 'NEHotspotConfiguration' and without permission to access location
+    // Instead, the information returned by default will be:
+    // * SSID: “Wi-Fi” or “WLAN” (“WLAN" will be returned for the China SKU)
+    // * BSSID: "00:00:00:00:00:00" 
+    static const std::string kConstBSSID = "00:00:00:00:00:00";
+    return !_wifi_info.bssid.empty() && kConstBSSID != _wifi_info.bssid;
+}
+
+bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
 {
     SCOPE_POOL();
     
@@ -231,8 +261,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     return true;
 #elif !TARGET_OS_IPHONE
     
-    static Mutex mutex;
-    ScopedLock lock(mutex);
+    static mars::comm::Mutex mutex;
+    mars::comm::ScopedLock lock(mutex);
     
     static float version = 0.0;
     
@@ -266,11 +296,26 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     wifiInfo.bssid = IWATCH_NET_INFO;
     return true;
 #else
+    wifiInfo.ssid = "WiFi";
+    wifiInfo.bssid = "WiFi";
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        return false;
+    }
+    
+    mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
+    if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
+        wifiInfo = sg_wifiinfo;
+        return true;
+    }
+    lock.unlock();
     NSArray *ifs = nil;
     @synchronized (@"CNCopySupportedInterfaces") {
         ifs = (id)CNCopySupportedInterfaces();
     }
-    if(ifs == nil) return false;
+    if(ifs == nil) {
+        return false;
+    }
         
     id info = nil;
     for (NSString *ifnam in ifs) {
@@ -301,16 +346,29 @@ bool getCurWifiInfo(WifiInfo& wifiInfo)
     }
     CFRelease(info);
     CFRelease(ifs);
-    
-    return true;
+
+    // CNCopyCurrentNetworkInfo is now only available to your app in three cases:
+    // * Apps with permission to access location
+    // * Your app is the currently enabled VPN app
+    // * Your app configured the WiFi network the device is currently using via NEHotspotConfiguration
+    // otherwise return nil.
+    // But if you use 'NEHotspotConfiguration' and without permission to access location
+    // Instead, the information returned by default will be:
+    // * SSID: “Wi-Fi” or “WLAN” (“WLAN" will be returned for the China SKU)
+    // * BSSID: "00:00:00:00:00:00" 
+    lock.lock();
+    sg_wifiinfo = wifiInfo;
+    xinfo2(TSF"get wifi info:%_", sg_wifiinfo.ssid);
+
+    return __WiFiInfoIsValid(wifiInfo);
 #endif
 }
 
 #if TARGET_OS_IPHONE && !TARGET_OS_WATCH
-bool getCurSIMInfo(SIMInfo& simInfo)
+bool getCurSIMInfo(mars::comm::SIMInfo& simInfo)
 {
-    static Mutex mutex;
-    ScopedLock lock(mutex);
+    static mars::comm::Mutex mutex;
+    mars::comm::ScopedLock lock(mutex);
     
     SCOPE_POOL();
     static CTTelephonyNetworkInfo* s_networkinfo = [[CTTelephonyNetworkInfo alloc] init];
@@ -341,13 +399,13 @@ bool getCurSIMInfo(SIMInfo& simInfo)
 }
 #endif
 
-bool getAPNInfo(APNInfo& info)
+bool getAPNInfo(mars::comm::APNInfo& info)
 {
-    RadioAccessNetworkInfo raninfo;
-    if (kMobile != getNetInfo()) return false;
-    if (!getCurRadioAccessNetworkInfo(raninfo)) return false;
+    mars::comm::RadioAccessNetworkInfo raninfo;
+    if (mars::comm::kMobile != getNetInfo()) return false;
+    if (!mars::comm::getCurRadioAccessNetworkInfo(raninfo)) return false;
     
-    info.nettype = kMobile;
+    info.nettype = mars::comm::kMobile;
     info.extra_info = raninfo.radio_access_network;
     return true;
 }
@@ -383,11 +441,13 @@ NSLog(@"Current Radio Access Technology: %@", telephonyInfo.currentRadioAccessTe
 **/
 
 #if TARGET_OS_IPHONE && !TARGET_OS_WATCH
-bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo)
+bool getCurRadioAccessNetworkInfo(mars::comm::RadioAccessNetworkInfo& _raninfo)
 {
     SCOPE_POOL();
+    if (publiccomponent_GetSystemVersion() < 7.0){
+        return false;
+    }
     
-    if (!([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)) { return false;}
     static CTTelephonyNetworkInfo* s_networkinfo = [[CTTelephonyNetworkInfo alloc] init];
     
     NSString *currentRadioAccessTechnology = s_networkinfo.currentRadioAccessTechnology;
@@ -406,6 +466,10 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo)
    return false;
 }
 #endif
+
+
+}   // namespace comm
+}   // namespace mars
 
 void comm_export_symbols_1(){}
 

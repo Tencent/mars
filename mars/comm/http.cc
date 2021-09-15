@@ -177,7 +177,7 @@ bool RequestLine::FromString(const std::string& _requestline) {
 
     if (strVer.size() < 3) {
 //        xerror2(TSF"requestline:%_, strver:%_", _requestline.c_str(), str.c_str());
-        xassert2(false, "requestline:%s, strver:%s", _requestline.c_str(), str.c_str());
+        xassert2(false, TSF"requestline:%_, strver:%_", _requestline.c_str(), str.c_str());
         return false;
     }
 
@@ -309,21 +309,21 @@ const char* const HeaderFields::KStringRange = "Range";
 const char* const HeaderFields::KStringLocation = "Location";
 const char* const HeaderFields::KStringReferer = "Referer";
 const char* const HeaderFields::kStringServer = "Server";
+const char* const HeaderFields::KStringKeepalive = "Keep-Alive";
 
 const char* const KStringChunked = "chunked";
 const char* const KStringClose = "close";
-const char* const KStringKeepalive = "Keep-Alive";
 const char* const KStringAcceptAll = "*/*";
 const char* const KStringAcceptEncodingDeflate = "deflate";
 const char* const KStringAcceptEncodingGzip = "gzip";
 const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
+const char* const KStringKeepAliveTimeout = "timeout=";
+const uint32_t KDefaultKeepAliveTimeout = 5;
 
 
-std::pair<const std::string, std::string> HeaderFields::MakeContentLength(int _len) {
-    char strLength[16] = {0};
-    snprintf(strLength, sizeof(strLength), "%d", _len);
-    return std::make_pair(KStringContentLength, strLength);
+std::pair<const std::string, std::string> HeaderFields::MakeContentLength(uint64_t _len) {
+    return std::make_pair(KStringContentLength, std::to_string(_len));
 }
 
 std::pair<const std::string, std::string> HeaderFields::MakeTransferEncodingChunked() {
@@ -355,22 +355,37 @@ std::pair<const std::string, std::string> HeaderFields::MakeContentTypeOctetStre
     return std::make_pair(KStringContentType, KStringOctetType);
 }
 
-
+void HeaderFields::CopyFrom(const HeaderFields& rhs){
+    headers_.clear();
+    headers_.insert(rhs.headers_.begin(), rhs.headers_.end());
+}
+    
 void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
-    headers_.insert(std::pair<const std::string, std::string>(_name, _value));
+    InsertOrUpdate(std::make_pair(_name, _value));
 }
 
 void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& _headerfield) {
-    headers_.insert(_headerfield);
+    InsertOrUpdate(_headerfield);
 }
     
 void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
     headers_[_headerfield.first] = _headerfield.second;
 }
-
-void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
-    headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
+    
+void HeaderFields::Manipulate(const std::pair<const std::string, std::string>& _headerfield){
+    std::string v = _headerfield.second;
+    if (strutil::Trim(v).empty()){
+        // empty value means remove header
+        xwarn2(TSF"remove field %_ from request.", _headerfield.first);
+        headers_.erase(_headerfield.first);
+    }else{
+        InsertOrUpdate(_headerfield);
+    }
 }
+
+//void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
+//    headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
+//}
 
 const char* HeaderFields::HeaderField(const char* _key) const {
     std::map<const std::string, std::string, less>::const_iterator iter = headers_.find(_key);
@@ -391,18 +406,48 @@ bool HeaderFields::IsTransferEncodingChunked() const{
 }
 bool HeaderFields::IsConnectionClose() const{
     const char* conn = HeaderField(HeaderFields::KStringConnection);
-        
     if (conn && 0 == strcasecmp(conn, KStringClose)) return true;
         
     return false;
 }
 
-int HeaderFields::ContentLength() const{
+bool HeaderFields::IsConnectionKeepAlive() const {
+    const char* conn = HeaderField(HeaderFields::KStringConnection);    
+    if (conn && 0 == strcasecmp(conn, KStringKeepalive)) return true;
+        
+    return false;
+}
+
+uint32_t HeaderFields::KeepAliveTimeout() const {
+    if(NULL == HeaderField(HeaderFields::KStringConnection))    return KDefaultKeepAliveTimeout;
+    std::string aliveConfig = (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
+    if(aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
+        return KDefaultKeepAliveTimeout;
+    }
+    
+    std::vector<std::string> tokens;
+    strutil::SplitToken(aliveConfig, ",", tokens);
+    auto iter = tokens.begin();
+    while(iter != tokens.end()) {
+        size_t pos = iter->find(KStringKeepAliveTimeout);
+        if(pos != std::string::npos) {
+            const char* value = iter->c_str() + sizeof(KStringKeepAliveTimeout);
+            int timeout = (int)strtol(value, NULL, 10);
+            if(timeout > 0 && timeout < 60)
+                return (uint32_t)timeout;
+            return KDefaultKeepAliveTimeout;
+        }
+        iter++;
+    }
+    return KDefaultKeepAliveTimeout;
+}
+
+uint64_t HeaderFields::ContentLength() const{
     const char* strContentLength = HeaderField(HeaderFields::KStringContentLength);
-    int contentLength = 0;
+    uint64_t contentLength = 0;
 
     if (strContentLength) {
-        contentLength = (int)strtol(strContentLength, NULL, 10);
+        contentLength = strtoull(strContentLength, NULL, 10);
     }
 
     return contentLength;
@@ -433,7 +478,7 @@ bool HeaderFields::Range(long& _start, long& _end) const {
     return true;
 }
     
-bool HeaderFields::ContentRange(int* start, int* end, int* total) const{
+bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const{
     // Content-Range: bytes 0-102400/102399
 
     *start = 0;
@@ -456,17 +501,17 @@ bool HeaderFields::ContentRange(int* start, int* end, int* total) const{
 
         if (std::string::npos != range_start) {
             std::string startstr = bytes.substr(0, range_start);
-            *start = (int)strtol(startstr.c_str(), NULL, 10);
+            *start = strtoull(startstr.c_str(), NULL, 10);
 
             size_t range_end = bytes.find("/", range_start + 1);
 
             if (range_end != std::string::npos) {
                 std::string endstr = bytes.substr(range_start + 1, range_end - range_start - 1);
-                *end = (int)strtol(endstr.c_str(), NULL, 10);
+                *end = strtoull(endstr.c_str(), NULL, 10);
 
 
                 std::string totalstr = bytes.substr(range_end + 1);
-                *total = (int)strtol(totalstr.c_str(), NULL, 10);
+                *total = strtoull(totalstr.c_str(), NULL, 10);
 
                 return true;
             }
@@ -679,7 +724,7 @@ Parser::~Parser() {
     }
 }
 
-Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes) {
+Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes, bool only_parse_header/* = false*/) {
     if((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_==kBody) {
         xwarn2(TSF"status:%_", recvstatus_);
         recvstatus_ = kEnd;
@@ -802,6 +847,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                 }
                 
                 headerlength_ = headerslength;
+                if (only_parse_header){
+                    xwarn2(TSF"only parse headers.");
+                    return recvstatus_;
+                }
             }
                 break;
                 
@@ -865,15 +914,15 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                             }
                         }
                     } else {  // no chunk
-                        int contentLength = headfields_.ContentLength();
-                        int appendlen = 0;
+                        int64_t contentLength = headfields_.ContentLength();
+                        int64_t appendlen = 0;
                         if (Fields().IsConnectionClose() && 0==contentLength) {
-                            appendlen = int(recvbuf_.Length());
-                        } else if (int(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
-                            appendlen = int(recvbuf_.Length());
+                            appendlen = int64_t(recvbuf_.Length());
+                        } else if (int64_t(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
+                            appendlen = int64_t(recvbuf_.Length());
                         else {
                             xwarn2(TSF"recv len bigger than contentlen, (%_, %_, %_)", recvbuf_.Length(), bodyreceiver_->Length(), contentLength);
-                            appendlen = contentLength - int(bodyreceiver_->Length());
+                            appendlen = contentLength - int64_t(bodyreceiver_->Length());
                         }
                         
                         bodyreceiver_->AppendData(recvbuf_.Ptr(), (size_t)appendlen);
@@ -883,7 +932,7 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                             *consumed_bytes = origin_size - recvbuf_.Length();
                         }
                         
-                        if ((int)bodyreceiver_->Length() == contentLength) {
+                        if ((int64_t)bodyreceiver_->Length() == contentLength) {
                             recvstatus_ = kEnd;
                             bodyreceiver_->EndData();
                             return  recvstatus_;
@@ -1061,20 +1110,20 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
                         _recv_buffer.Move(-(trailerEnd - chunkSizeBegin + 2));
                     }
                 } else {  // no chunk
-                    int contentLength = headfields_.ContentLength();
-                    int appendlen = 0;
+                    int64_t contentLength = headfields_.ContentLength();
+                    int64_t appendlen = 0;
 
-                    if (int(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
-                        appendlen = int(_recv_buffer.Length());
+                    if (int64_t(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
+                        appendlen = int64_t(_recv_buffer.Length());
                     else {
-                        xwarn2(TSF"contentLength:%_, body.len:%_, recv len:%_", contentLength, int(bodyreceiver_->Length()), _recv_buffer.Length());
-                        appendlen = contentLength - int(bodyreceiver_->Length());
+                        xwarn2(TSF"contentLength:%_, body.len:%_, recv len:%_", contentLength, int64_t(bodyreceiver_->Length()), _recv_buffer.Length());
+                        appendlen = contentLength - int64_t(bodyreceiver_->Length());
                     }
 
                     bodyreceiver_->AppendData(_recv_buffer.Ptr(), (size_t)appendlen);
                     _recv_buffer.Move(-appendlen);
 
-                    if ((int)bodyreceiver_->Length() == contentLength) {
+                    if ((int64_t)bodyreceiver_->Length() == contentLength) {
                         recvstatus_ = kEnd;
                         bodyreceiver_->EndData();
                         return  recvstatus_;

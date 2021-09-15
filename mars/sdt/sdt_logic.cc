@@ -49,7 +49,7 @@ static void onCreate() {
 
 static void onDestroy() {
     xinfo2(TSF"sdt onDestroy");
-    SdtCore::Singleton::Release();
+    SdtCore::Singleton::AsyncRelease();
 }
 
 static void __initbind_baseprjevent() {

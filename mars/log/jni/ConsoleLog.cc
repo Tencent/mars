@@ -24,13 +24,15 @@
 #include "mars/comm/autobuffer.h"
 
 
+namespace mars {
+namespace xlog {
+
 //这里不能加日志，会导致循环调用
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
-	char result_log[2048] = {0};
+	char result_log[16*1024] = {0};
     if (_info) {
         const char* filename = ExtractFileName(_info->filename);
-        char strFuncName [128] = {0};
-        ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
+        const char* strFuncName  = NULL == _info->func_name ? "" : _info->func_name;
 
         snprintf(result_log,  sizeof(result_log), "[%s, %s, %d]:%s", filename, strFuncName, _info->line, _log?_log:"NULL==log!!!");
         __android_log_write(_info->level+2, _info->tag?_info->tag:"", (const char*)result_log);
@@ -41,3 +43,5 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
     
 }
 
+}
+}

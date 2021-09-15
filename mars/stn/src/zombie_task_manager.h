@@ -41,7 +41,7 @@ class ZombieTaskManager {
     boost::function<int (ErrCmdType _errtype, int _errcode, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
 
   public:
-    ZombieTaskManager(MessageQueue::MessageQueue_t _messagequeueid);
+    ZombieTaskManager(comm::MessageQueue::MessageQueue_t _messagequeueid);
     ~ZombieTaskManager();
 
     bool SaveTask(const Task& _task, unsigned int _taskcosttime /*ms*/);
@@ -60,7 +60,7 @@ class ZombieTaskManager {
     void __TimerChecker();
 
   private:
-    MessageQueue::ScopeRegister asyncreg_;
+    comm::MessageQueue::ScopeRegister asyncreg_;
     std::list<ZombieTask> lsttask_;
     uint64_t net_core_last_start_task_time_;
 };

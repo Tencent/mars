@@ -28,6 +28,10 @@
 #include "comm/thread/lock.h"
 
 class XLogger;
+
+namespace mars {
+namespace comm {
+
 class SocketSelect;
 
 class TcpServerFSM {
@@ -98,5 +102,7 @@ class TcpServerFSM {
     bool is_write_fd_set_;
     Mutex write_fd_set_mutex_;
 };
+}
+}
 
 #endif /* TcpServerFSM_H_ */

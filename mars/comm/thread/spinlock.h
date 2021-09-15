@@ -21,12 +21,21 @@
 
 #ifdef __APPLE__
 #include <libkern/OSAtomic.h>
+#include <os/lock.h>
 
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0
+#define splock os_unfair_lock
+#define splockinit(lock) {*lock = OS_UNFAIR_LOCK_INIT;}
+#define splocklock os_unfair_lock_lock
+#define splockunlock os_unfair_lock_unlock
+#define splocktrylock os_unfair_lock_trylock
+#else
 #define splock OSSpinLock
 #define splockinit(lock) {*lock = OS_SPINLOCK_INIT;}
 #define splocklock OSSpinLockLock
 #define splockunlock OSSpinLockUnlock
 #define splocktrylock OSSpinLockTry
+#endif
 
 class SpinLock
 {
@@ -100,9 +109,9 @@ static inline void cpu_relax() {
 
 
 #ifdef _WIN32
-#include <thr/threads.h>
-extern "C" void thrd_yield();
-#define sched_yield() thrd_yield()
+#include <Windows.h>
+#include <processthreadsapi.h>
+#define sched_yield() ::SwitchToThread()
 #else
 #include <sched.h>
 #endif
