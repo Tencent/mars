@@ -43,7 +43,7 @@ struct TaskProfile;
 struct DnsProfile;
 struct ConnectProfile;
 class LongLinkEncoder;
-class ShortLinkInterface;
+class ShortLinkWrapper;
 
 
 enum PackerEncoderVersion {
@@ -57,9 +57,8 @@ public:
     virtual ~ShortlinkCallbackBridge() = default;
 public:
     virtual void OnSendData(const std::string& _body, const std::string& _extern_body) {}
-    virtual void OnReceiveData(const std::string& _data) {}
     virtual void CancelTask() {}
-    virtual void SetShortlinkInstance(ShortLinkInterface* _instance) {}
+    virtual void SetShortlinkWrapper(ShortLinkWrapper* _wrapper) {}
 
 };
 

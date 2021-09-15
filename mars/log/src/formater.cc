@@ -84,9 +84,15 @@ static int logger_itoa(int num, char* str, int len, int min) {
 }
 
 void format_time(char buffer[64], time_t _seconds, suseconds_t _microseconds) {
+#if TARGET_OS_WATCH
     thread_local time_t init_seconds = 0;
     thread_local struct tm tm;
     thread_local int gmtoff = tm.tm_gmtoff / 360;
+#else
+    time_t init_seconds = 0;
+    struct tm tm;
+    int gmtoff = tm.tm_gmtoff / 360;
+#endif
 
     static const uint64_t kInterval = 30 * 60;
 

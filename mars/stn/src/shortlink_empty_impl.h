@@ -8,11 +8,13 @@
 #include <functional>
 #include <future>
 #include <memory>
+#include <mutex>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/xlogger/xlogger.h"
 
 #include "mars/stn/stn.h"
+#include "mars/stn/shortlink_wrapper.h"
 
 namespace mars {
 
@@ -45,13 +47,16 @@ public:
     }
 
     bool IsRunning() {
+        std::unique_lock<std::mutex> lock(mutex_);
         auto ret = running_.wait_for(std::chrono::milliseconds(0));
         return !(ret == std::future_status::ready);
     }
 private:
     void _Run() {
         function_();
+        std::unique_lock<std::mutex> lock(mutex_);
         done_.set_value(true);
+        xinfo2(TSF"shortlink run end");
     }
 
 private:
@@ -59,6 +64,7 @@ private:
     std::thread runner_;
     std::promise<bool> done_;
     std::future<bool> running_;
+    std::mutex mutex_;
 };
 
 
@@ -83,6 +89,7 @@ private:
     Task task_;
     ThreadWrapper runner_;
     std::weak_ptr<ShortlinkCallbackBridge> shortlink_callback_bridge_;
+    ShortLinkWrapper wrapper_;
 
 };
 

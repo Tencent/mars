@@ -15,18 +15,16 @@ ShortlinkEmptyImpl::ShortlinkEmptyImpl(const Task& _task, std::shared_ptr<Shortl
 : task_(_task)
 , runner_(std::bind(&ShortlinkEmptyImpl::_StartInternal, this))
 , shortlink_callback_bridge_(_callback_bridge) {
+    wrapper_.SetShortLinkInterface(this);
     auto cb = shortlink_callback_bridge_.lock();
     if (cb) {
-        cb->SetShortlinkInstance(this);
+        cb->SetShortlinkWrapper(&wrapper_);
     } else {
         NO_FIND_CALLBACK_ERROR(task_.taskid, task_.cmdid);
     }
 }
 
 ShortlinkEmptyImpl::~ShortlinkEmptyImpl() {
-    if (!runner_.IsRunning()) {
-        return;
-    }
     auto cb = shortlink_callback_bridge_.lock();
     if (cb) {
         cb->CancelTask();
@@ -49,6 +47,11 @@ void ShortlinkEmptyImpl::SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _buffe
 }
 
 void ShortlinkEmptyImpl::_StartInternal() {
+    if (OnSend) {
+        OnSend(this);
+    } else {
+        xwarn2(TSF"OnSend NULL.");
+    }
     auto cb = shortlink_callback_bridge_.lock();
     if (cb) {
         std::string send_body((const char*)send_body_.Ptr(), send_body_.Length());
@@ -60,6 +63,12 @@ void ShortlinkEmptyImpl::_StartInternal() {
 }
 
 void ShortlinkEmptyImpl::OnReceiveDataFromCaller(const std::string& _data, int _status_code) {
+    xinfo2(TSF"OnReceiveDataFromCaller %_, %_", _data.size(), _status_code);
+    if (OnRecv) {
+        OnRecv(this, _data.size(), _data.size());
+    } else {
+        xwarn2(TSF"OnRecv NULL.");
+    }
     _OnResponse(_data, _status_code);
 }
 

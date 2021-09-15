@@ -325,7 +325,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
-        if (!first->task.implemented_by_caller && !Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
+        if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
@@ -449,6 +449,11 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
     xinfo2_if(it->task.priority >= 0,  TSF"err_code %_ ",err_code);
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
+    
+    if (it->task.implemented_by_caller) {
+        handle_type = 0;
+        err_code = 0;
+    }
 
     switch(handle_type){
         case kTaskFailHandleNoError:
