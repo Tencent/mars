@@ -53,6 +53,9 @@ class ThreadUtil {
     }
 
     static bool isruning(thread_tid _id) {
+        if (_id == currentthreadid())   
+            return true;
+
         HANDLE handle = OpenThread(THREAD_ALL_ACCESS, FALSE, _id);
         if (handle == NULL) return false;
         return ::WaitForSingleObject(handle, 0) == WAIT_OBJECT_0;
@@ -68,19 +71,24 @@ class ThreadUtil {
 
     static void join(thread_handler& pth) {
         if (pth == NULL)
-            return ;
+            return;
 
-        ASSERT(pth != ::GetCurrentThread());
+        if (getThreadId(pth) == currentthreadid())
+            return;
+
         ::WaitForSingleObject(pth, INFINITE);
     }
 
 	static void join (thread_tid _tid) {
         ASSERT(_tid != currentthreadid());
+        if (_tid == currentthreadid())
+            return;
+
         HANDLE handler = OpenThread(THREAD_ALL_ACCESS, FALSE, _tid);
         if (NULL == handler) {
             return;
         }
-        ::WaitForSingleObject(handler, INFINITE);
+        ::WaitForSingleObject(handler, 2000);
 	}
 
     static void detach(thread_handler& pth) {
