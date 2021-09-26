@@ -245,6 +245,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
             struct tm tm;
             memset(&tm, 0, sizeof(tm));
 #ifdef _WIN32
+            localtime_s(&tm, &sec);
 #else
             localtime_r((const time_t*)&sec, &tm);
             std::string gmt = std::to_string(tm.tm_gmtoff / 360);

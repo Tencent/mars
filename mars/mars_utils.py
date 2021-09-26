@@ -206,7 +206,7 @@ def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
 
 def copy_file(src, dst):
     if not os.path.isfile(src):
-        print('Warning: %s not exist' %(src))
+        print('Warning: %s not exist cwd %s' %(src, os.getcwd()))
         return;
 
     if dst.rfind("/") != -1 and not os.path.exists(dst[:dst.rfind("/")]):
