@@ -514,6 +514,9 @@ bool NetSource::GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec) {
 
     return true;
 }
+void NetSource::InitHistory2BannedList(bool _save) {
+    ipportstrategy_.InitHistory2BannedList(_save);
+}
 
 void NetSource::ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec) {
 }

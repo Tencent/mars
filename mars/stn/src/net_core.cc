@@ -21,6 +21,7 @@
 #include "net_core.h"
 
 #include <stdlib.h>
+#include <mutex>
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
@@ -108,7 +109,7 @@ NetCore::NetCore()
         //note: iOS getwifiinfo may block for 10+ seconds sometimes
         ASYNC_BLOCK_START
 
-        xinfo2(TSF"net info:%_", GetDetailNetInfo());
+        xinfo2(TSF"net info:%_", GetDetailNetInfo(false));
         
         ASYNC_BLOCK_END
     }
@@ -859,6 +860,17 @@ bool NetCore::AddMinorLongLink(const std::vector<std::string>& _hosts) {
 
 void NetCore::ForbidLonglinkTlsHost(const std::vector<std::string>& _host) {
     longlink_task_manager_->AddForbidTlsHost(_host);
+}
+
+void NetCore::InitHistory2BannedList() {
+    auto once_fun = [this]() {
+        xdebug2("InitHistory2BannedList");
+        if (net_source_) {
+            net_source_->InitHistory2BannedList(false);
+        }
+    };
+    static std::once_flag of;
+    std::call_once(of, once_fun);
 }
 
 void NetCore::DestroyLongLink(const std::string& _name){

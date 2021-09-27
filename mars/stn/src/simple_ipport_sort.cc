@@ -115,7 +115,7 @@ SimpleIPPortSort::SimpleIPPortSort()
     ScopedLock lock(mutex_);
     __LoadXml();
     lock.unlock();
-    InitHistory2BannedList(false);
+    // InitHistory2BannedList(false);
 }
 
 SimpleIPPortSort::~SimpleIPPortSort() {
