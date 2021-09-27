@@ -32,7 +32,7 @@ typedef enum {
 } NetworkType;
 
 NetworkType GetNetworkType();
-std::string GetDetailNetInfo();
+std::string GetDetailNetInfo(bool _need_wifi_ssid = true);
 
 
 #endif /* SRC_NETINFO_UTIL_H_ */
