@@ -42,6 +42,7 @@
 #endif
 
 #include <MacTypes.h>
+#include <functional>
 
 #include "comm/objc/objc_timer.h"
 #import "comm/objc/Reachability.h"
@@ -80,6 +81,19 @@ static mars::comm::Mutex sg_wifiinfo_mutex;
 
 namespace mars{
 namespace comm{
+
+static std::function<bool(std::string&)> g_new_wifi_id_cb;
+static mars::comm::Mutex wifi_id_mutex;
+
+void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
+    mars::comm::ScopedLock lock(wifi_id_mutex);
+    g_new_wifi_id_cb = _cb;
+}
+void ResetWiFiIdCallBack() {
+    mars::comm::ScopedLock lock(wifi_id_mutex);
+    g_new_wifi_id_cb = NULL;
+}
+
 
 void FlushReachability() {
 #if !TARGET_OS_WATCH
@@ -299,6 +313,24 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
     
+    mars::comm::ScopedLock wifi_id_lock(wifi_id_mutex);
+    if (!g_new_wifi_id_cb) {
+        xwarn2("g_new_wifi_id_cb is null");
+    }
+    xdebug2(TSF"_force_refresh %_", _force_refresh);
+    // 来自mars的调用全部使用新的netid, 并且 _force_refresh = false
+    // 来自业务调用的全部 _force_refresh = true
+    if (g_new_wifi_id_cb && !_force_refresh) {
+        std::string newid = "no_ssid_wifi";
+        if (g_new_wifi_id_cb(newid)) {
+            wifiInfo.ssid = newid;
+            wifiInfo.bssid = newid;
+            return true;
+        }
+        return false;
+    }
+    wifi_id_lock.unlock();
+    
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
         return false;
     }
@@ -308,6 +340,18 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
         wifiInfo = sg_wifiinfo;
         return true;
     }
+
+    wifi_id_lock.lock();
+    // g_new_wifi_id_cb表示来自微信的调用, 而非外部开源调用，只有微信会设置g_new_wifi_id_cb
+    // 为了减少定位图片的出现次数:
+    // 微信逻辑改为_force_refresh = true并且sg_wifiinfo没有设置的情况下才强制获取一次
+    if (_force_refresh && g_new_wifi_id_cb) {
+        if (__WiFiInfoIsValid(sg_wifiinfo)) {
+            wifiInfo = sg_wifiinfo;
+            return true;
+        }
+    }
+    wifi_id_lock.unlock();
     lock.unlock();
     NSArray *ifs = nil;
     @synchronized (@"CNCopySupportedInterfaces") {

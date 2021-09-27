@@ -110,6 +110,7 @@ class NetSource {
     void ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec);
 
     bool CanUseIPv6FromIpStrategy() {return ipportstrategy_.CanUseIPv6();}
+    void InitHistory2BannedList(bool _save);
 
 
   private:

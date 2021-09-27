@@ -208,6 +208,9 @@ bool isNetworkConnected();
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 
+void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
+void ResetWiFiIdCallBack();
+
 inline int getCurrNetLabel(std::string& netInfo) {
     netInfo = "defalut";
     int netId = getNetInfo();
