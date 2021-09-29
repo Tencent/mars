@@ -22,6 +22,7 @@
 #define COMM_PLATFORM_COMM_H_
 
 #include <string>
+#include <functional>
 
 #ifdef ANDROID 
 #include "mars/comm/thread/mutex.h"

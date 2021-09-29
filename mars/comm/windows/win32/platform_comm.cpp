@@ -11,13 +11,29 @@
 #include "xlogger/xlogger.h"
 #include "xlogger/loginfo_extract.h"
 #include "NetUtil.h"
+#include "comm/thread/mutex.h"
+#include "comm/thread/lock.h"
 
 
 using namespace std;
 
+static mars::comm::WifiInfo sg_wifiinfo;
+static mars::comm::Mutex sg_wifiinfo_mutex;
+
 namespace mars{
     namespace comm {
 
+        static std::function<bool(std::string&)> g_new_wifi_id_cb;
+        static mars::comm::Mutex wifi_id_mutex;
+
+        void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
+            mars::comm::ScopedLock lock(wifi_id_mutex);
+            g_new_wifi_id_cb = _cb;
+        }
+        void ResetWiFiIdCallBack() {
+            mars::comm::ScopedLock lock(wifi_id_mutex);
+            g_new_wifi_id_cb = NULL;
+        }
 
         bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
             xverbose_function();
