@@ -115,6 +115,8 @@ struct ConnectProfile {
         req_byte_count = 0;
         cgi.clear();
         ipv6_connect_failed = false;
+        ipv6only_but_v4_successful = false;
+        ipv6_failed_but_v4_successful = false;
 
         start_connect_time = 0;
         connect_successful_time = 0;
@@ -178,6 +180,8 @@ struct ConnectProfile {
     uint64_t req_byte_count;
     std::string cgi; 
     bool ipv6_connect_failed;
+    bool ipv6only_but_v4_successful;
+    bool ipv6_failed_but_v4_successful;
     //opreator identify
     std::string connection_identify;
     bool tls_handshake_mismatch;
