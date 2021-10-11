@@ -136,6 +136,7 @@ class LongLink {
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
 
     std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
+    void TrigNoop();
     
     LongLinkEncoder& Encoder() const { return encoder_; }
     void SetDnsFunc(comm::DNS::DNSFunc _dns_func) {
@@ -204,6 +205,8 @@ class LongLink {
     unsigned long long              lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
     bool            svr_trig_off_;       //with minor longlink, if server close the socket, do not auto rebuild until task
+    Alarm alarmnooptimeout_;
+    bool isnooping_;
 };
         
 }}
