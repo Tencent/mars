@@ -152,7 +152,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
 #endif
     , encoder_(_encoder)
     , svr_trig_off_(false)
-    , alarmnooptimeout_(boost::bind(&LongLink::__OnAlarm, this), false)
+    , alarmnooptimeout_(boost::bind(&LongLink::__OnAlarm, this, true), false)
     , isnooping_(false)
 {
     xinfo2(TSF"handler:(%_,%_) linktype:%_", asyncreg_.Get().queue, asyncreg_.Get().seq, ChannelTypeString[_config.link_type]);
@@ -599,7 +599,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 
 void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile) {
     
-    Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this), false);
+    Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this, false), false);
     
     std::map <uint32_t, StreamResp> sent_taskids;
     std::vector<LongLinkNWriteData> nsent_datas;
