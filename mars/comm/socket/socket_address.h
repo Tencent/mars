@@ -86,4 +86,6 @@ class socket_address {
     char   url_[128];
 };
 
+bool operator==(const socket_address& lhs, const socket_address& rhs);
+
 #endif /* SOCKET_ADDRESS_H_ */

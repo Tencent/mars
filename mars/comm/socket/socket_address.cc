@@ -369,3 +369,8 @@ const sockaddr_in* socket_address::_asv4() const{
 const sockaddr_in6* socket_address::_asv6() const{
     return reinterpret_cast<const sockaddr_in6*>(&addr_);
 }
+
+//
+bool operator==(const socket_address& lhs, const socket_address& rhs){
+    return lhs.is_ipport_equal(rhs);
+}
