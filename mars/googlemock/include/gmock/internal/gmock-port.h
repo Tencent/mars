@@ -37,11 +37,12 @@
 
 // GOOGLETEST_CM0002 DO NOT DELETE
 
-#ifndef GMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
-#define GMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
+#ifndef GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
+#define GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
 
 #include <assert.h>
 #include <stdlib.h>
+#include <cstdint>
 #include <iostream>
 
 // Most of the utilities needed for porting Google Mock are also
@@ -69,8 +70,7 @@
 
 // Macros for declaring flags.
 # define GMOCK_DECLARE_bool_(name) extern GTEST_API_ bool GMOCK_FLAG(name)
-# define GMOCK_DECLARE_int32_(name) \
-    extern GTEST_API_ ::testing::internal::Int32 GMOCK_FLAG(name)
+# define GMOCK_DECLARE_int32_(name) extern GTEST_API_ int32_t GMOCK_FLAG(name)
 # define GMOCK_DECLARE_string_(name) \
     extern GTEST_API_ ::std::string GMOCK_FLAG(name)
 
@@ -78,10 +78,10 @@
 # define GMOCK_DEFINE_bool_(name, default_val, doc) \
     GTEST_API_ bool GMOCK_FLAG(name) = (default_val)
 # define GMOCK_DEFINE_int32_(name, default_val, doc) \
-    GTEST_API_ ::testing::internal::Int32 GMOCK_FLAG(name) = (default_val)
+    GTEST_API_ int32_t GMOCK_FLAG(name) = (default_val)
 # define GMOCK_DEFINE_string_(name, default_val, doc) \
     GTEST_API_ ::std::string GMOCK_FLAG(name) = (default_val)
 
 #endif  // !defined(GMOCK_DECLARE_bool_)
 
-#endif  // GMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
+#endif  // GOOGLEMOCK_INCLUDE_GMOCK_INTERNAL_GMOCK_PORT_H_
