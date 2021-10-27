@@ -35,8 +35,8 @@
 // directly.
 // GOOGLETEST_CM0001 DO NOT DELETE
 
-#ifndef GTEST_INCLUDE_GTEST_GTEST_DEATH_TEST_H_
-#define GTEST_INCLUDE_GTEST_GTEST_DEATH_TEST_H_
+#ifndef GOOGLETEST_INCLUDE_GTEST_GTEST_DEATH_TEST_H_
+#define GOOGLETEST_INCLUDE_GTEST_GTEST_DEATH_TEST_H_
 
 #include "gtest/internal/gtest-death-test-internal.h"
 
@@ -96,6 +96,10 @@ GTEST_API_ bool InDeathTestChild();
 //   }
 //
 //   ASSERT_EXIT(client.HangUpServer(), KilledBySIGHUP, "Hanging up!");
+//
+// The final parameter to each of these macros is a matcher applied to any data
+// the sub-process wrote to stderr.  For compatibility with existing tests, a
+// bare string is interpreted as a regular expression matcher.
 //
 // On the regular expressions used in death tests:
 //
@@ -162,27 +166,27 @@ GTEST_API_ bool InDeathTestChild();
 //   directory in PATH.
 //
 
-// Asserts that a given statement causes the program to exit, with an
-// integer exit status that satisfies predicate, and emitting error output
-// that matches regex.
-# define ASSERT_EXIT(statement, predicate, regex) \
-    GTEST_DEATH_TEST_(statement, predicate, regex, GTEST_FATAL_FAILURE_)
+// Asserts that a given `statement` causes the program to exit, with an
+// integer exit status that satisfies `predicate`, and emitting error output
+// that matches `matcher`.
+# define ASSERT_EXIT(statement, predicate, matcher) \
+    GTEST_DEATH_TEST_(statement, predicate, matcher, GTEST_FATAL_FAILURE_)
 
-// Like ASSERT_EXIT, but continues on to successive tests in the
+// Like `ASSERT_EXIT`, but continues on to successive tests in the
 // test suite, if any:
-# define EXPECT_EXIT(statement, predicate, regex) \
-    GTEST_DEATH_TEST_(statement, predicate, regex, GTEST_NONFATAL_FAILURE_)
+# define EXPECT_EXIT(statement, predicate, matcher) \
+    GTEST_DEATH_TEST_(statement, predicate, matcher, GTEST_NONFATAL_FAILURE_)
 
-// Asserts that a given statement causes the program to exit, either by
+// Asserts that a given `statement` causes the program to exit, either by
 // explicitly exiting with a nonzero exit code or being killed by a
-// signal, and emitting error output that matches regex.
-# define ASSERT_DEATH(statement, regex) \
-    ASSERT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, regex)
+// signal, and emitting error output that matches `matcher`.
+# define ASSERT_DEATH(statement, matcher) \
+    ASSERT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, matcher)
 
-// Like ASSERT_DEATH, but continues on to successive tests in the
+// Like `ASSERT_DEATH`, but continues on to successive tests in the
 // test suite, if any:
-# define EXPECT_DEATH(statement, regex) \
-    EXPECT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, regex)
+# define EXPECT_DEATH(statement, matcher) \
+    EXPECT_EXIT(statement, ::testing::internal::ExitedUnsuccessfully, matcher)
 
 // Two predicate classes that can be used in {ASSERT,EXPECT}_EXIT*:
 
@@ -190,11 +194,10 @@ GTEST_API_ bool InDeathTestChild();
 class GTEST_API_ ExitedWithCode {
  public:
   explicit ExitedWithCode(int exit_code);
+  ExitedWithCode(const ExitedWithCode&) = default;
+  void operator=(const ExitedWithCode& other) = delete;
   bool operator()(int exit_status) const;
  private:
-  // No implementation - assignment is unsupported.
-  void operator=(const ExitedWithCode& other);
-
   const int exit_code_;
 };
 
@@ -340,4 +343,4 @@ class GTEST_API_ KilledBySignal {
 
 }  // namespace testing
 
-#endif  // GTEST_INCLUDE_GTEST_GTEST_DEATH_TEST_H_
+#endif  // GOOGLETEST_INCLUDE_GTEST_GTEST_DEATH_TEST_H_
