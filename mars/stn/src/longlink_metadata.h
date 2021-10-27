@@ -37,7 +37,7 @@ public:
 
     virtual ~LongLinkMetaData();
     std::shared_ptr<LongLink> Channel() {
-        if(!longlink_) { // do not use (longlink_ == nullptr), or may cause NPE when someone calls this function
+        if(!longlink_) {
             xassert2(false, TSF"null longlink, name:%_", config_.name.c_str());
             return nullptr;
         }
@@ -55,6 +55,11 @@ public:
     
     std::shared_ptr<NetSourceTimerCheck> Checker() {
         return netsource_checker_;
+    }
+    
+    bool IsConnected() const{
+        if (!longlink_) return false;
+        return longlink_->ConnectStatus() == LongLink::TLongLinkStatus::kConnected;
     }
 
 private:

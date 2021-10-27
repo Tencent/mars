@@ -299,17 +299,13 @@ void NetCore::StartTask(const Task& _task) {
     }
 
     auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
-    if (task.channel_name == RUNON_MAIN_LONGLINK_NAME){
-        longlink = longlink_task_manager_->DefaultLongLink();
-        xassert2(longlink && longlink->Channel()->ConnectStatus() == LongLink::kConnected);
-        if (!longlink || longlink->Channel()->ConnectStatus() != LongLink::kConnected){
-            xerror2(TSF"error main longlink unavailable. (%_, %_), ", kEctLocal, kEctMainLongLinkUnAvailable) >> group;
-            return;
-        }
-        
-        xassert2(longlink->Config().IsMain());
-        task.channel_name = longlink->Config().name;
+    if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink || !longlink->IsConnected())){
+        //.必须长链或副长链，但指定连接不存在，则回调失败.
+        xerror2(TSF"err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
+        OnTaskEnd(task.taskid, task.user_context, task.channel_name, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
+        return;
     }
+
     std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
     if((task.channel_select & Task::kChannelMinorLong) && !task.minorlong_host_list.empty()) {
         longlink_task_manager_->FixMinorRealhost(task);
@@ -334,7 +330,7 @@ void NetCore::StartTask(const Task& _task) {
     && LongLink::kConnected != longlink_task_manager_->GetLongLink(task.channel_name)->Channel()->ConnectStatus()
 #endif
     ){
-        xerror2(TSF" error no net (%_, %_) return when no active", kEctLocal, kEctLocalNoNet) >> group;
+        xerror2(TSF"error no net (%_, %_) return when no active, ", kEctLocal, kEctLocalNoNet) >> group;
         ConnectProfile profile;
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet, profile);
         return;
@@ -618,7 +614,7 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 #ifdef USE_LONG_LINK
 
 void NetCore::__OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
-    xinfo2(TSF"task push seq:%_, cmdid:%_, len:%_", _taskid, _cmdid, _body.Length());
+    xinfo2(TSF"task push name:%_, seq:%_, cmdid:%_, len:%_", _channel_id, _taskid, _cmdid, _body.Length());
     push_preprocess_signal_(_cmdid, _body);
     OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 }
