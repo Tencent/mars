@@ -53,6 +53,8 @@ boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protoc
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
 boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
+boost::function<bool (int _error_code)> ShortLinkTaskManager::should_intercept_result_;
+
 
 ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -336,6 +338,24 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
+        std::string intercept_data;
+        if (task_intercept_.GetInterceptTaskInfo(first->task.cgi, intercept_data)) {
+            xwarn2(TSF"task has been intercepted");
+            AutoBuffer body;
+            AutoBuffer extension;
+            int err_code = 0;
+            body.Write(intercept_data.data(), intercept_data.length());
+            first->transfer_profile.received_size = body.Length();
+            first->transfer_profile.receive_data_size = body.Length();
+            first->transfer_profile.last_receive_pkg_time = ::gettickcount();
+            int handle_type = Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, Task::kChannelShort);
+            ConnectProfile profile;
+            __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, (unsigned int)first->transfer_profile.receive_data_size, profile);
+            first = next;
+            continue;
+        }
+        
+
         first->transfer_profile.loop_start_task_time = ::gettickcount();
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
         first->current_dyntime_status = (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
@@ -445,6 +465,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
     xinfo2_if(it->task.priority >= 0,  TSF"err_code %_ ",err_code);
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
+    if (should_intercept_result_ && should_intercept_result_(err_code))  {
+        task_intercept_.AddInterceptTask(it->task.cgi, std::string((const char*)_body.Ptr(), _body.Length()));
+    }
 
     switch(handle_type){
         case kTaskFailHandleNoError:
