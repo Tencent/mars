@@ -34,6 +34,7 @@
 
 #include "shortlink.h"
 #include "socket_pool.h"
+#include "task_intercept.h"
 
 class AutoBuffer;
 
@@ -64,6 +65,7 @@ class ShortLinkTaskManager {
     static boost::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
     static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
     static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
+    static boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
     ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
@@ -113,6 +115,7 @@ class ShortLinkTaskManager {
     comm::WakeUpLock*                     wakeup_lock_;
 #endif
     SocketPool socket_pool_;
+    TaskIntercept                   task_intercept_;
 };
         
 }
