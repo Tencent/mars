@@ -50,6 +50,7 @@ using namespace mars::comm;
 
 boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> LongLinkTaskManager::on_handshake_ready_;
+boost::function<bool (int _error_code)> LongLinkTaskManager::should_intercept_result_;
 
 static int longlink_id = 0;
 std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
@@ -457,6 +458,23 @@ void LongLinkTaskManager::__RunOnStartTask() {
 			}
 		}
 
+        std::string intercept_data;
+        if (task_intercept_.GetInterceptTaskInfo(first->task.cgi, intercept_data)) {
+            xwarn2(TSF"task has been intercepted");
+            AutoBuffer body;
+            AutoBuffer extension;
+            int err_code = 0;
+            body.Write(intercept_data.data(), intercept_data.length());
+            first->transfer_profile.received_size = body.Length();
+            first->transfer_profile.receive_data_size = body.Length();
+            first->transfer_profile.last_receive_pkg_time = ::gettickcount();
+            int handle_type = Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, longlink->Config().link_type);
+            ConnectProfile profile;
+            __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, profile);
+            first = next;
+            continue;
+        }
+
 		first->transfer_profile.loop_start_task_time = ::gettickcount();
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
         first->current_dyntime_status = (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
@@ -711,6 +729,9 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     
     int err_code = 0;
     int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, longlink_meta->Config().link_type);
+    if (should_intercept_result_ && should_intercept_result_(err_code))  {
+        task_intercept_.AddInterceptTask(it->task.cgi, std::string((const char*)body->Ptr(), body->Length()));
+    }
     
     switch(handle_type){
         case kTaskFailHandleNoError:

@@ -31,6 +31,7 @@
 #include "mars/stn/stn.h"
 
 #include "longlink_metadata.h"
+#include "task_intercept.h"
 
 class AutoBuffer;
 
@@ -61,6 +62,7 @@ class LongLinkTaskManager {
     
     static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
     static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
+    static boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
     LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
@@ -147,6 +149,7 @@ class LongLinkTaskManager {
     comm::Mutex                     meta_mutex_;
     comm::Mutex                     mutex_;
     static std::set<std::string>    forbid_tls_host_;
+    TaskIntercept                   task_intercept_;
 };
     }
 }
