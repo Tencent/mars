@@ -362,9 +362,6 @@ void NetCore::StartTask(const Task& _task) {
     xgroup2() << group;
 
     int channel = __ChooseChannel(task, longlink, minorlonglink);
-    if (_task.cgi.find("getcdndns") != std::string::npos || _task.cgi.find("getnetworkinfo") != std::string::npos) {
-        channel = Task::kChannelLong;
-    }
     switch (channel) {
 #ifdef USE_LONG_LINK
     case Task::kChannelMinorLong:
