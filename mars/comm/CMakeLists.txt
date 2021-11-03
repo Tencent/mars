@@ -59,6 +59,10 @@ file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} messagequeue/*.cc m
 source_group(messagequeue FILES ${SELF_TEMP_SRC_FILES})
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
+if(WATCHOS)
+    add_definitions(-DWATCHOS)
+endif()
+
  
  
 if(MSVC)

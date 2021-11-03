@@ -150,6 +150,9 @@ int getdefaultgateway(struct in_addr * addr)
     int mib[] = {CTL_NET, PF_ROUTE, 0, AF_INET,
                  NET_RT_DUMP, 0, 0/*tableid*/};
 #endif
+    #ifdef WATCHOS
+        return -1;
+    #endif
     /* net.route.0.inet.flags.gateway */
     int mib[] = {CTL_NET, PF_ROUTE, 0, AF_INET,
                  NET_RT_FLAGS, RTF_GATEWAY};
