@@ -18,6 +18,9 @@
  */
 
 #include "log_zstd_buffer.h"
+
+#ifndef WATCHOS
+
 #include <cstdio>
 #include <time.h>
 #include <algorithm>
@@ -102,3 +105,4 @@ char LogZstdBuffer::__GetMagicAsyncStart() {
 
 }
 }
+#endif //WATCHOS

@@ -20,6 +20,8 @@
 #ifndef LOGZSTDBUFFER_H_
 #define LOGZSTDBUFFER_H_
 
+#ifndef WATCHOS
+
 #include <string>
 #include <stdint.h>
 
@@ -53,5 +55,7 @@ private:
 
 }
 }
+
+#endif //WATCHOS
 
 #endif /* LOGZSTDBUFFER_H_ */
