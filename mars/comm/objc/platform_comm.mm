@@ -309,7 +309,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
         
     id info = nil;
     for (NSString *ifnam in ifs) {
-        info = (id)CNCopyCurrentNetworkInfo((CFStringRef)ifnam);
+        // info = (id)CNCopyCurrentNetworkInfo((CFStringRef)ifnam);
         if (info && [info count] && info[@"SSID"]) {
             break;
         }
