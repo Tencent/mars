@@ -69,7 +69,7 @@ static MarsNetworkStatus __GetNetworkStatus()
 #if TARGET_OS_WATCH
     return ReachableViaWiFi;
 #else
-    return [MarsReachability getCacheReachabilityStatus:NO];
+    return [AeMarsReachability getCacheReachabilityStatus:NO];
 #endif
 }
 
@@ -78,7 +78,7 @@ static Mutex sg_wifiinfo_mutex;
 
 void FlushReachability() {
 #if !TARGET_OS_WATCH
-    [MarsReachability getCacheReachabilityStatus:YES];
+    [AeMarsReachability getCacheReachabilityStatus:YES];
     ScopedLock lock(sg_wifiinfo_mutex);
     sg_wifiinfo.ssid.clear();
     sg_wifiinfo.bssid.clear();
@@ -309,7 +309,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
         
     id info = nil;
     for (NSString *ifnam in ifs) {
-        info = (id)CNCopyCurrentNetworkInfo((CFStringRef)ifnam);
+        // info = (id)CNCopyCurrentNetworkInfo((CFStringRef)ifnam);
         if (info && [info count] && info[@"SSID"]) {
             break;
         }
