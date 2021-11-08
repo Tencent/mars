@@ -36,8 +36,8 @@ file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} crypt/micro-ecc-mas
 source_group(crypt\\micro-ecc-master FILES ${SELF_TEMP_SRC_FILES})
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
-if(DWATCHOS)
-    add_definitions(WATCHOS)
+if(WATCHOS)
+    add_definitions(-DWATCHOS)
 endif()
 
 
