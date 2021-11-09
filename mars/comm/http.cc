@@ -732,7 +732,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
         return  recvstatus_;
     }
     
-    xassert2(_buffer);
     if ((NULL == _buffer || 0 == _length)){
         xwarn2(TSF"Recv(%_, %_), status:%_", NULL==_buffer?"NULL":_buffer, _length, recvstatus_);
         return recvstatus_;
