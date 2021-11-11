@@ -299,6 +299,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         first->task.shortlink_host_list = hosts;
         
         std::string host = hosts.front();
+        if (config.use_quic){
+            config.quic.hostname = host;
+        }
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
