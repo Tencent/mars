@@ -52,6 +52,9 @@ static std::vector<std::string> sg_longlink_hosts;
 static std::vector<uint16_t> sg_longlink_ports;
 static std::string sg_longlink_debugip;
 
+static std::string sg_minorlong_debugip;
+static uint16_t sg_minorlong_port = 0;
+
 static int sg_shortlink_port;
 static std::string sg_shortlink_debugip;
 static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
@@ -123,6 +126,13 @@ void NetSource::SetShortlink(const uint16_t _port, const std::string& _debugip) 
     sg_shortlink_debugip = _debugip;
 }
 
+void NetSource::SetMinorLongDebugIP(const std::string& _ip, const uint16_t _port) {
+    ScopedLock lock(sg_ip_mutex);
+    xinfo2(TSF "task set minorlong server addr, port:%_, debugip:%_", _port, _ip);
+    sg_minorlong_debugip = _ip;
+    sg_minorlong_port = _port;
+}
+
 void NetSource::SetBackupIPs(const std::string& _host, const std::vector<std::string>& _ips) {
 	ScopedLock lock(sg_ip_mutex);
 
@@ -156,6 +166,11 @@ const std::string& NetSource::GetLongLinkDebugIP() {
 const std::string& NetSource::GetShortLinkDebugIP() {
     ScopedLock lock(sg_ip_mutex);
     return sg_shortlink_debugip;
+}
+
+const std::string& NetSource::GetMinorLongLinkDebugIP() {
+    ScopedLock lock(sg_ip_mutex);
+    return sg_minorlong_debugip;
 }
 
 void NetSource::SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports) {
