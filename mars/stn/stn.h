@@ -173,6 +173,7 @@ public:
 struct QuicParameters{
     bool enable_0rtt = true;
     std::string alpn;
+    std::string hostname;
 };
 struct ShortlinkConfig {
 public:
@@ -226,7 +227,7 @@ enum {
 	kEctLocalCgiFrequcencyLimit = -13,
 	kEctLocalChannelID = -14,
     kEctLocalLongLinkReleased = -15,
-    kEctMainLongLinkUnAvailable = -16,
+    kEctLocalLongLinkUnAvailable = -16,
 };
 
 // -600 ~ -500
