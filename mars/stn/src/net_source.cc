@@ -52,6 +52,9 @@ static std::vector<std::string> sg_longlink_hosts;
 static std::vector<uint16_t> sg_longlink_ports;
 static std::string sg_longlink_debugip;
 
+static std::string sg_minorlong_debugip;
+static uint16_t sg_minorlong_port = 0;
+
 static int sg_shortlink_port;
 static std::string sg_shortlink_debugip;
 static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
@@ -123,6 +126,13 @@ void NetSource::SetShortlink(const uint16_t _port, const std::string& _debugip) 
     sg_shortlink_debugip = _debugip;
 }
 
+void NetSource::SetMinorLongDebugIP(const std::string& _ip, const uint16_t _port) {
+    ScopedLock lock(sg_ip_mutex);
+    xinfo2(TSF "task set minorlong server addr, port:%_, debugip:%_", _port, _ip);
+    sg_minorlong_debugip = _ip;
+    sg_minorlong_port = _port;
+}
+
 void NetSource::SetBackupIPs(const std::string& _host, const std::vector<std::string>& _ips) {
 	ScopedLock lock(sg_ip_mutex);
 
@@ -158,6 +168,11 @@ const std::string& NetSource::GetShortLinkDebugIP() {
     return sg_shortlink_debugip;
 }
 
+const std::string& NetSource::GetMinorLongLinkDebugIP() {
+    ScopedLock lock(sg_ip_mutex);
+    return sg_minorlong_debugip;
+}
+
 void NetSource::SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports) {
     sg_lowpriority_longlink_ports = _lowpriority_longlink_ports;
 }
@@ -177,17 +192,17 @@ void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
 	_ports = sg_longlink_ports;
 }
 
-bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::vector<std::string>& _host_list) {
+bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& _dns_util, std::vector<IPPortItem>& _ipport_items) {
     xinfo_function();
     ScopedLock lock(sg_ip_mutex);
 
-    if (__GetLonglinkDebugIPPort(_ipport_items)) {
+    if (__GetLonglinkDebugIPPort(_config, _ipport_items)) {
         return true;
     }
     
     lock.unlock();
 
-    std::vector<std::string> longlink_hosts = _host_list;
+    std::vector<std::string> longlink_hosts = _config.host_list;
     if(longlink_hosts.empty())
         longlink_hosts = NetSource::GetLongLinkHosts();
  	if (longlink_hosts.empty()) {
@@ -200,7 +215,7 @@ bool NetSource::GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil
 	return !_ipport_items.empty();
 }
 
-bool NetSource::__GetLonglinkDebugIPPort(std::vector<IPPortItem>& _ipport_items) {
+bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items) {
 
 	for (std::vector<std::string>::iterator ip_iter = sg_longlink_hosts.begin(); ip_iter != sg_longlink_hosts.end(); ++ip_iter) {
 		if (sg_host_debugip_mapping.find(*ip_iter) != sg_host_debugip_mapping.end()) {
@@ -216,11 +231,18 @@ bool NetSource::__GetLonglinkDebugIPPort(std::vector<IPPortItem>& _ipport_items)
 		}
 	}
 
-    if (!sg_longlink_debugip.empty()) {
+    if ((_config.link_type == Task::kChannelLong && !sg_longlink_debugip.empty()) ||
+        (_config.link_type == Task::kChannelMinorLong && !sg_minorlong_debugip.empty())) {
         for (std::vector<uint16_t>::iterator iter = sg_longlink_ports.begin(); iter != sg_longlink_ports.end(); ++iter) {
             IPPortItem item;
-            item.str_ip = sg_longlink_debugip;
-            item.str_host = sg_longlink_hosts.front();
+            
+            if (_config.link_type == Task::kChannelLong){
+                item.str_ip = sg_longlink_debugip;
+                item.str_host = sg_longlink_hosts.front();
+            }else{
+                item.str_ip = sg_minorlong_debugip;
+                item.str_host = _config.host_list.front();
+            }
             item.port = *iter;
             item.source_type = kIPSourceDebug;
             _ipport_items.push_back(item);

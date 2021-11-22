@@ -76,6 +76,10 @@ class NetSource {
     static const std::string& GetLongLinkDebugIP();
     static const std::string& GetShortLinkDebugIP();
     
+    // set minorlong debugip
+    static void SetMinorLongDebugIP(const std::string& _ip, const uint16_t _port);
+    static const std::string& GetMinorLongLinkDebugIP();
+    
     static void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 
     static void GetLonglinkPorts(std::vector<uint16_t>& _ports);
@@ -92,7 +96,7 @@ class NetSource {
 
   public:
     // for long link
-    bool GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::vector<std::string>& _host_list);
+    bool GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& _dns_util, std::vector<IPPortItem>& _ipport_items);
 
     // for short link
     bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
@@ -117,7 +121,7 @@ class NetSource {
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
     
-    bool __GetLonglinkDebugIPPort(std::vector<IPPortItem>& _ipport_items);
+    bool __GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items);
     bool __GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items);
 
     void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const std::vector<std::string>& _hostlist, DnsUtil& _dns_util, bool _islonglink);
