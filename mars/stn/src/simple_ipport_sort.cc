@@ -304,7 +304,6 @@ bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
 }
 
 void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip, unsigned short _port) {
-    __UpdateBanFlagAndTime(_ip, _is_success);
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             SET_BIT(!_is_success, iter->records);
@@ -327,57 +326,6 @@ void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip,
         item.last_fail_time.gettickcount();
     
     _ban_fail_list_.push_back(item);
-}
-
-
-static int DecToBin(int _dec) {
-	int result = 0, temp = _dec, j = 1;
-	while(temp) {
-		result = result + j * (temp % 2);
-		temp /= 2;
-		j = j * 10;
-	}
-	return result;
-}
-
-void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _success) {
-    if (__IsIPv6(_ip)) {
-        if (_success) {
-            SET_BIT(0, IPv6_ban_flag_);
-        } else {
-            SET_BIT(1, IPv6_ban_flag_);
-        }
-        IPv6_ban_flag_ &= 0x7F;
-        if (__BanTimes(IPv6_ban_flag_) >= 3) {
-            ban_v6_ = true;
-        }
-    } else {
-        if (_success) {
-            SET_BIT(0, IPv4_ban_flag_);
-        } else {
-            SET_BIT(1, IPv4_ban_flag_);
-        }
-        IPv4_ban_flag_ &= 0x7F;
-        if (__BanTimes(IPv4_ban_flag_) >= 3) {
-            ban_v6_ = false;
-        }
-    }
-    xdebug2(TSF"ip is %_, success is %_ , current v6 flag %_ , current v4 flag %_", _ip, _success, DecToBin(IPv6_ban_flag_), DecToBin(IPv4_ban_flag_));
-}
-
-int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
-    int ban_times = 0;
-    uint8_t tmp_v6 = _flag;
-    while (tmp_v6 & 1) {
-        ban_times ++;
-        tmp_v6 = tmp_v6 >> 1;
-    }
-    xinfo2(TSF"flag is %_, ban time is %_ ", _flag, ban_times);
-    return ban_times;
-}
-
-bool SimpleIPPortSort::CanUseIPv6() {
-    return !ban_v6_;
 }
 
 bool SimpleIPPortSort::__IsIPv6(const std::string& _ip) {

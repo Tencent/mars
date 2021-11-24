@@ -52,9 +52,15 @@ public:
     virtual SOCKET CreateStream(SOCKET _sock) override{
         return INVALID_SOCKET;
     }
+    void SetIpConnectionTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) override {
+        v4_timeout_ = _v4_timeout;
+        v6_timeout_ = _v6_timeout;
+    }
 private:
     std::shared_ptr<comm::MComplexConnect> observer_;
 	comm::SocketBreaker sBreaker_;
+    uint32_t v4_timeout_;
+    uint32_t v6_timeout_;
 };
 
 }

@@ -83,6 +83,8 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 
 NetSource::NetSource(ActiveLogic& _active_logic)
 	: active_logic_(_active_logic)
+    , v4_timeout_(0)
+    , v6_timeout_(0)
 {
     xinfo_function();
 }
@@ -545,4 +547,9 @@ void NetSource::ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec) 
 
 void NetSource::AddServerBan(const std::string& _ip) {
     ipportstrategy_.AddServerBan(_ip);
+}
+
+void NetSource::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) {
+    v4_timeout_ = _v4_timeout;
+    v6_timeout_ = _v6_timeout;
 }

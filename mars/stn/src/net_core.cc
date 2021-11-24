@@ -869,6 +869,13 @@ void NetCore::InitHistory2BannedList() {
     std::call_once(of, once_fun);
 }
 
+void NetCore::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) {
+    if (net_source_) {
+        xinfo2(TSF"receive ip timeout: %_, %_", _v4_timeout, _v6_timeout);
+        net_source_->SetIpConnectTimeout(_v4_timeout, _v6_timeout);
+    }
+}
+
 void NetCore::DestroyLongLink(const std::string& _name){
 	WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::DestroyLongLink, this, _name));
     auto longlink = longlink_task_manager_->GetLongLink(_name);

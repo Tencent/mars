@@ -55,15 +55,12 @@ class MComplexConnect {
 class ComplexConnect {
 
   public:
-    enum EachIPConnectTimoutMode {
-      MODE_FIXED = 1,
-      MODE_INCREASE = 2,
-    };
 
   public:
     ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/);
     ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, unsigned int _error_interval /*ms*/, unsigned int _max_connect);
-    ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, EachIPConnectTimoutMode _mode);
+    ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, unsigned int _error_interval /*ms*/, 
+                    unsigned int _v4_timeout, unsigned int _v6_timeout);
     ~ComplexConnect();
 
     SOCKET ConnectImpatient(const std::vector<socket_address>& _vecaddr, SocketBreaker& _breaker, MComplexConnect* _observer = NULL,
@@ -104,8 +101,10 @@ class ComplexConnect {
     int totalcost_;
     bool is_interrupted_;
     bool is_connective_check_failed_;
-    EachIPConnectTimoutMode each_IP_timeout_mode_;
     bool need_detail_log_;
+    unsigned int v4_timeout_;
+    unsigned int v6_timeout_;
+    bool indepent_timeout_;
 };
 
 }
