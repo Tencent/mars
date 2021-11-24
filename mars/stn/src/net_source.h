@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <tuple>
 
 #include "boost/function.hpp"
 
@@ -112,10 +113,9 @@ class NetSource {
 
     bool GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec);
     void ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec);
-
-    bool CanUseIPv6FromIpStrategy() {return ipportstrategy_.CanUseIPv6();}
     void InitHistory2BannedList(bool _save);
-
+    void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
+    std::tuple<uint32_t, uint32_t> GetIpConnectTimeout() {return std::make_tuple(v4_timeout_, v6_timeout_);}
 
   private:
     
@@ -130,6 +130,8 @@ class NetSource {
   private:
     comm::ActiveLogic&  active_logic_;
     SimpleIPPortSort    ipportstrategy_;
+    uint32_t v4_timeout_;
+    uint32_t v6_timeout_;
 };
         
     }

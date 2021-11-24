@@ -51,6 +51,7 @@ namespace mars {
             virtual std::string Identify(SOCKET _sock) const = 0;
             virtual int Protocol() const = 0;   // return Task::kTransportProtocol xxx
             virtual SOCKET CreateStream(SOCKET _sock) = 0;
+            virtual void SetIpConnectionTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) {}
 		protected:
             SocketProfile profile_;
             std::unique_ptr<OPBreaker> breaker_;
