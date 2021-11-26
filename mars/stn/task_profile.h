@@ -117,6 +117,7 @@ struct ConnectProfile {
         ipv6_connect_failed = false;
         ipv6only_but_v4_successful = false;
         ipv6_failed_but_v4_successful = false;
+        dual_stack_but_use_v4 = false;
 
         start_connect_time = 0;
         connect_successful_time = 0;
@@ -182,6 +183,7 @@ struct ConnectProfile {
     bool ipv6_connect_failed;
     bool ipv6only_but_v4_successful;
     bool ipv6_failed_but_v4_successful;
+    bool dual_stack_but_use_v4;
     //opreator identify
     std::string connection_identify;
     bool tls_handshake_mismatch;
