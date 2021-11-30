@@ -20,6 +20,8 @@
 
 #include "shortlink.h"
 
+#include <tuple>
+
 #include "boost/bind.hpp"
 
 #include "mars/comm/xlogger/xlogger.h"
@@ -328,6 +330,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     ShortLinkConnectObserver connect_observer(*this);
 
     _conn_profile.start_connect_time = ::gettickcount();
+    auto ip_timeout = net_source_.GetIpConnectTimeout();
+    socketOperator_->SetIpConnectionTimeout(std::get<0>(ip_timeout), std::get<1>(ip_timeout));
+    xdebug2(TSF"ip connect time: %_, %_", std::get<0>(ip_timeout), std::get<1>(ip_timeout));
     SOCKET sock = socketOperator_->Connect(vecaddr, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
 	_conn_profile.connect_successful_time = ::gettickcount();
     delete proxy_addr;

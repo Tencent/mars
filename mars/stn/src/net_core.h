@@ -96,6 +96,7 @@ class NetCore {
     void SetDebugHost(const std::string& _host);
     void ForbidLonglinkTlsHost(const std::vector<std::string>& _host);
     void InitHistory2BannedList();
+    void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
 
 public:
     
