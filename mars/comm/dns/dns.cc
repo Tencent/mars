@@ -62,7 +62,8 @@ static Mutex sg_mutex;
 static void __GetIP() {
     xverbose_function();
 
-
+    auto start_time = ::gettickcount();
+    
     std::string host_name;
     DNS::DNSFunc dnsfunc = NULL;
 
@@ -161,6 +162,7 @@ static void __GetIP() {
             
             freeaddrinfo(result);
             iter->status = kGetIPSuc;
+            xinfo2(TSF"cost time: %_", (::gettickcount() - start_time)) >> ip_group;
             sg_condition.notifyAll();
         }
     } else {
