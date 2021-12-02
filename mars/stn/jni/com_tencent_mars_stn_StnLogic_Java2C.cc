@@ -286,6 +286,12 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_redoTask
 
     RedoTasks();
 }
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_touchTasks
+  (JNIEnv *_env, jclass) {
+    TouchTasks();
+}
+
 /*
  * Class:     com_tencent_mars_stn_StnLogic_Java2C
  * Method:    clearTask

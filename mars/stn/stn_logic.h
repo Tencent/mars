@@ -109,6 +109,9 @@ namespace stn{
     // reconnect longlink and redo all task
     // when you change svr ip, you must call this function.
 	extern void (*RedoTasks)();
+
+    // touch tasks loop. Generally, invoke it after autoauth successfully.
+    extern void (*TouchTasks)();
     
     // stop and clear all task
 	extern void (*ClearTasks)();
