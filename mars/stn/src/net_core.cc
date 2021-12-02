@@ -581,8 +581,7 @@ int NetCore::__CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fai
         return 0;
      }
     if (kEctOK == _err_type || kTaskFailHandleTaskEnd == _fail_handle)
-        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, GetConnectProfile(_task.taskid, Task::kChannelShort));
-
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, GetConnectProfile(_task.taskid, _task.channel_select));
     ConnectProfile profile;
     if (kCallFromZombie == _from)
         return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
@@ -792,11 +791,13 @@ void NetCore::AddServerBan(const std::string& _ip) {
 }
 
 ConnectProfile NetCore::GetConnectProfile(uint32_t _taskid, int _channel_select) {
+    xdebug2(TSF"channel %_", _channel_select);
     if (_channel_select == Task::kChannelShort) {
         return shortlink_task_manager_->GetConnectProfile(_taskid);
     }
 #ifdef USE_LONG_LINK
-    else if (_channel_select == Task::kChannelLong || _channel_select == Task::kChannelMinorLong) {
+    else if (_channel_select == Task::kChannelLong || _channel_select == Task::kChannelMinorLong 
+            || _channel_select == Task::kChannelBoth) {
         return longlink_task_manager_->GetConnectProfile(_taskid);
     }
 #endif
