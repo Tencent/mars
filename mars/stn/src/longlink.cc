@@ -181,6 +181,8 @@ bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const
     Encoder().longlink_pack(_task.cmdid, _task.taskid, _body, _extension, lstsenddata_.back().second, tracker_.get());
     lstsenddata_.back().second->Seek(0, AutoBuffer::ESeekStart);
 
+    conn_profile_.start_read_packet_time = 0;
+    conn_profile_.start_connect_time = 0;
     readwritebreak_.Break();
     return true;
 }
