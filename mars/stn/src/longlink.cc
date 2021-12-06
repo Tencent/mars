@@ -183,6 +183,8 @@ bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const
 
     conn_profile_.start_read_packet_time = 0;
     conn_profile_.start_connect_time = 0;
+
+    xdebug2(TSF"longlink Send time: %_", ::gettickcount());  
     readwritebreak_.Break();
     return true;
 }
