@@ -82,6 +82,7 @@ class NetCore {
     bool    HasTask(uint32_t _taskid) const;
     void    ClearTasks();
     void    RedoTasks();
+    void    TouchTasks();
     void    RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id);
 
     void    MakeSureLongLinkConnect();

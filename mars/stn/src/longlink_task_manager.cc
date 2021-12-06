@@ -194,6 +194,10 @@ void LongLinkTaskManager::RedoTasks() {
     __RedoTasks("");
 }
 
+void LongLinkTaskManager::TouchTasks() {
+    __RunLoop();
+}
+
 void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
     xinfo_function(TSF"channel name:%_", _name);
 

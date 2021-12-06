@@ -185,6 +185,11 @@ void (*RedoTasks)()
    STN_WEAK_CALL(RedoTasks());
 };
 
+void (*TouchTasks)()
+= []() {
+   STN_WEAK_CALL(TouchTasks());
+};
+
 void (*ClearTasks)()
 = []() {
    STN_WEAK_CALL(ClearTasks());

@@ -584,6 +584,10 @@ void ShortLinkTaskManager::RedoTasks() {
     __RunLoop();
 }
 
+void ShortLinkTaskManager::TouchTasks() {
+    __RunLoop();
+}
+
 void ShortLinkTaskManager::RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid) {
     xverbose_function();
     xinfo2(TSF"RetryTasks taskid %_ ", _src_taskid);
