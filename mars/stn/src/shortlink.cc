@@ -620,6 +620,7 @@ void ShortLink::__RunResponseError(ErrCmdType _type, int _errcode, ConnectProfil
 void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body, AutoBuffer& _extension, ConnectProfile& _conn_profile, bool _report) {
 	_conn_profile.disconn_errtype = _errType;
 	_conn_profile.disconn_errcode = _status;
+    _conn_profile.channel_type = mars::stn::Task::kChannelShort;
 	__UpdateProfile(_conn_profile);
 
  //   xassert2(!breaker_.IsBreak());

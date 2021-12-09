@@ -126,9 +126,12 @@ struct ConnectProfile {
         start_send_packet_time = 0;
         start_read_packet_time = 0;
         read_packet_finished_time = 0;
+        retrans_byte_count = 0;
 		
         tls_handshake_mismatch = false;
         tls_handshake_success = false;
+        channel_type = 0;
+        rtt_by_socket = 0;
     }
     
     std::string net_type;
@@ -197,6 +200,9 @@ struct ConnectProfile {
     uint64_t start_send_packet_time;
     uint64_t start_read_packet_time;
     uint64_t read_packet_finished_time;
+    uint64_t retrans_byte_count;
+    int channel_type;
+    int rtt_by_socket;
 };
 
         
