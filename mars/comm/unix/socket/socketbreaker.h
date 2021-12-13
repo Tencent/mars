@@ -51,7 +51,7 @@ class SocketBreaker {
     bool  create_success_;
     bool  broken_;
     int reason_;
-    Mutex mutex_;
+    mutable Mutex mutex_;
 };
 
 }

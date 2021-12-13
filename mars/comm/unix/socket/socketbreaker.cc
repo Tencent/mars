@@ -49,6 +49,7 @@ bool SocketBreaker::IsCreateSuc() const
 
 bool SocketBreaker::ReCreate()
 {
+    ScopedLock lock(mutex_);
     if(pipes_[1] >= 0)
         close(pipes_[1]);
     if(pipes_[0] >= 0)
@@ -96,6 +97,7 @@ bool SocketBreaker::ReCreate()
         return create_success_;
     }
 
+    xinfo2(TSF"created pipe[2] = {%_,%_}", pipes_[0], pipes_[1]);
     create_success_ = true;
     return create_success_;
 }
@@ -106,6 +108,7 @@ bool SocketBreaker::Break()
 
     if (broken_) return true;
 
+    xinfo2(TSF"write pipe[1] = %_", pipes_[1]);
     const char dummy = '1';
     int ret = (int)write(pipes_[1], &dummy, sizeof(dummy));
     broken_ = true;
@@ -131,6 +134,7 @@ bool SocketBreaker::Clear()
     char dummy[128];
     int ret = (int)read(pipes_[0], dummy, sizeof(dummy));
     int lasterror = errno;
+    xinfo2(TSF"read pipe[0] = %_, ret %_ err %_", pipes_[0], ret, lasterror);
     if (ret < 0 && EWOULDBLOCK != lasterror){
         xerror2(TSF"clear pipe Ret=%_, errno:(%_, %_)", ret, lasterror, strerror(lasterror));
         return false;
@@ -142,7 +146,9 @@ bool SocketBreaker::Clear()
 
 void SocketBreaker::Close()
 {
+    ScopedLock lock(mutex_);
     broken_ =  true;
+    xinfo2(TSF"close pipe[2] = {%_,%_}", pipes_[0], pipes_[1]);
     if(pipes_[1] >= 0)
         close(pipes_[1]);
     if(pipes_[0] >= 0)
@@ -153,11 +159,13 @@ void SocketBreaker::Close()
 
 int SocketBreaker::BreakerFD() const
 {
+    ScopedLock lock(mutex_);
     return pipes_[0];
 }
 
 bool SocketBreaker::IsBreak() const
 {
+    ScopedLock lock(mutex_);
     return broken_;
 }
 
