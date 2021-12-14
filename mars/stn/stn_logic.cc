@@ -277,7 +277,7 @@ uint32_t (*getNoopTaskID)()
 
 void network_export_symbols_0(){}
 
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
 	//callback functions
 bool (*MakesureAuthed)(const std::string& _host)
 = [](const std::string& _host) {

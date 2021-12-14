@@ -54,7 +54,7 @@ void SetCallback(Callback* const callback) {
 	sg_callback = callback;
 }
 
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     
     static mars::comm::ProxyInfo sg_proxyInfo;
     static bool sg_gotProxy = false;
@@ -63,6 +63,7 @@ void SetCallback(Callback* const callback) {
     static uint64_t sg_slporxytimetick = gettickcount();
     static int sg_slproxycount = 0;
     
+#if TARGET_OS_IPHONE
     static void __ClearProxyInfo() {
         ScopedLock lock(sg_slproxymutex);
         sg_slporxytimetick = gettickcount();
@@ -70,7 +71,7 @@ void SetCallback(Callback* const callback) {
         sg_gotProxy = false;
         sg_proxyInfo.type = mars::comm::kProxyNone;
     }
-    
+#endif
     static void __GetProxyInfo(const std::string& _host, uint64_t _timetick) {
         xinfo_function(TSF"timetick:%_, host:%_", _timetick, _host);
     
@@ -115,12 +116,12 @@ void SetCallback(Callback* const callback) {
         
     }
     
+#if TARGET_OS_IPHONE
     static void __InitbindBaseprjevent() {
         GetSignalOnNetworkChange().connect(&__ClearProxyInfo);
     }
 
     
-#if TARGET_OS_IPHONE
     BOOT_RUN_STARTUP(__InitbindBaseprjevent);
 #endif
     

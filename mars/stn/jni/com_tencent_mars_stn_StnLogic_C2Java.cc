@@ -15,6 +15,8 @@
  * author : yanguoyue
  */
 
+#ifndef USE_CPP_CALLBACK
+
 #include <jni.h>
 #include <vector>
 
@@ -458,5 +460,5 @@ void (*OnLongLinkStatusChange)(int _status)
 };
 }
 }
-
+#endif
 

@@ -748,6 +748,7 @@ static unsigned int to_string(const void* signature, int len, char* str) {
 }
 
 const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
+    if (sg_log_close) return "";
     if (NULL == _dumpbuffer || 0 == _len) {
         //        ASSERT(NULL!=_dumpbuffer);
         //        ASSERT(0!=_len);
