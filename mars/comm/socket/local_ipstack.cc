@@ -342,9 +342,9 @@ static bool GetWinV4GateWay() {
 	pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
 
 	if ((dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen)) == NO_ERROR) {
-
-		while (pAddresses) {
-			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pAddresses->FirstGatewayAddress;
+        PIP_ADAPTER_ADDRESSES pCurAddress = pAddresses;
+		while (pCurAddress) {
+			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pCurAddress->FirstGatewayAddress;
 			if (gateway) {
 
 				SOCKET_ADDRESS gateway_address = gateway->Address;
@@ -359,7 +359,7 @@ static bool GetWinV4GateWay() {
 					}
 				}
 			}
-			pAddresses = pAddresses->Next;
+			pCurAddress = pCurAddress->Next;
 		}
 	}
 	else {
@@ -383,9 +383,9 @@ static bool GetWinV6GateWay() {
 	pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
 
 	if ((dwRetVal = GetAdaptersAddresses(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen)) == NO_ERROR) {
-
-		while (pAddresses) {
-			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pAddresses->FirstGatewayAddress;
+        PIP_ADAPTER_ADDRESSES pCurAddress = pAddresses;
+		while (pCurAddress) {
+			PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pCurAddress->FirstGatewayAddress;
 			if (gateway) {
 
 				SOCKET_ADDRESS gateway_address = gateway->Address;
@@ -404,7 +404,7 @@ static bool GetWinV6GateWay() {
 					}
 				}
 			}
-			pAddresses = pAddresses->Next;
+			pCurAddress = pCurAddress->Next;
 		}
 	}
 	else {
