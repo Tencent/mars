@@ -46,7 +46,7 @@ class SocketBreaker {
     int   pipes_[2];
     bool  create_success_;
     bool  broken_;
-    Mutex mutex_;
+    mutable Mutex mutex_;
 };
 
 #endif

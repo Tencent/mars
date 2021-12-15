@@ -47,6 +47,7 @@ bool SocketBreaker::IsCreateSuc() const
 
 bool SocketBreaker::ReCreate()
 {
+    ScopedLock lock(mutex_);
     if(pipes_[1] >= 0)
         close(pipes_[1]);
     if(pipes_[0] >= 0)
@@ -111,7 +112,7 @@ bool SocketBreaker::Break()
 
     if (ret < 0 || ret != (int)sizeof(dummy))
     {
-        xerror2(TSF"Ret:%_, errno:(%_, %_)", ret, errno, strerror(errno));
+        xerror2(TSF"Ret:%_, fd %_ errno:(%_, %_)", ret, pipes_[1], errno, strerror(errno));
         broken_ =  false;
     }
 
@@ -136,6 +137,7 @@ bool SocketBreaker::Clear()
 
 void SocketBreaker::Close()
 {
+    ScopedLock lock(mutex_);
     broken_ =  true;
     if(pipes_[1] >= 0)
         close(pipes_[1]);
@@ -147,10 +149,12 @@ void SocketBreaker::Close()
 
 int SocketBreaker::BreakerFD() const
 {
+    ScopedLock lock(mutex_);
     return pipes_[0];
 }
 
 bool SocketBreaker::IsBreak() const
 {
+    ScopedLock lock(mutex_);
     return broken_;
 }
