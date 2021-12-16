@@ -190,7 +190,7 @@ void LongLinkTaskManager::RedoTasks() {
         longlink.second->Channel()->MakeSureConnected();
     }
 
-    __RedoTasks("");
+    __RedoTasks("", false);
 }
 
 void LongLinkTaskManager::__RedoTasks(const std::string& _name, bool need_lock_link) {
