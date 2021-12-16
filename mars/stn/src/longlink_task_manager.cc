@@ -193,7 +193,7 @@ void LongLinkTaskManager::RedoTasks() {
     __RedoTasks("");
 }
 
-void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
+void LongLinkTaskManager::__RedoTasks(const std::string& _name, bool need_lock_link) {
     xinfo_function(TSF"channel name:%_", _name);
 
     if (lst_cmd_.empty()) {
@@ -213,7 +213,8 @@ void LongLinkTaskManager::__RedoTasks(const std::string& _name) {
             continue;
         }
         first->last_failed_dyntime_status = 0;
-        auto longlink = GetLongLink(_name.empty() ? first->channel_name : _name);
+        auto link_name = (_name.empty() ? first->channel_name : _name);
+        auto longlink = need_lock_link ? GetLongLink(link_name) : GetLongLinkNoLock(link_name);
         if (longlink && first->running_id) {
             xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
             __SingleRespHandle(first, kEctLocal, kEctLocalCancel, kTaskFailHandleDefault, longlink->Channel()->Profile());
@@ -870,7 +871,7 @@ void LongLinkTaskManager::OnNetworkChange() {
     ScopedLock lock(meta_mutex_);
     for(auto& item : longlink_metas_) {
         if(item.second->Monitor()->NetworkChange()) {
-            __RedoTasks(item.first);
+            __RedoTasks(item.first, false);
         }
     }
 }
