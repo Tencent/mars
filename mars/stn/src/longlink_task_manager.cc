@@ -79,7 +79,7 @@ LongLinkTaskManager::~LongLinkTaskManager() {
     asyncreg_.CancelAndWait();
     __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
     
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     for(auto kv : longlink_metas_){
         ReleaseLongLink(kv.second);
     }
@@ -156,7 +156,7 @@ bool LongLinkTaskManager::HasTask(uint32_t _taskid) const {
 
 void LongLinkTaskManager::ClearTasks() {
     xverbose_function();
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     for(auto item : longlink_metas_) {
         item.second->Channel()->Disconnect(LongLink::kReset);
         MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[item.second->Config().name]);
@@ -182,7 +182,7 @@ unsigned int LongLinkTaskManager::GetTasksContinuousFailCount() {
 
 void LongLinkTaskManager::RedoTasks() {
     xinfo_function();
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     for(auto longlink : longlink_metas_) {
         longlink.second->Checker()->CancelConnect();
         longlink.second->Channel()->Disconnect(LongLink::kReset);
@@ -810,7 +810,7 @@ void LongLinkTaskManager::__SignalConnection(LongLink::TLongLinkStatus _connect_
 }
 
 std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLink(const std::string& _name) {
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     return GetLongLinkNoLock(_name);
 }
 
@@ -866,9 +866,18 @@ bool LongLinkTaskManager::IsMinorAvailable(const Task& _task) {
         return true;
 }
 
+std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::DefaultLongLink() {
+        MetaScopedLock lock(meta_mutex_);
+        for(auto& item : longlink_metas_) {
+            if(item.second->Config().IsMain()) {
+                return item.second;
+            }
+        }
+        return nullptr;
+    }
 
 void LongLinkTaskManager::OnNetworkChange() {
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     for(auto& item : longlink_metas_) {
         if(item.second->Monitor()->NetworkChange()) {
             __RedoTasks(item.first, false);
@@ -908,7 +917,7 @@ bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
         return false;
     }
     
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     longlink_id ++;
     if (longlink_id == INT_MAX) {
         longlink_id = 1;
@@ -936,7 +945,7 @@ bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
 
 void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     xinfo_function(TSF"release longlink:%_", _name);
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     auto longlink = GetLongLinkNoLock(_name);
     if(longlink == nullptr)
         return;
@@ -1040,7 +1049,7 @@ bool LongLinkTaskManager::__ForbidUseTls(const std::vector<std::string>& _host_l
 }
 
 void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
-    ScopedLock lock(meta_mutex_);
+    MetaScopedLock lock(meta_mutex_);
     for(auto& item : longlink_metas_) {
         xinfo2(TSF"longlink channel name:%_, null:%_", item.first, item.second == nullptr);
     }
