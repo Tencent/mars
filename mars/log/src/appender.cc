@@ -142,7 +142,7 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
     SCOPE_ERRNO();
 
     DEFINE_SCOPERECURSIONLIMIT(recursion);
-    static Tss s_recursion_str(free);
+    static Tss s_recursion_str(&free);
 
     if (consolelog_open_) ConsoleLog(_info,  _log);
 #ifdef ANDROID
