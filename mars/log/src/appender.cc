@@ -93,6 +93,8 @@ static const long kMinLogAliveTime = 24 * 60 * 60;    // 1 days in second
 
 static Mutex sg_mutex_dir_attr;
 
+void (*g_log_write_callback)(const XLoggerInfo*, const char*) = nullptr;
+
 namespace {
 class ScopeErrno {
   public:
@@ -142,12 +144,15 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
     SCOPE_ERRNO();
 
     DEFINE_SCOPERECURSIONLIMIT(recursion);
-    static Tss s_recursion_str(free);
+    static Tss s_recursion_str(&free);
 
     if (consolelog_open_) ConsoleLog(_info,  _log);
 #ifdef ANDROID
     else if (_info && _info->traceLog == 1) ConsoleLog(_info, _log);
 #endif
+    if (g_log_write_callback) {
+        g_log_write_callback(_info, _log);
+    }
 
     if (2 <= (int)recursion.Get() && nullptr == s_recursion_str.get()) {
         if ((int)recursion.Get() > 10) return;
