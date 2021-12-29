@@ -48,4 +48,9 @@
 #include <openssl/opensslconf_windows-x86.h>
 #endif
 
+#elif defined(__linux__)
+#include <openssl/opensslconf_linux_x86_64.h>
+
+#else
+#error unsupported platform
 #endif
