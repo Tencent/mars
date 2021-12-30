@@ -187,7 +187,7 @@ static void __GetIP() {
             iter->result = ips;
         }
         sg_condition.notifyAll();
-        xwarn2(TSF"null != fun, status:%_, host:%_, seq:%_", iter->status, host_name, seq);
+        xinfo2(TSF"null != fun, status:%_, host:%_, seq:%_, cost:%_", iter->status, host_name, seq, gettickcount() - start_time);
     }
 }
 
