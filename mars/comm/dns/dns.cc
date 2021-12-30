@@ -35,11 +35,13 @@ namespace comm {
 
 enum {
     kGetIPDoing,
-    kGetIPTimeout,
-    kGetIPCancel,
-    kGetIPSuc,
-    kGetIPFail,
+    kGetIPTimeout, // 1
+    kGetIPCancel, // 2
+    kGetIPSuc,   // 3
+    kGetIPFail, //4
 };
+
+static uint32_t s_seq = 0;
 
 struct dnsinfo {
     thread_tid      threadid;
@@ -48,6 +50,7 @@ struct dnsinfo {
     std::string     host_name;
     std::vector<std::string> result;
     int status;
+  uint32_t seq;
 };
 
 static std::string DNSInfoToString(const struct dnsinfo& _info) {
@@ -66,6 +69,7 @@ static void __GetIP() {
     
     std::string host_name;
     DNS::DNSFunc dnsfunc = NULL;
+    uint32_t  seq = 0;
 
     ScopedLock lock(sg_mutex);
     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
@@ -73,6 +77,7 @@ static void __GetIP() {
     for (; iter != sg_dnsinfo_vec.end(); ++iter) {
         if (iter->threadid == ThreadUtil::currentthreadid()) {
             host_name = iter->host_name;
+            seq = iter->seq;
             dnsfunc = iter->dns_func;
             break;
         }
@@ -162,10 +167,11 @@ static void __GetIP() {
             
             freeaddrinfo(result);
             iter->status = kGetIPSuc;
-            xinfo2(TSF"cost time: %_", (::gettickcount() - start_time)) >> ip_group;
+            xinfo2(TSF"cost time: %_, seq:%_", (::gettickcount() - start_time), seq) >> ip_group;
             sg_condition.notifyAll();
         }
     } else {
+
         std::vector<std::string> ips = dnsfunc(host_name);
         lock.lock();
         
@@ -181,6 +187,7 @@ static void __GetIP() {
             iter->result = ips;
         }
         sg_condition.notifyAll();
+        xwarn2(TSF"null != fun, status:%_, host:%_, seq:%_", iter->status, host_name, seq);
     }
 }
 
@@ -194,6 +201,7 @@ DNS::~DNS() {
 
 bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec, DNSBreaker* _breaker) {
     xverbose_function();
+    auto start = gettickcount();
 
     xassert2(!_host_name.empty());
 
@@ -219,6 +227,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
     info.dns_func = dnsfunc_;
     info.dns = this;
     info.status = kGetIPDoing;
+    info.seq = s_seq++;
     sg_dnsinfo_vec.push_back(info);
 
     if (_breaker) _breaker->dnsstatus = &(sg_dnsinfo_vec.back().status);
@@ -274,7 +283,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
             if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
                 if (_breaker) _breaker->dnsstatus = NULL;
 
-                xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
+                xinfo2(TSF "dns get ip status:%_ host:%_, func:%_, seq:%_, cost:%_", it->status, it->host_name, it->dns_func, it->seq, gettickcount() - start);
                 sg_dnsinfo_vec.erase(it);
                 return false;
             }
@@ -292,7 +301,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
 }
 
 void DNS::Cancel(const std::string& _host_name) {
-    xverbose_function();
+    xinfo_function();
     ScopedLock lock(sg_mutex);
 
     for (unsigned int i = 0; i < sg_dnsinfo_vec.size(); ++i) {
@@ -311,6 +320,7 @@ void DNS::Cancel(const std::string& _host_name) {
 }
 
 void DNS::Cancel(DNSBreaker& _breaker) {
+    xinfo_function();
     ScopedLock lock(sg_mutex);
     _breaker.isbreak = true;
 
