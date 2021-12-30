@@ -4,12 +4,19 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/unix_socket.h"
 
+#ifndef NDEBUG
+#include "mars/comm/fd_info.h"
+#endif
+
 namespace internal{
     struct SocketTraits{
         static SOCKET InvalidValue(){
             return INVALID_SOCKET;
         }
         static void Free(SOCKET sock){
+#ifndef NDEBUG
+            xassert2(mars::comm::FDInfo::QueryFD(sock).IsSocket());
+#endif
             socket_close(sock);
         }
     };
@@ -19,6 +26,9 @@ namespace internal{
             return -1;
         }
         static void Free(int fd){
+#ifndef NDEBUG
+            xassert2(mars::comm::FDInfo::QueryFD(fd).IsFile());
+#endif
             close(fd);
         }
     };
@@ -28,6 +38,9 @@ namespace internal{
             return nullptr;
         }
         static void Free(FILE* fp){
+#ifndef NDEBUG
+            xassert2(fp != nullptr);
+#endif
             fclose(fp);
         }
     };
@@ -37,7 +50,9 @@ template<typename T, typename Traits>
 class UniqueResource{
 public:
     struct Data : public Traits{
-        explicit Data(const T& t):v(t){}
+        explicit Data(const T& t):v(t){
+            xinfo2_if(v != Traits::InvalidValue(), TSF"%_ resource %_ acquired.", this, v);
+        }
         T v;
     }data_;
 
@@ -65,7 +80,7 @@ public:
     }
     void reset(const element_type& v = traits_type::InvalidValue()){
         if (data_.v != traits_type::InvalidValue() && data_.v == v){
-            xassert2(false, "can't reset same!!!!");
+            xassert2(false, "can't reset self!!!!");
             return;
         }
         _Free();
@@ -93,7 +108,7 @@ private:
     void _Free(){
         if (data_.v != traits_type::InvalidValue()){
             data_.Free(data_.v);
-            xinfo2(TSF"resource %_ closed.", data_.v);
+            xinfo2(TSF"%_ resource %_ released.", this, data_.v);
             data_.v = traits_type::InvalidValue();
         }
     }

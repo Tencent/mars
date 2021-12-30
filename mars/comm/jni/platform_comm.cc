@@ -19,6 +19,11 @@
 #include "../platform_comm.h"
 
 #include <jni.h>
+#ifdef ANDROID
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
 
 #include "../xlogger/xlogger.h"
 #include "util/comm_function.h"
@@ -509,6 +514,26 @@ bool  wakeupLock_IsLocking(void* _object) {
     xdebug2(TSF"_object= %0, ret= %1", _object, (bool)ret);
     return (bool)ret;
 }
+
+#ifdef ANDROID
+std::string GetCurrentProcessName(){
+    static std::string cmdline;
+    if (!cmdline.empty())   
+        return cmdline;
+    
+    int fd = open("/proc/self/cmdline", O_RDONLY, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+    if (fd < 0) 
+        return cmdline;
+
+    char szcmdline[128] = {0};
+    if (read(fd, &szcmdline[0], sizeof(szcmdline) - 1) > 0){
+        size_t bytes = strlen(szcmdline);
+        cmdline.assign(szcmdline, bytes);
+    }
+    close(fd);
+    return cmdline;
+}
+#endif
 
 }
 }
