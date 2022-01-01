@@ -166,7 +166,7 @@ public:
     bool            isMain;
 	int             link_type = Task::kChannelLong;
     int             packer_encoder_version = PackerEncoderVersion::kOld;
-    std::vector<std::string> (*dns_func)(const std::string& host);
+    std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
     bool            need_tls;
 };
     
@@ -335,7 +335,7 @@ extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id
 extern void TrafficData(ssize_t _send, ssize_t _recv);
         
 //底层询问上层该host对应的ip列表 
-extern std::vector<std::string> OnNewDns(const std::string& host);
+extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
 //网络层收到push消息回调 
 extern void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 //底层获取task要发送的数据 

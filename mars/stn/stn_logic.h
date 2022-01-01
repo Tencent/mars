@@ -47,7 +47,7 @@ namespace stn{
         virtual void TrafficData(ssize_t _send, ssize_t _recv) = 0;
         
         //底层询问上层该host对应的ip列表 
-        virtual std::vector<std::string> OnNewDns(const std::string& host) = 0;
+        virtual std::vector<std::string> OnNewDns(const std::string& host, bool _longlink_host) = 0;
         //网络层收到push消息回调 
         virtual void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) = 0;
         //底层获取task要发送的数据 
