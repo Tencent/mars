@@ -61,12 +61,12 @@ void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
 #endif
 }
 
-std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& host) {
+std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host, bool _longlink_host) {
 #ifndef ANDROID
     xassert2(sg_callback != NULL);
-    return sg_callback->OnNewDns(host);
+    return sg_callback->OnNewDns(_host, _longlink_host);
 #else
-    return C2Java_OnNewDns(host);
+    return C2Java_OnNewDns(_host);
 #endif
 }
 
@@ -243,9 +243,9 @@ void TrafficData(ssize_t _send, ssize_t _recv) {
 };
 
 //底层询问上层该host对应的ip列表
-std::vector<std::string> OnNewDns(const std::string& host) {
+std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host) {
     xassert2(sg_callback_bridge != NULL);
-    return sg_callback_bridge->OnNewDns(host);
+    return sg_callback_bridge->OnNewDns(_host, _longlink_host);
 };
 
 //网络层收到push消息回调
