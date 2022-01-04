@@ -299,6 +299,10 @@ class INI {
         return sections;
     }
 
+    bool Empty() const {
+        return sections.empty();
+    }
+
   private:
   
     std::string makeSection(const std::string& section) {

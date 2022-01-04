@@ -388,7 +388,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 		DnsProfile dns_profile;
 		dns_profile.host = _host;
 
-		bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist);
+		bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist, 2 * 1000, NULL, _islonglink);
 
 		dns_profile.end_time = gettickcount();
 		if (!ret) dns_profile.OnFailed();
