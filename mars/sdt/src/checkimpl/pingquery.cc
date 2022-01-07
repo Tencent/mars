@@ -887,6 +887,13 @@ int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/
     xerror2(TSF"ping query is not support  now!");
     return 0;
 }
+
+int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, 
+                    const char* dest, unsigned int packetSize, int* rtt){
+    xerror2(TSF"ping query is not support on now!");
+    return -1;
+}
+
 int PingQuery::GetPingStatus(struct PingStatus& pingStatus) {
     xerror2(TSF"ping query is not support now!");
     return 0;
