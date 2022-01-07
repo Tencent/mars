@@ -28,7 +28,7 @@
 #include "network/getdnssvraddrs.h"
 #include "platform_comm.h"
 #endif
-#include "socket/unix_socket.h" // for socket_inet_pton
+#include "comm/socket/unix_socket.h" // for socket_inet_pton
 #include "comm/network/local_routetable.h"
 
 
@@ -324,6 +324,7 @@ static void __local_info(std::string& _log) {
 #include <winsock.h>
 #include <Iphlpapi.h>
 #include <WinSock2.h>
+#include "comm/socket/unix_socket.h" // for socket_inet_pton
 
 #pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"Iphlpapi.lib")
