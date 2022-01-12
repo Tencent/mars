@@ -86,7 +86,7 @@ def libtool_libs(src_libs, dst_lib):
     print(src_lib_str)
     ret = os.system('libtool -static -no_warning_for_no_symbols -o %s %s' %(dst_lib, src_lib_str))
     if ret != 0:
-        print('!!!!!!!!!!!libtool %s fail!!!!!!!!!!!!!!!' %(dst_lib))
+        print('!!!!!!!!!!!libtool %s fail!!!!!!!!!!!!!!!\n' %(dst_lib))
         return False
 
     return True
@@ -99,7 +99,7 @@ def lipo_libs(src_libs, dst_lib):
     cmd = 'lipo -create %s -output %s' %(src_lib_str, dst_lib)
     ret = os.system(cmd)
     if ret != 0:
-        print('!!!!!!!!!!!lipo_libs %s fail, cmd:%s!!!!!!!!!!!!!!!' %(dst_lib, cmd))
+        print('!!!!!!!!!!!lipo_libs %s fail, cmd:%s!!!!!!!!!!!!!!!\n' %(dst_lib, cmd))
         return False
 
     return True
@@ -116,7 +116,7 @@ def lipo_thin_libs(src_lib, dst_lib, archs):
         cmd = 'lipo %s -thin %s -output %s' %(src_lib, arch, tmp_result)
         ret = os.system(cmd)
         if ret != 0:
-            print('!!!!!!!!!!!lipo_thin_libs %s fail, cmd:%s!!!!!!!!!!!!!!!' %(tmp_result, cmd))
+            print('!!!!!!!!!!!lipo_thin_libs %s fail, cmd:%s!!!!!!!!!!!!!!!\n' %(tmp_result, cmd))
             return False
         tmp_results.append(tmp_result)
 
@@ -233,6 +233,27 @@ def make_static_framework(src_lib, dst_framework, header_file_mappings, header_f
 
     return True
 
+def clean_dir(dir):
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+
+def make_xcframework(src_frameworks, dst_xcframework):
+    if os.path.exists(dst_xcframework):
+        shutil.rmtree(dst_xcframework)
+
+    src_framework_str = u''
+    for l in src_frameworks:
+        src_framework_str = '%s -framework %s' % (src_framework_str, l)
+
+    cmd = 'xcodebuild -create-xcframework %s -output %s' % (
+        src_framework_str, dst_xcframework)
+    ret = os.system(cmd)
+    if ret != 0:
+        print('!!!!!!!!!!!xcodebuild -create-xcframework %s fail, cmd:%s!!!!!!!!!!!!!!!\n' %
+              (dst_xcframework, cmd))
+        return False
+
+    return True
 
 def check_ndk_env():
     try:

@@ -56,6 +56,7 @@
 #    OS64 = Build for arm64 arm64e iPhoneOS.
 #    SIMULATOR = Build for x86 i386 iPhone Simulator.
 #    SIMULATOR64 = Build for x86_64 iPhone Simulator.
+#    SIMULATORARM64 = Build for arm64 iphoneOS Simulator.
 #    TVOS = Build for AppleTVOS.
 #    SIMULATOR_TVOS = Build for x86_64 AppleTV Simulator.
 #    WATCHOS = Build for armv7k arm64_32 for WatchOS.
@@ -169,6 +170,11 @@ elseif(IOS_PLATFORM STREQUAL "SIMULATOR64")
   set(XCODE_IOS_PLATFORM iphonesimulator)
   if(NOT IOS_ARCH)
     set(IOS_ARCH x86_64)
+  endif()
+elseif(IOS_PLATFORM STREQUAL "SIMULATORARM64")
+  set(XCODE_IOS_PLATFORM iphonesimulator)
+  if(NOT IOS_ARCH)
+    set(IOS_ARCH arm64)
   endif()
 elseif (IOS_PLATFORM STREQUAL "TVOS")
   set(XCODE_IOS_PLATFORM appletvos)
