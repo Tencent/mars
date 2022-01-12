@@ -361,7 +361,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genTaskID
 JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_trigNooping
 (JNIEnv *_env, jclass) {
     SmartHeartbeat::SetHeartBeat(0);
-    NetCore::Singleton::Instance()->Longlink().TrigNoop();
+    NetCore::Singleton::Instance()->DefaultLongLink()->TrigNoop();
 }
 
 }
