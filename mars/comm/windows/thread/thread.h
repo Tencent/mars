@@ -89,7 +89,7 @@ class ThreadUtil {
         if (NULL == handler) {
             return;
         }
-        ::WaitForSingleObject(handler, 2000);
+        ::WaitForSingleObject(handler, INFINITE);
 	}
 
     static void detach(thread_handler& pth) {
