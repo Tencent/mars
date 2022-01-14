@@ -22,8 +22,8 @@
  *
  *    BSDI ifaddrs.h,v 2.5 2000/02/23 14:51:59 dab Exp
  */
-#ifndef    _IFADDRS_H_
-#define    _IFADDRS_H_
+#ifndef    _IFADDRS_2_H_
+#define    _IFADDRS_2_H_
 
 #include <ifaddrs.h>
 
@@ -35,4 +35,4 @@ extern void freeifaddrs(struct ifaddrs *ifa);
 __END_DECLS
 #endif  // __ANDROID_API__
 
-#endif  //_IFADDRS_H_
+#endif  //_IFADDRS_2_H_

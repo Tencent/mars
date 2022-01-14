@@ -14,6 +14,7 @@
  * created on : 2012-10-19
  * author : yanguoyue
  */
+#ifndef USE_CPP_CALLBACK
 
 #include <jni.h>
 #include <vector>
@@ -449,3 +450,4 @@ void C2Java_ReportTaskProfile(const TaskProfile& _task_profile){
 };
 }
 }
+#endif

@@ -15,7 +15,7 @@
 #include "mars/boost/signals2.hpp"
 #include "mars/comm/xlogger/xlogger.h"
 #include "stn_logic.h"
-#ifdef ANDROID
+#if defined(ANDROID) && !defined(USE_CPP_CALLBACK)
 #include "mars/stn/jni/stn_logic_C2Java.h"
 #endif
 
@@ -44,7 +44,7 @@ StnCallbackBridge::~StnCallbackBridge() {
 }
 
 bool StnCallbackBridge::MakesureAuthed(const std::string& _host, const std::string& _user_id) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     return sg_callback->MakesureAuthed(_host, _user_id);
 #else
@@ -53,7 +53,7 @@ bool StnCallbackBridge::MakesureAuthed(const std::string& _host, const std::stri
 }
 
 void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     sg_callback->TrafficData(_send, _recv);
 #else
@@ -62,7 +62,7 @@ void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
 std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& host) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     return sg_callback->OnNewDns(host);
 #else
@@ -75,7 +75,7 @@ void StnCallbackBridge::OnPush(const std::string& _channel_id,
                                uint32_t _taskid,
                                const AutoBuffer& _body,
                                const AutoBuffer& _extend) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     sg_callback->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 #else
@@ -91,7 +91,7 @@ bool StnCallbackBridge::Req2Buf(uint32_t _taskid,
                                 int& error_code,
                                 const int channel_select,
                                 const std::string& host) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     return sg_callback->Req2Buf(_taskid, _user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
 #else
@@ -106,7 +106,7 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 const AutoBuffer& _extend,
                                 int& _error_code,
                                 const int _channel_select) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     return sg_callback->Buf2Resp(_taskid, _user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select);
 #else
@@ -120,7 +120,7 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
                                 int _error_type, 
                                 int _error_code,
                                 const ConnectProfile& _profile) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     CgiProfile cgiprofile;
     cgiprofile.start_time = _profile.start_time;
@@ -138,7 +138,7 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
 }
 
 void StnCallbackBridge::ReportConnectStatus(int _status, int _longlink_status) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     sg_callback->ReportConnectStatus(_status, _longlink_status);
 #else
@@ -151,7 +151,7 @@ void StnCallbackBridge::OnLongLinkNetworkError(ErrCmdType _err_type,
                                                const std::string& _ip,
                                                uint16_t _port) {
     SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     sg_callback->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 #endif
@@ -163,14 +163,14 @@ void StnCallbackBridge::OnShortLinkNetworkError(ErrCmdType _err_type,
                                                 const std::string& _host,
                                                 uint16_t _port) {
     SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 #endif
 }
 
 void StnCallbackBridge::OnLongLinkStatusChange(int _status) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     sg_callback->OnLongLinkStatusChange(_status);
 #endif
@@ -180,7 +180,7 @@ int StnCallbackBridge::GetLonglinkIdentifyCheckBuffer(const std::string& _channe
                                                       AutoBuffer& _identify_buffer,
                                                       AutoBuffer& _buffer_hash,
                                                       int32_t& _cmdid) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     return sg_callback->GetLonglinkIdentifyCheckBuffer(_channel_id, _identify_buffer, _buffer_hash, _cmdid);
 #else
@@ -191,7 +191,7 @@ int StnCallbackBridge::GetLonglinkIdentifyCheckBuffer(const std::string& _channe
 bool StnCallbackBridge::OnLonglinkIdentifyResponse(const std::string& _channel_id,
                                                    const AutoBuffer& _response_buffer,
                                                    const AutoBuffer& _identify_buffer_hash) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     return sg_callback->OnLonglinkIdentifyResponse(_channel_id, _response_buffer, _identify_buffer_hash);
 #else
@@ -200,7 +200,7 @@ bool StnCallbackBridge::OnLonglinkIdentifyResponse(const std::string& _channel_i
 }
 
 void StnCallbackBridge::RequestSync() {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
     xassert2(sg_callback != NULL);
     sg_callback->RequestSync();
 #else
@@ -209,7 +209,7 @@ void StnCallbackBridge::RequestSync() {
 }
 
 void StnCallbackBridge::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
 
 #else
     C2Java_RequestNetCheckShortLinkHosts(_hostlist);
@@ -217,7 +217,7 @@ void StnCallbackBridge::RequestNetCheckShortLinkHosts(std::vector<std::string>& 
 }
 
 void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
 
 #else
     C2Java_ReportTaskProfile(_task_profile);

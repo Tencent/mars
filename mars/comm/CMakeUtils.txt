@@ -46,6 +46,9 @@ endif()
 if(ANDROID)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
+    if(DEF_USE_CPP_CALLBACK)
+        add_definitions(-DUSE_CPP_CALLBACK=1)
+    endif()
 
 elseif(APPLE)
 

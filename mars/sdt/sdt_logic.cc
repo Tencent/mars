@@ -76,7 +76,7 @@ void SetCallBack(Callback* const callback) {
 	sg_callback = callback;
 }
 
-#ifndef ANDROID
+#if !defined(ANDROID) || defined(USE_CPP_CALLBACK)
 
 void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
 = [](const std::vector<CheckResultProfile>& _check_results) {

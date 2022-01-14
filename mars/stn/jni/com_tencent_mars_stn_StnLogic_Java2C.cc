@@ -15,6 +15,8 @@
  * author : yanguoyue
  */
 
+#ifndef USE_CPP_CALLBACK
+
 #include <jni.h>
 #include <string>
 #include <map>
@@ -369,4 +371,4 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_trigNooping
 void ExportSTN() {
 
 }
-
+#endif

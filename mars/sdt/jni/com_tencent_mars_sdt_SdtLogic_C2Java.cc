@@ -16,6 +16,7 @@
  *  Created on: 2016年8月9日
  *      Author: caoshaokun
  */
+#ifndef USE_CPP_CALLBACK
 
 #include <jni.h>
 #include <vector>
@@ -79,3 +80,4 @@ void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_resul
 };
 
 }}
+#endif
