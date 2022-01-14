@@ -29,5 +29,5 @@ bool TaskIntercept::GetInterceptTaskInfo(const std::string& _name, std::string& 
         return false;
     }
     _last_data = info->second.data;
-    return true;
+    return false;
 }
