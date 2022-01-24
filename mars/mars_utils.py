@@ -28,6 +28,7 @@ COMM_COPY_HEADER_FILES = {
             "mars/comm/xlogger/xloggerbase.h": "xlog",
             "mars/comm/xlogger/xlogger.h": "xlog",
             "mars/log/appender.h": "xlog",
+            "mars/log/xlogger_interface.h": "xlog",
             "mars/app/app.h": "app",
             "mars/app/app_logic.h": "app",
             "mars/sdt/sdt.h": "sdt",
@@ -64,6 +65,7 @@ XLOG_COPY_HEADER_FILES = {
             "mars/comm/xlogger/xloggerbase.h": "xlog",
             "mars/comm/xlogger/xlogger.h": "xlog",
             "mars/log/appender.h": "xlog",
+            "mars/log/xlogger_interface.h": "xlog",
             }      
 
 class bcolors:
@@ -82,7 +84,7 @@ def libtool_libs(src_libs, dst_lib):
         src_lib_str = '%s %s'%(src_lib_str, l)
 
     print(src_lib_str)
-    ret = os.system('libtool -static -o %s %s' %(dst_lib, src_lib_str))
+    ret = os.system('libtool -static -no_warning_for_no_symbols -o %s %s' %(dst_lib, src_lib_str))
     if ret != 0:
         print('!!!!!!!!!!!libtool %s fail!!!!!!!!!!!!!!!' %(dst_lib))
         return False
@@ -185,13 +187,13 @@ def clean_windows(path, incremental):
         
 def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
     for sf in sub_folder:
-        src_file = "%s/%s/" %(cmake_out, sf)
-        dirs = glob.glob(src_file + "*.dir")
-        if len(dirs) != 1:
-            print("Warning: %s path error." %src_file)
-            continue
+        # src_file = "%s/%s/" %(cmake_out, sf)
+        # dirs = glob.glob(src_file + "*.dir")
+        # if len(dirs) != 1:
+        #     print("Warning: %s path error." %src_file)
+        #     continue
         
-        src_file = "%s/%s" %(dirs[0], config)
+        src_file = "%s/%s/%s" %(cmake_out, sf, config)
         pdbs = glob.glob(src_file + "/*.pdb")
         if len(pdbs) != 1:
             print("Warning: %s path error." %src_file)
@@ -204,7 +206,7 @@ def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
 
 def copy_file(src, dst):
     if not os.path.isfile(src):
-        print('Warning: %s not exist' %(src))
+        print('Warning: %s not exist cwd %s' %(src, os.getcwd()))
         return;
 
     if dst.rfind("/") != -1 and not os.path.exists(dst[:dst.rfind("/")]):
@@ -376,6 +378,12 @@ def check_vs_env():
     if not vs_tool_dir:
         print("You must install visual studio 2015 for build.")
         return False
+
+    print('vs.dir: ' + vs_tool_dir)
+    envbat = vs_tool_dir + "../../vc/vcvarsall.bat"
+    print('vsvar.dir: ' + envbat)
+    p = subprocess.Popen(envbat)
+    p.wait()
     
     return True
     

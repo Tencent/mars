@@ -109,9 +109,9 @@ static inline void cpu_relax() {
 
 
 #ifdef _WIN32
-#include <thr/threads.h>
-extern "C" void thrd_yield();
-#define sched_yield() thrd_yield()
+#include <Windows.h>
+#include <processthreadsapi.h>
+#define sched_yield() ::SwitchToThread()
 #else
 #include <sched.h>
 #endif

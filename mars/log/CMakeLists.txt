@@ -17,6 +17,7 @@ include_directories(src)
 include_directories(..)
 include_directories(../..)
 include_directories(../comm)
+include_directories(../comm/xlogger)
 include_directories(../crypt)
 include_directories(../../..)
 include_directories(../crypt/micro-ecc-master)
@@ -46,6 +47,7 @@ if(MSVC)
 elseif(ANDROID)
     file(GLOB SELF_ANDROID_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR}
             ../comm/xlogger/xloggerbase.c
+            ../comm/xlogger/xlogger.cc
             jni/*.cc
             ../mk_template/JNI_OnLoad.cpp)
         

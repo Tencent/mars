@@ -22,6 +22,7 @@
 #define COMM_PLATFORM_COMM_H_
 
 #include <string>
+#include <functional>
 
 #ifdef ANDROID 
 #include "mars/comm/thread/mutex.h"
@@ -31,6 +32,9 @@
 #ifndef __cplusplus
 #error "C++ only"
 #endif
+
+namespace mars {
+namespace comm {
 
 enum NetType {
     kNoNet = -1,
@@ -205,6 +209,9 @@ bool isNetworkConnected();
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 
+void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
+void ResetWiFiIdCallBack();
+
 inline int getCurrNetLabel(std::string& netInfo) {
     netInfo = "defalut";
     int netId = getNetInfo();
@@ -308,5 +315,11 @@ bool  wakeupLock_IsLocking(void* _object);
 	extern APNInfo g_apn_info;
 	extern Mutex g_net_mutex;
 #endif
+
+#ifdef ANDROID
+    std::string GetCurrentProcessName();
+#endif
+
+}}
 
 #endif /* COMM_PLATFORM_COMM_H_ */

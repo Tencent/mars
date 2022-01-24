@@ -12,6 +12,9 @@
 
 #include "comm/socket/socketpoll.h"
 
+namespace mars {
+namespace comm {
+
 #if 0/*TARGET_OS_MAC*/
 #if __APPLE__
 #import <TargetConditionals.h>
@@ -19,6 +22,8 @@
     #include <sys/event.h>
 #endif
 #endif
+
+
 class SocketSelect {
   public:
     SocketSelect(SocketBreaker& _breaker, bool _autoclear = false);
@@ -96,4 +101,8 @@ class SocketSelect {
 };
 
 #endif
+
+}
+}
+
 #endif

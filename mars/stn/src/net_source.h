@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <tuple>
 
 #include "boost/function.hpp"
 
@@ -33,8 +34,6 @@
 #include "mars/stn/config.h"
 
 #include "simple_ipport_sort.h"
-
-class ActiveLogic;
 
 namespace mars {
     namespace stn {
@@ -49,8 +48,8 @@ class NetSource {
         ~DnsUtil();
         
     public:
-        DNS& GetNewDNS() {	return new_dns_;}
-        DNS& GetDNS() {	return dns_;}
+        comm::DNS& GetNewDNS() {	return new_dns_;}
+        comm::DNS& GetDNS() {	return dns_;}
 
         void Cancel(const std::string& host = "");
         
@@ -59,8 +58,8 @@ class NetSource {
         DnsUtil& operator=(const DnsUtil&);
         
     private:
-        DNS new_dns_;
-        DNS dns_;
+        comm::DNS new_dns_;
+        comm::DNS dns_;
     };
 
   public:
@@ -78,6 +77,10 @@ class NetSource {
     static const std::string& GetLongLinkDebugIP();
     static const std::string& GetShortLinkDebugIP();
     
+    // set minorlong debugip
+    static void SetMinorLongDebugIP(const std::string& _ip, const uint16_t _port);
+    static const std::string& GetMinorLongLinkDebugIP();
+    
     static void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 
     static void GetLonglinkPorts(std::vector<uint16_t>& _ports);
@@ -89,12 +92,12 @@ class NetSource {
     static std::string DumpTable(const std::vector<IPPortItem>& _ipport_items);
     
   public:
-    NetSource(ActiveLogic& _active_logic);
+    NetSource(comm::ActiveLogic& _active_logic);
     ~NetSource();
 
   public:
     // for long link
-    bool GetLongLinkItems(std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::vector<std::string>& _host_list);
+    bool GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& _dns_util, std::vector<IPPortItem>& _ipport_items);
 
     // for short link
     bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
@@ -110,23 +113,25 @@ class NetSource {
 
     bool GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec);
     void ReportLongLinkSpeedTestResult(std::vector<IPPortItem>& _ip_vec);
-
-    bool CanUseIPv6FromIpStrategy() {return ipportstrategy_.CanUseIPv6();}
-
+    void InitHistory2BannedList(bool _save);
+    void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
+    std::tuple<uint32_t, uint32_t> GetIpConnectTimeout() {return std::make_tuple(v4_timeout_, v6_timeout_);}
 
   private:
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
     
-    bool __GetLonglinkDebugIPPort(std::vector<IPPortItem>& _ipport_items);
+    bool __GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items);
     bool __GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items);
 
     void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const std::vector<std::string>& _hostlist, DnsUtil& _dns_util, bool _islonglink);
     size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string& _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink);
 
   private:
-    ActiveLogic&        active_logic_;
+    comm::ActiveLogic&  active_logic_;
     SimpleIPPortSort    ipportstrategy_;
+    uint32_t v4_timeout_;
+    uint32_t v6_timeout_;
 };
         
     }

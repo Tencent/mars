@@ -20,6 +20,8 @@
 
 #include "shortlink.h"
 
+#include <tuple>
+
 #include "boost/bind.hpp"
 
 #include "mars/comm/xlogger/xlogger.h"
@@ -43,13 +45,14 @@
 #include "mars/stn/proto/shortlink_packer.h"
 
 #include "weak_network_logic.h"
-
+#include "tcp_socket_operator.h"
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 using namespace http;
 
 static unsigned int KBufferSize = 8 * 1024;
@@ -110,22 +113,23 @@ class ShortLinkConnectObserver : public MComplexConnect {
 
 }}
 ///////////////////////////////////////////////////////////////////////////////////////
-
-ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy)
+ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 	, net_source_(_netsource)
+	, socketOperator_(_operator == nullptr ? std::make_unique<TcpSocketOperator>(std::make_shared<ShortLinkConnectObserver>(*this)) : std::move(_operator))
 	, task_(_task)
 	, thread_(boost::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     , is_keep_alive_(CheckKeepAlive(_task))
     {
-    xinfo2(TSF"%_, handler:(%_,%_)",XTHIS, asyncreg_.Get().queue, asyncreg_.Get().seq);
-    xassert2(breaker_.IsCreateSuc(), "Create Breaker Fail!!!");
+    xinfo2(TSF"%_, handler:(%_,%_), long polling: %_ ",this, asyncreg_.Get().queue, asyncreg_.Get().seq, _task.long_polling);
 }
 
 ShortLink::~ShortLink() {
-    xinfo_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
+    if (task_.priority >= 0) {
+        xdebug_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
+    }
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
 }
@@ -143,10 +147,11 @@ void ShortLink::__Run() {
     xinfo_function(TSF"%_, net:%_", message.String(), getNetInfo());
 
     ConnectProfile conn_profile;
-	getCurrNetLabel(conn_profile.net_type);
-	conn_profile.start_time = ::gettickcount();
-	conn_profile.tid = xlogger_tid();
-	__UpdateProfile(conn_profile);
+    getCurrNetLabel(conn_profile.net_type);
+    conn_profile.start_time = ::gettickcount();
+    conn_profile.tid = xlogger_tid();
+    conn_profile.link_type = Task::kChannelShort;
+    __UpdateProfile(conn_profile);
 
     SOCKET fd_socket = __RunConnect(conn_profile);
 
@@ -164,7 +169,8 @@ void ShortLink::__Run() {
     __UpdateProfile(conn_profile);
     
     if(!is_keep_alive_) {
-        socket_close(fd_socket);
+        xinfo2(TSF"taskid:%_ sock %_ closed.", task_.taskid, fd_socket);
+        socketOperator_->Close(fd_socket);
     } else {
         xinfo2(TSF"keep alive, do not close socket:%_", fd_socket);
     }
@@ -189,6 +195,15 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     bool isnat64 = local_stack == ELocalIPStack_IPv6;
     _conn_profile.local_net_stack = local_stack;
     
+    //.如果有debugip则不走代理逻辑.
+    if (use_proxy) {
+        net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
+        if (!_conn_profile.ip_items.empty() && kIPSourceDebug == _conn_profile.ip_items.front().source_type){
+            xwarn2(TSF"forbid proxy when debugip present.");
+            use_proxy = false;
+        }
+    }
+    
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;
@@ -201,6 +216,13 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             _conn_profile.ip_items = outter_vec_addr_;
         } else {
             net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
+        }
+        
+        if (socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+            xassert2(!use_proxy);
+            for (auto& ip : _conn_profile.ip_items){
+                ip.transport_protocol = Task::kTransportProtocolQUIC;
+            }
         }
         
         if (!_conn_profile.ip_items.empty()) {
@@ -244,7 +266,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_type = kIPSourceProxy;
     }
 
-    xinfo2(TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items), is_keep_alive_);
+    xinfo2_if(task_.priority >= 0, TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items), is_keep_alive_);
 
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
@@ -270,7 +292,16 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.host = _conn_profile.ip_items[i].str_host;
                 _conn_profile.port = _conn_profile.ip_items[i].port;
                 _conn_profile.socket_fd = fd;
+                _conn_profile.closefunc = socketOperator_->GetCloseFunction();
+                _conn_profile.createstream_func = socketOperator_->GetCreateStreamFunc();
+                _conn_profile.issubstream_func = socketOperator_->GetIsSubStreamFunc();
+                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
+                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.createstream_func)>::value, "must static or global function.");
+                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value, "must static or global function.");
                 _conn_profile.is_reused_fd = true;
+                _conn_profile.transport_protocol = _conn_profile.ip_items[i].transport_protocol;
+                _conn_profile.connection_identify = socketOperator_->Identify(fd) + "@REUSE";
+                
                 __UpdateProfile(_conn_profile);
                 xinfo2(TSF"reused socket:%_", fd);
                 return fd;
@@ -284,6 +315,13 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.port = _conn_profile.ip_items[0].port;
     _conn_profile.nat64 = isnat64;
     _conn_profile.dns_endtime = ::gettickcount();
+    _conn_profile.transport_protocol = socketOperator_->Protocol();
+    _conn_profile.closefunc = socketOperator_->GetCloseFunction();
+    _conn_profile.createstream_func = socketOperator_->GetCreateStreamFunc();
+    _conn_profile.issubstream_func = socketOperator_->GetIsSubStreamFunc();
+    static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
+    static_assert(!std::is_member_function_pointer<decltype(_conn_profile.createstream_func)>::value, "must static or global function.");
+    static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value, "must static or global function.");
     getCurrNetLabel(_conn_profile.net_type);
     __UpdateProfile(_conn_profile);
 
@@ -291,31 +329,29 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     ShortLinkConnectObserver connect_observer(*this);
 
-    ComplexConnect::EachIPConnectTimoutMode timoutMode = ComplexConnect::EachIPConnectTimoutMode::MODE_FIXED;
-    bool contain_v6 = __ContainIPv6(vecaddr);
-    if (contain_v6) {
-        timoutMode = ComplexConnect::EachIPConnectTimoutMode::MODE_INCREASE;
-    } else {
-        xinfo2(TSF"address vector has no ipv6");
-    }
-	ComplexConnect conn(kShortlinkConnTimeout, kShortlinkConnInterval, timoutMode);
-    
-    SOCKET sock = conn.ConnectImpatient(vecaddr, breaker_, &connect_observer, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
+    _conn_profile.start_connect_time = ::gettickcount();
+    auto ip_timeout = net_source_.GetIpConnectTimeout();
+    socketOperator_->SetIpConnectionTimeout(std::get<0>(ip_timeout), std::get<1>(ip_timeout));
+    xdebug2(TSF"ip connect time: %_, %_", std::get<0>(ip_timeout), std::get<1>(ip_timeout));
+    SOCKET sock = socketOperator_->Connect(vecaddr, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
+	_conn_profile.connect_successful_time = ::gettickcount();
     delete proxy_addr;
+    bool contain_v6 = __ContainIPv6(vecaddr);
 
-    _conn_profile.conn_rtt = conn.IndexRtt();
-    _conn_profile.ip_index = conn.Index();
-    _conn_profile.conn_cost = conn.TotalCost();
+    const SocketProfile& profile = socketOperator_->Profile();
+    _conn_profile.conn_rtt = profile.rtt;
+    _conn_profile.ip_index = profile.index;
+    _conn_profile.conn_cost = profile.totalCost;
 
     __UpdateProfile(_conn_profile);
     
-    WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, conn.IndexRtt(), conn.Index());
+    WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());
-        _conn_profile.conn_errcode = conn.ErrorCode();
+        _conn_profile.conn_errcode = profile.errorCode;
 
-        if (!breaker_.IsBreak()) {
+        if (!socketOperator_->Breaker().IsBreak()) {
             __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
         }
         else {
@@ -326,27 +362,28 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         return INVALID_SOCKET;
     }
 
-    xassert2(0 <= conn.Index() && (unsigned int)conn.Index() < _conn_profile.ip_items.size());
+    xassert2(0 <= profile.index && (unsigned int)profile.index < _conn_profile.ip_items.size());
 
-    for (int i = 0; i < conn.Index(); ++i) {
+    for (int i = 0; i < profile.index; ++i) {
         if (1 == connect_observer.ConnectingIndex[i] && func_network_report)
             func_network_report(__LINE__, kEctSocket, SOCKET_ERRNO(ETIMEDOUT), _conn_profile.ip_items[i].str_ip, _conn_profile.ip_items[i].str_host, _conn_profile.ip_items[i].port);
     }
 
-    _conn_profile.host = _conn_profile.ip_items[conn.Index()].str_host;
-    _conn_profile.ip_type = _conn_profile.ip_items[conn.Index()].source_type;
-    _conn_profile.ip = _conn_profile.ip_items[conn.Index()].str_ip;
+    _conn_profile.host = _conn_profile.ip_items[profile.index].str_host;
+    _conn_profile.ip_type = _conn_profile.ip_items[profile.index].source_type;
+    _conn_profile.ip = _conn_profile.ip_items[profile.index].str_ip;
     _conn_profile.conn_time = gettickcount();
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();
+    _conn_profile.connection_identify = socketOperator_->Identify(sock);
 
-    if (contain_v6 && conn.Index() > 0) {
+    if (contain_v6 && profile.index > 0) {
         _conn_profile.ipv6_connect_failed = true;
     }
 
     __UpdateProfile(_conn_profile);
 
-    xinfo2(TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, net:%_", sock, message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
+    xinfo2_if(task_.priority>=0, TSF"task socket connect success sock:%_, %_ host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, net:%_", sock, message.String(), _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], _conn_profile.net_type);
 
 
 //    struct linger so_linger;
@@ -362,7 +399,7 @@ bool ShortLink::__ContainIPv6(const std::vector<socket_address>& _vecaddr) {
     if (!_vecaddr.empty()) {
         in6_addr addr6 = IN6ADDR_ANY_INIT;
         if (socket_inet_pton(AF_INET6, _vecaddr[0].ip(), &addr6)) { //first ip is ipv6
-            xinfo2(TSF"ip %_ is v6", _vecaddr[0].ip());
+            xinfo2_if(!task_.long_polling && task_.priority >= 0, TSF"ip %_ is v6", _vecaddr[0].ip());
             return true;
         }
     }
@@ -430,22 +467,24 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	xgroup2_define(group_send);
 	xinfo2(TSF"task socket send sock:%_, %_ http len:%_, ", _socket, message.String(), out_buff.Length()) >> group_send;
 
-	int send_ret = block_socket_send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), breaker_, _err_code);
-
+	int send_ret = socketOperator_->Send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), _err_code);
+    xinfo2(TSF"sent %_", send_ret) >> group_send;
+    
 	if (send_ret < 0) {
-		xerror2(TSF"Send Request Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
+		xerror2(TSF"Send Request Error, ret:%0, errno:%1, nread:%_, nwrite:%_", send_ret, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
+        is_keep_alive_ = false;
 		__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketWritenWithNonBlock : _err_code, _conn_profile, true);
 		return;
 	}
     
     GetSignalOnNetworkDataChange()(XLOGGER_TAG, send_ret, 0);
 
-    if (breaker_.IsBreak()) {
+    if (socketOperator_->Breaker().IsBreak()) {
         xwarn2(TSF"Send Request break, sent:%_ nread:%_, nwrite:%_", send_ret, socket_nread(_socket), socket_nwrite(_socket)) >> group_send;
         return;
     }
 
-	xgroup2() << group_send;
+    task_.priority >= 0 ? (xgroup2() << group_send) : (group_send.Clear());
 
 	xgroup2_define(group_close);
 	xgroup2_define(group_recv);
@@ -463,27 +502,30 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	http::Parser parser(receiver, true);
 
 	while (true) {
-		int recv_ret = block_socket_recv(_socket, recv_buf, KBufferSize, breaker_, _err_code, 5000);
 
+		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
+        xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
 		if (recv_ret < 0) {
-			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
+			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
 			__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, _conn_profile, true);
 			break;
 		}
 
-		if (breaker_.IsBreak()) {
+		if (socketOperator_->Breaker().IsBreak()) {
 			xinfo2(TSF"user cancel, nread:%_, nwrite:%_", socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
         	_conn_profile.disconn_errtype = kEctCanceld;
 			break;
 		}
 
 		if (recv_ret == 0 && SOCKET_ERRNO(ETIMEDOUT) == _err_code) {
-			xerror2(TSF"read timeout error:(%_,%_), nread:%_, nwrite:%_ ", _err_code, strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
+			xerror2(TSF"read timeout error:(%_,%_), nread:%_, nwrite:%_ ", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
             continue;
 		}
-		if (recv_ret == 0) {
-			xerror2(TSF"remote disconnect, nread:%_, nwrite:%_", _err_code, strerror(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
-			__RunResponseError(kEctSocket, kEctSocketShutdown, _conn_profile, true);
+		if (recv_ret == 0 && socketOperator_->Protocol() != Task::kTransportProtocolQUIC) {
+			xerror2(TSF"remote disconnect error:(%_,%_), nread:%_, nwrite:%_", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
+            bool report_fail = true;
+            if (_conn_profile.is_reused_fd) report_fail = false;
+			__RunResponseError(kEctSocket, kEctSocketShutdown, _conn_profile, /*report=*/report_fail);
 			break;
 		}
 
@@ -524,8 +566,9 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
                 xwarn2_if(!isKeepAlive, "request keep-alive, but server return close");
                 if(isKeepAlive) {
                     uint32_t timeout = parser.Fields().KeepAliveTimeout();
-                    _conn_profile.keepalive_timeout = timeout;
+                    _conn_profile.keepalive_timeout = _conn_profile.transport_protocol == Task::kTransportProtocolQUIC ? 30 : timeout;
                     _conn_profile.socket_fd = _socket;
+                    xinfo2(TSF"svr keepalive %_ seconds for url %_:%_", timeout, _conn_profile.ip, _conn_profile.port);
                 } else {
                     is_keep_alive_ = false;
                 }
@@ -548,7 +591,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 	xdebug2(TSF"read with nonblock socket http response, length:%_, ", recv_buf.Length()) >> group_recv;
 
-	xgroup2() << group_recv;
+    task_.priority >= 0 ? (xgroup2() << group_recv) : (group_recv.Clear());
 #if defined(__ANDROID__) || defined(__APPLE__)
 	struct tcp_info _info;
 	if (getsocktcpinfo(_socket, &_info) == 0) {
@@ -561,7 +604,11 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 void ShortLink::__UpdateProfile(const ConnectProfile _conn_profile) {
 	STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
+    ConnectProfile profile = conn_profile_;
 	conn_profile_ = _conn_profile;
+	conn_profile_.tls_handshake_successful_time = profile.tls_handshake_successful_time;
+    conn_profile_.tls_handshake_mismatch = profile.tls_handshake_mismatch;
+    conn_profile_.tls_handshake_success = profile.tls_handshake_success;
 }
 
 void ShortLink::__RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _conn_profile, bool _report) {
@@ -573,6 +620,7 @@ void ShortLink::__RunResponseError(ErrCmdType _type, int _errcode, ConnectProfil
 void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body, AutoBuffer& _extension, ConnectProfile& _conn_profile, bool _report) {
 	_conn_profile.disconn_errtype = _errType;
 	_conn_profile.disconn_errcode = _status;
+    _conn_profile.channel_type = mars::stn::Task::kChannelShort;
 	__UpdateProfile(_conn_profile);
 
  //   xassert2(!breaker_.IsBreak());
@@ -603,11 +651,8 @@ void ShortLink::__CancelAndWaitWorkerThread() {
 
     if (!thread_.isruning()) return;
 
-    xassert2(breaker_.IsCreateSuc());
-
-    if (!breaker_.Break()) {
+    if (!socketOperator_->Breaker().Break()) {
         xassert2(false, "breaker fail");
-        breaker_.Close();
     }
 
     dns_util_.Cancel();

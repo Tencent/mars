@@ -32,6 +32,9 @@
 
 #define IPV4_BROADCAST_IP "255.255.255.255"
 
+namespace mars {
+namespace comm {
+
 struct UdpSendData;
 class UdpClient;
 
@@ -79,5 +82,8 @@ class UdpClient {
     std::list<UdpSendData> list_buffer_;
     Mutex mutex_;
 };
+
+}
+}
 
 #endif /* UDPCLIENT_H_ */

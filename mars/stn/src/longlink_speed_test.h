@@ -49,8 +49,8 @@ class LongLinkSpeedTestItem {
     LongLinkSpeedTestItem(const std::string& _ip, uint16_t _port);
     ~LongLinkSpeedTestItem();
 
-    void HandleFDISSet(SocketSelect& _sel);
-    void HandleSetFD(SocketSelect& _sel);
+    void HandleFDISSet(comm::SocketSelect& _sel);
+    void HandleSetFD(comm::SocketSelect& _sel);
 
     int GetSocket();
     std::string GetIP();
@@ -87,8 +87,8 @@ class LongLinkSpeedTest {
     boost::shared_ptr<NetSource> GetNetSource();
   private:
     boost::shared_ptr<NetSource> netsource_;
-    SocketBreaker breaker_;
-    SocketSelect selector_;
+    comm::SocketBreaker breaker_;
+    comm::SocketSelect selector_;
 };
         
     }

@@ -24,6 +24,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 
 #include "boost/signals2.hpp"
 #include "boost/function.hpp"
@@ -39,6 +40,7 @@
 
 #include "net_source.h"
 #include "shortlink_interface.h"
+#include "socket_operator.h"
 
 namespace mars {
 namespace stn {
@@ -47,7 +49,7 @@ class shortlink_tracker;
     
 class ShortLink : public ShortLinkInterface {
   public:
-    ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy);
+    ShortLink(comm::MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator = nullptr);
     virtual ~ShortLink();
 
     ConnectProfile   Profile() const { return conn_profile_;}
@@ -72,12 +74,12 @@ class ShortLink : public ShortLinkInterface {
     bool       __ContainIPv6(const std::vector<socket_address>& _vecaddr);
     
   protected:
-    MessageQueue::ScopeRegister     asyncreg_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      net_source_;
+    std::unique_ptr<SocketOperator> socketOperator_;
     Task                            task_;
-    Thread                          thread_;
+    comm::Thread                          thread_;
 
-    SocketBreaker                   breaker_;
     ConnectProfile                  conn_profile_;
     NetSource::DnsUtil              dns_util_;
     const bool                      use_proxy_;

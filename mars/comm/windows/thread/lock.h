@@ -20,6 +20,8 @@
 #include "thread/spinlock.h"
 #include "unistd.h"
 
+namespace mars {
+namespace comm {
 template <typename MutexType>
 class BaseScopedLock {
   public:
@@ -97,5 +99,6 @@ class BaseScopedLock {
 typedef BaseScopedLock<Mutex> ScopedLock;
 typedef BaseScopedLock<SpinLock> ScopedSpinLock;
 typedef BaseScopedLock<RecursiveMutex> ScopedRecursiveLock;
-
+}
+}
 #endif /* LOCK_H_ */

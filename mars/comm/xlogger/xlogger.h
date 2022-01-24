@@ -50,8 +50,11 @@ template<int x> struct xlogger_static_assert_test{};
                                         PP_CAT(boost_static_assert_typedef_, __LINE__)
 
 
-// const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
+#ifdef __APPLE__
 using TypeSafeFormat = void*;
+#else
+const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
+#endif
 const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
 const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
 
@@ -125,48 +128,16 @@ private:
 
 class XLogger {
 public:
-    XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace = false, bool (*_hook)(XLoggerInfo& _info, std::string& _log) = NULL)
-    :m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_isinfonull(false) {
-        m_info.level = _level;
-        m_info.tag = _tag;
-        m_info.filename = _file;
-        m_info.func_name = _func;
-        m_info.line = _line;
-        m_info.timeval.tv_sec = 0;
-        m_info.timeval.tv_usec = 0;
-        m_info.pid = -1;
-        m_info.tid = -1;
-        m_info.maintid = -1;
-        m_info.traceLog = _trace ? 1 : 0;
-
-        m_message.reserve(512);
-    }
-    
-    ~XLogger() {
-        if (!m_isassert && m_message.empty()) return;
-
-        gettimeofday(&m_info.timeval, NULL);
-        if (m_hook && !m_hook(m_info, m_message)) return;
-
-        xlogger_filter_t filter = xlogger_GetFilter();
-        if (filter && filter(&m_info, m_message.c_str()) <= 0)  return;
-        
-        if (m_isassert)
-            xlogger_Assert(m_isinfonull?NULL:&m_info, m_exp, m_message.c_str());
-        else
-            xlogger_Write(m_isinfonull?NULL:&m_info, m_message.c_str());
-    }
+    XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace = false, bool (*_hook)(XLoggerInfo& _info, std::string& _log) = NULL);
+    ~XLogger();
 
 public:
-    XLogger& Assert(const char* _exp) {
-        m_isassert = true;
-        m_exp = _exp;
-        return *this;
-    }
+    XLogger& Assert(const char* _exp);
     
     bool Empty() const { return !m_isassert && m_message.empty();}
     const std::string& Message() const { return m_message;}
     void ForwardToSysTrace(){   m_info.traceLog = 1;    }
+    void Clear() { m_message.clear(); }
 
 #ifdef __GNUC__
     __attribute__((__format__ (printf, 2, 0)))
@@ -180,24 +151,9 @@ public:
     XLogger& operator<<(const string_cast& _value);
     XLogger& operator>>(const string_cast& _value);
 
-    void operator>> (XLogger& _xlogger) {
-        if (_xlogger.m_info.level < m_info.level)
-        {
-            _xlogger.m_info.level = m_info.level;
-            _xlogger.m_isassert = m_isassert;
-            _xlogger.m_exp = m_exp;
-        }
+    void operator>> (XLogger& _xlogger);
 
-        m_isassert = false;
-        m_exp = NULL;
-
-        _xlogger.m_message += m_message;
-        m_message.clear();
-    }
-
-    void operator<< (XLogger& _xlogger) {
-        _xlogger.operator>>(*this);
-    }
+    void operator<< (XLogger& _xlogger);
 
     XLogger& operator()() { return *this; }
     XLogger& operator()(const XLoggerInfoNull&) { m_isinfonull = true; return *this;}
@@ -251,47 +207,9 @@ private:
 
 class XScopeTracer {
 public:
-    XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log)
-    :m_enable(xlogger_IsEnabledFor(_level)), m_info(), m_tv() {
-        m_info.level = _level;
+    XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log);
 
-        if (m_enable) {
-            m_info.tag = _tag;
-            m_info.filename = _file;
-            m_info.func_name = _func;
-            m_info.line = _line;
-            gettimeofday(&m_info.timeval, NULL);
-            m_info.pid = -1;
-            m_info.tid = -1;
-            m_info.maintid = -1;
-
-            strncpy(m_name, _name, sizeof(m_name));
-            m_name[sizeof(m_name)-1] = '\0';
-
-            m_tv = m_info.timeval;
-            char strout[1024] = {'\0'};
-            snprintf(strout, sizeof(strout), "-> %s %s", m_name, NULL!=_log? _log:"");
-            xlogger_filter_t filter = xlogger_GetFilter();
-            if (NULL == filter || filter(&m_info, strout) > 0) {
-                xlogger_Write(&m_info, strout);
-            }
-        }
-    }
-
-    ~XScopeTracer() {
-        if (m_enable) {
-            timeval tv;
-            gettimeofday(&tv, NULL);
-            m_info.timeval = tv;
-            long timeSpan = (tv.tv_sec - m_tv.tv_sec) * 1000 + (tv.tv_usec - m_tv.tv_usec) / 1000;
-            char strout[1024] = {'\0'};
-            snprintf(strout, sizeof(strout), "<- %s +%ld, %s", m_name, timeSpan, m_exitmsg.c_str());
-            xlogger_filter_t filter = xlogger_GetFilter();
-            if (NULL == filter || filter(&m_info, strout) > 0) {
-                xlogger_Write(&m_info, strout);
-            }
-        }
-    }
+    ~XScopeTracer();
     
     void Exit(const std::string& _exitmsg) { m_exitmsg += _exitmsg; }
     
@@ -307,50 +225,6 @@ private:
     
     std::string m_exitmsg;
 };
-
-///////////////////////////XMessage////////////////////
-inline XMessage& XMessage::operator<< (const string_cast& _value) {
-    if (NULL != _value.str()) {
-        m_message += _value.str();
-    } else {
-        assert(false);
-    }
-    return *this;
-}
-
-inline XMessage& XMessage::operator>> (const string_cast& _value) {
-    if (NULL != _value.str()) {
-        m_message.insert(0,  _value.str());
-    } else {
-        assert(false);
-    }
-    return *this;
-}
-
-inline XMessage& XMessage::VPrintf(const char* _format, va_list _list) {
-    if (_format == NULL) {
-        assert(false);
-        return *this;
-    }
-
-    char temp[4096] = {'\0'};
-    vsnprintf(temp, 4096, _format, _list);
-    m_message += temp;
-    return *this;
-}
-
-inline XMessage& XMessage::operator()(const char* _format, ...) {
-    if (_format == NULL) {
-        assert(false);
-        return *this;
-    }
-
-    va_list valist;
-    va_start(valist, _format);
-    VPrintf(_format, valist);
-    va_end(valist);
-    return *this;
-}
 
 #define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const string_cast& a)
 #define XLOGGER_VARIANT_ARGS(n) PP_ENUM_PARAMS(n, &a)
@@ -387,104 +261,6 @@ XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(16, 0)
 #undef XLOGGER_VARIANT_ARGS_NULL
 #undef XLOGGER_TYPESAFE_FORMAT_IMPLEMENT
 
-inline void XMessage::DoTypeSafeFormat(const char* _format, const string_cast** _args) {
-
-    const char* current = _format;
-    int count = 0;
-    while ('\0' != *current)
-    {
-       if ('%' != *current)
-       {
-           m_message += *current;
-            ++current;
-            continue;
-       }
-
-        char nextch = *(current+1);
-        if (('0' <=nextch  && nextch <= '9') || nextch == '_')
-        {
-            int argIndex = count;
-            if (nextch != '_') argIndex = nextch - '0';
-
-            if (_args[argIndex] != NULL)
-            {
-                if (NULL != _args[argIndex]->str())
-                {
-                    m_message += _args[argIndex]->str();
-                } else {
-                    m_message += "(null)";
-                    assert(false);
-                }
-            } else {
-                assert(false);
-            }
-            count++;
-            current += 2;
-        }
-        else if (nextch == '%') {
-            m_message += '%';
-            current += 2;
-        } else {
-            ++current;
-            assert(false);
-        }
-    }
-}
-
-///////////////////////////XLogger////////////////////
-inline XLogger& XLogger::operator<< (const string_cast& _value) {
-    if (NULL != _value.str()) {
-        m_message += _value.str();
-    } else {
-        m_info.level = kLevelFatal;
-        m_message += "{!!! XLogger& XLogger::operator<<(const string_cast& _value): _value.str() == NULL !!!}";
-        assert(false);
-    }
-    return *this;
-}
-
-inline XLogger& XLogger::operator>>(const string_cast& _value) {
-    if (NULL != _value.str()) {
-        m_message.insert(0,  _value.str());
-    } else {
-        m_info.level = kLevelFatal;
-        m_message.insert(0,  "{!!! XLogger& XLogger::operator>>(const string_cast& _value): _value.str() == NULL !!!}");
-        assert(false);
-    }
-    return *this;
-}
-
-inline XLogger& XLogger::VPrintf(const char* _format, va_list _list) {
-    if (_format == NULL)
-    {
-        m_info.level = kLevelFatal;
-        m_message += "{!!! XLogger& XLogger::operator()(const char* _format, va_list _list): _format == NULL !!!}";
-        assert(false);
-        return *this;
-    }
-
-    char temp[4096] = {'\0'};
-    vsnprintf(temp, 4096, _format, _list);
-    m_message += temp;
-    return *this;
-}
-
-inline XLogger& XLogger::operator()(const char* _format, ...) {
-    if (_format == NULL)
-    {
-        m_info.level = kLevelFatal;
-        m_message += "{!!! XLogger& XLogger::operator()(const char* _format, ...): _format == NULL !!!}";
-        assert(false);
-        return *this;
-    }
-
-    va_list valist;
-    va_start(valist, _format);
-    VPrintf(_format, valist);
-    va_end(valist);
-    return *this;
-}
-
 #define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const string_cast& a)
 #define XLOGGER_VARIANT_ARGS(n) PP_ENUM_PARAMS(n, &a)
 #define XLOGGER_VARIANT_ARGS_NULL(n) PP_ENUM(n, NULL)
@@ -520,62 +296,6 @@ XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(16, 0)
 #undef XLOGGER_VARIANT_ARGS
 #undef XLOGGER_VARIANT_ARGS_NULL
 #undef XLOGGER_TYPESAFE_FORMAT_IMPLEMENT
-
-inline void XLogger::DoTypeSafeFormat(const char* _format, const string_cast** _args) {
-
-    const char* current = _format;
-    int count = 0;
-    while ('\0' != *current)
-    {
-       if ('%' != *current)
-       {
-           m_message += *current;
-            ++current;
-            continue;
-       }
-
-        char nextch = *(current+1);
-        if (('0' <=nextch  && nextch <= '9') || nextch == '_')
-        {
-
-            int argIndex = count;
-            if (nextch != '_') argIndex = nextch - '0';
-
-            if (_args[argIndex] != NULL)
-            {
-                if (NULL != _args[argIndex]->str())
-                {
-                    m_message += _args[argIndex]->str();
-                } else {
-                    m_info.level = kLevelFatal;
-                    m_message += "{!!! void XLogger::DoTypeSafeFormat: _args[";
-                    m_message += string_cast(argIndex).str();
-                    m_message += "]->str() == NULL !!!}";
-                    assert(false);
-                }
-            } else {
-                m_info.level = kLevelFatal;
-                m_message += "{!!! void XLogger::DoTypeSafeFormat: _args[";
-                m_message += string_cast(argIndex).str();
-                m_message += "] == NULL !!!}";
-                assert(false);
-            }
-            count++;
-            current += 2;
-        }
-        else if (nextch == '%') {
-            m_message += '%';
-            current += 2;
-        } else {
-            ++current;
-            m_info.level = kLevelFatal;
-            m_message += "{!!! void XLogger::DoTypeSafeFormat: %";
-            m_message += nextch;
-            m_message += " not fit mode !!!}";
-            assert(false);
-        }
-    }
-}
 
 #endif //cpp
 
@@ -723,16 +443,17 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xdebug_scope(name, ...)			__xscope_impl(kLevelDebug, name, __VA_ARGS__)
 #define xinfo_scope(name, ...)			__xscope_impl(kLevelInfo, name, __VA_ARGS__)
 
-#define __xfunction_scope_impl(level, name, ...)	XScopeTracer ____xloger_anonymous_function_scope_20151022____(level, XLOGGER_TAG, name, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_SCOPE_MESSAGE(__VA_ARGS__))
+#define __xfunction_scope_impl(level, name, ...)	XScopeTracer __ANONYMOUS_VARIABLE__(_xfunction_)(level, XLOGGER_TAG, name, __XFILE__, __XFUNCTION__, __LINE__, XLOGGER_SCOPE_MESSAGE(__VA_ARGS__))
 
 #define xverbose_function(...)			__xfunction_scope_impl(kLevelVerbose, __FUNCTION__, __VA_ARGS__)
 #define xdebug_function(...)			__xfunction_scope_impl(kLevelDebug, __FUNCTION__, __VA_ARGS__)
 #define xinfo_function(...)				__xfunction_scope_impl(kLevelInfo, __FUNCTION__, __VA_ARGS__)
-#define xexitmsg_function(...)			   ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
-#define xexitmsg_function_if(exp, ...)	   if((!exp)); else ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
 
-// #define TSF __tsf__,
-#define TSF alloca(1),
+#ifdef __APPLE__
+#define TSF __builtin_return_address(0),
+#else
+#define TSF __tsf__,
+#endif
 #define XTAG __xlogger_tag__,
 #define XNULL __xlogger_info_null__
 #define XENDL "\n"

@@ -70,7 +70,7 @@ void HttpChecker::__DoCheck(CheckRequestProfile& _check_request) {
             
     		CheckResultProfile profile;
     		profile.netcheck_type = kHttpCheck;
-    		profile.network_type = ::getNetInfo();
+    		profile.network_type = comm::getNetInfo();
     		profile.ip = (*ipport).ip;
     		profile.port = (*ipport).port;
 

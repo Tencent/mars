@@ -51,6 +51,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 
 #ifdef __ANDROID__
 static const int kAlarmNoopInternalType = 117;
@@ -141,7 +142,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , thread_(boost::bind(&LongLink::__Run, this), XLOGGER_TAG "::lonklink")
 	, connectstatus_(kConnectIdle)
 	, disconnectinternalcode_(kNone)
-    , identifychecker_(_encoder, _config.name)
+    , identifychecker_(_encoder, _config.name, Task::kChannelMinorLong == _config.link_type)
 #ifdef ANDROID
     , smartheartbeat_(new SmartHeartbeat)
     , wakelock_(new WakeUpLock)
@@ -150,8 +151,10 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , wakelock_(NULL)
 #endif
     , encoder_(_encoder)
+    , svr_trig_off_(false)
 {
-    xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
+    xinfo2(TSF"handler:(%_,%_) linktype:%_", asyncreg_.Get().queue, asyncreg_.Get().seq, ChannelTypeString[_config.link_type]);
+    conn_profile_.link_type = _config.link_type;
 }
 
 LongLink::~LongLink() {
@@ -178,6 +181,10 @@ bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const
     Encoder().longlink_pack(_task.cmdid, _task.taskid, _body, _extension, lstsenddata_.back().second, tracker_.get());
     lstsenddata_.back().second->Seek(0, AutoBuffer::ESeekStart);
 
+    conn_profile_.start_read_packet_time = 0;
+    conn_profile_.start_connect_time = 0;
+
+    xdebug2(TSF"longlink Send time: %_", ::gettickcount());  
     readwritebreak_.Break();
     return true;
 }
@@ -225,6 +232,10 @@ bool LongLink::Stop(uint32_t _taskid) {
 
 
 bool LongLink::MakeSureConnected(bool* _newone) {
+    if(IsSvrTrigOff()) {
+        xwarn2(TSF"make connected but svr trig off");
+        svr_trig_off_ = false;
+    }
     if (_newone) *_newone = false;
 
     ScopedLock lock(mutex_);
@@ -242,6 +253,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
     if (newone) {
         connectstatus_ = kConnectIdle;
         conn_profile_.Reset();
+        conn_profile_.link_type = config_.link_type;
         identifychecker_.Reset();
         disconnectinternalcode_ = kNone;
         readwritebreak_.Clear();
@@ -369,7 +381,10 @@ void LongLink::__ConnectStatus(TLongLinkStatus _status) {
 
 void LongLink::__UpdateProfile(const ConnectProfile _conn_profile) {
     STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLink::__UpdateProfile, this, _conn_profile));
+    ConnectProfile profile = conn_profile_;
     conn_profile_ = _conn_profile;
+    conn_profile_.tls_handshake_mismatch = profile.tls_handshake_mismatch;
+    conn_profile_.tls_handshake_success = profile.tls_handshake_success;
     
     if (0 != conn_profile_.disconn_time) broadcast_linkstatus_signal_(conn_profile_);
 }
@@ -392,7 +407,8 @@ void LongLink::__Run() {
     }
     
     uint64_t cur_time = gettickcount();
-    xinfo_function(TSF"LongLink Rebuild span:%_, net:%_, channel name:%_", conn_profile_.disconn_time != 0 ? cur_time - conn_profile_.disconn_time : 0, getNetInfo(), config_.name);
+    xinfo_function(TSF"LongLink Rebuild span:%_, net:%_, channel name:%_, linktype:%_", conn_profile_.disconn_time != 0 ? cur_time - conn_profile_.disconn_time : 0,
+                   getNetInfo(), config_.name, ChannelTypeString[config_.link_type]);
     
     ConnectProfile conn_profile;
     conn_profile.start_time = cur_time;
@@ -453,10 +469,14 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::vector<IPPortItem> ip_items;
     std::vector<socket_address> vecaddr;
 
-    std::vector<std::string> host_list = config_.host_list;
-    netsource_.GetLongLinkItems(ip_items, dns_util_, host_list);
+    netsource_.GetLongLinkItems(config_, dns_util_, ip_items);
     mars::comm::ProxyInfo proxy_info = mars::app::GetProxyInfo("");
     bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type && netsource_.GetLongLinkDebugIP().empty();
+    if (config_.link_type == Task::kChannelMinorLong && !netsource_.GetMinorLongLinkDebugIP().empty()){
+        //forbid proxy when using debugip on minor longlink
+        use_proxy = false;
+    }
+    
     xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", NetSource::DumpTable(ip_items), proxy_info.type, use_proxy);
     
     std::string log;
@@ -493,7 +513,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     socket_address* proxy_addr = NULL;
     
-    if (use_proxy) {
+    //.如果有debugip则不走代理逻辑.
+    if (use_proxy && kIPSourceDebug != _conn_profile.ip_type) {
         std::string proxy_ip = proxy_info.ip;
         if (proxy_info.ip.empty() && !proxy_info.host.empty()) {
             std::vector<std::string> ips;
@@ -557,8 +578,11 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();
     
-    xinfo2(TSF"task socket connect suc sock:%_, host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_, costtime:%_, rtt:%_, totalcost:%_, index:%_, net:%_",
-           sock, _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip, _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], com_connect.TotalCost(), com_connect.IndexRtt(), com_connect.IndexTotalCost(), com_connect.Index(), ::getNetInfo());
+    xinfo2(TSF"task socket connect suc sock:%_, host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_,"
+           "linktype:%_, costtime:%_, rtt:%_, totalcost:%_, index:%_, net:%_",
+           sock, _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip,
+           _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], ChannelTypeString[_conn_profile.link_type],
+           com_connect.TotalCost(), com_connect.IndexRtt(), com_connect.IndexTotalCost(), com_connect.Index(), ::getNetInfo());
     __ConnectStatus(kConnected);
     __UpdateProfile(_conn_profile);
     
@@ -755,6 +779,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
             if (0 == recvlen) {
                 _errtype = kEctSocket;
                 _errcode = kEctSocketShutdown;
+                svr_trig_off_ = true;
                 xwarn2(TSF"task socket close sock:%0, remote disconnect", _sock) >> close_log;
                 goto End;
             }

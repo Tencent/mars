@@ -25,6 +25,8 @@
 
 #include "mars/comm/autobuffer.h"
 
+namespace mars {
+namespace xlog {
 
 class LogCrypt {
 public:
@@ -44,17 +46,21 @@ public:
     
     static uint32_t GetLogLen(const char* const _data, size_t _len);
     static void UpdateLogLen(char* _data, uint32_t _add_len);
-    static bool GetPeriodLogs(const char* const _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg);
 
 public:
     
-    void SetHeaderInfo(char* _data, bool _is_async);
-    void SetTailerInfo(char* _data);
+    void SetHeaderInfo(char* _data, bool _is_async, char _magic_start);
+    void SetTailerInfo(char* _data, char _magic_end);
 
-    void CryptSyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff);
-    void CryptAsyncLog(const char* const _log_data, size_t _input_len, AutoBuffer& _out_buff, size_t& _remain_nocrypt_len);
+    void CryptSyncLog(const char* const _log_data,
+                      size_t _input_len,
+                      AutoBuffer& _out_buff,
+                      char _magic_start,
+                      char _magic_end);
+    void CryptAsyncLog(const char* const _log_data, size_t _input_len, std::string& _out_buff, size_t& _remain_nocrypt_len);
     
-    bool Fix(char* _data, size_t _data_len, bool& _is_async, uint32_t& _raw_log_len);
+    bool Fix(char* _data, size_t _data_len, uint32_t& _raw_log_len);
+    bool IsCrypt();
     
 private:
     uint16_t seq_;
@@ -64,6 +70,8 @@ private:
 
 };
 
+}
+}
 
 
 #endif /* LOG_CRYPT_H_ */

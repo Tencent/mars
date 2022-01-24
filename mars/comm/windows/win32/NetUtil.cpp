@@ -14,6 +14,9 @@ using namespace std;
 #pragma comment(lib, "Winhttp.lib")
 #pragma comment(lib, "Wininet.lib")
 
+namespace mars{
+    namespace comm{
+
 char* w2c(char* pcstr, size_t len, const wchar_t* pwstr) {
 #ifdef WIN32
     int nlength = wcslen(pwstr);
@@ -242,3 +245,4 @@ bool isNetworkConnectedImpl() {
     // else
     //    cout<<"������\n";
 }
+}}  //namespace

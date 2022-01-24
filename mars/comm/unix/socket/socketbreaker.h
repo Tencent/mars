@@ -23,6 +23,9 @@
 
 #include "comm/thread/lock.h"
 
+namespace mars {
+namespace comm {
+
 class SocketBreaker {
   public:
     SocketBreaker();
@@ -33,11 +36,12 @@ class SocketBreaker {
     void Close();
 
     bool Break();
+    bool Break(int reason);
     bool Clear();
 
     bool IsBreak() const;
     int  BreakerFD() const;
-
+    int  BreakReason() const;
   private:
     SocketBreaker(const SocketBreaker&);
     SocketBreaker& operator=(const SocketBreaker&);
@@ -46,7 +50,11 @@ class SocketBreaker {
     int   pipes_[2];
     bool  create_success_;
     bool  broken_;
+    int reason_;
     mutable Mutex mutex_;
 };
+
+}
+}
 
 #endif

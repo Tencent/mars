@@ -57,6 +57,7 @@ extern intmax_t xlogger_tid();
 extern intmax_t xlogger_maintid();
 typedef void (*xlogger_appender_t)(const XLoggerInfo* _info, const char* _log);
 extern const char* xlogger_dump(const void* _dumpbuffer, size_t _len);
+extern const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len);   // same as xlogger_dump, but don't write dumpbuffer to file.
 
 TLogLevel   xlogger_Level();
 void xlogger_SetLevel(TLogLevel _level);

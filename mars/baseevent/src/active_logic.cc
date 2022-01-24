@@ -30,6 +30,9 @@
 
 #include "mars/comm/thread/mutex.h"
 
+namespace mars {
+namespace comm {
+
 static void onForeground(bool _isforeground) {
     ActiveLogic::Instance()->OnForeground(_isforeground);
 }
@@ -160,4 +163,7 @@ void ActiveLogic::__OnInActive()
 void ActiveLogic::SwitchActiveStateForDebug(bool _active) {
     isactive_ = _active;
     __OnInActive();
+}
+
+}
 }

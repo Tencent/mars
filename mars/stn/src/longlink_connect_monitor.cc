@@ -43,6 +43,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 
 static const unsigned int kTimeCheckPeriod = 10 * 1000;     // 10s
 static const unsigned int kStartCheckPeriod = 3 * 1000;     // 3s
@@ -208,6 +209,10 @@ void LongLinkConnectMonitor::DisconnectAllSlot() {
 
 bool LongLinkConnectMonitor::MakeSureConnected() {
     xdebug_function();
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return false;
+    }
     __IntervalConnect(kTaskConnect);
     return LongLink::kConnected == longlink_.ConnectStatus();
 }
@@ -239,6 +244,10 @@ bool LongLinkConnectMonitor::NetworkChange() {
 
 
 uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return 0;
+    }
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
     uint64_t interval =  __Interval(_type, activelogic_) * 1000ULL;
@@ -317,6 +326,10 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
     ASYNC_BLOCK_START
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return;
+    }
 #ifdef __APPLE__
     xinfo2(TSF"forground:%_ time:%_ tick:%_", _isForeground, timeMs(), gettickcount());
 
@@ -337,12 +350,21 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
 
 void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
     ASYNC_BLOCK_START
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return;
+    }
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
 }
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
     xinfo2(TSF"longlink status change: %_ ", _status);
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return;
+    }
+
     rebuild_alarm_.Cancel();
     wake_alarm_.Cancel();
 

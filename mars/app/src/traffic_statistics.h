@@ -48,7 +48,7 @@ class TrafficStatistics {
     unsigned int mobile_recv_data_size_;
     unsigned int mobile_send_data_size_;
     uint64_t last_report_time_;
-    Mutex mutex_;
+    comm::Mutex mutex_;
 };
     }
 }

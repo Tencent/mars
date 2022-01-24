@@ -87,6 +87,8 @@ class LongLinkEncoder {
      */
     std::function<bool (uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> longlink_ispush;
     std::function<bool (uint32_t _sent_seq, uint32_t _cmdid, uint32_t _recv_seq, const AutoBuffer& _body, const AutoBuffer& _extend)> longlink_identify_isresp;
+    static int packer_encoder_version;
+    static void SetEncoderVersion(int _version);
 };
 
 extern LongLinkEncoder gDefaultLongLinkEncoder;

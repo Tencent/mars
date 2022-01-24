@@ -60,7 +60,7 @@ SdtCore::~SdtCore() {
 
 void SdtCore::StartCheck(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout) {
     xinfo_function();
-    ScopedLock lock(checking_mutex_);
+    comm::ScopedLock lock(checking_mutex_);
 
     if (checking_) return;
 

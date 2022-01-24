@@ -35,11 +35,20 @@
 namespace mars{
     namespace stn{
 
-static const std::string DEFAULT_LONGLINK_NAME = "default-longlink";
-static const std::string DEFAULT_LONGLINK_GROUP = "default-group";
+#define DEFAULT_LONGLINK_NAME "default-longlink"
+#define DEFAULT_LONGLINK_GROUP "default-group"
+#define RUNON_MAIN_LONGLINK_NAME "!run-on-main!"
 struct TaskProfile;
 struct DnsProfile;
+struct ConnectProfile;
 class LongLinkEncoder;
+
+
+enum PackerEncoderVersion {
+  kOld = 1,
+  kNew = 2,
+};
+
 
 struct Task {
 public:
@@ -47,10 +56,18 @@ public:
     static const int kChannelShort = 0x1;
     static const int kChannelLong = 0x2;
     static const int kChannelBoth = 0x3;
+    static const int kChannelMinorLong = 0x4;
+    static const int kChannelNormal = 0x5;
+    static const int kChannelAll = 0x7;
     
     static const int kChannelNormalStrategy = 0;
     static const int kChannelFastStrategy = 1;
     static const int kChannelDisasterRecoveryStategy = 2;
+    
+    static const int kTransportProtocolDefault = 0; // TCP
+    static const int kTransportProtocolTCP = 1;     // TCP
+    static const int kTransportProtocolQUIC = 2;    // QUIC
+    static const int kTransportProtocolMixed = 3;   // TCP or QUIC
     
     static const int kTaskPriorityHighest = 0;
     static const int kTaskPriority0 = 0;
@@ -66,6 +83,7 @@ public:
     static const uint32_t kNoopTaskID = 0xFFFFFFFF;
     static const uint32_t kLongLinkIdentifyCheckerTaskID = 0xFFFFFFFE;
     static const uint32_t kSignallingKeeperTaskID = 0xFFFFFFFD;
+    static const uint32_t kMinorLonglinkCmdMask = 0xFF000000;
     
     
     Task();
@@ -74,8 +92,9 @@ public:
     //require
     uint32_t       taskid;
     uint32_t       cmdid;
-    uint64_t       channel_id;
+    uint64_t       channel_id;      // not used
     int32_t        channel_select;
+    int32_t        transport_protocol;  // see kTransportProtocol...
     std::string    cgi;    // user
 
     //optional
@@ -99,26 +118,70 @@ public:
     std::string channel_name;   //longlink channel id
     std::string group_name;     //use for select decode method
     std::string user_id;        //use for identify multi users
+    int protocol;
     
-    std::vector<std::string> shortlink_host_list;
     std::map<std::string, std::string> headers;
+    std::vector<std::string> shortlink_host_list;   // current using hosts, may be quic host or tcp host
+    std::vector<std::string> shortlink_fallback_hostlist;   // for fallback
     std::vector<std::string> longlink_host_list;
+    std::vector<std::string> minorlong_host_list;
+    std::vector<std::string> quic_host_list;
+    int32_t max_minorlinks;
+};
+    
+struct CgiProfile {
+    CgiProfile() {
+        start_time = 0;
+        start_connect_time = 0;
+        connect_successful_time = 0;
+        start_tls_handshake_time = 0;
+        tls_handshake_successful_time = 0;
+        start_send_packet_time = 0;
+        start_read_packet_time = 0;
+        read_packet_finished_time = 0;
+    }
+    uint64_t start_time;
+    uint64_t start_connect_time;
+    uint64_t connect_successful_time;
+    uint64_t start_tls_handshake_time;
+    uint64_t tls_handshake_successful_time;
+    uint64_t start_send_packet_time;
+    uint64_t start_read_packet_time;
+    uint64_t read_packet_finished_time;
+    
 };
 
 struct LonglinkConfig {
 public:
     LonglinkConfig(const std::string& _name, const std::string& _group = DEFAULT_LONGLINK_GROUP, bool _isMain = false)
-        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr) {}
+        :name(_name),is_keep_alive(false), group(_group), longlink_encoder(nullptr), isMain(_isMain), dns_func(nullptr), need_tls(true) {}
     bool IsMain() const {
         return isMain;
     }
     std::string     name;   //channel_id
     std::vector<std::string> host_list;
-    bool            is_keep_alive;     //if false, reconnect trig by task    
+    bool            is_keep_alive;     //if false, reconnect trig by task
     std::string     group;   
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
-    std::vector<std::string> (*dns_func)(const std::string& host);
+	int             link_type = Task::kChannelLong;
+    int             packer_encoder_version = PackerEncoderVersion::kOld;
+    std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
+    bool            need_tls;
+};
+    
+struct QuicParameters{
+    bool enable_0rtt = true;
+    std::string alpn;
+    std::string hostname;
+};
+struct ShortlinkConfig {
+public:
+    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls){}
+    bool use_proxy = false;
+    bool use_tls = true;
+    bool use_quic = false;
+    QuicParameters quic;
 };
 
 enum TaskFailHandleType {
@@ -131,6 +194,7 @@ enum TaskFailHandleType {
     
 	kTaskFailHandleTaskEnd = -14,
 	kTaskFailHandleTaskTimeout = -15,
+    kTaskSlientHandleTaskEnd = -16,
 };
         
 //error type
@@ -163,6 +227,7 @@ enum {
 	kEctLocalCgiFrequcencyLimit = -13,
 	kEctLocalChannelID = -14,
     kEctLocalLongLinkReleased = -15,
+    kEctLocalLongLinkUnAvailable = -16,
 };
 
 // -600 ~ -500
@@ -194,6 +259,7 @@ enum {
     kEctSocketNoopTimeout = -10093,
     kEctSocketNoopAlarmTooLate = -10094,
     kEctSocketUserBreak = -10095,
+    kEctHandshakeMisunderstand = -10096,
 
     kEctHttpSplitHttpHeadAndBody = -10194,
     kEctHttpParseStatusLine = -10195,
@@ -227,6 +293,13 @@ enum IPSourceType {
     kIPSourceProxy,
     kIPSourceBackup,
 };
+    
+enum TlsHandshakeFrom {
+    kNoHandshaking = -1,
+    kFromSetting = 0,
+    kFromLongLink  = 1,
+    kFromShortLink = 2,
+};
 
 const char* const IPSourceTypeString[] = {
     "NullIP",
@@ -236,12 +309,24 @@ const char* const IPSourceTypeString[] = {
     "ProxyIP",
     "BackupIP",
 };
+    
+const char* const ChannelTypeString[] = {
+    "",
+    "Short",
+    "Long",
+    "",
+    "MinorLong",
+    "",
+    "",
+    "",
+};
 
 struct IPPortItem {
     std::string		str_ip;
     uint16_t 		port;
     IPSourceType 	source_type;
     std::string 	str_host;
+    int transport_protocol = Task::kTransportProtocolTCP; // tcp or quic?
 };
         
 extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
@@ -250,7 +335,7 @@ extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id
 extern void TrafficData(ssize_t _send, ssize_t _recv);
         
 //底层询问上层该host对应的ip列表 
-extern std::vector<std::string> OnNewDns(const std::string& host);
+extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
 //网络层收到push消息回调 
 extern void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
 //底层获取task要发送的数据 
@@ -258,7 +343,7 @@ extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string
 //底层回包返回给上层解析 
 extern int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
 //任务执行结束 
-extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code);
+extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile);
 
 //上报网络连接状态 
 extern void ReportConnectStatus(int status, int longlink_status);

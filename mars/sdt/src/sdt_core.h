@@ -64,14 +64,14 @@ class SdtCore {
 
   private:
     //  MessageQueue::ScopeRegister     async_reg_;
-    Thread thread_;
+    comm::Thread thread_;
 
     std::list<BaseChecker*>   check_list_;
 
     CheckRequestProfile		  check_request_;
     volatile bool             cancel_;
     volatile bool             checking_;
-    Mutex					  checking_mutex_;
+    comm::Mutex				  checking_mutex_;
 };
 
 }}

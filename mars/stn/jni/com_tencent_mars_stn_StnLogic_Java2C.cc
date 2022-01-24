@@ -72,6 +72,17 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_reset
 
 /*
  * Class:     com_tencent_mars_stn_StnLogic_Java2C
+ * Method:    resetAndInitEncoderVersion
+ * Signature: (I)V
+ */
+DEFINE_FIND_STATIC_METHOD(KJava2C_resetAndInitEncoderVersion, KNetJava2C, "resetAndInitEncoderVersion", "(I)V")
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_resetAndInitEncoderVersion
+  (JNIEnv *_env, jclass clz, jint _packer_encoder_version) {
+	ResetAndInitEncoderVersion(_packer_encoder_version);
+}
+
+/*
+ * Class:     com_tencent_mars_stn_StnLogic_Java2C
  * Method:    setLonglinkSvrAddr
  * Signature: (Ljava/lang/String;[ILjava/lang/String;)V
  */
@@ -179,8 +190,8 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 	jint total_timetout = JNU_GetField(_env, _task, "totalTimeout", "I").i;
 	jstring report_arg = (jstring)JNU_GetField(_env, _task, "reportArg", "Ljava/lang/String;").l;
 
-	// jboolean long_polling = JNU_GetField(_env, _task, "longPolling", "Z").z;
-	// jint long_polling_timeout = JNU_GetField(_env, _task, "longPollingTimeout", "I").i;
+	jboolean long_polling = JNU_GetField(_env, _task, "longPolling", "Z").z;
+	jint long_polling_timeout = JNU_GetField(_env, _task, "longPollingTimeout", "I").i;
 
 	jobject oHeaders = JNU_GetField(_env, _task, "headers", "Ljava/util/Map;").l;
 	std::map<std::string, std::string> headers = JNU_JObject2Map(_env, oHeaders);
@@ -204,8 +215,8 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 	task.total_timeout = total_timetout;
 	task.headers = headers;
 
-	// task.long_polling = long_polling;
-	// task.long_polling_timeout = long_polling_timeout;
+	task.long_polling = long_polling;
+	task.long_polling_timeout = long_polling_timeout;
 
 	if (NULL != report_arg) {
 		task.report_arg = ScopedJstring(_env, report_arg).GetChar();
@@ -275,6 +286,12 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_redoTask
 
     RedoTasks();
 }
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_touchTasks
+  (JNIEnv *_env, jclass) {
+    TouchTasks();
+}
+
 /*
  * Class:     com_tencent_mars_stn_StnLogic_Java2C
  * Method:    clearTask

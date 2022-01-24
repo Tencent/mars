@@ -18,9 +18,9 @@ namespace coroutine {
 class WaitThread {
 private:
     struct Wrapper_ {
-        Mutex mutex;
-        mq::MessagePost_t message_timeout;
-        mq::MessagePost_t message_running;
+        mars::comm::Mutex mutex;
+        mars::comm::mq::MessagePost_t message_timeout;
+        mars::comm::mq::MessagePost_t message_running;
         boost::intrusive_ptr<Wrapper> wrapper;
         int status;
     };
@@ -44,7 +44,7 @@ public:
     operator ()(const F& _block_func, int64_t _timeout = -1, int* _status = NULL) {
         
         boost::shared_ptr<Wrapper_> wrapper = wrapper_;
-        ScopedLock lock(wrapper_->mutex);
+        mars::comm::ScopedLock lock(wrapper_->mutex);
         wrapper->wrapper = RunningCoroutine();
         
         if (0 <= _timeout) { wrapper->message_timeout = Resume(wrapper->wrapper, _timeout); }
@@ -52,16 +52,16 @@ public:
         typedef typename boost::result_of<F()>::type R;
         boost::shared_ptr<R> result(new R);
         
-        mq::AsyncResult<R> async_result(_block_func, [wrapper, result](const R& _result, bool _valid) {
+        mars::comm::mq::AsyncResult<R> async_result(_block_func, [wrapper, result](const R& _result, bool _valid) {
             
             ASSERT(_valid);
             
-            ScopedLock lock(wrapper->mutex);
+            mars::comm::ScopedLock lock(wrapper->mutex);
             *result = _result;
             if (!wrapper->wrapper) return;
-            if (mq::KNullPost != wrapper->message_running)  { return; }
-            if (mq::KNullPost == wrapper->message_timeout
-                || mq::CancelMessage(wrapper->message_timeout)){
+            if (mars::comm::mq::KNullPost != wrapper->message_running)  { return; }
+            if (mars::comm::mq::KNullPost == wrapper->message_timeout
+                || mars::comm::mq::CancelMessage(wrapper->message_timeout)){
                 wrapper->status = kFinish;
                 wrapper->message_running = Resume(wrapper->wrapper);
                 return;
@@ -81,20 +81,20 @@ public:
     operator ()(const F& _block_func, int64_t _timeout = -1, int* _status = NULL) {
         
         boost::shared_ptr<Wrapper_> wrapper = wrapper_;
-        ScopedLock lock(wrapper_->mutex);
+        mars::comm::ScopedLock lock(wrapper_->mutex);
         wrapper->wrapper = RunningCoroutine();
         
         if (0 <= _timeout) { wrapper->message_timeout = Resume(wrapper->wrapper, _timeout); }
         
-        mq::AsyncResult<void> async_result(_block_func, [wrapper](bool _valid) {
+        mars::comm::mq::AsyncResult<void> async_result(_block_func, [wrapper](bool _valid) {
             
             ASSERT(_valid);
             
-            ScopedLock lock(wrapper->mutex);
+            mars::comm::ScopedLock lock(wrapper->mutex);
             if (!wrapper->wrapper) return;
-            if (mq::KNullPost != wrapper->message_running)  { return; }
-            if (mq::KNullPost == wrapper->message_timeout
-                || mq::CancelMessage(wrapper->message_timeout)){
+            if (mars::comm::mq::KNullPost != wrapper->message_running)  { return; }
+            if (mars::comm::mq::KNullPost == wrapper->message_timeout
+                || mars::comm::mq::CancelMessage(wrapper->message_timeout)){
                 wrapper->status = kFinish;
                 wrapper->message_running = Resume(wrapper->wrapper);
                 return;
@@ -109,11 +109,11 @@ public:
     }
     
     void Cancel() const {
-        ScopedLock lock(wrapper_->mutex);
+        mars::comm::ScopedLock lock(wrapper_->mutex);
         if (!wrapper_->wrapper) return;
-        if (mq::KNullPost != wrapper_->message_running)  { return; }
-        if (mq::KNullPost == wrapper_->message_timeout
-            || mq::CancelMessage(wrapper_->message_timeout)){
+        if (mars::comm::mq::KNullPost != wrapper_->message_running)  { return; }
+        if (mars::comm::mq::KNullPost == wrapper_->message_timeout
+            || mars::comm::mq::CancelMessage(wrapper_->message_timeout)){
             wrapper_->status = kCancel;
             wrapper_->message_running = Resume(wrapper_->wrapper);
             return;
@@ -127,7 +127,7 @@ private:
     void operator=(const WaitThread&);
     
 private:
-    Thread  thread_;
+    mars::comm::Thread  thread_;
     boost::shared_ptr<Wrapper_> wrapper_;
 };
 
@@ -136,13 +136,13 @@ typename boost::result_of< F()>::type MessageInvoke(const F& _func) {
     boost::intrusive_ptr<Wrapper> wrapper = RunningCoroutine();
     
     typedef typename boost::result_of<F()>::type R;
-    mq::AsyncResult<R> result(
+    mars::comm::mq::AsyncResult<R> result(
                               [_func, wrapper](){
                                 Resume(wrapper);
                                 return _func();
                               });
     
-    mq::AsyncInvoke(result, mq::Post2Handler(mq::RunningMessageID()));
+    mars::comm::mq::AsyncInvoke(result, mars::comm::mq::Post2Handler(mars::comm::mq::RunningMessageID()));
     Yield();
     return result.Result();
 }

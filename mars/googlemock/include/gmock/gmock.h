@@ -34,8 +34,8 @@
 
 // GOOGLETEST_CM0002 DO NOT DELETE
 
-#ifndef GMOCK_INCLUDE_GMOCK_GMOCK_H_
-#define GMOCK_INCLUDE_GMOCK_GMOCK_H_
+#ifndef GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_H_
+#define GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_H_
 
 // This file implements the following syntax:
 //
@@ -59,9 +59,6 @@
 #include "gmock/gmock-actions.h"
 #include "gmock/gmock-cardinalities.h"
 #include "gmock/gmock-function-mocker.h"
-#include "gmock/gmock-generated-actions.h"
-#include "gmock/gmock-generated-function-mockers.h"
-#include "gmock/gmock-generated-matchers.h"
 #include "gmock/gmock-matchers.h"
 #include "gmock/gmock-more-actions.h"
 #include "gmock/gmock-more-matchers.h"
@@ -98,4 +95,4 @@ GTEST_API_ void InitGoogleMock();
 
 }  // namespace testing
 
-#endif  // GMOCK_INCLUDE_GMOCK_GMOCK_H_
+#endif  // GOOGLEMOCK_INCLUDE_GMOCK_GMOCK_H_

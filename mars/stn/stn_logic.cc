@@ -47,6 +47,8 @@
 #include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
 #endif
 
+using namespace mars::comm;
+
 namespace mars {
 namespace stn {
 
@@ -77,15 +79,18 @@ static const std::string kLibName = "stn";
     	ret = stn_ptr->func;\
     }
 
+static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
+    xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
+    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
+}
+
 static void onCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
 #endif
-
     xinfo2(TSF"stn oncreate");
     ActiveLogic::Instance();
     NetCore::Singleton::Instance();
-
 }
 
 static void onDestroy() {
@@ -99,11 +104,11 @@ static void onDestroy() {
 }
 
 static void onSingalCrash(int _sig) {
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 static void onExceptionCrash() {
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 static void onNetworkChange() {
@@ -141,6 +146,7 @@ static void __initbind_baseprjevent() {
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
+    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
@@ -184,6 +190,11 @@ void (*RedoTasks)()
    STN_WEAK_CALL(RedoTasks());
 };
 
+void (*TouchTasks)()
+= []() {
+   STN_WEAK_CALL(TouchTasks());
+};
+
 void (*ClearTasks)()
 = []() {
    STN_WEAK_CALL(ClearTasks());
@@ -192,6 +203,14 @@ void (*ClearTasks)()
 void (*Reset)()
 = []() {
 	xinfo2(TSF "stn reset");
+	NetCore::Singleton::Release();
+	NetCore::Singleton::Instance();
+};
+
+void (*ResetAndInitEncoderVersion)(int _packer_encoder_version)
+= [](int _packer_encoder_version) {
+	xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
+    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 	NetCore::Singleton::Release();
 	NetCore::Singleton::Instance();
 };
@@ -274,32 +293,27 @@ uint32_t (*getNoopTaskID)()
 	return Task::kNoopTaskID;
 };
 
-
-// [+] Lambda syntax could apply a conversion between lambda and function pointer
-// https://stackoverflow.com/questions/18889028/a-positive-lambda-what-sorcery-is-this
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
-void(*CreateLonglink_ext)(const LonglinkConfig& _config) = [](const LonglinkConfig& _config) {
+void (*CreateLonglink_ext)(LonglinkConfig& _config)
+= [](LonglinkConfig & _config){
 #else
-auto CreateLonglink_ext = +[](const LonglinkConfig& _config){
+auto CreateLonglink_ext = +[](LonglinkConfig& _config){
 #endif
     STN_WEAK_CALL(CreateLongLink(_config));
 };
 
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
-void(*DestroyLonglink_ext)(const std::string& name) = [](const std::string& name) {
+void (*DestroyLonglink_ext)(const std::string& name)
+= [](const std::string& name){
 #else
 auto DestroyLonglink_ext = +[](const std::string& name){
 #endif
     STN_WEAK_CALL(DestroyLongLink(name));
 };
-//auto GetAllLonglink_ext = +[]()->std::vector<std::string>{
-//    std::vector<std::string> res;
-//    STN_WEAK_CALL_RETURN(GetAllLonglink(), res);
-//    return res;
-//};
 
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
-bool(*LongLinkIsConnected_ext)(const std::string& name) = [](const std::string& name) {
+bool (*LongLinkIsConnected_ext)(const std::string& name)
+= [](const std::string& name){
 #else
 auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
 #endif
@@ -309,37 +323,21 @@ auto LongLinkIsConnected_ext = +[](const std::string& name)->bool{
 };
 
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
-void(*MarkMainLonglink_ext)(const std::string& name) = [](const std::string& name) {
+void (*MarkMainLonglink_ext)(const std::string& name)
+= [](const std::string& name){
 #else
 auto MarkMainLonglink_ext = +[](const std::string& name){
-#endif
     STN_WEAK_CALL(MarkMainLonglink_ext(name));
 };
 
 #if defined(linux) || defined(__linux) || defined(__linux__) || defined(_WIN32)
-void(*MakesureLonglinkConnected_ext)(const std::string& name) = [](const std::string& name) {
+void (*MakesureLonglinkConnected_ext)(const std::string& name)
+= [](const std::string& name){
 #else
 auto MakesureLonglinkConnected_ext = +[](const std::string& name){
 #endif
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
-
-    
-//auto KeepSignalling_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(KeepSignalling_ext(name));
-//};
-//
-//auto StopSignalling_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(StopSignalling_ext(name));
-//};
-    
-//auto RedoTasks_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(RedoTasks_ext(name));
-//};
-//    
-//auto ClearTasks_ext = +[](const std::string& name){
-//    STN_WEAK_CALL(ClearTasks_ext(name));
-//};
 
 void network_export_symbols_0(){}
 

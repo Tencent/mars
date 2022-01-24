@@ -27,12 +27,13 @@
 
 using namespace mars::stn;
 
-LongLinkIdentifyChecker::LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id)
+LongLinkIdentifyChecker::LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong)
 :has_checked_(false)
 , cmd_id_(0)
 , taskid_(0)
 , encoder_(_encoder)
 , channel_id_(_channel_id)
+, is_minorlong_(_is_minorlong)
 { }
 
 LongLinkIdentifyChecker::~LongLinkIdentifyChecker() { }
@@ -44,7 +45,9 @@ bool LongLinkIdentifyChecker::GetIdentifyBuffer(AutoBuffer &_buffer, uint32_t &_
     hash_code_buffer_.Reset();
     _buffer.Reset();
 
-    IdentifyMode mode = (IdentifyMode)GetLonglinkIdentifyCheckBuffer(channel_id_, _buffer, hash_code_buffer_, (int&)_cmdid);
+    if (is_minorlong_)
+        _cmdid |= Task::kMinorLonglinkCmdMask;
+    IdentifyMode mode = (IdentifyMode)GetLonglinkIdentifyCheckBuffer(channel_id_, _buffer, hash_code_buffer_, (int32_t&)_cmdid);
 
     switch (mode)
     {

@@ -27,6 +27,9 @@
 #include "mars/comm/singleton.h"
 #include <memory>
 
+namespace mars {
+namespace comm {
+
 class ActiveLogic
 {
 public:
@@ -59,4 +62,6 @@ private:
     static std::shared_ptr<ActiveLogic> inst_;
 };
 
+}
+}
 #endif // MMCOMM_SRC_ACTIVE_LOGIC_H_

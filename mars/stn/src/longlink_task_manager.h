@@ -31,15 +31,19 @@
 #include "mars/stn/stn.h"
 
 #include "longlink_metadata.h"
+#include "task_intercept.h"
 
 class AutoBuffer;
-class ActiveLogic;
 
 struct STChannelResp;
 
+namespace mars {
+namespace comm {
+class ActiveLogic;
 #ifdef ANDROID
 class WakeUpLock;
 #endif
+}
 
 #ifndef _WIN32
 #define PlatformSLock ScopedLock
@@ -66,28 +70,36 @@ class LongLinkTaskManager {
     boost::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
     
     static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
+    static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
+    static boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    LongLinkTaskManager(mars::stn::NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeueid);
+    LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, int _channel);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
     void RedoTasks();
+    void TouchTasks();
     void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id);
 
     // LongLink& LongLinkChannel(const std::string& _name) { return *longlink_; }
     // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
     std::shared_ptr<LongLinkMetaData> GetLongLink(const std::string& _name);
+    std::shared_ptr<LongLinkMetaData> GetLongLinkNoLock(const std::string& _name);
+    void FixMinorRealhost(Task& _task);
 
     unsigned int GetTaskCount(const std::string& _name);
     unsigned int GetTasksContinuousFailCount();
 
-    bool AddLongLink(const LonglinkConfig& _config);
+    bool AddLongLink(LonglinkConfig& _config);
+    bool AddMinorLink(const std::vector<std::string>& _hosts);
+    bool IsMinorAvailable(const Task& _task);
+
     std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
-        PlatformSLock lock(meta_mutex_);
+        comm::PlatformSLock lock(meta_mutex_);
         for(auto& item : longlink_metas_) {
             if(item.second->Config().IsMain()) {
                 return item.second;
@@ -98,7 +110,9 @@ class LongLinkTaskManager {
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     void ReleaseLongLink(const std::string _name);
+    void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+    void AddForbidTlsHost(const std::vector<std::string>& _host);
 
   private:
     // from ILongLinkObserver
@@ -106,14 +120,15 @@ class LongLinkTaskManager {
     void __OnSend(uint32_t _taskid);
     void __OnRecv(uint32_t _taskid, size_t _cachedsize, size_t _totalsize);
     void __SignalConnection(LongLink::TLongLinkStatus _connect_status, const std::string& _channel_id);
+    void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
 
     void __RunLoop();
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __BatchErrorRespHandle(std::string _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandle(const std::string _channel_name, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
     bool __SingleRespHandle(std::list<TaskProfile>::iterator _it, ErrCmdType _err_type, int _err_code, int _fail_handle, const ConnectProfile& _connect_profile);
-    void __BatchErrorRespHandleByUserId(std::string _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
+    void __BatchErrorRespHandleByUserId(const std::string& _user_id, ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, bool _callback_runing_task_only = true);
 
     std::list<TaskProfile>::iterator __Locate(uint32_t  _taskid);
 #ifdef __APPLE__
@@ -122,9 +137,10 @@ class LongLinkTaskManager {
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
     void __DumpLongLinkChannelInfo();
+    bool __ForbidUseTls(const std::vector<std::string>& _host_list);
 
   private:
-    MessageQueue::ScopeRegister     asyncreg_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
     uint64_t                        lastbatcherrortime_;   // ms
     unsigned long                   retry_interval_;	//ms
@@ -135,15 +151,18 @@ class LongLinkTaskManager {
     DynamicTimeout&                 dynamic_timeout_;
 
     NetSource&                      netsource_;
-    ActiveLogic&                    active_logic_;
+    comm::ActiveLogic&              active_logic_;
 
 #ifdef ANDROID
-    WakeUpLock*                     wakeup_lock_;
+    comm::WakeUpLock*                     wakeup_lock_;
 #endif
 #ifdef _WIN32
     RecursiveMutex    meta_mutex_;
 #else
-    Mutex                           meta_mutex_;
+    comm::Mutex                     meta_mutex_;
+    comm::Mutex                     mutex_;
+    static std::set<std::string>    forbid_tls_host_;
+    TaskIntercept                   task_intercept_;
 #endif
 };
     }

@@ -44,12 +44,12 @@
 
 class AutoBuffer;
 class XLogger;
-class WakeUpLock;
 
 class SmartHeartbeat;
 
 namespace mars {
     namespace comm {
+        class WakeUpLock;
         class ProxyInfo;
     }
     namespace stn {
@@ -113,6 +113,7 @@ class LongLink {
     boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
     
+    boost::function< void (uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function< void (uint32_t _taskid)> OnSend;
     boost::function< void (uint32_t _taskid, size_t _cachedsize, size_t _package_size)> OnRecv;
     boost::function< void (const std::string& _name, ErrCmdType _error_type, int _error_code, uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _body, AutoBuffer& _extension, const ConnectProfile& _info)> OnResponse;
@@ -121,7 +122,7 @@ class LongLink {
     boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
 
   public:
-    LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
+    LongLink(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
     virtual ~LongLink();
 
     bool    Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task);
@@ -138,10 +139,19 @@ class LongLink {
     std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
     
     LongLinkEncoder& Encoder() const { return encoder_; }
-    void SetDnsFunc(DNS::DNSFunc _dns_func) {
+    void SetDnsFunc(comm::DNS::DNSFunc _dns_func) {
       dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
     std::string ChannelId() { return config_.name; }
+    void SvrTrigOff() {
+        svr_trig_off_ = false;
+    }
+    bool IsSvrTrigOff() {
+        return false;       // 暂时不用这个功能
+//        return config_.link_type == Task::kChannelMinorLong && svr_trig_off_;
+    }
+	
+    virtual void OnConnectHandshakeCompleted() {}
     
   private:
     LongLink(const LongLink&);
@@ -153,8 +163,8 @@ class LongLink {
     void    __RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _profile, bool _networkreport = true);
 
     bool    __SendNoopWhenNoData();
-    bool    __NoopReq(XLogger& _xlog, Alarm& _alarm, bool need_active_timeout);
-    bool    __NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, AutoBuffer& _extension, Alarm& _alarm, bool& _nooping, ConnectProfile& _profile);
+    bool    __NoopReq(XLogger& _xlog, comm::Alarm& _alarm, bool need_active_timeout);
+    bool    __NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, AutoBuffer& _extension, comm::Alarm& _alarm, bool& _nooping, ConnectProfile& _profile);
 
     virtual void     __OnAlarm(bool _noop_timeout);
     virtual void     __Run();
@@ -169,31 +179,32 @@ class LongLink {
     void       __NotifySmartHeartbeatJudgeDozeStyle();
 	
   protected:
-    MessageQueue::ScopeRegister     asyncreg_;
-    NetSource&                      netsource_;
-    LonglinkConfig                  config_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
+    NetSource&                            netsource_;
+    LonglinkConfig                        config_;
     
-    Mutex                           mutex_;
-    Thread                          thread_;
+    comm::Mutex                           mutex_;
+    comm::Thread                          thread_;
 
     boost::scoped_ptr<longlink_tracker>         tracker_;
     NetSource::DnsUtil                          dns_util_;
-    SocketBreaker                               connectbreak_;
+    comm::SocketBreaker                         connectbreak_;
     TLongLinkStatus                             connectstatus_;
     ConnectProfile                              conn_profile_;
     TDisconnectInternalCode                     disconnectinternalcode_;
     
-    SocketBreaker                               readwritebreak_;
+    comm::SocketBreaker                         readwritebreak_;
     LongLinkIdentifyChecker                     identifychecker_;
     std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_;
     tickcount_t                                 lastrecvtime_;
     
     SmartHeartbeat*                       smartheartbeat_;
-    WakeUpLock*                                  wakelock_;
+    comm::WakeUpLock*                     wakelock_;
     
     LongLinkEncoder&                             encoder_;
     unsigned long long              lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
+    bool            svr_trig_off_;       //with minor longlink, if server close the socket, do not auto rebuild until task
 };
         
 }}

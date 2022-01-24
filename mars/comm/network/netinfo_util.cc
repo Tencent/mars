@@ -30,6 +30,8 @@
 
 #include "netinfo_util.h"
 
+using namespace mars::comm;
+
 NetworkType GetNetworkType() {
     NetworkType network_type = kNetworkTypeUnknown;
     int netinfo = getNetInfo();
@@ -52,7 +54,7 @@ NetworkType GetNetworkType() {
     return network_type;
 }
 
-std::string GetDetailNetInfo() {
+std::string GetDetailNetInfo(bool _need_wifi_ssid) {
     XMessage detail_net_info;
     //1.网络信息
     switch (::getNetInfo()) {
@@ -61,9 +63,13 @@ std::string GetDetailNetInfo() {
             break;
 
         case kWifi: {
-            WifiInfo info;
-            getCurWifiInfo(info);
-            detail_net_info << "current network:wifi, ssid:" << info.ssid << ",ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
+            if (_need_wifi_ssid) {
+                WifiInfo info;
+                getCurWifiInfo(info);
+                detail_net_info << "current network:wifi, ssid:" << info.ssid << ",ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
+            } else {
+                detail_net_info << "current network:wifi, no ssid, ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
+            }
         }
         break;
 

@@ -23,13 +23,15 @@
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
+using namespace mars::comm;
+
 namespace mars {
     namespace stn {
 
-LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, ActiveLogic& _activeLogic, MessageQueue::MessageQueue_t _message_id)
+LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, ActiveLogic& _activeLogic, comm::MessageQueue::MessageQueue_t _message_id)
     :longlink_(LongLinkChannelFactory::Create(_message_id, _netsource, _config)), longlink_monitor_(nullptr), netsource_checker_(nullptr)
     , signal_keeper_(nullptr), config_(_config)
-    , asyncreg_(MessageQueue::InstallAsyncHandler(_message_id)) {
+    , asyncreg_(comm::MessageQueue::InstallAsyncHandler(_message_id)) {
         xinfo_function(TSF"create longlink with name:%_, group:%_", _config.name, _config.group);
 
         netsource_checker_ = std::make_shared<NetSourceTimerCheck>(&_netsource, _activeLogic, *(longlink_.get()), _message_id);

@@ -24,6 +24,8 @@
 
 #include "dynamic_timeout.h"
 
+using namespace mars::comm;
+
 namespace mars {
 namespace stn {
 

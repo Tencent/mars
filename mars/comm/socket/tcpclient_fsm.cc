@@ -30,6 +30,9 @@
 
 #include "comm/platform_comm.h"
 
+namespace mars {
+namespace comm {
+
 TcpClientFSM::TcpClientFSM(const sockaddr& _addr):addr_(&_addr) {
     status_ = EStart;
     last_status_ = EStart;
@@ -174,7 +177,7 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
         return;
     }
 
-    if (::getNetInfo() == kWifi && socket_fix_tcp_mss(sock_) < 0) {
+    if (getNetInfo() == kWifi && socket_fix_tcp_mss(sock_) < 0) {
 #ifdef ANDROID
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
@@ -226,13 +229,13 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
     xassert2(EConnecting == status_, "%d", status_);
 
     int timeout = ConnectTimeout();
-    xinfo2(TSF"sock:%_, (%_:%_), ", sock_, addr_.ip(), addr_.port()) >> _log;
 
     if (_sel.Exception_FD_ISSET(sock_)) {
         socklen_t len = sizeof(error_);
 
         if (0 != getsockopt(sock_, SOL_SOCKET, SO_ERROR, &error_, &len)) { error_ = socket_errno; }
 
+        xinfo2(TSF"sock:%_, (%_:%_), ", sock_, addr_.ip(), addr_.port()) >> _log;
         xwarn2(TSF"close connect exception: sock:%_, err(%_, %_)", sock_, error_, socket_strerror(error_)) >> _log;
 
         end_connecttime_ = gettickcount();
@@ -246,6 +249,7 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
     xinfo2(TSF"socket error:%_, ", error_) >> _log;
     
     if (0 != error_) {
+        xinfo2(TSF"sock:%_, (%_:%_), ", sock_, addr_.ip(), addr_.port()) >> _log;
         xwarn2(TSF"close connect error:(%_, %_), ", error_, socket_strerror(error_)) >> _log;
         end_connecttime_ = gettickcount();
         last_status_ = status_;
@@ -257,6 +261,7 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
         end_connecttime_ = gettickcount();
         last_status_ = status_;
         status_ = EReadWrite;
+        xinfo2(TSF"sock:%_, (%_:%_), ", sock_, addr_.ip(), addr_.port()) >> _log;
         xinfo2(TSF"connected Rtt:%_, ", Rtt()) >> _log;
         _OnConnected(Rtt());
         return;
@@ -264,6 +269,7 @@ void TcpClientFSM::AfterConnectSelect(const SocketSelect& _sel, XLogger& _log) {
 
     if (0 >= timeout) {
         end_connecttime_ = gettickcount();
+        xinfo2(TSF"sock:%_, (%_:%_), ", sock_, addr_.ip(), addr_.port()) >> _log;
         xwarn2(TSF"close connect timeout:(%_, %_), (%_, %_)", ConnectAbsTimeout(), -timeout, SOCKET_ERRNO(ETIMEDOUT), socket_strerror(SOCKET_ERRNO(ETIMEDOUT))) >> _log;
 
         error_ = SOCKET_ERRNO(ETIMEDOUT);
@@ -287,13 +293,12 @@ void TcpClientFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log)
 
     int timeout = ReadWriteTimeout();
 
-    xinfo2(TSF"sock:%_, (%_:%_), ", sock_, IP(), Port()) >> _log;
-
     if (_sel.Exception_FD_ISSET(sock_)) {
         socklen_t len = sizeof(error_);
 
         if (0 != getsockopt(sock_, SOL_SOCKET, SO_ERROR, &error_, &len)) { error_ = socket_errno; }
 
+        xinfo2(TSF"sock:%_, (%_:%_), ", sock_, IP(), Port()) >> _log;
         xwarn2(TSF"close exception:(%_, %_), ", error_, socket_strerror(error_)) >> _log;
         last_status_ = status_;
         status_ = EEnd;
@@ -318,6 +323,7 @@ void TcpClientFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log)
             error_ = socket_errno;
             last_status_ = status_;
             status_ = EEnd;
+            xinfo2(TSF"sock:%_, (%_:%_), ", sock_, IP(), Port()) >> _log;
             xwarn2(TSF"close send err:(%_, %_, %_), localip:%_", ret, error_, socket_strerror(error_),socket_address::getsockname(sock_).ip()) >> _log;
             return;
         }
@@ -339,6 +345,7 @@ void TcpClientFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log)
             last_status_ = status_;
             status_ = EEnd;
             remote_close_ = true;
+            xinfo2(TSF"sock:%_, (%_:%_), ", sock_, IP(), Port()) >> _log;
             xwarn2(TSF"close recv %_:(%_, %_, %_)", "remote socket close", ret, 0, socket_strerror(0)) >> _log;
             return;
         } else if (IS_NOBLOCK_READ_ERRNO(socket_errno)) {
@@ -347,12 +354,14 @@ void TcpClientFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log)
             error_ = socket_errno;
             last_status_ = status_;
             status_ = EEnd;
+            xinfo2(TSF"sock:%_, (%_:%_), ", sock_, IP(), Port()) >> _log;
             xwarn2(TSF"close recv %_:(%_, %_, %_), localip:%_", "err", ret, error_, socket_strerror(error_), socket_address::getsockname(sock_).ip()) >> _log;
             return;
         }
     }
 
     if (!_sel.Write_FD_ISSET(sock_) && !_sel.Read_FD_ISSET(sock_) && 0 >= timeout) {
+        xinfo2(TSF"sock:%_, (%_:%_), ", sock_, IP(), Port()) >> _log;
         xwarn2(TSF"close readwrite timeout:(%_, %_), (%_, %_)", ReadWriteAbsTimeout(), -timeout, SOCKET_ERRNO(ETIMEDOUT), socket_strerror(SOCKET_ERRNO(ETIMEDOUT))) >> _log;
 
         error_ =  SOCKET_ERRNO(ETIMEDOUT);
@@ -367,3 +376,6 @@ int TcpClientFSM::ReadWriteTimeout() const { return INT_MAX; }
 int TcpClientFSM::ConnectAbsTimeout() const { return INT_MAX; }
 int TcpClientFSM::ReadWriteAbsTimeout() const { return INT_MAX;}
 int TcpClientFSM::Rtt() const { return int(end_connecttime_ - start_connecttime_);}
+
+}
+}

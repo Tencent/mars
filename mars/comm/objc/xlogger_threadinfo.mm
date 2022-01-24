@@ -19,6 +19,7 @@
 #import <Foundation/NSThread.h>
 
 #include <unistd.h>
+#include <pthread.h>
 
 extern "C"
 {
@@ -31,7 +32,10 @@ intmax_t xlogger_pid()
 
 intmax_t xlogger_tid()
 {
-    return (intmax_t)[NSThread currentThread];
+    uint64_t tid = 0;
+    pthread_threadid_np(nullptr, &tid);
+    return static_cast<intmax_t>(tid);
+    // return (intmax_t)[NSThread currentThread];
 }
 
 intmax_t xlogger_maintid()

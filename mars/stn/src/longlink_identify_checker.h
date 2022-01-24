@@ -29,7 +29,7 @@
 
 class LongLinkIdentifyChecker {
   public:
-    LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id);
+    LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong);
     ~LongLinkIdentifyChecker();
 
     bool GetIdentifyBuffer(AutoBuffer& _buffer, uint32_t& _cmd_id);
@@ -48,6 +48,7 @@ class LongLinkIdentifyChecker {
     AutoBuffer hash_code_buffer_;
     mars::stn::LongLinkEncoder& encoder_;
     std::string channel_id_;
+    bool is_minorlong_;
 };
 
 

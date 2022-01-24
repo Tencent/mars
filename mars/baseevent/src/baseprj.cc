@@ -24,12 +24,18 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/thread/lock.h"
 
+using namespace mars::comm;
+
 namespace mars{
     namespace baseevent{
 
         void OnCreate()
         {
             GetSignalOnCreate()();
+        }
+        
+        void OnInitBeforeOnCreate(int _encoder_status) {
+            GetSignalOnInitBeforeOnCreate()(_encoder_status);
         }
         
         void OnDestroy()

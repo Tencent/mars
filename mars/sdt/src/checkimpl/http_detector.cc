@@ -28,6 +28,7 @@
 
 
 using namespace mars::sdt;
+using namespace mars::comm;
 
 static const int kComplexConnectTimeout = 5 * 1000; //ms
 static const int kComplexConnectInterval = 3 * 1000; //ms
@@ -59,19 +60,12 @@ HTTPDetector::HTTPDetector(const HTTPDetectReq& _req)
     
 }
 HTTPDetector::~HTTPDetector(){
+    xinfo_function();
     CancelAndWait();
 }
 
-int HTTPDetector::StartAsync(DetectEndCallBack _callback) {
-    ScopedLock lock(mutex_);
-    if (worker_thread_.isruning()) {
-        xwarn2(TSF"@%_ HTTPDetect is running.", this);
-        return -1;
-    }
-    callback_ = _callback;
-    return worker_thread_.start();
-}
 int HTTPDetector::StartSync(HTTPDectectResult& _result) {
+    xinfo_function();
     if (worker_thread_.isruning()) {
         xwarn2(TSF"@%_ HTTPDetect is running.", this);
         return -1;
