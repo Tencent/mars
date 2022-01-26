@@ -306,8 +306,10 @@ void NetCore::StartTask(const Task& _task) {
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalChannelSelect, profile);
         return;
     }
+    std::shared_ptr<LongLinkMetaData> longlink = nullptr;
+    std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
     if (need_use_longlink_) {
-        auto longlink = longlink_task_manager_->GetLongLink(task.channel_name);
+        longlink = longlink_task_manager_->GetLongLink(task.channel_name);
         if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink || !longlink->IsConnected())){
             //.必须长链或副长链，但指定连接不存在，则回调失败.
             xerror2(TSF"err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
@@ -315,7 +317,6 @@ void NetCore::StartTask(const Task& _task) {
             return;
         }
 
-        std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
         if((task.channel_select & Task::kChannelMinorLong) && !task.minorlong_host_list.empty()) {
             longlink_task_manager_->FixMinorRealhost(task);
             std::string host = task.minorlong_host_list.empty()? "" : task.minorlong_host_list.front();
@@ -642,7 +643,7 @@ int NetCore::__CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fai
         }
         return 0;
     } else {
-        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
     }
 #else
     return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code);

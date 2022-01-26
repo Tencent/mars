@@ -63,21 +63,21 @@
 
 #define kShouldPrintReachabilityFlags 0
 
-static IlinkMarsReachability* gs_MarsnetReach = [[IlinkMarsReachability reachabilityForInternetConnection] retain];
+static MarsReachability* gs_MarsnetReach = [[MarsReachability reachabilityForInternetConnection] retain];
 static BOOL gs_Marsstartnotify = [gs_MarsnetReach MarsstartNotifier];
 static MarsNetworkStatus gs_Marsstatus = [gs_MarsnetReach currentReachabilityStatus];
 
 static void PrintReachabilityFlags(SCNetworkReachabilityFlags    flags, const char* comment)
 {
 #if kShouldPrintReachabilityFlags
-#if TARGET_OS_IPHONE    
+    #if TARGET_OS_IPHONE
     NSLog(@"Reachability Flag Status: %c%c %c%c%c%c%c%c%c %s\n",
             (flags & kSCNetworkReachabilityFlagsIsWWAN)                  ? 'W' : '-',
 #else
     NSLog(@"Reachability Flag Status: %c %c%c%c%c%c%c%c %s\n",
 #endif
             (flags & kSCNetworkReachabilityFlagsReachable)            ? 'R' : '-',
-            
+
             (flags & kSCNetworkReachabilityFlagsTransientConnection)  ? 't' : '-',
             (flags & kSCNetworkReachabilityFlagsConnectionRequired)   ? 'c' : '-',
             (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic)  ? 'C' : '-',
@@ -89,28 +89,28 @@ static void PrintReachabilityFlags(SCNetworkReachabilityFlags    flags, const ch
             );
 #endif
 }
-          
-@implementation IlinkMarsReachability
+
+@implementation MarsReachability
 static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void* info)
 {
-    #pragma unused (target, flags)
+#pragma unused (target, flags)
     NSCAssert(info != NULL, @"info was NULL in ReachabilityCallback");
-    NSCAssert([(NSObject*) info isKindOfClass: [IlinkMarsReachability class]], @"info was wrong class in ReachabilityCallback");
+    NSCAssert([(NSObject*) info isKindOfClass: [MarsReachability class]], @"info was wrong class in ReachabilityCallback");
 
     //We're on the main RunLoop, so an NSAutoreleasePool is not necessary, but is added defensively
     // in case someon uses the Reachablity object in a different thread.
     NSAutoreleasePool* myPool = [[NSAutoreleasePool alloc] init];
-    
-    IlinkMarsReachability* noteObject = (IlinkMarsReachability*) info;
+
+    MarsReachability* noteObject = (MarsReachability*) info;
     gs_Marsstatus = [noteObject currentReachabilityStatus];
-    
+
     // Post a notification to notify the client that the network reachability changed.
     [[NSNotificationCenter defaultCenter] postNotificationName: kReachabilityChangedNotification object: noteObject];
-    
+
     [myPool release];
 }
 
-          
+
 - (BOOL) MarsstartNotifier
 {
     BOOL retVal = NO;
@@ -145,9 +145,9 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     [super dealloc];
 }
 
-+ (IlinkMarsReachability*) reachabilityWithHostName: (NSString*) hostName;
++ (MarsReachability*) reachabilityWithHostName: (NSString*) hostName;
 {
-    IlinkMarsReachability* retVal = NULL;
+    MarsReachability* retVal = NULL;
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, [hostName UTF8String]);
     if(reachability!= NULL)
     {
@@ -161,10 +161,10 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     return retVal;
 }
 
-+ (IlinkMarsReachability*) reachabilityWithAddress: (const struct sockaddr*) hostAddress;
++ (MarsReachability*) reachabilityWithAddress: (const struct sockaddr*) hostAddress;
 {
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr*)hostAddress);
-    IlinkMarsReachability* retVal = NULL;
+    MarsReachability* retVal = NULL;
     if(reachability!= NULL)
     {
         retVal= [[[self alloc] init] autorelease];
@@ -177,25 +177,25 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     return retVal;
 }
 
-+ (IlinkMarsReachability*) reachabilityForInternetConnection;
++ (MarsReachability*) reachabilityForInternetConnection;
 {
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
-    
-    IlinkMarsReachability* netReach  =  [self reachabilityWithAddress: (const struct sockaddr*)&zeroAddress];
+
+    MarsReachability* netReach  =  [self reachabilityWithAddress: (const struct sockaddr*)&zeroAddress];
     if (NotReachable != [netReach currentReachabilityStatus]) return netReach;
-    
+
     struct sockaddr_in6 zeroAddress6;
     bzero(&zeroAddress6, sizeof(zeroAddress6));
     zeroAddress6.sin6_len = sizeof(zeroAddress6);
     zeroAddress6.sin6_family = AF_INET6;
-    
+
     return [self reachabilityWithAddress: (const struct sockaddr*)&zeroAddress6];
 }
 
-+ (IlinkMarsReachability*) reachabilityForLocalWiFi;
++ (MarsReachability*) reachabilityForLocalWiFi;
 {
     struct sockaddr_in localWifiAddress;
     bzero(&localWifiAddress, sizeof(localWifiAddress));
@@ -203,14 +203,14 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     localWifiAddress.sin_family = AF_INET;
     // IN_LINKLOCALNETNUM is defined in <netinet/in.h> as 169.254.0.0
     localWifiAddress.sin_addr.s_addr = htonl(IN_LINKLOCALNETNUM);
-    IlinkMarsReachability* retVal = [self reachabilityWithAddress: (const struct sockaddr*)&localWifiAddress];
+    MarsReachability* retVal = [self reachabilityWithAddress: (const struct sockaddr*)&localWifiAddress];
     if(retVal!= NULL)
     {
         retVal->localWiFiRef = YES;
     }
     return retVal;
 }
-        
+
 + (MarsNetworkStatus) getCacheReachabilityStatus:(BOOL) flash
 {
     if(!flash) return gs_Marsstatus;
@@ -227,7 +227,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     MarsNetworkStatus retVal = NotReachable;
     if((flags & kSCNetworkReachabilityFlagsReachable) && (flags & kSCNetworkReachabilityFlagsIsDirect))
     {
-        retVal = ReachableViaWiFi;    
+        retVal = ReachableViaWiFi;
     }
     return retVal;
 }
@@ -242,27 +242,27 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     }
 
     MarsNetworkStatus retVal = NotReachable;
-    
+
     if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0)
     {
         // if target host is reachable and no connection is required
         //  then we'll assume (for now) that your on Wi-Fi
         retVal = ReachableViaWiFi;
     }
-    
-    
-    if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
-        (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0))
-    {
-            // ... and the connection is on-demand (or on-traffic) if the
-            //     calling application is using the CFSocketStream or higher APIs
 
-            if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0)
-            {
-                // ... and no [user] intervention is needed
-                retVal = ReachableViaWiFi;
-            }
+
+    if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
+         (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0))
+    {
+        // ... and the connection is on-demand (or on-traffic) if the
+        //     calling application is using the CFSocketStream or higher APIs
+
+        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0)
+        {
+            // ... and no [user] intervention is needed
+            retVal = ReachableViaWiFi;
         }
+    }
 #if TARGET_OS_IPHONE
     if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN)
     {
@@ -306,8 +306,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 @end
 
 #endif
-          
+
 void comm_export_symbols_2(){}
-          
-    
-          
+
+

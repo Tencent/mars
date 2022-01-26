@@ -935,7 +935,7 @@ const char* XloggerAppender::Dump(const void* _dumpbuffer, size_t _len) {
         //        ASSERT(0!=_len);
         return "";
     }
-    if (sg_logdir.empty()) return "";
+    //if (sg_logdir.empty()) return "";
 
     if (config_.logdir_.empty()) {
         return "";

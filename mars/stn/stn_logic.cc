@@ -327,6 +327,7 @@ void (*MarkMainLonglink_ext)(const std::string& name)
 = [](const std::string& name){
 #else
 auto MarkMainLonglink_ext = +[](const std::string& name){
+#endif
     STN_WEAK_CALL(MarkMainLonglink_ext(name));
 };
 

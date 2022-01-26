@@ -52,7 +52,7 @@ class WakeUpLock;
 #endif
 
 
-namespace mars {
+//namespace mars {
     namespace stn {
 
 struct TaskProfile;

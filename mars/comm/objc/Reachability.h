@@ -62,24 +62,24 @@ typedef enum {
 
 #define kReachabilityChangedNotification @"kNetworkReachabilityChangedNotification"
 
-@interface IlinkMarsReachability: NSObject
+@interface MarsReachability: NSObject
 {
-    BOOL localWiFiRef;
-    SCNetworkReachabilityRef reachabilityRef;
+BOOL localWiFiRef;
+SCNetworkReachabilityRef reachabilityRef;
 }
 
-// reachabilityWithHostName- Use to check the reachability of a particular host name. 
-+ (IlinkMarsReachability*) reachabilityWithHostName: (NSString*) hostName;
+// reachabilityWithHostName- Use to check the reachability of a particular host name.
++ (MarsReachability*) reachabilityWithHostName: (NSString*) hostName;
 
-// reachabilityWithAddress- Use to check the reachability of a particular IP address. 
-+ (IlinkMarsReachability*) reachabilityWithAddress: (const struct sockaddr*) hostAddress;
+// reachabilityWithAddress- Use to check the reachability of a particular IP address.
++ (MarsReachability*) reachabilityWithAddress: (const struct sockaddr*) hostAddress;
 
-// reachabilityForInternetConnection- checks whether the default route is available.  
+// reachabilityForInternetConnection- checks whether the default route is available.
 //  Should be used by applications that do not connect to a particular host
-+ (IlinkMarsReachability*) reachabilityForInternetConnection;
++ (MarsReachability*) reachabilityForInternetConnection;
 
 // reachabilityForLocalWiFi- checks whether a local wifi connection is available.
-+ (IlinkMarsReachability*) reachabilityForLocalWiFi;
++ (MarsReachability*) reachabilityForLocalWiFi;
 
 + (MarsNetworkStatus) getCacheReachabilityStatus:(BOOL) flash;
 
@@ -95,4 +95,3 @@ typedef enum {
 @end
 
 #endif
-
