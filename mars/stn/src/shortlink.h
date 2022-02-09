@@ -54,7 +54,7 @@ class ShortLink : public ShortLinkInterface {
 
     ConnectProfile   Profile() const { return conn_profile_;}
     
-    void              FillOutterIPAddr(const std::vector<IPPortItem>& _out_addr);
+    void             SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms);
 
   protected:
     virtual void 	 SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
@@ -86,7 +86,9 @@ class ShortLink : public ShortLinkInterface {
     AutoBuffer                      send_body_;
     AutoBuffer                      send_extend_;
     
-    std::vector<IPPortItem>        outter_vec_addr_;
+    std::vector<IPPortItem>         outter_vec_addr_;
+    uint32_t                        v4connect_timeout_ms_ = 0;
+    uint32_t                        v6connect_timeout_ms_ = 0;
     
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool                            is_keep_alive_;

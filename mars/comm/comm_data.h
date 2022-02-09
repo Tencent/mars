@@ -55,6 +55,9 @@ public:
     bool IsValid() const {
         return kProxyNone == type || ((!ip.empty() || !host.empty()) && port > 0);
     }
+    bool IsAddressValid() const{
+        return type != kProxyNone && ((!ip.empty() || !host.empty()) && port > 0);
+    }
     
 public:
     ProxyType type;
