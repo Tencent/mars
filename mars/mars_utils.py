@@ -185,13 +185,13 @@ def clean_windows(path, incremental):
         
 def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
     for sf in sub_folder:
-        src_file = "%s/%s/" %(cmake_out, sf)
-        dirs = glob.glob(src_file + "*.dir")
-        if len(dirs) != 1:
-            print("Warning: %s path error." %src_file)
-            continue
+        # src_file = "%s/%s/" %(cmake_out, sf)
+        # dirs = glob.glob(src_file + "*.dir")
+        # if len(dirs) != 1:
+        #     print("Warning: %s path error." %src_file)
+        #     continue
         
-        src_file = "%s/%s" %(dirs[0], config)
+        src_file = "%s/%s/%s" %(cmake_out, sf, config)
         pdbs = glob.glob(src_file + "/*.pdb")
         if len(pdbs) != 1:
             print("Warning: %s path error." %src_file)
@@ -204,7 +204,7 @@ def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
 
 def copy_file(src, dst):
     if not os.path.isfile(src):
-        print('Warning: %s not exist' %(src))
+        print('Warning: %s not exist cwd %s' %(src, os.getcwd()))
         return;
 
     if dst.rfind("/") != -1 and not os.path.exists(dst[:dst.rfind("/")]):
@@ -376,6 +376,12 @@ def check_vs_env():
     if not vs_tool_dir:
         print("You must install visual studio 2015 for build.")
         return False
+
+    print('vs.dir: ' + vs_tool_dir)
+    envbat = vs_tool_dir + "../../vc/vcvarsall.bat"
+    print('vsvar.dir: ' + envbat)
+    p = subprocess.Popen(envbat)
+    p.wait()
     
     return True
     

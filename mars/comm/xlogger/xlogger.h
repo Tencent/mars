@@ -50,8 +50,11 @@ template<int x> struct xlogger_static_assert_test{};
                                         PP_CAT(boost_static_assert_typedef_, __LINE__)
 
 
-// const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
+#ifdef __APPLE__
 using TypeSafeFormat = void*;
+#else
+const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
+#endif
 const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
 const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
 
@@ -731,8 +734,11 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xexitmsg_function(...)			   ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
 #define xexitmsg_function_if(exp, ...)	   if((!exp)); else ____xloger_anonymous_function_scope_20151022____.Exit(xmessage2(__VA_ARGS__).String())
 
-// #define TSF __tsf__,
-#define TSF alloca(1),
+#ifdef __APPLE__
+#define TSF __builtin_return_address(0),
+#else
+#define TSF __tsf__,
+#endif
 #define XTAG __xlogger_tag__,
 #define XNULL __xlogger_info_null__
 #define XENDL "\n"

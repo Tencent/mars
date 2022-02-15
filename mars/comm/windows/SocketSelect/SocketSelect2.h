@@ -58,6 +58,7 @@ class SocketSelect {
     void Read_FD_SET(SOCKET _socket);
     void Write_FD_SET(SOCKET _socket);
     void Exception_FD_SET(SOCKET _socket);
+    void Event_FD_SET(WSAEVENT event);
     int Select();
     int Select(int _msec);
     int Select(int _sec, int _usec);
@@ -67,6 +68,7 @@ class SocketSelect {
     int Read_FD_ISSET(SOCKET _socket) const;
     int Write_FD_ISSET(SOCKET _socket) const;
     int Exception_FD_ISSET(SOCKET _socket) const;
+    bool Event_FD_ISSET(WSAEVENT event);
 
     bool IsBreak() const;
     bool IsException() const;
@@ -83,6 +85,7 @@ class SocketSelect {
     bool m_broken;
 
     std::map<SOCKET, int> m_filter_map;
+    std::vector<WSAEVENT> vec_events_;
     int errno_;
 
     fd_set writefd_;
