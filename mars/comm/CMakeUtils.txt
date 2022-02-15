@@ -8,6 +8,7 @@ add_definitions(-DXLOGGER_TAG="mars::${PROJECT_NAME}")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+
 if(MSVC)
     # add DEBUG macro .. release has NDEBUG defaultly
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DDEBUG")
@@ -17,10 +18,12 @@ if(MSVC)
     endif()
 
     add_definitions(-D_WIN32 -DWIN32 -DUNICODE -D_UNICODE -DNOMINMAX -D_LIB)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /Zc:threadSafeInit- /std:c++14")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /Zc:threadSafeInit-")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     
     # generate pdb file
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zi")
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
  
     set(CompilerFlags
