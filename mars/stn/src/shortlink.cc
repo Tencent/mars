@@ -179,45 +179,51 @@ void ShortLink::__Run() {
 SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xmessage2_define(message)(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
-    std::vector<socket_address> vecaddr;
-
     _conn_profile.dns_time = ::gettickcount();
     __UpdateProfile(_conn_profile);
 
-    if (!task_.shortlink_host_list.empty()) _conn_profile.host = task_.shortlink_host_list.front();
+    if (!task_.shortlink_host_list.empty()){
+        _conn_profile.host = task_.shortlink_host_list.front();
+    }
     
     if (use_proxy_) {
         _conn_profile.proxy_info = mars::app::GetProxyInfo(_conn_profile.host);
     }
     
-    bool use_proxy = use_proxy_ && _conn_profile.proxy_info.IsValid();
+    bool use_proxy = _conn_profile.proxy_info.IsAddressValid();
     TLocalIPStack local_stack = local_ipstack_detect();
     bool isnat64 = local_stack == ELocalIPStack_IPv6;
     _conn_profile.local_net_stack = local_stack;
     
-    //.如果有debugip则不走代理逻辑.
-    if (use_proxy) {
+    //
+    if (outter_vec_addr_.empty()){
         net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
-        if (!_conn_profile.ip_items.empty() && kIPSourceDebug == _conn_profile.ip_items.front().source_type){
-            xwarn2(TSF"forbid proxy when debugip present.");
-            use_proxy = false;
-        }
+    }else{
+        //.如果有外部ip则直接使用，比如newdns.
+        _conn_profile.ip_items = outter_vec_addr_;
     }
     
-    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
+    if (_conn_profile.ip_items.empty()){
+        xerror2(TSF"task socket connect fail %_ ipitems empty", message.String());
+        __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile, false);
+        return INVALID_SOCKET;
+    }
+    
+    //.如果有debugip则不走代理逻辑.
+    if (use_proxy && _conn_profile.ip_items.front().source_type == kIPSourceDebug){
+        xwarn2(TSF"forbid proxy when debugip present.");
+        use_proxy = false;
+    }
+    
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && NetSource::GetShortLinkDebugIP().empty()) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;
     	_conn_profile.ip_type = kIPSourceProxy;
-        IPPortItem item = {_conn_profile.ip, net_source_.GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
-        _conn_profile.ip_items.push_back(item);
+        IPPortItem item = {_conn_profile.ip, NetSource::GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
+        //.如果是http代理，则把代理地址插到最前面.
+        _conn_profile.ip_items.insert(_conn_profile.ip_items.begin(), item);
         __UpdateProfile(_conn_profile);
     } else {
-        if (!outter_vec_addr_.empty()) {
-            _conn_profile.ip_items = outter_vec_addr_;
-        } else {
-            net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
-        }
-        
         if (socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
             xassert2(!use_proxy);
             for (auto& ip : _conn_profile.ip_items){
@@ -225,13 +231,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             }
         }
         
-        if (!_conn_profile.ip_items.empty()) {
-            _conn_profile.host      = _conn_profile.ip_items[0].str_host;
-            _conn_profile.ip_type   = _conn_profile.ip_items[0].source_type;
-            _conn_profile.ip        = _conn_profile.ip_items[0].str_ip;
-            _conn_profile.port      = _conn_profile.ip_items[0].port;
-            __UpdateProfile(_conn_profile);
-        }
+        _conn_profile.host      = _conn_profile.ip_items.front().str_host;
+        _conn_profile.ip_type   = _conn_profile.ip_items.front().source_type;
+        _conn_profile.ip        = _conn_profile.ip_items.front().str_ip;
+        _conn_profile.port      = _conn_profile.ip_items.front().port;
+        __UpdateProfile(_conn_profile);
     }
     
 	std::string proxy_ip;
@@ -248,6 +252,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         }
     }
     
+    std::vector<socket_address> vecaddr;
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
         vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(local_stack));
     } else {
@@ -274,41 +279,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         delete proxy_addr;
         return INVALID_SOCKET;
     }
-
-    if(_conn_profile.ip_type != kIPSourceProxy && is_keep_alive_) {
-        for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
-            int fd = GetCacheSocket(_conn_profile.ip_items[i]);
-            if(fd != INVALID_SOCKET) {
-                _conn_profile.conn_rtt = 0;
-                _conn_profile.ip_index = i;
-                _conn_profile.conn_cost = 0;
-                _conn_profile.ip_type = _conn_profile.ip_items[i].source_type;
-                _conn_profile.ip = _conn_profile.ip_items[i].str_ip;
-                _conn_profile.conn_time = gettickcount();
-                _conn_profile.local_ip = socket_address::getsockname(fd).ip();
-                _conn_profile.local_port = socket_address::getsockname(fd).port();
-                _conn_profile.nat64 = isnat64;
-                _conn_profile.dns_endtime = ::gettickcount();
-                _conn_profile.host = _conn_profile.ip_items[i].str_host;
-                _conn_profile.port = _conn_profile.ip_items[i].port;
-                _conn_profile.socket_fd = fd;
-                _conn_profile.closefunc = socketOperator_->GetCloseFunction();
-                _conn_profile.createstream_func = socketOperator_->GetCreateStreamFunc();
-                _conn_profile.issubstream_func = socketOperator_->GetIsSubStreamFunc();
-                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
-                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.createstream_func)>::value, "must static or global function.");
-                static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value, "must static or global function.");
-                _conn_profile.is_reused_fd = true;
-                _conn_profile.transport_protocol = _conn_profile.ip_items[i].transport_protocol;
-                _conn_profile.connection_identify = socketOperator_->Identify(fd) + "@REUSE";
-                
-                __UpdateProfile(_conn_profile);
-                xinfo2(TSF"reused socket:%_", fd);
-                return fd;
-            }
-        }
-    }
-
+    
+    //
     _conn_profile.host = _conn_profile.ip_items[0].str_host;
     _conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
     _conn_profile.ip = _conn_profile.ip_items[0].str_ip;
@@ -325,14 +297,45 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     getCurrNetLabel(_conn_profile.net_type);
     __UpdateProfile(_conn_profile);
 
+    if(_conn_profile.ip_type != kIPSourceProxy && is_keep_alive_) {
+        for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
+            int fd = GetCacheSocket(_conn_profile.ip_items[i]);
+            if(fd != INVALID_SOCKET) {
+                _conn_profile.conn_rtt = 0;
+                _conn_profile.ip_index = i;
+                _conn_profile.conn_cost = 0;
+                _conn_profile.host = _conn_profile.ip_items[i].str_host;
+                _conn_profile.ip_type = _conn_profile.ip_items[i].source_type;
+                _conn_profile.ip = _conn_profile.ip_items[i].str_ip;
+                _conn_profile.port = _conn_profile.ip_items[i].port;
+                _conn_profile.transport_protocol = _conn_profile.ip_items[i].transport_protocol;
+                _conn_profile.conn_time = gettickcount();
+                _conn_profile.local_ip = socket_address::getsockname(fd).ip();
+                _conn_profile.local_port = socket_address::getsockname(fd).port();
+                _conn_profile.socket_fd = fd;
+                _conn_profile.is_reused_fd = true;
+                _conn_profile.connection_identify = socketOperator_->Identify(fd) + "@REUSE";
+                
+                __UpdateProfile(_conn_profile);
+                xinfo2(TSF"reused socket:%_", fd);
+                return fd;
+            }
+        }
+    }
+
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
 
     ShortLinkConnectObserver connect_observer(*this);
 
     _conn_profile.start_connect_time = ::gettickcount();
-    auto ip_timeout = net_source_.GetIpConnectTimeout();
-    socketOperator_->SetIpConnectionTimeout(std::get<0>(ip_timeout), std::get<1>(ip_timeout));
-    xdebug2(TSF"ip connect time: %_, %_", std::get<0>(ip_timeout), std::get<1>(ip_timeout));
+    
+    if (outter_vec_addr_.empty()){
+        auto ip_timeout = net_source_.GetIpConnectTimeout();
+        socketOperator_->SetIpConnectionTimeout(std::get<0>(ip_timeout), std::get<1>(ip_timeout));
+        xdebug2(TSF"ip connect time: %_, %_", std::get<0>(ip_timeout), std::get<1>(ip_timeout));
+    }else{
+        socketOperator_->SetIpConnectionTimeout(v4connect_timeout_ms_, v6connect_timeout_ms_);
+    }
     SOCKET sock = socketOperator_->Connect(vecaddr, _conn_profile.proxy_info.type, proxy_addr, _conn_profile.proxy_info.username, _conn_profile.proxy_info.password);
 	_conn_profile.connect_successful_time = ::gettickcount();
     delete proxy_addr;
@@ -640,10 +643,10 @@ void ShortLink::__OnResponse(ErrCmdType _errType, int _status, AutoBuffer& _body
         xwarn2(TSF"OnResponse NULL.");
 }
 
-void ShortLink::FillOutterIPAddr(const std::vector<IPPortItem>& _out_addr) {
-    if (!_out_addr.empty()) {
-        outter_vec_addr_ = _out_addr;
-    }
+void ShortLink::SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms) {
+    outter_vec_addr_ = _out_addr;
+    v4connect_timeout_ms_ = v4timeout_ms;
+    v6connect_timeout_ms_ = v6timeout_ms;
 }
 
 void ShortLink::__CancelAndWaitWorkerThread() {
