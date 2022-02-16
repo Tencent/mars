@@ -49,20 +49,24 @@ BOOT_RUN_STARTUP(__initbind_baseprjevent);
 static void onAlarm(int64_t id) {
     Alarm::onAlarmImpl(id);
 }
-static const int kAlarmType = 100;
+static const int kAlarmType = 114;
 #endif
 
+std::shared_ptr<ActiveLogic> ActiveLogic::inst_ = nullptr;
 std::shared_ptr<ActiveLogic> ActiveLogic::Instance() {
-	static std::shared_ptr<ActiveLogic> inst = nullptr;
 	static Mutex mtx;
-	if(!inst) {
+	if(!inst_) {
 		ScopedLock lock(mtx);
-		if(!inst) {
-			inst = std::make_shared<ActiveLogic>();
+		if(!inst_) {
+			inst_ = std::make_shared<ActiveLogic>();
 		}
 	}
 
-	return inst;
+	return inst_;
+}
+
+void ActiveLogic::Release() {
+    inst_ = nullptr;
 }
 
 ActiveLogic::ActiveLogic()

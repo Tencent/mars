@@ -54,8 +54,8 @@ using namespace mars::app;
 using namespace mars::comm;
 
 #ifdef __ANDROID__
-static const int kAlarmNoopInternalType = 103;
-static const int kAlarmNoopTimeOutType = 104;
+static const int kAlarmNoopInternalType = 117;
+static const int kAlarmNoopTimeOutType = 118;
 #endif
 
 namespace {
@@ -158,7 +158,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
 }
 
 LongLink::~LongLink() {
-    Disconnect(kReset);
+    Disconnect(kObjectDestruct);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
     	delete smartheartbeat_, smartheartbeat_=NULL;
@@ -241,6 +241,11 @@ bool LongLink::MakeSureConnected(bool* _newone) {
     ScopedLock lock(mutex_);
 
     if (kConnected == ConnectStatus()) return true;
+
+    if (kObjectDestruct == disconnectinternalcode_) {
+        xwarn2(TSF"object has been released");
+        return false;
+    }
 
     bool newone = false;
     thread_.start(&newone);

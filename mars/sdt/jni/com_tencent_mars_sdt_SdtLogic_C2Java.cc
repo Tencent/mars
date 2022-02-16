@@ -30,15 +30,38 @@
 #include "mars/sdt/sdt.h"
 #include "mars/sdt/netchecker_profile.h"
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/sdt/SdtLogic")
+#endif
 
 namespace mars {
 namespace sdt {
 
+#ifdef NATIVE_CALLBACK
+static std::weak_ptr<SdtNativeCallback> sdn_native_callback_instance;
+void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb) {
+    sdn_native_callback_instance = _cb;
+}
+#define DEFINE_FIND_EMPTY_STATIC_METHOD(methodid) \
+        const static JniMethodInfo methodid = JniMethodInfo("", "", "");
+#endif
+
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_reportSignalDetectResults, KC2Java, "reportSignalDetectResults", "(Ljava/lang/String;)V")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_reportSignalDetectResults)
+#endif
 void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
 = [](const std::vector<CheckResultProfile>& _check_results) {
 	xverbose_function();
+
+#ifdef NATIVE_CALLBACK
+    auto native_cb = sdn_native_callback_instance.lock();
+    if (native_cb) {
+        native_cb->ReportNetCheckResult(_check_results);
+        return;
+    }
+#endif
 
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());

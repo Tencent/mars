@@ -14,6 +14,7 @@
 #define STN_JNI_STN_LOGIC_C2JAVA_H_
 
 #include <vector>
+#include <memory>
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/task_profile.h"
 
@@ -67,6 +68,55 @@ void C2Java_RequestSync();
 void C2Java_RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
 
 void C2Java_ReportTaskProfile(const TaskProfile& _task_profile);
+
+#ifdef NATIVE_CALLBACK
+    class StnNativeCallback {
+    public:
+        StnNativeCallback() = default;
+        virtual ~StnNativeCallback() = default;
+        virtual int OnTaskEnd(uint32_t _taskid, 
+                    void* const _user_context, 
+                    const std::string& _user_id, 
+                    int _error_type, 
+                    int _error_code) {return -1;}
+
+        virtual void OnPush(const std::string& _channel_id,
+                        uint32_t _cmdid,
+                        uint32_t _taskid,
+                        const AutoBuffer& _body,
+                        const AutoBuffer& _extend) {}
+
+        virtual std::vector<std::string> OnNewDns(const std::string& _host) {return std::vector<std::string>();}
+
+        virtual bool Req2Buf(uint32_t _taskid,
+                            void* const _user_context,
+                            const std::string& _user_id,
+                            AutoBuffer& _outbuffer,
+                            AutoBuffer& _extend,
+                            int& _error_code,
+                            const int _channel_select,
+                            const std::string& _host) {return false;}
+
+        virtual int Buf2Resp(uint32_t _taskid,
+                            void* const _user_context,
+                            const std::string& _user_id,
+                            const AutoBuffer& _inbuffer,
+                            const AutoBuffer& _extend,
+                            int& _error_code,
+                            const int _channel_select) {return -1;}
+        virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {return false;}
+        virtual int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {return -1;}
+        virtual bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {return false;}
+        virtual void TrafficData(ssize_t _send, ssize_t _recv) {}
+        virtual void ReportConnectStatus(int _all_connstatus, int _longlink_connstatus) {}
+        virtual void RequestSync() {}
+        virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {}
+        virtual void ReportTaskProfile(const TaskProfile& _task_profile) {}
+    };
+    extern void SetStnNativeCallback(std::shared_ptr<StnNativeCallback> _cb) ;
+
+#endif
+
 }
 }
 

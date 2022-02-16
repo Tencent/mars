@@ -83,7 +83,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onExceptionCrash(JNIEnv*,
     mars::baseevent::OnExceptionCrash();
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_comm_Alarm_onAlarm(JNIEnv * env, jclass, jlong _id) {
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_comm_Alarm_onAlarm(JNIEnv * env, jclass, jlong _id) {
     mars::baseevent::OnAlarm((int64_t)_id);
 }
 
