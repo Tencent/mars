@@ -63,7 +63,7 @@
 
 #define kShouldPrintReachabilityFlags 0
 
-static IlinkMarsReachability* gs_MarsnetReach = [[IlinkMarsReachability reachabilityForInternetConnection] retain];
+static MarsReachability* gs_MarsnetReach = [[MarsReachability reachabilityForInternetConnection] retain];
 static BOOL gs_Marsstartnotify = [gs_MarsnetReach MarsstartNotifier];
 static MarsNetworkStatus gs_Marsstatus = [gs_MarsnetReach currentReachabilityStatus];
 
@@ -90,18 +90,18 @@ static void PrintReachabilityFlags(SCNetworkReachabilityFlags    flags, const ch
 #endif
 }
           
-@implementation IlinkMarsReachability
+@implementation MarsReachability
 static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void* info)
 {
     #pragma unused (target, flags)
     NSCAssert(info != NULL, @"info was NULL in ReachabilityCallback");
-    NSCAssert([(NSObject*) info isKindOfClass: [IlinkMarsReachability class]], @"info was wrong class in ReachabilityCallback");
+    NSCAssert([(NSObject*) info isKindOfClass: [MarsReachability class]], @"info was wrong class in ReachabilityCallback");
 
     //We're on the main RunLoop, so an NSAutoreleasePool is not necessary, but is added defensively
     // in case someon uses the Reachablity object in a different thread.
     NSAutoreleasePool* myPool = [[NSAutoreleasePool alloc] init];
     
-    IlinkMarsReachability* noteObject = (IlinkMarsReachability*) info;
+    MarsReachability* noteObject = (MarsReachability*) info;
     gs_Marsstatus = [noteObject currentReachabilityStatus];
     
     // Post a notification to notify the client that the network reachability changed.
@@ -145,9 +145,9 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     [super dealloc];
 }
 
-+ (IlinkMarsReachability*) reachabilityWithHostName: (NSString*) hostName;
++ (MarsReachability*) reachabilityWithHostName: (NSString*) hostName;
 {
-    IlinkMarsReachability* retVal = NULL;
+    MarsReachability* retVal = NULL;
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, [hostName UTF8String]);
     if(reachability!= NULL)
     {
@@ -161,10 +161,10 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     return retVal;
 }
 
-+ (IlinkMarsReachability*) reachabilityWithAddress: (const struct sockaddr*) hostAddress;
++ (MarsReachability*) reachabilityWithAddress: (const struct sockaddr*) hostAddress;
 {
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr*)hostAddress);
-    IlinkMarsReachability* retVal = NULL;
+    MarsReachability* retVal = NULL;
     if(reachability!= NULL)
     {
         retVal= [[[self alloc] init] autorelease];
@@ -177,14 +177,14 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     return retVal;
 }
 
-+ (IlinkMarsReachability*) reachabilityForInternetConnection;
++ (MarsReachability*) reachabilityForInternetConnection;
 {
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
     
-    IlinkMarsReachability* netReach  =  [self reachabilityWithAddress: (const struct sockaddr*)&zeroAddress];
+    MarsReachability* netReach  =  [self reachabilityWithAddress: (const struct sockaddr*)&zeroAddress];
     if (NotReachable != [netReach currentReachabilityStatus]) return netReach;
     
     struct sockaddr_in6 zeroAddress6;
@@ -195,7 +195,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     return [self reachabilityWithAddress: (const struct sockaddr*)&zeroAddress6];
 }
 
-+ (IlinkMarsReachability*) reachabilityForLocalWiFi;
++ (MarsReachability*) reachabilityForLocalWiFi;
 {
     struct sockaddr_in localWifiAddress;
     bzero(&localWifiAddress, sizeof(localWifiAddress));
@@ -203,7 +203,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     localWifiAddress.sin_family = AF_INET;
     // IN_LINKLOCALNETNUM is defined in <netinet/in.h> as 169.254.0.0
     localWifiAddress.sin_addr.s_addr = htonl(IN_LINKLOCALNETNUM);
-    IlinkMarsReachability* retVal = [self reachabilityWithAddress: (const struct sockaddr*)&localWifiAddress];
+    MarsReachability* retVal = [self reachabilityWithAddress: (const struct sockaddr*)&localWifiAddress];
     if(retVal!= NULL)
     {
         retVal->localWiFiRef = YES;
