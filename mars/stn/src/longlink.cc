@@ -54,8 +54,8 @@ using namespace mars::app;
 using namespace mars::comm;
 
 #ifdef __ANDROID__
-static const int kAlarmNoopInternalType = 117;
-static const int kAlarmNoopTimeOutType = 118;
+static const int kAlarmNoopInternalType = 103;
+static const int kAlarmNoopTimeOutType = 104;
 #endif
 
 namespace {
@@ -158,7 +158,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
 }
 
 LongLink::~LongLink() {
-    Disconnect(kObjectDestruct);
+    Disconnect(kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
     	delete smartheartbeat_, smartheartbeat_=NULL;
