@@ -85,9 +85,9 @@ bool SocketBreaker::Break(){
     if (!create_success_)   return false;
 
     const char dummy = '1';
-    int ret = (int)write(pipes_[1], &dummy, sizeof(dummy));
-    if (ret != (int)sizeof(dummy)){
-        xerror2(TSF"write ret %_, fd %_ error %_,%_", ret, pipes_[1], errno, strerror(errno));
+    ssize_t writebytes = write(pipes_[1], &dummy, sizeof(dummy));
+    if (writebytes != sizeof(dummy)){
+        xerror2(TSF"write ret %_, fd %_ error %_,%_", writebytes, pipes_[1], errno, strerror(errno));
         return false;
     }
     
@@ -144,6 +144,7 @@ bool SocketBreaker::Clear()
 
 void SocketBreaker::Close()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     _Cleanup();
 }
 
