@@ -16,6 +16,7 @@
 #define _SOCKSTSELECT_
 
 #include <map>
+#include <vector>
 #include "thread/lock.h"
 #include "socket/unix_socket.h"
 
