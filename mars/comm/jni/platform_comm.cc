@@ -318,7 +318,7 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
 
 #ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo, KPlatformCommC2Java,
-                          "getCurWifiInfo", "()Lcom/tencent/mars/ilink/comm/PlatformComm$WifiInfo;")
+                          "getCurWifiInfo", "()Lcom/tencent/mars/comm/PlatformComm$WifiInfo;")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo)
 #endif
@@ -369,7 +369,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
 
 #ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo, KPlatformCommC2Java, "getCurSIMInfo",
-                          "()Lcom/tencent/mars/ilink/comm/PlatformComm$SIMInfo;")
+                          "()Lcom/tencent/mars/comm/PlatformComm$SIMInfo;")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo)
 #endif
@@ -537,7 +537,7 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
 #ifdef ANDROID
 #ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new, KPlatformCommC2Java, "wakeupLock_new",
-                          "()Lcom/tencent/mars/ilink/comm/WakerLock;")
+                          "()Lcom/tencent/mars/comm/WakerLock;")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new)
 #endif
