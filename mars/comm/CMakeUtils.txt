@@ -8,6 +8,18 @@ add_definitions(-DXLOGGER_TAG="mars::${PROJECT_NAME}")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if(UNITTEST)
+    message("defined UNITTEST option")
+    add_definitions(-DUNITTEST)
+endif()
+if(DISABLE_QUIC_PROTOCOL)
+    message("QUIC disabled by option DISABLE_QUIC_PROTOCOL")
+    add_definitions(-DDISABLE_QUIC_PROTOCOL)
+endif()
+if(DISABLE_PCDN_PROTOCOL)
+    message("PCDN disabled by option DISABLE_PCDN_PROTOCOL")
+    add_definitions(-DDISABLE_PCDN_PROTOCOL)
+endif()
 
 if(MSVC)
     # add DEBUG macro .. release has NDEBUG defaultly
