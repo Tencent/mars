@@ -79,7 +79,7 @@ LongLinkTaskManager::~LongLinkTaskManager() {
     xinfo_function();
     asyncreg_.CancelAndWait();
     __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
-    
+
     MetaScopedLock lock(meta_mutex_);
     for(auto kv : longlink_metas_){
         ReleaseLongLink(kv.second);
@@ -517,7 +517,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
     
     _it->transfer_profile.connect_profile = _connect_profile;
     _it->link_type = _connect_profile.link_type;
-    
+
     if (kEctOK == _err_type) {
         retry_interval_ = 0;
         tasks_continuous_fail_count_ = 0;
@@ -720,7 +720,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
         __BatchErrorRespHandle(_name, _error_type, _error_code, kTaskFailHandleDefault, 0);
         return;
     }
-    
+
     
     if (lst_cmd_.end() == it) {
         xwarn2_if(Task::kInvalidTaskID != _taskid, TSF"task no found task:%0, cmdid:%1, ect:%2, errcode:%3",
@@ -780,7 +780,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
             xinfo2(TSF"task slient error taskid:%_, svr(%_:%_, %_, %_), handle_type:%_, err_code:%_, body dump:%_", it->task.taskid, _connect_profile.ip,
                     _connect_profile.port, IPSourceTypeString[_connect_profile.ip_type], _connect_profile.host, handle_type, err_code,
                     xlogger_memory_dump(body->Ptr(), std::min<size_t>(body->Length(), 1024)));
-            
+
             lst_cmd_.erase(it);
         }
             break;
@@ -1009,7 +1009,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
 void LongLinkTaskManager::ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta){
     std::string name = _linkmeta->Config().name;
     xinfo_function(TSF"release longlink:%_", name);
-    
+
     auto task = lst_cmd_.begin();
     while(task != lst_cmd_.end()) {
         if(task->task.channel_name == name) {
@@ -1023,7 +1023,7 @@ void LongLinkTaskManager::ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _lin
             task++;
         }
     }
-    
+
     _linkmeta->Channel()->SignalConnection.disconnect_all_slots();
     _linkmeta->Monitor()->DisconnectAllSlot();
 }

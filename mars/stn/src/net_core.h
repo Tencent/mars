@@ -88,6 +88,7 @@ class NetCore {
     void    MakeSureLongLinkConnect();
     bool    LongLinkIsConnected();
     void    OnNetworkChange();
+    bool    UseLongLink() {return need_use_longlink_; }
 
     void	KeepSignal();
     void	StopSignal();
@@ -144,6 +145,9 @@ public:
   private:
     NetCore(const NetCore&);
     NetCore& operator=(const NetCore&);
+
+  public:
+    static bool need_use_longlink_;
 
   private:
     comm::MessageQueue::MessageQueueCreater           messagequeue_creater_;

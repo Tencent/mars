@@ -88,7 +88,7 @@ class LongLinkTaskManager {
     bool AddLongLink(LonglinkConfig& _config);
     bool AddMinorLink(const std::vector<std::string>& _hosts);
     bool IsMinorAvailable(const Task& _task);
-    
+
     std::shared_ptr<LongLinkMetaData> DefaultLongLink();
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);
@@ -139,10 +139,10 @@ class LongLinkTaskManager {
 #ifdef ANDROID
     comm::WakeUpLock*                     wakeup_lock_;
 #endif
-#ifndef _WIN32 
+#ifndef _WIN32
     typedef  comm::ScopedLock MetaScopedLock;
     comm::Mutex                     meta_mutex_;
-#else // _WIN32 
+#else // _WIN32
     typedef  comm::ScopedRecursiveLock MetaScopedLock;
     comm::RecursiveMutex            meta_mutex_;
 #endif

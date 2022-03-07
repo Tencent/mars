@@ -22,6 +22,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <memory>
 
 #include "mars/comm/comm_data.h"
 
@@ -48,6 +49,26 @@ extern std::string GetRecentUserName();
 extern unsigned int GetClientVersion();
 extern DeviceInfo GetDeviceInfo();
 extern double GetOsVersion();
+
+#ifdef NATIVE_CALLBACK
+
+    class AppLogicNativeCallback {
+    public:
+        AppLogicNativeCallback() = default;
+        virtual ~AppLogicNativeCallback() = default;
+
+        virtual mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {return mars::comm::ProxyInfo();}
+        virtual std::string GetAppFilePath() {return "";}
+        virtual AccountInfo GetAccountInfo() {return AccountInfo();}
+        virtual std::string GetUserName() {return "";}
+        virtual std::string GetRecentUserName() {return "";}
+        virtual unsigned int GetClientVersion() {return 0;}
+        virtual DeviceInfo GetDeviceInfo() {return DeviceInfo();}
+    };
+    extern void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
+
+#endif //NATIVE_CALLBACK
+
 }}
 
 #endif /* APPCOMM_INTERFACE_APPCOMM_H_ */
