@@ -12,7 +12,7 @@
 
 #include "stn_callback_bridge.h"
 
-#include "mars/boost/signals2.hpp"
+#include "mars/third_party/boost/signals2.hpp"
 #include "mars/comm/xlogger/xlogger.h"
 #include "stn_logic.h"
 #ifdef ANDROID

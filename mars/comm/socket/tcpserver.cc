@@ -22,7 +22,7 @@
 
 #include "tcpserver.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "comm/thread/lock.h"
 #include "comm/xlogger/xlogger.h"

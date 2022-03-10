@@ -26,8 +26,8 @@
 #include <vector>
 #include <memory>
 
-#include "boost/signals2.hpp"
-#include "boost/function.hpp"
+#include "third_party/boost/signals2.hpp"
+#include "third_party/boost/function.hpp"
 
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/autobuffer.h"

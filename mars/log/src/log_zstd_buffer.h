@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 #include "log_base_buffer.h"
-#include "zstd/lib/zstd.h"
+#include "third_party/zstd/lib/zstd.h"
 #include "mars/comm/ptrbuffer.h"
 #include "mars/comm/autobuffer.h"
 

@@ -31,8 +31,8 @@
 #include "util/scoped_jstring.h"
 #include "util/var_cache.h"
 
-#include "mars/boost/bind.hpp"
-#include "mars/boost/ref.hpp"
+#include "mars/third_party/boost/bind.hpp"
+#include "mars/third_party/boost/ref.hpp"
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/coroutine/coroutine.h"

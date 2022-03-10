@@ -23,8 +23,8 @@
 #include <stdlib.h>
 #include <mutex>
 
-#include "boost/bind.hpp"
-#include "boost/ref.hpp"
+#include "third_party/boost/bind.hpp"
+#include "third_party/boost/ref.hpp"
 
 
 #include "mars/comm/messagequeue/message_queue.h"

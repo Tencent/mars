@@ -2,7 +2,7 @@
 #include "../messagequeue/message_queue.h"
 #include "gtest/gtest.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 #include "thread/thread.h"
 
 

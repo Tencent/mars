@@ -21,7 +21,7 @@
 #ifndef STN_SRC_NETSOURCE_TIMERCHECK_H_
 #define STN_SRC_NETSOURCE_TIMERCHECK_H_
 
-#include "boost/signals2.hpp"
+#include "third_party/boost/signals2.hpp"
 
 #include "mars/comm/thread/thread.h"
 #include "mars/baseevent/active_logic.h"

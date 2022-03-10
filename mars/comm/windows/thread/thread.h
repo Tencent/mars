@@ -23,7 +23,7 @@
 #include "assert/__assert.h"
 #include "condition.h"
 #include "thread/runnable.h"
-#include "mars/openssl/include/openssl/crypto.h"
+#include "mars/third_party/openssl/include/openssl/crypto.h"
 
 typedef HANDLE  thread_handler;
 #define thrd_success (0)

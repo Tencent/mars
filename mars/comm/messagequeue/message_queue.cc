@@ -27,7 +27,7 @@
 #include <inttypes.h>
 #endif
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "comm/thread/lock.h"
 #include "comm/anr.h"

@@ -22,7 +22,7 @@
 
 #include <unistd.h>
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/comm/comm_frequency_limit.h"
 #include "mars/comm/xlogger/xlogger.h"

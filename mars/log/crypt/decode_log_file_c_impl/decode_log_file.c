@@ -23,7 +23,7 @@
 #include <dirent.h>
 #include <string.h>
 #include "zlib.h"
-#include "zstd/lib/zstd.h"
+#include "third_party/zstd/lib/zstd.h"
 #include "micro-ecc-master/uECC.h"
 
 

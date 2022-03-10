@@ -8,7 +8,7 @@
 
 #include "./dns.h"
 
-#include "boost/smart_ptr.hpp"
+#include "third_party/boost/smart_ptr.hpp"
 
 #include "./coro_async.h"
 

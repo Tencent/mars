@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/function.hpp"
+#include "third_party/boost/function.hpp"
 
 namespace mars {
 namespace comm {

@@ -21,7 +21,7 @@
 
 #include "timing_sync.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/app/app.h"
 #include "mars/comm/thread/lock.h"

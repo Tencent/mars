@@ -29,7 +29,7 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
-#include "mars/boost/signals2.hpp"
+#include "mars/third_party/boost/signals2.hpp"
 
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnLogic")
 DEFINE_FIND_CLASS(KC2JavaStnCgiProfile,"com/tencent/mars/stn/StnLogic$CgiProfile");

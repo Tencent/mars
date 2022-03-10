@@ -3,10 +3,10 @@ cmake_minimum_required (VERSION 3.6)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation directory" FORCE)
 message(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
-include_directories(openssl/include)
+include_directories(third_party/openssl/include)
 
 add_subdirectory(comm comm)
-add_subdirectory(boost boost)
+add_subdirectory(third_party/boost boost)
 add_subdirectory(app app)
 add_subdirectory(baseevent baseevent)
 add_subdirectory(log xlog)
@@ -16,10 +16,10 @@ add_subdirectory(stn stn)
 # for zstd
 option(ZSTD_BUILD_STATIC "BUILD STATIC LIBRARIES" ON)
 option(ZSTD_BUILD_SHARED "BUILD SHARED LIBRARIES" OFF)
-set(ZSTD_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zstd")
+set(ZSTD_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zstd")
 set(LIBRARY_DIR ${ZSTD_SOURCE_DIR}/lib)
 include(GNUInstallDirs)
-add_subdirectory(zstd/build/cmake/lib zstd)
+add_subdirectory(third_party/zstd/build/cmake/lib zstd)
 
 project (mars)
 

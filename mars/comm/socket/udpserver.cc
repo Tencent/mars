@@ -20,7 +20,7 @@
 
 #include "udpserver.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "xlogger/xlogger.h"
 #include "socket/socket_address.h"

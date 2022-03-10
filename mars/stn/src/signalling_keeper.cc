@@ -23,7 +23,7 @@
 #include <vector>
 #include <string>
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/comm/socket/udpclient.h"
 #include "mars/comm/time_utils.h"

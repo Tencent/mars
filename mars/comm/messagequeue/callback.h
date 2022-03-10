@@ -23,7 +23,7 @@
 #include "mars/comm/thread/thread.h"
 #include "message_queue.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 namespace mars {
 

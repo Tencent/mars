@@ -1,7 +1,7 @@
 #if UWP
 # include <windows.h>
 
-#include <boost/thread/win32/thread_data.hpp>
+#include <third_party/boost/thread/win32/thread_data.hpp>
 #include <network/getgateway.h>
 #include <network/getifaddrs.h>
 //#include <atlbase.h>

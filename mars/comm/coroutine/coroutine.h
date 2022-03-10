@@ -13,9 +13,9 @@
 #ifndef COROUTINE_H_
 #define COROUTINE_H_
 
-#include <boost/smart_ptr.hpp>
-#include <boost/smart_ptr/intrusive_ref_counter.hpp>
-#include <boost/coroutine/all.hpp>
+#include <third_party/boost/smart_ptr.hpp>
+#include <third_party/boost/smart_ptr/intrusive_ref_counter.hpp>
+#include <third_party/boost/coroutine/all.hpp>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/assert/__assert.h"

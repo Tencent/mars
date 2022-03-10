@@ -14,18 +14,18 @@
 #endif
 //#define BOOST_THREAD_VERSION 3
 
-#include <boost/thread/thread_only.hpp>
-#include <boost/thread/once.hpp>
-#include <boost/thread/tss.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/detail/tss_hooks.hpp>
-#include <boost/thread/future.hpp>
-#include <boost/assert.hpp>
-#include <boost/cstdint.hpp>
+#include <third_party/boost/thread/thread_only.hpp>
+#include <third_party/boost/thread/once.hpp>
+#include <third_party/boost/thread/tss.hpp>
+#include <third_party/boost/thread/condition_variable.hpp>
+#include <third_party/boost/thread/detail/tss_hooks.hpp>
+#include <third_party/boost/thread/future.hpp>
+#include <third_party/boost/assert.hpp>
+#include <third_party/boost/cstdint.hpp>
 #if defined BOOST_THREAD_USES_DATETIME
-#include <boost/date_time/posix_time/conversion.hpp>
+#include <third_party/boost/date_time/posix_time/conversion.hpp>
 #endif
-#include <boost/thread/csbl/memory/unique_ptr.hpp>
+#include <third_party/boost/thread/csbl/memory/unique_ptr.hpp>
 #include <memory>
 #include <algorithm>
 #ifndef UNDER_CE
@@ -33,7 +33,7 @@
 #endif
 #include <stdio.h>
 #include <windows.h>
-#include <boost/predef/platform.h>
+#include <third_party/boost/predef/platform.h>
 
 #if BOOST_PLAT_WINDOWS_RUNTIME
 #include <mutex>

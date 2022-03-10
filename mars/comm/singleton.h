@@ -18,9 +18,9 @@
 #include <list>
 #include <thread>
 
-#include "boost/shared_ptr.hpp"
-#include "boost/weak_ptr.hpp"
-#include "boost/signals2.hpp"
+#include "third_party/boost/shared_ptr.hpp"
+#include "third_party/boost/weak_ptr.hpp"
+#include "third_party/boost/signals2.hpp"
 
 #include "mars/comm/thread/lock.h"
 

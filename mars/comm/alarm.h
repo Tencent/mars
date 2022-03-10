@@ -21,7 +21,7 @@
 #ifndef COMM_ALARM_H_
 #define COMM_ALARM_H_
 
-#include <boost/bind.hpp>
+#include <third_party/boost/bind.hpp>
 #include "messagequeue/message_queue.h"
 #include "comm/xlogger/xlogger.h"
 

@@ -11,7 +11,7 @@
 #include "http_detector.h"
 #include "http_url_parser.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/comm/strutil.h"
 #include "mars/comm/http.h"

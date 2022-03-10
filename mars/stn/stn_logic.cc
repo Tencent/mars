@@ -35,7 +35,7 @@
 #include "mars/comm/bootrun.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/alarm.h"
-#include "mars/boost/signals2.hpp"
+#include "mars/third_party/boost/signals2.hpp"
 #include "stn/src/net_core.h"//一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
@@ -43,8 +43,8 @@
 
 #ifdef WIN32
 #include <locale>
-#include "boost/filesystem/path.hpp"
-#include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
+#include "third_party/boost/filesystem/path.hpp"
+#include "third_party/boost/filesystem/detail/utf8_codecvt_facet.hpp"
 #endif
 
 using namespace mars::comm;

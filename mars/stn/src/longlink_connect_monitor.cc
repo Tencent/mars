@@ -21,7 +21,7 @@
 
 #include "longlink_connect_monitor.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"

@@ -15,7 +15,7 @@
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/socket/socketbreaker.h"
-#include "mars/boost/function.hpp"
+#include "mars/third_party/boost/function.hpp"
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/xlogger/xlogger.h"
 class HTTPDetectReq {

@@ -1,5 +1,5 @@
 
-#include "boost/utility/result_of.hpp"
+#include "third_party/boost/utility/result_of.hpp"
 #include "comm\platform_comm.h"
 
 #include "runtime2cs.h"

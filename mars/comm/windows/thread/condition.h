@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <climits>
 
-#include "boost/thread/condition.hpp"
+#include "third_party/boost/thread/condition.hpp"
 
 #include "assert/__assert.h"
 #include "thread/atomic_oper.h"

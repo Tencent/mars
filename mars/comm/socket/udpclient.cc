@@ -21,7 +21,7 @@
 #include "udpclient.h"
 
 #include "comm/xlogger/xlogger.h"
-#include "mars/boost/bind.hpp"
+#include "mars/third_party/boost/bind.hpp"
 #include "comm/socket/socket_address.h"
 
 #define DELETE_AND_NULL(a) {if (a) delete a; a = NULL;}

@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "mars/boost/signals2.hpp"
+#include "mars/third_party/boost/signals2.hpp"
 
 #if !defined(ANDROID) && !defined(__APPLE__)
 #define ANR_CHECK_DISABLE

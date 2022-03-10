@@ -48,9 +48,9 @@
 #include <string>
 #include <algorithm>
 
-#include "boost/bind.hpp"
-#include "boost/iostreams/device/mapped_file.hpp"
-#include "boost/filesystem.hpp"
+#include "third_party/boost/bind.hpp"
+#include "third_party/boost/iostreams/device/mapped_file.hpp"
+#include "third_party/boost/filesystem.hpp"
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/condition.h"

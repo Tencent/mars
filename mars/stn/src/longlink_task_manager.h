@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <set>
 
-#include "boost/function.hpp"
+#include "third_party/boost/function.hpp"
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"

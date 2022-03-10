@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/comm/socket/unix_socket.h"
 

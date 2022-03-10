@@ -1,5 +1,5 @@
 #pragma once
-#include <boost/detail/bitmask.hpp>
+#include <third_party/boost/detail/bitmask.hpp>
 #include <comm/UWP/boost/path.hpp>
 
 #if defined(_MSC_VER) // || (defined(__GLIBCXX__) && __GLIBCXX__ >= 20110325)

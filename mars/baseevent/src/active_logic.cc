@@ -17,7 +17,7 @@
  *      Author: yerungui
  */
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseprjevent.h"

@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include "third_party/boost/shared_ptr.hpp"
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/socket/socketselect.h"

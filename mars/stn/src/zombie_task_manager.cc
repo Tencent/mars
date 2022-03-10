@@ -21,7 +21,7 @@
 
 #include "zombie_task_manager.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/comm/time_utils.h"
 #include "mars/comm/messagequeue/message_queue.h"

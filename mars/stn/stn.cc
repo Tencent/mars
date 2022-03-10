@@ -19,7 +19,7 @@
 //
 
 #include "mars/stn/stn.h"
-#include "mars/boost/config.hpp"
+#include "mars/third_party/boost/config.hpp"
 #include "mars/comm/thread/atomic_oper.h"
 static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 

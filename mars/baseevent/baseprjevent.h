@@ -20,7 +20,7 @@
 #ifndef BASEPRJEVENT_H_
 #define BASEPRJEVENT_H_
 
-#include "boost/signals2.hpp"
+#include "third_party/boost/signals2.hpp"
 
 extern boost::signals2::signal<void ()>& GetSignalOnCreate();
 extern boost::signals2::signal<void (int _encoder_version)>& GetSignalOnInitBeforeOnCreate();

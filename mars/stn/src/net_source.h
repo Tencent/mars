@@ -26,7 +26,7 @@
 #include <map>
 #include <tuple>
 
-#include "boost/function.hpp"
+#include "third_party/boost/function.hpp"
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/thread/mutex.h"

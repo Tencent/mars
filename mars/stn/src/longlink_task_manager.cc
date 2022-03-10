@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/xlogger/xlogger.h"

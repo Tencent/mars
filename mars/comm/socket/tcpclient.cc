@@ -20,7 +20,7 @@
 
 #include "tcpclient.h"
 
-#include "boost/bind.hpp"
+#include "third_party/boost/bind.hpp"
 
 #include "autobuffer.h"
 #include "xlogger/xlogger.h"

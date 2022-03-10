@@ -21,7 +21,7 @@
 #ifndef STN_SRC_SIGNALLING_KEEPER_H_
 #define STN_SRC_SIGNALLING_KEEPER_H_
 
-#include "boost/function.hpp"
+#include "third_party/boost/function.hpp"
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/socket/udpclient.h"

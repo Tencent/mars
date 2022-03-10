@@ -22,8 +22,8 @@
 #ifndef STN_SRC_TIMING_SYNC_H_
 #define STN_SRC_TIMING_SYNC_H_
 
-#include "boost/function.hpp"
-#include "boost/signals2.hpp"
+#include "third_party/boost/function.hpp"
+#include "third_party/boost/signals2.hpp"
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/comm/alarm.h"

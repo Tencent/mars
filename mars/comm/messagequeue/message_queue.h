@@ -24,21 +24,21 @@
 #include <string.h>
 #include <string>
 
-#include "boost/function.hpp"
-#include "boost/any.hpp"
-#include "boost/smart_ptr.hpp"
+#include "third_party/boost/function.hpp"
+#include "third_party/boost/any.hpp"
+#include "third_party/boost/smart_ptr.hpp"
 
 #if UWP //???andrewu temp compile pass
-#include "boost/utility/result_of.hpp"
+#include "third_party/boost/utility/result_of.hpp"
 #endif
 
 #if __cplusplus >= 201103L
-#include "boost/static_assert.hpp"
-#include "boost/utility/result_of.hpp"
-#include "boost/type_traits/is_same.hpp"
+#include "third_party/boost/static_assert.hpp"
+#include "third_party/boost/utility/result_of.hpp"
+#include "third_party/boost/type_traits/is_same.hpp"
 #else 
 #ifdef WIN32
-#include "boost/utility/result_of.hpp"
+#include "third_party/boost/utility/result_of.hpp"
 #endif // DEBUG
 #endif 
 

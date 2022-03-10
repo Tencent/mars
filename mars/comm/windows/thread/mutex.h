@@ -18,8 +18,8 @@
 #include <errno.h>
 #include <mutex>
 
-//#include "boost/thread/mutex.hpp"
-//#include "boost/thread/recursive_mutex.hpp"
+//#include "third_party/boost/thread/mutex.hpp"
+//#include "third_party/boost/thread/recursive_mutex.hpp"
 
 #include "assert/__assert.h"
 

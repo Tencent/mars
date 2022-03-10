@@ -25,9 +25,9 @@
 #include <deque>
 #include <algorithm>
 
-#include "boost/filesystem.hpp"
-#include "boost/bind.hpp"
-#include "boost/accumulators/numeric/functional.hpp"
+#include "third_party/boost/filesystem.hpp"
+#include "third_party/boost/bind.hpp"
+#include "third_party/boost/accumulators/numeric/functional.hpp"
 
 #include "mars/comm/socket/unix_socket.h"
 
