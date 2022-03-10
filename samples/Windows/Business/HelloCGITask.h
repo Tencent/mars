@@ -23,7 +23,7 @@
 #include "Wrapper/CGITask.h"
 
 #include "proto/generate/main.pb.h"
-#include "mars/boost/weak_ptr.hpp"
+#include "mars/third_party/boost/weak_ptr.hpp"
 class HelloCGITask;
 class HelloCGICallback
 {

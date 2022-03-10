@@ -19,7 +19,7 @@
 
 #include "NetworkService.h"
 #include "mars/comm/windows/projdef.h"
-#include "mars/boost/bind.hpp"
+#include "mars/third_party/boost/bind.hpp"
 #include "mars/baseevent/base_logic.h"
 #include "mars/stn/stn_logic.h"
 #include "PublicComponentV2/stnproto_logic.h"
