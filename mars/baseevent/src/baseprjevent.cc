@@ -18,9 +18,11 @@
  */
 
 #include "mars/baseevent/baseprjevent.h"
+#include "baseevent_bridge.h"
 
 boost::signals2::signal<void ()>& GetSignalOnCreate()
 {
+        mars::baseevent::xxxx();
 	static boost::signals2::signal<void ()> SignalOnCreate;
 	return SignalOnCreate;
 }
