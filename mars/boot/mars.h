@@ -5,12 +5,11 @@
 #ifndef MMNET_MARS_H
 #define MMNET_MARS_H
 
-//#include "app_session.h"
-#include <string.h>
 #include "stn/stn_logic_manager.h"
+#include <string.h>
 
 namespace mars {
-namespace baseevent {
+namespace boot {
 
 class Mars {
 public:
@@ -30,15 +29,12 @@ public:
   void OnExceptionCrash();
   void OnMemoryLow();
 
-//  stn::StnLogicManager CreateStnLogicManager();
-
 
 private:
   bool is_foreground_;
   bool is_active_;
   uint64_t last_foreground_change_time_;
-//  AppSession appSession;
-  mars::stn::StnLogicManager *stn_logic_manager;
+  mars::stn::StnLogicManager *_stn_logic_manager = nullptr;
 };
 
 } // namespace boot

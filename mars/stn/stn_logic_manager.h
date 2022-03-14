@@ -10,26 +10,34 @@
 #include <string>
 #include <vector>
 
-#include "mars/comm/autobuffer.h"
+#include "mars/boot/base_logic_manager.h"
 #include "mars/stn/stn.h"
+
+using namespace mars::boot;
 
 namespace mars {
 
-namespace comm {
-class ProxyInfo;
-}
-
 namespace stn {
 
-class StnLogicManager {
+class StnLogicManager : public BaseLogicManager {
 public:
-  void OnCreate();
-  void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
-  void OnDestroy();
-  void OnSignalCrash(int _sig);
-  void OnExceptionCrash();
-  void OnNetworkChange();
+  StnLogicManager();
+  void OnCreate() override;
+  void OnInitConfigBeforeOnCreate(int _packer_encoder_version) override;
+  void OnForeground(bool _is_forground) ;
+  uint64_t LastForeGroundChangeTime() ;
+  bool IsActive() ;
+  void SwitchActiveStateForDebug(bool _active) ;
+  void OnNetworkChange() ;
+  void onNetworkDataChange(const char *_tag, int32_t _send,
+                           int32_t _recv) ;
+  void OnAlarm(int64_t _id) ;
+  void OnDestroy() ;
+  void OnSignalCrash(int _sig) ;
+  void OnExceptionCrash() ;
+  void OnMemoryLow() ;
 };
+
 } // namespace stn
 } // namespace mars
 

@@ -2,13 +2,13 @@
 // Created by Cpan on 2022/3/10.
 //
 
-#ifndef MMNET_BASEEVENT_BRIDGE_H
-#define MMNET_BASEEVENT_BRIDGE_H
+#ifndef MMNET_BOOT_BRIDGE_H
+#define MMNET_BOOT_BRIDGE_H
 
-#include "mars/baseevent/mars.h"
+#include "mars/boot/mars.h"
 
 namespace mars {
-namespace baseevent {
+namespace boot {
 
 void xxxx();
 
@@ -22,4 +22,4 @@ public:
 } // namespace boot
 } // namespace mars
 
-#endif // MMNET_BASEEVENT_BRIDGE_H
+#endif // MMNET_BOOT_BRIDGE_H
