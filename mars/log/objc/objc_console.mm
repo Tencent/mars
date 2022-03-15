@@ -15,9 +15,16 @@
 #include "comm/xlogger/xlogger.h"
 #include "comm/xlogger/loginfo_extract.h"
 #import "comm/objc/scope_autoreleasepool.h"
+#include "mars/log/appender.h"
 
 namespace mars{
 namespace xlog{
+
+static TConsoleFun sg_console_fun = TConsoleFun::kConsoleNSLog;
+
+void appender_set_console_fun(TConsoleFun _fun) {
+    sg_console_fun = _fun;
+}
 
 void ConsoleLog(const XLoggerInfo* _info, const char* _log)
 {
@@ -37,6 +44,14 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
     const char* strFuncName  = NULL == _info->func_name ? "" : _info->func_name;
     const char* file_name = ExtractFileName(_info->filename);
 
+    char log[16 * 1024] = {0};
+
+    if (kConsoleNSLog == sg_console_fun) {
+        snprintf(log, sizeof(log), "[%s][%s][%s:%d, %s][%s", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, _info->line, strFuncName, _log);
+        NSLog(@"%@", [NSString stringWithUTF8String:log]);
+        return;
+    }
+
     struct timeval tv;
     gettimeofday(&tv, nullptr);
     time_t sec = _info->timeval.tv_sec;
@@ -45,11 +60,6 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log)
     snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d %+.1f %02d:%02d:%02d.%.3d", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
              tm.tm_gmtoff / 3600.0, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
 
-
-    
-    char log[16 * 1024] = {0};
-//    snprintf(log, sizeof(log), "[%s][%s][%s:%d, %s][%s", levelStrings[_info->level], NULL == _info->tag ? "" : _info->tag, file_name, _info->line, strFuncName, _log);
-//    NSLog(@"%@", [NSString stringWithUTF8String:log]);
 
     snprintf(log, sizeof(log), "[%s][%s][%" PRIdMAX ", %" PRIdMAX "%s][%s][%s:%d, %s][%s",  // **CPPLINT SKIP**
                        levelStrings[_info->level], temp_time,

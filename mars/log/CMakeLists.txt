@@ -43,7 +43,11 @@ if(MSVC)
 
     include_directories(../comm/windows)
     include_directories(../comm/windows/zlib)
-    
+
+elseif(APPLE)
+    file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} objc/*.mm)
+    source_group(objc FILES ${SELF_TEMP_SRC_FILES})
+    list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 elseif(ANDROID)
     file(GLOB SELF_ANDROID_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR}
             ../comm/xlogger/xloggerbase.c
@@ -55,7 +59,6 @@ elseif(ANDROID)
 
     get_filename_component(EXPORT_EXP_FILE jni/export.exp ABSOLUTE)
     set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script=${EXPORT_EXP_FILE}")
-
 
 endif()
 
