@@ -116,7 +116,8 @@ class NetSource {
     void InitHistory2BannedList(bool _save);
     void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
     std::tuple<uint32_t, uint32_t> GetIpConnectTimeout() {return std::make_tuple(v4_timeout_, v6_timeout_);}
-
+    void SetQuicTimeout(uint32_t _quic_connect_timeout);
+    uint32_t GetQuicTimeout() { return quic_timeout; }
   private:
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
@@ -132,6 +133,7 @@ class NetSource {
     SimpleIPPortSort    ipportstrategy_;
     uint32_t v4_timeout_;
     uint32_t v6_timeout_;
+    uint32_t quic_timeout;
 };
         
     }

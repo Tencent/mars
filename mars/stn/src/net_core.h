@@ -98,7 +98,7 @@ class NetCore {
     void ForbidLonglinkTlsHost(const std::vector<std::string>& _host);
     void InitHistory2BannedList();
     void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
-
+    void SetQuicTimeout(uint32_t _quic_connect_timeout);
 public:
     
 #ifdef USE_LONG_LINK

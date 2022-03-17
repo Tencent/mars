@@ -890,6 +890,13 @@ void NetCore::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) {
     }
 }
 
+void NetCore::SetQuicTimeout(uint32_t _quic_connect_timeout) {
+    if (net_source_) {
+        xinfo2(TSF"quci connect timeout: %_", _quic_connect_timeout);
+        net_source_->SetQuicTimeout(_quic_connect_timeout);
+    }
+}
+
 void NetCore::DestroyLongLink(const std::string& _name){
 	WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::DestroyLongLink, this, _name));
     auto longlink = longlink_task_manager_->GetLongLink(_name);

@@ -53,6 +53,8 @@ Task::Task(uint32_t _taskid) {
     long_polling = false;
     long_polling_timeout = -1;
     
+    quic_timeout = 0;
+    
     channel_name=DEFAULT_LONGLINK_NAME;
     max_minorlinks = 1;
 }

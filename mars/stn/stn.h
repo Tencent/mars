@@ -113,6 +113,8 @@ public:
     bool        long_polling;
     int32_t     long_polling_timeout;
     
+    int32_t     quic_timeout;
+    
     void*       user_context;  // user
     std::string report_arg;  // use for cgi report
     std::string channel_name;   //longlink channel id

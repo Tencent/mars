@@ -291,6 +291,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             config.quic.enable_0rtt = true;
             
             hosts = task.quic_host_list;
+            
+            task.quic_timeout = net_source_.GetQuicTimeout();
         }
         
         if (get_real_host_) {

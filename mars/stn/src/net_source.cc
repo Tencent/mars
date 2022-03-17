@@ -548,3 +548,7 @@ void NetSource::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) 
     v4_timeout_ = _v4_timeout;
     v6_timeout_ = _v6_timeout;
 }
+
+void NetSource::SetQuicTimeout(uint32_t _quic_connect_timeout) {
+    quic_timeout = _quic_connect_timeout;
+}
