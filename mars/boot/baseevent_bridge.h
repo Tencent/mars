@@ -1,6 +1,6 @@
 //
 // Created by Cpan on 2022/3/10.
-//
+//smc_logic.h
 
 #ifndef MMNET_BOOT_BRIDGE_H
 #define MMNET_BOOT_BRIDGE_H
