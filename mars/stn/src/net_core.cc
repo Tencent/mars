@@ -589,10 +589,15 @@ int NetCore::__CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fai
     if (task_callback_hook_ && 0 == task_callback_hook_(_from, _err_type, _err_code, _fail_handle, _task)) {
         xwarn2(TSF"task_callback_hook let task return. taskid:%_, cgi%_.", _task.taskid, _task.cgi);
         return 0;
-     }
+    }
+    
+    ConnectProfile profile;
+    if (kEctLocal == _err_type && kEctLocalReset == _err_code)  // ~MMCore
+        return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
+
     if (kEctOK == _err_type || kTaskFailHandleTaskEnd == _fail_handle)
         return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, GetConnectProfile(_task.taskid, _task.channel_select));
-    ConnectProfile profile;
+
     if (kCallFromZombie == _from)
         return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
 
