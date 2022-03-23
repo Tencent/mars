@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <string>
+#include <functional>
 
 #include "boost/function.hpp"
 #include "boost/any.hpp"
@@ -55,6 +56,8 @@ typedef uint64_t MessageQueue_t;
 typedef boost::function<void ()> AsyncInvokeFunction;
 
 const MessageQueue_t KInvalidQueueID = 0;
+
+std::function<void (size_t, std::string)> g_mq_max_size_callback = nullptr;
 
 struct MessageHandler_t {
     MessageHandler_t(): queue(KInvalidQueueID), seq(0) {}
