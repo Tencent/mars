@@ -132,6 +132,8 @@ struct ConnectProfile {
         tls_handshake_success = false;
         channel_type = 0;
         rtt_by_socket = 0;
+
+        task_id = 0;
     }
     
     std::string net_type;
@@ -203,6 +205,8 @@ struct ConnectProfile {
     uint64_t retrans_byte_count;
     int channel_type;
     int rtt_by_socket;
+
+    uint32_t task_id;
 };
 
         
