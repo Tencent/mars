@@ -48,6 +48,8 @@ namespace mars {
 namespace comm {
 namespace MessageQueue {
 
+    std::function<void (size_t, std::string)> g_mq_max_size_callback = nullptr;
+
 #define MAX_MQ_SIZE 5000
 
     static unsigned int __MakeSeq() {
