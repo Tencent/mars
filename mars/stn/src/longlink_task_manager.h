@@ -121,6 +121,7 @@ class LongLinkTaskManager {
     void __RedoTasks(const std::string& _name, bool need_lock_link = true);
     void __DumpLongLinkChannelInfo();
     bool __ForbidUseTls(const std::vector<std::string>& _host_list);
+    void __OnTimeCheckSuccess(const std::string& _name);
 
   private:
     comm::MessageQueue::ScopeRegister     asyncreg_;

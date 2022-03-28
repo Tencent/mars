@@ -62,6 +62,8 @@ public:
         return longlink_->ConnectStatus() == LongLink::TLongLinkStatus::kConnected;
     }
 
+    boost::function<void (const std::string& _name)> fun_on_time_check_;
+
 private:
     void __OnTimerCheckSuc(const std::string& _name);
 

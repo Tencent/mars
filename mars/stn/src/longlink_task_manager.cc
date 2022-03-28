@@ -957,6 +957,7 @@ bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
     longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
     longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+    longlink->fun_on_time_check_ = boost::bind(&LongLinkTaskManager::__OnTimeCheckSuccess, this, _1);
 #ifdef ANDROID
     longlink->Channel()->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
     longlink->Channel()->OnNoopAlarmReceived = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
@@ -1071,6 +1072,22 @@ bool LongLinkTaskManager::__ForbidUseTls(const std::vector<std::string>& _host_l
         }
     }
     return false;
+}
+
+//net source checker 判断连了backup ip要断开时,判断没有任务时再断开。
+void LongLinkTaskManager::__OnTimeCheckSuccess(const std::string &_name) {
+    ScopedLock lock(mutex_);
+    xinfo2(TSF"time check success %_", _name);
+    auto longlink = GetLongLink(_name);
+    if(longlink == nullptr) {
+        xwarn2(TSF"longlink nullptr name:%_", _name);
+        return;
+    }
+    if(GetTaskCount(_name) > 0 ) {
+        xinfo2(TSF"long link task is not empty. ignore");
+        return;
+    }
+    longlink->Channel()->Disconnect(LongLink::kTimeCheckSucc);
 }
 
 void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
