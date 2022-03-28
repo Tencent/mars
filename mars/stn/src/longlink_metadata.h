@@ -56,6 +56,8 @@ public:
         return netsource_checker_;
     }
 
+    boost::function<void (const std::string& _name)> fun_on_time_check_;
+
 private:
     void __OnTimerCheckSuc(const std::string& _name);
 

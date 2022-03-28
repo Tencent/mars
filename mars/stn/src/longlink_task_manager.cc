@@ -684,7 +684,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
             xassert2(false);
         return;
     }
-    
+
     if (kEctOK != _error_type) {
         xwarn2(TSF"task error, taskid:%_, cmdid:%_, error_type:%_, error_code:%_", _taskid, _cmdid, _error_type, _error_code);
         __BatchErrorRespHandle(_name, _error_type, _error_code, kTaskFailHandleDefault, 0);
@@ -692,7 +692,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     }
     
     std::list<TaskProfile>::iterator it = __Locate(_taskid);
-    
+
     if (lst_cmd_.end() == it) {
         xwarn2_if(Task::kInvalidTaskID != _taskid, TSF"task no found task:%0, cmdid:%1, ect:%2, errcode:%3",
                   _taskid, _cmdid, _error_type, _error_code);
@@ -857,6 +857,8 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
     longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
+    longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+    longlink->fun_on_time_check_ = boost::bind(&LongLinkTaskManager::__OnTimeCheckSuccess, this, _1);
 #ifdef ANDROID
     longlink->Channel()->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
     longlink->Channel()->OnNoopAlarmReceived = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
@@ -924,5 +926,21 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
     for(auto& item : longlink_metas_) {
         xinfo2(TSF"longlink channel name:%_, null:%_", item.first, item.second == nullptr);
     }
+}
+
+//net source checker 判断连了backup ip要断开时,判断没有任务时再断开。
+void LongLinkTaskManager::__OnTimeCheckSuccess(const std::string &_name) {
+    ScopedLock lock(mutex_);
+    xinfo2(TSF"time check success %_", _name);
+    auto longlink = GetLongLink(_name);
+    if(longlink == nullptr) {
+        xwarn2(TSF"longlink nullptr name:%_", _name);
+        return;
+    }
+    if(GetTaskCount(_name) > 0 ) {
+        xinfo2(TSF"long link task is not empty. ignore");
+        return;
+    }
+    longlink->Channel()->Disconnect(LongLink::kTimeCheckSucc);
 }
 
