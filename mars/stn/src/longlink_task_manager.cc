@@ -857,7 +857,6 @@ bool LongLinkTaskManager::AddLongLink(const LonglinkConfig& _config) {
     longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
     longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
-    longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
     longlink->fun_on_time_check_ = boost::bind(&LongLinkTaskManager::__OnTimeCheckSuccess, this, _1);
 #ifdef ANDROID
     longlink->Channel()->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);

@@ -122,7 +122,6 @@ class LongLinkTaskManager {
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
     void __DumpLongLinkChannelInfo();
-    bool __ForbidUseTls(const std::vector<std::string>& _host_list);
     void __OnTimeCheckSuccess(const std::string& _name);
 
   private:
