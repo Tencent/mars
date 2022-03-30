@@ -114,6 +114,11 @@ void __xlogger_Write_impl(const XLoggerInfo* _info, const char* _log) {
         info->tid = xlogger_tid();
         info->maintid = xlogger_maintid();
     }
+
+    xlogger_filter_t filter = xlogger_GetFilter();
+    if (NULL != filter && filter(_info, NULL != _log ? _log : "NULL == _log") <= 0) {
+        return;
+    }
     
     if (NULL == _log) {
         if (_info) {

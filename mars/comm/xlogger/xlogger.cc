@@ -40,9 +40,6 @@ XLogger::~XLogger() {
 	gettimeofday(&m_info.timeval, NULL);
 	if (m_hook && !m_hook(m_info, m_message)) return;
 
-	xlogger_filter_t filter = xlogger_GetFilter();
-	if (filter && filter(&m_info, m_message.c_str()) <= 0)  return;
-
 	if (m_isassert)
 		xlogger_Assert(m_isinfonull?NULL:&m_info, m_exp, m_message.c_str());
 	else
@@ -203,10 +200,8 @@ XScopeTracer::XScopeTracer(TLogLevel _level, const char* _tag, const char* _name
 		m_tv = m_info.timeval;
 		char strout[1024] = {'\0'};
 		snprintf(strout, sizeof(strout), "-> %s %s", m_name, NULL!=_log? _log:"");
-		xlogger_filter_t filter = xlogger_GetFilter();
-		if (NULL == filter || filter(&m_info, strout) > 0) {
-			xlogger_Write(&m_info, strout);
-		}
+	
+		xlogger_Write(&m_info, strout);
 	}
 }
 
@@ -218,10 +213,7 @@ XScopeTracer::~XScopeTracer() {
 		long timeSpan = (tv.tv_sec - m_tv.tv_sec) * 1000 + (tv.tv_usec - m_tv.tv_usec) / 1000;
 		char strout[1024] = {'\0'};
 		snprintf(strout, sizeof(strout), "<- %s +%ld, %s", m_name, timeSpan, m_exitmsg.c_str());
-		xlogger_filter_t filter = xlogger_GetFilter();
-		if (NULL == filter || filter(&m_info, strout) > 0) {
-			xlogger_Write(&m_info, strout);
-		}
+		xlogger_Write(&m_info, strout);
 	}
 }
 
