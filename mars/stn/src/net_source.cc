@@ -62,6 +62,8 @@ static std::vector<uint16_t> sg_lowpriority_longlink_ports;
 
 static std::map< std::string, std::string > sg_host_debugip_mapping;
 
+static std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
+
 static Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil():
@@ -300,11 +302,11 @@ bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist)
 	return false;
 }
 
-bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util) {
+bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, std::string& _cgi) {
 	
     ScopedLock lock(sg_ip_mutex);
     
-	if (__GetShortlinkDebugIPPort(_hostlist, _ipport_items)) {
+	if (__GetShortlinkDebugIPPort(_hostlist, _ipport_items, _cgi)) {
 		return true;
     }
     
@@ -316,8 +318,19 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std
 	return !_ipport_items.empty();
 }
 
-bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items) {
+bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, std::string& _cgi) {
 
+    if (!_cgi.empty() && sg_cgi_debug_mapping.find(_cgi) != sg_cgi_debug_mapping.end()) {
+        std::pair<std::string, uint16_t> debug_ip_pair = sg_cgi_debug_mapping[_cgi];
+        IPPortItem item;
+        item.str_ip = debug_ip_pair.first;
+        item.str_host = _hostlist.front();
+        item.port = debug_ip_pair.second;
+        item.source_type = kIPSourceDebug;
+        _ipport_items.push_back(item);
+        return true;
+    }
+    
 	for (std::vector<std::string>::const_iterator host = _hostlist.begin(); host != _hostlist.end(); ++host) {
 		if (sg_host_debugip_mapping.find(*host) != sg_host_debugip_mapping.end()) {
 			IPPortItem item;
@@ -526,6 +539,27 @@ std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
     }
 
     return stream.String();
+}
+
+void NetSource::SetCgiDebugIP(const std::string &_cgi, const std::string &_ip, const uint16_t _port) {
+    if (_cgi.empty()) {
+        xinfo2(TSF"cgi is empty. ignore");
+        return;
+    }
+    if (_ip.empty()) {
+        xinfo2(TSF"ip is empty. remove cgi %_ debug ip", _cgi);
+        std::map<std::string, std::pair<std::string, uint16_t>>::iterator it = sg_cgi_debug_mapping.find(_cgi);
+        if( it != sg_cgi_debug_mapping.end()) {
+            sg_cgi_debug_mapping.erase(it);
+        }
+        return;
+    }
+    xinfo2(TSF "set debug ip:%_ for cgi :%_", _ip, _cgi);
+    uint64_t port = 80;
+    if (_port > 0 ){
+        port = _port;
+    }
+    sg_cgi_debug_mapping[_cgi] = std::pair<std::string, uint16_t>(_ip,port);
 }
 
 bool NetSource::GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec) {

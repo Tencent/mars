@@ -91,6 +91,8 @@ class NetSource {
 
     static std::string DumpTable(const std::vector<IPPortItem>& _ipport_items);
     
+    static void SetCgiDebugIP(const std::string& _cgi, const std::string& _ip, const uint16_t _port);
+    
   public:
     NetSource(comm::ActiveLogic& _active_logic);
     ~NetSource();
@@ -100,7 +102,7 @@ class NetSource {
     bool GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& _dns_util, std::vector<IPPortItem>& _ipport_items);
 
     // for short link
-    bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util);
+    bool GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, std::string& _cgi);
 
     void AddServerBan(const std::string& _ip);
     
@@ -122,7 +124,7 @@ class NetSource {
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
     
     bool __GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items);
-    bool __GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items);
+    bool __GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, std::string& _cgi);
 
     void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const std::vector<std::string>& _hostlist, DnsUtil& _dns_util, bool _islonglink);
     size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string& _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink);
