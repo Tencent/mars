@@ -302,7 +302,7 @@ bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist)
 	return false;
 }
 
-bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, std::string& _cgi) {
+bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::string& _cgi) {
 	
     ScopedLock lock(sg_ip_mutex);
     
@@ -318,7 +318,7 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std
 	return !_ipport_items.empty();
 }
 
-bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, std::string& _cgi) {
+bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, const std::string& _cgi) {
 
     if (!_cgi.empty() && sg_cgi_debug_mapping.find(_cgi) != sg_cgi_debug_mapping.end()) {
         std::pair<std::string, uint16_t> debug_ip_pair = sg_cgi_debug_mapping[_cgi];
