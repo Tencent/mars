@@ -42,14 +42,46 @@
 
 #include "mars/app/app.h"
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/app/AppLogic")
+#endif //NATIVE_CALLBACK
 
 namespace mars {
 namespace app {
 
+#ifdef NATIVE_CALLBACK
+static std::weak_ptr<AppLogicNativeCallback> applogic_native_callback_instance;
+
+void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
+    applogic_native_callback_instance = _cb;
+}
+
+#define CALL_NATIVE_CALLBACK_RETURN_FUN(fun, default_value) \
+    {\
+        auto cb = applogic_native_callback_instance.lock();\
+        if (cb) {\
+            return (cb->fun);\
+        }\
+        xwarn2("applogic native callback is null");\
+        return (default_value);\
+    }
+
+#define DEFINE_FIND_EMPTY_STATIC_METHOD(methodid) \
+        const static JniMethodInfo methodid = JniMethodInfo("", "", "");
+
+#endif //NATIVE_CALLBACK
+
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_getAppFilePath, KC2Java, "getAppFilePath", "()Ljava/lang/String;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_getAppFilePath)
+#endif
 std::string GetAppFilePath() {
 	xverbose_function();
+
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(GetAppFilePath(), std::string(""));
+#endif
 
     VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -67,9 +99,16 @@ std::string GetAppFilePath() {
 	return app_path;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_getAccountInfo, KC2Java, "getAccountInfo", "()Lcom/tencent/mars/app/AppLogic$AccountInfo;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_getAccountInfo)
+#endif
 AccountInfo GetAccountInfo() {
 	xverbose_function();
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(GetAccountInfo(), AccountInfo());
+#else
 
     VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -94,11 +133,15 @@ AccountInfo GetAccountInfo() {
 
 	env->DeleteLocalRef(ret_obj);
 	return info;
+#endif
 }
 
 std::string GetUserName() {
     xverbose_function();
 
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(GetUserName(), std::string(""));
+#endif
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv *env = scope_jenv.GetEnv();
@@ -127,9 +170,16 @@ std::string GetRecentUserName() {
 	return GetUserName();
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_getClientVersion, KC2Java, "getClientVersion", "()I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_getClientVersion)
+#endif
 unsigned int GetClientVersion() {
 
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(GetClientVersion(), 0);
+#endif
 	static unsigned int s_version = 0;
 	if (0 != s_version) {
 		return s_version;
@@ -143,9 +193,16 @@ unsigned int GetClientVersion() {
 	return s_version;
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_getDeviceType, KC2Java, "getDeviceType", "()Lcom/tencent/mars/app/AppLogic$DeviceInfo;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_getDeviceType)
+#endif
 DeviceInfo GetDeviceInfo() {
 	xverbose_function();
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(GetDeviceInfo(), DeviceInfo());
+#endif
 
 	static DeviceInfo s_info;
 	if (!s_info.devicename.empty() || !s_info.devicetype.empty()) {

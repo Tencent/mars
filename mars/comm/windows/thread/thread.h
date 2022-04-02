@@ -54,7 +54,7 @@ class ThreadUtil {
     }
 
     static bool isruning(thread_tid _id) {
-        if (_id == currentthreadid())   
+        if (_id == currentthreadid())
             return true;
 
         HANDLE handle = OpenThread(THREAD_ALL_ACCESS, FALSE, _id);

@@ -48,6 +48,8 @@ namespace mars {
 namespace comm {
 namespace MessageQueue {
 
+    std::function<void (size_t, std::string)> g_mq_max_size_callback = nullptr;
+
 #define MAX_MQ_SIZE 5000
 
     static unsigned int __MakeSeq() {
@@ -164,13 +166,13 @@ namespace MessageQueue {
     }
 
 
-    static std::string DumpMessage(const std::list<MessageWrapper*>& _message_lst) {
+    static std::string DumpMessage(const std::list<MessageWrapper*>& _message_lst, int _cnt) {
         XMessage xmsg;
         xmsg(TSF"**************Dump MQ Message**************size:%_\n", _message_lst.size());
         int index = 0;
-        for (auto msg : _message_lst) {
-            xmsg(TSF"postid:%_, timing:%_, record_time:%_, message:%_\n", msg->postid.ToString(), msg->timing.ToString(), msg->record_time, msg->message.ToString());
-            if (++index>50)
+        for (auto iter = _message_lst.crbegin(); iter != _message_lst.crend(); ++iter) {
+            xmsg(TSF"postid:%_, timing:%_, record_time:%_, message:%_\n", (*iter)->postid.ToString(), (*iter)->timing.ToString(), (*iter)->record_time, (*iter)->message.ToString());
+            if (++index > _cnt)
                 break;
         }
         return xmsg.String();
@@ -187,7 +189,7 @@ namespace MessageQueue {
         }
 
         MessageQueueContent& content = pos->second;
-        return DumpMessage(content.lst_message);
+        return DumpMessage(content.lst_message, 50);
     }
 
     MessageQueue_t CurrentThreadMessageQueue() {
@@ -333,6 +335,21 @@ namespace MessageQueue {
         }
     }
 
+    static uint64_t sg_last_callback_tick = 0;
+    static void _MQMaxSizeCallback(const std::list<MessageWrapper*>& _lst_message) {
+        uint64_t now = gettickcount();
+        if (now <= sg_last_callback_tick + 10 * 1000) {
+            return;
+        }
+        sg_last_callback_tick = now;
+        size_t size = _lst_message.size();
+        xwarn2(TSF"%_", DumpMessage(_lst_message, 50));
+        ASSERT2(false, "Over MAX_MQ_SIZE, size:%d", (int)size);
+        if (nullptr != g_mq_max_size_callback) {
+            g_mq_max_size_callback(size, DumpMessage(_lst_message, 5));
+        }
+    }
+
     MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _message, const MessageTiming& _timing) {
         ScopedLock lock(sg_messagequeue_map_mutex);
         const MessageQueue_t& id = _handlerid.queue;
@@ -347,9 +364,7 @@ namespace MessageQueue {
 
         MessageQueueContent& content = pos->second;
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
 
         MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, __MakeSeq());
@@ -384,9 +399,7 @@ namespace MessageQueue {
         }
 
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
 
         MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, 0 != post_id.seq ? post_id.seq : __MakeSeq());
@@ -407,9 +420,7 @@ namespace MessageQueue {
 
         MessageQueueContent& content = pos->second;
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
 
         MessageHandler_t reg;
@@ -469,10 +480,7 @@ namespace MessageQueue {
         }
 
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            delete messagewrapper;
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
         content.lst_message.push_back(messagewrapper);
         content.breaker->Notify(lock);
@@ -488,9 +496,7 @@ namespace MessageQueue {
         
         MessageQueueContent& content = pos->second;
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
         
         MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, kImmediately, __MakeSeq());

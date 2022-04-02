@@ -283,6 +283,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         Task task = first->task;
         std::vector<std::string> hosts = task.shortlink_host_list;
         ShortlinkConfig config(first->use_proxy, /*use_tls=*/true);
+#ifndef DISABLE_QUIC_PROTOCOL
         if (!task.quic_host_list.empty() && (first->task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
             //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
             config.use_proxy = false;
@@ -292,16 +293,18 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             
             hosts = task.quic_host_list;
         }
-        
+#endif
         if (get_real_host_) {
             get_real_host_(task.user_id, hosts);
         }
         first->task.shortlink_host_list = hosts;
         
         std::string host = hosts.front();
+#ifndef DISABLE_QUIC_PROTOCOL
         if (config.use_quic){
             config.quic.hostname = host;
         }
+#endif
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {

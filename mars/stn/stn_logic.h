@@ -112,7 +112,10 @@ namespace stn{
 
     // touch tasks loop. Generally, invoke it after autoauth successfully.
     extern void (*TouchTasks)();
-    
+
+    //need longlink channel
+    extern void (*DisableLongLink)();
+
     // stop and clear all task
 	extern void (*ClearTasks)();
     
@@ -120,7 +123,7 @@ namespace stn{
 	extern void (*Reset)();
 
 	extern void (*ResetAndInitEncoderVersion)(int _encoder_version);
-    
+
     //setting signalling's parameters.
     //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
 	extern void (*SetSignallingStrategy)(long period, long keeptime);

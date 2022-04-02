@@ -242,6 +242,11 @@ bool LongLink::MakeSureConnected(bool* _newone) {
 
     if (kConnected == ConnectStatus()) return true;
 
+    if (kObjectDestruct == disconnectinternalcode_) {
+        xwarn2(TSF"object has been released");
+        return false;
+    }
+
     bool newone = false;
     thread_.start(&newone);
 

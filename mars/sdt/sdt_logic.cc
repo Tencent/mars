@@ -54,9 +54,6 @@ static void onDestroy() {
 
 static void __initbind_baseprjevent() {
 
-#ifdef ANDROID
-	mars::baseevent::addLoadModule(kLibName);
-#endif
 	GetSignalOnCreate().connect(&onCreate);
 	GetSignalOnDestroy().connect(5, &onDestroy);
 }
@@ -76,8 +73,7 @@ void SetCallBack(Callback* const callback) {
 	sg_callback = callback;
 }
 
-#ifndef ANDROID
-
+#if !defined(ANDROID) || defined (CPP_CALL_BACK)
 void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
 = [](const std::vector<CheckResultProfile>& _check_results) {
 
