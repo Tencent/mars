@@ -10,6 +10,7 @@
 #include "mars/comm/bootrun.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/comm/alarm.h"
 
 using namespace mars::comm;
 
@@ -81,7 +82,7 @@ static void __initbind_baseprjevent() {
   GetSignalOnNetworkDataChange().connect(&OnNetworkDataChange);
 }
 
-BOOT_RUN_STARTUP(__initbind_baseprjevent);
+//BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 void BaseEventBridge::HelloWorld() { xinfo2(TSF "Hello Mars"); }
 
