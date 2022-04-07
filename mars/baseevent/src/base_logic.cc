@@ -31,6 +31,7 @@ namespace mars{
 
         void OnCreate()
         {
+            printf("mars2 OnCreate");
             GetSignalOnCreate()();
         }
         

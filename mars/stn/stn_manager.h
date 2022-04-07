@@ -15,7 +15,7 @@
 #include "mars/stn/stn.h"
 #include "stn/src/net_source.h"
 
-using namespace mars::boot;
+//using namespace mars::boot;
 
 namespace mars {
 

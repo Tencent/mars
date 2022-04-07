@@ -9,9 +9,14 @@ using namespace mars::stn;
 namespace mars {
 namespace boot {
 
-Mars::Mars() : stn_manager_(new StnManager()) {}
+Mars::Mars() : stn_manager_(new StnManager()) {
+    xinfo2(TSF"mars2 new mars.");
+    printf("mars2 new mars.");
+}
 
 void Mars::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
+    xinfo2(TSF"mars2 init config.");
+    printf("mars2 init config.");
     stn_manager_ = new stn::StnManager();
     //stn_manager_->OnInitConfigBeforeOnCreate(_packer_encoder_version);
 }
