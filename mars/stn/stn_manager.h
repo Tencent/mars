@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "mars/boot/base_logic_manager.h"
 #include "mars/stn/stn.h"
 #include "stn/src/net_core.h"
 #include "mars/stn/stn.h"

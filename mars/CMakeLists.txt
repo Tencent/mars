@@ -36,7 +36,7 @@ if(ANDROID)
     find_library(log-lib log)
     find_library(z-lib z)
 
-    link_directories(app baseevent log sdt stn comm boost zstd boot)
+    link_directories(boot app baseevent log sdt stn comm boost zstd)
 
     # marsxlog
     set(SELF_LIB_NAME marsxlog)
@@ -81,11 +81,11 @@ endif()
 
     target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
                         ${log-lib}
+                            boot
                         stn
                         sdt
                         app
                         baseevent
-                        boot
                         comm
                         mars-boost
                         marsxlog
