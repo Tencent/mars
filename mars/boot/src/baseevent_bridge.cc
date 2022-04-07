@@ -49,7 +49,7 @@ static void onNetworkChange() { mars->OnNetworkChange(); }
 
 static void OnNetworkDataChange(const char *_tag, ssize_t _send,
                                 ssize_t _recv) {
-  mars->onNetworkDataChange(_tag, _send, _recv);
+//  mars->onNetworkDataChange(_tag, _send, _recv);
 }
 
 #ifdef ANDROID
