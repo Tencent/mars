@@ -40,6 +40,7 @@
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
 #include "stn/src/proxy_test.h"
+#include "stn_logic_signal.h"
 
 #ifdef WIN32
 #include <locale>
@@ -142,21 +143,27 @@ static void __initbind_baseprjevent() {
 #endif
 
 #ifdef ANDROID
-	mars::baseevent::addLoadModule(kLibName);
+    mars::baseevent::addLoadModule(kLibName);
+//    GetStnLogicSignalOnAlarm().connect(&onAlarm);
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
+//    GetStnLogicSignalOnCreate().connect(&onCreate);
+//    GetStnLogicSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
+//    GetStnLogicSignalOnDestroy().connect(&onDestroy);   //low priority signal func
+//    GetStnLogicSignalOnSingalCrash().connect(&onSingalCrash);
+//    GetStnLogicSignalOnExceptionCrash().connect(&onExceptionCrash);
+//    GetStnLogicSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
     GetSignalOnCreate().connect(&onCreate);
     GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
     GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
-
     
 #ifndef XLOGGER_TAG
 #error "not define XLOGGER_TAG"
 #endif
-    
+//    GetStnLogicSignalOnNetworkDataChange().connect(&OnNetworkDataChange);
     GetSignalOnNetworkDataChange().connect(&OnNetworkDataChange);
 }
 

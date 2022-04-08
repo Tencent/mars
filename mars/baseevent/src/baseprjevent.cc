@@ -18,6 +18,7 @@
  */
 
 #include "mars/baseevent/baseprjevent.h"
+#include "mars/boot/baseevent_bridge.h"
 
 boost::signals2::signal<void ()>& GetSignalOnCreate()
 {
@@ -27,7 +28,6 @@ boost::signals2::signal<void ()>& GetSignalOnCreate()
 
 
 boost::signals2::signal<void (int _encoder_version)>& GetSignalOnInitBeforeOnCreate() {
-	
 	static boost::signals2::signal<void (int _encoder_version)> SignalOnInitBeforeOnCreate;
 	return SignalOnInitBeforeOnCreate;
 }

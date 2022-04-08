@@ -66,7 +66,11 @@ class NetCore {
   public:
     SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
 
-  public:
+    NetCore();
+
+    virtual ~NetCore();
+
+public:
     boost::function<void (Task& _task)> task_process_hook_;
     boost::function<int (int _from, ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task)> task_callback_hook_;
     boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
@@ -116,8 +120,6 @@ public:
 #endif
 
   private:
-    NetCore();
-    virtual ~NetCore();
     static void __Release(NetCore* _instance);
     
   private:

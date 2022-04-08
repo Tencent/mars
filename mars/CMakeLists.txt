@@ -12,6 +12,7 @@ add_subdirectory(baseevent baseevent)
 add_subdirectory(log xlog)
 add_subdirectory(sdt sdt)
 add_subdirectory(stn stn)
+add_subdirectory(boot boot)
 
 # for zstd
 option(ZSTD_BUILD_STATIC "BUILD STATIC LIBRARIES" ON)
@@ -40,7 +41,7 @@ if(ANDROID)
     find_library(log-lib log)
     find_library(z-lib z)
 
-    link_directories(app baseevent log sdt stn comm boost zstd)
+    link_directories(boot app baseevent log sdt stn comm boost zstd)
 
     # marsxlog
     set(SELF_LIB_NAME marsxlog)
@@ -85,6 +86,7 @@ endif()
 
     target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
                         ${log-lib}
+                            boot
                         stn
                         sdt
                         app

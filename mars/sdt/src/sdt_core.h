@@ -41,7 +41,9 @@ class SdtCore {
   public:
     SINGLETON_INTRUSIVE(SdtCore, new SdtCore, delete);
 
-  public:
+    SdtCore();
+
+public:
 
     void StartCheck(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout = UNUSE_TIMEOUT);
     /*
@@ -51,7 +53,6 @@ class SdtCore {
     void CancelAndWait();
 
   private:
-    SdtCore();
     virtual ~SdtCore();
 
     void __InitCheckReq(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout);
