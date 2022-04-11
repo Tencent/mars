@@ -39,9 +39,9 @@ void Mars::SwitchActiveStateForDebug(bool _active) {
 //    return sdt_manager;
 //}
 
-//void Mars::OnCreate(const std::string& _name) {
-//
-//}
+void Mars::OnCreate(const std::string& _name) {
+    printf("mars2 OnCreate");
+}
 
 void Mars::OnDestroy() {
 

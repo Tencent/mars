@@ -30,7 +30,7 @@ public:
 //  std::function<void (int _sig)> on_singal_crash_;
 //  std::function<void ()> on_exception_crash_;
 
-  void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
+  
   uint64_t LastForeGroundChangeTime();
   bool IsActive();
   void SwitchActiveStateForDebug(bool _active);
@@ -38,7 +38,8 @@ public:
 //  SdtManager* GetSdtManager();
 
 public:
-//    void OnCreate(const std::string& _name);
+    void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
+    void OnCreate(const std::string& _name);
     void OnDestroy();
     void OnSignalCrash(int _sig);
     void OnExceptionCrash();
