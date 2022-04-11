@@ -27,7 +27,7 @@ static void onCreate() {
     mars = new Mars();
   }
 
-  mars->OnCreate("default");
+//  mars->OnCreate("default");
 }
 
 static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
