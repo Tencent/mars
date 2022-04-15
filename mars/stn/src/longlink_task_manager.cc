@@ -957,6 +957,7 @@ bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
     longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
     longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
     longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+    longlink->fun_on_time_check_ = boost::bind(&LongLinkTaskManager::__TrySafeDisconnect, this, _1, _2);
 #ifdef ANDROID
     longlink->Channel()->OnNoopAlarmSet = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
     longlink->Channel()->OnNoopAlarmReceived = boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
@@ -1085,4 +1086,19 @@ void LongLinkTaskManager::__OnHandshakeCompleted(uint32_t _version, mars::stn::T
         on_handshake_ready_(_version, _from);
     }
     xinfo2(TSF"receive tls version: %_", _version);
+}
+
+void LongLinkTaskManager::__TrySafeDisconnect(const std::string &_name, LongLink::TDisconnectInternalCode _code) {
+    ScopedLock lock(mutex_);
+    xinfo2(TSF"on time check success %_", _name);
+    auto longlink = GetLongLink(_name);
+    if (longlink == nullptr) {
+        xwarn2(TSF"longlink is null.");
+        return;
+    }
+    if (GetTaskCount(_name) > 0 ) {
+        xwarn2(TSF"longlink task is not empty, ignore disconnect.");
+        return;
+    }
+    longlink->Channel()->Disconnect(_code);
 }
