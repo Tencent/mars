@@ -312,7 +312,7 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
 #else
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
-
+    
     mars::comm::ScopedLock wifi_id_lock(wifi_id_mutex);
     if (!g_new_wifi_id_cb) {
         xwarn2("g_new_wifi_id_cb is null");
@@ -330,11 +330,11 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
         return false;
     }
     wifi_id_lock.unlock();
-
+    
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
         return false;
     }
-
+    
     mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;

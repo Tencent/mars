@@ -63,8 +63,8 @@ class PingQuery {
         readcount_(0),
         interval_(0),
         timeout_(0),
-        alarm_(boost::bind(&PingQuery::__onAlarm, this), false),
-        readwrite_breaker_()
+        readwrite_breaker_(),
+        alarm_(boost::bind(&PingQuery::__onAlarm, this), false)
 #endif
         , traffic_monitor_(trafficMonitor)
     {}
@@ -120,8 +120,8 @@ class PingQuery {
     int                     timeout_;
     struct sockaddr          sendaddr_;
     struct sockaddr            recvaddr_;
-    mars::comm::Alarm                   alarm_;
-    mars::comm::SocketBreaker     readwrite_breaker_;
+    mars::comm::SocketBreaker  readwrite_breaker_;
+    mars::comm::Alarm          alarm_;
 #endif
     NetCheckTrafficMonitor* traffic_monitor_;
 };
