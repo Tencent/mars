@@ -122,7 +122,8 @@ class LongLinkTaskManager {
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name);
     void __DumpLongLinkChannelInfo();
-
+    void __TrySafeDisconnect(const std::string& _name, LongLink::TDisconnectInternalCode _code);
+    
   private:
     MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
