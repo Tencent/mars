@@ -72,6 +72,7 @@ struct ConnectProfile {
     
     void Reset(){
         net_type.clear();
+        ispcode = 0;
         tid = 0;
         
         start_time = 0;
@@ -83,6 +84,7 @@ struct ConnectProfile {
         conn_reason = 0;
         conn_time = 0;
         conn_errcode = 0;
+        rw_errcode = 0;
         ip.clear();
         port = 0;
         host.clear();
@@ -137,6 +139,7 @@ struct ConnectProfile {
     }
     
     std::string net_type;
+    int ispcode;
     intmax_t tid;
     
     uint64_t start_time;
@@ -147,6 +150,7 @@ struct ConnectProfile {
     int conn_reason;
     uint64_t conn_time;
     int conn_errcode;
+    int rw_errcode;
     unsigned int conn_rtt;
     unsigned long conn_cost;
     int tryip_count;

@@ -147,7 +147,10 @@ void ShortLink::__Run() {
     xinfo_function(TSF"%_, net:%_", message.String(), getNetInfo());
 
     ConnectProfile conn_profile;
-    getCurrNetLabel(conn_profile.net_type);
+    int type = getCurrNetLabel(conn_profile.net_type);
+    if (type == kMobile){
+        conn_profile.ispcode = strtoll(conn_profile.net_type.c_str(), nullptr, 10);
+    }
     conn_profile.start_time = ::gettickcount();
     conn_profile.tid = xlogger_tid();
     conn_profile.link_type = Task::kChannelShort;
@@ -295,7 +298,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.createstream_func)>::value, "must static or global function.");
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value, "must static or global function.");
-    getCurrNetLabel(_conn_profile.net_type);
+    int type = getCurrNetLabel(_conn_profile.net_type);
+    if (type == kMobile){
+        _conn_profile.ispcode = strtoll(_conn_profile.net_type.c_str(), nullptr, 10);
+    }
     __UpdateProfile(_conn_profile);
 
     if(_conn_profile.ip_type != kIPSourceProxy && is_keep_alive_) {
@@ -470,8 +476,10 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	// send request
 	xgroup2_define(group_send);
 	xinfo2(TSF"task socket send sock:%_, %_ http len:%_, ", _socket, message.String(), out_buff.Length()) >> group_send;
-
+    tickcount_t start;
+    _conn_profile.start_send_packet_time = start.gettickcount().get();
 	int send_ret = socketOperator_->Send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), _err_code);
+    _conn_profile.send_request_cost = start.gettickspan();
     xinfo2(TSF"sent %_", send_ret) >> group_send;
     
 	if (send_ret < 0) {
@@ -505,8 +513,8 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	MemoryBodyReceiver* receiver = new MemoryBodyReceiver(body);
 	http::Parser parser(receiver, true);
 
+    _conn_profile.start_read_packet_time = start.gettickcount().get();
 	while (true) {
-
 		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
         xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
 		if (recv_ret < 0) {
@@ -523,6 +531,12 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 		if (recv_ret == 0 && SOCKET_ERRNO(ETIMEDOUT) == _err_code) {
 			xerror2(TSF"read timeout error:(%_,%_), nread:%_, nwrite:%_ ", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
+            
+            if (socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+                __RunResponseError(kEctSocket, kEctSocketRecvErr, _conn_profile, /*report=*/true);
+                break;
+            }
+            
             continue;
 		}
 		if (recv_ret == 0 && socketOperator_->Protocol() != Task::kTransportProtocolQUIC) {
@@ -592,6 +606,9 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			xdebug2(TSF"http parser status:%_ ", parse_status);
 		}
 	}
+    _conn_profile.recv_reponse_cost = start.gettickspan();
+    _conn_profile.read_packet_finished_time = start.gettickcount().get();
+    __UpdateProfile(_conn_profile);
 
 	xdebug2(TSF"read with nonblock socket http response, length:%_, ", recv_buf.Length()) >> group_recv;
 
