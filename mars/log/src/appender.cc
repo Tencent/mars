@@ -55,7 +55,6 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/condition.h"
 #include "mars/comm/thread/thread.h"
-#include "mars/comm/scope_recursion_limit.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/tickcount.h"
 #include "mars/comm/autobuffer.h"
@@ -100,7 +99,7 @@ static LogBuffer* sg_log_buff = NULL;
 
 static volatile bool sg_log_close = true;
 
-static Tss sg_tss_dumpfile(&free);
+static const int kMaxDumpLength = 4096;
 
 #ifdef DEBUG
 static bool sg_consolelog_open = true;
@@ -682,46 +681,46 @@ void xlogger_appender(const XLoggerInfo* _info, const char* _log) {
 
     SCOPE_ERRNO();
 
-    DEFINE_SCOPERECURSIONLIMIT(recursion);
-    static Tss s_recursion_str(free);
+    thread_local uint32_t recursion_count = 0;
+    thread_local std::string recursion_str;
+    recursion_count++;
 
     if (sg_consolelog_open) ConsoleLog(_info,  _log);
 #ifdef ANDROID
     else if (_info && _info->traceLog == 1) ConsoleLog(_info, _log);
 #endif
 
-    if (2 <= (int)recursion.Get() && NULL == s_recursion_str.get()) {
-        if ((int)recursion.Get() > 10) return;
-        char* strrecursion = (char*)calloc(16 * 1024, 1);
-        s_recursion_str.set((void*)(strrecursion));
+    if (2 <= recursion_count && recursion_str.empty()) {
+        if (recursion_count > 10) return;
+
+        recursion_str.resize(kMaxDumpLength);
 
         XLoggerInfo info = *_info;
         info.level = kLevelFatal;
 
         char recursive_log[256] = {0};
-        snprintf(recursive_log, sizeof(recursive_log), "ERROR!!! xlogger_appender Recursive calls!!!, count:%d", (int)recursion.Get());
+        snprintf(recursive_log, sizeof(recursive_log), "ERROR!!! xlogger_appender Recursive calls!!!, count:%u", recursion_count);
 
-        PtrBuffer tmp(strrecursion, 0, 16*1024);
+        PtrBuffer tmp((void*)recursion_str.data(), 0, kMaxDumpLength);
         log_formater(&info, recursive_log, tmp);
 
-        strncat(strrecursion, _log, 4096);
-        strrecursion[4095] = '\0';
-
-        ConsoleLog(&info,  strrecursion);
-    } else {
-        if (NULL != s_recursion_str.get()) {
-            char* strrecursion = (char*)s_recursion_str.get();
-            s_recursion_str.set(NULL);
-
-            __writetips2file(strrecursion);
-            free(strrecursion);
+        if (recursion_str.capacity() >= strnlen(_log, kMaxDumpLength)) {
+            recursion_str += _log;
         }
+
+        ConsoleLog(&info,  recursion_str.c_str());
+    } else {
+        if (!recursion_str.empty()) {
+            __writetips2file(recursion_str.c_str());
+            recursion_str.clear();
+        }        
 
         if (kAppednerSync == sg_mode)
             __appender_sync(_info, _log);
         else
             __appender_async(_info, _log);
     }
+    recursion_count--;
 }
 
 #define HEX_STRING  "0123456789abcdef"
@@ -760,13 +759,10 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
 
     SCOPE_ERRNO();
 
-    if (NULL == sg_tss_dumpfile.get()) {
-        sg_tss_dumpfile.set(calloc(4096, 1));
-    } else {
-        memset(sg_tss_dumpfile.get(), 0, 4096);
+    thread_local std::string buffer;
+    if (!buffer.empty()) {
+        buffer.clear();
     }
-
-    ASSERT(NULL != sg_tss_dumpfile.get());
 
     struct timeval tv = {0};
     gettimeofday(&tv, NULL);
@@ -797,18 +793,20 @@ const char* xlogger_dump(const void* _dumpbuffer, size_t _len) {
     fwrite(_dumpbuffer, _len, 1, fileid);
     fclose(fileid);
 
-    char* dump_log = (char*)sg_tss_dumpfile.get();
-    dump_log += snprintf(dump_log, 4096, "\n dump file to %s :\n", filepath.c_str());
+    buffer += "\n dump file to ";
+    buffer += filepath + " :\n";
 
     int dump_len = 0;
 
     for (int x = 0; x < 32 && dump_len < (int)_len; ++x) {
-        dump_log += to_string((const char*)_dumpbuffer + dump_len, std::min(int(_len) - dump_len, 16), dump_log);
+        char dump_log[128] = {0};
+        to_string((const char*)_dumpbuffer + dump_len, std::min(int(_len) - dump_len, 16), dump_log);
         dump_len += std::min((int)_len - dump_len, 16);
-        *(dump_log++) = '\n';
+        buffer += dump_log;
+        buffer += "\n";
     }
 
-    return (const char*)sg_tss_dumpfile.get();
+    return buffer.c_str();
 }
 
 static int calc_dump_required_length(int srcbytes){
@@ -825,26 +823,19 @@ const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
 
     SCOPE_ERRNO();
 
-    const static int kMaxBufferLength = 4096;
-    if (NULL == sg_tss_dumpfile.get()) {
-        sg_tss_dumpfile.set(calloc(kMaxBufferLength, 1));
-    } else {
-        memset(sg_tss_dumpfile.get(), 0, kMaxBufferLength);
+    thread_local std::string buffer;
+    if (!buffer.empty()) {
+        buffer.clear();
     }
-
-    ASSERT(NULL != sg_tss_dumpfile.get());
-
-    char* dst_buffer = (char*)sg_tss_dumpfile.get();
     const char* src_buffer = reinterpret_cast<const char*>(_dumpbuffer);
-    int round_bytes = snprintf(dst_buffer, kMaxBufferLength, "\n%zu bytes:\n",_len);
-    if (round_bytes <= 0){
-        return "<format log failed>";
-    }
-    
-    int dst_offset = round_bytes;
-    int dst_upper = kMaxBufferLength - 1;
-    for(int src_offset = 0; src_offset < (int)_len && dst_offset < dst_upper;){
-        int dst_leftbytes = dst_upper - dst_offset;
+    buffer += "\n";
+    buffer += std::to_string(_len) + " bytes:\n";
+
+    int calc_dst_buffer_len = calc_dump_required_length(32) + 1;
+    char* dst_buffer = new char[calc_dst_buffer_len];
+
+    for(int src_offset = 0; src_offset < (int)_len && buffer.size() < kMaxDumpLength;){
+        int dst_leftbytes = kMaxDumpLength - buffer.size();
         int bytes = std::min((int)_len - src_offset, 32);
         
         while (bytes > 0 && calc_dump_required_length(bytes) >= dst_leftbytes) {
@@ -854,20 +845,17 @@ const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
             break;
         }
 
-        round_bytes = to_string(src_buffer + src_offset, bytes, dst_buffer + dst_offset);
-               
-        dst_offset += round_bytes;
+        memset(dst_buffer, 0, calc_dst_buffer_len);
+        to_string(src_buffer + src_offset, bytes, dst_buffer);
+        buffer += dst_buffer;
         src_offset += bytes;
         
         //next line
-        *(dst_buffer + dst_offset) = '\n';
-        ++dst_offset;
+        buffer += "\n";
     }
     
-    ASSERT(dst_offset < kMaxBufferLength);
-    *(dst_buffer+dst_offset) = '\0';
-
-    return (const char*)sg_tss_dumpfile.get();
+    delete[] dst_buffer;
+    return buffer.c_str();
 }
 
 static void get_mark_info(char* _info, size_t _infoLen) {
