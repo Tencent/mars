@@ -476,10 +476,10 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	// send request
 	xgroup2_define(group_send);
 	xinfo2(TSF"task socket send sock:%_, %_ http len:%_, ", _socket, message.String(), out_buff.Length()) >> group_send;
-    tickcount_t start;
-    _conn_profile.start_send_packet_time = start.gettickcount().get();
+
+    _conn_profile.start_send_packet_time = ::gettickcount();
 	int send_ret = socketOperator_->Send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), _err_code);
-    _conn_profile.send_request_cost = start.gettickspan();
+    _conn_profile.send_request_cost = ::gettickcount() - _conn_profile.start_send_packet_time;
     xinfo2(TSF"sent %_", send_ret) >> group_send;
     
 	if (send_ret < 0) {
@@ -513,7 +513,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	MemoryBodyReceiver* receiver = new MemoryBodyReceiver(body);
 	http::Parser parser(receiver, true);
 
-    _conn_profile.start_read_packet_time = start.gettickcount().get();
+    _conn_profile.start_read_packet_time = ::gettickcount();
 	while (true) {
 		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
         xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
@@ -606,8 +606,9 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			xdebug2(TSF"http parser status:%_ ", parse_status);
 		}
 	}
-    _conn_profile.recv_reponse_cost = start.gettickspan();
-    _conn_profile.read_packet_finished_time = start.gettickcount().get();
+    _conn_profile.read_packet_finished_time = ::gettickcount();
+    _conn_profile.recv_reponse_cost = _conn_profile.read_packet_finished_time - _conn_profile.start_read_packet_time;
+    
     __UpdateProfile(_conn_profile);
 
 	xdebug2(TSF"read with nonblock socket http response, length:%_, ", recv_buf.Length()) >> group_recv;
