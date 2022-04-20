@@ -317,6 +317,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.port = _conn_profile.ip_items[i].port;
                 _conn_profile.transport_protocol = _conn_profile.ip_items[i].transport_protocol;
                 _conn_profile.conn_time = gettickcount();
+                _conn_profile.start_connect_time = _conn_profile.conn_time;
+                _conn_profile.connect_successful_time = _conn_profile.conn_time;
                 _conn_profile.local_ip = socket_address::getsockname(fd).ip();
                 _conn_profile.local_port = socket_address::getsockname(fd).port();
                 _conn_profile.socket_fd = fd;
@@ -517,6 +519,11 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	while (true) {
 		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
         xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
+        
+        _conn_profile.read_packet_finished_time = ::gettickcount();
+        _conn_profile.recv_reponse_cost = _conn_profile.read_packet_finished_time - _conn_profile.start_read_packet_time;
+        __UpdateProfile(_conn_profile);
+    
 		if (recv_ret < 0) {
 			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
 			__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, _conn_profile, true);
@@ -606,10 +613,6 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			xdebug2(TSF"http parser status:%_ ", parse_status);
 		}
 	}
-    _conn_profile.read_packet_finished_time = ::gettickcount();
-    _conn_profile.recv_reponse_cost = _conn_profile.read_packet_finished_time - _conn_profile.start_read_packet_time;
-    
-    __UpdateProfile(_conn_profile);
 
 	xdebug2(TSF"read with nonblock socket http response, length:%_, ", recv_buf.Length()) >> group_recv;
 
