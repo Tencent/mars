@@ -320,15 +320,17 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std
 
 bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, const std::string& _cgi) {
 
-    if (!_cgi.empty() && sg_cgi_debug_mapping.find(_cgi) != sg_cgi_debug_mapping.end()) {
-        std::pair<std::string, uint16_t> debug_ip_pair = sg_cgi_debug_mapping[_cgi];
-        IPPortItem item;
-        item.str_ip = debug_ip_pair.first;
-        item.str_host = _hostlist.front();
-        item.port = debug_ip_pair.second;
-        item.source_type = kIPSourceDebug;
-        _ipport_items.push_back(item);
-        return true;
+    if (!_cgi.empty()) {
+        std::map<std::string,std::pair<std::string, uint16_t>>::iterator itr = sg_cgi_debug_mapping.find(_cgi);
+        if (itr != sg_cgi_debug_mapping.end()) {
+            IPPortItem item;
+            item.str_ip = itr->second.first;
+            item.str_host = _hostlist.front();
+            item.port = itr->second.second;
+            item.source_type = kIPSourceDebug;
+            _ipport_items.push_back(item);
+            return true;
+        }
     }
     
 	for (std::vector<std::string>::const_iterator host = _hostlist.begin(); host != _hostlist.end(); ++host) {
