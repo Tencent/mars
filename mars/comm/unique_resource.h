@@ -51,7 +51,7 @@ class UniqueResource{
 public:
     struct Data : public Traits{
         explicit Data(const T& t):v(t){
-            xdebug2_if(v != Traits::InvalidValue(), TSF"%_ resource %_ acquired.", this, v);
+            xverbose2_if(v != Traits::InvalidValue(), TSF"%_ resource %_ acquired.", this, v);
         }
         T v;
     }data_;
@@ -108,7 +108,7 @@ private:
     void _Free(){
         if (data_.v != traits_type::InvalidValue()){
             data_.Free(data_.v);
-            xdebug2(TSF"%_ resource %_ released.", this, data_.v);
+            xverbose2_if(TSF"%_ resource %_ released.", this, data_.v);
             data_.v = traits_type::InvalidValue();
         }
     }
