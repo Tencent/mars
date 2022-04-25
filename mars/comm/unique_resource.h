@@ -108,7 +108,7 @@ private:
     void _Free(){
         if (data_.v != traits_type::InvalidValue()){
             data_.Free(data_.v);
-            xverbose2_if(TSF"%_ resource %_ released.", this, data_.v);
+            xverbose2(TSF"%_ resource %_ released.", this, data_.v);
             data_.v = traits_type::InvalidValue();
         }
     }
