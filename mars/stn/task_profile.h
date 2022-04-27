@@ -159,7 +159,7 @@ struct ConnectProfile {
     uint64_t send_request_cost;
     uint64_t recv_reponse_cost;
     int certverify_cost;
-    bool is0rtt;
+    int is0rtt;
 
     std::string ip;
     uint16_t port;

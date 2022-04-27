@@ -23,7 +23,7 @@ namespace mars {
 			int index = 0;
 			int errorCode = 0;
 			uint32_t totalCost = 0;
-            bool is0rtt = false;
+            int is0rtt = 0;
 		};
 
 		class OPBreaker {
