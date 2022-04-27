@@ -49,7 +49,7 @@ class DNS {
     ~DNS();
     
   public:
-    bool GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec = 1000, DNSBreaker* _breaker = NULL, bool _longlink_host = false);
+    bool GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec = 2000, DNSBreaker* _breaker = NULL, bool _longlink_host = false);
     void Cancel(const std::string& _host_name = std::string());
     void Cancel(DNSBreaker& _breaker);
     
