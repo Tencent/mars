@@ -18,12 +18,12 @@ namespace mars {
         typedef int(*SocketCloseFunc)(SOCKET);
         typedef SOCKET(*CreateStreamFunc)(SOCKET);
         typedef bool (*IsSubStreamFunc)(SOCKET);
-		struct SocketProfile {
-			SocketProfile():rtt(0),index(-1),errorCode(-1),totalCost(0) {}
-			uint32_t rtt;
-			int index;
-			int errorCode;
-			uint32_t totalCost;
+		struct SocketProfile{
+			uint32_t rtt = 0;
+			int index = 0;
+			int errorCode = 0;
+			uint32_t totalCost = 0;
+            bool is0rtt = false;
 		};
 
 		class OPBreaker {

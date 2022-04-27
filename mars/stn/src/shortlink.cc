@@ -354,6 +354,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.conn_rtt = profile.rtt;
     _conn_profile.ip_index = profile.index;
     _conn_profile.conn_cost = profile.totalCost;
+    _conn_profile.is0rtt = profile.is0rtt;
 
     __UpdateProfile(_conn_profile);
     
