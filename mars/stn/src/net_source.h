@@ -91,6 +91,8 @@ class NetSource {
 
     static std::string DumpTable(const std::vector<IPPortItem>& _ipport_items);
     
+    static bool CanUseQUIC();
+    static void DisableQUIC(int64_t seconds = 20 * 60); // 20 minutes
   public:
     NetSource(comm::ActiveLogic& _active_logic);
     ~NetSource();
