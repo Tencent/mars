@@ -198,7 +198,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     //
     if (outter_vec_addr_.empty()){
-        net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
+        net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi);
     }else{
         //.如果有外部ip则直接使用，比如newdns.
         _conn_profile.ip_items = outter_vec_addr_;
