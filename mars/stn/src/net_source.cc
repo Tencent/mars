@@ -521,6 +521,7 @@ void NetSource::ClearCache() {
 
 void NetSource::DisableQUIC(int64_t seconds/* = 20 * 60*/){
     ScopedLock lock(sg_ip_mutex);
+	sg_quic_enabled = false;
     sg_quic_reopen_tick.gettickcount();
     sg_quic_reopen_tick += seconds * 1000;
 }
