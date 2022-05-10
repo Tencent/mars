@@ -63,6 +63,8 @@ static std::vector<uint16_t> sg_lowpriority_longlink_ports;
 static std::map< std::string, std::string > sg_host_debugip_mapping;
 
 static std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
+static tickcount_t sg_quic_reopen_tick(true);
+static bool sg_quic_enabled = true;
 
 static Mutex sg_ip_mutex;
 
@@ -526,6 +528,28 @@ void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const st
 void NetSource::ClearCache() {
     xinfo_function();
     ipportstrategy_.InitHistory2BannedList(true);
+    
+    ScopedLock lock(sg_ip_mutex);
+    sg_quic_enabled = true;
+}
+
+void NetSource::DisableQUIC(int64_t seconds/* = 20 * 60*/){
+    ScopedLock lock(sg_ip_mutex);
+	sg_quic_enabled = false;
+    sg_quic_reopen_tick.gettickcount();
+    sg_quic_reopen_tick += seconds * 1000;
+}
+
+bool NetSource::CanUseQUIC(){
+    ScopedLock lock(sg_ip_mutex);
+    if (sg_quic_enabled)
+        return true;
+    
+    if (sg_quic_reopen_tick.gettickspan() >= 0){
+        sg_quic_enabled = true;
+    }
+    
+    return sg_quic_enabled;
 }
 
 std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
