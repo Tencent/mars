@@ -928,7 +928,7 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
 }
 
 void LongLinkTaskManager::__TrySafeDisconnect(const std::string &_name, LongLink::TDisconnectInternalCode _code) {
-    ScopedLock lock(meta_mutex_);
+    PlatformSLock lock(meta_mutex_);
     xinfo2(TSF"on time check success %_", _name);
     auto longlink = GetLongLink(_name);
     if (longlink == nullptr) {
