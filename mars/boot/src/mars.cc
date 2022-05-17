@@ -10,16 +10,8 @@
 namespace mars {
 namespace boot {
 
-Mars::Mars()  { /**: stn_manager_(new StnManager())*/
-//    xinfo2(TSF"mars2 new mars.");
-    printf("mars2 new mars.");
-}
-
-void Mars::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
-//    xinfo2(TSF"mars2 init config.");
-    printf("mars2 init config.");
-//    stn_manager_ = new stn::StnManager();
-    //stn_manager_->OnInitConfigBeforeOnCreate(_packer_encoder_version);
+Mars::Mars(): stn_manager_(new mars::stn::StnManager()),sdt_manager_(new mars::sdt::SdtManager())  { /**: stn_manager_(new StnManager())*/
+    printf("mars2 new Mars.");
 }
 
 uint64_t Mars::LastForeGroundChangeTime() {
@@ -31,20 +23,16 @@ void Mars::SwitchActiveStateForDebug(bool _active) {
     is_active_ = _active;
 }
 
-//StnManager* Mars::GetStnManager() {
-//    return stn_manager_;
-//}
-//
-//SdtManager* Mars::GetSdtManager() {
-//    return sdt_manager;
-//}
-
-void Mars::OnCreate(const std::string& _name) {
-    printf("mars2 OnCreate");
+mars::stn::StnManager* Mars::GetStnManager() {
+    return stn_manager_;
 }
 
-void Mars::OnDestroy() {
+mars::sdt::SdtManager* Mars::GetSdtManager() {
+    return sdt_manager_;
+}
 
+void Mars::SetLongLinkEncoderVersion(int _packer_encoder_version) {
+    stn_manager_->OnInitConfigBeforeOnCreate(_packer_encoder_version);
 }
 
 void Mars::OnSignalCrash(int _sig) {

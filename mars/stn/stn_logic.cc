@@ -55,29 +55,27 @@ namespace stn {
 
 static const std::string kLibName = "stn";
 
+static std::shared_ptr<NetCore> net_core_;
 
 #define STN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
+    if (!net_core_) {\
         xwarn2(TSF"stn uncreate");\
         return;\
     }\
-    stn_ptr->func
+net_core_->func
     
 #define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
+    if (!net_core_) {\
         xwarn2(TSF"stn uncreate");\
         return false;\
     }\
-    stn_ptr->func;\
+net_core_->func;\
     return true
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (stn_ptr) \
+    if (net_core_) \
     {\
-    	ret = stn_ptr->func;\
+    	ret = net_core_->func;\
     }
 
 static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
@@ -91,13 +89,15 @@ static void onCreate() {
 #endif
     xinfo2(TSF"stn oncreate");
     ActiveLogic::Instance();
-    NetCore::Singleton::Instance();
+    //NetCore::Singleton::Instance();
+    net_core_ = std::shared_ptr<NetCore>();
 }
 
 static void onDestroy() {
     xinfo2(TSF"stn onDestroy");
 
-    NetCore::Singleton::Release();
+    //NetCore::Singleton::Release();
+    net_core_.reset();
     SINGLETON_RELEASE_ALL();
     
     // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
@@ -153,12 +153,12 @@ static void __initbind_baseprjevent() {
 //    GetStnLogicSignalOnSingalCrash().connect(&onSingalCrash);
 //    GetStnLogicSignalOnExceptionCrash().connect(&onExceptionCrash);
 //    GetStnLogicSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
-    GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
-    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
-    GetSignalOnSingalCrash().connect(&onSingalCrash);
-    GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+//    GetSignalOnCreate().connect(&onCreate);
+//    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
+//    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
+//    GetSignalOnSingalCrash().connect(&onSingalCrash);
+//    GetSignalOnExceptionCrash().connect(&onExceptionCrash);
+//    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
     
 #ifndef XLOGGER_TAG
 #error "not define XLOGGER_TAG"
@@ -210,16 +210,20 @@ void (*ClearTasks)()
 void (*Reset)()
 = []() {
 	xinfo2(TSF "stn reset");
-	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
+	//NetCore::Singleton::Release();
+	//NetCore::Singleton::Instance();
+    net_core_.reset();
+    net_core_ = std::shared_ptr<NetCore>();
 };
 
 void (*ResetAndInitEncoderVersion)(int _packer_encoder_version)
 = [](int _packer_encoder_version) {
 	xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
     LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
-	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
+	//NetCore::Singleton::Release();
+	//NetCore::Singleton::Instance();
+    net_core_.reset();
+    net_core_ = std::shared_ptr<NetCore>();
 };
 
 void (*MakesureLonglinkConnected)()
@@ -326,6 +330,10 @@ void (*MakesureLonglinkConnected_ext)(const std::string& name)
 = [](const std::string& name){
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
+
+NetCore* GetNetCore() {
+    return net_core_.get();
+}
 
 void network_export_symbols_0(){}
 

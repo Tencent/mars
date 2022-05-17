@@ -5,8 +5,8 @@
 #ifndef MMNET_MARS_H
 #define MMNET_MARS_H
 
-//#include "mars/stn/stn_manager.h"
-//#include "mars/sdt/sdt_manager.h"
+#include "mars/stn/stn_manager.h"
+#include "mars/sdt/sdt_manager.h"
 
 #include <string>
 #include <stdint.h>
@@ -34,25 +34,23 @@ public:
   uint64_t LastForeGroundChangeTime();
   bool IsActive();
   void SwitchActiveStateForDebug(bool _active);
-//  StnManager* GetStnManager();
-//  SdtManager* GetSdtManager();
+  mars::stn::StnManager* GetStnManager();
+  mars::sdt::SdtManager* GetSdtManager();
 
 public:
-    void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
-    void OnCreate(const std::string& _name);
-    void OnDestroy();
-    void OnSignalCrash(int _sig);
-    void OnExceptionCrash();
-    void OnNetworkChange();
-    void OnNetworkDataChange(const char *_tag, int32_t _send, int32_t _recv);
+     void SetLongLinkEncoderVersion(int _packer_encoder_version);
+     void OnSignalCrash(int _sig);
+     void OnExceptionCrash();
+     void OnNetworkChange();
+     void OnNetworkDataChange(const char *_tag, int32_t _send, int32_t _recv);
 
 private:
     std::string name_;
     bool is_foreground_;
     bool is_active_;
     uint64_t last_foreground_change_time_;
-//    StnManager *stn_manager_ = nullptr;
-//    SdtManager *sdt_manager = nullptr;
+    mars::stn::StnManager *stn_manager_ = nullptr;
+    mars::sdt::SdtManager *sdt_manager_ = nullptr;
 };
 
 } // namespace boot

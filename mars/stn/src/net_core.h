@@ -64,7 +64,7 @@ enum {
 
 class NetCore {
   public:
-    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
+//    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
 
     NetCore();
 

@@ -5,6 +5,9 @@
 #include "stn_manager.h"
 #include "stn_logic_signal.h"
 #include "mars/baseevent/active_logic.h"
+#include "stn/src/net_core.h"
+#include "stn/src/net_source.h"
+
 
 //using namespace mars::boot;
 using namespace mars::comm;
@@ -12,9 +15,11 @@ using namespace mars::comm;
 namespace mars {
 namespace stn {
 
-StnManager::StnManager() {
-    net_core_ = new NetCore();
-//    net_source_ = new NetSource(ActiveLogic::Instance());
+StnManager::StnManager() : net_core_(new mars::stn::NetCore()) {
+}
+
+void StnManager::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
+    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 }
 
 void StnManager::SetCallback(StnCallback *const _callback) {
@@ -70,13 +75,12 @@ void StnManager::ClearTasks() {
 
 void StnManager::Reset() {
     delete net_core_;
-//    delete net_source_;
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _encoder_version) {
     LongLinkEncoder::SetEncoderVersion(_encoder_version);
     delete net_core_;
-    net_core_ = new NetCore();
+    net_core_ = new mars::stn::NetCore();
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {
@@ -96,7 +100,7 @@ void StnManager::StopSignalling() {
 }
 
 void StnManager::MakesureLonglinkConnected() {
-
+    net_core_->MakeSureLongLinkConnect();
 }
 
 bool StnManager::LongLinkIsConnected() {
@@ -131,6 +135,10 @@ bool StnManager::LongLinkIsConnected_ext(const std::string &name) {
 
 void StnManager::MakesureLonglinkConnected_ext(const std::string &name) {
     net_core_->MakeSureLongLinkConnect_ext(name);
+}
+
+NetCore* StnManager::GetNetCore() {
+    return net_core_;
 }
 
 } // namespace stn

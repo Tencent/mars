@@ -31,6 +31,10 @@
 #include "mars/sdt/constants.h"
 #include "mars/sdt/sdt.h"
 #include "mars/sdt/netchecker_profile.h"
+#include <memory>
+#include "boost/shared_ptr.hpp"
+#include "boost/weak_ptr.hpp"
+#include "boost/signals2.hpp"
 
 namespace mars {
 namespace sdt {
@@ -39,10 +43,10 @@ class BaseChecker;
 
 class SdtCore {
   public:
-    SINGLETON_INTRUSIVE(SdtCore, new SdtCore, delete);
+//    SINGLETON_INTRUSIVE(SdtCore, new SdtCore, delete);
 
     SdtCore();
-
+    virtual ~SdtCore();
 public:
 
     void StartCheck(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout = UNUSE_TIMEOUT);
@@ -53,7 +57,7 @@ public:
     void CancelAndWait();
 
   private:
-    virtual ~SdtCore();
+    
 
     void __InitCheckReq(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout);
     void __Reset();

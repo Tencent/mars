@@ -11,9 +11,6 @@
 #include <vector>
 
 #include "mars/stn/stn.h"
-#include "stn/src/net_core.h"
-#include "mars/stn/stn.h"
-#include "stn/src/net_source.h"
 
 //using namespace mars::boot;
 
@@ -24,6 +21,9 @@ class ProxyInfo;
 }
 
 namespace stn {
+
+class NetCore;
+class NetSource;
 
 class StnCallback {
 public:
@@ -64,7 +64,9 @@ public:
 
 class StnManager {
 public:
-  StnManager();
+    void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
+public:
+    StnManager();
     void SetCallback(StnCallback* const callback);
 
 
@@ -144,11 +146,12 @@ public:
     bool LongLinkIsConnected_ext(const std::string& name);
     void MakesureLonglinkConnected_ext(const std::string& name);
 
+public:
+    NetCore* GetNetCore();
+    
 private:
     StnCallback* callback_;
     NetCore* net_core_;
-//    NetSource* net_source_;
-
 };
 
 } // namespace stn

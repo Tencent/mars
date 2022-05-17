@@ -7,10 +7,13 @@
 
 #include <vector>
 #include "mars/sdt/sdt.h"
-#include "sdt/src/sdt_core.h"
+//#include "sdt/src/sdt_core.h"
+#include <memory>
 
 namespace mars {
 namespace sdt {
+
+class SdtCore;
 
 class StnManagerCallback {
 public:
@@ -21,11 +24,12 @@ class SdtManager : public StnManagerCallback {
 public:
     SdtManager();
     ~SdtManager();
-
+    void OnCreate();
+    void OnDestroy();
+    
+public:
     void SetCallBack(StnManagerCallback* const callback);
-
     void SetHttpNetCheckCGI(std::string cgi);
-
     //active netcheck interface
     void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
     void CancelActiveCheck();

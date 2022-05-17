@@ -38,7 +38,7 @@ namespace sdt {
 	//active netcheck interface
 	void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
 	void CancelActiveCheck();
-
+    
 }}
 
 #endif /* SDT_INTERFACE_SDT_LOGIC_H_ */

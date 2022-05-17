@@ -34,31 +34,35 @@ static Callback* sg_callback = NULL;
 
 static const std::string kLibName = "sdt";
 
+static std::shared_ptr<SdtCore> sdt_core_;
+
 #define SDT_WEAK_CALL(func) \
-    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
-    if (!sdt_ptr) {\
+    if (!sdt_core_) {\
         xwarn2(TSF"sdt uncreate");\
         return;\
     }\
-	sdt_ptr->func
+    sdt_core_->func
 
 static void onCreate() {
     xinfo2(TSF"sdt oncreate");
-    SdtCore::Singleton::Instance();
+    // SdtCore::Singleton::Instance();
+    sdt_core_ = std::make_shared<SdtCore>();
 }
 
 static void onDestroy() {
     xinfo2(TSF"sdt onDestroy");
-    SdtCore::Singleton::AsyncRelease();
+    //SdtCore::Singleton::AsyncRelease();
+    sdt_core_.reset();
+    sdt_core_ = nullptr;
 }
 
-static void __initbind_baseprjevent() {
-
-	GetSignalOnCreate().connect(&onCreate);
-	GetSignalOnDestroy().connect(5, &onDestroy);
-}
-
-BOOT_RUN_STARTUP(__initbind_baseprjevent);
+//static void __initbind_baseprjevent() {
+//
+//	GetSignalOnCreate().connect(&onCreate);
+//	GetSignalOnDestroy().connect(5, &onDestroy);
+//}
+//
+//BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 //active netcheck interface
 void StartActiveCheck(CheckIPPorts& _longlink_check_items, CheckIPPorts& _shortlink_check_items, int _mode, int _timeout) {

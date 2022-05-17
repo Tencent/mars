@@ -3,12 +3,21 @@
 //
 
 #include "sdt_manager.h"
+#include "sdt/src/sdt_core.h"
 
 namespace mars {
 namespace sdt {
 
 SdtManager::SdtManager() {
-   sdt_core_ = new SdtCore();
+   sdt_core_ = new mars::sdt::SdtCore();
+}
+
+void SdtManager::OnCreate() {
+    
+}
+
+void SdtManager::OnDestroy() {
+    delete sdt_core_;
 }
 
 void SdtManager::SetCallBack(StnManagerCallback *const _callback) {
