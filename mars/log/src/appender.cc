@@ -22,6 +22,9 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <locale>
+#include "boost/filesystem/path.hpp"
+#include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
 #endif
 
 #include "mars/log/appender.h"
@@ -255,6 +258,13 @@ void XloggerAppender::Close() {
 }
 
 void XloggerAppender::Open(const XLogConfig& _config) {
+#ifdef WIN32
+    static bool flag = false;
+    if (!flag) {
+        flag = true;
+        boost::filesystem::path::imbue(std::locale(std::locale(), new boost::filesystem::detail::utf8_codecvt_facet));
+    }
+#endif
     config_ = _config;
 
     ScopedLock dir_attr_lock(sg_mutex_dir_attr);
