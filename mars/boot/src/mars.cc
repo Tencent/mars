@@ -10,7 +10,7 @@
 namespace mars {
 namespace boot {
 
-Mars::Mars(): stn_manager_(new mars::stn::StnManager()),sdt_manager_(new mars::sdt::SdtManager())  { /**: stn_manager_(new StnManager())*/
+Mars::Mars(): stn_manager_(new mars::stn::StnManager()),sdt_manager_(new mars::sdt::SdtManager())  {
     printf("mars2 new Mars.");
 }
 

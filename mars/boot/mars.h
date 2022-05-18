@@ -11,14 +11,12 @@
 #include <string>
 #include <stdint.h>
 
-//using namespace mars::stn;
-//using namespace mars::sdt;
-
 namespace mars {
 namespace boot {
 
 class Mars {
-public:
+
+public:    
   Mars();
 
 //  std::function<void ()> on_create_;

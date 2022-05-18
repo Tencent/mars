@@ -7,7 +7,7 @@
 #include "mars/baseevent/active_logic.h"
 #include "stn/src/net_core.h"
 #include "stn/src/net_source.h"
-
+#include "stn/src/proxy_test.h"
 
 //using namespace mars::boot;
 using namespace mars::comm;
@@ -131,6 +131,10 @@ bool StnManager::LongLinkIsConnected_ext(const std::string &name) {
     bool res = false;
     res = net_core_->LongLinkIsConnected_ext(name);
     return res;
+}
+
+bool StnManager::ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) {
+    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
 }
 
 void StnManager::MakesureLonglinkConnected_ext(const std::string &name) {

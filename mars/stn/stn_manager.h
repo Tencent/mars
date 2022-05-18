@@ -74,63 +74,63 @@ public:
     //extern void SetShortlinkSvrAddr(const uint16_t port);
 
     // 'host' will be ignored when 'debugip' is not empty.
-    void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
+    virtual void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
 
     // 'task.host' will be ignored when 'debugip' is not empty.
-    void SetShortlinkSvrAddr(const uint16_t port, const std::string& debugip);
+    virtual void SetShortlinkSvrAddr(const uint16_t port, const std::string& debugip);
 
     // setting debug ip address for the corresponding host
-    void SetDebugIP(const std::string& host, const std::string& ip);
+    virtual void SetDebugIP(const std::string& host, const std::string& ip);
 
     // setting backup iplist for the corresponding host
     // if debugip is not empty, iplist will be ignored.
     // iplist will be used when newdns/dns ip is not available.
-    void SetBackupIPs(const std::string& host, const std::vector<std::string>& iplist);
+    virtual void SetBackupIPs(const std::string& host, const std::vector<std::string>& iplist);
 
     // async function.
-    bool StartTask(const Task& task);
+    virtual bool StartTask(const Task& task);
 
     // sync function
-    void StopTask(uint32_t taskid);
+    virtual void StopTask(uint32_t taskid);
 
     // check whether task's list has the task or not.
-    bool HasTask(uint32_t taskid);
+    virtual bool HasTask(uint32_t taskid);
 
     // reconnect longlink and redo all task
     // when you change svr ip, you must call this function.
-    void RedoTasks();
+    virtual void RedoTasks();
 
     // touch tasks loop. Generally, invoke it after autoauth successfully.
-    void TouchTasks();
+    virtual void TouchTasks();
 
     // stop and clear all task
-    void ClearTasks();
+    virtual void ClearTasks();
 
     // the same as ClearTasks(), but also reinitialize network.
-    void Reset();
+    virtual void Reset();
 
-    void ResetAndInitEncoderVersion(int _encoder_version);
+    virtual void ResetAndInitEncoderVersion(int _encoder_version);
 
     //setting signalling's parameters.
     //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
-    void SetSignallingStrategy(long _period, long _keeptime);
+    virtual void SetSignallingStrategy(long _period, long _keeptime);
 
     // used to keep longlink active
     // keep signnaling once 'period' and last 'keeptime'
-    void KeepSignalling();
+    virtual void KeepSignalling();
 
-    void StopSignalling();
+    virtual void StopSignalling();
 
     // connect quickly if longlink is not connected.
-    void MakesureLonglinkConnected();
+    virtual void MakesureLonglinkConnected();
 
-    bool LongLinkIsConnected();
+    virtual bool LongLinkIsConnected();
 
-    bool ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips);
+    virtual bool ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips);
 
     // noop is used to keep longlink conected
     // get noop taskid
-    uint32_t getNoopTaskID();
+    virtual uint32_t getNoopTaskID();
 
     //===----------------------------------------------------------------------===//
     ///
@@ -138,13 +138,13 @@ public:
     /// these APIs are subject to change in developing
     ///
     //===----------------------------------------------------------------------===//
-    void CreateLonglink_ext(LonglinkConfig& _config);
-    void DestroyLonglink_ext(const std::string& name);
-    std::vector<std::string> GetAllLonglink_ext();
-    void MarkMainLonglink_ext(const std::string& name);
+    virtual void CreateLonglink_ext(LonglinkConfig& _config);
+    virtual void DestroyLonglink_ext(const std::string& name);
+    virtual std::vector<std::string> GetAllLonglink_ext();
+    virtual void MarkMainLonglink_ext(const std::string& name);
 
-    bool LongLinkIsConnected_ext(const std::string& name);
-    void MakesureLonglinkConnected_ext(const std::string& name);
+    virtual bool LongLinkIsConnected_ext(const std::string& name);
+    virtual void MakesureLonglinkConnected_ext(const std::string& name);
 
 public:
     NetCore* GetNetCore();
