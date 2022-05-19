@@ -57,6 +57,11 @@ public:
         return netsource_checker_;
     }
 
+    bool IsConnected() const {
+        if (!longlink_) return false;
+        return longlink_->ConnectStatus() == LongLink::TLongLinkStatus::kConnected;
+    }
+
 private:
     void __OnTimerCheckSuc(const std::string& _name);
 
