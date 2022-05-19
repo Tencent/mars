@@ -151,6 +151,7 @@ void ShortLink::__Run() {
     if (type == kMobile){
         conn_profile.ispcode = strtoll(conn_profile.net_type.c_str(), nullptr, 10);
     }
+    conn_profile.nettype_for_report = mars::comm::getNetTypeForStatistics();
     conn_profile.start_time = ::gettickcount();
     conn_profile.tid = xlogger_tid();
     conn_profile.link_type = Task::kChannelShort;
@@ -302,6 +303,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     if (type == kMobile){
         _conn_profile.ispcode = strtoll(_conn_profile.net_type.c_str(), nullptr, 10);
     }
+    _conn_profile.nettype_for_report = mars::comm::getNetTypeForStatistics();
     __UpdateProfile(_conn_profile);
 
     if(_conn_profile.ip_type != kIPSourceProxy && is_keep_alive_) {

@@ -72,6 +72,7 @@ struct ConnectProfile {
     
     void Reset(){
         net_type.clear();
+        nettype_for_report = -1;
         ispcode = 0;
         tid = 0;
         
@@ -141,6 +142,7 @@ struct ConnectProfile {
     }
     
     std::string net_type;
+    int nettype_for_report;
     int ispcode;
     intmax_t tid;
     
