@@ -64,12 +64,12 @@ public:
 
 class StnManager {
 public:
-    void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
-public:
     StnManager();
+    void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
     void SetCallback(StnCallback* const callback);
+    NetCore* GetNetCore();
 
-
+public:
     //extern void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports);
     //extern void SetShortlinkSvrAddr(const uint16_t port);
 
@@ -145,9 +145,6 @@ public:
 
     virtual bool LongLinkIsConnected_ext(const std::string& name);
     virtual void MakesureLonglinkConnected_ext(const std::string& name);
-
-public:
-    NetCore* GetNetCore();
     
 private:
     StnCallback* callback_;
