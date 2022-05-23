@@ -147,7 +147,11 @@ void ShortLink::__Run() {
     xinfo_function(TSF"%_, net:%_", message.String(), getNetInfo());
 
     ConnectProfile conn_profile;
-    getCurrNetLabel(conn_profile.net_type);
+    int type = getCurrNetLabel(conn_profile.net_type);
+    if (type == kMobile){
+        conn_profile.ispcode = strtoll(conn_profile.net_type.c_str(), nullptr, 10);
+    }
+    conn_profile.nettype_for_report = mars::comm::getNetTypeForStatistics();
     conn_profile.start_time = ::gettickcount();
     conn_profile.tid = xlogger_tid();
     conn_profile.link_type = Task::kChannelShort;
@@ -198,7 +202,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     //
     if (outter_vec_addr_.empty()){
-        net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_);
+        net_source_.GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi);
     }else{
         //.如果有外部ip则直接使用，比如newdns.
         _conn_profile.ip_items = outter_vec_addr_;
@@ -295,7 +299,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.closefunc)>::value, "must static or global function.");
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.createstream_func)>::value, "must static or global function.");
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value, "must static or global function.");
-    getCurrNetLabel(_conn_profile.net_type);
+    int type = getCurrNetLabel(_conn_profile.net_type);
+    if (type == kMobile){
+        _conn_profile.ispcode = strtoll(_conn_profile.net_type.c_str(), nullptr, 10);
+    }
+    _conn_profile.nettype_for_report = mars::comm::getNetTypeForStatistics();
     __UpdateProfile(_conn_profile);
 
     if(_conn_profile.ip_type != kIPSourceProxy && is_keep_alive_) {
@@ -311,6 +319,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.port = _conn_profile.ip_items[i].port;
                 _conn_profile.transport_protocol = _conn_profile.ip_items[i].transport_protocol;
                 _conn_profile.conn_time = gettickcount();
+                _conn_profile.start_connect_time = _conn_profile.conn_time;
+                _conn_profile.connect_successful_time = _conn_profile.conn_time;
                 _conn_profile.local_ip = socket_address::getsockname(fd).ip();
                 _conn_profile.local_port = socket_address::getsockname(fd).port();
                 _conn_profile.socket_fd = fd;
@@ -346,6 +356,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.conn_rtt = profile.rtt;
     _conn_profile.ip_index = profile.index;
     _conn_profile.conn_cost = profile.totalCost;
+    _conn_profile.is0rtt = profile.is0rtt;
 
     __UpdateProfile(_conn_profile);
     
@@ -471,7 +482,9 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	xgroup2_define(group_send);
 	xinfo2(TSF"task socket send sock:%_, %_ http len:%_, ", _socket, message.String(), out_buff.Length()) >> group_send;
 
+    _conn_profile.start_send_packet_time = ::gettickcount();
 	int send_ret = socketOperator_->Send(_socket, (const unsigned char*)out_buff.Ptr(), (unsigned int)out_buff.Length(), _err_code);
+    _conn_profile.send_request_cost = ::gettickcount() - _conn_profile.start_send_packet_time;
     xinfo2(TSF"sent %_", send_ret) >> group_send;
     
 	if (send_ret < 0) {
@@ -505,10 +518,15 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	MemoryBodyReceiver* receiver = new MemoryBodyReceiver(body);
 	http::Parser parser(receiver, true);
 
+    _conn_profile.start_read_packet_time = ::gettickcount();
 	while (true) {
-
 		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
         xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
+        
+        _conn_profile.read_packet_finished_time = ::gettickcount();
+        _conn_profile.recv_reponse_cost = _conn_profile.read_packet_finished_time - _conn_profile.start_read_packet_time;
+        __UpdateProfile(_conn_profile);
+    
 		if (recv_ret < 0) {
 			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
 			__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, _conn_profile, true);
@@ -523,6 +541,12 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 
 		if (recv_ret == 0 && SOCKET_ERRNO(ETIMEDOUT) == _err_code) {
 			xerror2(TSF"read timeout error:(%_,%_), nread:%_, nwrite:%_ ", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
+            
+            if (socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+                __RunResponseError(kEctSocket, kEctSocketRecvErr, _conn_profile, /*report=*/true);
+                break;
+            }
+            
             continue;
 		}
 		if (recv_ret == 0 && socketOperator_->Protocol() != Task::kTransportProtocolQUIC) {

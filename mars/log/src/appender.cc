@@ -58,7 +58,6 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/condition.h"
 #include "mars/comm/thread/thread.h"
-#include "mars/comm/scope_recursion_limit.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/tickcount.h"
 #include "mars/comm/autobuffer.h"
@@ -89,7 +88,7 @@ namespace xlog {
 extern void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log);
 extern void ConsoleLog(const XLoggerInfo* _info, const char* _log);
 
-static Tss sg_tss_dumpfile(&free);
+static const int kMaxDumpLength = 4096;
 
 static const unsigned int kBufferBlockLength = 150 * 1024;
 static const long kMinLogAliveTime = 24 * 60 * 60;    // 1 days in second
@@ -146,8 +145,9 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
 
     SCOPE_ERRNO();
 
-    DEFINE_SCOPERECURSIONLIMIT(recursion);
-    static Tss s_recursion_str(&free);
+    thread_local uint32_t recursion_count = 0;
+    thread_local std::string recursion_str;
+    recursion_count++;
 
     if (consolelog_open_) ConsoleLog(_info,  _log);
 #ifdef ANDROID
@@ -157,31 +157,28 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
         g_log_write_callback(_info, _log);
     }
 
-    if (2 <= (int)recursion.Get() && nullptr == s_recursion_str.get()) {
-        if ((int)recursion.Get() > 10) return;
-        char* strrecursion = (char*)calloc(16 * 1024, 1);
-        s_recursion_str.set((void*)(strrecursion));
+    if (2 <= recursion_count && recursion_str.empty()) {
+        if (recursion_count > 10) return;
 
+        recursion_str.resize(kMaxDumpLength);
         XLoggerInfo info = *_info;
         info.level = kLevelFatal;
 
         char recursive_log[256] = {0};
-        snprintf(recursive_log, sizeof(recursive_log), "ERROR!!! xlogger_appender Recursive calls!!!, count:%d", (int)recursion.Get());
+        snprintf(recursive_log, sizeof(recursive_log), "ERROR!!! xlogger_appender Recursive calls!!!, count:%u", recursion_count);
 
-        PtrBuffer tmp(strrecursion, 0, 16*1024);
+        PtrBuffer tmp((void*)recursion_str.data(), 0, kMaxDumpLength);
         log_formater(&info, recursive_log, tmp);
 
-        strncat(strrecursion, _log, 4096);
-        strrecursion[4095] = '\0';
+        if (recursion_str.capacity() >= strnlen(_log, kMaxDumpLength)) {
+            recursion_str += _log;
+        }
 
-        ConsoleLog(&info,  strrecursion);
+        ConsoleLog(&info,  recursion_str.c_str());
     } else {
-        if (nullptr != s_recursion_str.get()) {
-            char* strrecursion = (char*)s_recursion_str.get();
-            s_recursion_str.set(nullptr);
-
-            WriteTips2File(strrecursion);
-            free(strrecursion);
+        if (!recursion_str.empty()) {
+            WriteTips2File(recursion_str.c_str());
+            recursion_str.clear();
         }
 
         if (kAppenderSync == config_.mode_)
@@ -189,6 +186,7 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
         else
             __WriteAsync(_info, _log);
     }
+    recursion_count--;
 }
 
 void XloggerAppender::SetMode(TAppenderMode _mode) {
@@ -941,8 +939,6 @@ static unsigned int to_string(const void* signature, int len, char* str) {
 
 const char* XloggerAppender::Dump(const void* _dumpbuffer, size_t _len) {
     if (nullptr == _dumpbuffer || 0 == _len) {
-        //        ASSERT(nullptr!=_dumpbuffer);
-        //        ASSERT(0!=_len);
         return "";
     }
 
@@ -952,13 +948,11 @@ const char* XloggerAppender::Dump(const void* _dumpbuffer, size_t _len) {
 
     SCOPE_ERRNO();
 
-    if (nullptr == sg_tss_dumpfile.get()) {
-        sg_tss_dumpfile.set(calloc(4096, 1));
-    } else {
-        memset(sg_tss_dumpfile.get(), 0, 4096);
-    }
 
-    ASSERT(nullptr != sg_tss_dumpfile.get());
+    thread_local std::string buffer;
+    if (!buffer.empty()) {
+        buffer.clear();
+    }
 
     struct timeval tv = {0};
     gettimeofday(&tv, nullptr);
@@ -989,18 +983,21 @@ const char* XloggerAppender::Dump(const void* _dumpbuffer, size_t _len) {
     fwrite(_dumpbuffer, _len, 1, fileid);
     fclose(fileid);
 
-    char* dump_log = (char*)sg_tss_dumpfile.get();
-    dump_log += snprintf(dump_log, 4096, "\n dump file to %s :\n", filepath.c_str());
+
+    buffer += "\n dump file to ";
+    buffer += filepath + " :\n";
 
     int dump_len = 0;
 
     for (int x = 0; x < 32 && dump_len < (int)_len; ++x) {
-        dump_log += to_string((const char*)_dumpbuffer + dump_len, std::min(int(_len) - dump_len, 16), dump_log);
+        char dump_log[128] = {0};
+        to_string((const char*)_dumpbuffer + dump_len, std::min(int(_len) - dump_len, 16), dump_log);
         dump_len += std::min((int)_len - dump_len, 16);
-        *(dump_log++) = '\n';
+        buffer += dump_log;
+        buffer += "\n";
     }
 
-    return (const char*)sg_tss_dumpfile.get();
+    return buffer.c_str();
 }
 
 static int calc_dump_required_length(int srcbytes){
@@ -1229,28 +1226,22 @@ const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
 
     SCOPE_ERRNO();
 
-    const static int kMaxBufferLength = 4096;
-    if (NULL == sg_tss_dumpfile.get()) {
-        sg_tss_dumpfile.set(calloc(kMaxBufferLength, 1));
-    } else {
-        memset(sg_tss_dumpfile.get(), 0, kMaxBufferLength);
+    thread_local std::string buffer;
+    if (!buffer.empty()) {
+        buffer.clear();
     }
 
-    ASSERT(NULL != sg_tss_dumpfile.get());
-
-    char* dst_buffer = (char*)sg_tss_dumpfile.get();
     const char* src_buffer = reinterpret_cast<const char*>(_dumpbuffer);
-    int round_bytes = snprintf(dst_buffer, kMaxBufferLength, "\n%zu bytes:\n",_len);
-    if (round_bytes <= 0){
-        return "<format log failed>";
-    }
-    
-    int dst_offset = round_bytes;
-    int dst_upper = kMaxBufferLength - 1;
-    for(int src_offset = 0; src_offset < (int)_len && dst_offset < dst_upper;){
-        int dst_leftbytes = dst_upper - dst_offset;
+    buffer += "\n";
+    buffer += std::to_string(_len) + " bytes:\n";
+
+    int calc_dst_buffer_len = calc_dump_required_length(32) + 1;
+    char* dst_buffer = new char[calc_dst_buffer_len];
+
+    for(int src_offset = 0; src_offset < (int)_len && buffer.size() < kMaxDumpLength;){
+        int dst_leftbytes = kMaxDumpLength - buffer.size();
         int bytes = std::min((int)_len - src_offset, 32);
-        
+
         while (bytes > 0 && calc_dump_required_length(bytes) >= dst_leftbytes) {
             --bytes;
         }
@@ -1258,18 +1249,16 @@ const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) {
             break;
         }
 
-        round_bytes = to_string(src_buffer + src_offset, bytes, dst_buffer + dst_offset);
-               
-        dst_offset += round_bytes;
+        memset(dst_buffer, 0, calc_dst_buffer_len);
+        to_string(src_buffer + src_offset, bytes, dst_buffer);
+        buffer += dst_buffer;
+
         src_offset += bytes;
         
         //next line
-        *(dst_buffer + dst_offset) = '\n';
-        ++dst_offset;
+        buffer += "\n";
     }
-    
-    ASSERT(dst_offset < kMaxBufferLength);
-    *(dst_buffer+dst_offset) = '\0';
 
-    return (const char*)sg_tss_dumpfile.get();
+    delete[] dst_buffer;
+    return buffer.c_str();
 }
