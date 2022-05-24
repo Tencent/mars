@@ -23,6 +23,9 @@
 #include "mars/comm/bootregister.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/thread/lock.h"
+#include "mars/tsmssl/tssl.h"
+#include "mars/tsmssl/tssl_crypto.h"
+
 
 using namespace mars::comm;
 
@@ -32,6 +35,24 @@ namespace mars{
         void OnCreate()
         {
             GetSignalOnCreate()();
+            tssl_X509_NAME_oneline(nullptr,nullptr,0);
+            tssl_ASN1_TIME_print(nullptr,nullptr);
+            tssl_BIO_new_fd(0, 0);
+            tssl_BIO_new_file(nullptr, nullptr);
+            tssl_BIO_number_read(nullptr);
+            tssl_BIO_number_written(nullptr);
+            tssl_BIO_printf(nullptr, nullptr);
+            tssl_BIO_puts(nullptr, nullptr);
+            tssl_BIO_write(nullptr, nullptr, 0);
+
+            tssl_CRYPTO_free(nullptr, nullptr, 0);
+            tssl_EC_curve_nid2nist(0);
+            tssl_ERR_print_errors(nullptr);
+            tssl_EVP_PKEY_bits(nullptr);
+            tssl_OBJ_nid2sn(0);
+            tssl_OPENSSL_die(nullptr, nullptr, 0);
+            tssl_OPENSSL_sk_num(nullptr);
+            tssl_OPENSSL_sk_value(nullptr, 0);
         }
         
         void OnInitBeforeOnCreate(int _encoder_status) {
