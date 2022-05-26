@@ -95,8 +95,8 @@ struct ConnectProfile {
         send_request_cost = 0;
         recv_reponse_cost = 0;
         certverify_cost = 0;
-        is0rtt = false;
-        is_fast_fallback_tcp = false;
+        is0rtt = 0;
+        is_fast_fallback_tcp = 0;
 
         local_ip.clear();
         local_port = 0;
@@ -161,7 +161,7 @@ struct ConnectProfile {
     uint64_t recv_reponse_cost;
     int certverify_cost;
     int is0rtt;
-    bool is_fast_fallback_tcp;
+    int is_fast_fallback_tcp;
 
     std::string ip;
     uint16_t port;
