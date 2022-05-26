@@ -64,6 +64,7 @@ static std::map< std::string, std::string > sg_host_debugip_mapping;
 
 static tickcount_t sg_quic_reopen_tick(true);
 static bool sg_quic_enabled = true;
+static bool sg_quic_enable_0rtt = false;
 
 static Mutex sg_ip_mutex;
 
@@ -536,6 +537,15 @@ bool NetSource::CanUseQUIC(){
     }
     
     return sg_quic_enabled;
+}
+
+bool NetSource::CanUse0RTT(){
+    ScopedLock lock(sg_ip_mutex);
+    return sg_quic_enable_0rtt;
+}
+void NetSource::Enable0RTT(bool enable){
+    ScopedLock lock(sg_ip_mutex);
+    sg_quic_enable_0rtt = enable;
 }
 
 std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
