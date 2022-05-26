@@ -116,7 +116,8 @@ void TimingSync::__OnAlarm()
     if (kNoNet !=::getNetInfo())
     {
         xinfo2(TSF"timing sync onRequestDoSync netinfo:%_", ::getNetInfo());
-        ::RequestSync();
+        //TODO cpan
+        //::RequestSync();
     }
 
     alarm_.Start(GetAlarmTime(active_logic_.IsActive()));

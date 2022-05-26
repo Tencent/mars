@@ -55,6 +55,7 @@ class SignallingKeeper;
 class NetCheckLogic;
 class DynamicTimeout;
 class AntiAvalanche;
+class StnManager;
 
 enum {
     kCallFromLong,
@@ -66,7 +67,7 @@ class NetCore {
   public:
 //    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
 
-    NetCore();
+    NetCore(StnManager* _stn_manager);
 
     virtual ~NetCore();
 
@@ -172,6 +173,7 @@ public:
     bool                                        shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
+    StnManager* stn_manager_ = NULL;
 };
         
 }}

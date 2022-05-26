@@ -56,7 +56,7 @@ boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskM
 boost::function<bool (int _error_code)> ShortLinkTaskManager::should_intercept_result_;
 
 
-ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
+ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid, StnManager* _stn_manager)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , net_source_(_netsource)
     , default_use_proxy_(true)
@@ -65,6 +65,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout
 #ifdef ANDROID
     , wakeup_lock_(new WakeUpLock())
 #endif
+    ,stn_manager_(_stn_manager)
 {
     xinfo_function(TSF"handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_", asyncreg_.Get().queue, asyncreg_.Get().seq, MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
@@ -308,7 +309,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
-            bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
+            bool ismakesureauthsuccess = stn_manager_->GetCallback()->MakesureAuthed(host, first->task.user_id);
             xinfo2_if(!first->task.long_polling && first->task.priority >= 0, TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
@@ -329,7 +330,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer buffer_extension;
         int error_code = 0;
 
-        if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
+        if (!stn_manager_->GetCallback()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
@@ -354,7 +355,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             first->transfer_profile.received_size = body.Length();
             first->transfer_profile.receive_data_size = body.Length();
             first->transfer_profile.last_receive_pkg_time = ::gettickcount();
-            int handle_type = Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, Task::kChannelShort);
+            int handle_type = stn_manager_->GetCallback()->Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, Task::kChannelShort);
             ConnectProfile profile;
             __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, (unsigned int)first->transfer_profile.receive_data_size, profile);
             first = next;
@@ -468,7 +469,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
-    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
+    int handle_type = stn_manager_->GetCallback()->Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
     xinfo2_if(it->task.priority >= 0,  TSF"err_code %_ ",err_code);
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
     if (should_intercept_result_ && should_intercept_result_(err_code))  {
@@ -697,7 +698,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         if (on_timeout_or_remote_shutdown_) {
             on_timeout_or_remote_shutdown_(*_it);
         }
-        ReportTaskProfile(*_it);
+        //TODO cpan
+        //stn_manager_->GetCallback()->ReportTaskProfile(*_it);
         WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         __DeleteShortLink(_it->running_id);

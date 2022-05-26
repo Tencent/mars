@@ -47,8 +47,10 @@ bool LongLinkIdentifyChecker::GetIdentifyBuffer(AutoBuffer &_buffer, uint32_t &_
 
     if (is_minorlong_)
         _cmdid |= Task::kMinorLonglinkCmdMask;
-    IdentifyMode mode = (IdentifyMode)GetLonglinkIdentifyCheckBuffer(channel_id_, _buffer, hash_code_buffer_, (int32_t&)_cmdid);
-
+    //TODO cpan
+    //IdentifyMode mode = (IdentifyMode)GetLonglinkIdentifyCheckBuffer(channel_id_, _buffer, hash_code_buffer_, (int32_t&)_cmdid);
+    IdentifyMode mode = kCheckNever;
+    
     switch (mode)
     {
     case kCheckNever:
@@ -82,7 +84,9 @@ bool LongLinkIdentifyChecker::IsIdentifyResp(uint32_t _cmdid, uint32_t _taskid, 
 
 bool LongLinkIdentifyChecker::OnIdentifyResp(AutoBuffer& _buffer) {
     xinfo2(TSF"identifycheck(synccheck) resp");
-    bool ret = ::OnLonglinkIdentifyResponse(channel_id_, _buffer, hash_code_buffer_);
+    //bool ret = ::OnLonglinkIdentifyResponse(channel_id_, _buffer, hash_code_buffer_);
+    //TODO cpan
+    bool ret = 0;
     taskid_ = 0;
     if (ret) {
         has_checked_ = true;

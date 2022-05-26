@@ -55,7 +55,7 @@ boost::function<bool (int _error_code)> LongLinkTaskManager::should_intercept_re
 static int longlink_id = 0;
 std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
 
-LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
+LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id, StnManager* _stn_manager)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
     , lastbatcherrortime_(0)
     , retry_interval_(0)
@@ -71,6 +71,7 @@ LongLinkTaskManager::LongLinkTaskManager(NetSource& _netsource, ActiveLogic& _ac
 #ifndef _WIN32
     , meta_mutex_(true)
 #endif
+    ,stn_manager_(_stn_manager)
 {
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -392,7 +393,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
 
         // make sure login
         if (first->task.need_authed) {
-            bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
+            bool ismakesureauthsuccess = stn_manager_->GetCallback()->MakesureAuthed(host, first->task.user_id);
             xinfo2(TSF"makesureauth host:%_, auth result:%_, cgi:%_, channal name:%_", host, ismakesureauthsuccess,first->task.cgi, first->channel_name);
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 0, TSF"makeSureAuth retsult=%0", ismakesureauthsuccess);
@@ -415,7 +416,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         auto longlink_channel = longlink->Channel();
 
         if (!first->antiavalanche_checked) {
-			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
+			if (!stn_manager_->GetCallback()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -449,7 +450,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         
 		if (0 == bufreq.Length()) {
 
-			if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
+			if (!stn_manager_->GetCallback()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -473,7 +474,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
             first->transfer_profile.received_size = body.Length();
             first->transfer_profile.receive_data_size = body.Length();
             first->transfer_profile.last_receive_pkg_time = ::gettickcount();
-            int handle_type = Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, longlink->Config().link_type);
+            int handle_type = stn_manager_->GetCallback()->Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, longlink->Config().link_type);
             ConnectProfile profile;
             __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, profile);
             first = next;
@@ -558,7 +559,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         _it->transfer_profile.error_type = _err_type;
         _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
-        ReportTaskProfile(*_it);
+        //ReportTaskProfile(*_it);
         WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         lst_cmd_.erase(_it);
@@ -733,7 +734,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
     
     int err_code = 0;
-    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, longlink_meta->Config().link_type);
+    int handle_type = stn_manager_->GetCallback()->Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, longlink_meta->Config().link_type);
     if (should_intercept_result_ && should_intercept_result_(err_code))  {
         task_intercept_.AddInterceptTask(it->task.cgi, std::string((const char*)body->Ptr(), body->Length()));
     }

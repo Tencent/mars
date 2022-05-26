@@ -64,8 +64,9 @@ static std::map< std::string, std::string > sg_host_debugip_mapping;
 
 static Mutex sg_ip_mutex;
 
-NetSource::DnsUtil::DnsUtil():
-new_dns_(OnNewDns) {
+//TODO cpan
+NetSource::DnsUtil::DnsUtil()/*:
+new_dns_()*/ {
 }
 
 NetSource::DnsUtil::~DnsUtil() {}
@@ -392,7 +393,8 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 		dns_profile.end_time = gettickcount();
 		if (!ret) dns_profile.OnFailed();
-		ReportDnsProfile(dns_profile);
+		//TODO cpan
+        //ReportDnsProfile(dns_profile);
 
 		xgroup2_define(dnsxlog);
 		xdebug2(TSF"link host:%_, new dns ret:%_, size:%_ ", _host, ret, iplist.size()) >> dnsxlog;
@@ -406,7 +408,8 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 			dns_profile.end_time = gettickcount();
 			if (!ret) dns_profile.OnFailed();
-			ReportDnsProfile(dns_profile);
+			//TODO cpan
+            //ReportDnsProfile(dns_profile);
 
 			xdebug2(TSF "dns ret:%_, size:%_,", ret, iplist.size()) >> dnsxlog;
 		}

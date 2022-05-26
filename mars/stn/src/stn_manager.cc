@@ -15,7 +15,7 @@ using namespace mars::comm;
 namespace mars {
 namespace stn {
 
-StnManager::StnManager() : net_core_(new mars::stn::NetCore()) {
+StnManager::StnManager() : net_core_(new mars::stn::NetCore(this)) {
 }
 
 void StnManager::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
@@ -24,6 +24,10 @@ void StnManager::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
 
 void StnManager::SetCallback(StnCallback *const _callback) {
     callback_ = _callback;
+}
+
+StnCallback* StnManager::GetCallback(){
+    return callback_;
 }
 
 void StnManager::SetLonglinkSvrAddr(const std::string &host, const std::vector<uint16_t> ports, const std::string &debugip) {
@@ -80,7 +84,7 @@ void StnManager::Reset() {
 void StnManager::ResetAndInitEncoderVersion(int _encoder_version) {
     LongLinkEncoder::SetEncoderVersion(_encoder_version);
     delete net_core_;
-    net_core_ = new mars::stn::NetCore();
+    net_core_ = new mars::stn::NetCore(this);
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {

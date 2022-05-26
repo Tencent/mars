@@ -245,7 +245,8 @@ void NetCheckLogic::__StartNetCheck() {
 	//shortlink check map
 	CheckIPPorts shortlink_check_items;
 	std::vector<std::string> shortlink_hostlist;
-	RequestNetCheckShortLinkHosts(shortlink_hostlist);
+	//TODO cpan
+    //RequestNetCheckShortLinkHosts(shortlink_hostlist);
 	uint16_t shortlink_port = NetSource::GetShortLinkPort();
 
 

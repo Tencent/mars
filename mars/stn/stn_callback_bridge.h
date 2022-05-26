@@ -17,6 +17,7 @@
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
+#include "stn_manager.h"
 
 namespace mars {
 namespace stn {
@@ -81,12 +82,17 @@ class StnCallbackBridge {
     virtual void ReportTaskProfile(const TaskProfile& _task_profile);
     virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
     virtual void ReportDnsProfile(const DnsProfile& _dns_profile);
+    
+    virtual void SetCallback(StnCallback* callback);
+    // You must get `StnCallbackBridge` object through `GetStnCallbackBridge` firstly before invoke this function,
+    // then store it or release it.
+//    virtual void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
+//    virtual StnCallbackBridge* GetStnCallbackBridge();
+  
+private:
+    StnCallback* callback_ = NULL;
+    StnCallbackBridge* callback_bridge_ = NULL;
 };
-
-// You must get `StnCallbackBridge` object through `GetStnCallbackBridge` firstly before invoke this function,
-// then store it or release it.
-void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
-StnCallbackBridge* GetStnCallbackBridge();
 
 }
 }

@@ -67,6 +67,7 @@ public:
     StnManager();
     void OnInitConfigBeforeOnCreate(int _packer_encoder_version);
     void SetCallback(StnCallback* const callback);
+    StnCallback* GetCallback();
     NetCore* GetNetCore();
 
 public:
