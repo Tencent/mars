@@ -4,6 +4,7 @@
 #include <stringapiset.h>
 #include <stddef.h>
 #include <io.h>
+#include <fcntl.h>
 
 namespace internal{
 std::wstring string2wstring(const std::string& input){
@@ -17,13 +18,13 @@ std::wstring string2wstring(const std::string& input){
     std::wstring wstr;
     wstr.resize(size + 1);
 
-    int nResult = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)str.c_str(), (int)nLen, (LPWSTR)&wstr[0], size);
+    int nResult = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)input.c_str(), (int)nLen, (LPWSTR)&wstr[0], size);
     if (nResult == 0){
         return L"";
     }
     
     wstr.resize(nResult);
-    return wStr;
+    return wstr;
 }
 }
 
@@ -48,7 +49,7 @@ std::wstring string2wstring(const std::string& input){
 namespace internal{
 int OpenFile(const std::string& file, int flag, int mode){
 #ifdef WIN32
-    std::wstring wpath = stringToWstring(file);
+    std::wstring wpath = string2wstring(file);
     return _wopen(wpath.c_str(), flag, mode);
 #else
     return open(file.c_str(), flag, mode);
