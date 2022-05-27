@@ -79,7 +79,12 @@ FDI FDInfo::QueryFD(int fd){
             
             char szbuf[1024] = {0};
             if (get_fd_path(fd, szbuf)){
-                item.path_or_name = szbuf;
+                const char* path = strrchr(szbuf, '/');
+                if (path != nullptr){
+                    item.path_or_name = path;
+                }else{
+                    item.path_or_name = szbuf;
+                }
             }
         }
     }
