@@ -98,11 +98,11 @@ const static unsigned int kFastSendUseLonglinkTaskCntLimit = 0;
 
 //longlink connect params
 const static unsigned int kLonglinkConnTimeout = 10 * 1000;
-const static unsigned int kLonglinkConnInteral = 4 * 1000;
+const static unsigned int kLonglinkConnInteral = 2.5 * 1000;
 const static unsigned int kLonglinkConnMax = 3;
 
 //shortlink connect params
 const static unsigned int kShortlinkConnTimeout = 10 * 1000;
-const static unsigned int kShortlinkConnInterval = 4 * 1000;
+const static unsigned int kShortlinkConnInterval = 2.5 * 1000;
 
 #endif /* stn_config_h */
