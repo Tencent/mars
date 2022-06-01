@@ -72,6 +72,8 @@ bool SocketBreaker::ReCreate(){
         _Cleanup();
         return false;
     }
+    
+    xinfo2(TSF"create pipe %_, %_", pipes_[0], pipes_[1]);
 
     create_success_ = true;
     breaked_ = false;
@@ -166,10 +168,17 @@ int SocketBreaker::BreakReason() const{
 }
 
 void SocketBreaker::_Cleanup(){
-    if(pipes_[1] >= 0)
-        close(pipes_[1]);
-    if(pipes_[0] >= 0)
-        close(pipes_[0]);
+    if(pipes_[1] >= 0){
+        int rv = close(pipes_[1]);
+        int error = errno;
+        xinfo2(TSF"close pipe %_, %_ err %_:%_", pipes_[1], rv, error, strerror(error));
+    }
+        
+    if(pipes_[0] >= 0){
+        int rv = close(pipes_[0]);
+        int error = errno;
+        xinfo2(TSF"close pipe %_, %_ err %_:%_", pipes_[0], rv, error, strerror(error));
+    }
     pipes_[0] = -1;
     pipes_[1] = -1;
     create_success_ = false;
