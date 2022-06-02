@@ -40,20 +40,28 @@
 #include "stn/src/net_source.h"
 #include "stn/src/signalling_keeper.h"
 #include "stn/src/proxy_test.h"
+#include "mars/stn/stn_callback_bridge.h"
+#include "mars/stn/stn.h"
+#include "mars/boost/config.hpp"
+#include "mars/comm/thread/atomic_oper.h"
 
 #ifdef WIN32
 #include <locale>
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
 #endif
+#include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::comm;
+
+static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
 namespace mars {
 namespace stn {
 
 static const std::string kLibName = "stn";
-
+static uint32_t gs_taskid = 1;
+static Callback* sg_callback = NULL;
 
 #define STN_WEAK_CALL(func) \
     boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
@@ -77,6 +85,26 @@ static const std::string kLibName = "stn";
     if (stn_ptr) \
     {\
     	ret = stn_ptr->func;\
+    }
+
+#define STN_CALLBACK_WEAK_CALL(func) \
+    if (!sg_callback) {\
+        xwarn2(TSF"callback no set");\
+        return;\
+    }\
+    sg_callback->func
+
+#define STN_CALLBACK_RETURN_WEAK_CALL(func) \
+    if (!sg_callback) {\
+        xwarn2(TSF"callback no set");\
+        return false;\
+    }\
+    sg_callback->func;\
+    return true
+
+#define STN_CALLBACK_WEAK_CALL_RETURN(func, ret) \
+    if (sg_callback) {\
+        ret = sg_callback->func;                 \
     }
 
 static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
@@ -160,165 +188,273 @@ static void __initbind_baseprjevent() {
     GetSignalOnNetworkDataChange().connect(&OnNetworkDataChange);
 }
 
-BOOT_RUN_STARTUP(__initbind_baseprjevent);
+//BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
+//TODO cpan stn_callback_bridge
+//void SetCallback(Callback* const callback) {
+//    sg_callback = callback;
+//}
+//
+// 这里都移到stn_manager_bridge实现
+//// #################### stn.h ####################
+//bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
+//    bool result = false;
+//    STN_CALLBACK_WEAK_CALL_RETURN(MakesureAuthed(_host, _user_id), result);
+//    return result;
+//}
+//
+////流量统计
+//void TrafficData(ssize_t _send, ssize_t _recv) {
+//    STN_CALLBACK_WEAK_CALL(TrafficData(_send, _recv));
+//}
+//
+////底层询问上层该host对应的ip列表
+//std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host) {
+//    std::vector<std::string> ip_list = std::vector<std::string>();
+//    STN_CALLBACK_WEAK_CALL_RETURN(OnNewDns(_host, _longlink_host), ip_list);
+//    return ip_list;
+//}
+////网络层收到push消息回调
+//void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+//    STN_CALLBACK_WEAK_CALL(OnPush(_channel_id, _cmdid, _taskid, _body, _extend));
+//}
+//
+////底层获取task要发送的数据
+//bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
+//    bool result = false;
+//    STN_CALLBACK_WEAK_CALL_RETURN(Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host), result);
+//    return result;
+//}
+////底层回包返回给上层解析
+//int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
+//    int result = 0;
+//    STN_CALLBACK_WEAK_CALL_RETURN(Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select), result);
+//    return result;
+//}
+////任务执行结束
+//int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const CgiProfile& _profile) {
+//    int result = 0;
+//    STN_CALLBACK_WEAK_CALL_RETURN(OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile), result);
+//    return result;
+//}
+//
+////上报网络连接状态
+//void ReportConnectStatus(int status, int longlink_status) {
+//    STN_CALLBACK_WEAK_CALL(ReportConnectStatus(status, longlink_status));
+//}
+//
+//void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
+//    STN_CALLBACK_WEAK_CALL(OnLongLinkNetworkError(_err_type, _err_code, _ip, _port));
+//}
+//void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+//    STN_CALLBACK_WEAK_CALL(OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port));
+//}
+//
+//void OnLongLinkStatusChange(int _status) {
+//    STN_CALLBACK_WEAK_CALL(OnLongLinkStatusChange(_status));
+//}
+////长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
+//int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
+//    int result = 0;
+//    STN_CALLBACK_WEAK_CALL_RETURN(GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid), result);
+//    return result;
+//}
+////长连信令校验回包
+//bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
+//    bool result = false;
+//    STN_CALLBACK_WEAK_CALL_RETURN(OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash), result);
+//    return result;
+//}
+//
+//void RequestSync() {
+//    STN_CALLBACK_WEAK_CALL(RequestSync());
+//}
+////验证是否已登录
+//
+////底层询问上层http网络检查的域名列表
+//void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
+//    STN_CALLBACK_WEAK_CALL(RequestNetCheckShortLinkHosts(_hostlist));
+//}
+////底层向上层上报cgi执行结果
+//void ReportTaskProfile(const TaskProfile& _task_profile) {
+//    STN_CALLBACK_WEAK_CALL(ReportTaskProfile(_task_profile));
+//}
+////底层通知上层cgi命中限制
+//void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
+//    STN_CALLBACK_WEAK_CALL(ReportTaskLimited(_check_type, _task, _param));
+//}
+////底层上报域名dns结果
+//void ReportDnsProfile(const DnsProfile& _dns_profile) {
+//    STN_CALLBACK_WEAK_CALL(ReportDnsProfile(_dns_profile));
+//}
 
-bool (*StartTask)(const Task& _task)
-= [](const Task& _task) {
-    STN_RETURN_WEAK_CALL(StartTask(_task));
-};
+//.生成taskid.
+uint32_t GenTaskID() {
+    if (BOOST_UNLIKELY(atomic_read32(&gs_taskid) >= kReservedTaskIDStart)) {
+        atomic_write32(&gs_taskid, 1);
+    }
+    return atomic_inc32(&gs_taskid);
+}
 
-void (*StopTask)(uint32_t _taskid)
-= [](uint32_t _taskid) {
-    STN_WEAK_CALL(StopTask(_taskid));
-};
+// #################### end stn.h ####################
 
-bool (*HasTask)(uint32_t _taskid)
-= [](uint32_t _taskid) {
-	bool has_task = false;
-	STN_WEAK_CALL_RETURN(HasTask(_taskid), has_task);
-	return has_task;
-};
-
-void (*DisableLongLink)()
-= []() {
-    NetCore::need_use_longlink_ = false;
-};
-
-void (*RedoTasks)()
-= []() {
-   STN_WEAK_CALL(RedoTasks());
-};
-
-void (*TouchTasks)()
-= []() {
-   STN_WEAK_CALL(TouchTasks());
-};
-
-void (*ClearTasks)()
-= []() {
-   STN_WEAK_CALL(ClearTasks());
-};
-
-void (*Reset)()
-= []() {
-	xinfo2(TSF "stn reset");
-	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
-};
-
-void (*ResetAndInitEncoderVersion)(int _packer_encoder_version)
-= [](int _packer_encoder_version) {
-	xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
-    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
-	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
-};
-
-void (*MakesureLonglinkConnected)()
-= []() {
-    xinfo2(TSF "make sure longlink connect");
-   STN_WEAK_CALL(MakeSureLongLinkConnect());
-};
-
-bool (*LongLinkIsConnected)()
-= []() {
-    bool connected = false;
-    STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
-    return connected;
-};
-    
-bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
-= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
-    
-    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
-};
-
-//void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
-// {
-//	SetLonglinkSvrAddr(host, ports, "");
+//
+//bool (*StartTask)(const Task& _task)
+//= [](const Task& _task) {
+//    STN_RETURN_WEAK_CALL(StartTask(_task));
 //};
-
-
-void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip)
-= [](const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
-	std::vector<std::string> hosts;
-	if (!host.empty()) {
-		hosts.push_back(host);
-	}
-	NetSource::SetLongLink(hosts, ports, debugip);
-};
-
-//void SetShortlinkSvrAddr(const uint16_t port)
-//{
-//	NetSource::SetShortlink(port, "");
+//
+//void (*StopTask)(uint32_t _taskid)
+//= [](uint32_t _taskid) {
+//    STN_WEAK_CALL(StopTask(_taskid));
 //};
-    
-void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip)
-= [](const uint16_t port, const std::string& debugip) {
-	NetSource::SetShortlink(port, debugip);
-};
-
-void (*SetDebugIP)(const std::string& host, const std::string& ip)
-= [](const std::string& host, const std::string& ip) {
-	NetSource::SetDebugIP(host, ip);
-};
-    
-void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist)
-= [](const std::string& host, const std::vector<std::string>& iplist) {
-	NetSource::SetBackupIPs(host, iplist);
-};
-
-void (*SetSignallingStrategy)(long _period, long _keepTime)
-= [](long _period, long _keepTime) {
-    SignallingKeeper::SetStrategy((unsigned int)_period, (unsigned int)_keepTime);
-};
-
-void (*KeepSignalling)()
-= []() {
-#ifdef USE_LONG_LINK
-    STN_WEAK_CALL(KeepSignal());
-#endif
-};
-
-void (*StopSignalling)()
-= []() {
-#ifdef USE_LONG_LINK
-    STN_WEAK_CALL(StopSignal());
-#endif
-};
-
-uint32_t (*getNoopTaskID)()
-= []() {
-	return Task::kNoopTaskID;
-};
-
-void (*CreateLonglink_ext)(LonglinkConfig& _config)
-= [](LonglinkConfig & _config){
-    STN_WEAK_CALL(CreateLongLink(_config));
-};
-    
-void (*DestroyLonglink_ext)(const std::string& name)
-= [](const std::string& name){
-    STN_WEAK_CALL(DestroyLongLink(name));
-};
-
-bool (*LongLinkIsConnected_ext)(const std::string& name)
-= [](const std::string& name){
-    bool res = false;
-    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
-    return res;
-};
-
-void (*MarkMainLonglink_ext)(const std::string& name)
-= [](const std::string& name){
-    STN_WEAK_CALL(MarkMainLonglink_ext(name));
-};
-    
-void (*MakesureLonglinkConnected_ext)(const std::string& name)
-= [](const std::string& name){
-    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
-};
+//
+//bool (*HasTask)(uint32_t _taskid)
+//= [](uint32_t _taskid) {
+//	bool has_task = false;
+//	STN_WEAK_CALL_RETURN(HasTask(_taskid), has_task);
+//	return has_task;
+//};
+//
+//void (*DisableLongLink)()
+//= []() {
+//    NetCore::need_use_longlink_ = false;
+//};
+//
+//void (*RedoTasks)()
+//= []() {
+//   STN_WEAK_CALL(RedoTasks());
+//};
+//
+//void (*TouchTasks)()
+//= []() {
+//   STN_WEAK_CALL(TouchTasks());
+//};
+//
+//void (*ClearTasks)()
+//= []() {
+//   STN_WEAK_CALL(ClearTasks());
+//};
+//
+//void (*Reset)()
+//= []() {
+//	xinfo2(TSF "stn reset");
+//	NetCore::Singleton::Release();
+//	NetCore::Singleton::Instance();
+//};
+//
+//void (*ResetAndInitEncoderVersion)(int _packer_encoder_version)
+//= [](int _packer_encoder_version) {
+//	xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
+//    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
+//	NetCore::Singleton::Release();
+//	NetCore::Singleton::Instance();
+//};
+//
+//void (*MakesureLonglinkConnected)()
+//= []() {
+//    xinfo2(TSF "make sure longlink connect");
+//   STN_WEAK_CALL(MakeSureLongLinkConnect());
+//};
+//
+//bool (*LongLinkIsConnected)()
+//= []() {
+//    bool connected = false;
+//    STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
+//    return connected;
+//};
+//    
+//bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
+//= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
+//    
+//    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
+//};
+//
+////void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
+//// {
+////	SetLonglinkSvrAddr(host, ports, "");
+////};
+//
+//
+//void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip)
+//= [](const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
+//	std::vector<std::string> hosts;
+//	if (!host.empty()) {
+//		hosts.push_back(host);
+//	}
+//	NetSource::SetLongLink(hosts, ports, debugip);
+//};
+//
+////void SetShortlinkSvrAddr(const uint16_t port)
+////{
+////	NetSource::SetShortlink(port, "");
+////};
+//    
+//void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip)
+//= [](const uint16_t port, const std::string& debugip) {
+//	NetSource::SetShortlink(port, debugip);
+//};
+//
+//void (*SetDebugIP)(const std::string& host, const std::string& ip)
+//= [](const std::string& host, const std::string& ip) {
+//	NetSource::SetDebugIP(host, ip);
+//};
+//    
+//void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist)
+//= [](const std::string& host, const std::vector<std::string>& iplist) {
+//	NetSource::SetBackupIPs(host, iplist);
+//};
+//
+//void (*SetSignallingStrategy)(long _period, long _keepTime)
+//= [](long _period, long _keepTime) {
+//    SignallingKeeper::SetStrategy((unsigned int)_period, (unsigned int)_keepTime);
+//};
+//
+//void (*KeepSignalling)()
+//= []() {
+//#ifdef USE_LONG_LINK
+//    STN_WEAK_CALL(KeepSignal());
+//#endif
+//};
+//
+//void (*StopSignalling)()
+//= []() {
+//#ifdef USE_LONG_LINK
+//    STN_WEAK_CALL(StopSignal());
+//#endif
+//};
+//
+//uint32_t (*getNoopTaskID)()
+//= []() {
+//	return Task::kNoopTaskID;
+//};
+//
+//void (*CreateLonglink_ext)(LonglinkConfig& _config)
+//= [](LonglinkConfig & _config){
+//    STN_WEAK_CALL(CreateLongLink(_config));
+//};
+//    
+//void (*DestroyLonglink_ext)(const std::string& name)
+//= [](const std::string& name){
+//    STN_WEAK_CALL(DestroyLongLink(name));
+//};
+//
+//bool (*LongLinkIsConnected_ext)(const std::string& name)
+//= [](const std::string& name){
+//    bool res = false;
+//    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
+//    return res;
+//};
+//
+//void (*MarkMainLonglink_ext)(const std::string& name)
+//= [](const std::string& name){
+//    STN_WEAK_CALL(MarkMainLonglink_ext(name));
+//};
+//    
+//void (*MakesureLonglinkConnected_ext)(const std::string& name)
+//= [](const std::string& name){
+//    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
+//};
 
 void network_export_symbols_0(){}
 

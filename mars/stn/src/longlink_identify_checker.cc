@@ -22,8 +22,10 @@
 
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
 
 #include "stn/proto/longlink_packer.h"
+#include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::stn;
 

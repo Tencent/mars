@@ -34,6 +34,7 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
 
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
@@ -56,6 +57,7 @@
 
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
+#include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::stn;
 using namespace mars::app;

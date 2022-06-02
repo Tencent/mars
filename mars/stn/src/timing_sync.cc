@@ -28,6 +28,8 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
+#include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::stn;
 using namespace mars::app;
