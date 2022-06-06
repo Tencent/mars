@@ -94,8 +94,6 @@ class NetSource {
     static void SetCgiDebugIP(const std::string& _cgi, const std::string& _ip, const uint16_t _port);
 	static bool CanUseQUIC();
     static void DisableQUIC(int64_t seconds = 20 * 60); // 20 minutes
-    static bool CanUse0RTT();
-    static void Enable0RTT(bool enable);
   public:
     NetSource(comm::ActiveLogic& _active_logic);
     ~NetSource();

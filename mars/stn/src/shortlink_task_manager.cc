@@ -290,7 +290,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.use_proxy = false;
                 config.use_quic = true;
                 config.quic.alpn = "h1";
-                config.quic.enable_0rtt = NetSource::CanUse0RTT();
+                config.quic.enable_0rtt = true;
                 
                 hosts = task.quic_host_list;
             }else{
@@ -462,7 +462,6 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
                 //quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
                 xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
                 NetSource::DisableQUIC();
-                NetSource::Enable0RTT(false);
             }
         }
         if (_status == kEctHandshakeMisunderstand) {
@@ -474,12 +473,6 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     }
     
     //
-    if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC){
-        //quic成功过一次，允许后续0rtt
-        NetSource::Enable0RTT(true);
-    }
-    
-
     it->transfer_profile.received_size = _body.Length();
     it->transfer_profile.receive_data_size = _body.Length();
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
