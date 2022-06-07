@@ -526,6 +526,9 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         _conn_profile.rw_errcode = _err_code;
         _conn_profile.read_packet_finished_time = ::gettickcount();
         _conn_profile.recv_reponse_cost = _conn_profile.read_packet_finished_time - _conn_profile.start_read_packet_time;
+        if (recv_ret == -2 && _err_code == SOCKET_ERRNO(ENOTCONN) && socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+            _conn_profile.is_fast_fallback_tcp = 1;
+        }
         __UpdateProfile(_conn_profile);
     
 		if (recv_ret < 0) {
