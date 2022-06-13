@@ -1,0 +1,37 @@
+import groovy.xml.XmlUtil
+
+// Check debug stub, generate one if not exist.
+def propertiesFile = new File("${rootDir}/debug-stub.properties")
+def debugStubDir = new File("${rootDir}/.debugStub/debug-stub")
+def debugStubBuildFile = new File(debugStubDir, 'build.gradle')
+def scriptFile = new File("${rootDir}/gradle/WeChatDebugStub2.gradle")
+
+if (propertiesFile.exists()) {
+    if (debugStubBuildFile.lastModified() < scriptFile.lastModified()) {
+        debugStubDir.deleteDir()
+        debugStubDir.mkdirs()
+
+        debugStubBuildFile.withPrintWriter {
+            it.println '//\n// This file is generated, modifications will be overwritten!\n//'
+            it.write scriptFile.text
+        }
+
+        // Remove IDEA modules record, if any
+        def modulesFile = new File("${rootDir}/.idea/modules.xml")
+        if (modulesFile.exists()) {
+            def root = new XmlSlurper().parse(modulesFile)
+            root.component.find { it.'@name' == 'ProjectModuleManager' }
+                ?.modules[0].module.each {
+                    if (it.'@fileurl'.toString().contains('.debugStub/debug-stub') &&
+                        it.'@filepath'.toString().contains('.debugStub/debug-stub')) {
+                        it.replaceNode {}
+                    }
+            }
+
+            modulesFile.write XmlUtil.serialize(root)
+        }
+    }
+
+    include ':debug-stub'
+    project(':debug-stub').projectDir = debugStubDir
+}

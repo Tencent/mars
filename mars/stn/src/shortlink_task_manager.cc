@@ -283,25 +283,32 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         Task task = first->task;
         std::vector<std::string> hosts = task.shortlink_host_list;
         ShortlinkConfig config(first->use_proxy, /*use_tls=*/true);
+#ifndef DISABLE_QUIC_PROTOCOL
         if (!task.quic_host_list.empty() && (first->task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
             //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
-            config.use_proxy = false;
-            config.use_quic = true;
-            config.quic.alpn = "h1";
-            config.quic.enable_0rtt = true;
-            
-            hosts = task.quic_host_list;
+            if (NetSource::CanUseQUIC()){
+                config.use_proxy = false;
+                config.use_quic = true;
+                config.quic.alpn = "h1";
+                config.quic.enable_0rtt = true;
+                
+                hosts = task.quic_host_list;
+            }else{
+                xwarn2(TSF"taskid:%_ quic disabled.", first->task.taskid);
+            }
         }
-        
+#endif
         if (get_real_host_) {
             get_real_host_(task.user_id, hosts);
         }
         first->task.shortlink_host_list = hosts;
         
         std::string host = hosts.front();
+#ifndef DISABLE_QUIC_PROTOCOL
         if (config.use_quic){
             config.quic.hostname = host;
         }
+#endif
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
@@ -451,6 +458,11 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
         if (_err_type == kEctSocket) {
             it->force_no_retry = _cancel_retry;
+            if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC){
+                //quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
+                xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
+                NetSource::DisableQUIC();
+            }
         }
         if (_status == kEctHandshakeMisunderstand) {
             it->remain_retry_count ++;

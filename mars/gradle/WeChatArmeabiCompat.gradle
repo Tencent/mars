@@ -1,0 +1,32 @@
+if (!plugins.hasPlugin('com.android.library'))
+    throw new GradleException('This plugin must be applied after "com.android.library" plugin')
+
+android.libraryVariants.all { variant ->
+    def srcAbi = 'armeabi-v7a'
+    def targetAbi = 'armeabi'
+    
+    def bundleTask = variant.getPackageLibrary() as Zip
+    def makeCompatAbiTask = project.task("makeArmeabiCompatFor${variant.name.capitalize()}")
+    makeCompatAbiTask.doFirst {
+        bundleTask.inputs.files.files.each { fileIn ->
+            def nameIn = fileIn.name
+            def pathIn = fileIn.absolutePath
+            def srcAbiPathSeg = "${File.separator}${srcAbi}${File.separator}"
+            if ((!nameIn.endsWith('.so') && !nameIn.endsWith('.a')) || !pathIn.contains(srcAbiPathSeg)) {
+                return
+            }
+
+            def targetAbiPathSeg = "${File.separator}${targetAbi}${File.separator}"
+            def targetAbiPathIn = pathIn.replace(srcAbiPathSeg, targetAbiPathSeg)
+            if (new File(targetAbiPathIn).exists()) {
+                System.err.println("[!] ${targetAbi} version of file ${nameIn} exists, skip compat copy logic.")
+            } else {
+                bundleTask.from(fileIn) {
+                    into "jni/${targetAbi}/"
+                }
+            }
+        }
+    }
+    makeCompatAbiTask.dependsOn(bundleTask.taskDependencies.getDependencies(bundleTask).toArray())
+    bundleTask.dependsOn makeCompatAbiTask
+}

@@ -8,6 +8,18 @@ add_definitions(-DXLOGGER_TAG="mars::${PROJECT_NAME}")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if(UNITTEST)
+    message("defined UNITTEST option")
+    add_definitions(-DUNITTEST)
+endif()
+if(DISABLE_QUIC_PROTOCOL)
+    message("QUIC disabled by option DISABLE_QUIC_PROTOCOL")
+    add_definitions(-DDISABLE_QUIC_PROTOCOL)
+endif()
+if(DISABLE_PCDN_PROTOCOL)
+    message("PCDN disabled by option DISABLE_PCDN_PROTOCOL")
+    add_definitions(-DDISABLE_PCDN_PROTOCOL)
+endif()
 
 if(MSVC)
     # add DEBUG macro .. release has NDEBUG defaultly
@@ -18,10 +30,12 @@ if(MSVC)
     endif()
 
     add_definitions(-D_WIN32 -DWIN32 -DUNICODE -D_UNICODE -DNOMINMAX -D_LIB)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /Zc:threadSafeInit-")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /Zc:threadSafeInit-")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     
     # generate pdb file
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zi")
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
  
     set(CompilerFlags
@@ -44,7 +58,15 @@ endif()
     
 
 if(ANDROID)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14")
+    option(CPP_CALL_BACK "use cpp callback" OFF)
+
+    if(CPP_CALL_BACK)
+        add_definitions(-DCPP_CALL_BACK)
+    endif()
+    if(NATIVE_CALLBACK)
+        add_definitions(-DNATIVE_CALLBACK)
+    endif()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14 -Wno-deprecated-register")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
 
 elseif(APPLE)
@@ -83,7 +105,7 @@ elseif(APPLE)
     endif()
 
 elseif(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -ffunction-sections -fdata-sections -Os")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14 -fPIC -ffunction-sections -fdata-sections -Os")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -ffunction-sections -fdata-sections -Os")
 endif()
  

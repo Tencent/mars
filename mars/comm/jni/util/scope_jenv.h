@@ -25,16 +25,14 @@
 
 class ScopeJEnv {
   public:
-    ScopeJEnv(JavaVM* jvm, jint _capacity = 16);
+    ScopeJEnv(JavaVM* jvm = nullptr, jint _capacity = 16);
     ~ScopeJEnv();
 
     JNIEnv* GetEnv();
     int Status();
 
   private:
-    JavaVM* vm_;
     JNIEnv* env_;
-    bool we_attach_;
     int status_;
 };
 

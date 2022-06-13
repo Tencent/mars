@@ -31,20 +31,58 @@
 #include "mars/stn/task_profile.h"
 #include "mars/boost/signals2.hpp"
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnLogic")
 DEFINE_FIND_CLASS(KC2JavaStnCgiProfile,"com/tencent/mars/stn/StnLogic$CgiProfile");
+#endif
 
 namespace mars {
 namespace stn {
 
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port)> SignalOnLongLinkNetworkError;
 extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port)> SignalOnShortLinkNetworkError;
-    
+
+#ifdef NATIVE_CALLBACK
+    static std::weak_ptr<StnNativeCallback> stn_native_callback_instance;
+    void SetStnNativeCallback(std::shared_ptr<StnNativeCallback> _cb) {
+        stn_native_callback_instance = _cb;
+    }
+    #define CALL_NATIVE_CALLBACK_RETURN_FUN(fun, default_value) \
+    {\
+        auto cb = stn_native_callback_instance.lock();\
+        if (cb) {\
+            return (cb->fun);\
+        }\
+        xwarn2("stn native callback is null");\
+        return (default_value);\
+    }
+
+    #define CALL_NATIVE_CALLBACK_VOID_FUN(fun)\
+    {\
+        auto cb = stn_native_callback_instance.lock();\
+        if (cb) {\
+            (cb->fun);\
+            return;\
+        }\
+        xwarn2("stn native callback is null");\
+        return;\
+    }
+#define DEFINE_FIND_EMPTY_STATIC_METHOD(methodid) \
+        const static JniMethodInfo methodid = JniMethodInfo("", "", "");
+#endif
+
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_onTaskEnd)
+#endif
 int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const ConnectProfile& _profile){
 
     xverbose_function();
     xdebug2(TSF"recieve task profile: %_, %_, %_", _profile.start_connect_time, _profile.start_send_packet_time, _profile.read_packet_finished_time);
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code), -1);
+#endif
 
 	VarCache* cache_instance = VarCache::Singleton();
 
@@ -68,7 +106,7 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
     jfieldID fid_readPacketFinishedTime = env->GetFieldID(cgiProfileCls, "readPacketFinishedTime","J");
     jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt","J");
     jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType","I");
-    
+
 
     uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
     env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
@@ -87,10 +125,18 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
 	return ret;
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_onPush, KC2Java, "onPush", "(Ljava/lang/String;II[B)V")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_onPush)
+#endif
 void C2Java_OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend){
 
     xverbose_function();
+
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_VOID_FUN(OnPush(_channel_id, _cmdid, _taskid, _body, _extend));
+#endif
 
 	VarCache* cache_instance = VarCache::Singleton();
 
@@ -113,9 +159,16 @@ void C2Java_OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _ta
 
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_onNewDns, KC2Java, "onNewDns", "(Ljava/lang/String;)[Ljava/lang/String;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_onNewDns)
+#endif
 std::vector<std::string>  C2Java_OnNewDns(const std::string& _host){
 	xverbose_function();
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(OnNewDns(_host), std::vector<std::string>());
+#endif
 
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -143,9 +196,18 @@ std::vector<std::string>  C2Java_OnNewDns(const std::string& _host){
 	return iplist;
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_req2Buf)
+#endif
 bool C2Java_Req2Buf(uint32_t _taskid,  void* const _user_context, const std::string& _user_id, AutoBuffer& _outbuffer,  AutoBuffer& _extend, int& _error_code, const int _channel_select, const std::string& _host){
     xverbose_function();
+
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(Req2Buf(_taskid, _user_context, _user_id,
+                                        _outbuffer, _extend, _error_code, _channel_select, _host), false);
+#endif
 
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -187,9 +249,16 @@ bool C2Java_Req2Buf(uint32_t _taskid,  void* const _user_context, const std::str
 	return ret;
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;[B[II)I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_buf2Resp)
+#endif
 int C2Java_Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select){
     xverbose_function();
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(Buf2Resp(_taskid, _user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select), -1);
+#endif
 
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -219,10 +288,16 @@ int C2Java_Buf2Resp(uint32_t _taskid, void* const _user_context, const std::stri
 	return ret;
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_makesureAuthed, KC2Java, "makesureAuthed", "(Ljava/lang/String;)Z")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_makesureAuthed)
+#endif
 bool C2Java_MakesureAuthed(const std::string& _host, const std::string& _user_id){
     xverbose_function();
-
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(MakesureAuthed(_host, _user_id), false);
+#endif
     VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
@@ -232,10 +307,16 @@ bool C2Java_MakesureAuthed(const std::string& _host, const std::string& _user_id
 	return ret;
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer)
+#endif
 int C2Java_GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid){
     xverbose_function();
-    
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(GetLonglinkIdentifyCheckBuffer(_channel_id, _identify_buffer, _buffer_hash, _cmdid), -1);
+#endif
     VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
@@ -301,10 +382,16 @@ int C2Java_GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBu
 	return ret;
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_onLongLinkIdentifyResp, KC2Java, "onLongLinkIdentifyResp", "(Ljava/lang/String;[B[B)Z")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_onLongLinkIdentifyResp)
+#endif
 bool C2Java_OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash){
     xverbose_function();
-
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_RETURN_FUN(OnLonglinkIdentifyResponse(_channel_id, _response_buffer, _identify_buffer_hash), false);
+#endif
 	VarCache* cache_instance = VarCache::Singleton();
 
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -339,9 +426,16 @@ bool C2Java_OnLonglinkIdentifyResponse(const std::string& _channel_id, const Aut
 };
 
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_trafficData, KC2Java, "trafficData", "(II)V")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_trafficData)
+#endif
 void C2Java_TrafficData(ssize_t _send, ssize_t _recv) {
 
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_VOID_FUN(TrafficData(_send, _recv));
+#endif
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
@@ -350,10 +444,17 @@ void C2Java_TrafficData(ssize_t _send, ssize_t _recv) {
 
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_reportNetConnectInfo, KC2Java, "reportConnectStatus", "(II)V")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_reportNetConnectInfo)
+#endif
 void C2Java_ReportConnectStatus(int _all_connstatus, int _longlink_connstatus){
     xverbose_function();
 
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_VOID_FUN(ReportConnectStatus(_all_connstatus, _longlink_connstatus));
+#endif
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv *env = scope_jenv.GetEnv();
@@ -366,10 +467,17 @@ void reportCrashStatistics(const char* _raw, const char* _type)
 {
 }
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_requestSync, KC2Java, "requestDoSync", "()V")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_requestSync)
+#endif
 void C2Java_RequestSync(){
     xverbose_function();
 
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_VOID_FUN(RequestSync());
+#endif
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv *env = scope_jenv.GetEnv();
@@ -377,10 +485,17 @@ void C2Java_RequestSync(){
 
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_requestNetCheckShortLinkHosts, KC2Java, "requestNetCheckShortLinkHosts", "()[Ljava/lang/String;")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_requestNetCheckShortLinkHosts)
+#endif
 void C2Java_RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist){
 	xverbose_function();
 
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_VOID_FUN(RequestNetCheckShortLinkHosts(_hostlist));
+#endif
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
@@ -401,10 +516,17 @@ void C2Java_RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist){
 	}
 };
 
+#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KC2Java_reportTaskProfile, KC2Java, "reportTaskProfile", "(Ljava/lang/String;)V")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_reportTaskProfile)
+#endif
 void C2Java_ReportTaskProfile(const TaskProfile& _task_profile){
 	xverbose_function();
 
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_VOID_FUN(ReportTaskProfile(_task_profile));
+#endif
 	VarCache* cache_instance = VarCache::Singleton();
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();

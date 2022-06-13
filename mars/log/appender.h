@@ -50,6 +50,13 @@ struct XLogConfig{
     int cache_days_ = 0;
 };
 
+#ifdef __APPLE__
+enum TConsoleFun {
+    kConsolePrintf,
+    kConsoleNSLog,
+};
+#endif
+
 void appender_open(const XLogConfig& _config);
 
 void appender_flush();
@@ -62,6 +69,9 @@ bool appender_get_current_log_path(char* _log_path, unsigned int _len);
 bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len);
 void appender_set_console_log(bool _is_open);
 
+#ifdef __APPLE__
+void appender_set_console_fun(TConsoleFun _fun);
+#endif
 /*
  * By default, all logs will write to one file everyday. You can split logs to multi-file by changing max_file_size.
  * 

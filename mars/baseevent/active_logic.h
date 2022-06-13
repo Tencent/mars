@@ -37,6 +37,7 @@ public:
     boost::signals2::signal<void (bool _isForeground)> SignalForeground;
     boost::signals2::signal<void (bool _isactive)> SignalActive;
     static std::shared_ptr<ActiveLogic> Instance();
+    static void Release();
 
 public:
     ActiveLogic();
@@ -58,6 +59,7 @@ private:
     bool   isactive_;
     Alarm  alarm_;
     uint64_t lastforegroundchangetime_;
+    static std::shared_ptr<ActiveLogic> inst_;
 };
 
 }

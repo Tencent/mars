@@ -88,16 +88,8 @@ class LongLinkTaskManager {
     bool AddLongLink(LonglinkConfig& _config);
     bool AddMinorLink(const std::vector<std::string>& _hosts);
     bool IsMinorAvailable(const Task& _task);
-    
-    std::shared_ptr<LongLinkMetaData> DefaultLongLink() {
-        comm::ScopedLock lock(meta_mutex_);
-        for(auto& item : longlink_metas_) {
-            if(item.second->Config().IsMain()) {
-                return item.second;
-            }
-        }
-        return nullptr;
-    }
+
+    std::shared_ptr<LongLinkMetaData> DefaultLongLink();
     void OnNetworkChange();
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     void ReleaseLongLink(const std::string _name);
@@ -126,7 +118,7 @@ class LongLinkTaskManager {
     void __ResetLongLink(const std::string& _name);
 #endif
     void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
-    void __RedoTasks(const std::string& _name);
+    void __RedoTasks(const std::string& _name, bool need_lock_link = true);
     void __DumpLongLinkChannelInfo();
     bool __ForbidUseTls(const std::vector<std::string>& _host_list);
 
@@ -147,7 +139,13 @@ class LongLinkTaskManager {
 #ifdef ANDROID
     comm::WakeUpLock*                     wakeup_lock_;
 #endif
+#ifndef _WIN32
+    typedef  comm::ScopedLock MetaScopedLock;
     comm::Mutex                     meta_mutex_;
+#else // _WIN32
+    typedef  comm::ScopedRecursiveLock MetaScopedLock;
+    comm::RecursiveMutex            meta_mutex_;
+#endif
     comm::Mutex                     mutex_;
     static std::set<std::string>    forbid_tls_host_;
     TaskIntercept                   task_intercept_;

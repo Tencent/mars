@@ -146,10 +146,15 @@ class ConnectCheckFSM : public TcpClientFSM {
 
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) {}
 
-    virtual void _OnClose(TSocketStatus _status, int _error, bool _userclose) {
+    virtual void _OnClose(TSocketStatus _status, int _error, bool _remoteclose) {
         checkfintime_ = gettickcount();
-
-        if (observer_ && !_userclose) {
+        
+        if (CheckStatus() != ECheckOK){
+            //check failed.
+            check_status_ = ECheckFail;
+        }
+        
+        if (observer_ && !_remoteclose) {
             if (EConnecting == _status) {
                 observer_->OnConnected(index_, addr_, sock_, _error, TotalRtt());
             } else if (EReadWrite == _status && SOCKET_ERRNO(ETIMEDOUT) == _error) {

@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <string>
+#include <functional>
 
 #include "boost/function.hpp"
 #include "boost/any.hpp"
