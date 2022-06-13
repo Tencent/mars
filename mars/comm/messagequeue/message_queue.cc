@@ -22,6 +22,7 @@
 #include <list>
 #include <string>
 #include <algorithm>
+#include <thread>
 #ifndef _WIN32
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -338,7 +339,7 @@ namespace MessageQueue {
     static uint64_t sg_last_callback_tick = 0;
     static void _MQMaxSizeCallback(const std::list<MessageWrapper*>& _lst_message) {
         uint64_t now = gettickcount();
-        if (now <= sg_last_callback_tick + 10 * 1000) {
+        if (now <= sg_last_callback_tick + 60 * 1000) {
             return;
         }
         sg_last_callback_tick = now;
@@ -346,7 +347,10 @@ namespace MessageQueue {
         xwarn2(TSF"%_", DumpMessage(_lst_message, 50));
         ASSERT2(false, "Over MAX_MQ_SIZE, size:%d", (int)size);
         if (nullptr != g_mq_max_size_callback) {
-            g_mq_max_size_callback(size, DumpMessage(_lst_message, 5));
+            std::string dump_msg = DumpMessage(_lst_message, 5);
+            std::thread([=] {
+                g_mq_max_size_callback(size, dump_msg);
+            }).detach();
         }
     }
 
