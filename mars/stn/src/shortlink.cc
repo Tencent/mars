@@ -526,10 +526,15 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         _conn_profile.rw_errcode = _err_code;
         _conn_profile.read_packet_finished_time = ::gettickcount();
         _conn_profile.recv_reponse_cost = _conn_profile.read_packet_finished_time - _conn_profile.start_read_packet_time;
+        if (recv_ret == -2 && _err_code == SOCKET_ERRNO(ENOTCONN) && socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+            _conn_profile.is_fast_fallback_tcp = 1;
+            is_keep_alive_ = false;
+        }
         __UpdateProfile(_conn_profile);
     
 		if (recv_ret < 0) {
 			xerror2(TSF"read block socket return false, error:%0, nread:%_, nwrite:%_", socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
+            is_keep_alive_ = false;
 			__RunResponseError(kEctSocket, (_err_code == 0) ? kEctSocketReadOnce : _err_code, _conn_profile, true);
 			break;
 		}
@@ -544,6 +549,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			xerror2(TSF"read timeout error:(%_,%_), nread:%_, nwrite:%_ ", _err_code, socketOperator_->ErrorDesc(_err_code), socket_nread(_socket), socket_nwrite(_socket)) >> group_close;
             
             if (socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+                is_keep_alive_ = false;
                 __RunResponseError(kEctSocket, kEctSocketRecvErr, _conn_profile, /*report=*/true);
                 break;
             }
