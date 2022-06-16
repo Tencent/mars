@@ -1,16 +1,17 @@
-apply plugin: 'maven'
 apply plugin: 'com.android.library'
 
-version rootProject.ext.VERSION_NAME
-group rootProject.ext.GROUP
+apply from: rootProject.file('gradle/WeChatPublish.gradle')
 
+version rootProject.ext.VERSION_NAME
+group "com.tencent.mars"
+artifactId = "mars-wrapper"
 android {
-    compileSdkVersion 26
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 31
+    buildToolsVersion '30.0.2'
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 26
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
     }
@@ -22,8 +23,6 @@ android {
     }
 }
 
-apply from: "${rootDir}/gradle/android-artifacts.gradle"
-apply from: "bintray.gradle"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

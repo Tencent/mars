@@ -2,6 +2,10 @@ apply plugin: 'com.android.library'
 
 apply from: rootProject.file('gradle/WeChatPublish.gradle')
 
+group PROJ_GROUP
+version PROJ_VERSION
+artifactId = PROJ_ARTIFACTID
+
 android {
     compileSdkVersion 31
     buildToolsVersion '30.0.2'
