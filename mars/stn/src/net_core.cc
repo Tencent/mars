@@ -57,6 +57,7 @@
 
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
+//TODO cpan netcore不应该引用bridge
 #include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::stn;
