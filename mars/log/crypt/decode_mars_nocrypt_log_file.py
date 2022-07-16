@@ -109,7 +109,7 @@ def DecodeBuffer(_buffer, _offset, _outbuffer):
 
     global lastseq
     if seq != 0 and seq != 1 and lastseq != 0 and seq != (lastseq+1):
-        _outbuffer.extend(b'[F]decode_log_file.py log seq:%d-%d is missing\n" %(lastseq+1, seq-1)')
+        _outbuffer.extend(b"[F]decode_log_file.py log seq:%d-%d is missing\n" %(lastseq+1, seq-1))
 
     if seq != 0:
         lastseq = seq
