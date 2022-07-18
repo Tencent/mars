@@ -43,12 +43,17 @@ struct DnsProfile;
 struct ConnectProfile;
 class LongLinkEncoder;
 
-
 enum PackerEncoderVersion {
-  kOld = 1,
-  kNew = 2,
+    kOld = 1,
+    kNew = 2,
 };
 
+enum HostRedirectType {
+    kFull   = 0,
+    kFuzzy  = 1,   //通过 fuzzy
+    kPrefix = 2,  //通过 isprefixmatch (这个很可能已经废弃)
+    kOther  = 3
+};
 
 struct Task {
 public:
@@ -127,6 +132,10 @@ public:
     std::vector<std::string> minorlong_host_list;
     std::vector<std::string> quic_host_list;
     int32_t max_minorlinks;
+
+    std::string function;
+    std::string cgi_prefix;
+    HostRedirectType redirect_type;
 };
     
 struct CgiProfile {
