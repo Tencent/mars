@@ -247,6 +247,7 @@ void TcpClient::__Run() {
         
 //      if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
         select_readwrite.Read_FD_SET(socket_);
+        xinfo2(TSF"fd %_ readset", socket_);
 
         {
             ScopedLock lock(write_mutex_);
@@ -254,7 +255,8 @@ void TcpClient::__Run() {
             if (!lst_buffer_.empty())select_readwrite.Write_FD_SET(socket_);
         }
         selectRet = select_readwrite.Select();
-
+        
+        xinfo2(TSF"fd %_ select ret %_", socket_, selectRet);
         if (0 == selectRet) {
             xassert2(false);
             continue;
@@ -290,7 +292,7 @@ void TcpClient::__Run() {
             ScopedLock lock(read_disconnect_mutex_);
             char buf_test;
             ret = (int)recv(socket_, &buf_test, 1, MSG_PEEK);
-
+            xinfo2(TSF"fd %_ recv %_", socket_, ret);
             if (0 < ret) {
                 have_read_data_ = true;
 
@@ -319,7 +321,7 @@ void TcpClient::__Run() {
 
             if (buf.Pos() < (off_t)len) {
                 int send_len = (int)send(socket_, (char*)buf.PosPtr(), (size_t)(len - buf.Pos()), 0);
-
+                xinfo2(TSF"fd %_ send %_", socket_, send_len);
                 if ((0 == send_len) || (0 > send_len && !IS_NOBLOCK_SEND_ERRNO(socket_errno))) {
                     status_ = kTcpIOErr;
                     lock.unlock();
