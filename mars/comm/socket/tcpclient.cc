@@ -245,7 +245,8 @@ void TcpClient::__Run() {
         
         tickcount_t round_tick(true);
         
-        if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
+//        if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
+        select_readwrite.Read_FD_SET(socket_);
 
         {
             ScopedLock lock(write_mutex_);
