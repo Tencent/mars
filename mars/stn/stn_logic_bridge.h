@@ -13,10 +13,11 @@
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/comm_data.h"
 //#include "mars/comm/xlogger/xlogger.h"
-#include "stn_manager.h"
+#include "mars/stn/stn_manager.h"
 
 namespace mars {
 namespace stn {
+    
 
     static StnManager* stn_manager_ = NULL;
 

@@ -46,27 +46,24 @@ static uint32_t gs_taskid = 1;
 static Callback* sg_callback = NULL;
 
 #define STN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
+    if (!net_core_) {\
         xwarn2(TSF"stn uncreate");\
         return;\
     }\
-    stn_ptr->func
+    net_core_->func
     
 #define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
+    if (!net_core_) {\
         xwarn2(TSF"stn uncreate");\
         return false;\
     }\
-    stn_ptr->func;\
+    net_core_->func;\
     return true
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (stn_ptr) \
+    if (net_core_) \
     {\
-        ret = stn_ptr->func;\
+        ret = net_core_->func;\
     }
 
 #define STN_CALLBACK_WEAK_CALL(func) \
@@ -106,15 +103,16 @@ void StnManager::OnCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
 #endif
-    xinfo2(TSF"stn oncreate");
+    xinfo2(TSF"stn_manager oncreate");
     ActiveLogic::Instance();
-    NetCore::Singleton::Instance();
+    //NetCore::Singleton::Instance();
+    net_core_ = NetCore::Singleton::Instance().get();//new NetCore();
 }
 
 void StnManager::OnDestroy() {
     xinfo2(TSF"stn onDestroy");
 
-    NetCore::Singleton::Release();
+    //NetCore::Singleton::Release();
     SINGLETON_RELEASE_ALL();
     
     // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
@@ -347,15 +345,19 @@ void StnManager::ClearTasks() {
 
 void StnManager::Reset() {
     xinfo2(TSF "stn reset");
-    NetCore::Singleton::Release();
-    NetCore::Singleton::Instance();
+    //NetCore::Singleton::Release();
+    //NetCore::Singleton::Instance();
+    delete net_core_;
+    net_core_ = new NetCore();
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
     xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
     LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
-    NetCore::Singleton::Release();
-    NetCore::Singleton::Instance();
+    //NetCore::Singleton::Release();
+    //NetCore::Singleton::Instance();
+    delete net_core_;
+    net_core_ = new NetCore();
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {
@@ -572,6 +574,10 @@ void StnManager::MakesureLonglinkConnected_ext(const std::string &name) {
 //void (*MakesureLonglinkConnected_ext)(const std::string& name) = [](const std::string& name) {
 //    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 //};
+
+NetCore* StnManager::GetNetCore() {
+    return net_core_;
+}
 
 }//end stn
 }//end mars

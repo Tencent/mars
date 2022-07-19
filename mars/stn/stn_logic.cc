@@ -63,133 +63,133 @@ static const std::string kLibName = "stn";
 static uint32_t gs_taskid = 1;
 static Callback* sg_callback = NULL;
 
-#define STN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
-        xwarn2(TSF"stn uncreate");\
-        return;\
-    }\
-    stn_ptr->func
-    
-#define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
-        xwarn2(TSF"stn uncreate");\
-        return false;\
-    }\
-    stn_ptr->func;\
-    return true
-
-#define STN_WEAK_CALL_RETURN(func, ret) \
-	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (stn_ptr) \
-    {\
-    	ret = stn_ptr->func;\
-    }
-
-#define STN_CALLBACK_WEAK_CALL(func) \
-    if (!sg_callback) {\
-        xwarn2(TSF"callback no set");\
-        return;\
-    }\
-    sg_callback->func
-
-#define STN_CALLBACK_RETURN_WEAK_CALL(func) \
-    if (!sg_callback) {\
-        xwarn2(TSF"callback no set");\
-        return false;\
-    }\
-    sg_callback->func;\
-    return true
-
-#define STN_CALLBACK_WEAK_CALL_RETURN(func, ret) \
-    if (sg_callback) {\
-        ret = sg_callback->func;                 \
-    }
-
-static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
-    xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
-    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
-}
-
-static void onCreate() {
-#if !UWP && !defined(WIN32)
-    signal(SIGPIPE, SIG_IGN);
-#endif
-    xinfo2(TSF"stn oncreate");
-    ActiveLogic::Instance();
-    NetCore::Singleton::Instance();
-}
-
-static void onDestroy() {
-    xinfo2(TSF"stn onDestroy");
-
-    NetCore::Singleton::Release();
-    SINGLETON_RELEASE_ALL();
-    
-    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
-    // ActiveLogic::Singleton::Release();
-}
-
-static void onSingalCrash(int _sig) {
-    mars::xlog::appender_close();
-}
-
-static void onExceptionCrash() {
-    mars::xlog::appender_close();
-}
-
-static void onNetworkChange() {
-
-    STN_WEAK_CALL(OnNetworkChange());
-}
-    
-static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {
-    
-    if (NULL == _tag || strnlen(_tag, 1024) == 0) {
-        xassert2(false);
-        return;
-    }
-    
-    if (0 == strcmp(_tag, XLOGGER_TAG)) {
-        TrafficData(_send, _recv);
-    }
-}
-
-#ifdef ANDROID
-//must dipatch by function in stn_logic.cc, to avoid static member bug
-static void onAlarm(int64_t _id) {
-    Alarm::onAlarmImpl(_id);
-}
-#endif
-
-static void __initbind_baseprjevent() {
-
-#ifdef WIN32
-	boost::filesystem::path::imbue(std::locale(std::locale(), new boost::filesystem::detail::utf8_codecvt_facet));
-#endif
-
-#ifdef ANDROID
-	mars::baseevent::addLoadModule(kLibName);
-    GetSignalOnAlarm().connect(&onAlarm);
-#endif
-    GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
-    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
-    GetSignalOnSingalCrash().connect(&onSingalCrash);
-    GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
-
-    
-#ifndef XLOGGER_TAG
-#error "not define XLOGGER_TAG"
-#endif
-    
-    GetSignalOnNetworkDataChange().connect(&OnNetworkDataChange);
-}
-
+//#define STN_WEAK_CALL(func) \
+//    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+//    if (!stn_ptr) {\
+//        xwarn2(TSF"stn uncreate");\
+//        return;\
+//    }\
+//    stn_ptr->func
+//
+//#define STN_RETURN_WEAK_CALL(func) \
+//    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+//    if (!stn_ptr) {\
+//        xwarn2(TSF"stn uncreate");\
+//        return false;\
+//    }\
+//    stn_ptr->func;\
+//    return true
+//
+//#define STN_WEAK_CALL_RETURN(func, ret) \
+//	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+//    if (stn_ptr) \
+//    {\
+//    	ret = stn_ptr->func;\
+//    }
+//
+//#define STN_CALLBACK_WEAK_CALL(func) \
+//    if (!sg_callback) {\
+//        xwarn2(TSF"callback no set");\
+//        return;\
+//    }\
+//    sg_callback->func
+//
+//#define STN_CALLBACK_RETURN_WEAK_CALL(func) \
+//    if (!sg_callback) {\
+//        xwarn2(TSF"callback no set");\
+//        return false;\
+//    }\
+//    sg_callback->func;\
+//    return true
+//
+//#define STN_CALLBACK_WEAK_CALL_RETURN(func, ret) \
+//    if (sg_callback) {\
+//        ret = sg_callback->func;                 \
+//    }
+//
+//static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
+//    xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
+//    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
+//}
+//
+//static void onCreate() {
+//#if !UWP && !defined(WIN32)
+//    signal(SIGPIPE, SIG_IGN);
+//#endif
+//    xinfo2(TSF"stn oncreate");
+//    ActiveLogic::Instance();
+//    NetCore::Singleton::Instance();
+//}
+//
+//static void onDestroy() {
+//    xinfo2(TSF"stn onDestroy");
+//
+//    NetCore::Singleton::Release();
+//    SINGLETON_RELEASE_ALL();
+//
+//    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
+//    // ActiveLogic::Singleton::Release();
+//}
+//
+//static void onSingalCrash(int _sig) {
+//    mars::xlog::appender_close();
+//}
+//
+//static void onExceptionCrash() {
+//    mars::xlog::appender_close();
+//}
+//
+//static void onNetworkChange() {
+//
+//    STN_WEAK_CALL(OnNetworkChange());
+//}
+//
+//static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {
+//
+//    if (NULL == _tag || strnlen(_tag, 1024) == 0) {
+//        xassert2(false);
+//        return;
+//    }
+//
+//    if (0 == strcmp(_tag, XLOGGER_TAG)) {
+//        TrafficData(_send, _recv);
+//    }
+//}
+//
+//#ifdef ANDROID
+////must dipatch by function in stn_logic.cc, to avoid static member bug
+//static void onAlarm(int64_t _id) {
+//    Alarm::onAlarmImpl(_id);
+//}
+//#endif
+//
+//static void __initbind_baseprjevent() {
+//
+//#ifdef WIN32
+//	boost::filesystem::path::imbue(std::locale(std::locale(), new boost::filesystem::detail::utf8_codecvt_facet));
+//#endif
+//
+//#ifdef ANDROID
+//	mars::baseevent::addLoadModule(kLibName);
+//    GetSignalOnAlarm().connect(&onAlarm);
+//#endif
+//    GetSignalOnCreate().connect(&onCreate);
+//    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
+//    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
+//    GetSignalOnSingalCrash().connect(&onSingalCrash);
+//    GetSignalOnExceptionCrash().connect(&onExceptionCrash);
+//    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+//
+//
+//#ifndef XLOGGER_TAG
+//#error "not define XLOGGER_TAG"
+//#endif
+//
+//    GetSignalOnNetworkDataChange().connect(&OnNetworkDataChange);
+//}
+//
 //BOOT_RUN_STARTUP(__initbind_baseprjevent);
-
+//
 //TODO cpan stn_callback_bridge
 //void SetCallback(Callback* const callback) {
 //    sg_callback = callback;

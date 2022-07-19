@@ -301,6 +301,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->task.shortlink_host_list = hosts;
         
+        //TODO cpan mars2.0
+        if (hosts.empty()) {
+            continue;
+        }
         std::string host = hosts.front();
 #ifndef DISABLE_QUIC_PROTOCOL
         if (config.use_quic){

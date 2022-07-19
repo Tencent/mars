@@ -359,12 +359,12 @@ static void __initbind_baseprjevent() {
     mars::baseevent::addLoadModule(kLibName);
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
-    GetSignalOnCreate().connect(&onCreate);
-    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
-    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
-    GetSignalOnSingalCrash().connect(&onSingalCrash);
-    GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+    GetSignalOnCreate().connect(&onCreate, mars_boost::signals2::at_front);
+    GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1), mars_boost::signals2::at_front);
+    GetSignalOnDestroy().connect(&onDestroy, mars_boost::signals2::at_front);   //low priority signal func
+    GetSignalOnSingalCrash().connect(&onSingalCrash, mars_boost::signals2::at_front);
+    GetSignalOnExceptionCrash().connect(&onExceptionCrash, mars_boost::signals2::at_front);
+    GetSignalOnNetworkChange().connect(5, &onNetworkChange, mars_boost::signals2::at_front);    //define group 5
 
     
 #ifndef XLOGGER_TAG

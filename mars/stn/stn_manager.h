@@ -9,7 +9,7 @@
 
 #include "stn.h"
 #include "stn_logic.h"
-//#include "stn_callback_bridge.h"
+
 
 using namespace mars::comm;
 
@@ -21,9 +21,8 @@ class ProxyInfo;
 
 namespace stn {
 
-//class Callback;
+class NetCore;
 class StnCallbackBridge;
-//class ConnectProfile;
 
 class StnManager {
 public:
@@ -255,10 +254,13 @@ public:
 //    bool (*LongLinkIsConnected_ext)(const std::string& name);
 //    void (*MakesureLonglinkConnected_ext)(const std::string& name);
 
+public:
+    NetCore* GetNetCore();
+
 private:
     Callback* callback_ = NULL;
     StnCallbackBridge* stn_callback_bridge_ = NULL;
-    
+    NetCore* net_core_;
 }; //StnManager
 
 }
