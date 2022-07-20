@@ -252,17 +252,22 @@ void TcpClient::__Run() {
         {
             ScopedLock lock(write_mutex_);
 
-            if (!lst_buffer_.empty())select_readwrite.Write_FD_SET(socket_);
+            if (!lst_buffer_.empty()){
+                xwarn2(TSF"fd %_ writeset", socket_);
+                select_readwrite.Write_FD_SET(socket_);
+            }
         }
         selectRet = select_readwrite.Select();
         
-        xinfo2(TSF"fd %_ select ret %_", socket_, selectRet);
+        xinfo2(TSF"fd %_ select ret %_ break %_", socket_, selectRet, select_readwrite.IsBreak());
         if (0 == selectRet) {
+            xwarn2(TSF"fd %_ %_", socket_, __LINE__);
             xassert2(false);
             continue;
         }
 
         if (0 > selectRet) {
+            xwarn2(TSF"fd %_ %_", socket_, __LINE__);
             xerror2("select errno=%d", socket_errno);
             status_ = kTcpIOErr;
             event_.OnError(status_, socket_errno);
@@ -270,12 +275,14 @@ void TcpClient::__Run() {
         }
 
         if (will_disconnect_) {
+            xwarn2(TSF"fd %_ %_", socket_, __LINE__);
             status_ = kTcpDisConnected;
             event_.OnDisConnect(false);
             return;
         }
 
         if (select_readwrite.Exception_FD_ISSET(socket_)) {
+            xwarn2(TSF"fd %_ %_", socket_, __LINE__);
             int error_opt = 0;
             socklen_t error_len = sizeof(error_opt);
             if (0 == getsockopt(socket_, SOL_SOCKET, SO_ERROR, (char*)&error_opt, &error_len)){
@@ -289,6 +296,7 @@ void TcpClient::__Run() {
         }
 
         if (select_readwrite.Read_FD_ISSET(socket_)) {
+            xwarn2(TSF"fd %_ %_", socket_, __LINE__);
             ScopedLock lock(read_disconnect_mutex_);
             char buf_test;
             ret = (int)recv(socket_, &buf_test, 1, MSG_PEEK);
@@ -315,10 +323,12 @@ void TcpClient::__Run() {
         }
 
         if (select_readwrite.Write_FD_ISSET(socket_)) {
+            xwarn2(TSF"fd %_ %_", socket_, __LINE__);
             ScopedLock lock(write_mutex_);
             AutoBuffer& buf = *lst_buffer_.front();
             size_t len = buf.Length();
 
+            xwarn2(TSF"buf.pos %_ len %_", buf.Pos(), len);
             if (buf.Pos() < (off_t)len) {
                 int send_len = (int)send(socket_, (char*)buf.PosPtr(), (size_t)(len - buf.Pos()), 0);
                 xinfo2(TSF"fd %_ send %_", socket_, send_len);
@@ -339,6 +349,7 @@ void TcpClient::__Run() {
                     }
                 }
             } else {
+                xwarn2(TSF"fd %_ %_", socket_, __LINE__);
                 delete lst_buffer_.front();
                 lst_buffer_.pop_front();
 
@@ -366,6 +377,7 @@ void TcpClient::__RunThread() {
 }
 
 void TcpClient::__SendBreak() {
+    xinfo2(TSF"break");
     pipe_.Break();
 }
 
