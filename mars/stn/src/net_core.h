@@ -35,6 +35,11 @@
 #include "mars/stn/src/longlink_metadata.h"
 #endif
 
+#include "mars/boost/shared_ptr.hpp"
+#include "mars/boost/weak_ptr.hpp"
+#include "mars/boost/signals2.hpp"
+#include "mars/boost/function.hpp"
+
 namespace mars {
     
     namespace stn {
@@ -61,10 +66,26 @@ enum {
     kCallFromShort,
     kCallFromZombie,
 };
-
+    
 class NetCore {
   public:
-    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
+//    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
+    
+    static boost::signals2::signal<void ()>& NetCoreCreateBegin() {
+        static boost::signals2::signal<void ()> s_signal;
+        return s_signal;
+    }
+
+    static boost::signals2::signal<void (boost::shared_ptr<NetCore>)>& NetCoreCreate() {
+        static boost::signals2::signal<void (boost::shared_ptr<NetCore>)> s_signal;
+        return s_signal;
+    }
+
+    static boost::signals2::signal<void ()>& NetCoreRelease() {
+        static boost::signals2::signal<void ()> s_signal;
+        return s_signal;
+    }
+    
 
   public:
     boost::function<void (Task& _task)> task_process_hook_;

@@ -106,14 +106,15 @@ void StnManager::OnCreate() {
     xinfo2(TSF"stn_manager oncreate");
     ActiveLogic::Instance();
     //NetCore::Singleton::Instance();
-    net_core_ = NetCore::Singleton::Instance().get();//new NetCore();
+    net_core_ = new NetCore();
 }
 
 void StnManager::OnDestroy() {
     xinfo2(TSF"stn onDestroy");
 
     //NetCore::Singleton::Release();
-    SINGLETON_RELEASE_ALL();
+    //SINGLETON_RELEASE_ALL();
+    delete net_core_;
     
     // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
     // ActiveLogic::Singleton::Release();

@@ -81,6 +81,7 @@ NetCore::NetCore()
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
     , shortlink_try_flag_(false) {
+        NetCoreCreateBegin()();
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
     xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
@@ -128,6 +129,8 @@ NetCore::NetCore()
     if (need_use_longlink_) {
         __InitLongLink();
     }
+        boost::shared_ptr<NetCore> _net_core_shared_ptr(this);
+        NetCoreCreate()(_net_core_shared_ptr);
 }
 
 NetCore::~NetCore() {
@@ -161,6 +164,8 @@ NetCore::~NetCore() {
     net_source_ = NULL;
 
     MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    
+    NetCoreRelease()();
 }
 
 void NetCore::__InitShortLink(){
