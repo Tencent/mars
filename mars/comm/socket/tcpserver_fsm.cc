@@ -84,7 +84,7 @@ void TcpServerFSM::Close(bool _notify) {
     if (INVALID_SOCKET == sock_) return;
 
 #ifdef WIN32
-    shutdown(sock_, SHUT_RDWR);
+    shutdown(sock_, SD_BOTH);
     char buf[4096];
     for (;;){
         if (recv(sock_, buf, sizeof(buf), 0) <= 0)  break;
