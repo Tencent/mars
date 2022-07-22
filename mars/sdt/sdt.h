@@ -106,7 +106,7 @@ enum CheckStatus {
 	kCheckFinish = 1,
 } ;
 
-extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
+//extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
 
 #ifdef NATIVE_CALLBACK
     class SdtNativeCallback {

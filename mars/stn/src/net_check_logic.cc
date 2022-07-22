@@ -34,6 +34,7 @@
 #include "mars/stn/stn_logic.h"
 #include "net_source.h"
 #include "mars/stn/stn_logic_bridge.h"
+#include "mars/sdt/sdt_logic_bridge.h"
 
 using namespace mars::stn;
 using namespace mars::sdt;
