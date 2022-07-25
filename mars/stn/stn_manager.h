@@ -100,162 +100,168 @@ public:
     //extern void SetShortlinkSvrAddr(const uint16_t port);
 
     // 'host' will be ignored when 'debugip' is not empty.
-    virtual void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
+   virtual void SetLonglinkSvrAddr(const std::string& host,
+                                   const std::vector<uint16_t> ports,
+                                   const std::string& debugip);
 
-    // 'task.host' will be ignored when 'debugip' is not empty.
-    virtual void SetShortlinkSvrAddr(const uint16_t port, const std::string& debugip);
+   // 'task.host' will be ignored when 'debugip' is not empty.
+   virtual void SetShortlinkSvrAddr(const uint16_t port, const std::string& debugip);
 
-    // setting debug ip address for the corresponding host
-    virtual void SetDebugIP(const std::string& host, const std::string& ip);
+   // setting debug ip address for the corresponding host
+   virtual void SetDebugIP(const std::string& host, const std::string& ip);
 
-    // setting backup iplist for the corresponding host
-    // if debugip is not empty, iplist will be ignored.
-    // iplist will be used when newdns/dns ip is not available.
-    virtual void SetBackupIPs(const std::string& host, const std::vector<std::string>& iplist);
+   // setting backup iplist for the corresponding host
+   // if debugip is not empty, iplist will be ignored.
+   // iplist will be used when newdns/dns ip is not available.
+   virtual void SetBackupIPs(const std::string& host, const std::vector<std::string>& iplist);
 
-    // async function.
-    virtual bool StartTask(const Task& task);
+   // async function.
+   virtual bool StartTask(const Task& task);
 
-    // sync function
-    virtual void StopTask(uint32_t taskid);
+   // sync function
+   virtual void StopTask(uint32_t taskid);
 
-    // check whether task's list has the task or not.
-    virtual bool HasTask(uint32_t taskid);
+   // check whether task's list has the task or not.
+   virtual bool HasTask(uint32_t taskid);
 
-    // reconnect longlink and redo all task
-    // when you change svr ip, you must call this function.
-    virtual void RedoTasks();
+   // reconnect longlink and redo all task
+   // when you change svr ip, you must call this function.
+   virtual void RedoTasks();
 
-    // touch tasks loop. Generally, invoke it after autoauth successfully.
-    virtual void TouchTasks();
+   // touch tasks loop. Generally, invoke it after autoauth successfully.
+   virtual void TouchTasks();
 
-    //    need longlink channel
-    virtual void DisableLongLink();
-    
-    // stop and clear all task
-    virtual void ClearTasks();
+   //    need longlink channel
+   virtual void DisableLongLink();
 
-    // the same as ClearTasks(), but also reinitialize network.
-    virtual void Reset();
+   // stop and clear all task
+   virtual void ClearTasks();
 
-    virtual void ResetAndInitEncoderVersion(int _encoder_version);
+   // the same as ClearTasks(), but also reinitialize network.
+   virtual void Reset();
 
-    //setting signalling's parameters.
-    //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
-    virtual void SetSignallingStrategy(long _period, long _keeptime);
+   virtual void ResetAndInitEncoderVersion(int _encoder_version);
 
-    // used to keep longlink active
-    // keep signnaling once 'period' and last 'keeptime'
-    virtual void KeepSignalling();
+   // setting signalling's parameters.
+   // if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
+   virtual void SetSignallingStrategy(long _period, long _keeptime);
 
-    virtual void StopSignalling();
+   // used to keep longlink active
+   // keep signnaling once 'period' and last 'keeptime'
+   virtual void KeepSignalling();
 
-    // connect quickly if longlink is not connected.
-    virtual void MakesureLonglinkConnected();
+   virtual void StopSignalling();
 
-    virtual bool LongLinkIsConnected();
+   // connect quickly if longlink is not connected.
+   virtual void MakesureLonglinkConnected();
 
-    virtual bool ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips);
+   virtual bool LongLinkIsConnected();
 
-    // noop is used to keep longlink conected
-    // get noop taskid
-    virtual uint32_t getNoopTaskID();
+   virtual bool ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info,
+                                 const std::string& _test_host,
+                                 const std::vector<std::string>& _hardcode_ips);
 
-    //===----------------------------------------------------------------------===//
-    ///
-    /// Support multi longlinks for mars
-    /// these APIs are subject to change in developing
-    ///
-    //===----------------------------------------------------------------------===//
-    virtual void CreateLonglink_ext(LonglinkConfig& _config);
-    virtual void DestroyLonglink_ext(const std::string& name);
-    virtual std::vector<std::string> GetAllLonglink_ext();
-    virtual void MarkMainLonglink_ext(const std::string& name);
+   // noop is used to keep longlink conected
+   // get noop taskid
+   virtual uint32_t getNoopTaskID();
 
-    virtual bool LongLinkIsConnected_ext(const std::string& name);
-    virtual void MakesureLonglinkConnected_ext(const std::string& name);
-    
-    // #################### end stn_logci.h ####################
+   //===----------------------------------------------------------------------===//
+   ///
+   /// Support multi longlinks for mars
+   /// these APIs are subject to change in developing
+   ///
+   //===----------------------------------------------------------------------===//
+   virtual void CreateLonglink_ext(LonglinkConfig& _config);
+   virtual void DestroyLonglink_ext(const std::string& name);
+   virtual std::vector<std::string> GetAllLonglink_ext();
+   virtual void MarkMainLonglink_ext(const std::string& name);
 
-//    // 'host' will be ignored when 'debugip' is not empty.
-//    void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip);
-//
-//    // 'task.host' will be ignored when 'debugip' is not empty.
-//    void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip);
-//
-//    // setting debug ip address for the corresponding host
-//    void (*SetDebugIP)(const std::string& host, const std::string& ip);
-//
-//    // setting backup iplist for the corresponding host
-//    // if debugip is not empty, iplist will be ignored.
-//    // iplist will be used when newdns/dns ip is not available.
-//    void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist);
-//
-//    // async function.
-//    bool (*StartTask)(const ::mars::stn::Task& task);
-//
-//    // sync function
-//    void (*StopTask)(uint32_t taskid);
-//
-//    // check whether task's list has the task or not.
-//    bool (*HasTask)(uint32_t taskid);
-//
-//    // reconnect longlink and redo all task
-//    // when you change svr ip, you must call this function.
-//    void (*RedoTasks)();
-//
-//    // touch tasks loop. Generally, invoke it after autoauth successfully.
-//    void (*TouchTasks)();
-//
-//    //need longlink channel
-//    void (*DisableLongLink)();
-//
-//    // stop and clear all task
-//    void (*ClearTasks)();
-//
-//    // the same as ClearTasks(), but also reinitialize network.
-//    void (*Reset)();
-//
-//    void (*ResetAndInitEncoderVersion)(int _encoder_version);
-//
-//    //setting signalling's parameters.
-//    //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
-//    void (*SetSignallingStrategy)(long period, long keeptime);
-//
-//    // used to keep longlink active
-//    // keep signnaling once 'period' and last 'keeptime'
-//    void (*KeepSignalling)();
-//
-//    void (*StopSignalling)();
-//
-//    // connect quickly if longlink is not connected.
-//    void (*MakesureLonglinkConnected)();
-//
-//    bool (*LongLinkIsConnected)();
-//
-//    bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips);
-//
-//    // noop is used to keep longlink conected
-//    // get noop taskid
-//    uint32_t (*getNoopTaskID)();
-//
-//    //===----------------------------------------------------------------------===//
-//    ///
-//    /// Support multi longlinks for mars
-//    /// these APIs are subject to change in developing
-//    ///
-//    //===----------------------------------------------------------------------===//
-//    void (*CreateLonglink_ext)(::mars::stn::LonglinkConfig& _config);
-//    void (*DestroyLonglink_ext)(const std::string& name);
-//    //TODO cpan unuse code
-//    //std::vector<std::string> (*GetAllLonglink_ext)();
-//    void (*MarkMainLonglink_ext)(const std::string& name);
-//
-//    bool (*LongLinkIsConnected_ext)(const std::string& name);
-//    void (*MakesureLonglinkConnected_ext)(const std::string& name);
+   virtual bool LongLinkIsConnected_ext(const std::string& name);
+   virtual void MakesureLonglinkConnected_ext(const std::string& name);
+
+   // #################### end stn_logci.h ####################
+
+   //    // 'host' will be ignored when 'debugip' is not empty.
+   //    void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string&
+   //    debugip);
+   //
+   //    // 'task.host' will be ignored when 'debugip' is not empty.
+   //    void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip);
+   //
+   //    // setting debug ip address for the corresponding host
+   //    void (*SetDebugIP)(const std::string& host, const std::string& ip);
+   //
+   //    // setting backup iplist for the corresponding host
+   //    // if debugip is not empty, iplist will be ignored.
+   //    // iplist will be used when newdns/dns ip is not available.
+   //    void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist);
+   //
+   //    // async function.
+   //    bool (*StartTask)(const ::mars::stn::Task& task);
+   //
+   //    // sync function
+   //    void (*StopTask)(uint32_t taskid);
+   //
+   //    // check whether task's list has the task or not.
+   //    bool (*HasTask)(uint32_t taskid);
+   //
+   //    // reconnect longlink and redo all task
+   //    // when you change svr ip, you must call this function.
+   //    void (*RedoTasks)();
+   //
+   //    // touch tasks loop. Generally, invoke it after autoauth successfully.
+   //    void (*TouchTasks)();
+   //
+   //    //need longlink channel
+   //    void (*DisableLongLink)();
+   //
+   //    // stop and clear all task
+   //    void (*ClearTasks)();
+   //
+   //    // the same as ClearTasks(), but also reinitialize network.
+   //    void (*Reset)();
+   //
+   //    void (*ResetAndInitEncoderVersion)(int _encoder_version);
+   //
+   //    //setting signalling's parameters.
+   //    //if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
+   //    void (*SetSignallingStrategy)(long period, long keeptime);
+   //
+   //    // used to keep longlink active
+   //    // keep signnaling once 'period' and last 'keeptime'
+   //    void (*KeepSignalling)();
+   //
+   //    void (*StopSignalling)();
+   //
+   //    // connect quickly if longlink is not connected.
+   //    void (*MakesureLonglinkConnected)();
+   //
+   //    bool (*LongLinkIsConnected)();
+   //
+   //    bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const
+   //    std::vector<std::string>& _hardcode_ips);
+   //
+   //    // noop is used to keep longlink conected
+   //    // get noop taskid
+   //    uint32_t (*getNoopTaskID)();
+   //
+   //    //===----------------------------------------------------------------------===//
+   //    ///
+   //    /// Support multi longlinks for mars
+   //    /// these APIs are subject to change in developing
+   //    ///
+   //    //===----------------------------------------------------------------------===//
+   //    void (*CreateLonglink_ext)(::mars::stn::LonglinkConfig& _config);
+   //    void (*DestroyLonglink_ext)(const std::string& name);
+   //    //TODO cpan unuse code
+   //    //std::vector<std::string> (*GetAllLonglink_ext)();
+   //    void (*MarkMainLonglink_ext)(const std::string& name);
+   //
+   //    bool (*LongLinkIsConnected_ext)(const std::string& name);
+   //    void (*MakesureLonglinkConnected_ext)(const std::string& name);
 
 public:
-    NetCore* GetNetCore();
+   NetCore* GetNetCore();
 
 private:
     Callback* callback_ = NULL;

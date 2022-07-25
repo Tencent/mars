@@ -10,7 +10,6 @@
 namespace mars {
 namespace sdt {
 
-
 #define SDT_WEAK_CALL(func) \
     if (!sdt_core_) {\
         xwarn2(TSF"sdt uncreate");\
@@ -23,7 +22,6 @@ SdtManager::SdtManager() {
 }
 
 SdtManager::~SdtManager() {
-  
 }
 
 void SdtManager::OnCreate() {

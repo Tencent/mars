@@ -86,12 +86,11 @@ stn_callback_bridge_->func;\
         ret = stn_callback_bridge_->func;                 \
     }
 
-StnManager::StnManager(){
+StnManager::StnManager() {
     stn_callback_bridge_ = new StnCallbackBridge();
 }
 
 StnManager::~StnManager(){
-    
 }
 
 void StnManager::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
