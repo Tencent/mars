@@ -37,8 +37,10 @@
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
+#include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::stn;
 using namespace mars::comm;

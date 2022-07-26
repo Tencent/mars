@@ -39,6 +39,8 @@
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
+#include "mars/stn/stn_logic.h"
+#include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -303,6 +305,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->task.shortlink_host_list = hosts;
         
+        //TODO cpan mars2.0
+        if (hosts.empty()) {
+            continue;
+        }
         std::string host = hosts.front();
 #ifndef DISABLE_QUIC_PROTOCOL
         if (config.use_quic){

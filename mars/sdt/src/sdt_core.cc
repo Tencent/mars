@@ -153,7 +153,8 @@ void SdtCore::__DumpCheckResult() {
         	break;
         }
     }
-    ReportNetCheckResult(check_request_.checkresult_profiles);
+    //TODO cpan 
+    //ReportNetCheckResult(check_request_.checkresult_profiles);
 }
 
 void SdtCore::CancelCheck() {

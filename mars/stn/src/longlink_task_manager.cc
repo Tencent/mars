@@ -36,10 +36,12 @@
 #include "mars/stn/config.h"
 #include "mars/stn/task_profile.h"
 #include "mars/stn/proto/longlink_packer.h"
+#include "mars/stn/stn_logic.h"
 
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
+#include "mars/stn/stn_logic_bridge.h"
 
 using namespace mars::stn;
 using namespace mars::comm;

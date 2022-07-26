@@ -31,13 +31,13 @@ namespace sdt {
 		virtual ~Callback() {};
 	};
 
-	void SetCallBack(Callback* const callback);
-
-	void SetHttpNetcheckCGI(std::string cgi);
-
-	//active netcheck interface
-	void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
-	void CancelActiveCheck();
+//	void SetCallBack(Callback* const callback);
+//
+//	void SetHttpNetcheckCGI(std::string cgi);
+//
+//	//active netcheck interface
+//	void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
+//	void CancelActiveCheck();
 
 }}
 

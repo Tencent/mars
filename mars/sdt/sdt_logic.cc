@@ -34,51 +34,51 @@ static Callback* sg_callback = NULL;
 
 static const std::string kLibName = "sdt";
 
-#define SDT_WEAK_CALL(func) \
-    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
-    if (!sdt_ptr) {\
-        xwarn2(TSF"sdt uncreate");\
-        return;\
-    }\
-	sdt_ptr->func
+//#define SDT_WEAK_CALL(func) \
+//    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
+//    if (!sdt_ptr) {\
+//        xwarn2(TSF"sdt uncreate");\
+//        return;\
+//    }\
+//	sdt_ptr->func
 
-static void onCreate() {
-    xinfo2(TSF"sdt oncreate");
-    SdtCore::Singleton::Instance();
-}
-
-static void onDestroy() {
-    xinfo2(TSF"sdt onDestroy");
-    SdtCore::Singleton::AsyncRelease();
-}
-
-static void __initbind_baseprjevent() {
-
-	GetSignalOnCreate().connect(&onCreate);
-	GetSignalOnDestroy().connect(5, &onDestroy);
-}
-
-BOOT_RUN_STARTUP(__initbind_baseprjevent);
+//static void onCreate() {
+//    xinfo2(TSF"sdt oncreate");
+//    SdtCore::Singleton::Instance();
+//}
+//
+//static void onDestroy() {
+//    xinfo2(TSF"sdt onDestroy");
+//    SdtCore::Singleton::AsyncRelease();
+//}
+//
+//static void __initbind_baseprjevent() {
+//
+//	GetSignalOnCreate().connect(&onCreate);
+//	GetSignalOnDestroy().connect(5, &onDestroy);
+//}
+//
+//BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 //active netcheck interface
-void StartActiveCheck(CheckIPPorts& _longlink_check_items, CheckIPPorts& _shortlink_check_items, int _mode, int _timeout) {
-	SDT_WEAK_CALL(StartCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout));
-}
-
-void CancelActiveCheck() {
-	SDT_WEAK_CALL(CancelCheck());
-}
-
-void SetCallBack(Callback* const callback) {
-	sg_callback = callback;
-}
-
-#if !defined(ANDROID) || defined (CPP_CALL_BACK)
-void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
-= [](const std::vector<CheckResultProfile>& _check_results) {
-
-};
-
-#endif
+//void StartActiveCheck(CheckIPPorts& _longlink_check_items, CheckIPPorts& _shortlink_check_items, int _mode, int _timeout) {
+//	SDT_WEAK_CALL(StartCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout));
+//}
+//
+//void CancelActiveCheck() {
+//	SDT_WEAK_CALL(CancelCheck());
+//}
+//
+//void SetCallBack(Callback* const callback) {
+//	sg_callback = callback;
+//}
+//
+//#if !defined(ANDROID) || defined (CPP_CALL_BACK)
+//void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
+//= [](const std::vector<CheckResultProfile>& _check_results) {
+//
+//};
+//
+//#endif
 
 }}

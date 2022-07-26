@@ -39,7 +39,7 @@ class BaseChecker;
 
 class SdtCore {
   public:
-    SINGLETON_INTRUSIVE(SdtCore, new SdtCore, delete);
+    //SINGLETON_INTRUSIVE(SdtCore, new SdtCore, delete);
 
   public:
 
@@ -50,9 +50,11 @@ class SdtCore {
     void CancelCheck();
     void CancelAndWait();
 
-  private:
+  public:
     SdtCore();
     virtual ~SdtCore();
+
+  private:
 
     void __InitCheckReq(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout);
     void __Reset();
