@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <algorithm>
+#include <string>
 
 
 #include "mars/comm/xlogger/xloggerbase.h"
@@ -127,7 +128,8 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
 
 
     int log_len = _log.Length();
-    _log.Write((void*)&log_len, sizeof(log_len));
+    std::string s = std::string(" len:") + std::to_string(log_len);
+    _log.Write(s.c_str(), s.size());
     char nextline = '\n';
 
     if (*((char*)_log.PosPtr() - 1) != nextline) _log.Write(&nextline, 1);
