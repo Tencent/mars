@@ -162,7 +162,7 @@ TcpServerFSM::TSocketStatus TcpServerFSM::AfterReadWriteSelect(const SocketSelec
 
         if (0 < ret) {
             send_buf_.Move(-ret);
-            xinfo2_if(0 == send_buf_.Length(), TSF"all buffer send:%_, m_send_buf:%_", ret, send_buf_.Length()) >> _log;
+            xdebug2_if(0 == send_buf_.Length(), TSF"all buffer send:%_, m_send_buf:%_", ret, send_buf_.Length()) >> _log;
             _OnSend(send_buf_, ret);
         } else if (IS_NOBLOCK_SEND_ERRNO(socket_errno)) {
             xwarn2(TSF"buffer full wait for next select, send err:(%_, %_, %_)", ret, socket_errno, socket_strerror(socket_errno)) >> _log;
