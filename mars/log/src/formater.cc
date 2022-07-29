@@ -125,6 +125,9 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         _log.Write("error!! NULL==_logbody");
     }
 
+
+    int log_len = _log.Length();
+    _log.Write((void*)&log_len, sizeof(log_len));
     char nextline = '\n';
 
     if (*((char*)_log.PosPtr() - 1) != nextline) _log.Write(&nextline, 1);
