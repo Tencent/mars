@@ -38,7 +38,8 @@ class SocketBreaker {
     bool Break();
     bool Break(int reason);
     bool Clear();
-
+    bool ClearOnce();
+    
     bool IsBreak() const;
     int  BreakerFD() const;
     int  BreakReason() const;

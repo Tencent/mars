@@ -104,6 +104,22 @@ bool SocketBreaker::Break(int reason){
     return Break();
 }
 
+ bool SocketBreaker::ClearOnce(){
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    if (!breaked_)  return true;
+
+    char dummy;
+    ssize_t rv = read(pipes_[0], &dummy, sizeof(dummy));
+    if (rv == sizeof(dummy)){
+        breaked_ = false;
+        return true;
+    }
+    
+    xerror2(TSF"clear %_ failed %_:%_", pipes_[0], errno, strerror(errno));
+    return false;
+ }
+
 bool SocketBreaker::Clear()
 {
     std::lock_guard<std::mutex> lock(mutex_);
