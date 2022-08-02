@@ -360,7 +360,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     __UpdateProfile(_conn_profile);
     
-    WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
+    //WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
+    net_source_.GetWeakNetworkLogic()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());

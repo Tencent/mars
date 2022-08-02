@@ -60,10 +60,10 @@ namespace stn{
 
         //上报网络连接状态 
         virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
-        virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {}
-        virtual void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {}
+        void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {}
+        void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {}
         
-        virtual void OnLongLinkStatusChange(int _status) {}
+        void OnLongLinkStatusChange(int _status) {}
         //长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2 
         virtual int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) = 0;
         //长连信令校验回包 
@@ -73,13 +73,13 @@ namespace stn{
 
         //Cpan stn.h extern的接口
         //底层询问上层http网络检查的域名列表
-        virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
+        void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
         //底层向上层上报cgi执行结果
-        virtual void ReportTaskProfile(const TaskProfile& _task_profile)  = 0;
+        void ReportTaskProfile(const TaskProfile& _task_profile);
         //底层通知上层cgi命中限制
-        virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param)  = 0;
+        void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
         //底层上报域名dns结果
-        virtual void ReportDnsProfile(const DnsProfile& _dns_profile)  = 0;
+        void ReportDnsProfile(const DnsProfile& _dns_profile);
         //.生成taskid.
         //virtual uint32_t GenTaskID(); // 不在上层生成taskId
         //验证是否已登录 
