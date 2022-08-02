@@ -121,7 +121,8 @@ class LongLinkTaskManager {
     void __RedoTasks(const std::string& _name, bool need_lock_link = true);
     void __DumpLongLinkChannelInfo();
     bool __ForbidUseTls(const std::vector<std::string>& _host_list);
-
+    ConnectProfile __GetConnectionProfile(std::shared_ptr<LongLinkMetaData> longlink);
+    
   private:
     comm::MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
