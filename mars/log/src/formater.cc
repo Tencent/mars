@@ -102,10 +102,10 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         }
 
         // _log.AllocWrite(30*1024, false);
-        int ret = snprintf((char*)_log.PosPtr(), 1024, "[%s][%s][%" PRIdMAX ", %" PRIdMAX "%s][%s][%s:%d, %s][",  // **CPPLINT SKIP**
+        int ret = snprintf((char*)_log.PosPtr(), 1024, "[%s][%s][%" PRIdMAX ", %" PRIdMAX "%s][%s][%s:%d, %s][bodylen:%d][",  // **CPPLINT SKIP**
                            _logbody ? levelStrings[_info->level] : levelStrings[kLevelFatal], temp_time,
                            _info->pid, _info->tid, _info->tid == _info->maintid ? "*" : "", _info->tag ? _info->tag : "",
-                           filename, _info->line, strFuncName);
+                           filename, _info->line, strFuncName, (int)strnlen(_logbody, 1024 * 1024));
 
         assert(0 <= ret);
         _log.Length(_log.Pos() + ret, _log.Length() + ret);
@@ -127,9 +127,9 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
     }
 
 
-    int log_len = _log.Length();
-    std::string s = std::string(" len:") + std::to_string(log_len);
-    _log.Write(s.c_str(), s.size());
+//    int log_len = _log.Length();
+//    std::string s = std::string(" len:") + std::to_string(log_len);
+//    _log.Write(s.c_str(), s.size());
     char nextline = '\n';
 
     if (*((char*)_log.PosPtr() - 1) != nextline) _log.Write(&nextline, 1);
