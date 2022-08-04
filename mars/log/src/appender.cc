@@ -871,7 +871,6 @@ void XloggerAppender::__AsyncLogThread() {
         lock_buffer.unlock();
 
         if (nullptr != tmp.Ptr())  __Log2File(tmp.Ptr(), tmp.Length(), true);
-        WriteTips2File("after flush into file, len:%d \n", (int)tmp.Length());
 
         if (log_close_) break;
 
