@@ -131,6 +131,9 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
     cgiprofile.start_send_packet_time = _profile.start_send_packet_time;
     cgiprofile.start_read_packet_time = _profile.start_read_packet_time;
     cgiprofile.read_packet_finished_time = _profile.read_packet_finished_time;
+    cgiprofile.channel_type = _profile.channel_type;
+    cgiprofile.transport_protocol = _profile.transport_protocol;
+    cgiprofile.rtt = _profile.rtt_by_socket;
     return sg_callback->OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code, cgiprofile);
 #else
     return C2Java_OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code, _profile);
