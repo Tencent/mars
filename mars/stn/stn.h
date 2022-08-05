@@ -139,25 +139,17 @@ public:
 };
     
 struct CgiProfile {
-    CgiProfile() {
-        start_time = 0;
-        start_connect_time = 0;
-        connect_successful_time = 0;
-        start_tls_handshake_time = 0;
-        tls_handshake_successful_time = 0;
-        start_send_packet_time = 0;
-        start_read_packet_time = 0;
-        read_packet_finished_time = 0;
-    }
-    uint64_t start_time;
-    uint64_t start_connect_time;
-    uint64_t connect_successful_time;
-    uint64_t start_tls_handshake_time;
-    uint64_t tls_handshake_successful_time;
-    uint64_t start_send_packet_time;
-    uint64_t start_read_packet_time;
-    uint64_t read_packet_finished_time;
-    
+    uint64_t start_time = 0;
+    uint64_t start_connect_time = 0;
+    uint64_t connect_successful_time = 0;
+    uint64_t start_tls_handshake_time = 0;
+    uint64_t tls_handshake_successful_time = 0;
+    uint64_t start_send_packet_time = 0;
+    uint64_t start_read_packet_time = 0;
+    uint64_t read_packet_finished_time = 0;
+    int channel_type = 0;
+    int transport_protocol = 0;
+    int rtt = 0;
 };
 
 struct LonglinkConfig {
