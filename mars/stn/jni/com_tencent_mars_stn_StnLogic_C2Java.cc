@@ -106,6 +106,7 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
     jfieldID fid_readPacketFinishedTime = env->GetFieldID(cgiProfileCls, "readPacketFinishedTime","J");
     jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt","J");
     jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType","I");
+	jfieldID fid_protocolType = env->GetFieldID(cgiProfileCls, "protocolType","I");
 
 
     uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
@@ -119,6 +120,7 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
     env->SetLongField(jobj_cgiItem, fid_readPacketFinishedTime, _profile.read_packet_finished_time);
     env->SetLongField(jobj_cgiItem, fid_rtt, _profile.rtt_by_socket);
     env->SetIntField(jobj_cgiItem, fid_channelType, _profile.channel_type);
+	env->SetIntField(jobj_cgiItem, fid_protocolType, _profile.transport_protocol);
 
 	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code, jobj_cgiItem).i;
 
