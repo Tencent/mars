@@ -85,8 +85,8 @@ static unsigned long const sg_interval[][5]  = {
 static int const reconnect_interval[7] = {0, 60, 120, 240, 360, 480, 600}; // if modify this varible ,do not forget to modify varible: "kInternalMaxIndex"
 static int const kInternalMaxIndex = 6; //max index of "reconnect_interval" array
 
-static std::string alarm_reason;
-static std::string error_msg;
+NO_DESTROY static std::string alarm_reason;
+NO_DESTROY static std::string error_msg;
 
 static void __LongLinkStateToSystemLog(LongLink::TLongLinkStatus _status) {
 #ifdef __ANDROID__
