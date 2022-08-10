@@ -44,7 +44,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/baseevent/baseprjevent.h"
-
+#include "mars/comm/macro.h"
 using namespace mars::comm;
 
 namespace mars {
@@ -58,10 +58,10 @@ void SetCallback(Callback* const callback) {
 
 #if !defined(ANDROID) || defined (CPP_CALL_BACK)
     
-    static mars::comm::ProxyInfo sg_proxyInfo;
+NO_DESTROY static mars::comm::ProxyInfo sg_proxyInfo;
     static bool sg_gotProxy = false;
-    static Mutex sg_slproxymutex;
-    static Thread sg_slproxyThread;
+NO_DESTROY static Mutex sg_slproxymutex;
+NO_DESTROY static Thread sg_slproxyThread;
     static uint64_t sg_slporxytimetick = gettickcount();
     static int sg_slproxycount = 0;
     

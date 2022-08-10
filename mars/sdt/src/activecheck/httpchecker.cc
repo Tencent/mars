@@ -30,7 +30,7 @@
 
 using namespace mars::sdt;
 
-static std::string sg_netcheck_cgi;
+NO_DESTROY static std::string sg_netcheck_cgi;
 
 namespace mars {
 namespace sdt {

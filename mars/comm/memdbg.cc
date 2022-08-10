@@ -19,7 +19,7 @@
 *********************************************************************/
 
 #include "comm/assert/__assert.h"
-
+#include "mars/comm/macro.h"
 #ifdef DEBUG
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,7 +53,7 @@ struct CrtMem {
 
 };
 
-static std::vector<CrtMem> gs_CrtMemRoot;
+NO_DESTROY static std::vector<CrtMem> gs_CrtMemRoot;
 
 static void __LogAlloc(void* _retp, size_t _size, const char* _filename, int _line, const char* _func, TMemoryType _type) {
     ASSERT(_retp);
