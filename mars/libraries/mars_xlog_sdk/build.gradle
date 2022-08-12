@@ -1,11 +1,17 @@
-apply plugin: "com.android.library"
+apply plugin: 'com.android.library'
+
+apply from: rootProject.file('gradle/WeChatPublish.gradle')
+
+group PROJ_GROUP
+version PROJ_VERSION
+artifactId = PROJ_ARTIFACTID
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    compileSdkVersion 31
+    buildToolsVersion '30.0.2'
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 21
+        minSdkVersion 19
+        targetSdkVersion 29
         ndk {
             // TODO: changes this for your application if needed
             moduleName = "mmnet"
@@ -36,12 +42,3 @@ android {
         }
     }
 }
-
-
-dependencies {
-    compile 'javax.validation:validation-api:1.1.0.Final'
-}
-
-apply from: "${rootDir}/gradle/build_xlog_libraries.gradle"
-
-apply from: "bintray.gradle"
