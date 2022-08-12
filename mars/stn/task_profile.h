@@ -246,8 +246,6 @@ struct TransferProfile {
         error_type = 0;
         error_code = 0;
 
-        is_weak_network = false;
-        is_last_valid_connect_fail = false;
     }
     
     const Task task; //change "const Task& task" to "const Task task". fix a memory reuse bug.
@@ -270,8 +268,6 @@ struct TransferProfile {
     int error_type;
     int error_code;
 
-    bool is_weak_network;
-    bool is_last_valid_connect_fail;
 };
     
 //do not insert or delete
@@ -336,8 +332,8 @@ struct TaskProfile {
         link_type = 0;
         allow_sessiontimeout_retry = true;
 
-//        is_weak_network = false;
-//        is_last_valid_connect_fail = false;
+        is_weak_network = false;
+        is_last_valid_connect_fail = false;
     }
     
     void InitSendParam() {
@@ -389,8 +385,8 @@ struct TaskProfile {
     std::vector<TransferProfile> history_transfer_profiles;
     std::string channel_name;
 
-//    bool is_weak_network;
-//    bool is_last_valid_connect_fail;
+    bool is_weak_network;
+    bool is_last_valid_connect_fail;
 };
         
 

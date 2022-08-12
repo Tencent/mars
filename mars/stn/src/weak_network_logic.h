@@ -31,7 +31,7 @@ namespace stn {
     
 class WeakNetworkLogic {
 public:
-    SINGLETON_INTRUSIVE(WeakNetworkLogic, new WeakNetworkLogic, delete);
+//    SINGLETON_INTRUSIVE(WeakNetworkLogic, new WeakNetworkLogic, delete);
     boost::function<void (int _key, int _value, bool _is_important)> report_weak_logic_;
     
     bool IsCurrentNetworkWeak();

@@ -560,6 +560,9 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         _it->transfer_profile.error_type = _err_type;
         _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
+        _it->is_weak_network = netsource_.GetWeakNetworkLogic()->IsCurrentNetworkWeak();
+        int64_t span = 0;
+        _it->is_last_valid_connect_fail = netsource_.GetWeakNetworkLogic()->IsLastValidConnectFail(span);
         ReportTaskProfile(*_it);
         //WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         netsource_.GetWeakNetworkLogic()->OnTaskEvent(*_it);
