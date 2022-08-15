@@ -250,6 +250,7 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
     before_len -= remain_nocrypt_len_;
 
     std::string out_buffer;
+    out_buffer.reserve(write_len + remain_nocrypt_len_);
     size_t last_remain_len = remain_nocrypt_len_;
 
     log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len + remain_nocrypt_len_, out_buffer, remain_nocrypt_len_);
