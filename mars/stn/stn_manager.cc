@@ -416,7 +416,9 @@ bool StnManager::LongLinkIsConnected_ext(const std::string &name) {
 }
 
 bool StnManager::ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) {
-    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
+//    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
+    ProxyTest* proxy_test;
+    return proxy_test->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
 }
 
 void StnManager::MakesureLonglinkConnected_ext(const std::string &name) {
