@@ -37,6 +37,7 @@
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
 
@@ -91,10 +92,12 @@ NetSource::NetSource(ActiveLogic& _active_logic)
     , v6_timeout_(0)
 {
     xinfo_function();
+    weak_network_logic_ = new WeakNetworkLogic();
 }
 
 NetSource::~NetSource() {
     xinfo_function();
+    delete weak_network_logic_;
 }
 
 /**
@@ -607,4 +610,8 @@ void NetSource::AddServerBan(const std::string& _ip) {
 void NetSource::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) {
     v4_timeout_ = _v4_timeout;
     v6_timeout_ = _v6_timeout;
+}
+
+WeakNetworkLogic* NetSource::GetWeakNetworkLogic() {
+    return weak_network_logic_;
 }

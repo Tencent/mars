@@ -25,11 +25,23 @@
 namespace mars {
 namespace sdt {
 
+        class SdtManager;
+
 	class Callback
 	{
 	public:
 		virtual ~Callback() {};
 	};
+
+#ifdef NATIVE_CALLBACK
+        class SdtNativeCallback {
+         public:
+            SdtNativeCallback() = default;
+            virtual ~SdtNativeCallback() = default;
+            virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
+        };
+        extern void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
+#endif
 
 	void SetCallBack(Callback* const callback);
 
@@ -38,6 +50,10 @@ namespace sdt {
 	//active netcheck interface
 	void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
 	void CancelActiveCheck();
+
+//#if !defined(ANDROID) || defined (CPP_CALL_BACK)
+//        extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
+//#endif
 
 }}
 

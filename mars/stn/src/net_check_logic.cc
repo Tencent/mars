@@ -31,7 +31,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/sdt/sdt_logic.h"
 #include "mars/sdt/constants.h"
-
+#include "mars/stn/stn_logic.h"
 #include "net_source.h"
 
 using namespace mars::stn;

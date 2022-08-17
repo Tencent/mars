@@ -34,6 +34,7 @@
 #include "mars/stn/config.h"
 
 #include "simple_ipport_sort.h"
+#include "weak_network_logic.h"
 
 namespace mars {
     namespace stn {
@@ -120,6 +121,9 @@ class NetSource {
     void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
     std::tuple<uint32_t, uint32_t> GetIpConnectTimeout() {return std::make_tuple(v4_timeout_, v6_timeout_);}
 
+ public:
+    WeakNetworkLogic* GetWeakNetworkLogic();
+
   private:
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
@@ -135,6 +139,7 @@ class NetSource {
     SimpleIPPortSort    ipportstrategy_;
     uint32_t v4_timeout_;
     uint32_t v6_timeout_;
+    WeakNetworkLogic* weak_network_logic_;
 };
         
     }

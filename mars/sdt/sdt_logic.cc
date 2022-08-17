@@ -26,30 +26,34 @@
 #include "mars/sdt/constants.h"
 
 #include "sdt/src/sdt_core.h"
+#include "sdt_manager.h"
 
 namespace mars {
 namespace sdt {
 
-static Callback* sg_callback = NULL;
+//static Callback* sg_callback = NULL;
+static SdtManager* sdt_manager_ = new SdtManager();
 
 static const std::string kLibName = "sdt";
 
-#define SDT_WEAK_CALL(func) \
-    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
-    if (!sdt_ptr) {\
-        xwarn2(TSF"sdt uncreate");\
-        return;\
-    }\
-	sdt_ptr->func
+//#define SDT_WEAK_CALL(func) \
+//    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
+//    if (!sdt_ptr) {\
+//        xwarn2(TSF"sdt uncreate");\
+//        return;\
+//    }\
+//	sdt_ptr->func
 
 static void onCreate() {
     xinfo2(TSF"sdt oncreate");
-    SdtCore::Singleton::Instance();
+    //SdtCore::Singleton::Instance();
+    sdt_manager_->OnCreate();
 }
 
 static void onDestroy() {
     xinfo2(TSF"sdt onDestroy");
-    SdtCore::Singleton::AsyncRelease();
+    //SdtCore::Singleton::AsyncRelease();
+    sdt_manager_->OnDestroy();
 }
 
 static void __initbind_baseprjevent() {
@@ -62,21 +66,24 @@ BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 //active netcheck interface
 void StartActiveCheck(CheckIPPorts& _longlink_check_items, CheckIPPorts& _shortlink_check_items, int _mode, int _timeout) {
-	SDT_WEAK_CALL(StartCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout));
+	//SDT_WEAK_CALL(StartCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout));
+        sdt_manager_->StartActiveCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout);
 }
 
 void CancelActiveCheck() {
-	SDT_WEAK_CALL(CancelCheck());
+	//SDT_WEAK_CALL(CancelCheck());
+        sdt_manager_->CancelActiveCheck();
 }
 
 void SetCallBack(Callback* const callback) {
-	sg_callback = callback;
+	//sg_callback = callback;
+        sdt_manager_->SetCallBack(callback);
 }
 
 #if !defined(ANDROID) || defined (CPP_CALL_BACK)
 void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
 = [](const std::vector<CheckResultProfile>& _check_results) {
-
+    sdt_manager_->ReportNetCheckResult(_check_results);
 };
 
 #endif

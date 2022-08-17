@@ -21,11 +21,10 @@
 #include "mars/stn/stn.h"
 #include "mars/boost/config.hpp"
 #include "mars/comm/thread/atomic_oper.h"
-static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
 namespace mars{
     namespace stn{
-        
+
 static uint32_t gs_taskid = 1;
 Task::Task():Task(atomic_inc32(&gs_taskid)) {}
         

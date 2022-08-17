@@ -107,17 +107,6 @@ enum CheckStatus {
 } ;
 
 extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
-
-#ifdef NATIVE_CALLBACK
-    class SdtNativeCallback {
-    public:
-        SdtNativeCallback() = default;
-        virtual ~SdtNativeCallback() = default;
-        virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
-    };
-    extern void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
-#endif
-
 }}
 
 

@@ -25,6 +25,7 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
 
 #include "flow_limit.h"
 #include "frequency_limit.h"

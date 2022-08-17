@@ -40,7 +40,7 @@ namespace stn {
 class ProxyTest {
     
 public:
-    SINGLETON_INTRUSIVE(ProxyTest, new ProxyTest, delete);
+    //SINGLETON_INTRUSIVE(ProxyTest, new ProxyTest, delete);
     bool ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const std::string& _host, const std::vector<std::string>& _hardcode_ips);
     
 private:

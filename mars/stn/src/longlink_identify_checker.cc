@@ -22,6 +22,7 @@
 
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
 
 #include "stn/proto/longlink_packer.h"
 
