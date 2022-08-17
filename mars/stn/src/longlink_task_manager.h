@@ -148,7 +148,7 @@ class LongLinkTaskManager {
     comm::RecursiveMutex            meta_mutex_;
 #endif
     comm::Mutex                     mutex_;
-    NO_DESTROY static std::set<std::string>    forbid_tls_host_;
+    static std::set<std::string>    forbid_tls_host_;
     TaskIntercept                   task_intercept_;
 };
     }
