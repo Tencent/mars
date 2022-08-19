@@ -295,16 +295,17 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh)
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
 
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
-        return false;
-    }
-    
     ScopedLock lock(sg_wifiinfo_mutex);
     if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
         return true;
     }
     lock.unlock();
+
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        return false;
+    }
+
     NSArray *ifs = nil;
     @synchronized (@"CNCopySupportedInterfaces") {
         ifs = (id)CNCopySupportedInterfaces();
