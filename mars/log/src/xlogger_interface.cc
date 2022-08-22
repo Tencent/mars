@@ -144,6 +144,17 @@ void Flush(uintptr_t _instance_ptr, bool _is_sync) {
     }
 }
 
+void FlushAll(bool _is_sync) {
+    _is_sync ? appender_flush_sync() : appender_flush();
+    ScopedLock lock(sg_mutex);
+    // loop through all categories
+    for (auto it = sg_map.begin(); it != sg_map.end(); ++it) {
+        XloggerCategory* category  = it->second;
+        XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
+        _is_sync ? appender->FlushSync() : appender->Flush();
+    }
+}
+
 void SetConsoleLogOpen(uintptr_t _instance_ptr, bool _is_open) {
     if (0 == _instance_ptr) {
        appender_set_console_log(_is_open);
