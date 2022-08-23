@@ -15,7 +15,7 @@
  * author : yerungui
  */
 #include "comm/platform_comm.h"
-
+#include "mars/comm/macro.h"
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
@@ -76,14 +76,14 @@ static MarsNetworkStatus __GetNetworkStatus()
 #endif
 }
 
-static mars::comm::WifiInfo sg_wifiinfo;
-static mars::comm::Mutex sg_wifiinfo_mutex;
+NO_DESTROY static mars::comm::WifiInfo sg_wifiinfo;
+NO_DESTROY static mars::comm::Mutex sg_wifiinfo_mutex;
 
 namespace mars{
 namespace comm{
 
-static std::function<bool(std::string&)> g_new_wifi_id_cb;
-static mars::comm::Mutex wifi_id_mutex;
+NO_DESTROY static std::function<bool(std::string&)> g_new_wifi_id_cb;
+NO_DESTROY static mars::comm::Mutex wifi_id_mutex;
 
 void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
     mars::comm::ScopedLock lock(wifi_id_mutex);
@@ -275,7 +275,7 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
     return true;
 #elif !TARGET_OS_IPHONE
     
-    static mars::comm::Mutex mutex;
+    NO_DESTROY static mars::comm::Mutex mutex;
     mars::comm::ScopedLock lock(mutex);
     
     static float version = 0.0;
@@ -330,15 +330,15 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
         return false;
     }
     wifi_id_lock.unlock();
-    
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
-        return false;
-    }
-    
+
     mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
         return true;
+    }
+
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        return false;
     }
 
     wifi_id_lock.lock();
@@ -411,7 +411,7 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
 #if TARGET_OS_IPHONE && !TARGET_OS_WATCH
 bool getCurSIMInfo(mars::comm::SIMInfo& simInfo)
 {
-    static mars::comm::Mutex mutex;
+    NO_DESTROY static mars::comm::Mutex mutex;
     mars::comm::ScopedLock lock(mutex);
     
     SCOPE_POOL();
