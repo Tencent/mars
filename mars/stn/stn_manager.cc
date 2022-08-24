@@ -426,8 +426,8 @@ bool StnManager::LongLinkIsConnected_ext(const std::string &name) {
 
 bool StnManager::ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) {
 //    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
-    ProxyTest* proxy_test;
-    return proxy_test->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
+    ProxyTest* proxy_test_ = new ProxyTest();
+    return proxy_test_->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
 }
 
 void StnManager::MakesureLonglinkConnected_ext(const std::string &name) {
@@ -435,6 +435,20 @@ void StnManager::MakesureLonglinkConnected_ext(const std::string &name) {
 }
 
 // #################### end stn_logci.h ####################
+
+
+//
+//
+//ConnectProfile StnManager::GetConnectProfile(uint32_t _taskid, int _channel_select) {
+//    return net_core_->GetConnectProfile(_taskid, _channel_select);
+//}
+//void StnManager::AddServerBan(const std::string& _ip) {
+//    net_core_->AddServerBan(_ip);
+//}
+//
+//void StnManager::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {
+//    net_core_->DisconnectLongLinkByTaskId(_taskid, _code);
+//}
 
 //
 //// 'host' will be ignored when 'debugip' is not empty.

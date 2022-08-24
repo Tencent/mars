@@ -183,6 +183,12 @@ public:
 
    // #################### end stn_logci.h ####################
 
+   //Add for Android
+//   ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
+//   void AddServerBan(const std::string& _ip);
+//   void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+   //end Add for Android
+
 public:
    NetCore* GetNetCore();
 

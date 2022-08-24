@@ -465,6 +465,16 @@ void (*MakesureLonglinkConnected_ext)(const std::string& name)
     stn_manager->MakesureLonglinkConnected_ext(name);
 };
 
+//ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select) {
+//    return stn_manager->GetConnectProfile(_taskid, _channel_select);
+//}
+//void AddServerBan(const std::string& _ip) {
+//    stn_manager->AddServerBan(_ip);
+//}
+//
+//void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {
+//    stn_manager->DisconnectLongLinkByTaskId(_taskid, _code);
+//}
 void network_export_symbols_0(){}
 
 }

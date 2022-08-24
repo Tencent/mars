@@ -29,7 +29,6 @@
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
 
-
 namespace mars{
 
 namespace comm {
@@ -210,6 +209,12 @@ namespace stn {
     
     extern bool (*LongLinkIsConnected_ext)(const std::string& name);
     extern void (*MakesureLonglinkConnected_ext)(const std::string& name);
+
+//    //Add for Android
+//    ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
+//    void AddServerBan(const std::string& _ip);
+//    void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+//    //end Add for Android
 
 }}
 
