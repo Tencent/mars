@@ -330,15 +330,15 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh)
         return false;
     }
     wifi_id_lock.unlock();
-
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+        return false;
+    }
+    
     mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
         return true;
-    }
-
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
-        return false;
     }
 
     wifi_id_lock.lock();
