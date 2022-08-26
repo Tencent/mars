@@ -56,12 +56,12 @@ Task::Task(uint32_t _taskid) {
     max_minorlinks = 1;
 }
 
-uint32_t GenTaskID(){
-    if (BOOST_UNLIKELY(atomic_read32(&gs_taskid) >= kReservedTaskIDStart)) {
-        atomic_write32(&gs_taskid, 1);
-    }
-    return atomic_inc32(&gs_taskid);
-}
+//uint32_t GenTaskID(){
+//    if (BOOST_UNLIKELY(atomic_read32(&gs_taskid) >= kReservedTaskIDStart)) {
+//        atomic_write32(&gs_taskid, 1);
+//    }
+//    return atomic_inc32(&gs_taskid);
+//}
         
     }
 }
