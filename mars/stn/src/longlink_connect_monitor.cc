@@ -174,7 +174,7 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
     , is_keep_alive_(_is_keep_alive)
     , current_interval_index_(0)
     , rebuild_longlink_(false) {
-        xinfo2(TSF"handler:(%_,%_), realarm:%_, wakealarm:%_", asyncreg_.Get().queue,asyncreg_.Get().seq, rebuild_alarm_, wake_alarm_);
+        xinfo2(TSF"handler:(%_,%_), realarm:%_, wakealarm:%_", asyncreg_.Get().queue,asyncreg_.Get().seq, &rebuild_alarm_, &wake_alarm_);
         if(is_keep_alive_) {
             activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
             activelogic_.SignalForeground.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
@@ -297,7 +297,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
 uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
     xdebug_function();
-    xinfo2(TSF"realarm:%_, wakealarm:%_", rebuild_alarm_, wake_alarm_);
+    xinfo2(TSF"realarm:%_, wakealarm:%_", &rebuild_alarm_, &wake_alarm_);
     rebuild_alarm_.Cancel();
     wake_alarm_.Cancel();
     
