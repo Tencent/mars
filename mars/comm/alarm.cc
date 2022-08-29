@@ -74,6 +74,8 @@ bool Alarm::Start(int _after, bool _needWake) {
 
 bool Alarm::Cancel() {
     ScopedLock lock(sg_lock);
+    xinfo2(TSF"alarm seq is %_", seq_);
+    if (seq_ == INVAILD_SEQ) return true;
     if (broadcast_msg_id_!=MessageQueue::KNullPost) {
         MessageQueue::CancelMessage(broadcast_msg_id_);
         broadcast_msg_id_=MessageQueue::KNullPost;
