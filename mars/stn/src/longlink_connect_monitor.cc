@@ -297,7 +297,6 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
 uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
     xdebug_function();
-    xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
     rebuild_alarm_.Cancel();
     wake_alarm_.Cancel();
     
@@ -317,7 +316,10 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 }
 
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
+#if defined(__linux__)
     xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
+    RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLinkConnectMonitor::__AutoIntervalConnect, this),);
+#else
     ASYNC_BLOCK_START
 #ifdef __APPLE__
     xinfo2(TSF"forground:%_ time:%_ tick:%_", _isForeground, timeMs(), gettickcount());
@@ -333,17 +335,20 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
     }
 
 #endif
-    xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
+#endif
 }
 
 void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
+#if defined(__linux__)
     xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
+    RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLinkConnectMonitor::__AutoIntervalConnect, this),);
+#else
     ASYNC_BLOCK_START
-    xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
+#endif
 }
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
