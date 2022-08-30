@@ -139,7 +139,7 @@ TcpServerFSM::TSocketStatus TcpServerFSM::AfterReadWriteSelect(const SocketSelec
     char ip[16] = { 0 };
     int timeout = ReadWriteTimeout();
 
-    xinfo2(TSF"sock:%_, (%_:%_), ", sock_, socket_inet_ntop(AF_INET, &(addr_.sin_addr), ip, sizeof(ip)), ntohs(addr_.sin_port)) >> _log;
+    xdebug2(TSF"sock:%_, (%_:%_), ", sock_, socket_inet_ntop(AF_INET, &(addr_.sin_addr), ip, sizeof(ip)), ntohs(addr_.sin_port)) >> _log;
 
     if (_sel.Exception_FD_ISSET(sock_)) {
         int error = 0;
