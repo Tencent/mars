@@ -40,6 +40,7 @@
 #include <sstream>
 #include <android/log.h>
 #endif
+#include "mars/app/app_logic.h"
 
 using namespace mars::stn;
 using namespace mars::app;

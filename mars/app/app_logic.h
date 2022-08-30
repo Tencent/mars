@@ -30,22 +30,37 @@ class AutoBuffer;
 namespace mars {
 namespace app {
 
-    class Callback {
-    public:
-        virtual ~Callback() {};
-        
-        virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
-
-        virtual std::string GetAppFilePath() = 0;
-        
-        virtual AccountInfo GetAccountInfo() = 0;
-
-        virtual unsigned int GetClientVersion() = 0;
-
-        virtual DeviceInfo GetDeviceInfo() = 0;
-    };
+//    class Callback {
+//    public:
+//        virtual ~Callback() {};
+//
+//        virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
+//
+//        virtual std::string GetAppFilePath() = 0;
+//
+//        virtual AccountInfo GetAccountInfo() = 0;
+//
+//        virtual unsigned int GetClientVersion() = 0;
+//
+//        virtual DeviceInfo GetDeviceInfo() = 0;
+//    };
 
     void SetCallback(Callback* const callback);
+
+    mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
+    std::string GetAppFilePath();
+    AccountInfo GetAccountInfo();
+    std::string GetUserName();
+    std::string GetRecentUserName();
+    unsigned int GetClientVersion();
+    DeviceInfo GetDeviceInfo();
+    double GetOsVersion();
+
+#ifdef NATIVE_CALLBACK
+    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
+#endif
+
+
 }}
 
 

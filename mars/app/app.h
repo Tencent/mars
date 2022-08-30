@@ -40,15 +40,21 @@ struct DeviceInfo {
 	std::string devicename;
 	std::string devicetype;
 };
-    
-extern mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
-extern std::string GetAppFilePath();
-extern AccountInfo GetAccountInfo();
-extern std::string GetUserName();
-extern std::string GetRecentUserName();
-extern unsigned int GetClientVersion();
-extern DeviceInfo GetDeviceInfo();
-extern double GetOsVersion();
+
+class Callback {
+ public:
+    virtual ~Callback() {};
+
+    virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
+
+    virtual std::string GetAppFilePath() = 0;
+
+    virtual AccountInfo GetAccountInfo() = 0;
+
+    virtual unsigned int GetClientVersion() = 0;
+
+    virtual DeviceInfo GetDeviceInfo() = 0;
+};
 
 #ifdef NATIVE_CALLBACK
 
@@ -65,7 +71,7 @@ extern double GetOsVersion();
         virtual unsigned int GetClientVersion() {return 0;}
         virtual DeviceInfo GetDeviceInfo() {return DeviceInfo();}
     };
-    extern void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
+    //extern void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
 
 #endif //NATIVE_CALLBACK
 
