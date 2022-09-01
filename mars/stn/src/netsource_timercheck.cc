@@ -247,6 +247,14 @@ bool NetSourceTimerCheck::__TryConnnect(const std::string& _host) {
 }
 
 void NetSourceTimerCheck::__OnActiveChanged(bool _is_active) {
+#if defined(__linux__)
+    xdebug2(TSF"_is_active:%0", _is_active);
+    if (_is_active) {
+        __StartCheck();
+    } else {
+        __StopCheck();
+    }
+#else
     ASYNC_BLOCK_START
     
     xdebug2(TSF"_is_active:%0", _is_active);
@@ -258,4 +266,5 @@ void NetSourceTimerCheck::__OnActiveChanged(bool _is_active) {
     }
     
     ASYNC_BLOCK_END
+#endif
 }
