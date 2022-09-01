@@ -298,10 +298,12 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             }
         }
 #endif
+        uint64_t start_get_real_host = ::gettickcount();
         if (get_real_host_) {
             get_real_host_(task.user_id, hosts);
         }
         first->task.shortlink_host_list = hosts;
+        first->get_real_host_time = ::gettickcount() - start_get_real_host;
         
         std::string host = hosts.front();
 #ifndef DISABLE_QUIC_PROTOCOL

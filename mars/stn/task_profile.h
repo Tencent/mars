@@ -329,6 +329,8 @@ struct TaskProfile {
         err_code = 0;
         link_type = 0;
         allow_sessiontimeout_retry = true;
+        get_real_host_time = 0;
+
     }
     
     void InitSendParam() {
@@ -376,6 +378,7 @@ struct TaskProfile {
     int err_code;
     int link_type;
     bool allow_sessiontimeout_retry;
+    uint64_t get_real_host_time;
 
     std::vector<TransferProfile> history_transfer_profiles;
     std::string channel_name;

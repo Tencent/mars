@@ -387,9 +387,12 @@ void LongLinkTaskManager::__RunOnStartTask() {
         }
 
         Task task = first->task;
+        uint64_t start_get_real_host = ::gettickcount();
         if (get_real_host_) {
             get_real_host_(task.user_id, task.longlink_host_list);
         }
+        first->get_real_host_time = ::gettickcount() - start_get_real_host;
+
         std::string host = "";
         if (!task.longlink_host_list.empty()) {
             host = task.longlink_host_list.front();
