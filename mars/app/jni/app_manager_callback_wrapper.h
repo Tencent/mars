@@ -31,6 +31,8 @@
      virtual unsigned int GetClientVersion() override;
 
      virtual DeviceInfo GetDeviceInfo() override;
+
+     virtual std::string GetCurLanguage() override;
  };
 
  }  // namespace app

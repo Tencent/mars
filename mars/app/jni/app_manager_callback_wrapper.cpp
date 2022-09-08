@@ -109,5 +109,11 @@ DeviceInfo AppManagerJniCallback::GetDeviceInfo() {
     return info;
 }
 
+JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetCurLanguage, "com/tencent/mars/app/AppManager$Callback", "getCurLanguage", "()Ljava/lang/String;")
+std::string AppManagerJniCallback::GetCurLanguage() {
+    jnienv_ptr env;
+    return j2c_cast(c2j_call(jstring, callback_inst_, kAppManagerJniCallback_GetClientVersion));
+}
+
 }  // namespace app
 }  // namespace mars

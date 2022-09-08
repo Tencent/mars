@@ -54,6 +54,8 @@ class Callback {
     virtual unsigned int GetClientVersion() = 0;
 
     virtual DeviceInfo GetDeviceInfo() = 0;
+
+    virtual std::string GetCurLanguage() = 0;
 };
 
 #ifdef NATIVE_CALLBACK
