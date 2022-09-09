@@ -41,9 +41,6 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
     int offset = 0;
 
     offset += snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
-    if (offset < 0 || offset >= sizeof(assertlog)){
-        strncpy(assertlog, "[ASSERT] FAILED!!!", sizeof(assertlog));
-    }
 
 //#ifdef ANDROID
 //    android_callstack(assertlog+offset, sizeof(assertlog)-offset);
@@ -77,21 +74,27 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
     char assertlog[4096] = {'\0'};
     XLoggerInfo info= {kLevelFatal};
     
-    do{
+    do {
         int offset = snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
-        if (offset < 0 || offset >= sizeof(assertlog)){
+        if (offset < 0) {
             strncpy(assertlog, "[ASSERT] FAILED!!!", sizeof(assertlog));
             break;
         }
+        if (offset >= sizeof(assertlog)) {
+            break;
+        }
     
-        size_t leftbytes = sizeof(assertlog)-offset;
-        int offset2 = vsnprintf(assertlog+offset, leftbytes, _format, _list);
-        if (offset2 < 0 || offset2 >= leftbytes){
-            strncpy(assertlog, "[ASSERT2] FAILED!!!", sizeof(assertlog));
+        size_t leftbytes = sizeof(assertlog) - offset;
+        int offset2 = vsnprintf(assertlog + offset, leftbytes, _format, _list);
+        if (offset2 < 0) {
+            strncat(assertlog + offset, "[ASSERT2] FAILED!!!", leftbytes);
+            break;
+        }
+        if (offset2 >= leftbytes){
             break;
         }
         offset += offset2;
-    }while(0);
+    } while(0);
 
 
 //#ifdef ANDROID
