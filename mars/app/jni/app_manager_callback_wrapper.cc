@@ -33,7 +33,7 @@ bool AppManagerJniCallback::GetProxyInfo(const std::string& _host, mars::comm::P
     return false;
 }
 
-JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetAppFilePath, "com/tencent/mars/app/AppLogic$ICallback", "getAppFilePath", "()Ljava/lang/String;")
+JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetAppFilePath, "com/tencent/mars/app/AppManager$CallBack", "getAppFilePath", "()Ljava/lang/String;")
 
 std::string AppManagerJniCallback::GetAppFilePath() {
     jnienv_ptr env;
@@ -41,7 +41,7 @@ std::string AppManagerJniCallback::GetAppFilePath() {
 }
 
 JNICAT_DEFINE_CLASS("com/tencent/mars/app/AppLogic$AccountInfo")
-JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetAccountInfo, "com/tencent/mars/app/AppLogic$ICallback", "getAccountInfo", "()Lcom/tencent/mars/app/AppLogic$AccountInfo;")
+JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetAccountInfo, "com/tencent/mars/app/AppManager$CallBack", "getAccountInfo", "()Lcom/tencent/mars/app/AppLogic$AccountInfo;")
 AccountInfo AppManagerJniCallback::GetAccountInfo() {
     jnienv_ptr env;
     AccountInfo info;
@@ -65,21 +65,21 @@ AccountInfo AppManagerJniCallback::GetAccountInfo() {
     return info;
 }
 
-JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetClientVersion, "com/tencent/mars/app/AppLogic$ICallback", "getClientVersion", "()I")
+JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetClientVersion, "com/tencent/mars/app/AppManager$CallBack", "getClientVersion", "()I")
 unsigned int AppManagerJniCallback::GetClientVersion() {
     jnienv_ptr env;
     return j2c_cast(c2j_call(jint, callback_inst_, kAppManagerJniCallback_GetClientVersion));
 }
 
 JNICAT_DEFINE_CLASS("com/tencent/mars/app/AppLogic$DeviceInfo")
-JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetDeviceInfo, "com/tencent/mars/app/AppLogic$ICallback", "getDeviceInfo", "()Lcom/tencent/mars/app/AppLogic$DeviceInfo;")
+JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetDeviceInfo, "com/tencent/mars/app/AppManager$CallBack", "getDeviceType", "()Lcom/tencent/mars/app/AppLogic$DeviceInfo;")
 DeviceInfo AppManagerJniCallback::GetDeviceInfo() {
     jnienv_ptr env;
     DeviceInfo info;
     jobject ret_obj = c2j_call(jobject, callback_inst_, kAppManagerJniCallback_GetClientVersion);
 
     if (NULL == ret_obj) {
-        //xerror2(TSF "GetDeviceInfo error return null");
+        //xerror2(TSF "getDeviceType error return null");
         return info;
     }
 
@@ -109,7 +109,7 @@ DeviceInfo AppManagerJniCallback::GetDeviceInfo() {
     return info;
 }
 
-JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetCurLanguage, "com/tencent/mars/app/AppLogic$ICallback", "getCurLanguage", "()Ljava/lang/String;")
+JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetCurLanguage, "com/tencent/mars/app/AppManager$CallBack", "getCurLanguage", "()Ljava/lang/String;")
 std::string AppManagerJniCallback::GetCurLanguage() {
     jnienv_ptr env;
     return j2c_cast(c2j_call(jstring, callback_inst_, kAppManagerJniCallback_GetClientVersion));

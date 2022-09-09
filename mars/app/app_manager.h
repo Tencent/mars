@@ -11,26 +11,30 @@
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
+#include "base_app_manager.h"
 
 using namespace mars::comm;
 
 namespace mars {
 namespace app {
 
-class AppManager {
+class AppManager :public BaseAppManager {
  public:
-    void SetCallback(Callback* const callback);
-    mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
-    std::string GetAppFilePath();
-    AccountInfo GetAccountInfo();
-    std::string GetUserName();
-    std::string GetRecentUserName();
-    unsigned int GetClientVersion();
-    DeviceInfo GetDeviceInfo();
-    double GetOsVersion();
+    explicit AppManager();
+    ~AppManager() override;
+
+    void SetCallback(Callback* callback) override;
+    mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) override;
+    std::string GetAppFilePath() override;
+    AccountInfo GetAccountInfo() override;
+    std::string GetUserName() override;
+    std::string GetRecentUserName() override;
+    unsigned int GetClientVersion() override;
+    DeviceInfo GetDeviceInfo() override;
+    double GetOsVersion() override;
 
 #ifdef NATIVE_CALLBACK
-    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
+    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) override;
 #endif
 
  public:
@@ -41,7 +45,7 @@ class AppManager {
     //#endif
 
  private:
-    std::shared_ptr<Callback> callback_;
+    Callback* callback_;
     bool got_proxy_ = false;
     mars::comm::ProxyInfo proxy_info_;
     Mutex slproxymutex_;

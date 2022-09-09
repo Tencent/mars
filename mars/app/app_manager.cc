@@ -18,8 +18,8 @@ using namespace mars::comm;
 namespace mars {
 namespace app {
 
-void AppManager::SetCallback(Callback* const callback) {
-    callback_ = std::shared_ptr<Callback>(callback);
+void AppManager::SetCallback(Callback* callback) {
+    callback_ = callback;
 }
 
 mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
