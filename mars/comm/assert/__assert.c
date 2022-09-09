@@ -41,6 +41,9 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
     int offset = 0;
 
     offset += snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
+    if (offset < 0 || offset >= sizeof(assertlog)){
+        strncpy(assertlog, "[ASSERT] FAILED!!!", sizeof(assertlog));
+    }
 
 //#ifdef ANDROID
 //    android_callstack(assertlog+offset, sizeof(assertlog)-offset);
@@ -56,7 +59,7 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
     info.tid = xlogger_tid();
     info.maintid = xlogger_maintid();
 
-       xlogger_Write(&info, assertlog);
+    xlogger_Write(&info, assertlog);
     
     if (IS_ASSERT_ENABLE()) {
 #if defined(ANDROID) //&& (defined(DEBUG))
@@ -73,10 +76,23 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
 void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression, const char * _format, va_list _list) {
     char assertlog[4096] = {'\0'};
     XLoggerInfo info= {kLevelFatal};
-    int offset = 0;
+    
+    do{
+        int offset = snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
+        if (offset < 0 || offset >= sizeof(assertlog)){
+            strncpy(assertlog, "[ASSERT] FAILED!!!", sizeof(assertlog));
+            break;
+        }
+    
+        size_t leftbytes = sizeof(assertlog)-offset;
+        int offset2 = vsnprintf(assertlog+offset, leftbytes, _format, _list);
+        if (offset2 < 0 || offset2 >= leftbytes){
+            strncpy(assertlog, "[ASSERT2] FAILED!!!", sizeof(assertlog));
+            break;
+        }
+        offset += offset2;
+    }while(0);
 
-    offset += snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
-    offset += vsnprintf(assertlog+offset, sizeof(assertlog)-offset, _format, _list);
 
 //#ifdef ANDROID
 //    android_callstack(assertlog+offset, sizeof(assertlog)-offset);
@@ -92,7 +108,7 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
     info.tid = xlogger_tid();
     info.maintid = xlogger_maintid();
 
-       xlogger_Write(&info, assertlog);
+    xlogger_Write(&info, assertlog);
     
     if (IS_ASSERT_ENABLE()) {
 #if defined(ANDROID) //&& (defined(DEBUG))
