@@ -12,6 +12,8 @@
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
 #include "base_app_manager.h"
+#include "mars/app/context.h"
+
 
 using namespace mars::comm;
 
@@ -20,7 +22,7 @@ namespace app {
 
 class AppManager :public BaseAppManager {
  public:
-    explicit AppManager();
+    explicit AppManager(Context* context);
     ~AppManager() override;
 
     void SetCallback(Callback* callback) override;

@@ -13,13 +13,25 @@
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/xlogger/xlogger.h"
+
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
+
 using namespace mars::comm;
 
 namespace mars {
 namespace app {
 
+AppManager::AppManager(Context* context){
+
+}
+
 void AppManager::SetCallback(Callback* callback) {
+    //__android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback SetCallback start.");
     callback_ = callback;
+    //__android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback SetCallback start.");
 }
 
 mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {

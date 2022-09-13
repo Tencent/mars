@@ -51,17 +51,17 @@ using namespace mars::comm;
 namespace mars {
 namespace app {
 
-static AppManager* app_manager = new AppManager();
+//static AppManager* app_manager = new AppManager();
 //static Callback* sg_callback = NULL;
 
 void SetCallback(Callback* const callback) {
     //sg_callback = callback;
-    app_manager->SetCallback(callback);
+//    app_manager->SetCallback(callback);
 }
 
 #ifdef NATIVE_CALLBACK
 void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
-    app_manager->SetAppLogicNativeCallback(_cb);
+//    app_manager->SetAppLogicNativeCallback(_cb);
 }
 #endif
 
@@ -117,7 +117,7 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //        lock.lock();
 //        sg_proxyInfo.ip = ips.front();
 //        sg_gotProxy = true;
-        app_manager->__GetProxyInfo(_host, _timetick);
+//        app_manager->__GetProxyInfo(_host, _timetick);
 
     }
 
@@ -128,7 +128,7 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //        sg_slproxycount = 0;
 //        sg_gotProxy = false;
 //        sg_proxyInfo.type = mars::comm::kProxyNone;
-        app_manager->__ClearProxyInfo();
+//        app_manager->__ClearProxyInfo();
     }
 
     static void __InitbindBaseprjevent() {
@@ -162,7 +162,8 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //        }
 //
 //        return mars::comm::ProxyInfo();
-        return app_manager->GetProxyInfo(_host);
+//        return app_manager->GetProxyInfo(_host);
+        return mars::comm::ProxyInfo();
 
     }
 
@@ -175,32 +176,37 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //#endif
 //
 //        return path;
-        return app_manager->GetAppFilePath();
+//        return app_manager->GetAppFilePath();
+        return "";
     }
 
 	AccountInfo GetAccountInfo() {
 //		xassert2(sg_callback != NULL);
 //		return sg_callback->GetAccountInfo();
-        return app_manager->GetAccountInfo();
-	}
+//        return app_manager->GetAccountInfo();
+	    return AccountInfo();
+        }
 
 	std::string GetUserName() {
 //		xassert2(sg_callback != NULL);
 //		AccountInfo info = sg_callback->GetAccountInfo();
 //		return info.username;
-        return app_manager->GetUserName();
+//        return app_manager->GetUserName();
+            return "";
 	}
 
 	std::string GetRecentUserName() {
 //		xassert2(sg_callback != NULL);
 //		return GetUserName();
-        return app_manager->GetRecentUserName();
+//        return app_manager->GetRecentUserName();
+            return "";
 	}
 
 	unsigned int GetClientVersion() {
 //		xassert2(sg_callback != NULL);
 //		return sg_callback->GetClientVersion();
-        return app_manager->GetClientVersion();
+//        return app_manager->GetClientVersion();
+            return 0;
 	}
 
 
@@ -214,7 +220,8 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //
 //    device_info = sg_callback->GetDeviceInfo();
 //    return device_info;
-      return app_manager->GetDeviceInfo();
+//      return app_manager->GetDeviceInfo();
+return DeviceInfo();
 	}
 
 #endif

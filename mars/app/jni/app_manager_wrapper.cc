@@ -47,6 +47,11 @@ class JniAppManager {
         appManagerCallbackWrapper->instantiate(env, instance, "callbackHandle");
 
         __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback set callback.");
+        if(app_manager_cpp){
+            __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback app_manager_cpp is not empty.");
+        }else{
+            __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback app_manager_cpp is empty.");
+        }
         app_manager_cpp->SetCallback(appManagerJniCallback);
 
         __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback end.");
