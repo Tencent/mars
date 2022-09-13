@@ -45,9 +45,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved)
 	
     //jcache::shared()->set_exception_handler();
     jcache::shared()->set_exception_handler(&MyExceptionHandler);
-    __android_log_print(ANDROID_LOG_INFO, "NEWT", "int start");
     jcache::shared()->init(jvm);
-    __android_log_print(ANDROID_LOG_INFO, "NEWT", "int finish");
 
     return JNI_VERSION_1_6;
 }

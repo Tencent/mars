@@ -18,14 +18,9 @@ namespace app {
 class JniAppManager {
  public:
     static void JniCreateAppManagerFromHandle(JNIEnv* env, jobject instance, jlong handle) {
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniCreateAppManagerFromHandle start. env:%lu handle:%ld", (uint64_t)env, handle);
-
         auto app_manager_cpp = (BaseAppManager*)j2c_cast(handle);
         auto appManagerWrapper = new jnicat::JniObjectWrapper<BaseAppManager>(app_manager_cpp);
         appManagerWrapper->instantiate(env, instance);
-
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniCreateAppManagerFromHandle cpp %lu.", (uint64_t)app_manager_cpp);
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniCreateAppManagerFromHandle end.");
     }
 
     static void JniOnDestroyAppManager(JNIEnv* env, jobject instance) {
@@ -36,25 +31,11 @@ class JniAppManager {
     }
 
     static void JniSetCallback(JNIEnv* env, jobject instance, jobject callback) {
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback start. env:%lu", (uint64_t)env);
         auto app_manager_cpp = jnicat::JniObjectWrapper<BaseAppManager>::object(env, instance);
-
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback cpp %lu", (uint64_t)app_manager_cpp);
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback new callback.");
-
         auto appManagerJniCallback = new AppManagerJniCallback(env, callback);
         auto appManagerCallbackWrapper = new jnicat::JniObjectWrapper<AppManagerJniCallback>(appManagerJniCallback);
         appManagerCallbackWrapper->instantiate(env, instance, "callbackHandle");
-
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback set callback.");
-        if(app_manager_cpp){
-            __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback app_manager_cpp is not empty.");
-        }else{
-            __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback app_manager_cpp is empty.");
-        }
         app_manager_cpp->SetCallback(appManagerJniCallback);
-
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback end.");
     }
 };
 

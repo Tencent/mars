@@ -24,7 +24,7 @@ class Context : public BaseContext{
     ~Context() override;
  public:
     static Context* CreateContext(const std::string &context_id);
-    static void DeleteContext(Context* context);
+    static void DeleteContext(BaseContext* context);
 public:
     AppManager* appManager() {return app_manager_;}
  public:

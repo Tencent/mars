@@ -266,13 +266,8 @@ int jcache::init(JavaVM* vm) {
     }
 
     vm_ = vm;
-    __android_log_print(ANDROID_LOG_INFO, "NEWT", "__cache_class.");
     __cache_class(env);
-
-    __android_log_print(ANDROID_LOG_INFO, "NEWT", "__cache_method.");
     __cache_method(env);
-
-    __android_log_print(ANDROID_LOG_INFO, "NEWT", "__register_all_jnimethod.");
     __register_all_jnimethod(env);
     return JNI_VERSION_1_6;
 }
@@ -287,12 +282,10 @@ void jcache::set_exception_handler(C2JavaExceptionHandler handler) { exception_h
 
 void jcache::__cache_class(JNIEnv* env) {
     for (auto classname: kJarrayClassnameMap) {
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "__cache_class. %s", classname);
         get_class(env, classname);
     }
 
     for (auto classname: kJwrapperClassnameMap) {
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "__cache_class. %s", classname);
         get_class(env, classname);
     }
 
@@ -819,7 +812,6 @@ static void __cache_all_cacheitem(JNIEnv* env) {
     auto cache = __get_all_cacheitem();
     for (auto ci: cache) {
         xdebug("cacheitem(\"%s\", \"%s\", \"%s\", %d)", ci->classname, ci->name, ci->signature, ci->type);
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "__cache_all_cacheitem(\"%s\", \"%s\", \"%s\", %d)", ci->classname, ci->name, ci->signature, ci->type);
         switch (ci->type) {
             case kCacheClass: {
                 jcache::shared()->get_class(env, ci->classname);
@@ -850,7 +842,6 @@ static void __cache_all_cacheitem(JNIEnv* env) {
 static void __register_all_jnimethod(JNIEnv* env) {
     auto cache = __get_all_jnimethod();
     for (auto ni: cache) {
-        __android_log_print(ANDROID_LOG_INFO, "NEWT", "__register_all_jnimethod(\"%s\")", ni->classname);
         auto clz = jcache::shared()->get_class(env, ni->classname);
         jint error = env->RegisterNatives(clz, ni->methods, ni->count);
         if (error != JNI_OK) {
@@ -866,7 +857,6 @@ const jcacheitem* add_cacheitem(const jcacheitem* ci) {
 
 const jnativeitem* add_nativeitem(const jnativeitem* ni) {
     __get_all_jnimethod().push_back(ni);
-    __android_log_print(ANDROID_LOG_INFO, "NEWT", "__register_all_jnimethod(\"%s\" \"%s\")", ni->classname, ni->methods->name);
     return ni;
 }
 

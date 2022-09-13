@@ -28,10 +28,12 @@ AppManager::AppManager(Context* context){
 
 }
 
+AppManager::~AppManager(){
+
+}
+
 void AppManager::SetCallback(Callback* callback) {
-    //__android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback SetCallback start.");
     callback_ = callback;
-    //__android_log_print(ANDROID_LOG_INFO, "NEWT", "JniSetCallback SetCallback start.");
 }
 
 mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {

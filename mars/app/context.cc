@@ -19,6 +19,9 @@ static int context_instance_counter_ = 0;
 namespace mars {
 namespace app {
 
+std::map<std::string, Context *> Context::s_context_map_;
+std::recursive_mutex Context::s_mutex_;
+
 Context::Context() {
     context_instance_counter_++;
     app_manager_ = new AppManager(this);
@@ -50,7 +53,7 @@ Context* Context::CreateContext(const std::string& context_id) {
     }
 }
 
-void Context::DeleteContext(Context* context) {
+void Context::DeleteContext(BaseContext* context) {
     S_SCOPED_LOCK();
     if (context != nullptr) {
         auto* temp_context = dynamic_cast<Context*>(context);
@@ -95,6 +98,14 @@ const std::string &Context::GetContextId() {
 
 BaseAppManager* Context::GetAppManager() {
     return app_manager_;
+}
+
+MARS_API BaseContext *CreateBaseContext(const std::string &context_id) {
+    return Context::CreateContext(context_id);
+}
+
+MARS_API void DestroyBaseContext(BaseContext *context) {
+    Context::DeleteContext(context);
 }
 
 }  // namespace app
