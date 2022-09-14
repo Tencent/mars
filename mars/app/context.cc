@@ -100,11 +100,11 @@ BaseAppManager* Context::GetAppManager() {
     return app_manager_;
 }
 
-MARS_API BaseContext *CreateBaseContext(const std::string &context_id) {
+MARS_API BaseContext *CreateContext(const std::string &context_id) {
     return Context::CreateContext(context_id);
 }
 
-MARS_API void DestroyBaseContext(BaseContext *context) {
+MARS_API void DestroyContext(BaseContext *context) {
     Context::DeleteContext(context);
 }
 

@@ -18,28 +18,20 @@
 #include <android/log.h>
 #endif
 
-
 using namespace mars::comm;
 
 namespace mars {
 namespace app {
 
-AppManager::AppManager(Context* context){
-
+AppManager::AppManager(Context* context) {
 }
 
-AppManager::~AppManager(){
-
+AppManager::~AppManager() {
 }
 
 void AppManager::SetCallback(Callback* callback) {
     callback_ = callback;
 }
-#ifdef NATIVE_CALLBACK
-void AppManager::SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
-
-}
-#endif
 
 mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
     xassert2(callback_ != NULL);
@@ -59,7 +51,7 @@ mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
         return mars::comm::ProxyInfo();
 
     if (slproxycount_ < 3 || 5 * 1000 > gettickspan(slproxytimetick_)) {
-        slproxythread_.start(boost::bind(&AppManager::__GetProxyInfo, this, _host, slproxytimetick_));
+        slproxythread_.start(boost::bind(&AppManager::GetProxyInfo, this, _host, slproxytimetick_));
     }
 
     if (got_proxy_) {
@@ -114,17 +106,12 @@ DeviceInfo AppManager::GetDeviceInfo() {
     return device_info;
 }
 
-//TODO GetOsVersion no implement in orginal mars
+// TODO GetOsVersion no implement in original mars
 double AppManager::GetOsVersion() {
     return 0;
 }
 
-#ifdef NATIVE_CALLBACK
-void AppManager::SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
-}
-#endif
-
-void AppManager::__GetProxyInfo(const std::string& _host, uint64_t _timetick) {
+void AppManager::GetProxyInfo(const std::string& _host, uint64_t _timetick) {
     xinfo_function(TSF "timetick:%_, host:%_", _timetick, _host);
     mars::comm::ProxyInfo proxy_info;
     if (!callback_->GetProxyInfo(_host, proxy_info)) {

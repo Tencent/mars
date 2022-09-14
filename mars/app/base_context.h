@@ -41,8 +41,8 @@ class BaseContext {
 #define MARS_API extern "C"
 #endif
 
-MARS_API BaseContext* CreateBaseContext(const std::string& context_id);
-MARS_API void DestroyBaseContext(BaseContext* context);
+MARS_API BaseContext* CreateContext(const std::string& context_id);
+MARS_API void DestroyContext(BaseContext* context);
 
 }  // namespace app
 }  // namespace mars

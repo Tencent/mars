@@ -28,10 +28,12 @@ class BaseAppManager{
     virtual DeviceInfo GetDeviceInfo() = 0;
     virtual double GetOsVersion() = 0;
 
-#ifdef NATIVE_CALLBACK
-    virtual void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) = 0;
-#endif
+ public:
+    virtual void GetProxyInfo(const std::string& _host, uint64_t _timetick) = 0;
 
+//    #if TARGET_OS_IPHONE
+    virtual void ClearProxyInfo() = 0;
+//    #endif
 };
 
 }

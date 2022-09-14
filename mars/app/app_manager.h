@@ -5,22 +5,21 @@
 #ifndef MMNET_APP_MANAGER_H
 #define MMNET_APP_MANAGER_H
 
+#include "base_app_manager.h"
 #include "mars/app/app.h"
+#include "mars/app/context.h"
 #include "mars/comm/comm_data.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
-#include "base_app_manager.h"
-#include "mars/app/context.h"
-
 
 using namespace mars::comm;
 
 namespace mars {
 namespace app {
 
-class AppManager :public BaseAppManager {
+class AppManager : public BaseAppManager {
  public:
     explicit AppManager(Context* context);
     ~AppManager() override;
@@ -35,16 +34,12 @@ class AppManager :public BaseAppManager {
     DeviceInfo GetDeviceInfo() override;
     double GetOsVersion() override;
 
-#ifdef NATIVE_CALLBACK
-//    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) override;
-#endif
-
  public:
-    void __GetProxyInfo(const std::string& _host, uint64_t _timetick);
+    void GetProxyInfo(const std::string& _host, uint64_t _timetick) override;
 
-    //#if TARGET_OS_IPHONE
-    void ClearProxyInfo();
-    //#endif
+//    #if TARGET_OS_IPHONE
+    void ClearProxyInfo() override;
+//    #endif
 
  private:
     Callback* callback_;

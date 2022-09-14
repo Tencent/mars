@@ -56,10 +56,9 @@ namespace app {
     DeviceInfo GetDeviceInfo();
     double GetOsVersion();
 
-#ifdef NATIVE_CALLBACK
-    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
-#endif
-
+//#ifdef NATIVE_CALLBACK
+//    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
+//#endif
 
 }}
 
