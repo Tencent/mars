@@ -45,7 +45,6 @@
 #include "mars/comm/dns/dns.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "app_manager.h"
-#include "context.h"
 
 using namespace mars::comm;
 

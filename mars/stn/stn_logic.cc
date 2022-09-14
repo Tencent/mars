@@ -50,9 +50,10 @@
 
 #include "mars/comm/thread/atomic_oper.h"
 #include "mars/stn/stn_callback_bridge.h"
-#include "stn_manager.h"
+#include "mars/stn/stn_manager.h"
 
 using namespace mars::comm;
+using namespace mars::boot;
 
 namespace mars {
 namespace stn {
@@ -205,22 +206,23 @@ void RequestSync() {
 //底层询问上层http网络检查的域名列表
 void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
     BaseContext* context = CreateContext("default");
-    context->GetStnManager()->RequestNetCheckShortLinkHosts(_hostlist);
+    //TODO cpan mars2
+    //    context->GetStnManager()->RequestNetCheckShortLinkHosts(_hostlist);
 }
 //底层向上层上报cgi执行结果
 void ReportTaskProfile(const TaskProfile& _task_profile) {
     BaseContext* context = CreateContext("default");
-    context->GetStnManager()->ReportTaskProfile(_task_profile);
+    //context->GetStnManager()->ReportTaskProfile(_task_profile);
 }
 //底层通知上层cgi命中限制
 void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
     BaseContext* context = CreateContext("default");
-    context->GetStnManager()->ReportTaskLimited(_check_type, _task, _param);
+    //context->GetStnManager()->ReportTaskLimited(_check_type, _task, _param);
 }
 //底层上报域名dns结果
 void ReportDnsProfile(const DnsProfile& _dns_profile) {
     BaseContext* context = CreateContext("default");
-    context->GetStnManager()->ReportDnsProfile(_dns_profile);
+    //context->GetStnManager()->ReportDnsProfile(_dns_profile);
 }
 //.生成taskid.
 uint32_t GenTaskID() {
@@ -235,7 +237,8 @@ void SetCallback(Callback* const callback) {
 
 void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
     BaseContext* context = CreateContext("default");
-    context->GetStnManager()->SetStnCallbackBridge(_callback_bridge);
+    //TODO cpan mars2
+    //context->GetStnManager()->SetStnCallbackBridge(_callback_bridge);
 }
 
 // StnCallbackBridge* GetStnCallbackBridge() {

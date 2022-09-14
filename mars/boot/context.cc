@@ -4,7 +4,7 @@
 
 #include "context.h"
 
-#include "app_manager.h"
+#include "mars/app/app_manager.h"
 #include "mars/comm/comm_util.h"
 #include "mars/stn/stn_manager.h"
 
@@ -16,16 +16,18 @@
 
 static int context_instance_counter_ = 0;
 
+
+
 namespace mars {
-namespace app {
+namespace boot {
 
 std::map<std::string, Context *> Context::s_context_map_;
 std::recursive_mutex Context::s_mutex_;
 
 Context::Context() {
     context_instance_counter_++;
-    app_manager_ = new AppManager(this);
-    stn_manager_ = new StnManager(this);
+    app_manager_ = new mars::app::AppManager(this);
+    stn_manager_ = new mars::stn::StnManager(this);
 }
 
 Context::~Context() {

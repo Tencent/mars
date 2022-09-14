@@ -8,13 +8,12 @@
 #endif  // MMNET_STN_MANAGER_H
 
 #include "base_stn_manager.h"
-#include "mars/app/context.h"
+#include "mars/boot/context.h"
 #include "mars/comm/thread/mutex.h"
-#include "stn.h"
-#include "stn_logic.h"
+#include "mars/stn/stn.h"
 
 using namespace mars::comm;
-using namespace mars::app;
+using namespace mars::boot;
 
 namespace mars {
 
@@ -82,13 +81,13 @@ class StnManager : public BaseStnManager {
     //验证是否已登录
 
     //底层询问上层http网络检查的域名列表
-    void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) override;
-    //底层向上层上报cgi执行结果
-    void ReportTaskProfile(const ::mars::stn::TaskProfile& _task_profile) override;
-    //底层通知上层cgi命中限制
-    void ReportTaskLimited(int _check_type, const ::mars::stn::Task& _task, unsigned int& _param) override;
-    //底层上报域名dns结果
-    void ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile) override;
+//    void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) override;
+//    //底层向上层上报cgi执行结果
+//    void ReportTaskProfile(const ::mars::stn::TaskProfile& _task_profile) override;
+//    //底层通知上层cgi命中限制
+//    void ReportTaskLimited(int _check_type, const ::mars::stn::Task& _task, unsigned int& _param) override;
+//    //底层上报域名dns结果
+//    void ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile) override;
     //.生成taskid.
     uint32_t GenTaskID() override;
 

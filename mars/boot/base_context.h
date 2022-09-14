@@ -13,9 +13,10 @@
 #include "mars/stn/base_stn_manager.h"
 
 using namespace mars::stn;
+using namespace mars::app;
 
 namespace mars {
-namespace app {
+namespace boot {
 
 class BaseContext {
  public:

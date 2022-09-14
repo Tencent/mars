@@ -9,8 +9,8 @@
 #include "comm/jni/jnicat/jnicat_object_wrapper.h"
 #include "mars/app/app_manager.h"
 #include "mars/app/base_app_manager.h"
-#include "mars/app/base_context.h"
-#include "mars/app/context.h"
+#include "mars/boot/base_context.h"
+#include "mars/boot/context.h"
 
 namespace mars {
 namespace app {

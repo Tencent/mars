@@ -2,7 +2,7 @@
 // Created by Cpan on 2022/5/27.
 //
 
-#include "stn_manager.h"
+#include "mars/stn/stn_manager.h"
 
 #include <stdlib.h>
 #include <string>
@@ -195,7 +195,9 @@ int StnManager::Buf2Resp(uint32_t taskid, void* const user_context, const std::s
 //任务执行结束
 int StnManager::OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
     xassert2(callback_ != NULL);
-    return callback_->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
+    //TODO cpan mars2
+//    return callback_->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
+    return 0;
 }
 
 //上报网络连接状态

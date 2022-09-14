@@ -5,8 +5,6 @@
 #ifndef MMNET_BASE_STN_MANAGER_H
 #define MMNET_BASE_STN_MANAGER_H
 
-#endif  // MMNET_BASE_STN_MANAGER_H
-
 #include "stn.h"
 
 namespace mars {
@@ -67,15 +65,15 @@ class BaseStnManager {
 
     virtual void RequestSync() = 0;
 
-//    //底层询问上层http网络检查的域名列表
-//    virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
-//    //底层向上层上报cgi执行结果
-//    virtual void ReportTaskProfile(const ::mars::stn::TaskProfile& _task_profile) = 0;
-//    //底层通知上层cgi命中限制
-//    virtual void ReportTaskLimited(int _check_type, const ::mars::stn::Task& _task, unsigned int& _param) = 0;
-//    //底层上报域名dns结果
-//    virtual void ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile) = 0;
-//
+    //    //底层询问上层http网络检查的域名列表
+    //    virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
+    //    //底层向上层上报cgi执行结果
+    //    virtual void ReportTaskProfile(const ::mars::stn::TaskProfile& _task_profile) = 0;
+    //    //底层通知上层cgi命中限制
+    //    virtual void ReportTaskLimited(int _check_type, const ::mars::stn::Task& _task, unsigned int& _param) = 0;
+    //    //底层上报域名dns结果
+    //    virtual void ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile) = 0;
+    //
 
     //.生成taskid.
     virtual uint32_t GenTaskID() = 0;
@@ -167,3 +165,5 @@ class BaseStnManager {
 
 }  // namespace stn
 }  // namespace mars
+
+#endif  // MMNET_BASE_STN_MANAGER_H

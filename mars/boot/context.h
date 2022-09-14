@@ -10,18 +10,20 @@
 #include <vector>
 #include <mutex>
 
-#include "mars/app/base_context.h"
+#include "mars/boot/base_context.h"
 
 
 namespace mars {
+
 namespace stn {
 class StnManager;
 }
 
 namespace app {
-
 class AppManager;
+}
 
+namespace boot {
 class Context : public BaseContext{
  public:
     explicit Context();

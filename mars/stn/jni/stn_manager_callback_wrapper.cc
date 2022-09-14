@@ -74,38 +74,41 @@ void StnManagerJniCallback::OnPush(const std::string& _channel_id, uint32_t _cmd
     } else {
         // xdebug2(TSF"the data.Lenght() < = 0");
     }
-    c2j_call(void, callback_inst_, kStnManagerJniCallback_OnPush, c2j_cast(jstring, _channel_id), c2j_cast(jint, _cmdid), c2j_cast(jint, _taskid), c2j_cast(jbyteArray, _body), c2j_cast(jbyteArray, _extend));
+    //TODO cpan mars2
+    //c2j_call(void, callback_inst_, kStnManagerJniCallback_OnPush, c2j_cast(jstring, _channel_id), c2j_cast(jint, _cmdid), c2j_cast(jint, _taskid), c2j_cast(jbyteArray, _body), c2j_cast(jbyteArray, _extend));
 }
 
 JNICAT_DEFINE_METHOD(kStnManagerJniCallback_Req2Buf, "com/tencent/mars/stn/StnManager$CallBack", "req2Buf", "(ILjava/lang/Object;Ljava/lang/String;Ljava/io/ByteArrayOutputStream;[B[IILjava/lang/String;)Z")
 bool StnManagerJniCallback::Req2Buf(uint32_t _taskid, void* const _user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
     jnienv_ptr env;
-    return j2c_cast(c2j_call(jboolean,
-                             callback_inst_,
-                             kStnManagerJniCallback_Req2Buf,
-                             c2j_cast(jint, _taskid),
-                             _user_context,
-                             c2j_cast(jstring, _user_id),
-                             c2j_cast(jbyteArray, outbuffer),
-                             c2j_cast(jbyteArray, extend),
-                             c2j_cast(jint, error_code),
-                             c2j_cast(jint, channel_select),
-                             c2j_cast(jstring, host)));
+//    return j2c_cast(c2j_call(jboolean,
+//                             callback_inst_,
+//                             kStnManagerJniCallback_Req2Buf,
+//                             c2j_cast(jint, _taskid),
+//                             _user_context,
+//                             c2j_cast(jstring, _user_id),
+//                             c2j_cast(jbyteArray, outbuffer),
+//                             c2j_cast(jbyteArray, extend),
+//                             c2j_cast(jint, error_code),
+//                             c2j_cast(jint, channel_select),
+//                             c2j_cast(jstring, host)));
+    return false;
 }
 
 JNICAT_DEFINE_METHOD(kStnManagerJniCallback_Buf2Resp, "com/tencent/mars/stn/StnManager$CallBack", "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[B[II)I")
 int StnManagerJniCallback::Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
     jnienv_ptr env;
-    return j2c_cast(c2j_call(jint,
-                             callback_inst_,
-                             kStnManagerJniCallback_Buf2Resp,
-                             c2j_cast(jint, _taskid),
-                             _user_context,
-                             c2j_cast(jstring, _user_id),
-                             c2j_cast(jbyteArray, _inbuffer),
-                             c2j_cast(jbyteArray, _extend),
-                             c2j_cast(jint, _error_code),
-                             c2j_cast(jint, _channel_select)));
+//    return j2c_cast(c2j_call(jint,
+//                             callback_inst_,
+//                             kStnManagerJniCallback_Buf2Resp,
+//                             c2j_cast(jint, _taskid),
+//                             _user_context,
+//                             c2j_cast(jstring, _user_id),
+//                             c2j_cast(jbyteArray, _inbuffer),
+//                             c2j_cast(jbyteArray, _extend),
+//                             c2j_cast(jint, _error_code),
+//                             c2j_cast(jint, _channel_select)));
+    return 0;
 }
 
 DEFINE_FIND_CLASS(KC2JavaStnCgiProfile, "com/tencent/mars/stn/StnLogic$CgiProfile");
@@ -133,7 +136,8 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
     jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt", "J");
     jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType", "I");
 
-    return j2c_cast(c2j_call(jint, callback_inst_, kStnManagerJniCallback_OnTaskEnd, c2j_cast(jint, _taskid), _user_context, c2j_cast(jstring, _user_id), c2j_cast(jint, _error_type), c2j_cast(jint, _error_code), cgiProfileCls));
+//    return j2c_cast(c2j_call(jint, callback_inst_, kStnManagerJniCallback_OnTaskEnd, c2j_cast(jint, _taskid), _user_context, c2j_cast(jstring, _user_id), c2j_cast(jint, _error_type), c2j_cast(jint, _error_code), cgiProfileCls));
+    return 0;
 }
 
 JNICAT_DEFINE_METHOD(kStnManagerJniCallback_ReportConnectStatus, "com/tencent/mars/stn/StnManager$CallBack", "reportConnectStatus", "(II)V")
@@ -174,13 +178,15 @@ JNICAT_DEFINE_METHOD(kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer,
                      "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
 int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     jnienv_ptr env;
-    return j2c_cast(c2j_call(jint, callback_inst_, kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, c2j_cast(jstring, _channel_id), c2j_cast(jbyteArray, _identify_buffer), c2j_cast(jbyteArray, _buffer_hash), c2j_cast(jint, _cmdid)));
+    //return j2c_cast(c2j_call(jint, callback_inst_, kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, c2j_cast(jstring, _channel_id), c2j_cast(jbyteArray, _identify_buffer), c2j_cast(jbyteArray, _buffer_hash), c2j_cast(jint, _cmdid)));
+    return 0;
 }
 
 JNICAT_DEFINE_METHOD(kStnManagerJniCallback_OnLonglinkIdentifyResponse, "com/tencent/mars/stn/StnManager$CallBack", "onLonglinkIdentifyResponse", "(Ljava/lang/String;[B[B)Z")
 bool StnManagerJniCallback::OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {
     jnienv_ptr env;
-    return j2c_cast(c2j_call(jboolean, callback_inst_, kStnManagerJniCallback_OnLonglinkIdentifyResponse, c2j_cast(jstring, _channel_id), c2j_cast(jbyteArray, _response_buffer), c2j_cast(jbyteArray, _identify_buffer_hash)));
+    //return j2c_cast(c2j_call(jboolean, callback_inst_, kStnManagerJniCallback_OnLonglinkIdentifyResponse, c2j_cast(jstring, _channel_id), c2j_cast(jbyteArray, _response_buffer), c2j_cast(jbyteArray, _identify_buffer_hash)));
+    return false;
 }
 
 JNICAT_DEFINE_METHOD(kStnManagerJniCallback_RequestSync, "com/tencent/mars/stn/StnManager$CallBack", "requestSync", "()V")

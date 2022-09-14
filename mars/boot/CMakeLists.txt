@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.6)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation directory" FORCE)
 message(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
-project (app)
+project (boot)
 
 include(../comm/CMakeUtils.txt)
 include(../comm/CMakeExtraFlags.txt)

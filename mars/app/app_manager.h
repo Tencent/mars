@@ -7,7 +7,7 @@
 
 #include "base_app_manager.h"
 #include "mars/app/app.h"
-#include "mars/app/context.h"
+#include "mars/boot/context.h"
 #include "mars/comm/comm_data.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
@@ -15,6 +15,7 @@
 #include "mars/comm/time_utils.h"
 
 using namespace mars::comm;
+using namespace mars::boot;
 
 namespace mars {
 namespace app {
