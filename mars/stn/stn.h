@@ -366,10 +366,10 @@ class Callback
     virtual void RequestSync() = 0;
 
     //验证是否已登录
-    //        virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
-    //        virtual void ReportTaskProfile(const TaskProfile& _task_profile);
-    //        virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
-    //        virtual void ReportDnsProfile(const DnsProfile& _dns_profile);
+//            virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
+//            virtual void ReportTaskProfile(const TaskProfile& _task_profile) = 0;
+//            virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param)= 0;
+//            virtual void ReportDnsProfile(const DnsProfile& _dns_profile)= 0;
 };
 
 //extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);

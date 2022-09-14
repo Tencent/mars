@@ -36,8 +36,6 @@ class ProxyInfo;
 }
     
 namespace stn {
-    class StnCallbackBridge;
-    
     //callback interface
 //    class Callback
 //    {
@@ -126,8 +124,8 @@ namespace stn {
     //end callback
 
     void SetCallback(Callback* const callback);
-    void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
-    StnCallbackBridge* GetStnCallbackBridge();
+//    void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
+//    StnCallbackBridge* GetStnCallbackBridge();
 
 //    extern void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports);
 //    extern void SetShortlinkSvrAddr(const uint16_t port);

@@ -49,6 +49,11 @@ class JniContext {
         auto context_cpp = jnicat::JniObjectWrapper<BaseContext>::object(env, instance);
         return c2j_cast(jlong, (int64_t)context_cpp->GetAppManager());
     }
+
+    static jlong JniGetStnManager(JNIEnv* env, jobject instance) {
+        auto context_cpp = jnicat::JniObjectWrapper<BaseContext>::object(env, instance);
+        return c2j_cast(jlong, (int64_t)context_cpp->GetStnManager());
+    }
 };
 
 static const JNINativeMethod kContextJniMethods[] = {
@@ -58,6 +63,7 @@ static const JNINativeMethod kContextJniMethods[] = {
     {"OnJniInit", "()I", (void*)&JniContext::JniInit},
     {"OnJniUnInit", "()I", (void*)&JniContext::JniUnInit},
     {"OnJniGetAppManager", "()J", (void*)&JniContext::JniGetAppManager},
+    {"OnJniGetStnManager", "()J", (void*)&JniContext::JniGetStnManager},
 };
 
 static const size_t kContextJniMethodsCount = sizeof(kContextJniMethods) / sizeof(JNINativeMethod);

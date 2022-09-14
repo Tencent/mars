@@ -14,6 +14,10 @@
 
 
 namespace mars {
+namespace stn {
+class StnManager;
+}
+
 namespace app {
 
 class AppManager;
@@ -27,11 +31,14 @@ class Context : public BaseContext{
     static void DeleteContext(BaseContext* context);
 public:
     AppManager* appManager() {return app_manager_;}
+    StnManager* stnManager() {return stn_manager_;}
  public:
     int Init() override;
     int UnInit() override;
     
     BaseAppManager* GetAppManager() override;
+    BaseStnManager* GetStnManager() override;
+
 public:
     void SetContextId(const std::string &context_id);
     const std::string &GetContextId();
@@ -46,6 +53,8 @@ public:
     std::once_flag set_context_id_flag_;
     std::recursive_mutex mutex_;
     AppManager* app_manager_ = nullptr;
+    StnManager* stn_manager_ = nullptr;
+
 };
 
 }  // namespace app

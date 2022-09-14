@@ -10,6 +10,9 @@
 #include <vector>
 #include <mutex>
 #include "mars/app/base_app_manager.h"
+#include "mars/stn/base_stn_manager.h"
+
+using namespace mars::stn;
 
 namespace mars {
 namespace app {
@@ -25,6 +28,7 @@ class BaseContext {
 //    virtual int SetContextId(std::string& context_id) = 0;
 //    virtual std::string GetContextId() = 0;
     virtual BaseAppManager* GetAppManager() = 0;
+    virtual BaseStnManager* GetStnManager() = 0;
 };
 
 #ifdef _WIN32

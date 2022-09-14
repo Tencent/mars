@@ -6,7 +6,7 @@
 
 #include "app_manager.h"
 #include "mars/comm/comm_util.h"
-#include "app_manager.h"
+#include "mars/stn/stn_manager.h"
 
 #define SCOPED_LOCK() std::unique_lock<std::recursive_mutex> lock(mutex_)
 #define SCOPED_UNLOCK() lock.unlock()
@@ -25,11 +25,13 @@ std::recursive_mutex Context::s_mutex_;
 Context::Context() {
     context_instance_counter_++;
     app_manager_ = new AppManager(this);
+    stn_manager_ = new StnManager(this);
 }
 
 Context::~Context() {
     UnInit();
     safe_delete(app_manager_);
+    safe_delete(stn_manager_);
     context_instance_counter_--;
 }
 
@@ -99,6 +101,11 @@ const std::string &Context::GetContextId() {
 BaseAppManager* Context::GetAppManager() {
     return app_manager_;
 }
+
+BaseStnManager* Context::GetStnManager() {
+    return stn_manager_;
+}
+
 
 MARS_API BaseContext *CreateContext(const std::string &context_id) {
     return Context::CreateContext(context_id);
