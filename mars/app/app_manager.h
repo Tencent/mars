@@ -36,20 +36,20 @@ class AppManager :public BaseAppManager {
     double GetOsVersion() override;
 
 #ifdef NATIVE_CALLBACK
-    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) override;
+//    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) override;
 #endif
 
  public:
     void __GetProxyInfo(const std::string& _host, uint64_t _timetick);
 
     //#if TARGET_OS_IPHONE
-    void __ClearProxyInfo();
+    void ClearProxyInfo();
     //#endif
 
  private:
     Callback* callback_;
-    bool got_proxy_ = false;
     mars::comm::ProxyInfo proxy_info_;
+    bool got_proxy_ = false;
     Mutex slproxymutex_;
     Thread slproxythread_;
     uint64_t slproxytimetick_ = gettickcount();

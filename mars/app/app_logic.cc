@@ -45,23 +45,26 @@
 #include "mars/comm/dns/dns.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "app_manager.h"
+#include "context.h"
 
 using namespace mars::comm;
 
 namespace mars {
 namespace app {
 
+static BaseContext* context = CreateBaseContext("default");
 //static AppManager* app_manager = new AppManager();
 //static Callback* sg_callback = NULL;
 
 void SetCallback(Callback* const callback) {
     //sg_callback = callback;
-//    app_manager->SetCallback(callback);
+    context->GetAppManager()->SetCallback(callback);
+
 }
 
 #ifdef NATIVE_CALLBACK
 void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
-//    app_manager->SetAppLogicNativeCallback(_cb);
+    context->GetAppManager()->SetAppLogicNativeCallback(_cb);
 }
 #endif
 
@@ -117,8 +120,7 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //        lock.lock();
 //        sg_proxyInfo.ip = ips.front();
 //        sg_gotProxy = true;
-//        app_manager->__GetProxyInfo(_host, _timetick);
-
+//        context->GetAppManager()->__GetProxyInfo(_host, _timetick);
     }
 
 #if TARGET_OS_IPHONE
@@ -128,7 +130,7 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //        sg_slproxycount = 0;
 //        sg_gotProxy = false;
 //        sg_proxyInfo.type = mars::comm::kProxyNone;
-//        app_manager->__ClearProxyInfo();
+//        context->GetAppManager()->ClearProxyInfo();
     }
 
     static void __InitbindBaseprjevent() {
@@ -162,9 +164,7 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //        }
 //
 //        return mars::comm::ProxyInfo();
-//        return app_manager->GetProxyInfo(_host);
-        return mars::comm::ProxyInfo();
-
+        return context->GetAppManager()->GetProxyInfo(_host);
     }
 
     std::string GetAppFilePath() {
@@ -176,37 +176,32 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //#endif
 //
 //        return path;
-//        return app_manager->GetAppFilePath();
-        return "";
+        return context->GetAppManager()->GetAppFilePath();
     }
 
 	AccountInfo GetAccountInfo() {
 //		xassert2(sg_callback != NULL);
 //		return sg_callback->GetAccountInfo();
-//        return app_manager->GetAccountInfo();
-	    return AccountInfo();
+        return context->GetAppManager()->GetAccountInfo();
         }
 
 	std::string GetUserName() {
 //		xassert2(sg_callback != NULL);
 //		AccountInfo info = sg_callback->GetAccountInfo();
 //		return info.username;
-//        return app_manager->GetUserName();
-            return "";
+        return context->GetAppManager()->GetUserName();
 	}
 
 	std::string GetRecentUserName() {
 //		xassert2(sg_callback != NULL);
 //		return GetUserName();
-//        return app_manager->GetRecentUserName();
-            return "";
+        return context->GetAppManager()->GetRecentUserName();
 	}
 
 	unsigned int GetClientVersion() {
 //		xassert2(sg_callback != NULL);
 //		return sg_callback->GetClientVersion();
-//        return app_manager->GetClientVersion();
-            return 0;
+        return context->GetAppManager()->GetClientVersion();
 	}
 
 
@@ -220,9 +215,10 @@ void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
 //
 //    device_info = sg_callback->GetDeviceInfo();
 //    return device_info;
-//      return app_manager->GetDeviceInfo();
-return DeviceInfo();
-	}
+      return context->GetAppManager()->GetDeviceInfo();
+    }
+
+
 
 #endif
 

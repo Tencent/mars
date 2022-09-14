@@ -35,6 +35,11 @@ AppManager::~AppManager(){
 void AppManager::SetCallback(Callback* callback) {
     callback_ = callback;
 }
+#ifdef NATIVE_CALLBACK
+void AppManager::SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb) {
+
+}
+#endif
 
 mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
     xassert2(callback_ != NULL);
@@ -109,6 +114,7 @@ DeviceInfo AppManager::GetDeviceInfo() {
     return device_info;
 }
 
+//TODO GetOsVersion no implement in orginal mars
 double AppManager::GetOsVersion() {
     return 0;
 }
@@ -161,7 +167,7 @@ void AppManager::__GetProxyInfo(const std::string& _host, uint64_t _timetick) {
 }
 
 //#if TARGET_OS_IPHONE
-void AppManager::__ClearProxyInfo() {
+void AppManager::ClearProxyInfo() {
     mars::comm::ScopedLock lock(slproxymutex_);
     slproxytimetick_ = gettickcount();
     slproxycount_ = 0;
