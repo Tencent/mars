@@ -47,7 +47,7 @@ AccountInfo AppManagerJniCallback::GetAccountInfo() {
     AccountInfo info;
     jobject ret_obj = c2j_call(jobject, callback_inst_, kAppManagerJniCallback_GetAccountInfo);
     if (NULL == ret_obj) {
-        //xerror2(TSF "getAccountInfo error return null");
+        // xerror2(TSF "getAccountInfo error return null");
         return info;
     }
 
@@ -79,7 +79,7 @@ DeviceInfo AppManagerJniCallback::GetDeviceInfo() {
     jobject ret_obj = c2j_call(jobject, callback_inst_, kAppManagerJniCallback_GetClientVersion);
 
     if (NULL == ret_obj) {
-        //xerror2(TSF "getDeviceType error return null");
+        // xerror2(TSF "getDeviceType error return null");
         return info;
     }
 
@@ -107,12 +107,6 @@ DeviceInfo AppManagerJniCallback::GetDeviceInfo() {
         env->DeleteLocalRef(devicetype_jstr);
     }
     return info;
-}
-
-JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetCurLanguage, "com/tencent/mars/app/AppManager$CallBack", "getCurLanguage", "()Ljava/lang/String;")
-std::string AppManagerJniCallback::GetCurLanguage() {
-    jnienv_ptr env;
-    return j2c_cast(c2j_call(jstring, callback_inst_, kAppManagerJniCallback_GetClientVersion));
 }
 
 }  // namespace app
