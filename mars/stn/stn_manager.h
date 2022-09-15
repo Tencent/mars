@@ -29,8 +29,22 @@ class StnCallbackBridge;
 class StnManager : public BaseStnManager {
  public:
     explicit StnManager(BaseContext* context);
+    explicit StnManager(const std::string& context_id);
     ~StnManager() override;
     void Init() override;
+    void UnInit() override;
+
+    /** transition logic for stn_logic */
+ private:
+    std::string context_id_;
+ public:
+    static StnManager* CreateStnManager(const std::string& context_id);
+    static void DestroyStnManager(StnManager* manager);
+
+ private:
+    static std::map<std::string, StnManager*> s_stn_manager_map_;
+    static std::recursive_mutex s_mutex_;
+    /** transition logic for stn_logic */
 
  public:
     void OnInitConfigBeforeOnCreate(int _packer_encoder_version) override;

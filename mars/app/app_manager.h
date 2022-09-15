@@ -25,6 +25,7 @@ class AppManager : public BaseAppManager {
     explicit AppManager(Context* context);
     ~AppManager() override;
 
+ public:
     void SetCallback(Callback* callback) override;
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) override;
     std::string GetAppFilePath() override;
@@ -37,7 +38,6 @@ class AppManager : public BaseAppManager {
 
  public:
     void GetProxyInfo(const std::string& _host, uint64_t _timetick) override;
-
 //    #if TARGET_OS_IPHONE
     void ClearProxyInfo() override;
 //    #endif

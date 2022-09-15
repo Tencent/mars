@@ -20,6 +20,7 @@ class BaseStnManager {
     virtual ~BaseStnManager() {
     }
     virtual void Init() = 0;
+    virtual void UnInit() = 0;
 
  public:
     virtual void OnInitConfigBeforeOnCreate(int _packer_encoder_version) = 0;

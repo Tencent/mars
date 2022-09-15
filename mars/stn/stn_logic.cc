@@ -61,46 +61,46 @@ namespace stn {
 static const std::string kLibName = "stn";
 
 static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnInitConfigBeforeOnCreate(_packer_encoder_version);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnInitConfigBeforeOnCreate(_packer_encoder_version);
 }
 
 static void onCreate() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->Init();
-    context->GetStnManager()->OnCreate();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->Init();
+    stnManager->OnCreate();
 }
 
 static void onDestroy() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnDestroy();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnDestroy();
 }
 
 static void onSingalCrash(int _sig) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnSingalCrash(_sig);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnSingalCrash(_sig);
 }
 
 static void onExceptionCrash() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnExceptionCrash();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnExceptionCrash();
 }
 
 static void onNetworkChange() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnNetworkChange();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnNetworkChange();
 }
 
 static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnNetworkDataChange(_tag, _send, _recv);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnNetworkDataChange(_tag, _send, _recv);
 }
 
 #ifdef ANDROID
 // must dipatch by function in stn_logic.cc, to avoid static member bug
 static void onAlarm(int64_t _id) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnAlarm(_id);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnAlarm(_id);
 }
 #endif
 
@@ -131,181 +131,181 @@ static void __initbind_baseprjevent() {
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
 // callback
 bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->MakesureAuthed(_host, _user_id);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->MakesureAuthed(_host, _user_id);
 }
 
 //流量统计
 void TrafficData(ssize_t _send, ssize_t _recv) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->TrafficData(_send, _recv);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->TrafficData(_send, _recv);
 }
 
 //底层询问上层该host对应的ip列表
 std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->OnNewDns(_host, _longlink_host);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->OnNewDns(_host, _longlink_host);
 }
 //网络层收到push消息回调
 void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 }
 //底层获取task要发送的数据
 bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
 }
 //底层回包返回给上层解析
 int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
 }
 //任务执行结束
 int OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
 }
 
 //上报网络连接状态
 void ReportConnectStatus(int status, int longlink_status) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->ReportConnectStatus(status, longlink_status);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->ReportConnectStatus(status, longlink_status);
 }
 
 void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 }
 
 void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 }
 
 void OnLongLinkStatusChange(int _status) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->OnLongLinkStatusChange(_status);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->OnLongLinkStatusChange(_status);
 }
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 int GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
 }
 //长连信令校验回包
 bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
 }
 
 void RequestSync() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->RequestSync();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->RequestSync();
 }
 //验证是否已登录
 
 //底层询问上层http网络检查的域名列表
 void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
-    BaseContext* context = CreateContext("default");
+    StnManager* stnManager = StnManager::CreateStnManager("default");
     //TODO cpan mars2
-    //    context->GetStnManager()->RequestNetCheckShortLinkHosts(_hostlist);
+    //    stnManager->RequestNetCheckShortLinkHosts(_hostlist);
 }
 //底层向上层上报cgi执行结果
 void ReportTaskProfile(const TaskProfile& _task_profile) {
-    BaseContext* context = CreateContext("default");
-    //context->GetStnManager()->ReportTaskProfile(_task_profile);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    //stnManager->ReportTaskProfile(_task_profile);
 }
 //底层通知上层cgi命中限制
 void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
-    BaseContext* context = CreateContext("default");
-    //context->GetStnManager()->ReportTaskLimited(_check_type, _task, _param);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    //stnManager->ReportTaskLimited(_check_type, _task, _param);
 }
 //底层上报域名dns结果
 void ReportDnsProfile(const DnsProfile& _dns_profile) {
-    BaseContext* context = CreateContext("default");
-    //context->GetStnManager()->ReportDnsProfile(_dns_profile);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    //stnManager->ReportDnsProfile(_dns_profile);
 }
 //.生成taskid.
 uint32_t GenTaskID() {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->GenTaskID();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->GenTaskID();
 }
 
 void SetCallback(Callback* const callback) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->SetCallback(callback);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->SetCallback(callback);
 }
 
 void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
-    BaseContext* context = CreateContext("default");
+    StnManager* stnManager = StnManager::CreateStnManager("default");
     //TODO cpan mars2
-    //context->GetStnManager()->SetStnCallbackBridge(_callback_bridge);
+    //stnManager->SetStnCallbackBridge(_callback_bridge);
 }
 
 // StnCallbackBridge* GetStnCallbackBridge() {
-//    BaseContext* context = CreateContext("default");
-//    return context->GetStnManager()->GetStnCallbackBridge();
+//    StnManager* stnManager = StnManager::CreateStnManager("default");
+//    return stnManager->GetStnCallbackBridge();
 //}
 
 bool (*StartTask)(const Task& _task) = [](const Task& _task) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->StartTask(_task);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->StartTask(_task);
 };
 
 void (*StopTask)(uint32_t _taskid) = [](uint32_t _taskid) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->StopTask(_taskid);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->StopTask(_taskid);
 };
 
 bool (*HasTask)(uint32_t _taskid) = [](uint32_t _taskid) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->HasTask(_taskid);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->HasTask(_taskid);
 };
 
 void (*DisableLongLink)() = []() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->DisableLongLink();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->DisableLongLink();
 };
 
 void (*RedoTasks)() = []() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->RedoTasks();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->RedoTasks();
 };
 
 void (*TouchTasks)() = []() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->TouchTasks();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->TouchTasks();
 };
 
 void (*ClearTasks)() = []() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->ClearTasks();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->ClearTasks();
 };
 
 void (*Reset)() = []() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->Reset();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->Reset();
 };
 
 void (*ResetAndInitEncoderVersion)(int _packer_encoder_version) = [](int _packer_encoder_version) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->ResetAndInitEncoderVersion(_packer_encoder_version);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->ResetAndInitEncoderVersion(_packer_encoder_version);
 };
 
 void (*MakesureLonglinkConnected)() = []() {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->MakesureLonglinkConnected();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->MakesureLonglinkConnected();
 };
 
 bool (*LongLinkIsConnected)() = []() {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->LongLinkIsConnected();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->LongLinkIsConnected();
 };
 
 bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) =
     [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) {
-        BaseContext* context = CreateContext("default");
-        return context->GetStnManager()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
+        StnManager* stnManager = StnManager::CreateStnManager("default");
+        return stnManager->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
     };
 
 // void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
@@ -314,8 +314,8 @@ bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::st
 //};
 
 void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) = [](const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->SetLonglinkSvrAddr(host, ports, debugip);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->SetLonglinkSvrAddr(host, ports, debugip);
 };
 
 // void SetShortlinkSvrAddr(const uint16_t port)
@@ -324,78 +324,78 @@ void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> 
 //};
 
 void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip) = [](const uint16_t port, const std::string& debugip) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->SetShortlinkSvrAddr(port, debugip);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->SetShortlinkSvrAddr(port, debugip);
 };
 
 void (*SetDebugIP)(const std::string& host, const std::string& ip) = [](const std::string& host, const std::string& ip) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->SetDebugIP(host, ip);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->SetDebugIP(host, ip);
 };
 
 void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist) = [](const std::string& host, const std::vector<std::string>& iplist) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->SetBackupIPs(host, iplist);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->SetBackupIPs(host, iplist);
 };
 
 void (*SetSignallingStrategy)(long _period, long _keepTime) = [](long _period, long _keepTime) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->SetSignallingStrategy(_period, _keepTime);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->SetSignallingStrategy(_period, _keepTime);
 };
 
 void (*KeepSignalling)() = []() {
 #ifdef USE_LONG_LINK
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->KeepSignalling();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->KeepSignalling();
 #endif
 };
 
 void (*StopSignalling)() = []() {
 #ifdef USE_LONG_LINK
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->StopSignalling();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->StopSignalling();
 #endif
 };
 
 uint32_t (*getNoopTaskID)() = []() {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->getNoopTaskID();
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->getNoopTaskID();
 };
 
 void (*CreateLonglink_ext)(LonglinkConfig& _config) = [](LonglinkConfig& _config) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->CreateLonglink_ext(_config);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->CreateLonglink_ext(_config);
 };
 
 void (*DestroyLonglink_ext)(const std::string& name) = [](const std::string& name) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->DestroyLonglink_ext(name);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->DestroyLonglink_ext(name);
 };
 
 bool (*LongLinkIsConnected_ext)(const std::string& name) = [](const std::string& name) {
-    BaseContext* context = CreateContext("default");
-    return context->GetStnManager()->LongLinkIsConnected_ext(name);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    return stnManager->LongLinkIsConnected_ext(name);
 };
 
 void (*MarkMainLonglink_ext)(const std::string& name) = [](const std::string& name) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->MarkMainLonglink_ext(name);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->MarkMainLonglink_ext(name);
 };
 
 void (*MakesureLonglinkConnected_ext)(const std::string& name) = [](const std::string& name) {
-    BaseContext* context = CreateContext("default");
-    context->GetStnManager()->MakesureLonglinkConnected_ext(name);
+    StnManager* stnManager = StnManager::CreateStnManager("default");
+    stnManager->MakesureLonglinkConnected_ext(name);
 };
 
 // ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select) {
-//    return context->GetStnManager()->GetConnectProfile(_taskid, _channel_select);
+//    return stnManager->GetConnectProfile(_taskid, _channel_select);
 //}
 // void AddServerBan(const std::string& _ip) {
-//    context->GetStnManager()->AddServerBan(_ip);
+//    stnManager->AddServerBan(_ip);
 //}
 //
 // void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {
-//    context->GetStnManager()->DisconnectLongLinkByTaskId(_taskid, _code);
+//    stnManager->DisconnectLongLinkByTaskId(_taskid, _code);
 //}
 void network_export_symbols_0() {
 }

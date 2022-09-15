@@ -84,8 +84,17 @@ stn_callback_bridge_->func;\
         ret = stn_callback_bridge_->func;                 \
     }
 
+/** transition logic for stn_logic */
+std::map<std::string, StnManager*> StnManager::s_stn_manager_map_;
+std::recursive_mutex StnManager::s_mutex_;
+/** transition logic for stn_logic */
+
 StnManager::StnManager(BaseContext* context) {
 
+}
+
+StnManager::StnManager(const std::string& context_id) {
+    context_id_ = context_id;
 }
 
 StnManager::~StnManager(){
@@ -94,6 +103,35 @@ StnManager::~StnManager(){
 void StnManager::Init() {
     if(!net_core_){
         net_core_ = std::shared_ptr<NetCore>(new NetCore);
+    }
+}
+
+void StnManager::UnInit() {
+
+}
+
+StnManager* StnManager::CreateStnManager(const std::string& context_id) {
+    if (!context_id.empty()) {
+        if (s_stn_manager_map_.find(context_id) != s_stn_manager_map_.end()) {
+            return s_stn_manager_map_[context_id];
+        } else {
+            auto stn_manager = new StnManager(context_id);
+            s_stn_manager_map_[context_id] = stn_manager;
+            return stn_manager;
+        }
+    }
+    return nullptr;
+}
+
+void StnManager::DestroyStnManager(StnManager* manager) {
+    if (manager != nullptr) {
+        auto* temp = dynamic_cast<StnManager*>(manager);
+        auto context_id = temp->context_id_;
+        if (s_stn_manager_map_.find(context_id) != s_stn_manager_map_.end()) {
+            s_stn_manager_map_.erase(context_id);
+        }
+        delete temp;
+        manager = nullptr;
     }
 }
 
