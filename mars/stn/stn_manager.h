@@ -8,7 +8,7 @@
 #endif  // MMNET_STN_MANAGER_H
 
 #include "mars/comm/base_stn_manager.h"
-#include "mars/boot/context.h"
+#include "mars/comm/base_context.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/stn/stn.h"
 
@@ -28,7 +28,7 @@ class StnCallbackBridge;
 
 class StnManager : public BaseStnManager {
  public:
-    explicit StnManager(Context* context);
+    explicit StnManager(BaseContext* context);
     ~StnManager() override;
     void Init() override;
 

@@ -4,8 +4,8 @@
 
 #include "context.h"
 
-#include "mars/comm/comm_util.h"
 #include "mars/app/app_manager.h"
+#include "mars/comm/comm_util.h"
 #include "mars/stn/stn_manager.h"
 
 #define SCOPED_LOCK() std::unique_lock<std::recursive_mutex> lock(mutex_)
@@ -16,12 +16,10 @@
 
 static int context_instance_counter_ = 0;
 
-
-
 namespace mars {
 namespace boot {
 
-std::map<std::string, Context *> Context::s_context_map_;
+std::map<std::string, Context*> Context::s_context_map_;
 std::recursive_mutex Context::s_mutex_;
 
 Context::Context() {
@@ -96,7 +94,7 @@ void Context::SetContextId(const std::string& context_id) {
     });
 }
 
-const std::string &Context::GetContextId() {
+const std::string& Context::GetContextId() {
     return context_id_;
 }
 
@@ -108,14 +106,26 @@ BaseStnManager* Context::GetStnManager() {
     return stn_manager_;
 }
 
+//
+// MARS_API BaseContext *CreateContext(const std::string &context_id) {
+//    return Context::CreateContext(context_id);
+//}
+//
+// MARS_API void DestroyContext(BaseContext *context) {
+//    Context::DeleteContext(context);
+//}
 
-MARS_API BaseContext *CreateContext(const std::string &context_id) {
+BaseContext* (*CreateContext)(const std::string& context_id) = [](const std::string& context_id) -> BaseContext* {
     return Context::CreateContext(context_id);
-}
+};
 
-MARS_API void DestroyContext(BaseContext *context) {
+void (*DestroyContext)(BaseContext* context) = [](BaseContext* context) {
     Context::DeleteContext(context);
-}
+};
 
-}  // namespace app
+//mars::boot::CreateContext = MMCreateContext;
+//
+//mars::boot::DestroyContext = MMDestroyContext;
+
+}  // namespace boot
 }  // namespace mars

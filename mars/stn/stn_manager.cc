@@ -84,7 +84,7 @@ stn_callback_bridge_->func;\
         ret = stn_callback_bridge_->func;                 \
     }
 
-StnManager::StnManager(Context* context) {
+StnManager::StnManager(BaseContext* context) {
 
 }
 

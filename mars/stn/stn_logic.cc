@@ -127,6 +127,7 @@ static void __initbind_baseprjevent() {
     GetSignalOnNetworkDataChange().connect(&OnNetworkDataChange);
 }
 
+
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
 // callback
 bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {

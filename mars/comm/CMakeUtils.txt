@@ -118,6 +118,8 @@ macro(BuildWithUnitTest projname sourcefiles)
         list(FILTER SRCFILES EXCLUDE REGEX ".*_unittest.cc$")
         list(FILTER SRCFILES EXCLUDE REGEX ".*_mock.cc$")
         add_library(${projname} STATIC ${SRCFILES})
+
+        message("xxxxxx${projname}xxx${CMAKE_SYSTEM_NAME}.outxxxx")
         install(TARGETS ${projname} ARCHIVE DESTINATION ${CMAKE_SYSTEM_NAME}.out)
     endif()
 endmacro()
