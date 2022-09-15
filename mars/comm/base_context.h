@@ -27,8 +27,8 @@ class BaseContext {
  public:
     virtual int Init() = 0;
     virtual int UnInit() = 0;
-    //    virtual int SetContextId(std::string& context_id) = 0;
-    //    virtual std::string GetContextId() = 0;
+    virtual void SetContextId(const std::string& context_id) = 0;
+    virtual const std::string& GetContextId() = 0;
     virtual BaseAppManager* GetAppManager() = 0;
     virtual BaseStnManager* GetStnManager() = 0;
 };

@@ -5,13 +5,12 @@
 #ifndef MMNET_CONTEXT_H
 #define MMNET_CONTEXT_H
 
-#include <string>
 #include <map>
-#include <vector>
 #include <mutex>
+#include <string>
+#include <vector>
 
 #include "mars/comm/base_context.h"
-
 
 namespace mars {
 
@@ -24,27 +23,31 @@ class AppManager;
 }
 
 namespace boot {
-class Context : public BaseContext{
+class Context : public BaseContext {
  public:
     explicit Context();
     ~Context() override;
- public:
-    static Context* CreateContext(const std::string &context_id);
-    static void DeleteContext(BaseContext* context);
-public:
-    AppManager* appManager() {return app_manager_;}
-    StnManager* stnManager() {return stn_manager_;}
+
  public:
     int Init() override;
     int UnInit() override;
-    
+    void SetContextId(const std::string& context_id) override;
+    const std::string& GetContextId() override;
     BaseAppManager* GetAppManager() override;
     BaseStnManager* GetStnManager() override;
 
-public:
-    void SetContextId(const std::string &context_id);
-    const std::string &GetContextId();
-    
+ public:
+    AppManager* appManager() {
+        return app_manager_;
+    }
+    StnManager* stnManager() {
+        return stn_manager_;
+    }
+
+ public:
+    static Context* CreateContext(const std::string& context_id);
+    static void DeleteContext(BaseContext* context);
+
  private:
     static std::map<std::string, Context*> s_context_map_;
     static std::recursive_mutex s_mutex_;
@@ -56,10 +59,9 @@ public:
     std::recursive_mutex mutex_;
     AppManager* app_manager_ = nullptr;
     StnManager* stn_manager_ = nullptr;
-
 };
 
-}  // namespace app
+}  // namespace boot
 }  // namespace mars
 
 #endif  // MMNET_CONTEXT_H
