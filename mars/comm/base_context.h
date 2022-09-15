@@ -9,8 +9,8 @@
 #include <map>
 #include <vector>
 #include <mutex>
-#include "mars/app/base_app_manager.h"
-#include "mars/stn/base_stn_manager.h"
+#include "mars/comm/base_app_manager.h"
+#include "mars/comm/base_stn_manager.h"
 
 using namespace mars::stn;
 using namespace mars::app;

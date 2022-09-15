@@ -7,7 +7,7 @@
 
 #endif  // MMNET_STN_MANAGER_H
 
-#include "base_stn_manager.h"
+#include "mars/comm/base_stn_manager.h"
 #include "mars/boot/context.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/stn/stn.h"

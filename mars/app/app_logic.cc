@@ -36,15 +36,15 @@
 #include "mars/comm/objc/data_protect_attr.h"
 #endif
 
-#include "mars/comm/xlogger/xlogger.h"
+#include "app_manager.h"
+#include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/bootrun.h"
-#include "mars/comm/thread/mutex.h"
+#include "mars/comm/dns/dns.h"
 #include "mars/comm/thread/lock.h"
+#include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
-#include "mars/comm/dns/dns.h"
-#include "mars/baseevent/baseprjevent.h"
-#include "app_manager.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 using namespace mars::comm;
 

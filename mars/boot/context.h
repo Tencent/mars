@@ -10,7 +10,7 @@
 #include <vector>
 #include <mutex>
 
-#include "mars/boot/base_context.h"
+#include "mars/comm/base_context.h"
 
 
 namespace mars {

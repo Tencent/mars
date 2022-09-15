@@ -4,8 +4,8 @@
 
 #include "context.h"
 
-#include "mars/app/app_manager.h"
 #include "mars/comm/comm_util.h"
+#include "mars/app/app_manager.h"
 #include "mars/stn/stn_manager.h"
 
 #define SCOPED_LOCK() std::unique_lock<std::recursive_mutex> lock(mutex_)

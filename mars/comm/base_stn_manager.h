@@ -5,7 +5,7 @@
 #ifndef MMNET_BASE_STN_MANAGER_H
 #define MMNET_BASE_STN_MANAGER_H
 
-#include "stn.h"
+#include "mars/stn/stn.h"
 
 namespace mars {
 

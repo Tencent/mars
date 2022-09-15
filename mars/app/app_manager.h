@@ -5,7 +5,7 @@
 #ifndef MMNET_APP_MANAGER_H
 #define MMNET_APP_MANAGER_H
 
-#include "base_app_manager.h"
+#include "mars/comm/base_app_manager.h"
 #include "mars/app/app.h"
 #include "mars/boot/context.h"
 #include "mars/comm/comm_data.h"
