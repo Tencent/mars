@@ -32,7 +32,7 @@ namespace mars {
 namespace sdt {
 
 //static Callback* sg_callback = NULL;
-static SdtManager* sdt_manager_ = new SdtManager();
+static SdtManager* sdt_manager_ = new SdtManager("default");
 
 static const std::string kLibName = "sdt";
 

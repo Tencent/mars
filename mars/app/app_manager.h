@@ -35,7 +35,7 @@ class AppManager : public BaseAppManager {
     static AppManager* CreateAppManager(const std::string& context_id);
     static void DestroyAppManager(AppManager* manager);
 
- protected:
+ private:
     static std::map<std::string, AppManager *> s_app_manager_map_;
     static std::recursive_mutex s_mutex_;
     /** transition logic for app_logic */

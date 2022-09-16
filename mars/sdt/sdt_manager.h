@@ -8,14 +8,33 @@
 #include "sdt.h"
 #include "sdt_core.h"
 #include "sdt_logic.h"
+#include <mutex>
+#include <string>
+#include <vector>
+#include <map>
 
 namespace mars {
 namespace sdt {
 class SdtManager {
 
 public:
-    SdtManager();
+    explicit SdtManager(const std::string& context_id);
     virtual ~SdtManager();
+    void Init();
+    void UnInit();
+
+    /** transition logic    */
+ private:
+    std::string context_id_;
+
+ public:
+    static SdtManager* CreateSdtManager(const std::string& context_id);
+    static void DestroySdtManager(SdtManager* manager);
+
+ private:
+    static std::map<std::string, SdtManager*> s_sdt_manager_map_;
+    static std::recursive_mutex s_mutex_;
+    /** transition logic  */
 
 public:
     void OnCreate();

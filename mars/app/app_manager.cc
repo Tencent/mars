@@ -22,11 +22,7 @@ using namespace mars::comm;
 
 namespace mars {
 namespace app {
-/** transition logic for app_logic */
-std::map<std::string, AppManager *> AppManager::s_app_manager_map_;
 
-std::recursive_mutex AppManager::s_mutex_;
-/** transition logic for app_logic */
 
 AppManager::AppManager(Context* context) {
 }
@@ -48,6 +44,11 @@ void AppManager::Init() {
 void AppManager::UnInit() {
 
 }
+
+/** transition logic for app_logic */
+std::map<std::string, AppManager *> AppManager::s_app_manager_map_;
+
+std::recursive_mutex AppManager::s_mutex_;
 
 AppManager* AppManager::CreateAppManager(const std::string& context_id) {
     if (!context_id.empty()) {
@@ -73,6 +74,7 @@ void AppManager::DestroyAppManager(AppManager* manager) {
         manager = nullptr;
     }
 }
+/** transition logic for app_logic */
 
 
 void AppManager::SetCallback(Callback* callback) {

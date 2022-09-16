@@ -35,6 +35,7 @@ boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const std::st
 //StnCallbackBridge* GetStnCallbackBridge() {
 //    return sg_callback_bridge;
 //}
+
 StnCallbackBridge::StnCallbackBridge() {
 
 }
