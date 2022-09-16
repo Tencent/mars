@@ -51,9 +51,11 @@ using namespace mars::comm;
 namespace mars {
 namespace app {
 
+
+
 void SetCallback(Callback* const callback) {
-    BaseContext* context = CreateContext("default");
-    context->GetAppManager()->SetCallback(callback);
+    AppManager* app_manager = AppManager::CreateAppManager("defualt");
+    app_manager->SetCallback(callback);
 }
 
 #if !defined(ANDROID) || defined (CPP_CALL_BACK)
@@ -68,14 +70,14 @@ void SetCallback(Callback* const callback) {
 
 
     static void __GetProxyInfo(const std::string& _host, uint64_t _timetick) {
-        BaseContext* context = CreateContext("default");
-        context->GetAppManager()->GetProxyInfo(_host, _timetick);
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        app_manager->GetProxyInfo(_host, _timetick);
     }
 
 #if TARGET_OS_IPHONE
     static void __ClearProxyInfo() {
-        BaseContext* context = CreateContext("default");
-        context->GetAppManager()->ClearProxyInfo();
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        app_manager->ClearProxyInfo();
     }
 
     static void __InitbindBaseprjevent() {
@@ -85,38 +87,38 @@ void SetCallback(Callback* const callback) {
 #endif
 
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {
-        BaseContext* context = CreateContext("default");
-        return context->GetAppManager()->GetProxyInfo(_host);
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        return app_manager->GetProxyInfo(_host);
     }
 
     std::string GetAppFilePath() {
-        BaseContext* context = CreateContext("default");
-        return context->GetAppManager()->GetAppFilePath();
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        return app_manager->GetAppFilePath();
     }
 
 	AccountInfo GetAccountInfo() {
-        BaseContext* context = CreateContext("default");
-        return context->GetAppManager()->GetAccountInfo();
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        return app_manager->GetAccountInfo();
         }
 
 	std::string GetUserName() {
-        BaseContext* context = CreateContext("default");
-        return context->GetAppManager()->GetUserName();
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        return app_manager->GetUserName();
 	}
 
 	std::string GetRecentUserName() {
-        BaseContext* context = CreateContext("default");
-        return context->GetAppManager()->GetRecentUserName();
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        return app_manager->GetRecentUserName();
 	}
 
 	unsigned int GetClientVersion() {
-        BaseContext* context = CreateContext("default");
-        return context->GetAppManager()->GetClientVersion();
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        return app_manager->GetClientVersion();
 	}
 
 	DeviceInfo GetDeviceInfo() {
-        BaseContext* context = CreateContext("default");
-        return context->GetAppManager()->GetDeviceInfo();
+        AppManager* app_manager = AppManager::CreateAppManager("defualt");
+        return app_manager->GetDeviceInfo();
     }
 
 #endif

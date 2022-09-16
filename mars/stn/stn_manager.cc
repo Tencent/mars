@@ -193,122 +193,140 @@ void StnManager::SetCallback(Callback* const _callback) {
     callback_ = std::shared_ptr<Callback>(_callback);
 }
 
+void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
+    if (!callback_bridge_) {
+        callback_bridge_ = std::shared_ptr<StnCallbackBridge>(_callback_bridge);
+    }else{
+        callback_bridge_.reset(_callback_bridge);
+    }
+    if (callback_bridge_) {
+        callback_bridge_->SetCallback(callback_.get());
+    }
+}
+
+StnCallbackBridge* StnManager::GetStnCallbackBridge() {
+
+    if (!callback_bridge_) {
+        callback_bridge_ = std::make_shared<StnCallbackBridge>();
+    }
+
+    return callback_bridge_.get();
+}
+
 // #################### stn.h callback ####################
 bool StnManager::MakesureAuthed(const std::string& _host, const std::string& _user_id) {
-    xassert2(callback_ != NULL);
-    return callback_->MakesureAuthed(_host, _user_id);
+    xassert2(callback_bridge_ != NULL);
+    return callback_bridge_->MakesureAuthed(_host, _user_id);
 }
 
 //流量统计
 void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
-    xassert2(callback_ != NULL);
-    callback_->TrafficData(_send, _recv);
+    xassert2(callback_bridge_ != NULL);
+    callback_bridge_->TrafficData(_send, _recv);
 }
 
 //底层询问上层该host对应的ip列表
 std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host) {
     std::vector<std::string> ips;
-    xassert2(callback_ != NULL);
-    return callback_->OnNewDns(_host, _longlink_host);
+    xassert2(callback_bridge_ != NULL);
+    return callback_bridge_->OnNewDns(_host, _longlink_host);
 }
 
 //网络层收到push消息回调
 void StnManager::OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
-    xassert2(callback_ != NULL);
-    callback_->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+    xassert2(callback_bridge_ != NULL);
+    callback_bridge_->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 }
 
 //底层获取task要发送的数据
 bool StnManager::Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
-    xassert2(callback_ != NULL);
-    return callback_->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+    xassert2(callback_bridge_ != NULL);
+    return callback_bridge_->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
 }
 
 //底层回包返回给上层解析
 int StnManager::Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
-    xassert2(callback_ != NULL);
-    return callback_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
+    xassert2(callback_bridge_ != NULL);
+    return callback_bridge_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
 }
 
 //任务执行结束
 int StnManager::OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
     xassert2(callback_ != NULL);
-    //TODO cpan mars2
-//    return callback_->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
-    return 0;
+    return callback_bridge_->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
 }
 
 //上报网络连接状态
 void StnManager::ReportConnectStatus(int status, int longlink_status) {
-    xassert2(callback_ != NULL);
-    callback_->ReportConnectStatus(status, longlink_status);
+    xassert2(callback_bridge_ != NULL);
+    callback_bridge_->ReportConnectStatus(status, longlink_status);
 }
 
 void StnManager::OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
-    xassert2(callback_ != NULL);
-    callback_->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+    xassert2(callback_bridge_ != NULL);
+    callback_bridge_->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 }
 
 void StnManager::OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    xassert2(callback_ != NULL);
-    callback_->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
+    xassert2(callback_bridge_ != NULL);
+    callback_bridge_->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 }
 
 void StnManager::OnLongLinkStatusChange(int _status) {
-    xassert2(callback_ != NULL);
-    callback_->OnLongLinkStatusChange(_status);
+    xassert2(callback_bridge_ != NULL);
+    callback_bridge_->OnLongLinkStatusChange(_status);
 }
 
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 int StnManager::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
-    xassert2(callback_ != NULL);
-    return callback_->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
+    xassert2(callback_bridge_ != NULL);
+    return callback_bridge_->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
 }
 
 //长连信令校验回包
 bool StnManager::OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
-    xassert2(callback_ != NULL);
-    return callback_->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
+    xassert2(callback_bridge_ != NULL);
+    return callback_bridge_->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
 }
 
 void StnManager::RequestSync() {
-    xassert2(callback_ != NULL);
-    callback_->RequestSync();
+    xassert2(callback_bridge_ != NULL);
+    callback_bridge_->RequestSync();
 }
 
 //验证是否已登录
 
 ////底层询问上层http网络检查的域名列表
-//void StnManager::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
-//    if (!callback_) {
-//        return;
-//    }
-//    callback_->RequestNetCheckShortLinkHosts(_hostlist);
-//}
-//
-////底层向上层上报cgi执行结果
-//void StnManager::ReportTaskProfile(const TaskProfile& _task_profile) {
-//    if (!callback_) {
-//        return;
-//    }
-//    callback_->ReportTaskProfile(_task_profile);
-//}
-//
-////底层通知上层cgi命中限制
-//void StnManager::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
-//    if (!callback_) {
-//        return;
-//    }
-//    callback_->ReportTaskLimited(_check_type, _task, _param);
-//}
-//
-////底层上报域名dns结果
-//void StnManager::ReportDnsProfile(const DnsProfile& _dns_profile) {
-//    if (!callback_) {
-//        return;
-//    }
-//    callback_->ReportDnsProfile(_dns_profile);
-//}
+void StnManager::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
+    if (!callback_bridge_) {
+        return;
+    }
+    callback_bridge_->RequestNetCheckShortLinkHosts(_hostlist);
+}
+
+//底层向上层上报cgi执行结果
+void StnManager::ReportTaskProfile(const TaskProfile& _task_profile) {
+    if (!callback_bridge_) {
+        return;
+    }
+    callback_bridge_->ReportTaskProfile(_task_profile);
+}
+
+//底层通知上层cgi命中限制
+void StnManager::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
+    if (!callback_bridge_) {
+        return;
+    }
+    callback_bridge_->ReportTaskLimited(_check_type, _task, _param);
+}
+
+//底层上报域名dns结果
+void StnManager::ReportDnsProfile(const DnsProfile& _dns_profile) {
+    if (!callback_bridge_) {
+        return;
+    }
+    callback_bridge_->ReportDnsProfile(_dns_profile);
+}
 
 
 //.生成taskid.

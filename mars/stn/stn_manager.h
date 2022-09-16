@@ -61,6 +61,8 @@ class StnManager : public BaseStnManager {
  public:
     //外部接口
     void SetCallback(Callback* const callback) override;
+    void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
+    StnCallbackBridge* GetStnCallbackBridge();
 
  public:
     // #################### stn.h Callback ####################
@@ -95,13 +97,13 @@ class StnManager : public BaseStnManager {
     //验证是否已登录
 
     //底层询问上层http网络检查的域名列表
-//    void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) override;
-//    //底层向上层上报cgi执行结果
-//    void ReportTaskProfile(const ::mars::stn::TaskProfile& _task_profile) override;
-//    //底层通知上层cgi命中限制
-//    void ReportTaskLimited(int _check_type, const ::mars::stn::Task& _task, unsigned int& _param) override;
-//    //底层上报域名dns结果
-//    void ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile) override;
+    void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) override;
+    //底层向上层上报cgi执行结果
+    void ReportTaskProfile(const ::mars::stn::TaskProfile& _task_profile) override;
+    //底层通知上层cgi命中限制
+    void ReportTaskLimited(int _check_type, const ::mars::stn::Task& _task, unsigned int& _param) override;
+    //底层上报域名dns结果
+    void ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile) override;
     //.生成taskid.
     uint32_t GenTaskID() override;
 
@@ -205,7 +207,7 @@ class StnManager : public BaseStnManager {
     // StnCallbackBridge* stn_callback_bridge_ = NULL;
     // NetCore* net_core_;
     std::shared_ptr<Callback> callback_ = NULL;
-//    std::shared_ptr<StnCallbackBridge> callback_bridge_ = NULL;
+    std::shared_ptr<StnCallbackBridge> callback_bridge_ = NULL;
     std::shared_ptr<NetCore> net_core_ = NULL;
 
     comm::Mutex order_mutex_;

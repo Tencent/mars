@@ -107,22 +107,22 @@ void Context::DeleteContext(BaseContext* context) {
     }
 }
 
-//
-// MARS_API BaseContext *CreateContext(const std::string &context_id) {
-//    return Context::CreateContext(context_id);
-//}
-//
-// MARS_API void DestroyContext(BaseContext *context) {
-//    Context::DeleteContext(context);
-//}
 
-BaseContext* (*CreateContext)(const std::string& context_id) = [](const std::string& context_id) -> BaseContext* {
+ MARS_API BaseContext *CreateContext(const std::string &context_id) {
     return Context::CreateContext(context_id);
-};
+}
 
-void (*DestroyContext)(BaseContext* context) = [](BaseContext* context) {
+ MARS_API void DestroyContext(BaseContext *context) {
     Context::DeleteContext(context);
-};
+}
+
+//BaseContext* (*CreateContext)(const std::string& context_id) = [](const std::string& context_id) -> BaseContext* {
+//    return Context::CreateContext(context_id);
+//};
+//
+//void (*DestroyContext)(BaseContext* context) = [](BaseContext* context) {
+//    Context::DeleteContext(context);
+//};
 
 //BaseContext* CreateContext(const std::string& context_id) {
 //    return Context::CreateContext(context_id);

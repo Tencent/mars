@@ -18,6 +18,10 @@ namespace app {
 class BaseAppManager{
  public:
     virtual ~BaseAppManager(){}
+    virtual void Init() = 0;
+    virtual void UnInit() = 0;
+
+ public:
     virtual void SetCallback(Callback* callback) = 0;
     virtual mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) = 0;
     virtual std::string GetAppFilePath() = 0;

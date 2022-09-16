@@ -23,7 +23,22 @@ namespace app {
 class AppManager : public BaseAppManager {
  public:
     explicit AppManager(Context* context);
+    explicit AppManager(const std::string& context_id);
     ~AppManager() override;
+    void Init() override;
+    void UnInit() override;
+
+    /** transition logic for app_logic */
+ private:
+    std::string context_id_;
+ public:
+    static AppManager* CreateAppManager(const std::string& context_id);
+    static void DestroyAppManager(AppManager* manager);
+
+ protected:
+    static std::map<std::string, AppManager *> s_app_manager_map_;
+    static std::recursive_mutex s_mutex_;
+    /** transition logic for app_logic */
 
  public:
     void SetCallback(Callback* callback) override;

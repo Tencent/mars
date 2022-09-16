@@ -22,12 +22,58 @@ using namespace mars::comm;
 
 namespace mars {
 namespace app {
+/** transition logic for app_logic */
+std::map<std::string, AppManager *> AppManager::s_app_manager_map_;
+
+std::recursive_mutex AppManager::s_mutex_;
+/** transition logic for app_logic */
 
 AppManager::AppManager(Context* context) {
 }
 
+
+AppManager::AppManager(const std::string& context_id) {
+    context_id_ = context_id;
+}
+
 AppManager::~AppManager() {
 }
+
+
+
+void AppManager::Init() {
+
+}
+
+void AppManager::UnInit() {
+
+}
+
+AppManager* AppManager::CreateAppManager(const std::string& context_id) {
+    if (!context_id.empty()) {
+        if (s_app_manager_map_.find(context_id) != s_app_manager_map_.end()) {
+            return s_app_manager_map_[context_id];
+        } else {
+            auto app_manager = new AppManager(context_id);
+            s_app_manager_map_[context_id] = app_manager;
+            return app_manager;
+        }
+    }
+    return nullptr;
+}
+
+void AppManager::DestroyAppManager(AppManager* manager) {
+    if (manager != nullptr) {
+        auto* temp = dynamic_cast<AppManager*>(manager);
+        auto context_id = temp->context_id_;
+        if (s_app_manager_map_.find(context_id) != s_app_manager_map_.end()) {
+            s_app_manager_map_.erase(context_id);
+        }
+        delete temp;
+        manager = nullptr;
+    }
+}
+
 
 void AppManager::SetCallback(Callback* callback) {
     callback_ = callback;
