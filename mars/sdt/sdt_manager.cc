@@ -35,7 +35,7 @@ void SdtManager::UnInit() {
 /** transition logic  */
 std::map<std::string, SdtManager *> SdtManager::s_sdt_manager_map_;
 
-std::recursive_mutex SdtManager::s_mutex_;
+//std::recursive_mutex SdtManager::s_mutex_;
 
 SdtManager* SdtManager::CreateSdtManager(const std::string& context_id) {
     if (!context_id.empty()) {

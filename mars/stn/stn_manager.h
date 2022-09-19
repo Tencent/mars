@@ -28,7 +28,7 @@ class StnCallbackBridge;
 
 class StnManager : public BaseStnManager {
  public:
-    explicit StnManager(BaseContext* context);
+//    explicit StnManager(BaseContext* context);
     explicit StnManager(const std::string& context_id);
     ~StnManager() override;
     void Init() override;

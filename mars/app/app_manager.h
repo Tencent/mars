@@ -22,7 +22,7 @@ namespace app {
 
 class AppManager : public BaseAppManager {
  public:
-    explicit AppManager(Context* context);
+//    explicit AppManager(Context* context);
     explicit AppManager(const std::string& context_id);
     ~AppManager() override;
     void Init() override;

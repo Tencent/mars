@@ -40,6 +40,9 @@
 namespace mars {
 namespace stn {
 
+#define S_SCOPED_LOCK() std::unique_lock<std::recursive_mutex> s_lock(s_mutex_)
+#define S_SCOPED_UNLOCK() s_lock.unlock()
+
 static const std::string kLibName = "stn";
 static uint32_t gs_taskid = 1;
 
@@ -89,9 +92,9 @@ std::map<std::string, StnManager*> StnManager::s_stn_manager_map_;
 std::recursive_mutex StnManager::s_mutex_;
 /** transition logic for stn_logic */
 
-StnManager::StnManager(BaseContext* context) {
-
-}
+//StnManager::StnManager(BaseContext* context) {
+//
+//}
 
 StnManager::StnManager(const std::string& context_id) {
     context_id_ = context_id;
@@ -111,6 +114,8 @@ void StnManager::UnInit() {
 }
 
 StnManager* StnManager::CreateStnManager(const std::string& context_id) {
+    xinfo_function(TSF "CreateStnManager :%_", context_id);
+    S_SCOPED_LOCK();
     if (!context_id.empty()) {
         if (s_stn_manager_map_.find(context_id) != s_stn_manager_map_.end()) {
             return s_stn_manager_map_[context_id];
@@ -124,6 +129,8 @@ StnManager* StnManager::CreateStnManager(const std::string& context_id) {
 }
 
 void StnManager::DestroyStnManager(StnManager* manager) {
+    xinfo_function(TSF "DestroyStnManager :%_", manager->context_id_);
+    S_SCOPED_LOCK();
     if (manager != nullptr) {
         auto* temp = dynamic_cast<StnManager*>(manager);
         auto context_id = temp->context_id_;
@@ -169,7 +176,6 @@ void StnManager::OnExceptionCrash() {
 
 void StnManager::OnNetworkChange() {
     STN_WEAK_CALL(OnNetworkChange());
-    
 }
 void StnManager::OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {
     if (NULL == _tag || strnlen(_tag, 1024) == 0) {
@@ -196,8 +202,9 @@ void StnManager::SetCallback(Callback* const _callback) {
 void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
     if (!callback_bridge_) {
         callback_bridge_ = std::shared_ptr<StnCallbackBridge>(_callback_bridge);
-    }else{
-        callback_bridge_.reset(_callback_bridge);
+    } else{
+        //TODO cpan mars2s
+        //callback_bridge_.reset(_callback_bridge);
     }
     if (callback_bridge_) {
         callback_bridge_->SetCallback(callback_.get());

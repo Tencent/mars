@@ -24,8 +24,8 @@ namespace mars {
 namespace app {
 
 
-AppManager::AppManager(Context* context) {
-}
+//AppManager::AppManager(Context* context) {
+//}
 
 
 AppManager::AppManager(const std::string& context_id) {

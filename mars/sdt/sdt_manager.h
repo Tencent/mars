@@ -33,7 +33,7 @@ public:
 
  private:
     static std::map<std::string, SdtManager*> s_sdt_manager_map_;
-    static std::recursive_mutex s_mutex_;
+    //static std::recursive_mutex s_mutex_;
     /** transition logic  */
 
 public:

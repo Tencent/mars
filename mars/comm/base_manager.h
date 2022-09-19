@@ -30,7 +30,7 @@ class BaseManager {
 
  protected:
     static std::map<std::string, BaseManager*> s_app_manager_map_;
-    static std::recursive_mutex s_mutex_;
+    //static std::recursive_mutex s_mutex_;
     /** transition logic  */
 };
 }  // namespace boot
