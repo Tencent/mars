@@ -731,6 +731,7 @@ inline jobject __filter_object_arg(jobject arg) { return arg; }
 
 template <typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
 jobject __filter_object_arg(T) { return nullptr; }
+inline jobject __filter_object_arg(void* arg) { return nullptr; }
 
 template <size_t N>
 void __delete_localref_array(JNIEnv *env, jobject (&object_args)[N]) {
