@@ -89,6 +89,7 @@ static void onExceptionCrash() {
 }
 
 static void onNetworkChange() {
+    xinfo2(TSF "cpan debug OnNetworkChange");
     StnManager* stnManager = StnManager::CreateStnManager("default");
     stnManager->OnNetworkChange();
 }

@@ -180,6 +180,7 @@ void StnManager::OnExceptionCrash() {
 }
 
 void StnManager::OnNetworkChange() {
+    xinfo2(TSF "cpan debug OnNetworkChange");
     STN_WEAK_CALL(OnNetworkChange());
 }
 void StnManager::OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {

@@ -467,8 +467,9 @@ void NetCore::ClearTasks() {
 }
 
 void NetCore::OnNetworkChange() {
-    
-    SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
+    xinfo2(TSF "cpan debug OnNetworkChange");
+    //TODO cpan mars2
+    //SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
 
@@ -504,9 +505,12 @@ void NetCore::OnNetworkChange() {
         xassert2(false);
         break;
     }
+    if (net_source_) {
+        net_source_->ClearCache();
+    } else {
+        xinfo2(TSF "cpan debug net_source is null");
+    }
 
-    net_source_->ClearCache();
-    
     dynamic_timeout_->ResetStatus();
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
