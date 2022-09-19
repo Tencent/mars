@@ -104,6 +104,7 @@ StnManager::~StnManager(){
 }
 
 void StnManager::Init() {
+    xinfo2(TSF "cpan debug Init");
 //    if(!net_core_){
 //        net_core_ = std::shared_ptr<NetCore>(new NetCore);
 //    }
@@ -157,6 +158,12 @@ void StnManager::OnCreate() {
     xinfo2(TSF"stn_manager oncreate");
     ActiveLogic::Instance();
     //NetCore::Singleton::Instance();
+    xinfo2(TSF "cpan debug OnCreate");
+
+    if (!net_core_) {
+        xinfo2(TSF "cpan debug OnCreate 1");
+        net_core_ = new NetCore();
+    }
 }
 
 void StnManager::OnDestroy() {
@@ -165,6 +172,8 @@ void StnManager::OnDestroy() {
     //NetCore::Singleton::Release();
     //SINGLETON_RELEASE_ALL();
 //    net_core_.reset();
+
+    xinfo2(TSF "cpan debug OnDestroy");
     delete net_core_;
 
 
@@ -418,6 +427,7 @@ void StnManager::Reset() {
     //NetCore::Singleton::Release();
     //NetCore::Singleton::Instance();
 //    net_core_.reset(new NetCore());
+    xinfo2(TSF "cpan debug Reset");
     delete net_core_;
     net_core_ = new NetCore();
 }
@@ -428,8 +438,9 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
     //NetCore::Singleton::Release();
     //NetCore::Singleton::Instance();
 //    net_core_.reset(new NetCore());
+    xinfo2(TSF "cpan debug ResetAndInitEncoderVersion");
     delete net_core_;
-    net_core_ = nullptr;
+    net_core_ = new NetCore();
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {

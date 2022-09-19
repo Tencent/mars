@@ -469,7 +469,7 @@ void NetCore::ClearTasks() {
 void NetCore::OnNetworkChange() {
     xinfo2(TSF "cpan debug OnNetworkChange");
     //TODO cpan mars2
-    //SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
+    SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
 

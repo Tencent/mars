@@ -205,7 +205,7 @@ class StnManager : public BaseStnManager {
  private:
      Callback* callback_ = NULL;
      StnCallbackBridge* callback_bridge_ = NULL;
-     NetCore* net_core_;
+     NetCore* net_core_ = NULL;
 
 //    std::shared_ptr<Callback> callback_ = NULL;
 //    std::shared_ptr<StnCallbackBridge> callback_bridge_ = NULL;
