@@ -203,12 +203,13 @@ class StnManager : public BaseStnManager {
     NetCore* GetNetCore();
 
  private:
-    // Callback* callback_ = NULL;
-    // StnCallbackBridge* stn_callback_bridge_ = NULL;
-    // NetCore* net_core_;
-    std::shared_ptr<Callback> callback_ = NULL;
-    std::shared_ptr<StnCallbackBridge> callback_bridge_ = NULL;
-    std::shared_ptr<NetCore> net_core_ = NULL;
+     Callback* callback_ = NULL;
+     StnCallbackBridge* callback_bridge_ = NULL;
+     NetCore* net_core_;
+
+//    std::shared_ptr<Callback> callback_ = NULL;
+//    std::shared_ptr<StnCallbackBridge> callback_bridge_ = NULL;
+//    std::shared_ptr<NetCore> net_core_ = NULL;
 
     comm::Mutex order_mutex_;
 };  // StnManager

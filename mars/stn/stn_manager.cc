@@ -104,8 +104,11 @@ StnManager::~StnManager(){
 }
 
 void StnManager::Init() {
+//    if(!net_core_){
+//        net_core_ = std::shared_ptr<NetCore>(new NetCore);
+//    }
     if(!net_core_){
-        net_core_ = std::shared_ptr<NetCore>(new NetCore);
+        net_core_ = new NetCore();
     }
 }
 
@@ -161,8 +164,10 @@ void StnManager::OnDestroy() {
 
     //NetCore::Singleton::Release();
     //SINGLETON_RELEASE_ALL();
-    net_core_.reset();
-    
+//    net_core_.reset();
+    delete net_core_;
+
+
     // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
     // ActiveLogic::Singleton::Release();
 }
@@ -196,28 +201,36 @@ void StnManager::OnAlarm(int64_t _id) {
 
 
 void StnManager::SetCallback(Callback* const _callback) {
-    callback_ = std::shared_ptr<Callback>(_callback);
+    callback_ = _callback;
+    //callback_ = std::shared_ptr<Callback>(_callback);
 }
 
 void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
-    if (!callback_bridge_) {
-        callback_bridge_ = std::shared_ptr<StnCallbackBridge>(_callback_bridge);
-    } else{
-        //TODO cpan mars2s
-        //callback_bridge_.reset(_callback_bridge);
-    }
-    if (callback_bridge_) {
-        callback_bridge_->SetCallback(callback_.get());
-    }
+//    if (!callback_bridge_) {
+//        callback_bridge_ = std::shared_ptr<StnCallbackBridge>(_callback_bridge);
+//    } else{
+//        //TODO cpan mars2s
+//        //callback_bridge_.reset(_callback_bridge);
+//    }
+//    if (callback_bridge_) {
+//        callback_bridge_->SetCallback(callback_.get());
+//    }
+    callback_bridge_ = _callback_bridge;
+    callback_bridge_->SetCallback(callback_);
+
 }
 
 StnCallbackBridge* StnManager::GetStnCallbackBridge() {
 
+//    if (!callback_bridge_) {
+//        callback_bridge_ = std::make_shared<StnCallbackBridge>();
+//    }
+//
+//    return callback_bridge_.get();
     if (!callback_bridge_) {
-        callback_bridge_ = std::make_shared<StnCallbackBridge>();
+        callback_bridge_ = new StnCallbackBridge();
     }
-
-    return callback_bridge_.get();
+    return callback_bridge_;
 }
 
 // #################### stn.h callback ####################
@@ -403,7 +416,9 @@ void StnManager::Reset() {
     xinfo2(TSF "stn reset");
     //NetCore::Singleton::Release();
     //NetCore::Singleton::Instance();
-    net_core_.reset(new NetCore());
+//    net_core_.reset(new NetCore());
+    delete net_core_;
+    net_core_ = new NetCore();
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
@@ -411,7 +426,9 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
     LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
     //NetCore::Singleton::Release();
     //NetCore::Singleton::Instance();
-    net_core_.reset(new NetCore());
+//    net_core_.reset(new NetCore());
+    delete net_core_;
+    net_core_ = nullptr;
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {
@@ -484,7 +501,8 @@ void StnManager::MakesureLonglinkConnected_ext(const std::string &name) {
 
 
 NetCore* StnManager::GetNetCore() {
-    return net_core_.get();
+    //return net_core_.get();
+    return net_core_;
 }
 
 }//end stn
