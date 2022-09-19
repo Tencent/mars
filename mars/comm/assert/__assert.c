@@ -80,7 +80,7 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
             strncpy(assertlog, "[ASSERT] FAILED!!!", sizeof(assertlog));
             break;
         }
-        if (offset >= sizeof(assertlog)) {
+        if ((size_t)offset >= sizeof(assertlog)) {
             break;
         }
     
@@ -90,7 +90,7 @@ void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char 
             strncat(assertlog + offset, "[ASSERT2] FAILED!!!", leftbytes);
             break;
         }
-        if (offset2 >= leftbytes){
+        if ((size_t)offset2 >= leftbytes){
             break;
         }
         offset += offset2;
