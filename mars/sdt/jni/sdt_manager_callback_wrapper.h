@@ -5,11 +5,8 @@
 #ifndef MMNET_SDT_MANAGER_CALLBACK_WRAPPER_H
 #define MMNET_SDT_MANAGER_CALLBACK_WRAPPER_H
 
-class sdt_manager_callback_wrapper {};
-
-
-
 #include <jni.h>
+
 #include "mars/sdt/sdt.h"
 
 namespace mars {
@@ -24,9 +21,10 @@ class SdtManagerJniCallback : public Callback {
     jclass callbacks_class_;
 
  public:
-    void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) override;
-
+    virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) override;
 };
 
+}  // namespace sdt
+}  // namespace mars
 
 #endif  // MMNET_SDT_MANAGER_CALLBACK_WRAPPER_H

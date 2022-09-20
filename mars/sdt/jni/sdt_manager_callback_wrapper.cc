@@ -1,8 +1,9 @@
 //
 // Created by Cpan on 2022/9/20.
 //
-#include <vector>
 #include "sdt_manager_callback_wrapper.h"
+
+#include <vector>
 
 #include "comm/jni/jnicat/jnicat_core.h"
 #include "mars/comm/jni/util/comm_function.h"
@@ -12,7 +13,7 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
 
-namespace mars{
+namespace mars {
 namespace sdt {
 
 SdtManagerJniCallback::SdtManagerJniCallback(JNIEnv* env, jobject callback) {
@@ -30,11 +31,11 @@ SdtManagerJniCallback::~SdtManagerJniCallback() {
 }
 
 JNICAT_DEFINE_METHOD(kSdtManagerJniCallback_ReportNetCheckResult, "com/tencent/mars/sdt/SdtManager$CallBack", "reportSignalDetectResults", "(Ljava/lang/String;)V")
-void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results){
+void SdtManagerJniCallback::ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {
     jnienv_ptr env;
-    jstring result ;
-    c2j_call(void, callback_inst_,kSdtManagerJniCallback_ReportNetCheckResult, result);
+    // TODO cpan mars2
+    c2j_call(void, callback_inst_, kSdtManagerJniCallback_ReportNetCheckResult, c2j_cast(jstring, ""));
 }
 
-}
-}
+}  // namespace sdt
+}  // namespace mars
