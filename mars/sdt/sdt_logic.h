@@ -27,19 +27,22 @@ namespace sdt {
 
         class SdtManager;
 
-	class Callback
-	{
-	public:
-		virtual ~Callback() {};
-	};
+//	class Callback
+//	{
+//	public:
+//		virtual ~Callback() {};
+//	};
+//
+//#ifdef NATIVE_CALLBACK
+//        class SdtNativeCallback {
+//         public:
+//            SdtNativeCallback() = default;
+//            virtual ~SdtNativeCallback() = default;
+//            virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
+//        };
+//#endif
 
 #ifdef NATIVE_CALLBACK
-        class SdtNativeCallback {
-         public:
-            SdtNativeCallback() = default;
-            virtual ~SdtNativeCallback() = default;
-            virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
-        };
         extern void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
 #endif
 
