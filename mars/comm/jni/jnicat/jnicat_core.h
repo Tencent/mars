@@ -887,13 +887,13 @@ using jnienv_ptr = jnicat::jnienv_ptr;
 
 
 // PP_CAT
-#ifndef PP_CAT
-#define PP_CAT(x, y)	PP_CAT_I(x, y)
-#define PP_CAT_I(x, y)	x##y
+#ifndef PP_JNICAT
+#define PP_JNICAT(x, y)	PP_JNICAT_I(x, y)
+#define PP_JNICAT_I(x, y)	x##y
 #endif
 
 #define JNICAT_DEFINE_CLASS(classname) \
-    JNICAT_DEFINE_CACHE(PP_CAT(kClass, __LINE__), classname, "", "", jnicat::kCacheClass)
+    JNICAT_DEFINE_CACHE(PP_JNICAT(kClass, __LINE__), classname, "", "", jnicat::kCacheClass)
 
 #define JNICAT_DEFINE_METHOD(varname, classname, methodname, signature) \
     JNICAT_DEFINE_CACHE(varname, classname, methodname, signature, jnicat::kCacheMethod)
@@ -908,12 +908,12 @@ using jnienv_ptr = jnicat::jnienv_ptr;
     JNICAT_DEFINE_CACHE(varname, classname, fieldname, signature, jnicat::kCacheStaticField)
 
 #define JNICAT_DEFINE_CACHE(var, classname, name, signature, type) \
-    static const jnicat::jcacheitem PP_CAT(ci_, var){ classname, name, signature, type }; \
-    static const jnicat::jcacheitem* const var = jnicat::add_cacheitem(&PP_CAT(ci_, var));
+    static const jnicat::jcacheitem PP_JNICAT(ci_, var){ classname, name, signature, type }; \
+    static const jnicat::jcacheitem* const var = jnicat::add_cacheitem(&PP_JNICAT(ci_, var));
 
 #define JNICAT_DEFINE_JNI_METHOD(var, classname, jni_methods, count) \
-    static const jnicat::jnativeitem PP_CAT(ni_, var){ classname, jni_methods, count }; \
-    static const jnicat::jnativeitem* const var = jnicat::add_nativeitem(&PP_CAT(ni_, var));
+    static const jnicat::jnativeitem PP_JNICAT(ni_, var){ classname, jni_methods, count }; \
+    static const jnicat::jnativeitem* const var = jnicat::add_nativeitem(&PP_JNICAT(ni_, var));
 
 static constexpr int __sig_index(const char* s, int i) {
     return s[i] == '\0' ? -1 : (s[i] == ')' ? i + 1 : __sig_index(s, i + 1));
