@@ -13,10 +13,6 @@ namespace stn {
 
 class JniStnManager {
 
-
-
-
-
  public:
     static void JniCreateStnManager(JNIEnv* env, jobject instance, jstring contextId) {
         auto stn_manager_cpp = StnManager::CreateStnManager(j2c_cast(contextId));
@@ -40,8 +36,8 @@ class JniStnManager {
     static void JniSetCallback(JNIEnv* env, jobject instance, jobject callback) {
         auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
         auto stnManagerJniCallback = new StnManagerJniCallback(env, callback);
-        auto appManagerCallbackWrapper = new jnicat::JniObjectWrapper<StnManagerJniCallback>(stnManagerJniCallback);
-        appManagerCallbackWrapper->instantiate(env, instance, "callbackHandle");
+        auto stnManagerCallbackWrapper = new jnicat::JniObjectWrapper<StnManagerJniCallback>(stnManagerJniCallback);
+        stnManagerCallbackWrapper->instantiate(env, instance, "callbackHandle");
         stn_manager_cpp->SetCallback(stnManagerJniCallback);
     }
 };
@@ -55,7 +51,7 @@ static const JNINativeMethod kStnManagerJniMethods[] = {
 };
 
 static const size_t kStnManagerJniMethodsCount = sizeof(kStnManagerJniMethods) / sizeof(JNINativeMethod);
-JNICAT_DEFINE_JNI_METHOD(kStnManagerInterface, "com/tencent/mars/stn/AppManager", kStnManagerJniMethods, kStnManagerJniMethodsCount)
+JNICAT_DEFINE_JNI_METHOD(kStnManagerInterface, "com/tencent/mars/stn/StnManager", kStnManagerJniMethods, kStnManagerJniMethodsCount)
 
 }  // namespace stn
 }  // namespace mars

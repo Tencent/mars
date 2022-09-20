@@ -41,7 +41,7 @@ void StnManagerJniCallback::TrafficData(ssize_t _send, ssize_t _recv) {
     c2j_call(void, callback_inst_, kStnManagerJniCallback_TrafficData, c2j_cast(jint, _send), c2j_cast(jint, _recv));
 }
 
-JNICAT_DEFINE_METHOD(kStnManagerJniCallback_OnNewDns, "com/tencent/mars/stn/StnManager$CallBack", "onNewDns", "(Ljava/lang/String;)[Ljava/lang/String;")
+JNICAT_DEFINE_METHOD(kStnManagerJniCallback_OnNewDns, "com/tencent/mars/stn/StnManager$CallBack", "onNewDns", "(Ljava/lang/String;Z)[Ljava/lang/String;")
 std::vector<std::string> StnManagerJniCallback::OnNewDns(const std::string& host, bool longlink_host) {
     jnienv_ptr env;
     std::vector<std::string> iplist;
@@ -215,7 +215,6 @@ void StnManagerJniCallback::ReportConnectStatus(int _status, int _longlink_statu
     c2j_call(void, callback_inst_, kStnManagerJniCallback_ReportConnectStatus, c2j_cast(jint, _status), c2j_cast(jint, _longlink_status));
 }
 
-JNICAT_DEFINE_CLASS("com/tencent/mars/stn/Stn$ErrCmdType")
 JNICAT_DEFINE_METHOD(kStnManagerJniCallback_OnLongLinkNetworkError, "com/tencent/mars/stn/StnManager$CallBack", "onLongLinkNetworkError", "(Lcom/tencent/mars/stn/Stn$ErrCmdType;ILjava/lang/String;I)V")
 void StnManagerJniCallback::OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     jnienv_ptr env;
@@ -241,9 +240,10 @@ void StnManagerJniCallback::OnLongLinkStatusChange(int _status) {
     c2j_call(void, callback_inst_, kStnManagerJniCallback_OnLongLinkStatusChange, c2j_cast(jint, _status));
 }
 
+
 JNICAT_DEFINE_METHOD(kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer,
                      "com/tencent/mars/stn/StnManager$CallBack",
-                     "getLonglinkIdentifyCheckBuffer",
+                     "getLongLinkIdentifyCheckBuffer",
                      "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
 int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     jnienv_ptr env;
@@ -258,13 +258,20 @@ int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _ch
     jobject byte_array_outputstream_obj = env->NewObject(byte_array_output_stream_clz, construct_mid);
     jobject byte_array_outputstream_hash = env->NewObject(byte_array_output_stream_clz, construct_mid);
 
-    int ret = j2c_cast(c2j_call(jint, callback_inst_, kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, c2j_cast(jstring, _channel_id), byte_array_outputstream_obj, byte_array_outputstream_hash, c2j_cast(jint, _cmdid)));
+    jintArray cmdId_array = env->NewIntArray(2);
+
+    int ret = j2c_cast(c2j_call(jint, callback_inst_, kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, c2j_cast(jstring, _channel_id), byte_array_outputstream_obj, byte_array_outputstream_hash, cmdId_array));
 
     jbyteArray ret_byte_array = NULL;
     ret_byte_array = (jbyteArray)JNU_CallMethodByName(env, byte_array_outputstream_obj, "toByteArray", "()[B").l;
 
     jbyteArray ret_byte_hash = NULL;
     ret_byte_hash = (jbyteArray)JNU_CallMethodByName(env, byte_array_outputstream_hash, "toByteArray", "()[B").l;
+
+    jint* cmdId = env->GetIntArrayElements(cmdId_array, NULL);
+    _cmdid = cmdId[0];
+    env->ReleaseIntArrayElements(cmdId_array, cmdId, 0);
+    env->DeleteLocalRef(cmdId_array);
 
     if (ret_byte_hash != NULL) {
         jsize alen2 = env->GetArrayLength(ret_byte_hash);
@@ -289,7 +296,7 @@ int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _ch
     return ret;
 }
 
-JNICAT_DEFINE_METHOD(kStnManagerJniCallback_OnLonglinkIdentifyResponse, "com/tencent/mars/stn/StnManager$CallBack", "onLonglinkIdentifyResponse", "(Ljava/lang/String;[B[B)Z")
+JNICAT_DEFINE_METHOD(kStnManagerJniCallback_OnLonglinkIdentifyResponse, "com/tencent/mars/stn/StnManager$CallBack", "onLongLinkIdentifyResponse", "(Ljava/lang/String;[B[B)Z")
 bool StnManagerJniCallback::OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {
     jnienv_ptr env;
 

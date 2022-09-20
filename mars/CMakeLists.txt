@@ -48,7 +48,7 @@ if(ANDROID)
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/JNI_OnLoad.cc
             libraries/mars_xlog_sdk/jni/import.cc)
 
-    file(GLOB SELF_SRC_FILES libraries/mars_xlog_sdk/jni/app_manager_wrapper.cpp libraries/mars_xlog_sdk/jni/app_manager_callback_wrapper.cpp)
+    ## file(GLOB SELF_SRC_FILES libraries/mars_xlog_sdk/jni/app_manager_wrapper.cc libraries/mars_xlog_sdk/jni/app_manager_callback_wrapper.cc)
     message("cpan xxxxxx" ${SELF_SRC_FILES})
 
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
