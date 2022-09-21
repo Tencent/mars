@@ -48,7 +48,6 @@ extern std::string GetUserName();
 extern std::string GetRecentUserName();
 extern unsigned int GetClientVersion();
 extern DeviceInfo GetDeviceInfo();
-extern double GetOsVersion();
 
 #ifdef NATIVE_CALLBACK
 
