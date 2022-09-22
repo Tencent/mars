@@ -24,8 +24,8 @@ std::recursive_mutex Context::s_mutex_;
 
 Context::Context() {
     context_instance_counter_++;
-    app_manager_ = new mars::app::AppManager(this);
-    stn_manager_ = new mars::stn::StnManager(this);
+//    app_manager_ = new mars::app::AppManager(this);
+//    stn_manager_ = new mars::stn::StnManager(this);
 }
 
 Context::~Context() {
