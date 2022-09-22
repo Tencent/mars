@@ -3,7 +3,7 @@
 //
 
 #include "tcp_socket_operator.h"
-#include "config.h"
+#include "mars/stn/config.h"
 #include <comm/xlogger/xlogger.h>
 #include <memory>
 #include <comm/socket/block_socket.h>
