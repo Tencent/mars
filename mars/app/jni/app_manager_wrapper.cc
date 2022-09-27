@@ -9,7 +9,7 @@
 #include "comm/jni/jnicat/jnicat_object_wrapper.h"
 #include "mars/app/app.h"
 #include "mars/app/app_manager.h"
-#include "mars/comm/base_app_manager.h"
+#include "mars/boot/base_app_manager.h"
 #include "mars/app/jni/app_manager_callback_wrapper.h"
 
 namespace mars {

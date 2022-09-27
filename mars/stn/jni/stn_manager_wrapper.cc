@@ -4,7 +4,7 @@
 #include "comm/jni/jnicat/jnicat_core.h"
 #include "comm/jni/jnicat/jnicat_object_wrapper.h"
 #include "mars/stn/stn.h"
-#include "mars/comm/base_stn_manager.h"
+#include "mars/boot/base_stn_manager.h"
 #include "mars/stn/stn_manager.h"
 #include "stn_manager_callback_wrapper.h"
 

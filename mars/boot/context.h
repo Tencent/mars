@@ -10,17 +10,9 @@
 #include <string>
 #include <vector>
 
-#include "mars/comm/base_context.h"
+#include "mars/boot/base_context.h"
 
 namespace mars {
-
-namespace stn {
-class StnManager;
-}
-
-namespace app {
-class AppManager;
-}
 
 namespace boot {
 class Context : public BaseContext {
@@ -37,10 +29,10 @@ class Context : public BaseContext {
     BaseStnManager* GetStnManager() override;
 
  public:
-    AppManager* appManager() {
+    BaseAppManager* appManager() {
         return app_manager_;
     }
-    StnManager* stnManager() {
+    BaseStnManager* stnManager() {
         return stn_manager_;
     }
 
@@ -57,8 +49,8 @@ class Context : public BaseContext {
     std::string context_id_;
     std::once_flag set_context_id_flag_;
     std::recursive_mutex mutex_;
-    AppManager* app_manager_ = nullptr;
-    StnManager* stn_manager_ = nullptr;
+    BaseAppManager* app_manager_ = nullptr;
+    BaseStnManager* stn_manager_ = nullptr;
 };
 
 }  // namespace boot

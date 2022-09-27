@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "mars/comm/base_app_manager.h"
-#include "mars/comm/base_stn_manager.h"
+#include "mars/boot/base_app_manager.h"
+#include "mars/boot/base_stn_manager.h"
 
 using namespace mars::stn;
 using namespace mars::app;
