@@ -48,7 +48,7 @@ using namespace mars::comm;
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> LongLinkTaskManager::get_real_host_;
+boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> LongLinkTaskManager::get_real_host_;
 boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> LongLinkTaskManager::on_handshake_ready_;
 boost::function<bool (int _error_code)> LongLinkTaskManager::should_intercept_result_;
 
@@ -388,7 +388,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
 
         Task task = first->task;
         if (get_real_host_) {
-            get_real_host_(task.user_id, task.longlink_host_list);
+            get_real_host_(task.user_id, task.longlink_host_list, /*_strict_match=*/false);
         }
         std::string host = "";
         if (!task.longlink_host_list.empty()) {
@@ -857,7 +857,7 @@ std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLinkNoLock(const s
 
 void LongLinkTaskManager::FixMinorRealhost(Task& _task) {
     if (get_real_host_) {
-        get_real_host_(_task.user_id, _task.minorlong_host_list);
+        get_real_host_(_task.user_id, _task.minorlong_host_list, /*_strict_match=*/false);
     }
 }
 
