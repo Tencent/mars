@@ -54,7 +54,7 @@ namespace app {
 
 
 void SetCallback(Callback* const callback) {
-    AppManager* app_manager = AppManager::CreateAppManager("defualt");
+    AppManager* app_manager = AppManager::CreateAppManager("default");
     app_manager->SetCallback(callback);
 }
 
