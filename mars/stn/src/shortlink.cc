@@ -221,11 +221,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         use_proxy = false;
     }
     
-    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && NetSource::GetShortLinkDebugIP().empty()) {
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;
     	_conn_profile.ip_type = kIPSourceProxy;
-        IPPortItem item = {_conn_profile.ip, NetSource::GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
+        IPPortItem item = {_conn_profile.ip, net_source_.GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
         //.如果是http代理，则把代理地址插到最前面.
         _conn_profile.ip_items.insert(_conn_profile.ip_items.begin(), item);
         __UpdateProfile(_conn_profile);
@@ -277,7 +277,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_type = kIPSourceProxy;
     }
 
-    xinfo2_if(task_.priority >= 0, TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items), is_keep_alive_);
+    xinfo2_if(task_.priority >= 0, TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, net_source_.DumpTable(_conn_profile.ip_items), is_keep_alive_);
 
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());

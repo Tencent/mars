@@ -74,7 +74,7 @@ NetCore::NetCore()
     : messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
     , net_source_(new NetSource(*ActiveLogic::Instance()))
-    , netcheck_logic_(new NetCheckLogic())
+    , netcheck_logic_(new NetCheckLogic(net_source_))
     , anti_avalanche_(new AntiAvalanche(ActiveLogic::Instance()->IsActive()))
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
@@ -1088,4 +1088,7 @@ std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name)
     shortlink_task_manager_->SetDebugHost(_host);
   }
 
+NetSource* NetCore::GetNetSource(){
+    return net_source_;
+}
 #endif

@@ -44,30 +44,30 @@
 using namespace mars::stn;
 using namespace mars::comm;
 
-static const char* const kItemDelimiter = ":";
+const char* const kItemDelimiter = ":";
 
-static const int kNumMakeCount = 5;
+const int kNumMakeCount = 5;
 
 //mmnet ipport settings
-static std::vector<std::string> sg_longlink_hosts;
-static std::vector<uint16_t> sg_longlink_ports;
-static std::string sg_longlink_debugip;
+std::vector<std::string> sg_longlink_hosts;
+std::vector<uint16_t> sg_longlink_ports;
+std::string sg_longlink_debugip;
 
-static std::string sg_minorlong_debugip;
-static uint16_t sg_minorlong_port = 0;
+std::string sg_minorlong_debugip;
+uint16_t sg_minorlong_port = 0;
 
-static int sg_shortlink_port;
-static std::string sg_shortlink_debugip;
-static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
-static std::vector<uint16_t> sg_lowpriority_longlink_ports;
+int sg_shortlink_port;
+std::string sg_shortlink_debugip;
+std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
+std::vector<uint16_t> sg_lowpriority_longlink_ports;
 
-static std::map< std::string, std::string > sg_host_debugip_mapping;
+std::map< std::string, std::string > sg_host_debugip_mapping;
 
-static std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
-static tickcount_t sg_quic_reopen_tick(true);
-static bool sg_quic_enabled = true;
+std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
+tickcount_t sg_quic_reopen_tick(true);
+bool sg_quic_enabled = true;
 
-static Mutex sg_ip_mutex;
+Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil():
 new_dns_(OnNewDns) {

@@ -122,6 +122,7 @@ class NetCore {
     void InitHistory2BannedList();
     void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
 
+    NetSource* GetNetSource();
 public:
     
 #ifdef USE_LONG_LINK

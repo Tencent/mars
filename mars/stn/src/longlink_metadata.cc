@@ -37,7 +37,7 @@ LongLinkMetaData::LongLinkMetaData(const LonglinkConfig& _config, NetSource& _ne
         netsource_checker_ = std::make_shared<NetSourceTimerCheck>(&_netsource, _activeLogic, *(longlink_.get()), _message_id);
         netsource_checker_->fun_time_check_suc_ = boost::bind(&LongLinkMetaData::__OnTimerCheckSuc, this, config_.name);
         
-        longlink_monitor_ = std::make_shared<LongLinkConnectMonitor>(_activeLogic, *(longlink_.get()), _message_id, _config.is_keep_alive);
+        longlink_monitor_ = std::make_shared<LongLinkConnectMonitor>(&_netsource, _activeLogic, *(longlink_.get()), _message_id, _config.is_keep_alive);
 
         signal_keeper_ = std::make_shared<SignallingKeeper>(*(longlink_.get()), _message_id);
         signal_keeper_->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData, longlink_.get(), _1, _2, _3, Task::kSignallingKeeperTaskID);

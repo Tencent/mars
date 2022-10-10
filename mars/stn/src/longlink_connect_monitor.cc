@@ -163,7 +163,7 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
 #define AYNC_HANDLER asyncreg_.Get()
 
-LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
+LongLinkConnectMonitor::LongLinkConnectMonitor(NetSource* _net_source, ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_id))
     , activelogic_(_activelogic), longlink_(_longlink), rebuild_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, true), _id)
     , wake_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, false), _id)
@@ -175,7 +175,8 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
     , isstart_(false)
     , is_keep_alive_(_is_keep_alive)
     , current_interval_index_(0)
-    , rebuild_longlink_(false) {
+    , rebuild_longlink_(false)
+    , net_source_(_net_source){
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
         if(is_keep_alive_) {
             activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
@@ -446,7 +447,7 @@ void LongLinkConnectMonitor::__Run() {
     }
 
     struct socket_ipinfo_t dummyIpInfo;
-    int ret = socket_gethostbyname(NetSource::GetLongLinkHosts().front().c_str(), &dummyIpInfo, 0, NULL);
+    int ret = socket_gethostbyname(net_source_->GetLongLinkHosts().front().c_str(), &dummyIpInfo, 0, NULL);
 
     if (ret == 0) {
         ++conti_suc_count_;

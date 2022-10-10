@@ -375,19 +375,19 @@ void StnManager::SetLonglinkSvrAddr(const std::string &host, const std::vector<u
     if (!host.empty()) {
         hosts.push_back(host);
     }
-    NetSource::SetLongLink(hosts, ports, debugip);
+    net_core_->GetNetSource()->SetLongLink(hosts, ports, debugip);
 }
 
 void StnManager::SetShortlinkSvrAddr(const uint16_t port, const std::string &debugip) {
-    NetSource::SetShortlink(port, debugip);
+    net_core_->GetNetSource()->SetShortlink(port, debugip);
 }
 
 void StnManager::SetDebugIP(const std::string &host, const std::string &ip) {
-    NetSource::SetDebugIP(host, ip);
+    net_core_->GetNetSource()->SetDebugIP(host, ip);
 }
 
 void StnManager::SetBackupIPs(const std::string &host, const std::vector<std::string> &iplist) {
-    NetSource::SetBackupIPs(host, iplist);
+    net_core_->GetNetSource()->SetBackupIPs(host, iplist);
 }
 
 bool StnManager::StartTask(const Task &_task) {
