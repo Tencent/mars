@@ -42,6 +42,9 @@ enum NetType {
     kMobile = 2,
     kOtherNet = 3
 };
+
+void OnPlatformNetworkChange();
+
 int getNetInfo();
 
 enum class NetTypeForStatistics{
@@ -306,14 +309,6 @@ bool  wakeupLock_IsLocking(void* _object);
 
 #endif
 
-#endif
-
-#ifdef ANDROID
-	extern int g_NetInfo;
-	extern WifiInfo g_wifi_info;
-	extern SIMInfo g_sim_info;
-	extern APNInfo g_apn_info;
-	extern Mutex g_net_mutex;
 #endif
 
 #ifdef ANDROID

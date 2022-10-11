@@ -35,6 +35,7 @@
 #include "mars/boost/ref.hpp"
 
 #include "mars/comm/thread/lock.h"
+#include "mars/comm/time_utils.h"
 #include "mars/comm/coroutine/coroutine.h"
 #include "mars/comm/coroutine/coro_async.h"
 
@@ -55,12 +56,33 @@ void ResetWiFiIdCallBack() {
 
 
 #ifdef ANDROID
-	int g_NetInfo = 0;    // global cache netinfo for android
-	WifiInfo g_wifi_info;
-	SIMInfo g_sim_info;
-	APNInfo g_apn_info;
-	Mutex g_net_mutex;
+    int g_NetInfo = 0;    // global cache netinfo for android
+    uint64_t g_last_networkchange_tick = gettickcount();
+    WifiInfo g_wifi_info;
+    SIMInfo g_sim_info;
+    APNInfo g_apn_info;
+    Mutex g_net_mutex;
 #endif
+
+
+// 把 platform 编译到相应 so 中时这个函数一定要被调用。不然缓存信息清除不了
+// 参看 stn_logic.cc
+void OnPlatformNetworkChange() {
+#ifdef ANDROID
+    ScopedLock lock(g_net_mutex);
+    g_NetInfo = 0;
+    g_last_networkchange_tick = gettickcount();
+    g_wifi_info.ssid.clear();
+    g_wifi_info.bssid.clear();
+    g_sim_info.isp_code.clear();
+    g_sim_info.isp_name.clear();
+    g_apn_info.nettype = kNoNet -1;
+    g_apn_info.sub_nettype = 0;
+    g_apn_info.extra_info.clear();
+    lock.unlock();
+#endif
+}
+
 
 #ifdef NATIVE_CALLBACK
     static std::weak_ptr<PlatformNativeCallback> platform_native_callback_instance;
@@ -215,13 +237,15 @@ DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getNetInfo, KPlatformCommC2Java, "
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getNetInfo)
 #endif
 int getNetInfo() {
-	xverbose_function();
+    xverbose_function();
     #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(getNetInfo(), -1);
     #endif
 
-    // if (g_NetInfo != 0 && g_NetInfo != kNoNet)
-    //     return g_NetInfo;
+    // 防止获取的信息不准确，切换网络后延迟 1min 再使用缓存信息，1min 这个值没什么讲究主要是做个延迟。
+    if (g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
+        return g_NetInfo;
+    }
     
     // if (coroutine::isCoroutine())
     //     return coroutine::MessageInvoke(&getNetInfo);
@@ -329,8 +353,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     #endif
 
     if (!_force_refresh && !g_wifi_info.ssid.empty()) {
-    	wifiInfo = g_wifi_info;
-    	return true;
+        wifiInfo = g_wifi_info;
+        return true;
     }
 
     if (coroutine::isCoroutine())
@@ -380,8 +404,8 @@ bool getCurSIMInfo(SIMInfo& simInfo) {
     #endif
 
     if (!g_sim_info.isp_code.empty()) {
-    	simInfo = g_sim_info;
-    	return true;
+        simInfo = g_sim_info;
+        return true;
     }
     
     if (coroutine::isCoroutine())
@@ -441,8 +465,8 @@ bool getAPNInfo(APNInfo& info) {
     #endif
 
     if (g_apn_info.nettype >= kNoNet) {
-    	info = g_apn_info;
-    	return true;
+        info = g_apn_info;
+        return true;
     }
 
     if (coroutine::isCoroutine())
@@ -473,7 +497,7 @@ bool getAPNInfo(APNInfo& info) {
         ScopedJstring extraJstr(env, extraStr);
 
         if (extraJstr.GetChar() != NULL) {
-        	g_apn_info.extra_info = extraJstr.GetChar();
+            g_apn_info.extra_info = extraJstr.GetChar();
         }
 
         env->DeleteLocalRef(extraStr);
