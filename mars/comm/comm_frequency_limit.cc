@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -59,6 +59,11 @@ bool CommFrequencyLimit::Check() {
     __DelOlderTouchTime(now);
     touch_times_.push_back(now);
     return true;
+}
+
+void CommFrequencyLimit::SetTimeSpan(uint64_t _time_span) {
+    xdebug2(TSF "SetTimeSpan %_", _time_span);
+    time_span_ = _time_span;
 }
 
 void CommFrequencyLimit::__DelOlderTouchTime(uint64_t _time) {

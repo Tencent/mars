@@ -30,7 +30,8 @@ class CommFrequencyLimit {
     ~CommFrequencyLimit();
 
     bool Check();  // true pass, false limit
-
+    void SetTimeSpan(uint64_t _time_span);
+    
   private:
     CommFrequencyLimit(CommFrequencyLimit&);
     CommFrequencyLimit& operator=(CommFrequencyLimit&);
