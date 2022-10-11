@@ -47,7 +47,7 @@ using namespace mars::comm;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> ShortLinkTaskManager::get_real_host_;
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
@@ -284,7 +284,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         std::vector<std::string> hosts = task.shortlink_host_list;
         ShortlinkConfig config(first->use_proxy, /*use_tls=*/true);
 #ifndef DISABLE_QUIC_PROTOCOL
-        if (!task.quic_host_list.empty() && (first->task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
+        if (!task.quic_host_list.empty() && (task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
             //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
             if (NetSource::CanUseQUIC()){
                 config.use_proxy = false;
@@ -298,9 +298,19 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             }
         }
 #endif
+        size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
-            get_real_host_(task.user_id, hosts);
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
         }
+        
+        if (realhost_cnt == 0 && config.use_quic){
+            xwarn2(TSF"taskid:%_ no quic hosts.", first->task.taskid);
+            //.使用quic但拿到的host为空（一般是svr部署问题），则回退到tcp.
+            config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true);
+            hosts = task.shortlink_host_list;
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
+        }
+        
         first->task.shortlink_host_list = hosts;
         
         std::string host = hosts.front();
