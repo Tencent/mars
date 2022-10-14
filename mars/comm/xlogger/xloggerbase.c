@@ -153,8 +153,7 @@ void __xlogger_AssertP_impl(const XLoggerInfo* _info, const char* _expression, c
 
 extern void __ASSERT2(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression, const char * _format, ...);
 void __xlogger_Assert_impl(const XLoggerInfo* _info, const char* _expression, const char* _log) {
-    //TODO cpan
-    //__ASSERT2(_info->filename, _info->line, _info->func_name, _expression, _log);
+    __ASSERT2(_info->filename, _info->line, _info->func_name, _expression, _log);
     
 }
 #endif
