@@ -210,8 +210,8 @@ void RequestSync() {
 //底层询问上层http网络检查的域名列表
 void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
     StnManager* stnManager = StnManager::CreateStnManager("default");
-    //TODO cpan mars2
-        stnManager->RequestNetCheckShortLinkHosts(_hostlist);
+    //TODO cpan mars2 wait for confirm is OK
+    stnManager->RequestNetCheckShortLinkHosts(_hostlist);
 }
 //底层向上层上报cgi执行结果
 void ReportTaskProfile(const TaskProfile& _task_profile) {

@@ -304,7 +304,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->task.shortlink_host_list = hosts;
         
-        //TODO cpan mars2.0
         if (hosts.empty()) {
             continue;
         }

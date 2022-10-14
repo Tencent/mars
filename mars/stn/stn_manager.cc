@@ -219,7 +219,7 @@ void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
 //    if (!callback_bridge_) {
 //        callback_bridge_ = std::shared_ptr<StnCallbackBridge>(_callback_bridge);
 //    } else{
-//        //TODO cpan mars2s
+//        //TODO cpan mars2
 //        //callback_bridge_.reset(_callback_bridge);
 //    }
 //    if (callback_bridge_) {
