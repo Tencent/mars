@@ -72,6 +72,8 @@ namespace stn{
         
         virtual void RequestSync() = 0;
         
+        virtual void ReportTaskProfile(const TaskProfile& _task_profile) = 0;
+        
         //验证是否已登录 
     };
 
