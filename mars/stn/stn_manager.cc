@@ -92,9 +92,9 @@ std::map<std::string, StnManager*> StnManager::s_stn_manager_map_;
 std::recursive_mutex StnManager::s_mutex_;
 /** transition logic for stn_logic */
 
-//StnManager::StnManager(BaseContext* context) {
-//
-//}
+StnManager::StnManager(BaseContext* context) :context_(context){
+    context_id_ = context_->GetContextId();
+}
 
 StnManager::StnManager(const std::string& context_id) {
     context_id_ = context_id;

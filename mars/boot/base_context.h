@@ -12,9 +12,11 @@
 
 #include "mars/boot/base_app_manager.h"
 #include "mars/boot/base_stn_manager.h"
+#include "mars/boot/base_ipxx_manager.h"
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::magicbox;
 
 namespace mars {
 namespace boot {
@@ -31,6 +33,7 @@ class BaseContext {
     virtual const std::string& GetContextId() = 0;
     virtual BaseAppManager* GetAppManager() = 0;
     virtual BaseStnManager* GetStnManager() = 0;
+    virtual BaseIPxxManager* GetIPxxManager() = 0;
 };
 
 #ifdef _WIN32

@@ -7,7 +7,7 @@
 
 #include "mars/boot/base_app_manager.h"
 #include "mars/app/app.h"
-#include "mars/boot/context.h"
+#include "mars/boot/base_context.h"
 #include "mars/comm/comm_data.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
@@ -22,7 +22,7 @@ namespace app {
 
 class AppManager : public BaseAppManager {
  public:
-//    explicit AppManager(Context* context);
+    explicit AppManager(BaseContext* context);
     explicit AppManager(const std::string& context_id);
     ~AppManager() override;
     void Init() override;
@@ -30,6 +30,7 @@ class AppManager : public BaseAppManager {
 
     /** transition logic for app_logic */
  private:
+    BaseContext* context_;
     std::string context_id_;
  public:
     static AppManager* CreateAppManager(const std::string& context_id);
@@ -65,6 +66,7 @@ class AppManager : public BaseAppManager {
     Thread slproxythread_;
     uint64_t slproxytimetick_ = gettickcount();
     int slproxycount_ = 0;
+
 };
 
 }  // namespace app
