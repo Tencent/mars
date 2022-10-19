@@ -31,17 +31,25 @@ using namespace mars::comm;
 namespace mars {
 namespace xlog {
 
-static Mutex sg_mutex;
-static std::map<std::string, XloggerCategory*> sg_map;
+static Mutex& GetGlobalMutex() {
+    static Mutex sg_mutex;
+    return sg_mutex;
+}
+
+static std::map<std::string, XloggerCategory*>& GetGlobalInstanceMap() {
+    static std::map<std::string, XloggerCategory*> sg_map;
+    return sg_map;
+}
+
 XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level) {
 
     if (_config.logdir_.empty() || _config.nameprefix_.empty()) {
         return nullptr;
     }
-
-    ScopedLock lock(sg_mutex);
-    auto it = sg_map.find(_config.nameprefix_);
-    if (it != sg_map.end()) {
+    
+    ScopedLock lock(GetGlobalMutex());
+    auto it = GetGlobalInstanceMap().find(_config.nameprefix_);
+    if (it != GetGlobalInstanceMap().end()) {
         return it->second;
     }
 
@@ -51,7 +59,7 @@ XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level)
     XloggerCategory* category = XloggerCategory::NewInstance(reinterpret_cast<uintptr_t>(appender),
                                                                 std::bind(&XloggerAppender::Write, appender, _1, _2));
     category->SetLevel(_level);
-    sg_map[_config.nameprefix_] = category;
+    GetGlobalInstanceMap()[_config.nameprefix_] = category;
     return category;
 }
 
@@ -60,9 +68,9 @@ mars::comm::XloggerCategory* GetXloggerInstance(const char* _nameprefix) {
         return nullptr;
     }
 
-    ScopedLock lock(sg_mutex);
-    auto it = sg_map.find(_nameprefix);
-    if (it != sg_map.end()) {
+    ScopedLock lock(GetGlobalMutex());
+    auto it = GetGlobalInstanceMap().find(_nameprefix);
+    if (it != GetGlobalInstanceMap().end()) {
         return it->second;
     }
 
@@ -74,9 +82,9 @@ void ReleaseXloggerInstance(const char* _nameprefix) {
         return;
     }
 
-    ScopedLock lock(sg_mutex);
-    auto it = sg_map.find(_nameprefix);
-    if (it == sg_map.end()) {
+    ScopedLock lock(GetGlobalMutex());
+    auto it = GetGlobalInstanceMap().find(_nameprefix);
+    if (it == GetGlobalInstanceMap().end()) {
         return;
     }
 
@@ -84,7 +92,7 @@ void ReleaseXloggerInstance(const char* _nameprefix) {
     XloggerAppender* appender = reinterpret_cast<XloggerAppender*>(category->GetAppender());
     XloggerAppender::DelayRelease(appender);
     XloggerCategory::DelayRelease(category);
-    sg_map.erase(it);
+    GetGlobalInstanceMap().erase(it);
 }
 
 void XloggerWrite(uintptr_t _instance_ptr, const XLoggerInfo* _info, const char* _log) {
