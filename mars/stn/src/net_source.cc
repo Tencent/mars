@@ -446,12 +446,11 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
             ScopedLock lock(sg_ip_mutex);
             sg_host_backupips_mapping[_host] = iplist;
         }
-        
+
 		if (_islonglink) {
-            if (sg_lowpriority_longlink_ports.empty()) {
-                NetSource::GetLonglinkPorts(ports);
-            } else {
-                ports = sg_lowpriority_longlink_ports;
+                    NetSource::GetLonglinkPorts(ports);
+            if (!sg_lowpriority_longlink_ports.empty()) {
+                ports.insert(ports.end(), sg_lowpriority_longlink_ports.begin(), sg_lowpriority_longlink_ports.end());
             }
 		}
 		else {
