@@ -179,6 +179,10 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host)
 #endif
 }
 
+void OnPlatformNetworkChange(){
+
+}
+
 int getNetInfo() {
     xverbose_function();
     SCOPE_POOL();
