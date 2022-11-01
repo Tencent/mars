@@ -36,6 +36,7 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/comm/shuffle.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
@@ -507,8 +508,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 	}
 	else {
 		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
-		srand((unsigned)gettickcount());
-		std::random_shuffle(_ip_items.begin() + len, _ip_items.end());
+		mars::comm::random_shuffle(_ip_items.begin() + len, _ip_items.end());
 		_ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
 	}
 

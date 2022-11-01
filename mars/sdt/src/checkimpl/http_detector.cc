@@ -23,6 +23,7 @@
 #include "mars/comm/socket/block_socket.h"
 #include "mars/comm/socket/complexconnect.h"
 #include "mars/comm/socket/socket_address.h"
+#include "mars/comm/shuffle.h"
 
 #include "mars/sdt/constants.h"
 
@@ -177,7 +178,7 @@ void HTTPDetector::__Detect() {
             bool ret = dns_.GetHostByName(host, vec_ip, kDefaultDNSTimeout<remain_timeout?kDefaultDNSTimeout:remain_timeout, &dns_breaker_);
             result_.dns_cost_ = detect_tick.gettickspan();
             if (ret && !vec_ip.empty()) {
-                std::random_shuffle(vec_ip.begin(), vec_ip.end());
+                mars::comm::random_shuffle(vec_ip.begin(), vec_ip.end());
                 svr_ip = vec_ip[0];
                 for (auto ip : vec_ip)
                     result_.dns_resolved_ip_.push_back(ip);
