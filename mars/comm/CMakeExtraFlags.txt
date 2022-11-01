@@ -3,7 +3,7 @@ if(ANDROID)
     set(SELF_EXTRA_FLAGS "-Werror -Wall -Werror=sign-compare -Wtype-limits -Wuninitialized -Wempty-body")
 
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-       set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wconsumed -Wno-error=char-subscripts -Wno-error=gnu-designator -Wno-error=unused-variable -Wno-error=missing-braces") 
+       set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wconsumed -Wno-error=tautological-unsigned-zero-compare -Wno-error=char-subscripts -Wno-error=gnu-designator -Wno-error=unused-variable -Wno-error=missing-braces -Wno-tautological-type-limit-compare") 
     else()
         set(SELF_EXTRA_FLAGS "${SELF_EXTRA_FLAGS} -Wclobbered")
     endif()

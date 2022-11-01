@@ -684,7 +684,7 @@ std::string GetCurrentProcessName(){
     if (!cmdline.empty())
         return cmdline;
 
-    int fd = open("/proc/self/cmdline", O_RDONLY, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
+    int fd = open("/proc/self/cmdline", O_RDONLY);
     if (fd < 0)
         return cmdline;
 

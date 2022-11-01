@@ -150,7 +150,12 @@ public class Alarm extends BroadcastReceiver {
         intent.setAction("ALARM_ACTION(" + String.valueOf(Process.myPid()) + ")");
         intent.putExtra(KEXTRA_ID, id);
         intent.putExtra(KEXTRA_PID, Process.myPid());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT < 23) {
+            pendingIntent = PendingIntent.getBroadcast(context, (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        } else {
+            pendingIntent = PendingIntent.getBroadcast(context, (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        }
 
 
         if (Build.VERSION.SDK_INT < 19) { //KITKAT
