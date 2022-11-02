@@ -117,8 +117,8 @@ class ScopeErrno {
 
 }
 
-XloggerAppender* XloggerAppender::NewInstance(const XLogConfig& _config) {
-    return new XloggerAppender(_config);
+XloggerAppender* XloggerAppender::NewInstance(const XLogConfig& _config, uint64_t _max_byte_size) {
+    return new XloggerAppender(_config, _max_byte_size);
 }
 
 void XloggerAppender::DelayRelease(XloggerAppender* _appender) {
@@ -135,8 +135,8 @@ void XloggerAppender::Release(XloggerAppender*& _appender) {
     _appender = nullptr;
 }
 
-XloggerAppender::XloggerAppender(const XLogConfig& _config)
-                        : thread_async_(boost::bind(&XloggerAppender::__AsyncLogThread, this)) {
+XloggerAppender::XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size)
+: thread_async_(boost::bind(&XloggerAppender::__AsyncLogThread, this)), max_file_size_(_max_byte_size) {
     Open(_config);
 }
 
@@ -1091,6 +1091,8 @@ static XloggerAppender* sg_default_appender = nullptr;
 static bool sg_release_guard = true; 
 static bool sg_default_console_log_open = false;
 static Mutex sg_mutex;
+static uint64_t sg_max_byte_size = 0;
+static long sg_max_alive_time = 0;
 void xlogger_appender(const XLoggerInfo* _info, const char* _log) {
     if (sg_release_guard) {
         return;
@@ -1116,8 +1118,11 @@ void appender_open(const XLogConfig& _config) {
         return; 
     }
 
-    sg_default_appender = XloggerAppender::NewInstance(_config);
+    sg_default_appender = XloggerAppender::NewInstance(_config, sg_max_byte_size);
     sg_default_appender->SetConsoleLog(sg_default_console_log_open);
+    if (sg_max_alive_time > 0) {
+        sg_default_appender->SetMaxAliveDuration(sg_max_alive_time);
+    }
     sg_release_guard = false;
     xlogger_SetAppender(&xlogger_appender);
     BOOT_RUN_EXIT(appender_release_default_appender);
@@ -1178,6 +1183,7 @@ void appender_set_console_log(bool _is_open) {
 }
 
 void appender_set_max_file_size(uint64_t _max_byte_size) {
+    sg_max_byte_size = _max_byte_size;
     if (sg_release_guard) {
         return;
     }
@@ -1185,6 +1191,7 @@ void appender_set_max_file_size(uint64_t _max_byte_size) {
 }
 
 void appender_set_max_alive_duration(long _max_time) {
+    sg_max_alive_time = _max_time;
     if (sg_release_guard) {
         return;
     }
