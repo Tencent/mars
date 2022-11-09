@@ -93,7 +93,7 @@ int UdpClient::ReadBlock(void* _buf, size_t _len, int _timeOutMs)
         return -1;
     
     int err = 0;
-    return __DoSelect(true, false, _buf, _len, err, -1);
+    return __DoSelect(true, false, _buf, _len, err, _timeOutMs);
 }
 
 
