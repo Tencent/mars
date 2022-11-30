@@ -36,6 +36,7 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/comm/shuffle.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
@@ -209,16 +210,16 @@ bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& 
     lock.unlock();
 
     std::vector<std::string> longlink_hosts = _config.host_list;
-    if(longlink_hosts.empty())
+    if(longlink_hosts.empty()){
         longlink_hosts = NetSource::GetLongLinkHosts();
- 	if (longlink_hosts.empty()) {
- 		xerror2("longlink host empty.");
- 		return false;
- 	}
+    }
+    if (longlink_hosts.empty()) {
+	 	xerror2("longlink host empty.");
+	 	return false;
+    }
 
- 	__GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true);
-
-	return !_ipport_items.empty();
+    __GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true);
+    return !_ipport_items.empty();
 }
 
 bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items) {
@@ -507,8 +508,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 	}
 	else {
 		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
-		srand((unsigned)gettickcount());
-		std::random_shuffle(_ip_items.begin() + len, _ip_items.end());
+		mars::comm::random_shuffle(_ip_items.begin() + len, _ip_items.end());
 		_ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
 	}
 

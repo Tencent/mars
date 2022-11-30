@@ -9,7 +9,7 @@
 (中文版本请参看[这里](#mars_cn))
 
 Mars is a cross-platform infrastructure component developed by WeChat Mobile Team.
-It is proved to be effective by billions of WeChat users.
+It has been proved to be effective by billions of WeChat users.
 
 1. Cross platform, easy to deploy if you are developing multi-platform or multi-business application.
 2. Suitable for small amount data transmission
@@ -33,7 +33,7 @@ Choose [Android](#android) or [iOS/OS X](#apple) or [Windows](#windows).
 
 ### <a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
-You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just wanna build a sample or demo, while mars-core is preferred to be used in your APP.
+You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just want to build a sample or demo, while mars-core is preferred to be used in your APP.
 
 #### <a name="wrapper">mars-wrapper</a>
 

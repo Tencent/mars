@@ -21,7 +21,6 @@
 #ifndef MMCOMM_SRC_SPECIAL_INI_H_
 #define MMCOMM_SRC_SPECIAL_INI_H_
 
-#include "mars/openssl/include/openssl/md5.h"
 #include "mars/comm/ini.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/strutil.h"

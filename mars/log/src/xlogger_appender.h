@@ -11,7 +11,7 @@ namespace xlog {
 class LogBaseBuffer;
 class XloggerAppender {
  public:
-    static XloggerAppender* NewInstance(const XLogConfig& _config);
+    static XloggerAppender* NewInstance(const XLogConfig& _config, uint64_t _max_byte_size);
     static void DelayRelease(XloggerAppender* _appender);
     static void Release(XloggerAppender*& _appender);
 
@@ -36,7 +36,7 @@ class XloggerAppender {
                             std::vector<std::string>& _filepath_vec);
 
  private:
-    XloggerAppender(const XLogConfig& _config);
+    XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size);
 
     
     
