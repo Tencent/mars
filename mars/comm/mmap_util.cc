@@ -52,7 +52,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         param.new_file_size = _size;
     }
 
-//    errno = 0;
+    errno = 0;
     _mmmap_file.open(param);
     if (errno != 0) {
         xinfo2(TSF"filepath:%_, size:%_, errno:%_ %_", _filepath, _size, errno, strerror(errno));
