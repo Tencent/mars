@@ -21,7 +21,7 @@
 #include "mars/stn/stn_logic.h"
 
 #include <stdlib.h>
-#include <string>
+
 #include <map>
 
 #include "mars/log/appender.h"
@@ -47,7 +47,13 @@
 #include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
 #endif
 
+#include "mars/comm/thread/atomic_oper.h"
+#include "mars/stn/stn_callback_bridge.h"
+#include "mars/stn/stn_manager.h"
+#include "mars/stn/stn_callback_bridge.h"
+
 using namespace mars::comm;
+using namespace mars::boot;
 
 namespace mars {
 namespace stn {
@@ -55,83 +61,48 @@ namespace stn {
 static const std::string kLibName = "stn";
 
 
-#define STN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
-        xwarn2(TSF"stn uncreate");\
-        return;\
-    }\
-    stn_ptr->func
-    
-#define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (!stn_ptr) {\
-        xwarn2(TSF"stn uncreate");\
-        return false;\
-    }\
-    stn_ptr->func;\
-    return true
-
-#define STN_WEAK_CALL_RETURN(func, ret) \
-	boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
-    if (stn_ptr) \
-    {\
-    	ret = stn_ptr->func;\
-    }
-
 static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
-    xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
-    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnInitConfigBeforeOnCreate(_packer_encoder_version);
 }
 
 static void onCreate() {
-#if !UWP && !defined(WIN32)
-    signal(SIGPIPE, SIG_IGN);
-#endif
-    xinfo2(TSF"stn oncreate");
-    ActiveLogic::Instance();
-    NetCore::Singleton::Instance();
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->Init();
+    stnManager->OnCreate();
 }
 
 static void onDestroy() {
-    xinfo2(TSF"stn onDestroy");
-
-    NetCore::Singleton::Release();
-    SINGLETON_RELEASE_ALL();
-    
-    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
-    // ActiveLogic::Singleton::Release();
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnDestroy();
 }
 
 static void onSingalCrash(int _sig) {
-    mars::xlog::appender_close();
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnSingalCrash(_sig);
 }
 
 static void onExceptionCrash() {
-    mars::xlog::appender_close();
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnExceptionCrash();
 }
 
 static void onNetworkChange(void (*pre_change)()) {
-    pre_change();
-    STN_WEAK_CALL(OnNetworkChange());
+    xinfo2(TSF "cpan debug OnNetworkChange");
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnNetworkChange(pre_change);
 }
     
 static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {
-    
-    if (NULL == _tag || strnlen(_tag, 1024) == 0) {
-        xassert2(false);
-        return;
-    }
-    
-    if (0 == strcmp(_tag, XLOGGER_TAG)) {
-        TrafficData(_send, _recv);
-    }
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnNetworkDataChange(_tag, _send, _recv);
 }
 
 #ifdef ANDROID
 //must dipatch by function in stn_logic.cc, to avoid static member bug
 static void onAlarm(int64_t _id) {
-    Alarm::onAlarmImpl(_id);
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnAlarm(_id);
 }
 #endif
 
@@ -161,166 +132,275 @@ static void __initbind_baseprjevent() {
 }
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
+// callback
+bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->MakesureAuthed(_host, _user_id);
+}
 
+//流量统计
+void TrafficData(ssize_t _send, ssize_t _recv) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->TrafficData(_send, _recv);
+}
 
-bool (*StartTask)(const Task& _task)
-= [](const Task& _task) {
-    STN_RETURN_WEAK_CALL(StartTask(_task));
+//底层询问上层该host对应的ip列表
+std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->OnNewDns(_host, _longlink_host);
+}
+//网络层收到push消息回调
+void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+}
+//底层获取task要发送的数据
+bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+}
+//底层回包返回给上层解析
+int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
+}
+//任务执行结束
+int OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
+}
+
+//上报网络连接状态
+void ReportConnectStatus(int status, int longlink_status) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->ReportConnectStatus(status, longlink_status);
+}
+
+void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+}
+
+void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
+}
+
+void OnLongLinkStatusChange(int _status) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->OnLongLinkStatusChange(_status);
+}
+//长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
+int GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
+}
+//长连信令校验回包
+bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
+}
+
+void RequestSync() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->RequestSync();
+}
+//验证是否已登录
+
+//底层询问上层http网络检查的域名列表
+void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->RequestNetCheckShortLinkHosts(_hostlist);
+}
+//底层向上层上报cgi执行结果
+void ReportTaskProfile(const TaskProfile& _task_profile) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->ReportTaskProfile(_task_profile);
+}
+//底层通知上层cgi命中限制
+void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->ReportTaskLimited(_check_type, _task, _param);
+}
+//底层上报域名dns结果
+void ReportDnsProfile(const DnsProfile& _dns_profile) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->ReportDnsProfile(_dns_profile);
+}
+//.生成taskid.
+uint32_t GenTaskID() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->GenTaskID();
+}
+
+void SetCallback(Callback* const callback) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->SetCallback(callback);
+}
+
+void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->SetStnCallbackBridge(_callback_bridge);
+}
+
+ StnCallbackBridge* GetStnCallbackBridge() {
+     StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->GetStnCallbackBridge();
+}
+
+bool (*StartTask)(const Task& _task) = [](const Task& _task) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->StartTask(_task);
 };
 
-void (*StopTask)(uint32_t _taskid)
-= [](uint32_t _taskid) {
-    STN_WEAK_CALL(StopTask(_taskid));
+void (*StopTask)(uint32_t _taskid) = [](uint32_t _taskid) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->StopTask(_taskid);
 };
 
-bool (*HasTask)(uint32_t _taskid)
-= [](uint32_t _taskid) {
-	bool has_task = false;
-	STN_WEAK_CALL_RETURN(HasTask(_taskid), has_task);
-	return has_task;
+bool (*HasTask)(uint32_t _taskid) = [](uint32_t _taskid) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->HasTask(_taskid);
 };
 
-void (*DisableLongLink)()
-= []() {
-    NetCore::need_use_longlink_ = false;
+void (*DisableLongLink)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->DisableLongLink();
 };
 
-void (*RedoTasks)()
-= []() {
-   STN_WEAK_CALL(RedoTasks());
+void (*RedoTasks)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->RedoTasks();
 };
 
-void (*TouchTasks)()
-= []() {
-   STN_WEAK_CALL(TouchTasks());
+void (*TouchTasks)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->TouchTasks();
 };
 
-void (*ClearTasks)()
-= []() {
-   STN_WEAK_CALL(ClearTasks());
+void (*ClearTasks)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->ClearTasks();
 };
 
-void (*Reset)()
-= []() {
-	xinfo2(TSF "stn reset");
-	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
+void (*Reset)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->Reset();
 };
 
-void (*ResetAndInitEncoderVersion)(int _packer_encoder_version)
-= [](int _packer_encoder_version) {
-	xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
-    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
-	NetCore::Singleton::Release();
-	NetCore::Singleton::Instance();
+void (*ResetAndInitEncoderVersion)(int _packer_encoder_version) = [](int _packer_encoder_version) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->ResetAndInitEncoderVersion(_packer_encoder_version);
+
 };
 
-void (*MakesureLonglinkConnected)()
-= []() {
-    xinfo2(TSF "make sure longlink connect");
-   STN_WEAK_CALL(MakeSureLongLinkConnect());
+void (*MakesureLonglinkConnected)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->MakesureLonglinkConnected();
 };
 
-bool (*LongLinkIsConnected)()
-= []() {
-    bool connected = false;
-    STN_WEAK_CALL_RETURN(LongLinkIsConnected(), connected);
-    return connected;
+bool (*LongLinkIsConnected)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->LongLinkIsConnected();
 };
-    
-bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips)
-= [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips){
-    
-    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
-};
+
+bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) =
+    [](const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) {
+        StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+        return stnManager->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
+    };
 
 //void SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports)
 // {
 //	SetLonglinkSvrAddr(host, ports, "");
 //};
 
-
-void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip)
-= [](const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
-	std::vector<std::string> hosts;
-	if (!host.empty()) {
-		hosts.push_back(host);
-	}
-	NetSource::SetLongLink(hosts, ports, debugip);
+void (*SetLonglinkSvrAddr)(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) = [](const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->SetLonglinkSvrAddr(host, ports, debugip);
 };
 
 //void SetShortlinkSvrAddr(const uint16_t port)
 //{
 //	NetSource::SetShortlink(port, "");
 //};
-    
-void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip)
-= [](const uint16_t port, const std::string& debugip) {
-	NetSource::SetShortlink(port, debugip);
+
+void (*SetShortlinkSvrAddr)(const uint16_t port, const std::string& debugip) = [](const uint16_t port, const std::string& debugip) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->SetShortlinkSvrAddr(port, debugip);
 };
 
-void (*SetDebugIP)(const std::string& host, const std::string& ip)
-= [](const std::string& host, const std::string& ip) {
-	NetSource::SetDebugIP(host, ip);
-};
-    
-void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist)
-= [](const std::string& host, const std::vector<std::string>& iplist) {
-	NetSource::SetBackupIPs(host, iplist);
+void (*SetDebugIP)(const std::string& host, const std::string& ip) = [](const std::string& host, const std::string& ip) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->SetDebugIP(host, ip);
 };
 
-void (*SetSignallingStrategy)(long _period, long _keepTime)
-= [](long _period, long _keepTime) {
-    SignallingKeeper::SetStrategy((unsigned int)_period, (unsigned int)_keepTime);
+void (*SetBackupIPs)(const std::string& host, const std::vector<std::string>& iplist) = [](const std::string& host, const std::vector<std::string>& iplist) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->SetBackupIPs(host, iplist);
 };
 
-void (*KeepSignalling)()
-= []() {
+void (*SetSignallingStrategy)(long _period, long _keepTime) = [](long _period, long _keepTime) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->SetSignallingStrategy(_period, _keepTime);
+};
+
+void (*KeepSignalling)() = []() {
 #ifdef USE_LONG_LINK
-    STN_WEAK_CALL(KeepSignal());
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->KeepSignalling();
 #endif
 };
 
-void (*StopSignalling)()
-= []() {
+void (*StopSignalling)() = []() {
 #ifdef USE_LONG_LINK
-    STN_WEAK_CALL(StopSignal());
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->StopSignalling();
 #endif
 };
 
-uint32_t (*getNoopTaskID)()
-= []() {
-	return Task::kNoopTaskID;
+uint32_t (*getNoopTaskID)() = []() {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->getNoopTaskID();
 };
 
-void (*CreateLonglink_ext)(LonglinkConfig& _config)
-= [](LonglinkConfig & _config){
-    STN_WEAK_CALL(CreateLongLink(_config));
-};
-    
-void (*DestroyLonglink_ext)(const std::string& name)
-= [](const std::string& name){
-    STN_WEAK_CALL(DestroyLongLink(name));
+void (*CreateLonglink_ext)(LonglinkConfig& _config) = [](LonglinkConfig& _config) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->CreateLonglink_ext(_config);
 };
 
-bool (*LongLinkIsConnected_ext)(const std::string& name)
-= [](const std::string& name){
-    bool res = false;
-    STN_WEAK_CALL_RETURN(LongLinkIsConnected_ext(name),res);
-    return res;
+void (*DestroyLonglink_ext)(const std::string& name) = [](const std::string& name) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->DestroyLonglink_ext(name);
 };
 
-void (*MarkMainLonglink_ext)(const std::string& name)
-= [](const std::string& name){
-    STN_WEAK_CALL(MarkMainLonglink_ext(name));
-};
-    
-void (*MakesureLonglinkConnected_ext)(const std::string& name)
-= [](const std::string& name){
-    STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
+bool (*LongLinkIsConnected_ext)(const std::string& name) = [](const std::string& name) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    return stnManager->LongLinkIsConnected_ext(name);
 };
 
-void network_export_symbols_0(){}
+void (*MarkMainLonglink_ext)(const std::string& name) = [](const std::string& name) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->MarkMainLonglink_ext(name);
+};
 
+void (*MakesureLonglinkConnected_ext)(const std::string& name) = [](const std::string& name) {
+    StnManager* stnManager = (StnManager*)mars::boot::CreateContext("default")->GetManager("Stn");
+    stnManager->MakesureLonglinkConnected_ext(name);
+};
+
+// ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select) {
+//    return stnManager->GetConnectProfile(_taskid, _channel_select);
+//}
+// void AddServerBan(const std::string& _ip) {
+//    stnManager->AddServerBan(_ip);
+//}
+//
+// void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) {
+//    stnManager->DisconnectLongLinkByTaskId(_taskid, _code);
+//}
+void network_export_symbols_0() {
 }
-}
+
+}  // namespace stn
+}  // namespace mars

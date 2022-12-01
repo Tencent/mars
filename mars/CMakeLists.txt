@@ -48,6 +48,9 @@ if(ANDROID)
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/JNI_OnLoad.cc
             libraries/mars_xlog_sdk/jni/import.cc)
 
+    ## file(GLOB SELF_SRC_FILES libraries/mars_xlog_sdk/jni/app_manager_wrapper.cc libraries/mars_xlog_sdk/jni/app_manager_callback_wrapper.cc)
+    message("cpan xxxxxx" ${SELF_SRC_FILES})
+
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
 
@@ -68,7 +71,7 @@ if(ANDROID)
  
     set(SELF_LIB_NAME marsstn)
 
-    file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc)
+    file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc libraries/mars_android_sdk/jni/*.cpp)
 
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
 

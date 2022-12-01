@@ -36,6 +36,7 @@
 #include "mars/stn/config.h"
 #include "mars/stn/task_profile.h"
 #include "mars/stn/proto/longlink_packer.h"
+#include "mars/stn/stn_logic.h"
 
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
@@ -564,8 +565,12 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         _it->transfer_profile.error_type = _err_type;
         _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
+        _it->is_weak_network = netsource_.GetWeakNetworkLogic()->IsCurrentNetworkWeak();
+        int64_t span = 0;
+        _it->is_last_valid_connect_fail = netsource_.GetWeakNetworkLogic()->IsLastValidConnectFail(span);
         ReportTaskProfile(*_it);
-        WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
+        //WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
+        netsource_.GetWeakNetworkLogic()->OnTaskEvent(*_it);
 
         lst_cmd_.erase(_it);
         return true;
@@ -823,9 +828,11 @@ void LongLinkTaskManager::__OnRecv(uint32_t _taskid, size_t _cachedsize, size_t 
 
     if (lst_cmd_.end() != it) {
         if(it->transfer_profile.last_receive_pkg_time == 0)
-            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            netsource_.GetWeakNetworkLogic()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
         else
-            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            netsource_.GetWeakNetworkLogic()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.received_size = _cachedsize;
         it->transfer_profile.receive_data_size = _totalsize;
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();

@@ -34,6 +34,7 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/stn_logic.h"
 
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
@@ -56,6 +57,7 @@
 
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
+#include "mars/app/app_logic.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -68,16 +70,19 @@ static const int kShortlinkErrTime = 3;
 
 bool NetCore::need_use_longlink_ = true;
 
-NetCore::NetCore()
-    : messagequeue_creater_(true, XLOGGER_TAG)
+NetCore::NetCore(boot::BaseContext* _context, int _packer_encoder_version)
+    : packer_encoder_version_(_packer_encoder_version)
+    , messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
-    , net_source_(new NetSource(*ActiveLogic::Instance()))
-    , netcheck_logic_(new NetCheckLogic())
+    , context_(std::shared_ptr<boot::BaseContext>(_context))
+    , net_source_(new NetSource(*ActiveLogic::Instance(), _context))
+    , netcheck_logic_(new NetCheckLogic(net_source_))
     , anti_avalanche_(new AntiAvalanche(ActiveLogic::Instance()->IsActive()))
     , dynamic_timeout_(new DynamicTimeout)
     , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
     , shortlink_try_flag_(false) {
+        NetCoreCreateBegin()();
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
     xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
@@ -125,6 +130,8 @@ NetCore::NetCore()
     if (need_use_longlink_) {
         __InitLongLink();
     }
+        boost::shared_ptr<NetCore> _net_core_shared_ptr(this);
+        NetCoreCreate()(_net_core_shared_ptr);
 }
 
 NetCore::~NetCore() {
@@ -158,6 +165,8 @@ NetCore::~NetCore() {
     net_source_ = NULL;
 
     MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    
+    NetCoreRelease()();
 }
 
 void NetCore::__InitShortLink(){
@@ -460,7 +469,7 @@ void NetCore::ClearTasks() {
 }
 
 void NetCore::OnNetworkChange() {
-    
+    xinfo2(TSF "cpan debug OnNetworkChange");
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
@@ -497,9 +506,12 @@ void NetCore::OnNetworkChange() {
         xassert2(false);
         break;
     }
+    if (net_source_) {
+        net_source_->ClearCache();
+    } else {
+        xinfo2(TSF "cpan debug net_source is null");
+    }
 
-    net_source_->ClearCache();
-    
     dynamic_timeout_->ResetStatus();
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
@@ -1076,5 +1088,13 @@ std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name)
   void NetCore::SetDebugHost(const std::string& _host) {
     shortlink_task_manager_->SetDebugHost(_host);
   }
+
+NetSource* NetCore::GetNetSource(){
+    return net_source_;
+}
+
+int NetCore::GetPackerEncoderVersion(){
+    return packer_encoder_version_;
+}
 
 #endif

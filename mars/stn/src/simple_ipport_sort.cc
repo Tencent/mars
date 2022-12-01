@@ -36,6 +36,7 @@
 #include "mars/comm/platform_comm.h"
 
 #include "mars/app/app.h"
+#include "mars/app/app_logic.h"
 
 using namespace mars::comm;
 

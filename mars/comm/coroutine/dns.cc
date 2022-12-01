@@ -152,3 +152,7 @@ void DNS::Cancel(DNSBreaker& _breaker) {
         if (i.breaker == &_breaker) { i.async_func->Cancel();}
     }
 }
+
+void DNS::SetDNSFunc(DNSFunc _func) {
+    dnsfunc_ = _func;
+}

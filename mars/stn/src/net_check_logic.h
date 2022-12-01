@@ -35,7 +35,7 @@ class NetSource;
 
 class NetCheckLogic {
   public:
-    NetCheckLogic();
+    NetCheckLogic(NetSource* net_source);
     ~NetCheckLogic();
 
     void UpdateLongLinkInfo(unsigned int _continues_fail_count, bool _task_succ);
@@ -61,6 +61,7 @@ class NetCheckLogic {
 
     NetTaskStatusItem longlink_taskstatus_item_;;
     NetTaskStatusItem shortlink_taskstatus_item_;
+    NetSource* net_source_;
 };
 
     }

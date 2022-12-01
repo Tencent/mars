@@ -45,6 +45,7 @@
 #include "mars/stn/config.h"
 
 #include "smart_heartbeat.h"
+#include "mars/app/app_logic.h"
 
 #define AYNC_HANDLER  asyncreg_.Get()
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
@@ -477,7 +478,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         use_proxy = false;
     }
     
-    xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", NetSource::DumpTable(ip_items), proxy_info.type, use_proxy);
+    xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", netsource_.DumpTable(ip_items), proxy_info.type, use_proxy);
     
     std::string log;
     std::string netInfo;

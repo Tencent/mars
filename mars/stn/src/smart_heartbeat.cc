@@ -39,6 +39,7 @@
 
 #include "mars/stn/config.h"
 #include <algorithm>
+#include "mars/app/app_logic.h"
 
 using namespace mars::comm;
 
