@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include "boost/filesystem.hpp"
+#include "xlogger/xlogger.h"
 
 bool IsMmapFileOpenSucc(const boost::iostreams::mapped_file& _mmmap_file) {
     return !_mmmap_file.operator !() && _mmmap_file.is_open();
@@ -51,7 +52,12 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         param.new_file_size = _size;
     }
 
+    errno = 0;
     _mmmap_file.open(param);
+    if (errno != 0) {
+        xinfo2(TSF"filepath:%_, size:%_, errno:%_", _filepath, _size, errno);
+    }
+
 
     bool is_open = IsMmapFileOpenSucc(_mmmap_file);
 #ifndef _WIN32
