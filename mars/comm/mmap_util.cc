@@ -58,8 +58,10 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         xinfo2(TSF"filepath:%_, size:%_, errno:%_ %_", _filepath, _size, errno, strerror(errno));
     }
 
-
     bool is_open = IsMmapFileOpenSucc(_mmmap_file);
+    if (!is_open) {
+        xinfo2(TSF"filepath:%_, size:%_, errno:%_ %_", _filepath, _size, errno, strerror(errno));
+    }
 #ifndef _WIN32
     if (!file_exist && is_open) {
 
@@ -67,6 +69,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         //the boost library uses ftruncate, so we pre-allocate the file's backing store by writing zero.
         FILE* file = fopen(_filepath, "rb+");
         if (NULL == file) {
+            xinfo2(TSF"filepath:%_, size:%_, errno:%_ %_", _filepath, _size, errno, strerror(errno));
             _mmmap_file.close();
             boost::filesystem::remove(_filepath);
             return false;
@@ -76,6 +79,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
         memset(zero_data, 0, _size);
 
         if (_size != fwrite(zero_data, sizeof(char), _size, file)) {
+            xinfo2(TSF"filepath:%_, size:%_, errno:%_ %_ %_", _filepath, _size, errno, strerror(errno), ferror(file));
             _mmmap_file.close();
             fclose(file);
             boost::filesystem::remove(_filepath);
