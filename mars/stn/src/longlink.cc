@@ -445,7 +445,8 @@ void LongLink::__Run() {
     conn_profile.disconn_errtype = errtype;
     conn_profile.disconn_errcode = errcode;
     conn_profile.disconn_signal = ::getSignal(::getNetInfo() == kWifi);
-    
+
+    ScopedLock lock(mutex_);
     __ConnectStatus(kDisConnected);
     xinfo2(TSF"longlink lifetime:%_", (gettickcount() - conn_profile.conn_time));
     __UpdateProfile(conn_profile);
@@ -456,7 +457,7 @@ void LongLink::__Run() {
     wakelock_->Lock(1000);
 #endif
     
-    ScopedLock lock(mutex_);
+
     tracker_.reset();
 }
 
