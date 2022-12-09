@@ -775,7 +775,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
             break;
         case kTaskFailHandleDefault:
         {
-            xerror2(TSF"task decode error taskid:%_, handle_type:%_, err_code:%_, body dump:%_", it->task.taskid, handle_type, err_code, xdump(body->Ptr(), body->Length()));
+            xerror2(TSF"task decode error taskid:%_, handle_type:%_, err_code:%_, body dump:%_", it->task.taskid, handle_type, err_code, xlogger_memory_dump(body->Ptr(), body->Length()));
             __BatchErrorRespHandle(it->channel_name, kEctEnDecode, err_code, handle_type, it->task.taskid);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(_name, __LINE__, kEctEnDecode, err_code, _connect_profile.ip, _connect_profile.port);

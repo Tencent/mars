@@ -591,7 +591,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 			break;
 		}
 		else if (parse_status == http::Parser::kBodyError) {
-			xerror2(TSF"content_length_ != body.Lenght(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
+			xerror2(TSF"content_length_ != body.Lenght(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
 			__RunResponseError(kEctHttp, kEctHttpSplitHttpHeadAndBody, _conn_profile, true);
 			break;
 		}
@@ -610,7 +610,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
             }
 
 			if (status_code != 200) {
-				xerror2(TSF"@%0, status_code != 200, code:%1, http dump:%2 \n headers size:%3", this, status_code, xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
+				xerror2(TSF"@%0, status_code != 200, code:%1, http dump:%2 \n headers size:%3", this, status_code, xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size()) >> group_close;
 				__RunResponseError(kEctHttp, status_code, _conn_profile, true);
 			}
 			else {
