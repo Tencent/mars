@@ -54,6 +54,7 @@
 
 #if TARGET_OS_WATCH
 #undef USE_SYSCTL_NET_ROUTE
+#define USE_DUMMY_CODE
 #endif
 
 #endif //__APPLE__
@@ -478,4 +479,13 @@ int getdefaultgateway6(struct in6_addr * addr) {
 	return FAILED;
 }
 #endif /* #ifdef USE_WIN32_CODE */
+
+#ifdef USE_DUMMY_CODE
+int getdefaultgateway(struct in_addr *){
+    return -1;
+}
+int getdefaultgateway6(struct in6_addr *){
+    return -1;
+}
+#endif
 

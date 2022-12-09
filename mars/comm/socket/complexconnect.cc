@@ -222,7 +222,7 @@ protected:
                 checkfintime_ = gettickcount();
                 _recv_buff.Reset();
             } else {
-				xwarn2(TSF"proxy error, proxy status code:%_, proxy info:%_:%_ resp:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port(), xdump(_recv_buff.Ptr(), _recv_buff.Length()));
+				xwarn2(TSF"proxy error, proxy status code:%_, proxy info:%_:%_ resp:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port(), xlogger_memory_dump(_recv_buff.Ptr(), _recv_buff.Length()));
                 check_status_ = ECheckFail;
             }
             
