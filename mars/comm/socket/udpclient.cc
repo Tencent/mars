@@ -76,14 +76,14 @@ UdpClient::~UdpClient()
         socket_close(fd_socket_);
 }
 
-int UdpClient::SendBlock(void* _buf, size_t _len)
+int UdpClient::SendBlock(void* _buf, size_t _len, int _timeOutMs)
 {
     xassert2((fd_socket_ != INVALID_SOCKET && event_ == NULL), "socket invalid");
     if (fd_socket_ == INVALID_SOCKET || event_ != NULL)
         return -1;
     
     int err = 0;
-    return __DoSelect(false, true, _buf, _len, err, -1);
+    return __DoSelect(false, true, _buf, _len, err, _timeOutMs);
 }
 
 int UdpClient::ReadBlock(void* _buf, size_t _len, int _timeOutMs)
@@ -93,7 +93,7 @@ int UdpClient::ReadBlock(void* _buf, size_t _len, int _timeOutMs)
         return -1;
     
     int err = 0;
-    return __DoSelect(true, false, _buf, _len, err, -1);
+    return __DoSelect(true, false, _buf, _len, err, _timeOutMs);
 }
 
 
