@@ -146,7 +146,7 @@ def main():
             build_ios(sys.argv[1])
             break
         else:
-            num = raw_input('Enter menu:\n1. Clean && build mars.\n2. Clean && build xlog.\n3. Gen iOS mars Project.\n4. Exit\n')
+            num = input('Enter menu:\n1. Clean && build mars.\n2. Clean && build xlog.\n3. Gen iOS mars Project.\n4. Exit\n')
             if num == '1':
                 build_ios()
                 break

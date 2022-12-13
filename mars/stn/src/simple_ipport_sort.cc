@@ -30,10 +30,10 @@
 #include "boost/accumulators/numeric/functional.hpp"
 
 #include "mars/comm/socket/unix_socket.h"
-
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/comm/shuffle.h"
 
 #include "mars/app/app.h"
 
@@ -375,9 +375,8 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
 }
 
 void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const {
-    srand((unsigned int)gettickcount());
     //random_shuffle new and history
-    std::random_shuffle(_items.begin(), _items.end());
+    mars::comm::random_shuffle(_items.begin(), _items.end());
 
 	int cnt = _items.size();
 	for (int i = 1; i < cnt - 1; ++i)
