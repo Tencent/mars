@@ -33,6 +33,7 @@ static Mutex sg_lock;
 static int64_t sg_seq = 1;
 const MessageQueue::MessageTitle_t KALARM_MESSAGETITLE(0x1F1FF);
 const MessageQueue::MessageTitle_t KALARM_SYSTEMTITLE(0x1F1F1E);
+const int DEFAULT_ALARM_WAKEUP_TIME_MS = 500;
 
 #define MAX_LOCK_TIME (5000)
 #define INVAILD_SEQ (0)
@@ -189,7 +190,7 @@ const Thread& Alarm::RunThread() const {
 static void StartWakeLock() {
 #ifdef ANDROID
     static WakeUpLock wakelock; 
-    wakelock.Lock(1000);    
+    wakelock.Lock(DEFAULT_ALARM_WAKEUP_TIME_MS);
     xinfo2(TSF"StartWakeLock");
 #endif
 }

@@ -44,6 +44,8 @@ using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;
 
+const int DEFAULT_EMPTY_TASK_WAKEUP_TIME_MS = 0;
+
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
@@ -161,7 +163,7 @@ void ShortLinkTaskManager::__RunLoop() {
     if (lst_cmd_.empty()) {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        wakeup_lock_->Lock(DEFAULT_EMPTY_TASK_WAKEUP_TIME_MS);
 #endif
         return;
     }
@@ -179,7 +181,7 @@ void ShortLinkTaskManager::__RunLoop() {
     } else {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        wakeup_lock_->Lock(DEFAULT_EMPTY_TASK_WAKEUP_TIME_MS);
 #endif
     }
 }
