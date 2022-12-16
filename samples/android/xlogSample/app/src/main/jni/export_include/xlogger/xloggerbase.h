@@ -50,6 +50,7 @@ typedef struct XLoggerInfo_t {
     intmax_t pid;
     intmax_t tid;
     intmax_t maintid;
+    int traceLog;
 } XLoggerInfo;
 
 extern intmax_t xlogger_pid();
@@ -63,6 +64,10 @@ TLogLevel   xlogger_Level();
 void xlogger_SetLevel(TLogLevel _level);
 int  xlogger_IsEnabledFor(TLogLevel _level);
 xlogger_appender_t xlogger_SetAppender(xlogger_appender_t _appender);
+
+typedef int (*xlogger_filter_t)(XLoggerInfo* _info, const char* _log);
+void xlogger_SetFilter(xlogger_filter_t _filter);
+xlogger_filter_t xlogger_GetFilter();
 
 // no level filter
 #ifdef __GNUC__
