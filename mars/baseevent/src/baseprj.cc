@@ -21,6 +21,7 @@
 #include "mars/baseevent/base_logic.h"
 
 #include "mars/comm/bootregister.h"
+#include "mars/comm/time_utils.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/thread/lock.h"
 
@@ -63,19 +64,7 @@ namespace mars{
 #ifdef __APPLE__
             FlushReachability();
 #endif
-#ifdef ANDROID
-            g_NetInfo = 0;
-            
-            ScopedLock lock(g_net_mutex);
-            g_wifi_info.ssid.clear();
-            g_wifi_info.bssid.clear();
-            g_sim_info.isp_code.clear();
-            g_sim_info.isp_name.clear();
-            g_apn_info.nettype = kNoNet -1;
-            g_apn_info.sub_nettype = 0;
-            g_apn_info.extra_info.clear();
-            lock.unlock();
-#endif
+            OnPlatformNetworkChange();
             GetSignalOnNetworkChange()();
         }
         
