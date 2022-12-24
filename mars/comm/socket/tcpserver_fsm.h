@@ -87,7 +87,7 @@ class TcpServerFSM {
     virtual void _OnAccept() = 0;
     virtual void _OnRecv(AutoBuffer& _recv_buff, ssize_t _recv_len) = 0;
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) = 0;
-    virtual void _OnClose(TSocketStatus _status, int _error, bool _userclose) = 0;
+    virtual void _OnClose(TSocketStatus _status, int _error, bool _remoteclose) = 0;
 
 
   protected:

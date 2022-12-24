@@ -55,7 +55,7 @@ class UdpClient {
     /*
      * return -2 break, -1 error, 0 timeout, else handle size
      */
-    int SendBlock(void* _buf, size_t _len);
+    int SendBlock(void* _buf, size_t _len, int _timeOutMs = -1);
     int ReadBlock(void* _buf, size_t _len, int _timeOutMs = -1);
 
     void Break() { breaker_.Break(); }

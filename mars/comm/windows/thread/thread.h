@@ -23,6 +23,7 @@
 #include "assert/__assert.h"
 #include "condition.h"
 #include "thread/runnable.h"
+#include "mars/openssl/include/openssl/crypto.h"
 
 typedef HANDLE  thread_handler;
 #define thrd_success (0)
@@ -53,7 +54,7 @@ class ThreadUtil {
     }
 
     static bool isruning(thread_tid _id) {
-        if (_id == currentthreadid())   
+        if (_id == currentthreadid())
             return true;
 
         HANDLE handle = OpenThread(THREAD_ALL_ACCESS, FALSE, _id);
@@ -88,7 +89,7 @@ class ThreadUtil {
         if (NULL == handler) {
             return;
         }
-        ::WaitForSingleObject(handler, 2000);
+        ::WaitForSingleObject(handler, INFINITE);
 	}
 
     static void detach(thread_handler& pth) {
@@ -354,6 +355,9 @@ class Thread {
     }
 
     static void cleanup(void* arg) {
+        // cleanup tls alloctions for openssl.
+        OPENSSL_thread_stop();
+
         volatile RunnableReference* runableref = static_cast<RunnableReference*>(arg);
         ScopedSpinLock lock((const_cast<RunnableReference*>(runableref))->splock);
 

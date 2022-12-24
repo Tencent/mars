@@ -146,10 +146,15 @@ class ConnectCheckFSM : public TcpClientFSM {
 
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) {}
 
-    virtual void _OnClose(TSocketStatus _status, int _error, bool _userclose) {
+    virtual void _OnClose(TSocketStatus _status, int _error, bool _remoteclose) {
         checkfintime_ = gettickcount();
-
-        if (observer_ && !_userclose) {
+        
+        if (CheckStatus() != ECheckOK){
+            //check failed.
+            check_status_ = ECheckFail;
+        }
+        
+        if (observer_ && !_remoteclose) {
             if (EConnecting == _status) {
                 observer_->OnConnected(index_, addr_, sock_, _error, TotalRtt());
             } else if (EReadWrite == _status && SOCKET_ERRNO(ETIMEDOUT) == _error) {
@@ -217,7 +222,7 @@ protected:
                 checkfintime_ = gettickcount();
                 _recv_buff.Reset();
             } else {
-				xwarn2(TSF"proxy error, proxy status code:%_, proxy info:%_:%_ resp:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port(), xdump(_recv_buff.Ptr(), _recv_buff.Length()));
+				xwarn2(TSF"proxy error, proxy status code:%_, proxy info:%_:%_ resp:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port(), xlogger_memory_dump(_recv_buff.Ptr(), _recv_buff.Length()));
                 check_status_ = ECheckFail;
             }
             

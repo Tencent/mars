@@ -55,6 +55,8 @@ Task::Task(uint32_t _taskid) {
     
     channel_name=DEFAULT_LONGLINK_NAME;
     max_minorlinks = 1;
+
+    redirect_type = HostRedirectType::kOther;
 }
 
 uint32_t GenTaskID(){

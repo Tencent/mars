@@ -695,7 +695,6 @@ int getifaddrs(struct ifaddrs **ifap)
 
     getifaddrs_proc api = g_libcdl.GetSymbol<getifaddrs_proc>("getifaddrs");
     if (api != nullptr){
-        ASSERT2(0, "use getifaddrs system api.");
         return api(ifap);
     }
     
@@ -741,7 +740,6 @@ void freeifaddrs(struct ifaddrs *ifa)
 {
     freeifaddrs_proc api = g_libcdl.GetSymbol<freeifaddrs_proc>("freeifaddrs");
     if (api != nullptr){
-        ASSERT2(0, "use freeifaddrs system api.");
         api(ifa);
         return;
     }

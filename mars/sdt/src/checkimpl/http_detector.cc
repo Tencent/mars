@@ -23,6 +23,7 @@
 #include "mars/comm/socket/block_socket.h"
 #include "mars/comm/socket/complexconnect.h"
 #include "mars/comm/socket/socket_address.h"
+#include "mars/comm/shuffle.h"
 
 #include "mars/sdt/constants.h"
 
@@ -177,7 +178,7 @@ void HTTPDetector::__Detect() {
             bool ret = dns_.GetHostByName(host, vec_ip, kDefaultDNSTimeout<remain_timeout?kDefaultDNSTimeout:remain_timeout, &dns_breaker_);
             result_.dns_cost_ = detect_tick.gettickspan();
             if (ret && !vec_ip.empty()) {
-                std::random_shuffle(vec_ip.begin(), vec_ip.end());
+                mars::comm::random_shuffle(vec_ip.begin(), vec_ip.end());
                 svr_ip = vec_ip[0];
                 for (auto ip : vec_ip)
                     result_.dns_resolved_ip_.push_back(ip);
@@ -345,7 +346,7 @@ void HTTPDetector::__Detect() {
             break;
         }
         else if (parse_status == http::Parser::kBodyError) {
-            xerror2(TSF"content_length_ != body.Length(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
+            xerror2(TSF"content_length_ != body.Length(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
             XMessage xmsg;
             xmsg(TSF"content_length(%_) != body size(%_)", parser.Fields().ContentLength(),recv_buf.Length());
             result_.http_errmsg_ = xmsg.String();
@@ -353,7 +354,7 @@ void HTTPDetector::__Detect() {
         }
         else if (parse_status == http::Parser::kEnd) {
             if (status_code != 200) {
-                xerror2(TSF"@%_, status_code != 200, code:%_, http dump:%_ \n headers size:%_", this, status_code, xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
+                xerror2(TSF"@%_, status_code != 200, code:%_, http dump:%_ \n headers size:%_", this, status_code, xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
             } else {
                 xinfo2(TSF"@%_, headers size:%_, ", this, parser.Fields().GetHeaders().size());
             }

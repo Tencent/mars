@@ -47,7 +47,7 @@ using namespace mars::comm;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> ShortLinkTaskManager::get_real_host_;
+boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> ShortLinkTaskManager::get_real_host_;
 boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
 boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
 boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
@@ -283,25 +283,42 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         Task task = first->task;
         std::vector<std::string> hosts = task.shortlink_host_list;
         ShortlinkConfig config(first->use_proxy, /*use_tls=*/true);
-        if (!task.quic_host_list.empty() && (first->task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
+#ifndef DISABLE_QUIC_PROTOCOL
+        if (!task.quic_host_list.empty() && (task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
             //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
-            config.use_proxy = false;
-            config.use_quic = true;
-            config.quic.alpn = "h1";
-            config.quic.enable_0rtt = true;
-            
-            hosts = task.quic_host_list;
+            if (NetSource::CanUseQUIC()){
+                config.use_proxy = false;
+                config.use_quic = true;
+                config.quic.alpn = "h1";
+                config.quic.enable_0rtt = true;
+                
+                hosts = task.quic_host_list;
+            }else{
+                xwarn2(TSF"taskid:%_ quic disabled.", first->task.taskid);
+            }
+        }
+#endif
+        size_t realhost_cnt = hosts.size();
+        if (get_real_host_) {
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
         }
         
-        if (get_real_host_) {
-            get_real_host_(task.user_id, hosts);
+        if (realhost_cnt == 0 && config.use_quic){
+            xwarn2(TSF"taskid:%_ no quic hosts.", first->task.taskid);
+            //.使用quic但拿到的host为空（一般是svr部署问题），则回退到tcp.
+            config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true);
+            hosts = task.shortlink_host_list;
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
         }
+        
         first->task.shortlink_host_list = hosts;
         
         std::string host = hosts.front();
+#ifndef DISABLE_QUIC_PROTOCOL
         if (config.use_quic){
             config.quic.hostname = host;
         }
+#endif
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
@@ -451,6 +468,11 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
 
         if (_err_type == kEctSocket) {
             it->force_no_retry = _cancel_retry;
+            if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC){
+                //quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
+                xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
+                NetSource::DisableQUIC();
+            }
         }
         if (_status == kEctHandshakeMisunderstand) {
             it->remain_retry_count ++;
@@ -502,7 +524,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             break;
         case kTaskFailHandleDefault:
         {
-            xerror2(TSF"task decode error handle_type:%_, err_code:%_, pWorker:%_, taskid:%_ body dump:%_", handle_type, err_code, (void*)it->running_id, it->task.taskid, xdump(_body.Ptr(), _body.Length()));
+            xerror2(TSF"task decode error handle_type:%_, err_code:%_, pWorker:%_, taskid:%_ body dump:%_", handle_type, err_code, (void*)it->running_id, it->task.taskid, xlogger_memory_dump(_body.Ptr(), _body.Length()));
             __SingleRespHandle(it, kEctEnDecode, err_code, handle_type, (unsigned int)it->transfer_profile.receive_data_size, _conn_profile);
             xassert2(fun_notify_network_err_);
             fun_notify_network_err_(__LINE__, kEctEnDecode, handle_type, _conn_profile.ip, _conn_profile.host, _conn_profile.port);

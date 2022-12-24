@@ -26,6 +26,7 @@
 #include "thread/condition.h"
 #include "thread/thread.h"
 #include "thread/lock.h"
+#include "mars/comm/macro.h"
 
 #include "network/getdnssvraddrs.h"
 #include "socket/local_ipstack.h"
@@ -48,6 +49,7 @@ struct dnsinfo {
     std::string     host_name;
     std::vector<std::string> result;
     int status;
+    bool longlink_host = false;
 };
 
 static std::string DNSInfoToString(const struct dnsinfo& _info) {
@@ -55,9 +57,9 @@ static std::string DNSInfoToString(const struct dnsinfo& _info) {
     msg(TSF"info:%_, threadid:%_, dns:%_, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
     return msg.Message();
 }
-static std::vector<dnsinfo> sg_dnsinfo_vec;
-static Condition sg_condition;
-static Mutex sg_mutex;
+NO_DESTROY static std::vector<dnsinfo> sg_dnsinfo_vec;
+NO_DESTROY static Condition sg_condition;
+NO_DESTROY static Mutex sg_mutex;
 
 static void __GetIP() {
     xverbose_function();
@@ -66,6 +68,7 @@ static void __GetIP() {
     
     std::string host_name;
     DNS::DNSFunc dnsfunc = NULL;
+    bool longlink_host = false;
 
     ScopedLock lock(sg_mutex);
     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
@@ -74,12 +77,13 @@ static void __GetIP() {
         if (iter->threadid == ThreadUtil::currentthreadid()) {
             host_name = iter->host_name;
             dnsfunc = iter->dns_func;
+            longlink_host = iter->longlink_host;
             break;
         }
     }
 
     lock.unlock();
-
+    xdebug2(TSF"dnsfunc is null: %_, %_", host_name, (dnsfunc == NULL));
     if (NULL == dnsfunc) {
         
         //
@@ -166,7 +170,7 @@ static void __GetIP() {
             sg_condition.notifyAll();
         }
     } else {
-        std::vector<std::string> ips = dnsfunc(host_name);
+        std::vector<std::string> ips = dnsfunc(host_name, longlink_host);
         lock.lock();
         
         iter = sg_dnsinfo_vec.begin();
@@ -192,8 +196,8 @@ DNS::~DNS() {
     Cancel();
 }
 
-bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec, DNSBreaker* _breaker) {
-    xverbose_function();
+bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec, DNSBreaker* _breaker, bool _longlink_host) {
+    xverbose_function("host: %s, longlink: %d", _host_name.c_str(), _longlink_host);
 
     xassert2(!_host_name.empty());
 
@@ -219,6 +223,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
     info.dns_func = dnsfunc_;
     info.dns = this;
     info.status = kGetIPDoing;
+    info.longlink_host = _longlink_host;
     sg_dnsinfo_vec.push_back(info);
 
     if (_breaker) _breaker->dnsstatus = &(sg_dnsinfo_vec.back().status);

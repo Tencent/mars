@@ -107,6 +107,8 @@ class LongLink {
         kForceNewGetDns = 10017,
         kLinkCheckError = 10018,
         kTimeCheckSucc = 10019,
+        kObjectDestruct = 10020,
+        kLinkDetectEnd = 10021,
     };
   public:
     boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;

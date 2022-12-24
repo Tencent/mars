@@ -111,8 +111,8 @@ static void onExceptionCrash() {
     mars::xlog::appender_close();
 }
 
-static void onNetworkChange() {
-
+static void onNetworkChange(void (*pre_change)()) {
+    pre_change();
     STN_WEAK_CALL(OnNetworkChange());
 }
     
@@ -142,7 +142,7 @@ static void __initbind_baseprjevent() {
 #endif
 
 #ifdef ANDROID
-	mars::baseevent::addLoadModule(kLibName);
+    mars::baseevent::addLoadModule(kLibName);
     GetSignalOnAlarm().connect(&onAlarm);
 #endif
     GetSignalOnCreate().connect(&onCreate);
@@ -150,7 +150,7 @@ static void __initbind_baseprjevent() {
     GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
-    GetSignalOnNetworkChange().connect(5, &onNetworkChange);    //define group 5
+    GetSignalOnNetworkChange().connect(5, boost::bind(&onNetworkChange, &mars::comm::OnPlatformNetworkChange));    //define group 5
 
     
 #ifndef XLOGGER_TAG
@@ -178,6 +178,11 @@ bool (*HasTask)(uint32_t _taskid)
 	bool has_task = false;
 	STN_WEAK_CALL_RETURN(HasTask(_taskid), has_task);
 	return has_task;
+};
+
+void (*DisableLongLink)()
+= []() {
+    NetCore::need_use_longlink_ = false;
 };
 
 void (*RedoTasks)()

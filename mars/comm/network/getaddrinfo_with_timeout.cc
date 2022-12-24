@@ -16,7 +16,7 @@
 #include "comm/thread/condition.h"
 #include "comm/xlogger/xlogger.h"
 #include "comm/time_utils.h"
-
+#include "mars/comm/macro.h"
 namespace mars {
 namespace comm {
 
@@ -68,9 +68,9 @@ struct DnsItem {
     }
 };
 
-static std::vector<DnsItem> sg_dnsitem_vec;
-static Condition sg_condition;
-static Mutex sg_mutex;
+NO_DESTROY static std::vector<DnsItem> sg_dnsitem_vec;
+NO_DESTROY static Condition sg_condition;
+NO_DESTROY static Mutex sg_mutex;
 
 
 static void __WorkerFunc() {

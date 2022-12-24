@@ -59,7 +59,7 @@ class ShortLinkTaskManager {
     boost::function<void (int _status_code)> fun_shortlink_response_;
     boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)> fun_notify_retry_all_tasks;
 
-    static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
+    static boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> get_real_host_;
     static boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
     static boost::function<int (TaskProfile& _profile)> choose_protocol_;
     static boost::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;

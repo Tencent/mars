@@ -44,7 +44,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/baseevent/baseprjevent.h"
-
+#include "mars/comm/macro.h"
 using namespace mars::comm;
 
 namespace mars {
@@ -56,22 +56,16 @@ void SetCallback(Callback* const callback) {
 	sg_callback = callback;
 }
 
-#ifndef ANDROID
+#if !defined(ANDROID) || defined (CPP_CALL_BACK)
     
-    static mars::comm::ProxyInfo sg_proxyInfo;
+NO_DESTROY static mars::comm::ProxyInfo sg_proxyInfo;
     static bool sg_gotProxy = false;
-    static Mutex sg_slproxymutex;
-    static Thread sg_slproxyThread;
+NO_DESTROY static Mutex sg_slproxymutex;
+NO_DESTROY static Thread sg_slproxyThread;
     static uint64_t sg_slporxytimetick = gettickcount();
     static int sg_slproxycount = 0;
     
-    static void __ClearProxyInfo() {
-        ScopedLock lock(sg_slproxymutex);
-        sg_slporxytimetick = gettickcount();
-        sg_slproxycount = 0;
-        sg_gotProxy = false;
-        sg_proxyInfo.type = mars::comm::kProxyNone;
-    }
+
     
     static void __GetProxyInfo(const std::string& _host, uint64_t _timetick) {
         xinfo_function(TSF"timetick:%_, host:%_", _timetick, _host);
@@ -116,13 +110,19 @@ void SetCallback(Callback* const callback) {
         sg_gotProxy = true;
         
     }
-    
+
+#if TARGET_OS_IPHONE
+    static void __ClearProxyInfo() {
+        ScopedLock lock(sg_slproxymutex);
+        sg_slporxytimetick = gettickcount();
+        sg_slproxycount = 0;
+        sg_gotProxy = false;
+        sg_proxyInfo.type = mars::comm::kProxyNone;
+    }
+
     static void __InitbindBaseprjevent() {
         GetSignalOnNetworkChange().connect(&__ClearProxyInfo);
     }
-
-    
-#if TARGET_OS_IPHONE
     BOOT_RUN_STARTUP(__InitbindBaseprjevent);
 #endif
     

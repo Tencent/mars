@@ -107,12 +107,20 @@ void __xlogger_Write_impl(const XLoggerInfo* _info, const char* _log) {
     
     if (!gs_appender) return;
     
-    if (_info && -1==_info->pid && -1==_info->tid && -1==_info->maintid)
-    {
+    if (_info) {
         XLoggerInfo* info = (XLoggerInfo*)_info;
-        info->pid = xlogger_pid();
-        info->tid = xlogger_tid();
-        info->maintid = xlogger_maintid();
+        if (-1 == _info->pid) {
+            info->pid = xlogger_pid();
+        }
+
+        if (-1 == _info->tid) {
+            info->tid = xlogger_tid();
+        }
+
+        if (-1 == _info->maintid) {
+            info->maintid = xlogger_maintid();
+        }
+
     }
     
     if (NULL == _log) {

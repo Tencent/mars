@@ -181,6 +181,10 @@ bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const
     Encoder().longlink_pack(_task.cmdid, _task.taskid, _body, _extension, lstsenddata_.back().second, tracker_.get());
     lstsenddata_.back().second->Seek(0, AutoBuffer::ESeekStart);
 
+    conn_profile_.start_read_packet_time = 0;
+    conn_profile_.start_connect_time = 0;
+
+    xdebug2(TSF"longlink Send time: %_", ::gettickcount());  
     readwritebreak_.Break();
     return true;
 }
@@ -237,6 +241,11 @@ bool LongLink::MakeSureConnected(bool* _newone) {
     ScopedLock lock(mutex_);
 
     if (kConnected == ConnectStatus()) return true;
+
+    if (kObjectDestruct == disconnectinternalcode_) {
+        xwarn2(TSF"object has been released");
+        return false;
+    }
 
     bool newone = false;
     thread_.start(&newone);
@@ -436,7 +445,8 @@ void LongLink::__Run() {
     conn_profile.disconn_errtype = errtype;
     conn_profile.disconn_errcode = errcode;
     conn_profile.disconn_signal = ::getSignal(::getNetInfo() == kWifi);
-    
+
+    ScopedLock lock(mutex_);
     __ConnectStatus(kDisConnected);
     xinfo2(TSF"longlink lifetime:%_", (gettickcount() - conn_profile.conn_time));
     __UpdateProfile(conn_profile);
@@ -447,7 +457,7 @@ void LongLink::__Run() {
     wakelock_->Lock(1000);
 #endif
     
-    ScopedLock lock(mutex_);
+
     tracker_.reset();
 }
 
@@ -799,7 +809,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
                 int unpackret = Encoder().longlink_unpack(bufrecv, cmdid, taskid, packlen, body, extension, tracker_.get());
                 
                 if (LONGLINK_UNPACK_FALSE == unpackret) {
-                    xerror2(TSF"task socket recv sock:%0, unpack error dump:%1", _sock, xdump(bufrecv.Ptr(), bufrecv.Length()));
+                    xerror2(TSF"task socket recv sock:%0, unpack error dump:%1", _sock, xlogger_memory_dump(bufrecv.Ptr(), bufrecv.Length()));
                     _errtype = kEctNetMsgXP;
                     _errcode = kEctNetMsgXPHandleBufferErr;
                     goto End;

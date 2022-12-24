@@ -36,6 +36,7 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/comm/shuffle.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
@@ -48,21 +49,25 @@ static const char* const kItemDelimiter = ":";
 static const int kNumMakeCount = 5;
 
 //mmnet ipport settings
-static std::vector<std::string> sg_longlink_hosts;
-static std::vector<uint16_t> sg_longlink_ports;
-static std::string sg_longlink_debugip;
+NO_DESTROY static std::vector<std::string> sg_longlink_hosts;
+NO_DESTROY static std::vector<uint16_t> sg_longlink_ports;
+NO_DESTROY static std::string sg_longlink_debugip;
 
-static std::string sg_minorlong_debugip;
+NO_DESTROY static std::string sg_minorlong_debugip;
 static uint16_t sg_minorlong_port = 0;
 
 static int sg_shortlink_port;
-static std::string sg_shortlink_debugip;
-static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
-static std::vector<uint16_t> sg_lowpriority_longlink_ports;
+NO_DESTROY static std::string sg_shortlink_debugip;
+NO_DESTROY static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
+NO_DESTROY static std::vector<uint16_t> sg_lowpriority_longlink_ports;
 
-static std::map< std::string, std::string > sg_host_debugip_mapping;
+NO_DESTROY static std::map< std::string, std::string > sg_host_debugip_mapping;
 
-static Mutex sg_ip_mutex;
+NO_DESTROY static std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
+NO_DESTROY static tickcount_t sg_quic_reopen_tick(true);
+static bool sg_quic_enabled = true;
+
+NO_DESTROY static Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil():
 new_dns_(OnNewDns) {
@@ -205,16 +210,16 @@ bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& 
     lock.unlock();
 
     std::vector<std::string> longlink_hosts = _config.host_list;
-    if(longlink_hosts.empty())
+    if(longlink_hosts.empty()){
         longlink_hosts = NetSource::GetLongLinkHosts();
- 	if (longlink_hosts.empty()) {
- 		xerror2("longlink host empty.");
- 		return false;
- 	}
+    }
+    if (longlink_hosts.empty()) {
+	 	xerror2("longlink host empty.");
+	 	return false;
+    }
 
- 	__GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true);
-
-	return !_ipport_items.empty();
+    __GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true);
+    return !_ipport_items.empty();
 }
 
 bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items) {
@@ -300,11 +305,11 @@ bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist)
 	return false;
 }
 
-bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util) {
+bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, DnsUtil& _dns_util, const std::string& _cgi) {
 	
     ScopedLock lock(sg_ip_mutex);
     
-	if (__GetShortlinkDebugIPPort(_hostlist, _ipport_items)) {
+	if (__GetShortlinkDebugIPPort(_hostlist, _ipport_items, _cgi)) {
 		return true;
     }
     
@@ -316,8 +321,21 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist, std
 	return !_ipport_items.empty();
 }
 
-bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items) {
+bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostlist, std::vector<IPPortItem>& _ipport_items, const std::string& _cgi) {
 
+    if (!_cgi.empty()) {
+        std::map<std::string,std::pair<std::string, uint16_t>>::iterator itr = sg_cgi_debug_mapping.find(_cgi);
+        if (itr != sg_cgi_debug_mapping.end()) {
+            IPPortItem item;
+            item.str_ip = itr->second.first;
+            item.str_host = _hostlist.front();
+            item.port = itr->second.second;
+            item.source_type = kIPSourceDebug;
+            _ipport_items.push_back(item);
+            return true;
+        }
+    }
+    
 	for (std::vector<std::string>::const_iterator host = _hostlist.begin(); host != _hostlist.end(); ++host) {
 		if (sg_host_debugip_mapping.find(*host) != sg_host_debugip_mapping.end()) {
 			IPPortItem item;
@@ -388,7 +406,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 		DnsProfile dns_profile;
 		dns_profile.host = _host;
 
-		bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist);
+		bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist, 2 * 1000, NULL, _islonglink);
 
 		dns_profile.end_time = gettickcount();
 		if (!ret) dns_profile.OnFailed();
@@ -485,18 +503,12 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 	}
 
 	if (!_isbackup) {
-        bool need_use_IPv6 = false;
-        if (fun_need_use_IPv6_) {
-            need_use_IPv6 = fun_need_use_IPv6_();
-        }
-
-		ipportstrategy_.SortandFilter(temp_items, (int)(_count - len), need_use_IPv6);
+		ipportstrategy_.SortandFilter(temp_items, (int)(_count - len), true);
 		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
 	}
 	else {
 		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
-		srand((unsigned)gettickcount());
-		std::random_shuffle(_ip_items.begin() + len, _ip_items.end());
+		mars::comm::random_shuffle(_ip_items.begin() + len, _ip_items.end());
 		_ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
 	}
 
@@ -516,6 +528,28 @@ void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const st
 void NetSource::ClearCache() {
     xinfo_function();
     ipportstrategy_.InitHistory2BannedList(true);
+    
+    ScopedLock lock(sg_ip_mutex);
+    sg_quic_enabled = true;
+}
+
+void NetSource::DisableQUIC(int64_t seconds/* = 20 * 60*/){
+    ScopedLock lock(sg_ip_mutex);
+	sg_quic_enabled = false;
+    sg_quic_reopen_tick.gettickcount();
+    sg_quic_reopen_tick += seconds * 1000;
+}
+
+bool NetSource::CanUseQUIC(){
+    ScopedLock lock(sg_ip_mutex);
+    if (sg_quic_enabled)
+        return true;
+    
+    if (sg_quic_reopen_tick.gettickspan() >= 0){
+        sg_quic_enabled = true;
+    }
+    
+    return sg_quic_enabled;
 }
 
 std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
@@ -531,6 +565,27 @@ std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
     }
 
     return stream.String();
+}
+
+void NetSource::SetCgiDebugIP(const std::string &_cgi, const std::string &_ip, const uint16_t _port) {
+    if (_cgi.empty()) {
+        xinfo2(TSF"cgi is empty. ignore");
+        return;
+    }
+    if (_ip.empty()) {
+        xinfo2(TSF"ip is empty. remove cgi %_ debug ip", _cgi);
+        std::map<std::string, std::pair<std::string, uint16_t>>::iterator it = sg_cgi_debug_mapping.find(_cgi);
+        if( it != sg_cgi_debug_mapping.end()) {
+            sg_cgi_debug_mapping.erase(it);
+        }
+        return;
+    }
+    xinfo2(TSF "set debug ip:%_ for cgi :%_", _ip, _cgi);
+    uint64_t port = 80;
+    if (_port > 0 ){
+        port = _port;
+    }
+    sg_cgi_debug_mapping[_cgi] = std::pair<std::string, uint16_t>(_ip,port);
 }
 
 bool NetSource::GetLongLinkSpeedTestIPs(std::vector<IPPortItem>& _ip_vec) {
