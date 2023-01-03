@@ -21,6 +21,8 @@
 #ifndef STN_SRC_ANTI_AVALANCHE_H_
 #define STN_SRC_ANTI_AVALANCHE_H_
 
+#include "mars/boot/base_context.h"
+
 namespace mars {
 namespace stn {
 
@@ -36,7 +38,7 @@ enum {
 
 class AntiAvalanche {
   public:
-    AntiAvalanche(bool _isactive);
+    AntiAvalanche(boot::BaseContext* _context ,bool _isactive);
     virtual ~AntiAvalanche();
 
     bool Check(const Task& _task, const void* _buffer, int _len);
@@ -47,6 +49,7 @@ class AntiAvalanche {
     AntiAvalanche& operator=(const AntiAvalanche&);
 
   private:
+    boot::BaseContext* context_;
     FrequencyLimit* frequency_limit_;
     FlowLimit* flow_limit_;
 };

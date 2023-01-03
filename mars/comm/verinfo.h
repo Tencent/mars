@@ -2,10 +2,10 @@
 #ifndef Mars_verinfo_h
 #define Mars_verinfo_h
 
-#define MARS_REVISION "73e36241"
-#define MARS_PATH "rb/2022-09"
+#define MARS_REVISION "2a862416"
+#define MARS_PATH "cpan/2022-08/mars2-2"
 #define MARS_URL ""
-#define MARS_BUILD_TIME "2022-08-25 21:24:55"
+#define MARS_BUILD_TIME "2023-01-03 15:58:01"
 #define MARS_TAG ""
 
 #endif

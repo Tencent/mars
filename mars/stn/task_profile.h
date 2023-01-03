@@ -23,8 +23,6 @@
 
 #include <list>
 
-#include "boost/shared_ptr.hpp"
-
 #include "mars/comm/time_utils.h"
 #include "mars/comm/comm_data.h"
 #include "mars/stn/stn.h"
@@ -184,7 +182,7 @@ struct ConnectProfile {
 
     std::vector<NoopProfile> noop_profiles;
 
-    boost::shared_ptr<ProfileExtension> extension_ptr;
+    std::shared_ptr<ProfileExtension> extension_ptr;
     mars::comm::ProxyInfo proxy_info;
 
     //keep alive config
@@ -245,6 +243,7 @@ struct TransferProfile {
         
         error_type = 0;
         error_code = 0;
+
     }
     
     const Task task; //change "const Task& task" to "const Task task". fix a memory reuse bug.
@@ -266,6 +265,7 @@ struct TransferProfile {
     
     int error_type;
     int error_code;
+
 };
     
 //do not insert or delete
@@ -329,6 +329,9 @@ struct TaskProfile {
         err_code = 0;
         link_type = 0;
         allow_sessiontimeout_retry = true;
+
+        is_weak_network = false;
+        is_last_valid_connect_fail = false;
     }
     
     void InitSendParam() {
@@ -379,6 +382,9 @@ struct TaskProfile {
 
     std::vector<TransferProfile> history_transfer_profiles;
     std::string channel_name;
+
+    bool is_weak_network;
+    bool is_last_valid_connect_fail;
 };
         
 

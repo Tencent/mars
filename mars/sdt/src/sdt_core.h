@@ -31,6 +31,9 @@
 #include "mars/sdt/constants.h"
 #include "mars/sdt/sdt.h"
 #include "mars/sdt/netchecker_profile.h"
+#include "mars/boot/base_context.h"
+
+using namespace mars::boot;
 
 namespace mars {
 namespace sdt {
@@ -39,10 +42,6 @@ class BaseChecker;
 
 class SdtCore {
   public:
-    SINGLETON_INTRUSIVE(SdtCore, new SdtCore, delete);
-
-  public:
-
     void StartCheck(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout = UNUSE_TIMEOUT);
     /*
      * Stop and cancel net check.
@@ -50,9 +49,11 @@ class SdtCore {
     void CancelCheck();
     void CancelAndWait();
 
-  private:
-    SdtCore();
+  public:
+    SdtCore(BaseContext* context);
     virtual ~SdtCore();
+
+  private:
 
     void __InitCheckReq(CheckIPPorts& _longlink_items, CheckIPPorts& _shortlink_items, int _mode, int _timeout);
     void __Reset();
@@ -63,6 +64,7 @@ class SdtCore {
     void __DumpCheckResult();
 
   private:
+    BaseContext* context_;
     //  MessageQueue::ScopeRegister     async_reg_;
     comm::Thread thread_;
 

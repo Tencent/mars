@@ -34,6 +34,8 @@
 #include "mars/stn/config.h"
 
 #include "simple_ipport_sort.h"
+#include "weak_network_logic.h"
+#include "mars/boot/base_context.h"
 
 namespace mars {
     namespace stn {
@@ -52,6 +54,7 @@ class NetSource {
         comm::DNS& GetDNS() {	return dns_;}
 
         void Cancel(const std::string& host = "");
+        void SetNewDns(comm::DNS _new_dns);
         
     private:
         DnsUtil(const DnsUtil&);
@@ -60,42 +63,43 @@ class NetSource {
     private:
         comm::DNS new_dns_;
         comm::DNS dns_;
-    };
+    }; //end DnsUtil
 
   public:
     boost::function<bool ()> fun_need_use_IPv6_;
 
   public:
     //set longlink host and ports
-    static void SetLongLink(const std::vector<std::string>& _hosts, const std::vector<uint16_t>& _ports, const std::string& _debugip);
+    void SetLongLink(const std::vector<std::string>& _hosts, const std::vector<uint16_t>& _ports, const std::string& _debugip);
     //set shortlink port
-    static void SetShortlink(const uint16_t _port, const std::string& _debugip);
+    void SetShortlink(const uint16_t _port, const std::string& _debugip);
     //set backup ips for host, these ips would be used when host dns failed
-    static void SetBackupIPs(const std::string& _host, const std::vector<std::string>& _ips);
+    void SetBackupIPs(const std::string& _host, const std::vector<std::string>& _ips);
     //set debug ip
-    static void SetDebugIP(const std::string& _host, const std::string& _ip);
-    static const std::string& GetLongLinkDebugIP();
-    static const std::string& GetShortLinkDebugIP();
+    void SetDebugIP(const std::string& _host, const std::string& _ip);
+    const std::string& GetLongLinkDebugIP();
+    const std::string& GetShortLinkDebugIP();
     
     // set minorlong debugip
-    static void SetMinorLongDebugIP(const std::string& _ip, const uint16_t _port);
-    static const std::string& GetMinorLongLinkDebugIP();
+    void SetMinorLongDebugIP(const std::string& _ip, const uint16_t _port);
+    const std::string& GetMinorLongLinkDebugIP();
     
-    static void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
+    void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 
-    static void GetLonglinkPorts(std::vector<uint16_t>& _ports);
-    static const std::vector<std::string>& GetLongLinkHosts();
-    static uint16_t GetShortLinkPort();
+    void GetLonglinkPorts(std::vector<uint16_t>& _ports);
+    const std::vector<std::string>& GetLongLinkHosts();
+    uint16_t GetShortLinkPort();
     
-    static void GetBackupIPs(std::string _host, std::vector<std::string>& _iplist);
+    void GetBackupIPs(std::string _host, std::vector<std::string>& _iplist);
 
-    static std::string DumpTable(const std::vector<IPPortItem>& _ipport_items);
+    std::string DumpTable(const std::vector<IPPortItem>& _ipport_items);
     
-    static void SetCgiDebugIP(const std::string& _cgi, const std::string& _ip, const uint16_t _port);
-	static bool CanUseQUIC();
-    static void DisableQUIC(int64_t seconds = 20 * 60); // 20 minutes
+    void SetCgiDebugIP(const std::string& _cgi, const std::string& _ip, const uint16_t _port);
+    bool CanUseQUIC();
+    void DisableQUIC(int64_t seconds = 20 * 60); // 20 minutes
+
   public:
-    NetSource(comm::ActiveLogic& _active_logic);
+    NetSource(comm::ActiveLogic& _active_logic, boot::BaseContext* _context);
     ~NetSource();
 
   public:
@@ -120,6 +124,9 @@ class NetSource {
     void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
     std::tuple<uint32_t, uint32_t> GetIpConnectTimeout() {return std::make_tuple(v4_timeout_, v6_timeout_);}
 
+ public:
+    WeakNetworkLogic* GetWeakNetworkLogic();
+
   private:
     
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
@@ -131,10 +138,12 @@ class NetSource {
     size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string& _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink);
 
   private:
+    std::shared_ptr<boot::BaseContext> context_;
     comm::ActiveLogic&  active_logic_;
     SimpleIPPortSort    ipportstrategy_;
     uint32_t v4_timeout_;
     uint32_t v6_timeout_;
+    WeakNetworkLogic* weak_network_logic_;
 };
         
     }
