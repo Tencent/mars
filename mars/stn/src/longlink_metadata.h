@@ -27,13 +27,14 @@
 #include "longlink.h"
 #include "mars/stn/stn.h"
 #include "mars/comm/messagequeue/message_queue.h"
+#include "mars/boot/base_context.h"
 
 namespace mars {
     namespace stn {
 
 class LongLinkMetaData {
 public: 
-    LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, comm::ActiveLogic& _activeLogic, comm::MessageQueue::MessageQueue_t _message_id);
+    LongLinkMetaData(boot::BaseContext* _context, const LonglinkConfig& _config, NetSource& _netsource, comm::ActiveLogic& _activeLogic, comm::MessageQueue::MessageQueue_t _message_id);
 
     virtual ~LongLinkMetaData();
     std::shared_ptr<LongLink> Channel() {

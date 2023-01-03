@@ -25,6 +25,7 @@
 #include <string>
 
 #include "net_source.h"
+#include "mars/boot/base_context.h"
 
 class CommFrequencyLimit;
 
@@ -35,7 +36,7 @@ class NetSource;
 
 class NetCheckLogic {
   public:
-    NetCheckLogic();
+    NetCheckLogic(boot::BaseContext* _context, NetSource* net_source);
     ~NetCheckLogic();
 
     void UpdateLongLinkInfo(unsigned int _continues_fail_count, bool _task_succ);
@@ -53,7 +54,7 @@ class NetCheckLogic {
     void __StartNetCheck();
 
   private:
-
+    boot::BaseContext* context_;
     CommFrequencyLimit* frequency_limit_;
     NetSource::DnsUtil dns_util_;
 
@@ -61,6 +62,7 @@ class NetCheckLogic {
 
     NetTaskStatusItem longlink_taskstatus_item_;;
     NetTaskStatusItem shortlink_taskstatus_item_;
+    NetSource* net_source_;
 };
 
     }

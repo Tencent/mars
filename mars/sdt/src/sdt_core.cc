@@ -33,13 +33,17 @@
 #include "activecheck/pingchecker.h"
 #include "activecheck/tcpchecker.h"
 #include "sdt_core.h"
+#include "mars/sdt/sdt_manager.h"
 
 using namespace mars::sdt;
+using namespace mars::boot;
+
 
 #define RETURN_NETCHECKER_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, async_reg_.Get(), )
 
-SdtCore::SdtCore()
-    : thread_(boost::bind(&SdtCore::__RunOn, this))
+SdtCore::SdtCore(BaseContext* context)
+    : context_(context)
+    , thread_(boost::bind(&SdtCore::__RunOn, this))
     , check_list_(std::list<BaseChecker*>())
     , cancel_(false)
     , checking_(false) {
@@ -153,7 +157,8 @@ void SdtCore::__DumpCheckResult() {
         	break;
         }
     }
-    ReportNetCheckResult(check_request_.checkresult_profiles);
+    //ReportNetCheckResult(check_request_.checkresult_profiles);
+    ((SdtManager*)context_->GetManager("Sdt"))->ReportNetCheckResult(check_request_.checkresult_profiles);
 }
 
 void SdtCore::CancelCheck() {

@@ -30,6 +30,7 @@
 #include "mars/comm/tinyxml2.h"
 #include "mars/comm/tickcount.h"
 #include "mars/stn/stn.h"
+#include "mars/boot/base_context.h"
 
 namespace mars {
 namespace stn {
@@ -38,7 +39,7 @@ struct BanItem;
     
 class SimpleIPPortSort {
   public:
-    SimpleIPPortSort();
+    SimpleIPPortSort(boot::BaseContext* _context);
     ~SimpleIPPortSort();
 
     void InitHistory2BannedList(bool _savexml);
@@ -72,6 +73,7 @@ class SimpleIPPortSort {
     SimpleIPPortSort& operator=(const SimpleIPPortSort&);
 
   private:
+    boot::BaseContext* context_;
     std::string hostpath_;
     tinyxml2::XMLDocument recordsxml_;
 

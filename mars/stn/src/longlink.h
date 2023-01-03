@@ -41,6 +41,7 @@
 #include "mars/stn/src/net_source.h"
 #include "mars/stn/src/longlink_identify_checker.h"
 #include "mars/stn/proto/longlink_packer.h"
+#include "mars/boot/base_context.h"
 
 class AutoBuffer;
 class XLogger;
@@ -123,7 +124,7 @@ class LongLink {
     boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
 
   public:
-    LongLink(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
+    LongLink(boot::BaseContext* _context, const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
     virtual ~LongLink();
 
     bool    Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task);
@@ -180,6 +181,7 @@ class LongLink {
     void       __NotifySmartHeartbeatJudgeDozeStyle();
 	
   protected:
+    boot::BaseContext*                    context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                            netsource_;
     LonglinkConfig                        config_;

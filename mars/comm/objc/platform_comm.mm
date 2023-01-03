@@ -516,6 +516,11 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo)
 #endif
 
 
+void OnPlatformNetworkChange() {
+    
+}
+
+
 }   // namespace comm
 }   // namespace mars
 

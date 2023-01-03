@@ -106,16 +106,21 @@ enum CheckStatus {
 	kCheckFinish = 1,
 } ;
 
-extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
+
+class Callback
+{
+ public:
+    virtual ~Callback() {};
+    virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
+};
 
 #ifdef NATIVE_CALLBACK
-    class SdtNativeCallback {
-    public:
-        SdtNativeCallback() = default;
-        virtual ~SdtNativeCallback() = default;
-        virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
-    };
-    extern void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
+class SdtNativeCallback {
+         public:
+            SdtNativeCallback() = default;
+            virtual ~SdtNativeCallback() = default;
+            virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
+        };
 #endif
 
 }}

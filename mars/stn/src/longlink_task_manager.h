@@ -32,6 +32,7 @@
 
 #include "longlink_metadata.h"
 #include "task_intercept.h"
+#include "mars/boot/base_context.h"
 
 class AutoBuffer;
 
@@ -65,7 +66,7 @@ class LongLinkTaskManager {
     static boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
+    LongLinkTaskManager(mars::boot::BaseContext* _context, mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
     bool StartTask(const Task& _task, int _channel);
@@ -124,6 +125,7 @@ class LongLinkTaskManager {
     ConnectProfile __GetConnectionProfile(std::shared_ptr<LongLinkMetaData> longlink);
     
   private:
+    boot::BaseContext* context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
     uint64_t                        lastbatcherrortime_;   // ms
