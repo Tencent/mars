@@ -21,7 +21,7 @@
 
 #import "comm/objc/scope_autoreleasepool.h"
 
-static class __ThreadRunOnStart
+class __ThreadRunOnStart
 {
 public:
     __ThreadRunOnStart()
@@ -36,7 +36,15 @@ public:
     }
     
     NSOperationQueue* m_operationQueue;
-} gs_threadrunonstart;
+};
+
+static __ThreadRunOnStart* gs_threadrunonstart = NULL;
+
+void InitObjcThreadQueueVal() {
+    if (gs_threadrunonstart == NULL) {
+        gs_threadrunonstart = new __ThreadRunOnStart();
+    }
+}
 
 @interface __CThreadWarp : NSObject
 {
@@ -143,7 +151,7 @@ public:
         return NO;
     }
     
-    [gs_threadrunonstart.m_operationQueue addOperation:invocation];
+    [gs_threadrunonstart->m_operationQueue addOperation:invocation];
     [invocation release];
     [warp release];
     return YES;
@@ -166,7 +174,7 @@ extern "C" BOOL RunWithTarget(void (*_funp)(void*), void* _arg)
         return NO;
     }
     
-    [gs_threadrunonstart.m_operationQueue addOperation:invocation];
+    [gs_threadrunonstart->m_operationQueue addOperation:invocation];
     [invocation release];
     [warp release];
     return YES;
@@ -186,7 +194,7 @@ extern "C" BOOL RunWithTargetNoParam(void (*_fun)())
         return NO;
     }
     
-    [gs_threadrunonstart.m_operationQueue addOperation:invocation];
+    [gs_threadrunonstart->m_operationQueue addOperation:invocation];
     [invocation release];
     [warp release];
     return YES;

@@ -63,9 +63,17 @@
 
 #define kShouldPrintReachabilityFlags 0
 
-static IlinkMarsReachability* gs_MarsnetReach = [[IlinkMarsReachability reachabilityForInternetConnection] retain];
-static BOOL gs_Marsstartnotify = [gs_MarsnetReach MarsstartNotifier];
-static MarsNetworkStatus gs_Marsstatus = [gs_MarsnetReach currentReachabilityStatus];
+static IlinkMarsReachability* gs_MarsnetReach = NULL;
+static BOOL gs_Marsstartnotify;
+static MarsNetworkStatus gs_Marsstatus;
+
+void InitReachabilityVal() {
+    if (gs_MarsnetReach == NULL) {
+        gs_MarsnetReach = [[IlinkMarsReachability reachabilityForInternetConnection] retain];
+        gs_Marsstartnotify = [gs_MarsnetReach MarsstartNotifier];
+        gs_Marsstatus = [gs_MarsnetReach currentReachabilityStatus];
+    }
+}
 
 static void PrintReachabilityFlags(SCNetworkReachabilityFlags    flags, const char* comment)
 {

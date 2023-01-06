@@ -58,6 +58,7 @@ if(ANDROID)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
 
 elseif(APPLE)
+    add_definitions(-DGOOGLE_PROTOBUF_NO_STATIC_INITIALIZER)
 
     # for gen xcode project file
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "gnu++14")

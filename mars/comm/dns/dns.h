@@ -60,7 +60,6 @@ class DNS {
   private:
     DNSFunc dnsfunc_;
     boost::function<void (int _key)> monitor_func_;
-    static const int kDNSThreadIDError = 0;
 };
 
 

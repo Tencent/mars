@@ -55,8 +55,8 @@ using TypeSafeFormat = void*;
 #else
 const struct TypeSafeFormat {TypeSafeFormat(){}} __tsf__;
 #endif
-const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
-const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
+struct XLoggerTag {XLoggerTag(){}};
+struct XLoggerInfoNull {XLoggerInfoNull(){}};
 
 class XMessage {
 public:
@@ -739,8 +739,8 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #else
 #define TSF __tsf__,
 #endif
-#define XTAG __xlogger_tag__,
-#define XNULL __xlogger_info_null__
+// #define XTAG __xlogger_tag__,
+// #define XNULL __xlogger_info_null__
 #define XENDL "\n"
 #define XTHIS "@%p, ", this
 
