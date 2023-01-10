@@ -28,14 +28,13 @@
 
 #include "flow_limit.h"
 #include "frequency_limit.h"
-
-//TODO mars2 cpan
-#include "mars/stn/stn_logic.h"
+#include "mars/stn/stn_manager.h"
 
 using namespace mars::stn;
 
-AntiAvalanche::AntiAvalanche(bool _isactive)
-	: frequency_limit_(new FrequencyLimit())
+AntiAvalanche::AntiAvalanche(boot::BaseContext* _context, bool _isactive)
+	: context_(_context)
+        , frequency_limit_(new FrequencyLimit())
 	, flow_limit_(new FlowLimit((_isactive)))
 {}
 
@@ -49,12 +48,12 @@ bool AntiAvalanche::Check(const Task& _task, const void* _buffer, int _len) {
 
     unsigned int span = 0;
     if (!frequency_limit_->Check(_task, _buffer, _len, span)){
-		ReportTaskLimited(kFrequencyLimit, _task, span);
+        context_->GetStnManager()->ReportTaskLimited(kFrequencyLimit, _task, span);
     	return false;
     }
 
     if (comm::kMobile == comm::getNetInfo() && !flow_limit_->Check(_task, _buffer, _len)) {
-    	ReportTaskLimited(kFlowLimit, _task, (unsigned int&)_len);
+        context_->GetStnManager()->ReportTaskLimited(kFlowLimit, _task, (unsigned int&)_len);
 		return false;
     }
 
