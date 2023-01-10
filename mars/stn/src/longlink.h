@@ -69,7 +69,7 @@ struct LongLinkNWriteData {
 struct StreamResp {
     StreamResp(const Task& _task = Task(Task::kInvalidTaskID))
     : task(_task), stream(KNullAtuoBuffer), extension(KNullAtuoBuffer) {}
-    
+
     Task task;
     move_wrapper<AutoBuffer> stream;
     move_wrapper<AutoBuffer> extension;

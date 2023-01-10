@@ -10,7 +10,7 @@
 #include "mars/boot/base_manager.h"
 #include "mars/boot/base_context.h"
 #include "mars/boot/base_stn_manager.h"
-#include "mars/comm/thread/mutex.h"
+//#include "mars/comm/thread/mutex.h"
 #include "mars/stn/stn.h"
 
 using namespace mars::comm;

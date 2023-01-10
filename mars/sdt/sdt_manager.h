@@ -13,12 +13,15 @@
 #include "mars/boot/base_context.h"
 #include "mars/boot/base_manager.h"
 #include "sdt.h"
-#include "src/sdt_core.h"
+//#include "src/sdt_core.h"
 
 using namespace mars::boot;
 
 namespace mars {
 namespace sdt {
+
+class SdtCore;
+
 class SdtManager : public BaseManager {
  public:
     explicit SdtManager(BaseContext* context);

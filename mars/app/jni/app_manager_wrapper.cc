@@ -44,6 +44,7 @@ static const JNINativeMethod kAppManagerJniMethods[] = {
     {"OnJniSetCallback", "(Ljava/lang/Object;)V", (void*)&mars::app::JniAppManager::JniSetCallback},
 };
 
+
 static const size_t kAppManagerJniMethodsCount = sizeof(kAppManagerJniMethods) / sizeof(JNINativeMethod);
 JNICAT_DEFINE_JNI_METHOD(kAppManagerInterface,
                          "com/tencent/mars/app/AppManager",

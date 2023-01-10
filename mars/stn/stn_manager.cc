@@ -37,6 +37,7 @@
 #endif
 
 #include "mars/comm/alarm.h"
+#include "mars/comm/thread/mutex.h"
 
 namespace mars {
 namespace stn {

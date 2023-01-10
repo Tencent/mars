@@ -11,6 +11,7 @@
 #include "mars/comm/jni/util/var_cache.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 namespace mars {
 namespace stn {
@@ -248,19 +249,36 @@ JNICAT_DEFINE_METHOD(kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer,
 int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     jnienv_ptr env;
     VarCache* cache_instance = VarCache::Singleton();
+    ScopeJEnv scope_jenv(cache_instance->GetJvm());
+//    JNIEnv *env = scope_jenv.GetEnv();
+
     // obtain the class ByteArrayOutputStream
     jclass byte_array_output_stream_clz = cache_instance->GetClass(env, "java/io/ByteArrayOutputStream");
+    xinfo2(TSF"mars2 byte_array_output_stream_clz:%_", byte_array_output_stream_clz);
 
     // obtain the method id of construct method
     jmethodID construct_mid = cache_instance->GetMethodId(env, byte_array_output_stream_clz, "<init>", "()V");
+    xinfo2(TSF"mars2 construct_mid:%_", construct_mid);
 
     // construct  the object of ByteArrayOutputStream
     jobject byte_array_outputstream_obj = env->NewObject(byte_array_output_stream_clz, construct_mid);
     jobject byte_array_outputstream_hash = env->NewObject(byte_array_output_stream_clz, construct_mid);
 
+    xinfo2(TSF"mars2 byte_array_outputstream_obj:%_", byte_array_outputstream_obj);
+
     jintArray cmdId_array = env->NewIntArray(2);
 
     int ret = j2c_cast(c2j_call(jint, callback_inst_, kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, c2j_cast(jstring, _channel_id), byte_array_outputstream_obj, byte_array_outputstream_hash, cmdId_array));
+//    int ret = JNU_CallStaticMethodByMethodInfo(env, kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, ScopedJstring(env, _channel_id.c_str()).GetJstr(), byte_array_outputstream_obj, byte_array_outputstream_hash, cmdId_array).i;
+
+    if (ret == kCheckNext || ret == kCheckNever)
+    {
+        xwarn2(TSF"getLongLinkIdentifyCheckBuffer uin == 0, not ready");
+        env->DeleteLocalRef(byte_array_outputstream_obj);
+        env->DeleteLocalRef(byte_array_outputstream_hash);
+        env->DeleteLocalRef(cmdId_array);
+        return ret;
+    }
 
     jbyteArray ret_byte_array = NULL;
     ret_byte_array = (jbyteArray)JNU_CallMethodByName(env, byte_array_outputstream_obj, "toByteArray", "()[B").l;
@@ -288,7 +306,7 @@ int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _ch
         env->DeleteLocalRef(ret_byte_array);
 
     } else {
-        // xdebug2(TSF "the retByteArray is NULL");
+         xdebug2(TSF "the retByteArray is NULL");
     }
 
     env->DeleteLocalRef(byte_array_outputstream_obj);
