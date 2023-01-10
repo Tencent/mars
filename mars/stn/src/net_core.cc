@@ -57,6 +57,10 @@
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
 
+//TODO mars2 cpan
+#include "mars/app/app_logic.h"
+#include "mars/stn/stn_logic.h"
+
 using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;

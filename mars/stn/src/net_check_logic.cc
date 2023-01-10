@@ -34,6 +34,9 @@
 
 #include "net_source.h"
 
+//TODO mars2 cpan
+#include "mars/stn/stn_logic.h"
+
 using namespace mars::stn;
 using namespace mars::sdt;
 

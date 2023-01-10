@@ -24,7 +24,6 @@
 #include "mars/comm/socket/complexconnect.h"
 #include "mars/comm/socket/socket_address.h"
 #include "mars/comm/shuffle.h"
-
 #include "mars/sdt/constants.h"
 
 

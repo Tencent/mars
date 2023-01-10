@@ -41,6 +41,9 @@
 #include <android/log.h>
 #endif
 
+//TODO mars2 cpan
+#include "mars/app/app_logic.h"
+
 using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;

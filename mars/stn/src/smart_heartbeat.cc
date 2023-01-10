@@ -40,6 +40,9 @@
 #include "mars/stn/config.h"
 #include <algorithm>
 
+//TODO mars2 cpan
+#include "mars/app/app_logic.h"
+
 using namespace mars::comm;
 
 #define KV_KEY_SMARTHEART 11249

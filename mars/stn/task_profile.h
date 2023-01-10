@@ -24,7 +24,6 @@
 #include <list>
 
 #include "boost/shared_ptr.hpp"
-
 #include "mars/comm/time_utils.h"
 #include "mars/comm/comm_data.h"
 #include "mars/stn/stn.h"

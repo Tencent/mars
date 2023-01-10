@@ -37,6 +37,9 @@
 
 #include "mars/app/app.h"
 
+//TODO mars2 cpan
+#include "mars/app/app_logic.h"
+
 using namespace mars::comm;
 
 #define IPPORT_RECORDS_FILENAME "/ipportrecords2.xml"

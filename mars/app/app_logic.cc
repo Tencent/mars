@@ -45,29 +45,38 @@
 #include "mars/comm/dns/dns.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/macro.h"
+#include "mars/boot/base_context.h"
+#include "mars/boot/base_app_manager.h"
+#include "app_manager.h"
+
 using namespace mars::comm;
 
 namespace mars {
 namespace app {
 
+/* mars2
 static Callback* sg_callback = NULL;
+*/
 
 void SetCallback(Callback* const callback) {
-	sg_callback = callback;
+//	sg_callback = callback;
+    BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+    app_manager->SetCallback(callback);
 }
 
 #if !defined(ANDROID) || defined (CPP_CALL_BACK)
-    
+/* mars2
 NO_DESTROY static mars::comm::ProxyInfo sg_proxyInfo;
     static bool sg_gotProxy = false;
 NO_DESTROY static Mutex sg_slproxymutex;
 NO_DESTROY static Thread sg_slproxyThread;
     static uint64_t sg_slporxytimetick = gettickcount();
     static int sg_slproxycount = 0;
-    
+*/
 
     
     static void __GetProxyInfo(const std::string& _host, uint64_t _timetick) {
+        /* mars2
         xinfo_function(TSF"timetick:%_, host:%_", _timetick, _host);
     
         mars::comm::ProxyInfo proxy_info;
@@ -108,16 +117,22 @@ NO_DESTROY static Thread sg_slproxyThread;
         lock.lock();
         sg_proxyInfo.ip = ips.front();
         sg_gotProxy = true;
-        
+        */
+        BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+        app_manager->__GetProxyInfo(_host, _timetick);
     }
 
 #if TARGET_OS_IPHONE
     static void __ClearProxyInfo() {
+        /*
         ScopedLock lock(sg_slproxymutex);
         sg_slporxytimetick = gettickcount();
         sg_slproxycount = 0;
         sg_gotProxy = false;
         sg_proxyInfo.type = mars::comm::kProxyNone;
+        */
+        BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+        app_manager->__ClearProxyInfo();
     }
 
     static void __InitbindBaseprjevent() {
@@ -127,34 +142,38 @@ NO_DESTROY static Thread sg_slproxyThread;
 #endif
     
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {
+        /*
         xassert2(sg_callback != NULL);
-        
+
 #if !TARGET_OS_IPHONE
         mars::comm::ProxyInfo proxy_info;
         sg_callback->GetProxyInfo(_host, proxy_info);
         return proxy_info;
 #endif
-        
+
         if (sg_gotProxy) {
             return sg_proxyInfo;
         }
-        
+
         ScopedLock lock(sg_slproxymutex, false);
         if (!lock.timedlock(500))   return mars::comm::ProxyInfo();
-        
+
         if (sg_slproxycount < 3 || 5 * 1000 > gettickspan(sg_slporxytimetick)) {
             sg_slproxyThread.start(boost::bind(&__GetProxyInfo, _host, sg_slporxytimetick));
         }
-        
+
         if (sg_gotProxy) {
             return sg_proxyInfo;
         }
-        
-        return mars::comm::ProxyInfo();
 
+        return mars::comm::ProxyInfo();
+        */
+        BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+        return app_manager->GetProxyInfo(_host);
     }
 
     std::string GetAppFilePath() {
+        /*
         xassert2(sg_callback != NULL);
 
         std::string path = sg_callback->GetAppFilePath();
@@ -163,31 +182,51 @@ NO_DESTROY static Thread sg_slproxyThread;
 #endif
 
         return path;
+        */
+        BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+        return app_manager->GetAppFilePath();
     }
     
 	AccountInfo GetAccountInfo() {
+        /*
 		xassert2(sg_callback != NULL);
 		return sg_callback->GetAccountInfo();
+        */
+            BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+            return app_manager->GetAccountInfo();
 	}
 
 	std::string GetUserName() {
+         /*
 		xassert2(sg_callback != NULL);
 		AccountInfo info = sg_callback->GetAccountInfo();
 		return info.username;
+        */
+         BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+         return app_manager->GetUserName();
 	}
 
 	std::string GetRecentUserName() {
+        /*
 		xassert2(sg_callback != NULL);
 		return GetUserName();
+        */
+                BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+                return app_manager->GetRecentUserName();
 	}
 
 	unsigned int GetClientVersion() {
+        /*
 		xassert2(sg_callback != NULL);
 		return sg_callback->GetClientVersion();
+        */
+        BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+        return app_manager->GetClientVersion();
 	}
 
 
 	DeviceInfo GetDeviceInfo() {
+        /*
 		xassert2(sg_callback != NULL);
         
     static DeviceInfo device_info;
@@ -197,6 +236,9 @@ NO_DESTROY static Thread sg_slproxyThread;
     
     device_info = sg_callback->GetDeviceInfo();
     return device_info;
+        */
+        BaseAppManager* app_manager = mars::boot::CreateContext("default")->GetAppManager();
+        return app_manager->GetDeviceInfo();
 	}
 
 #endif

@@ -29,6 +29,10 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
 
+//TODO mars2 cpan
+#include "mars/app/app_logic.h"
+#include "mars/stn/stn_logic.h"
+
 using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;

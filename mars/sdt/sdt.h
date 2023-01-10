@@ -106,7 +106,9 @@ enum CheckStatus {
 	kCheckFinish = 1,
 } ;
 
+/* mars2 move to logic
 extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
+*/
 
 #ifdef NATIVE_CALLBACK
     class SdtNativeCallback {
@@ -115,8 +117,17 @@ extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _chec
         virtual ~SdtNativeCallback() = default;
         virtual void ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {}
     };
+    /* mars2 move to logic
     extern void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
+    */
 #endif
+
+// mars2 move from logic
+class Callback {
+  public:
+    virtual ~Callback(){};
+};
+//end
 
 }}
 

@@ -40,6 +40,9 @@
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
 
+//TODO mars2 cpan
+#include "mars/stn/stn_logic.h"
+
 using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;

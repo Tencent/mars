@@ -25,6 +25,9 @@
 
 #include "stn/proto/longlink_packer.h"
 
+//TODO mars2 cpan
+#include "mars/stn/stn_logic.h"
+
 using namespace mars::stn;
 
 LongLinkIdentifyChecker::LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong)

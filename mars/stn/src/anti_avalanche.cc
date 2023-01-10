@@ -29,6 +29,9 @@
 #include "flow_limit.h"
 #include "frequency_limit.h"
 
+//TODO mars2 cpan
+#include "mars/stn/stn_logic.h"
+
 using namespace mars::stn;
 
 AntiAvalanche::AntiAvalanche(bool _isactive)

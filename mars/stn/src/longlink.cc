@@ -46,6 +46,9 @@
 
 #include "smart_heartbeat.h"
 
+//TODO mars2 cpan
+#include "mars/app/app_logic.h"
+
 #define AYNC_HANDLER  asyncreg_.Get()
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 

@@ -29,7 +29,7 @@ class AutoBuffer;
 
 namespace mars {
 namespace app {
-
+/* mars2 move to app.h
     class Callback {
     public:
         virtual ~Callback() {};
@@ -44,8 +44,23 @@ namespace app {
 
         virtual DeviceInfo GetDeviceInfo() = 0;
     };
-
+*/
     void SetCallback(Callback* const callback);
+
+    //mars2 move from start app.h
+    mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
+    std::string GetAppFilePath();
+    AccountInfo GetAccountInfo();
+    std::string GetUserName();
+    std::string GetRecentUserName();
+    unsigned int GetClientVersion();
+    DeviceInfo GetDeviceInfo();
+    double GetOsVersion();
+
+#ifdef NATIVE_CALLBACK
+    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
+#endif
+    //end move app.h
 }}
 
 
