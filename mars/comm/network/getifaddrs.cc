@@ -147,6 +147,75 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
     return !_addrs.empty();
 }
 
+bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs) {
+    struct ifaddrs *ifap, *ifa;
+
+    getifaddrs(&ifap);
+
+//    for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
+//        sockaddr_in* sa = (struct sockaddr_in*)ifa->ifa_addr;
+//
+//        if (NULL == sa)
+//            continue;
+//
+//        if (ifa->ifa_addr->sa_family == AF_INET && !(ifa->ifa_flags & IFF_LOOPBACK)
+//            && !(ifa->ifa_flags & IFF_POINTOPOINT) && (ifa->ifa_flags & IFF_BROADCAST)
+//            && (ifa->ifa_flags & IFF_RUNNING)) {
+//            ifaddrinfo_ip_t addr;
+//
+//            addr.ifa_family = AF_INET;
+//            addr.ifa_name = ifa->ifa_name;
+//            memcpy(addr.ifa_ip, &sa->sin_addr, sizeof(addr.ifa_ip));
+//            addr.ifa_flags = ifa->ifa_flags;
+//            inet_ntop(sa->sin_family, &(sa->sin_addr), addr.ip, sizeof(addr.ip));
+//            // iOS 14.5 return：
+//            // 1. en2 169.254.x.x  invalid
+//            // 2. en0 192.168.x.x
+//            // 169.254.0.0/16 - This is the "link local" block.  As described in
+//            // [RFC3927], it is allocated for communication between hosts on a
+//            // single link.  Hosts obtain these addresses by auto-configuration,
+//            // such as when a DHCP server cannot be found.
+//            if (strncmp(addr.ip, "169.254.", 8) == 0) {
+//                continue;
+//            }
+//            _addrs.push_back(addr);
+//        }
+//    }
+
+    for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr->sa_family == AF_INET6 && !(ifa->ifa_flags & IFF_LOOPBACK)
+            && !(ifa->ifa_flags & IFF_POINTOPOINT) && (ifa->ifa_flags & IFF_BROADCAST)
+            && (ifa->ifa_flags & IFF_RUNNING)) {
+            sockaddr_in6* sa = (struct sockaddr_in6*)ifa->ifa_addr;
+
+            if (NULL == sa)
+                continue;
+
+            ifaddrinfo_ip_t addr;
+
+            addr.ifa_family = AF_INET6;
+            addr.ifa_name = ifa->ifa_name;
+            memcpy(addr.ifa_ip, &sa->sin6_addr, sizeof(addr.ifa_ip));
+            addr.ifa_flags = ifa->ifa_flags;
+            inet_ntop(sa->sin6_family, &(sa->sin6_addr), addr.ip, sizeof(addr.ip));
+            // iOS 14.5 return：
+            // 1. en2 169.254.x.x  invalid
+            // 2. en0 192.168.x.x
+            // fe80::/10 - This is the "link local" block.  As described in
+            // [RFC3927], it is allocated for communication between hosts on a
+            // single link.  Hosts obtain these addresses by auto-configuration,
+            // such as when a DHCP server cannot be found.
+            if (strncmp(addr.ip, "fe80::", 6) == 0) {
+                continue;
+            }
+            _addrs.push_back(addr);
+        }
+    }
+
+    freeifaddrs(ifap);
+    return !_addrs.empty();
+}
+
 bool getifaddrs_ipv4_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
     struct ifaddrs* ifap, *ifa;
 

@@ -29,6 +29,7 @@
 
 class XLogger;
 class TcpServer;
+class socket_address;
 
 namespace mars {
 namespace comm {
@@ -71,7 +72,7 @@ class TcpServer {
     mars::comm::Condition            cond_;
 
     SOCKET                 listen_sock_;
-    sockaddr_in         bind_addr_;
+    socket_address*         bind_addr_;
     const int             backlog_;
 
     mars::comm::SocketBreaker breaker_;

@@ -61,6 +61,7 @@ bool getifaddrs_ipv4(ifaddrinfo_ipv4_t& _addr);
 bool getifaddrs_ipv4_lan(ifaddrinfo_ipv4_t& _addr);
 bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs);
 
+bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs);
 
 #define	IFF_BROADCAST_FILTER	0x2
 #define	IFF_POINTOPOINT_FILTER	0x10

@@ -29,19 +29,21 @@ namespace mars {
 namespace comm {
 
 TcpServerFSM::TcpServerFSM(SOCKET _socket)
-    : status_(kAccept), sock_(_socket), is_write_fd_set_(false) {
+    : status_(kAccept), sock_(_socket), is_write_fd_set_(false), addr_(socket_address::getpeername(sock_)) {
     xassert2(INVALID_SOCKET != sock_);
-    socklen_t addr_len = sizeof(addr_);
-    xerror2_if(0 > getpeername(sock_, (sockaddr*)&addr_, &addr_len), TSF"getpeername:%_, %_", socket_errno, socket_strerror(socket_errno));
-
+    const char* ip = addr_.ip();
+    if (0 == strcmp(ip, "0.0.0.0")) {
+        xerror2(TSF"get peername error");
+    }
     memset(ip_, 0, sizeof(ip_));
-	socket_inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+    memcpy(ip_, ip, strnlen(ip, 96));
 }
 
 TcpServerFSM::TcpServerFSM(SOCKET _socket, const sockaddr_in& _addr)
     : status_(kAccept), sock_(_socket), addr_(_addr) , is_write_fd_set_(false){
     memset(ip_, 0, sizeof(ip_));
-	socket_inet_ntop(addr_.sin_family, &(addr_.sin_addr), ip_, sizeof(ip_));
+    const char* ip = addr_.ip();
+    memcpy(ip_, ip, strnlen(ip, 96));
 }
 
 TcpServerFSM::~TcpServerFSM() {
@@ -65,7 +67,7 @@ SOCKET TcpServerFSM::Socket() const {
     return sock_;
 }
 
-const sockaddr_in& TcpServerFSM::Address() const {
+const socket_address& TcpServerFSM::Address() const {
     return addr_;
 }
 
@@ -74,12 +76,12 @@ const char* TcpServerFSM::IP() const {
 }
 
 uint16_t TcpServerFSM::Port() const {
-    return ntohs(addr_.sin_port);
+    return addr_.port();
 }
 
 void TcpServerFSM::Close(bool _notify) {
     char ip[16];
-    xinfo2(TSF"sock:%_, (%_:%_), onclose local socket close, notify:%_", sock_, socket_inet_ntop(AF_INET, &(addr_.sin_addr), ip, sizeof(ip)), ntohs(addr_.sin_port), _notify);
+    xinfo2(TSF"sock:%_, (%_:%_), onclose local socket close, notify:%_", sock_, addr_.ip(), addr_.port(), _notify);
 
     if (INVALID_SOCKET == sock_) return;
 
@@ -134,12 +136,13 @@ TcpServerFSM::TSocketStatus TcpServerFSM::PreReadWriteSelect(SocketSelect& _sel,
 }
 
 TcpServerFSM::TSocketStatus TcpServerFSM::AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log) {
+    xinfo_function();
     xassert2(kReadWrite == status_, "%d", status_);
 
     char ip[16] = { 0 };
     int timeout = ReadWriteTimeout();
 
-    xdebug2(TSF"sock:%_, (%_:%_), ", sock_, socket_inet_ntop(AF_INET, &(addr_.sin_addr), ip, sizeof(ip)), ntohs(addr_.sin_port)) >> _log;
+    xdebug2(TSF"sock:%_, (%_:%_), ", sock_, addr_.ip(), addr_.port()) >> _log;
 
     if (_sel.Exception_FD_ISSET(sock_)) {
         int error = 0;
