@@ -367,8 +367,9 @@ void StnManager::Reset() {
     xinfo2(TSF "cpan debug Reset");
     //net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
-    delete net_core_;
-    net_core_ = new NetCore(context_, packer_encoder_version_);
+    //TODO
+//    delete net_core_;
+//    net_core_ = new NetCore(context_, packer_encoder_version_);
 
 }
 
