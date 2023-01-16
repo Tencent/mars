@@ -26,6 +26,7 @@
 #include "comm/xlogger/xlogger.h"
 #include "comm/thread/mutex.h"
 #include "comm/thread/lock.h"
+#include "comm/socket/socket_address.h"
 
 class XLogger;
 
@@ -52,7 +53,7 @@ class TcpServerFSM {
     bool IsEndStatus() const;
 
     SOCKET Socket() const;
-    const sockaddr_in& Address() const;
+    const socket_address& Address() const;
     const char* IP() const;
     uint16_t Port() const;
     size_t SendBufLen() {return send_buf_.Length();}
@@ -93,8 +94,8 @@ class TcpServerFSM {
   protected:
     TSocketStatus status_;
     SOCKET sock_;
-    sockaddr_in addr_;
-    char ip_[16];
+    socket_address addr_;
+    char ip_[96];
 
     AutoBuffer send_buf_;
     AutoBuffer recv_buf_;
