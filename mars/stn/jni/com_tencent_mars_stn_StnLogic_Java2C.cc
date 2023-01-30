@@ -355,7 +355,8 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_stopSignalling
 
 JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setClientVersion
   (JNIEnv *_env, jclass, jint _client_version) {
-	mars::stn::SetClientVersion(_client_version);
+    //TODO mars2 cpan
+    //mars::stn::SetClientVersion(_client_version);
 }
 
 JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genTaskID
