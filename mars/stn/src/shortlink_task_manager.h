@@ -35,6 +35,7 @@
 #include "shortlink.h"
 #include "socket_pool.h"
 #include "task_intercept.h"
+#include "mars/boot/base_context.h"
 
 class AutoBuffer;
 
@@ -68,7 +69,7 @@ class ShortLinkTaskManager {
     static boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
+    ShortLinkTaskManager(boot::BaseContext* _context, mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task);
@@ -103,6 +104,7 @@ class ShortLinkTaskManager {
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
 
   private:
+    boot::BaseContext* context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      net_source_;
     

@@ -31,7 +31,7 @@ namespace stn {
     
 class WeakNetworkLogic {
 public:
-    SINGLETON_INTRUSIVE(WeakNetworkLogic, new WeakNetworkLogic, delete);
+//    SINGLETON_INTRUSIVE(WeakNetworkLogic, new WeakNetworkLogic, delete);
     boost::function<void (int _key, int _value, bool _is_important)> report_weak_logic_;
     
     bool IsCurrentNetworkWeak();
@@ -40,9 +40,11 @@ public:
     void OnTaskEvent(const TaskProfile& _task_profile);
     bool IsLastValidConnectFail(int64_t &_span);
     
-private:
+public:
     WeakNetworkLogic();
     virtual ~WeakNetworkLogic();
+    
+private:
     void __SignalForeground(bool _is_foreground);
     void __ReportWeakLogic(int _key, int _value, bool _is_important);
     void __MarkWeak(bool _isWeak);

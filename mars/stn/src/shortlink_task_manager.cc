@@ -56,8 +56,9 @@ boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskM
 boost::function<bool (int _error_code)> ShortLinkTaskManager::should_intercept_result_;
 
 
-ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
-    : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
+ShortLinkTaskManager::ShortLinkTaskManager(boot::BaseContext* _context, NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
+    : context_(_context)
+    , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , net_source_(_netsource)
     , default_use_proxy_(true)
     , tasks_continuous_fail_count_(0)
@@ -286,7 +287,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 #ifndef DISABLE_QUIC_PROTOCOL
         if (!task.quic_host_list.empty() && (task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
             //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
-            if (NetSource::CanUseQUIC()){
+            if (net_source_.CanUseQUIC()){
                 config.use_proxy = false;
                 config.use_quic = true;
                 config.quic.alpn = "h1";
@@ -313,6 +314,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         
         first->task.shortlink_host_list = hosts;
         
+        if (hosts.empty()) {
+            continue;
+        }
         std::string host = hosts.front();
 #ifndef DISABLE_QUIC_PROTOCOL
         if (config.use_quic){
@@ -386,7 +390,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->transfer_profile.send_data_size = bufreq.Length();
 
-        ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
+        ShortLinkInterface* worker = ShortLinkChannelFactory::Create(context_, MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
@@ -471,7 +475,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC){
                 //quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
                 xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
-                NetSource::DisableQUIC();
+                net_source_.DisableQUIC();
             }
         }
         if (_status == kEctHandshakeMisunderstand) {
@@ -570,9 +574,11 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 
     if (lst_cmd_.end() != it) {
         if(it->transfer_profile.last_receive_pkg_time == 0)
-            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            net_source_.GetWeakNetworkLogic()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
         else
-            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            net_source_.GetWeakNetworkLogic()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();
         it->transfer_profile.received_size = _cached_size;
         it->transfer_profile.receive_data_size = _total_size;
@@ -716,9 +722,12 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         if (on_timeout_or_remote_shutdown_) {
             on_timeout_or_remote_shutdown_(*_it);
         }
+        _it->is_weak_network = net_source_.GetWeakNetworkLogic()->IsCurrentNetworkWeak();
+        int64_t span = 0;
+        _it->is_last_valid_connect_fail = net_source_.GetWeakNetworkLogic()->IsLastValidConnectFail(span);
         ReportTaskProfile(*_it);
-        WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
-
+        //WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
+        net_source_.GetWeakNetworkLogic()->OnTaskEvent(*_it);
         __DeleteShortLink(_it->running_id);
 
         lst_cmd_.erase(_it);

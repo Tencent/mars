@@ -35,6 +35,13 @@
 #include "mars/stn/src/longlink_metadata.h"
 #endif
 
+#include "mars/boost/shared_ptr.hpp"
+#include "mars/boost/weak_ptr.hpp"
+#include "mars/boost/signals2.hpp"
+#include "mars/boost/function.hpp"
+
+#include "mars/boot/base_context.h"
+
 namespace mars {
     
     namespace stn {
@@ -61,15 +68,32 @@ enum {
     kCallFromShort,
     kCallFromZombie,
 };
-
+    
 class NetCore {
   public:
-    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
+//    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
+    
+    static boost::signals2::signal<void ()>& NetCoreCreateBegin() {
+        static boost::signals2::signal<void ()> s_signal;
+        return s_signal;
+    }
+
+    static boost::signals2::signal<void (boost::shared_ptr<NetCore>)>& NetCoreCreate() {
+        static boost::signals2::signal<void (boost::shared_ptr<NetCore>)> s_signal;
+        return s_signal;
+    }
+
+    static boost::signals2::signal<void ()>& NetCoreRelease() {
+        static boost::signals2::signal<void ()> s_signal;
+        return s_signal;
+    }
+    
 
   public:
     boost::function<void (Task& _task)> task_process_hook_;
     boost::function<int (int _from, ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task)> task_callback_hook_;
     boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
+
 
   public:
     comm::MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
@@ -100,6 +124,8 @@ class NetCore {
     void InitHistory2BannedList();
     void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
 
+    NetSource* GetNetSource();
+    int GetPackerEncoderVersion();
 public:
     
 #ifdef USE_LONG_LINK
@@ -115,8 +141,8 @@ public:
     std::shared_ptr<LongLinkMetaData> DefaultLongLinkMeta();
 #endif
 
-  private:
-    NetCore();
+  public:
+    NetCore(boot::BaseContext* _context, int _packer_encoder_version);
     virtual ~NetCore();
     static void __Release(NetCore* _instance);
     
@@ -143,19 +169,22 @@ public:
     void    __OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
     int __ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong);
   private:
-    NetCore(const NetCore&);
-    NetCore& operator=(const NetCore&);
+    //NetCore(const NetCore&);
+    //NetCore& operator=(const NetCore&);
 
   public:
     static bool need_use_longlink_;
 
   private:
+
+    int packer_encoder_version_ ;
     comm::MessageQueue::MessageQueueCreater           messagequeue_creater_;
     comm::MessageQueue::ScopeRegister                 asyncreg_;
+    std::shared_ptr<boot::BaseContext>          context_;
     NetSource*                                  net_source_;
     NetCheckLogic*                              netcheck_logic_;
     AntiAvalanche*                              anti_avalanche_;
-    
+
     DynamicTimeout*                             dynamic_timeout_;
     ShortLinkTaskManager*                       shortlink_task_manager_;
     int                                         shortlink_error_count_;
@@ -163,10 +192,10 @@ public:
 #ifdef USE_LONG_LINK
     ZombieTaskManager*                          zombie_task_manager_;
     LongLinkTaskManager*                        longlink_task_manager_;
-    
+
     TimingSync*                                 timing_sync_;
 #endif
-    
+
     bool                                        shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;

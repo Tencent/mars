@@ -117,7 +117,8 @@ if(ANDROID)
             android/*.c
             jni/*.cc
             jni/*.c
-            jni/util/*.cc)
+            jni/util/*.cc
+            jni/jnicat/*.cpp)
         
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 elseif(APPLE)

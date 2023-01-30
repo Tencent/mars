@@ -55,9 +55,15 @@ static const char* const kKeyNetType         = "netType";
 static const char* const kKeyHeartType       = "hearttype";
 static const char* const kKeyMinHeartFail    = "minheartfail";
 
-SmartHeartbeat::SmartHeartbeat(): report_smart_heart_(NULL), is_wait_heart_response_(false), success_heart_count_(0), last_heart_(MinHeartInterval),
-    pre_heart_(MinHeartInterval), cur_heart_(MinHeartInterval),
-    ini_(mars::app::GetAppFilePath() + "/" + kFileName, false)
+SmartHeartbeat::SmartHeartbeat(mars::boot::BaseContext* _context)
+    : report_smart_heart_(NULL)
+    , context_(_context)
+    , is_wait_heart_response_(false)
+    , success_heart_count_(0)
+    , last_heart_(MinHeartInterval)
+    , pre_heart_(MinHeartInterval)
+    , cur_heart_(MinHeartInterval)
+    , ini_(_context->GetAppManager()->GetAppFilePath() + "/" + kFileName, false)
     , doze_mode_count_(0), normal_mode_count_(0), noop_start_tick_(false) {
     xinfo_function();
     ini_.Parse();
@@ -103,7 +109,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
         return;
     
     if(report_smart_heart_&& !_sucess && success_heart_count_ >=NetStableTestCount && current_net_heart_info_.is_stable_) {
-        report_smart_heart_(kActionDisconnect, current_net_heart_info_, _fail_of_timeout);
+        report_smart_heart_(context_, kActionDisconnect, current_net_heart_info_, _fail_of_timeout);
     }
     
     xinfo2(TSF"heart result:%0, timeout:%1", _sucess, _fail_of_timeout);
@@ -117,7 +123,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
     if (success_heart_count_ <= NetStableTestCount) {
         current_net_heart_info_.min_heart_fail_count_ = _sucess ? 0 : (current_net_heart_info_.min_heart_fail_count_ + 1);
         if(report_smart_heart_ && current_net_heart_info_.min_heart_fail_count_ >= 6 && ::isNetworkConnected()) {
-            report_smart_heart_(kActionBadNetwork, current_net_heart_info_, false);
+            report_smart_heart_(context_, kActionBadNetwork, current_net_heart_info_, false);
             current_net_heart_info_.min_heart_fail_count_ = 0;
         }
         return;
@@ -155,7 +161,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
             current_net_heart_info_.is_stable_ = false;
             current_net_heart_info_.fail_heart_count_ = 0;
             if(report_smart_heart_)
-                report_smart_heart_(kActionReCalc, current_net_heart_info_, false);
+                report_smart_heart_(context_, kActionReCalc, current_net_heart_info_, false);
             __SaveINI();
         }
         return;
@@ -171,7 +177,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
                 current_net_heart_info_.heart_type_ = __IsDozeStyle() ? kDozeModeHeart : kSmartHeartBeat;
                 xinfo2(TSF"%0 find the smart heart interval = %1", current_net_heart_info_.net_detail_, current_net_heart_info_.cur_heart_);
                 if(report_smart_heart_)
-                    report_smart_heart_(kActionCalcEnd, current_net_heart_info_, false);
+                    report_smart_heart_(context_, kActionCalcEnd, current_net_heart_info_, false);
             } else {
                 current_net_heart_info_.succ_heart_count_ = 0;
                 
@@ -195,7 +201,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
                 current_net_heart_info_.succ_heart_count_ = 0;
                 current_net_heart_info_.is_stable_ = false;
                 if(report_smart_heart_)
-                    report_smart_heart_(kActionReCalc, current_net_heart_info_, true);
+                    report_smart_heart_(context_, kActionReCalc, current_net_heart_info_, true);
                 //first report, then set fail count
                 current_net_heart_info_.fail_heart_count_  = 0;
                 xinfo2(TSF"in stable sate,can't use old value to Keep TCP alive");
@@ -214,7 +220,7 @@ void SmartHeartbeat::OnHeartResult(bool _sucess, bool _fail_of_timeout) {
                 current_net_heart_info_.heart_type_ = __IsDozeStyle() ? kDozeModeHeart : kSmartHeartBeat;
                 xinfo2(TSF"finish choose the proper value %0", current_net_heart_info_.cur_heart_);
                 if(report_smart_heart_)
-                    report_smart_heart_(kActionCalcEnd, current_net_heart_info_, false);
+                    report_smart_heart_(context_, kActionCalcEnd, current_net_heart_info_, false);
             }
         }
     }

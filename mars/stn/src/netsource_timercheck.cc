@@ -188,7 +188,7 @@ bool NetSourceTimerCheck::__TryConnnect(const std::string& _host) {
     }
 
     std::vector<uint16_t> port_vec;
-    NetSource::GetLonglinkPorts(port_vec);
+    net_source_->GetLonglinkPorts(port_vec);
 
     if (port_vec.empty()) {
         xerror2(TSF"get ports empty!");

@@ -68,7 +68,7 @@ if(ANDROID)
  
     set(SELF_LIB_NAME marsstn)
 
-    file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc)
+    file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc libraries/mars_android_sdk/jni/*.cpp)
 
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
 

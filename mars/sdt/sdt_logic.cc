@@ -26,14 +26,18 @@
 #include "mars/sdt/constants.h"
 
 #include "sdt/src/sdt_core.h"
+#include "sdt_manager.h"
+#include "mars/boot/base_context.h"
 
 namespace mars {
 namespace sdt {
 
-static Callback* sg_callback = NULL;
+//mars2
+//static Callback* sg_callback = NULL;
 
 static const std::string kLibName = "sdt";
 
+/* mars2
 #define SDT_WEAK_CALL(func) \
     boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
     if (!sdt_ptr) {\
@@ -41,15 +45,24 @@ static const std::string kLibName = "sdt";
         return;\
     }\
 	sdt_ptr->func
+*/
 
 static void onCreate() {
+    /* mars2
     xinfo2(TSF"sdt oncreate");
     SdtCore::Singleton::Instance();
+    */
+    SdtManager* sg_sdt_manager = (SdtManager*)mars::boot::CreateContext("default")->GetManager("Sdt");
+    sg_sdt_manager->OnCreate();
 }
 
 static void onDestroy() {
+    /* mars2
     xinfo2(TSF"sdt onDestroy");
     SdtCore::Singleton::AsyncRelease();
+    */
+    SdtManager* sg_sdt_manager = (SdtManager*)mars::boot::CreateContext("default")->GetManager("Sdt");
+    sg_sdt_manager->OnDestroy();
 }
 
 static void __initbind_baseprjevent() {
@@ -62,23 +75,42 @@ BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 //active netcheck interface
 void StartActiveCheck(CheckIPPorts& _longlink_check_items, CheckIPPorts& _shortlink_check_items, int _mode, int _timeout) {
+	/* mars2
 	SDT_WEAK_CALL(StartCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout));
+	*/
+	SdtManager* sg_sdt_manager = (SdtManager*)mars::boot::CreateContext("default")->GetManager("Sdt");
+        sg_sdt_manager->StartActiveCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout);
 }
 
 void CancelActiveCheck() {
+	/* mars2
 	SDT_WEAK_CALL(CancelCheck());
+	*/
+	SdtManager* sg_sdt_manager = (SdtManager*)mars::boot::CreateContext("default")->GetManager("Sdt");
+        sg_sdt_manager->CancelActiveCheck();
 }
 
 void SetCallBack(Callback* const callback) {
+	/* mars2
 	sg_callback = callback;
+	*/
+	SdtManager* sg_sdt_manager = (SdtManager*)mars::boot::CreateContext("default")->GetManager("Sdt");
+        sg_sdt_manager->SetCallBack(callback);
 }
 
 #if !defined(ANDROID) || defined (CPP_CALL_BACK)
 void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
 = [](const std::vector<CheckResultProfile>& _check_results) {
-
+        SdtManager* sg_sdt_manager = (SdtManager*)mars::boot::CreateContext("default")->GetManager("Sdt");
+        sg_sdt_manager->ReportNetCheckResult(_check_results);
 };
+#endif
 
+#ifdef NATIVE_CALLBACK
+void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb) {
+    SdtManager* sg_sdt_manager = (SdtManager*)mars::boot::CreateContext("default")->GetManager("Sdt");
+    sg_sdt_manager->SetSdtNativeCallback(_cb);
+}
 #endif
 
 }}

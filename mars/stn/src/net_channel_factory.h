@@ -27,7 +27,7 @@
 #include "mars/stn/stn.h"
 #include "mars/stn/proto/longlink_packer.h"
 #include "mars/comm/messagequeue/message_queue.h"
-
+#include "mars/boot/base_context.h"
 
 namespace mars {
 namespace stn {
@@ -39,7 +39,7 @@ class ShortLinkInterface;
 
 namespace ShortLinkChannelFactory {
 
-extern ShortLinkInterface* (*Create)(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, const ShortlinkConfig& _config);
+extern ShortLinkInterface* (*Create)(boot::BaseContext* _context, const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, const ShortlinkConfig& _config);
 
 extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 
@@ -47,7 +47,7 @@ extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 
 namespace LongLinkChannelFactory {
 
-extern LongLink* (*Create)(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config);
+extern LongLink* (*Create)(boot::BaseContext* _context, const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config);
 
 extern void (*Destory)(LongLink* _long_link_channel);
 

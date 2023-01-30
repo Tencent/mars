@@ -29,10 +29,11 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/comm_frequency_limit.h"
 #include "mars/comm/time_utils.h"
-#include "mars/sdt/sdt_logic.h"
 #include "mars/sdt/constants.h"
-
 #include "net_source.h"
+#include "mars/sdt/sdt.h"
+#include "mars/stn/stn.h"
+#include "mars/sdt/sdt_manager.h"
 
 using namespace mars::stn;
 using namespace mars::sdt;
@@ -100,9 +101,11 @@ static const uint32_t kCheckifAboveCount = 5;
 	}\
 	while(false)
 
-NetCheckLogic::NetCheckLogic()
-    : frequency_limit_(new CommFrequencyLimit(kLimitCount, kLimitTimeSpan))
-	, last_netcheck_time_(0) {
+NetCheckLogic::NetCheckLogic(boot::BaseContext* _context, NetSource* _net_source)
+    : context_(_context)
+    , frequency_limit_(new CommFrequencyLimit(kLimitCount, kLimitTimeSpan))
+	, last_netcheck_time_(0)
+        , net_source_(_net_source){
     xinfo_function();
 }
 
@@ -209,14 +212,14 @@ void NetCheckLogic::__StartNetCheck() {
 
 	//get longlink check map
 	CheckIPPorts longlink_check_items;
-	std::vector<std::string> longlink_hosts = NetSource::GetLongLinkHosts();
+	std::vector<std::string> longlink_hosts = net_source_->GetLongLinkHosts();
 	if (longlink_hosts.empty()) {
 		xerror2(TSF"longlink host is empty.");
 		return;
 	}
 
 	std::vector<uint16_t> longlink_portlist;
-	NetSource::GetLonglinkPorts(longlink_portlist);
+	net_source_->GetLonglinkPorts(longlink_portlist);
 	if (longlink_portlist.empty()) {
 		xerror2(TSF"longlink no port");
 		return;
@@ -246,7 +249,7 @@ void NetCheckLogic::__StartNetCheck() {
 	CheckIPPorts shortlink_check_items;
 	std::vector<std::string> shortlink_hostlist;
 	RequestNetCheckShortLinkHosts(shortlink_hostlist);
-	uint16_t shortlink_port = NetSource::GetShortLinkPort();
+	uint16_t shortlink_port = net_source_->GetShortLinkPort();
 
 
 	for (std::vector<std::string>::iterator iter = shortlink_hostlist.begin(); iter != shortlink_hostlist.end(); ++iter) {
@@ -270,5 +273,6 @@ void NetCheckLogic::__StartNetCheck() {
 
 
     int mode = (NET_CHECK_BASIC | NET_CHECK_LONG | NET_CHECK_SHORT);
-    if (!longlink_check_items.empty() || !shortlink_check_items.empty()) StartActiveCheck(longlink_check_items, shortlink_check_items, mode, UNUSE_TIMEOUT);
+    sdt::SdtManager* sdt_manager = (sdt::SdtManager*)context_->GetManager("Sdt");
+    if (!longlink_check_items.empty() || !shortlink_check_items.empty()) sdt_manager->StartActiveCheck(longlink_check_items, shortlink_check_items, mode, UNUSE_TIMEOUT);
 }

@@ -102,8 +102,9 @@ namespace mars { namespace stn {
 
 using namespace mars::stn;
 
-SimpleIPPortSort::SimpleIPPortSort()
-: hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName)
+SimpleIPPortSort::SimpleIPPortSort(boot::BaseContext* _context)
+: context_(_context)
+, hostpath_(_context->GetAppManager()->GetAppFilePath() + "/" + kFolderName)
 , IPv6_ban_flag_(0)
 , IPv4_ban_flag_(0) 
 , ban_v6_(false) {

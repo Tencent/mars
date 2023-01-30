@@ -30,13 +30,14 @@
 #include "mars/comm/thread/mutex.h"
 
 #include "longlink.h"
+#include "mars/boot/base_context.h"
 
 namespace mars {
     namespace stn {
 
 class TimingSync {
   public:
-    TimingSync(comm::ActiveLogic& _active_logic);
+    TimingSync(boot::BaseContext* _context, comm::ActiveLogic& _active_logic);
     ~TimingSync();
 
     void OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id);
@@ -47,7 +48,8 @@ class TimingSync {
     void __OnAlarm();
 
   private:
-    comm::Alarm alarm_;
+     boot::BaseContext* context_;
+     comm::Alarm alarm_;
 
     comm::ActiveLogic& active_logic_;
     boost::signals2::scoped_connection timing_sync_active_connection_;

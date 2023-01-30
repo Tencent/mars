@@ -32,7 +32,8 @@ class DNS {
     bool GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec = 3 * 1000, DNSBreaker* _breaker = NULL);
     void Cancel(const std::string& _host_name = std::string());
     void Cancel(DNSBreaker& _breaker);
-    
+	//mars2
+    void SetDNSFunc(DNSFunc _func);
   private:
     DNSFunc dnsfunc_;
     std::vector<dnsinfo> dnsinfo_vec_;

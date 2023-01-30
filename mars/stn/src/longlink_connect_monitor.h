@@ -29,6 +29,7 @@
 #include "mars/comm/alarm.h"
 
 #include "longlink.h"
+#include "mars/boot/base_context.h"
 
 
 namespace mars {
@@ -40,7 +41,7 @@ namespace comm {
 class LongLinkConnectMonitor {
 
   public:
-    LongLinkConnectMonitor(comm::ActiveLogic& _activelogic, LongLink& _longlinkk, comm::MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
+    LongLinkConnectMonitor(boot::BaseContext* _context, NetSource* _net_source, comm::ActiveLogic& _activelogic, LongLink& _longlinkk, comm::MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
     ~LongLinkConnectMonitor();
 
   public:
@@ -77,6 +78,7 @@ class LongLinkConnectMonitor {
     LongLinkConnectMonitor& operator=(const LongLinkConnectMonitor&);
 
   private:
+    boot::BaseContext* context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     comm::ActiveLogic& activelogic_;
     LongLink& longlink_;
@@ -96,6 +98,7 @@ class LongLinkConnectMonitor {
     bool is_keep_alive_;
     int current_interval_index_;
     bool rebuild_longlink_;
+    NetSource* net_source_;
 };
         
 } }
