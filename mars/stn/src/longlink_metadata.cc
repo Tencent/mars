@@ -55,7 +55,7 @@ void LongLinkMetaData::__OnTimerCheckSuc(const std::string& _name) {
         xinfo2(TSF"longlink %_ is not using backip, ignore", _name);
         return;
     }
-    longlink_->Disconnect(LongLink::kTimeCheckSucc);
+    longlink_->Disconnect(longlink::kTimeCheckSucc);
 }
 
     }

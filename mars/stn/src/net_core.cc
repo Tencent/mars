@@ -128,7 +128,7 @@ NetCore::NetCore(boot::BaseContext* _context, int _packer_encoder_version)
     if (need_use_longlink_) {
         __InitLongLink();
     }
-        boost::shared_ptr<NetCore> _net_core_shared_ptr(this);
+        std::shared_ptr<NetCore> _net_core_shared_ptr(this);
         NetCoreCreate()(_net_core_shared_ptr);
 }
 
@@ -551,7 +551,7 @@ void NetCore::StopSignal() {
 }
 
 #ifdef USE_LONG_LINK
-void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code){
+void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code){
     if (need_use_longlink_) {
         longlink_task_manager_->DisconnectByTaskId(_taskid, _code);
     }

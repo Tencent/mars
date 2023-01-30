@@ -304,6 +304,38 @@ enum TlsHandshakeFrom {
     kFromShortLink = 2,
 };
 
+//move form longlink
+
+// Note: Never Delete Item!!!Just Add!!!
+namespace longlink {
+enum TDisconnectInternalCode {
+    kNone = 0,
+    kReset = 10000,        // no use
+    kRemoteClosed = 10001,
+    kUnknownErr = 10002,
+    kNoopTimeout = 10003,
+    kDecodeError = 10004,
+    kUnknownRead = 10005,
+    kUnknownWrite = 10006,
+    kDecodeErr = 10007,
+    kTaskTimeout = 10008,
+    kNetworkChange = 10009,
+    kIDCChange = 10010,
+    kNetworkLost = 10011,
+    kSelectError = 10012,
+    kPipeError = 10013,
+    kHasNewDnsIP = 10014,
+    kSelectException = 10015,
+    kLinkCheckTimeout = 10016,
+    kForceNewGetDns = 10017,
+    kLinkCheckError = 10018,
+    kTimeCheckSucc = 10019,
+    kObjectDestruct = 10020,
+    kLinkDetectEnd = 10021,
+};
+}
+//move form longlink
+
 const char* const IPSourceTypeString[] = {
     "NullIP",
     "DebugIP",

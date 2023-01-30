@@ -190,7 +190,7 @@ class StnManager : public BaseStnManager {
     // Add for Android
     //   ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select) override;
     //   void AddServerBan(const std::string& _ip) override;
-    //   void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) override;
+    //   void DisconnectLongLinkByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code) override;
     // end Add for Android
 
  public:

@@ -50,6 +50,7 @@
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
 using namespace mars::stn;
+using namespace mars::stn::longlink;
 using namespace mars::app;
 using namespace mars::comm;
 using namespace mars::boot;

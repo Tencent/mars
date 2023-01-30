@@ -43,6 +43,8 @@
 #include "mars/stn/proto/longlink_packer.h"
 #include "mars/boot/base_context.h"
 
+using namespace mars::stn::longlink;
+
 class AutoBuffer;
 class XLogger;
 
@@ -77,6 +79,7 @@ struct StreamResp {
 
 class LongLink {
   public:
+
     enum TLongLinkStatus {
         kConnectIdle = 0,
         kConnecting = 1,
@@ -85,6 +88,7 @@ class LongLink {
         kConnectFailed,
     };
 
+    /*
     // Note: Never Delete Item!!!Just Add!!!
     enum TDisconnectInternalCode {
         kNone = 0,
@@ -111,6 +115,7 @@ class LongLink {
         kObjectDestruct = 10020,
         kLinkDetectEnd = 10021,
     };
+      */
   public:
     boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;

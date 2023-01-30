@@ -212,7 +212,7 @@ class BaseStnManager : public boot::BaseManager {
     // Add for Android
     //   virtual ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select) = 0;
     //   virtual void AddServerBan(const std::string& _ip) = 0;
-    //   virtual void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code) = 0;
+    //   virtual void DisconnectLongLinkByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code) = 0;
     // end Add for Android
 };
 

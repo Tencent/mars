@@ -78,8 +78,8 @@ class NetCore {
         return s_signal;
     }
 
-    static boost::signals2::signal<void (boost::shared_ptr<NetCore>)>& NetCoreCreate() {
-        static boost::signals2::signal<void (boost::shared_ptr<NetCore>)> s_signal;
+    static boost::signals2::signal<void (std::shared_ptr<NetCore>)>& NetCoreCreate() {
+        static boost::signals2::signal<void (std::shared_ptr<NetCore>)> s_signal;
         return s_signal;
     }
 
@@ -129,7 +129,7 @@ class NetCore {
 public:
     
 #ifdef USE_LONG_LINK
-    void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+    void DisconnectLongLinkByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code);
     std::shared_ptr<LongLink>        CreateLongLink(LonglinkConfig& _config);
     bool AddMinorLongLink(const std::vector<std::string>& _hosts);
     void                DestroyLongLink(const std::string& _name);
