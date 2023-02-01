@@ -39,6 +39,10 @@
 #include "mars/comm/alarm.h"
 #include "mars/comm/thread/mutex.h"
 
+//#ifdef Android
+#include <android/log.h>
+//#endif
+
 namespace mars {
 namespace stn {
 
@@ -59,8 +63,9 @@ void StnManager::Init() {
 void StnManager::UnInit() {
 }
 
-void StnManager::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
+void StnManager::OnInitConfigBeforeOnCreate(const int _packer_encoder_version) {
     //xinfo2(TSF "stn oninit: %_", _packer_encoder_version);
+    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager OnInitConfigBeforeOnCreate _packer_encoder_version %d", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
     // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 }

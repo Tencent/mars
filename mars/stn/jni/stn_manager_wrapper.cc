@@ -25,13 +25,14 @@ class JniStnManager {
 
     static void JniCreateStnManagerFromContextHandle(JNIEnv* env, jobject instance, jlong handle) {
         auto context_cpp = (BaseContext*)j2c_cast(handle);
-        if (context_cpp) {
-            xinfo2(TSF " context is no empty.");
-            __android_log_print(ANDROID_LOG_INFO, "mars2","mars2 context is no empty %ld", handle);
-        } else {
-            xerror2(TSF " context is empty.");
-            __android_log_print(ANDROID_LOG_ERROR, "mars2","mars2 context is empty %ld", handle);
-        }
+//        if (context_cpp) {
+//            xinfo2(TSF " context is no empty.");
+//            __android_log_print(ANDROID_LOG_INFO, "mars2","mars2 context is no empty %ld", handle);
+//        } else {
+//            xerror2(TSF " context is empty.");
+//            __android_log_print(ANDROID_LOG_ERROR, "mars2","mars2 context is empty %ld", handle);
+//        }
+
         auto stn_manager_cpp = new StnManager(context_cpp);
         auto stnManagerWrapper = new jnicat::JniObjectWrapper<StnManager>(stn_manager_cpp);
         stnManagerWrapper->instantiate(env, instance);

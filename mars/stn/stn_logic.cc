@@ -52,6 +52,10 @@
 #include "mars/stn/stn_manager.h"
 #include "mars/stn/stn_callback_bridge.h"
 
+//#ifdef Android
+#include <android/log.h>
+//#endif
+
 using namespace mars::comm;
 using namespace mars::boot;
 
@@ -92,8 +96,18 @@ static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
     xinfo2(TSF"stn oninit: %_", _packer_encoder_version);
     LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
     */
+
+    //xinfo2(TSF "mars2 onInitConfigBeforeOnCreate _packer_encoder_version:%_", _packer_encoder_version);
+    BaseContext* base_context = mars::boot::CreateContext("default");
+    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "context %ld _packer_encoder_version:%d", reinterpret_cast<long>(base_context), _packer_encoder_version);
     StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
+    if (stn_manager) {
+        __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager is no empty %ld", reinterpret_cast<long>(stn_manager));
+    } else {
+        __android_log_print(ANDROID_LOG_ERROR, "mars2", "stn manager is  empty");
+    }
     stn_manager->OnInitConfigBeforeOnCreate(_packer_encoder_version);
+    //xinfo2(TSF"mars2 onInitConfigBeforeOnCreate finish.");
 }
 
 static void onCreate() {

@@ -20,7 +20,7 @@ class BaseStnManager : public boot::BaseManager {
     virtual void UnInit() = 0;
 
  public:
-    virtual void OnInitConfigBeforeOnCreate(int _packer_encoder_version) = 0;
+    virtual void OnInitConfigBeforeOnCreate(const int _packer_encoder_version) = 0;
     virtual void OnCreate() = 0;
     virtual void OnDestroy() = 0;
     virtual void OnSingalCrash(int _sig) = 0;

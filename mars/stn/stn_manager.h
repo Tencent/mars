@@ -38,7 +38,7 @@ class StnManager : public BaseStnManager {
     BaseContext* context_;
 
  public:
-    void OnInitConfigBeforeOnCreate(int _packer_encoder_version) override;
+    void OnInitConfigBeforeOnCreate(const int _packer_encoder_version) override;
     void OnCreate() override;
     void OnDestroy() override;
     void OnSingalCrash(int _sig) override;
