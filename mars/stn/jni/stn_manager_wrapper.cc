@@ -9,6 +9,8 @@
 #include "mars/stn/stn.h"
 #include "mars/stn/stn_manager.h"
 #include "stn_manager_callback_wrapper.h"
+#include "mars/boot/base_context.h"
+#include <android/log.h>
 
 namespace mars {
 namespace stn {
@@ -17,6 +19,20 @@ class JniStnManager {
  public:
     static void JniCreateStnManagerFromHandle(JNIEnv* env, jobject instance, jlong handle) {
         auto stn_manager_cpp = (StnManager*)j2c_cast(handle);
+        auto stnManagerWrapper = new jnicat::JniObjectWrapper<StnManager>(stn_manager_cpp);
+        stnManagerWrapper->instantiate(env, instance);
+    }
+
+    static void JniCreateStnManagerFromContextHandle(JNIEnv* env, jobject instance, jlong handle) {
+        auto context_cpp = (BaseContext*)j2c_cast(handle);
+        if (context_cpp) {
+            xinfo2(TSF " context is no empty.");
+            __android_log_print(ANDROID_LOG_INFO, "mars2","mars2 context is no empty %ld", handle);
+        } else {
+            xerror2(TSF " context is empty.");
+            __android_log_print(ANDROID_LOG_ERROR, "mars2","mars2 context is empty %ld", handle);
+        }
+        auto stn_manager_cpp = new StnManager(context_cpp);
         auto stnManagerWrapper = new jnicat::JniObjectWrapper<StnManager>(stn_manager_cpp);
         stnManagerWrapper->instantiate(env, instance);
     }
@@ -261,6 +277,7 @@ class JniStnManager {
 
 static const JNINativeMethod kStnManagerJniMethods[] = {
     {"OnJniCreateStnManagerFromHandle", "(J)V", (void*)&mars::stn::JniStnManager::JniCreateStnManagerFromHandle},
+    {"OnJniCreateStnManagerFromContextHandle", "(J)V", (void*)&mars::stn::JniStnManager::JniCreateStnManagerFromContextHandle},
     {"OnJniDestroyStnManager", "()V", (void*)&mars::stn::JniStnManager::JniOnDestroyStnManager},
     {"OnJniSetCallback", "(Ljava/lang/Object;)V", (void*)&mars::stn::JniStnManager::JniSetCallback},
     //{"OnJniSetCallback", "(Lcom/tencent/mars/stn/StnManager$CallBack;)V",

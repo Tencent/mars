@@ -46,21 +46,21 @@ static const std::string kLibName = "stn";
 static uint32_t gs_taskid = 1;
 
 StnManager::StnManager(BaseContext* context) : context_(context) {
-    xdebug_function(TSF "mars2 context id %_", context_->GetContextId());
+    //xdebug_function(TSF "mars2 context id %_", context_->GetContextId());
 }
 
 StnManager::~StnManager() {
 }
 
 void StnManager::Init() {
-    xinfo2(TSF "cpan debug Init");
+    //xinfo2(TSF "cpan debug Init");
 }
 
 void StnManager::UnInit() {
 }
 
 void StnManager::OnInitConfigBeforeOnCreate(int _packer_encoder_version) {
-    xinfo2(TSF "stn oninit: %_", _packer_encoder_version);
+    //xinfo2(TSF "stn oninit: %_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
     // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 }
@@ -69,20 +69,20 @@ void StnManager::OnCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
 #endif
-    xinfo2(TSF "stn_manager oncreate");
+    //xinfo2(TSF "stn_manager oncreate");
     ActiveLogic::Instance();
     // NetCore::Singleton::Instance();
-    xinfo2(TSF "cpan debug OnCreate");
+    //xinfo2(TSF "cpan debug OnCreate");
 
     if (!net_core_) {
-        xinfo2(TSF "cpan debug OnCreate 1");
+        //xinfo2(TSF "cpan debug OnCreate 1");
         // net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_);
         net_core_ = new NetCore(context_, packer_encoder_version_);
     }
 }
 
 void StnManager::OnDestroy() {
-    xinfo2(TSF "stn onDestroy");
+    //xinfo2(TSF "stn onDestroy");
 
     // callback_.reset();
     callback_bridge_->SetCallback(nullptr);
@@ -105,7 +105,7 @@ void StnManager::OnExceptionCrash() {
 }
 
 void StnManager::OnNetworkChange(void (*pre_change)()) {
-    xinfo2(TSF "cpan debug OnNetworkChange");
+    //xinfo2(TSF "cpan debug OnNetworkChange");
     pre_change();
     net_core_->OnNetworkChange();
 }
@@ -359,11 +359,11 @@ void StnManager::ClearTasks() {
 }
 
 void StnManager::Reset() {
-    xinfo2(TSF "stn reset");
+    //xinfo2(TSF "stn reset");
     // NetCore::Singleton::Release();
     // NetCore::Singleton::Instance();
     //    net_core_.reset(new NetCore());
-    xinfo2(TSF "cpan debug Reset");
+    //xinfo2(TSF "cpan debug Reset");
     // net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
     // TODO
@@ -372,14 +372,14 @@ void StnManager::Reset() {
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
-    xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
+    //xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
     // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 
     // NetCore::Singleton::Release();
     // NetCore::Singleton::Instance();
     //    net_core_.reset(new NetCore());
-    xinfo2(TSF "cpan debug ResetAndInitEncoderVersion");
+    //xinfo2(TSF "cpan debug ResetAndInitEncoderVersion");
     // net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
     // TODO mars2 cpan TODOTDOO TODOTDOOTODOTDOOTODOTDOOTODOTDOOTODOTDOOTODOTDOO
@@ -405,7 +405,7 @@ void StnManager::StopSignalling() {
 }
 
 void StnManager::MakesureLonglinkConnected() {
-    xinfo2(TSF "make sure longlink connect");
+    //xinfo2(TSF "make sure longlink connect");
     net_core_->MakeSureLongLinkConnect();
 }
 

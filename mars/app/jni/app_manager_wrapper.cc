@@ -10,6 +10,7 @@
 #include "mars/app/app.h"
 #include "mars/app/app_manager.h"
 #include "mars/app/jni/app_manager_callback_wrapper.h"
+#include "mars/boot/base_context.h"
 
 namespace mars {
 namespace app {
@@ -18,6 +19,13 @@ class JniAppManager {
  public:
     static void JniCreateAppManagerFromHandle(JNIEnv* env, jobject instance, jlong handle) {
         auto app_manager_cpp = (AppManager*)j2c_cast(handle);
+        auto appManagerWrapper = new jnicat::JniObjectWrapper<AppManager>(app_manager_cpp);
+        appManagerWrapper->instantiate(env, instance);
+    }
+
+    static void JniCreateAppManagerFromContextHandle(JNIEnv* env, jobject instance, jlong handle) {
+        auto context_cpp = (BaseContext*)j2c_cast(handle);
+        auto app_manager_cpp = new AppManager(context_cpp);
         auto appManagerWrapper = new jnicat::JniObjectWrapper<AppManager>(app_manager_cpp);
         appManagerWrapper->instantiate(env, instance);
     }
@@ -40,6 +48,7 @@ class JniAppManager {
 
 static const JNINativeMethod kAppManagerJniMethods[] = {
     {"OnJniCreateAppManagerFromHandle", "(J)V", (void*)&mars::app::JniAppManager::JniCreateAppManagerFromHandle},
+    {"OnJniCreateAppManagerFromContextHandle", "(J)V", (void*)&mars::app::JniAppManager::JniCreateAppManagerFromContextHandle},
     {"OnJniDestroyAppManager", "()V", (void*)&mars::app::JniAppManager::JniOnDestroyAppManager},
     {"OnJniSetCallback", "(Ljava/lang/Object;)V", (void*)&mars::app::JniAppManager::JniSetCallback},
 };
