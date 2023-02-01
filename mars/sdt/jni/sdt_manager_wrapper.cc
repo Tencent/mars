@@ -27,6 +27,13 @@ class JniSdtManager {
         sdtManagerWrapper->instantiate(env, instance);
     }
 
+    static void JniCreateSdtManagerFromContextHandle(JNIEnv* env, jobject instance, jlong handle) {
+        auto context_cpp = (BaseContext*)j2c_cast(handle);
+        auto sdt_manager_cpp = new SdtManager(context_cpp);
+        auto sdtManagerWrapper = new jnicat::JniObjectWrapper<SdtManager>(sdt_manager_cpp);
+        sdtManagerWrapper->instantiate(env, instance);
+    }
+
     static void JniOnDestroySdtManager(JNIEnv* env, jobject instance) {
         auto sdt_manager_cpp = jnicat::JniObjectWrapper<SdtManager>::object(env, instance);
         jnicat::JniObjectWrapper<Callback>::dispose(env, instance, "callbackHandle");
@@ -59,6 +66,7 @@ class JniSdtManager {
 static const JNINativeMethod kSdtManagerJniMethods[] = {
     //    {"OnJniCreateSdtManager", "(Ljava/lang/String;)V", (void*)&mars::sdt::JniSdtManager::JniCreateSdtManager},
     {"OnJniCreateSdtManagerFromHandle", "(J)V", (void*)&mars::sdt::JniSdtManager::JniCreateSdtManagerFromHandle},
+    {"OnJniCreateSdtManagerFromContextHandle", "(J)V", (void*)&mars::sdt::JniSdtManager::JniCreateSdtManagerFromContextHandle},
     {"OnJniDestroySdtManager", "()V", (void*)&mars::sdt::JniSdtManager::JniOnDestroySdtManager},
     {"OnJniSetCallback", "(Ljava/lang/Object;)V", (void*)&mars::sdt::JniSdtManager::JniSetCallback},
     {"OnJniGetLoadLibraries", "()Ljava/util/ArrayList;", (void*)&mars::sdt::JniSdtManager::JniGetLoadLibraries},

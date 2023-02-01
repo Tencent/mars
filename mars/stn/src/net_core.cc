@@ -155,7 +155,6 @@ NetCore::~NetCore() {
 #endif
     delete shortlink_task_manager_;
     delete dynamic_timeout_;
-    
     delete anti_avalanche_;
     delete netcheck_logic_;
     delete net_source_;
