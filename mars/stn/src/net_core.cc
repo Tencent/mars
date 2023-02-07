@@ -181,6 +181,7 @@ void NetCore::__InitShortLink(){
 void NetCore::__InitLongLink(){
     xinfo_function();
 #ifdef USE_LONG_LINK
+    xinfo2(TSF"mars __InitLongLink set function callback.");
     need_use_longlink_ = true;
     zombie_task_manager_ = new ZombieTaskManager(messagequeue_creater_.GetMessageQueue());
     zombie_task_manager_->fun_start_task_ = boost::bind(&NetCore::StartTask, this, _1);

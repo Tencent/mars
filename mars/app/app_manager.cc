@@ -106,7 +106,7 @@ std::string AppManager::GetRecentUserName() {
 }
 
 unsigned int AppManager::GetClientVersion() {
-    xdebug_function();
+    //xdebug_function();
     // TODO mars2 cpan check this
     // xassert2(callback_ != NULL);
     if (callback_ == NULL) {

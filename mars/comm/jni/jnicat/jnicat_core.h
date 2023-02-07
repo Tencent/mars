@@ -805,6 +805,16 @@ public:
         return call_method<T>(obj, ci->name, ci->signature, args...);
     }
 
+    template <typename T, typename... Args>
+    T call_method_without_release(jobject obj, const char* methodname, const char* signature, Args... args) {
+        auto result = CallMethod(env_, obj, methodname, signature, args...);
+        return jvalue_cast<T>(result);
+    }
+
+    template <typename T, typename... Args>
+    T call_method_without_release(jobject obj, const jcacheitem* ci, Args... args) {
+        return call_method<T>(obj, ci->name, ci->signature, args...);
+    }
 
     template <typename T, typename... Args>
     T call_static_method_raw(const char* classname, const char* methodname, const char* signature, Args... args) {
@@ -885,6 +895,8 @@ using jnienv_ptr = jnicat::jnienv_ptr;
 #define c2j_call(T, obj, methodinfo, ...) \
     env.call_method<T>(obj, methodinfo, ##__VA_ARGS__)
 
+#define c2j_call_without_release(T, obj, methodinfo, ...) \
+    env.call_method_without_release<T>(obj, methodinfo, ##__VA_ARGS__)
 
 // PP_CAT
 #ifndef PP_JNICAT

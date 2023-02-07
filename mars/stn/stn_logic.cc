@@ -53,7 +53,7 @@
 #include "mars/stn/stn_callback_bridge.h"
 
 //#ifdef Android
-#include <android/log.h>
+//#include <android/log.h>
 //#endif
 
 using namespace mars::comm;
@@ -99,13 +99,13 @@ static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
 
     //xinfo2(TSF "mars2 onInitConfigBeforeOnCreate _packer_encoder_version:%_", _packer_encoder_version);
     BaseContext* base_context = mars::boot::CreateContext("default");
-    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "context %ld _packer_encoder_version:%d", reinterpret_cast<long>(base_context), _packer_encoder_version);
+//    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "context %ld _packer_encoder_version:%d", reinterpret_cast<long>(base_context), _packer_encoder_version);
     StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
-    if (stn_manager) {
-        __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager is no empty %ld", reinterpret_cast<long>(stn_manager));
-    } else {
-        __android_log_print(ANDROID_LOG_ERROR, "mars2", "stn manager is  empty");
-    }
+//    if (stn_manager) {
+//        __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager is no empty %ld", reinterpret_cast<long>(stn_manager));
+//    } else {
+//        __android_log_print(ANDROID_LOG_ERROR, "mars2", "stn manager is  empty");
+//    }
     stn_manager->OnInitConfigBeforeOnCreate(_packer_encoder_version);
     //xinfo2(TSF"mars2 onInitConfigBeforeOnCreate finish.");
 }
@@ -492,21 +492,25 @@ std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host)
 }
 //网络层收到push消息回调
 void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+    xdebug2(TSF"mars2 OnPush");
     StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
     stn_manager->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 }
 //底层获取task要发送的数据
 bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
+    xdebug2(TSF"mars2 Req2Buf");
     StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
     return stn_manager->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
 }
 //底层回包返回给上层解析
 int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
+    xdebug2(TSF"mars2 Buf2Resp");
     StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
     return stn_manager->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
 }
 //任务执行结束
 int OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
+    xdebug2(TSF"mars2 OnTaskEnd");
     StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
     return stn_manager->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
 }
@@ -581,6 +585,7 @@ void SetCallback(Callback* const callback) {
 }
 
 void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
+    xdebug2(TSF"mars2 SetStnCallbackBridge");
     StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
     stn_manager->SetStnCallbackBridge(_callback_bridge);
 }

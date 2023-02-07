@@ -40,7 +40,7 @@
 #include "mars/comm/thread/mutex.h"
 
 //#ifdef Android
-#include <android/log.h>
+//#include <android/log.h>
 //#endif
 
 namespace mars {
@@ -65,7 +65,7 @@ void StnManager::UnInit() {
 
 void StnManager::OnInitConfigBeforeOnCreate(const int _packer_encoder_version) {
     //xinfo2(TSF "stn oninit: %_", _packer_encoder_version);
-    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager OnInitConfigBeforeOnCreate _packer_encoder_version %d", _packer_encoder_version);
+//    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager OnInitConfigBeforeOnCreate _packer_encoder_version %d", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
     // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 }
@@ -82,6 +82,11 @@ void StnManager::OnCreate() {
     if (!net_core_) {
         //xinfo2(TSF "cpan debug OnCreate 1");
         // net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_);
+        if (context_) {
+            xinfo2(TSF "mars2 context is no empty");
+        } else {
+            xerror2(TSF "mars context is empty.");
+        }
         net_core_ = new NetCore(context_, packer_encoder_version_);
     }
 }
@@ -133,10 +138,12 @@ void StnManager::OnAlarm(int64_t _id) {
 
 void StnManager::SetCallback(Callback* const _callback) {
     // callback_ = std::shared_ptr<Callback>(_callback);
+    xdebug2(TSF"mars2 SetCallback");
     callback_ = _callback;
 }
 
 void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
+    xdebug2(TSF"mars2 SetStnCallbackBridge");
     if (!callback_bridge_) {
         callback_bridge_ = _callback_bridge;
     } else {
@@ -148,9 +155,11 @@ void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
 }
 
 StnCallbackBridge* StnManager::GetStnCallbackBridge() {
+    xdebug2(TSF"mars2 GetStnCallbackBridge");
     if (!callback_bridge_) {
         callback_bridge_ = new StnCallbackBridge();  // std::make_shared<StnCallbackBridge>();
     }
+    callback_bridge_->SetCallback(callback_);
     return callback_bridge_;
 }
 
@@ -205,7 +214,9 @@ int StnManager::Buf2Resp(uint32_t taskid,
                          const AutoBuffer& extend,
                          int& error_code,
                          const int channel_select) {
+    xdebug2(TSF"mars2 Buf2Resp");
     xassert2(callback_bridge_ != NULL);
+    xdebug2(TSF"mars2 Buf2Resp no null.");
     return callback_bridge_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
 }
 

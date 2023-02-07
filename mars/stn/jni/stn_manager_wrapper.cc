@@ -23,20 +23,35 @@ class JniStnManager {
         stnManagerWrapper->instantiate(env, instance);
     }
 
-    static void JniCreateStnManagerFromContextHandle(JNIEnv* env, jobject instance, jlong handle) {
-        auto context_cpp = (BaseContext*)j2c_cast(handle);
-//        if (context_cpp) {
-//            xinfo2(TSF " context is no empty.");
-//            __android_log_print(ANDROID_LOG_INFO, "mars2","mars2 context is no empty %ld", handle);
-//        } else {
-//            xerror2(TSF " context is empty.");
-//            __android_log_print(ANDROID_LOG_ERROR, "mars2","mars2 context is empty %ld", handle);
-//        }
+    static void JniCreateStnManagerFromContext(JNIEnv* env, jobject instance, jobject context) {
+        auto context_cpp = jnicat::JniObjectWrapper<BaseContext>::object(env, context);
+        if (context_cpp) {
+            //xinfo2(TSF "context is no empty.");
+            __android_log_print(ANDROID_LOG_INFO, "mars2","mars2 context is no empty");
+        } else {
+            //xerror2(TSF "context is empty.");
+            __android_log_print(ANDROID_LOG_ERROR, "mars2","mars2 context is empty");
+        }
 
         auto stn_manager_cpp = new StnManager(context_cpp);
         auto stnManagerWrapper = new jnicat::JniObjectWrapper<StnManager>(stn_manager_cpp);
         stnManagerWrapper->instantiate(env, instance);
     }
+
+//    static void JniCreateStnManagerFromContextHandle(JNIEnv* env, jobject instance, jlong handle) {
+//        auto context_cpp = (BaseContext*)j2c_cast(handle);
+//        if (context_cpp) {
+//            //xinfo2(TSF "context is no empty.");
+//            __android_log_print(ANDROID_LOG_INFO, "mars2","mars2 context is no empty %ld", handle);
+//        } else {
+//            //xerror2(TSF "context is empty.");
+//            __android_log_print(ANDROID_LOG_ERROR, "mars2","mars2 context is empty %ld", handle);
+//        }
+//
+//        auto stn_manager_cpp = new StnManager(context_cpp);
+//        auto stnManagerWrapper = new jnicat::JniObjectWrapper<StnManager>(stn_manager_cpp);
+//        stnManagerWrapper->instantiate(env, instance);
+//    }
 
     static void JniOnDestroyStnManager(JNIEnv* env, jobject instance) {
         auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
@@ -278,7 +293,8 @@ class JniStnManager {
 
 static const JNINativeMethod kStnManagerJniMethods[] = {
     {"OnJniCreateStnManagerFromHandle", "(J)V", (void*)&mars::stn::JniStnManager::JniCreateStnManagerFromHandle},
-    {"OnJniCreateStnManagerFromContextHandle", "(J)V", (void*)&mars::stn::JniStnManager::JniCreateStnManagerFromContextHandle},
+    {"OnJniCreateStnManagerFromContext", "(Ljava/lang/Object;)V", (void*)&mars::stn::JniStnManager::JniCreateStnManagerFromContext},
+//    {"OnJniCreateStnManagerFromContextHandle", "(J)V", (void*)&mars::stn::JniStnManager::JniCreateStnManagerFromContextHandle},
     {"OnJniDestroyStnManager", "()V", (void*)&mars::stn::JniStnManager::JniOnDestroyStnManager},
     {"OnJniSetCallback", "(Ljava/lang/Object;)V", (void*)&mars::stn::JniStnManager::JniSetCallback},
     //{"OnJniSetCallback", "(Lcom/tencent/mars/stn/StnManager$CallBack;)V",

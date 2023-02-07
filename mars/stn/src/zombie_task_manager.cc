@@ -151,6 +151,11 @@ void ZombieTaskManager::__StartTask()
 
 void ZombieTaskManager::__TimerChecker()
 {
+    if (fun_callback_) {
+        xinfo2(TSF"mars2 ZombieTaskManager fun_callback_ is no empty.");
+    } else {
+        xerror2(TSF"mars2 ZombieTaskManager fun_callback_ is empty.");
+    }
     xassert2(fun_callback_);
 
     std::list<ZombieTask>& lsttask = lsttask_;

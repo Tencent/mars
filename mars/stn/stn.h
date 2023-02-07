@@ -212,7 +212,7 @@ enum ErrCmdType {
 	kEctEnDecode = 7,
 	kEctServer = 8,
 	kEctLocal = 9,
-    kEctCanceld = 10,
+        kEctCanceld = 10,
 };
 
 //error code
