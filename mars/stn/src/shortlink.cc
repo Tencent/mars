@@ -523,7 +523,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         timeout = net_source_.GetQUICRWTimeoutMs(task_.cgi, &_conn_profile.quic_rw_timeout_source);
         _conn_profile.quic_rw_timeout_ms = timeout;
     }
-    xinfo2(TSF"rwtimeout %_, ", timeout) >> group_close;
+    xinfo2(TSF"rwtimeout %_, timeout.source %_, ", timeout, _conn_profile.quic_rw_timeout_source) >> group_close;
 
     _conn_profile.start_read_packet_time = ::gettickcount();
 	while (true) {
