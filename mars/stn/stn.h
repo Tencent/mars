@@ -301,6 +301,12 @@ enum TlsHandshakeFrom {
     kFromLongLink  = 1,
     kFromShortLink = 2,
 };
+    
+enum TimeoutSource {
+    kClientDefault = 0,
+    kServerDefault = 1,
+    kCgiSpecial = 2,
+};
 
 const char* const IPSourceTypeString[] = {
     "NullIP",

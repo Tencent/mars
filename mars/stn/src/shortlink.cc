@@ -517,10 +517,17 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 	off_t recv_pos = 0;
 	MemoryBodyReceiver* receiver = new MemoryBodyReceiver(body);
 	http::Parser parser(receiver, true);
+    
+    int timeout = 5000;
+    if (socketOperator_->Protocol() == Task::kTransportProtocolQUIC){
+        timeout = net_source_.GetQUICRWTimeoutMs(task_.cgi, &_conn_profile.quic_rw_timeout_source);
+        _conn_profile.quic_rw_timeout_ms = timeout;
+    }
+    xinfo2(TSF"rwtimeout %_, timeout.source %_, ", timeout, _conn_profile.quic_rw_timeout_source) >> group_close;
 
     _conn_profile.start_read_packet_time = ::gettickcount();
 	while (true) {
-		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, 5000);
+		int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, timeout);
         xinfo2(TSF"socketOperator_ Recv %_/%_", recv_ret, _err_code);
        
         _conn_profile.rw_errcode = _err_code;
