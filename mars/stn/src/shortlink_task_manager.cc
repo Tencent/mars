@@ -466,13 +466,16 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             __SetLastFailedStatus(it);
         }
 
-        if (_err_type == kEctSocket) {
-            it->force_no_retry = _cancel_retry;
+        if (_err_type != kEctLocal && _err_type != kEctCanceld){
             if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC){
                 //quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
                 xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
                 NetSource::DisableQUIC();
             }
+        }
+
+        if (_err_type == kEctSocket) {
+            it->force_no_retry = _cancel_retry;
         }
         if (_status == kEctHandshakeMisunderstand) {
             it->remain_retry_count ++;
