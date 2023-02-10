@@ -46,9 +46,9 @@ class AppManager : public BaseAppManager {
 
  public:
     void GetProxyInfo(const std::string& _host, uint64_t _timetick) override;
-    //#if TARGET_OS_IPHONE
+//    #if TARGET_OS_IPHONE
     void ClearProxyInfo() override;
-    //#endif
+//    #endif
 
  private:
     std::shared_ptr<Callback> callback_;

@@ -44,12 +44,6 @@ JNICAT_DEFINE_METHOD(kSdtManagerJniCallback_ReportNetCheckResult,
 void SdtManagerJniCallback::ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {
     jnienv_ptr env;
 
-    // TODO cpan mars2 start
-    // if (native_cb) {
-    //    native_cb->ReportNetCheckResult(_check_results);
-    //    return;
-    //}
-    // TODO cpan mars2 end
     XMessage check_results_str;
     check_results_str << "{";
     check_results_str << "\"details\":[";

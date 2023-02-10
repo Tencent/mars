@@ -8,12 +8,15 @@
 #include "mars/comm/jni/util/comm_function.h"
 #include "mars/comm/jni/util/scope_jenv.h"
 #include "mars/comm/jni/util/scoped_jstring.h"
+#include "mars/comm/jni/util/var_cache.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/xlogger/xlogger.h"
 
 namespace mars {
 namespace app {
+
+DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/app/AppManager$CallBack")
 
 AppManagerJniCallback::AppManagerJniCallback(JNIEnv* env, jobject callback) {
     callback_inst_ = env->NewGlobalRef(callback);
@@ -43,17 +46,42 @@ std::string AppManagerJniCallback::GetAppFilePath() {
     return j2c_cast(c2j_call(jstring, callback_inst_, kAppManagerJniCallback_GetAppFilePath));
 }
 
-JNICAT_DEFINE_CLASS("com/tencent/mars/app/AppLogic$AccountInfo")
-JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetAccountInfo,
-                     "com/tencent/mars/app/AppManager$CallBack",
-                     "getAccountInfo",
-                     "()Lcom/tencent/mars/app/AppLogic$AccountInfo;")
+//JNICAT_DEFINE_CLASS("com/tencent/mars/app/AppLogic$AccountInfo")
+//JNICAT_DEFINE_METHOD(kAppManagerJniCallback_GetAccountInfo,
+//                     "com/tencent/mars/app/AppManager$CallBack",
+//                     "getAccountInfo",
+//                     "()Lcom/tencent/mars/app/AppLogic$AccountInfo;")
+DEFINE_FIND_METHOD(KC2Java_getAccountInfo, KC2Java, "getAccountInfo", "()Lcom/tencent/mars/app/AppLogic$AccountInfo;")
 AccountInfo AppManagerJniCallback::GetAccountInfo() {
-    jnienv_ptr env;
+//    jnienv_ptr env;
+//    AccountInfo info;
+//    jobject ret_obj = c2j_call(jobject, callback_inst_, kAppManagerJniCallback_GetAccountInfo);
+//    if (NULL == ret_obj) {
+//        xerror2(TSF "getAccountInfo error return null");
+//        return info;
+//    }
+//
+//    jlong uin = JNU_GetField(env, ret_obj, "uin", "J").i;
+//    jstring username_jstr = (jstring)JNU_GetField(env, ret_obj, "userName", "Ljava/lang/String;").l;
+//
+//    info.uin = (long)uin;
+//
+//    if (username_jstr != NULL) {
+//        info.username = ScopedJstring(env, username_jstr).GetChar();
+//        env->DeleteLocalRef(username_jstr);
+//    }
+//
+//    env->DeleteLocalRef(ret_obj);
+//    return info;
+
+    VarCache* cache_instance = VarCache::Singleton();
+    ScopeJEnv scope_jenv(cache_instance->GetJvm());
+    JNIEnv *env = scope_jenv.GetEnv();
+
     AccountInfo info;
-    jobject ret_obj = c2j_call(jobject, callback_inst_, kAppManagerJniCallback_GetAccountInfo);
+    jobject ret_obj = JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_getAccountInfo).l;
     if (NULL == ret_obj) {
-        xerror2(TSF "getAccountInfo error return null");
+        xerror2(TSF"getAccountInfo error return null");
         return info;
     }
 

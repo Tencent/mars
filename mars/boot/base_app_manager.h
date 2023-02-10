@@ -33,10 +33,9 @@ class BaseAppManager : public boot::BaseManager {
  public:
     virtual void GetProxyInfo(const std::string& _host, uint64_t _timetick) = 0;
 
-    // TODO cpan mars2
-    //#if TARGET_OS_IPHONE
+//    #if TARGET_OS_IPHONE
     virtual void ClearProxyInfo() = 0;
-    //#endif
+//    #endif
 };
 
 }  // namespace app

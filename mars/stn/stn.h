@@ -445,7 +445,7 @@ class Callback
 
     virtual void RequestSync() = 0;
 
-    //验证是否已登录
+    //验证是否已登录 //TODO cpan must sure
 //            virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
 //            virtual void ReportTaskProfile(const TaskProfile& _task_profile) = 0;
 //            virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param)= 0;

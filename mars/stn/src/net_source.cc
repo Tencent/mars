@@ -69,10 +69,7 @@ bool sg_quic_enabled = true;
 
 Mutex sg_ip_mutex;
 
-NetSource::DnsUtil::DnsUtil()
-//TODO mars2 cpan remote the OnNewDns, need to set when when new utils
-//:new_dns_(OnNewDns)
-{
+NetSource::DnsUtil::DnsUtil() : new_dns_(OnNewDns) {
 }
 
 NetSource::DnsUtil::~DnsUtil() {}

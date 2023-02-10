@@ -200,8 +200,7 @@ namespace stn {
                 }
                 
                 if (0 > nrecv && !IS_NOBLOCK_READ_ERRNO(socket_errno)) {
-                    //TODO mars2 cpan
-                    //xerror2(TSF"socket error:(%_, %_)", socket_errno, strerror(socket_errno));
+                    xerror2(TSF"socket error:(%_, %_)", socket_errno, strerror(socket_errno));
                     return true;
                 } else {
                     return false;

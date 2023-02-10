@@ -167,6 +167,7 @@ void StnCallbackBridge::OnLongLinkNetworkError(ErrCmdType _err_type,
                                                uint16_t _port) {
     SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
     xassert2(sg_callback != NULL);
     sg_callback->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 //#endif
@@ -179,6 +180,7 @@ void StnCallbackBridge::OnShortLinkNetworkError(ErrCmdType _err_type,
                                                 uint16_t _port) {
     SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
     xassert2(sg_callback != NULL);
     sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
 //#endif
@@ -229,6 +231,8 @@ void StnCallbackBridge::RequestNetCheckShortLinkHosts(std::vector<std::string>& 
 //#else
 //    C2Java_RequestNetCheckShortLinkHosts(_hostlist);
 //#endif
+//    xassert2(sg_callback != NULL);
+//    sg_callback->RequestNetCheckShortLinkHosts(_hostlist);
 }
 
 void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
@@ -237,12 +241,18 @@ void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
 //#else
 //    C2Java_ReportTaskProfile(_task_profile);
 //#endif
+//    xassert2(sg_callback != NULL);
+//    sg_callback->ReportTaskProfile(_task_profile);
 }
 
 void StnCallbackBridge::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
+//    xassert2(sg_callback != NULL);
+//    sg_callback->ReportTaskLimited(_check_type, _task, _param);
 }
 
 void StnCallbackBridge::ReportDnsProfile(const DnsProfile& _dns_profile) {
+//    xassert2(sg_callback != NULL);
+//    sg_callback->ReportDnsProfile(_dns_profile);
 }
 
 /* mars2

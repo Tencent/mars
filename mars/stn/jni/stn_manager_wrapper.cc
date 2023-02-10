@@ -280,8 +280,9 @@ class JniStnManager {
 
     static void JniStartNetworkAnalysis(JNIEnv* env, jobject instance) {
         xverbose_function();
-        //        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
-        // TODO mars2 cpan check
+        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
+//        stn_manager_cpp.
+        //TODO cpan mars2 check
     }
 
     static jint JniGenTaskID(JNIEnv* env, jobject instance) {

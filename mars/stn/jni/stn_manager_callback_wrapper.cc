@@ -17,6 +17,8 @@
 namespace mars {
 namespace stn {
 
+DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnManager$CallBack")
+
 StnManagerJniCallback::StnManagerJniCallback(JNIEnv* env, jobject callback) {
     callback_inst_ = env->NewGlobalRef(callback);
     jclass objClass = env->GetObjectClass(callback);
@@ -30,9 +32,6 @@ StnManagerJniCallback::~StnManagerJniCallback() {
     jnienv_ptr env;
     env->DeleteGlobalRef(callback_inst_);
 }
-
-DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnManager$CallBack")
-
 
 //JNICAT_DEFINE_METHOD(kStnManagerJniCallback_MakesureAuthed,
 //                     "com/tencent/mars/stn/StnManager$CallBack",
@@ -519,7 +518,7 @@ void StnManagerJniCallback::OnLongLinkNetworkError(ErrCmdType _err_type,
     //    xinfo2(TSF "mars2 construct_mid:%_", construct_mid);
     //    jobject stn_err_cmd_type_obj = env->NewObject(StnErrCmdType, construct_mid);
 
-    //TODO mars2 cpan
+    //TODO cpan mars2
 //    JNU_CallMethodByMethodInfo(env,
 //                               callback_inst_,
 //                               kStnManagerJniCallback_OnLongLinkNetworkError,
@@ -562,7 +561,7 @@ void StnManagerJniCallback::OnShortLinkNetworkError(ErrCmdType _err_type,
 //    xinfo2(TSF "mars2 construct_mid:%_", construct_mid);
 //    jobject stn_err_cmd_type_obj = env->NewObject(StnErrCmdType, construct_mid);
 
-    //TODO mars2 cpan
+    //TODO cpan mars2
 //    JNU_CallMethodByMethodInfo(env,
 //                               callback_inst_,
 //                               kStnManagerJniCallback_OnShortLinkNetworkError,
