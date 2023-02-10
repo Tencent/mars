@@ -165,7 +165,6 @@ void StnCallbackBridge::OnLongLinkNetworkError(ErrCmdType _err_type,
                                                int _err_code,
                                                const std::string& _ip,
                                                uint16_t _port) {
-    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
     SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
     xassert2(sg_callback != NULL);
