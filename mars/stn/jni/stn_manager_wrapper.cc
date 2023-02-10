@@ -25,14 +25,6 @@ class JniStnManager {
 
     static void JniCreateStnManagerFromContext(JNIEnv* env, jobject instance, jobject context) {
         auto context_cpp = jnicat::JniObjectWrapper<BaseContext>::object(env, context);
-        if (context_cpp) {
-            //xinfo2(TSF "context is no empty.");
-            __android_log_print(ANDROID_LOG_INFO, "mars2","mars2 context is no empty");
-        } else {
-            //xerror2(TSF "context is empty.");
-            __android_log_print(ANDROID_LOG_ERROR, "mars2","mars2 context is empty");
-        }
-
         auto stn_manager_cpp = new StnManager(context_cpp);
         auto stnManagerWrapper = new jnicat::JniObjectWrapper<StnManager>(stn_manager_cpp);
         stnManagerWrapper->instantiate(env, instance);
@@ -278,13 +270,6 @@ class JniStnManager {
         stn_manager_cpp->StopSignalling();
     }
 
-    static void JniStartNetworkAnalysis(JNIEnv* env, jobject instance) {
-        xverbose_function();
-        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
-//        stn_manager_cpp.
-        //TODO cpan mars2 check
-    }
-
     static jint JniGenTaskID(JNIEnv* env, jobject instance) {
         xverbose_function();
         auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
@@ -320,7 +305,6 @@ static const JNINativeMethod kStnManagerJniMethods[] = {
     {"OnJniSetSignallingStrategy", "(JJ)V", (void*)&mars::stn::JniStnManager::JniSetSignallingStrategy},
     {"OnJniKeepSignalling", "()V", (void*)&mars::stn::JniStnManager::JniKeepSignalling},
     {"OnJniStopSignalling", "()V", (void*)&mars::stn::JniStnManager::JniStopSignalling},
-    {"OnJniStartNetworkAnalysis", "()V", (void*)&mars::stn::JniStnManager::JniStartNetworkAnalysis},
     {"OnJniGenTaskID", "()I", (void*)&mars::stn::JniStnManager::JniGenTaskID},
 };
 
