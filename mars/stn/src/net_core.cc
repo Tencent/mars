@@ -129,8 +129,8 @@ NetCore::NetCore(boot::BaseContext* _context, int _packer_encoder_version)
         __InitLongLink();
     }
         //std::shared_ptr<NetCore> _net_core_shared_ptr(this);
-    std::shared_ptr<NetCore> _net_core_shared_ptr = std::shared_ptr<NetCore>(this);
-        NetCoreCreate()(_net_core_shared_ptr);
+    //std::shared_ptr<NetCore> _net_core_shared_ptr = std::shared_ptr<NetCore>(this);
+        //NetCoreCreate()(_net_core_shared_ptr);
 }
 
 NetCore::~NetCore() {

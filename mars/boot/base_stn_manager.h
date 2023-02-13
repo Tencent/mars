@@ -34,8 +34,8 @@ class BaseStnManager : public boot::BaseManager {
  public:
     // 外部接口
     virtual void SetCallback(Callback* const callback) = 0;
-    virtual void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) = 0;
-    virtual StnCallbackBridge* GetStnCallbackBridge() = 0;
+//    virtual void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) = 0;
+//    virtual StnCallbackBridge* GetStnCallbackBridge() = 0;
 
  public:
     // #################### stn.h Callback ####################

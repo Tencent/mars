@@ -584,16 +584,16 @@ void SetCallback(Callback* const callback) {
     stn_manager->SetCallback(callback);
 }
 
-void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
-    xdebug2(TSF"mars2 SetStnCallbackBridge");
-    StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
-    stn_manager->SetStnCallbackBridge(_callback_bridge);
-}
+//void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
+//    xdebug2(TSF"mars2 SetStnCallbackBridge");
+//    StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
+//    stn_manager->SetStnCallbackBridge(_callback_bridge);
+//}
 
-StnCallbackBridge* GetStnCallbackBridge() {
-    StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
-    return stn_manager->GetStnCallbackBridge();
-}
+//StnCallbackBridge* GetStnCallbackBridge() {
+//    StnManager* stn_manager = (StnManager*)mars::boot::CreateContext("default")->GetStnManager();
+//    return stn_manager->GetStnCallbackBridge();
+//}
 void network_export_symbols_0(){}
 
 }

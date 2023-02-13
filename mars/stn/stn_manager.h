@@ -25,11 +25,11 @@ class ProxyInfo;
 namespace stn {
 
 class NetCore;
-class StnCallbackBridge;
+//class StnCallbackBridge;
 
 class StnManager : public BaseStnManager {
  public:
-    explicit StnManager(BaseContext* context);
+    StnManager(BaseContext* context);
     ~StnManager() override;
     void Init() override;
     void UnInit() override;
@@ -52,8 +52,8 @@ class StnManager : public BaseStnManager {
  public:
     //外部接口
     void SetCallback(Callback* const callback) override;
-    void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) override;
-    StnCallbackBridge* GetStnCallbackBridge() override;
+//    void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) override;
+//    StnCallbackBridge* GetStnCallbackBridge() override;
 
  public:
     // #################### stn.h Callback ####################
@@ -196,13 +196,9 @@ class StnManager : public BaseStnManager {
  public:
     NetCore* GetNetCore();
 
- private:
-//    std::shared_ptr<Callback> callback_ = NULL;
-//    std::shared_ptr<StnCallbackBridge> callback_bridge_ = NULL;
-//    std::shared_ptr<NetCore> net_core_ = NULL;
-
+ protected:
     Callback* callback_ = NULL;
-    StnCallbackBridge* callback_bridge_ = NULL;
+//    StnCallbackBridge* callback_bridge_ = NULL;
     NetCore* net_core_ = NULL;
 
     int packer_encoder_version_;

@@ -165,8 +165,8 @@ namespace stn{
     extern void (*MakesureLonglinkConnected_ext)(const std::string& name);
 	//mars2
 	
-    void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
-    StnCallbackBridge* GetStnCallbackBridge();
+//    void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
+//    StnCallbackBridge* GetStnCallbackBridge();
 	
 	//callback
     extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
