@@ -382,12 +382,13 @@ void StnManager::Reset() {
     //xinfo2(TSF "cpan debug Reset");
     // net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
-    // TODO
-    //    delete net_core_;
-    //    net_core_ = new NetCore(context_, packer_encoder_version_);
+    xdebug_function(TSF"mars2");
+    delete net_core_;
+    net_core_ = new NetCore(context_, packer_encoder_version_);
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
+    xdebug_function(TSF"mars2 packer_encoder_version:%_", _packer_encoder_version);
     //xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
     // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
@@ -399,8 +400,8 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
     // net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
     //TODO cpan mars2 TODOTDOO TODOTDOOTODOTDOOTODOTDOOTODOTDOOTODOTDOOTODOTDOO
-    //    delete net_core_;
-    //    net_core_ = new NetCore(context_, packer_encoder_version_);
+    delete net_core_;
+    net_core_ = new NetCore(context_, packer_encoder_version_);
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {
