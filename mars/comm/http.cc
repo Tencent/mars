@@ -1095,7 +1095,7 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
                     } else {  // last chunk
                         char* trailerBegin = chunkSizeEnd + 2;
 
-                        if (recvbuf_.Length() < (unsigned int)(sizeLen + 4)) return recvstatus_;
+                        if (_recv_buffer.Length() < (unsigned int)(sizeLen + 4)) return recvstatus_;
 
                         char* trailerEnd = string_strnstr(trailerBegin, KStringCRLF, (int)_recv_buffer.Length());
 
