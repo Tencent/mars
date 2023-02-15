@@ -71,11 +71,11 @@ extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const 
         const static JniMethodInfo methodid = JniMethodInfo("", "", "");
 #endif
 
-//#ifndef NATIVE_CALLBACK
-//DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
-//#else
-//DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_onTaskEnd)
-//#endif
+#ifndef NATIVE_CALLBACK
+DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
+#else
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_onTaskEnd)
+#endif
 int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const ConnectProfile& _profile){
 
     xverbose_function();
@@ -122,7 +122,7 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
     env->SetIntField(jobj_cgiItem, fid_channelType, _profile.channel_type);
 	env->SetIntField(jobj_cgiItem, fid_protocolType, _profile.transport_protocol);
 
-	int ret = 0 ;//(int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code, jobj_cgiItem).i;
+	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code, jobj_cgiItem).i;
 
 	return ret;
 };
@@ -252,9 +252,9 @@ bool C2Java_Req2Buf(uint32_t _taskid,  void* const _user_context, const std::str
 };
 
 #ifndef NATIVE_CALLBACK
-//DEFINE_FIND_STATIC_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;[B[II)I")
+DEFINE_FIND_STATIC_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;[B[II)I")
 #else
-//DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_buf2Resp)
+DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_buf2Resp)
 #endif
 int C2Java_Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select){
     xverbose_function();
@@ -276,7 +276,7 @@ int C2Java_Buf2Resp(uint32_t _taskid, void* const _user_context, const std::stri
 
 	jintArray errcode_array = env->NewIntArray(1);
 
-	jint ret = 0;//JNU_CallStaticMethodByMethodInfo(env, KC2Java_buf2Resp, (jint)_taskid, _user_context, resp_buf_jba, errcode_array, _channel_select).i;
+	jint ret = JNU_CallStaticMethodByMethodInfo(env, KC2Java_buf2Resp, (jint)_taskid, _user_context, resp_buf_jba, errcode_array, _channel_select).i;
 
 	if (resp_buf_jba != NULL) {
 		env->DeleteLocalRef(resp_buf_jba);
