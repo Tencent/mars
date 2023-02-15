@@ -17,6 +17,7 @@ namespace mars {
 namespace stn {
 
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnManager$CallBack")
+DEFINE_FIND_CLASS(kC2JavaCgiProfile, "com/tencent/mars/stn/StnLogic$CgiProfile")
 
 StnManagerJniCallback::StnManagerJniCallback(JNIEnv* env, jobject callback) {
     callback_inst_ = env->NewGlobalRef(callback);
@@ -163,6 +164,10 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid, void* const _user_context,
     return ret;
 }
 
+//public abstract int buf2Resp(int, java.lang.Object, java.lang.String, byte[], int[], int);
+//    descriptor: (ILjava/lang/Object;Ljava/lang/String;[B[II)I
+//public abstract int buf2Resp(int, java.lang.Object, java.lang.String, byte[], int[], int);
+//    descriptor: (ILjava/lang/Object;Ljava/lang/String;[B[II)I
 DEFINE_FIND_METHOD(kStnManagerJniCallback_Buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[II)I")
 int StnManagerJniCallback::Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
     VarCache* cache_instance = VarCache::Singleton();
@@ -194,7 +199,7 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid, void* const _user_context,
     return ret;
 }
 
-DEFINE_FIND_CLASS(KC2JavaStnCgiProfile, "com/tencent/mars/stn/StnLogic$CgiProfile");
+
 DEFINE_FIND_METHOD(kStnManagerJniCallback_OnTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
 int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const CgiProfile& _profile) {
     xdebug2(TSF "mars2 recieve task profile: %_, %_, %_", _profile.start_connect_time, _profile.start_send_packet_time, _profile.read_packet_finished_time);
@@ -202,11 +207,26 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
 
-    jclass cgiProfileCls = cache_instance->GetClass(env, KC2JavaStnCgiProfile);
-    jmethodID jobj_init = env->GetMethodID(cgiProfileCls, "<init>", "()V");
+    jclass cgiProfileCls = cache_instance->GetClass(env, kC2JavaCgiProfile);
+//    if (cgiProfileCls) {
+        xdebug2(TSF "mars2 cgiProfileCls is no empty. %_", cgiProfileCls);
+//    } else {
+//        xdebug2(TSF "mars2 cgiProfileCls is null.");
+//    }
+    jmethodID jobj_init = cache_instance->GetMethodId(env, cgiProfileCls, "<init>", "()V");
+//    if (jobj_init) {
+        xdebug2(TSF "mars2 jobj_init is no empty. %_", jobj_init);
+//    } else {
+//        xdebug2(TSF "mars2 jobj_init is null.");
+//    }
     jobject jobj_cgiItem = env->NewObject(cgiProfileCls, jobj_init);
+//    if (jobj_cgiItem) {
+        xdebug2(TSF "mars2 jobj_cgiItem is no empty. %_", jobj_init);
+//    } else {
+//        xdebug2(TSF "mars2 jobj_cgiItem is null.");
+//    }
     if (nullptr == jobj_cgiItem) {
-        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
+        //env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
         return -1;
     }
     jfieldID fid_taskStartTime = env->GetFieldID(cgiProfileCls, "taskStartTime", "J");

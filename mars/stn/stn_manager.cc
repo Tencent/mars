@@ -158,8 +158,8 @@ StnCallbackBridge* StnManager::GetStnCallbackBridge() {
     xdebug2(TSF"mars2 GetStnCallbackBridge");
     if (!callback_bridge_) {
         callback_bridge_ = new StnCallbackBridge();  // std::make_shared<StnCallbackBridge>();
+        callback_bridge_->SetCallback(callback_);
     }
-    callback_bridge_->SetCallback(callback_);
     return callback_bridge_;
 }
 
