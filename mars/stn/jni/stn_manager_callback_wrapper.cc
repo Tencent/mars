@@ -208,25 +208,10 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
     JNIEnv* env = scope_jenv.GetEnv();
 
     jclass cgiProfileCls = cache_instance->GetClass(env, kC2JavaCgiProfile);
-//    if (cgiProfileCls) {
-        xdebug2(TSF "mars2 cgiProfileCls is no empty. %_", cgiProfileCls);
-//    } else {
-//        xdebug2(TSF "mars2 cgiProfileCls is null.");
-//    }
     jmethodID jobj_init = cache_instance->GetMethodId(env, cgiProfileCls, "<init>", "()V");
-//    if (jobj_init) {
-        xdebug2(TSF "mars2 jobj_init is no empty. %_", jobj_init);
-//    } else {
-//        xdebug2(TSF "mars2 jobj_init is null.");
-//    }
     jobject jobj_cgiItem = env->NewObject(cgiProfileCls, jobj_init);
-//    if (jobj_cgiItem) {
-        xdebug2(TSF "mars2 jobj_cgiItem is no empty. %_", jobj_init);
-//    } else {
-//        xdebug2(TSF "mars2 jobj_cgiItem is null.");
-//    }
     if (nullptr == jobj_cgiItem) {
-        //env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
         return -1;
     }
     jfieldID fid_taskStartTime = env->GetFieldID(cgiProfileCls, "taskStartTime", "J");

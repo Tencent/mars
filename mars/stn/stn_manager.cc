@@ -399,7 +399,6 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
     //xinfo2(TSF "cpan debug ResetAndInitEncoderVersion");
     // net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
-    //TODO cpan mars2 TODOTDOO TODOTDOOTODOTDOOTODOTDOOTODOTDOOTODOTDOOTODOTDOO
     delete net_core_;
     net_core_ = new NetCore(context_, packer_encoder_version_);
 }
