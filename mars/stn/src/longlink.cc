@@ -533,7 +533,17 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         }
         
         _conn_profile.ip_type = kIPSourceProxy;
-
+        
+        //.如果代理是v4地址，则需要把地址列表中的v6地址移除(一般来说v4无法代理v6流量).
+        if (proxy_addr && proxy_addr->valid() && proxy_addr->isv4() && vecaddr.size() > 1){
+            for (auto it = vecaddr.begin(); it != vecaddr.end();){
+                if (it->isv6()){
+                    it = vecaddr.erase(it);
+                }else{
+                    it++;
+                }
+            }
+        }
     }
     
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
