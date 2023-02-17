@@ -33,8 +33,25 @@
 
 #include <limits>
 #include <string>
+#include <stddef.h>
 
 #include "strutil.h"
+
+template<typename T>
+size_t varint_encode(T value, char *output) {
+    size_t outputSize = 0;
+    // While more than 7 bits of data are left, occupy the last output byte
+    //  and set the next byte flag
+    while (value > 127) {
+        //|128: Set the next byte flag
+        output[outputSize] = ((uint8_t)(value & 127)) | 128;
+        // Remove the seven bits we just wrote
+        value >>= 7;
+        outputSize++;
+    }
+    output[outputSize++] = ((uint8_t)value) & 127;
+    return outputSize;
+}
 
 template<typename T>
 char* string_cast_itoa(const T& value, char* result, uint8_t base = 10, bool upper_case=true) {
@@ -115,6 +132,48 @@ private:
 private:
     const char* value_;
     char value_cache_[65];
+};
+
+class type_value_cast {
+ private:
+    enum {
+        kTypeChar = 0,
+        kTypeIntNum,
+        kTypeString,
+    };
+
+  public:
+    type_value_cast(const std::string &_value) {
+        char buffer[6] = {0};
+        uint16_t size = _value.size();
+        size_t len = varint_encode((uint16_t)kTypeString, buffer);
+        len += varint_encode(size, buffer + len);
+        value_.append(buffer, len);
+        value_ += _value;
+    }
+
+    type_value_cast(const char* _value) {
+        char buffer[6] = {0};
+        uint16_t size = strnlen(_value, 16 * 1024);
+        size_t len = varint_encode((uint16_t)kTypeString, buffer);
+        len += varint_encode(size, buffer + len);
+        value_.append(buffer, len);
+        value_.append(_value, size);
+    }
+
+    type_value_cast(int _value) {
+        char buffer[8] = {0};
+        size_t len = varint_encode((uint16_t)kTypeIntNum, buffer);
+        len += varint_encode(_value, buffer + len);
+        value_.append(buffer, len);
+    }
+
+    const std::string& str() const {
+        return value_;
+    }
+
+ private:
+    std::string value_;
 };
 
 namespace detail {

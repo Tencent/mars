@@ -205,6 +205,63 @@ private:
 };
 
 
+class XBinaryLogger {
+public:
+    XBinaryLogger(TLogLevel _level, const char* _tag, uint32_t _file, uint32_t _func, uint32_t _line, bool (*_hook)(XBLoggerInfo_t& _info, std::string& _log) = NULL);
+    ~XBinaryLogger();
+
+public:
+    XBinaryLogger& Assert(const char* _exp);
+    
+    bool Empty() const { return !m_isassert && m_message.empty();}
+    const std::string& Message() const { return m_message;}
+    void Clear() { m_message.clear(); }
+
+
+    XBinaryLogger&  WriteNoFormat(uint32_t _format_id) { return *this;}
+
+    XBinaryLogger& operator()() { return *this; }
+    XBinaryLogger& operator()(const XLoggerInfoNull&) { m_isinfonull = true; return *this;}
+    XBinaryLogger& operator()(const XLoggerTag&, const char* _tag) { m_info.tag = _tag; return *this;}
+
+
+#define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const type_value_cast& a)
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(0));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(1));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(2));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(3));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(4));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(5));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(6));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(7));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(8));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(9));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(10));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(11));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(12));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(13));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(14));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(15));
+    XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(16));
+#undef XLOGGER_FORMAT_ARGS
+
+private:
+    void DoTypeSafeFormat(uint32_t _format_id, const type_value_cast** _args);
+    
+private:
+    XBinaryLogger(const XBinaryLogger&);
+    XBinaryLogger& operator=(const XBinaryLogger&);
+    
+private:
+    XBLoggerInfo m_info;
+    std::string m_message;
+    bool m_isassert = false;
+    const char* m_exp;
+    bool (*m_hook)(XBLoggerInfo& _info, std::string& _log);
+    bool m_isinfonull;
+};
+
+
 class XScopeTracer {
 public:
     XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log);
@@ -296,6 +353,41 @@ XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(16, 0)
 #undef XLOGGER_VARIANT_ARGS
 #undef XLOGGER_VARIANT_ARGS_NULL
 #undef XLOGGER_TYPESAFE_FORMAT_IMPLEMENT
+
+#define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const type_value_cast& a)
+#define XLOGGER_VARIANT_ARGS(n) PP_ENUM_PARAMS(n, &a)
+#define XLOGGER_VARIANT_ARGS_NULL(n) PP_ENUM(n, NULL)
+#define XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(n, m) \
+        inline XBinaryLogger& XBinaryLogger::operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(n)) { \
+        const type_value_cast* args[16] = { XLOGGER_VARIANT_ARGS(n) PP_COMMA_IF(PP_AND(n, m)) XLOGGER_VARIANT_ARGS_NULL(m) }; \
+        DoTypeSafeFormat(_format_id, args); \
+        return *this;\
+    }
+
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(0, 16)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(1, 15)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(2, 14)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(3, 13)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(4, 12)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(5, 11)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(6, 10)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(7, 9)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(8, 8)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(9, 7)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(10, 6)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(11, 5)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(12, 4)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(13, 3)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(14, 2)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(15, 1)
+XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(16, 0)
+
+
+#undef XLOGGER_FORMAT_ARGS
+#undef XLOGGER_VARIANT_ARGS
+#undef XLOGGER_VARIANT_ARGS_NULL
+#undef XLOGGER_TYPESAFE_FORMAT_IMPLEMENT
+
 
 #endif //cpp
 
@@ -408,6 +500,15 @@ __inline void  __xlogger_c_write(const XLoggerInfo* _info, const char* _log, ...
 #define xerror2(...)			   __xlogger_cpp_impl2(kLevelError, __VA_ARGS__)
 #define xfatal2(...)			   __xlogger_cpp_impl2(kLevelFatal, __VA_ARGS__)
 #define xlog2(level, ...)		   __xlogger_cpp_impl2(level, __VA_ARGS__)
+
+
+#define xblogger2(level, tag, file, func, line, ...)		 if ((!xlogger_IsEnabledFor(level)));\
+                                                       else XBinaryLogger(level, tag, file, func, line, XLOGGER_HOOK)\
+                                                             XLOGGER_ROUTER_OUTPUT(.WriteNoFormat(__VA_ARGS__),(__VA_ARGS__), __VA_ARGS__)
+
+
+
+#define __xbi(file, func, line, ...)      xblogger2(kLevelInfo, XLOGGER_TAG, file, func, line, __VA_ARGS__)
 
 #define xverbose2_if(exp, ...)	   __xlogger_cpp_impl_if(kLevelVerbose, exp,  __VA_ARGS__)
 #define xdebug2_if(exp, ...)	   __xlogger_cpp_impl_if(kLevelDebug, exp,	__VA_ARGS__)

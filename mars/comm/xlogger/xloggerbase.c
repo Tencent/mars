@@ -13,7 +13,9 @@ WEAK_FUNC  TLogLevel   __xlogger_Level_impl();
 WEAK_FUNC  void        __xlogger_SetLevel_impl(TLogLevel _level);
 WEAK_FUNC  int         __xlogger_IsEnabledFor_impl(TLogLevel _level);
 WEAK_FUNC xlogger_appender_t __xlogger_SetAppender_impl(xlogger_appender_t _appender);
+WEAK_FUNC xlogger_binary_appender_t __xlogger_SetBinaryAppender_impl(xlogger_binary_appender_t _appender);
 WEAK_FUNC void __xlogger_Write_impl(const XLoggerInfo* _info, const char* _log);
+WEAK_FUNC void __xlogger_WriteBinary_impl(const XBLoggerInfo* _info, const char* _log, size_t _size);
 WEAK_FUNC void __xlogger_VPrint_impl(const XLoggerInfo* _info, const char* _format, va_list _list);
 
 WEAK_FUNC void __xlogger_AssertP_impl(const XLoggerInfo* _info, const char* _expression, const char* _format, va_list _list);
@@ -45,6 +47,13 @@ xlogger_appender_t xlogger_SetAppender(xlogger_appender_t _appender) {
     return __xlogger_SetAppender_impl(_appender);
 }
 
+xlogger_binary_appender_t xlogger_SetBinaryAppender(xlogger_binary_appender_t _appender) {
+    if (NULL == &__xlogger_SetBinaryAppender_impl) {
+        return NULL;
+    }
+    return __xlogger_SetBinaryAppender_impl(_appender);
+}
+
 static xlogger_filter_t sg_filter = NULL;
 void xlogger_SetFilter(xlogger_filter_t _filter) {
     sg_filter = _filter;
@@ -57,6 +66,12 @@ xlogger_filter_t xlogger_GetFilter() {
 void xlogger_Write(const XLoggerInfo* _info, const char* _log) {
 	if (NULL != &__xlogger_Write_impl)
 		__xlogger_Write_impl(_info, _log);
+}
+
+
+void  xlogger_WriteBinary(const XBLoggerInfo* _info, const char* _log, size_t _size) {
+	if (NULL != &__xlogger_WriteBinary_impl)
+		__xlogger_WriteBinary_impl(_info, _log, _size);
 }
 
 void xlogger_VPrint(const XLoggerInfo* _info, const char* _format, va_list _list) {
@@ -92,6 +107,7 @@ void xlogger_Assert(const XLoggerInfo* _info, const char* _expression, const cha
 #ifndef USING_XLOG_WEAK_FUNC
 static TLogLevel gs_level = kLevelNone;
 static xlogger_appender_t gs_appender = NULL;
+static xlogger_binary_appender_t gs_binary_appender = NULL;
 
 TLogLevel   __xlogger_Level_impl() {return gs_level;}
 void        __xlogger_SetLevel_impl(TLogLevel _level){ gs_level = _level;}
@@ -100,6 +116,12 @@ int         __xlogger_IsEnabledFor_impl(TLogLevel _level) {return gs_level <= _l
 xlogger_appender_t __xlogger_SetAppender_impl(xlogger_appender_t _appender)  {
     xlogger_appender_t old_appender = gs_appender;
     gs_appender = _appender;
+    return old_appender;
+}
+
+xlogger_binary_appender_t __xlogger_SetBinaryAppender_impl(xlogger_binary_appender_t _appender)  {
+    xlogger_binary_appender_t old_appender = gs_binary_appender;
+    gs_binary_appender = _appender;
     return old_appender;
 }
 
@@ -132,6 +154,31 @@ void __xlogger_Write_impl(const XLoggerInfo* _info, const char* _log) {
     } else {
         gs_appender(_info, _log);
     }
+}
+
+void __xlogger_WriteBinary_impl(const XBLoggerInfo* _info, const char* _log, size_t _size) {
+    if (!gs_binary_appender) {
+        return;
+    }
+
+    if (NULL == _info) {
+        return;
+    }
+
+    XBLoggerInfo* info = (XBLoggerInfo*)_info;
+    if (-1 == _info->pid) {
+        info->pid = xlogger_pid();
+    }
+
+    if (-1 == _info->tid) {
+        info->tid = xlogger_tid();
+    }
+
+    if (-1 == _info->maintid) {
+        info->maintid = xlogger_maintid();
+    }
+    gs_binary_appender(info, _log, _size);
+
 }
 
 void __xlogger_VPrint_impl(const XLoggerInfo* _info, const char* _format, va_list _list) {

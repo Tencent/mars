@@ -42,7 +42,7 @@ int main(int argc, char * argv[]) {
         // init xlog
 #if DEBUG
         xlogger_SetLevel(kLevelDebug);
-        appender_set_console_log(true);
+//        appender_set_console_log(true);
 #else
         xlogger_SetLevel(kLevelInfo);
         appender_set_console_log(false);

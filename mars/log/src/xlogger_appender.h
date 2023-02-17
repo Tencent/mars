@@ -4,6 +4,7 @@
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/thread/condition.h"
+#include "mars/comm/ptrbuffer.h"
 
 namespace mars {
 namespace xlog {
@@ -18,6 +19,7 @@ class XloggerAppender {
     void Open(const XLogConfig& _config);
 
     void Write(const XLoggerInfo* _info, const char* _log);
+    void WriteBinary(const XBLoggerInfo* _info, const char* _log, size_t _size);
     void SetMode(TAppenderMode _mode);
     void Flush();
     void FlushSync();
@@ -65,8 +67,8 @@ class XloggerAppender {
     bool __CacheLogs();
     void __Log2File(const void* _data, size_t _len, bool _move_file);
     void __AsyncLogThread();
-    void __WriteSync(const XLoggerInfo* _info, const char* _log);
-    void __WriteAsync(const XLoggerInfo* _info, const char* _log);
+    void __WriteSync(const PtrBuffer& _log);
+    void __WriteAsync(TLogLevel level, PtrBuffer& _log);
     void __DelTimeoutFile(const std::string& _log_path);
     bool __AppendFile(const std::string& _src_file, const std::string& _dst_file);
     void __MoveOldFiles(const std::string& _src_path, const std::string& _dest_path,

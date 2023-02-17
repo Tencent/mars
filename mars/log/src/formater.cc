@@ -28,6 +28,7 @@
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/xlogger/loginfo_extract.h"
 #include "mars/comm/ptrbuffer.h"
+#include "mars/comm/string_cast.h"
 
 #ifdef _WIN32
 #define PRIdMAX "lld"
@@ -39,6 +40,141 @@
 
 namespace mars {
 namespace xlog {
+
+static char MAGIC_NUM = 1;
+
+//inline size_t varint_encode(uint64_t value, char *output) {
+//    size_t outputSize = 0;
+//    // While more than 7 bits of data are left, occupy the last output byte
+//    //  and set the next byte flag
+//    while (value > 127) {
+//      //|128: Set the next byte flag
+//      output[outputSize] = ((uint8_t)(value & 127)) | 128;
+//      // Remove the seven bits we just wrote
+//      value >>= 7;
+//      outputSize++;
+//    }
+//    output[outputSize++] = ((uint8_t)value) & 127;
+//    return outputSize;
+//}
+
+inline size_t varint_decode(char *input, size_t inputSize, uint64_t& value) {
+    value = 0;
+    size_t i = 0;
+    for (; i < inputSize; i++) {
+        value |= (input[i] & 127) << (7 * i);
+        // If the next-byte flag is set
+        if (!(input[i] & 128)) {
+            break;
+        }
+    }
+    return i+1;
+}
+
+void log_formater(const XBLoggerInfo *_info, const char *_logbody, size_t _size,
+                  PtrBuffer& _log) {
+    // |char(magic)|uint16_t(len)|char(level)|uint32_t(file)|uint32_t(fun)|uint32_t(line)|int64_t(pid)|int64_t(tid)|char(ismaintid)|
+    char *ptr = (char *)_log.PosPtr();
+    ptr[0] = MAGIC_NUM;
+    uint16_t len = 3;
+    len += varint_encode((int)_info->level, ptr + len);
+    len += varint_encode(_info->filename, ptr + len);
+    len += varint_encode(_info->func_name, ptr + len);
+    len += varint_encode(_info->line, ptr + len);
+    len += varint_encode(_info->pid, ptr + len);
+    len += varint_encode(_info->tid, ptr + len);
+    len += varint_encode(_info->tid == _info->maintid, ptr + len);
+    time_t sec = _info->timeval.tv_sec;
+    tm tm = *localtime((const time_t *)&sec);
+    len += varint_encode(tm.tm_year, ptr + len);
+    len += varint_encode(tm.tm_mon, ptr + len);
+    len += varint_encode(tm.tm_mday, ptr + len);
+    len += varint_encode(tm.tm_gmtoff, ptr + len);
+    len += varint_encode(tm.tm_hour, ptr + len);
+    len += varint_encode(tm.tm_min, ptr + len);
+    len += varint_encode(tm.tm_sec, ptr + len);
+    len += varint_encode(_info->timeval.tv_usec / 1000, ptr + len);
+
+//    len += varint_encode(123, ptr + len);
+//    len += varint_encode(2, ptr + len);
+//    len += varint_encode(17, ptr + len);
+//    len += varint_encode(28800, ptr + len);
+//    len += varint_encode(15, ptr + len);
+//    len += varint_encode(56, ptr + len);
+//    len += varint_encode(30, ptr + len);
+//    len += varint_encode(562000 / 1000, ptr + len);
+
+    if (nullptr != _info->tag && strnlen(_info->tag, 512) > 0) {
+        size_t tag_size = strnlen(_info->tag, 512);
+        len += varint_encode(tag_size, ptr + len);
+        memcpy(ptr + len, _info->tag, tag_size);
+        len += tag_size;
+    } else {
+        len += varint_encode(0, ptr + len);
+    }
+    _size = std::min(_size, _log.MaxLength() - 4 - len);
+//    len += varint_encode(_size, ptr + len);
+    memcpy(ptr + len, _logbody, _size);
+    len += _size;
+    ptr[len] = MAGIC_NUM;
+    len += 1;
+    _log.Length((off_t)len, (size_t)len);
+    len -= 4;
+    memcpy(ptr + 1, &len, sizeof(len));
+
+    ////////////// 测试代码
+//    uint16_t dlen = 3;
+//    uint64_t level = 0;
+//    uint64_t file = 0;
+//    uint64_t fun = 0;
+//    uint64_t line = 0;
+//    uint64_t pid = 0;
+//    uint64_t tid = 0;
+//    uint64_t ismaintid = 0;
+//    uint64_t year = 0;
+//    uint64_t month = 0;
+//    uint64_t day = 0;
+//    uint64_t gmtoff = 0;
+//    uint64_t hour = 0;
+//    uint64_t min = 0;
+//    uint64_t second = 0;
+//    uint64_t millsecond = 0;
+//    uint64_t tag_size = 0;
+//    uint64_t format_id = 0;
+//    uint64_t type = 0;
+//    len += 3;
+//    dlen += varint_decode(ptr + dlen, len - dlen, level);
+//    dlen += varint_decode(ptr + dlen, len - dlen, file);
+//    dlen += varint_decode(ptr + dlen, len - dlen, fun);
+//    dlen += varint_decode(ptr + dlen, len - dlen, line);
+//    dlen += varint_decode(ptr + dlen, len - dlen, pid);
+//    dlen += varint_decode(ptr + dlen, len - dlen, tid);
+//    dlen += varint_decode(ptr + dlen, len - dlen, ismaintid);
+//    dlen += varint_decode(ptr + dlen, len - dlen, year);
+//    dlen += varint_decode(ptr + dlen, len - dlen, month);
+//    dlen += varint_decode(ptr + dlen, len - dlen, day);
+//    dlen += varint_decode(ptr + dlen, len - dlen, gmtoff);
+//    dlen += varint_decode(ptr + dlen, len - dlen, hour);
+//    dlen += varint_decode(ptr + dlen, len - dlen, min);
+//    dlen += varint_decode(ptr + dlen, len - dlen, second);
+//    dlen += varint_decode(ptr + dlen, len - dlen, millsecond);
+//    dlen += varint_decode(ptr + dlen, len - dlen, tag_size);
+//    if (tag_size > 0) {
+//        
+//    }
+//    dlen += varint_decode(ptr + dlen, len - dlen, format_id);
+//    dlen += varint_decode(ptr + dlen, len - dlen, type);
+//    if (2 == type) {
+//        uint64_t str_size = 0;
+//        dlen += varint_decode(ptr + dlen, len - dlen, str_size);
+//        char* log_buffer = new char[str_size];
+//        memcpy(log_buffer, ptr + dlen, str_size);
+//        printf("123");
+//    }
+
+
+}
+
 void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
     static const char* levelStrings[] = {
         "V",

@@ -23,6 +23,7 @@
 
 #include <mars/xlog/xlogger.h>
 #include <mars/xlog/appender.h>
+#include <thread>
 
 @interface AppDelegate ()
 
@@ -33,8 +34,17 @@
 std::string RandStr(const int len) {
     std::string str;
     str.resize(len);
-    for (int i = 0; i < len; ++i) {
+    int format_cnt = 0;
+    for (int i = 0; i < len;) {
         str[i] = 'A' + rand() % 26;
+        if (i%5 == 0 && format_cnt < 5) {
+            ++i;
+            str[i] = '%';
+            ++i;
+            str[i] = '_';
+            format_cnt++;
+        }
+        ++i;
     }
     return str;
 }
@@ -43,6 +53,15 @@ long GetCurrentTime() {
     struct timeval tv;
     gettimeofday(&tv,NULL);
     return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
+
+static void writeLog() {
+    int CNT = 3000;
+    for (int i = 0; i < CNT; ++i) {
+        std::string s = RandStr(50);
+//        xinfo2(TSF s.c_str(), "123", "456", "789", "234", (int)s.size()); // 87 ms  1350ms
+        __xbi(455, 7890, 102, 123456, "123", "456", "789", "234", (int)s.size()); // 36ms 632ms
+    }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -54,12 +73,22 @@ long GetCurrentTime() {
     
     xinfo2(TSF"%0 %1 %0", "123", 345);
     xinfo2("%s %d", "232", 123);
+
+    
+    std::string s = "123fdfdfd";
+    __xbi(455, 7890, 102, 123456, s);
     
     long before = GetCurrentTime();
-    int CNT = 3000;
-    for (int i = 0; i < CNT; ++i) {
-        xinfo2(TSF"%_", RandStr(100));
+    std::thread t[10];
+    for (int i = 0; i < 10; ++i) {
+        t[i] = std::thread(writeLog);
     }
+    
+    for (int i = 0; i < 10; ++i) {
+        t[i].join();
+    }
+    
+    writeLog();
     long after = GetCurrentTime();
     NSLog(@"use time:%ld", (after - before));
     return YES;

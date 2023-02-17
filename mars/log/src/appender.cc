@@ -85,12 +85,13 @@ using namespace mars::comm;
 namespace mars {
 namespace xlog {
 
+extern void log_formater(const XBLoggerInfo* _info, const char* _logbody, size_t _size, PtrBuffer& _log);
 extern void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log);
 extern void ConsoleLog(const XLoggerInfo* _info, const char* _log);
 
 static const int kMaxDumpLength = 4096;
 
-static const unsigned int kBufferBlockLength = 150 * 1024;
+static const unsigned int kBufferBlockLength = 15000 * 1024;
 static const long kMinLogAliveTime = 24 * 60 * 60;    // 1 days in second
 
 static Mutex sg_mutex_dir_attr;
@@ -181,10 +182,65 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
             recursion_str.clear();
         }
 
+        char temp[16 * 1024] = {0};     // tell perry,ray if you want modify size.
+        PtrBuffer log(temp, 0, sizeof(temp));
+        log_formater(_info, _log, log);
         if (kAppenderSync == config_.mode_)
-            __WriteSync(_info, _log);
+            __WriteSync(log);
         else
-            __WriteAsync(_info, _log);
+            __WriteAsync(_info == nullptr ? kLevelInfo : _info->level, log);
+    }
+    recursion_count--;
+}
+
+void XloggerAppender::WriteBinary(const XBLoggerInfo* _info, const char* _log, size_t _size) {
+    if (log_close_) return;
+
+    SCOPE_ERRNO();
+
+    thread_local uint32_t recursion_count = 0;
+    thread_local std::string recursion_str;
+    recursion_count++;
+
+    if (2 <= recursion_count && recursion_str.empty()) {
+        if (recursion_count > 10) return;
+
+        recursion_str.resize(kMaxDumpLength);
+        XLoggerInfo info = {kLevelFatal,
+                            _info->tag,
+                            "",
+                            "",
+                            (int)_info->line,
+                            _info->timeval,
+                            _info->pid,
+                            _info->tid,
+                            _info->maintid,
+                            0};
+
+        char recursive_log[256] = {0};
+        snprintf(recursive_log,
+                 sizeof(recursive_log),
+                 "ERROR!!! xlogger_appender Recursive calls!!!, count:%u",
+                 recursion_count);
+
+        PtrBuffer tmp((void *) recursion_str.data(), 0, kMaxDumpLength);
+        log_formater(&info, recursive_log, tmp);
+
+        ConsoleLog(&info, recursion_str.c_str());
+    } else {
+        if (!recursion_str.empty()) {
+            WriteTips2File(recursion_str.c_str());
+            recursion_str.clear();
+        }
+
+        char temp[16 * 1024] = {0};     // tell perry,ray if you want modify size.
+        PtrBuffer log(temp, 0, sizeof(temp));
+        log_formater(_info, _log, _size, log);
+
+        if (kAppenderSync == config_.mode_)
+            __WriteSync(log);
+        else
+            __WriteAsync(_info->level, log);
     }
     recursion_count--;
 }
@@ -287,7 +343,7 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     tick.gettickcount();
 
     char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap3",
+    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap4",
              config_.cachedir_.empty()?config_.logdir_.c_str():config_.cachedir_.c_str(), config_.nameprefix_.c_str());
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, mmap_file_))  {
@@ -879,34 +935,26 @@ void XloggerAppender::__AsyncLogThread() {
 }
 
 
-void XloggerAppender::__WriteSync(const XLoggerInfo* _info, const char* _log) {
-    char temp[16 * 1024] = {0};     // tell perry,ray if you want modify size.
-    PtrBuffer log(temp, 0, sizeof(temp));
-    log_formater(_info, _log, log);
-
+void XloggerAppender::__WriteSync(const PtrBuffer& _log) {
     AutoBuffer tmp_buff;
-    if (!log_buff_->Write(log.Ptr(), log.Length(), tmp_buff))   return;
+    if (!log_buff_->Write(_log.Ptr(), _log.Length(), tmp_buff))   return;
 
     __Log2File(tmp_buff.Ptr(), tmp_buff.Length(), false);
 }
 
 
-void XloggerAppender::__WriteAsync(const XLoggerInfo* _info, const char* _log) {
-    char temp[16*1024] = {0};       //tell perry,ray if you want modify size.
-    PtrBuffer log_buff(temp, 0, sizeof(temp));
-    log_formater(_info, _log, log_buff);
-
+void XloggerAppender::__WriteAsync(TLogLevel level, PtrBuffer& _log) {
     ScopedLock lock(mutex_buffer_async_);
     if (nullptr == log_buff_) return;
 
     if (log_buff_->GetData().Length() >= kBufferBlockLength*4/5) {
-       int ret = snprintf(temp, sizeof(temp), "[F][ sg_buffer_async.Length() >= BUFFER_BLOCK_LENTH*4/5, len: %d\n", (int)log_buff_->GetData().Length());
-       log_buff.Length(ret, ret);
+       int ret = snprintf((char*)_log.Ptr(), _log.MaxLength(), "[F][ sg_buffer_async.Length() >= BUFFER_BLOCK_LENTH*4/5, len: %d\n", (int)log_buff_->GetData().Length());
+        _log.Length(ret, ret);
     }
 
-    if (!log_buff_->Write(log_buff.Ptr(), (unsigned int)log_buff.Length())) return;
+    if (!log_buff_->Write(_log.Ptr(), (unsigned int)_log.Length())) return;
 
-    if (log_buff_->GetData().Length() >= kBufferBlockLength*1/3 || (nullptr!=_info && kLevelFatal == _info->level)) {
+    if (log_buff_->GetData().Length() >= kBufferBlockLength*2/3 || kLevelFatal == level) {
        cond_buffer_async_.notifyAll();
     }
 }
@@ -1100,6 +1148,14 @@ void xlogger_appender(const XLoggerInfo* _info, const char* _log) {
     sg_default_appender->Write(_info, _log);
 }
 
+void xlogger_binary_appender(const XBLoggerInfo* _info, const char* _log, size_t _size) {
+    if (sg_release_guard) {
+        return;
+    }
+    sg_default_appender->WriteBinary(_info, _log, _size);
+//    sg_default_appender->Write(_info, _log);
+}
+
 static void appender_release_default_appender() {
     if (sg_release_guard) {
         return;
@@ -1125,6 +1181,7 @@ void appender_open(const XLogConfig& _config) {
     }
     sg_release_guard = false;
     xlogger_SetAppender(&xlogger_appender);
+    xlogger_SetBinaryAppender(&xlogger_binary_appender);
     BOOT_RUN_EXIT(appender_release_default_appender);
 }
 

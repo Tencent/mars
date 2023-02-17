@@ -23,6 +23,7 @@
 #include <time.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,10 +54,25 @@ typedef struct XLoggerInfo_t {
     int traceLog;
 } XLoggerInfo;
 
+
+typedef struct XBLoggerInfo_t {
+    TLogLevel level;
+    const char* tag;
+    uint32_t filename;
+    uint32_t func_name;
+    uint32_t line;
+
+    struct timeval timeval;
+    intmax_t pid;
+    intmax_t tid;
+    intmax_t maintid;
+} XBLoggerInfo;
+
 extern intmax_t xlogger_pid();
 extern intmax_t xlogger_tid();
 extern intmax_t xlogger_maintid();
 typedef void (*xlogger_appender_t)(const XLoggerInfo* _info, const char* _log);
+typedef void (*xlogger_binary_appender_t)(const XBLoggerInfo* _info, const char* _log, size_t _size);
 extern const char* xlogger_dump(const void* _dumpbuffer, size_t _len);
 extern const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len);   // same as xlogger_dump, but don't write dumpbuffer to file.
 
@@ -64,6 +80,7 @@ TLogLevel   xlogger_Level();
 void xlogger_SetLevel(TLogLevel _level);
 int  xlogger_IsEnabledFor(TLogLevel _level);
 xlogger_appender_t xlogger_SetAppender(xlogger_appender_t _appender);
+xlogger_binary_appender_t xlogger_SetBinaryAppender(xlogger_binary_appender_t _appender);
 
 typedef int (*xlogger_filter_t)(XLoggerInfo* _info, const char* _log);
 void xlogger_SetFilter(xlogger_filter_t _filter);
@@ -85,6 +102,7 @@ __attribute__((__format__(printf, 2, 3)))
 void        xlogger_Print(const XLoggerInfo* _info, const char* _format, ...);
 void        xlogger_Write(const XLoggerInfo* _info, const char* _log);
 
+void        xlogger_WriteBinary(const XBLoggerInfo* _info, const char* _log, size_t _size);
 #ifdef __cplusplus
 }
 #endif

@@ -16,6 +16,7 @@
  */
 
 #include "xlogger.h"
+#include "mars/comm/string_cast.h"
 
 XLogger::XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace, bool (*_hook)(XLoggerInfo& _info, std::string& _log))
 :m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_isinfonull(false) {
@@ -183,6 +184,44 @@ void XLogger::DoTypeSafeFormat(const char* _format, const string_cast** _args) {
 	}
 }
 
+XBinaryLogger::XBinaryLogger(TLogLevel _level, const char* _tag, uint32_t _file, uint32_t _func, uint32_t _line, bool (*_hook)(XBLoggerInfo_t& _info, std::string& _log))
+:m_info(), m_message(), m_isassert(false), m_exp(NULL),m_hook(_hook), m_isinfonull(false) {
+	m_info.level = _level;
+	m_info.tag = _tag;
+	m_info.filename = _file;
+	m_info.func_name = _func;
+	m_info.line = _line;
+	m_info.pid = -1;
+	m_info.tid = -1;
+	m_info.timeval.tv_sec = 0;
+	m_info.timeval.tv_usec = 0;
+	m_message.reserve(512);
+}
+
+void XBinaryLogger::DoTypeSafeFormat(uint32_t _format_id, const type_value_cast** _args) {
+    char buffer[12] = {0};
+    size_t len = varint_encode(_format_id, buffer);
+    m_message.append(buffer, len);
+    for (int i = 0; i < 16; ++i) {
+        if (nullptr == _args[i]) {
+            break;
+        }
+        const std::string& str = _args[i]->str();
+        m_message += str;
+    }
+}
+
+
+XBinaryLogger::~XBinaryLogger() {
+	if (!m_isassert && m_message.empty()) return;
+
+	gettimeofday(&m_info.timeval, NULL);
+	if (m_hook && !m_hook(m_info, m_message)) return;
+
+
+	xlogger_WriteBinary(m_isinfonull?NULL:&m_info, m_message.c_str(), m_message.size());
+}
+
 XScopeTracer::XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log)
 :m_enable(xlogger_IsEnabledFor(_level)), m_info(), m_tv() {
 	m_info.level = _level;
@@ -312,3 +351,14 @@ void XMessage::DoTypeSafeFormat(const char* _format, const string_cast** _args) 
 		}
 	}
 }
+
+// void XMessage::DoTypeSafeFormat(uint32_t _format_id, const type_value_cast** _args) {
+//     m_message.append((char*)&_format_id, sizeof(uint32_t));
+//     for (int i = 0; i < 16; ++i) {
+//         if (nullptr == _args[i]) {
+//             break;
+//         }
+//         const std::string& str = _args[i]->str();
+//         m_message.append(str, str.size());
+//     }
+// }
