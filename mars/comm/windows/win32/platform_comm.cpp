@@ -88,6 +88,10 @@ namespace mars{
 
             return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
         }
+
+        void OnPlatformNetworkChange(){
+        }
+        
     }// comm namespace
 
 namespace xlog{

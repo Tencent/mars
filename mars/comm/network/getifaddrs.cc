@@ -355,10 +355,16 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
 }
 
 bool getifaddrs_ipv4_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
+    //TODO
 	return false;
 }
 
 bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
+    //TODO
 	return false;
+}
+bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs){
+    //TODO
+    return false;
 }
 #endif
