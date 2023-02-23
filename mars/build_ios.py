@@ -148,16 +148,16 @@ def main():
             break
         else:
             num = input('Enter menu:\n1. Clean && build mars.\n2. Clean && build xlog.\n3. Gen iOS mars Project.\n4. Exit\n')
-            if num == '1':
+            if num == 1:
                 build_ios()
                 break
-            if num == '2':
+            if num == 2:
                 build_ios_xlog()
                 break
-            elif num == '3':
+            elif num == 3:
                 gen_ios_project()
                 break
-            elif num == '4':
+            elif num == 4:
                 break
             else:
                 build_ios()

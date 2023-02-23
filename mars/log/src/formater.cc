@@ -23,12 +23,13 @@
 #include <stdio.h>
 #include <limits.h>
 #include <algorithm>
+#include <sys/time.h>
 
 
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/xlogger/loginfo_extract.h"
 #include "mars/comm/ptrbuffer.h"
-#include "mars/comm/string_cast.h"
+#include "mars/comm/tl_varint_v.h"
 
 #ifdef _WIN32
 #define PRIdMAX "lld"
@@ -41,22 +42,12 @@
 namespace mars {
 namespace xlog {
 
-static char MAGIC_NUM = 1;
+static char kBinaryMagicNum = 1;
+static char kStrNotNullInfoMagicNum = 2;
+static char kStrNullInfoMagicNum = 2;
 
-//inline size_t varint_encode(uint64_t value, char *output) {
-//    size_t outputSize = 0;
-//    // While more than 7 bits of data are left, occupy the last output byte
-//    //  and set the next byte flag
-//    while (value > 127) {
-//      //|128: Set the next byte flag
-//      output[outputSize] = ((uint8_t)(value & 127)) | 128;
-//      // Remove the seven bits we just wrote
-//      value >>= 7;
-//      outputSize++;
-//    }
-//    output[outputSize++] = ((uint8_t)value) & 127;
-//    return outputSize;
-//}
+static std::atomic_uint64_t sg_log_seq(0);
+
 
 inline size_t varint_decode(char *input, size_t inputSize, uint64_t& value) {
     value = 0;
@@ -75,8 +66,12 @@ void log_formater(const XBLoggerInfo *_info, const char *_logbody, size_t _size,
                   PtrBuffer& _log) {
     // |char(magic)|uint16_t(len)|char(level)|uint32_t(file)|uint32_t(fun)|uint32_t(line)|int64_t(pid)|int64_t(tid)|char(ismaintid)|
     char *ptr = (char *)_log.PosPtr();
-    ptr[0] = MAGIC_NUM;
+    ptr[0] = kBinaryMagicNum;
     uint16_t len = 3;
+    uint64_t seq = sg_log_seq++;
+
+    using mars::comm::varint_encode;
+    len += varint_encode(seq, ptr + len);
     len += varint_encode((int)_info->level, ptr + len);
     len += varint_encode(_info->filename, ptr + len);
     len += varint_encode(_info->func_name, ptr + len);
@@ -116,7 +111,7 @@ void log_formater(const XBLoggerInfo *_info, const char *_logbody, size_t _size,
 //    len += varint_encode(_size, ptr + len);
     memcpy(ptr + len, _logbody, _size);
     len += _size;
-    ptr[len] = MAGIC_NUM;
+    ptr[len] = kBinaryMagicNum;
     len += 1;
     _log.Length((off_t)len, (size_t)len);
     len -= 4;
@@ -160,7 +155,7 @@ void log_formater(const XBLoggerInfo *_info, const char *_logbody, size_t _size,
 //    dlen += varint_decode(ptr + dlen, len - dlen, millsecond);
 //    dlen += varint_decode(ptr + dlen, len - dlen, tag_size);
 //    if (tag_size > 0) {
-//        
+//
 //    }
 //    dlen += varint_decode(ptr + dlen, len - dlen, format_id);
 //    dlen += varint_decode(ptr + dlen, len - dlen, type);
@@ -173,6 +168,114 @@ void log_formater(const XBLoggerInfo *_info, const char *_logbody, size_t _size,
 //    }
 
 
+}
+
+
+void log_formater2(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
+    assert((unsigned int)_log.Pos() == _log.Length());
+
+    static int error_count = 0;
+    static int error_size = 0;
+    XLoggerInfo* info = const_cast<XLoggerInfo*>(_info);
+
+    // TODO 处理异常错误信息的附加信息
+    if (_log.MaxLength() <= _log.Length() + 5 * 1024) {  // allowed len(_log) <= 11K(16K - 5K)
+        ++error_count;
+        error_size = (int)strnlen(_logbody, 1024 * 1024);
+
+        if (_log.MaxLength() >= _log.Length() + 128) {
+            int ret = snprintf((char*)_log.PosPtr(), 1024, "[F]log_size <= 5*1024, err(%d, %d)\n", error_count, error_size);  // **CPPLINT SKIP**
+            _log.Length(_log.Pos() + ret, _log.Length() + ret);
+            _log.Write("");
+
+            error_count = 0;
+            error_size = 0;
+        }
+
+        assert(false);
+        return;
+    }
+
+    char *ptr = (char *)_log.PosPtr();
+    uint16_t len = 3;
+    uint64_t seq = sg_log_seq++;
+
+    using mars::comm::varint_encode;
+    if (NULL != info) {
+        if (0 != info->timeval.tv_sec) {
+            gettimeofday(&info->timeval, NULL);
+        }
+        const char* filename = ExtractFileName(info->filename);
+
+#if _WIN32
+        char strFuncName [128] = {0};
+        ExtractFunctionName(_info->func_name, strFuncName, sizeof(strFuncName));
+#else
+        const char* strFuncName = NULL == info->func_name ? "" : info->func_name;
+#endif
+
+        time_t sec = info->timeval.tv_sec;
+        tm tm = *localtime((const time_t*)&sec);
+
+        ptr[0] = kStrNotNullInfoMagicNum;
+        len += varint_encode(seq, ptr + len);
+        len += varint_encode((int)info->level, ptr + len);
+
+        if (filename != NULL && strnlen(filename, 512) > 0) {
+            size_t filename_size = strnlen(filename, 512);
+            len += varint_encode(filename_size, ptr + len);
+            memcpy(ptr + len, filename, filename_size);
+            len += filename_size;
+        } else {
+            len += varint_encode(0, ptr + len);
+        }
+        if (strFuncName != NULL && strnlen(strFuncName, 512) > 0) {
+            size_t fun_size = strnlen(strFuncName, 512);
+            len += varint_encode(fun_size, ptr + len);
+            memcpy(ptr + len, strFuncName, fun_size);
+            len += fun_size;
+        } else {
+            len += varint_encode(0, ptr + len);
+        }
+        len += varint_encode(info->line, ptr + len);
+        len += varint_encode(info->pid, ptr + len);
+        len += varint_encode(info->tid, ptr + len);
+        len += varint_encode(info->tid == info->maintid, ptr + len);
+        len += varint_encode(tm.tm_year, ptr + len);
+        len += varint_encode(tm.tm_mon, ptr + len);
+        len += varint_encode(tm.tm_mday, ptr + len);
+        len += varint_encode(tm.tm_gmtoff, ptr + len);
+        len += varint_encode(tm.tm_hour, ptr + len);
+        len += varint_encode(tm.tm_min, ptr + len);
+        len += varint_encode(tm.tm_sec, ptr + len);
+        len += varint_encode(info->timeval.tv_usec / 1000, ptr + len);
+        if (nullptr != info->tag && strnlen(info->tag, 512) > 0) {
+            size_t tag_size = strnlen(info->tag, 512);
+            len += varint_encode(tag_size, ptr + len);
+            memcpy(ptr + len, info->tag, tag_size);
+            len += tag_size;
+        } else {
+            len += varint_encode(0, ptr + len);
+        }
+    } else {
+        ptr[0] = kStrNullInfoMagicNum;
+        len += varint_encode(seq, ptr + len);
+    }
+
+    if (NULL != _logbody) {
+        size_t log_size = std::min(strnlen(_logbody, 64 * 1024), _log.MaxLength() - 4 - len);
+        memcpy(ptr + len, _logbody, log_size);
+        len += log_size;
+    } else {
+        std::string err_log = "error!! NULL==_logbody";
+        memcpy(ptr + len, err_log.data(), err_log.size());
+        len += err_log.size();
+    }
+    ptr[len] = ptr[0];
+    len += 1;
+    _log.Length((off_t)len, (size_t)len);
+    len -= 4;
+    memcpy(ptr + 1, &len, sizeof(len));
 }
 
 void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {

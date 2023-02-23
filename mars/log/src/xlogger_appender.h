@@ -1,5 +1,7 @@
 #include "mars/log/appender.h"
 
+#include <deque>
+
 #include "boost/iostreams/device/mapped_file.hpp"
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/thread/thread.h"
@@ -33,32 +35,32 @@ class XloggerAppender {
     void SetMaxFileSize(uint64_t _max_byte_size);
     void SetMaxAliveDuration(long _max_time);
     bool GetfilepathFromTimespan(int _timespan, const char* _prefix,
-                                    std::vector<std::string>& _filepath_vec);
+                                 std::vector<std::string>& _filepath_vec);
     bool MakeLogfileName(int _timespan, const char* _prefix,
-                            std::vector<std::string>& _filepath_vec);
+                         std::vector<std::string>& _filepath_vec);
 
  private:
     XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size);
 
-    
-    
+
+
     std::string __MakeLogFileNamePrefix(const timeval& _tv, const char* _prefix);
     void __GetFileNamesByPrefix(const std::string& _logdir,
                                 const std::string& _fileprefix,
                                 const std::string& _fileext,
                                 std::vector<std::string>& _filename_vec);
     void __GetFilePathsFromTimeval(const timeval& _tv,
-                                    const std::string& _logdir,
-                                    const char* _prefix,
-                                    const std::string& _fileext,
-                                    std::vector<std::string>& _filepath_vec);
+                                   const std::string& _logdir,
+                                   const char* _prefix,
+                                   const std::string& _fileext,
+                                   std::vector<std::string>& _filepath_vec);
     long __GetNextFileIndex(const std::string& _fileprefix, const std::string& _fileext);
     void __MakeLogFileName(const timeval& _tv,
-                            const std::string& _logdir,
-                            const char* _prefix,
-                            const std::string& _fileext,
-                            char* _filepath, unsigned int _len);
-    
+                           const std::string& _logdir,
+                           const char* _prefix,
+                           const std::string& _fileext,
+                           char* _filepath, unsigned int _len);
+
     void __GetMarkInfo(char* _info, size_t _info_len);
     void __WriteTips2Console(const char* _tips_format, ...);
     bool __WriteFile(const void* _data, size_t _len, FILE* _file);
@@ -72,14 +74,26 @@ class XloggerAppender {
     void __DelTimeoutFile(const std::string& _log_path);
     bool __AppendFile(const std::string& _src_file, const std::string& _dst_file);
     void __MoveOldFiles(const std::string& _src_path, const std::string& _dest_path,
-                            const std::string& _nameprefix);
+                        const std::string& _nameprefix);
+
+ private:
+    class LogBuffer {
+     public:
+        LogBaseBuffer* buffer_ = nullptr;
+        comm::Mutex mutex_buffer_async_;
+        boost::iostreams::mapped_file mmap_file_;
+
+     public:
+        void Close();
+    };
 
  private:
     XLogConfig config_;
-    LogBaseBuffer* log_buff_ = nullptr;
-    boost::iostreams::mapped_file mmap_file_;
+    std::vector<LogBuffer*> log_buffers_;
+//    LogBaseBuffer* log_buff_ = nullptr;
+//    boost::iostreams::mapped_file mmap_file_;
     comm::Thread thread_async_;
-    comm::Mutex mutex_buffer_async_;
+//    comm::Mutex mutex_buffer_async_;
     comm::Mutex mutex_log_file_;
     FILE* logfile_ = nullptr;
     time_t openfiletime_ = 0;
@@ -96,6 +110,9 @@ class XloggerAppender {
     time_t last_time_ = 0;
     uint64_t last_tick_ = 0;
     char last_file_path_[1024] = {0};
+    uint8_t log_buffer_cnt_ = 1;
+    comm::Mutex mutex_flush_index_;
+    std::deque<uint8_t> waiting_flush_index_;
 };
 
 }

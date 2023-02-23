@@ -198,9 +198,9 @@ XBinaryLogger::XBinaryLogger(TLogLevel _level, const char* _tag, uint32_t _file,
 	m_message.reserve(512);
 }
 
-void XBinaryLogger::DoTypeSafeFormat(uint32_t _format_id, const type_value_cast** _args) {
+void XBinaryLogger::DoTypeSafeFormat(uint32_t _format_id, const mars::comm::TLVarIntV** _args) {
     char buffer[12] = {0};
-    size_t len = varint_encode(_format_id, buffer);
+    size_t len = mars::comm::varint_encode(_format_id, buffer);
     m_message.append(buffer, len);
     for (int i = 0; i < 16; ++i) {
         if (nullptr == _args[i]) {

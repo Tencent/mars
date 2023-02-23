@@ -25,6 +25,7 @@
 #include <sys/time.h>
 
 #include "mars/comm/string_cast.h"
+#include "mars/comm/tl_varint_v.h"
 #include "xloggerbase.h"
 #include "preprocessor.h"
 
@@ -59,12 +60,12 @@ const struct XLoggerTag {XLoggerTag(){}} __xlogger_tag__;
 const struct XLoggerInfoNull {XLoggerInfoNull(){}} __xlogger_info_null__;
 
 class XMessage {
-public:
+ public:
     XMessage(): m_message() { m_message.reserve(512); }
     XMessage(std::string& _holder):m_message(_holder){}
     ~XMessage() {}
 
-public:
+ public:
     const std::string& Message() const { return m_message;}
     std::string& Message() { return m_message;}
 
@@ -115,25 +116,25 @@ public:
     XMessage&  operator()(const TypeSafeFormat&, const char*_format XLOGGER_FORMAT_ARGS(16));
 #undef XLOGGER_FORMAT_ARGS
 
-private:
+ private:
     void DoTypeSafeFormat(const char* _format, const string_cast** _args);
 
-private:
+ private:
 //	  XMessage(const XMessage&);
 //	  XMessage& operator=(const XMessage&);
 
-private:
+ private:
     std::string m_message;
 };
 
 class XLogger {
-public:
+ public:
     XLogger(TLogLevel _level, const char* _tag, const char* _file, const char* _func, int _line, bool _trace = false, bool (*_hook)(XLoggerInfo& _info, std::string& _log) = NULL);
     ~XLogger();
 
-public:
+ public:
     XLogger& Assert(const char* _exp);
-    
+
     bool Empty() const { return !m_isassert && m_message.empty();}
     const std::string& Message() const { return m_message;}
     void ForwardToSysTrace(){   m_info.traceLog = 1;    }
@@ -144,7 +145,7 @@ public:
 #endif
     XLogger&  WriteNoFormat(const char* _log) { m_message+= _log; return *this;}
 #ifdef __GNUC__
-     __attribute__((__format__ (printf, 3, 0)))
+    __attribute__((__format__ (printf, 3, 0)))
 #endif
     XLogger&  WriteNoFormat(const TypeSafeFormat&, const char* _log) { m_message+= _log; return *this;}
 
@@ -164,7 +165,7 @@ public:
     XLogger& operator()(const char* _format, ...);
 
 #ifdef __GNUC__
-     __attribute__((__format__ (printf, 2, 0)))
+    __attribute__((__format__ (printf, 2, 0)))
 #endif
     XLogger& VPrintf(const char* _format, va_list _list);
 
@@ -188,14 +189,14 @@ public:
     XLogger&  operator()(const TypeSafeFormat&, const char*_format XLOGGER_FORMAT_ARGS(16));
 #undef XLOGGER_FORMAT_ARGS
 
-private:
+ private:
     void DoTypeSafeFormat(const char* _format, const string_cast** _args);
-    
-private:
+
+ private:
     XLogger(const XLogger&);
     XLogger& operator=(const XLogger&);
-    
-private:
+
+ private:
     XLoggerInfo m_info;
     std::string m_message;
     bool m_isassert;
@@ -206,13 +207,13 @@ private:
 
 
 class XBinaryLogger {
-public:
+ public:
     XBinaryLogger(TLogLevel _level, const char* _tag, uint32_t _file, uint32_t _func, uint32_t _line, bool (*_hook)(XBLoggerInfo_t& _info, std::string& _log) = NULL);
     ~XBinaryLogger();
 
-public:
+ public:
     XBinaryLogger& Assert(const char* _exp);
-    
+
     bool Empty() const { return !m_isassert && m_message.empty();}
     const std::string& Message() const { return m_message;}
     void Clear() { m_message.clear(); }
@@ -225,7 +226,7 @@ public:
     XBinaryLogger& operator()(const XLoggerTag&, const char* _tag) { m_info.tag = _tag; return *this;}
 
 
-#define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const type_value_cast& a)
+#define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const mars::comm::TLVarIntV& a)
     XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(0));
     XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(1));
     XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(2));
@@ -245,14 +246,14 @@ public:
     XBinaryLogger&  operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(16));
 #undef XLOGGER_FORMAT_ARGS
 
-private:
-    void DoTypeSafeFormat(uint32_t _format_id, const type_value_cast** _args);
-    
-private:
+ private:
+    void DoTypeSafeFormat(uint32_t _format_id, const mars::comm::TLVarIntV** _args);
+
+ private:
     XBinaryLogger(const XBinaryLogger&);
     XBinaryLogger& operator=(const XBinaryLogger&);
-    
-private:
+
+ private:
     XBLoggerInfo m_info;
     std::string m_message;
     bool m_isassert = false;
@@ -263,23 +264,23 @@ private:
 
 
 class XScopeTracer {
-public:
+ public:
     XScopeTracer(TLogLevel _level, const char* _tag, const char* _name, const char* _file, const char* _func, int _line, const char* _log);
 
     ~XScopeTracer();
-    
+
     void Exit(const std::string& _exitmsg) { m_exitmsg += _exitmsg; }
-    
-private:
+
+ private:
     XScopeTracer(const XScopeTracer&);
     XScopeTracer& operator=(const XScopeTracer&);
 
-private:
+ private:
     bool m_enable;
     XLoggerInfo m_info;
     char m_name[128];
     timeval m_tv;
-    
+
     std::string m_exitmsg;
 };
 
@@ -354,12 +355,12 @@ XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(16, 0)
 #undef XLOGGER_VARIANT_ARGS_NULL
 #undef XLOGGER_TYPESAFE_FORMAT_IMPLEMENT
 
-#define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const type_value_cast& a)
+#define XLOGGER_FORMAT_ARGS(n) PP_ENUM_TRAILING_PARAMS(n, const mars::comm::TLVarIntV& a)
 #define XLOGGER_VARIANT_ARGS(n) PP_ENUM_PARAMS(n, &a)
 #define XLOGGER_VARIANT_ARGS_NULL(n) PP_ENUM(n, NULL)
 #define XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(n, m) \
         inline XBinaryLogger& XBinaryLogger::operator()(uint32_t _format_id XLOGGER_FORMAT_ARGS(n)) { \
-        const type_value_cast* args[16] = { XLOGGER_VARIANT_ARGS(n) PP_COMMA_IF(PP_AND(n, m)) XLOGGER_VARIANT_ARGS_NULL(m) }; \
+        const mars::comm::TLVarIntV* args[16] = { XLOGGER_VARIANT_ARGS(n) PP_COMMA_IF(PP_AND(n, m)) XLOGGER_VARIANT_ARGS_NULL(m) }; \
         DoTypeSafeFormat(_format_id, args); \
         return *this;\
     }
@@ -399,10 +400,10 @@ XLOGGER_TYPESAFE_FORMAT_IMPLEMENT(16, 0)
 #define __XFILE__					(__FILE__)
 
 #ifndef _MSC_VER
-    //#define __XFUNCTION__		  __PRETTY_FUNCTION__
-    #define __XFUNCTION__		__FUNCTION__
+//#define __XFUNCTION__		  __PRETTY_FUNCTION__
+#define __XFUNCTION__		__FUNCTION__
 #else
-    // Definitely, VC6 not support this feature!
+// Definitely, VC6 not support this feature!
     #if _MSC_VER > 1200
         //#define __XFUNCTION__	__FUNCSIG__
         #define __XFUNCTION__	__FUNCTION__

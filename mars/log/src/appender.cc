@@ -256,6 +256,13 @@ void XloggerAppender::SetMode(TAppenderMode _mode) {
 }
 
 void XloggerAppender::Flush() {
+    if (kAppenderSync == config_.mode_) {
+        return;
+    }
+    ScopedLock lock(mutex_flush_index_);
+    for (uint8_t i = 0; i < log_buffer_cnt_; ++i) {
+        waiting_flush_index_.push_back(i);
+    }
     cond_buffer_async_.notifyAll();
 }
 
@@ -264,16 +271,20 @@ void XloggerAppender::FlushSync() {
         return;
     }
 
-    ScopedLock lock_buffer(mutex_buffer_async_);
-    
-    if (nullptr == log_buff_) return;
+    for (size_t i = 0; i < log_buffers_.size(); ++i) {
+        LogBuffer* log_buffer = log_buffers_[i];
+        ScopedLock lock(log_buffer->mutex_buffer_async_);
+        if (nullptr == log_buffer->buffer_) {
+            continue;
+        }
+        AutoBuffer tmp;
+        log_buffer->buffer_->Flush(tmp);
+        lock.unlock();
 
-    AutoBuffer tmp;
-    log_buff_->Flush(tmp);
-
-    lock_buffer.unlock();
-
-    if (tmp.Ptr())  __Log2File(tmp.Ptr(), tmp.Length(), false);
+        if (tmp.Ptr())  {
+            __Log2File(tmp.Ptr(), tmp.Length(), false);
+        }
+    }
 }
 
 void XloggerAppender::Close() {
@@ -287,27 +298,23 @@ void XloggerAppender::Close() {
 
     log_close_ = true;
 
+    // TODO close 的时候要看刷文件线程会不会来不及刷就 break 了
+    ScopedLock lock(mutex_flush_index_);
+    for (uint8_t i = 0; i < log_buffer_cnt_; ++i) {
+        waiting_flush_index_.push_back(i);
+    }
+    lock.unlock();
+
     cond_buffer_async_.notifyAll();
 
     if (thread_async_.isruning())
         thread_async_.join();
-    
-    ScopedLock buffer_lock(mutex_buffer_async_);
-    if (mmap_file_.is_open()) {
-        if (!mmap_file_.operator !()) memset(mmap_file_.data(), 0, kBufferBlockLength);
 
-        CloseMmapFile(mmap_file_);
-    } else {
-        if (nullptr != log_buff_) {
-            delete[] (char*)((log_buff_->GetData()).Ptr());
-        }
+    for (auto& log_buffer : log_buffers_) {
+        log_buffer->Close();
     }
-
-    delete log_buff_;
-    log_buff_ = nullptr;
-    buffer_lock.unlock();
-
-    ScopedLock lock(mutex_log_file_);
+    
+    ScopedLock file_lock(mutex_log_file_);
     __CloseLogFile();
 }
 
@@ -342,34 +349,60 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     tickcount_t tick;
     tick.gettickcount();
 
-    char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path, sizeof(mmap_file_path), "%s/%s.mmap4",
-             config_.cachedir_.empty()?config_.logdir_.c_str():config_.cachedir_.c_str(), config_.nameprefix_.c_str());
     bool use_mmap = false;
-    if (OpenMmapFile(mmap_file_path, kBufferBlockLength, mmap_file_))  {
-	    if (_config.compress_mode_ == kZstd){
-		    log_buff_ = new LogZstdBuffer(mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
-	    }else {
-		    log_buff_ = new LogZlibBuffer(mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
-	    }
-        use_mmap = true;
-    } else {
-        char* buffer = new char[kBufferBlockLength];
-	    if (_config.compress_mode_ == kZstd){
-		    log_buff_ = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
-	    } else {
-		    log_buff_ = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());
-	    }
-        use_mmap = false;
-    }
 
-    if (nullptr == log_buff_->GetData().Ptr()) {
-        if (use_mmap && mmap_file_.is_open())  CloseMmapFile(mmap_file_);
-        return;
-    }
+    std::vector<AutoBuffer*> mmap_buffers;
 
-    AutoBuffer buffer;
-    log_buff_->Flush(buffer);
+    // TODO 加密的 key 计算一次就行了, 打开逻辑封装到 logBuffer 的 Open 函数中
+    for (uint8_t i = 0; i < log_buffer_cnt_; ++i) {
+        LogBuffer log_buffer;
+        char mmap_file_path[512] = {0};
+        snprintf(mmap_file_path,
+                 sizeof(mmap_file_path),
+                 "%s/%s_%d.mmap4",
+                 config_.cachedir_.empty() ? config_.logdir_.c_str() : config_.cachedir_.c_str(),
+                 config_.nameprefix_.c_str(),
+                 i);
+
+        if (OpenMmapFile(mmap_file_path, kBufferBlockLength, log_buffer.mmap_file_)) {
+            if (_config.compress_mode_ == kZstd) {
+                log_buffer.buffer_ = new LogZstdBuffer(log_buffer.mmap_file_.data(),
+                                                       kBufferBlockLength,
+                                                       true,
+                                                       _config.pub_key_.c_str(),
+                                                       _config.compress_level_);
+            } else {
+                log_buffer.buffer_ =
+                    new LogZlibBuffer(log_buffer.mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
+            }
+            use_mmap = true;
+            AutoBuffer* auto_buffer = new AutoBuffer();
+            log_buffer.buffer_->Flush(*auto_buffer);
+            if (auto_buffer->Ptr()) {
+                mmap_buffers.push_back(auto_buffer);
+            } else {
+                delete auto_buffer;
+            }
+        } else {
+            char* buffer = new char[kBufferBlockLength];
+            if (_config.compress_mode_ == kZstd) {
+                log_buffer.buffer_ = new LogZstdBuffer(buffer,
+                                                       kBufferBlockLength,
+                                                       true,
+                                                       _config.pub_key_.c_str(),
+                                                       _config.compress_level_);
+            } else {
+                log_buffer.buffer_ = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());
+            }
+            use_mmap = false;
+        }
+
+        if (nullptr == log_buffer.buffer_->GetData().Ptr()) {
+            if (use_mmap && log_buffer.mmap_file_.is_open())
+                CloseMmapFile(log_buffer.mmap_file_);
+            return;
+        }
+    }
 
     ScopedLock lock(mutex_log_file_);
     log_close_ = false;
@@ -379,9 +412,12 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     char mark_info[512] = {0};
     __GetMarkInfo(mark_info, sizeof(mark_info));
 
-    if (buffer.Ptr()) {
+    if (!mmap_buffers.empty()) {
         WriteTips2File("~~~~~ begin of mmap ~~~~~\n");
-        __Log2File(buffer.Ptr(), buffer.Length(), false);
+        for (size_t i = 0; i < mmap_buffers.size(); ++i) {
+            __Log2File(mmap_buffers[i]->Ptr(), mmap_buffers[i]->Length(), false);
+            delete mmap_buffers[i];
+        }
         WriteTips2File("~~~~~ end of mmap ~~~~~%s\n", mark_info);
     }
 
@@ -710,10 +746,11 @@ bool XloggerAppender::__WriteFile(const void* _data, size_t _len, FILE* _file) {
         char err_log[256] = {0};
         snprintf(err_log, sizeof(err_log), "\nwrite file error:%d\n", err);
 
-        AutoBuffer tmp_buff;
-        log_buff_->Write(err_log, strnlen(err_log, sizeof(err_log)), tmp_buff);
-
-        fwrite(tmp_buff.Ptr(), tmp_buff.Length(), 1, _file);
+        // TODO fix error
+//        AutoBuffer tmp_buff;
+//        log_buff_->Write(err_log, strnlen(err_log, sizeof(err_log)), tmp_buff);
+//
+//        fwrite(tmp_buff.Ptr(), tmp_buff.Length(), 1, _file);
 
         return false;
     }
@@ -784,9 +821,10 @@ bool XloggerAppender::__OpenLogFile(const std::string& _log_dir) {
         snprintf(log, sizeof(log), "[F][ last log file:%s from %s to %s, time_diff:%ld, tick_diff:%" PRIu64 "\n",
                     last_file_path_, last_time_str, now_time_str, now_time-last_time_, now_tick-last_tick_);
 
-        AutoBuffer tmp_buff;
-        log_buff_->Write(log, strnlen(log, sizeof(log)), tmp_buff);
-        __WriteFile(tmp_buff.Ptr(), tmp_buff.Length(), logfile_);
+        // TODO fix build error
+//        AutoBuffer tmp_buff;
+//        log_buff_->Write(log, strnlen(log, sizeof(log)), tmp_buff);
+//        __WriteFile(tmp_buff.Ptr(), tmp_buff.Length(), logfile_);
     }
 
     memcpy(last_file_path_, logfilepath, sizeof(last_file_path_));
@@ -897,6 +935,7 @@ void XloggerAppender::__Log2File(const void* _data, size_t _len, bool _move_file
     }
 }
 
+// TODO 要处理这里的日志, 看看全局顺序怎么添加
 void XloggerAppender::WriteTips2File(const char* _tips_format, ...) {
     if (nullptr == _tips_format) {
         return;
@@ -908,27 +947,39 @@ void XloggerAppender::WriteTips2File(const char* _tips_format, ...) {
     vsnprintf(tips_info, sizeof(tips_info), _tips_format, ap);
     va_end(ap);
 
-    AutoBuffer tmp_buff;
-    log_buff_->Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp_buff);
-    
-    __Log2File(tmp_buff.Ptr(), tmp_buff.Length(), false);
+    // TODO fix build error
+//    AutoBuffer tmp_buff;
+//    log_buff_->Write(tips_info, strnlen(tips_info, sizeof(tips_info)), tmp_buff);
+//
+//    __Log2File(tmp_buff.Ptr(), tmp_buff.Length(), false);
 }
 
-
+// TODO close的时候这里可能来不及刷就 break 了
 void XloggerAppender::__AsyncLogThread() {
     while (true) {
-
-        ScopedLock lock_buffer(mutex_buffer_async_);
-
-        if (nullptr == log_buff_) break;
-
-        AutoBuffer tmp;
-        log_buff_->Flush(tmp);
-        lock_buffer.unlock();
-
-        if (nullptr != tmp.Ptr())  __Log2File(tmp.Ptr(), tmp.Length(), true);
-
-        if (log_close_) break;
+        for (int i = 0; i < log_buffer_cnt_ * 10; ++i) {
+            ScopedLock lock(mutex_flush_index_);
+            if (waiting_flush_index_.empty()) {
+                break;
+            }
+            uint8_t index = waiting_flush_index_.front();
+            waiting_flush_index_.pop_front();
+            lock.unlock();
+            LogBuffer* log_buffer = log_buffers_[index];
+            ScopedLock lock_buffer(log_buffer->mutex_buffer_async_);
+            if (nullptr == log_buffer->buffer_) {
+                continue;
+            }
+            AutoBuffer tmp;
+            log_buffer->buffer_->Flush(tmp);
+            lock_buffer.unlock();
+            if (nullptr != tmp.Ptr()) {
+                __Log2File(tmp.Ptr(), tmp.Length(), true);
+            }
+        }
+        if (log_close_) {
+            break;
+        }
 
         cond_buffer_async_.wait(15 * 60 * 1000);
     }
@@ -937,25 +988,36 @@ void XloggerAppender::__AsyncLogThread() {
 
 void XloggerAppender::__WriteSync(const PtrBuffer& _log) {
     AutoBuffer tmp_buff;
-    if (!log_buff_->Write(_log.Ptr(), _log.Length(), tmp_buff))   return;
+    if (log_buffers_.empty()) {
+        return;
+    }
+    if (!log_buffers_[0]->buffer_->Write(_log.Ptr(), _log.Length(), tmp_buff)) {
+        return;
+    }
 
     __Log2File(tmp_buff.Ptr(), tmp_buff.Length(), false);
 }
 
 
 void XloggerAppender::__WriteAsync(TLogLevel level, PtrBuffer& _log) {
-    ScopedLock lock(mutex_buffer_async_);
-    if (nullptr == log_buff_) return;
+    static std::atomic_uint8_t s_buffer_index(0);
+    uint8_t buffer_index = (s_buffer_index++) % log_buffer_cnt_;
+    LogBuffer* log_buffer = log_buffers_[buffer_index];
 
-    if (log_buff_->GetData().Length() >= kBufferBlockLength*4/5) {
-       int ret = snprintf((char*)_log.Ptr(), _log.MaxLength(), "[F][ sg_buffer_async.Length() >= BUFFER_BLOCK_LENTH*4/5, len: %d\n", (int)log_buff_->GetData().Length());
+    ScopedLock lock(log_buffer->mutex_buffer_async_);
+    if (nullptr == log_buffer->buffer_) return;
+
+    if (log_buffer->buffer_->GetData().Length() >= kBufferBlockLength*4/5) {
+       int ret = snprintf((char*)_log.Ptr(), _log.MaxLength(), "[F][ sg_buffer_async.Length() >= BUFFER_BLOCK_LENTH*4/5, len: %d\n", (int)log_buffer->buffer_->GetData().Length());
         _log.Length(ret, ret);
     }
 
-    if (!log_buff_->Write(_log.Ptr(), (unsigned int)_log.Length())) return;
+    if (!log_buffer->buffer_->Write(_log.Ptr(), (unsigned int)_log.Length())) return;
 
-    if (log_buff_->GetData().Length() >= kBufferBlockLength*2/3 || kLevelFatal == level) {
-       cond_buffer_async_.notifyAll();
+    if (log_buffer->buffer_->GetData().Length() >= kBufferBlockLength * 2 / 3 || kLevelFatal == level) {
+        ScopedLock waiting_index_lock(mutex_flush_index_);
+        waiting_flush_index_.push_back(buffer_index);
+        cond_buffer_async_.notifyAll();
     }
 }
 
@@ -1132,6 +1194,23 @@ bool XloggerAppender::MakeLogfileName(int _timespan, const char* _prefix,
     }
     
     return true;
+}
+
+void XloggerAppender::LogBuffer::Close() {
+    if (mmap_file_.is_open()) {
+        if (!mmap_file_.operator!()) {
+            memset(mmap_file_.data(), 0, kBufferBlockLength);
+        }
+
+        CloseMmapFile(mmap_file_);
+    } else {
+        if (nullptr != buffer_) {
+            delete[](char*)((buffer_->GetData()).Ptr());
+        }
+    }
+
+    delete buffer_;
+    buffer_ = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

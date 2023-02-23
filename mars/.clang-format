@@ -1,0 +1,46 @@
+BasedOnStyle: Google
+IndentWidth: 4
+---
+Language: Cpp
+# Force pointers to the type for C++.
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: None
+PointerAlignment: Left
+DerivePointerAlignment: false
+ColumnLimit: 120
+BinPackParameters: false
+BinPackArguments: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+AlignAfterOpenBracket: Align
+BreakConstructorInitializers: BeforeComma
+BreakBeforeBinaryOperators: NonAssignment
+AccessModifierOffset: -3
+ConstructorInitializerIndentWidth: 0
+AlignOperands:   true
+
+SortIncludes: true
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel:  false
+  AfterClass:      false
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterFunction:   false
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  AfterExternBlock: false
+  BeforeCatch:     false
+  BeforeElse:      false
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
