@@ -110,7 +110,7 @@ class XloggerAppender {
     time_t last_time_ = 0;
     uint64_t last_tick_ = 0;
     char last_file_path_[1024] = {0};
-    uint8_t log_buffer_cnt_ = 1;
+    uint8_t log_buffer_cnt_ = 4;
     comm::Mutex mutex_flush_index_;
     std::deque<uint8_t> waiting_flush_index_;
 };

@@ -14,19 +14,19 @@ namespace comm {
 
 template<typename T>
 size_t varint_encode(T value, char *output) {
-    size_t outputSize = 0;
+    size_t output_size = 0;
     // While more than 7 bits of data are left, occupy the last output byte
     //  and set the next byte flag
     while (value > 127) {
         //|128: Set the next byte flag
-        output[outputSize] = ((uint8_t)(value & 127)) | 128;
+        output[output_size++] = ((uint8_t)(value & 127)) | 128;
         // Remove the seven bits we just wrote
         value >>= 7;
-        outputSize++;
     }
-    output[outputSize++] = ((uint8_t)value) & 127;
-    return outputSize;
+    output[output_size++] = ((uint8_t)value) & 127;
+    return output_size;
 }
+
 
 class TLVarIntV {
  private:

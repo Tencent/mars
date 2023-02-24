@@ -21,15 +21,15 @@ class LogMagicNum {
 public:
     LogMagicNum() = delete;
 
-    static const char kMagicSyncZlibStart = '\x06';
-    static const char kMagicSyncNoCryptZlibStart ='\x08';
-    static const char kMagicAsyncZlibStart ='\x07';
-    static const char kMagicAsyncNoCryptZlibStart ='\x09';
+    static const char kMagicSyncZlibStart = '\x0E';
+    static const char kMagicSyncNoCryptZlibStart ='\x0F';
+    static const char kMagicAsyncZlibStart ='\x10';
+    static const char kMagicAsyncNoCryptZlibStart ='\x11';
 
-    static const char kMagicSyncZstdStart = '\x0A';
-    static const char kMagicSyncNoCryptZstdStart ='\x0B';
-    static const char kMagicAsyncZstdStart ='\x0C';
-    static const char kMagicAsyncNoCryptZstdStart ='\x0D';
+    static const char kMagicSyncZstdStart = '\x12';
+    static const char kMagicSyncNoCryptZstdStart ='\x13';
+    static const char kMagicAsyncZstdStart ='\x14';
+    static const char kMagicAsyncNoCryptZstdStart ='\x15';
 
     static const char kMagicEnd  = '\0';
 

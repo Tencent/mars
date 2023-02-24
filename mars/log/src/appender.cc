@@ -91,7 +91,7 @@ extern void ConsoleLog(const XLoggerInfo* _info, const char* _log);
 
 static const int kMaxDumpLength = 4096;
 
-static const unsigned int kBufferBlockLength = 15000 * 1024;
+static const unsigned int kBufferBlockLength = 150 * 1024;
 static const long kMinLogAliveTime = 24 * 60 * 60;    // 1 days in second
 
 static Mutex sg_mutex_dir_attr;
@@ -355,7 +355,7 @@ void XloggerAppender::Open(const XLogConfig& _config) {
 
     // TODO 加密的 key 计算一次就行了, 打开逻辑封装到 logBuffer 的 Open 函数中
     for (uint8_t i = 0; i < log_buffer_cnt_; ++i) {
-        LogBuffer log_buffer;
+        LogBuffer* log_buffer = new LogBuffer();
         char mmap_file_path[512] = {0};
         snprintf(mmap_file_path,
                  sizeof(mmap_file_path),
@@ -364,20 +364,20 @@ void XloggerAppender::Open(const XLogConfig& _config) {
                  config_.nameprefix_.c_str(),
                  i);
 
-        if (OpenMmapFile(mmap_file_path, kBufferBlockLength, log_buffer.mmap_file_)) {
+        if (OpenMmapFile(mmap_file_path, kBufferBlockLength, log_buffer->mmap_file_)) {
             if (_config.compress_mode_ == kZstd) {
-                log_buffer.buffer_ = new LogZstdBuffer(log_buffer.mmap_file_.data(),
+                log_buffer->buffer_ = new LogZstdBuffer(log_buffer->mmap_file_.data(),
                                                        kBufferBlockLength,
                                                        true,
                                                        _config.pub_key_.c_str(),
                                                        _config.compress_level_);
             } else {
-                log_buffer.buffer_ =
-                    new LogZlibBuffer(log_buffer.mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
+                log_buffer->buffer_ =
+                    new LogZlibBuffer(log_buffer->mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
             }
             use_mmap = true;
             AutoBuffer* auto_buffer = new AutoBuffer();
-            log_buffer.buffer_->Flush(*auto_buffer);
+            log_buffer->buffer_->Flush(*auto_buffer);
             if (auto_buffer->Ptr()) {
                 mmap_buffers.push_back(auto_buffer);
             } else {
@@ -386,22 +386,23 @@ void XloggerAppender::Open(const XLogConfig& _config) {
         } else {
             char* buffer = new char[kBufferBlockLength];
             if (_config.compress_mode_ == kZstd) {
-                log_buffer.buffer_ = new LogZstdBuffer(buffer,
+                log_buffer->buffer_ = new LogZstdBuffer(buffer,
                                                        kBufferBlockLength,
                                                        true,
                                                        _config.pub_key_.c_str(),
                                                        _config.compress_level_);
             } else {
-                log_buffer.buffer_ = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());
+                log_buffer->buffer_ = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());
             }
             use_mmap = false;
         }
 
-        if (nullptr == log_buffer.buffer_->GetData().Ptr()) {
-            if (use_mmap && log_buffer.mmap_file_.is_open())
-                CloseMmapFile(log_buffer.mmap_file_);
+        if (nullptr == log_buffer->buffer_->GetData().Ptr()) {
+            if (use_mmap && log_buffer->mmap_file_.is_open())
+                CloseMmapFile(log_buffer->mmap_file_);
             return;
         }
+        log_buffers_.push_back(log_buffer);
     }
 
     ScopedLock lock(mutex_log_file_);

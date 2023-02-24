@@ -171,7 +171,7 @@ void log_formater(const XBLoggerInfo *_info, const char *_logbody, size_t _size,
 }
 
 
-void log_formater2(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
+void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
     assert((unsigned int)_log.Pos() == _log.Length());
 
     static int error_count = 0;
@@ -278,7 +278,7 @@ void log_formater2(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _l
     memcpy(ptr + 1, &len, sizeof(len));
 }
 
-void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
+void log_formater2(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
     static const char* levelStrings[] = {
         "V",
         "D",  // debug
