@@ -42,10 +42,10 @@ struct DNSBreaker {
 
 class DNS {
   public:
-   typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
+//    typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
 
   public:
-    DNS(DNSFunc _dnsfunc=NULL);
+    DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc = NULL);
     ~DNS();
     
   public:
@@ -57,11 +57,14 @@ class DNS {
     	monitor_func_ = _monitor_func;
     }
 
-    void SetDnsFunc(DNSFunc _dnsfunc) {
+    void SetDnsFunc(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc) {
       dnsfunc_ = _dnsfunc;
     }
+ public:
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
+    
   private:
-    DNSFunc dnsfunc_;
+//    DNSFunc dnsfunc_;
     boost::function<void (int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
 };

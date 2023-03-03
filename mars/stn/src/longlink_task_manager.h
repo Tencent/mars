@@ -32,6 +32,7 @@
 
 #include "longlink_metadata.h"
 #include "task_intercept.h"
+#include "mars/boot/context.h"
 
 class AutoBuffer;
 
@@ -65,7 +66,7 @@ class LongLinkTaskManager {
     static boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
+    LongLinkTaskManager(mars::boot::Context* _context, mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
     bool StartTask(const Task& _task, int _channel);
@@ -94,7 +95,7 @@ class LongLinkTaskManager {
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     void ReleaseLongLink(const std::string _name);
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
-    bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+    bool DisconnectByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
 
   private:
@@ -117,13 +118,14 @@ class LongLinkTaskManager {
 #ifdef __APPLE__
     void __ResetLongLink(const std::string& _name);
 #endif
-    void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
+    void __Disconnect(const std::string& _name, longlink::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name, bool need_lock_link = true);
     void __DumpLongLinkChannelInfo();
     bool __ForbidUseTls(const std::vector<std::string>& _host_list);
     ConnectProfile __GetConnectionProfile(std::shared_ptr<LongLinkMetaData> longlink);
     
   private:
+    boot::Context* context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
     uint64_t                        lastbatcherrortime_;   // ms
