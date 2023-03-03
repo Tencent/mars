@@ -43,6 +43,8 @@ struct DnsProfile;
 struct ConnectProfile;
 class LongLinkEncoder;
 
+static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
+
 enum PackerEncoderVersion {
     kOld = 1,
     kNew = 2,
@@ -210,7 +212,7 @@ enum ErrCmdType {
 	kEctEnDecode = 7,
 	kEctServer = 8,
 	kEctLocal = 9,
-    kEctCanceld = 10,
+        kEctCanceld = 10,
 };
 
 //error code
@@ -308,6 +310,38 @@ enum TimeoutSource {
     kCgiSpecial = 2,
 };
 
+//move form longlink
+
+// Note: Never Delete Item!!!Just Add!!!
+namespace longlink {
+enum TDisconnectInternalCode {
+    kNone = 0,
+    kReset = 10000,        // no use
+    kRemoteClosed = 10001,
+    kUnknownErr = 10002,
+    kNoopTimeout = 10003,
+    kDecodeError = 10004,
+    kUnknownRead = 10005,
+    kUnknownWrite = 10006,
+    kDecodeErr = 10007,
+    kTaskTimeout = 10008,
+    kNetworkChange = 10009,
+    kIDCChange = 10010,
+    kNetworkLost = 10011,
+    kSelectError = 10012,
+    kPipeError = 10013,
+    kHasNewDnsIP = 10014,
+    kSelectException = 10015,
+    kLinkCheckTimeout = 10016,
+    kForceNewGetDns = 10017,
+    kLinkCheckError = 10018,
+    kTimeCheckSucc = 10019,
+    kObjectDestruct = 10020,
+    kLinkDetectEnd = 10021,
+};
+}
+//move form longlink
+
 const char* const IPSourceTypeString[] = {
     "NullIP",
     "DebugIP",
@@ -336,6 +370,8 @@ struct IPPortItem {
     int transport_protocol = Task::kTransportProtocolTCP; // tcp or quic?
 };
         
+/* mars2
+
 extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
 
 //流量统计
@@ -377,6 +413,50 @@ extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& 
 extern void ReportDnsProfile(const DnsProfile& _dns_profile);
 //.生成taskid.
 extern uint32_t GenTaskID();
+*/
+
+//mars2
+class Callback
+{
+ public:
+    virtual ~Callback() {}
+    virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id) = 0;
+
+    //流量统计
+    virtual void TrafficData(ssize_t _send, ssize_t _recv) = 0;
+
+    //底层询问上层该host对应的ip列表
+    virtual std::vector<std::string> OnNewDns(const std::string& host, bool _longlink_host) = 0;
+    //网络层收到push消息回调
+    virtual void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) = 0;
+    //底层获取task要发送的数据
+    virtual bool Req2Buf(uint32_t _taskid, void* const _user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) = 0;
+    //底层回包返回给上层解析
+    virtual int Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id,  const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) = 0;
+    //任务执行结束
+    virtual int  OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const CgiProfile& _profile) = 0;
+
+
+    //上报网络连接状态
+    virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
+    virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {}
+    virtual void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {}
+
+    virtual void OnLongLinkStatusChange(int _status) {}
+    //长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2
+    virtual int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) = 0;
+    //长连信令校验回包
+    virtual bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) = 0;
+
+
+    virtual void RequestSync() = 0;
+
+    //验证是否已登录 //TODO cpan must sure
+//            virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
+//            virtual void ReportTaskProfile(const TaskProfile& _task_profile) = 0;
+//            virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param)= 0;
+//            virtual void ReportDnsProfile(const DnsProfile& _dns_profile)= 0;
+};
         
 }}
 #endif // NETWORK_SRC_NET_COMM_H_

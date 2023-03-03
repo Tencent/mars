@@ -41,6 +41,9 @@
 #include "mars/stn/src/net_source.h"
 #include "mars/stn/src/longlink_identify_checker.h"
 #include "mars/stn/proto/longlink_packer.h"
+#include "mars/boot/context.h"
+
+using namespace mars::stn::longlink;
 
 class AutoBuffer;
 class XLogger;
@@ -68,7 +71,7 @@ struct LongLinkNWriteData {
 struct StreamResp {
     StreamResp(const Task& _task = Task(Task::kInvalidTaskID))
     : task(_task), stream(KNullAtuoBuffer), extension(KNullAtuoBuffer) {}
-    
+
     Task task;
     move_wrapper<AutoBuffer> stream;
     move_wrapper<AutoBuffer> extension;
@@ -76,6 +79,7 @@ struct StreamResp {
 
 class LongLink {
   public:
+
     enum TLongLinkStatus {
         kConnectIdle = 0,
         kConnecting = 1,
@@ -84,6 +88,7 @@ class LongLink {
         kConnectFailed,
     };
 
+    /*
     // Note: Never Delete Item!!!Just Add!!!
     enum TDisconnectInternalCode {
         kNone = 0,
@@ -110,6 +115,7 @@ class LongLink {
         kObjectDestruct = 10020,
         kLinkDetectEnd = 10021,
     };
+      */
   public:
     boost::signals2::signal<void (TLongLinkStatus _connectStatus, const std::string& _channel_id)> SignalConnection;
     boost::signals2::signal<void (const ConnectProfile& _connprofile)> broadcast_linkstatus_signal_;
@@ -123,7 +129,7 @@ class LongLink {
     boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
 
   public:
-    LongLink(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
+    LongLink(boot::Context* _context, const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
     virtual ~LongLink();
 
     bool    Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task);
@@ -140,7 +146,7 @@ class LongLink {
     std::string     GetDisconnectReasonText()    { return longlink_disconnect_reason_text_; }
     
     LongLinkEncoder& Encoder() const { return encoder_; }
-    void SetDnsFunc(comm::DNS::DNSFunc _dns_func) {
+    void SetDnsFunc(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dns_func) {
       dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
     std::string ChannelId() { return config_.name; }
@@ -180,6 +186,7 @@ class LongLink {
     void       __NotifySmartHeartbeatJudgeDozeStyle();
 	
   protected:
+    boot::Context*                    context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                            netsource_;
     LonglinkConfig                        config_;

@@ -23,7 +23,6 @@
 
 #include <list>
 
-#include "boost/shared_ptr.hpp"
 
 #include "mars/comm/time_utils.h"
 #include "mars/comm/comm_data.h"
@@ -192,7 +191,7 @@ struct ConnectProfile {
 
     std::vector<NoopProfile> noop_profiles;
 
-    boost::shared_ptr<ProfileExtension> extension_ptr;
+    std::shared_ptr<ProfileExtension> extension_ptr;
     mars::comm::ProxyInfo proxy_info;
 
     //keep alive config
@@ -337,6 +336,10 @@ struct TaskProfile {
         err_code = 0;
         link_type = 0;
         allow_sessiontimeout_retry = true;
+
+		//mars2
+        is_weak_network = false;
+        is_last_valid_connect_fail = false;
     }
     
     void InitSendParam() {
@@ -387,6 +390,10 @@ struct TaskProfile {
 
     std::vector<TransferProfile> history_transfer_profiles;
     std::string channel_name;
+
+    //mars2
+    bool is_weak_network;
+    bool is_last_valid_connect_fail;
 };
         
 

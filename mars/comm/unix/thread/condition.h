@@ -21,9 +21,9 @@
 #include <climits>
 #include <sys/time.h>
 
-#include "comm/assert/__assert.h"
-#include "comm/thread/atomic_oper.h"
-#include "comm/thread/lock.h"
+#include "mars/comm/assert/__assert.h"
+#include "mars/comm/thread/atomic_oper.h"
+#include "mars/comm/thread/lock.h"
 
 namespace mars {
 namespace comm {

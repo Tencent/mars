@@ -17,10 +17,10 @@
 
 #include <unistd.h>
 
-#include "comm/assert/__assert.h"
-#include "comm/thread/mutex.h"
-#include "comm/thread/spinlock.h"
-#include "comm/time_utils.h"
+#include "mars/comm/assert/__assert.h"
+#include "mars/comm/thread/mutex.h"
+#include "mars/comm/thread/spinlock.h"
+#include "mars/comm/time_utils.h"
 
 namespace mars {
 namespace comm {

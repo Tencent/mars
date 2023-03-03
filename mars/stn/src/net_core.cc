@@ -56,6 +56,8 @@
 
 #include "signalling_keeper.h"
 #include "zombie_task_manager.h"
+#include "mars/app/app_manager.h"
+#include "mars/stn/stn_manager.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -68,16 +70,20 @@ static const int kShortlinkErrTime = 3;
 
 bool NetCore::need_use_longlink_ = true;
 
-NetCore::NetCore()
-    : messagequeue_creater_(true, XLOGGER_TAG)
+NetCore::NetCore(boot::Context* _context, int _packer_encoder_version)
+    : packer_encoder_version_(_packer_encoder_version)
+    , messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
-    , net_source_(new NetSource(*ActiveLogic::Instance()))
-    , netcheck_logic_(new NetCheckLogic())
-    , anti_avalanche_(new AntiAvalanche(ActiveLogic::Instance()->IsActive()))
+    , context_(_context)
+    , net_source_(new NetSource(*ActiveLogic::Instance(), context_))
+    , netcheck_logic_(new NetCheckLogic(context_, net_source_))
+    , anti_avalanche_(new AntiAvalanche(context_, ActiveLogic::Instance()->IsActive()))
     , dynamic_timeout_(new DynamicTimeout)
-    , shortlink_task_manager_(new ShortLinkTaskManager(*net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
+    , shortlink_task_manager_(new ShortLinkTaskManager(context_, *net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
     , shortlink_try_flag_(false) {
+        NetCoreCreateBegin()();
+        xinfo2(TSF "mars2 Reset net_core NetCoreCreateBegin");
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
     xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
@@ -89,7 +95,7 @@ NetCore::NetCore()
     printinfo = printinfo + "ISP_NAME : " + info.isp_name + "\n";
     printinfo = printinfo + "ISP_CODE : " + info.isp_code + "\n";
 
-    AccountInfo account = ::GetAccountInfo();
+    AccountInfo account = context_->GetManager<AppManager>()->GetAccountInfo();
 
     if (0 != account.uin) {
         char uinBuffer[64] = {0};
@@ -102,7 +108,7 @@ NetCore::NetCore()
     }
 
     char version[256] = {0};
-    snprintf(version, sizeof(version), "0x%X", mars::app::GetClientVersion());
+    snprintf(version, sizeof(version), "0x%X", context_->GetManager<AppManager>()->GetClientVersion());
     printinfo = printinfo + "ClientVersion :" + version + "\n";
 
     xwarn2(TSF"\n%0", printinfo.c_str());
@@ -115,8 +121,6 @@ NetCore::NetCore()
         
         ASYNC_BLOCK_END
     }
-                   
-    xinfo_function();
 
     ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
@@ -125,6 +129,9 @@ NetCore::NetCore()
     if (need_use_longlink_) {
         __InitLongLink();
     }
+    
+    xinfo2(TSF "mars2 Reset net_core NetCoreCreate");
+    NetCoreCreate()(this);
 }
 
 NetCore::~NetCore() {
@@ -150,14 +157,17 @@ NetCore::~NetCore() {
 #endif
     delete shortlink_task_manager_;
     delete dynamic_timeout_;
-    
     delete anti_avalanche_;
     delete netcheck_logic_;
     delete net_source_;
 
     net_source_ = NULL;
 
-    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    //TODO cpan mars2 must to do
+    //MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    
+    xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
+    NetCoreRelease()();
 }
 
 void NetCore::__InitShortLink(){
@@ -174,14 +184,15 @@ void NetCore::__InitShortLink(){
 void NetCore::__InitLongLink(){
     xinfo_function();
 #ifdef USE_LONG_LINK
+    xinfo2(TSF"mars __InitLongLink set function callback.");
     need_use_longlink_ = true;
     zombie_task_manager_ = new ZombieTaskManager(messagequeue_creater_.GetMessageQueue());
     zombie_task_manager_->fun_start_task_ = boost::bind(&NetCore::StartTask, this, _1);
     zombie_task_manager_->fun_callback_ = boost::bind(&NetCore::__CallBack, this, (int)kCallFromZombie, _1, _2, _3, _4, _5);
 
-    timing_sync_ = new TimingSync(*ActiveLogic::Instance());
+    timing_sync_ = new TimingSync(context_, *ActiveLogic::Instance());
 
-    longlink_task_manager_ = new LongLinkTaskManager(*net_source_, *ActiveLogic::Instance(), *dynamic_timeout_, GetMessageQueueId());
+    longlink_task_manager_ = new LongLinkTaskManager(context_, *net_source_, *ActiveLogic::Instance(), *dynamic_timeout_, GetMessageQueueId());
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
@@ -294,7 +305,10 @@ void NetCore::StartTask(const Task& _task) {
     Task task = _task;
     if (!__ValidAndInitDefault(task, group)) {
         ConnectProfile profile;
+        /* mars2
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalTaskParam, profile);
+        */
+        context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalTaskParam, profile);
         return;
     }
     
@@ -305,7 +319,10 @@ void NetCore::StartTask(const Task& _task) {
     if (0 == task.channel_select) {
         xerror2(TSF"error channelType (%_, %_), ", kEctLocal, kEctLocalChannelSelect) >> group;
         ConnectProfile profile;
+        /*mars2
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalChannelSelect, profile);
+         */
+        context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalChannelSelect, profile);
         return;
     }
 
@@ -316,7 +333,10 @@ void NetCore::StartTask(const Task& _task) {
     if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink || !longlink->IsConnected())){
         //.必须长链或副长链，但指定连接不存在，则回调失败.
         xerror2(TSF"err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
+        /* mars2
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
+        */
+        context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
         return;
     }
 
@@ -334,7 +354,10 @@ void NetCore::StartTask(const Task& _task) {
         ) {
         xerror2(TSF"error no net (%_, %_), ", kEctLocal, kEctLocalNoNet) >> group;
         ConnectProfile profile;
+        /* mars2
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet, profile);
+        */
+        context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet, profile);
         return;
     }
     
@@ -346,7 +369,10 @@ void NetCore::StartTask(const Task& _task) {
     ){
         xerror2(TSF"error no net (%_, %_) return when no active, ", kEctLocal, kEctLocalNoNet) >> group;
         ConnectProfile profile;
+        /* mars2
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet, profile);
+         */
+        context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalNoNet, profile);
         return;
     }
 #endif
@@ -400,7 +426,10 @@ void NetCore::StartTask(const Task& _task) {
     if (!start_ok) {
         xerror2(TSF"taskid:%_, error starttask (%_, %_)", task.taskid, kEctLocal, kEctLocalStartTaskFail);
         ConnectProfile profile;
+        /* mars2
         OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalStartTaskFail, profile);
+         */
+        context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalStartTaskFail, profile);
     } else {
 #ifdef USE_LONG_LINK
         if (need_use_longlink_) {
@@ -460,7 +489,7 @@ void NetCore::ClearTasks() {
 }
 
 void NetCore::OnNetworkChange() {
-    
+    xinfo2(TSF "cpan debug OnNetworkChange");
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
@@ -497,9 +526,12 @@ void NetCore::OnNetworkChange() {
         xassert2(false);
         break;
     }
+    if (net_source_) {
+        net_source_->ClearCache();
+    } else {
+        xinfo2(TSF "cpan debug net_source is null");
+    }
 
-    net_source_->ClearCache();
-    
     dynamic_timeout_->ResetStatus();
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
@@ -541,7 +573,7 @@ void NetCore::StopSignal() {
 }
 
 #ifdef USE_LONG_LINK
-void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code){
+void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code){
     if (need_use_longlink_) {
         longlink_task_manager_->DisconnectByTaskId(_taskid, _code);
     }
@@ -636,25 +668,42 @@ int NetCore::__CallBack(int _from, ErrCmdType _err_type, int _err_code, int _fai
     
     ConnectProfile profile;
     if (kEctLocal == _err_type && kEctLocalReset == _err_code)  // ~MMCore
+        /* mars2
         return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
-
+         */
+        return context_->GetManager<StnManager>()->OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
     if (kEctOK == _err_type || kTaskFailHandleTaskEnd == _fail_handle)
+        /* mars2
         return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, GetConnectProfile(_task.taskid, _task.channel_select));
+         */
+        return context_->GetManager<StnManager>()->OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, GetConnectProfile(_task.taskid, _task.channel_select));
 
     if (kCallFromZombie == _from)
+        /* mars2
         return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
+        */
+        return context_->GetManager<StnManager>()->OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
 
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
         if (!zombie_task_manager_->SaveTask(_task, _taskcosttime)) {
+            /* mars2
             return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
+            */
+            return context_->GetManager<StnManager>()->OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
         }
         return 0;
     } else {
+        /* mars2
         return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
+        */
+        return context_->GetManager<StnManager>()->OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
     }
 #else
+    /* mars2
     return OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
+    */
+    return context_->GetManager<StnManager>()->OnTaskEnd(_task.taskid, _task.user_context, _task.user_id, _err_type, _err_code, profile);
 #endif
 }
 
@@ -684,7 +733,10 @@ void NetCore::__OnShortLinkResponse(int _status_code) {
 void NetCore::__OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
     xinfo2(TSF"task push name:%_, seq:%_, cmdid:%_, len:%_", _channel_id, _taskid, _cmdid, _body.Length());
     push_preprocess_signal_(_cmdid, _body);
+    /* mars2
     OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+    */
+    context_->GetManager<mars::stn::StnManager>()->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 }
 
 void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
@@ -697,7 +749,10 @@ void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrC
     netcheck_logic_->UpdateLongLinkInfo(longlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
     auto longlink = longlink_task_manager_->GetLongLink(_name);
     if(longlink && longlink->Config().IsMain()) {
+        /* mars2
         OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+        */
+        context_->GetManager<mars::stn::StnManager>()->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
     }
 
     if (kEctOK == _err_type) zombie_task_manager_->RedoTasks();
@@ -720,8 +775,10 @@ void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _er
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     netcheck_logic_->UpdateShortLinkInfo(shortlink_task_manager_->GetTasksContinuousFailCount(), _err_type == kEctOK);
+    /* mars2
     OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-
+    */
+    context_->GetManager<mars::stn::StnManager>()->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
     shortlink_try_flag_ = true;
 
     if (_err_type == kEctOK) {
@@ -759,7 +816,10 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status, co
     if (LongLink::kConnected == _status) zombie_task_manager_->RedoTasks();
 
     __ConnStatusCallBack();
+    /* mars2
     OnLongLinkStatusChange(_status);
+    */
+    context_->GetManager<mars::stn::StnManager>()->OnLongLinkStatusChange(_status);
 }
 #endif
 
@@ -861,7 +921,10 @@ void NetCore::__ConnStatusCallBack() {
         longlink_connect_status_ = longlink_connstatus;
         xinfo2(TSF"reportNetConnectInfo all_connstatus:%_, longlink_connstatus:%_", all_connstatus, longlink_connstatus);
     }
+    /*mars2
     ReportConnectStatus(all_connstatus, longlink_connstatus);
+    */
+    context_->GetManager<mars::stn::StnManager>()->ReportConnectStatus(all_connstatus, longlink_connstatus);
 }
 
 void NetCore::__OnSignalActive(bool _isactive) {
@@ -1076,5 +1139,13 @@ std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name)
   void NetCore::SetDebugHost(const std::string& _host) {
     shortlink_task_manager_->SetDebugHost(_host);
   }
+
+NetSource* NetCore::GetNetSource(){
+    return net_source_;
+}
+
+int NetCore::GetPackerEncoderVersion(){
+    return packer_encoder_version_;
+}
 
 #endif
