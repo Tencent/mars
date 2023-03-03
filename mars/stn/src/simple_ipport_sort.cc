@@ -36,7 +36,9 @@
 #include "mars/comm/platform_comm.h"
 
 #include "mars/app/app.h"
+#include "mars/app/app_manager.h"
 
+using namespace mars::app;
 using namespace mars::comm;
 
 #define IPPORT_RECORDS_FILENAME "/ipportrecords2.xml"
@@ -102,8 +104,9 @@ namespace mars { namespace stn {
 
 using namespace mars::stn;
 
-SimpleIPPortSort::SimpleIPPortSort()
-: hostpath_(mars::app::GetAppFilePath() + "/" + kFolderName)
+SimpleIPPortSort::SimpleIPPortSort(boot::Context* _context)
+: context_(_context)
+, hostpath_(context_->GetManager<AppManager>()->GetAppFilePath() + "/" + kFolderName)
 , IPv6_ban_flag_(0)
 , IPv4_ban_flag_(0) 
 , ban_v6_(false) {

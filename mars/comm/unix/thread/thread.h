@@ -25,9 +25,9 @@
 #include <inttypes.h>
 #endif
 
-#include "comm/assert/__assert.h"
-#include "comm/thread/condition.h"
-#include "comm/thread/runnable.h"
+#include "mars/comm/assert/__assert.h"
+#include "mars/comm/thread/condition.h"
+#include "mars/comm/thread/runnable.h"
 
 namespace mars {
 namespace comm {
