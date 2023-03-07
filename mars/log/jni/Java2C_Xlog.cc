@@ -20,6 +20,8 @@
 #include <vector>
 #include <string>
 
+#include <android/log.h>
+
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/jni/util/scoped_jstring.h"
 #include "mars/comm/jni/util/var_cache.h"
@@ -200,6 +202,9 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite
     xlog_info.func_name = funcname_jstr.GetChar();
 
     xlogger_Write(&xlog_info, log_jst.GetChar());
+    if (xlog_info.traceLog == 1) {
+        __android_log_print(ANDROID_LOG_INFO, "garryyan", "Xlog_logWrite _info->traceLog == 1!\n");
+    }
 
 }
 

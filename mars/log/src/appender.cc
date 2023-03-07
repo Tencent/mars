@@ -149,9 +149,15 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
     thread_local std::string recursion_str;
     recursion_count++;
 
-    if (consolelog_open_) ConsoleLog(_info,  _log);
+    if (consolelog_open_) {
+        __android_log_print(ANDROID_LOG_INFO, "garryyan", "XloggerAppender::Write consolelog_open_\n");
+        ConsoleLog(_info,  _log);
+    }
 #ifdef ANDROID
-    else if (_info && _info->traceLog == 1) ConsoleLog(_info, _log);
+    else if (_info && _info->traceLog == 1) {
+        __android_log_print(ANDROID_LOG_INFO, "garryyan", "XloggerAppender::Write _info->traceLog == 1!\n");
+        ConsoleLog(_info, _log);
+    }
 #endif
     if (g_log_write_callback) {
         g_log_write_callback(_info, _log);
