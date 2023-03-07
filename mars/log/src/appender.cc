@@ -155,7 +155,7 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
     }
 #ifdef ANDROID
     else if (_info && _info->traceLog == 1) {
-        __android_log_print(ANDROID_LOG_INFO, "garryyan", "XloggerAppender::Write _info->traceLog == 1!\n");
+        __android_log_print(ANDROID_LOG_INFO, "garryyan", "XloggerAppender::Write _info->traceLog == 1 %s!\n", _log);
         ConsoleLog(_info, _log);
     }
 #endif
