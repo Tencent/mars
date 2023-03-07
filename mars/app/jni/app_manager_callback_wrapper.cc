@@ -38,7 +38,6 @@ bool AppManagerJniCallback::GetProxyInfo(const std::string& _host, mars::comm::P
 
 DEFINE_FIND_METHOD(KC2Java_getAppFilePath, KC2Java, "getAppFilePath", "()Ljava/lang/String;")
 std::string AppManagerJniCallback::GetAppFilePath() {
-    xverbose_function();
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
@@ -84,7 +83,6 @@ AccountInfo AppManagerJniCallback::GetAccountInfo() {
 
 DEFINE_FIND_METHOD(KC2Java_getClientVersion, KC2Java, "getClientVersion", "()I")
 unsigned int AppManagerJniCallback::GetClientVersion() {
-    xverbose_function();
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
@@ -95,7 +93,6 @@ unsigned int AppManagerJniCallback::GetClientVersion() {
 DEFINE_FIND_CLASS(KC2JavaDeviceInfo, "com/tencent/mars/app/AppLogic$DeviceInfo")
 DEFINE_FIND_METHOD(KC2Java_getDeviceType, KC2Java, "getDeviceType", "()Lcom/tencent/mars/app/AppLogic$DeviceInfo;")
 DeviceInfo AppManagerJniCallback::GetDeviceInfo() {
-    xverbose_function();
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
