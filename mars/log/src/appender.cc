@@ -41,7 +41,7 @@
 #include <inttypes.h>
 #include <sys/mount.h>
 #endif
-
+#include <android/log.h>
 #include <ctype.h>
 #include <assert.h>
 
@@ -1024,6 +1024,7 @@ bool XloggerAppender::GetCurrentLogCachePath(char* _logPath, unsigned int _len) 
 }
 
 void XloggerAppender::SetConsoleLog(bool _is_open) {
+    __android_log_print(ANDROID_LOG_INFO, "garryyan", "into SetConsoleLog:%d !\n", _is_open);
     consolelog_open_ = _is_open;
 }
 
