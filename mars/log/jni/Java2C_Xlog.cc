@@ -282,7 +282,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setAppenderMode
     mars::xlog::SetAppenderMode(_log_instance_ptr, (mars::xlog::TAppenderMode)_mode);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setConsoleLogOpen
+JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setConsoleLogOpen1
   (JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_open) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetConsoleLogOpen(_log_instance_ptr, _is_open);
