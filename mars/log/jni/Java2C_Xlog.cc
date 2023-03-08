@@ -190,7 +190,8 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite
     xlog_info.line = line;
     xlog_info.pid = (int)pid;
     xlog_info.tid = LONGTHREADID2INT(tid);
-    xlog_info.maintid = LONGTHREADID2INT(maintid);;
+    xlog_info.maintid = LONGTHREADID2INT(maintid);
+    xlog_info.traceLog = 0;
 
     ScopedJstring tag_jstr(env, tag);
     ScopedJstring filename_jstr(env, filename);
@@ -201,10 +202,12 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite
     xlog_info.filename = filename_jstr.GetChar();
     xlog_info.func_name = funcname_jstr.GetChar();
 
-    xlogger_Write(&xlog_info, log_jst.GetChar());
+
     if (xlog_info.traceLog == 1) {
         __android_log_print(ANDROID_LOG_INFO, "garryyan", "Xlog_logWrite _info->traceLog == 1!\n");
     }
+    xlogger_Write(&xlog_info, log_jst.GetChar());
+
 
 }
 
