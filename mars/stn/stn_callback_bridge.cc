@@ -226,12 +226,12 @@ void StnCallbackBridge::RequestSync() {
 
 void StnCallbackBridge::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
-
+    sg_callback->RequestNetCheckShortLinkHosts(_hostlist);
 //#else
 //    C2Java_RequestNetCheckShortLinkHosts(_hostlist);
 //#endif
-//    xassert2(sg_callback != NULL);
-//    sg_callback->RequestNetCheckShortLinkHosts(_hostlist);
+    xassert2(sg_callback != NULL);
+    sg_callback->RequestNetCheckShortLinkHosts(_hostlist);
 }
 
 void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
@@ -240,18 +240,20 @@ void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
 //#else
 //    C2Java_ReportTaskProfile(_task_profile);
 //#endif
-//    xassert2(sg_callback != NULL);
-//    sg_callback->ReportTaskProfile(_task_profile);
+    xassert2(sg_callback != NULL);
+    sg_callback->ReportTaskProfile(_task_profile);
 }
 
+//TODO cpan 确认下这里是不是要走到MMReportTaskLimited才对
 void StnCallbackBridge::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
-//    xassert2(sg_callback != NULL);
-//    sg_callback->ReportTaskLimited(_check_type, _task, _param);
+    xassert2(sg_callback != NULL);
+    sg_callback->ReportTaskLimited(_check_type, _task, _param);
 }
 
 void StnCallbackBridge::ReportDnsProfile(const DnsProfile& _dns_profile) {
-//    xassert2(sg_callback != NULL);
-//    sg_callback->ReportDnsProfile(_dns_profile);
+    xverbose_function();
+    xassert2(sg_callback != NULL);
+    sg_callback->ReportDnsProfile(_dns_profile);
 }
 
 /* mars2

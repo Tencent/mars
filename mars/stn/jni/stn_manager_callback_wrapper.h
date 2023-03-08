@@ -69,6 +69,11 @@ class StnManagerJniCallback : public Callback {
                                             const AutoBuffer& _response_buffer,
                                             const AutoBuffer& _identify_buffer_hash) override;
     virtual void RequestSync() override;
+
+    virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) override;
+    virtual void ReportTaskProfile(const TaskProfile& _task_profile) override;
+    virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) override;
+    virtual void ReportDnsProfile(const DnsProfile& _dns_profile) override;
 };
 }  // namespace stn
 }  // namespace mars
