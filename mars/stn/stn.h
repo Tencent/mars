@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -66,16 +66,16 @@ public:
     static const int kChannelMinorLong = 0x4;
     static const int kChannelNormal = 0x5;
     static const int kChannelAll = 0x7;
-    
+
     static const int kChannelNormalStrategy = 0;
     static const int kChannelFastStrategy = 1;
     static const int kChannelDisasterRecoveryStategy = 2;
-    
+
     static const int kTransportProtocolDefault = 0; // TCP
     static const int kTransportProtocolTCP = 1;     // TCP
     static const int kTransportProtocolQUIC = 2;    // QUIC
     static const int kTransportProtocolMixed = 3;   // TCP or QUIC
-    
+
     static const int kTaskPriorityHighest = 0;
     static const int kTaskPriority0 = 0;
     static const int kTaskPriority1 = 1;
@@ -85,14 +85,14 @@ public:
     static const int kTaskPriority4 = 4;
     static const int kTaskPriority5 = 5;
     static const int kTaskPriorityLowest = 5;
-    
+
     static const uint32_t kInvalidTaskID = 0;
     static const uint32_t kNoopTaskID = 0xFFFFFFFF;
     static const uint32_t kLongLinkIdentifyCheckerTaskID = 0xFFFFFFFE;
     static const uint32_t kSignallingKeeperTaskID = 0xFFFFFFFD;
     static const uint32_t kMinorLonglinkCmdMask = 0xFF000000;
-    
-    
+
+
     Task();
     Task(uint32_t _taskid);
 
@@ -109,24 +109,24 @@ public:
     bool    need_authed;  // user
     bool    limit_flow;  // user
     bool    limit_frequency;  // user
-    
+
     bool        network_status_sensitive;  // user
     int32_t     channel_strategy;
     int32_t     priority;  // user
-    
+
     int32_t     retry_count;  // user
     int32_t     server_process_cost;  // user
     int32_t     total_timeout;  // user ms
     bool        long_polling;
     int32_t     long_polling_timeout;
-    
+
     void*       user_context;  // user
     std::string report_arg;  // use for cgi report
     std::string channel_name;   //longlink channel id
     std::string group_name;     //use for select decode method
     std::string user_id;        //use for identify multi users
     int protocol;
-    
+
     std::map<std::string, std::string> headers;
     std::vector<std::string> shortlink_host_list;   // current using hosts, may be quic host or tcp host
     std::vector<std::string> shortlink_fallback_hostlist;   // for fallback
@@ -139,7 +139,7 @@ public:
     std::string cgi_prefix;
     HostRedirectType redirect_type;
 };
-    
+
 struct CgiProfile {
     uint64_t start_time = 0;
     uint64_t start_connect_time = 0;
@@ -164,7 +164,7 @@ public:
     std::string     name;   //channel_id
     std::vector<std::string> host_list;
     bool            is_keep_alive;     //if false, reconnect trig by task
-    std::string     group;   
+    std::string     group;
     LongLinkEncoder* longlink_encoder;
     bool            isMain;
 	int             link_type = Task::kChannelLong;
@@ -172,7 +172,7 @@ public:
     std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
     bool            need_tls;
 };
-    
+
 struct QuicParameters{
     bool enable_0rtt = true;
     std::string alpn;
@@ -190,16 +190,16 @@ public:
 enum TaskFailHandleType {
 	kTaskFailHandleNormal = 0,
 	kTaskFailHandleNoError = 0,
-    
+
 	kTaskFailHandleDefault = -1,
 	kTaskFailHandleRetryAllTasks = -12,
 	kTaskFailHandleSessionTimeout = -13,
-    
+
 	kTaskFailHandleTaskEnd = -14,
 	kTaskFailHandleTaskTimeout = -15,
     kTaskSlientHandleTaskEnd = -16,
 };
-        
+
 //error type
 enum ErrCmdType {
 	kEctOK = 0,
@@ -287,7 +287,7 @@ enum IdentifyMode {
     kCheckNext,
     kCheckNever
 };
-        
+
 enum IPSourceType {
     kIPSourceNULL = 0,
     kIPSourceDebug,
@@ -296,14 +296,14 @@ enum IPSourceType {
     kIPSourceProxy,
     kIPSourceBackup,
 };
-    
+
 enum TlsHandshakeFrom {
     kNoHandshaking = -1,
     kFromSetting = 0,
     kFromLongLink  = 1,
     kFromShortLink = 2,
 };
-    
+
 enum TimeoutSource {
     kClientDefault = 0,
     kServerDefault = 1,
@@ -350,7 +350,7 @@ const char* const IPSourceTypeString[] = {
     "ProxyIP",
     "BackupIP",
 };
-    
+
 const char* const ChannelTypeString[] = {
     "",
     "Short",
@@ -369,47 +369,47 @@ struct IPPortItem {
     std::string 	str_host;
     int transport_protocol = Task::kTransportProtocolTCP; // tcp or quic?
 };
-        
+
 /* mars2
 
 extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
 
 //流量统计
 extern void TrafficData(ssize_t _send, ssize_t _recv);
-        
-//底层询问上层该host对应的ip列表 
+
+//底层询问上层该host对应的ip列表
 extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
-//网络层收到push消息回调 
+//网络层收到push消息回调
 extern void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
-//底层获取task要发送的数据 
+//底层获取task要发送的数据
 extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
-//底层回包返回给上层解析 
+//底层回包返回给上层解析
 extern int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select);
-//任务执行结束 
+//任务执行结束
 extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile);
 
-//上报网络连接状态 
+//上报网络连接状态
 extern void ReportConnectStatus(int status, int longlink_status);
-        
+
 extern void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
 extern void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);
-    
+
 extern void OnLongLinkStatusChange(int _status);
 //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
 extern int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid);
-//长连信令校验回包 
+//长连信令校验回包
 extern bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash);
 
 extern void RequestSync();
 //验证是否已登录
 
-//底层询问上层http网络检查的域名列表 
+//底层询问上层http网络检查的域名列表
 extern void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
-//底层向上层上报cgi执行结果 
+//底层向上层上报cgi执行结果
 extern void ReportTaskProfile(const TaskProfile& _task_profile);
-//底层通知上层cgi命中限制 
+//底层通知上层cgi命中限制
 extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
-//底层上报域名dns结果 
+//底层上报域名dns结果
 extern void ReportDnsProfile(const DnsProfile& _dns_profile);
 //.生成taskid.
 extern uint32_t GenTaskID();
@@ -451,12 +451,11 @@ class Callback
 
     virtual void RequestSync() = 0;
 
-    //验证是否已登录 //TODO cpan must sure
-//            virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
-//            virtual void ReportTaskProfile(const TaskProfile& _task_profile) = 0;
-//            virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param)= 0;
-//            virtual void ReportDnsProfile(const DnsProfile& _dns_profile)= 0;
+    virtual void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) = 0;
+    virtual void ReportTaskProfile(const TaskProfile& _task_profile) = 0;
+    virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) = 0;
+    virtual void ReportDnsProfile(const DnsProfile& _dns_profile)= 0;
 };
-        
+
 }}
 #endif // NETWORK_SRC_NET_COMM_H_

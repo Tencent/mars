@@ -429,7 +429,8 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 		dns_profile.end_time = gettickcount();
 		if (!ret) dns_profile.OnFailed();
-            context_->GetManager<StnManager>()->ReportDnsProfile(dns_profile);
+                //TODO cpan mars2
+                context_->GetManager<StnManager>()->ReportDnsProfile(dns_profile);
 
 		xgroup2_define(dnsxlog);
 		xdebug2(TSF"link host:%_, new dns ret:%_, size:%_ ", _host, ret, iplist.size()) >> dnsxlog;
@@ -443,7 +444,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 			dns_profile.end_time = gettickcount();
 			if (!ret) dns_profile.OnFailed();
-                context_->GetManager<StnManager>()->ReportDnsProfile(dns_profile);
+                        context_->GetManager<StnManager>()->ReportDnsProfile(dns_profile);
 
 			xdebug2(TSF "dns ret:%_, size:%_,", ret, iplist.size()) >> dnsxlog;
 		}

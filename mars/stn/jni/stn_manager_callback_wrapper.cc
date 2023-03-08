@@ -12,6 +12,7 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/xlogger/xlogger.h"
+#include "mars/stn/task_profile.h"
 
 namespace mars {
 namespace stn {
@@ -209,11 +210,16 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
 
     jclass cgiProfileCls = cache_instance->GetClass(env, kC2JavaCgiProfile);
     jmethodID jobj_init = cache_instance->GetMethodId(env, cgiProfileCls, "<init>", "()V");
-    jobject jobj_cgiItem = env->NewObject(cgiProfileCls, jobj_init);
-    if (nullptr == jobj_cgiItem) {
-        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
+    if (nullptr == jobj_init) {
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "StnManagerJniCallback::OnTaskEnd: get method id failed.");
         return -1;
     }
+    jobject jobj_cgiItem = env->NewObject(cgiProfileCls, jobj_init);
+    if (nullptr == jobj_cgiItem) {
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "StnManagerJniCallback::OnTaskEnd: create jobject failed.");
+        return -1;
+    }
+    xverbose2(TSF"mars2 cgi profile create success");
     jfieldID fid_taskStartTime = env->GetFieldID(cgiProfileCls, "taskStartTime", "J");
     jfieldID fid_startConnectTime = env->GetFieldID(cgiProfileCls, "startConnectTime", "J");
     jfieldID fid_connectSuccessfulTime = env->GetFieldID(cgiProfileCls, "connectSuccessfulTime", "J");
@@ -225,6 +231,7 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
     jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt", "J");
     jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType", "I");
     jfieldID fid_protocolType = env->GetFieldID(cgiProfileCls, "protocolType", "I");
+
 
     uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
     env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
@@ -376,6 +383,100 @@ void StnManagerJniCallback::RequestSync() {
     JNIEnv* env = scope_jenv.GetEnv();
 
     JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_requestSync);
+}
+
+#ifndef NATIVE_CALLBACK
+DEFINE_FIND_METHOD(KC2Java_requestNetCheckShortLinkHosts, KC2Java, "requestNetCheckShortLinkHosts", "()[Ljava/lang/String;")
+#else
+DEFINE_FIND_EMPTY_METHOD(KC2Java_requestNetCheckShortLinkHosts)
+#endif
+void StnManagerJniCallback::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
+    xverbose_function();
+
+#ifdef NATIVE_CALLBACK
+    CALL_NATIVE_CALLBACK_VOID_FUN(RequestNetCheckShortLinkHosts(_hostlist));
+#endif
+    VarCache* cache_instance = VarCache::Singleton();
+    ScopeJEnv scope_jenv(cache_instance->GetJvm());
+    JNIEnv *env = scope_jenv.GetEnv();
+
+    jobjectArray jobj_arr = (jobjectArray)JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_requestNetCheckShortLinkHosts).l;
+
+    if (jobj_arr != NULL) {
+        jsize size = env->GetArrayLength(jobj_arr);
+        for (int i = 0; i < size; i++) {
+            jstring host = (jstring)env->GetObjectArrayElement(jobj_arr, i);
+            if (host != NULL) {
+                _hostlist.push_back(ScopedJstring(env, host).GetChar());
+            }
+            JNU_FreeJstring(env, host);
+        }
+
+        env->DeleteLocalRef(jobj_arr);
+    }
+}
+
+#ifndef NATIVE_CALLBACK
+DEFINE_FIND_METHOD(KC2Java_reportTaskProfile, KC2Java, "reportTaskProfile", "(Ljava/lang/String;)V")
+#else
+DEFINE_FIND_METHOD(KC2Java_reportTaskProfile)
+#endif
+void StnManagerJniCallback::ReportTaskProfile(const TaskProfile& _task_profile) {
+    VarCache* cache_instance = VarCache::Singleton();
+    ScopeJEnv scope_jenv(cache_instance->GetJvm());
+    JNIEnv *env = scope_jenv.GetEnv();
+
+    XMessage profile_json;
+    profile_json << "{";
+    profile_json << "\"taskId\":" << _task_profile.task.taskid;
+    profile_json << ",\"cmdId\":" << _task_profile.task.cmdid;
+    profile_json << ",\"cgi\":\"" << _task_profile.task.cgi << "\"";
+    profile_json << ",\"startTaskTime\":" << _task_profile.start_task_time;
+    profile_json << ",\"endTaskTime\":" << _task_profile.end_task_time;
+    profile_json << ",\"dyntimeStatus\":" << _task_profile.current_dyntime_status;
+    profile_json << ",\"errCode\":" << _task_profile.err_code;
+    profile_json << ",\"errType\":" << _task_profile.err_type;
+    profile_json << ",\"channelSelect\":" << _task_profile.link_type;
+    profile_json << ",\"historyNetLinkers\":[";
+    std::vector<TransferProfile>::const_iterator iter = _task_profile.history_transfer_profiles.begin();
+    for (; iter != _task_profile.history_transfer_profiles.end(); ) {
+        const ConnectProfile& connect_profile = iter->connect_profile;
+        profile_json << "{";
+        profile_json << "\"startTime\":" << connect_profile.start_time;
+        profile_json << ",\"dnsTime\":" << connect_profile.dns_time;
+        profile_json << ",\"dnsEndTime\":" << connect_profile.dns_endtime;
+        profile_json << ",\"connTime\":" << connect_profile.conn_time;
+        profile_json << ",\"connErrCode\":" << connect_profile.conn_errcode;
+        profile_json << ",\"tryIPCount\":" << connect_profile.tryip_count;
+        profile_json << ",\"ip\":\"" << connect_profile.ip << "\"";
+        profile_json << ",\"port\":" << connect_profile.port;
+        profile_json << ",\"host\":\"" << connect_profile.host << "\"";
+        profile_json << ",\"ipType\":" << connect_profile.ip_type;
+        profile_json << ",\"disconnTime\":" << connect_profile.disconn_time;
+        profile_json << ",\"disconnErrType\":" << connect_profile.disconn_errtype;
+        profile_json << ",\"disconnErrCode\":" << connect_profile.disconn_errcode;
+
+        profile_json << "}";
+        if (++iter != _task_profile.history_transfer_profiles.end()) {
+            profile_json << ",";
+        }
+        else {
+            break;
+        }
+    }
+    profile_json << "]}";
+    std::string report_task_str = profile_json.String();
+
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_reportTaskProfile, ScopedJstring(env, report_task_str.c_str()).GetJstr());
+
+}
+
+void StnManagerJniCallback::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
+    xdebug_function();
+}
+
+void StnManagerJniCallback::ReportDnsProfile(const DnsProfile& _dns_profile) {
+    xdebug_function();
 }
 
 }  // namespace stn
