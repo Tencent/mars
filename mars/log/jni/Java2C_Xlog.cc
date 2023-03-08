@@ -227,6 +227,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
     xlog_info.pid = (int)_pid;
     xlog_info.tid = LONGTHREADID2INT(_tid);
     xlog_info.maintid = LONGTHREADID2INT(_maintid);
+    xlog_info.traceLog = 0;
 
     const char* tag_cstr = NULL;
     const char* filename_cstr = NULL;
@@ -252,6 +253,10 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
     xlog_info.tag = NULL == tag_cstr ? "" : tag_cstr;
     xlog_info.filename = NULL == filename_cstr ? "" : filename_cstr;
     xlog_info.func_name = NULL == funcname_cstr ? "" : funcname_cstr;
+
+    if (xlog_info.traceLog == 1) {
+        __android_log_print(ANDROID_LOG_INFO, "garryyan", "Xlog_logWrite _info->traceLog == 1!\n");
+    }
 
     mars::xlog::XloggerWrite(_log_instance_ptr, &xlog_info, NULL == log_cstr ? "NULL == log" : log_cstr);
 
