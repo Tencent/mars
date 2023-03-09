@@ -178,7 +178,24 @@ public:
     //NetCore& operator=(const NetCore&);
 
   public:
-    static bool need_use_longlink_;
+     void SetNeedUseLongLink(bool flag);
+     void SetGetRealHostFunc(std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func);
+     void SetAddWeakNetInfo(std::function<void(bool _connect_timeout, struct tcp_info& _info)> func);
+
+     void SetLongLinkGetRealHostFunc(std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func);
+     void SetLongLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);
+     void SetLongLinkShouldInterceptResult(std::function<bool(int _error_code)> func);
+
+     void SetShortLinkGetRealHostFunc(std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func);
+     void SetShortLinkTaskConnectionDetail(std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> func);
+     void SetShortLinkChooseProtocol(std::function<int(TaskProfile& _profile)> func);
+     void SetShortLinkOnTimeoutOrRemoteShutdown(std::function<void(const TaskProfile& _profile)> func);
+     void SetShortLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);
+     void SetShortLinkCanUseTls(std::function<bool(const std::vector<std::string>& _host_list)> func);
+     void SetShortLinkShouldInterceptResult(std::function<bool(int _error_code)> func);
+
+  public:
+    bool need_use_longlink_;
 
   private:
 

@@ -48,13 +48,13 @@ using namespace mars::comm;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> ShortLinkTaskManager::get_real_host_;
-boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
-boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
-boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
-boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
-boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
-boost::function<bool (int _error_code)> ShortLinkTaskManager::should_intercept_result_;
+//boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> ShortLinkTaskManager::get_real_host_;
+//boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
+//boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
+//boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
+//boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
+//boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
+//boost::function<bool (int _error_code)> ShortLinkTaskManager::should_intercept_result_;
 
 
 ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context, NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
@@ -392,12 +392,16 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         first->transfer_profile.send_data_size = bufreq.Length();
 
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(context_, MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
+        worker->func_host_filter = get_real_host_strict_match_;
+        worker->func_add_weak_net_info = add_weaknet_info_;
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
-        
+
+
+
         if (!debug_host_.empty()) {
           worker->SetDebugHost(debug_host_);
         }

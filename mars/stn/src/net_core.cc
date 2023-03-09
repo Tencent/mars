@@ -68,7 +68,7 @@ using namespace mars::comm;
 
 static const int kShortlinkErrTime = 3;
 
-bool NetCore::need_use_longlink_ = true;
+//bool NetCore::need_use_longlink_ = true;
 
 NetCore::NetCore(boot::Context* _context, int _packer_encoder_version)
     : packer_encoder_version_(_packer_encoder_version)
@@ -1146,6 +1146,88 @@ NetSource* NetCore::GetNetSource(){
 
 int NetCore::GetPackerEncoderVersion(){
     return packer_encoder_version_;
+}
+
+void NetCore::SetNeedUseLongLink(bool flag) {
+    need_use_longlink_ = flag;
+}
+
+void NetCore::SetGetRealHostFunc(
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->get_real_host_strict_match_ = func;
+    }
+}
+
+void NetCore::SetAddWeakNetInfo(std::function<void(bool _connect_timeout, struct tcp_info& _info)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->add_weaknet_info_ = func;
+    }
+}
+
+void NetCore::SetLongLinkGetRealHostFunc(
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func) {
+    if (longlink_task_manager_) {
+        longlink_task_manager_->get_real_host_ = func;
+    }
+}
+
+void NetCore::SetLongLinkOnHandShakeReady(
+    std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func) {
+    if (longlink_task_manager_) {
+        longlink_task_manager_->on_handshake_ready_ = func;
+    }
+}
+
+void NetCore::SetLongLinkShouldInterceptResult(std::function<bool(int _error_code)> func) {
+    if (longlink_task_manager_) {
+        longlink_task_manager_->should_intercept_result_ = func;
+    }
+}
+
+void NetCore::SetShortLinkGetRealHostFunc(
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->get_real_host_ = func;
+    }
+}
+
+void NetCore::SetShortLinkTaskConnectionDetail(
+    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->task_connection_detail_ = func;
+    }
+}
+
+void NetCore::SetShortLinkChooseProtocol(std::function<int(TaskProfile& _profile)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->choose_protocol_ = func;
+    }
+}
+
+void NetCore::SetShortLinkOnTimeoutOrRemoteShutdown(std::function<void(const TaskProfile& _profile)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->on_timeout_or_remote_shutdown_ = func;
+    }
+}
+
+void NetCore::SetShortLinkOnHandShakeReady(
+    std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->on_handshake_ready_ = func;
+    }
+}
+
+void NetCore::SetShortLinkCanUseTls(std::function<bool(const std::vector<std::string>& _host_list)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->can_use_tls_ = func;
+    }
+}
+
+void NetCore::SetShortLinkShouldInterceptResult(std::function<bool(int _error_code)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->should_intercept_result_ = func;
+    }
 }
 
 #endif

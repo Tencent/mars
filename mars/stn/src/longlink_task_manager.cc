@@ -48,9 +48,9 @@ using namespace mars::comm;
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> LongLinkTaskManager::get_real_host_;
-boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> LongLinkTaskManager::on_handshake_ready_;
-boost::function<bool (int _error_code)> LongLinkTaskManager::should_intercept_result_;
+//boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> LongLinkTaskManager::get_real_host_;
+//boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> LongLinkTaskManager::on_handshake_ready_;
+//boost::function<bool (int _error_code)> LongLinkTaskManager::should_intercept_result_;
 
 static int longlink_id = 0;
 std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
