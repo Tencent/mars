@@ -18,7 +18,7 @@ namespace mars {
 namespace stn {
 
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnManager$CallBack")
-DEFINE_FIND_CLASS(kC2JavaCgiProfile, "com/tencent/mars/stn/StnLogic$CgiProfile")
+DEFINE_FIND_CLASS(KC2JavaStnCgiProfile, "com/tencent/mars/stn/StnLogic$CgiProfile")
 
 StnManagerJniCallback::StnManagerJniCallback(JNIEnv* env, jobject callback) {
     callback_inst_ = env->NewGlobalRef(callback);
@@ -34,26 +34,26 @@ StnManagerJniCallback::~StnManagerJniCallback() {
     env->DeleteGlobalRef(callback_inst_);
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_MakesureAuthed, KC2Java, "makesureAuthed", "(Ljava/lang/String;Ljava/lang/String;)Z")
+DEFINE_FIND_METHOD(KC2Java_makesureAuthed, KC2Java, "makesureAuthed", "(Ljava/lang/String;Ljava/lang/String;)Z")
 bool StnManagerJniCallback::MakesureAuthed(const std::string& _host, const std::string& _user_id) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
 
-    jboolean ret = JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_MakesureAuthed, ScopedJstring(env, _host.c_str()).GetJstr(), ScopedJstring(env, _user_id.c_str()).GetJstr()).z;
+    jboolean ret = JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_makesureAuthed, ScopedJstring(env, _host.c_str()).GetJstr(), ScopedJstring(env, _user_id.c_str()).GetJstr()).z;
     return ret;
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_TrafficData, KC2Java, "trafficData", "(II)V")
+DEFINE_FIND_METHOD(KC2Java_trafficData, KC2Java, "trafficData", "(II)V")
 void StnManagerJniCallback::TrafficData(ssize_t _send, ssize_t _recv) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
 
-    JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_TrafficData, (jint)_send, (jint)_recv);
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_trafficData, (jint)_send, (jint)_recv);
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_OnNewDns, KC2Java, "onNewDns", "(Ljava/lang/String;Z)[Ljava/lang/String;")
+DEFINE_FIND_METHOD(KC2Java_onNewDns, KC2Java, "onNewDns", "(Ljava/lang/String;Z)[Ljava/lang/String;")
 std::vector<std::string> StnManagerJniCallback::OnNewDns(const std::string& host, bool longlink_host) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -61,7 +61,7 @@ std::vector<std::string> StnManagerJniCallback::OnNewDns(const std::string& host
 
     std::vector<std::string> iplist;
     if (!host.empty()) {
-        jobjectArray ip_strs = (jobjectArray)JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_OnNewDns, ScopedJstring(env, host.c_str()).GetJstr(), longlink_host).l;
+        jobjectArray ip_strs = (jobjectArray)JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_onNewDns, ScopedJstring(env, host.c_str()).GetJstr(), longlink_host).l;
         if (ip_strs != NULL) {
             jsize size = env->GetArrayLength(ip_strs);
             for (int i = 0; i < size; i++) {
@@ -80,7 +80,7 @@ std::vector<std::string> StnManagerJniCallback::OnNewDns(const std::string& host
     return iplist;
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_OnPush, KC2Java, "onPush", "(Ljava/lang/String;II[B[B)V")
+DEFINE_FIND_METHOD(KC2Java_onPush, KC2Java, "onPush", "(Ljava/lang/String;II[B[B)V")
 void StnManagerJniCallback::OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -92,13 +92,13 @@ void StnManagerJniCallback::OnPush(const std::string& _channel_id, uint32_t _cmd
     } else {
         xdebug2(TSF "the data.Lenght() < = 0");
     }
-    JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_OnPush, ScopedJstring(env, _channel_id.c_str()).GetJstr(), (jint)_cmdid, (jint)_taskid, data_jba, NULL);
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_onPush, ScopedJstring(env, _channel_id.c_str()).GetJstr(), (jint)_cmdid, (jint)_taskid, data_jba, NULL);
     if (data_jba != NULL) {
         JNU_FreeJbyteArray(env, data_jba);
     }
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_Req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/lang/String;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
+DEFINE_FIND_METHOD(KC2Java_req2Buf, KC2Java, "req2Buf", "(ILjava/lang/Object;Ljava/lang/String;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
 bool StnManagerJniCallback::Req2Buf(uint32_t _taskid, void* const _user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -122,7 +122,7 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid, void* const _user_context,
     }
     jboolean ret = JNU_CallMethodByMethodInfo(env,
                                               callback_inst_,
-                                              kStnManagerJniCallback_Req2Buf,
+                                              KC2Java_req2Buf,
                                               (jint)_taskid,
                                               _user_context,
                                               ScopedJstring(env, _user_id.c_str()).GetJstr(),
@@ -169,7 +169,7 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid, void* const _user_context,
 //    descriptor: (ILjava/lang/Object;Ljava/lang/String;[B[II)I
 //public abstract int buf2Resp(int, java.lang.Object, java.lang.String, byte[], int[], int);
 //    descriptor: (ILjava/lang/Object;Ljava/lang/String;[B[II)I
-DEFINE_FIND_METHOD(kStnManagerJniCallback_Buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[II)I")
+DEFINE_FIND_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[II)I")
 int StnManagerJniCallback::Buf2Resp(uint32_t _taskid, void* const _user_context, const std::string& _user_id, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -188,7 +188,7 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid, void* const _user_context,
     //        // xdebug2(TSF"the decodeBuffer.Lenght() <= 0");
     //    }
     jintArray errcode_array = env->NewIntArray(1);
-    jint ret = JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_Buf2Resp, (jint)_taskid, _user_context, ScopedJstring(env, _user_id.c_str()).GetJstr(), resp_buf_jba, errcode_array, _channel_select).i;
+    jint ret = JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_buf2Resp, (jint)_taskid, _user_context, ScopedJstring(env, _user_id.c_str()).GetJstr(), resp_buf_jba, errcode_array, _channel_select).i;
     if (resp_buf_jba != NULL) {
         env->DeleteLocalRef(resp_buf_jba);
     }
@@ -201,14 +201,14 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid, void* const _user_context,
 }
 
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_OnTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
+DEFINE_FIND_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
 int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const CgiProfile& _profile) {
     xdebug2(TSF "mars2 recieve task profile: %_, %_, %_", _profile.start_connect_time, _profile.start_send_packet_time, _profile.read_packet_finished_time);
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
 
-    jclass cgiProfileCls = cache_instance->GetClass(env, kC2JavaCgiProfile);
+    jclass cgiProfileCls = cache_instance->GetClass(env, KC2JavaStnCgiProfile);
     jmethodID jobj_init = cache_instance->GetMethodId(env, cgiProfileCls, "<init>", "()V");
     if (nullptr == jobj_init) {
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "StnManagerJniCallback::OnTaskEnd: get method id failed.");
@@ -245,21 +245,21 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
     env->SetLongField(jobj_cgiItem, fid_rtt, _profile.rtt);
     env->SetIntField(jobj_cgiItem, fid_channelType, _profile.channel_type);
     env->SetIntField(jobj_cgiItem, fid_protocolType, _profile.transport_protocol);
-    int ret = (int)JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_OnTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code, jobj_cgiItem).i;
+    int ret = (int)JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code, jobj_cgiItem).i;
     return ret;
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_ReportConnectStatus, KC2Java, "reportConnectStatus", "(II)V")
+DEFINE_FIND_METHOD(KC2Java_reportNetConnectInfo, KC2Java, "reportConnectStatus", "(II)V")
 void StnManagerJniCallback::ReportConnectStatus(int _status, int _longlink_status) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
-    JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_ReportConnectStatus, (jint)_status, (jint)_longlink_status);
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_reportNetConnectInfo, (jint)_status, (jint)_longlink_status);
     xdebug2(TSF "all_connstatus = %0, longlink_connstatus = %_", _status, _longlink_status);
 }
 
 DEFINE_FIND_CLASS(StnErrCmdType, "com/tencent/mars/stn/ErrCmdType")
-DEFINE_FIND_METHOD(kStnManagerJniCallback_OnLongLinkNetworkError, KC2Java, "onLongLinkNetworkError", "(Lcom/tencent/mars/stn/ErrCmdType;ILjava/lang/String;I)V")
+DEFINE_FIND_METHOD(KC2Java_OnLongLinkNetworkError, KC2Java, "onLongLinkNetworkError", "(Lcom/tencent/mars/stn/ErrCmdType;ILjava/lang/String;I)V")
 void StnManagerJniCallback::OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -268,10 +268,10 @@ void StnManagerJniCallback::OnLongLinkNetworkError(ErrCmdType _err_type, int _er
     jclass stn_err_cmd_type_clazz = cache_instance->GetClass(env, StnErrCmdType);
     jmethodID construct_mid = cache_instance->GetStaticMethodId(env, stn_err_cmd_type_clazz, "forNumber", "(I)Lcom/tencent/mars/stn/ErrCmdType;");
     jobject stn_err_cmd_type_obj = (jobject)env->CallStaticObjectMethod(stn_err_cmd_type_clazz, construct_mid, (jint)_err_type);
-    JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_OnLongLinkNetworkError, stn_err_cmd_type_obj, (jint)_err_code, ScopedJstring(env, _ip.c_str()).GetJstr(), (jint)_port);
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_OnLongLinkNetworkError, stn_err_cmd_type_obj, (jint)_err_code, ScopedJstring(env, _ip.c_str()).GetJstr(), (jint)_port);
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_OnShortLinkNetworkError, KC2Java, "onShortLinkNetworkError", "(Lcom/tencent/mars/stn/ErrCmdType;ILjava/lang/String;Ljava/lang/String;I)V")
+DEFINE_FIND_METHOD(KC2Java_OnShortLinkNetworkError, KC2Java, "onShortLinkNetworkError", "(Lcom/tencent/mars/stn/ErrCmdType;ILjava/lang/String;Ljava/lang/String;I)V")
 void StnManagerJniCallback::OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -280,19 +280,19 @@ void StnManagerJniCallback::OnShortLinkNetworkError(ErrCmdType _err_type, int _e
     jclass stn_err_cmd_type_clazz = cache_instance->GetClass(env, StnErrCmdType);
     jmethodID construct_mid = cache_instance->GetStaticMethodId(env, stn_err_cmd_type_clazz, "forNumber", "(I)Lcom/tencent/mars/stn/ErrCmdType;");
     jobject stn_err_cmd_type_obj = (jobject)env->CallStaticObjectMethod(stn_err_cmd_type_clazz, construct_mid, (jint)_err_type);
-    JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_OnShortLinkNetworkError, stn_err_cmd_type_obj, (jint)_err_code, ScopedJstring(env, _ip.c_str()).GetJstr(), ScopedJstring(env, _host.c_str()).GetJstr(), (jint)_port);
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_OnShortLinkNetworkError, stn_err_cmd_type_obj, (jint)_err_code, ScopedJstring(env, _ip.c_str()).GetJstr(), ScopedJstring(env, _host.c_str()).GetJstr(), (jint)_port);
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_OnLongLinkStatusChange, KC2Java, "onLongLinkStatusChange", "(I)V")
+DEFINE_FIND_METHOD(KC2Java_OnLongLinkStatusChange, KC2Java, "onLongLinkStatusChange", "(I)V")
 void StnManagerJniCallback::OnLongLinkStatusChange(int _status) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
 
     JNIEnv* env = scope_jenv.GetEnv();
-    JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_OnLongLinkStatusChange, (jint)_status);
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_OnLongLinkStatusChange, (jint)_status);
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
+DEFINE_FIND_METHOD(KC2Java_GetLonglinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
 int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& _identify_buffer, AutoBuffer& _buffer_hash, int32_t& _cmdid) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -305,7 +305,7 @@ int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _ch
 
     jintArray jcmdid_array = env->NewIntArray(2);
     jint ret = 0;
-    ret = JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_GetLonglinkIdentifyCheckBuffer, ScopedJstring(env, _channel_id.c_str()).GetJstr(), byte_array_outputstream_obj, byte_array_outputstream_hash, jcmdid_array).i;
+    ret = JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_GetLonglinkIdentifyCheckBuffer, ScopedJstring(env, _channel_id.c_str()).GetJstr(), byte_array_outputstream_obj, byte_array_outputstream_hash, jcmdid_array).i;
     if (ret == kCheckNext || ret == kCheckNever) {
         xwarn2(TSF "getLongLinkIdentifyCheckBuffer uin == 0, not ready");
         env->DeleteLocalRef(byte_array_outputstream_obj);
@@ -347,7 +347,7 @@ int StnManagerJniCallback::GetLonglinkIdentifyCheckBuffer(const std::string& _ch
     return ret;
 }
 
-DEFINE_FIND_METHOD(kStnManagerJniCallback_OnLonglinkIdentifyResponse, KC2Java, "onLongLinkIdentifyResponse", "(Ljava/lang/String;[B[B)Z")
+DEFINE_FIND_METHOD(KC2Java_OnLonglinkIdentifyResponse, KC2Java, "onLongLinkIdentifyResponse", "(Ljava/lang/String;[B[B)Z")
 bool StnManagerJniCallback::OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& _response_buffer, const AutoBuffer& _identify_buffer_hash) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -366,7 +366,7 @@ bool StnManagerJniCallback::OnLonglinkIdentifyResponse(const std::string& _chann
     } else {
         xdebug2(TSF "the hashCodeBuffer.Lenght() < = 0");
     }
-    jboolean ret = JNU_CallMethodByMethodInfo(env, callback_inst_, kStnManagerJniCallback_OnLonglinkIdentifyResponse, ScopedJstring(env, _channel_id.c_str()).GetJstr(), data_jba, hash_jba).z;
+    jboolean ret = JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_OnLonglinkIdentifyResponse, ScopedJstring(env, _channel_id.c_str()).GetJstr(), data_jba, hash_jba).z;
     if (data_jba != NULL) {
         JNU_FreeJbyteArray(env, data_jba);
     }
