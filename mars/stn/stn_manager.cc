@@ -49,6 +49,8 @@ static uint32_t gs_taskid = 1;
 
 StnManager::StnManager(Context* context) : context_(context) {
     // xdebug_function(TSF "mars2 context id %_", context_->GetContextId());
+    ReportDnsProfileFunc = std::bind(&StnManager::__ReportDnsProfile, this, std::placeholders::_1);
+    xdebug2(TSF "mars2 bind ReportDnsProfileFunc in StnManager");
 }
 
 StnManager::~StnManager() {
@@ -60,7 +62,8 @@ std::string StnManager::GetName() {
 
 void StnManager::OnInitConfigBeforeOnCreate(const int _packer_encoder_version) {
     // xinfo2(TSF "stn oninit: %_", _packer_encoder_version);
-    //    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager OnInitConfigBeforeOnCreate _packer_encoder_version %d", _packer_encoder_version);
+    //    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager OnInitConfigBeforeOnCreate
+    //    _packer_encoder_version %d", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
     // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 }
@@ -248,6 +251,7 @@ void StnManager::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostli
 // 底层向上层上报cgi执行结果
 void StnManager::ReportTaskProfile(const TaskProfile& _task_profile) {
     if (!callback_bridge_) {
+        xwarn2(TSF "mars2 callback_bridge is null.");
         return;
     }
     callback_bridge_->ReportTaskProfile(_task_profile);
@@ -256,14 +260,16 @@ void StnManager::ReportTaskProfile(const TaskProfile& _task_profile) {
 // 底层通知上层cgi命中限制
 void StnManager::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
     if (!callback_bridge_) {
+        xwarn2(TSF "mars2 callback_bridge is null.");
         return;
     }
     callback_bridge_->ReportTaskLimited(_check_type, _task, _param);
 }
 
 // 底层上报域名dns结果
-void StnManager::ReportDnsProfile(const DnsProfile& _dns_profile) {
+void StnManager::__ReportDnsProfile(const DnsProfile& _dns_profile) {
     if (!callback_bridge_) {
+        xwarn2(TSF "mars2 callback_bridge is null.");
         return;
     }
     callback_bridge_->ReportDnsProfile(_dns_profile);

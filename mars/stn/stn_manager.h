@@ -89,11 +89,16 @@ class StnManager : public mars::boot::BaseManager {
     void ReportTaskProfile(const ::mars::stn::TaskProfile& _task_profile);
     // 底层通知上层cgi命中限制
     void ReportTaskLimited(int _check_type, const ::mars::stn::Task& _task, unsigned int& _param);
-    // 底层上报域名dns结果
-    void ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile);
+
     //.生成taskid.
     uint32_t GenTaskID();
 
+ public:
+    std::function<void(const ::mars::stn::DnsProfile& _dns_profile)> ReportDnsProfileFunc;
+
+ private:
+    // 底层上报域名dns结果
+    void __ReportDnsProfile(const ::mars::stn::DnsProfile& _dns_profile);
     // #################### end stn.h ####################
 
     // #################### end stn_logci.h ####################

@@ -673,8 +673,8 @@ void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param)
 //底层上报域名dns结果
 void ReportDnsProfile(const DnsProfile& _dns_profile) {
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
-    if (stn_manager) {
-        stn_manager->ReportDnsProfile(_dns_profile);
+    if (stn_manager && stn_manager->ReportDnsProfileFunc) {
+        stn_manager->ReportDnsProfileFunc(_dns_profile);
     }
 }
 

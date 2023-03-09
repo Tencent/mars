@@ -429,10 +429,13 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 		dns_profile.end_time = gettickcount();
 		if (!ret) dns_profile.OnFailed();
-                //TODO cpan mars2
-                context_->GetManager<StnManager>()->ReportDnsProfile(dns_profile);
+                if (context_->GetManager<StnManager>()->ReportDnsProfileFunc) {
+                        context_->GetManager<StnManager>()->ReportDnsProfileFunc(dns_profile);
+                } else {
+                        xwarn2(TSF "mars2 ReportDnsProfileFunc is null.");
+                }
 
-		xgroup2_define(dnsxlog);
+                xgroup2_define(dnsxlog);
 		xdebug2(TSF"link host:%_, new dns ret:%_, size:%_ ", _host, ret, iplist.size()) >> dnsxlog;
 
 		if (iplist.empty()) {
@@ -444,9 +447,12 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 			dns_profile.end_time = gettickcount();
 			if (!ret) dns_profile.OnFailed();
-                        context_->GetManager<StnManager>()->ReportDnsProfile(dns_profile);
-
-			xdebug2(TSF "dns ret:%_, size:%_,", ret, iplist.size()) >> dnsxlog;
+                        if (context_->GetManager<StnManager>()->ReportDnsProfileFunc) {
+                            context_->GetManager<StnManager>()->ReportDnsProfileFunc(dns_profile);
+                        } else {
+                            xwarn2(TSF "mars2 ReportDnsProfileFunc is null.");
+                        }
+                        xdebug2(TSF "dns ret:%_, size:%_,", ret, iplist.size()) >> dnsxlog;
 		}
 		else {
 			ist = kIPSourceNewDns;
