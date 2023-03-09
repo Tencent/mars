@@ -328,7 +328,8 @@ void StnManager::TouchTasks() {
 }
 
 void StnManager::DisableLongLink() {
-    NetCore::need_use_longlink_ = false;
+//    NetCore::need_use_longlink_ = false;
+    net_core_->SetNeedUseLongLink(false);
 }
 
 void StnManager::ClearTasks() {
