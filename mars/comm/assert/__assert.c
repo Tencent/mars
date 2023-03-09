@@ -36,7 +36,7 @@ void __assert_rtn(const char *, const char *, int, const char *) __dead2;
 #endif
 
 EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression) {
-    XLoggerInfo info= {0};
+    XLoggerInfo info = XLOGGER_INFO_INITIALIZER;
     char assertlog[4096] = {'\0'};
     snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
 
@@ -70,7 +70,8 @@ EXPORT_FUNC void __ASSERT(const char * _pfile, int _line, const char * _pfunc, c
 
 void __ASSERTV2(const char * _pfile, int _line, const char * _pfunc, const char * _pexpression, const char * _format, va_list _list) {
     char assertlog[4096] = {'\0'};
-    XLoggerInfo info= {kLevelFatal};
+    XLoggerInfo info = XLOGGER_INFO_INITIALIZER;
+    info.level = kLevelFatal;
     
     do {
         int offset = snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);

@@ -31,7 +31,7 @@ typedef enum android_LogPriority {
 } android_LogPriority;
 
 static void __ComLogV(int level, const char *tag, const char* file, const char* func, int line, const char* fmt, va_list args) {
- 	struct XLoggerInfo_t info;
+ 	struct XLoggerInfo_t info = XLOGGER_INFO_INITIALIZER;
 	info.level = (TLogLevel)level;
 	info.tag = tag;
 	info.filename = file;

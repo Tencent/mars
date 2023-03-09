@@ -42,7 +42,6 @@
 namespace mars {
 namespace comm {
 
-static const unsigned int kTimeoutModeIncreaseInterval = 1000;
 static const int kMaxConnectingLoopCount = 30;
 
 bool IsV6(const socket_address& _address) {

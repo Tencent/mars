@@ -196,7 +196,7 @@ private:
     XLogger& operator=(const XLogger&);
     
 private:
-    XLoggerInfo m_info;
+    XLoggerInfo m_info = XLOGGER_INFO_INITIALIZER;
     std::string m_message;
     bool m_isassert;
     const char* m_exp;
@@ -219,7 +219,7 @@ private:
 
 private:
     bool m_enable;
-    XLoggerInfo m_info;
+    XLoggerInfo m_info = XLOGGER_INFO_INITIALIZER;
     char m_name[128];
     timeval m_tv;
     

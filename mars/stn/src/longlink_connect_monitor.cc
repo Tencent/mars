@@ -45,8 +45,8 @@ using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;
 
-static const unsigned int kTimeCheckPeriod = 10 * 1000;     // 10s
-static const unsigned int kStartCheckPeriod = 3 * 1000;     // 3s
+// static const unsigned int kTimeCheckPeriod = 10 * 1000;     // 10s
+// static const unsigned int kStartCheckPeriod = 3 * 1000;     // 3s
 static const unsigned int kInactiveBuffer = 30 * 1000;      //30s
 
 static const unsigned long kNoNetSaltRate = 3;
@@ -274,7 +274,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
         rebuild_longlink_ = false;
         bool newone = false;
-        bool ret = longlink_.MakeSureConnected(&newone);
+        longlink_.MakeSureConnected(&newone);
         xinfo2(TSF"rebuild now");
         return 0;
     }
