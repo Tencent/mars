@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "boost/function.hpp"
+#include "mars/comm/xlogger/xlogger.h"
 
 namespace mars {
 namespace comm {
@@ -58,13 +59,13 @@ class DNS {
     }
 
     void SetDnsFunc(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc) {
+        xverbose2(TSF"mars2 dns SetDnsFunc");
       dnsfunc_ = _dnsfunc;
     }
- public:
-    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
-    
+
   private:
 //    DNSFunc dnsfunc_;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
     boost::function<void (int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
 };

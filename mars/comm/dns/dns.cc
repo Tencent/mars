@@ -47,7 +47,6 @@ struct dnsinfo {
     DNS*            dns;
     //DNS::DNSFunc    dns_func;
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dns_func;
-//    std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
     std::string     host_name;
     std::vector<std::string> result;
     int status;

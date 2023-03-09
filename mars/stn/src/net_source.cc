@@ -74,8 +74,8 @@ std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
 Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil(boot::Context* _context): context_(_context) {
-    if(_context){
-        new_dns_.dnsfunc_ = std::bind(&NetSource::DnsUtil::__OnNewDns, this, std::placeholders::_1, std::placeholders::_2);
+    if (_context) {
+        new_dns_.SetDnsFunc(std::bind(&NetSource::DnsUtil::__OnNewDns, this, std::placeholders::_1, std::placeholders::_2));
     }
 }
 
@@ -93,6 +93,7 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 }
 
 std::vector<std::string> NetSource::DnsUtil::__OnNewDns(const std::string& _host, bool _longlink_host) {
+    xverbose2(TSF "mars2 dns __OnNewDns");
     if(context_){
         return context_->GetManager<StnManager>()->OnNewDns(_host, _longlink_host);
     }else {
