@@ -1,5 +1,4 @@
 #include "comm/jni/util/JNI_OnLoad.h"
-#include <pthread.h>
 #include "comm/jni/util/var_cache.h"
 #include "comm/jni/util/scope_jenv.h"
 #include "comm/jni/jnicat/jnicat_core.h"

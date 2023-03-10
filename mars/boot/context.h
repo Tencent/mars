@@ -63,7 +63,6 @@ class Context {
  private:
     bool is_init_ = false;
     std::string context_id_;
-//    std::once_flag set_context_id_flag_;
     std::recursive_mutex mutex_;
     std::map<std::string, void*> manager_map_;
     std::map<std::string, std::string> java_clazz_name_c_clazz_name_map_;
