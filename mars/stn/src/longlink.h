@@ -43,8 +43,6 @@
 #include "mars/stn/proto/longlink_packer.h"
 #include "mars/boot/context.h"
 
-using namespace mars::stn::longlink;
-
 class AutoBuffer;
 class XLogger;
 
@@ -137,7 +135,7 @@ class LongLink {
     bool    Stop(uint32_t _taskid);
 
     bool            MakeSureConnected(bool* _newone = NULL);
-    void            Disconnect(TDisconnectInternalCode _scene);
+    void            Disconnect(LongLinkErrCode::TDisconnectInternalCode _scene);
     TLongLinkStatus ConnectStatus() const;
 
     ConnectProfile  Profile() const   { return conn_profile_; }
@@ -199,7 +197,7 @@ class LongLink {
     comm::SocketBreaker                         connectbreak_;
     TLongLinkStatus                             connectstatus_;
     ConnectProfile                              conn_profile_;
-    TDisconnectInternalCode                     disconnectinternalcode_;
+    LongLinkErrCode::TDisconnectInternalCode    disconnectinternalcode_;
     
     comm::SocketBreaker                         readwritebreak_;
     LongLinkIdentifyChecker                     identifychecker_;

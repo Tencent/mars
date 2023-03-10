@@ -160,7 +160,7 @@ void LongLinkTaskManager::ClearTasks() {
     xverbose_function();
     MetaScopedLock lock(meta_mutex_);
     for(auto item : longlink_metas_) {
-        item.second->Channel()->Disconnect(longlink::kReset);
+        item.second->Channel()->Disconnect(LongLinkErrCode::kReset);
         MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[item.second->Config().name]);
     }
     lock.unlock();
@@ -191,7 +191,7 @@ void LongLinkTaskManager::RedoTasks() {
     MetaScopedLock lock(meta_mutex_);
     for(auto longlink : longlink_metas_) {
         longlink.second->Checker()->CancelConnect();
-        longlink.second->Channel()->Disconnect(longlink::kReset);
+        longlink.second->Channel()->Disconnect(LongLinkErrCode::kReset);
         longlink.second->Channel()->SvrTrigOff();
         longlink.second->Channel()->MakeSureConnected();
     }
@@ -655,25 +655,25 @@ void LongLinkTaskManager::__BatchErrorRespHandle(const std::string _name, ErrCmd
     }
 
     if (kTaskFailHandleSessionTimeout == _fail_handle || kTaskFailHandleRetryAllTasks == _fail_handle) {
-        __Disconnect(_name, longlink::kDecodeErr);
+        __Disconnect(_name, LongLinkErrCode::kDecodeErr);
         MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
         retry_interval_ = 0;
     }
 
     if (kTaskFailHandleDefault == _fail_handle) {
         if (kEctDns != _err_type && kEctSocket != _err_type && kEctCanceld != _err_type) {  // not longlink callback
-            __Disconnect(_name, longlink::kDecodeErr);
+            __Disconnect(_name, LongLinkErrCode::kDecodeErr);
         }
         MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
     }
 
     if (kEctNetMsgXP == _err_type) {
-        __Disconnect(_name, longlink::kTaskTimeout);
+        __Disconnect(_name, LongLinkErrCode::kTaskTimeout);
         MessageQueue::CancelMessage(asyncreg_.Get(), longlink_id_[_name]);
     }
 }
 
-void LongLinkTaskManager::__Disconnect(const std::string& _name, longlink::TDisconnectInternalCode code) {
+void LongLinkTaskManager::__Disconnect(const std::string& _name, LongLinkErrCode::TDisconnectInternalCode code) {
 	auto longlink = GetLongLink(_name);
     if(longlink != nullptr) {
 	    longlink->Channel()->Disconnect(code);
@@ -928,7 +928,7 @@ void LongLinkTaskManager::__ResetLongLink(const std::string& _name) {
     ASYNC_BLOCK_START
     auto longlink = GetLongLink(_name);
     if(longlink) {
-	    longlink->Channel()->Disconnect(longlink::kNetworkChange);
+	    longlink->Channel()->Disconnect(LongLinkErrCode::kNetworkChange);
 	    __RedoTasks(_name);
     }
     
@@ -1041,7 +1041,7 @@ void LongLinkTaskManager::ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _lin
     _linkmeta->Monitor()->DisconnectAllSlot();
 }
 
-bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code) {
+bool LongLinkTaskManager::DisconnectByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code) {
     for(auto item : lst_cmd_) {
         if(item.task.taskid == _taskid) {
             auto longlink = GetLongLink(item.channel_name);

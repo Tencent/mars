@@ -313,7 +313,8 @@ enum TimeoutSource {
 //move form longlink
 
 // Note: Never Delete Item!!!Just Add!!!
-namespace longlink {
+class LongLinkErrCode {
+public:
 enum TDisconnectInternalCode {
     kNone = 0,
     kReset = 10000,        // no use
@@ -339,7 +340,7 @@ enum TDisconnectInternalCode {
     kObjectDestruct = 10020,
     kLinkDetectEnd = 10021,
 };
-}
+};
 //move form longlink
 
 const char* const IPSourceTypeString[] = {

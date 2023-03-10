@@ -95,7 +95,7 @@ class LongLinkTaskManager {
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     void ReleaseLongLink(const std::string _name);
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
-    bool DisconnectByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code);
+    bool DisconnectByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
 
   private:
@@ -118,7 +118,7 @@ class LongLinkTaskManager {
 #ifdef __APPLE__
     void __ResetLongLink(const std::string& _name);
 #endif
-    void __Disconnect(const std::string& _name, longlink::TDisconnectInternalCode code);
+    void __Disconnect(const std::string& _name, LongLinkErrCode::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name, bool need_lock_link = true);
     void __DumpLongLinkChannelInfo();
     bool __ForbidUseTls(const std::vector<std::string>& _host_list);
