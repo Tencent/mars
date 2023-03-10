@@ -4,14 +4,12 @@
 
 #include "context.h"
 
-#include "mars/comm/bootrun.h"
 
 #define S_SCOPED_LOCK() std::unique_lock<std::recursive_mutex> s_lock(s_mutex_)
 #define S_SCOPED_UNLOCK() s_lock.unlock()
-static int context_instance_counter_ = 0;
+static int sg_context_instance_counter = 0;
 
 namespace mars {
-
 namespace boot {
 
 std::map<std::string, Context*> Context::s_context_map_;
@@ -41,14 +39,9 @@ Context* Context::CreateContext(const std::string& context_id) {
 void Context::DestroyContext(Context* context) {
     S_SCOPED_LOCK();
     if (context != nullptr) {
-        auto* temp_context = dynamic_cast<Context*>(context);
-        auto context_id = temp_context->GetContextId();
-
-        auto iter = s_context_map_.find(context_id);
-        if (iter != s_context_map_.end()) {
-            s_context_map_.erase(context_id);
-        }
-        delete temp_context;
+        auto context_id = context->GetContextId();
+        s_context_map_.erase(context_id);
+        delete context;
     }
 }
 
@@ -63,7 +56,7 @@ Context::~Context() {
 int Context::Init() {
     S_SCOPED_LOCK();
     if (!is_init_) {
-        context_instance_counter_++;
+        sg_context_instance_counter++;
         is_init_ = true;
     }
     return 0;
@@ -71,19 +64,15 @@ int Context::Init() {
 
 int Context::UnInit() {
     S_SCOPED_LOCK();
-    if (is_init_) {
-        // do somethings
-        is_init_ = false;
-    } else {
+    if (!is_init_) {
         return -1;
     }
+    is_init_ = false;
     return 0;
 }
 
 void Context::SetContextId(const std::string& context_id) {
-//    std::call_once(set_context_id_flag_, [this, context_id] {
-        context_id_ = context_id;
-//    });
+    context_id_ = context_id;
 }
 
 const std::string& Context::GetContextId() {
