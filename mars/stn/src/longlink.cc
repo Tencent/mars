@@ -139,7 +139,7 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , netsource_(_netsource)
     , config_(_config)
-    , thread_(boost::bind(&LongLink::__Run, this), XLOGGER_TAG "::lonklink")
+    , thread_(boost::bind(&LongLink::__Run, this), XLOGGER_TAG "::longlink")
 	, connectstatus_(kConnectIdle)
 	, disconnectinternalcode_(kNone)
     , identifychecker_(_encoder, _config.name, Task::kChannelMinorLong == _config.link_type)

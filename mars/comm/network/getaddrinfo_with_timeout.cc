@@ -152,17 +152,16 @@ static void __WorkerFunc() {
     }
 }
 
-
-
-
 int getaddrinfo_with_timeout(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res, bool& _is_timeout, unsigned long long _timeout_msec) {
     xverbose_function();
     //Check param
     
     ScopedLock lock(sg_mutex);
     
+    std::string threadname(node);
+    threadname.append("@dns_with_timeout");
     
-    Thread thread(&__WorkerFunc, node);
+    Thread thread(&__WorkerFunc, threadname.c_str());
     int start_ret = thread.start();
     
     if (start_ret != 0) {
