@@ -42,6 +42,7 @@ enum {
     kGetIPFail,
 };
 
+
 struct dnsinfo {
     thread_tid      threadid;
     DNS*            dns;
@@ -52,17 +53,21 @@ struct dnsinfo {
     int status;
     bool longlink_host = false;
 };
+/*
+*/
 
-static std::string DNSInfoToString(const struct dnsinfo& _info) {
+std::string DNSInfoToString(const struct dnsinfo& _info) {
     XMessage msg;
     msg(TSF"info:%_, threadid:%_, dns:%_, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
     return msg.Message();
 }
+/*mars2
 NO_DESTROY static std::vector<dnsinfo> sg_dnsinfo_vec;
 NO_DESTROY static Condition sg_condition;
 NO_DESTROY static Mutex sg_mutex;
+*/
 
-static void __GetIP() {
+void DNS::__GetIP() {
     xverbose_function();
 
     auto start_time = ::gettickcount();
@@ -211,7 +216,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
 
     if (_breaker && _breaker->isbreak) return false;
 
-    Thread thread(&__GetIP, _host_name.c_str());
+    Thread thread(std::bind(&DNS::__GetIP, this) ,_host_name.c_str());
     int startRet = thread.start();
 
     if (startRet != 0) {

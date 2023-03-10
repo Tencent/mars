@@ -26,9 +26,13 @@
 
 #include "boost/function.hpp"
 #include "mars/comm/xlogger/xlogger.h"
+#include "thread/condition.h"
+#include "thread/thread.h"
 
 namespace mars {
 namespace comm {
+
+struct dnsinfo;
 
 struct DNSBreaker {
 	DNSBreaker(): isbreak(false), dnsstatus(NULL) {}
@@ -63,11 +67,20 @@ class DNS {
       dnsfunc_ = _dnsfunc;
     }
 
+ private:
+    void __GetIP();
+
   private:
 //    DNSFunc dnsfunc_;
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
     boost::function<void (int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
+
+ private:
+    std::vector<dnsinfo> sg_dnsinfo_vec;
+    Condition sg_condition;
+    Mutex sg_mutex;
+
 };
 }
 }
