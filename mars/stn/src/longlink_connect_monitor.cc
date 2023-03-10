@@ -274,7 +274,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
         rebuild_longlink_ = false;
         bool newone = false;
-        bool ret = longlink_.MakeSureConnected(&newone);
+        longlink_.MakeSureConnected(&newone);
         xinfo2(TSF"rebuild now");
         return 0;
     }

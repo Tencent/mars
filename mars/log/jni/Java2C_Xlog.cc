@@ -182,7 +182,8 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite
     jlong tid = JNU_GetField(env, _log_info, "tid", "J").j;
     jlong maintid = JNU_GetField(env, _log_info, "maintid", "J").j;
 
-    XLoggerInfo xlog_info;
+    XLoggerInfo xlog_info = XLOGGER_INFO_INITIALIZER;
+
     gettimeofday(&xlog_info.timeval, NULL);
     xlog_info.level = (TLogLevel)level;
     xlog_info.line = line;
@@ -212,7 +213,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
         return;
     }
 
-    XLoggerInfo xlog_info;
+    XLoggerInfo xlog_info = XLOGGER_INFO_INITIALIZER;
     gettimeofday(&xlog_info.timeval, NULL);
     xlog_info.level = (TLogLevel)_level;
     xlog_info.line = (int)_line;
