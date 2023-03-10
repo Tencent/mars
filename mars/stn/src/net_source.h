@@ -149,6 +149,32 @@ class NetSource {
     uint32_t v4_timeout_;
     uint32_t v6_timeout_;
     WeakNetworkLogic* weak_network_logic_;
+
+  //move from netsource.cc
+  private:
+    //mmnet ipport settings
+    std::vector<std::string> sg_longlink_hosts;
+    std::vector<uint16_t> sg_longlink_ports;
+    std::string sg_longlink_debugip;
+
+    std::string sg_minorlong_debugip;
+    uint16_t sg_minorlong_port = 0;
+
+    int sg_shortlink_port;
+    std::string sg_shortlink_debugip;
+    std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
+    std::vector<uint16_t> sg_lowpriority_longlink_ports;
+
+    std::map< std::string, std::string > sg_host_debugip_mapping;
+
+    std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
+    tickcount_t sg_quic_reopen_tick = tickcount_t(true);
+    bool sg_quic_enabled = true;
+    TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
+    unsigned sg_quic_default_rw_timeoutms = 5000;
+    std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
+
+    comm::Mutex sg_ip_mutex;
 };
         
     }

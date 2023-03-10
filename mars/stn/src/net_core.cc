@@ -1023,7 +1023,7 @@ void NetCore::InitHistory2BannedList() {
             net_source_->InitHistory2BannedList(false);
         }
     };
-    NO_DESTROY static std::once_flag of;
+    /*NO_DESTROY static */std::once_flag of;
     std::call_once(of, once_fun);
 }
 

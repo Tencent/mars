@@ -49,6 +49,7 @@ const char* const kItemDelimiter = ":";
 
 const int kNumMakeCount = 5;
 
+/* mars2 改成类成员变量
 //mmnet ipport settings
 std::vector<std::string> sg_longlink_hosts;
 std::vector<uint16_t> sg_longlink_ports;
@@ -72,6 +73,7 @@ unsigned sg_quic_default_rw_timeoutms = 5000;
 std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
 
 Mutex sg_ip_mutex;
+*/
 
 NetSource::DnsUtil::DnsUtil(boot::Context* _context): context_(_context) {
     if (_context) {

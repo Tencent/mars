@@ -53,7 +53,7 @@ using namespace mars::comm;
 //boost::function<bool (int _error_code)> LongLinkTaskManager::should_intercept_result_;
 
 static int longlink_id = 0;
-std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
+//std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
 
 LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context, NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
     : context_(_context)
