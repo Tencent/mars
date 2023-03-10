@@ -4,8 +4,6 @@
 #include "comm/jni/util/scope_jenv.h"
 #include "comm/jni/jnicat/jnicat_core.h"
 
-pthread_key_t g_env_key;
-
 static void MyExceptionHandler(const std::string& stacktrace) {
     std::abort();
 }
@@ -16,7 +14,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved)
 {
     ScopeJEnv jenv(jvm);
     VarCache::Singleton()->SetJvm(jvm);
-
 
     LoadClass(jenv.GetEnv());
     LoadStaticMethod(jenv.GetEnv());

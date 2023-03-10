@@ -163,8 +163,9 @@ NetCore::~NetCore() {
 
     net_source_ = NULL;
 
-    //TODO cpan mars2 must to do
-    //MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    //TODO cpan mars2
+//    asyncreg_.CancelAndWait();
+//    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
     
     xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
     NetCoreRelease()();

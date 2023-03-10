@@ -209,6 +209,11 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
     JNIEnv* env = scope_jenv.GetEnv();
 
     jclass cgiProfileCls = cache_instance->GetClass(env, KC2JavaStnCgiProfile);
+    if(nullptr == cgiProfileCls) {
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "StnManagerJniCallback::OnTaskEnd: get class fail.");
+        return -1;
+    }
+
     jmethodID jobj_init = cache_instance->GetMethodId(env, cgiProfileCls, "<init>", "()V");
     if (nullptr == jobj_init) {
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "StnManagerJniCallback::OnTaskEnd: get method id failed.");
