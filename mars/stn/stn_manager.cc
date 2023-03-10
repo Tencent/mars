@@ -140,7 +140,6 @@ void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
         callback_bridge_ = _callback_bridge;
     } else {
         callback_bridge_->SetCallback(nullptr);
-        //        callback_bridge_.reset(_callback_bridge);
         callback_bridge_ = _callback_bridge;
     }
     callback_bridge_->SetCallback(callback_);
@@ -158,121 +157,220 @@ StnCallbackBridge* StnManager::GetStnCallbackBridge() {
 // #################### stn.h callback ####################
 bool StnManager::MakesureAuthed(const std::string& _host, const std::string& _user_id) {
     xassert2(callback_bridge_ != NULL);
-    return callback_bridge_->MakesureAuthed(_host, _user_id);
+    if (callback_bridge_) {
+        return callback_bridge_->MakesureAuthed(_host, _user_id);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+        return false;
+    }
 }
 
 // 流量统计
 void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
     xassert2(callback_bridge_ != NULL);
-    callback_bridge_->TrafficData(_send, _recv);
+    if (callback_bridge_) {
+        callback_bridge_->TrafficData(_send, _recv);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
 }
 
 // 底层询问上层该host对应的ip列表
 std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host) {
     std::vector<std::string> ips;
     xassert2(callback_bridge_ != NULL);
-    return callback_bridge_->OnNewDns(_host, _longlink_host);
+
+    if (callback_bridge_) {
+        return callback_bridge_->OnNewDns(_host, _longlink_host);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+        return std::vector<std::string>();
+    }
 }
 
 // 网络层收到push消息回调
-void StnManager::OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend) {
+void StnManager::OnPush(const std::string& _channel_id,
+                        uint32_t _cmdid,
+                        uint32_t _taskid,
+                        const AutoBuffer& _body,
+                        const AutoBuffer& _extend) {
     xassert2(callback_bridge_ != NULL);
-    callback_bridge_->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+    if (callback_bridge_) {
+        callback_bridge_->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
 }
 
 // 底层获取task要发送的数据
-bool StnManager::Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
+bool StnManager::Req2Buf(uint32_t taskid,
+                         void* const user_context,
+                         const std::string& _user_id,
+                         AutoBuffer& outbuffer,
+                         AutoBuffer& extend,
+                         int& error_code,
+                         const int channel_select,
+                         const std::string& host) {
     xassert2(callback_bridge_ != NULL);
-    return callback_bridge_->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+    if (callback_bridge_) {
+        return callback_bridge_
+            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+        return false;
+    }
 }
 
 // 底层回包返回给上层解析
-int StnManager::Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer, const AutoBuffer& extend, int& error_code, const int channel_select) {
-    xdebug2(TSF "mars2 Buf2Resp");
+int StnManager::Buf2Resp(uint32_t taskid,
+                         void* const user_context,
+                         const std::string& _user_id,
+                         const AutoBuffer& inbuffer,
+                         const AutoBuffer& extend,
+                         int& error_code,
+                         const int channel_select) {
     xassert2(callback_bridge_ != NULL);
-    xdebug2(TSF "mars2 Buf2Resp no null.");
-    return callback_bridge_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
+    if (callback_bridge_) {
+        return callback_bridge_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+        return 0;
+    }
 }
 
 // 任务执行结束
-int StnManager::OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
+int StnManager::OnTaskEnd(uint32_t taskid,
+                          void* const user_context,
+                          const std::string& _user_id,
+                          int error_type,
+                          int error_code,
+                          const ConnectProfile& _profile) {
     xassert2(callback_ != NULL);
-    return callback_bridge_->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
+    if (callback_bridge_) {
+        return callback_bridge_->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+        return 0;
+    }
 }
 
 // 上报网络连接状态
 void StnManager::ReportConnectStatus(int status, int longlink_status) {
     xassert2(callback_bridge_ != NULL);
-    callback_bridge_->ReportConnectStatus(status, longlink_status);
+    if (callback_bridge_) {
+        callback_bridge_->ReportConnectStatus(status, longlink_status);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
 }
 
 void StnManager::OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     xassert2(callback_bridge_ != NULL);
-    callback_bridge_->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+    if (callback_bridge_) {
+        callback_bridge_->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
 }
 
-void StnManager::OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+void StnManager::OnShortLinkNetworkError(ErrCmdType _err_type,
+                                         int _err_code,
+                                         const std::string& _ip,
+                                         const std::string& _host,
+                                         uint16_t _port) {
     xassert2(callback_bridge_ != NULL);
-    callback_bridge_->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
+    if (callback_bridge_) {
+        callback_bridge_->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
 }
 
 void StnManager::OnLongLinkStatusChange(int _status) {
     xassert2(callback_bridge_ != NULL);
-    callback_bridge_->OnLongLinkStatusChange(_status);
+    if (callback_bridge_) {
+        callback_bridge_->OnLongLinkStatusChange(_status);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
 }
 
 // 长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-int StnManager::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer& buffer_hash, int32_t& cmdid) {
+int StnManager::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id,
+                                               AutoBuffer& identify_buffer,
+                                               AutoBuffer& buffer_hash,
+                                               int32_t& cmdid) {
     xassert2(callback_bridge_ != NULL);
-    return callback_bridge_->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
+    if (callback_bridge_) {
+        return callback_bridge_->GetLonglinkIdentifyCheckBuffer(_channel_id, identify_buffer, buffer_hash, cmdid);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+        return 0;
+    }
 }
 
 // 长连信令校验回包
-bool StnManager::OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const AutoBuffer& identify_buffer_hash) {
+bool StnManager::OnLonglinkIdentifyResponse(const std::string& _channel_id,
+                                            const AutoBuffer& response_buffer,
+                                            const AutoBuffer& identify_buffer_hash) {
     xassert2(callback_bridge_ != NULL);
-    return callback_bridge_->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
+    if (callback_bridge_) {
+        return callback_bridge_->OnLonglinkIdentifyResponse(_channel_id, response_buffer, identify_buffer_hash);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+        return false;
+    }
 }
 
 void StnManager::RequestSync() {
     xassert2(callback_bridge_ != NULL);
-    callback_bridge_->RequestSync();
+    if (callback_bridge_) {
+        callback_bridge_->RequestSync();
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
 }
 
 // 验证是否已登录
 
 ////底层询问上层http网络检查的域名列表
 void StnManager::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
-    if (!callback_bridge_) {
-        return;
+    xassert2(callback_bridge_ != NULL);
+    if (callback_bridge_) {
+        callback_bridge_->RequestNetCheckShortLinkHosts(_hostlist);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
     }
-    callback_bridge_->RequestNetCheckShortLinkHosts(_hostlist);
 }
 
 // 底层向上层上报cgi执行结果
 void StnManager::ReportTaskProfile(const TaskProfile& _task_profile) {
-    if (!callback_bridge_) {
-        xwarn2(TSF "mars2 callback_bridge is null.");
-        return;
+    xassert2(callback_bridge_ != NULL);
+    if (callback_bridge_) {
+        callback_bridge_->ReportTaskProfile(_task_profile);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
     }
-    callback_bridge_->ReportTaskProfile(_task_profile);
 }
 
 // 底层通知上层cgi命中限制
 void StnManager::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
-    if (!callback_bridge_) {
-        xwarn2(TSF "mars2 callback_bridge is null.");
-        return;
+    xassert2(callback_bridge_ != NULL);
+    if (callback_bridge_) {
+        callback_bridge_->ReportTaskLimited(_check_type, _task, _param);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
     }
-    callback_bridge_->ReportTaskLimited(_check_type, _task, _param);
 }
 
 // 底层上报域名dns结果
 void StnManager::__ReportDnsProfile(const DnsProfile& _dns_profile) {
-    if (!callback_bridge_) {
-        xwarn2(TSF "mars2 callback_bridge is null.");
-        return;
+    xassert2(callback_bridge_ != NULL);
+    if (callback_bridge_) {
+        callback_bridge_->ReportDnsProfile(_dns_profile);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
     }
-    callback_bridge_->ReportDnsProfile(_dns_profile);
 }
 
 //.生成taskid.
@@ -286,7 +384,9 @@ uint32_t StnManager::GenTaskID() {
 
 // #################### stn_logci.h ####################
 
-void StnManager::SetLonglinkSvrAddr(const std::string& host, const std::vector<uint16_t> ports, const std::string& debugip) {
+void StnManager::SetLonglinkSvrAddr(const std::string& host,
+                                    const std::vector<uint16_t> ports,
+                                    const std::string& debugip) {
     std::vector<std::string> hosts;
     if (!host.empty()) {
         hosts.push_back(host);
@@ -328,7 +428,7 @@ void StnManager::TouchTasks() {
 }
 
 void StnManager::DisableLongLink() {
-//    NetCore::need_use_longlink_ = false;
+    //    NetCore::need_use_longlink_ = false;
     net_core_->SetNeedUseLongLink(false);
 }
 
@@ -416,7 +516,9 @@ bool StnManager::LongLinkIsConnected_ext(const std::string& name) {
     return net_core_->LongLinkIsConnected_ext(name);
 }
 
-bool StnManager::ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info, const std::string& _test_host, const std::vector<std::string>& _hardcode_ips) {
+bool StnManager::ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info,
+                                  const std::string& _test_host,
+                                  const std::vector<std::string>& _hardcode_ips) {
     //    return ProxyTest::Singleton::Instance()->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
     ProxyTest* proxy_test_ = new ProxyTest();
     return proxy_test_->ProxyIsAvailable(_proxy_info, _test_host, _hardcode_ips);
@@ -432,7 +534,9 @@ const std::vector<std::string>& StnManager::GetLongLinkHosts() {
     return net_core_->GetNetSourceRef().GetLongLinkHosts();
 }
 
-void StnManager::SetLongLink(const std::vector<std::string>& _hosts, const std::vector<uint16_t>& _ports, const std::string& _debugip) {
+void StnManager::SetLongLink(const std::vector<std::string>& _hosts,
+                             const std::vector<uint16_t>& _ports,
+                             const std::string& _debugip) {
     net_core_->GetNetSourceRef().SetLongLink(_hosts, _ports, _debugip);
 }
 
