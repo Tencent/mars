@@ -238,7 +238,7 @@ bool LongLinkConnectMonitor::NetworkChange() {
     } while (false);
 
 #endif
-    longlink_.Disconnect(longlink::kNetworkChange);
+    longlink_.Disconnect(LongLinkErrCode::kNetworkChange);
 
     xinfo_trace(TSF"longlink_progress network change time: %_", gettickcount());
 

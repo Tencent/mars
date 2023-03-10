@@ -191,7 +191,7 @@ class StnManager : public mars::boot::BaseManager {
     // Add for Android
     //   ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select) ;
     //   void AddServerBan(const std::string& _ip) ;
-    //   void DisconnectLongLinkByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code) ;
+    //   void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code) ;
     // end Add for Android
 
  private:

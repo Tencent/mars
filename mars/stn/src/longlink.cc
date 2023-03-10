@@ -53,7 +53,6 @@
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
 using namespace mars::stn;
-using namespace mars::stn::longlink;
 using namespace mars::app;
 using namespace mars::comm;
 using namespace mars::boot;
@@ -147,8 +146,8 @@ LongLink::LongLink(Context* _context, const mq::MessageQueue_t& _messagequeueid,
     , config_(_config)
     , thread_(boost::bind(&LongLink::__Run, this), XLOGGER_TAG "::longlink")
     , dns_util_(context_)
-    , connectstatus_(kConnectIdle)
-    , disconnectinternalcode_(kNone)
+	, connectstatus_(kConnectIdle)
+	, disconnectinternalcode_(LongLinkErrCode::kNone)
     , identifychecker_(_context, _encoder, _config.name, Task::kChannelMinorLong == _config.link_type)
 #ifdef ANDROID
     , smartheartbeat_(new SmartHeartbeat(_context))
@@ -165,7 +164,7 @@ LongLink::LongLink(Context* _context, const mq::MessageQueue_t& _messagequeueid,
 }
 
 LongLink::~LongLink() {
-    Disconnect(kReset);
+    Disconnect(LongLinkErrCode::kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
     	delete smartheartbeat_, smartheartbeat_=NULL;
@@ -249,7 +248,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
 
     if (kConnected == ConnectStatus()) return true;
 
-    if (kObjectDestruct == disconnectinternalcode_) {
+    if (LongLinkErrCode::kObjectDestruct == disconnectinternalcode_) {
         xwarn2(TSF"object has been released");
         return false;
     }
@@ -262,7 +261,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
         conn_profile_.Reset();
         conn_profile_.link_type = config_.link_type;
         identifychecker_.Reset();
-        disconnectinternalcode_ = kNone;
+        disconnectinternalcode_ = LongLinkErrCode::kNone;
         readwritebreak_.Clear();
         connectbreak_.Clear();
         lstsenddata_.clear();
@@ -273,7 +272,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
     return false;
 }
 
-void LongLink::Disconnect(TDisconnectInternalCode _scene) {
+void LongLink::Disconnect(LongLinkErrCode::TDisconnectInternalCode _scene) {
     xinfo2(TSF"_scene:%_", _scene);
     
     ScopedLock lock(mutex_);
@@ -564,7 +563,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         
         __ConnectStatus(kConnectFailed);
         
-        if (kNone == disconnectinternalcode_) __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
+        if (LongLinkErrCode::kNone == disconnectinternalcode_) __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
         
         return INVALID_SOCKET;
     }
@@ -686,7 +685,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
         
         int retsel = sel.Select(10 * 60 * 1000);
         
-        if (kNone != disconnectinternalcode_) {
+        if (LongLinkErrCode::kNone != disconnectinternalcode_) {
             xwarn2(TSF"task socket close sock:%0, user disconnect:%1, nread:%_, nwrite:%_", _sock, disconnectinternalcode_, socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
             _errtype = kEctCanceld;
             _errcode = kEctSocketUserBreak;

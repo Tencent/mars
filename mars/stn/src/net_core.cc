@@ -574,7 +574,7 @@ void NetCore::StopSignal() {
 }
 
 #ifdef USE_LONG_LINK
-void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, longlink::TDisconnectInternalCode _code){
+void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code){
     if (need_use_longlink_) {
         longlink_task_manager_->DisconnectByTaskId(_taskid, _code);
     }
