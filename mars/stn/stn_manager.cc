@@ -456,9 +456,7 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
 
     // NetCore::Singleton::Release();
     // NetCore::Singleton::Instance();
-    //    net_core_.reset(new NetCore());
     // xinfo2(TSF "cpan debug ResetAndInitEncoderVersion");
-    // net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
     delete net_core_;
     net_core_ = nullptr;
