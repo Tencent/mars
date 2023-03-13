@@ -163,7 +163,8 @@ NetCore::~NetCore() {
 
     net_source_ = NULL;
 
-    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    //TODO cpam mars2
+//    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
     
     xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
     NetCoreRelease()();
