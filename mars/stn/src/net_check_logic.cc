@@ -277,5 +277,7 @@ void NetCheckLogic::__StartNetCheck() {
 
     int mode = (NET_CHECK_BASIC | NET_CHECK_LONG | NET_CHECK_SHORT);
     sdt::SdtManager* sdt_manager = context_->GetManager<SdtManager>();
-    if (!longlink_check_items.empty() || !shortlink_check_items.empty()) sdt_manager->StartActiveCheck(longlink_check_items, shortlink_check_items, mode, UNUSE_TIMEOUT);
+    if (!longlink_check_items.empty() || !shortlink_check_items.empty()) {
+        sdt_manager->StartActiveCheck(longlink_check_items, shortlink_check_items, mode, UNUSE_TIMEOUT);
+    }
 }
