@@ -458,9 +458,8 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
     // NetCore::Singleton::Instance();
     // xinfo2(TSF "cpan debug ResetAndInitEncoderVersion");
 
-    NetCore::__Release(net_core_);
-    //delete net_core_;
     xinfo2(TSF "mars2 Reset stn_manager ResetAndInitEncoderVersion");
+    NetCore::__Release(net_core_);
     net_core_ = new NetCore(context_, packer_encoder_version_);
 }
 

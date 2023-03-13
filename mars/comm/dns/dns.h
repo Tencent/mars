@@ -74,13 +74,7 @@ class DNS {
 //    DNSFunc dnsfunc_;
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
     boost::function<void (int _key)> monitor_func_;
-    const int kDNSThreadIDError = 0;
-
- private:
-    std::vector<dnsinfo> sg_dnsinfo_vec;
-    Condition sg_condition;
-    Mutex sg_mutex;
-
+    static const int kDNSThreadIDError = 0;
 };
 }
 }
