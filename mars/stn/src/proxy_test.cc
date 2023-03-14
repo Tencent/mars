@@ -91,7 +91,6 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     }
 
     TLocalIPStack localstack = local_ipstack_detect();
-    bool isnat64 = ELocalIPStack_IPv6 == localstack;
     std::vector<socket_address> vecaddr;
     
     if (mars::comm::kProxyHttp == _proxy_info.type) {

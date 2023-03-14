@@ -439,8 +439,7 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
                   
                  if (l->last_suc_time != r->last_suc_time)
                      return l->last_suc_time > r->last_suc_time;
-                  
-                  //random by std::random_shuffle(_items.begin(), _items.end());
+
                   return false;
               });
     

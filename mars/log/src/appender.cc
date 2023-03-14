@@ -622,8 +622,7 @@ void XloggerAppender::__WriteTips2Console(const char* _tips_format, ...) {
         return;
     }
     
-    XLoggerInfo info;
-    memset(&info, 0, sizeof(XLoggerInfo));
+    XLoggerInfo info = XLOGGER_INFO_INITIALIZER;
     info.level = kLevelError;
     
     char tips_info[4096] = {0};

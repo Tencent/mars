@@ -106,6 +106,8 @@ struct ConnectProfile {
         ip_index = -1;
         transport_protocol = Task::kTransportProtocolTCP;
         link_type = Task::kChannelLong;
+        tried_443port = 0;
+        tried_80port = 0;
         
         disconn_time = 0;
         disconn_errtype = kEctOK;
@@ -178,6 +180,8 @@ struct ConnectProfile {
     int ip_index;
     int transport_protocol;
     int link_type;
+    int tried_443port;
+    int tried_80port;
     
     uint64_t disconn_time;
     ErrCmdType disconn_errtype;

@@ -21,6 +21,7 @@
 #include "longlink.h"
 
 #include <algorithm>
+#include <cstdint>
 
 #include "boost/bind.hpp"
 
@@ -578,7 +579,22 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.port = ip_items[com_connect.Index()].port;
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();
-    
+
+    if (_conn_profile.ip_index > 0){
+        for (int i = 0; i < com_connect.Index(); i++){
+            uint16_t port = vecaddr[i].port();
+            if (port == 443){
+                _conn_profile.tried_443port = 1;
+            }else if (port == 80){
+                _conn_profile.tried_80port = 1;
+            }
+
+            if (_conn_profile.tried_443port == 1 && _conn_profile.tried_80port == 1){
+                break;
+            }
+        }
+    }
+
     xinfo2(TSF"task socket connect suc sock:%_, host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_,"
            "linktype:%_, costtime:%_, rtt:%_, totalcost:%_, index:%_, net:%_",
            sock, _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip,

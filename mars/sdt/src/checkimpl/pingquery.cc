@@ -53,8 +53,6 @@ static void clearPingStatus(struct PingStatus& _ping_status) {
 
 #define MAXLINE (512) /* max text line length */
 
-static const int kAlarmType = 101;
-
 void str_split(char _spliter, std::string _pingresult, std::vector<std::string>& _vec_pingres) {
     int find_begpos = 0;
     int findpos = 0;
