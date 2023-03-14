@@ -303,7 +303,14 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
 	GetAdaptersAddresses(AF_INET, 0, NULL, NULL, &outBufLen);
 
 	PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
-	GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen);
+    if (pAddresses == NULL) {
+        return false;
+    }
+
+    if (GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen) != ERROR_SUCCESS) {
+        free(pAddresses);
+        return false;
+    }
 
 	PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
 	PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;

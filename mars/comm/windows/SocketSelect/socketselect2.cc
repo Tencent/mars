@@ -299,7 +299,7 @@ int SocketSelect::Select(int _msec) {
             }
         }
 	} else {
-		xinfo2(TSF"return WSAWaitForMultipleEvents, ret=%_", ret);
+		xdebug2(TSF"return WSAWaitForMultipleEvents, ret=%_", ret);
 	}
 
 
