@@ -67,6 +67,8 @@ NO_DESTROY static std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi
 NO_DESTROY static tickcount_t sg_quic_reopen_tick(true);
 static bool sg_quic_enabled = true;
 
+static bool sg_ipv6_enabled = true;
+
 NO_DESTROY static Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil():
@@ -531,6 +533,7 @@ void NetSource::ClearCache() {
     
     ScopedLock lock(sg_ip_mutex);
     sg_quic_enabled = true;
+    sg_ipv6_enabled = true;
 }
 
 void NetSource::DisableQUIC(int64_t seconds/* = 20 * 60*/){
@@ -550,6 +553,38 @@ bool NetSource::CanUseQUIC(){
     }
     
     return sg_quic_enabled;
+}
+
+void NetSource::DisableIPv6(){
+	ScopedLock lock(sg_ip_mutex);
+	xwarn2_if(sg_ipv6_enabled, TSF"ipv6 disabled.");
+	sg_ipv6_enabled = false;
+}
+
+bool NetSource::CanUseIPv6(){
+	ScopedLock lock(sg_ip_mutex);
+	return sg_ipv6_enabled;
+}
+
+unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource){
+    ScopedLock lock(sg_ip_mutex);
+    auto iter = sg_cgi_quic_rw_timeoutms_mapping.find(_cgi);
+    if (iter != sg_cgi_quic_rw_timeoutms_mapping.end()){
+        *outsource = TimeoutSource::kCgiSpecial;
+        return iter->second;
+    }
+    
+    *outsource = sg_quic_default_timeout_source;
+    return sg_quic_default_rw_timeoutms;
+}
+void NetSource::SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms){
+    ScopedLock lock(sg_ip_mutex);
+    sg_cgi_quic_rw_timeoutms_mapping[_cgi] = ms;
+}
+void NetSource::SetDefaultQUICRWTimeoutMs(unsigned ms){
+    ScopedLock lock(sg_ip_mutex);
+    sg_quic_default_rw_timeoutms = ms;
+    sg_quic_default_timeout_source = TimeoutSource::kServerDefault;
 }
 
 std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
