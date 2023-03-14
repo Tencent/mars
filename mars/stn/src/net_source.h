@@ -95,9 +95,9 @@ class NetSource {
     static bool CanUseQUIC();
     static void DisableQUIC(int64_t seconds = 20 * 60); // 20 minutes
     
-    static unsigned GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource);
-    static void SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms);
-    static void SetDefaultQUICRWTimeoutMs(unsigned ms);
+    //static unsigned GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource);
+    //static void SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms);
+    //static void SetDefaultQUICRWTimeoutMs(unsigned ms);
 
     static void DisableIPv6();
     static bool CanUseIPv6();

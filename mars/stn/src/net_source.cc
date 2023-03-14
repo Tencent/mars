@@ -566,26 +566,26 @@ bool NetSource::CanUseIPv6(){
 	return sg_ipv6_enabled;
 }
 
-unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource){
-    ScopedLock lock(sg_ip_mutex);
-    auto iter = sg_cgi_quic_rw_timeoutms_mapping.find(_cgi);
-    if (iter != sg_cgi_quic_rw_timeoutms_mapping.end()){
-        *outsource = TimeoutSource::kCgiSpecial;
-        return iter->second;
-    }
-    
-    *outsource = sg_quic_default_timeout_source;
-    return sg_quic_default_rw_timeoutms;
-}
-void NetSource::SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms){
-    ScopedLock lock(sg_ip_mutex);
-    sg_cgi_quic_rw_timeoutms_mapping[_cgi] = ms;
-}
-void NetSource::SetDefaultQUICRWTimeoutMs(unsigned ms){
-    ScopedLock lock(sg_ip_mutex);
-    sg_quic_default_rw_timeoutms = ms;
-    sg_quic_default_timeout_source = TimeoutSource::kServerDefault;
-}
+//unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource){
+//    ScopedLock lock(sg_ip_mutex);
+//    auto iter = sg_cgi_quic_rw_timeoutms_mapping.find(_cgi);
+//    if (iter != sg_cgi_quic_rw_timeoutms_mapping.end()){
+//        *outsource = TimeoutSource::kCgiSpecial;
+//        return iter->second;
+//    }
+//    
+//    *outsource = sg_quic_default_timeout_source;
+//    return sg_quic_default_rw_timeoutms;
+//}
+//void NetSource::SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms){
+//    ScopedLock lock(sg_ip_mutex);
+//    sg_cgi_quic_rw_timeoutms_mapping[_cgi] = ms;
+//}
+//void NetSource::SetDefaultQUICRWTimeoutMs(unsigned ms){
+//    ScopedLock lock(sg_ip_mutex);
+//    sg_quic_default_rw_timeoutms = ms;
+//    sg_quic_default_timeout_source = TimeoutSource::kServerDefault;
+//}
 
 std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
     XMessage stream;
