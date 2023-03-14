@@ -165,7 +165,8 @@ NetCore::~NetCore() {
     net_source_ = NULL;
 
     MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
-    
+    xdebug2(TSF"mars2 mq net_core ReleaseNewMessageQueue");
+
     xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
     NetCoreRelease()();
 }
@@ -213,6 +214,7 @@ void NetCore::__InitLongLink(){
 void NetCore::__Release(NetCore* _instance) {
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(_instance->asyncreg_.Get())) {
         WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
+        xdebug2(TSF"mars2 mq net_core WaitMessage AsyncInvoke __Release");
         return;
     }
     
