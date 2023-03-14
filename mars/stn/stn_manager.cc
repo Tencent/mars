@@ -61,40 +61,27 @@ std::string StnManager::GetName() {
 }
 
 void StnManager::OnInitConfigBeforeOnCreate(const int _packer_encoder_version) {
-    // xinfo2(TSF "stn oninit: %_", _packer_encoder_version);
-    //    __android_log_print(ANDROID_LOG_DEBUG, "mars2", "stn manager OnInitConfigBeforeOnCreate
-    //    _packer_encoder_version %d", _packer_encoder_version);
+    xdebug2(TSF "mars2 OnInitConfigBeforeOnCreate %_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
-    // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 }
 
 void StnManager::OnCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
 #endif
-    // xinfo2(TSF "stn_manager oncreate");
-    ActiveLogic::Instance();
-    // NetCore::Singleton::Instance();
     xinfo2(TSF "mars2 Reset stn_manager OnCreate");
+    ActiveLogic::Instance();
     if (!net_core_) {
         net_core_ = new NetCore(context_, packer_encoder_version_);
     }
 }
 
 void StnManager::OnDestroy() {
-    // xinfo2(TSF "stn onDestroy");
-
     xinfo2(TSF "mars2 Reset stn_manager OnDestroy");
+    NetCore::__Release(net_core_);
     callback_bridge_->SetCallback(nullptr);
-    //    callback_bridge_.reset();
-    //    net_core_.reset();
-
     delete callback_;
     delete callback_bridge_;
-    delete net_core_;
-
-    // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
-    // ActiveLogic::Singleton::Release();
 }
 void StnManager::OnSingalCrash(int _sig) {
     mars::xlog::appender_close();
@@ -129,7 +116,6 @@ void StnManager::OnAlarm(int64_t _id) {
 #endif
 
 void StnManager::SetCallback(Callback* const _callback) {
-    // callback_ = std::shared_ptr<Callback>(_callback);
     xdebug2(TSF "mars2 SetCallback");
     callback_ = _callback;
 }

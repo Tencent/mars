@@ -70,8 +70,9 @@ static const int kShortlinkErrTime = 3;
 
 //bool NetCore::need_use_longlink_ = true;
 
-NetCore::NetCore(boot::Context* _context, int _packer_encoder_version)
+NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link)
     : packer_encoder_version_(_packer_encoder_version)
+    , need_use_longlink_(_use_long_link)
     , messagequeue_creater_(true, XLOGGER_TAG)
     , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
     , context_(_context)

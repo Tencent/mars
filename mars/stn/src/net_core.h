@@ -147,7 +147,7 @@ public:
 #endif
 
   public:
-    NetCore(boot::Context* _context, int _packer_encoder_version);
+    NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link = true);
     virtual ~NetCore();
     static void __Release(NetCore* _instance);
     
@@ -194,12 +194,10 @@ public:
      void SetShortLinkCanUseTls(std::function<bool(const std::vector<std::string>& _host_list)> func);
      void SetShortLinkShouldInterceptResult(std::function<bool(int _error_code)> func);
 
-  public:
-    bool need_use_longlink_;
 
   private:
-
     int packer_encoder_version_ ;
+    bool need_use_longlink_;
     comm::MessageQueue::MessageQueueCreater           messagequeue_creater_;
     comm::MessageQueue::ScopeRegister                 asyncreg_;
     boot::Context*                              context_;
