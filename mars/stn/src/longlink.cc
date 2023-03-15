@@ -174,6 +174,9 @@ LongLink::~LongLink() {
         delete wakelock_, wakelock_ = NULL;
     }
 #endif
+
+    xdebug2(TSF "mars2 disconnect SignalConnection");
+    SignalConnection.disconnect_all_slots();
 }
 
 bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task) {
