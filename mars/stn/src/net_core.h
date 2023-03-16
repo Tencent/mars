@@ -179,8 +179,8 @@ public:
 
   public:
      void SetNeedUseLongLink(bool flag);
-     void SetGetRealHostFunc(std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func);
-     void SetAddWeakNetInfo(std::function<void(bool _connect_timeout, struct tcp_info& _info)> func);
+     void SetGetRealHostFunc(const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func);
+     void SetAddWeakNetInfo(const std::function<void(bool _connect_timeout, struct tcp_info& _info)> func);
 
      void SetLongLinkGetRealHostFunc(std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func);
      void SetLongLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);

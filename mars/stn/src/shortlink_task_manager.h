@@ -105,6 +105,7 @@ class ShortLinkTaskManager {
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
+    void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
   private:
     boot::Context* context_;

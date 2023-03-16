@@ -159,11 +159,13 @@ LongLink::LongLink(Context* _context, const mq::MessageQueue_t& _messagequeueid,
     , encoder_(_encoder)
     , svr_trig_off_(false)
 {
+    xdebug_function(TSF"mars2");
     xinfo2(TSF"handler:(%_,%_) linktype:%_", asyncreg_.Get().queue, asyncreg_.Get().seq, ChannelTypeString[_config.link_type]);
     conn_profile_.link_type = _config.link_type;
 }
 
 LongLink::~LongLink() {
+    xdebug_function(TSF"mars2");
     Disconnect(LongLinkErrCode::kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
@@ -175,8 +177,8 @@ LongLink::~LongLink() {
     }
 #endif
 
-    xdebug2(TSF "mars2 disconnect SignalConnection");
-    SignalConnection.disconnect_all_slots();
+    //xdebug2(TSF "mars2 disconnect SignalConnection");
+    //SignalConnection.disconnect_all_slots();
 }
 
 bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task) {

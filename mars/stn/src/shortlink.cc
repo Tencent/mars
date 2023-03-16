@@ -137,10 +137,12 @@ ShortLink::ShortLink(boot::Context* _context, MessageQueue::MessageQueue_t _mess
     , tracker_(shortlink_tracker::Create())
     , is_keep_alive_(CheckKeepAlive(_task))
     {
+    xdebug_function(TSF"mars2");
     xinfo2(TSF"%_, handler:(%_,%_), long polling: %_ ",this, asyncreg_.Get().queue, asyncreg_.Get().seq, _task.long_polling);
 }
 
 ShortLink::~ShortLink() {
+    xdebug_function(TSF"mars2");
     if (task_.priority >= 0) {
         xdebug_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }

@@ -84,7 +84,7 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
     , shortlink_error_count_(0)
     , shortlink_try_flag_(false) {
         NetCoreCreateBegin()();
-        xinfo2(TSF "mars2 Reset net_core NetCoreCreateBegin");
+    xdebug_function(TSF"mars2");
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");
     xinfo2(TSF"netcore messagequeue_id=%_, handler:(%_,%_)", messagequeue_creater_.GetMessageQueue(), asyncreg_.Get().queue, asyncreg_.Get().seq);
@@ -136,7 +136,7 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
 }
 
 NetCore::~NetCore() {
-    xinfo_function();
+    xdebug_function(TSF"mars2");
 
     ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
@@ -167,8 +167,8 @@ NetCore::~NetCore() {
     MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
     xdebug2(TSF"mars2 mq net_core ReleaseNewMessageQueue");
 
-    xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
-    NetCoreRelease()();
+    //xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
+    //NetCoreRelease()();
 }
 
 void NetCore::__InitShortLink(){
@@ -212,6 +212,9 @@ void NetCore::__InitLongLink(){
 }
 
 void NetCore::__Release(NetCore* _instance) {
+    xdebug_function(TSF"mars2");
+    NetCoreRelease()();
+
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(_instance->asyncreg_.Get())) {
         WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
         xdebug2(TSF"mars2 mq net_core WaitMessage AsyncInvoke __Release");
@@ -742,6 +745,7 @@ void NetCore::__OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t
 }
 
 void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
+    xverbose_function(TSF "mars2");
     if (!need_use_longlink_) {
         return;
     }
@@ -773,6 +777,7 @@ void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrC
 #endif
 
 void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
+    xverbose_function(TSF"mars2 _line:%_, errType:%_, errCode:%_, ip:%_, host:%_, port:%_", _line, _err_type, _err_code, _ip, _host, _port);
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnShortLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _host, _port));
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
@@ -812,6 +817,7 @@ void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _er
 
 #ifdef USE_LONG_LINK
 void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
+    xverbose_function(TSF"mars2");
     if (!need_use_longlink_) {
         return;
     }
@@ -826,6 +832,7 @@ void NetCore::__OnLongLinkConnStatusChange(LongLink::TLongLinkStatus _status, co
 #endif
 
 void NetCore::__ConnStatusCallBack() {
+    xverbose_function(TSF"mars2");
     int all_connstatus = kNetworkUnavailable;
 
     if (shortlink_try_flag_) {
@@ -1154,14 +1161,14 @@ void NetCore::SetNeedUseLongLink(bool flag) {
     need_use_longlink_ = flag;
 }
 
-void NetCore::SetGetRealHostFunc(
+void NetCore::SetGetRealHostFunc(const
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->get_real_host_strict_match_ = func;
     }
 }
 
-void NetCore::SetAddWeakNetInfo(std::function<void(bool _connect_timeout, struct tcp_info& _info)> func) {
+void NetCore::SetAddWeakNetInfo(const std::function<void(bool _connect_timeout, struct tcp_info& _info)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->add_weaknet_info_ = func;
     }

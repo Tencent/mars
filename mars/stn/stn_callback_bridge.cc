@@ -165,11 +165,11 @@ void StnCallbackBridge::OnLongLinkNetworkError(ErrCmdType _err_type,
                                                int _err_code,
                                                const std::string& _ip,
                                                uint16_t _port) {
-//#if !defined(ANDROID) || defined(CPP_CALL_BACK)
     SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     sg_callback->OnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
-//#endif
+#endif
 }
 
 void StnCallbackBridge::OnShortLinkNetworkError(ErrCmdType _err_type,
@@ -178,18 +178,18 @@ void StnCallbackBridge::OnShortLinkNetworkError(ErrCmdType _err_type,
                                                 const std::string& _host,
                                                 uint16_t _port) {
     SignalOnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-//#if !defined(ANDROID) || defined(CPP_CALL_BACK)
-    SignalOnLongLinkNetworkError(_err_type, _err_code, _ip, _port);
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     sg_callback->OnShortLinkNetworkError(_err_type, _err_code, _ip, _host, _port);
-//#endif
+#endif
 }
 
+//WARNNING Android no callback
 void StnCallbackBridge::OnLongLinkStatusChange(int _status) {
-//#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     sg_callback->OnLongLinkStatusChange(_status);
-//#endif
+#endif
 }
 
 int StnCallbackBridge::GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id,
@@ -226,22 +226,20 @@ void StnCallbackBridge::RequestSync() {
 
 void StnCallbackBridge::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    xassert2(sg_callback != NULL);
     sg_callback->RequestNetCheckShortLinkHosts(_hostlist);
 //#else
 //    C2Java_RequestNetCheckShortLinkHosts(_hostlist);
 //#endif
-    xassert2(sg_callback != NULL);
-    sg_callback->RequestNetCheckShortLinkHosts(_hostlist);
 }
 
 void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
-
+    xassert2(sg_callback != NULL);
+    sg_callback->ReportTaskProfile(_task_profile);
 //#else
 //    C2Java_ReportTaskProfile(_task_profile);
 //#endif
-    xassert2(sg_callback != NULL);
-    sg_callback->ReportTaskProfile(_task_profile);
 }
 
 //TODO cpan 确认下这里是不是要走到MMReportTaskLimited才对

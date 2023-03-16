@@ -598,6 +598,7 @@ int OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _use
 
 //上报网络连接状态
 void ReportConnectStatus(int status, int longlink_status) {
+    xverbose_function(TSF"mars2");
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     if (stn_manager) {
         stn_manager->ReportConnectStatus(status, longlink_status);

@@ -68,10 +68,12 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context, NetSource& _
     , wakeup_lock_(new WakeUpLock())
 #endif
 {
+    xdebug_function(TSF"mars2");
     xinfo_function(TSF"handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_", asyncreg_.Get().queue, asyncreg_.Get().seq, MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
 
 ShortLinkTaskManager::~ShortLinkTaskManager() {
+    xdebug_function(TSF"mars2");
     xinfo_function();
     asyncreg_.CancelAndWait();
     xinfo2(TSF"lst_cmd_ count=%0", lst_cmd_.size());
@@ -303,6 +305,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
             realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
+        } else {
+            xwarn2(TSF"mars2 get_real_host_ is null.");
         }
         
         if (realhost_cnt == 0 && config.use_quic){
@@ -393,7 +397,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(context_, MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
         worker->func_host_filter = get_real_host_strict_match_;
-        worker->func_add_weak_net_info = add_weaknet_info_;
+        worker->func_add_weak_net_info = std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
@@ -832,3 +836,8 @@ void ShortLinkTaskManager::__OnRequestTimeout(ShortLinkInterface* _worker, int _
     }
 }
 
+void ShortLinkTaskManager::__OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info) {
+    if (add_weaknet_info_) {
+        add_weaknet_info_(_connect_timeout, _info);
+    }
+}

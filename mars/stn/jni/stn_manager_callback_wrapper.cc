@@ -256,6 +256,7 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid, void* const _user_context
 
 DEFINE_FIND_METHOD(KC2Java_reportNetConnectInfo, KC2Java, "reportConnectStatus", "(II)V")
 void StnManagerJniCallback::ReportConnectStatus(int _status, int _longlink_status) {
+    xverbose_function(TSF"mars2");
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();

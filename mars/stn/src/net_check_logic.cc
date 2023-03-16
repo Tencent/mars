@@ -114,6 +114,11 @@ NetCheckLogic::NetCheckLogic(boot::Context* _context, NetSource* _net_source)
 NetCheckLogic::~NetCheckLogic() {
     xinfo_function();
 
+    sdt::SdtManager* sdt_manager = context_->GetManager<SdtManager>();
+    if (sdt_manager) {
+        sdt_manager->CancelActiveCheck();
+    }
+
     delete frequency_limit_;
 }
 

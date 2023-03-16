@@ -76,14 +76,19 @@ Mutex sg_ip_mutex;
 */
 
 NetSource::DnsUtil::DnsUtil(boot::Context* _context): context_(_context) {
+    xverbose_function(TSF "mars2");
     if (_context) {
         new_dns_.SetDnsFunc(std::bind(&NetSource::DnsUtil::__OnNewDns, this, std::placeholders::_1, std::placeholders::_2));
     }
 }
 
-NetSource::DnsUtil::~DnsUtil() {}
+NetSource::DnsUtil::~DnsUtil() {
+    xverbose_function(TSF "mars2");
+    new_dns_.SetDnsFunc(NULL);
+}
 
 void NetSource::DnsUtil::Cancel(const std::string& host) {
+    xverbose_function(TSF"mars2");
     if (host.empty()) {
         new_dns_.Cancel();
         dns_.Cancel();
@@ -110,12 +115,14 @@ NetSource::NetSource(ActiveLogic& _active_logic, boot::Context* _context)
     , v4_timeout_(0)
     , v6_timeout_(0)
 {
+    xverbose_function(TSF "mars2");
     xinfo_function();
     weak_network_logic_ = new WeakNetworkLogic();
 
 }
 
 NetSource::~NetSource() {
+    xverbose_function(TSF "mars2");
     xinfo_function();
     delete weak_network_logic_;
 }

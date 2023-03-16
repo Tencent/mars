@@ -50,10 +50,11 @@ static uint32_t gs_taskid = 1;
 StnManager::StnManager(Context* context) : context_(context) {
     // xdebug_function(TSF "mars2 context id %_", context_->GetContextId());
     ReportDnsProfileFunc = std::bind(&StnManager::__ReportDnsProfile, this, std::placeholders::_1);
-    xdebug2(TSF "mars2 bind ReportDnsProfileFunc in StnManager");
+    xverbose_function(TSF"mars2");
 }
 
 StnManager::~StnManager() {
+    xverbose_function(TSF"mars2");
 }
 
 std::string StnManager::GetName() {
@@ -77,7 +78,7 @@ void StnManager::OnCreate() {
 }
 
 void StnManager::OnDestroy() {
-    xinfo2(TSF "mars2 Reset stn_manager OnDestroy");
+    xverbose_function(TSF"mars2");
     NetCore::__Release(net_core_);
     callback_bridge_->SetCallback(nullptr);
     delete callback_;
@@ -242,6 +243,7 @@ int StnManager::OnTaskEnd(uint32_t taskid,
 
 // 上报网络连接状态
 void StnManager::ReportConnectStatus(int status, int longlink_status) {
+    xverbose_function(TSF"mars2");
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
         callback_bridge_->ReportConnectStatus(status, longlink_status);

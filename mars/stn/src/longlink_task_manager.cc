@@ -73,10 +73,12 @@ LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context, NetSourc
     , meta_mutex_(true)
 #endif
 {
+    xdebug_function(TSF"mars2");
     xinfo_function(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
 
 LongLinkTaskManager::~LongLinkTaskManager() {
+    xdebug_function(TSF"mars2");
     xinfo_function();
     asyncreg_.CancelAndWait();
     __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
