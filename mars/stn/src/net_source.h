@@ -158,7 +158,7 @@ class NetSource {
     std::string sg_longlink_debugip;
 
     std::string sg_minorlong_debugip;
-    uint16_t sg_minorlong_port = 0;
+    uint16_t sg_minorlong_port;
 
     int sg_shortlink_port = 0;
     std::string sg_shortlink_debugip;

@@ -101,24 +101,24 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 
 std::vector<std::string> NetSource::DnsUtil::__OnNewDns(const std::string& _host, bool _longlink_host) {
     xverbose2(TSF "mars2 dns __OnNewDns");
-    if(context_){
+    if (context_) {
         return context_->GetManager<StnManager>()->OnNewDns(_host, _longlink_host);
-    }else {
+    } else {
         return std::vector<std::string>();
     }
 }
 
 NetSource::NetSource(ActiveLogic& _active_logic, boot::Context* _context)
-	: context_(_context)
-        , active_logic_(_active_logic)
-        , ipportstrategy_(context_)
-    , v4_timeout_(0)
-    , v6_timeout_(0)
-{
+: context_(_context)
+, active_logic_(_active_logic)
+, ipportstrategy_(context_)
+, v4_timeout_(0)
+, v6_timeout_(0)
+, sg_minorlong_port(0)
+, sg_shortlink_port(0) {
     xverbose_function(TSF "mars2");
     xinfo_function();
     weak_network_logic_ = new WeakNetworkLogic();
-
 }
 
 NetSource::~NetSource() {
