@@ -160,7 +160,7 @@ class NetSource {
     std::string sg_minorlong_debugip;
     uint16_t sg_minorlong_port = 0;
 
-    int sg_shortlink_port;
+    int sg_shortlink_port = 0;
     std::string sg_shortlink_debugip;
     std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
     std::vector<uint16_t> sg_lowpriority_longlink_ports;

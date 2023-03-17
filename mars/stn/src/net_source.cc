@@ -317,7 +317,8 @@ void NetSource::RemoveLongBanIP(const std::string& _ip) {
  */
 uint16_t NetSource::GetShortLinkPort() {
 	ScopedLock lock(sg_ip_mutex);
-	return sg_shortlink_port;
+    xdebug2(TSF "mars2 %_", sg_shortlink_port);
+    return sg_shortlink_port;
 }
 
 bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist) {
