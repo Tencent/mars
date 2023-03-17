@@ -213,14 +213,14 @@ void NetCore::__InitLongLink(){
 
 void NetCore::__Release(NetCore* _instance) {
     xdebug_function(TSF"mars2");
-    NetCoreRelease()();
-
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(_instance->asyncreg_.Get())) {
         WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
         xdebug2(TSF"mars2 mq net_core WaitMessage AsyncInvoke __Release");
         return;
     }
-    
+    //先释放MMCore再释放NetCore
+    NetCoreRelease()();
+
     delete _instance;
 }
 
