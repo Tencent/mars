@@ -436,6 +436,7 @@ void StnManager::Reset() {
 
     xinfo2(TSF "mars2 Reset stn_manager Reset");
     NetCore::__Release(net_core_);
+    net_core_.reset();
     NetCore::NetCoreRelease()();
     net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
     NetCore::NetCoreCreate()(net_core_);

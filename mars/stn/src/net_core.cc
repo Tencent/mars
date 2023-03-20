@@ -153,10 +153,10 @@ NetCore::~NetCore() {
 }
 
 void NetCore::ReleaseNet() {
-    if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(asyncreg_.Get())) {
-        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::ReleaseNet, this), asyncreg_.Get(), "NetCore::ReleaseNet"));
-        return;
-    }
+//    if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(asyncreg_.Get())) {
+//        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::ReleaseNet, this), asyncreg_.Get(), "NetCore::ReleaseNet"));
+//        return;
+//    }
     already_release_net_ = true;
     ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 #ifdef USE_LONG_LINK
