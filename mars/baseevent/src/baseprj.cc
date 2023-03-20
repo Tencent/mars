@@ -24,6 +24,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/thread/lock.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 using namespace mars::comm;
 
@@ -41,6 +42,7 @@ namespace mars{
         
         void OnDestroy()
         {
+            xinfo_function();
             GetSignalOnDestroy()();
         }
         

@@ -83,8 +83,8 @@ class NetCore {
 //        return s_signal;
 //    }
     
-    static boost::signals2::signal<void (NetCore*)>& NetCoreCreate() {
-        static boost::signals2::signal<void (NetCore*)> s_signal;
+    static boost::signals2::signal<void (std::shared_ptr<NetCore>)>& NetCoreCreate() {
+        static boost::signals2::signal<void (std::shared_ptr<NetCore>)> s_signal;
         return s_signal;
     }
 
@@ -149,7 +149,8 @@ public:
   public:
     NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link = true);
     virtual ~NetCore();
-    static void __Release(NetCore* _instance);
+    static void __Release(std::shared_ptr<NetCore> _instance);
+    void ReleaseNet();
     
   private:
     void    __InitLongLink();
@@ -198,6 +199,7 @@ public:
   private:
     int packer_encoder_version_ ;
     bool need_use_longlink_;
+    bool already_release_net_ = false;
     comm::MessageQueue::MessageQueueCreater           messagequeue_creater_;
     comm::MessageQueue::ScopeRegister                 asyncreg_;
     boot::Context*                              context_;

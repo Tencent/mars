@@ -129,6 +129,7 @@ static void onDestroy() {
     // others use activelogic may crash after activelogic release. eg: LongLinkConnectMonitor
     // ActiveLogic::Singleton::Release();
     */
+    xinfo2(TSF"stn onDestroy");
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     if (stn_manager) {
         stn_manager->OnDestroy();
@@ -206,7 +207,7 @@ static void __initbind_baseprjevent() {
 #endif
     GetSignalOnCreate().connect(&onCreate);
     GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
-    GetSignalOnDestroy().connect(&onDestroy);   //low priority signal func
+    GetSignalOnDestroy().connect(1, &onDestroy);   //low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
     GetSignalOnNetworkChange().connect(5, boost::bind(&onNetworkChange, &mars::comm::OnPlatformNetworkChange));    //define group 5

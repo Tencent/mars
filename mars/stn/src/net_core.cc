@@ -132,14 +132,33 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
     }
     
     xinfo2(TSF "mars2 Reset net_core NetCoreCreate");
-    NetCoreCreate()(this);
+//    NetCoreCreate()(this);
 }
 
 NetCore::~NetCore() {
     xdebug_function(TSF"mars2");
 
-    ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
     asyncreg_.Cancel();
+
+    if (!already_release_net_) {
+        ReleaseNet();
+    }
+
+    xinfo2(TSF"before ReleaseNewMessageQueue");
+    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    xdebug2(TSF"mars2 mq net_core ReleaseNewMessageQueue");
+
+    //xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
+    //NetCoreRelease()();
+}
+
+void NetCore::ReleaseNet() {
+    if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(asyncreg_.Get())) {
+        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::ReleaseNet, this), asyncreg_.Get(), "NetCore::ReleaseNet"));
+        return;
+    }
+    already_release_net_ = true;
+    ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 #ifdef USE_LONG_LINK
     if (need_use_longlink_)
     {   //must disconnect signal
@@ -163,12 +182,6 @@ NetCore::~NetCore() {
     delete net_source_;
 
     net_source_ = NULL;
-
-    MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
-    xdebug2(TSF"mars2 mq net_core ReleaseNewMessageQueue");
-
-    //xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
-    //NetCoreRelease()();
 }
 
 void NetCore::__InitShortLink(){
@@ -211,17 +224,17 @@ void NetCore::__InitLongLink(){
 #endif
 }
 
-void NetCore::__Release(NetCore* _instance) {
+void NetCore::__Release(std::shared_ptr<NetCore> _instance) {
     xdebug_function(TSF"mars2");
     if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(_instance->asyncreg_.Get())) {
         WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::__Release, _instance), _instance->asyncreg_.Get(), "NetCore::__Release"));
         xdebug2(TSF"mars2 mq net_core WaitMessage AsyncInvoke __Release");
         return;
     }
-    //先释放MMCore再释放NetCore
-    NetCoreRelease()();
 
-    delete _instance;
+    _instance.reset();
+//    //先释放MMCore再释放NetCore
+//    NetCoreRelease()();
 }
 
 bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {

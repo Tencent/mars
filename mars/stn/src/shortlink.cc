@@ -142,7 +142,7 @@ ShortLink::ShortLink(boot::Context* _context, MessageQueue::MessageQueue_t _mess
 }
 
 ShortLink::~ShortLink() {
-    xdebug_function(TSF"mars2");
+    xinfo2("delete %p", this);
     if (task_.priority >= 0) {
         xdebug_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }

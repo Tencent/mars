@@ -199,6 +199,7 @@ DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, 
 }
 
 DNS::~DNS() {
+    xinfo_function();
     Cancel();
 }
 

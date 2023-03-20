@@ -54,7 +54,7 @@ StnManager::StnManager(Context* context) : context_(context) {
 }
 
 StnManager::~StnManager() {
-    xverbose_function(TSF"mars2");
+    xinfo_function();
 }
 
 std::string StnManager::GetName() {
@@ -73,13 +73,15 @@ void StnManager::OnCreate() {
     xinfo2(TSF "mars2 Reset stn_manager OnCreate");
     ActiveLogic::Instance();
     if (!net_core_) {
-        net_core_ = new NetCore(context_, packer_encoder_version_);
+        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
+        NetCore::NetCoreCreate()(net_core_);
     }
 }
 
 void StnManager::OnDestroy() {
     xverbose_function(TSF"mars2");
     NetCore::__Release(net_core_);
+    NetCore::NetCoreRelease()();
     callback_bridge_->SetCallback(nullptr);
     delete callback_;
     delete callback_bridge_;
@@ -122,7 +124,7 @@ void StnManager::SetCallback(Callback* const _callback) {
 }
 
 void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {
-    xdebug2(TSF "mars2 SetStnCallbackBridge");
+    xinfo2("mars2 SetStnCallbackBridge, old:%p, new:%p", callback_bridge_, _callback_bridge);
     if (!callback_bridge_) {
         callback_bridge_ = _callback_bridge;
     } else {
@@ -433,12 +435,14 @@ void StnManager::Reset() {
     //  net_core_.reset(new NetCore(context_, packer_encoder_version_));
 
     xinfo2(TSF "mars2 Reset stn_manager Reset");
-    delete net_core_;
-    net_core_ = new NetCore(context_, packer_encoder_version_);
+    NetCore::__Release(net_core_);
+    NetCore::NetCoreRelease()();
+    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
+    NetCore::NetCoreCreate()(net_core_);
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
-    xdebug_function(TSF "mars2 packer_encoder_version:%_", _packer_encoder_version);
+    xinfo_function(TSF "mars2 packer_encoder_version:%_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
     // LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
 
@@ -448,7 +452,9 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
 
     xinfo2(TSF "mars2 Reset stn_manager ResetAndInitEncoderVersion");
     NetCore::__Release(net_core_);
-    net_core_ = new NetCore(context_, packer_encoder_version_);
+    NetCore::NetCoreRelease()();
+    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
+    NetCore::NetCoreCreate()(net_core_);
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {

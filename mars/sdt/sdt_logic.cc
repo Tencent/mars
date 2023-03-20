@@ -76,7 +76,7 @@ static void onDestroy() {
 static void __initbind_baseprjevent() {
 
 	GetSignalOnCreate().connect(&onCreate);
-	GetSignalOnDestroy().connect(5, &onDestroy);
+	GetSignalOnDestroy().connect(3, &onDestroy);
 }
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
