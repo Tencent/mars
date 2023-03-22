@@ -28,175 +28,175 @@
 
 using namespace mars::comm;
 
-static const uint8_t kWellKnownV4Addr1[4] = {192, 0, 0, 170};
-static const uint8_t kWellKnownV4Addr2[4] = {192, 0, 0, 171};
-static const uint8_t kOurDefineV4Addr[4] = {192, 0, 2, 1};
+// static const uint8_t kWellKnownV4Addr1[4] = {192, 0, 0, 170};
+// static const uint8_t kWellKnownV4Addr2[4] = {192, 0, 0, 171};
+// static const uint8_t kOurDefineV4Addr[4] = {192, 0, 2, 1};
 
-//insert 0 after first byte
-static const uint8_t kWellKnownV4Addr1_index1[5] = {192, 0, 0, 0, 170};
-static const uint8_t kWellKnownV4Addr2_index1[5] = {192, 0, 0, 0, 171};
-static const uint8_t kOurDefineV4Addr_index1[5] = {192, 0, 0, 2, 1};
+// //insert 0 after first byte
+// static const uint8_t kWellKnownV4Addr1_index1[5] = {192, 0, 0, 0, 170};
+// static const uint8_t kWellKnownV4Addr2_index1[5] = {192, 0, 0, 0, 171};
+// static const uint8_t kOurDefineV4Addr_index1[5] = {192, 0, 0, 2, 1};
 
-//insert 0 after second byte
-static const uint8_t kWellKnownV4Addr1_index2[5] = {192, 0, 0, 0, 170};
-static const uint8_t kWellKnownV4Addr2_index2[5] = {192, 0, 0, 0, 171};
-static const uint8_t kOurDefineV4Addr_index2[5] = {192, 0, 0, 2, 1};
+// //insert 0 after second byte
+// static const uint8_t kWellKnownV4Addr1_index2[5] = {192, 0, 0, 0, 170};
+// static const uint8_t kWellKnownV4Addr2_index2[5] = {192, 0, 0, 0, 171};
+// static const uint8_t kOurDefineV4Addr_index2[5] = {192, 0, 0, 2, 1};
 
-//insert 0 after third byte
-static const uint8_t kWellKnownV4Addr1_index3[5] = {192, 0, 0, 0, 170};
-static const uint8_t kWellKnownV4Addr2_index3[5] = {192, 0, 0, 0, 171};
-static const uint8_t kOurDefineV4Addr_index3[5] = {192, 0, 2, 0, 1};
+// //insert 0 after third byte
+// static const uint8_t kWellKnownV4Addr1_index3[5] = {192, 0, 0, 0, 170};
+// static const uint8_t kWellKnownV4Addr2_index3[5] = {192, 0, 0, 0, 171};
+// static const uint8_t kOurDefineV4Addr_index3[5] = {192, 0, 2, 0, 1};
 
 //static bool IsIPv4Addr(const std::string& _str) {
 //	struct in_addr v4_addr= {0};
 //	return socket_inet_pton(AF_INET, _str.c_str(), &v4_addr)==0; //1 for success, 0 for invalid ip, -1 for other error
 //}
-static size_t GetSuffixZeroCount(uint8_t* _buf, size_t _buf_len) {
-	size_t zero_count = 0;
-	for(size_t i=0; i<_buf_len; i++) {
-		if ((uint8_t)0==_buf[_buf_len-1-i])
-			zero_count++;
-		else
-			break;
+// static size_t GetSuffixZeroCount(uint8_t* _buf, size_t _buf_len) {
+// 	size_t zero_count = 0;
+// 	for(size_t i=0; i<_buf_len; i++) {
+// 		if ((uint8_t)0==_buf[_buf_len-1-i])
+// 			zero_count++;
+// 		else
+// 			break;
 
-	}
-	return zero_count;
-}
-static bool IsNat64AddrValid(const struct in6_addr* _replaced_nat64_addr) {
-	bool is_iOS_above_9_2 = false;
-#ifdef __APPLE__
-	 if (publiccomponent_GetSystemVersion() >= 9.2f) is_iOS_above_9_2 = true;
-#endif
-	size_t suffix_zero_count = GetSuffixZeroCount((uint8_t*)_replaced_nat64_addr, sizeof(struct in6_addr));
-	if (0!=suffix_zero_count) {
-		xwarn2(TSF"suffix_zero_count=%_, _replaced_nat64_addr=%_", suffix_zero_count,
-				strutil::Hex2Str((char*)_replaced_nat64_addr, sizeof(struct in6_addr)));
-	}
-	bool is_valid = false;
-	switch(suffix_zero_count) {
-		case 3:
-			//Pref64::/64
-			if (is_iOS_above_9_2) {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+9, kOurDefineV4Addr, 4)) {
-					is_valid = true;
-				}
-			} else {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+9, kWellKnownV4Addr1, 4)
-					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+9, kWellKnownV4Addr2, 4)) {
-					is_valid = true;
-				}
-			}
-			break;
-		case 4:
-			//Pref64::/56
-			if (is_iOS_above_9_2) {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+7, kOurDefineV4Addr_index1, 5)) {
-					is_valid = true;
-				}
-			} else {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+7, kWellKnownV4Addr1_index1, 5)
-					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+7, kWellKnownV4Addr2_index1, 5)) {
-					is_valid = true;
-				}
-			}
-			break;
-		case 5:
-			//Pref64::/48
-			if (is_iOS_above_9_2) {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+6, kOurDefineV4Addr_index2, 5)) {
-					is_valid = true;
-				}
-			} else {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+6, kWellKnownV4Addr1_index2, 5)
-					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+6, kWellKnownV4Addr2_index2, 5)) {
-					is_valid = true;
-				}
-			}
-			break;
-		case 6:
-			//Pref64::/40
-			if (is_iOS_above_9_2) {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+5, kOurDefineV4Addr_index3, 5)) {
-					is_valid = true;
-				}
-			} else {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+5, kWellKnownV4Addr1_index3, 5)
-					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+5, kWellKnownV4Addr2_index3, 5)) {
-					is_valid = true;
-				}
-			}
-			break;
-		case 8: //7bytes suffix and 1 bytes u(RFC6052)
-			//Pref64::/32
-			if (is_iOS_above_9_2) {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+4, kOurDefineV4Addr, 4)) {
-					is_valid = true;
-				}
-			} else {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+4, kWellKnownV4Addr1, 4)
-					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+4, kWellKnownV4Addr2, 4)) {
-					is_valid = true;
-				}
-			}
-			break;
-		case 0:
-			//Pref64::/96
-			if (is_iOS_above_9_2) {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+12, kOurDefineV4Addr, 4)) {
-					is_valid = true;
-				}
-			} else {
-				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+12, kWellKnownV4Addr1, 4)
-					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+12, kWellKnownV4Addr2, 4)) {
-					is_valid = true;
-				}
-			}
-			break;
-		default:
-			xassert2(false, TSF"suffix_zero_count=%_", suffix_zero_count);
-	}
-	return is_valid;
-}
-static void ReplaceNat64WithV4IP(struct in6_addr* _replaced_nat64_addr, const struct in_addr* _v4_addr) {
-	size_t suffix_zero_count = GetSuffixZeroCount((uint8_t*)_replaced_nat64_addr, sizeof(struct in6_addr));
-	uint8_t zero = (uint8_t)0;
-	switch(suffix_zero_count) {
-		case 3:
-			//Pref64::/64
-			memcpy(((uint8_t*)_replaced_nat64_addr)+9, (uint8_t*)_v4_addr, 4);
-			break;
-		case 4:
-			//Pref64::/56
-			memcpy(((uint8_t*)_replaced_nat64_addr)+7, (uint8_t*)_v4_addr, 1);
-			memcpy(((uint8_t*)_replaced_nat64_addr)+8, &zero, 1);
-			memcpy(((uint8_t*)_replaced_nat64_addr)+9, ((uint8_t*)_v4_addr)+1, 3);
+// 	}
+// 	return zero_count;
+// }
+// static bool IsNat64AddrValid(const struct in6_addr* _replaced_nat64_addr) {
+// 	bool is_iOS_above_9_2 = false;
+// #ifdef __APPLE__
+// 	 if (publiccomponent_GetSystemVersion() >= 9.2f) is_iOS_above_9_2 = true;
+// #endif
+// 	size_t suffix_zero_count = GetSuffixZeroCount((uint8_t*)_replaced_nat64_addr, sizeof(struct in6_addr));
+// 	if (0!=suffix_zero_count) {
+// 		xwarn2(TSF"suffix_zero_count=%_, _replaced_nat64_addr=%_", suffix_zero_count,
+// 				strutil::Hex2Str((char*)_replaced_nat64_addr, sizeof(struct in6_addr)));
+// 	}
+// 	bool is_valid = false;
+// 	switch(suffix_zero_count) {
+// 		case 3:
+// 			//Pref64::/64
+// 			if (is_iOS_above_9_2) {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+9, kOurDefineV4Addr, 4)) {
+// 					is_valid = true;
+// 				}
+// 			} else {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+9, kWellKnownV4Addr1, 4)
+// 					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+9, kWellKnownV4Addr2, 4)) {
+// 					is_valid = true;
+// 				}
+// 			}
+// 			break;
+// 		case 4:
+// 			//Pref64::/56
+// 			if (is_iOS_above_9_2) {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+7, kOurDefineV4Addr_index1, 5)) {
+// 					is_valid = true;
+// 				}
+// 			} else {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+7, kWellKnownV4Addr1_index1, 5)
+// 					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+7, kWellKnownV4Addr2_index1, 5)) {
+// 					is_valid = true;
+// 				}
+// 			}
+// 			break;
+// 		case 5:
+// 			//Pref64::/48
+// 			if (is_iOS_above_9_2) {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+6, kOurDefineV4Addr_index2, 5)) {
+// 					is_valid = true;
+// 				}
+// 			} else {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+6, kWellKnownV4Addr1_index2, 5)
+// 					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+6, kWellKnownV4Addr2_index2, 5)) {
+// 					is_valid = true;
+// 				}
+// 			}
+// 			break;
+// 		case 6:
+// 			//Pref64::/40
+// 			if (is_iOS_above_9_2) {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+5, kOurDefineV4Addr_index3, 5)) {
+// 					is_valid = true;
+// 				}
+// 			} else {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+5, kWellKnownV4Addr1_index3, 5)
+// 					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+5, kWellKnownV4Addr2_index3, 5)) {
+// 					is_valid = true;
+// 				}
+// 			}
+// 			break;
+// 		case 8: //7bytes suffix and 1 bytes u(RFC6052)
+// 			//Pref64::/32
+// 			if (is_iOS_above_9_2) {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+4, kOurDefineV4Addr, 4)) {
+// 					is_valid = true;
+// 				}
+// 			} else {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+4, kWellKnownV4Addr1, 4)
+// 					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+4, kWellKnownV4Addr2, 4)) {
+// 					is_valid = true;
+// 				}
+// 			}
+// 			break;
+// 		case 0:
+// 			//Pref64::/96
+// 			if (is_iOS_above_9_2) {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+12, kOurDefineV4Addr, 4)) {
+// 					is_valid = true;
+// 				}
+// 			} else {
+// 				if (0==memcmp(((uint8_t*)_replaced_nat64_addr)+12, kWellKnownV4Addr1, 4)
+// 					|| 0==memcmp(((uint8_t*)_replaced_nat64_addr)+12, kWellKnownV4Addr2, 4)) {
+// 					is_valid = true;
+// 				}
+// 			}
+// 			break;
+// 		default:
+// 			xassert2(false, TSF"suffix_zero_count=%_", suffix_zero_count);
+// 	}
+// 	return is_valid;
+// }
+// static void ReplaceNat64WithV4IP(struct in6_addr* _replaced_nat64_addr, const struct in_addr* _v4_addr) {
+// 	size_t suffix_zero_count = GetSuffixZeroCount((uint8_t*)_replaced_nat64_addr, sizeof(struct in6_addr));
+// 	uint8_t zero = (uint8_t)0;
+// 	switch(suffix_zero_count) {
+// 		case 3:
+// 			//Pref64::/64
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+9, (uint8_t*)_v4_addr, 4);
+// 			break;
+// 		case 4:
+// 			//Pref64::/56
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+7, (uint8_t*)_v4_addr, 1);
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+8, &zero, 1);
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+9, ((uint8_t*)_v4_addr)+1, 3);
 
-			break;
-		case 5:
-			//Pref64::/48
-			memcpy(((uint8_t*)_replaced_nat64_addr)+6, (uint8_t*)_v4_addr, 2);
-			memcpy(((uint8_t*)_replaced_nat64_addr)+8, &zero, 1);
-			memcpy(((uint8_t*)_replaced_nat64_addr)+9, ((uint8_t*)_v4_addr)+2, 2);
-			break;
-		case 6:
-			//Pref64::/40
-			memcpy(((uint8_t*)_replaced_nat64_addr)+5, (uint8_t*)_v4_addr, 3);
-			memcpy(((uint8_t*)_replaced_nat64_addr)+8, &zero, 1);
-			memcpy(((uint8_t*)_replaced_nat64_addr)+9, ((uint8_t*)_v4_addr)+3, 1);
-			break;
-		case 8:
-			//Pref64::/32
-			memcpy(((uint8_t*)_replaced_nat64_addr)+4, (uint8_t*)_v4_addr, 4);
-			break;
-		case 0:
-			//Pref64::/96
-			memcpy(((uint8_t*)_replaced_nat64_addr)+12, (uint8_t*)_v4_addr, 4);
-			break;
-		default:
-			memcpy(((uint8_t*)_replaced_nat64_addr)+12, (uint8_t*)_v4_addr, 4);
-			xassert2(false, TSF"suffix_zero_count=%_", suffix_zero_count);
-	}
-}
+// 			break;
+// 		case 5:
+// 			//Pref64::/48
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+6, (uint8_t*)_v4_addr, 2);
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+8, &zero, 1);
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+9, ((uint8_t*)_v4_addr)+2, 2);
+// 			break;
+// 		case 6:
+// 			//Pref64::/40
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+5, (uint8_t*)_v4_addr, 3);
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+8, &zero, 1);
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+9, ((uint8_t*)_v4_addr)+3, 1);
+// 			break;
+// 		case 8:
+// 			//Pref64::/32
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+4, (uint8_t*)_v4_addr, 4);
+// 			break;
+// 		case 0:
+// 			//Pref64::/96
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+12, (uint8_t*)_v4_addr, 4);
+// 			break;
+// 		default:
+// 			memcpy(((uint8_t*)_replaced_nat64_addr)+12, (uint8_t*)_v4_addr, 4);
+// 			xassert2(false, TSF"suffix_zero_count=%_", suffix_zero_count);
+// 	}
+// }
 
 bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_addr) {
     // never connect success when use V4toV6Nat convert.
