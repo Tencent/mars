@@ -45,6 +45,8 @@
 #include "mars/stn/config.h"
 
 #include "smart_heartbeat.h"
+#include "mars/app/app_manager.h"
+#include "mars/stn/stn_manager.h"
 
 #define AYNC_HANDLER  asyncreg_.Get()
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
@@ -52,6 +54,7 @@
 using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;
+using namespace mars::boot;
 
 #ifdef __ANDROID__
 static const int kAlarmNoopInternalType = 103;
@@ -135,16 +138,18 @@ class LongLinkConnectObserver : public MComplexConnect {
 
 }
 
-LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder)
-    : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
+LongLink::LongLink(Context* _context, const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder)
+    : context_(_context)
+    , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , netsource_(_netsource)
     , config_(_config)
     , thread_(boost::bind(&LongLink::__Run, this), XLOGGER_TAG "::lonklink")
+    , dns_util_(context_)
 	, connectstatus_(kConnectIdle)
-	, disconnectinternalcode_(kNone)
-    , identifychecker_(_encoder, _config.name, Task::kChannelMinorLong == _config.link_type)
+	, disconnectinternalcode_(LongLinkErrCode::kNone)
+    , identifychecker_(_context, _encoder, _config.name, Task::kChannelMinorLong == _config.link_type)
 #ifdef ANDROID
-    , smartheartbeat_(new SmartHeartbeat)
+    , smartheartbeat_(new SmartHeartbeat(_context))
     , wakelock_(new WakeUpLock)
 #else
     , smartheartbeat_(NULL)
@@ -153,12 +158,14 @@ LongLink::LongLink(const mq::MessageQueue_t& _messagequeueid, NetSource& _netsou
     , encoder_(_encoder)
     , svr_trig_off_(false)
 {
+    xdebug_function(TSF"mars2");
     xinfo2(TSF"handler:(%_,%_) linktype:%_", asyncreg_.Get().queue, asyncreg_.Get().seq, ChannelTypeString[_config.link_type]);
     conn_profile_.link_type = _config.link_type;
 }
 
 LongLink::~LongLink() {
-    Disconnect(kReset);
+    xdebug_function(TSF"mars2");
+    Disconnect(LongLinkErrCode::kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {
     	delete smartheartbeat_, smartheartbeat_=NULL;
@@ -168,6 +175,9 @@ LongLink::~LongLink() {
         delete wakelock_, wakelock_ = NULL;
     }
 #endif
+
+    //xdebug2(TSF "mars2 disconnect SignalConnection");
+    //SignalConnection.disconnect_all_slots();
 }
 
 bool LongLink::Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task) {
@@ -242,7 +252,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
 
     if (kConnected == ConnectStatus()) return true;
 
-    if (kObjectDestruct == disconnectinternalcode_) {
+    if (LongLinkErrCode::kObjectDestruct == disconnectinternalcode_) {
         xwarn2(TSF"object has been released");
         return false;
     }
@@ -255,7 +265,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
         conn_profile_.Reset();
         conn_profile_.link_type = config_.link_type;
         identifychecker_.Reset();
-        disconnectinternalcode_ = kNone;
+        disconnectinternalcode_ = LongLinkErrCode::kNone;
         readwritebreak_.Clear();
         connectbreak_.Clear();
         lstsenddata_.clear();
@@ -266,7 +276,7 @@ bool LongLink::MakeSureConnected(bool* _newone) {
     return false;
 }
 
-void LongLink::Disconnect(TDisconnectInternalCode _scene) {
+void LongLink::Disconnect(LongLinkErrCode::TDisconnectInternalCode _scene) {
     xinfo2(TSF"_scene:%_", _scene);
     
     ScopedLock lock(mutex_);
@@ -471,14 +481,14 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::vector<socket_address> vecaddr;
 
     netsource_.GetLongLinkItems(config_, dns_util_, ip_items);
-    mars::comm::ProxyInfo proxy_info = mars::app::GetProxyInfo("");
+    mars::comm::ProxyInfo proxy_info = context_->GetManager<AppManager>()->GetProxyInfo("");
     bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type && netsource_.GetLongLinkDebugIP().empty();
     if (config_.link_type == Task::kChannelMinorLong && !netsource_.GetMinorLongLinkDebugIP().empty()){
         //forbid proxy when using debugip on minor longlink
         use_proxy = false;
     }
     
-    xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", NetSource::DumpTable(ip_items), proxy_info.type, use_proxy);
+    xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", netsource_.DumpTable(ip_items), proxy_info.type, use_proxy);
     
     std::string log;
     std::string netInfo;
@@ -557,7 +567,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         
         __ConnectStatus(kConnectFailed);
         
-        if (kNone == disconnectinternalcode_) __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
+        if (LongLinkErrCode::kNone == disconnectinternalcode_) __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
         
         return INVALID_SOCKET;
     }
@@ -664,7 +674,7 @@ void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode,
         
         int retsel = sel.Select(10 * 60 * 1000);
         
-        if (kNone != disconnectinternalcode_) {
+        if (LongLinkErrCode::kNone != disconnectinternalcode_) {
             xwarn2(TSF"task socket close sock:%0, user disconnect:%1, nread:%_, nwrite:%_", _sock, disconnectinternalcode_, socket_nread(_sock), socket_nwrite(_sock)) >> close_log;
             _errtype = kEctCanceld;
             _errcode = kEctSocketUserBreak;

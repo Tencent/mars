@@ -28,6 +28,7 @@
 #include "mars/stn/config.h"
 
 #include "special_ini.h"
+#include "mars/boot/context.h"
 
 enum HeartbeatReportType {
     kReportTypeCompute            = 1,        // report info of compute smart heartbeat
@@ -75,9 +76,9 @@ class NetHeartbeatInfo {
 
 class SmartHeartbeat {
   public:
-    boost::function<void (TSmartHeartBeatAction _action, const NetHeartbeatInfo& _heart_info, bool _fail_timeout)> report_smart_heart_;
+    boost::function<void (mars::boot::Context* _context, TSmartHeartBeatAction _action, const NetHeartbeatInfo& _heart_info, bool _fail_timeout)> report_smart_heart_;
     
-	SmartHeartbeat();
+	SmartHeartbeat(mars::boot::Context* _context);
 	~SmartHeartbeat();
     void OnHeartbeatStart();
 
@@ -99,6 +100,7 @@ class SmartHeartbeat {
     void __SaveINI();
 
   private:
+    mars::boot::Context* context_;
     bool is_wait_heart_response_;
     
     unsigned int success_heart_count_;  // the total success heartbeat based on single alive TCP, And heartbeat interval can be different.

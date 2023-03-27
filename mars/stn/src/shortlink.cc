@@ -46,6 +46,7 @@
 
 #include "weak_network_logic.h"
 #include "tcp_socket_operator.h"
+#include "mars/app/app_manager.h"
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
@@ -113,20 +114,24 @@ class ShortLinkConnectObserver : public MComplexConnect {
 
 }}
 ///////////////////////////////////////////////////////////////////////////////////////
-ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator)
-    : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
+ShortLink::ShortLink(boot::Context* _context, MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator)
+    : context_(_context)
+        , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 	, net_source_(_netsource)
 	, socketOperator_(_operator == nullptr ? std::make_unique<TcpSocketOperator>(std::make_shared<ShortLinkConnectObserver>(*this)) : std::move(_operator))
 	, task_(_task)
 	, thread_(boost::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
+    , dns_util_(context_)
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     , is_keep_alive_(CheckKeepAlive(_task))
     {
+    xdebug_function(TSF"mars2");
     xinfo2(TSF"%_, handler:(%_,%_), long polling: %_ ",this, asyncreg_.Get().queue, asyncreg_.Get().seq, _task.long_polling);
 }
 
 ShortLink::~ShortLink() {
+    xinfo2("delete %p", this);
     if (task_.priority >= 0) {
         xdebug_function(TSF"taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }
@@ -192,7 +197,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     }
     
     if (use_proxy_) {
-        _conn_profile.proxy_info = mars::app::GetProxyInfo(_conn_profile.host);
+        _conn_profile.proxy_info = context_->GetManager<AppManager>()->GetProxyInfo(_conn_profile.host);
     }
     
     bool use_proxy = _conn_profile.proxy_info.IsAddressValid();
@@ -220,11 +225,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         use_proxy = false;
     }
     
-    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && NetSource::GetShortLinkDebugIP().empty()) {
+    if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type && net_source_.GetShortLinkDebugIP().empty()) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;
     	_conn_profile.ip_type = kIPSourceProxy;
-        IPPortItem item = {_conn_profile.ip, NetSource::GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
+        IPPortItem item = {_conn_profile.ip, net_source_.GetShortLinkPort(), _conn_profile.ip_type, _conn_profile.host};
         //.如果是http代理，则把代理地址插到最前面.
         _conn_profile.ip_items.insert(_conn_profile.ip_items.begin(), item);
         __UpdateProfile(_conn_profile);
@@ -276,7 +281,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_type = kIPSourceProxy;
     }
 
-    xinfo2_if(task_.priority >= 0, TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, NetSource::DumpTable(_conn_profile.ip_items), is_keep_alive_);
+    xinfo2_if(task_.priority >= 0, TSF"task socket dns sock %_ proxy:%_, host:%_, ip list:%_, is_keep_alive:%_", message.String(), kIPSourceProxy == _conn_profile.ip_type, _conn_profile.host, net_source_.DumpTable(_conn_profile.ip_items), is_keep_alive_);
 
     if (vecaddr.empty()) {
         xerror2(TSF"task socket connect fail %_ vecaddr empty", message.String());
@@ -360,7 +365,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     __UpdateProfile(_conn_profile);
     
-    WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
+    //WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
+    net_source_.GetWeakNetworkLogic()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());
