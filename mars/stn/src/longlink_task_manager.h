@@ -32,6 +32,7 @@
 
 #include "longlink_metadata.h"
 #include "task_intercept.h"
+#include "mars/boot/context.h"
 
 class AutoBuffer;
 
@@ -60,12 +61,12 @@ class LongLinkTaskManager {
     
     boost::function<void (const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend)> fun_on_push_;
     
-    static boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> get_real_host_;
-    static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
-    static boost::function<bool (int _error_code)> should_intercept_result_;
+    boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> get_real_host_;
+    boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
+    boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    LongLinkTaskManager(mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
+    LongLinkTaskManager(mars::boot::Context* _context, mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
     bool StartTask(const Task& _task, int _channel);
@@ -94,7 +95,7 @@ class LongLinkTaskManager {
     ConnectProfile GetConnectProfile(uint32_t _taskid);
     void ReleaseLongLink(const std::string _name);
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
-    bool DisconnectByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
+    bool DisconnectByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
 
   private:
@@ -117,13 +118,14 @@ class LongLinkTaskManager {
 #ifdef __APPLE__
     void __ResetLongLink(const std::string& _name);
 #endif
-    void __Disconnect(const std::string& _name, LongLink::TDisconnectInternalCode code);
+    void __Disconnect(const std::string& _name, LongLinkErrCode::TDisconnectInternalCode code);
     void __RedoTasks(const std::string& _name, bool need_lock_link = true);
     void __DumpLongLinkChannelInfo();
     bool __ForbidUseTls(const std::vector<std::string>& _host_list);
     ConnectProfile __GetConnectionProfile(std::shared_ptr<LongLinkMetaData> longlink);
     
   private:
+    boot::Context* context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     std::list<TaskProfile>          lst_cmd_;
     uint64_t                        lastbatcherrortime_;   // ms
@@ -148,7 +150,7 @@ class LongLinkTaskManager {
     comm::RecursiveMutex            meta_mutex_;
 #endif
     comm::Mutex                     mutex_;
-    NO_DESTROY static std::set<std::string>    forbid_tls_host_;
+    /*NO_DESTROY static */std::set<std::string>    forbid_tls_host_;
     TaskIntercept                   task_intercept_;
 };
     }

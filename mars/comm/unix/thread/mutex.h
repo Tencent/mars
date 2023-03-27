@@ -20,8 +20,8 @@
 #include <pthread.h>
 #include <sys/time.h>
 
-#include "comm/assert/__assert.h"
-#include "comm/time_utils.h"
+#include "mars/comm/assert/__assert.h"
+#include "mars/comm/time_utils.h"
 
 namespace mars {
 namespace comm {

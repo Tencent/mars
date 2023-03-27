@@ -47,6 +47,10 @@ class ShortLinkInterface {
     CallBack<boost::function<void (ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> > OnRecv;
     boost::function<void (uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET (const IPPortItem& _address)> GetCacheSocket;
+
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func_host_filter;
+    std::function<void(bool _connect_timeout, struct tcp_info& _info)> func_add_weak_net_info;
+    std::function<void(bool _timeout, struct tcp_info& _info)> func_weak_net_report;
 };
     
 }

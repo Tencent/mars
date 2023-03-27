@@ -1030,6 +1030,7 @@ namespace MessageQueue {
         return CreateNewMessageQueue(boost::shared_ptr<RunloopCond>(), _messagequeue_name);
     }
 
+    //TODO ThreadUtil::join do not set thread isjoined, then when join a joined thread will crash.
     void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id) {
 
         if (KInvalidQueueID == _messagequeue_id) return;
@@ -1039,12 +1040,26 @@ namespace MessageQueue {
         ThreadUtil::join((thread_tid)_messagequeue_id);
     }
 
+    void MessageQueueCreater::ReleaseNewMessageCreater(MessageQueueCreater& _creater) {
+        if (KInvalidQueueID == _creater.messagequeue_id_)
+            return;
+        BreakMessageQueueRunloop(_creater.messagequeue_id_);
+        WaitForRunningLockEnd(_creater.messagequeue_id_);
+        _creater.JoinThread();
+    }
+
     void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
         ScopedSpinLock lock(*_sp);
         lock.unlock();
         delete _sp;
 
         RunLoop().Run();
+    }
+
+    void MessageQueueCreater::JoinThread() {
+        if (ThreadUtil::currentthreadid() != thread_.tid()) {
+            thread_.join();
+        }
     }
 
     MessageQueue_t GetDefMessageQueue() {

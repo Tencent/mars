@@ -35,6 +35,7 @@
 #include "shortlink.h"
 #include "socket_pool.h"
 #include "task_intercept.h"
+#include "mars/boot/context.h"
 
 class AutoBuffer;
 
@@ -59,16 +60,19 @@ class ShortLinkTaskManager {
     boost::function<void (int _status_code)> fun_shortlink_response_;
     boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)> fun_notify_retry_all_tasks;
 
-    static boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> get_real_host_;
-    static boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
-    static boost::function<int (TaskProfile& _profile)> choose_protocol_;
-    static boost::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
-    static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
-    static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
-    static boost::function<bool (int _error_code)> should_intercept_result_;
+    std::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_strict_match_;
+    std::function<void (bool _connect_timeout, struct tcp_info& _info)> add_weaknet_info_;
+
+    std::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> get_real_host_;
+    std::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
+    std::function<int (TaskProfile& _profile)> choose_protocol_;
+    std::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
+    std::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
+    std::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
+    std::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
+    ShortLinkTaskManager(boot::Context* _context, mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task);
@@ -101,8 +105,10 @@ class ShortLinkTaskManager {
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
+    void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
   private:
+    boot::Context* context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      net_source_;
     

@@ -51,6 +51,7 @@ static const uint8_t kOurDefineV4Addr_index3[5] = {192, 0, 2, 0, 1};
 //	struct in_addr v4_addr= {0};
 //	return socket_inet_pton(AF_INET, _str.c_str(), &v4_addr)==0; //1 for success, 0 for invalid ip, -1 for other error
 //}
+/*
 static size_t GetSuffixZeroCount(uint8_t* _buf, size_t _buf_len) {
 	size_t zero_count = 0;
 	for(size_t i=0; i<_buf_len; i++) {
@@ -197,7 +198,7 @@ static void ReplaceNat64WithV4IP(struct in6_addr* _replaced_nat64_addr, const st
 			xassert2(false, TSF"suffix_zero_count=%_", suffix_zero_count);
 	}
 }
-
+*/
 bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_addr) {
     // never connect success when use V4toV6Nat convert.
     return false;

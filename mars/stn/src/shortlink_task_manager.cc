@@ -39,6 +39,7 @@
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
+#include "mars/stn/stn_manager.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -47,17 +48,18 @@ using namespace mars::comm;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> ShortLinkTaskManager::get_real_host_;
-boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
-boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
-boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
-boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
-boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
-boost::function<bool (int _error_code)> ShortLinkTaskManager::should_intercept_result_;
+//boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> ShortLinkTaskManager::get_real_host_;
+//boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> ShortLinkTaskManager::task_connection_detail_;
+//boost::function<int (TaskProfile& _profile)> ShortLinkTaskManager::choose_protocol_;
+//boost::function<void (const TaskProfile& _profile)> ShortLinkTaskManager::on_timeout_or_remote_shutdown_;
+//boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_;
+//boost::function<bool (const std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_;
+//boost::function<bool (int _error_code)> ShortLinkTaskManager::should_intercept_result_;
 
 
-ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
-    : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
+ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context, NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid)
+    : context_(_context)
+    , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , net_source_(_netsource)
     , default_use_proxy_(true)
     , tasks_continuous_fail_count_(0)
@@ -66,10 +68,12 @@ ShortLinkTaskManager::ShortLinkTaskManager(NetSource& _netsource, DynamicTimeout
     , wakeup_lock_(new WakeUpLock())
 #endif
 {
+    xdebug_function(TSF"mars2");
     xinfo_function(TSF"handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_", asyncreg_.Get().queue, asyncreg_.Get().seq, MessageQueue::Handler2Queue(asyncreg_.Get()));
 }
 
 ShortLinkTaskManager::~ShortLinkTaskManager() {
+    xdebug_function(TSF"mars2");
     xinfo_function();
     asyncreg_.CancelAndWait();
     xinfo2(TSF"lst_cmd_ count=%0", lst_cmd_.size());
@@ -286,7 +290,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 #ifndef DISABLE_QUIC_PROTOCOL
         if (!task.quic_host_list.empty() && (task.transport_protocol & Task::kTransportProtocolQUIC) && 0 == first->err_code){
             //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
-            if (NetSource::CanUseQUIC()){
+            if (net_source_.CanUseQUIC()){
                 config.use_proxy = false;
                 config.use_quic = true;
                 config.quic.alpn = "h1";
@@ -301,6 +305,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
             realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
+        } else {
+            xwarn2(TSF"mars2 get_real_host_ is null.");
         }
         
         if (realhost_cnt == 0 && config.use_quic){
@@ -313,6 +319,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         
         first->task.shortlink_host_list = hosts;
         
+        if (hosts.empty()) {
+            continue;
+        }
         std::string host = hosts.front();
 #ifndef DISABLE_QUIC_PROTOCOL
         if (config.use_quic){
@@ -322,7 +331,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
-            bool ismakesureauthsuccess = MakesureAuthed(host, first->task.user_id);
+            //TODO cpan mars2 check
+            bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
             xinfo2_if(!first->task.long_polling && first->task.priority >= 0, TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 
             if (!ismakesureauthsuccess) {
@@ -342,8 +352,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
         int error_code = 0;
-
-        if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
+        if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
@@ -368,7 +377,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             first->transfer_profile.received_size = body.Length();
             first->transfer_profile.receive_data_size = body.Length();
             first->transfer_profile.last_receive_pkg_time = ::gettickcount();
-            int handle_type = Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, Task::kChannelShort);
+            int handle_type = context_->GetManager<StnManager>()->Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, Task::kChannelShort);
             ConnectProfile profile;
             __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, (unsigned int)first->transfer_profile.receive_data_size, profile);
             first = next;
@@ -386,13 +395,17 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->transfer_profile.send_data_size = bufreq.Length();
 
-        ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
+        ShortLinkInterface* worker = ShortLinkChannelFactory::Create(context_, MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
+        worker->func_host_filter = get_real_host_strict_match_;
+        worker->func_add_weak_net_info = std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
-        
+
+
+
         if (!debug_host_.empty()) {
           worker->SetDebugHost(debug_host_);
         }
@@ -470,7 +483,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
             if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC){
                 //quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
                 xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
-                NetSource::DisableQUIC();
+                net_source_.DisableQUIC();
             }
         }
 
@@ -490,7 +503,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
-    int handle_type = Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
+    int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
     xinfo2_if(it->task.priority >= 0,  TSF"err_code %_ ",err_code);
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
     if (should_intercept_result_ && should_intercept_result_(err_code))  {
@@ -573,9 +586,11 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 
     if (lst_cmd_.end() != it) {
         if(it->transfer_profile.last_receive_pkg_time == 0)
-            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            net_source_.GetWeakNetworkLogic()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
         else
-            WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            net_source_.GetWeakNetworkLogic()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();
         it->transfer_profile.received_size = _cached_size;
         it->transfer_profile.receive_data_size = _total_size;
@@ -719,9 +734,15 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         if (on_timeout_or_remote_shutdown_) {
             on_timeout_or_remote_shutdown_(*_it);
         }
+        _it->is_weak_network = net_source_.GetWeakNetworkLogic()->IsCurrentNetworkWeak();
+        int64_t span = 0;
+        _it->is_last_valid_connect_fail = net_source_.GetWeakNetworkLogic()->IsLastValidConnectFail(span);
+        /* mars2
         ReportTaskProfile(*_it);
-        WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
-
+        */
+        context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
+        //WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
+        net_source_.GetWeakNetworkLogic()->OnTaskEvent(*_it);
         __DeleteShortLink(_it->running_id);
 
         lst_cmd_.erase(_it);
@@ -815,3 +836,8 @@ void ShortLinkTaskManager::__OnRequestTimeout(ShortLinkInterface* _worker, int _
     }
 }
 
+void ShortLinkTaskManager::__OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info) {
+    if (add_weaknet_info_) {
+        add_weaknet_info_(_connect_timeout, _info);
+    }
+}

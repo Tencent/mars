@@ -40,6 +40,7 @@
 #include <sstream>
 #include <android/log.h>
 #endif
+#include "mars/app/app_manager.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -133,13 +134,13 @@ static int __CurActiveState(const ActiveLogic& _activeLogic) {
     return kForgroundOneMinute;
 }
 
-static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
+static unsigned long __Interval(mars::boot::Context* _context, int _type, const ActiveLogic& _activelogic) {
     unsigned long interval = sg_interval[_type][__CurActiveState(_activelogic)];
 
     if (kLongLinkConnect != _type) return interval;
 
     if (__CurActiveState(_activelogic) == kInactive || __CurActiveState(_activelogic) == kForgroundActive) {  // now - LastForegroundChangeTime>10min
-        if (!_activelogic.IsActive() && GetAccountInfo().username.empty()) {
+        if (!_activelogic.IsActive() && _context->GetManager<AppManager>()->GetAccountInfo().username.empty()) {
             interval = kNoAccountInfoInactiveInterval;
             xwarn2(TSF"no account info and inactive, interval:%_", interval);
 
@@ -147,7 +148,7 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
             interval = interval * kNoNetSaltRate + kNoNetSaltRise;
             xinfo2(TSF"no net, interval:%0", interval);
 
-        } else if (GetAccountInfo().username.empty()) {
+        } else if (_context->GetManager<AppManager>()->GetAccountInfo().username.empty()) {
             interval = interval * kNoAccountInfoSaltRate + kNoAccountInfoSaltRise;
             xinfo2(TSF"no account info, interval:%0", interval);
 
@@ -162,8 +163,9 @@ static unsigned long __Interval(int _type, const ActiveLogic& _activelogic) {
 
 #define AYNC_HANDLER asyncreg_.Get()
 
-LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
-    : asyncreg_(MessageQueue::InstallAsyncHandler(_id))
+LongLinkConnectMonitor::LongLinkConnectMonitor(boot::Context* _context, NetSource* _net_source, ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
+    : context_(_context)
+    , asyncreg_(MessageQueue::InstallAsyncHandler(_id))
     , activelogic_(_activelogic), longlink_(_longlink), rebuild_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, true), _id)
     , wake_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, false), _id)
     , status_(LongLink::kDisConnected)
@@ -174,7 +176,8 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
     , isstart_(false)
     , is_keep_alive_(_is_keep_alive)
     , current_interval_index_(0)
-    , rebuild_longlink_(false) {
+    , rebuild_longlink_(false)
+    , net_source_(_net_source){
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
         if(is_keep_alive_) {
             activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
@@ -235,7 +238,7 @@ bool LongLinkConnectMonitor::NetworkChange() {
     } while (false);
 
 #endif
-    longlink_.Disconnect(LongLink::kNetworkChange);
+    longlink_.Disconnect(LongLinkErrCode::kNetworkChange);
 
     xinfo_trace(TSF"longlink_progress network change time: %_", gettickcount());
 
@@ -250,7 +253,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     }
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
-    uint64_t interval =  __Interval(_type, activelogic_) * 1000ULL;
+    uint64_t interval =  __Interval(context_,  _type, activelogic_) * 1000ULL;
     uint64_t posttime = gettickcount() - longlink_.Profile().dns_time;
     uint64_t buffer = activelogic_.IsActive() ? 0 : kInactiveBuffer;    //in case doze mode
 
@@ -445,7 +448,7 @@ void LongLinkConnectMonitor::__Run() {
     }
 
     struct socket_ipinfo_t dummyIpInfo;
-    int ret = socket_gethostbyname(NetSource::GetLongLinkHosts().front().c_str(), &dummyIpInfo, 0, NULL);
+    int ret = socket_gethostbyname(net_source_->GetLongLinkHosts().front().c_str(), &dummyIpInfo, 0, NULL);
 
     if (ret == 0) {
         ++conti_suc_count_;

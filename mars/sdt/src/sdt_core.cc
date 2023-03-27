@@ -33,13 +33,17 @@
 #include "activecheck/pingchecker.h"
 #include "activecheck/tcpchecker.h"
 #include "sdt_core.h"
+#include "mars/sdt/sdt_manager.h"
 
 using namespace mars::sdt;
+using namespace mars::boot;
+
 
 #define RETURN_NETCHECKER_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, async_reg_.Get(), )
 
-SdtCore::SdtCore()
-    : thread_(boost::bind(&SdtCore::__RunOn, this))
+SdtCore::SdtCore(Context* context)
+    : context_(context)
+    , thread_(boost::bind(&SdtCore::__RunOn, this))
     , check_list_(std::list<BaseChecker*>())
     , cancel_(false)
     , checking_(false) {
@@ -89,6 +93,7 @@ void SdtCore::__InitCheckReq(CheckIPPorts& _longlink_items, CheckIPPorts& _short
     if (MODE_SHORT(_mode)) {
     	check_request_.shortlink_items.insert(_shortlink_items.begin(), _shortlink_items.end());
         HttpChecker* http_checker = new HttpChecker();
+        http_checker->SetHttpNetcheckCGI(netcheck_cgi_);
         check_list_.push_back(http_checker);
     }
 
@@ -153,7 +158,8 @@ void SdtCore::__DumpCheckResult() {
         	break;
         }
     }
-    ReportNetCheckResult(check_request_.checkresult_profiles);
+    //ReportNetCheckResult(check_request_.checkresult_profiles);
+    context_->GetManager<SdtManager>()->ReportNetCheckResult(check_request_.checkresult_profiles);
 }
 
 void SdtCore::CancelCheck() {
@@ -168,4 +174,8 @@ void SdtCore::CancelAndWait() {
     xinfo_function();
     CancelCheck();
     thread_.join();
+}
+
+void SdtCore::SetHttpNetcheckCGI(std::string cgi) {
+    netcheck_cgi_ = cgi;
 }
