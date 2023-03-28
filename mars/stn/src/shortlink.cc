@@ -147,6 +147,7 @@ ShortLink::~ShortLink() {
     }
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
+    dns_util_.Cancel();
 }
 
 void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
@@ -376,7 +377,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     __UpdateProfile(_conn_profile);
     
     //WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
-    net_source_.GetWeakNetworkLogic()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
+    net_source_->GetWeakNetworkLogic()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock %_, net:%_", message.String(), getNetInfo());
@@ -712,7 +713,5 @@ void ShortLink::__CancelAndWaitWorkerThread() {
     if (!socketOperator_->Breaker().Break()) {
         xassert2(false, "breaker fail");
     }
-
-    dns_util_.Cancel();
     thread_.join();
 }
