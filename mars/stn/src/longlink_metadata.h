@@ -34,7 +34,7 @@ namespace mars {
 
 class LongLinkMetaData {
 public: 
-    LongLinkMetaData(boot::Context* _context, const LonglinkConfig& _config, NetSource& _netsource, comm::ActiveLogic& _activeLogic, comm::MessageQueue::MessageQueue_t _message_id);
+    LongLinkMetaData(boot::Context* _context, const LonglinkConfig& _config, std::shared_ptr<NetSource> _netsource, comm::ActiveLogic& _activeLogic, comm::MessageQueue::MessageQueue_t _message_id);
 
     virtual ~LongLinkMetaData();
     std::shared_ptr<LongLink> Channel() {

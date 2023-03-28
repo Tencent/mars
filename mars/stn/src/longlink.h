@@ -127,7 +127,7 @@ class LongLink {
     boost::function< void (bool _noop_timeout)> OnNoopAlarmReceived;
 
   public:
-    LongLink(boot::Context* _context, const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
+    LongLink(boot::Context* _context, const comm::mq::MessageQueue_t& _messagequeueid, std::shared_ptr<NetSource> _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder = gDefaultLongLinkEncoder);
     virtual ~LongLink();
 
     bool    Send(const AutoBuffer& _body, const AutoBuffer& _extension, const Task& _task);
@@ -186,7 +186,7 @@ class LongLink {
   protected:
     boot::Context*                    context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
-    NetSource&                            netsource_;
+    std::shared_ptr<NetSource>            netsource_;
     LonglinkConfig                        config_;
     
     comm::Mutex                           mutex_;

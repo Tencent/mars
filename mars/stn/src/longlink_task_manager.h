@@ -66,7 +66,7 @@ class LongLinkTaskManager {
     boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    LongLinkTaskManager(mars::boot::Context* _context, mars::stn::NetSource& _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
+    LongLinkTaskManager(mars::boot::Context* _context, std::shared_ptr<NetSource> _netsource, comm::ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t  _messagequeueid);
     virtual ~LongLinkTaskManager();
 
     bool StartTask(const Task& _task, int _channel);
@@ -136,7 +136,7 @@ class LongLinkTaskManager {
     std::map<std::string, int>      longlink_id_;
     DynamicTimeout&                 dynamic_timeout_;
 
-    NetSource&                      netsource_;
+    std::shared_ptr<NetSource>      netsource_;
     comm::ActiveLogic&              active_logic_;
 
 #ifdef ANDROID

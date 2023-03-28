@@ -72,7 +72,7 @@ class ShortLinkTaskManager {
     std::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    ShortLinkTaskManager(boot::Context* _context, mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
+    ShortLinkTaskManager(boot::Context* _context, std::shared_ptr<NetSource> _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task);
@@ -110,7 +110,7 @@ class ShortLinkTaskManager {
   private:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
-    NetSource&                      net_source_;
+    std::shared_ptr<NetSource>            net_source_;
     
     std::list<TaskProfile>          lst_cmd_;
     

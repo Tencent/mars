@@ -102,7 +102,7 @@ class NetCore {
 
   public:
     comm::MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
-    NetSource& GetNetSourceRef() {return *net_source_;}
+//    std::shared_ptr<NetSource> GetNetSourceRef() {return net_source_;}
     
     void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
     
@@ -129,7 +129,7 @@ class NetCore {
     void InitHistory2BannedList();
     void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
 
-    NetSource* GetNetSource();
+    std::shared_ptr<NetSource> GetNetSource();
     int GetPackerEncoderVersion();
 public:
     
@@ -203,7 +203,7 @@ public:
     comm::MessageQueue::MessageQueueCreater           messagequeue_creater_;
     comm::MessageQueue::ScopeRegister                 asyncreg_;
     boot::Context*                              context_;
-    NetSource*                                  net_source_;
+    std::shared_ptr<NetSource>                  net_source_;
     NetCheckLogic*                              netcheck_logic_;
     AntiAvalanche*                              anti_avalanche_;
 

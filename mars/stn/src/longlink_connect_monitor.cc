@@ -163,7 +163,7 @@ static unsigned long __Interval(mars::boot::Context* _context, int _type, const 
 
 #define AYNC_HANDLER asyncreg_.Get()
 
-LongLinkConnectMonitor::LongLinkConnectMonitor(boot::Context* _context, NetSource* _net_source, ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
+LongLinkConnectMonitor::LongLinkConnectMonitor(boot::Context* _context, std::shared_ptr<NetSource> _net_source, ActiveLogic& _activelogic, LongLink& _longlink, MessageQueue::MessageQueue_t _id, bool _is_keep_alive)
     : context_(_context)
     , asyncreg_(MessageQueue::InstallAsyncHandler(_id))
     , activelogic_(_activelogic), longlink_(_longlink), rebuild_alarm_(boost::bind(&LongLinkConnectMonitor::__OnAlarm, this, true), _id)

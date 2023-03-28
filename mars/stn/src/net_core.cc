@@ -80,7 +80,7 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
     , netcheck_logic_(new NetCheckLogic(context_, net_source_))
     , anti_avalanche_(new AntiAvalanche(context_, ActiveLogic::Instance()->IsActive()))
     , dynamic_timeout_(new DynamicTimeout)
-    , shortlink_task_manager_(new ShortLinkTaskManager(context_, *net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
+    , shortlink_task_manager_(new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
     , shortlink_try_flag_(false) {
         NetCoreCreateBegin()();
@@ -180,9 +180,7 @@ void NetCore::ReleaseNet() {
     delete dynamic_timeout_;
     delete anti_avalanche_;
     delete netcheck_logic_;
-    delete net_source_;
-
-    net_source_ = NULL;
+    net_source_.reset();
 }
 
 void NetCore::__InitShortLink(){
@@ -207,7 +205,7 @@ void NetCore::__InitLongLink(){
 
     timing_sync_ = new TimingSync(context_, *ActiveLogic::Instance());
 
-    longlink_task_manager_ = new LongLinkTaskManager(context_, *net_source_, *ActiveLogic::Instance(), *dynamic_timeout_, GetMessageQueueId());
+    longlink_task_manager_ = new LongLinkTaskManager(context_, net_source_, *ActiveLogic::Instance(), *dynamic_timeout_, GetMessageQueueId());
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
@@ -1167,7 +1165,7 @@ std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name)
     shortlink_task_manager_->SetDebugHost(_host);
   }
 
-NetSource* NetCore::GetNetSource(){
+std::shared_ptr<NetSource> NetCore::GetNetSource(){
     return net_source_;
 }
 

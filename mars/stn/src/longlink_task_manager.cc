@@ -55,7 +55,7 @@ using namespace mars::comm;
 static int longlink_id = 0;
 //std::set<std::string> LongLinkTaskManager::forbid_tls_host_;
 
-LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context, NetSource& _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
+LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context, std::shared_ptr<NetSource> _netsource, ActiveLogic& _activelogic, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t  _messagequeue_id)
     : context_(_context)
     , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
     , lastbatcherrortime_(0)
@@ -567,12 +567,12 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         _it->transfer_profile.error_type = _err_type;
         _it->transfer_profile.error_code = _err_code;
         _it->PushHistory();
-        _it->is_weak_network = netsource_.GetWeakNetworkLogic()->IsCurrentNetworkWeak();
+        _it->is_weak_network = netsource_->GetWeakNetworkLogic()->IsCurrentNetworkWeak();
         int64_t span = 0;
-        _it->is_last_valid_connect_fail = netsource_.GetWeakNetworkLogic()->IsLastValidConnectFail(span);
+        _it->is_last_valid_connect_fail = netsource_->GetWeakNetworkLogic()->IsLastValidConnectFail(span);
         context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
         //WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
-        netsource_.GetWeakNetworkLogic()->OnTaskEvent(*_it);
+        netsource_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
 
         lst_cmd_.erase(_it);
         return true;
@@ -831,10 +831,10 @@ void LongLinkTaskManager::__OnRecv(uint32_t _taskid, size_t _cachedsize, size_t 
     if (lst_cmd_.end() != it) {
         if(it->transfer_profile.last_receive_pkg_time == 0)
             //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
-            netsource_.GetWeakNetworkLogic()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            netsource_->GetWeakNetworkLogic()->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
         else
             //WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
-            netsource_.GetWeakNetworkLogic()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            netsource_->GetWeakNetworkLogic()->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.received_size = _cachedsize;
         it->transfer_profile.receive_data_size = _totalsize;
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();

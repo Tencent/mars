@@ -32,8 +32,8 @@ namespace stn {
 namespace ShortLinkChannelFactory {
 
     
-ShortLinkInterface* (*Create)(boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, const ShortlinkConfig& _config)
-= [](boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, const ShortlinkConfig& _config) -> ShortLinkInterface* {
+ShortLinkInterface* (*Create)(boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, std::shared_ptr<NetSource> _netsource, const Task& _task, const ShortlinkConfig& _config)
+= [](boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, std::shared_ptr<NetSource> _netsource, const Task& _task, const ShortlinkConfig& _config) -> ShortLinkInterface* {
 	xdebug2(TSF"use weak func Create");
 	return new ShortLink(_context, _messagequeueid, _netsource, _task, _config.use_proxy);
 };
@@ -48,8 +48,8 @@ void (*Destory)(ShortLinkInterface* _short_link_channel)
 
 namespace LongLinkChannelFactory {
 
-LongLink* (*Create)(boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config)
-= [](boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config) {
+LongLink* (*Create)(boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, std::shared_ptr<NetSource> _netsource, const LonglinkConfig& _config)
+= [](boot::Context* _context, const mq::MessageQueue_t& _messagequeueid, std::shared_ptr<NetSource> _netsource, const LonglinkConfig& _config) {
 	LongLink* longlink = new LongLink(_context, _messagequeueid, _netsource, _config, gDefaultLongLinkEncoder);
 	if(_config.dns_func != nullptr) {
 		longlink->SetDnsFunc(_config.dns_func);

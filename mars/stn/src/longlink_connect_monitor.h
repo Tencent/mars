@@ -41,7 +41,7 @@ namespace comm {
 class LongLinkConnectMonitor {
 
   public:
-    LongLinkConnectMonitor(boot::Context* _context, NetSource* _net_source, comm::ActiveLogic& _activelogic, LongLink& _longlinkk, comm::MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
+    LongLinkConnectMonitor(boot::Context* _context, std::shared_ptr<NetSource> _net_source, comm::ActiveLogic& _activelogic, LongLink& _longlinkk, comm::MessageQueue::MessageQueue_t _id, bool _is_keep_alive);
     ~LongLinkConnectMonitor();
 
   public:
@@ -98,7 +98,7 @@ class LongLinkConnectMonitor {
     bool is_keep_alive_;
     int current_interval_index_;
     bool rebuild_longlink_;
-    NetSource* net_source_;
+    std::shared_ptr<NetSource> net_source_;
 };
         
 } }

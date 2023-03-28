@@ -102,7 +102,7 @@ static const uint32_t kCheckifAboveCount = 5;
 	}\
 	while(false)
 
-NetCheckLogic::NetCheckLogic(boot::Context* _context, NetSource* _net_source)
+NetCheckLogic::NetCheckLogic(boot::Context* _context, std::shared_ptr<NetSource> _net_source)
     : context_(_context)
     , frequency_limit_(new CommFrequencyLimit(kLimitCount, kLimitTimeSpan))
     , dns_util_(context_)

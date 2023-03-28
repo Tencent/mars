@@ -139,7 +139,7 @@ class LongLinkConnectObserver : public MComplexConnect {
 
 }
 
-LongLink::LongLink(Context* _context, const mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder)
+LongLink::LongLink(Context* _context, const mq::MessageQueue_t& _messagequeueid, std::shared_ptr<NetSource> _netsource, const LonglinkConfig& _config, LongLinkEncoder& _encoder)
     : context_(_context)
     , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
     , netsource_(_netsource)
@@ -478,15 +478,15 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     std::vector<IPPortItem> ip_items;
     std::vector<socket_address> vecaddr;
 
-    netsource_.GetLongLinkItems(config_, dns_util_, ip_items);
+    netsource_->GetLongLinkItems(config_, dns_util_, ip_items);
     mars::comm::ProxyInfo proxy_info = context_->GetManager<AppManager>()->GetProxyInfo("");
-    bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type && netsource_.GetLongLinkDebugIP().empty();
-    if (config_.link_type == Task::kChannelMinorLong && !netsource_.GetMinorLongLinkDebugIP().empty()){
+    bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type && mars::comm::kProxyHttp != proxy_info.type && netsource_->GetLongLinkDebugIP().empty();
+    if (config_.link_type == Task::kChannelMinorLong && !netsource_->GetMinorLongLinkDebugIP().empty()){
         //forbid proxy when using debugip on minor longlink
         use_proxy = false;
     }
     
-    xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", netsource_.DumpTable(ip_items), proxy_info.type, use_proxy);
+    xinfo2(TSF"task socket dns ip:%_ proxytype:%_ useproxy:%_", netsource_->DumpTable(ip_items), proxy_info.type, use_proxy);
     
     std::string log;
     std::string netInfo;

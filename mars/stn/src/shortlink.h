@@ -50,7 +50,7 @@ class shortlink_tracker;
     
 class ShortLink : public ShortLinkInterface {
   public:
-    ShortLink(boot::Context* _context, comm::MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator = nullptr);
+    ShortLink(boot::Context* _context, comm::MessageQueue::MessageQueue_t _messagequeueid, std::shared_ptr<NetSource> _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator = nullptr);
     virtual ~ShortLink();
 
     ConnectProfile   Profile() const { return conn_profile_;}
@@ -77,7 +77,7 @@ class ShortLink : public ShortLinkInterface {
   protected:
     boot::Context*                    context_;
     comm::MessageQueue::ScopeRegister     asyncreg_;
-    NetSource&                      net_source_;
+    std::shared_ptr<NetSource>      net_source_;
     std::unique_ptr<SocketOperator> socketOperator_;
     Task                            task_;
     comm::Thread                          thread_;

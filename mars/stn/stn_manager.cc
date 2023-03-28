@@ -492,17 +492,17 @@ void StnManager::MakesureLonglinkConnected_ext(const std::string& name) {
 // #################### end stn_logci.h ####################
 
 const std::vector<std::string>& StnManager::GetLongLinkHosts() {
-    return net_core_->GetNetSourceRef().GetLongLinkHosts();
+    return net_core_->GetNetSource()->GetLongLinkHosts();
 }
 
 void StnManager::SetLongLink(const std::vector<std::string>& _hosts,
                              const std::vector<uint16_t>& _ports,
                              const std::string& _debugip) {
-    net_core_->GetNetSourceRef().SetLongLink(_hosts, _ports, _debugip);
+    net_core_->GetNetSource()->SetLongLink(_hosts, _ports, _debugip);
 }
 
 void StnManager::SetShortlink(const uint16_t _port, const std::string& _debugip) {
-    net_core_->GetNetSourceRef().SetShortlink(_port, _debugip);
+    net_core_->GetNetSource()->SetShortlink(_port, _debugip);
 }
 
 }  // namespace stn

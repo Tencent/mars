@@ -44,7 +44,7 @@ static const unsigned long kIntervalTime = 1 * 60 * 60 * 1000;    // ms
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_NETCORE_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
-NetSourceTimerCheck::NetSourceTimerCheck(boot::Context* _context, NetSource* _net_source, ActiveLogic& _active_logic, LongLink& _longlink, MessageQueue::MessageQueue_t  _messagequeue_id)
+NetSourceTimerCheck::NetSourceTimerCheck(boot::Context* _context, std::shared_ptr<NetSource> _net_source, ActiveLogic& _active_logic, LongLink& _longlink, MessageQueue::MessageQueue_t  _messagequeue_id)
     : context_(_context)
     , net_source_(_net_source)
     , seletor_(breaker_)
