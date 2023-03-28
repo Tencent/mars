@@ -25,7 +25,6 @@
 #include <vector>
 
 #include "boost/function.hpp"
-#include "mars/comm/xlogger/xlogger.h"
 #include "thread/condition.h"
 #include "thread/thread.h"
 
@@ -63,7 +62,6 @@ class DNS {
     }
 
     void SetDnsFunc(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc) {
-        xverbose2(TSF"mars2 dns SetDnsFunc");
       dnsfunc_ = _dnsfunc;
     }
 

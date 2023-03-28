@@ -94,11 +94,9 @@ static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
 
     //xinfo2(TSF "mars2 onInitConfigBeforeOnCreate _packer_encoder_version:%_", _packer_encoder_version);
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
-    if (nullptr == stn_manager) {
-        stn_manager = new StnManager(Context::CreateContext("default"));
-        Context::CreateContext("default")->AddManager(stn_manager);
+    if (stn_manager) {
+        stn_manager->OnInitConfigBeforeOnCreate(_packer_encoder_version);
     }
-    stn_manager->OnInitConfigBeforeOnCreate(_packer_encoder_version);
     //xinfo2(TSF"mars2 onInitConfigBeforeOnCreate finish.");
 }
 
@@ -112,11 +110,9 @@ static void onCreate() {
     NetCore::Singleton::Instance();
     */
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
-    if (nullptr == stn_manager) {
-        stn_manager = new StnManager(Context::CreateContext("default"));
-        Context::CreateContext("default")->AddManager(stn_manager);
+    if (stn_manager) {
+        stn_manager->OnCreate();
     }
-    stn_manager->OnCreate();
 }
 
 static void onDestroy() {

@@ -331,7 +331,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         xinfo2_if(!first->task.long_polling, TSF"need auth cgi %_ , host %_ need auth %_", first->task.cgi, host, first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
-            //TODO cpan mars2 check
             bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
             xinfo2_if(!first->task.long_polling && first->task.priority >= 0, TSF"auth result %_ host %_", ismakesureauthsuccess, host);
 

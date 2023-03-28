@@ -31,12 +31,11 @@ std::string AppManager::GetName() {
 }
 
 void AppManager::SetCallback(Callback* _callback) {
-    xdebug_function(TSF "mars2 AppManager SetCallback");
+    xinfo_function();
     callback_ = _callback;
 }
 
 mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
-    xverbose_function();
     xassert2(callback_ != NULL);
 
 #if !TARGET_OS_IPHONE
@@ -65,7 +64,6 @@ mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
 }
 
 std::string AppManager::GetAppFilePath() {
-    xverbose_function();
     xassert2(callback_ != NULL);
 
     std::string path = callback_->GetAppFilePath();
@@ -78,20 +76,17 @@ std::string AppManager::GetAppFilePath() {
 }
 
 AccountInfo AppManager::GetAccountInfo() {
-    xverbose_function();
     xassert2(callback_ != NULL);
     return callback_->GetAccountInfo();
 }
 
 std::string AppManager::GetUserName() {
-    xverbose_function();
     xassert2(callback_ != NULL);
     AccountInfo info = callback_->GetAccountInfo();
     return info.username;
 }
 
 std::string AppManager::GetRecentUserName() {
-    xverbose_function();
     xassert2(callback_ != NULL);
     if (callback_ == NULL) {
         return "";
@@ -120,7 +115,7 @@ DeviceInfo AppManager::GetDeviceInfo() {
 }
 
 void AppManager::GetProxyInfo(const std::string& _host, uint64_t _timetick) {
-    xinfo_function(TSF "timetick:%_, host:%_", _timetick, _host);
+    xinfo_function(TSF "time tick:%_, host:%_", _timetick, _host);
     mars::comm::ProxyInfo proxy_info;
     if (!callback_->GetProxyInfo(_host, proxy_info)) {
         mars::comm::ScopedLock lock(slproxymutex_);

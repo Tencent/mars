@@ -117,7 +117,6 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 int& _error_code,
                                 const int _channel_select) {
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
-    xdebug2(TSF"mars2 Buf2Resp");
     xassert2(sg_callback != NULL);
     return sg_callback->Buf2Resp(_taskid, _user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select);
 //#else
@@ -145,7 +144,6 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
     cgiprofile.channel_type = _profile.channel_type;
     cgiprofile.transport_protocol = _profile.transport_protocol;
     cgiprofile.rtt = _profile.rtt_by_socket;
-    xinfo2(TSF"mars2 StnCallbackBridge::OnTaskEnd");
     return sg_callback->OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code, cgiprofile);
 //#else
 //    return C2Java_OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code, _profile);
@@ -242,7 +240,6 @@ void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
 //#endif
 }
 
-//TODO cpan 确认下这里是不是要走到MMReportTaskLimited才对
 void StnCallbackBridge::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
     xassert2(sg_callback != NULL);
     sg_callback->ReportTaskLimited(_check_type, _task, _param);

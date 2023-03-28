@@ -344,7 +344,6 @@ class MessageQueueCreater {
     MessageQueue_t GetMessageQueue();
     MessageQueue_t CreateMessageQueue();
     void CancelAndWait();
-    void JoinThread();
 
     static MessageQueue_t CreateNewMessageQueue(const char* _messagequeue_name = NULL);
     static MessageQueue_t CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, const char* _messagequeue_name = NULL);
@@ -356,6 +355,7 @@ class MessageQueueCreater {
     MessageQueueCreater(const MessageQueueCreater&);
     MessageQueueCreater& operator=(const MessageQueueCreater&);
     void __ThreadRunloop();
+    void __JoinThread();
     static void __ThreadNewRunloop(SpinLock* _sp);
 
   private:

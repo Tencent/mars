@@ -42,7 +42,7 @@ class Context {
         std::string clazz_name = typeid(T).name();
         return (T*)manager_map_[clazz_name];
     }
-    
+
     template <typename T, typename std::enable_if<std::is_base_of<BaseManager, T>::value>::type* = nullptr>
     void RemoveManager(T* mgr) {
         std::string clazz_name = ((BaseManager*)mgr)->GetName();

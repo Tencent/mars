@@ -4,7 +4,6 @@
 
 #include "context.h"
 
-
 #define S_SCOPED_LOCK() std::unique_lock<std::recursive_mutex> s_lock(s_mutex_)
 #define S_SCOPED_UNLOCK() s_lock.unlock()
 static int sg_context_instance_counter = 0;

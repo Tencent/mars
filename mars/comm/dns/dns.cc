@@ -197,7 +197,6 @@ DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, 
 }
 
 DNS::~DNS() {
-    xinfo_function();
     Cancel();
 }
 
@@ -230,7 +229,6 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
     info.status = kGetIPDoing;
     info.longlink_host = _longlink_host;
     sg_dnsinfo_vec.push_back(info);
-    xverbose2(TSF"mars2 sg_dnsinfo_vec size:%_", sg_dnsinfo_vec.size());
 
     if (_breaker) _breaker->dnsstatus = &(sg_dnsinfo_vec.back().status);
 
@@ -297,7 +295,6 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
 
             sg_dnsinfo_vec.erase(it);
         }
-        xverbose2(TSF"mars2 sg_dnsinfo_vec size:%_", sg_dnsinfo_vec.size());
         return false;
     }
 
@@ -319,8 +316,6 @@ void DNS::Cancel(const std::string& _host_name) {
             info.status = kGetIPCancel;
         }
     }
-
-    xverbose2(TSF "mars2 sg_dnsinfo_vec size:%_", sg_dnsinfo_vec.size());
 
     sg_condition.notifyAll();
 }

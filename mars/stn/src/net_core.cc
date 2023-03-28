@@ -123,6 +123,8 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
         ASYNC_BLOCK_END
     }
 
+    xinfo_function();
+
     ActiveLogic::Instance()->SignalActive.connect(boost::bind(&NetCore::__OnSignalActive, this, _1));
 
     __InitShortLink();
@@ -130,39 +132,25 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
     if (need_use_longlink_) {
         __InitLongLink();
     }
-    
-    xinfo2(TSF "mars2 Reset net_core NetCoreCreate");
-//    NetCoreCreate()(this);
 }
 
 NetCore::~NetCore() {
     xdebug_function(TSF"mars2");
-
     asyncreg_.Cancel();
-
     if (!already_release_net_) {
         ReleaseNet();
     }
-
-    xinfo2(TSF"before ReleaseNewMessageQueue");
     //MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
     MessageQueue::MessageQueueCreater::ReleaseNewMessageCreater(messagequeue_creater_);
-    xdebug2(TSF"mars2 mq net_core ReleaseNewMessageQueue");
-    //xinfo2(TSF "mars2 Reset net_core NetCoreRelease");
-    //NetCoreRelease()();
 }
 
 void NetCore::ReleaseNet() {
-//    if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(asyncreg_.Get())) {
-//        WaitMessage(AsyncInvoke((MessageQueue::AsyncInvokeFunction)boost::bind(&NetCore::ReleaseNet, this), asyncreg_.Get(), "NetCore::ReleaseNet"));
-//        return;
-//    }
     xinfo_function();
     already_release_net_ = true;
     ActiveLogic::Instance()->SignalActive.disconnect(boost::bind(&NetCore::__OnSignalActive, this, _1));
+
 #ifdef USE_LONG_LINK
-    if (need_use_longlink_)
-    {   //must disconnect signal
+    if (need_use_longlink_) {  // must disconnect signal
         auto longlink = longlink_task_manager_->DefaultLongLink();
         if (longlink && longlink->SignalKeeper()) {
             GetSignalOnNetworkDataChange().disconnect_all_slots();
@@ -170,9 +158,7 @@ void NetCore::ReleaseNet() {
         longlink.reset();
         delete longlink_task_manager_;
     }
-
     push_preprocess_signal_.disconnect_all_slots();
-
     delete timing_sync_;
     delete zombie_task_manager_;
 #endif
@@ -197,7 +183,6 @@ void NetCore::__InitShortLink(){
 void NetCore::__InitLongLink(){
     xinfo_function();
 #ifdef USE_LONG_LINK
-    xinfo2(TSF"mars __InitLongLink set function callback.");
     need_use_longlink_ = true;
     zombie_task_manager_ = new ZombieTaskManager(messagequeue_creater_.GetMessageQueue());
     zombie_task_manager_->fun_start_task_ = boost::bind(&NetCore::StartTask, this, _1);
@@ -230,10 +215,7 @@ void NetCore::__Release(std::shared_ptr<NetCore> _instance) {
         xdebug2(TSF"mars2 mq net_core WaitMessage AsyncInvoke __Release");
         return;
     }
-
     _instance.reset();
-//    //先释放MMCore再释放NetCore
-//    NetCoreRelease()();
 }
 
 bool NetCore::__ValidAndInitDefault(Task& _task, XLogger& _group) {
@@ -506,7 +488,6 @@ void NetCore::ClearTasks() {
 }
 
 void NetCore::OnNetworkChange() {
-    xinfo2(TSF "cpan debug OnNetworkChange");
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::OnNetworkChange, this));  //if already messagequeue, no need to async
 
     xinfo_function();
@@ -543,12 +524,8 @@ void NetCore::OnNetworkChange() {
         xassert2(false);
         break;
     }
-    if (net_source_) {
-        net_source_->ClearCache();
-    } else {
-        xinfo2(TSF "cpan debug net_source is null");
-    }
 
+    net_source_->ClearCache();
     dynamic_timeout_->ResetStatus();
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
@@ -793,7 +770,6 @@ void NetCore::__OnLongLinkNetworkError(const std::string& _name, int _line, ErrC
 #endif
 
 void NetCore::__OnShortLinkNetworkError(int _line, ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {
-    xverbose_function(TSF"mars2 _line:%_, errType:%_, errCode:%_, ip:%_, host:%_, port:%_", _line, _err_type, _err_code, _ip, _host, _port);
     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__OnShortLinkNetworkError, this, _line, _err_type,  _err_code, _ip, _host, _port));
     xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 

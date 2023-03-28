@@ -78,11 +78,6 @@ class NetCore {
         return s_signal;
     }
 
-//    static boost::signals2::signal<void (std::shared_ptr<NetCore>)>& NetCoreCreate() {
-//        static boost::signals2::signal<void (std::shared_ptr<NetCore>)> s_signal;
-//        return s_signal;
-//    }
-    
     static boost::signals2::signal<void (std::shared_ptr<NetCore>)>& NetCoreCreate() {
         static boost::signals2::signal<void (std::shared_ptr<NetCore>)> s_signal;
         return s_signal;
@@ -175,8 +170,8 @@ public:
     void    __OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
     int __ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong);
   private:
-    //NetCore(const NetCore&);
-    //NetCore& operator=(const NetCore&);
+    NetCore(const NetCore&);
+    NetCore& operator=(const NetCore&);
 
   public:
      void SetNeedUseLongLink(bool flag);

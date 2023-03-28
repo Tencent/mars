@@ -4,7 +4,6 @@
 
 #include <jni.h>
 
-//#include "../context.h"
 #include "comm/jni/jnicat/jnicat_core.h"
 #include "comm/jni/jnicat/jnicat_object_wrapper.h"
 #include "mars/boot/context.h"
@@ -33,7 +32,6 @@ class JniContext {
 
     static void JniOnDestroyContext(JNIEnv* env, jobject instance) {
         auto context_cpp = jnicat::JniObjectWrapper<Context>::object(env, instance);
-//        DestroyContext(context_cpp);
         context_cpp->DestroyContext(context_cpp);
         jnicat::JniObjectWrapper<Context>::dispose(env, instance);
     }

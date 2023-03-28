@@ -1045,7 +1045,7 @@ namespace MessageQueue {
             return;
         BreakMessageQueueRunloop(_creater.messagequeue_id_);
         WaitForRunningLockEnd(_creater.messagequeue_id_);
-        _creater.JoinThread();
+        _creater.__JoinThread();
     }
 
     void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
@@ -1056,7 +1056,7 @@ namespace MessageQueue {
         RunLoop().Run();
     }
 
-    void MessageQueueCreater::JoinThread() {
+    void MessageQueueCreater::__JoinThread() {
         if (ThreadUtil::currentthreadid() != thread_.tid()) {
             thread_.join();
         }

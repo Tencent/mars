@@ -69,8 +69,6 @@ static void onDestroy() {
     if (sdt_manager) {
         sdt_manager->OnDestroy();
     }
-//    Context::CreateContext("default")->RemoveManager(sdt_manager);
-//    delete sdt_manager;
 }
 
 static void __initbind_baseprjevent() {
