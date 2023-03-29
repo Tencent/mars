@@ -55,9 +55,11 @@ static void onCreate() {
     SdtCore::Singleton::Instance();
     */
     SdtManager* sdt_manager = Context::CreateContext("default")->GetManager<SdtManager>();
-    if (sdt_manager) {
-        sdt_manager->OnCreate();
+    if (nullptr == sdt_manager) {
+        sdt_manager = new SdtManager(Context::CreateContext("default"));
+        Context::CreateContext("default")->AddManager(sdt_manager);
     }
+    sdt_manager->OnCreate();
 }
 
 static void onDestroy() {
