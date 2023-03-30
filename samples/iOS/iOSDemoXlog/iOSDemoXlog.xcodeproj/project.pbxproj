@@ -16,11 +16,16 @@
 		1FB577171CE209A500ADCF8C /* iOSDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FB577161CE209A500ADCF8C /* iOSDemoUITests.m */; };
 		1FB577391CE20C6100ADCF8C /* AppSetupManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FB577381CE20C6100ADCF8C /* AppSetupManager.mm */; };
 		1FB5777C1CE20E5F00ADCF8C /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1FB5777B1CE20E5F00ADCF8C /* main.mm */; };
+		4B7C7DDC299219B2002D3986 /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7C7DCD2992199B002D3986 /* libapp.a */; };
+		4B7C7DDD299219B2002D3986 /* libbaseevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7C7DCF2992199B002D3986 /* libbaseevent.a */; };
+		4B7C7DDE299219B2002D3986 /* libcomm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7C7DD12992199B002D3986 /* libcomm.a */; };
+		4B7C7DDF299219B2002D3986 /* libmars-boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7C7DD52992199B002D3986 /* libmars-boost.a */; };
+		4B7C7DE0299219B2002D3986 /* libxlog.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7C7DDB2992199B002D3986 /* libxlog.a */; };
+		4B7C7DE1299219B2002D3986 /* libzstd.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B7C7DD32992199B002D3986 /* libzstd.a */; };
 		4B91BAFC1DEF014F00CFD83F /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BAFB1DEF014F00CFD83F /* libz.tbd */; };
 		4B91BAFE1DEF015900CFD83F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BAFD1DEF015900CFD83F /* Foundation.framework */; };
 		4B91BB001DEF016D00CFD83F /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BAFF1DEF016D00CFD83F /* CoreTelephony.framework */; };
 		4B91BB021DEF019800CFD83F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B91BB011DEF019800CFD83F /* SystemConfiguration.framework */; };
-		4BD0096D217081C9007FD5DB /* mars.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD0096C217081C9007FD5DB /* mars.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +42,62 @@
 			proxyType = 1;
 			remoteGlobalIDString = 1FB576ED1CE209A500ADCF8C;
 			remoteInfo = iOSDemo;
+		};
+		4B7C7DCC2992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3527C728842D423F8E5C4748;
+			remoteInfo = app;
+		};
+		4B7C7DCE2992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5CCFEA298BBD451A8B34BCB3;
+			remoteInfo = baseevent;
+		};
+		4B7C7DD02992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3D4EFD4054DE4B14BEC27F30;
+			remoteInfo = comm;
+		};
+		4B7C7DD22992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC58516A705A4FF28EF9986B;
+			remoteInfo = libzstd_static;
+		};
+		4B7C7DD42992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 6716F399C8C94DF7AC9AFCFC;
+			remoteInfo = "mars-boost";
+		};
+		4B7C7DD62992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1D2AAAE6EDFA48B7A4B54563;
+			remoteInfo = sdt;
+		};
+		4B7C7DD82992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5D727C4DAC7242A3B405A016;
+			remoteInfo = stn;
+		};
+		4B7C7DDA2992199B002D3986 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 54BD4A64B7A94975AE9A7018;
+			remoteInfo = xlog;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -59,6 +120,7 @@
 		1FB577371CE20C6100ADCF8C /* AppSetupManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppSetupManager.h; sourceTree = "<group>"; };
 		1FB577381CE20C6100ADCF8C /* AppSetupManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppSetupManager.mm; sourceTree = "<group>"; };
 		1FB5777B1CE20E5F00ADCF8C /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		4B7C7DBC2992199B002D3986 /* mars.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = mars.xcodeproj; path = ../../../mars/cmake_build/iOS/mars.xcodeproj; sourceTree = "<group>"; };
 		4B91BAFB1DEF014F00CFD83F /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		4B91BAFD1DEF015900CFD83F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		4B91BAFF1DEF016D00CFD83F /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
@@ -72,7 +134,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4BD0096D217081C9007FD5DB /* mars.framework in Frameworks */,
+				4B7C7DDC299219B2002D3986 /* libapp.a in Frameworks */,
+				4B7C7DDD299219B2002D3986 /* libbaseevent.a in Frameworks */,
+				4B7C7DDE299219B2002D3986 /* libcomm.a in Frameworks */,
+				4B7C7DDF299219B2002D3986 /* libmars-boost.a in Frameworks */,
+				4B7C7DE0299219B2002D3986 /* libxlog.a in Frameworks */,
+				4B7C7DE1299219B2002D3986 /* libzstd.a in Frameworks */,
 				4B91BB021DEF019800CFD83F /* SystemConfiguration.framework in Frameworks */,
 				4B91BB001DEF016D00CFD83F /* CoreTelephony.framework in Frameworks */,
 				4B91BAFE1DEF015900CFD83F /* Foundation.framework in Frameworks */,
@@ -100,6 +167,7 @@
 		1FB576E51CE209A500ADCF8C = {
 			isa = PBXGroup;
 			children = (
+				4B7C7DBC2992199B002D3986 /* mars.xcodeproj */,
 				1FB576F01CE209A500ADCF8C /* iOSDemo */,
 				1FB5770A1CE209A500ADCF8C /* iOSDemoTests */,
 				1FB577151CE209A500ADCF8C /* iOSDemoUITests */,
@@ -183,6 +251,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4B7C7DBD2992199B002D3986 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4B7C7DCD2992199B002D3986 /* libapp.a */,
+				4B7C7DCF2992199B002D3986 /* libbaseevent.a */,
+				4B7C7DD12992199B002D3986 /* libcomm.a */,
+				4B7C7DD32992199B002D3986 /* libzstd.a */,
+				4B7C7DD52992199B002D3986 /* libmars-boost.a */,
+				4B7C7DD72992199B002D3986 /* libsdt.a */,
+				4B7C7DD92992199B002D3986 /* libstn.a */,
+				4B7C7DDB2992199B002D3986 /* libxlog.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -250,7 +333,7 @@
 				TargetAttributes = {
 					1FB576ED1CE209A500ADCF8C = {
 						CreatedOnToolsVersion = 7.2.1;
-						DevelopmentTeam = 7G2X8H8PPE;
+						DevelopmentTeam = 8K336L75TV;
 					};
 					1FB577061CE209A500ADCF8C = {
 						CreatedOnToolsVersion = 7.2.1;
@@ -269,12 +352,19 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
 			mainGroup = 1FB576E51CE209A500ADCF8C;
 			productRefGroup = 1FB576EF1CE209A500ADCF8C /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 4B7C7DBD2992199B002D3986 /* Products */;
+					ProjectRef = 4B7C7DBC2992199B002D3986 /* mars.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				1FB576ED1CE209A500ADCF8C /* iOSDemoXlog */,
@@ -283,6 +373,65 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		4B7C7DCD2992199B002D3986 /* libapp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libapp.a;
+			remoteRef = 4B7C7DCC2992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4B7C7DCF2992199B002D3986 /* libbaseevent.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libbaseevent.a;
+			remoteRef = 4B7C7DCE2992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4B7C7DD12992199B002D3986 /* libcomm.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libcomm.a;
+			remoteRef = 4B7C7DD02992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4B7C7DD32992199B002D3986 /* libzstd.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libzstd.a;
+			remoteRef = 4B7C7DD22992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4B7C7DD52992199B002D3986 /* libmars-boost.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libmars-boost.a";
+			remoteRef = 4B7C7DD42992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4B7C7DD72992199B002D3986 /* libsdt.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsdt.a;
+			remoteRef = 4B7C7DD62992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4B7C7DD92992199B002D3986 /* libstn.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libstn.a;
+			remoteRef = 4B7C7DD82992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		4B7C7DDB2992199B002D3986 /* libxlog.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libxlog.a;
+			remoteRef = 4B7C7DDA2992199B002D3986 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1FB576EC1CE209A500ADCF8C /* Resources */ = {
@@ -458,6 +607,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 8K336L75TV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -468,7 +618,7 @@
 				);
 				INFOPLIST_FILE = iOSDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.iOSDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.iOSDemo.garry;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -477,6 +627,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 8K336L75TV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -487,7 +638,7 @@
 				);
 				INFOPLIST_FILE = iOSDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.iOSDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.iOSDemo.garry;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

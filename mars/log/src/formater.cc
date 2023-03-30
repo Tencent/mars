@@ -44,7 +44,7 @@ namespace xlog {
 
 static char kBinaryMagicNum = 1;
 static char kStrNotNullInfoMagicNum = 2;
-static char kStrNullInfoMagicNum = 2;
+static char kStrNullInfoMagicNum = 3;
 
 static std::atomic_uint64_t sg_log_seq(0);
 
