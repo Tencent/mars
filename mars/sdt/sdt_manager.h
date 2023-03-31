@@ -51,8 +51,8 @@ class SdtManager : public mars::boot::BaseManager {
 #endif
 
  private:
-    Callback* callback_;
-    SdtCore* sdt_core_;
+    Callback* callback_ =  NULL;
+    SdtCore* sdt_core_ =  NULL;
 };
 
 }  // namespace sdt
