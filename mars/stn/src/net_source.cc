@@ -101,9 +101,10 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 
 std::vector<std::string> NetSource::DnsUtil::__OnNewDns(const std::string& _host, bool _longlink_host) {
     xverbose2(TSF "mars2 dns __OnNewDns");
-    if (context_) {
+    if (context_ && context_->GetManager<StnManager>()) {
         return context_->GetManager<StnManager>()->OnNewDns(_host, _longlink_host);
     } else {
+        xwarn2(TSF"mars2 stn_manager is empty.");
         return std::vector<std::string>();
     }
 }
