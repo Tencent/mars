@@ -75,6 +75,7 @@ void StnManager::OnDestroy() {
     NetCore::__Release(net_core_);
     NetCore::NetCoreRelease()();
     callback_bridge_->SetCallback(nullptr);
+    net_core_ = nullptr;
     delete callback_;
     delete callback_bridge_;
 }
