@@ -39,6 +39,7 @@
 #include "mars/boost/weak_ptr.hpp"
 #include "mars/boost/signals2.hpp"
 #include "mars/boost/function.hpp"
+#include "mars/comm/socket/getsocktcpinfo.h"
 
 #include "mars/boot/context.h"
 
