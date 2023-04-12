@@ -342,13 +342,13 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
         int error_code = 0;
-
+        xwarn2(TSF"test step 1");
         if (!Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
         }
-
+        xwarn2(TSF"test step 2");
         //雪崩检测
         xassert2(fun_anti_avalanche_check_);
 
@@ -357,7 +357,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             first = next;
             continue;
         }
-
+        xwarn2(TSF"test step 3");
         std::string intercept_data;
         if (task_intercept_.GetInterceptTaskInfo(first->task.cgi, intercept_data)) {
             xwarn2(TSF"task has been intercepted");
@@ -375,24 +375,28 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
         
-
+        xwarn2(TSF"test step 4");
         first->transfer_profile.loop_start_task_time = ::gettickcount();
+        xwarn2(TSF"test step 5");
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
+        xwarn2(TSF"test step 6");
         first->current_dyntime_status = (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
         if (first->transfer_profile.task.long_polling) {
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.task.long_polling_timeout);
         } else {
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
         }
+        xwarn2(TSF"test step 7");
         first->transfer_profile.send_data_size = bufreq.Length();
 
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(MessageQueue::Handler2Queue(asyncreg_.Get()), net_source_, first->task, config);
+        xwarn2(TSF"test step 8");
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
         worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7), worker, AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
-        
+        xwarn2(TSF"test step 9");
         if (!debug_host_.empty()) {
           worker->SetDebugHost(debug_host_);
         }
@@ -410,8 +414,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         if (choose_protocol_) {
             worker->SetUseProtocol(choose_protocol_(*first));
         }
+        xwarn2(TSF"test step 10");
         worker->SendRequest(bufreq, buffer_extension);
-
         xinfo2_if(first->task.priority>=0, TSF"task add into shortlink readwrite cgi:%_, cmdid:%_, taskid:%_, work:%_, size:%_, timeout(firstpkg:%_, rw:%_, task:%_), retry:%_, long-polling:%_, useProxy:%_, tls:%_",
                first->task.cgi, first->task.cmdid, first->task.taskid, (ShortLinkInterface*)first->running_id, first->transfer_profile.send_data_size, first->transfer_profile.first_pkg_timeout / 1000,
                first->transfer_profile.read_write_timeout / 1000, first->task_timeout / 1000, first->remain_retry_count, first->task.long_polling, first->use_proxy, use_tls);
