@@ -40,7 +40,11 @@ class Context {
     template <typename T, typename std::enable_if<std::is_base_of<BaseManager, T>::value>::type* = nullptr>
     T* GetManager() {
         std::string clazz_name = typeid(T).name();
-        return (T*)manager_map_[clazz_name];
+        //when context delete, then manager map will be null.
+        if (!manager_map_.empty()) {
+            return (T*)manager_map_[clazz_name];
+        }
+        return NULL;
     }
 
     template <typename T, typename std::enable_if<std::is_base_of<BaseManager, T>::value>::type* = nullptr>
