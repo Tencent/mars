@@ -135,7 +135,7 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
 }
 
 NetCore::~NetCore() {
-    xdebug_function(TSF"mars2");
+    xinfo_function(TSF"mars2");
     asyncreg_.Cancel();
     if (!already_release_net_) {
         ReleaseNet();
@@ -1180,7 +1180,10 @@ void NetCore::SetLongLinkGetRealHostFunc(
 void NetCore::SetLongLinkOnHandShakeReady(
     std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func) {
     if (longlink_task_manager_) {
+        xdebug2(TSF "mars2 SetLongLinkOnHandShakeReady suss.");
         longlink_task_manager_->on_handshake_ready_ = func;
+    } else {
+        xinfo2(TSF "mars2 SetLongLinkOnHandShakeReady fail.");
     }
 }
 

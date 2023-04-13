@@ -73,8 +73,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context, std::shared_
 }
 
 ShortLinkTaskManager::~ShortLinkTaskManager() {
-    xdebug_function(TSF"mars2");
-    xinfo_function();
+    xinfo_function(TSF"mars2");
     asyncreg_.CancelAndWait();
     xinfo2(TSF"lst_cmd_ count=%0", lst_cmd_.size());
     __BatchErrorRespHandle(kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);

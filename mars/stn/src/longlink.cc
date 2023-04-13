@@ -165,7 +165,7 @@ LongLink::LongLink(Context* _context, const mq::MessageQueue_t& _messagequeueid,
 }
 
 LongLink::~LongLink() {
-    xdebug_function(TSF"mars2");
+    xinfo_function(TSF"mars2");
     Disconnect(LongLinkErrCode::kReset);
     asyncreg_.CancelAndWait();
     if (NULL != smartheartbeat_) {

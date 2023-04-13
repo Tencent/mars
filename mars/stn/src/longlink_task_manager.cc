@@ -78,8 +78,8 @@ LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context, std::sha
 }
 
 LongLinkTaskManager::~LongLinkTaskManager() {
-    xdebug_function(TSF"mars2");
-    xinfo_function();
+    xinfo_function(TSF "mars2");
+    already_release_manager_ = true;
     asyncreg_.CancelAndWait();
     __BatchErrorRespHandle("", kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
 
@@ -1007,6 +1007,7 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
     longlink_metas_.erase(_name);
     longlink->Channel()->SignalConnection.disconnect_all_slots();
     longlink->Monitor()->DisconnectAllSlot();
+    longlink.reset();
     lock.unlock();
     {
     // MessageQueue::AsyncInvoke([&,longlink] () {
@@ -1096,10 +1097,14 @@ void LongLinkTaskManager::__DumpLongLinkChannelInfo() {
 }
 
 void LongLinkTaskManager::__OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from) {
+    xinfo2(TSF"receive tls version: %_", _version);
+    if (already_release_manager_) {
+        xinfo2(TSF "mars2 longlink_task_manager had released. ignore handshake event.");
+        return;
+    }
     if (on_handshake_ready_) {
         on_handshake_ready_(_version, _from);
     }
-    xinfo2(TSF"receive tls version: %_", _version);
 }
 
 ConnectProfile LongLinkTaskManager::__GetConnectionProfile(std::shared_ptr<LongLinkMetaData> longlink){
