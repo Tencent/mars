@@ -284,7 +284,7 @@ bool socket_address::isv6() const{
     return AF_INET6 == addr_.ss_family && !isv4mapped_address();
 }
 bool socket_address::isv4() const{
-    return AF_INET == addr_.ss_family;
+    return AF_INET == addr_.ss_family || isv4mapped_address();
 }
 
 socket_address& socket_address::v4tov4mapped_address() {

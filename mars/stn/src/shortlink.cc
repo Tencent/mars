@@ -112,13 +112,24 @@ class ShortLinkConnectObserver : public MComplexConnect {
 };
 
 }}
+
+namespace internal{
+std::string threadName(const std::string& fullcgi){
+    auto pos = fullcgi.find_last_of("/");
+    if (pos != std::string::npos){
+        return fullcgi.substr(pos + 1, 32) + "@shortlink";
+    }
+    return fullcgi + "@shortlink";
+}
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////
 ShortLink::ShortLink(MessageQueue::MessageQueue_t _messagequeueid, NetSource& _netsource, const Task& _task, bool _use_proxy, std::unique_ptr<SocketOperator> _operator)
     : asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 	, net_source_(_netsource)
 	, socketOperator_(_operator == nullptr ? std::make_unique<TcpSocketOperator>(std::make_shared<ShortLinkConnectObserver>(*this)) : std::move(_operator))
 	, task_(_task)
-	, thread_(boost::bind(&ShortLink::__Run, this), XLOGGER_TAG "::shortlink")
+	, thread_(boost::bind(&ShortLink::__Run, this), internal::threadName(_task.cgi).c_str())
     , use_proxy_(_use_proxy)
     , tracker_(shortlink_tracker::Create())
     , is_keep_alive_(CheckKeepAlive(_task))
