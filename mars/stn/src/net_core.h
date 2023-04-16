@@ -191,6 +191,8 @@ public:
      void SetShortLinkCanUseTls(std::function<bool(const std::vector<std::string>& _host_list)> func);
      void SetShortLinkShouldInterceptResult(std::function<bool(int _error_code)> func);
 
+  public:
+     bool IsAlreadyRelease();
 
   private:
     int packer_encoder_version_ ;

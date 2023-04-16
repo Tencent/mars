@@ -64,6 +64,7 @@ class NetSource {
         boot::Context* context_;
         comm::DNS new_dns_;
         comm::DNS dns_;
+        bool already_release_ = false;
     }; //end DnsUtil
 
   public:

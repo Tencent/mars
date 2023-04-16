@@ -83,7 +83,8 @@ NetSource::DnsUtil::DnsUtil(boot::Context* _context): context_(_context) {
 }
 
 NetSource::DnsUtil::~DnsUtil() {
-    xverbose_function(TSF "mars2");
+    xinfo_function(TSF "mars2");
+    already_release_ = true;
     new_dns_.SetDnsFunc(NULL);
 }
 
@@ -101,6 +102,10 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
 
 std::vector<std::string> NetSource::DnsUtil::__OnNewDns(const std::string& _host, bool _longlink_host) {
     xverbose2(TSF "mars2 dns __OnNewDns");
+    if (already_release_) {
+        xinfo2(TSF "DnsUtil has delete.");
+        return std::vector<std::string>();
+    }
     if (context_ && context_->GetManager<StnManager>()) {
         return context_->GetManager<StnManager>()->OnNewDns(_host, _longlink_host);
     } else {

@@ -88,7 +88,7 @@ void StnManager::OnExceptionCrash() {
 }
 
 void StnManager::OnNetworkChange(void (*pre_change)()) {
-    if (net_core_) {
+    if (net_core_ && !net_core_->IsAlreadyRelease()) {
         pre_change();
         net_core_->OnNetworkChange();
     }

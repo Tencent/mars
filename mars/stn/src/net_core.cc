@@ -1238,4 +1238,8 @@ void NetCore::SetShortLinkShouldInterceptResult(std::function<bool(int _error_co
     }
 }
 
+bool NetCore::IsAlreadyRelease() {
+    return already_release_net_;
+}
+
 #endif
