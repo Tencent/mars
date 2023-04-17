@@ -310,10 +310,12 @@ void DNS::Cancel(const std::string& _host_name) {
 
         if (_host_name.empty() && info.dns == this) {
             info.status = kGetIPCancel;
+            info.dns_func = NULL;
         }
 
         if (info.host_name.compare(_host_name) == 0 && info.dns == this) {
             info.status = kGetIPCancel;
+            info.dns_func = NULL;
         }
     }
 
