@@ -8,6 +8,7 @@
 #include <map>
 #include "alarm.h"
 #include "thread/mutex.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 using namespace std;
 
@@ -217,11 +218,16 @@ DWORD getNetworkStatus() {
     return flags;
 }
 
+bool network_inited = false;
 bool isNetworkConnectedImpl() {
+    if (network_inited)
+      return true;
     DWORD   flags;  //������ʽ
-
-    BOOL   m_bOnline = InternetGetConnectedState(&flags, 0);
-    return m_bOnline;
+    xwarn2(TSF"isNetworkConnectedImpl start");
+    bool network_status = InternetGetConnectedState(&flags, 0);
+    xwarn2(TSF"isNetworkConnectedImpl end ret:%_", network_status?1:0);
+    network_inited = true;
+    return network_status;
 
     //if(m_bOnline)//����
     //{
