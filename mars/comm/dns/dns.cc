@@ -174,7 +174,11 @@ void DNS::__GetIP() {
             sg_condition.notifyAll();
         }
     } else {
-        std::vector<std::string> ips = dnsfunc(host_name, longlink_host);
+        std::vector<std::string> ips;
+        if (iter->status != kGetIPCancel) {
+            ips = dnsfunc(host_name, longlink_host);
+        }
+
         lock.lock();
         
         iter = sg_dnsinfo_vec.begin();
