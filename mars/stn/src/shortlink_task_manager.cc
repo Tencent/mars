@@ -74,6 +74,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context, std::shared_
 
 ShortLinkTaskManager::~ShortLinkTaskManager() {
     xinfo_function(TSF"mars2");
+    already_release_manager_ = true;
     asyncreg_.CancelAndWait();
     xinfo2(TSF"lst_cmd_ count=%0", lst_cmd_.size());
     __BatchErrorRespHandle(kEctLocal, kEctLocalReset, kTaskFailHandleTaskEnd, Task::kInvalidTaskID, false);
@@ -823,6 +824,10 @@ SOCKET ShortLinkTaskManager::__OnGetCacheSocket(const IPPortItem& _address) {
 
 void ShortLinkTaskManager::__OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from) {
     xinfo2(TSF"receive tls version: %_", _version);
+    if (already_release_manager_) {
+        xinfo2(TSF "mars2 shortlink_task_manager had released. ignore handshake event.");
+        return;
+    }
     if (on_handshake_ready_) {
         on_handshake_ready_(_version, _from);
     }
@@ -835,6 +840,10 @@ void ShortLinkTaskManager::__OnRequestTimeout(ShortLinkInterface* _worker, int _
 }
 
 void ShortLinkTaskManager::__OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info) {
+    if (already_release_manager_) {
+        xinfo2(TSF "mars2 longlink_task_manager had released. ignore add weaknet info.");
+        return;
+    }
     if (add_weaknet_info_) {
         add_weaknet_info_(_connect_timeout, _info);
     }
