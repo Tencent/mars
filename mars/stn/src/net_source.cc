@@ -77,7 +77,7 @@ Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil(boot::Context* _context): context_(_context) {
     xverbose_function(TSF "mars2");
-    if (_context) {
+    if (context_) {
         new_dns_.SetDnsFunc(std::bind(&NetSource::DnsUtil::__OnNewDns, this, std::placeholders::_1, std::placeholders::_2));
     }
 }
