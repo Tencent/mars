@@ -315,6 +315,17 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         }
     }
     
+    //.如果代理是v4地址，则需要把地址列表中的v6地址移除(一般来说v4无法代理v6流量).
+    if (proxy_addr && proxy_addr->valid() && proxy_addr->isv4() && vecaddr.size() > 1){
+        for (auto it = vecaddr.begin(); it != vecaddr.end();){
+            if (it->isv6()){
+                it = vecaddr.erase(it);
+            }else{
+                it++;
+            }
+        }
+    }
+    
     //
     _conn_profile.host = _conn_profile.ip_items[0].str_host;
     _conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
