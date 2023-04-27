@@ -72,8 +72,6 @@ NO_DESTROY static std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mappi
 
 static bool sg_ipv6_enabled = true;
 
-static bool sg_ipv6_enabled = true;
-
 NO_DESTROY static Mutex sg_ip_mutex;
 
 NetSource::DnsUtil::DnsUtil():
