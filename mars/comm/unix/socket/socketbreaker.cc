@@ -95,6 +95,27 @@ bool SocketBreaker::Break(){
     return true;
 }
 
+bool SocketBreaker::TryBreak(bool* isignored){
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    *isignored = false;
+    if (breaked_) {
+        *isignored = true;
+        return true;
+    }
+    if (!create_success_)   return false;
+
+    const char dummy = '1';
+    ssize_t writebytes = write(pipes_[1], &dummy, sizeof(dummy));
+    if (writebytes != sizeof(dummy)){
+        xerror2(TSF"write ret %_, fd %_ error %_,%_", writebytes, pipes_[1], errno, strerror(errno));
+        return false;
+    }
+    
+    breaked_ = true;
+    return true;
+}
+
 bool SocketBreaker::Break(int reason){
     {
         std::lock_guard<std::mutex> lock(mutex_);
