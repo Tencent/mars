@@ -95,14 +95,9 @@ bool SocketBreaker::Break(){
     return true;
 }
 
-bool SocketBreaker::TryBreak(bool* isignored){
+bool SocketBreaker::ForceBreak(){
     std::lock_guard<std::mutex> lock(mutex_);
 
-    *isignored = false;
-    if (breaked_) {
-        *isignored = true;
-        return true;
-    }
     if (!create_success_)   return false;
 
     const char dummy = '1';

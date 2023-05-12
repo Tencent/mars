@@ -38,7 +38,7 @@ class SocketBreaker {
     bool Break();
     bool Break(int reason);
     bool Clear();
-    bool TryBreak(bool* isignored);
+    bool ForceBreak();
 
     bool IsBreak() const;
     int  BreakerFD() const;
