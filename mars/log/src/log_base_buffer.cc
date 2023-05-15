@@ -237,7 +237,7 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
     size_t write_len = _length;
     
     if (is_compress_) {
-        uInt avail_out = (uInt)(buff_.MaxLength() - buff_.Length());
+        uInt avail_out = (uInt)(buff_.MaxLength() - buff_.Length() - log_crypt_->GetTailerLen());
         write_len = Compress(_data, _length, buff_.PosPtr(), avail_out);
         if (write_len == (size_t)-1) {
             return false;
@@ -289,6 +289,9 @@ void LogBaseBuffer::__Clear() {
 void LogBaseBuffer::__Fix() {
     uint32_t raw_log_len = 0;
     if (log_crypt_->Fix((char*) buff_.Ptr(), buff_.Length(), raw_log_len)) {
+        if (raw_log_len + log_crypt_->GetHeaderLen() >= buff_.MaxLength()) {
+            raw_log_len = buff_.MaxLength() - log_crypt_->GetHeaderLen() - log_crypt_->GetTailerLen();
+        }
         buff_.Length(raw_log_len + log_crypt_->GetHeaderLen(), raw_log_len + log_crypt_->GetHeaderLen());
     } else {
         buff_.Length(0, 0);
