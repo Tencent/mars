@@ -38,7 +38,8 @@ class SocketBreaker {
     bool Break();
     bool Break(int reason);
     bool Clear();
-    bool ForceBreak();
+    bool PreciseBreak(uint32_t cookie);
+    bool PreciseClear(uint32_t* cookie);
 
     bool IsBreak() const;
     int  BreakerFD() const;

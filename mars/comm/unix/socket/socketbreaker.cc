@@ -23,6 +23,8 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <cstdint>
+#include <poll.h>
 
 #include "comm/xlogger/xlogger.h"
 
@@ -95,22 +97,6 @@ bool SocketBreaker::Break(){
     return true;
 }
 
-bool SocketBreaker::ForceBreak(){
-    std::lock_guard<std::mutex> lock(mutex_);
-
-    if (!create_success_)   return false;
-
-    const char dummy = '1';
-    ssize_t writebytes = write(pipes_[1], &dummy, sizeof(dummy));
-    if (writebytes != sizeof(dummy)){
-        xerror2(TSF"write ret %_, fd %_ error %_,%_", writebytes, pipes_[1], errno, strerror(errno));
-        return false;
-    }
-    
-    breaked_ = true;
-    return true;
-}
-
 bool SocketBreaker::Break(int reason){
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -156,6 +142,39 @@ bool SocketBreaker::Clear()
     
     xassert2(false);
     return false;
+}
+
+bool SocketBreaker::PreciseBreak(uint32_t cookie){
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    ssize_t writebytes = write(pipes_[1], &cookie, sizeof(cookie));
+    if (writebytes != sizeof(cookie)){
+        xerror2(TSF"write ret %_, fd %_ error %_,%_", writebytes, pipes_[1], errno, strerror(errno));
+        return false;
+    }
+
+    xinfo2(TSF"pipe [%_,%_] write cookie %_", pipes_[0], pipes_[1], cookie);
+    return true;
+}
+
+bool SocketBreaker::PreciseClear(uint32_t* cookie){
+    std::lock_guard<std::mutex> lock(mutex_);
+    
+    struct pollfd pipepfd = {pipes_[0], POLLIN|POLLHUP, 0};
+    int ret = poll(&pipepfd, 1, 0);
+    if (ret != 1){
+        xwarn2(TSF"fd %_ no POLLIN event.", pipes_[0]);
+        return false;
+    }
+
+    ssize_t rv = read(pipes_[0], cookie, sizeof(uint32_t));
+    if (rv != sizeof(uint32_t)){
+        xerror2(TSF"read ret %_, fd %_ error %_,%_", rv, pipes_[0], errno, strerror(errno));
+        return false;
+    }
+
+    xinfo2(TSF"pipe [%_,%_] read cookie %_", pipes_[0], pipes_[1], *cookie);
+    return true;
 }
 
 void SocketBreaker::Close()
