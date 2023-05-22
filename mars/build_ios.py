@@ -17,6 +17,7 @@ IOS_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FIL
 GEN_IOS_OS_PROJ = 'cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=OS -DIOS_ARCH="arm64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1'
 OPEN_SSL_ARCHS = ['x86_64', 'arm64']
 
+#test
 
 def build_ios(tag=''):
     gen_mars_revision_file('comm', tag)
