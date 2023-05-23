@@ -272,7 +272,7 @@ int SocketSelect::Select(int _msec) {
             if (ret == SOCKET_ERROR){
                 errno_ = WSAGetLastError();
             }else {
-                SOCKET sock = socketarray[event_index - WSA_WAIT_EVENT_0];
+                SOCKET sock = socketarray[ret - WSA_WAIT_EVENT_0];
 
                 if (networkevents.lNetworkEvents & (FD_WRITE | FD_CONNECT) && 0 != __SO_RCVTIMEO(sock)) {
                     xinfo2(TSF"WOULDBLOCK FD_WRITE notify sock:%_", sock);
