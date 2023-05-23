@@ -70,10 +70,17 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
 
 void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
     FIXED_INFO *pFixedInfo = (FIXED_INFO *)malloc(sizeof(FIXED_INFO));
+    if (!pFixedInfo){
+        return;
+    }
     ULONG ulOutBufLen = 0;
     
     if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
+        free(pFixedInfo);
         pFixedInfo = (FIXED_INFO *)malloc(ulOutBufLen);
+        if (!pFixedInfo){
+            return;
+        }
     }
     if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == NO_ERROR){
         IP_ADDR_STRING* pIPAddr = pFixedInfo->DnsServerList.Next;

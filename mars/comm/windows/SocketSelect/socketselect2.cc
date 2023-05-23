@@ -160,7 +160,7 @@ int SocketSelect::Select(int _msec) {
     ASSERT(-1 <= _msec);
 
 	//create eventarray and socketarray
-    const int eventfd_count = 1 + vec_events_.size();
+    int eventfd_count = 1 + vec_events_.size();
 
 	WSAEVENT* eventarray = (WSAEVENT*)calloc(m_filter_map.size() + eventfd_count, sizeof(WSAEVENT));
     SOCKET* socketarray = (SOCKET*)calloc(m_filter_map.size() + eventfd_count, sizeof(SOCKET));
@@ -253,61 +253,55 @@ int SocketSelect::Select(int _msec) {
     }
 
     // WSAWaitForMultipleEvents
-
-    size_t uTotalEventCount = m_filter_map.size() + eventfd_count;
-    ret = WSAWaitForMultipleEvents(uTotalEventCount, eventarray, FALSE, _msec, FALSE);
+    ret = WSAWaitForMultipleEvents(m_filter_map.size() + eventfd_count, eventarray, FALSE, _msec, FALSE);
     ASSERT2(WSA_WAIT_FAILED != ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
 
-    do{
-        if (ret >= WSA_WAIT_EVENT_0 && ret < WSA_WAIT_EVENT_0 + uTotalEventCount) {
-            if (ret >= WSA_WAIT_EVENT_0 + 1 && ret < WSA_WAIT_EVENT_0 + eventfd_count){
-                //.wait了event对象，因为没有真正的socket句柄，这里直接break.
-                break;
+    if (WSA_WAIT_FAILED == ret) errno_ = WSAGetLastError();
+
+    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && ret >= WSA_WAIT_EVENT_0 + eventfd_count) {
+        WSANETWORKEVENTS networkevents = {0};
+        int event_index = ret;
+        ret = WSAEnumNetworkEvents(socketarray[event_index - WSA_WAIT_EVENT_0], eventarray[event_index - WSA_WAIT_EVENT_0], &networkevents);
+
+        if (ret == SOCKET_ERROR)
+            errno_ = WSAGetLastError();
+        else {
+            SOCKET sock = socketarray[event_index - WSA_WAIT_EVENT_0];
+
+            if (networkevents.lNetworkEvents & (FD_WRITE | FD_CONNECT) && 0 != __SO_RCVTIMEO(sock)) {
+                xinfo2(TSF"WOULDBLOCK FD_WRITE notify sock:%_", sock);
             }
 
-            //wait了breaker或者其他socket句柄.
-            WSANETWORKEVENTS networkevents = {0};
-            ret = WSAEnumNetworkEvents(socketarray[ret - WSA_WAIT_EVENT_0], eventarray[ret - WSA_WAIT_EVENT_0], &networkevents);
+            if (m_filter_map[sock] & (FD_WRITE | FD_CONNECT) && networkevents.lNetworkEvents & (FD_WRITE | FD_CONNECT)) {
+                FD_SET(sock, &writefd_);
+                __WOULDBLOCK(sock, false);
+				xverbose2(TSF"FD_WRITE | FD_CONNECT");
+            }
 
-            if (ret == SOCKET_ERROR){
-                errno_ = WSAGetLastError();
-            }else {
-                SOCKET sock = socketarray[ret - WSA_WAIT_EVENT_0];
+            if (m_filter_map[sock] & (FD_READ | FD_ACCEPT) && networkevents.lNetworkEvents & (FD_READ | FD_ACCEPT)) {
+                FD_SET(sock, &readfd_);
+                xverbose2(TSF"FD_READ | FD_ACCEPT");
+            }
 
-                if (networkevents.lNetworkEvents & (FD_WRITE | FD_CONNECT) && 0 != __SO_RCVTIMEO(sock)) {
-                    xinfo2(TSF"WOULDBLOCK FD_WRITE notify sock:%_", sock);
-                }
+            if (m_filter_map[sock] & (FD_READ | FD_ACCEPT) && networkevents.lNetworkEvents & FD_CLOSE && networkevents.iErrorCode[FD_CLOSE_BIT] == 0) {
+                FD_SET(sock, &readfd_);
+                xverbose2(TSF"FD_READ | FD_ACCEPT");
+            }
 
-                if (m_filter_map[sock] & (FD_WRITE | FD_CONNECT) && networkevents.lNetworkEvents & (FD_WRITE | FD_CONNECT)) {
-                    FD_SET(sock, &writefd_);
-                    __WOULDBLOCK(sock, false);
-                    xverbose2(TSF"FD_WRITE | FD_CONNECT");
-                }
-
-                if (m_filter_map[sock] & (FD_READ | FD_ACCEPT) && networkevents.lNetworkEvents & (FD_READ | FD_ACCEPT)) {
-                    FD_SET(sock, &readfd_);
-                    xverbose2(TSF"FD_READ | FD_ACCEPT");
-                }
-
-                if (m_filter_map[sock] & (FD_READ | FD_ACCEPT) && networkevents.lNetworkEvents & FD_CLOSE && networkevents.iErrorCode[FD_CLOSE_BIT] == 0) {
-                    FD_SET(sock, &readfd_);
-                    xverbose2(TSF"FD_READ | FD_ACCEPT");
-                }
-
-                if (m_filter_map[sock] & (FD_CLOSE)) {
-                    for (int i = 0; i < FD_MAX_EVENTS; ++i) {
-                        if (networkevents.iErrorCode[i] != 0) {
-                            xerror2(TSF"selector exception, sock %_ err %_",sock, networkevents.iErrorCode[i]);
-                            FD_SET(sock, &exceptionfd_);
-                            break;
-                        }
+            if (m_filter_map[sock] & (FD_CLOSE)) {
+                for (int i = 0; i < FD_MAX_EVENTS; ++i) {
+                    if (networkevents.iErrorCode[i] != 0) {
+                        xerror2(TSF"selector exception, sock %_ err %_",sock, networkevents.iErrorCode[i]);
+                        FD_SET(sock, &exceptionfd_);
+                        break;
                     }
                 }
             }
-        }else{
-            errno_ = WSAGetLastError();
         }
-    }while(0);
+	} else {
+		xinfo2(TSF"return WSAWaitForMultipleEvents, ret=%_", ret);
+	}
+
 
     if (ret == WSA_WAIT_FAILED) ret = -1;
     else if (ret == SOCKET_ERROR) ret = -1;
@@ -320,18 +314,17 @@ int SocketSelect::Select(int _msec) {
 
 END:
 	//free eventarray and socketarray
+    index = eventfd_count;
+
+    for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
+        ASSERT2(WSACloseEvent(eventarray[index]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+        ++index;
+    }
     for (int i = 1; i < eventfd_count; i++){
         //.event 句柄对象.
         ASSERT2(WSACloseEvent(eventarray[i]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
     }
     vec_events_.clear();
-
-    index = eventfd_count;
-    for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
-        ASSERT2(WSACloseEvent(eventarray[index]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
-        ++index;
-    }
-
     free(eventarray);
     free(socketarray);
 
