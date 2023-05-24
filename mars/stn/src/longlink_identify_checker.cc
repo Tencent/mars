@@ -24,11 +24,13 @@
 #include "mars/stn/stn.h"
 
 #include "stn/proto/longlink_packer.h"
+#include "mars/stn/stn_manager.h"
 
 using namespace mars::stn;
 
-LongLinkIdentifyChecker::LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong)
-:has_checked_(false)
+LongLinkIdentifyChecker::LongLinkIdentifyChecker(mars::boot::Context* _context, mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong)
+: context_(_context)
+, has_checked_(false)
 , cmd_id_(0)
 , taskid_(0)
 , encoder_(_encoder)
@@ -47,7 +49,7 @@ bool LongLinkIdentifyChecker::GetIdentifyBuffer(AutoBuffer &_buffer, uint32_t &_
 
     if (is_minorlong_)
         _cmdid |= Task::kMinorLonglinkCmdMask;
-    IdentifyMode mode = (IdentifyMode)GetLonglinkIdentifyCheckBuffer(channel_id_, _buffer, hash_code_buffer_, (int32_t&)_cmdid);
+    IdentifyMode mode = (IdentifyMode)context_->GetManager<StnManager>()->GetLonglinkIdentifyCheckBuffer(channel_id_, _buffer, hash_code_buffer_, (int32_t&)_cmdid);
 
     switch (mode)
     {
@@ -82,7 +84,7 @@ bool LongLinkIdentifyChecker::IsIdentifyResp(uint32_t _cmdid, uint32_t _taskid, 
 
 bool LongLinkIdentifyChecker::OnIdentifyResp(AutoBuffer& _buffer) {
     xinfo2(TSF"identifycheck(synccheck) resp");
-    bool ret = ::OnLonglinkIdentifyResponse(channel_id_, _buffer, hash_code_buffer_);
+    bool ret = context_->GetManager<StnManager>()->OnLonglinkIdentifyResponse(channel_id_, _buffer, hash_code_buffer_);
     taskid_ = 0;
     if (ret) {
         has_checked_ = true;

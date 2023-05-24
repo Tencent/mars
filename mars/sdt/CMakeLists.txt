@@ -16,6 +16,7 @@ include_directories(checkimpl)
 include_directories(..)
 include_directories(../..)
 include_directories(../comm)
+include_directories(../boot)
 include_directories(../../..)
 
 

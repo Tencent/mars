@@ -14,6 +14,7 @@ include_directories(..)
 include_directories(../..)
 include_directories(../comm)
 include_directories(../../..)
+include_directories(../boot)
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} *.cc *.h)
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})

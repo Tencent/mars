@@ -28,6 +28,8 @@
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/stn/stn.h"
+#include "mars/app/app_manager.h"
+#include "mars/stn/stn_manager.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -44,11 +46,11 @@ static const int kAlarmType = 119;
 #endif
 
 
-static int GetAlarmTime(bool _is_actived)
+static int GetAlarmTime(bool _is_actived, bool _is_logoned)
 {
     int time = 0;
     //todo
-    if (_is_actived && !::GetAccountInfo().is_logoned)
+    if (_is_actived && !_is_logoned)
     {
         time = UNLOGIN_SYNC_INTERVAL;
     }
@@ -65,15 +67,16 @@ static int GetAlarmTime(bool _is_actived)
     return time;
 }
 
-TimingSync::TimingSync(ActiveLogic& _active_logic)
-:alarm_(boost::bind(&TimingSync::__OnAlarm, this), false)
+TimingSync::TimingSync(boot::Context* _context, ActiveLogic& _active_logic)
+: context_(_context)
+, alarm_(boost::bind(&TimingSync::__OnAlarm, this), false)
 , active_logic_(_active_logic)
 {
     timing_sync_active_connection_ = _active_logic.SignalActive.connect(boost::bind(&TimingSync::OnActiveChanged, this, _1));
 #ifdef __ANDROID__
     alarm_.SetType(kAlarmType);
 #endif
-    alarm_.Start(GetAlarmTime(active_logic_.IsActive()));
+    alarm_.Start(GetAlarmTime(active_logic_.IsActive(), context_->GetManager<AppManager>()->GetAccountInfo().is_logoned));
 }
 
 TimingSync::~TimingSync()
@@ -87,7 +90,7 @@ void TimingSync::OnActiveChanged(bool _is_actived)
     if (alarm_.IsWaiting())
     {
         alarm_.Cancel();
-        alarm_.Start(GetAlarmTime(_is_actived));
+        alarm_.Start(GetAlarmTime(_is_actived, context_->GetManager<AppManager>()->GetAccountInfo().is_logoned));
     }
 }
 
@@ -96,7 +99,7 @@ void TimingSync::OnNetworkChange()
     if (alarm_.IsWaiting())
     {
          alarm_.Cancel();
-         alarm_.Start(GetAlarmTime(active_logic_.IsActive()));
+         alarm_.Start(GetAlarmTime(active_logic_.IsActive(), context_->GetManager<AppManager>()->GetAccountInfo().is_logoned));
     }
 }
 
@@ -106,7 +109,7 @@ void TimingSync::OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const
     if (_status == LongLink::kConnected)
         alarm_.Cancel();
     else if (_status == LongLink::kDisConnected)
-        alarm_.Start(GetAlarmTime(active_logic_.IsActive()));
+        alarm_.Start(GetAlarmTime(active_logic_.IsActive(), context_->GetManager<AppManager>()->GetAccountInfo().is_logoned));
 }
 
 void TimingSync::__OnAlarm()
@@ -116,9 +119,12 @@ void TimingSync::__OnAlarm()
     if (kNoNet !=::getNetInfo())
     {
         xinfo2(TSF"timing sync onRequestDoSync netinfo:%_", ::getNetInfo());
+        /* mars2
         ::RequestSync();
+        */
+        context_->GetManager<mars::stn::StnManager>()->RequestSync();
     }
 
-    alarm_.Start(GetAlarmTime(active_logic_.IsActive()));
+    alarm_.Start(GetAlarmTime(active_logic_.IsActive(), context_->GetManager<AppManager>()->GetAccountInfo().is_logoned));
 }
 
