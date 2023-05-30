@@ -38,7 +38,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
 
     if (NULL == _log_config) {
         xerror2(TSF"logconfig is null");
-        return -1;
+        return 0;
     }
 
     jint level = JNU_GetField(env, _log_config, "level", "I").i;
@@ -79,7 +79,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
                                      (mars::xlog::TCompressMode)compressmode, compresslevel, cachedir_str, cachedays};
     mars::comm::XloggerCategory* category = mars::xlog::NewXloggerInstance(config, (TLogLevel)level);
     if (nullptr == category) {
-        return -1;
+        return 0;
     }
     return reinterpret_cast<uintptr_t>(category);
 }
@@ -89,7 +89,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
     ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::comm::XloggerCategory* category = mars::xlog::GetXloggerInstance(nameprefix_jstr.GetChar());
     if (nullptr == category) {
-        return -1;
+        return 0;
     }
     return reinterpret_cast<uintptr_t>(category);
 }
