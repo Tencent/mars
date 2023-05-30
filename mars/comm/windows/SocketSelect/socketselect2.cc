@@ -253,12 +253,14 @@ int SocketSelect::Select(int _msec) {
     }
 
     // WSAWaitForMultipleEvents
-    ret = WSAWaitForMultipleEvents(m_filter_map.size() + eventfd_count, eventarray, FALSE, _msec, FALSE);
+
+    size_t uTotalEventCount = m_filter_map.size() + eventfd_count;
+    ret = WSAWaitForMultipleEvents(uTotalEventCount, eventarray, FALSE, _msec, FALSE);
     ASSERT2(WSA_WAIT_FAILED != ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
 
     if (WSA_WAIT_FAILED == ret) errno_ = WSAGetLastError();
 
-    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && ret >= WSA_WAIT_EVENT_0 + eventfd_count) {
+    if (ret > WSA_WAIT_EVENT_0 + eventfd_count && ret <= WSA_WAIT_EVENT_0 + uTotalEventCount) {
         WSANETWORKEVENTS networkevents = {0};
         int event_index = ret;
         ret = WSAEnumNetworkEvents(socketarray[event_index - WSA_WAIT_EVENT_0], eventarray[event_index - WSA_WAIT_EVENT_0], &networkevents);
@@ -314,14 +316,18 @@ int SocketSelect::Select(int _msec) {
 
 END:
 	//free eventarray and socketarray
-    index = eventfd_count;
+    for (int i = 1; i < eventfd_count; i++){
+        //.event 句柄对象.
+        ASSERT2(WSACloseEvent(eventarray[i]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+    }
+    vec_events_.clear();
 
+    index = eventfd_count;
     for (std::map<SOCKET, int>::iterator it = m_filter_map.begin(); it != m_filter_map.end(); ++it) {
         ASSERT2(WSACloseEvent(eventarray[index]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
         ++index;
     }
 
-    vec_events_.clear();
     free(eventarray);
     free(socketarray);
 
