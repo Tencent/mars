@@ -419,7 +419,7 @@ public class Log {
                 if (sLogInstanceMap.containsKey(prefix)) {
                     LogInstance logInstance = sLogInstanceMap.remove(prefix);
                     logImp.releaseXlogInstance(prefix);
-                    logInstance.mLogInstancePtr = -1;
+                    logInstance.mLogInstancePtr = 0;
                 }
             }
         }
@@ -436,7 +436,7 @@ public class Log {
 
     public static class LogInstance {
 
-        private long mLogInstancePtr = -1;
+        private long mLogInstancePtr = 0;
 
         private String mPrefix = null;
 
@@ -448,14 +448,14 @@ public class Log {
         }
 
         public void f(String tag, final String format, final Object... obj) {
-            if (logImp != null && getLogLevel() <= LEVEL_FATAL && mLogInstancePtr != -1) {
+            if (logImp != null && getLogLevel() <= LEVEL_FATAL && mLogInstancePtr != 0) {
                 final String log = obj == null ? format : String.format(format, obj);
                 logImp.logF(mLogInstancePtr, tag, "", "", Process.myTid(), Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
             }
         }
 
         public void e(String tag, final String format, final Object... obj) {
-            if (logImp != null && getLogLevel() <= LEVEL_ERROR && mLogInstancePtr != -1) {
+            if (logImp != null && getLogLevel() <= LEVEL_ERROR && mLogInstancePtr != 0) {
                 String log = obj == null ? format : String.format(format, obj);
                 if (log == null) {
                     log = "";
@@ -465,7 +465,7 @@ public class Log {
         }
 
         public void w(String tag, final String format, final Object... obj) {
-            if (logImp != null && getLogLevel() <= LEVEL_WARNING && mLogInstancePtr != -1) {
+            if (logImp != null && getLogLevel() <= LEVEL_WARNING && mLogInstancePtr != 0) {
                 String log = obj == null ? format : String.format(format, obj);
                 if (log == null) {
                     log = "";
@@ -475,7 +475,7 @@ public class Log {
         }
 
         public void i(String tag, final String format, final Object... obj) {
-            if (logImp != null && getLogLevel() <= LEVEL_INFO && mLogInstancePtr != -1) {
+            if (logImp != null && getLogLevel() <= LEVEL_INFO && mLogInstancePtr != 0) {
                 String log = obj == null ? format : String.format(format, obj);
                 if (log == null) {
                     log = "";
@@ -485,7 +485,7 @@ public class Log {
         }
 
         public void d(String tag, final String format, final Object... obj) {
-            if (logImp != null && getLogLevel() <= LEVEL_DEBUG && mLogInstancePtr != -1) {
+            if (logImp != null && getLogLevel() <= LEVEL_DEBUG && mLogInstancePtr != 0) {
                 String log = obj == null ? format : String.format(format, obj);
                 if (log == null) {
                     log = "";
@@ -495,7 +495,7 @@ public class Log {
         }
 
         public void v(String tag, final String format, final Object... obj) {
-            if (logImp != null && getLogLevel() <= LEVEL_VERBOSE && mLogInstancePtr != -1) {
+            if (logImp != null && getLogLevel() <= LEVEL_VERBOSE && mLogInstancePtr != 0) {
                 String log = obj == null ? format : String.format(format, obj);
                 if (log == null) {
                     log = "";
@@ -506,7 +506,7 @@ public class Log {
 
 
         public void printErrStackTrace(String tag, Throwable tr, final String format, final Object... obj) {
-            if (logImp != null && getLogLevel() <= LEVEL_ERROR && mLogInstancePtr != -1) {
+            if (logImp != null && getLogLevel() <= LEVEL_ERROR && mLogInstancePtr != 0) {
                 String log = obj == null ? format : String.format(format, obj);
                 if (log == null) {
                     log = "";
@@ -518,26 +518,26 @@ public class Log {
 
 
         public void appenderFlush() {
-            if (logImp != null && mLogInstancePtr != -1) {
+            if (logImp != null && mLogInstancePtr != 0) {
                 logImp.appenderFlush(mLogInstancePtr, false);
             }
         }
 
         public void appenderFlushSync() {
-            if (logImp != null && mLogInstancePtr != -1) {
+            if (logImp != null && mLogInstancePtr != 0) {
                 logImp.appenderFlush(mLogInstancePtr, true);
             }
         }
 
         public int getLogLevel() {
-            if (logImp != null && mLogInstancePtr != -1) {
+            if (logImp != null && mLogInstancePtr != 0) {
                 return logImp.getLogLevel(mLogInstancePtr);
             }
             return LEVEL_NONE;
         }
 
         public void setConsoleLogOpen(boolean isOpen) {
-            if (null != logImp && mLogInstancePtr != -1) {
+            if (null != logImp && mLogInstancePtr != 0) {
                 logImp.setConsoleLogOpen(mLogInstancePtr, isOpen);
             }
         }
