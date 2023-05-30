@@ -242,12 +242,15 @@ void XloggerAppender::FlushSync() {
 }
 
 void XloggerAppender::Close() {
-    if (thread_timeout_ && thread_timeout_->isruning())
-        thread_timeout_->cancel_after();
+    if (thread_timeout_cache_ && thread_timeout_cache_->isruning())
+        thread_timeout_cache_->cancel_after();
     if (thread_moveold_ && thread_moveold_->isruning())
         thread_moveold_->cancel_after();
-    thread_timeout_ = nullptr;
+    if (thread_timeout_log_ && thread_timeout_log_->isruning())
+        thread_timeout_log_->cancel_after();
+    thread_timeout_cache_ = nullptr;
     thread_moveold_ = nullptr;
+    thread_timeout_log_ = nullptr;
 
     if (log_close_) return;
 
@@ -294,23 +297,23 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     if (!config_.cachedir_.empty()) {
         boost::filesystem::create_directories(config_.cachedir_);
 
-        thread_timeout_ =
+        thread_timeout_cache_ =
             std::make_unique<comm::Thread>(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_));
-        thread_timeout_->start_after(2 * 60 * 1000);
+        thread_timeout_cache_->start_after(2 * 60 * 1000);
         thread_moveold_ = std::make_unique<comm::Thread>(boost::bind(&XloggerAppender::__MoveOldFiles,
                                                                      this,
                                                                      config_.cachedir_,
                                                                      config_.logdir_,
                                                                      config_.nameprefix_));
-        thread_timeout_->start_after(3 * 60 * 1000);
+        thread_timeout_cache_->start_after(3 * 60 * 1000);
 #ifdef __APPLE__
         setAttrProtectionNone(config_.cachedir_.c_str());
 #endif
     }
 
-    thread_timeout_ =
-        std::make_unique<comm::Thread>(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_));
-    thread_timeout_->start_after(2 * 60 * 1000);
+    thread_timeout_log_ =
+        std::make_unique<comm::Thread>(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.logdir_));
+    thread_timeout_log_->start_after(2 * 60 * 1000);
     boost::filesystem::create_directories(config_.logdir_);
 #ifdef __APPLE__
     setAttrProtectionNone(config_.logdir_.c_str());
