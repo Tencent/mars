@@ -39,17 +39,6 @@ enum TCompressMode{
     kZstd,
 };
 
-enum TFileIOAction {
-    kActionNone = 0,
-    kActionSuccess = 1,
-    kActionUnnecessary = 2,
-    kActionOpenFailed = 3,
-    kActionReadFailed = 4,
-    kActionWriteFailed = 5,
-    kActionCloseFailed = 6,
-    kActionRemoveFailed = 7,
-};
-
 struct XLogConfig{
     TAppenderMode mode_ = kAppenderAsync;
     std::string logdir_;
@@ -96,8 +85,6 @@ void appender_set_max_file_size(uint64_t _max_byte_size);
  * @param _max_time    Max alive duration of a single log file in seconds, default is 10 days
  */
 void appender_set_max_alive_duration(long _max_time);
-
-void appender_oneshot_flush(const XLogConfig& _config, TFileIOAction* _result);
 
 }
 }

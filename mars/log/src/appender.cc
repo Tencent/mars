@@ -117,24 +117,8 @@ class ScopeErrno {
 
 }
 
-#ifdef WIN32
-// sometimes just use xlog
-// also can use std::call_once
-static void SetConvertToUseUtf8() {
-    static std::atomic<bool> once_flag = false;
-    if (!once_flag) {
-        once_flag = true;
-        boost::filesystem::path::imbue(std::locale(std::locale(), new boost::filesystem::detail::utf8_codecvt_facet));
-    }
-}
-#endif
-
 XloggerAppender* XloggerAppender::NewInstance(const XLogConfig& _config, uint64_t _max_byte_size) {
     return new XloggerAppender(_config, _max_byte_size);
-}
-
-XloggerAppender* XloggerAppender::NewInstance(const XLogConfig& _config, uint64_t _max_byte_size, bool _one_shot) {
-    return new XloggerAppender(_config, _max_byte_size, _one_shot);
 }
 
 void XloggerAppender::DelayRelease(XloggerAppender* _appender) {
@@ -154,11 +138,6 @@ void XloggerAppender::Release(XloggerAppender*& _appender) {
 XloggerAppender::XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size)
 : thread_async_(boost::bind(&XloggerAppender::__AsyncLogThread, this)), max_file_size_(_max_byte_size) {
     Open(_config);
-}
-
-XloggerAppender::XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size, bool _one_shot)
-: thread_async_(boost::bind(&XloggerAppender::__AsyncLogThread, this)), max_file_size_(_max_byte_size) {
-    config_ = _config;
 }
 
 void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
@@ -242,13 +221,6 @@ void XloggerAppender::FlushSync() {
 }
 
 void XloggerAppender::Close() {
-    if (thread_timeout_ && thread_timeout_->isruning())
-        thread_timeout_->cancel_after();
-    if (thread_moveold_ && thread_moveold_->isruning())
-        thread_moveold_->cancel_after();
-    thread_timeout_ = nullptr;
-    thread_moveold_ = nullptr;
-
     if (log_close_) return;
 
     char mark_info[512] = {0};
@@ -285,8 +257,11 @@ void XloggerAppender::Close() {
 
 void XloggerAppender::Open(const XLogConfig& _config) {
 #ifdef WIN32
-    // here we make sure boost convert path is utf8 to wide on windows
-    SetConvertToUseUtf8();
+    static bool flag = false;
+    if (!flag) {
+        flag = true;
+        boost::filesystem::path::imbue(std::locale(std::locale(), new boost::filesystem::detail::utf8_codecvt_facet));
+    }
 #endif
     config_ = _config;
 
@@ -294,23 +269,14 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     if (!config_.cachedir_.empty()) {
         boost::filesystem::create_directories(config_.cachedir_);
 
-        thread_timeout_ =
-            std::make_unique<comm::Thread>(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_));
-        thread_timeout_->start_after(2 * 60 * 1000);
-        thread_moveold_ = std::make_unique<comm::Thread>(boost::bind(&XloggerAppender::__MoveOldFiles,
-                                                                     this,
-                                                                     config_.cachedir_,
-                                                                     config_.logdir_,
-                                                                     config_.nameprefix_));
-        thread_timeout_->start_after(3 * 60 * 1000);
+        Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_)).start_after(2 * 60 * 1000);
+        Thread(boost::bind(&XloggerAppender::__MoveOldFiles, this, config_.cachedir_, config_.logdir_, config_.nameprefix_)).start_after(3 * 60 * 1000);
 #ifdef __APPLE__
         setAttrProtectionNone(config_.cachedir_.c_str());
 #endif
     }
 
-    thread_timeout_ =
-        std::make_unique<comm::Thread>(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.cachedir_));
-    thread_timeout_->start_after(2 * 60 * 1000);
+    Thread(boost::bind(&XloggerAppender::__DelTimeoutFile, this, config_.logdir_)).start_after(2 * 60 * 1000);
     boost::filesystem::create_directories(config_.logdir_);
 #ifdef __APPLE__
     setAttrProtectionNone(config_.logdir_.c_str());
@@ -1120,85 +1086,6 @@ bool XloggerAppender::MakeLogfileName(int _timespan, const char* _prefix,
     return true;
 }
 
-void XloggerAppender::TreatMappingAsFileAndFlush(TFileIOAction* _result) {
-#ifdef WIN32
-    // here we make sure boost convert path is utf8 to wide on windows
-    SetConvertToUseUtf8();
-#endif
-    char mmap_file_path[512] = {0};
-    snprintf(mmap_file_path,
-             sizeof(mmap_file_path),
-             "%s/%s.mmap3",
-             config_.cachedir_.empty() ? config_.logdir_.c_str() : config_.cachedir_.c_str(),
-             config_.nameprefix_.c_str());
-
-    // exist
-    if (!boost::filesystem::exists(mmap_file_path)) {
-        if (_result)
-            *_result = kActionUnnecessary;
-        return;
-    }
-
-    // read buffer
-    FILE* treat_mapping_as_file = fopen(mmap_file_path, "rb");
-    if (!treat_mapping_as_file) {
-        if (_result)
-            *_result = kActionOpenFailed;
-        return;
-    }
-
-    std::unique_ptr<char[]> data(new char[kBufferBlockLength]());
-    size_t bytes_read = fread(data.get(), 1, kBufferBlockLength, treat_mapping_as_file);
-    if (kBufferBlockLength != bytes_read || ferror(treat_mapping_as_file)) {
-        if (_result)
-            *_result = kActionReadFailed;
-        fclose(treat_mapping_as_file);
-        return;
-    }
-    fclose(treat_mapping_as_file);
-
-    // init and set flag
-    if (config_.compress_mode_ == kZstd) {
-        log_buff_ = new LogZstdBuffer(data.release(),
-                                      kBufferBlockLength,
-                                      true,
-                                      config_.pub_key_.c_str(),
-                                      config_.compress_level_);
-    } else {
-        log_buff_ = new LogZlibBuffer(data.release(), kBufferBlockLength, true, config_.pub_key_.c_str());
-    }
-	
-    log_close_ = false;
-
-    // try write mapping to logfile
-    AutoBuffer buffer;
-    log_buff_->Flush(buffer);
-
-    // invalid data or empty
-    if (!buffer.Ptr() || !buffer.Length()) {
-        if (_result)
-            *_result = kActionUnnecessary;
-        return;
-    }
-
-    char mark_info[512] = {0};
-    __GetMarkInfo(mark_info, sizeof(mark_info));
-
-    WriteTips2File("~~~~~ begin of mmap from other process ~~~~~\n");
-    __Log2File(buffer.Ptr(), buffer.Length(), false);
-    WriteTips2File("~~~~~ end of mmap from other process ~~~~~%s\n", mark_info);
-
-    // clean mmaping
-    if (!boost::filesystem::remove(mmap_file_path)) {
-        if (_result)
-            *_result = kActionRemoveFailed;
-        return;
-    }
-
-    if (_result)
-        *_result = kActionSuccess;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////
 static XloggerAppender* sg_default_appender = nullptr;
 static bool sg_release_guard = true; 
@@ -1323,13 +1210,6 @@ bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<
         return false;
     }
     return sg_default_appender->MakeLogfileName(_timespan, _prefix, _filepath_vec);
-}
-
-void appender_oneshot_flush(const XLogConfig& _config, TFileIOAction* _result) {
-    auto* scoped_appender = XloggerAppender::NewInstance(_config, sg_max_byte_size, true);
-    scoped_appender->TreatMappingAsFileAndFlush(_result);
-    scoped_appender->Close();
-    XloggerAppender::DelayRelease(scoped_appender);
 }
 
 }

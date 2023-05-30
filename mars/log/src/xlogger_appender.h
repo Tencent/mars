@@ -12,7 +12,6 @@ class LogBaseBuffer;
 class XloggerAppender {
  public:
     static XloggerAppender* NewInstance(const XLogConfig& _config, uint64_t _max_byte_size);
-    static XloggerAppender* NewInstance(const XLogConfig& _config, uint64_t _max_byte_size, bool _one_shot);
     static void DelayRelease(XloggerAppender* _appender);
     static void Release(XloggerAppender*& _appender);
 
@@ -36,11 +35,8 @@ class XloggerAppender {
     bool MakeLogfileName(int _timespan, const char* _prefix,
                             std::vector<std::string>& _filepath_vec);
 
-    void TreatMappingAsFileAndFlush(TFileIOAction* _result);
-
  private:
     XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size);
-    XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size, bool _one_shot);
 
     
     
@@ -98,9 +94,6 @@ class XloggerAppender {
     time_t last_time_ = 0;
     uint64_t last_tick_ = 0;
     char last_file_path_[1024] = {0};
-
-    std::unique_ptr<comm::Thread> thread_timeout_;
-    std::unique_ptr<comm::Thread> thread_moveold_;
 };
 
 }
