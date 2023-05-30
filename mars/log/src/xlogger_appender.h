@@ -99,8 +99,9 @@ class XloggerAppender {
     uint64_t last_tick_ = 0;
     char last_file_path_[1024] = {0};
 
-    std::unique_ptr<comm::Thread> thread_timeout_;
+    std::unique_ptr<comm::Thread> thread_timeout_cache_;
     std::unique_ptr<comm::Thread> thread_moveold_;
+    std::unique_ptr<comm::Thread> thread_timeout_log_;
 };
 
 }
