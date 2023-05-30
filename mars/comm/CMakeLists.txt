@@ -22,6 +22,7 @@ include_directories(network)
 include_directories(socket)
 include_directories(thread)
 include_directories(xlogger)
+include_directories(owl)
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} *.cc *.c *.h)
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
@@ -59,7 +60,9 @@ file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} messagequeue/*.cc m
 source_group(messagequeue FILES ${SELF_TEMP_SRC_FILES})
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
- 
+file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} owl/mpl/*.cc owl/mpl/*.h)
+source_group(owl FILES ${SELF_TEMP_SRC_FILES})
+list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
  
 if(MSVC)
     add_definitions(/FI"../projdef.h")
@@ -117,7 +120,8 @@ if(ANDROID)
             android/*.c
             jni/*.cc
             jni/*.c
-            jni/util/*.cc)
+            jni/util/*.cc
+            jni/jnicat/*.cpp)
         
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 elseif(APPLE)

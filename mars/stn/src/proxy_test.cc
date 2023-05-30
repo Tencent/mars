@@ -74,7 +74,7 @@ bool ProxyTest::ProxyIsAvailable(const mars::comm::ProxyInfo _proxy_info, const 
 }
 
 SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std::string& _host, const std::vector<std::string>& _hardcode_ips) {
-    NetSource::DnsUtil dns_util_;
+    NetSource::DnsUtil dns_util_(nullptr);
     
     std::string proxy_ip;
     if (mars::comm::kProxyNone != _proxy_info.type) {

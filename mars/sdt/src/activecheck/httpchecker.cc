@@ -35,9 +35,9 @@ NO_DESTROY static std::string sg_netcheck_cgi;
 namespace mars {
 namespace sdt {
 
-	void SetHttpNetcheckCGI(std::string cgi) {
-		sg_netcheck_cgi = cgi;
-	}
+//	void SetHttpNetcheckCGI(std::string cgi) {
+//		sg_netcheck_cgi = cgi;
+//	}
 
 }
 }
@@ -48,6 +48,10 @@ HttpChecker::HttpChecker() {
 
 HttpChecker::~HttpChecker() {
     xverbose_function();
+}
+
+void HttpChecker::SetHttpNetcheckCGI(std::string cgi) {
+    sg_netcheck_cgi = cgi;
 }
 
 int HttpChecker::StartDoCheck(CheckRequestProfile& _check_request) {
