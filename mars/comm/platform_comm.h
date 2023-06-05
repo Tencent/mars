@@ -104,6 +104,8 @@ __CXX11_CONSTEXPR__ static const char* const HSPA = "HSPA";
 __CXX11_CONSTEXPR__ static const char* const IDEN = "IDEN";
 __CXX11_CONSTEXPR__ static const char* const HSPAP = "HSPA+";
 __CXX11_CONSTEXPR__ static const char* const G5 = "5G";
+__CXX11_CONSTEXPR__ static const char* const NR = "NR";
+__CXX11_CONSTEXPR__ static const char* const NRNSA = "NRNSA";
 __CXX11_CONSTEXPR__ static const char* const WIFI = "WIFI";
 
 
@@ -203,6 +205,7 @@ struct RadioAccessNetworkInfo {
     bool Is4G() const { return radio_access_network == LTE;}
     bool Is5G() const { return radio_access_network == G5;}
     bool IsUnknown() const { return !Is2G() && !Is3G() && !Is4G() && !Is5G();}
+    bool IsNR() const;
 };
 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
