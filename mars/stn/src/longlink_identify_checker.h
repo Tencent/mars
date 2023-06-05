@@ -26,10 +26,11 @@
 
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/proto/longlink_packer.h"
+#include "mars/boot/context.h"
 
 class LongLinkIdentifyChecker {
   public:
-    LongLinkIdentifyChecker(mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong);
+    LongLinkIdentifyChecker(mars::boot::Context* _context, mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong);
     ~LongLinkIdentifyChecker();
 
     bool GetIdentifyBuffer(AutoBuffer& _buffer, uint32_t& _cmd_id);
@@ -42,6 +43,7 @@ class LongLinkIdentifyChecker {
 
 
   private:
+    mars::boot::Context* context_;
     bool has_checked_;
     uint32_t cmd_id_;
     uint32_t taskid_;

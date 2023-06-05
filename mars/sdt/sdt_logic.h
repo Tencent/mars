@@ -25,11 +25,13 @@
 namespace mars {
 namespace sdt {
 
+	/* mars2
 	class Callback
 	{
 	public:
 		virtual ~Callback() {};
 	};
+	*/
 
 	void SetCallBack(Callback* const callback);
 
@@ -39,6 +41,11 @@ namespace sdt {
 	void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
 	void CancelActiveCheck();
 
+	extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
+	
+#ifdef NATIVE_CALLBACK
+    void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
+#endif
 }}
 
 #endif /* SDT_INTERFACE_SDT_LOGIC_H_ */

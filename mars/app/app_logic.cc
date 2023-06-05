@@ -45,29 +45,43 @@
 #include "mars/comm/dns/dns.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/macro.h"
+#include "mars/boot/context.h"
+#include "app_manager.h"
+
+using namespace mars::boot;
 using namespace mars::comm;
 
 namespace mars {
 namespace app {
 
-static Callback* sg_callback = NULL;
+//mars2
+//static Callback* sg_callback = NULL;
 
 void SetCallback(Callback* const callback) {
+	/* mars2
 	sg_callback = callback;
+        */
+    AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+    xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+    if (app_manager) {
+        app_manager->SetCallback(callback);
+    }
 }
 
 #if !defined(ANDROID) || defined (CPP_CALL_BACK)
-    
+
+/* mars2
 NO_DESTROY static mars::comm::ProxyInfo sg_proxyInfo;
     static bool sg_gotProxy = false;
 NO_DESTROY static Mutex sg_slproxymutex;
 NO_DESTROY static Thread sg_slproxyThread;
     static uint64_t sg_slporxytimetick = gettickcount();
     static int sg_slproxycount = 0;
-    
+*/    
 
     
     static void __GetProxyInfo(const std::string& _host, uint64_t _timetick) {
+        /* mars2
         xinfo_function(TSF"timetick:%_, host:%_", _timetick, _host);
     
         mars::comm::ProxyInfo proxy_info;
@@ -108,16 +122,28 @@ NO_DESTROY static Thread sg_slproxyThread;
         lock.lock();
         sg_proxyInfo.ip = ips.front();
         sg_gotProxy = true;
-        
+        */
+        AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+        xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+        if (app_manager) {
+            app_manager->GetProxyInfo(_host, _timetick);
+        }
     }
 
 #if TARGET_OS_IPHONE
     static void __ClearProxyInfo() {
+        /*mars2
         ScopedLock lock(sg_slproxymutex);
         sg_slporxytimetick = gettickcount();
         sg_slproxycount = 0;
         sg_gotProxy = false;
         sg_proxyInfo.type = mars::comm::kProxyNone;
+        */
+	AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+        xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+        if (app_manager) {
+            app_manager->ClearProxyInfo();
+        }
     }
 
     static void __InitbindBaseprjevent() {
@@ -127,6 +153,7 @@ NO_DESTROY static Thread sg_slproxyThread;
 #endif
     
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {
+        /* mars2
         xassert2(sg_callback != NULL);
         
 #if !TARGET_OS_IPHONE
@@ -151,10 +178,17 @@ NO_DESTROY static Thread sg_slproxyThread;
         }
         
         return mars::comm::ProxyInfo();
-
+        */
+	AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+        xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+        if (app_manager) {
+            return app_manager->GetProxyInfo(_host);
+        }
+        return mars::comm::ProxyInfo();
     }
 
     std::string GetAppFilePath() {
+        /* mars2
         xassert2(sg_callback != NULL);
 
         std::string path = sg_callback->GetAppFilePath();
@@ -163,31 +197,71 @@ NO_DESTROY static Thread sg_slproxyThread;
 #endif
 
         return path;
+        */
+        AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+        xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+        if (app_manager) {
+            return app_manager->GetAppFilePath();
+        }
+        return "";
     }
     
 	AccountInfo GetAccountInfo() {
+            /* mars2
 		xassert2(sg_callback != NULL);
 		return sg_callback->GetAccountInfo();
+            */
+            AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+            xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+            if (app_manager) {
+                return app_manager->GetAccountInfo();
+            }
+            return AccountInfo();
 	}
 
 	std::string GetUserName() {
+		/*mars2
 		xassert2(sg_callback != NULL);
 		AccountInfo info = sg_callback->GetAccountInfo();
 		return info.username;
+		*/
+		AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+                xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+                if (app_manager) {
+                    return app_manager->GetUserName();
+                }
+                return "";
 	}
 
 	std::string GetRecentUserName() {
+		/* mars2
 		xassert2(sg_callback != NULL);
 		return GetUserName();
+		*/
+	    AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+            xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+            if (app_manager) {
+                return app_manager->GetRecentUserName();
+            }
+            return "";
 	}
 
 	unsigned int GetClientVersion() {
+		/* mars2
 		xassert2(sg_callback != NULL);
 		return sg_callback->GetClientVersion();
+		*/
+		AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+                xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+                if (app_manager) {
+                    return app_manager->GetClientVersion();
+                }
+                return 0;
 	}
 
 
 	DeviceInfo GetDeviceInfo() {
+		/*mars2
 		xassert2(sg_callback != NULL);
         
     static DeviceInfo device_info;
@@ -197,6 +271,13 @@ NO_DESTROY static Thread sg_slproxyThread;
     
     device_info = sg_callback->GetDeviceInfo();
     return device_info;
+		*/
+		AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+                xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+                if (app_manager) {
+                    return app_manager->GetDeviceInfo();
+                }
+                return DeviceInfo();
 	}
 
 #endif

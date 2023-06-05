@@ -25,9 +25,13 @@
 #include <vector>
 
 #include "boost/function.hpp"
+#include "thread/condition.h"
+#include "thread/thread.h"
 
 namespace mars {
 namespace comm {
+
+struct dnsinfo;
 
 struct DNSBreaker {
 	DNSBreaker(): isbreak(false), dnsstatus(NULL) {}
@@ -42,26 +46,31 @@ struct DNSBreaker {
 
 class DNS {
   public:
-   typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
+//    typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
 
   public:
-    DNS(DNSFunc _dnsfunc=NULL);
+    DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc = NULL);
     ~DNS();
     
   public:
     bool GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec = 2000, DNSBreaker* _breaker = NULL, bool _longlink_host = false);
     void Cancel(const std::string& _host_name = std::string());
     void Cancel(DNSBreaker& _breaker);
-    
+
     void SetMonitorFunc(const boost::function<void (int _key)>& _monitor_func) {
     	monitor_func_ = _monitor_func;
     }
 
-    void SetDnsFunc(DNSFunc _dnsfunc) {
+    void SetDnsFunc(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc) {
       dnsfunc_ = _dnsfunc;
     }
+
+ private:
+    void __GetIP();
+
   private:
-    DNSFunc dnsfunc_;
+//    DNSFunc dnsfunc_;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
     boost::function<void (int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
 };

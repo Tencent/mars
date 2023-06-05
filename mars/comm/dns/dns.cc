@@ -42,17 +42,21 @@ enum {
     kGetIPFail,
 };
 
+
 struct dnsinfo {
     thread_tid      threadid;
     DNS*            dns;
-    DNS::DNSFunc    dns_func;
+    //DNS::DNSFunc    dns_func;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dns_func;
     std::string     host_name;
     std::vector<std::string> result;
     int status;
     bool longlink_host = false;
 };
+/*
+*/
 
-static std::string DNSInfoToString(const struct dnsinfo& _info) {
+std::string DNSInfoToString(const struct dnsinfo& _info) {
     XMessage msg;
     msg(TSF"info:%_, threadid:%_, dns:%_, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
     return msg.Message();
@@ -60,14 +64,14 @@ static std::string DNSInfoToString(const struct dnsinfo& _info) {
 NO_DESTROY static std::vector<dnsinfo> sg_dnsinfo_vec;
 NO_DESTROY static Condition sg_condition;
 NO_DESTROY static Mutex sg_mutex;
-
-static void __GetIP() {
+void DNS::__GetIP() {
     xverbose_function();
 
     auto start_time = ::gettickcount();
     
     std::string host_name;
-    DNS::DNSFunc dnsfunc = NULL;
+    //DNS::DNSFunc dnsfunc = NULL;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc;
     bool longlink_host = false;
 
     ScopedLock lock(sg_mutex);
@@ -170,7 +174,11 @@ static void __GetIP() {
             sg_condition.notifyAll();
         }
     } else {
-        std::vector<std::string> ips = dnsfunc(host_name, longlink_host);
+        std::vector<std::string> ips;
+        if (iter->status != kGetIPCancel) {
+            ips = dnsfunc(host_name, longlink_host);
+        }
+
         lock.lock();
         
         iter = sg_dnsinfo_vec.begin();
@@ -189,7 +197,7 @@ static void __GetIP() {
 }
 
 ///////////////////////////////////////////////////////////////////
-DNS::DNS(DNSFunc _dnsfunc):dnsfunc_(_dnsfunc) {
+DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc):dnsfunc_(_dnsfunc) {
 }
 
 DNS::~DNS() {
@@ -209,7 +217,7 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
 
     if (_breaker && _breaker->isbreak) return false;
 
-    Thread thread(&__GetIP, _host_name.c_str());
+    Thread thread(std::bind(&DNS::__GetIP, this) ,_host_name.c_str());
     int startRet = thread.start();
 
     if (startRet != 0) {
@@ -279,7 +287,8 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
             if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
                 if (_breaker) _breaker->dnsstatus = NULL;
 
-                xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
+                //xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
+                xinfo2(TSF "dns get ip status:%_ host:%_", it->status, it->host_name);
                 sg_dnsinfo_vec.erase(it);
                 return false;
             }
@@ -305,10 +314,12 @@ void DNS::Cancel(const std::string& _host_name) {
 
         if (_host_name.empty() && info.dns == this) {
             info.status = kGetIPCancel;
+            info.dns_func = NULL;
         }
 
         if (info.host_name.compare(_host_name) == 0 && info.dns == this) {
             info.status = kGetIPCancel;
+            info.dns_func = NULL;
         }
     }
 

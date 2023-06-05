@@ -40,45 +40,56 @@
 #include "mars/stn/stn.h"
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
+#include "mars/stn/stn_manager.h"
 
 using namespace mars::stn;
 using namespace mars::comm;
 
-static const char* const kItemDelimiter = ":";
+const char* const kItemDelimiter = ":";
 
-static const int kNumMakeCount = 5;
+const int kNumMakeCount = 5;
 
+/* mars2 改成类成员变量
 //mmnet ipport settings
-NO_DESTROY static std::vector<std::string> sg_longlink_hosts;
-NO_DESTROY static std::vector<uint16_t> sg_longlink_ports;
-NO_DESTROY static std::string sg_longlink_debugip;
+std::vector<std::string> sg_longlink_hosts;
+std::vector<uint16_t> sg_longlink_ports;
+std::string sg_longlink_debugip;
 
-NO_DESTROY static std::string sg_minorlong_debugip;
-static uint16_t sg_minorlong_port = 0;
+std::string sg_minorlong_debugip;
+uint16_t sg_minorlong_port = 0;
 
-static int sg_shortlink_port;
-NO_DESTROY static std::string sg_shortlink_debugip;
-NO_DESTROY static std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
-NO_DESTROY static std::vector<uint16_t> sg_lowpriority_longlink_ports;
+int sg_shortlink_port;
+std::string sg_shortlink_debugip;
+std::map< std::string, std::vector<std::string> > sg_host_backupips_mapping;
+std::vector<uint16_t> sg_lowpriority_longlink_ports;
 
-NO_DESTROY static std::map< std::string, std::string > sg_host_debugip_mapping;
+std::map< std::string, std::string > sg_host_debugip_mapping;
 
-NO_DESTROY static std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
-NO_DESTROY static tickcount_t sg_quic_reopen_tick(true);
-static bool sg_quic_enabled = true;
-static TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
-static unsigned sg_quic_default_rw_timeoutms = 5000;
-NO_DESTROY static std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
+std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
+tickcount_t sg_quic_reopen_tick(true);
+bool sg_quic_enabled = true;
+TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
+unsigned sg_quic_default_rw_timeoutms = 5000;
+std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
 
-NO_DESTROY static Mutex sg_ip_mutex;
+Mutex sg_ip_mutex;
+*/
 
-NetSource::DnsUtil::DnsUtil():
-new_dns_(OnNewDns) {
+NetSource::DnsUtil::DnsUtil(boot::Context* _context): context_(_context) {
+    xverbose_function(TSF "mars2");
+    if (context_) {
+        new_dns_.SetDnsFunc(std::bind(&NetSource::DnsUtil::__OnNewDns, this, std::placeholders::_1, std::placeholders::_2));
+    }
 }
 
-NetSource::DnsUtil::~DnsUtil() {}
+NetSource::DnsUtil::~DnsUtil() {
+    xinfo_function(TSF "mars2");
+    already_release_ = true;
+    new_dns_.SetDnsFunc(NULL);
+}
 
 void NetSource::DnsUtil::Cancel(const std::string& host) {
+    xverbose_function(TSF"mars2");
     if (host.empty()) {
         new_dns_.Cancel();
         dns_.Cancel();
@@ -89,16 +100,37 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
     }
 }
 
-NetSource::NetSource(ActiveLogic& _active_logic)
-	: active_logic_(_active_logic)
-    , v4_timeout_(0)
-    , v6_timeout_(0)
-{
+std::vector<std::string> NetSource::DnsUtil::__OnNewDns(const std::string& _host, bool _longlink_host) {
+    xverbose2(TSF "mars2 dns __OnNewDns");
+    if (already_release_) {
+        xinfo2(TSF "DnsUtil has delete.");
+        return std::vector<std::string>();
+    }
+    if (context_ && context_->GetManager<StnManager>()) {
+        return context_->GetManager<StnManager>()->OnNewDns(_host, _longlink_host);
+    } else {
+        xwarn2(TSF"mars2 stn_manager is empty.");
+        return std::vector<std::string>();
+    }
+}
+
+NetSource::NetSource(ActiveLogic& _active_logic, boot::Context* _context)
+: context_(_context)
+, active_logic_(_active_logic)
+, ipportstrategy_(context_)
+, v4_timeout_(0)
+, v6_timeout_(0)
+, weak_network_logic_(new WeakNetworkLogic)
+, sg_minorlong_port(0)
+, sg_shortlink_port(0) {
+    xverbose_function(TSF "mars2");
     xinfo_function();
 }
 
 NetSource::~NetSource() {
+    xverbose_function(TSF "mars2");
     xinfo_function();
+    delete weak_network_logic_;
 }
 
 /**
@@ -413,9 +445,13 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 		dns_profile.end_time = gettickcount();
 		if (!ret) dns_profile.OnFailed();
-		ReportDnsProfile(dns_profile);
+                if (context_->GetManager<StnManager>()->ReportDnsProfileFunc) {
+                        context_->GetManager<StnManager>()->ReportDnsProfileFunc(dns_profile);
+                } else {
+                        xwarn2(TSF "mars2 ReportDnsProfileFunc is null.");
+                }
 
-		xgroup2_define(dnsxlog);
+                xgroup2_define(dnsxlog);
 		xdebug2(TSF"link host:%_, new dns ret:%_, size:%_ ", _host, ret, iplist.size()) >> dnsxlog;
 
 		if (iplist.empty()) {
@@ -427,9 +463,12 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 
 			dns_profile.end_time = gettickcount();
 			if (!ret) dns_profile.OnFailed();
-			ReportDnsProfile(dns_profile);
-
-			xdebug2(TSF "dns ret:%_, size:%_,", ret, iplist.size()) >> dnsxlog;
+                        if (context_->GetManager<StnManager>()->ReportDnsProfileFunc) {
+                            context_->GetManager<StnManager>()->ReportDnsProfileFunc(dns_profile);
+                        } else {
+                            xwarn2(TSF "mars2 ReportDnsProfileFunc is null.");
+                        }
+                        xdebug2(TSF "dns ret:%_, size:%_,", ret, iplist.size()) >> dnsxlog;
 		}
 		else {
 			ist = kIPSourceNewDns;
@@ -562,7 +601,7 @@ unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* o
         *outsource = TimeoutSource::kCgiSpecial;
         return iter->second;
     }
-    
+
     *outsource = sg_quic_default_timeout_source;
     return sg_quic_default_rw_timeoutms;
 }
@@ -631,4 +670,8 @@ void NetSource::AddServerBan(const std::string& _ip) {
 void NetSource::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) {
     v4_timeout_ = _v4_timeout;
     v6_timeout_ = _v6_timeout;
+}
+
+WeakNetworkLogic* NetSource::GetWeakNetworkLogic() {
+    return weak_network_logic_;
 }
