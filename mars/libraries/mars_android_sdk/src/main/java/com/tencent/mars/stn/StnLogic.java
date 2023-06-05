@@ -40,15 +40,18 @@ public class StnLogic {
         public static final int EShort = 0x1;
         public static final int ELong = 0x2;
         public static final int EBoth = 0x3;
-        // private static AtomicInteger ai = new AtomicInteger(0);
+
+        //protocol type
+        public static final int ETransportProtocolTCP = 1;
+        public static final int ETransportProtocolQUIC = 2;
 
         public Task() {
-            this.taskID = genTaskID();  //ai.incrementAndGet();
+            this.taskID = genTaskID();  
             this.headers = new HashMap<>();
         }
 
         public Task(final int channelselect, final int cmdid, final String cgi, final ArrayList<String> shortLinkHostList) {
-            this.taskID = genTaskID();  //ai.incrementAndGet();
+            this.taskID = genTaskID();  
             this.channelSelect = channelselect;
             this.cmdID = cmdid;
             this.cgi = cgi;
@@ -168,7 +171,10 @@ public class StnLogic {
         public long startSendPacketTime = 0;
         public long startReadPacketTime = 0;
         public long readPacketFinishedTime = 0;
-
+        public long rtt = 0;
+        public int channelType = 0;
+        public int protocolType = 0;    // 协议类型
+        
         public CgiProfile(){}
 
     }

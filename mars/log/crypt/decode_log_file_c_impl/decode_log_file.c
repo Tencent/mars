@@ -233,6 +233,7 @@ bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
     ZSTD_inBuffer input = { compressedBytes, compressedBytesSize, 0 };
     ZSTD_outBuffer output = { NULL, compressedBytesSize, 0 };
     bool done = false;
+    size_t  lastPos = output.pos;
 
     while (!done)
     {
@@ -247,10 +248,23 @@ bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
 
         output.size = uncompLength;
         output.dst = uncomp;
-        ZSTD_decompressStream(dctx, &output , &input);
+        size_t decompressResult = ZSTD_decompressStream(dctx, &output , &input);
+        if (lastPos == output.pos) {
+            fputs("ZSTD_decompressStream error\n", stderr);
+            done = true;
+        }
 
+        lastPos = output.pos;
         if (input.pos == input.size)
         {
+            done = true;
+        }
+
+        if (input.pos == 0)
+        {
+            char *err = "zstd decompress error";
+            output.pos = strnlen(err, 1024);
+            memcpy(uncomp, err, output.pos);
             done = true;
         }
     }
@@ -294,6 +308,25 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
 
     while (!done)
     {
+        strm.next_out = (Bytef *)(uncomp + strm.total_out);
+        strm.avail_out = uncompLength - strm.total_out;
+
+        // Inflate another chunk.
+        int err = inflate(&strm, Z_SYNC_FLUSH);
+        // decompress success
+        if (strm.total_in == compressedBytesSize) {
+            break;
+        }
+        if (err == Z_STREAM_END || err == Z_BUF_ERROR
+            || err == Z_DATA_ERROR)
+        {
+            done = true;
+        }
+//        else if (err != Z_OK)
+//        {
+//            break;
+//        }
+
         // If our output buffer is too small
         if (strm.total_out >= uncompLength)
         {
@@ -303,20 +336,6 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
             uncompLength += halfLength;
             free(uncomp);
             uncomp = uncomp2;
-        }
-
-        strm.next_out = (Bytef *)(uncomp + strm.total_out);
-        strm.avail_out = uncompLength - strm.total_out;
-
-        // Inflate another chunk.
-        int err = inflate(&strm, Z_SYNC_FLUSH);
-        if (err == Z_STREAM_END)
-        {
-            done = true;
-        }
-        else if (err != Z_OK)
-        {
-            break;
         }
     }
 
@@ -420,6 +439,7 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
     }
 
     char* tmpBuffer = (char*) realloc(NULL, length);
+    memset(tmpBuffer,0, length);
     size_t tmpBufferSize = length;
     if (tmpBuffer == NULL)
     {
@@ -503,8 +523,17 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
         unsigned char ecdhKey[32] = {0};
         if (0 == uECC_shared_secret(clientPubKey, svrPriKey, ecdhKey, uECC_secp256k1()))
         {
-            fputs("Get ECDH key error", stderr);
-            exit(8);
+            char* err = "Get ECDH key error";
+
+            memcpy(tmpBuffer, err, strnlen(err, 128));
+            tmpBufferSize = strnlen(err, 128);
+            appendBuffer(outBuffer, outBufferSize, writePos, tmpBuffer, tmpBufferSize);
+            free(tmpBuffer);
+
+            fputs("Get ECDH key error\n", stderr);
+//            return -1;
+            return offset + headerLen + length + 1;
+//            exit(8);
         }
 
         uint32_t teaKey[4];
