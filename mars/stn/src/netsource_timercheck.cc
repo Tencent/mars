@@ -44,11 +44,13 @@ static const unsigned long kIntervalTime = 1 * 60 * 60 * 1000;    // ms
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_NETCORE_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
-NetSourceTimerCheck::NetSourceTimerCheck(NetSource* _net_source, ActiveLogic& _active_logic, LongLink& _longlink, MessageQueue::MessageQueue_t  _messagequeue_id)
-    : net_source_(_net_source)
+NetSourceTimerCheck::NetSourceTimerCheck(boot::Context* _context, std::shared_ptr<NetSource> _net_source, ActiveLogic& _active_logic, LongLink& _longlink, MessageQueue::MessageQueue_t  _messagequeue_id)
+    : context_(_context)
+    , net_source_(_net_source)
     , seletor_(breaker_)
     , longlink_(_longlink)
-	, asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id)){
+	, asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
+    , dns_util_(context_){
     xassert2(breaker_.IsCreateSuc(), "create breaker fail");
         xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     frequency_limit_ = new CommFrequencyLimit(kMaxSpeedTestCount, kIntervalTime);
@@ -188,7 +190,7 @@ bool NetSourceTimerCheck::__TryConnnect(const std::string& _host) {
     }
 
     std::vector<uint16_t> port_vec;
-    NetSource::GetLonglinkPorts(port_vec);
+    net_source_->GetLonglinkPorts(port_vec);
 
     if (port_vec.empty()) {
         xerror2(TSF"get ports empty!");

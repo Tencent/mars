@@ -23,7 +23,11 @@ namespace stn {
 
 class StnCallbackBridge {
  public:
+    StnCallbackBridge();
     virtual ~StnCallbackBridge();
+	//mars2
+    virtual void SetCallback(Callback* const _callback);
+        
     virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
 
     virtual void TrafficData(ssize_t _send, ssize_t _recv);
@@ -81,12 +85,20 @@ class StnCallbackBridge {
     virtual void ReportTaskProfile(const TaskProfile& _task_profile);
     virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
     virtual void ReportDnsProfile(const DnsProfile& _dns_profile);
+
+//mars2
+private:
+	Callback* sg_callback;
 };
 
 // You must get `StnCallbackBridge` object through `GetStnCallbackBridge` firstly before invoke this function,
 // then store it or release it.
+
+//mars2 cpan move to stn_manager_bridge 2022-5-28 move back 8-18
+/*
 void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
 StnCallbackBridge* GetStnCallbackBridge();
+*/
 
 }
 }

@@ -21,7 +21,9 @@
 #include "mars/stn/stn.h"
 #include "mars/boost/config.hpp"
 #include "mars/comm/thread/atomic_oper.h"
+/* mars2
 static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
+*/
 
 namespace mars{
     namespace stn{
@@ -59,12 +61,14 @@ Task::Task(uint32_t _taskid) {
     redirect_type = HostRedirectType::kOther;
 }
 
+/* mars2
 uint32_t GenTaskID(){
     if (BOOST_UNLIKELY(atomic_read32(&gs_taskid) >= kReservedTaskIDStart)) {
         atomic_write32(&gs_taskid, 1);
     }
     return atomic_inc32(&gs_taskid);
 }
+*/
         
     }
 }
