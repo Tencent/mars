@@ -217,32 +217,15 @@ DWORD getNetworkStatus() {
     return flags;
 }
 
+bool g_network_inited = false;
+bool g_network_status = false;
 bool isNetworkConnectedImpl() {
-    DWORD   flags;  //������ʽ
+    if (g_network_inited)   
+        return g_network_status;
 
-    BOOL   m_bOnline = InternetGetConnectedState(&flags, 0);
-    return m_bOnline;
-
-    //if(m_bOnline)//����
-    //{
-    //    if ((flags & INTERNET_CONNECTION_MODEM) ==INTERNET_CONNECTION_MODEM)
-    //    {
-    //        cout<<"���ߣ���������\n";
-    //    }
-    //    if ((flags & INTERNET_CONNECTION_LAN) ==INTERNET_CONNECTION_LAN)
-    //    {
-    //        cout<<"���ߣ�ͨ��������\n";
-    //    }
-    //    if ((flags & INTERNET_CONNECTION_PROXY) ==INTERNET_CONNECTION_PROXY)
-    //    {
-    //        cout<<"���ߣ�����\n";
-    //    }
-    //    if ((flags & INTERNET_CONNECTION_MODEM_BUSY) ==INTERNET_CONNECTION_MODEM_BUSY)
-    //    {
-    //        cout<<"MODEM��������INTERNET����ռ��\n";
-    //    }
-    //}
-    // else
-    //    cout<<"������\n";
+    DWORD flags = 0;
+    g_network_status = InternetGetConnectedState(&flags, 0);
+    g_network_inited = true;
+    return g_network_status;
 }
 }}  //namespace
