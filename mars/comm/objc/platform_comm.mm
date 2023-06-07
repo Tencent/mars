@@ -225,6 +225,8 @@ int getNetTypeForStatistics(){
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_3G;
     }else if(rani.Is4G()){
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_4G;
+    }else if(rani.IsNR()){
+        return (int)mars::comm::NetTypeForStatistics::NETTYPE_5G;
     }
     
     return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
@@ -508,6 +510,10 @@ bool getCurRadioAccessNetworkInfo(mars::comm::RadioAccessNetworkInfo& _raninfo)
     xassert2(!_raninfo.radio_access_network.empty(), "%s", [currentRadioAccessTechnology UTF8String]);
     
     return true;
+}
+
+bool RadioAccessNetworkInfo::IsNR() const {
+  return radio_access_network == NR || radio_access_network == NRNSA;
 }
 #else
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo)

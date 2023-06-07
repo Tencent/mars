@@ -41,13 +41,12 @@ using namespace mars::sdt;
 static char* string_strnstr(const char* _src, const char* _sfind, int _pos) {
     if (_src == NULL || _sfind == NULL) return NULL;
 
-    int l1, l2;
+    int l2;
     l2 = (int)strlen(_sfind);
 
     if (!l2) return (char*)_src;
 
-    l1 = (int)strlen(_src);
-    _pos = (_pos > l1) ? l1 : _pos;
+    _pos = (int)strnlen(_src, _pos);
 
     while (_pos >= l2) {
         _pos--;
