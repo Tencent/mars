@@ -40,6 +40,7 @@
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
+#include "cellular_network_logic.h"
 
 using namespace mars::stn;
 using namespace mars::comm;
@@ -566,6 +567,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         _it->PushHistory();
         ReportTaskProfile(*_it);
         WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
+        CellularNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         lst_cmd_.erase(_it);
         return true;

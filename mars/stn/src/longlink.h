@@ -133,6 +133,7 @@ class LongLink {
     bool            MakeSureConnected(bool* _newone = NULL);
     void            Disconnect(TDisconnectInternalCode _scene);
     TLongLinkStatus ConnectStatus() const;
+    bool            IsBindCellularNetwork() const;
 
     ConnectProfile  Profile() const   { return conn_profile_; }
     tickcount_t&    GetLastRecvTime() { return lastrecvtime_; }
@@ -159,7 +160,7 @@ class LongLink {
     LongLink& operator=(const LongLink&);
 
   protected:
-    void    __ConnectStatus(TLongLinkStatus _status);
+    void    __ConnectStatus(TLongLinkStatus _status, bool is_bind_cellular_network);
     void    __UpdateProfile(const ConnectProfile _conn_profile);
     void    __RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _profile, bool _networkreport = true);
 
@@ -191,6 +192,7 @@ class LongLink {
     NetSource::DnsUtil                          dns_util_;
     comm::SocketBreaker                         connectbreak_;
     TLongLinkStatus                             connectstatus_;
+    bool                                        is_bind_cellular_network;
     ConnectProfile                              conn_profile_;
     TDisconnectInternalCode                     disconnectinternalcode_;
     

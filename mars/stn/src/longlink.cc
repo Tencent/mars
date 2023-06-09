@@ -370,10 +370,15 @@ LongLink::TLongLinkStatus LongLink::ConnectStatus() const {
     return connectstatus_;
 }
 
-void LongLink::__ConnectStatus(TLongLinkStatus _status) {
+bool            LongLink::IsBindCellularNetwork() const {
+    return is_bind_cellular_network;
+}
+
+void LongLink:: __ConnectStatus(TLongLinkStatus _status, bool _is_bind_cellular_network) {
     if (_status == connectstatus_) return;
     xinfo2(TSF"connect status from:%0 to:%1, nettype:%_", connectstatus_, _status, ::getNetInfo());
     connectstatus_ = _status;
+    is_bind_cellular_network = _is_bind_cellular_network;
     __NotifySmartHeartbeatConnectStatus(connectstatus_);
     if (kConnected==connectstatus_ && fun_network_report_)
         fun_network_report_(__LINE__, kEctOK, 0, conn_profile_.ip, conn_profile_.port);
@@ -448,7 +453,7 @@ void LongLink::__Run() {
     conn_profile.disconn_signal = ::getSignal(::getNetInfo() == kWifi);
 
     ScopedLock lock(mutex_);
-    __ConnectStatus(kDisConnected);
+    __ConnectStatus(kDisConnected, conn_profile.is_bind_cellular_network);
     xinfo2(TSF"longlink lifetime:%_", (gettickcount() - conn_profile.conn_time));
     __UpdateProfile(conn_profile);
 
@@ -464,7 +469,7 @@ void LongLink::__Run() {
 
 SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     
-    __ConnectStatus(kConnecting);
+    __ConnectStatus(kConnecting, conn_profile_.is_bind_cellular_network);
     _conn_profile.dns_time = ::gettickcount();
      __UpdateProfile(_conn_profile);
     
@@ -490,15 +495,15 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
         if (use_proxy) {
-            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port));
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port, ip_items[i].is_bind_cellular_network));
         } else {
-            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(localstack));
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port, ip_items[i].is_bind_cellular_network).v4tov6_address(localstack));
         }
     }
     
     if (vecaddr.empty()) {
         xerror2("task socket close sock:-1 vecaddr empty");
-        __ConnectStatus(kConnectFailed);
+        __ConnectStatus(kConnectFailed, conn_profile_.is_bind_cellular_network);
         __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile);
         return INVALID_SOCKET;
     }
@@ -522,7 +527,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
             std::vector<std::string> ips;
             if (!dns_util_.GetDNS().GetHostByName(proxy_info.host, ips) || ips.empty()) {
                 xwarn2(TSF"dns %_ error", proxy_info.host);
-                __ConnectStatus(kConnectFailed);
+                __ConnectStatus(kConnectFailed, conn_profile_.is_bind_cellular_network);
                 __RunResponseError(kEctDns, kEctDnsMakeSocketPrepared, _conn_profile);
                 return INVALID_SOCKET;
             }
@@ -556,7 +561,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF"task socket connect fail sock:-1, costtime:%0", com_connect.TotalCost());
         
-        __ConnectStatus(kConnectFailed);
+        __ConnectStatus(kConnectFailed, conn_profile_.is_bind_cellular_network);
         
         if (kNone == disconnectinternalcode_) __RunResponseError(kEctSocket, kEctSocketMakeSocketPrepared, _conn_profile, false);
         
@@ -579,6 +584,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.port = ip_items[com_connect.Index()].port;
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();
+    //[dual-channel]
+    _conn_profile.is_bind_cellular_network = ip_items[com_connect.Index()].is_bind_cellular_network;
 
     if (_conn_profile.ip_index > 0){
         for (int i = 0; i < com_connect.Index(); i++){
@@ -600,7 +607,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
            sock, _conn_profile.host, _conn_profile.ip, _conn_profile.port, _conn_profile.local_ip,
            _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], ChannelTypeString[_conn_profile.link_type],
            com_connect.TotalCost(), com_connect.IndexRtt(), com_connect.IndexTotalCost(), com_connect.Index(), ::getNetInfo());
-    __ConnectStatus(kConnected);
+    __ConnectStatus(kConnected, _conn_profile.is_bind_cellular_network);
     __UpdateProfile(_conn_profile);
     
     xerror2_if(0 != socket_disable_nagle(sock, 1), TSF"socket_disable_nagle sock:%0, %1(%2)", sock, socket_errno, socket_strerror(socket_errno));

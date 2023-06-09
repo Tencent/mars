@@ -115,6 +115,10 @@ public:
     std::shared_ptr<LongLinkMetaData> DefaultLongLinkMeta();
 #endif
 
+public:
+//    void SetStnConfig(const StnConfig& config);
+    const StnConfig GetStnConfig();
+
   private:
     NetCore();
     virtual ~NetCore();
@@ -170,6 +174,8 @@ public:
     bool                                        shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
+    bool is_bind_cellular_network = false;
+//    StnConfig stn_config_;
 };
         
 }}

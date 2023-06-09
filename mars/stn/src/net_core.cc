@@ -778,6 +778,7 @@ void NetCore::__ConnStatusCallBack() {
         all_connstatus = kNetworkUnkown;
     }
     int longlink_connstatus = kNetworkUnkown;
+    bool is_cellular_network = false;
 
     if (!need_use_longlink_) {
         if (shortlink_error_count_ >= kShortlinkErrTime) {
@@ -794,6 +795,7 @@ void NetCore::__ConnStatusCallBack() {
     auto longlink = longlinkMeta->Channel();
     if (!longlink) return;
     longlink_connstatus = longlink->ConnectStatus();
+    is_cellular_network = longlink->IsBindCellularNetwork();
     switch (longlink_connstatus) {
         case LongLink::kDisConnected:
             return;
@@ -859,9 +861,11 @@ void NetCore::__ConnStatusCallBack() {
     if(all_connstatus != all_connect_status_ || longlink_connstatus != longlink_connect_status_) {      // logs limits
         all_connect_status_ = all_connstatus;
         longlink_connect_status_ = longlink_connstatus;
+        is_bind_cellular_network = is_cellular_network;
+        
         xinfo2(TSF"reportNetConnectInfo all_connstatus:%_, longlink_connstatus:%_", all_connstatus, longlink_connstatus);
     }
-    ReportConnectStatus(all_connstatus, longlink_connstatus);
+    ReportConnectStatus(all_connstatus, longlink_connstatus, is_cellular_network);
 }
 
 void NetCore::__OnSignalActive(bool _isactive) {
@@ -1076,5 +1080,14 @@ std::shared_ptr<LongLinkMetaData> NetCore::GetLongLink(const std::string& _name)
   void NetCore::SetDebugHost(const std::string& _host) {
     shortlink_task_manager_->SetDebugHost(_host);
   }
+
+//void NetCore::SetStnConfig(const StnConfig& _config) {
+//    stn_config_ = _config;
+//}
+
+const StnConfig NetCore::GetStnConfig() {
+//    return stn_config_;
+    return GetConfig();
+}
 
 #endif

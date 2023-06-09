@@ -46,6 +46,7 @@ namespace app {
     };
 
     void SetCallback(Callback* const callback);
+    void UpdateAppConfig(AppConfig _config);
 }}
 
 

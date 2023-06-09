@@ -334,7 +334,31 @@ struct IPPortItem {
     IPSourceType 	source_type;
     std::string 	str_host;
     int transport_protocol = Task::kTransportProtocolTCP; // tcp or quic?
+    bool is_bind_cellular_network;
 };
+
+    enum ConnectNetworkType {
+        kUnknow = 0,
+        kWifi = 1,
+        kCellularNetwork = 2,
+        kBindCellularNetwork = 3,
+    };
+    
+    
+//#define CELLULAR_NETWORK_ENABLE false
+//#define CELLULAR_NETWORK_CONN_INDEX 2
+//#define CELLULAR_NETWORK_MAX_TRAFFIC_MB 5
+//#define CELLULAR_NETWORK_MAX_SEND_SIZE 5 * 1024 * 1024
+//#define CELLULAR_NETWORK_MAX_REVC_SIZE 5 * 1024 * 1024
+
+//struct StnConfig {
+//    //about cellular network config
+//    bool cellular_network_enable = CELLULAR_NETWORK_ENABLE; //是否支持在连wifi的情况下用手机网络
+//    int32_t cellular_network_conn_index = CELLULAR_NETWORK_CONN_INDEX; //在复合连接的第几个连手机网络
+//    //int64_t max_cellular_send_size = CELLULAR_NETWORK_MAX_SEND_SIZE;
+//    //int64_t max_cellular_revc_size = CELLULAR_NETWORK_MAX_REVC_SIZE;
+//    int64_t cellular_network_max_traffic_size = CELLULAR_NETWORK_MAX_TRAFFIC_MB * 1024 * 1024;
+//};
         
 extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
 
@@ -354,6 +378,7 @@ extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::stri
 
 //上报网络连接状态 
 extern void ReportConnectStatus(int status, int longlink_status);
+extern void ReportConnectNetworkType();
         
 extern void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
 extern void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);
@@ -377,6 +402,9 @@ extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& 
 extern void ReportDnsProfile(const DnsProfile& _dns_profile);
 //.生成taskid.
 extern uint32_t GenTaskID();
-        
+
+//extern void SetStnConfig(const StnConfig& config);
+//extern StnConfig GetConfig();
+
 }}
 #endif // NETWORK_SRC_NET_COMM_H_

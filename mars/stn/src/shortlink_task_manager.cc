@@ -39,6 +39,7 @@
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
+#include "cellular_network_logic.h"
 
 using namespace mars::stn;
 using namespace mars::app;
@@ -721,7 +722,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         }
         ReportTaskProfile(*_it);
         WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
-
+        CellularNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
+        
         __DeleteShortLink(_it->running_id);
 
         lst_cmd_.erase(_it);

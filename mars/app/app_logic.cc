@@ -51,9 +51,18 @@ namespace mars {
 namespace app {
 
 static Callback* sg_callback = NULL;
+static AppConfig app_config;
 
 void SetCallback(Callback* const callback) {
 	sg_callback = callback;
+}
+
+void UpdateAppConfig(AppConfig _config) {
+    app_config = _config;
+}
+
+AppConfig GetAppConfing() {
+    return app_config;
 }
 
 #if !defined(ANDROID) || defined (CPP_CALL_BACK)

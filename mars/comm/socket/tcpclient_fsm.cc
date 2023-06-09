@@ -33,7 +33,7 @@
 namespace mars {
 namespace comm {
 
-TcpClientFSM::TcpClientFSM(const sockaddr& _addr):addr_(&_addr) {
+TcpClientFSM::TcpClientFSM(const sockaddr& _addr, bool _is_cellular_network):addr_(&_addr, _is_cellular_network) {
     status_ = EStart;
     last_status_ = EStart;
     error_ = 0;
@@ -164,9 +164,22 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
     xassert2(EStart == status_, "%d", status_);
     _OnCreate();
 
-    xinfo2(TSF"addr:(%_:%_), ", addr_.ip(), addr_.port()) >> _log;
+    xinfo2(TSF"addr:(v4:%_ v6:%_ port:%_) isCellularIp:%_, ", addr_.ip(), addr_.ipv6(), addr_.port(), addr_.is_bind_cellular_network()) >> _log;
 
     sock_ = socket(addr_.address().sa_family, SOCK_STREAM, IPPROTO_TCP);
+
+    if (addr_.is_bind_cellular_network()) {
+        bool ret = BindSocketToCellularNetwork(sock_);
+        if (!ret) {
+            error_ = socket_errno;
+            status_ = EEnd;
+            _OnClose(last_status_, error_, false);
+            xerror2(TSF "[dual-channel] bind socket to cellular network fail.");
+            return;
+        } else {
+            xinfo2(TSF"[dual-channel] bind socket to cellular network success.");
+        }
+    }
 
     if (sock_ == INVALID_SOCKET) {
         error_ = socket_errno;

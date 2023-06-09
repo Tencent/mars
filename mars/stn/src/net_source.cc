@@ -40,6 +40,7 @@
 #include "mars/stn/stn.h"
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
+#include "net_core.h"
 
 using namespace mars::stn;
 using namespace mars::comm;
@@ -193,20 +194,23 @@ void NetSource::SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpri
  *
  */
 const std::vector<std::string>& NetSource::GetLongLinkHosts() {
+    xdebug_function();
     ScopedLock lock(sg_ip_mutex);
 	return sg_longlink_hosts;
 }
 
 void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
+    xdebug_function();
     ScopedLock lock(sg_ip_mutex);
 	_ports = sg_longlink_ports;
 }
 
 bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& _dns_util, std::vector<IPPortItem>& _ipport_items) {
-    xinfo_function();
+    xdebug_function();
     ScopedLock lock(sg_ip_mutex);
 
     if (__GetLonglinkDebugIPPort(_config, _ipport_items)) {
+        xdebug2(TSF"__GetLonglinkDebugIPPort use debug ip port.");
         return true;
     }
     
@@ -226,7 +230,7 @@ bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config, DnsUtil& 
 }
 
 bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items) {
-
+    xdebug_function();
 	for (std::vector<std::string>::iterator ip_iter = sg_longlink_hosts.begin(); ip_iter != sg_longlink_hosts.end(); ++ip_iter) {
 		if (sg_host_debugip_mapping.find(*ip_iter) != sg_host_debugip_mapping.end()) {
 			for (std::vector<uint16_t>::iterator iter = sg_longlink_ports.begin(); iter != sg_longlink_ports.end(); ++iter) {
@@ -236,6 +240,7 @@ bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, s
 				item.port = *iter;
 				item.source_type = kIPSourceDebug;
 				_ipport_items.push_back(item);
+                xdebug2(TSF"use debug host:%_ ip:%_", item.str_host, item.str_ip);
 			}
 			return true;
 		}
@@ -256,6 +261,7 @@ bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, s
             item.port = *iter;
             item.source_type = kIPSourceDebug;
             _ipport_items.push_back(item);
+            xdebug2(TSF"use minorlong host:%_ ip:%_", item.str_host, item.str_ip);
         }
         return true;
     }
@@ -364,7 +370,8 @@ bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostl
 }
 
 void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const std::vector<std::string>& _hostlist, DnsUtil& _dns_util, bool _islonglink) {
-	if (active_logic_.IsActive()) {
+    xdebug_function();
+    if (active_logic_.IsActive()) {
 		unsigned int merge_type_count = 0;
 		unsigned int makelist_count = kNumMakeCount;
 
@@ -400,7 +407,7 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items, const s
 }
 
 size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::string& _host, size_t _count, DnsUtil& _dns_util, bool _isbackup, bool _islonglink) {
-
+    xdebug_function();
 	IPSourceType ist = kIPSourceNULL;
 	std::vector<std::string> iplist;
     std::vector<uint16_t> ports;
@@ -501,21 +508,68 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 			item.source_type = ist;
 			item.str_host = _host;
 			item.port = *port_iter;
+            //[dual-channel]
+            //TODO cpan dual-channel test code
+            //item.is_bind_cellular_network = true;
 			temp_items.push_back(item);
 		}
 	}
 
 	if (!_isbackup) {
-		ipportstrategy_.SortandFilter(temp_items, (int)(_count - len), true);
-		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
+		//ipportstrategy_.SortandFilter(temp_items, (int)(_count - len), true);
+		//_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
 	}
 	else {
-		_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
-		mars::comm::random_shuffle(_ip_items.begin() + len, _ip_items.end());
-		_ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
+		//_ip_items.insert(_ip_items.end(), temp_items.begin(), temp_items.end());
+		//mars::comm::random_shuffle(_ip_items.begin() + len, _ip_items.end());
+		//_ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
 	}
 
-	return _ip_items.size();
+    //[dual-channel] 每次都从上层取，对Android来说会影响性能，但是这样时效是最及时的。
+        xinfo2(TSF "[dual-channel] enable:%_ activie:%_",
+               NetCore::Singleton::Instance()->GetStnConfig().cellular_network_enable,
+               IsCellularNetworkActive());
+        if (NetCore::Singleton::Instance()->GetStnConfig().cellular_network_enable && IsCellularNetworkActive()) {
+        xinfo2(TSF "[dual-channel]cellular network active.");
+        std::vector<std::string> ips;
+        bool ret = ResolveHostByCellularNetwork(_host, ips);
+        if (ret) {
+            xinfo2(TSF "[dual-channel]reslover host by cellular network success. ");
+            if (!ips.empty()) {
+                IPPortItem item;
+                item.str_ip = ips.at(0);
+                item.source_type = kIPSourceDNS;
+                item.str_host = _host;
+                item.is_bind_cellular_network = true;
+
+                std::random_device rd;
+                std::mt19937 mt_seed(rd());
+                std::uniform_int_distribution<int> dist(0, ports.size() - 1);
+
+                int index = dist(mt_seed);
+                item.port = ports[index];
+                xdebug2(TSF "[dual-channel]str ip:%_ port:%_ index:%_", item.str_ip, item.port, index);
+                int item_index = NetCore::Singleton::Instance()->GetStnConfig().cellular_network_conn_index;
+                if(item_index >= (int)_ip_items.size()){
+                    xdebug2(TSF "[dual-channel]index:%_ ip item size:%_", index, _ip_items.size());
+                    item_index = (int)_ip_items.size();
+                }
+                _ip_items.insert(_ip_items.begin() + item_index, item);
+
+                
+                if(_ip_items.size()>0){
+                    xdebug2(TSF"[dual-channel] __MakeIPPorts start");
+                    for (std::vector<IPPortItem>::iterator ip = _ip_items.begin(); ip != _ip_items.end(); ++ip) {
+                        xdebug2(TSF "[dual-channel]ip:%_ port:%_ isCellular:%_", ip->str_ip, ip->port, ip->is_bind_cellular_network);
+                    }
+                    xdebug2(TSF"[dual-channel] __MakeIPPorts end");
+                } else {
+                    xdebug2(TSF"[dual-channel] ip item is empty");
+                }
+            }
+        }
+    }
+    return _ip_items.size();
 }
 
 void NetSource::ReportShortIP(bool _is_success, const std::string& _ip, const std::string& _host, uint16_t _port) {

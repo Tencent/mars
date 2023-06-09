@@ -107,7 +107,7 @@ class ConnectCheckFSM : public TcpClientFSM {
     };
 
     ConnectCheckFSM(const socket_address& _addr, unsigned int _connect_timeout, unsigned int _index, MComplexConnect* _observer)
-        : TcpClientFSM(_addr.address()), connect_timeout_(_connect_timeout), index_(_index), observer_(_observer), checkfintime_(0) {
+        : TcpClientFSM(_addr.address(), _addr.is_bind_cellular_network()), connect_timeout_(_connect_timeout), index_(_index), observer_(_observer), checkfintime_(0) {
         check_status_ = (_observer && _observer->OnShouldVerify(_index, addr_)) ? ECheckInit : ECheckOK;
     }
 

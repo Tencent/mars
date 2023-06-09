@@ -40,6 +40,12 @@ struct DeviceInfo {
 	std::string devicename;
 	std::string devicetype;
 };
+
+struct AppConfig {
+    bool    cellular_network_enable = false;   //是否支持在连wifi的情况下用手机网络
+    int     cellular_network_conn_index = 0;            //在复合连接的第几个连手机网络
+    int64_t cellular_network_max_traffic_size = 0;
+};
     
 extern mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 extern std::string GetAppFilePath();
@@ -49,6 +55,7 @@ extern std::string GetRecentUserName();
 extern unsigned int GetClientVersion();
 extern DeviceInfo GetDeviceInfo();
 extern double GetOsVersion();
+extern AppConfig GetAppConfing();
 
 #ifdef NATIVE_CALLBACK
 

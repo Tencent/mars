@@ -144,6 +144,8 @@ struct ConnectProfile {
         rtt_by_socket = 0;
 
         task_id = 0;
+        
+        is_bind_cellular_network = false;
     }
     
     std::string net_type;
@@ -227,6 +229,8 @@ struct ConnectProfile {
     int rtt_by_socket;
 
     uint32_t task_id;
+    
+    bool is_bind_cellular_network;
 };
 
         
@@ -253,6 +257,7 @@ struct TransferProfile {
         
         error_type = 0;
         error_code = 0;
+        
     }
     
     const Task task; //change "const Task& task" to "const Task task". fix a memory reuse bug.

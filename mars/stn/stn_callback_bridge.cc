@@ -140,12 +140,12 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
 #endif
 }
 
-void StnCallbackBridge::ReportConnectStatus(int _status, int _longlink_status) {
+void StnCallbackBridge::ReportConnectStatus(int _status, int _longlink_status, bool _is_bind_cellular_network) {
 #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
-    sg_callback->ReportConnectStatus(_status, _longlink_status);
+    sg_callback->ReportConnectStatus(_status, _longlink_status, _is_bind_cellular_network);
 #else
-    C2Java_ReportConnectStatus(_status, _longlink_status);
+    C2Java_ReportConnectStatus(_status, _longlink_status, _is_bind_cellular_network);
 #endif
 }
 
@@ -233,6 +233,33 @@ void StnCallbackBridge::ReportTaskLimited(int _check_type, const Task& _task, un
 void StnCallbackBridge::ReportDnsProfile(const DnsProfile& _dns_profile) {
 }
 
+bool StnCallbackBridge::IsActiveCellularNetwork() {
+    xassert2(sg_callback != NULL);
+    return sg_callback->IsActiveCellularNetwork();
+}
+
+int StnCallbackBridge::ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips) {
+    xassert2(sg_callback != NULL);
+    return sg_callback->ResolveHostByCellularNetwork(host, ips);
+}
+
+int StnCallbackBridge::BindSocketToCellularNetwork(int socket_fd) {
+    xassert2(sg_callback != NULL);
+    return sg_callback->BindSocketToCellularNetwork(socket_fd);
+}
+
+
+StnConfig StnCallbackBridge::GetConfig(){
+    xassert2(sg_callback != NULL);
+//#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    return sg_callback->GetStnConfig();
+//#else
+//    return C2Java_GetConfig();
+//#endif
+}
+
+
+
 //callback functions
 bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
     xassert2(sg_callback_bridge != NULL);
@@ -274,9 +301,9 @@ int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _us
 };
 
 //上报网络连接状态
-void ReportConnectStatus(int status, int longlink_status) {
+void ReportConnectStatus(int status, int longlink_status, bool is_bind_cellular_network) {
     xassert2(sg_callback_bridge != NULL);
-    sg_callback_bridge->ReportConnectStatus(status, longlink_status);
+    sg_callback_bridge->ReportConnectStatus(status, longlink_status, is_bind_cellular_network);
 };
 
 void OnLongLinkStatusChange(int _status) {
@@ -329,6 +356,51 @@ void ReportDnsProfile(const DnsProfile& _dns_profile) {
     xassert2(sg_callback_bridge != NULL);
     sg_callback_bridge->ReportDnsProfile(_dns_profile);
 };
+
+bool IsActiveCellularNetwork() {
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    xassert2(sg_callback_bridge != NULL);
+    return sg_callback_bridge->IsActiveCellularNetwork();
+#else
+    //return C2Java_MakesureAuthed(_host, _user_id);
+    return false;
+#endif
+}
+
+int ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips) {
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    xassert2(sg_callback_bridge != NULL);
+    return sg_callback_bridge->ResolveHostByCellularNetwork(host, ips);
+#else
+    //return C2Java_MakesureAuthed(_host, _user_id);
+    return 0;
+#endif
+}
+
+int BindSocketToCellularNetwork(int socket_fd) {
+
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    xassert2(sg_callback_bridge != NULL);
+    return sg_callback_bridge->BindSocketToCellularNetwork(socket_fd);
+#else
+    //return C2Java_MakesureAuthed(_host, _user_id);
+    return 0;
+#endif
+}
+
+StnConfig GetConfig(){
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+    xassert2(sg_callback_bridge != NULL);
+    return sg_callback_bridge->GetConfig();
+#else
+    StnConfig config;
+    config.cellular_network_enable = true;
+    config.cellular_network_conn_index = 2;
+    config.cellular_network_max_traffic_size = 5;
+    return config;
+#endif
+}
+
 
 }
 }

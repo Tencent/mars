@@ -59,7 +59,7 @@ namespace stn{
 
 
         //上报网络连接状态 
-        virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
+        virtual void ReportConnectStatus(int _status, int _longlink_status, bool is_bind_cellular_network) = 0;
         virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {}
         virtual void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {}
         
@@ -72,7 +72,12 @@ namespace stn{
         
         virtual void RequestSync() = 0;
         
-        //验证是否已登录 
+        //验证是否已登录
+//        virtual bool IsActiveCellularNetwork() = 0;
+//        virtual int  ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips) = 0;
+//        virtual int  BindSocketToCellularNetwork(int socket_fd) = 0;
+//        virtual StnConfig GetStnConfig() = 0;
+        
     };
 
     void SetCallback(Callback* const callback);
@@ -158,6 +163,9 @@ namespace stn{
     
     extern bool (*LongLinkIsConnected_ext)(const std::string& name);
     extern void (*MakesureLonglinkConnected_ext)(const std::string& name);
+
+//    extern void SetStnConfig(const StnConfig& config);
+//    extern StnConfig GetStnConfig();
 }}
 
 #endif /* MARS_STN_LOGIC_H_ */

@@ -3,6 +3,7 @@
 #include <iterator>
 #include <utility>
 #include "mars/openssl/include/openssl/rand.h"
+#include <random>
 
 namespace mars{
 namespace comm{

@@ -523,6 +523,8 @@ DEFINE_FIND_STATIC_METHOD(KC2Java_reportTaskProfile, KC2Java, "reportTaskProfile
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_reportTaskProfile)
 #endif
+
+
 void C2Java_ReportTaskProfile(const TaskProfile& _task_profile){
 	xverbose_function();
 
@@ -576,5 +578,11 @@ void C2Java_ReportTaskProfile(const TaskProfile& _task_profile){
 
 	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportTaskProfile, ScopedJstring(env, report_task_str.c_str()).GetJstr());
 };
+
+//DEFINE_FIND_STATIC_METHOD(KC2Java_getConfig, KC2Java, "getConfig", "(Ljava/lang/String;)V")
+//StnConfig C2Java_GetConfig() {
+//    return StnConfig();
+//};
+
 }
 }

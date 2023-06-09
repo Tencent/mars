@@ -320,6 +320,12 @@ void (*MakesureLonglinkConnected_ext)(const std::string& name)
     STN_WEAK_CALL(MakeSureLongLinkConnect_ext(name));
 };
 
+StnConfig GetStnConfig(){
+    StnConfig config;
+    STN_WEAK_CALL_RETURN(GetStnConfig(), config);
+    return config;
+}
+
 void network_export_symbols_0(){}
 
 }

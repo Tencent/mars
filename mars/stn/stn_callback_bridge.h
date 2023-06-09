@@ -56,7 +56,7 @@ class StnCallbackBridge {
                         int _error_code,
                         const ConnectProfile& _profile);
 
-    virtual void ReportConnectStatus(int _status, int _longlink_status);
+    virtual void ReportConnectStatus(int _status, int _longlink_status, bool is_bind_cellular_network);
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     virtual void OnShortLinkNetworkError(ErrCmdType _err_type,
                                          int _err_code,
@@ -81,6 +81,12 @@ class StnCallbackBridge {
     virtual void ReportTaskProfile(const TaskProfile& _task_profile);
     virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
     virtual void ReportDnsProfile(const DnsProfile& _dns_profile);
+
+    virtual bool IsActiveCellularNetwork();
+    virtual int  ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips);
+    virtual int  BindSocketToCellularNetwork(int socket_fd);
+
+    virtual StnConfig GetConfig();
 };
 
 // You must get `StnCallbackBridge` object through `GetStnCallbackBridge` firstly before invoke this function,

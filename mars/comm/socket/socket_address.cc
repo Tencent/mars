@@ -34,7 +34,8 @@
 
 static const char kWellKnownNat64Prefix[] = {'6', '4', ':','f', 'f', '9', 'b', ':', ':', '\0'};
 
-socket_address::socket_address(const char* _ip, uint16_t _port) {
+socket_address::socket_address(const char* _ip, uint16_t _port, bool _bind_cellular) {
+    xdebug2(TSF"[dual-channel] ip:%_ port:%_", _ip, _port);
     in6_addr addr6 = IN6ADDR_ANY_INIT;
     in_addr  addr4 = {0};
     
@@ -44,19 +45,20 @@ socket_address::socket_address(const char* _ip, uint16_t _port) {
         sock_addr.sin_addr = addr4;
         sock_addr.sin_port = htons(_port);
 
-        __init((sockaddr*)&sock_addr);
+        __init((sockaddr*)&sock_addr, _bind_cellular);
     } else if (socket_inet_pton(AF_INET6, _ip, &addr6)) {
         sockaddr_in6 sock_addr = {0};
         sock_addr.sin6_family = AF_INET6;
         sock_addr.sin6_addr = addr6;
         sock_addr.sin6_port = htons(_port);
-        
-        __init((sockaddr*)&sock_addr);
+
+        __init((sockaddr*)&sock_addr, _bind_cellular);
     } else {
     	sockaddr sock_addr = {0};
     	sock_addr.sa_family = AF_UNSPEC;
-    	__init((sockaddr*)&sock_addr);
+    	__init((sockaddr*)&sock_addr, _bind_cellular);
     }
+    xdebug2(TSF"[dual-channel] ip:%_ ipv6:%_ port:%_ isv4:%_ isv6:%_ family:%_ isCellularIp:%_", ip(), ipv6(), port(), isv4(), isv6(), addr_.ss_family, is_bind_cellular_network_);
 }
 
 socket_address::socket_address(const sockaddr_in& _addr) {
@@ -67,8 +69,8 @@ socket_address::socket_address(const sockaddr_in6& _addr) {
     __init((sockaddr*)&_addr);
 }
 
-socket_address::socket_address(const sockaddr* _addr) {
-    __init(_addr);
+socket_address::socket_address(const sockaddr* _addr, bool _bind_cellular) {
+    __init(_addr, _bind_cellular);
 }
 
 socket_address::socket_address(const struct in_addr& _in_addr) {
@@ -85,10 +87,11 @@ socket_address::socket_address(const struct in6_addr& _in6_addr) {
 	__init((sockaddr*)&addr6);
 }
 
-void  socket_address::__init(const sockaddr* _addr) {
+void  socket_address::__init(const sockaddr* _addr, bool _is_cellular_network) {
     memset(&addr_, 0, sizeof(addr_));
     memset(ip_, 0, sizeof(ip_));
     memset(url_, 0, sizeof(url_));
+    is_bind_cellular_network_ = _is_cellular_network;
 
     if (AF_INET == _addr->sa_family) {
         memcpy(&addr_, _addr, sizeof(sockaddr_in));
@@ -368,6 +371,10 @@ const sockaddr_in* socket_address::_asv4() const{
 }
 const sockaddr_in6* socket_address::_asv6() const{
     return reinterpret_cast<const sockaddr_in6*>(&addr_);
+}
+
+bool socket_address::is_bind_cellular_network() const{
+    return is_bind_cellular_network_;
 }
 
 //
