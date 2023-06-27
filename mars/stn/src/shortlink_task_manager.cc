@@ -801,8 +801,8 @@ void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
     ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
-    p_shortlink->func_add_weak_net_info = NULL;
-    p_shortlink->func_weak_net_report = NULL;
+    //p_shortlink->func_add_weak_net_info = NULL;
+    //p_shortlink->func_weak_net_report = NULL;
     p_shortlink = NULL;
 }
 
