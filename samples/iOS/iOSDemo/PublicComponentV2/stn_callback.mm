@@ -47,7 +47,7 @@ void StnCallBack::TrafficData(ssize_t _send, ssize_t _recv) {
     xdebug2(TSF"send:%_, recv:%_", _send, _recv);
 }
         
-std::vector<std::string> StnCallBack::OnNewDns(const std::string& _host) {
+std::vector<std::string> StnCallBack::OnNewDns(const std::string& host, bool _longlink_hos) {
     std::vector<std::string> vector;
     vector.push_back("118.89.24.72");
     return vector;
@@ -84,7 +84,7 @@ int StnCallBack::Buf2Resp(uint32_t _taskid, void* const _user_context, const std
     return handle_type;
 }
 
-int StnCallBack::OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code) {
+int StnCallBack::OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const CgiProfile& _profile) {
     
     return (int)[[NetworkService sharedInstance] OnTaskEndWithTaskID:_taskid userContext:_user_context errType:_error_type errCode:_error_code];
 
@@ -125,7 +125,23 @@ bool StnCallBack::OnLonglinkIdentifyResponse(const std::string& _channel_id, con
 void StnCallBack::RequestSync() {
 
 }
+
+void StnCallBack::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist) {
         
+}
+
+void StnCallBack::ReportTaskProfile(const TaskProfile& _task_profile) {
+        
+}
+
+void StnCallBack::ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) {
+        
+}
+
+void StnCallBack::ReportDnsProfile(const DnsProfile& _dns_profile){
+        
+}
+    
         
     }
 }

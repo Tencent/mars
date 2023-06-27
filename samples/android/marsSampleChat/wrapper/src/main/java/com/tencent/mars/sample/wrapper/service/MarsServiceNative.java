@@ -24,11 +24,15 @@ import android.os.RemoteException;
 
 import com.tencent.mars.Mars;
 import com.tencent.mars.app.AppLogic;
+import com.tencent.mars.app.AppManager;
+import com.tencent.mars.app.Context;
 import com.tencent.mars.sample.wrapper.remote.MarsPushMessageFilter;
 import com.tencent.mars.sample.wrapper.remote.MarsService;
 import com.tencent.mars.sample.wrapper.remote.MarsTaskWrapper;
 import com.tencent.mars.sdt.SdtLogic;
+import com.tencent.mars.sdt.SdtManager;
 import com.tencent.mars.stn.StnLogic;
+import com.tencent.mars.stn.StnManager;
 import com.tencent.mars.xlog.Log;
 
 /**
@@ -38,9 +42,14 @@ import com.tencent.mars.xlog.Log;
  */
 public class MarsServiceNative extends Service implements MarsService {
 
+    static {
+        Mars.loadDefaultMarsLibrary();
+    }
+
     private static final String TAG = "Mars.Sample.MarsServiceNative";
 
-    private MarsServiceStub stub;
+    //private MarsServiceStub stub;
+    private MarsServiceStub2 stub;
     private static MarsServiceProfileFactory gFactory = new MarsServiceProfileFactory() {
         @Override
         public MarsServiceProfile createMarsServiceProfile() {
@@ -92,25 +101,45 @@ public class MarsServiceNative extends Service implements MarsService {
         super.onCreate();
 
         final MarsServiceProfile profile = gFactory.createMarsServiceProfile();
-        stub = new MarsServiceStub(this, profile);
+        //stub = new MarsServiceStub(this, profile);
 
         // set callback
-        AppLogic.setCallBack(stub);
-        StnLogic.setCallBack(stub);
-        SdtLogic.setCallBack(stub);
+        //AppLogic.setCallBack(stub);
+        //StnLogic.setCallBack(stub);
+        //SdtLogic.setCallBack(stub);
+
+        stub = new MarsServiceStub2(this, profile);
+
+        Context context = MarsContext.getInstance();
+        AppManager appManager = new AppManager(context);
+        appManager.setCallback(stub);
+        context.addManager(AppManager.class, appManager);
+        StnManager stnManager = new StnManager(context);
+        stnManager.setCallback(stub);
+        context.addManager(StnManager.class, stnManager);
+        SdtManager sdtManager = new SdtManager(context);
+        sdtManager.setCallback(stub);
+        context.addManager(SdtManager.class, sdtManager);
 
         // Initialize the Mars PlatformComm
         Mars.init(getApplicationContext(), new Handler(Looper.getMainLooper()));
 
         // Initialize the Mars
-        StnLogic.setLonglinkSvrAddr(profile.longLinkHost(), profile.longLinkPorts());
-        StnLogic.setShortlinkSvrAddr(profile.shortLinkPort());
-        StnLogic.setClientVersion(profile.productID());
+        //StnLogic.setLonglinkSvrAddr(profile.longLinkHost(), profile.longLinkPorts());
+        //StnLogic.setShortlinkSvrAddr(profile.shortLinkPort());
+        //StnLogic.setClientVersion(profile.productID());
+
         Mars.onCreate(true);
 
-        StnLogic.makesureLongLinkConnected();
+        stnManager.setLonglinkSvrAddr(profile.longLinkHost(), profile.longLinkPorts(), "");
+        stnManager.setShortlinkSvrAddr(profile.shortLinkPort(), "");
+        //TODO setClientVersion
 
-        //
+        //StnLogic.makesureLongLinkConnected();
+        stnManager.makesureLongLinkConnected();
+
+        StnLogic.setDebugIP("localhost", "127.0.0.1");
+
         Log.d(TAG, "mars service native created");
     }
 

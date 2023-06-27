@@ -121,6 +121,7 @@ if(ANDROID)
             jni/*.cc
             jni/*.c
             jni/util/*.cc
+            jni/jnicat/*.cc
             jni/jnicat/*.cpp)
         
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})

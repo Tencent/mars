@@ -113,6 +113,8 @@ void StnManager::OnAlarm(int64_t _id) {
 
 void StnManager::SetCallback(Callback* const _callback) {
     callback_ = _callback;
+    callback_bridge_ = new StnCallbackBridge();
+    callback_bridge_->SetCallback(callback_);
 }
 
 void StnManager::SetStnCallbackBridge(StnCallbackBridge* _callback_bridge) {

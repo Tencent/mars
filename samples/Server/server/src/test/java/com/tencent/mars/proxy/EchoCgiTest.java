@@ -14,7 +14,7 @@
 
 package com.tencent.mars.proxy;
 
-import com.tencent.mars.misc.Log;
+//import com.tencent.mars.misc.Log;
 import com.tencent.mars.sample.proto.Main;
 
 import io.netty.bootstrap.Bootstrap;
@@ -48,10 +48,10 @@ public class EchoCgiTest {
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             try {
                 msgXp.decode(new ByteBufInputStream((ByteBuf) msg));
-                Log.i(TAG, "resp recevied! seq=%d", msgXp.seq);
+                //Log.i(TAG, "resp recevied! seq=%d", msgXp.seq);
 
                 final Main.HelloResponse response = Main.HelloResponse.parseFrom(msgXp.body);
-                Log.i(TAG, "resp decoded, resp.retcode=%d, resp.err=%s", response.getRetcode(), response.getErrmsg());
+                //Log.i(TAG, "resp decoded, resp.retcode=%d, resp.err=%s", response.getRetcode(), response.getErrmsg());
 
             } finally {
                 ReferenceCountUtil.release(msg);
@@ -61,7 +61,7 @@ public class EchoCgiTest {
         // 连接成功后，向server发送消息
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            Log.i(TAG, "connected to server!");
+            //Log.i(TAG, "connected to server!");
 
             final Main.HelloRequest request = Main.HelloRequest.newBuilder()
                     .setUser("zhaoyuan")
@@ -77,7 +77,7 @@ public class EchoCgiTest {
             encoded.writeBytes(toSendBuf);
             ctx.writeAndFlush(encoded);
 
-            Log.i(TAG, "write and flush!");
+            //Log.i(TAG, "write and flush!");
         }
     }
 

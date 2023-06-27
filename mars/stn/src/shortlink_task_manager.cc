@@ -799,10 +799,10 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
 void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     if (!_running_id) return;
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-    p_shortlink->func_add_weak_net_info = NULL;
-    p_shortlink->func_weak_net_report = NULL;
     ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
+    //p_shortlink->func_add_weak_net_info = nullptr;
+    //p_shortlink->func_weak_net_report = nullptr;
     p_shortlink = NULL;
 }
 

@@ -14,4 +14,19 @@ void ImportLibs() {
 	extern void ExportSDT();
 	ExportSDT();
 
+        extern void ExportContext();
+        ExportContext();
+
+        extern void ExportJniContext();
+        ExportJniContext();
+
+        extern void ExportAppManager();
+        ExportAppManager();
+
+        extern void ExportStnManager();
+        ExportStnManager();
+
+        extern void ExportSdtManager();
+        ExportSdtManager();
+
 }

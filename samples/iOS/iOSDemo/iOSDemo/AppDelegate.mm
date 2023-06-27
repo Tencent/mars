@@ -70,7 +70,7 @@
     
     [[NetworkService sharedInstance] destroyMars];
     
-    appender_close();
+    mars::xlog::appender_close();
 }
 
 @end

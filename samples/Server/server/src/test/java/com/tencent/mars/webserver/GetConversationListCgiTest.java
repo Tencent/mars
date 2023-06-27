@@ -14,7 +14,6 @@
 
 package com.tencent.mars.webserver;
 
-import com.tencent.mars.misc.Log;
 import com.tencent.mars.sample.proto.Main;
 
 import junit.framework.Assert;
@@ -41,7 +40,7 @@ public class GetConversationListCgiTest {
 
         List<Main.Conversation> list = response.getListList();
         for (Main.Conversation c : list) {
-            Log.d("test", "get conversation: name=[%s], topic=[%s], notice=[%s]", c.getName(), c.getTopic(), c.getNotice());
+            //Log.d("test", "get conversation: name=[%s], topic=[%s], notice=[%s]", c.getName(), c.getTopic(), c.getNotice());
         }
 
         Assert.assertTrue(list.size() != 0);

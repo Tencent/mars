@@ -41,17 +41,17 @@ int main(int argc, char * argv[]) {
         // init xlog
 #if DEBUG
         xlogger_SetLevel(kLevelDebug);
-        appender_set_console_log(true);
+        mars::xlog::appender_set_console_log(true);
 #else
         xlogger_SetLevel(kLevelInfo);
         appender_set_console_log(false);
 #endif
-        XLogConfig config;
-        config.mode_ = kAppenderAsync;
+        mars::xlog::XLogConfig config;
+        config.mode_ = mars::xlog::kAppenderAsync;
         config.logdir_ = [logPath UTF8String];
         config.nameprefix_ = "Test";
         config.pub_key_ = "";
-        config.compress_mode_ = kZlib;
+        config.compress_mode_ = mars::xlog::kZlib;
         config.compress_level_ = 0;
         config.cachedir_ = "";
         config.cache_days_ = 0;

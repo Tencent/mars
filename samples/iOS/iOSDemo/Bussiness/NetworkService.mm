@@ -36,7 +36,13 @@
 
 #import "stnproto_logic.h"
 
+#include <mars/boot/context.h>
+#include <mars/app/app_manager.h>
+#include <mars/stn/stn_manager.h>
+#include <mars/sdt/sdt_manager.h>
+
 using namespace mars::stn;
+using namespace mars::boot;
 
 @interface NetworkService ()
 
@@ -62,8 +68,20 @@ static NetworkService * sharedSingleton = nil;
 }
 
 - (void)setCallBack {
-    mars::stn::SetCallback(mars::stn::StnCallBack::Instance());
-    mars::app::SetCallback(mars::app::AppCallBack::Instance());
+    
+    Context* context = Context::CreateContext("default");
+    mars::app::AppManager* app_manager = new mars::app::AppManager(context);
+    app_manager->SetCallback(mars::app::AppCallBack::Instance());
+    context->AddManager(app_manager);
+    
+    mars::stn::StnManager* stn_manager = new mars::stn::StnManager(context);
+    stn_manager->SetCallback(mars::stn::StnCallBack::Instance());
+    context->AddManager(stn_manager);
+    
+    mars::sdt::SdtManager* sdt_manager = new mars::sdt::SdtManager(context);
+    context->AddManager(sdt_manager);
+    //mars::stn::SetCallback(mars::stn::StnCallBack::Instance());
+    //mars::app::SetCallback(mars::app::AppCallBack::Instance());
 }
 
 - (void) createMars {

@@ -154,6 +154,6 @@ task startProxyServer(dependsOn: 'startWebServer') {
     }
 }
 
-task clean(dependsOn: 'jettyStop') << {
-
-}
+//task clean(dependsOn: 'jettyStop') << {
+//
+//}
