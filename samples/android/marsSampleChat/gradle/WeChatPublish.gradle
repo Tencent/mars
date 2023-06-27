@@ -371,8 +371,8 @@ class WeChatAndroidLibraryPublishExtension extends WeChatPublishExtension {
                 title = null
 
                 def classpathFiles = project.files(android.getBootClasspath().join(File.pathSeparator))
-                classpathFiles += project.files(project.configurations.compile)
-//                classpathFiles += project.files(project.configurations.implementation)
+//                classpathFiles += project.files(project.configurations.compile)
+                classpathFiles += project.files(project.configurations.implementation)
                 doFirst { classpath += classpathFiles }
 
                 source = variant.javaCompile.source

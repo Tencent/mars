@@ -6,14 +6,11 @@ version rootProject.ext.VERSION_NAME
 group "com.tencent.mars"
 artifactId = "mars-wrapper"
 android {
-    compileSdkVersion 31
-    buildToolsVersion '30.0.2'
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
     }
     buildTypes {
         release {
