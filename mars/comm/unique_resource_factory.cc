@@ -33,6 +33,16 @@ std::wstring string2wstring(const std::string& input){
 #define WRITENEWFLAG (_O_BINARY|_O_CREAT|_O_RDWR|_O_TRUNC)
 #define FILEMODE (_S_IREAD|_S_IWRITE)
 
+#elif defined(__ANDROID__) && defined(USE_VFS_API)
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "vfs/include/vfsapi.h"
+
+#define READFLAG (O_RDONLY)
+#define WRITEFLAG (O_CREAT|O_RDWR)
+#define WRITENEWFLAG (O_CREAT|O_RDWR|O_TRUNC)
+#define FILEMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)
+
 #else
 
 #include <sys/types.h>
@@ -51,16 +61,24 @@ int OpenFile(const std::string& file, int flag, int mode){
 #ifdef WIN32
     std::wstring wpath = string2wstring(file);
     return _wopen(wpath.c_str(), flag, mode);
+#elif defined(__ANDROID__) && defined(USE_VFS_API)
+    return VFS_open(file.c_str(), flag);
 #else
     return open(file.c_str(), flag, mode);
 #endif
 }
 
+// .相同的宏定义上面还有一份，两处都要改，否则编不过.
 #ifdef WIN32
 #define READFLAG (_O_BINARY|_O_RDONLY)
 #define WRITEFLAG (_O_BINARY|_O_CREAT|_O_RDWR)
 #define WRITENEWFLAG (_O_BINARY|_O_CREAT|_O_RDWR|_O_TRUNC)
 #define FILEMODE (_S_IREAD|_S_IWRITE)
+#elif defined(__ANDROID__) && defined(USE_VFS_API)
+#define READFLAG (O_RDONLY)
+#define WRITEFLAG (O_CREAT|O_RDWR)
+#define WRITENEWFLAG (O_CREAT|O_RDWR|O_TRUNC)
+#define FILEMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)
 #else
 #define READFLAG (O_RDONLY)
 #define WRITEFLAG (O_CREAT|O_RDWR|O_SYNC)
