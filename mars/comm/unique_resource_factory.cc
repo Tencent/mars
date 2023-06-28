@@ -46,17 +46,11 @@ std::wstring string2wstring(const std::string& input){
 
 #endif
 
-#if defined(__ANDROID__)  && defined(USE_VFS_API)
-#include "vfs/include/vfsapi.h"
-#endif
-
 namespace internal{
 int OpenFile(const std::string& file, int flag, int mode){
 #ifdef WIN32
     std::wstring wpath = string2wstring(file);
     return _wopen(wpath.c_str(), flag, mode);
-#elif defined(__ANDROID__) && defined(USE_VFS_API)
-    return VFS_open(file.c_str(), flag);
 #else
     return open(file.c_str(), flag, mode);
 #endif
