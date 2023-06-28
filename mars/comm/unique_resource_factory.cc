@@ -40,8 +40,8 @@ std::wstring string2wstring(const std::string& input){
 #include <fcntl.h>
 
 #define READFLAG (O_RDONLY)
-#define WRITEFLAG (O_CREAT|O_RDWR|O_SYNC)
-#define WRITENEWFLAG (O_CREAT|O_RDWR|O_SYNC|O_TRUNC)
+#define WRITEFLAG (O_CREAT|O_RDWR)
+#define WRITENEWFLAG (O_CREAT|O_RDWR|O_TRUNC)
 #define FILEMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)
 
 #endif
@@ -55,18 +55,6 @@ int OpenFile(const std::string& file, int flag, int mode){
     return open(file.c_str(), flag, mode);
 #endif
 }
-
-#ifdef WIN32
-#define READFLAG (_O_BINARY|_O_RDONLY)
-#define WRITEFLAG (_O_BINARY|_O_CREAT|_O_RDWR)
-#define WRITENEWFLAG (_O_BINARY|_O_CREAT|_O_RDWR|_O_TRUNC)
-#define FILEMODE (_S_IREAD|_S_IWRITE)
-#else
-#define READFLAG (O_RDONLY)
-#define WRITEFLAG (O_CREAT|O_RDWR|O_SYNC)
-#define WRITENEWFLAG (O_CREAT|O_RDWR|O_SYNC|O_TRUNC)
-#define FILEMODE (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP)
-#endif
 
 int OpenForRead(const std::string& file){
     return OpenFile(file, READFLAG, FILEMODE);
