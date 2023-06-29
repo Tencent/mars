@@ -457,8 +457,8 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 		if (iplist.empty()) {
 			dns_profile.Reset();
 			dns_profile.dnstype = kType_Dns;
-
-			ist = kIPSourceDNS;
+            dns_profile.host = _host;
+            ist = kIPSourceDNS;
 			ret = _dns_util.GetDNS().GetHostByName(_host, iplist);
 
 			dns_profile.end_time = gettickcount();
