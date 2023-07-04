@@ -99,6 +99,7 @@ class NetSource {
     void SetCgiDebugIP(const std::string& _cgi, const std::string& _ip, const uint16_t _port);
 	bool CanUseQUIC();
     void DisableQUIC(int64_t seconds = 20 * 60); // 20 minutes
+    void ForbidQUIC(bool forbid);
 
     unsigned GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource);
     void SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms);
@@ -174,6 +175,7 @@ class NetSource {
     TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
     unsigned sg_quic_default_rw_timeoutms = 5000;
     std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
+    bool quic_forbidden_ = true;
 
     comm::Mutex sg_ip_mutex;
 };

@@ -582,8 +582,16 @@ void NetSource::DisableQUIC(int64_t seconds/* = 20 * 60*/){
     sg_quic_reopen_tick += seconds * 1000;
 }
 
+void NetSource::ForbidQUIC(bool forbid){
+	ScopedLock lock(sg_ip_mutex);
+	quic_forbidden_ = forbid;
+}
+
 bool NetSource::CanUseQUIC(){
     ScopedLock lock(sg_ip_mutex);
+    if (quic_forbidden_)
+    	return false;
+
     if (sg_quic_enabled)
         return true;
     
