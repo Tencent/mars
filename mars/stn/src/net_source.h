@@ -94,7 +94,6 @@ class NetSource {
     static void SetCgiDebugIP(const std::string& _cgi, const std::string& _ip, const uint16_t _port);
 	static bool CanUseQUIC();
     static void DisableQUIC(int64_t seconds = 20 * 60); // 20 minutes
-    static void ForbidQUIC(bool forbid);
     
     static unsigned GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource);
     static void SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms);

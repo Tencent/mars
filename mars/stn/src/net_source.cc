@@ -66,7 +66,6 @@ NO_DESTROY static std::map< std::string, std::string > sg_host_debugip_mapping;
 NO_DESTROY static std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
 NO_DESTROY static tickcount_t sg_quic_reopen_tick(true);
 static bool sg_quic_enabled = true;
-static bool sg_quic_forbidden = true;
 static TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
 static unsigned sg_quic_default_rw_timeoutms = 5000;
 NO_DESTROY static std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
@@ -544,16 +543,8 @@ void NetSource::DisableQUIC(int64_t seconds/* = 20 * 60*/){
     sg_quic_reopen_tick += seconds * 1000;
 }
 
-void NetSource::ForbidQUIC(bool forbid){
-	ScopedLock lock(sg_ip_mutex);
-    sg_quic_forbidden = forbid;
-}
-
 bool NetSource::CanUseQUIC(){
     ScopedLock lock(sg_ip_mutex);
-    if (sg_quic_forbidden)
-    	return false;
-
     if (sg_quic_enabled)
         return true;
     
