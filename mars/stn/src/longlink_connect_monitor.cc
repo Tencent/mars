@@ -261,6 +261,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
     xinfo2(TSF"next connect interval: %_, posttime: %_, buffer: %_, _type: %_", interval, posttime, buffer, _type);
 
     if (activelogic_.IsActive() || _type == kNetworkChangeConnect) {
+        current_interval_index_ = 0;
         if ((posttime + buffer) >= interval) {
             bool newone = false;
             bool ret = longlink_.MakeSureConnected(&newone);
