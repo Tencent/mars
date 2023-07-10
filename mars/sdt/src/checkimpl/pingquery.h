@@ -63,8 +63,8 @@ class PingQuery {
         readcount_(0),
         interval_(0),
         timeout_(0),
-        alarm_(boost::bind(&PingQuery::__onAlarm, this), false),
-        readwrite_breaker_()
+        readwrite_breaker_(),
+        alarm_(boost::bind(&PingQuery::__onAlarm, this), false)
 #endif
         , traffic_monitor_(trafficMonitor)
     {}
@@ -87,6 +87,9 @@ class PingQuery {
      */
     int RunPingQuery(int queryCount, int interval/*S*/, int timeout/*S*/,
                        const char* dest, unsigned int packetSize = 0);
+
+    int RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, 
+                       const char* dest, unsigned int packetSize, int* rtt);
 
 #ifdef __APPLE__
   private:
@@ -117,8 +120,8 @@ class PingQuery {
     int                     timeout_;
     struct sockaddr          sendaddr_;
     struct sockaddr            recvaddr_;
-    Alarm                   alarm_;
-    SocketBreaker     readwrite_breaker_;
+    mars::comm::SocketBreaker  readwrite_breaker_;
+    mars::comm::Alarm          alarm_;
 #endif
     NetCheckTrafficMonitor* traffic_monitor_;
 };

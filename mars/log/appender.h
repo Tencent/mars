@@ -25,15 +25,40 @@
 #include <vector>
 #include <stdint.h>
 
+namespace mars {
+namespace xlog {
+
 enum TAppenderMode
 {
-    kAppednerAsync,
-    kAppednerSync,
+    kAppenderAsync,
+    kAppenderSync,
 };
 
-void appender_open(TAppenderMode _mode, const char* _dir, const char* _nameprefix, const char* _pub_key);
-void appender_open_with_cache(TAppenderMode _mode, const std::string& _cachedir, const std::string& _logdir,
-                              const char* _nameprefix, int _cache_days, const char* _pub_key);
+enum TCompressMode{
+    kZlib,
+    kZstd,
+};
+
+struct XLogConfig{
+    TAppenderMode mode_ = kAppenderAsync;
+    std::string logdir_;
+    std::string nameprefix_;
+    std::string pub_key_;
+    TCompressMode compress_mode_ = kZlib;
+    int compress_level_ = 6;
+    std::string cachedir_;
+    int cache_days_ = 0;
+};
+
+#ifdef __APPLE__
+enum TConsoleFun {
+    kConsolePrintf,
+    kConsoleNSLog,
+};
+#endif
+
+void appender_open(const XLogConfig& _config);
+
 void appender_flush();
 void appender_flush_sync();
 void appender_close();
@@ -44,6 +69,9 @@ bool appender_get_current_log_path(char* _log_path, unsigned int _len);
 bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len);
 void appender_set_console_log(bool _is_open);
 
+#ifdef __APPLE__
+void appender_set_console_fun(TConsoleFun _fun);
+#endif
 /*
  * By default, all logs will write to one file everyday. You can split logs to multi-file by changing max_file_size.
  * 
@@ -57,5 +85,9 @@ void appender_set_max_file_size(uint64_t _max_byte_size);
  * @param _max_time    Max alive duration of a single log file in seconds, default is 10 days
  */
 void appender_set_max_alive_duration(long _max_time);
+
+}
+}
+
 
 #endif /* APPENDER_H_ */

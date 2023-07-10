@@ -26,6 +26,10 @@
 #include "socket/socket_address.h"
 
 class XLogger;
+
+namespace mars {
+namespace comm {
+
 class SocketSelect;
 
 class TcpClientFSM {
@@ -85,7 +89,7 @@ class TcpClientFSM {
     virtual void _OnRecv(AutoBuffer& _recv_buff, ssize_t _recv_len) = 0;
     virtual void _OnRequestSend(AutoBuffer& _send_buff) {}
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) = 0;
-    virtual void _OnClose(TSocketStatus _status, int _error, bool _userclose) = 0;
+    virtual void _OnClose(TSocketStatus _status, int _error, bool _remoteclose) = 0;
 
 
   protected:
@@ -104,5 +108,8 @@ class TcpClientFSM {
     AutoBuffer send_buf_;
     AutoBuffer recv_buf_;
 };
+
+}
+}
 
 #endif /* TCPCLIENTFSM_H_ */

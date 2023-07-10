@@ -109,6 +109,19 @@ class INI {
 
         return true;
     }
+    
+    keys_t CurrentKeys() const{
+        if (currentsection.empty()){
+            return {};
+        }
+        
+        auto sectionsit = sections.find(currentsection);
+        if (sectionsit == sections.end()){
+            return {};
+        }
+        
+        return sectionsit->second;
+    }
 
     template<class V>
     bool Set(const std::string& key, const V& value)
@@ -297,6 +310,10 @@ class INI {
     sections_t& Sections() {
         currentsection = "";
         return sections;
+    }
+
+    bool Empty() const {
+        return sections.empty();
     }
 
   private:

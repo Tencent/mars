@@ -28,6 +28,9 @@
 typedef HANDLE  thread_handler;
 #define thrd_success (0)
 
+namespace mars {
+namespace comm {
+
 typedef DWORD thread_tid;
 
 typedef void* (*THREAD_START_PROC)(void*  arg);
@@ -51,7 +54,7 @@ class ThreadUtil {
     }
 
     static bool isruning(thread_tid _id) {
-        if (_id == currentthreadid())   
+        if (_id == currentthreadid())
             return true;
 
         HANDLE handle = OpenThread(THREAD_ALL_ACCESS, FALSE, _id);
@@ -424,6 +427,8 @@ class Thread {
 	bool outside_join_;
 };
 
+}
+}
 
 // inline bool operator==(const thread_t& lhs, const thread_t& rhs)
 //{

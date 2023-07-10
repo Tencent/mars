@@ -43,6 +43,7 @@
 
 using namespace mars::stn;
 using namespace mars::app;
+using namespace mars::comm;
 
 static const unsigned int kTimeCheckPeriod = 10 * 1000;     // 10s
 static const unsigned int kStartCheckPeriod = 3 * 1000;     // 3s
@@ -58,7 +59,7 @@ static const unsigned int  kUpOrDownThreshold = 60 * 10 * 1000;      // 10min
 
 
 #ifdef __ANDROID__
-static const int kAlarmType = 116;
+static const int kAlarmType = 102;
 #endif
 
 enum {
@@ -84,8 +85,8 @@ static unsigned long const sg_interval[][5]  = {
 static int const reconnect_interval[7] = {0, 60, 120, 240, 360, 480, 600}; // if modify this varible ,do not forget to modify varible: "kInternalMaxIndex"
 static int const kInternalMaxIndex = 6; //max index of "reconnect_interval" array
 
-static std::string alarm_reason;
-static std::string error_msg;
+NO_DESTROY static std::string alarm_reason;
+NO_DESTROY static std::string error_msg;
 
 static void __LongLinkStateToSystemLog(LongLink::TLongLinkStatus _status) {
 #ifdef __ANDROID__
@@ -174,7 +175,7 @@ LongLinkConnectMonitor::LongLinkConnectMonitor(ActiveLogic& _activelogic, LongLi
     , is_keep_alive_(_is_keep_alive)
     , current_interval_index_(0)
     , rebuild_longlink_(false) {
-        xinfo2(TSF"handler:(%_,%_), realarm:%_, wakealarm:%_, this:%_", asyncreg_.Get().queue,asyncreg_.Get().seq, &rebuild_alarm_, &wake_alarm_, this);
+        xinfo2(TSF"handler:(%_,%_)", asyncreg_.Get().queue,asyncreg_.Get().seq);
         if(is_keep_alive_) {
             activelogic_.SignalActive.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalActive, this, _1));
             activelogic_.SignalForeground.connect(boost::bind(&LongLinkConnectMonitor::__OnSignalForeground, this, _1));
@@ -208,6 +209,10 @@ void LongLinkConnectMonitor::DisconnectAllSlot() {
 
 bool LongLinkConnectMonitor::MakeSureConnected() {
     xdebug_function();
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return false;
+    }
     __IntervalConnect(kTaskConnect);
     return LongLink::kConnected == longlink_.ConnectStatus();
 }
@@ -239,6 +244,10 @@ bool LongLinkConnectMonitor::NetworkChange() {
 
 
 uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return 0;
+    }
     if (LongLink::kConnecting == longlink_.ConnectStatus() || LongLink::kConnected == longlink_.ConnectStatus()) return 0;
 
     uint64_t interval =  __Interval(_type, activelogic_) * 1000ULL;
@@ -265,7 +274,7 @@ uint64_t LongLinkConnectMonitor::__IntervalConnect(int _type) {
 
         rebuild_longlink_ = false;
         bool newone = false;
-        bool ret = longlink_.MakeSureConnected(&newone);
+        longlink_.MakeSureConnected(&newone);
         xinfo2(TSF"rebuild now");
         return 0;
     }
@@ -316,11 +325,11 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 }
 
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
-#if defined(__linux__)
-    xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
-    RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLinkConnectMonitor::__AutoIntervalConnect, this),);
-#else
     ASYNC_BLOCK_START
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return;
+    }
 #ifdef __APPLE__
     xinfo2(TSF"forground:%_ time:%_ tick:%_", _isForeground, timeMs(), gettickcount());
 
@@ -337,22 +346,25 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
 #endif
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
-#endif
 }
 
 void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
-#if defined(__linux__)
-    xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
-    RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLinkConnectMonitor::__AutoIntervalConnect, this),);
-#else
     ASYNC_BLOCK_START
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return;
+    }
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
-#endif
 }
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
-    xinfo2(TSF"longlink status change: %_, realarm:%_, wakealarm:%_", _status, &rebuild_alarm_, &wake_alarm_);
+    xinfo2(TSF"longlink status change: %_ ", _status);
+    if(longlink_.IsSvrTrigOff()) {
+        xinfo2(TSF"server trig off");
+        return;
+    }
+
     rebuild_alarm_.Cancel();
     wake_alarm_.Cancel();
 

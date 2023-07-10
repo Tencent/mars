@@ -61,12 +61,12 @@ void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
 #endif
 }
 
-std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& host) {
+std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host, bool _longlink_host) {
 #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
-    return sg_callback->OnNewDns(host);
+    return sg_callback->OnNewDns(_host, _longlink_host);
 #else
-    return C2Java_OnNewDns(host);
+    return C2Java_OnNewDns(_host);
 #endif
 }
 
@@ -118,12 +118,25 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
                                 void* const _user_context, 
                                 const std::string& _user_id,
                                 int _error_type, 
-                                int _error_code) {
+                                int _error_code,
+                                const ConnectProfile& _profile) {
 #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
-    return sg_callback->OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code);
+    CgiProfile cgiprofile;
+    cgiprofile.start_time = _profile.start_time;
+    cgiprofile.start_connect_time = _profile.start_connect_time;
+    cgiprofile.connect_successful_time = _profile.connect_successful_time;
+    cgiprofile.start_tls_handshake_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
+    cgiprofile.tls_handshake_successful_time = _profile.tls_handshake_successful_time;
+    cgiprofile.start_send_packet_time = _profile.start_send_packet_time;
+    cgiprofile.start_read_packet_time = _profile.start_read_packet_time;
+    cgiprofile.read_packet_finished_time = _profile.read_packet_finished_time;
+    cgiprofile.channel_type = _profile.channel_type;
+    cgiprofile.transport_protocol = _profile.transport_protocol;
+    cgiprofile.rtt = _profile.rtt_by_socket;
+    return sg_callback->OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code, cgiprofile);
 #else
-    return C2Java_OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code);
+    return C2Java_OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code, _profile);
 #endif
 }
 
@@ -208,8 +221,7 @@ void StnCallbackBridge::RequestNetCheckShortLinkHosts(std::vector<std::string>& 
 
 void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
 #if !defined(ANDROID) || defined(CPP_CALL_BACK)
-    xassert2(sg_callback != NULL);
-    sg_callback->ReportTaskProfile(_task_profile);
+
 #else
     C2Java_ReportTaskProfile(_task_profile);
 #endif
@@ -234,9 +246,9 @@ void TrafficData(ssize_t _send, ssize_t _recv) {
 };
 
 //底层询问上层该host对应的ip列表
-std::vector<std::string> OnNewDns(const std::string& host) {
+std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host) {
     xassert2(sg_callback_bridge != NULL);
-    return sg_callback_bridge->OnNewDns(host);
+    return sg_callback_bridge->OnNewDns(_host, _longlink_host);
 };
 
 //网络层收到push消息回调
@@ -244,6 +256,7 @@ void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, c
     xassert2(sg_callback_bridge != NULL);
     sg_callback_bridge->OnPush(_channel_id, _cmdid, _taskid, _body, _extend);
 };
+
 //底层获取task要发送的数据
 bool Req2Buf(uint32_t taskid,  void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer, AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host) {
     xassert2(sg_callback_bridge != NULL);
@@ -255,9 +268,9 @@ int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user
     return sg_callback_bridge->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
 };
 //任务执行结束
-int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code) {
+int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int error_code, const ConnectProfile& _profile) {
     xassert2(sg_callback_bridge != NULL);
-    return sg_callback_bridge->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code);
+    return sg_callback_bridge->OnTaskEnd(taskid, user_context, _user_id, error_type, error_code, _profile);
 };
 
 //上报网络连接状态

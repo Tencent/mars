@@ -33,6 +33,7 @@
 
 #ifndef NATIVE_CALLBACK
 DEFINE_FIND_CLASS(KC2Java, "com/tencent/mars/stn/StnLogic")
+DEFINE_FIND_CLASS(KC2JavaStnCgiProfile,"com/tencent/mars/stn/StnLogic$CgiProfile");
 #endif
 
 namespace mars {
@@ -71,13 +72,14 @@ extern boost::signals2::signal<void (ErrCmdType _err_type, int _err_code, const 
 #endif
 
 #ifndef NATIVE_CALLBACK
-DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;II)I")
+DEFINE_FIND_STATIC_METHOD(KC2Java_onTaskEnd, KC2Java, "onTaskEnd", "(ILjava/lang/Object;IILcom/tencent/mars/stn/StnLogic$CgiProfile;)I")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_onTaskEnd)
 #endif
-int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code){
+int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code, const ConnectProfile& _profile){
 
     xverbose_function();
+    xdebug2(TSF"recieve task profile: %_, %_, %_", _profile.start_connect_time, _profile.start_send_packet_time, _profile.read_packet_finished_time);
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(OnTaskEnd(_taskid, _user_context, _user_id, _error_type, _error_code), -1);
 #endif
@@ -86,8 +88,41 @@ int C2Java_OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::str
 
 	ScopeJEnv scope_jenv(cache_instance->GetJvm());
 	JNIEnv *env = scope_jenv.GetEnv();
+    jclass cgiProfileCls = cache_instance->GetClass(env, KC2JavaStnCgiProfile);
+    jmethodID jobj_init = env->GetMethodID(cgiProfileCls, "<init>", "()V");
+    jobject jobj_cgiItem = env->NewObject(cgiProfileCls, jobj_init);
+    if (nullptr == jobj_cgiItem) {
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "C2Java_OnTaskEnd: create jobject failed.");
+        return -1;
+    }
 
-	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code).i;
+    jfieldID fid_taskStartTime = env->GetFieldID(cgiProfileCls, "taskStartTime","J");
+    jfieldID fid_startConnectTime = env->GetFieldID(cgiProfileCls, "startConnectTime","J");
+    jfieldID fid_connectSuccessfulTime = env->GetFieldID(cgiProfileCls, "connectSuccessfulTime","J");
+    jfieldID fid_startHandshakeTime = env->GetFieldID(cgiProfileCls, "startHandshakeTime","J");
+    jfieldID fid_handshakeSuccessfulTime = env->GetFieldID(cgiProfileCls, "handshakeSuccessfulTime","J");
+    jfieldID fid_startSendPacketTime = env->GetFieldID(cgiProfileCls, "startSendPacketTime","J");
+    jfieldID fid_startReadPacketTime = env->GetFieldID(cgiProfileCls, "startReadPacketTime","J");
+    jfieldID fid_readPacketFinishedTime = env->GetFieldID(cgiProfileCls, "readPacketFinishedTime","J");
+    jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt","J");
+    jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType","I");
+	jfieldID fid_protocolType = env->GetFieldID(cgiProfileCls, "protocolType","I");
+
+
+    uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
+    env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
+    env->SetLongField(jobj_cgiItem, fid_startConnectTime, _profile.start_connect_time);
+    env->SetLongField(jobj_cgiItem, fid_connectSuccessfulTime, _profile.connect_successful_time);
+    env->SetLongField(jobj_cgiItem, fid_startHandshakeTime,tls_start_time);
+    env->SetLongField(jobj_cgiItem, fid_handshakeSuccessfulTime, _profile.tls_handshake_successful_time);
+    env->SetLongField(jobj_cgiItem, fid_startSendPacketTime, _profile.start_send_packet_time);
+    env->SetLongField(jobj_cgiItem, fid_startReadPacketTime, _profile.start_read_packet_time);
+    env->SetLongField(jobj_cgiItem, fid_readPacketFinishedTime, _profile.read_packet_finished_time);
+    env->SetLongField(jobj_cgiItem, fid_rtt, _profile.rtt_by_socket);
+    env->SetIntField(jobj_cgiItem, fid_channelType, _profile.channel_type);
+	env->SetIntField(jobj_cgiItem, fid_protocolType, _profile.transport_protocol);
+
+	int ret = (int)JNU_CallStaticMethodByMethodInfo(env, KC2Java_onTaskEnd, (jint)_taskid, _user_context, (jint)_error_type, (jint)_error_code, jobj_cgiItem).i;
 
 	return ret;
 };
@@ -275,8 +310,7 @@ bool C2Java_MakesureAuthed(const std::string& _host, const std::string& _user_id
 };
 
 #ifndef NATIVE_CALLBACK
-DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", 
-                                "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
+DEFINE_FIND_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer, KC2Java, "getLongLinkIdentifyCheckBuffer", "(Ljava/lang/String;Ljava/io/ByteArrayOutputStream;Ljava/io/ByteArrayOutputStream;[I)I")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_getLongLinkIdentifyCheckBuffer)
 #endif

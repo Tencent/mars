@@ -33,6 +33,9 @@
 #define strdup _strdup
 #endif
 
+namespace mars {
+namespace comm {
+
 TcpClient::TcpClient(const char* _ip, uint16_t _port, MTcpEvent& _event, int _timeout)
     : ip_(strdup(_ip)) , port_(_port) , event_(_event)
     , socket_(INVALID_SOCKET) , have_read_data_(false) , will_disconnect_(false) , writedbufid_(0)
@@ -144,20 +147,19 @@ int TcpClient::WritePostData(void* _buf, unsigned int _len) {
 
 void TcpClient::__Run() {
     status_ = kTcpConnecting;
+    socket_address addr = socket_address(ip_, port_);
+    if (AF_INET == addr.address().sa_family) {
+        struct sockaddr_in _addr;
+        in_addr_t ip  = ((sockaddr_in*)&addr.address())->sin_addr.s_addr;
 
-    struct sockaddr_in _addr;
-    in_addr_t ip  = ((sockaddr_in*)&socket_address(ip_, 0).address())->sin_addr.s_addr;
-
-    if ((in_addr_t)(-1) == ip) {
-        status_ = kTcpConnectIpErr;
-        event_.OnError(status_, SOCKET_ERRNO(EADDRNOTAVAIL));
-        return;
+        if ((in_addr_t)(-1) == ip) {
+            status_ = kTcpConnectIpErr;
+            event_.OnError(status_, SOCKET_ERRNO(EADDRNOTAVAIL));
+            return;
+        }
     }
 
-    memset(&_addr, 0, sizeof(_addr));
-    _addr = *(struct sockaddr_in*)(&socket_address(ip_, port_).address());
-
-    socket_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    socket_ = socket(addr.address().sa_family, SOCK_STREAM, IPPROTO_TCP);
 
     if (socket_ == INVALID_SOCKET) {
         status_ = kTcpConnectingErr;
@@ -166,7 +168,7 @@ void TcpClient::__Run() {
         return;
     }
 
-    if (::getNetInfo() == kWifi && socket_fix_tcp_mss(socket_) < 0) {
+    if (getNetInfo() == kWifi && socket_fix_tcp_mss(socket_) < 0) {
 #ifdef ANDROID
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
@@ -178,7 +180,7 @@ void TcpClient::__Run() {
     
     xerror2_if(0 != socket_set_nobio(socket_), TSF"socket_set_nobio:%_, %_", socket_errno, socket_strerror(socket_errno));
 
-    int ret = ::connect(socket_, (sockaddr*)&_addr, sizeof(_addr));
+    int ret = ::connect(socket_, &addr.address(), addr.address_length());
 
     std::string local_ip = socket_address::getsockname(socket_).ip();
     unsigned int local_port = socket_address::getsockname(socket_).port();
@@ -242,7 +244,8 @@ void TcpClient::__Run() {
         
         tickcount_t round_tick(true);
         
-        if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
+//      if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
+        select_readwrite.Read_FD_SET(socket_);
 
         {
             ScopedLock lock(write_mutex_);
@@ -361,4 +364,7 @@ void TcpClient::__RunThread() {
 
 void TcpClient::__SendBreak() {
     pipe_.Break();
+}
+
+}
 }

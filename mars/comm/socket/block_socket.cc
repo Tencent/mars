@@ -23,7 +23,10 @@
 #include "comm/time_utils.h"
 #include "comm/xlogger/xlogger.h"
 #include "comm/platform_comm.h"
+#include "comm/unique_resource.h"
 
+namespace mars {
+namespace comm {
 /*
  * param: timeoutInMs if set 0, then select timeout param is NULL, not timeval(0)
  * return value:
@@ -31,84 +34,73 @@
 
 SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _breaker, int& _errcode, int32_t _timeout/*ms*/){
     //socket
-    SOCKET sock = socket(_address.address().sa_family, SOCK_STREAM, IPPROTO_TCP);
-    
-    if (sock == INVALID_SOCKET) {
+    UniqueSocketResource sock(socket(_address.address().sa_family, SOCK_STREAM, IPPROTO_TCP));
+    if (!sock.is_valid()) {
         _errcode = socket_errno;
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     }
     
 #ifdef _WIN32
-    if (0 != socket_ipv6only(sock, 0)){ xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno)); }
+    if (0 != socket_ipv6only(sock.get(), 0)){ xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno)); }
 #endif
     
-    int ret = socket_set_nobio(sock);
+    int ret = socket_set_nobio(sock.get());
     if (ret != 0) {
         _errcode = socket_errno;
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     }
     
-    if (::getNetInfo() == kWifi && socket_fix_tcp_mss(sock) < 0) {
+    if (getNetInfo() == kWifi && socket_fix_tcp_mss(sock.get()) < 0) {
 #ifdef ANDROID
         xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
     }
     
     //connect
-    ret = connect(sock, &_address.address(), _address.address_length());
+    ret = connect(sock.get(), &_address.address(), _address.address_length());
     if (ret != 0 && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno)) {
         _errcode = socket_errno;
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     }
     
     SocketSelect sel(_breaker);
     sel.PreSelect();
-    sel.Write_FD_SET(sock);
-    sel.Exception_FD_SET(sock);
+    sel.Write_FD_SET(sock.get());
+    sel.Exception_FD_SET(sock.get());
     
     ret = (_timeout >= 0) ? (sel.Select(_timeout)) : (sel.Select());
     if (ret == 0) {
         _errcode = SOCKET_ERRNO(ETIMEDOUT);
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     } else if (ret < 0) {
         _errcode = sel.Errno();
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     }
     
     if (sel.IsException()) {
         _errcode = 0;
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     }
     if (sel.IsBreak()) {
         _errcode = 0;
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     }
     
-    if (sel.Exception_FD_ISSET(sock)) {
-        _errcode = socket_error(sock);
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+    if (sel.Exception_FD_ISSET(sock.get())) {
+        _errcode = socket_error(sock.get());
+        return sock.invalid_value();
     }
     
-    if (!sel.Write_FD_ISSET(sock)) {
-        _errcode = socket_error(sock);
-        ::socket_close(sock);
-        //        xassert2(false);
-        return INVALID_SOCKET;
+    if (!sel.Write_FD_ISSET(sock.get())) {
+        _errcode = socket_error(sock.get());
+        return sock.invalid_value();
     }
-    _errcode = socket_error(sock);
+    _errcode = socket_error(sock.get());
     if (0 != _errcode) {
-        ::socket_close(sock);
-        return INVALID_SOCKET;
+        return sock.invalid_value();
     }
     
-    return sock;
+    return sock.release();
 }
 
 
@@ -247,4 +239,7 @@ int block_socket_recv(SOCKET _sock, AutoBuffer& _buffer, size_t _max_size, Socke
             return -1;
         }
     }
+}
+
+}
 }

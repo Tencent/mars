@@ -37,9 +37,10 @@ ScopeJEnv::ScopeJEnv(JavaVM* jvm, jint _capacity)
         status_ = jvm->GetEnv((void**) &env_, JNI_VERSION_1_6);
 
         if (JNI_OK == status_) {
+            ASSERT2(env_ != NULL, "env_ %p", env_);
             break;
         }
-
+        
         char thread_name[32] = {0};
         snprintf(thread_name, sizeof(thread_name), "mars::%d", (int)gettid());
         JavaVMAttachArgs args;

@@ -28,40 +28,28 @@
 #include "comm/xlogger/xlogger.h"
 #include "comm/socket/socket_address.h"
 
+using namespace mars::comm;
+
 TcpServer::TcpServer(const char* _ip, uint16_t _port, MTcpServer& _observer, int _backlog)
     : observer_(_observer)
     , thread_(boost::bind(&TcpServer::__ListenThread, this))
     , listen_sock_(INVALID_SOCKET), backlog_(_backlog) {
-    memset(&bind_addr_, 0, sizeof(bind_addr_));
-    bind_addr_ = *(struct sockaddr_in*)(&socket_address(_ip, _port).address());
-}
-
-TcpServer::TcpServer(uint16_t _port, MTcpServer& _observer, int _backlog)
-    : observer_(_observer)
-    , thread_(boost::bind(&TcpServer::__ListenThread, this))
-    , listen_sock_(INVALID_SOCKET), backlog_(_backlog) {
-    memset(&bind_addr_, 0, sizeof(bind_addr_));
-    bind_addr_.sin_family = AF_INET;
-    bind_addr_.sin_addr.s_addr = htonl(INADDR_ANY);
-    bind_addr_.sin_port = htons(_port);
+    bind_addr_ = new socket_address(_ip, _port);
 }
 
 TcpServer::TcpServer(const sockaddr_in& _bindaddr, MTcpServer& _observer, int _backlog)
     : observer_(_observer)
     , thread_(boost::bind(&TcpServer::__ListenThread, this))
-    , listen_sock_(INVALID_SOCKET), bind_addr_(_bindaddr), backlog_(_backlog)
+    , listen_sock_(INVALID_SOCKET), bind_addr_(new socket_address(_bindaddr)), backlog_(_backlog)
 {}
 
 TcpServer::~TcpServer() {
     StopAndWait();
+    delete bind_addr_;
 }
 
 SOCKET TcpServer::Socket() const {
     return listen_sock_;
-}
-
-const sockaddr_in& TcpServer::Address() const {
-    return bind_addr_;
 }
 
 bool TcpServer::StartAndWait(bool* _newone) {
@@ -103,9 +91,6 @@ void TcpServer::StopAndWait() {
 }
 
 void TcpServer::__ListenThread() {
-    char ip[16] = {0};
-	socket_inet_ntop(AF_INET, &(bind_addr_.sin_addr), ip, sizeof(ip));
-
     xgroup2_define(break_group);
 
     do {
@@ -113,7 +98,7 @@ void TcpServer::__ListenThread() {
 
         xassert2(INVALID_SOCKET == listen_sock_, TSF"m_listen_sock:%_", listen_sock_);
 
-        SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+        SOCKET listen_sock = socket(bind_addr_->address().sa_family, SOCK_STREAM, 0);
 
         if (INVALID_SOCKET == listen_sock) {
             xerror2(TSF"socket create err:(%_, %_)", socket_errno, socket_strerror(socket_errno)) >> break_group;
@@ -129,7 +114,7 @@ void TcpServer::__ListenThread() {
             break;
         }
 
-        if (0 > bind(listen_sock, (struct sockaddr*) &bind_addr_, sizeof(bind_addr_))) {
+        if (0 > bind(listen_sock, &bind_addr_->address(), bind_addr_->address_length())) {
             xerror2(TSF"socket bind err:(%_, %_)", socket_errno, socket_strerror(socket_errno)) >> break_group;
             socket_close(listen_sock);
             cond_.notifyAll(lock);
@@ -147,7 +132,7 @@ void TcpServer::__ListenThread() {
         cond_.notifyAll(lock);
         lock.unlock();
 
-        xinfo2(TSF"listen start sock:(%_, %_:%_)", listen_sock_, ip, ntohs(bind_addr_.sin_port));
+        xinfo2(TSF"listen start sock:(%_, %_:%_)", listen_sock_, bind_addr_->ip(), bind_addr_->port());
         observer_.OnCreate(this);
 
         while (true) {
@@ -198,13 +183,13 @@ void TcpServer::__ListenThread() {
 
             char cli_ip[16] = {0};
 			socket_inet_ntop(AF_INET, &(client_addr.sin_addr), cli_ip, sizeof(cli_ip));
-            xinfo2(TSF"listen accept sock:(%_, %_:%_) cli:(%_, %_:%_)", listen_sock_, ip, ntohs(bind_addr_.sin_port), client, cli_ip, ntohs(client_addr.sin_port));
+            xinfo2(TSF"listen accept sock:(%_, %_:%_) cli:(%_, %_:%_)", listen_sock_, bind_addr_->ip(), bind_addr_->port(), client, cli_ip, ntohs(client_addr.sin_port));
 
             observer_.OnAccept(this, client, client_addr);
         }
     } while (false);
 
-    xinfo2(TSF"listen end sock:(%_, %_:%_), ", listen_sock_, ip, ntohs(bind_addr_.sin_port)) << break_group;
+    xinfo2(TSF"listen end sock:(%_, %_:%_), ", listen_sock_, bind_addr_->ip(), bind_addr_->port()) << break_group;
 
     if (INVALID_SOCKET != listen_sock_) {
         socket_close(listen_sock_);

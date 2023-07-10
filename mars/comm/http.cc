@@ -732,7 +732,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
         return  recvstatus_;
     }
     
-    xassert2(_buffer);
     if ((NULL == _buffer || 0 == _length)){
         xwarn2(TSF"Recv(%_, %_), status:%_", NULL==_buffer?"NULL":_buffer, _length, recvstatus_);
         return recvstatus_;
@@ -1096,7 +1095,7 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
                     } else {  // last chunk
                         char* trailerBegin = chunkSizeEnd + 2;
 
-                        if (recvbuf_.Length() < (unsigned int)(sizeLen + 4)) return recvstatus_;
+                        if (_recv_buffer.Length() < (unsigned int)(sizeLen + 4)) return recvstatus_;
 
                         char* trailerEnd = string_strnstr(trailerBegin, KStringCRLF, (int)_recv_buffer.Length());
 

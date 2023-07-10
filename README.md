@@ -9,7 +9,7 @@
 (中文版本请参看[这里](#mars_cn))
 
 Mars is a cross-platform infrastructure component developed by WeChat Mobile Team.
-It is proved to be effective by billions of WeChat users.
+It has been proved to be effective by billions of WeChat users.
 
 1. Cross platform, easy to deploy if you are developing multi-platform or multi-business application.
 2. Suitable for small amount data transmission
@@ -33,7 +33,7 @@ Choose [Android](#android) or [iOS/OS X](#apple) or [Windows](#windows).
 
 ### <a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
-You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just wanna build a sample or demo, while mars-core is preferred to be used in your APP.
+You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just want to build a sample or demo, while mars-core is preferred to be used in your APP.
 
 #### <a name="wrapper">mars-wrapper</a>
 
@@ -41,7 +41,7 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.3'
+    compile 'com.tencent.mars:mars-wrapper:1.2.5'
 }
 ```
 
@@ -53,16 +53,17 @@ Add dependencies by adding the following lines to your app/build.gradle.
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.3'
+    compile 'com.tencent.mars:mars-core:1.2.5'
 }
 ```
 **OR**
 #### <a name="">mars-xlog</a>
 If you just want to user xlog, add dependencies by adding the following lines to your app/build.gradle.
 note: xlog is included in mars-core and mars-wrapper.
+
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.2.3'
+    compile 'com.tencent.mars:mars-xlog:1.2.5'
 }
 ```
 
@@ -85,16 +86,17 @@ final String logPath = SDCARD + "/marssample/log";
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
-if (BuildConfig.DEBUG) {
-    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
-    Xlog.setConsoleLogOpen(true);
+Xlog xlog = new Xlog();
+Log.setLogImp(xlog);
 
+if (BuildConfig.DEBUG) {
+    Log.setConsoleLogOpen(true);
+  	Log.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppednerModeAsync, "", logPath, logFileName, 0);
 } else {
-    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
-    Xlog.setConsoleLogOpen(false);
+    Log.setConsoleLogOpen(false);
+  	Log.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppednerModeAsync, "", logPath, logFileName, 0);
 }
 
-Log.setLogImp(new Xlog());
 ```
 
 Uninitialized Xlog when your app exits
@@ -201,7 +203,16 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
+XLogConfig config;
+config.mode_ = kAppenderAsync;
+config.logdir_ = [logPath UTF8String];
+config.nameprefix_ = "Test";
+config.pub_key_ = "";
+config.compress_mode_ = kZlib;
+config.compress_level_ = 0;
+config.cachedir_ = "";
+config.cache_days_ = 0;
+appender_open(config);
 ```
 
 Close xlog in function "applicationWillTerminate"
@@ -318,7 +329,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
+appender_open(kAppenderAsync, logPath.c_str(), "Test", 0, pubKey.c_str());
 ```
 
 Uninitialized xlog before your app exits
@@ -427,7 +438,7 @@ gradle 接入我们提供了两种接入方式：[mars-wrapper](#wrapper) 或者
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-wrapper:1.2.3'
+    compile 'com.tencent.mars:mars-wrapper:1.2.5'
 }
 ```
 
@@ -440,7 +451,7 @@ dependencies {
 
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-core:1.2.3'
+    compile 'com.tencent.mars:mars-core:1.2.5'
 }
 ```
 **或者**
@@ -448,7 +459,7 @@ dependencies {
 如果只想使用 xlog,可以只加 xlog 的依赖(mars-core,mars-wrapper 中都已经包括 xlog)：
 ```xml
 dependencies {
-    compile 'com.tencent.mars:mars-xlog:1.2.3'
+    compile 'com.tencent.mars:mars-xlog:1.2.5'
 }
 ```
 接着往下操作之前，请先确保你已经添加了 mars-wrapper 或者 mars-core 或者 mars-xlog 的依赖
@@ -469,12 +480,20 @@ final String logPath = SDCARD + "/marssample/log";
 final String cachePath = this.getFilesDir() + "/xlog"
 
 //init xlog
+Xlog.XLogConfig logConfig = new Xlog.XLogConfig();
+logConfig.mode = Xlog.AppednerModeAsync;
+logConfig.logdir = logPath;
+logConfig.nameprefix = logFileName;
+logConfig.pubkey = "";
+logConfig.compressmode = Xlog.ZLIB_MODE;
+logConfig.compresslevel = 0;
+logConfig.cachedir = "";
+logConfig.cachedays = 0;
 if (BuildConfig.DEBUG) {
-    Xlog.appenderOpen(Xlog.LEVEL_DEBUG, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
+    logConfig.level = Xlog.LEVEL_VERBOSE;
     Xlog.setConsoleLogOpen(true);
-
 } else {
-    Xlog.appenderOpen(Xlog.LEVEL_INFO, Xlog.AppenderModeAsync, cachePath, logPath, "MarsSample", 0, "");
+    logConfig.level = Xlog.LEVEL_INFO;
     Xlog.setConsoleLogOpen(false);
 }
 
@@ -587,7 +606,17 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, [logPath UTF8String], "Test",  0, "");
+
+XLogConfig config;
+config.mode_ = kAppenderAsync;
+config.logdir_ = [logPath UTF8String];
+config.nameprefix_ = "Test";
+config.pub_key_ = "";
+config.compress_mode_ = kZlib;
+config.compress_level_ = 0;
+config.cachedir_ = "";
+config.cache_days_ = 0;
+appender_open(config);
 ```
 
 在函数 "applicationWillTerminate" 中反初始化 Xlog
@@ -702,7 +731,7 @@ appender_set_console_log(true);
 xlogger_SetLevel(kLevelInfo);
 appender_set_console_log(false);
 #endif
-appender_open(kAppednerAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
+appender_open(kAppenderAsync, logPath.c_str(), "Test", 0,  pubKey.c_str());
 ```
 
 在程序退出前反初始化 Xlog

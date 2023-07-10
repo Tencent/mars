@@ -16,7 +16,9 @@
 #include "comm/thread/condition.h"
 #include "comm/xlogger/xlogger.h"
 #include "comm/time_utils.h"
-
+#include "mars/comm/macro.h"
+namespace mars {
+namespace comm {
 
 enum {
     kGetADDRNotBegin,
@@ -66,9 +68,9 @@ struct DnsItem {
     }
 };
 
-static std::vector<DnsItem> sg_dnsitem_vec;
-static Condition sg_condition;
-static Mutex sg_mutex;
+NO_DESTROY static std::vector<DnsItem> sg_dnsitem_vec;
+NO_DESTROY static Condition sg_condition;
+NO_DESTROY static Mutex sg_mutex;
 
 
 static void __WorkerFunc() {
@@ -150,17 +152,16 @@ static void __WorkerFunc() {
     }
 }
 
-
-
-
 int getaddrinfo_with_timeout(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res, bool& _is_timeout, unsigned long long _timeout_msec) {
     xverbose_function();
     //Check param
     
     ScopedLock lock(sg_mutex);
     
+    std::string threadname(node);
+    threadname.append("@dns_with_timeout");
     
-    Thread thread(&__WorkerFunc, node);
+    Thread thread(&__WorkerFunc, threadname.c_str());
     int start_ret = thread.start();
     
     if (start_ret != 0) {
@@ -241,4 +242,7 @@ int getaddrinfo_with_timeout(const char *node, const char *service, const struct
     }
     
     return kRetCodeInternalStateError;
+}
+
+}
 }

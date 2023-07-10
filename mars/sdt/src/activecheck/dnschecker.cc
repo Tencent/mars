@@ -57,7 +57,7 @@ void DnsChecker::__DoCheck(CheckRequestProfile& _check_request) {
 		CheckResultProfile profile;
 		profile.domain_name = iter->first;
 		profile.netcheck_type = kDnsCheck;
-		profile.network_type = ::getNetInfo();
+		profile.network_type = comm::getNetInfo();
 
 		struct socket_ipinfo_t ipinfo;
 		int timeout = (_check_request.total_timeout == UNUSE_TIMEOUT ? DEFAULT_DNS_TIMEOUT : _check_request.total_timeout);
@@ -76,7 +76,7 @@ void DnsChecker::__DoCheck(CheckRequestProfile& _check_request) {
 			}else if (1 == ipinfo.size){
 				profile.ip1 = inet_ntoa(ipinfo.ip[0]);
 			}else{
-				xerror2(TSF"ret = 0, but ipinfo.size = %d", ipinfo.size);
+				xerror2(TSF"ret = 0, but ipinfo.size = %0", ipinfo.size);
 			}
 		} else {
 			xinfo2(TSF"%0, check dns, host: %1, ret: %2", NET_CHECK_TAG, profile.domain_name, CHECK_FAIL);
@@ -105,7 +105,7 @@ void DnsChecker::__DoCheck(CheckRequestProfile& _check_request) {
 		CheckResultProfile profile;
 		profile.domain_name = iter->first;
 		profile.netcheck_type = kDnsCheck;
-		profile.network_type = ::getNetInfo();
+		profile.network_type = comm::getNetInfo();
 
 		struct socket_ipinfo_t ipinfo;
 		int timeout = (_check_request.total_timeout == UNUSE_TIMEOUT ? DEFAULT_DNS_TIMEOUT : _check_request.total_timeout);
@@ -124,7 +124,7 @@ void DnsChecker::__DoCheck(CheckRequestProfile& _check_request) {
 			}else if (1 == ipinfo.size){
 				profile.ip1 = inet_ntoa(ipinfo.ip[0]);
 			}else{
-				xerror2(TSF"ret = 0, but ipinfo.size = %d", ipinfo.size);
+				xerror2(TSF"ret = 0, but ipinfo.size = %0", ipinfo.size);
 			}
 		} else {
 			xinfo2(TSF"%0, check dns, host: %1, ret: %2", NET_CHECK_TAG, profile.domain_name, CHECK_FAIL);

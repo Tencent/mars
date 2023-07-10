@@ -59,6 +59,10 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onCreate(JNIEnv* env, jcl
     mars::baseevent::OnCreate();
 }
 
+JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onInitConfigBeforeOnCreate(JNIEnv* env, jclass, jint _packer_encoder_version) {
+    mars::baseevent::OnInitBeforeOnCreate(_packer_encoder_version);
+}
+
 JNIEXPORT void JNICALL Java_com_tencent_mars_BaseEvent_onDestroy(JNIEnv* env, jclass) {
     mars::baseevent::OnDestroy();
 }

@@ -26,6 +26,10 @@
 
 #include <string.h>
 
+#ifdef _WIN32
+#include "winsock2.h"   // for socket_storage
+#endif
+
 class socket_address {
 
   public:
@@ -47,7 +51,6 @@ class socket_address {
 
     bool valid() const;
     bool valid_server_address(bool _allowloopback = false, bool _ignore_port = false) const;
-    bool valid_bind_address() const;
     bool valid_broadcast_address() const;
 
     bool valid_loopback_ip() const;
@@ -67,22 +70,22 @@ class socket_address {
     static bool update_nat64_prefix();
   public:
     static socket_address getsockname(SOCKET _sock);
-	  static socket_address getpeername(SOCKET _sock);
+    static socket_address getpeername(SOCKET _sock);
 
   private:
     //    socket_address(const socket_address&);
     //    const socket_address& operator=(const socket_address&);
     void  __init(const sockaddr*  _addr);
+    
+    const sockaddr_in* _asv4() const;
+    const sockaddr_in6* _asv6() const;
 
   private:
-
-    union {
-        struct sockaddr     sa;
-        struct sockaddr_in  in;
-        struct sockaddr_in6 in6;
-    }                   addr_;
-    char                ip_[96];
-    char                url_[128];
+    struct sockaddr_storage addr_;
+    char   ip_[96];
+    char   url_[128];
 };
+
+bool operator==(const socket_address& lhs, const socket_address& rhs);
 
 #endif /* SOCKET_ADDRESS_H_ */

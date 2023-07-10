@@ -15,6 +15,7 @@
 #include "mars/comm/socket/unix_socket.h"
 #include "mars/comm/socket/socket_address.h"
 
+using namespace mars::comm;
 
 BaseNetInfo::BaseNetInfo()
 : nettype_(kNoNet)

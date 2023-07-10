@@ -95,9 +95,9 @@ public:
     string_cast(unsigned long _value, uint8_t base=10):value_(NULL) { string_cast_itoa(_value, value_cache_, base); value_ = value_cache_;}
     string_cast(unsigned long long _value, uint8_t base=10):value_(NULL) { string_cast_itoa(_value, value_cache_, base); value_ = value_cache_;}
 
-    string_cast(float _value):value_(NULL) { snprintf(value_cache_, sizeof(value_cache_), "%E", _value); value_ = value_cache_; }
-    string_cast(double _value):value_(NULL) { snprintf(value_cache_, sizeof(value_cache_), "%E", _value); value_ = value_cache_; }
-    string_cast(long double _value):value_(NULL) { snprintf(value_cache_, sizeof(value_cache_), "%LE", _value); value_ = value_cache_;}
+    string_cast(float _value):value_(NULL) { snprintf(value_cache_, sizeof(value_cache_), "%.2f", _value); value_ = value_cache_; }
+    string_cast(double _value):value_(NULL) { snprintf(value_cache_, sizeof(value_cache_), "%.2f", _value); value_ = value_cache_; }
+    string_cast(long double _value):value_(NULL) { snprintf(value_cache_, sizeof(value_cache_), "%.2Lf", _value); value_ = value_cache_;}
     
     string_cast(bool _value):value_(NULL) { if (_value) value_ = "true"; else value_ = "false"; value_cache_[0] = '\0';}
     string_cast(const void* _value):value_(NULL) { value_cache_[0] = '0';  value_cache_[1] = 'x'; string_cast_itoa((uintptr_t)_value, value_cache_+2, 16); value_ = value_cache_;}

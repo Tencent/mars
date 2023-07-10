@@ -5,6 +5,7 @@
 #include "comm/xlogger/xlogger.h"
 #include "socket/unix_socket.h"
 
+using namespace mars::comm;
 
 SocketSelectBreaker::SocketSelectBreaker()
     : m_sendinlen(sizeof(m_sendin))

@@ -24,6 +24,7 @@
 #include <list>
 #include <stdint.h>
 #include <map>
+#include <functional>
 
 #include "boost/function.hpp"
 
@@ -33,14 +34,19 @@
 
 #include "shortlink.h"
 #include "socket_pool.h"
+#include "task_intercept.h"
 
 class AutoBuffer;
 
+
+namespace mars {
+
+namespace comm {
 #ifdef ANDROID
 class WakeUpLock;
 #endif
+}
 
-namespace mars {
     namespace stn {
 
 class DynamicTimeout;
@@ -53,11 +59,16 @@ class ShortLinkTaskManager {
     boost::function<void (int _status_code)> fun_shortlink_response_;
     boost::function<void (ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)> fun_notify_retry_all_tasks;
 
-    static boost::function<void (const std::string& _user_id, std::vector<std::string>& _host_list)> get_real_host_;
+    static boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)> get_real_host_;
     static boost::function<void (const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
+    static boost::function<int (TaskProfile& _profile)> choose_protocol_;
+    static boost::function<void (const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
+    static boost::function<void (uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
+    static boost::function<bool (const std::vector<std::string> _host_list)> can_use_tls_;
+    static boost::function<bool (int _error_code)> should_intercept_result_;
 
   public:
-    ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, MessageQueue::MessageQueue_t _messagequeueid);
+    ShortLinkTaskManager(mars::stn::NetSource& _netsource, DynamicTimeout& _dynamictimeout, comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task);
@@ -65,7 +76,9 @@ class ShortLinkTaskManager {
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
     void RedoTasks();
+    void TouchTasks();
     void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
+    void SetDebugHost(const std::string& _host) {debug_host_ = _host;}
 
     unsigned int GetTasksContinuousFailCount();
 
@@ -86,9 +99,11 @@ class ShortLinkTaskManager {
 
     void __DeleteShortLink(intptr_t& _running_id);
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
+    void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
+    void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
 
   private:
-    MessageQueue::ScopeRegister     asyncreg_;
+    comm::MessageQueue::ScopeRegister     asyncreg_;
     NetSource&                      net_source_;
     
     std::list<TaskProfile>          lst_cmd_;
@@ -96,10 +111,12 @@ class ShortLinkTaskManager {
     bool                            default_use_proxy_;
     unsigned int                    tasks_continuous_fail_count_;
     DynamicTimeout&                 dynamic_timeout_;
+    std::string                     debug_host_;
 #ifdef ANDROID
-    WakeUpLock*                     wakeup_lock_;
+    comm::WakeUpLock*                     wakeup_lock_;
 #endif
     SocketPool socket_pool_;
+    TaskIntercept                   task_intercept_;
 };
         
 }

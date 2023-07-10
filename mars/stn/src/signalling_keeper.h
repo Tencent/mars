@@ -31,11 +31,11 @@
 namespace mars {
     namespace stn {
 
-class SignallingKeeper: IAsyncUdpClientEvent {
+class SignallingKeeper: comm::IAsyncUdpClientEvent {
   public:
     static void SetStrategy(unsigned int  _period, unsigned int _keep_time);  // ms
   public:
-    SignallingKeeper(const LongLink& _longlink, MessageQueue::MessageQueue_t _messagequeue_id, bool _use_UDP = true);
+    SignallingKeeper(const LongLink& _longlink, comm::MessageQueue::MessageQueue_t _messagequeue_id, bool _use_UDP = true);
     ~SignallingKeeper();
 
     void OnNetWorkDataChanged(const char*, ssize_t, ssize_t);
@@ -43,9 +43,9 @@ class SignallingKeeper: IAsyncUdpClientEvent {
     void Keep();
     void Stop();
 
-    virtual void OnError(UdpClient* _this, int _errno);
-    virtual void OnDataGramRead(UdpClient* _this, void* _buf, size_t _len);
-    virtual void OnDataSent(UdpClient* _this);
+    virtual void OnError(comm::UdpClient* _this, int _errno);
+    virtual void OnDataGramRead(comm::UdpClient* _this, void* _buf, size_t _len);
+    virtual void OnDataSent(comm::UdpClient* _this);
   public:
     boost::function<unsigned int (const AutoBuffer&, const AutoBuffer&, int)> fun_send_signalling_buffer_;
 
@@ -54,14 +54,14 @@ class SignallingKeeper: IAsyncUdpClientEvent {
     void __OnTimeOut();
 
   private:
-    MessageQueue::ScopeRegister msgreg_;
+    comm::MessageQueue::ScopeRegister msgreg_;
     uint64_t last_touch_time_;
     bool keeping_;
-    MessageQueue::MessagePost_t postid_;
+    comm::MessageQueue::MessagePost_t postid_;
     const LongLink& longlink_;
     std::string ip_;
     unsigned int port_;
-    UdpClient udp_client_;
+    comm::UdpClient udp_client_;
     bool use_UDP_;
 };
         

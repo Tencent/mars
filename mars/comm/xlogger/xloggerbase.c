@@ -20,8 +20,8 @@ WEAK_FUNC void __xlogger_AssertP_impl(const XLoggerInfo* _info, const char* _exp
 WEAK_FUNC void __xlogger_Assert_impl(const XLoggerInfo* _info, const char* _expression, const char* _log);
 
 #ifndef WIN32
-WEAK_FUNC const char* xlogger_dump(const void* _dumpbuffer, size_t _len) { return "";}
-WEAK_FUNC const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len) { return "";}
+WEAK_FUNC const char* xlogger_dump(const void* _dumpbuffer, size_t _len);
+WEAK_FUNC const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len);
 #endif
 
 TLogLevel   xlogger_Level() {
@@ -107,12 +107,20 @@ void __xlogger_Write_impl(const XLoggerInfo* _info, const char* _log) {
     
     if (!gs_appender) return;
     
-    if (_info && -1==_info->pid && -1==_info->tid && -1==_info->maintid)
-    {
+    if (_info) {
         XLoggerInfo* info = (XLoggerInfo*)_info;
-        info->pid = xlogger_pid();
-        info->tid = xlogger_tid();
-        info->maintid = xlogger_maintid();
+        if (-1 == _info->pid) {
+            info->pid = xlogger_pid();
+        }
+
+        if (-1 == _info->tid) {
+            info->tid = xlogger_tid();
+        }
+
+        if (-1 == _info->maintid) {
+            info->maintid = xlogger_maintid();
+        }
+
     }
     
     if (NULL == _log) {

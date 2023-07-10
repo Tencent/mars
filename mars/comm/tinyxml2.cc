@@ -1927,15 +1927,16 @@ namespace tinyxml2
     {
         TIXMLASSERT( filepath );
         TIXMLASSERT( mode );
-#if defined(_MSC_VER) && (_MSC_VER >= 1400 ) && (!defined WINCE)
-        FILE* fp = 0;
-        errno_t err = fopen_s( &fp, filepath, mode );
-        if ( err ) {
-            return 0;
-        }
-#else
+        // fopen_s fail when filepath is chinese, so use fopen in projdef.h 
+// #if defined(_MSC_VER) && (_MSC_VER >= 1400 ) && (!defined WINCE)
+//         FILE* fp = 0;
+//         errno_t err = fopen_s( &fp, filepath, mode );
+//         if ( err ) {
+//             return 0;
+//         }
+// #else
         FILE* fp = fopen( filepath, mode );
-#endif
+// #endif
         return fp;
     }
     

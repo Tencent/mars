@@ -50,6 +50,7 @@ typedef struct XLoggerInfo_t {
     intmax_t pid;
     intmax_t tid;
     intmax_t maintid;
+    int traceLog;
 } XLoggerInfo;
 
 extern intmax_t xlogger_pid();
@@ -57,11 +58,16 @@ extern intmax_t xlogger_tid();
 extern intmax_t xlogger_maintid();
 typedef void (*xlogger_appender_t)(const XLoggerInfo* _info, const char* _log);
 extern const char* xlogger_dump(const void* _dumpbuffer, size_t _len);
+extern const char* xlogger_memory_dump(const void* _dumpbuffer, size_t _len);   // same as xlogger_dump, but don't write dumpbuffer to file.
 
 TLogLevel   xlogger_Level();
 void xlogger_SetLevel(TLogLevel _level);
 int  xlogger_IsEnabledFor(TLogLevel _level);
 xlogger_appender_t xlogger_SetAppender(xlogger_appender_t _appender);
+
+typedef int (*xlogger_filter_t)(XLoggerInfo* _info, const char* _log);
+void xlogger_SetFilter(xlogger_filter_t _filter);
+xlogger_filter_t xlogger_GetFilter();
 
 // no level filter
 #ifdef __GNUC__

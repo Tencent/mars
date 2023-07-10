@@ -22,6 +22,7 @@
 #include <list>
 #include <string>
 #include <algorithm>
+#include <thread>
 #ifndef _WIN32
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -44,7 +45,11 @@
 
 #undef min
 
+namespace mars {
+namespace comm {
 namespace MessageQueue {
+
+    std::function<void (size_t, std::string)> g_mq_max_size_callback = nullptr;
 
 #define MAX_MQ_SIZE 5000
 
@@ -162,13 +167,13 @@ namespace MessageQueue {
     }
 
 
-    static std::string DumpMessage(const std::list<MessageWrapper*>& _message_lst) {
+    static std::string DumpMessage(const std::list<MessageWrapper*>& _message_lst, int _cnt) {
         XMessage xmsg;
         xmsg(TSF"**************Dump MQ Message**************size:%_\n", _message_lst.size());
         int index = 0;
-        for (auto msg : _message_lst) {
-            xmsg(TSF"postid:%_, timing:%_, record_time:%_, message:%_\n", msg->postid.ToString(), msg->timing.ToString(), msg->record_time, msg->message.ToString());
-            if (++index>50)
+        for (auto iter = _message_lst.crbegin(); iter != _message_lst.crend(); ++iter) {
+            xmsg(TSF"postid:%_, timing:%_, record_time:%_, message:%_\n", (*iter)->postid.ToString(), (*iter)->timing.ToString(), (*iter)->record_time, (*iter)->message.ToString());
+            if (++index > _cnt)
                 break;
         }
         return xmsg.String();
@@ -185,7 +190,7 @@ namespace MessageQueue {
         }
 
         MessageQueueContent& content = pos->second;
-        return DumpMessage(content.lst_message);
+        return DumpMessage(content.lst_message, 50);
     }
 
     MessageQueue_t CurrentThreadMessageQueue() {
@@ -309,7 +314,6 @@ namespace MessageQueue {
     }
 
     void UnInstallMessageHandler(const MessageHandler_t& _handlerid) {
-        xinfo_function();
         ASSERT(0 != _handlerid.queue);
         ASSERT(0 != _handlerid.seq);
 
@@ -332,6 +336,24 @@ namespace MessageQueue {
         }
     }
 
+    static uint64_t sg_last_callback_tick = 0;
+    static void _MQMaxSizeCallback(const std::list<MessageWrapper*>& _lst_message) {
+        uint64_t now = gettickcount();
+        if (now <= sg_last_callback_tick + 60 * 1000) {
+            return;
+        }
+        sg_last_callback_tick = now;
+        size_t size = _lst_message.size();
+        xwarn2(TSF"%_", DumpMessage(_lst_message, 50));
+        ASSERT2(false, "Over MAX_MQ_SIZE, size:%d", (int)size);
+        if (nullptr != g_mq_max_size_callback) {
+            std::string dump_msg = DumpMessage(_lst_message, 5);
+            std::thread([=] {
+                g_mq_max_size_callback(size, dump_msg);
+            }).detach();
+        }
+    }
+
     MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _message, const MessageTiming& _timing) {
         ScopedLock lock(sg_messagequeue_map_mutex);
         const MessageQueue_t& id = _handlerid.queue;
@@ -346,9 +368,7 @@ namespace MessageQueue {
 
         MessageQueueContent& content = pos->second;
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
 
         MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, __MakeSeq());
@@ -383,9 +403,7 @@ namespace MessageQueue {
         }
 
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
 
         MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, _timing, 0 != post_id.seq ? post_id.seq : __MakeSeq());
@@ -406,9 +424,7 @@ namespace MessageQueue {
 
         MessageQueueContent& content = pos->second;
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
 
         MessageHandler_t reg;
@@ -468,12 +484,27 @@ namespace MessageQueue {
         }
 
         if(content.lst_message.size() >= MAX_MQ_SIZE) {
-            xwarn2(TSF"%_", DumpMessage(content.lst_message));
-            ASSERT2(false, "Over MAX_MQ_SIZE");
-            delete messagewrapper;
-            return KNullPost;
+            _MQMaxSizeCallback(content.lst_message);
         }
         content.lst_message.push_back(messagewrapper);
+        content.breaker->Notify(lock);
+        return messagewrapper->postid;
+    }
+
+    MessagePost_t PostMessageAtFirst(const MessageHandler_t& _handlerid, const Message& _message){
+        ScopedLock lock(sg_messagequeue_map_mutex);
+        const MessageQueue_t& id = _handlerid.queue;
+        
+        std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
+        if (sg_messagequeue_map.end() == pos) return KNullPost;
+        
+        MessageQueueContent& content = pos->second;
+        if(content.lst_message.size() >= MAX_MQ_SIZE) {
+            _MQMaxSizeCallback(content.lst_message);
+        }
+        
+        MessageWrapper* messagewrapper = new MessageWrapper(_handlerid, _message, kImmediately, __MakeSeq());
+        content.lst_message.push_front(messagewrapper);
         content.breaker->Notify(lock);
         return messagewrapper->postid;
     }
@@ -557,7 +588,6 @@ namespace MessageQueue {
     }
 
     bool CancelMessage(const MessagePost_t& _postid) {
-        xinfo_function();
         ASSERT(0 != _postid.reg.queue);
         ASSERT(0 != _postid.seq);
 
@@ -593,7 +623,6 @@ namespace MessageQueue {
     }
 
     void CancelMessage(const MessageHandler_t& _handlerid) {
-        xinfo_function();
         ASSERT(0 != _handlerid.queue);
 
         // 0==_handlerid.seq for BroadcastMessage
@@ -748,7 +777,8 @@ namespace MessageQueue {
     const static int kMQCallANRId = 110;
     const static long kWaitANRTimeout = 15 * 1000;
     static void __ANRAssert(bool _iOS_style, const mars::comm::check_content& _content, MessageHandler_t _mq_id) {
-        if(MessageQueue2TID(_mq_id.queue) == 0) {
+        thread_tid tid = MessageQueue2TID(_mq_id.queue);
+        if(tid == 0) {
             xwarn2(TSF"messagequeue already destroy, handler:(%_,%_)", _mq_id.queue, _mq_id.seq);
             return;
         }
@@ -756,8 +786,9 @@ namespace MessageQueue {
         __ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%d",
                   _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style);
 #ifdef ANDROID
-        __FATAL_ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s",
-                    _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style?"true":"false");
+        pthread_kill(tid, SIGILL);
+//        __FATAL_ASSERT2(_content.file.c_str(), _content.line, _content.func.c_str(), "anr dead lock", "timeout:%d, tid:%" PRIu64 ", runing time:%" PRIu64 ", real time:%" PRIu64 ", used_cpu_time:%" PRIu64 ", iOS_style:%s",
+//                    _content.timeout, _content.tid, clock_app_monotonic() - _content.start_time, gettickcount() - _content.start_tickcount, _content.used_cpu_time, _iOS_style?"true":"false");
 #endif
     }
 
@@ -1049,13 +1080,12 @@ namespace MessageQueue {
     {return *m_reg;}
 
     void ScopeRegister::Cancel() const {
-        xinfo_function();
         UnInstallMessageHandler(*m_reg);
         CancelMessage(*m_reg);
     }
     void ScopeRegister::CancelAndWait() const {
-        xinfo_function();
         Cancel();
         WaitForRunningLockEnd(*m_reg);
     }
 }  // namespace MessageQueue
+}}

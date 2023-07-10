@@ -22,6 +22,8 @@
 
 #include "comm/thread/lock.h"
 #include "comm/alarm.h"
+#include "mars/comm/macro.h"
+using namespace mars::comm;
 
 void onAlarm(long long _id)
 {
@@ -46,8 +48,8 @@ struct TimerRecord
     TimerRuner* timer_runer;
 };
 
-static std::list<TimerRecord> gs_lst_timer_record;
-static Mutex gs_mutex;
+NO_DESTROY static std::list<TimerRecord> gs_lst_timer_record;
+NO_DESTROY static Mutex gs_mutex;
 
 @implementation TimerRuner
 

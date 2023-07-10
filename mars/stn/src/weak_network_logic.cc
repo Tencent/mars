@@ -29,6 +29,8 @@
 #define WEAK_LEAST_SPAN (8*1000)
 //#define LAST_CONNECTINFO_VALID_SPAN (10*1000)
 
+using namespace mars::comm;
+
 namespace mars {
 namespace stn {
 
@@ -103,8 +105,6 @@ namespace stn {
     }
     
     bool WeakNetworkLogic::IsLastValidConnectFail(int64_t &_span) {
-        xassert2((last_connect_fail_tick_.isValid() ^ last_connect_suc_tick_.isValid())
-            , TSF"last connect status wrong:(%_, %_)", last_connect_fail_tick_.isValid(), last_connect_suc_tick_.isValid());
         if(last_connect_fail_tick_.isValid()) {
             _span = last_connect_fail_tick_.gettickspan();
             return true;

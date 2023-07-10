@@ -72,7 +72,7 @@ class NetCore {
     boost::signals2::signal<void (uint32_t _cmdid, const AutoBuffer& _buffer)> push_preprocess_signal_;
 
   public:
-    MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
+    comm::MessageQueue::MessageQueue_t GetMessageQueueId() { return messagequeue_creater_.GetMessageQueue(); }
     NetSource& GetNetSourceRef() {return *net_source_;}
     
     void    CancelAndWait() { messagequeue_creater_.CancelAndWait(); }
@@ -82,6 +82,7 @@ class NetCore {
     bool    HasTask(uint32_t _taskid) const;
     void    ClearTasks();
     void    RedoTasks();
+    void    TouchTasks();
     void    RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id);
 
     void    MakeSureLongLinkConnect();
@@ -94,10 +95,17 @@ class NetCore {
 
     ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select);
     void AddServerBan(const std::string& _ip);
+    void SetDebugHost(const std::string& _host);
+    void ForbidLonglinkTlsHost(const std::vector<std::string>& _host);
+    void InitHistory2BannedList();
+    void SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout);
+
+public:
     
 #ifdef USE_LONG_LINK
     void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLink::TDisconnectInternalCode _code);
-    std::shared_ptr<LongLink>        CreateLongLink(const LonglinkConfig& _config);
+    std::shared_ptr<LongLink>        CreateLongLink(LonglinkConfig& _config);
+    bool AddMinorLongLink(const std::vector<std::string>& _hosts);
     void                DestroyLongLink(const std::string& _name);
     void                MakeSureLongLinkConnect_ext(const std::string& _name);
     bool                LongLinkIsConnected_ext(const std::string& _name);
@@ -133,6 +141,7 @@ class NetCore {
     void    __OnSignalActive(bool _isactive);
 
     void    __OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
+    int __ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData> _longlink, std::shared_ptr<LongLinkMetaData> _minorLong);
   private:
     NetCore(const NetCore&);
     NetCore& operator=(const NetCore&);
@@ -141,8 +150,8 @@ class NetCore {
     static bool need_use_longlink_;
 
   private:
-    MessageQueue::MessageQueueCreater           messagequeue_creater_;
-    MessageQueue::ScopeRegister                 asyncreg_;
+    comm::MessageQueue::MessageQueueCreater           messagequeue_creater_;
+    comm::MessageQueue::ScopeRegister                 asyncreg_;
     NetSource*                                  net_source_;
     NetCheckLogic*                              netcheck_logic_;
     AntiAvalanche*                              anti_avalanche_;
@@ -159,6 +168,8 @@ class NetCore {
 #endif
     
     bool                                        shortlink_try_flag_;
+    int all_connect_status_ = 0;
+    int longlink_connect_status_ = 0;
 };
         
 }}

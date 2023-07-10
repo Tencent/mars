@@ -328,6 +328,11 @@ const char * socket_inet_ntop(int af, const void *src, char *dst, unsigned int s
         return NULL;
     }
 }
+
+int __win_closesocket(SOCKET s){
+    return closesocket(s);
+}
+
 #endif
 
 //not support in windows
@@ -376,6 +381,15 @@ int socket_isnonetwork(int error) {
 
 int socket_reuseaddr(SOCKET sock, int optval) {
     return setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval , sizeof(int));
+}
+
+int socket_reserve_sendbuf(SOCKET sock, uint32_t buflen){
+    uint32_t prevsize = 0;
+    socklen_t prevlen = sizeof(prevsize);
+    int rv = getsockopt(sock, SOL_SOCKET, SO_SNDBUF, &prevsize, &prevlen);
+    if (rv != 0 || prevsize >= buflen)    return rv;
+    
+    return setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (const char*)&buflen, sizeof(buflen));
 }
 
 int socket_get_nwrite(SOCKET _sock, int* _nwriteLen) {

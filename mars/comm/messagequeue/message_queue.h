@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <string>
+#include <functional>
 
 #include "boost/function.hpp"
 #include "boost/any.hpp"
@@ -46,6 +47,9 @@
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/strutil.h"
+
+namespace mars {
+namespace comm {
 namespace MessageQueue {
 
 typedef uint64_t MessageQueue_t;
@@ -212,6 +216,7 @@ MessagePost_t PostMessage(const MessageHandler_t& _handlerid, const Message& _me
 MessagePost_t SingletonMessage(bool _replace, const MessageHandler_t& _handlerid, const Message& _message, const MessageTiming& _timing = KDefTiming);
 MessagePost_t BroadcastMessage(const MessageQueue_t& _messagequeueid,  const Message& _message, const MessageTiming& _timing = KDefTiming);
 MessagePost_t FasterMessage(const MessageHandler_t& _handlerid, const Message& _message, const MessageTiming& _timing = KDefTiming);
+MessagePost_t PostMessageAtFirst(const MessageHandler_t& _handlerid, const Message& _message);
 
 bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs = -1);
 bool FoundMessage(const MessagePost_t& _message);
@@ -253,6 +258,11 @@ MessagePost_t  AsyncInvokeAfter(int64_t _after, const F& _func, const MessageTit
 template<class F>
 MessagePost_t  AsyncInvokePeriod(int64_t _after, int64_t _period, const F& _func, const MessageTitle_t& _title, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
     return PostMessage(_handlerid, Message(_title, _func, _msg_name), MessageTiming(kPeriod, _after, _period));
+}
+
+template<class F>
+MessagePost_t  AsyncInvokeAtFirst(const F& _func, const MessageHandler_t& _handlerid = DefAsyncInvokeHandler(), const std::string& _msg_name = "default_name") {
+    return PostMessageAtFirst(_handlerid, Message(0, _func, _msg_name));
 }
     //~title
 //---~with message name
@@ -672,21 +682,21 @@ private:
 #define MESSAGE_NAME(file, function) (strutil::GetFileNameFromPath(file)+":"+function)
 #define ASYNC_BLOCK_END_MSGNAME(msg_name)  }, AYNC_HANDLER, msg_name);
 
-#define ASYNC_BLOCK_START MessageQueue::AsyncInvoke([=] () {
+#define ASYNC_BLOCK_START mars::comm::MessageQueue::AsyncInvoke([=] () {
 #define ASYNC_BLOCK_END ASYNC_BLOCK_END_MSGNAME(MESSAGE_NAME(__FILE__, __FUNCTION__))
 
 
 //------
 #define SYNC2ASYNC_FUNC_MSGNAME(func, msg_name) \
-if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name); return; } \
+if (mars::comm::MessageQueue::CurrentThreadMessageQueue() != mars::comm::MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+{ mars::comm::MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name); return; } \
 
 #define SYNC2ASYNC_FUNC(func) SYNC2ASYNC_FUNC_MSGNAME(func, MESSAGE_NAME(__FILE__, __FUNCTION__))
 
 //------
 #define RETURN_SYNC2ASYNC_FUNC_MSGNAME(func, ret, msg_name) \
-if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name); return ret; } \
+if (mars::comm::MessageQueue::CurrentThreadMessageQueue() != mars::comm::MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+{ mars::comm::MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name); return ret; } \
 
     /*
      * sync to async, will not wait, but immediately return ret
@@ -696,15 +706,15 @@ if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYN
     
 //------
 #define RETURN_SYNC2ASYNC_FUNC_TITLE_MSGNAME(func, title, ret, msg_name) \
-if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::AsyncInvoke(func, title, AYNC_HANDLER, msg_name); return ret; } \
+if (mars::comm::MessageQueue::CurrentThreadMessageQueue() != mars::comm::MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+{ mars::comm::MessageQueue::AsyncInvoke(func, title, AYNC_HANDLER, msg_name); return ret; } \
 
 #define RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, ret) RETURN_SYNC2ASYNC_FUNC_TITLE_MSGNAME(func, title, ret, MESSAGE_NAME(__FILE__, __FUNCTION__))
 
 //------
 #define RETURN_WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, ret, msg_name) \
-if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
-{ MessageQueue::MessagePost_t postId = MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name);MessageQueue::WaitMessage(postId); return ret; } \
+if (mars::comm::MessageQueue::CurrentThreadMessageQueue() != mars::comm::MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+{ mars::comm::MessageQueue::MessagePost_t postId = mars::comm::MessageQueue::AsyncInvoke(func, AYNC_HANDLER, msg_name);mars::comm::MessageQueue::WaitMessage(postId); return ret; } \
 
     /*
      * sync to async, wait utils async function end
@@ -715,9 +725,9 @@ if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYN
 //------
 #define WAIT_SYNC2ASYNC_FUNC_MSGNAME(func, msg_name) \
 \
-if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+if (mars::comm::MessageQueue::CurrentThreadMessageQueue() != mars::comm::MessageQueue::Handler2Queue(AYNC_HANDLER)) \
 {\
-return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
+return mars::comm::MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
 }
 
     /*
@@ -729,10 +739,10 @@ return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
 
 #define WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_HOOK(func, pre_lambda, post_lambda, msg_name, ret, timeout) \
 \
-if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+if (mars::comm::MessageQueue::CurrentThreadMessageQueue() != mars::comm::MessageQueue::Handler2Queue(AYNC_HANDLER)) \
 {\
 pre_lambda();\
-auto r = MessageQueue::WaitInvoke(func, ret, timeout, AYNC_HANDLER, msg_name);\
+auto r = mars::comm::MessageQueue::WaitInvoke(func, ret, timeout, AYNC_HANDLER, msg_name);\
 return post_lambda(r);\
 }
     
@@ -745,10 +755,10 @@ return post_lambda(r);\
     
 #define WAIT_SYNC2ASYNC_FUNC_MSGNAME_WITH_PREHOOK(func, pre_lambda, msg_name) \
 \
-if (MessageQueue::CurrentThreadMessageQueue() != MessageQueue::Handler2Queue(AYNC_HANDLER)) \
+if (mars::comm::MessageQueue::CurrentThreadMessageQueue() != mars::comm::MessageQueue::Handler2Queue(AYNC_HANDLER)) \
 {\
 pre_lambda();\
-return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
+return mars::comm::MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
 }
 
     /*
@@ -762,5 +772,5 @@ return MessageQueue::WaitInvoke(func, AYNC_HANDLER, msg_name);\
 //#define AYNC_HANDLER handler
     
 } namespace mq = MessageQueue; //namespace MessageQueue
-
+}}
 #endif /* MESSAGEQUEUE_H_ */

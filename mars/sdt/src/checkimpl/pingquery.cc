@@ -37,6 +37,7 @@
 #include "sdt/src/tools/netchecker_trafficmonitor.h"
 
 using namespace mars::sdt;
+using namespace mars::comm;
 
 #define TRAFFIC_LIMIT_RET_CODE (INT_MIN)
 
@@ -52,8 +53,6 @@ static void clearPingStatus(struct PingStatus& _ping_status) {
 
 #define MAXLINE (512) /* max text line length */
 
-static const int kAlarmType = 115;
-
 void str_split(char _spliter, std::string _pingresult, std::vector<std::string>& _vec_pingres) {
     int find_begpos = 0;
     int findpos = 0;
@@ -66,6 +65,11 @@ void str_split(char _spliter, std::string _pingresult, std::vector<std::string>&
 }
 
 int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, const char* dest, unsigned int packetSize) {  // use popen
+    int rtt(0);
+    return RunPingQuery(_querycount, interval, timeout, dest, packetSize, &rtt);
+}
+
+int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, const char* dest, unsigned int packetSize, int* rtt) {
     xinfo2(TSF"in runpingquery");
     xassert2(_querycount >= 0, "ping count should be more than 0");
     xassert2(interval >= 0, "interval should be more than 0");
@@ -167,8 +171,10 @@ int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/
         xinfo2(TSF"remote host is not available, pingresult_:%_", pingresult_);
         return -1;
     }
+    xdebug2("ping rtt: %d, %d", (int)pingStatusTemp.avgrtt, (int)pingStatusTemp.maxrtt);
+    *rtt = static_cast<int>(pingStatusTemp.avgrtt);
 
-    xinfo2(TSF"m_strPingResult = %0", pingresult_);
+    xinfo2(TSF"m_strPingResult = %0, %1", pingresult_, *rtt);
     return 0;
 }
 
@@ -720,6 +726,11 @@ int PingQuery::__runReadWrite(int& _errcode) {
     return 0;
 }
 
+int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, const char* dest, unsigned int packetSize, int* rtt) {
+    *rtt = 1;
+    return RunPingQuery(_querycount, interval, timeout, dest, packetSize);
+}
+    
 int PingQuery::RunPingQuery(int _querycount, int _interval/*S*/, int _timeout/*S*/, const char* _dest, unsigned int _packet_size) {
     xassert2(_querycount >= 0);
     xdebug2(TSF"dest=%0", _dest);
@@ -857,6 +868,13 @@ int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/
     xerror2(TSF"ping query is not support on win32 now!");
     return 0;
 }
+
+int PingQuery::RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, 
+                    const char* dest, unsigned int packetSize, int* rtt){
+    xerror2(TSF"ping query is not support on win32 now!");
+    return -1;
+}
+
 int PingQuery::GetPingStatus(struct PingStatus& pingStatus) {
     xerror2(TSF"ping query is not support on win32 now!");
     return 0;

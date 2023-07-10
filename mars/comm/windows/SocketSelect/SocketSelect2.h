@@ -20,6 +20,9 @@
 #include "thread/lock.h"
 #include "socket/unix_socket.h"
 
+namespace mars {
+namespace comm {
+
 class SocketSelect;
 class SocketBreaker {
     friend SocketSelect;
@@ -33,11 +36,12 @@ class SocketBreaker {
     bool IsBreak() const;
 
     bool Break();
+    bool Break(int reason);
     bool Clear();
     void Close();
 
     WSAEVENT BreakerFD() const;
-
+    int BreakReason() const;
   private:
 	  SocketBreaker(const SocketBreaker&);
 	  SocketBreaker& operator=(const SocketBreaker&);
@@ -48,6 +52,7 @@ class SocketBreaker {
     bool m_create_success;
     bool m_broken;
     int m_exception;
+    int m_reason;
 };
 
 class SocketSelect {
@@ -93,5 +98,6 @@ class SocketSelect {
     fd_set readfd_;
     fd_set exceptionfd_;
 };
-
+}
+}
 #endif

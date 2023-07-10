@@ -32,6 +32,9 @@
 
 #define IPV4_BROADCAST_IP "255.255.255.255"
 
+namespace mars {
+namespace comm {
+
 struct UdpSendData;
 class UdpClient;
 
@@ -52,7 +55,7 @@ class UdpClient {
     /*
      * return -2 break, -1 error, 0 timeout, else handle size
      */
-    int SendBlock(void* _buf, size_t _len);
+    int SendBlock(void* _buf, size_t _len, int _timeOutMs = -1);
     int ReadBlock(void* _buf, size_t _len, int _timeOutMs = -1);
 
     void Break() { breaker_.Break(); }
@@ -79,5 +82,8 @@ class UdpClient {
     std::list<UdpSendData> list_buffer_;
     Mutex mutex_;
 };
+
+}
+}
 
 #endif /* UDPCLIENT_H_ */

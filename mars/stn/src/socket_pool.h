@@ -21,6 +21,7 @@
 #ifndef SOCKET_POOL_
 #define SOCKET_POOL_
 
+#include <list>
 #include "mars/stn/stn.h"
 #include "mars/comm/tickcount.h"
 #include "mars/comm/socket/unix_socket.h"
@@ -36,22 +37,48 @@ namespace stn {
 
     class CacheSocketItem {
     public:
-        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout)
-            :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout) {}
+        CacheSocketItem(const IPPortItem& _item, SOCKET _fd, uint32_t _timeout, int (*_closefunc)(SOCKET),
+                        SOCKET (*_createstream_func)(SOCKET), bool (*_issubstream_func)(SOCKET))
+            :address_info(_item),start_tick(true), socket_fd(_fd), timeout(_timeout), closefunc(_closefunc),
+             createstream_func(_createstream_func), issubstream_func(_issubstream_func){}
 
         bool IsSame(const IPPortItem& _item) const {
-            return (_item.str_ip == address_info.str_ip && _item.port == address_info.port
-                && _item.str_host == address_info.str_host);
+            return  _item.transport_protocol == address_info.transport_protocol &&
+                    _item.str_ip == address_info.str_ip &&
+                    _item.port == address_info.port &&
+                    _item.str_host == address_info.str_host;
         }
 
         bool HasTimeout() const {
             return start_tick.gettickspan() >= (timeout*1000);
+        }
+        
+        void CloseSocket(){
+            closefunc(socket_fd);
+            socket_fd = INVALID_SOCKET;
+        }
+        
+        bool IsSubStream() const{
+            if (!issubstream_func)              return false;
+            if (socket_fd == INVALID_SOCKET)    return false;
+            return issubstream_func(socket_fd);
+        }
+        int CreateStream(){
+            if (!createstream_func)             return INVALID_SOCKET;
+            if (socket_fd == INVALID_SOCKET)    return INVALID_SOCKET;
+            return createstream_func(socket_fd);
+        }
+        void ResetTimeout(){
+            start_tick.gettickcount();
         }
 
         IPPortItem address_info;
         tickcount_t start_tick;
         SOCKET socket_fd;
         uint32_t timeout;   //in seconds
+        int (*closefunc)(SOCKET) = nullptr;
+        SOCKET (*createstream_func)(SOCKET) = nullptr;
+        bool (*issubstream_func)(SOCKET) = nullptr;
     };
 
     class SocketPool {
@@ -65,46 +92,63 @@ namespace stn {
 
         SOCKET GetSocket(const IPPortItem& _item) {
             xverbose_function();
-            ScopedLock lock(mutex_);
-            if(!use_cache_ || _isBaned() || socket_pool_.empty())
+            comm::ScopedLock lock(mutex_);
+            if(!use_cache_ || _isBaned() || socket_pool_.empty()) {
                 return INVALID_SOCKET;
+            }
 
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->IsSame(_item)) {
-                    if(iter->HasTimeout() || _IsSocketClosed(iter->socket_fd)) {
+                    if(iter->HasTimeout() || (_item.transport_protocol == Task::kTransportProtocolTCP && _IsSocketClosed(iter->socket_fd))) {
                         xinfo2(TSF"remove timeout or closed socket, is timeout:%_", iter->HasTimeout());
-                        socket_close(iter->socket_fd);
+                        iter->CloseSocket();
                         iter = socket_pool_.erase(iter);
                         continue;
                     }
-                    SOCKET fd = iter->socket_fd;
-                    socket_pool_.erase(iter);
-                    xinfo2(TSF"get from cache: ip:%_, port:%_, host:%_, fd:%_, size:%_", _item.str_ip, _item.port, _item.str_host, fd, socket_pool_.size());
-                    return fd;
+                    
+                    if (_item.transport_protocol == Task::kTransportProtocolTCP || iter->IsSubStream()){
+                        SOCKET fd = iter->socket_fd;
+                        socket_pool_.erase(iter);
+                        xinfo2(TSF"get from cache: ip:%_, port:%_, host:%_, fd:%_, size:%_", _item.str_ip, _item.port, _item.str_host, fd, socket_pool_.size());
+                        return fd;
+                    }
+                    
+                    //create sub stream for quic
+                    xassert2(_item.transport_protocol == Task::kTransportProtocolQUIC);
+                    int subfd = iter->CreateStream();
+                    if (subfd == INVALID_SOCKET){
+                        xwarn2(TSF"create substream failed. url %_:%_ fd %_", _item.str_ip, _item.port, iter->socket_fd);
+                        socket_pool_.erase(iter);
+                        return INVALID_SOCKET;
+                    }
+                    // recalc keepalive time
+                    xinfo2(TSF"get from cache url %_:%_ owner %_ stream %_", _item.str_ip, _item.port, iter->socket_fd, subfd);
+                    iter->ResetTimeout();
+                    return subfd;
                 }
                 iter++;
             }
-            xinfo2(TSF"can not find socket ip:%_, port:%_, host:%_, size:%_", _item.str_ip, _item.port, _item.str_host, socket_pool_.size());
+            xdebug2(TSF"can not find socket ip:%_, port:%_, host:%_, size:%_", _item.str_ip, _item.port, _item.str_host, socket_pool_.size());
             return INVALID_SOCKET;
         }
-
+        
         bool AddCache(CacheSocketItem& item) {
-            ScopedLock lock(mutex_);
-            xinfo2(TSF"add item to socket pool, ip:%_, port:%_, host:%_, fd:%_, size:%_", item.address_info.str_ip, item.address_info.port, item.address_info.str_host, item.socket_fd, socket_pool_.size());
-            socket_pool_.push_back(item);
+            comm::ScopedLock lock(mutex_);
+            xinfo2(TSF"add item to socket pool, ip:%_, port:%_, host:%_, fd:%_, timeout %_s size:%_", item.address_info.str_ip, item.address_info.port, item.address_info.str_host, item.socket_fd, item.timeout, socket_pool_.size());
+            socket_pool_.push_front(item);
             return true;
         }
 
         void CleanTimeout() {
-            ScopedLock lock(mutex_);
+            comm::ScopedLock lock(mutex_);
             if(socket_pool_.empty())    return;
             
             auto iter = socket_pool_.begin();
             while(iter != socket_pool_.end()) {
                 if(iter->HasTimeout()) {
-                    socket_close(iter->socket_fd);
                     xinfo2(TSF"remove timeout socket: ip:%_, port:%_, host:%_, fd:%_", iter->address_info.str_ip, iter->address_info.port, iter->address_info.str_host, iter->socket_fd);
+                    iter->CloseSocket();
                     iter = socket_pool_.erase(iter);
                     continue;
                 }
@@ -114,11 +158,11 @@ namespace stn {
         }
 
         void Clear() {
-            ScopedLock lock(mutex_);
+            comm::ScopedLock lock(mutex_);
             xinfo2(TSF"clear cache sockets");
             std::for_each(socket_pool_.begin(), socket_pool_.end(), [](CacheSocketItem& value) {
                 if(value.socket_fd != INVALID_SOCKET)
-                    socket_close(value.socket_fd);
+                    value.CloseSocket();
             });
             socket_pool_.clear();
         }
@@ -127,6 +171,7 @@ namespace stn {
             if(_is_reused && (!_has_received || !_is_decode_ok)) {
                 ban_start_tick_.gettickcount();
                 is_baned_ = true;
+                xinfo2(TSF"report ban");
             } else if(_is_reused && _has_received && _is_decode_ok) {
                 is_baned_ = false;
             }
@@ -134,7 +179,9 @@ namespace stn {
         
     private:
         bool _isBaned() {
-            return is_baned_ && ban_start_tick_.isValid() && ban_start_tick_.gettickspan() <= BAN_INTERVAL;
+            bool ret = is_baned_ && ban_start_tick_.isValid() && ban_start_tick_.gettickspan() <= BAN_INTERVAL;
+            xverbose2_if(ret, TSF"isban:%_", ret);
+            return ret;
         }
 
         bool _IsSocketClosed(SOCKET fd) {
@@ -164,9 +211,9 @@ namespace stn {
         }
 
     private:
-        Mutex mutex_;
+        comm::Mutex mutex_;
         bool use_cache_;
-        std::vector<CacheSocketItem> socket_pool_;
+        std::list<CacheSocketItem> socket_pool_;
         bool is_baned_;
         tickcount_t ban_start_tick_;
     };

@@ -29,6 +29,8 @@
 #include "comm/socket/unix_socket.h"
 #include "comm/socket/socketbreaker.h"
 
+namespace mars {
+namespace comm {
 struct PollEvent {
     friend class SocketPoll;
 public:
@@ -89,5 +91,8 @@ protected:
     int                    ret_;
     int                    errno_;
 };
+
+}
+}
 
 #endif

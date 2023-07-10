@@ -35,6 +35,7 @@ Task::Task(uint32_t _taskid) {
     cmdid = 0;
     channel_id = 0;
     channel_select = 0;
+    transport_protocol = kTransportProtocolTCP;
     
     send_only = false;
     need_authed = false;
@@ -53,8 +54,9 @@ Task::Task(uint32_t _taskid) {
     long_polling_timeout = -1;
     
     channel_name=DEFAULT_LONGLINK_NAME;
+    max_minorlinks = 1;
 
-
+    redirect_type = HostRedirectType::kOther;
 }
 
 uint32_t GenTaskID(){

@@ -72,6 +72,8 @@ struct ConnectProfile {
     
     void Reset(){
         net_type.clear();
+        nettype_for_report = -1;
+        ispcode = 0;
         tid = 0;
         
         start_time = 0;
@@ -83,6 +85,7 @@ struct ConnectProfile {
         conn_reason = 0;
         conn_time = 0;
         conn_errcode = 0;
+        rw_errcode = 0;
         ip.clear();
         port = 0;
         host.clear();
@@ -92,10 +95,19 @@ struct ConnectProfile {
         tryip_count = 0;
         send_request_cost = 0;
         recv_reponse_cost = 0;
+        certverify_cost = 0;
+        is0rtt = 0;
+        is_fast_fallback_tcp = 0;
+        quic_rw_timeout_source = TimeoutSource::kClientDefault;
+        quic_rw_timeout_ms = 5000;
 
         local_ip.clear();
         local_port = 0;
         ip_index = -1;
+        transport_protocol = Task::kTransportProtocolTCP;
+        link_type = Task::kChannelLong;
+        tried_443port = 0;
+        tried_80port = 0;
         
         disconn_time = 0;
         disconn_errtype = kEctOK;
@@ -113,9 +125,30 @@ struct ConnectProfile {
         req_byte_count = 0;
         cgi.clear();
         ipv6_connect_failed = false;
+        ipv6only_but_v4_successful = false;
+        ipv6_failed_but_v4_successful = false;
+        dual_stack_but_use_v4 = false;
+
+        start_connect_time = 0;
+        connect_successful_time = 0;
+        start_tls_handshake_time = 0;
+        tls_handshake_successful_time = 0;
+        start_send_packet_time = 0;
+        start_read_packet_time = 0;
+        read_packet_finished_time = 0;
+        retrans_byte_count = 0;
+		
+        tls_handshake_mismatch = false;
+        tls_handshake_success = false;
+        channel_type = 0;
+        rtt_by_socket = 0;
+
+        task_id = 0;
     }
     
     std::string net_type;
+    int nettype_for_report;
+    int ispcode;
     intmax_t tid;
     
     uint64_t start_time;
@@ -126,11 +159,17 @@ struct ConnectProfile {
     int conn_reason;
     uint64_t conn_time;
     int conn_errcode;
+    int rw_errcode;
     unsigned int conn_rtt;
     unsigned long conn_cost;
     int tryip_count;
     uint64_t send_request_cost;
     uint64_t recv_reponse_cost;
+    int certverify_cost;
+    int is0rtt;
+    int is_fast_fallback_tcp;
+    TimeoutSource quic_rw_timeout_source; //0:client.default; 1: svr.default; 2: cgi.special
+    unsigned quic_rw_timeout_ms;
 
     std::string ip;
     uint16_t port;
@@ -139,6 +178,10 @@ struct ConnectProfile {
     std::string local_ip;
     uint16_t local_port;
     int ip_index;
+    int transport_protocol;
+    int link_type;
+    int tried_443port;
+    int tried_80port;
     
     uint64_t disconn_time;
     ErrCmdType disconn_errtype;
@@ -154,12 +197,36 @@ struct ConnectProfile {
 
     //keep alive config
     SOCKET socket_fd;
+    int (*closefunc)(SOCKET) = &socket_close;
+    SOCKET (*createstream_func)(SOCKET) = nullptr;
+    bool (*issubstream_func)(SOCKET) = nullptr;
     uint32_t keepalive_timeout;
     bool is_reused_fd;
     int local_net_stack;
     uint64_t req_byte_count;
-    std::string cgi;
+    std::string cgi; 
     bool ipv6_connect_failed;
+    bool ipv6only_but_v4_successful;
+    bool ipv6_failed_but_v4_successful;
+    bool dual_stack_but_use_v4;
+    //opreator identify
+    std::string connection_identify;
+    bool tls_handshake_mismatch;
+    bool tls_handshake_success;
+	
+	//for cgi caller
+    uint64_t start_connect_time;
+    uint64_t connect_successful_time;
+    uint64_t start_tls_handshake_time;
+    uint64_t tls_handshake_successful_time;
+    uint64_t start_send_packet_time;
+    uint64_t start_read_packet_time;
+    uint64_t read_packet_finished_time;
+    uint64_t retrans_byte_count;
+    int channel_type;
+    int rtt_by_socket;
+
+    uint32_t task_id;
 };
 
         
@@ -293,7 +360,7 @@ struct TaskProfile {
         return kStepOther;
     }
 
-    const Task task;
+    Task task;
     TransferProfile transfer_profile;
     intptr_t running_id;
     
@@ -319,6 +386,7 @@ struct TaskProfile {
     bool allow_sessiontimeout_retry;
 
     std::vector<TransferProfile> history_transfer_profiles;
+    std::string channel_name;
 };
         
 

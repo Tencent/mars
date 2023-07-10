@@ -32,7 +32,7 @@
 #include "comm/thread/lock.h"
 #include "comm/time_utils.h"
 #include "comm/xlogger/xlogger.h"
-
+#include "mars/comm/macro.h"
 #ifdef ANDROID
 #include "android/fatal_assert.h"
 #endif
@@ -50,9 +50,9 @@ namespace {
 
 
 
-static std::vector<check_content> sg_check_heap;
-static Mutex             sg_mutex;
-static Condition          sg_cond;
+NO_DESTROY static std::vector<check_content> sg_check_heap;
+NO_DESTROY static Mutex             sg_mutex;
+NO_DESTROY static Condition          sg_cond;
 static bool               sg_exit = false;
 
 
@@ -132,7 +132,7 @@ static void __anr_checker_thread() {
             if (use_cpu_time_2>=use_cpu_time_1) {
                 it->used_cpu_time += (use_cpu_time_2-use_cpu_time_1);
             } else {
-                xassert2(false, TSF"use_cpu_time_2:%_, use_cpu_time_1:%_, use_cpu_clock_2:%_, use_cpu_clock_1:%_, CLOCKS_PER_SEC:%_", use_cpu_time_2, use_cpu_time_1,
+                xerror2(TSF"use_cpu_time_2:%_, use_cpu_time_1:%_, use_cpu_clock_2:%_, use_cpu_clock_1:%_, CLOCKS_PER_SEC:%_", use_cpu_time_2, use_cpu_time_1,
                          use_cpu_clock_2, use_cpu_clock_1, CLOCKS_PER_SEC);
             }
         }

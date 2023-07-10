@@ -28,6 +28,7 @@
 #include "mars/comm/xlogger/xlogger.h"
 
 using namespace mars::stn;
+using namespace mars::comm;
 
 static uint64_t RETRY_INTERVAL = 60 * 1000;
 
@@ -114,7 +115,6 @@ void ZombieTaskManager::ClearTasks()
 
 void ZombieTaskManager::RedoTasks()
 {
-    xinfo_function();
     __StartTask();
 }
 

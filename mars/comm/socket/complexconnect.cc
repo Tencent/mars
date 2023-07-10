@@ -39,27 +39,39 @@
 #include "comm/crypt/ibase64.h"
 #include "comm/platform_comm.h"
 
-#ifdef COMPLEX_CONNECT_NAMESPACE
-namespace COMPLEX_CONNECT_NAMESPACE {
-#endif
+namespace mars {
+namespace comm {
 
-static const unsigned int kTimeoutModeIncreaseInterval = 1000;
+static const int kMaxConnectingLoopCount = 30;
+
+bool IsV6(const socket_address& _address) {
+    in6_addr addr6 = IN6ADDR_ANY_INIT;
+    if (socket_inet_pton(AF_INET6, _address.ip(), &addr6)) { //first ip is ipv6
+        return true;
+    }
+	return false;
+}
     
 ComplexConnect::ComplexConnect(unsigned int _timeout, unsigned int _interval)
     : timeout_(_timeout), interval_(_interval), error_interval_(_interval), max_connect_(3), trycount_(0), index_(-1), errcode_(0)
-    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false), each_IP_timeout_mode_(EachIPConnectTimoutMode::MODE_FIXED)
+    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false)
+    , need_detail_log_(true), indepent_timeout_(false)
 {}
 
 ComplexConnect::ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, unsigned int _error_interval /*ms*/, unsigned int _max_connect)
     : timeout_(_timeout), interval_(_interval), error_interval_(_error_interval), max_connect_(_max_connect),  trycount_(0), index_(-1), errcode_(0)
-    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false), each_IP_timeout_mode_(EachIPConnectTimoutMode::MODE_FIXED)
+    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false)
+    , need_detail_log_(true), indepent_timeout_(false)
 {}
 
 
-ComplexConnect::ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, EachIPConnectTimoutMode _mode)
-    : timeout_(_timeout), interval_(_interval), error_interval_(_interval), max_connect_(3), trycount_(0), index_(-1), errcode_(0)
-    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false), each_IP_timeout_mode_(_mode) 
-{}
+ComplexConnect::ComplexConnect(unsigned int _timeout /*ms*/, unsigned int _interval /*ms*/, unsigned int _error_interval /*ms*/
+    , unsigned int _v4_timeout, unsigned int _v6_timeout)
+    : timeout_(_timeout), interval_(_interval), error_interval_(_error_interval), max_connect_(3),  trycount_(0), index_(-1), errcode_(0)
+    , index_conn_rtt_(0), index_conn_totalcost_(0), totalcost_(0), is_interrupted_(false)
+    , need_detail_log_(true), v4_timeout_(_v4_timeout), v6_timeout_(_v6_timeout), indepent_timeout_(true) {
+        xdebug2(TSF"use indepent timeout for ip: %_, %_", v6_timeout_, v4_timeout_);
+    }
 
 ComplexConnect::~ComplexConnect()
 {}
@@ -101,6 +113,7 @@ class ConnectCheckFSM : public TcpClientFSM {
 
     TCheckStatus CheckStatus() const { return check_status_;}
     int TotalRtt() const { return int(checkfintime_ - start_connecttime_);}
+    int Timeout() const {return (int)(connect_timeout_);}
 
   protected:
     virtual void _OnCreate() { if (observer_) observer_->OnCreated(index_, addr_, sock_);}
@@ -132,10 +145,15 @@ class ConnectCheckFSM : public TcpClientFSM {
 
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) {}
 
-    virtual void _OnClose(TSocketStatus _status, int _error, bool _userclose) {
+    virtual void _OnClose(TSocketStatus _status, int _error, bool _remoteclose) {
         checkfintime_ = gettickcount();
-
-        if (observer_ && !_userclose) {
+        
+        if (CheckStatus() != ECheckOK){
+            //check failed.
+            check_status_ = ECheckFail;
+        }
+        
+        if (observer_ && !_remoteclose) {
             if (EConnecting == _status) {
                 observer_->OnConnected(index_, addr_, sock_, _error, TotalRtt());
             } else if (EReadWrite == _status && SOCKET_ERRNO(ETIMEDOUT) == _error) {
@@ -203,7 +221,7 @@ protected:
                 checkfintime_ = gettickcount();
                 _recv_buff.Reset();
             } else {
-				xwarn2(TSF"proxy error, proxy status code:%_, proxy info:%_:%_ resp:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port(), xdump(_recv_buff.Ptr(), _recv_buff.Length()));
+				xwarn2(TSF"proxy error, proxy status code:%_, proxy info:%_:%_ resp:%_", parser.Status().StatusCode(), addr_.ip(), addr_.port(), xlogger_memory_dump(_recv_buff.Ptr(), _recv_buff.Length()));
                 check_status_ = ECheckFail;
             }
             
@@ -460,19 +478,20 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     index_conn_totalcost_ = 0;
     totalcost_ = 0;
     is_interrupted_ = false;
+    is_connective_check_failed_ = false;
 
     if (_vecaddr.empty()) {
         xwarn2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
         return INVALID_SOCKET;
     }
 
-    xinfo2(TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
+    xinfo2_if(need_detail_log_, TSF"_vecaddr size:%_, m_timeout:%_, m_interval:%_, m_error_interval:%_, m_max_connect:%_, @%_", _vecaddr.size(), timeout_, interval_, error_interval_, max_connect_, this);
     
     uint64_t  starttime = gettickcount();
     std::vector<ConnectCheckFSM*> vecsocketfsm;
 
     for (unsigned int i = 0; i < _vecaddr.size(); ++i) {
-        xdebug2(TSF"complex.conn %_", _vecaddr[i].url());
+        xverbose2(TSF"complex.conn %_", _vecaddr[i].url());
 
         ConnectCheckFSM* ic = NULL;
         if (mars::comm::kProxyHttpTunel == _proxy_type && _proxy_addr) {
@@ -480,43 +499,42 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         } else if (mars::comm::kProxySocks5 == _proxy_type && _proxy_addr) {
             ic = new ConnectSocks5CheckFSM(_vecaddr[i], *_proxy_addr, _proxy_username, _proxy_pwd, timeout_, i, _observer);
         } else {
-            ic = new ConnectCheckFSM(_vecaddr[i], timeout_, i, _observer);
+            if (indepent_timeout_) {
+                if (IsV6(_vecaddr[i])) {
+                    ic = new ConnectCheckFSM(_vecaddr[i], v6_timeout_, i, _observer);
+                    xdebug2(TSF"ip %_ is v6", _vecaddr[i].ip());
+                } else {
+                    ic = new ConnectCheckFSM(_vecaddr[i], v4_timeout_, i, _observer);
+                }
+            } else {
+                ic = new ConnectCheckFSM(_vecaddr[i], timeout_, i, _observer);
+            }
         }
 
         vecsocketfsm.push_back(ic);
     }
 
-    uint64_t  curtime = gettickcount();
-    uint64_t  laststart_connecttime = 0;
-    if (each_IP_timeout_mode_ == EachIPConnectTimoutMode::MODE_INCREASE) {
-        unsigned int timeout_interval = std::min(kTimeoutModeIncreaseInterval, interval_);
-        laststart_connecttime = curtime - std::min(timeout_interval, error_interval_);
-    } else {
-        laststart_connecttime = curtime - std::max(interval_, error_interval_);
-    }
+    uint64_t curtime = gettickcount();
+    
+    uint64_t laststart_connecttime = curtime - std::max(interval_, error_interval_);
 
     xdebug2(TSF"curtime:%_, laststart_connecttime:%_, @%_", curtime, laststart_connecttime, this);
 
     int lasterror = 0;
     unsigned int index = 0;
     SOCKET retsocket = INVALID_SOCKET;
+    
+    int loop_count = 0;
 
     do {
         curtime = gettickcount();
         // timeout and connect
         SocketSelect sel(_breaker);
         sel.PreSelect();
+        
+        int next_connect_timeout = int(((0 == lasterror) ? interval_ : error_interval_) - (curtime - laststart_connecttime));
 
-        int next_connect_timeout = 0;
-        if (each_IP_timeout_mode_ == EachIPConnectTimoutMode::MODE_INCREASE) {
-            unsigned int timeout_interval = (unsigned int)(kTimeoutModeIncreaseInterval * pow(2, index));
-            int connect_internal = std::min(timeout_interval, interval_);
-            next_connect_timeout = int(connect_internal - (curtime - laststart_connecttime));
-        } else {
-            next_connect_timeout = int(((0 == lasterror) ? interval_ : error_interval_) - (curtime - laststart_connecttime));
-        }
-
-        xinfo2(TSF"next_connect_timeout %_", next_connect_timeout);
+        xverbose2(TSF"next_connect_timeout %_", next_connect_timeout);
 
         int timeout = (int)timeout_;
         unsigned int runing_count = (unsigned int)std::count_if(vecsocketfsm.begin(), vecsocketfsm.end(), &__isconnecting);
@@ -532,13 +550,9 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                 && 0 >= next_connect_timeout
                 && runing_count < max_connect_) {
             if (runing_count + 1 < max_connect_) {
-                if (each_IP_timeout_mode_ == EachIPConnectTimoutMode::MODE_INCREASE) {
-                    unsigned int timeout_interval = (unsigned int)(kTimeoutModeIncreaseInterval * pow(2, index));
-                    timeout = std::min(timeout, (int)std::min(interval_, timeout_interval));
-                } else {
-                    timeout = std::min(timeout, (int)interval_);
-                }
+                timeout = std::min(timeout, (int)interval_);
             }
+            xdebug2(TSF"running count: %_, index: %_, timeout: %_, %_", index, runing_count, next_connect_timeout, timeout);
 
             laststart_connecttime = gettickcount();
             lasterror = 0;
@@ -552,8 +566,9 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
             xgroup2_define(group);
             vecsocketfsm[i]->PreSelect(sel, group);
-            xgroup2_if(!group.Empty(), TSF"index:%_, @%_, ", i, this) << group;
+            need_detail_log_&&!group.Empty() ? (xgroup2(TSF"index:%_, @%_, ", i, this) << group) : group.Clear();
             timeout = std::min(timeout, vecsocketfsm[i]->Timeout());
+            xdebug2(TSF"connect ip timeout: %_", vecsocketfsm[i]->Timeout());
         }
 
         xdebug2(TSF"timeout:%_, @%_", timeout, this);
@@ -562,8 +577,10 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         if (INT_MAX == timeout) {
             ret = sel.Select();
         } else {
-            timeout = std::max(0, timeout);
-            xinfo2(TSF"select timeout %_ index is %_ ", timeout, index);
+            if (timeout <= 0) { // timeout may be 0, which causes dead loop
+                xwarn2(TSF"invalid timeout %_", timeout);
+                timeout = 1000;
+            }
             ret = sel.Select(timeout);
         }
 
@@ -592,7 +609,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
 
             xgroup2_define(group);
             vecsocketfsm[i]->AfterSelect(sel, group);
-            xgroup2_if(!group.Empty(), TSF"index:%_, @%_, status:%_,%_", i, this, vecsocketfsm[i]->Status(), vecsocketfsm[i]->CheckStatus()) << group;
+            (!group.Empty() && need_detail_log_) ? (xgroup2(TSF"index:%_, @%_, status:%_,%_", i, this, vecsocketfsm[i]->Status(), vecsocketfsm[i]->CheckStatus()) << group) : group.Clear();
 
             if (TcpClientFSM::EEnd == vecsocketfsm[i]->Status()) {
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
@@ -610,7 +627,8 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
             if (TcpClientFSM::EReadWrite == vecsocketfsm[i]->Status() && ConnectCheckFSM::ECheckFail == vecsocketfsm[i]->CheckStatus()) {
                 if (_observer) _observer->OnFinished(i, socket_address(&vecsocketfsm[i]->Address()), vecsocketfsm[i]->Socket(), vecsocketfsm[i]->Error(),
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
-
+                
+                is_connective_check_failed_ = true;
                 errcode_ = vecsocketfsm[i]->Error();
                 vecsocketfsm[i]->Close();
                 delete vecsocketfsm[i];
@@ -625,7 +643,7 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
                                                          vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), (int)(gettickcount() - starttime));
 
                 errcode_ = vecsocketfsm[i]->Error();
-                xinfo2(TSF"index:%_, sock:%_, suc ConnectImpatient:%_:%_, RTT:(%_, %_), @%_", i, vecsocketfsm[i]->Socket(),
+                xinfo2_if(need_detail_log_, TSF"index:%_, sock:%_, suc ConnectImpatient:%_:%_, RTT:(%_, %_), @%_", i, vecsocketfsm[i]->Socket(),
                        vecsocketfsm[i]->IP(), vecsocketfsm[i]->Port(), vecsocketfsm[i]->Rtt(), vecsocketfsm[i]->TotalRtt(), this);
                 retsocket = vecsocketfsm[i]->Socket();
                 index_ = i;
@@ -649,6 +667,13 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
         }
 
         if (all_invalid || INVALID_SOCKET != retsocket) break;
+        
+        loop_count ++;
+        if (loop_count > kMaxConnectingLoopCount) {
+            xwarn2(TSF"too much loop running, may be in dead loop");
+            break;
+        }
+        
     } while (true);
 
     for (unsigned int i = 0; i < vecsocketfsm.size(); ++i) {
@@ -667,6 +692,5 @@ SOCKET ComplexConnect::ConnectImpatient(const std::vector<socket_address>& _veca
     return retsocket;
 }
 
-#ifdef COMPLEX_CONNECT_NAMESPACE
 }
-#endif
+}

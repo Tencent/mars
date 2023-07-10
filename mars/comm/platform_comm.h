@@ -22,6 +22,7 @@
 #define COMM_PLATFORM_COMM_H_
 
 #include <string>
+#include <functional>
 
 #ifdef ANDROID 
 #include "mars/comm/thread/mutex.h"
@@ -32,12 +33,18 @@
 #error "C++ only"
 #endif
 
+namespace mars {
+namespace comm {
+
 enum NetType {
     kNoNet = -1,
     kWifi = 1,
     kMobile = 2,
     kOtherNet = 3
 };
+
+void OnPlatformNetworkChange();
+
 int getNetInfo();
 
 enum class NetTypeForStatistics{
@@ -97,6 +104,8 @@ __CXX11_CONSTEXPR__ static const char* const HSPA = "HSPA";
 __CXX11_CONSTEXPR__ static const char* const IDEN = "IDEN";
 __CXX11_CONSTEXPR__ static const char* const HSPAP = "HSPA+";
 __CXX11_CONSTEXPR__ static const char* const G5 = "5G";
+__CXX11_CONSTEXPR__ static const char* const NR = "NR";
+__CXX11_CONSTEXPR__ static const char* const NRNSA = "NRNSA";
 __CXX11_CONSTEXPR__ static const char* const WIFI = "WIFI";
 
 
@@ -196,6 +205,7 @@ struct RadioAccessNetworkInfo {
     bool Is4G() const { return radio_access_network == LTE;}
     bool Is5G() const { return radio_access_network == G5;}
     bool IsUnknown() const { return !Is2G() && !Is3G() && !Is4G() && !Is5G();}
+    bool IsNR() const;
 };
 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
@@ -204,6 +214,9 @@ unsigned int getSignal(bool isWifi);
 bool isNetworkConnected();
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
+
+void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
+void ResetWiFiIdCallBack();
 
 inline int getCurrNetLabel(std::string& netInfo) {
     netInfo = "defalut";
@@ -302,11 +315,9 @@ bool  wakeupLock_IsLocking(void* _object);
 #endif
 
 #ifdef ANDROID
-	extern int g_NetInfo;
-	extern WifiInfo g_wifi_info;
-	extern SIMInfo g_sim_info;
-	extern APNInfo g_apn_info;
-	extern Mutex g_net_mutex;
+    std::string GetCurrentProcessName();
 #endif
+
+}}
 
 #endif /* COMM_PLATFORM_COMM_H_ */

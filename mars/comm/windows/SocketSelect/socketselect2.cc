@@ -15,6 +15,8 @@
 
 #include "xlogger/xlogger.h"
 
+
+
 static DWORD __SO_RCVTIMEO(SOCKET _sock) {
     DWORD optval = 0;
     int optlen = sizeof(optval);
@@ -48,6 +50,8 @@ static void __WOULDBLOCK(SOCKET _sock, bool _block) {
     __SO_RCVTIMEO(_sock, (ret & (~0x1)) + _block);
 }
 
+namespace mars {
+namespace comm {
 SocketBreaker::SocketBreaker()
     : m_broken(false)
     , m_create_success(true), m_exception(0) {
@@ -86,6 +90,11 @@ bool SocketBreaker::Break() {
     return m_broken;
 }
 
+bool SocketBreaker::Break(int reason){
+    m_reason = reason;
+    return Break();
+}
+
 bool SocketBreaker::Clear() {
     ScopedLock lock(m_mutex);
 
@@ -111,6 +120,10 @@ void SocketBreaker::Close() {
 
 WSAEVENT SocketBreaker::BreakerFD() const {
     return m_event;
+}
+
+int SocketBreaker::BreakReason() const{
+    return m_reason;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -370,3 +383,5 @@ int SocketSelect::Errno() const {
     return errno_;
 }
 
+}
+}

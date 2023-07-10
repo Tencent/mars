@@ -24,6 +24,7 @@
 #include <limits.h>
 #include <algorithm>
 
+
 #include "mars/comm/xlogger/xloggerbase.h"
 #include "mars/comm/xlogger/loginfo_extract.h"
 #include "mars/comm/ptrbuffer.h"
@@ -36,6 +37,8 @@
 #include <inttypes.h>
 #endif
 
+namespace mars {
+namespace xlog {
 void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _log) {
     static const char* levelStrings[] = {
         "V",
@@ -83,6 +86,8 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         if (0 != _info->timeval.tv_sec) {
             time_t sec = _info->timeval.tv_sec;
             tm tm = *localtime((const time_t*)&sec);
+
+
 #ifdef ANDROID
             snprintf(temp_time, sizeof(temp_time), "%d-%02d-%02d %+.1f %02d:%02d:%02d.%.3ld", 1900 + tm.tm_year, 1 + tm.tm_mon, tm.tm_mday,
                      tm.tm_gmtoff / 3600.0, tm.tm_hour, tm.tm_min, tm.tm_sec, _info->timeval.tv_usec / 1000);
@@ -96,10 +101,10 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         }
 
         // _log.AllocWrite(30*1024, false);
-        int ret = snprintf((char*)_log.PosPtr(), 1024, "[%s][%s][%" PRIdMAX ", %" PRIdMAX "%s][%s][%s, %s, %d][",  // **CPPLINT SKIP**
+        int ret = snprintf((char*)_log.PosPtr(), 1024, "[%s][%s][%" PRIdMAX ", %" PRIdMAX "%s][%s][%s:%d, %s][",  // **CPPLINT SKIP**
                            _logbody ? levelStrings[_info->level] : levelStrings[kLevelFatal], temp_time,
                            _info->pid, _info->tid, _info->tid == _info->maintid ? "*" : "", _info->tag ? _info->tag : "",
-                           filename, strFuncName, _info->line);
+                           filename, _info->line, strFuncName);
 
         assert(0 <= ret);
         _log.Length(_log.Pos() + ret, _log.Length() + ret);
@@ -125,3 +130,5 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
     if (*((char*)_log.PosPtr() - 1) != nextline) _log.Write(&nextline, 1);
 }
 
+}
+}

@@ -48,7 +48,6 @@ class SimpleIPPortSort {
     void SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const;
 
     void AddServerBan(const std::string& _ip);
-    bool CanUseIPv6();
     
   private:
     void __LoadXml();
@@ -66,9 +65,7 @@ class SimpleIPPortSort {
     bool __IsServerBan(const std::string& _ip) const;
     bool __IsV6Ip(const IPPortItem& item) const;
     void __PickIpItemRandom(std::vector<IPPortItem>& _items, std::deque<IPPortItem>& _items_history, std::deque<IPPortItem>& _items_new) const;
-    void __UpdateBanFlagAndTime(const std::string& _ip, bool _success);
     bool __IsIPv6(const std::string& _ip);
-    int  __BanTimes(uint8_t _flag);
     
   private:
     SimpleIPPortSort(const SimpleIPPortSort&);
@@ -78,7 +75,7 @@ class SimpleIPPortSort {
     std::string hostpath_;
     tinyxml2::XMLDocument recordsxml_;
 
-    mutable Mutex mutex_;
+    mutable comm::Mutex mutex_;
     mutable std::vector<BanItem> _ban_fail_list_;
     mutable std::map<std::string, uint64_t> _server_bans_;
 

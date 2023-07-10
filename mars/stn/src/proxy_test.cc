@@ -44,6 +44,7 @@
 static unsigned int BUFFER_SIZE = 8 * 1024;
 static const uint16_t TEST_PORT = 80;
 using namespace mars::stn;
+using namespace mars::comm;
 
 ProxyTest::~ProxyTest() {
 
@@ -90,7 +91,6 @@ SOCKET ProxyTest::__Connect(const mars::comm::ProxyInfo& _proxy_info, const std:
     }
 
     TLocalIPStack localstack = local_ipstack_detect();
-    bool isnat64 = ELocalIPStack_IPv6 == localstack;
     std::vector<socket_address> vecaddr;
     
     if (mars::comm::kProxyHttp == _proxy_info.type) {
@@ -258,11 +258,11 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
             xerror2(TSF"parse http head failed, but socket closed, length:%0, nread:%_, nwrite:%_ ", recv_buf.Length(), socket_nread(_sock), socket_nwrite(_sock));
             break;
         } else if (parse_status == http::Parser::kBodyError) {
-            xerror2(TSF"content_length_ != buf_body_.Lenght(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
+            xerror2(TSF"content_length_ != buf_body_.Lenght(), Head:%0, http dump:%1 \n headers size:%2" , parser.Fields().ContentLength(), xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
             break;
         } else if (parse_status == http::Parser::kEnd) {
             if (status_code != 200) {
-                xerror2(TSF"@%0, status_code_ != 200, code:%1, http dump:%2 \n headers size:%3", this, status_code, xdump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
+                xerror2(TSF"@%0, status_code_ != 200, code:%1, http dump:%2 \n headers size:%3", this, status_code, xlogger_memory_dump(recv_buf.Ptr(), recv_buf.Length()), parser.Fields().GetHeaders().size());
             }
             break;
         } else {

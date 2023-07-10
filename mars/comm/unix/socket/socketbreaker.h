@@ -21,7 +21,10 @@
 #ifndef _SOCKSTBREAKER_
 #define _SOCKSTBREAKER_ 
 
-#include "comm/thread/lock.h"
+#include <mutex>
+
+namespace mars {
+namespace comm {
 
 class SocketBreaker {
   public:
@@ -33,20 +36,26 @@ class SocketBreaker {
     void Close();
 
     bool Break();
+    bool Break(int reason);
     bool Clear();
 
     bool IsBreak() const;
     int  BreakerFD() const;
-
+    int  BreakReason() const;
   private:
     SocketBreaker(const SocketBreaker&);
     SocketBreaker& operator=(const SocketBreaker&);
+    void _Cleanup();
 
   private:
     int   pipes_[2];
-    bool  create_success_;
-    bool  broken_;
-    mutable Mutex mutex_;
+    bool  create_success_ = false;
+    bool  breaked_ = false;
+    int   reason_ = 0;
+    mutable std::mutex mutex_;
 };
+
+}
+}
 
 #endif

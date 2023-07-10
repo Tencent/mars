@@ -23,6 +23,8 @@
 
 #include "assert/__assert.h"
 
+namespace mars {
+namespace comm {
 class Mutex {
   public:
     typedef  std::mutex handle_type;
@@ -103,5 +105,7 @@ class RecursiveMutex {
     std::recursive_mutex m_mutex;
 };
 
+}
+}
 
 #endif /* MUTEX_H_ */

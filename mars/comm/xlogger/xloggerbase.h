@@ -52,6 +52,11 @@ typedef struct XLoggerInfo_t {
     intmax_t maintid;
     int traceLog;
 } XLoggerInfo;
+// If there are fewer initializers in a brace-enclosed list than there are elements or members of an aggregate, 
+// or fewer characters in a string literal used to initialize an array of known size than there are elements 
+// in the array, the remainder of the aggregate shall be initialized implicitly 
+// the same as objects that have static storage duration.
+#define XLOGGER_INFO_INITIALIZER {(TLogLevel)0}
 
 extern intmax_t xlogger_pid();
 extern intmax_t xlogger_tid();

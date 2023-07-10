@@ -28,6 +28,7 @@ COMM_COPY_HEADER_FILES = {
             "mars/comm/xlogger/xloggerbase.h": "xlog",
             "mars/comm/xlogger/xlogger.h": "xlog",
             "mars/log/appender.h": "xlog",
+            "mars/log/xlogger_interface.h": "xlog",
             "mars/app/app.h": "app",
             "mars/app/app_logic.h": "app",
             "mars/sdt/sdt.h": "sdt",
@@ -64,6 +65,7 @@ XLOG_COPY_HEADER_FILES = {
             "mars/comm/xlogger/xloggerbase.h": "xlog",
             "mars/comm/xlogger/xlogger.h": "xlog",
             "mars/log/appender.h": "xlog",
+            "mars/log/xlogger_interface.h": "xlog",
             }      
 
 class bcolors:
@@ -82,7 +84,7 @@ def libtool_libs(src_libs, dst_lib):
         src_lib_str = '%s %s'%(src_lib_str, l)
 
     print(src_lib_str)
-    ret = os.system('libtool -static -o %s %s' %(dst_lib, src_lib_str))
+    ret = os.system('libtool -static -no_warning_for_no_symbols -o %s %s' %(dst_lib, src_lib_str))
     if ret != 0:
         print('!!!!!!!!!!!libtool %s fail!!!!!!!!!!!!!!!' %(dst_lib))
         return False

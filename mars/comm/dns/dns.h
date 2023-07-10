@@ -26,6 +26,9 @@
 
 #include "boost/function.hpp"
 
+namespace mars {
+namespace comm {
+
 struct DNSBreaker {
 	DNSBreaker(): isbreak(false), dnsstatus(NULL) {}
 	bool isbreak;
@@ -39,14 +42,14 @@ struct DNSBreaker {
 
 class DNS {
   public:
-   typedef std::vector<std::string> (*DNSFunc)(const std::string& host);
+   typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
 
   public:
     DNS(DNSFunc _dnsfunc=NULL);
     ~DNS();
     
   public:
-    bool GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec = 2 * 1000, DNSBreaker* _breaker = NULL);
+    bool GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec = 2000, DNSBreaker* _breaker = NULL, bool _longlink_host = false);
     void Cancel(const std::string& _host_name = std::string());
     void Cancel(DNSBreaker& _breaker);
     
@@ -61,6 +64,7 @@ class DNS {
     DNSFunc dnsfunc_;
     boost::function<void (int _key)> monitor_func_;
 };
-
+}
+}
 
 #endif /* COMM_COMM_DNS_H_ */

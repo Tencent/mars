@@ -28,8 +28,14 @@
 #include "comm/thread/thread.h"
 
 class XLogger;
-class SocketSelect;
 class TcpServer;
+class socket_address;
+
+namespace mars {
+namespace comm {
+class SocketSelect;
+}
+}
 
 class MTcpServer {
   public:
@@ -42,12 +48,10 @@ class MTcpServer {
 class TcpServer {
   public:
     TcpServer(const char* _ip, uint16_t _port, MTcpServer& _observer, int _backlog = 256);
-    TcpServer(uint16_t _port, MTcpServer& _observer, int _backlog = 256);
     TcpServer(const sockaddr_in& _bindaddr, MTcpServer& _observer, int _backlog = 256);
     ~TcpServer();
 
     SOCKET Socket() const;
-    const sockaddr_in& Address() const;
 
     bool StartAndWait(bool* _newone = NULL);
     void StopAndWait();
@@ -61,15 +65,15 @@ class TcpServer {
 
   protected:
     MTcpServer&         observer_;
-    Thread              thread_;
-    Mutex                  mutex_;
-    Condition            cond_;
+    mars::comm::Thread              thread_;
+    mars::comm::Mutex                  mutex_;
+    mars::comm::Condition            cond_;
 
     SOCKET                 listen_sock_;
-    sockaddr_in         bind_addr_;
+    socket_address*         bind_addr_;
     const int             backlog_;
 
-    SocketBreaker breaker_;
+    mars::comm::SocketBreaker breaker_;
 };
 
 #endif /* TcpServer_H_ */

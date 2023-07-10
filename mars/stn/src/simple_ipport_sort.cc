@@ -30,12 +30,14 @@
 #include "boost/accumulators/numeric/functional.hpp"
 
 #include "mars/comm/socket/unix_socket.h"
-
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/platform_comm.h"
+#include "mars/comm/shuffle.h"
 
 #include "mars/app/app.h"
+
+using namespace mars::comm;
 
 #define IPPORT_RECORDS_FILENAME "/ipportrecords2.xml"
 
@@ -113,7 +115,7 @@ SimpleIPPortSort::SimpleIPPortSort()
     ScopedLock lock(mutex_);
     __LoadXml();
     lock.unlock();
-    InitHistory2BannedList(false);
+    // InitHistory2BannedList(false);
 }
 
 SimpleIPPortSort::~SimpleIPPortSort() {
@@ -302,7 +304,6 @@ bool SimpleIPPortSort::__IsBanned(std::vector<BanItem>::iterator _iter) const {
 }
 
 void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip, unsigned short _port) {
-    __UpdateBanFlagAndTime(_ip, _is_success);
     for (std::vector<BanItem>::iterator iter = _ban_fail_list_.begin(); iter != _ban_fail_list_.end(); ++iter) {
         if (iter->ip == _ip && iter->port == _port) {
             SET_BIT(!_is_success, iter->records);
@@ -325,57 +326,6 @@ void SimpleIPPortSort::__UpdateBanList(bool _is_success, const std::string& _ip,
         item.last_fail_time.gettickcount();
     
     _ban_fail_list_.push_back(item);
-}
-
-
-static int DecToBin(int _dec) {
-	int result = 0, temp = _dec, j = 1;
-	while(temp) {
-		result = result + j * (temp % 2);
-		temp /= 2;
-		j = j * 10;
-	}
-	return result;
-}
-
-void SimpleIPPortSort::__UpdateBanFlagAndTime(const std::string& _ip, bool _success) {
-    if (__IsIPv6(_ip)) {
-        if (_success) {
-            SET_BIT(0, IPv6_ban_flag_);
-        } else {
-            SET_BIT(1, IPv6_ban_flag_);
-        }
-        IPv6_ban_flag_ &= 0x7F;
-        if (__BanTimes(IPv6_ban_flag_) >= 3) {
-            ban_v6_ = true;
-        }
-    } else {
-        if (_success) {
-            SET_BIT(0, IPv4_ban_flag_);
-        } else {
-            SET_BIT(1, IPv4_ban_flag_);
-        }
-        IPv4_ban_flag_ &= 0x7F;
-        if (__BanTimes(IPv4_ban_flag_) >= 3) {
-            ban_v6_ = false;
-        }
-    }
-    xdebug2(TSF"ip is %_, success is %_ , current v6 flag %_ , current v4 flag %_", _ip, _success, DecToBin(IPv6_ban_flag_), DecToBin(IPv4_ban_flag_));
-}
-
-int SimpleIPPortSort::__BanTimes(uint8_t _flag) {
-    int ban_times = 0;
-    uint8_t tmp_v6 = _flag;
-    while (tmp_v6 & 1) {
-        ban_times ++;
-        tmp_v6 = tmp_v6 >> 1;
-    }
-    xinfo2(TSF"flag is %_, ban time is %_ ", _flag, ban_times);
-    return ban_times;
-}
-
-bool SimpleIPPortSort::CanUseIPv6() {
-    return !ban_v6_;
 }
 
 bool SimpleIPPortSort::__IsIPv6(const std::string& _ip) {
@@ -425,9 +375,8 @@ bool SimpleIPPortSort::__IsServerBan(const std::string& _ip) const {
 }
 
 void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use_IPv6) const {
-    srand((unsigned int)gettickcount());
     //random_shuffle new and history
-    std::random_shuffle(_items.begin(), _items.end());
+    mars::comm::random_shuffle(_items.begin(), _items.end());
 
 	int cnt = _items.size();
 	for (int i = 1; i < cnt - 1; ++i)
@@ -490,15 +439,14 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
                   
                  if (l->last_suc_time != r->last_suc_time)
                      return l->last_suc_time > r->last_suc_time;
-                  
-                  //random by std::random_shuffle(_items.begin(), _items.end());
+
                   return false;
               });
     
    //merge
     _items.clear();
 
-    xinfo2(TSF"use ipv6 %_ ", _use_IPv6);
+//    xinfo2(TSF"use ipv6 %_ ", _use_IPv6);
 
     //v6 version
     if (!_use_IPv6) {//not use V6
@@ -591,16 +539,16 @@ void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items, std::
 
 
 void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const {
-    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
+//    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
     ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
     for (size_t i=0; i<_items.size(); i++) {
-		xinfo2(TSF"after FilterbyBanned list ip: %_ ", _items[i].str_ip);
+		xdebug2(TSF"after FilterbyBanned list ip: %_ ", _items[i].str_ip);
 	}
     __SortbyBanned(_items, _use_IPv6);
 
     for (size_t i=0; i<_items.size(); i++) {
-		xinfo2(TSF"after SortbyBanned list ip: %_ ", _items[i].str_ip);
+		xdebug2(TSF"after SortbyBanned list ip: %_ ", _items[i].str_ip);
 	}
     
     if (_needcount < (int)_items.size()) _items.resize(_needcount);
