@@ -183,7 +183,7 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
         }
 
         // fix SplitHttpHeadAndBody crash
-        if (0 == recv_autobuf.Length()) {
+        if ( 0 == recv_autobuf.Length()) {
             xwarn2(TSF"recv buff len is 0");
             ret = kSelectErr;
             break;

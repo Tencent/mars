@@ -29,6 +29,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 
 #include "net_source.h"
+#include "mars/boot/context.h"
 
 class CommFrequencyLimit;
 
@@ -42,7 +43,7 @@ class LongLink;
  */
 class NetSourceTimerCheck {
   public:
-    NetSourceTimerCheck(NetSource* _net_source, comm::ActiveLogic& _active_logic, LongLink& _longlink, comm::MessageQueue::MessageQueue_t  _messagequeue_id);
+    NetSourceTimerCheck(boot::Context* _context, std::shared_ptr<NetSource> _net_source, comm::ActiveLogic& _active_logic, LongLink& _longlink, comm::MessageQueue::MessageQueue_t  _messagequeue_id);
     ~NetSourceTimerCheck();
     void CancelConnect();
 
@@ -58,9 +59,10 @@ class NetSourceTimerCheck {
     void __StopCheck();
 
   private:
+    boot::Context* context_;
     comm::Thread thread_;
     boost::signals2::scoped_connection active_connection_;
-    NetSource* net_source_;
+    std::shared_ptr<NetSource> net_source_;
     comm::SocketBreaker breaker_;
     comm::SocketSelect seletor_;
     CommFrequencyLimit* frequency_limit_;
