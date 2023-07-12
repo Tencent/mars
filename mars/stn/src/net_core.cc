@@ -83,7 +83,7 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
     , shortlink_task_manager_(new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
     , shortlink_error_count_(0)
     , shortlink_try_flag_(false) {
-        NetCoreCreateBegin()();
+    NetCoreCreateBegin()();
     xdebug_function(TSF"mars2");
     xwarn2(TSF"public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID, "CreateNewMessageQueue Error!!!");

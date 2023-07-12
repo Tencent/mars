@@ -231,8 +231,6 @@ class StnManager : public mars::boot::BaseManager {
     //   void DisconnectLongLinkByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code) ;
     // end Add for Android
 
-    std::shared_ptr<NetCore> net_core() { return net_core_; }
-
  private:
     Callback* callback_ = NULL;
     StnCallbackBridge* callback_bridge_ = NULL;
