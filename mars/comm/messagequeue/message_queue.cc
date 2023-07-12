@@ -1046,6 +1046,7 @@ namespace MessageQueue {
         BreakMessageQueueRunloop(_creater.messagequeue_id_);
         WaitForRunningLockEnd(_creater.messagequeue_id_);
         _creater.__JoinThread();
+        _creater.messagequeue_id_ = KInvalidQueueID;
     }
 
     void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
