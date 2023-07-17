@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,15 +22,19 @@
 #define STN_SRC_LONGLINK_IDENTIFY_CHECKER_H_
 
 #include <stdint.h>
+
 #include <string>
 
+#include "mars/boot/context.h"
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/proto/longlink_packer.h"
-#include "mars/boot/context.h"
 
 class LongLinkIdentifyChecker {
-  public:
-    LongLinkIdentifyChecker(mars::boot::Context* _context, mars::stn::LongLinkEncoder& _encoder, const std::string& _channel_id, bool _is_minorlong);
+ public:
+    LongLinkIdentifyChecker(mars::boot::Context* _context,
+                            mars::stn::LongLinkEncoder& _encoder,
+                            const std::string& _channel_id,
+                            bool _is_minorlong);
     ~LongLinkIdentifyChecker();
 
     bool GetIdentifyBuffer(AutoBuffer& _buffer, uint32_t& _cmd_id);
@@ -41,8 +45,7 @@ class LongLinkIdentifyChecker {
 
     void Reset();
 
-
-  private:
+ private:
     mars::boot::Context* context_;
     bool has_checked_;
     uint32_t cmd_id_;
@@ -53,5 +56,4 @@ class LongLinkIdentifyChecker {
     bool is_minorlong_;
 };
 
-
-#endif // STN_SRC_LONGLINK_IDENTIFY_CHECKER_H_
+#endif  // STN_SRC_LONGLINK_IDENTIFY_CHECKER_H_

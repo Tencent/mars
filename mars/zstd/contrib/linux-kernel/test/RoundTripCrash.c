@@ -15,42 +15,43 @@
 */
 
 /*===========================================
-*   Dependencies
-*==========================================*/
-#include <stddef.h>     /* size_t */
-#include <stdlib.h>     /* malloc, free, exit */
-#include <stdio.h>      /* fprintf */
+ *   Dependencies
+ *==========================================*/
 #include <linux/xxhash.h>
 #include <linux/zstd.h>
+#include <stddef.h> /* size_t */
+#include <stdio.h>  /* fprintf */
+#include <stdlib.h> /* malloc, free, exit */
 
 /*===========================================
-*   Macros
-*==========================================*/
-#define MIN(a,b)  ( (a) < (b) ? (a) : (b) )
+ *   Macros
+ *==========================================*/
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 static const int kMaxClevel = 22;
 
-static ZSTD_CCtx *cctx = NULL;
-void *cws = NULL;
-static ZSTD_DCtx *dctx = NULL;
-void *dws = NULL;
+static ZSTD_CCtx* cctx = NULL;
+void* cws = NULL;
+static ZSTD_DCtx* dctx = NULL;
+void* dws = NULL;
 static void* cBuff = NULL;
 static void* rBuff = NULL;
 static size_t buffSize = 0;
 
-
 /** roundTripTest() :
-*   Compresses `srcBuff` into `compressedBuff`,
-*   then decompresses `compressedBuff` into `resultBuff`.
-*   Compression level used is derived from first content byte.
-*   @return : result of decompression, which should be == `srcSize`
-*          or an error code if either compression or decompression fails.
-*   Note : `compressedBuffCapacity` should be `>= ZSTD_compressBound(srcSize)`
-*          for compression to be guaranteed to work */
-static size_t roundTripTest(void* resultBuff, size_t resultBuffCapacity,
-                            void* compressedBuff, size_t compressedBuffCapacity,
-                      const void* srcBuff, size_t srcBuffSize)
-{
+ *   Compresses `srcBuff` into `compressedBuff`,
+ *   then decompresses `compressedBuff` into `resultBuff`.
+ *   Compression level used is derived from first content byte.
+ *   @return : result of decompression, which should be == `srcSize`
+ *          or an error code if either compression or decompression fails.
+ *   Note : `compressedBuffCapacity` should be `>= ZSTD_compressBound(srcSize)`
+ *          for compression to be guaranteed to work */
+static size_t roundTripTest(void* resultBuff,
+                            size_t resultBuffCapacity,
+                            void* compressedBuff,
+                            size_t compressedBuffCapacity,
+                            const void* srcBuff,
+                            size_t srcBuffSize) {
     size_t const hashLength = MIN(128, srcBuffSize);
     unsigned const h32 = xxh32(srcBuff, hashLength, 0);
     int const cLevel = h32 % kMaxClevel;
@@ -63,31 +64,28 @@ static size_t roundTripTest(void* resultBuff, size_t resultBuffCapacity,
     return ZSTD_decompressDCtx(dctx, resultBuff, resultBuffCapacity, compressedBuff, cSize);
 }
 
-
-static size_t checkBuffers(const void* buff1, const void* buff2, size_t buffSize)
-{
+static size_t checkBuffers(const void* buff1, const void* buff2, size_t buffSize) {
     const char* ip1 = (const char*)buff1;
     const char* ip2 = (const char*)buff2;
     size_t pos;
 
-    for (pos=0; pos<buffSize; pos++)
-        if (ip1[pos]!=ip2[pos])
+    for (pos = 0; pos < buffSize; pos++)
+        if (ip1[pos] != ip2[pos])
             break;
 
     return pos;
 }
 
-static void crash(int errorCode){
-    /* abort if AFL/libfuzzer, exit otherwise */
-    #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION /* could also use __AFL_COMPILER */
-        abort();
-    #else
-        exit(errorCode);
-    #endif
+static void crash(int errorCode) {
+/* abort if AFL/libfuzzer, exit otherwise */
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION /* could also use __AFL_COMPILER */
+    abort();
+#else
+    exit(errorCode);
+#endif
 }
 
-static void roundTripCheck(const void* srcBuff, size_t srcBuffSize)
-{
+static void roundTripCheck(const void* srcBuff, size_t srcBuffSize) {
     size_t const neededBuffSize = ZSTD_compressBound(srcBuffSize);
 
     /* Allocate all buffers and contexts if not already allocated */
@@ -132,7 +130,8 @@ static void roundTripCheck(const void* srcBuff, size_t srcBuffSize)
         }
     }
 
-    {   size_t const result = roundTripTest(rBuff, buffSize, cBuff, buffSize, srcBuff, srcBuffSize);
+    {
+        size_t const result = roundTripTest(rBuff, buffSize, cBuff, buffSize, srcBuff, srcBuffSize);
         if (ZSTD_isError(result)) {
             fprintf(stderr, "roundTripTest error : %u \n", ZSTD_getErrorCode(result));
             crash(1);
@@ -148,15 +147,21 @@ static void roundTripCheck(const void* srcBuff, size_t srcBuffSize)
     }
 
 #ifndef SKIP_FREE
-    free(cws); cws = NULL; cctx = NULL;
-    free(dws); dws = NULL; dctx = NULL;
-    free(cBuff); cBuff = NULL;
-    free(rBuff); rBuff = NULL;
+    free(cws);
+    cws = NULL;
+    cctx = NULL;
+    free(dws);
+    dws = NULL;
+    dctx = NULL;
+    free(cBuff);
+    cBuff = NULL;
+    free(rBuff);
+    rBuff = NULL;
     buffSize = 0;
 #endif
 }
 
-int LLVMFuzzerTestOneInput(const unsigned char *srcBuff, size_t srcBuffSize) {
-  roundTripCheck(srcBuff, srcBuffSize);
-  return 0;
+int LLVMFuzzerTestOneInput(const unsigned char* srcBuff, size_t srcBuffSize) {
+    roundTripCheck(srcBuff, srcBuffSize);
+    return 0;
 }

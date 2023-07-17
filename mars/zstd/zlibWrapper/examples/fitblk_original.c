@@ -51,27 +51,26 @@
    to complete in all cases.
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+
 #include "zlib.h"
 
 #define local static
 
 /* print nastygram and leave */
-local void quit(char *why)
-{
+local void quit(char* why) {
     fprintf(stderr, "fitblk abort: %s\n", why);
     exit(1);
 }
 
-#define RAWLEN 4096    /* intermediate uncompressed buffer size */
+#define RAWLEN 4096 /* intermediate uncompressed buffer size */
 
 /* compress from file to def until provided buffer is full or end of
    input reached; return last deflate() return value, or Z_ERRNO if
    there was read error on the file */
-local int partcompress(FILE *in, z_streamp def)
-{
+local int partcompress(FILE* in, z_streamp def) {
     int ret, flush;
     unsigned char raw[RAWLEN];
 
@@ -93,8 +92,7 @@ local int partcompress(FILE *in, z_streamp def)
    the output for def are set in those structures before calling;
    return last deflate() return value, or Z_MEM_ERROR if inflate()
    was not able to allocate enough memory when it needed to */
-local int recompress(z_streamp inf, z_streamp def)
-{
+local int recompress(z_streamp inf, z_streamp def) {
     int ret, flush;
     unsigned char raw[RAWLEN];
 
@@ -104,8 +102,7 @@ local int recompress(z_streamp inf, z_streamp def)
         inf->avail_out = RAWLEN;
         inf->next_out = raw;
         ret = inflate(inf, Z_NO_FLUSH);
-        assert(ret != Z_STREAM_ERROR && ret != Z_DATA_ERROR &&
-               ret != Z_NEED_DICT);
+        assert(ret != Z_STREAM_ERROR && ret != Z_DATA_ERROR && ret != Z_NEED_DICT);
         if (ret == Z_MEM_ERROR)
             return ret;
 
@@ -120,18 +117,17 @@ local int recompress(z_streamp inf, z_streamp def)
     return ret;
 }
 
-#define EXCESS 256      /* empirically determined stream overage */
-#define MARGIN 8        /* amount to back off for completion */
+#define EXCESS 256 /* empirically determined stream overage */
+#define MARGIN 8   /* amount to back off for completion */
 
 /* compress from stdin to fixed-size block on stdout */
-int main(int argc, char **argv)
-{
-    int ret;                /* return code */
-    unsigned size;          /* requested fixed output block size */
-    unsigned have;          /* bytes written by deflate() call */
-    unsigned char *blk;     /* intermediate and final stream */
-    unsigned char *tmp;     /* close to desired size stream */
-    z_stream def, inf;      /* zlib deflate and inflate states */
+int main(int argc, char** argv) {
+    int ret;            /* return code */
+    unsigned size;      /* requested fixed output block size */
+    unsigned have;      /* bytes written by deflate() call */
+    unsigned char* blk; /* intermediate and final stream */
+    unsigned char* tmp; /* close to desired size stream */
+    z_stream def, inf;  /* zlib deflate and inflate states */
 
     /* get requested output size */
     if (argc != 2)
@@ -139,7 +135,7 @@ int main(int argc, char **argv)
     ret = strtol(argv[1], argv + 1, 10);
     if (argv[1][0] != 0)
         quit("argument must be a number");
-    if (ret < 8)            /* 8 is minimum zlib stream size */
+    if (ret < 8) /* 8 is minimum zlib stream size */
         quit("need positive size of 8 or greater");
     size = (unsigned)ret;
 
@@ -170,9 +166,7 @@ int main(int argc, char **argv)
         ret = deflateEnd(&def);
         assert(ret != Z_STREAM_ERROR);
         free(blk);
-        fprintf(stderr,
-                "%u bytes unused out of %u requested (all input)\n",
-                size - have, size);
+        fprintf(stderr, "%u bytes unused out of %u requested (all input)\n", size - have, size);
         return 0;
     }
 
@@ -205,14 +199,14 @@ int main(int argc, char **argv)
     assert(ret != Z_STREAM_ERROR);
 
     /* do second and final recompression (third compression) */
-    inf.avail_in = size - MARGIN;   /* assure stream will complete */
+    inf.avail_in = size - MARGIN; /* assure stream will complete */
     inf.next_in = tmp;
     def.avail_out = size;
     def.next_out = blk;
     ret = recompress(&inf, &def);
     if (ret == Z_MEM_ERROR)
         quit("out of memory");
-    assert(ret == Z_STREAM_END);    /* otherwise MARGIN too small */
+    assert(ret == Z_STREAM_END); /* otherwise MARGIN too small */
 
     /* done -- write block to stdout */
     have = size - def.avail_out;
@@ -226,8 +220,6 @@ int main(int argc, char **argv)
     ret = deflateEnd(&def);
     assert(ret != Z_STREAM_ERROR);
     free(blk);
-    fprintf(stderr,
-            "%u bytes unused out of %u requested (%lu input)\n",
-            size - have, size, def.total_in);
+    fprintf(stderr, "%u bytes unused out of %u requested (%lu input)\n", size - have, size, def.total_in);
     return 0;
 }

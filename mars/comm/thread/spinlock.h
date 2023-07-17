@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 //
 //  spinlock.h
@@ -25,88 +24,88 @@
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0
 #define splock os_unfair_lock
-#define splockinit(lock) {*lock = OS_UNFAIR_LOCK_INIT;}
+#define splockinit(lock) \
+    { *lock = OS_UNFAIR_LOCK_INIT; }
 #define splocklock os_unfair_lock_lock
 #define splockunlock os_unfair_lock_unlock
 #define splocktrylock os_unfair_lock_trylock
 #else
 #define splock OSSpinLock
-#define splockinit(lock) {*lock = OS_SPINLOCK_INIT;}
+#define splockinit(lock) \
+    { *lock = OS_SPINLOCK_INIT; }
 #define splocklock OSSpinLockLock
 #define splockunlock OSSpinLockUnlock
 #define splocktrylock OSSpinLockTry
 #endif
 
-class SpinLock
-{
-public:
+class SpinLock {
+ public:
     typedef splock handle_type;
-     
-public:
-     SpinLock(){ splockinit(&lock_);}
-     
-     bool lock()
-     {
-         splocklock(&lock_);
-         return true;
-     }
-     
-     bool unlock()
-     {
-         splockunlock(&lock_);
-         return true;
-     }
-     
-     bool trylock()
-     {
-         return splocktrylock(&lock_);
-     }
-     
-    splock* internal() { return &lock_; }
-private:
-     SpinLock(const SpinLock&);
-     SpinLock& operator = (const SpinLock&);
-     
-private:
-     splock lock_;
+
+ public:
+    SpinLock() {
+        splockinit(&lock_);
+    }
+
+    bool lock() {
+        splocklock(&lock_);
+        return true;
+    }
+
+    bool unlock() {
+        splockunlock(&lock_);
+        return true;
+    }
+
+    bool trylock() {
+        return splocktrylock(&lock_);
+    }
+
+    splock* internal() {
+        return &lock_;
+    }
+
+ private:
+    SpinLock(const SpinLock&);
+    SpinLock& operator=(const SpinLock&);
+
+ private:
+    splock lock_;
 };
 
 #else
-
 
 #ifdef __powerpc__
 #include "../../arch/powerpc/include/uapi/asm/unistd.h"
 #endif
 
 #if defined(_WIN32)
-#if defined(_MSC_VER) && _MSC_VER >= 1310 && ( defined(_M_ARM) )
-	extern "C" void YieldProcessor();
+#if defined(_MSC_VER) && _MSC_VER >= 1310 && (defined(_M_ARM))
+extern "C" void YieldProcessor();
 #else
-	extern "C" void _mm_pause();
+extern "C" void _mm_pause();
 #endif
 #endif
 
 static inline void cpu_relax() {
 
 #if defined(__arc__) || defined(__mips__) || defined(__arm__) || defined(__powerpc__)
-	asm volatile("" ::: "memory");
+    asm volatile("" ::: "memory");
 #elif defined(__i386__) || defined(__x86_64__)
-	asm volatile("rep; nop" ::: "memory");
+    asm volatile("rep; nop" ::: "memory");
 #elif defined(__aarch64__)
-	asm volatile("yield" ::: "memory");
+    asm volatile("yield" ::: "memory");
 #elif defined(__ia64__)
-	asm volatile ("hint @pause" ::: "memory");
+    asm volatile("hint @pause" ::: "memory");
 
 #elif defined(_WIN32)
-#if defined(_MSC_VER) && _MSC_VER >= 1310 && ( defined(_M_ARM) )
-	YieldProcessor();
+#if defined(_MSC_VER) && _MSC_VER >= 1310 && (defined(_M_ARM))
+    YieldProcessor();
 #else
-	_mm_pause();
+    _mm_pause();
 #endif
 #endif
-
 }
-
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -117,59 +116,54 @@ static inline void cpu_relax() {
 #endif
 #include "atomic_oper.h"
 
-class SpinLock
-{
-public:
-     typedef uint32_t handle_type;
-     
-private:
-     enum state
-     {
-         initial_pause = 2,
-         max_pause = 16
-     };
+class SpinLock {
+ public:
+    typedef uint32_t handle_type;
 
-     uint32_t state_;
+ private:
+    enum state { initial_pause = 2, max_pause = 16 };
 
-public:
-     SpinLock() : state_(0) {}
+    uint32_t state_;
 
-     bool trylock()
-     {
-         return (atomic_cas32((volatile uint32_t *)&state_, 1, 0) == 0);
-     }
+ public:
+    SpinLock() : state_(0) {
+    }
 
-     bool lock()
-     {
-         /*register*/ unsigned int pause_count = initial_pause; //'register' storage class specifier is deprecated and incompatible with C++1z
-         while (!trylock())
-         {
-             if (pause_count < max_pause)
-             {
-                 for (/*register*/ unsigned int i = 0; i < pause_count; ++i) //'register' storage class specifier is deprecated and incompatible with C++1z
-                 {
-                     cpu_relax();
-                 }
-                 pause_count += pause_count;
-             } else {
-                 pause_count = initial_pause;
-                 sched_yield();
-             }
-         }
-         return true;
-     }
+    bool trylock() {
+        return (atomic_cas32((volatile uint32_t*)&state_, 1, 0) == 0);
+    }
 
-     bool unlock()
-     {
-         atomic_write32((volatile uint32_t *)&state_, 0);
-         return true;
-     }
-     
-    uint32_t* internal() { return &state_; }
+    bool lock() {
+        /*register*/ unsigned int pause_count =
+            initial_pause;  //'register' storage class specifier is deprecated and incompatible with C++1z
+        while (!trylock()) {
+            if (pause_count < max_pause) {
+                for (/*register*/ unsigned int i = 0; i < pause_count;
+                     ++i)  //'register' storage class specifier is deprecated and incompatible with C++1z
+                {
+                    cpu_relax();
+                }
+                pause_count += pause_count;
+            } else {
+                pause_count = initial_pause;
+                sched_yield();
+            }
+        }
+        return true;
+    }
 
-private:
-     SpinLock(const SpinLock&);
-     SpinLock& operator = (const SpinLock&);
+    bool unlock() {
+        atomic_write32((volatile uint32_t*)&state_, 0);
+        return true;
+    }
+
+    uint32_t* internal() {
+        return &state_;
+    }
+
+ private:
+    SpinLock(const SpinLock&);
+    SpinLock& operator=(const SpinLock&);
 };
 
 #endif

@@ -30,67 +30,69 @@ namespace pzstd {
 template <typename T>
 class ResourcePool {
  public:
-  class Deleter;
-  using Factory = std::function<T*()>;
-  using Free = std::function<void(T*)>;
-  using UniquePtr = std::unique_ptr<T, Deleter>;
+    class Deleter;
+    using Factory = std::function<T*()>;
+    using Free = std::function<void(T*)>;
+    using UniquePtr = std::unique_ptr<T, Deleter>;
 
  private:
-  std::mutex mutex_;
-  Factory factory_;
-  Free free_;
-  std::vector<T*> resources_;
-  unsigned inUse_;
+    std::mutex mutex_;
+    Factory factory_;
+    Free free_;
+    std::vector<T*> resources_;
+    unsigned inUse_;
 
  public:
-  /**
-   * Creates a `ResourcePool`.
-   *
-   * @param factory  The function to use to create new resources.
-   * @param free     The function to use to free resources created by `factory`.
-   */
-  ResourcePool(Factory factory, Free free)
-      : factory_(std::move(factory)), free_(std::move(free)), inUse_(0) {}
-
-  /**
-   * @returns  A unique pointer to a resource.  The resource is null iff
-   *           there are no available resources and `factory()` returns null.
-   */
-  UniquePtr get() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (!resources_.empty()) {
-      UniquePtr resource{resources_.back(), Deleter{*this}};
-      resources_.pop_back();
-      ++inUse_;
-      return resource;
+    /**
+     * Creates a `ResourcePool`.
+     *
+     * @param factory  The function to use to create new resources.
+     * @param free     The function to use to free resources created by `factory`.
+     */
+    ResourcePool(Factory factory, Free free) : factory_(std::move(factory)), free_(std::move(free)), inUse_(0) {
     }
-    UniquePtr resource{factory_(), Deleter{*this}};
-    ++inUse_;
-    return resource;
-  }
 
-  ~ResourcePool() noexcept {
-    assert(inUse_ == 0);
-    for (const auto resource : resources_) {
-      free_(resource);
+    /**
+     * @returns  A unique pointer to a resource.  The resource is null iff
+     *           there are no available resources and `factory()` returns null.
+     */
+    UniquePtr get() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!resources_.empty()) {
+            UniquePtr resource{resources_.back(), Deleter{*this}};
+            resources_.pop_back();
+            ++inUse_;
+            return resource;
+        }
+        UniquePtr resource{factory_(), Deleter{*this}};
+        ++inUse_;
+        return resource;
     }
-  }
 
-  class Deleter {
-    ResourcePool *pool_;
-  public:
-    explicit Deleter(ResourcePool &pool) : pool_(&pool) {}
-
-    void operator() (T *resource) {
-      std::lock_guard<std::mutex> lock(pool_->mutex_);
-      // Make sure we don't put null resources into the pool
-      if (resource) {
-        pool_->resources_.push_back(resource);
-      }
-      assert(pool_->inUse_ > 0);
-      --pool_->inUse_;
+    ~ResourcePool() noexcept {
+        assert(inUse_ == 0);
+        for (const auto resource : resources_) {
+            free_(resource);
+        }
     }
-  };
+
+    class Deleter {
+        ResourcePool* pool_;
+
+     public:
+        explicit Deleter(ResourcePool& pool) : pool_(&pool) {
+        }
+
+        void operator()(T* resource) {
+            std::lock_guard<std::mutex> lock(pool_->mutex_);
+            // Make sure we don't put null resources into the pool
+            if (resource) {
+                pool_->resources_.push_back(resource);
+            }
+            assert(pool_->inUse_ > 0);
+            --pool_->inUse_;
+        }
+    };
 };
 
-}
+}  // namespace pzstd

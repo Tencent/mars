@@ -1,11 +1,9 @@
 #include "uwpStnCallback.h"
+
 #include "runtime2cs.h"
 #include "runtime_utils.h"
 
-
 using namespace mars;
-
-
 
 Platform::Array<uint8>^ bufferToPlatformArray(const AutoBuffer & autoBuffer)
 {
@@ -28,187 +26,161 @@ Platform::Array<uint8>^ bufferToPlatformArray(const AutoBuffer & autoBuffer)
 
 bool appendPlatfomrBufferToAutoBuffer(AutoBuffer& autoBuffer, Platform::Array<uint8>^ platformBuffer)
 {
-	if (platformBuffer == nullptr || platformBuffer->Length <= 0)
-	{
-		return false;
-	}
+    if (platformBuffer == nullptr || platformBuffer->Length <= 0) {
+        return false;
+    }
 
-	if (autoBuffer.Capacity() < (size_t)platformBuffer->Length)
-	{
-		autoBuffer.AddCapacity(platformBuffer->Length);
-	}
-	autoBuffer.Write(platformBuffer->Data, platformBuffer->Length);
-	return true;
+    if (autoBuffer.Capacity() < (size_t)platformBuffer->Length) {
+        autoBuffer.AddCapacity(platformBuffer->Length);
+    }
+    autoBuffer.Write(platformBuffer->Data, platformBuffer->Length);
+    return true;
 }
 
-bool uwpStnCallback::MakesureAuthed()
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+bool uwpStnCallback::MakesureAuthed() {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return false;
-	}
+    if (nullptr == callback) {
+        return false;
+    }
 
-
-	return callback->MakesureAuthed();
+    return callback->MakesureAuthed();
 }
 
-void uwpStnCallback::TrafficData(ssize_t _send, ssize_t _recv)
-{
+void uwpStnCallback::TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
+std::vector<std::string> uwpStnCallback::OnNewDns(const std::string& host) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+    std::vector<std::string> iplist;
+    if (nullptr == callback) {
+        return iplist;
+    }
 
-std::vector<std::string> uwpStnCallback::OnNewDns(const std::string& host)
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
-	std::vector<std::string> iplist;
-	if (nullptr == callback)
-	{
-		return iplist;
-	}
-
-	Platform::Array<Platform::String^>^ list = callback->OnNewDns(stdstring2String(host));
-	for each (Platform::String^ cstring in list)
-	{
-		std::string tmp = String2stdstring(cstring);
-		if (tmp.length() > 0)
-		{
-			iplist.push_back(tmp);
-		}
-	}
-	return iplist;
+    Platform::Array<Platform::String ^> ^ list = callback->OnNewDns(stdstring2String(host));
+    for each (Platform::String ^ cstring in list) {
+        std::string tmp = String2stdstring(cstring);
+        if (tmp.length() > 0) {
+            iplist.push_back(tmp);
+        }
+    }
+    return iplist;
 }
 
-void uwpStnCallback::OnPush(int32_t cmdid, const AutoBuffer & msgpayload)
-{
+void uwpStnCallback::OnPush(int32_t cmdid, const AutoBuffer& msgpayload) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+    if (nullptr == callback) {
+        return;
+    }
 
-	if (nullptr == callback)
-	{
-		return;
-	}
+    Platform::Array<uint8> ^ buffer = bufferToPlatformArray(msgpayload);
 
-	Platform::Array<uint8>^ buffer = bufferToPlatformArray(msgpayload);
-
-	callback->OnPush(cmdid, buffer);
+    callback->OnPush(cmdid, buffer);
 }
 
-bool uwpStnCallback::Req2Buf(int32_t taskid, void * const user_context, AutoBuffer & outbuffer, int & error_code, const int channel_select)
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+bool uwpStnCallback::Req2Buf(int32_t taskid,
+                             void* const user_context,
+                             AutoBuffer& outbuffer,
+                             int& error_code,
+                             const int channel_select) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return false;
-	}
+    if (nullptr == callback) {
+        return false;
+    }
 
-
-	Req2BufRet^ retInfo = callback->Req2Buf(taskid, (int)user_context, error_code, channel_select);
-	error_code = retInfo->nErrCode;
-	appendPlatfomrBufferToAutoBuffer(outbuffer, retInfo->outbuffer);
-	return retInfo->bRet;
+    Req2BufRet ^ retInfo = callback->Req2Buf(taskid, (int)user_context, error_code, channel_select);
+    error_code = retInfo->nErrCode;
+    appendPlatfomrBufferToAutoBuffer(outbuffer, retInfo->outbuffer);
+    return retInfo->bRet;
 }
 
-int uwpStnCallback::Buf2Resp(int32_t taskid, void * const user_context, const AutoBuffer & inbuffer, int & error_code, const int channel_select)
-{
+int uwpStnCallback::Buf2Resp(int32_t taskid,
+                             void* const user_context,
+                             const AutoBuffer& inbuffer,
+                             int& error_code,
+                             const int channel_select) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+    if (nullptr == callback) {
+        return 0;
+    }
 
-	if (nullptr == callback)
-	{
-		return 0;
-	}
+    Platform::Array<uint8> ^ buffer = bufferToPlatformArray(inbuffer);
 
-	Platform::Array<uint8>^ buffer = bufferToPlatformArray(inbuffer);
-
-	Buf2RespRet^ retInfo = callback->Buf2Resp(taskid, (int)user_context, buffer, error_code, channel_select);
-	error_code = retInfo->nErrCode;
-	return retInfo->bRet;
+    Buf2RespRet ^ retInfo = callback->Buf2Resp(taskid, (int)user_context, buffer, error_code, channel_select);
+    error_code = retInfo->nErrCode;
+    return retInfo->bRet;
 }
 
-int uwpStnCallback::OnTaskEnd(int32_t taskid, void * const user_context, int error_type, int error_code)
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+int uwpStnCallback::OnTaskEnd(int32_t taskid, void* const user_context, int error_type, int error_code) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return 0;
-	}
+    if (nullptr == callback) {
+        return 0;
+    }
 
-	return callback->OnTaskEnd(taskid, (int)user_context, error_type, error_code);
-
+    return callback->OnTaskEnd(taskid, (int)user_context, error_type, error_code);
 }
 
-void uwpStnCallback::ReportConnectStatus(int status, int longlink_status)
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+void uwpStnCallback::ReportConnectStatus(int status, int longlink_status) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return;
-	}
+    if (nullptr == callback) {
+        return;
+    }
 
-	callback->ReportConnectStatus(status, longlink_status);
+    callback->ReportConnectStatus(status, longlink_status);
 }
 
-int uwpStnCallback::GetLonglinkIdentifyCheckBuffer(AutoBuffer & identify_buffer, AutoBuffer & buffer_hash, int32_t & cmdid)
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+int uwpStnCallback::GetLonglinkIdentifyCheckBuffer(AutoBuffer& identify_buffer,
+                                                   AutoBuffer& buffer_hash,
+                                                   int32_t& cmdid) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return false;
-	}
+    if (nullptr == callback) {
+        return false;
+    }
 
+    GetLonglinkIdentifyRet ^ retInfo = callback->GetLonglinkIdentifyCheckBuffer();
+    cmdid = retInfo->cmdid;
+    appendPlatfomrBufferToAutoBuffer(identify_buffer, retInfo->identify_buffer);
+    appendPlatfomrBufferToAutoBuffer(buffer_hash, retInfo->buffer_hash);
 
-	GetLonglinkIdentifyRet^ retInfo = callback->GetLonglinkIdentifyCheckBuffer();
-	cmdid = retInfo->cmdid;
-	appendPlatfomrBufferToAutoBuffer(identify_buffer, retInfo->identify_buffer);
-	appendPlatfomrBufferToAutoBuffer(buffer_hash, retInfo->buffer_hash);
-
-	return (int)(retInfo->nRet);
+    return (int)(retInfo->nRet);
 }
 
-bool uwpStnCallback::OnLonglinkIdentifyResponse(const AutoBuffer & response_buffer, const AutoBuffer & identify_buffer_hash)
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+bool uwpStnCallback::OnLonglinkIdentifyResponse(const AutoBuffer& response_buffer,
+                                                const AutoBuffer& identify_buffer_hash) {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return false;
-	}
+    if (nullptr == callback) {
+        return false;
+    }
 
+    Platform::Array<uint8> ^ platBufferResponse = bufferToPlatformArray(response_buffer);
+    Platform::Array<uint8> ^ platBufferHash = bufferToPlatformArray(identify_buffer_hash);
 
-	Platform::Array<uint8>^ platBufferResponse = bufferToPlatformArray(response_buffer);
-	Platform::Array<uint8>^ platBufferHash = bufferToPlatformArray(identify_buffer_hash);
-
-
-	return callback->OnLonglinkIdentifyResponse(platBufferResponse, platBufferHash);
+    return callback->OnLonglinkIdentifyResponse(platBufferResponse, platBufferHash);
 }
 
-void uwpStnCallback::RequestSync()
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+void uwpStnCallback::RequestSync() {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return;
-	}
+    if (nullptr == callback) {
+        return;
+    }
 
-	callback->RequestSync();
+    callback->RequestSync();
 }
 
-bool uwpStnCallback::IsLogoned()
-{
-	ICallback_Comm^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
+bool uwpStnCallback::IsLogoned() {
+    ICallback_Comm ^ callback = Runtime2Cs_Comm::Singleton()->GetCallBack();
 
-	if (nullptr == callback)
-	{
-		return false;
-	}
+    if (nullptr == callback) {
+        return false;
+    }
 
-
-	return callback->IsLogoned();
+    return callback->IsLogoned();
 }

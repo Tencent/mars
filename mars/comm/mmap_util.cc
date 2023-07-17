@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -19,17 +19,16 @@
 
 #include "mmap_util.h"
 
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "boost/filesystem.hpp"
 
 bool IsMmapFileOpenSucc(const boost::iostreams::mapped_file& _mmmap_file) {
-    return !_mmmap_file.operator !() && _mmmap_file.is_open();
+    return !_mmmap_file.operator!() && _mmmap_file.is_open();
 }
 
 bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::mapped_file& _mmmap_file) {
-
     if (NULL == _filepath || 0 == strnlen(_filepath, 128) || 0 == _size) {
         return false;
     }
@@ -37,7 +36,7 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
     if (IsMmapFileOpenSucc(_mmmap_file)) {
         CloseMmapFile(_mmmap_file);
     }
-    
+
     if (_mmmap_file.is_open() && _mmmap_file.operator!()) {
         return false;
     }
@@ -56,9 +55,9 @@ bool OpenMmapFile(const char* _filepath, unsigned int _size, boost::iostreams::m
     bool is_open = IsMmapFileOpenSucc(_mmmap_file);
 #ifndef _WIN32
     if (!file_exist && is_open) {
-
-        //Extending a file with ftruncate, thus creating a big hole, and then filling the hole by mod-ifying a shared mmap() can lead to SIGBUS when no space left
-        //the boost library uses ftruncate, so we pre-allocate the file's backing store by writing zero.
+        // Extending a file with ftruncate, thus creating a big hole, and then filling the hole by mod-ifying a shared
+        // mmap() can lead to SIGBUS when no space left the boost library uses ftruncate, so we pre-allocate the file's
+        // backing store by writing zero.
         FILE* file = fopen(_filepath, "rb+");
         if (NULL == file) {
             _mmmap_file.close();

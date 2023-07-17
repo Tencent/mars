@@ -64,7 +64,7 @@ void SdtManager::CancelActiveCheck() {
 
 void SdtManager::ReportNetCheckResult(const std::vector<CheckResultProfile>& _check_results) {
     xdebug_function();
-    //call stn MMReportNetCheckResult
+    // call stn MMReportNetCheckResult
 }
 
 #ifdef NATIVE_CALLBACK

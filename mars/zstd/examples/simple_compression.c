@@ -8,14 +8,14 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-#include <stdio.h>     // printf
-#include <stdlib.h>    // free
-#include <string.h>    // strlen, strcat, memset
-#include <zstd.h>      // presumes zstd library is installed
-#include "common.h"    // Helper functions, CHECK(), and CHECK_ZSTD()
+#include <stdio.h>   // printf
+#include <stdlib.h>  // free
+#include <string.h>  // strlen, strcat, memset
+#include <zstd.h>    // presumes zstd library is installed
 
-static void compress_orDie(const char* fname, const char* oname)
-{
+#include "common.h"  // Helper functions, CHECK(), and CHECK_ZSTD()
+
+static void compress_orDie(const char* fname, const char* oname) {
     size_t fSize;
     void* const fBuff = mallocAndLoadFile_orDie(fname, &fSize);
     size_t const cBuffSize = ZSTD_compressBound(fSize);
@@ -37,8 +37,7 @@ static void compress_orDie(const char* fname, const char* oname)
     free(cBuff);
 }
 
-static char* createOutFilename_orDie(const char* filename)
-{
+static char* createOutFilename_orDie(const char* filename) {
     size_t const inL = strlen(filename);
     size_t const outL = inL + 5;
     void* const outSpace = malloc_orDie(outL);
@@ -48,11 +47,10 @@ static char* createOutFilename_orDie(const char* filename)
     return (char*)outSpace;
 }
 
-int main(int argc, const char** argv)
-{
+int main(int argc, const char** argv) {
     const char* const exeName = argv[0];
 
-    if (argc!=2) {
+    if (argc != 2) {
         printf("wrong arguments\n");
         printf("usage:\n");
         printf("%s FILE\n", exeName);

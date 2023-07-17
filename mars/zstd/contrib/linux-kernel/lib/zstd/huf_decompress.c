@@ -38,13 +38,13 @@
  */
 
 /* **************************************************************
-*  Compiler specifics
-****************************************************************/
+ *  Compiler specifics
+ ****************************************************************/
 #define FORCE_INLINE static __always_inline
 
 /* **************************************************************
-*  Dependencies
-****************************************************************/
+ *  Dependencies
+ ****************************************************************/
 #include "bitstream.h" /* BIT_* */
 #include "fse.h"       /* header compression */
 #include "huf.h"
@@ -53,8 +53,8 @@
 #include <linux/string.h> /* memcpy, memset */
 
 /* **************************************************************
-*  Error Management
-****************************************************************/
+ *  Error Management
+ ****************************************************************/
 #define HUF_STATIC_ASSERT(c)                                   \
 	{                                                      \
 		enum { HUF_static_assert = 1 / (int)(!!(c)) }; \
@@ -880,10 +880,10 @@ static const algo_time_t algoTime[16 /* Quantization */][3 /* single, double, qu
 };
 
 /** HUF_selectDecoder() :
-*   Tells which decoder is likely to decode faster,
-*   based on a set of pre-determined metrics.
-*   @return : 0==HUF_decompress4X2, 1==HUF_decompress4X4 .
-*   Assumption : 0 < cSrcSize < dstSize <= 128 KB */
+ *   Tells which decoder is likely to decode faster,
+ *   based on a set of pre-determined metrics.
+ *   @return : 0==HUF_decompress4X2, 1==HUF_decompress4X4 .
+ *   Assumption : 0 < cSrcSize < dstSize <= 128 KB */
 U32 HUF_selectDecoder(size_t dstSize, size_t cSrcSize)
 {
 	/* decoder timing evaluation */

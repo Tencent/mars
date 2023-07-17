@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * DumpCrashStack.cpp
@@ -22,8 +21,7 @@
 
 #include "assert/__assert.h"
 
-static const char gs_crash_dump_header[] =
-    "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***";
+static const char gs_crash_dump_header[] = "*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***";
 
 enum NDK_CRASH_PARSER_STATE {
     EXPECTS_CRASH_DUMP,
@@ -32,7 +30,7 @@ enum NDK_CRASH_PARSER_STATE {
     EXPECTS_CRASH_DUMP_END,
 };
 
-static int __ParseStack(FILE* file,  NDK_CRASH_PARSER_STATE& _state, char _strcache[2048], std::string& strout) {
+static int __ParseStack(FILE* file, NDK_CRASH_PARSER_STATE& _state, char _strcache[2048], std::string& strout) {
     ASSERT(file);
 
     if (EXPECTS_CRASH_DUMP_END == _state)
@@ -72,11 +70,12 @@ void DumpCrashStack::Dump(const std::string& _processname) {
 
     char processname[256];
     NDK_CRASH_PARSER_STATE state = EXPECTS_CRASH_DUMP;
-    char  strcache[2048];
+    char strcache[2048];
 
     snprintf(processname, sizeof(processname), ">>> %s <<<", _processname.c_str());
 
-    FILE* stream = popen("logcat -d -v time -s 'DEBUG:I'", "r");    // 将“ls －l”命令的输出 通过管道读取（“r”参数）到FILE* stream
+    FILE* stream =
+        popen("logcat -d -v time -s 'DEBUG:I'", "r");  // 将“ls －l”命令的输出 通过管道读取（“r”参数）到FILE* stream
 
     std::string strstack;
 

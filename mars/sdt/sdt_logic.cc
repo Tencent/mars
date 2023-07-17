@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -21,21 +21,20 @@
 
 #include "mars/baseevent/baseevent.h"
 #include "mars/baseevent/baseprjevent.h"
-#include "mars/comm/xlogger/xlogger.h"
+#include "mars/boot/context.h"
 #include "mars/comm/bootrun.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "mars/sdt/constants.h"
-
 #include "sdt/src/sdt_core.h"
 #include "sdt_manager.h"
-#include "mars/boot/context.h"
 
 using namespace mars::boot;
 
 namespace mars {
 namespace sdt {
 
-//mars2
-//static Callback* sg_callback = NULL;
+// mars2
+// static Callback* sg_callback = NULL;
 
 static const std::string kLibName = "sdt";
 
@@ -46,7 +45,7 @@ static const std::string kLibName = "sdt";
         xwarn2(TSF"sdt uncreate");\
         return;\
     }\
-	sdt_ptr->func
+        sdt_ptr->func
 */
 
 static void onCreate() {
@@ -74,15 +73,17 @@ static void onDestroy() {
 }
 
 static void __initbind_baseprjevent() {
-
-	GetSignalOnCreate().connect(&onCreate);
-	GetSignalOnDestroy().connect(3, &onDestroy);
+    GetSignalOnCreate().connect(&onCreate);
+    GetSignalOnDestroy().connect(3, &onDestroy);
 }
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
-//active netcheck interface
-void StartActiveCheck(CheckIPPorts& _longlink_check_items, CheckIPPorts& _shortlink_check_items, int _mode, int _timeout) {
+// active netcheck interface
+void StartActiveCheck(CheckIPPorts& _longlink_check_items,
+                      CheckIPPorts& _shortlink_check_items,
+                      int _mode,
+                      int _timeout) {
     /* mars2
     SDT_WEAK_CALL(StartCheck(_longlink_check_items, _shortlink_check_items, _mode, _timeout));
     */
@@ -123,15 +124,15 @@ void SetHttpNetcheckCGI(std::string cgi) {
     }
 }
 
-#if !defined(ANDROID) || defined (CPP_CALL_BACK)
-void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results)
-= [](const std::vector<CheckResultProfile>& _check_results) {
-    SdtManager* sdt_manager = Context::CreateContext("default")->GetManager<SdtManager>();
-    xassert2(NULL != sdt_manager, "mars2 sdt_manager is empty.");
-    if (sdt_manager) {
-        sdt_manager->ReportNetCheckResult(_check_results);
-    }
-};
+#if !defined(ANDROID) || defined(CPP_CALL_BACK)
+void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results) =
+    [](const std::vector<CheckResultProfile>& _check_results) {
+        SdtManager* sdt_manager = Context::CreateContext("default")->GetManager<SdtManager>();
+        xassert2(NULL != sdt_manager, "mars2 sdt_manager is empty.");
+        if (sdt_manager) {
+            sdt_manager->ReportNetCheckResult(_check_results);
+        }
+    };
 #endif
 
 #ifdef NATIVE_CALLBACK
@@ -144,4 +145,5 @@ void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb) {
 }
 #endif
 
-}}
+}  // namespace sdt
+}  // namespace mars

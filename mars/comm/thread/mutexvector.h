@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -19,17 +19,19 @@
 #ifndef __MUTEXVECTOR__
 #define __MUTEXVECTOR__
 
-#include "comm/thread/lock.h"
 #include "comm/thread/condition.h"
+#include "comm/thread/lock.h"
 
 class MutexVector {
     friend class ScopedMutexVector;
-  public:
+
+ public:
     MutexVector() {
         m_vec = 0;
         m_count = 0;
     }
-  private:
+
+ private:
     Condition m_cond;
     Mutex m_mutex;
     int m_vec;
@@ -37,19 +39,27 @@ class MutexVector {
 };
 
 class ScopedMutexVector {
-  public:
+ public:
     ScopedMutexVector(MutexVector& _mutex, int _vector, bool _initiallyLocked = true)
-        : mutex_vector_(_mutex), vec_(_vector), islocked_(false)
-    { if (_initiallyLocked) Lock(); }
+    : mutex_vector_(_mutex), vec_(_vector), islocked_(false) {
+        if (_initiallyLocked)
+            Lock();
+    }
 
-    ~ScopedMutexVector() { if (islocked_) UnLock();}
+    ~ScopedMutexVector() {
+        if (islocked_)
+            UnLock();
+    }
 
-    bool IsLocked() const { return islocked_;}
+    bool IsLocked() const {
+        return islocked_;
+    }
 
     void Lock() {
         ASSERT(!islocked_);
 
-        if (islocked_) return;
+        if (islocked_)
+            return;
 
         ScopedLock lock(mutex_vector_.m_mutex);
 
@@ -59,8 +69,9 @@ class ScopedMutexVector {
             return;
         }
 
-        while (mutex_vector_.m_count > 0 && mutex_vector_.m_vec != vec_)
-        { mutex_vector_.m_cond.wait(lock);}
+        while (mutex_vector_.m_count > 0 && mutex_vector_.m_vec != vec_) {
+            mutex_vector_.m_cond.wait(lock);
+        }
 
         ASSERT(0 <= mutex_vector_.m_count);
 
@@ -77,7 +88,8 @@ class ScopedMutexVector {
     void UnLock() {
         ASSERT(islocked_);
 
-        if (!islocked_) return;
+        if (!islocked_)
+            return;
 
         ScopedLock lock(mutex_vector_.m_mutex);
         ASSERT(vec_ == mutex_vector_.m_vec);
@@ -90,7 +102,8 @@ class ScopedMutexVector {
     }
 
     bool TryLock() {
-        if (islocked_) return false;
+        if (islocked_)
+            return false;
 
         ScopedLock lock(mutex_vector_.m_mutex);
 
@@ -100,7 +113,8 @@ class ScopedMutexVector {
             return true;
         }
 
-        if (mutex_vector_.m_count > 0) return false;
+        if (mutex_vector_.m_count > 0)
+            return false;
 
         ASSERT(0 == mutex_vector_.m_count);
 
@@ -111,7 +125,7 @@ class ScopedMutexVector {
         return true;
     }
 
-  private:
+ private:
     MutexVector& mutex_vector_;
     int vec_;
     bool islocked_;

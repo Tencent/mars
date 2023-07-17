@@ -14,8 +14,9 @@
  * limitations under the License.
  *
  */
-#include <string.h>
 #include <jni.h>
+#include <string.h>
+
 #include "TestCoreService.h"
 #include "TestCoreService2.h"
 #include "TestService.h"
@@ -28,14 +29,12 @@
  *
  *   apps/samples/hello-jni/project/com/example/hellojni/HelloJni.java
  */
-extern "C" JNIEXPORT jstring
-Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env,
-                                                  jobject thiz )
-{
-
-	design_patterns::TestCoreService t;
-//	int i = t.GetPublicService<design_patterns::TestService>()->test(1, 2);
-//	int i3 = t.GetPublicService<design_patterns::TestService3>()->test2(3, 4);
-	int i3 = t.GetPublicService<design_patterns::TestCoreService2>()->GetPublicService<design_patterns::TestService3>()->test2(3, 4);
+extern "C" JNIEXPORT jstring Java_com_example_hellojni_HelloJni_stringFromJNI(JNIEnv* env, jobject thiz) {
+    design_patterns::TestCoreService t;
+    //	int i = t.GetPublicService<design_patterns::TestService>()->test(1, 2);
+    //	int i3 = t.GetPublicService<design_patterns::TestService3>()->test2(3, 4);
+    int i3 = t.GetPublicService<design_patterns::TestCoreService2>()
+                 ->GetPublicService<design_patterns::TestService3>()
+                 ->test2(3, 4);
     return env->NewStringUTF("Hello from JNI !");
 }

@@ -6,6 +6,7 @@
 #define ILINKTEST_SMART_POINTER_H
 
 #include <memory>
+
 #include "jnicat_jni_handle.h"
 //#include "owl/zlog.h"
 
@@ -32,7 +33,7 @@
  *
  * JniObjectWrapper<Object>::dispose(env,instance);
  */
- namespace jnicat {
+namespace jnicat {
 //     template<typename T>
 //     class JniObjectWrapper {
 //         std::shared_ptr<T> mObject;
@@ -96,64 +97,68 @@
 //             if (obj) delete obj;
 //         }
 //     };
-     template<typename T>
-     class JniObjectWrapper {
-         T* mObject;
-     public:
-         template<typename ...ARGS>
-         explicit JniObjectWrapper(ARGS... a) {
-             mObject = new T(a...);
-         }
+template <typename T>
+class JniObjectWrapper {
+    T* mObject;
 
-         explicit JniObjectWrapper(T* obj) {
-             mObject = obj;
-         }
+ public:
+    template <typename... ARGS>
+    explicit JniObjectWrapper(ARGS... a) {
+        mObject = new T(a...);
+    }
 
-         virtual ~JniObjectWrapper() {
-         }
+    explicit JniObjectWrapper(T* obj) {
+        mObject = obj;
+    }
 
-         void instantiate(JNIEnv *env, jobject instance) {
-             setHandle<JniObjectWrapper>(env, instance, this);
-         }
+    virtual ~JniObjectWrapper() {
+    }
 
-         void instantiate(JNIEnv *env, jobject instance, const char *field) {
-             setHandle<JniObjectWrapper>(env, instance, this, field);
-         }
+    void instantiate(JNIEnv* env, jobject instance) {
+        setHandle<JniObjectWrapper>(env, instance, this);
+    }
 
-         jlong instance() const {
-             return reinterpret_cast<jlong>(this);
-         }
+    void instantiate(JNIEnv* env, jobject instance, const char* field) {
+        setHandle<JniObjectWrapper>(env, instance, this, field);
+    }
 
-         T* get() const {
-             return mObject;
-         }
+    jlong instance() const {
+        return reinterpret_cast<jlong>(this);
+    }
 
-         static T* object(JNIEnv *env, jobject instance) {
-             return get(env, instance)->get();
-         }
+    T* get() const {
+        return mObject;
+    }
 
-         static JniObjectWrapper<T> *get(JNIEnv *env, jobject instance) {
-             return getHandle<JniObjectWrapper<T>>(env, instance);
-         }
+    static T* object(JNIEnv* env, jobject instance) {
+        return get(env, instance)->get();
+    }
 
-         static JniObjectWrapper<T> *get(JNIEnv *env, jobject instance, const char *field) {
-             return getHandle<JniObjectWrapper<T>>(env, instance, field);
-         }
+    static JniObjectWrapper<T>* get(JNIEnv* env, jobject instance) {
+        return getHandle<JniObjectWrapper<T>>(env, instance);
+    }
 
-         static void dispose(JNIEnv *env, jobject instance) {
-             auto obj = get(env, instance);
-             if (obj) delete obj;
-             setHandle<JniObjectWrapper>(env, instance, nullptr);
-         }
+    static JniObjectWrapper<T>* get(JNIEnv* env, jobject instance, const char* field) {
+        return getHandle<JniObjectWrapper<T>>(env, instance, field);
+    }
 
-         static void dispose(JNIEnv *env, jobject instance, const char *field, bool disposeRealObject = false) {
-             auto obj = get(env, instance, field);
-             if (disposeRealObject) {
-                 auto real = obj->get();
-                 if (real) delete real;
-             }
-             if (obj) delete obj;
-         }
-     };
- }
-#endif //ILINKTEST_SMART_POINTER_H
+    static void dispose(JNIEnv* env, jobject instance) {
+        auto obj = get(env, instance);
+        if (obj)
+            delete obj;
+        setHandle<JniObjectWrapper>(env, instance, nullptr);
+    }
+
+    static void dispose(JNIEnv* env, jobject instance, const char* field, bool disposeRealObject = false) {
+        auto obj = get(env, instance, field);
+        if (disposeRealObject) {
+            auto real = obj->get();
+            if (real)
+                delete real;
+        }
+        if (obj)
+            delete obj;
+    }
+};
+}  // namespace jnicat
+#endif  // ILINKTEST_SMART_POINTER_H

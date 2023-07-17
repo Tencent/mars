@@ -12,16 +12,16 @@
 #endif
 
 #include <jni.h>
+#include <pthread.h>
+
+#include <cassert>
 #include <cstdarg>
 #include <cstring>
-#include <cassert>
-
-#include <string>
-#include <vector>
-#include <type_traits>
 #include <map>
 #include <mutex>
-#include <pthread.h>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 namespace jnicat {
 
@@ -30,13 +30,14 @@ const char* version();
 using C2JavaExceptionHandler = void (*)(const std::string& stacktrace);
 
 class jcache {
-public:
+ public:
     typedef std::map<std::string, jclass> class_map_t;
     typedef std::map<std::string, jfieldID> field_map_t;
     typedef std::map<std::string, jmethodID> method_map_t;
     typedef std::map<jclass, field_map_t*> class_field_map_t;
     typedef std::map<jclass, method_map_t*> class_method_map_t;
-public:
+
+ public:
     static jcache* shared();
     static void release();
 
@@ -69,7 +70,7 @@ public:
     jcache(const jcache&) = delete;
     jcache& operator=(const jcache&) = delete;
 
-private:
+ private:
     jcache();
     ~jcache();
 
@@ -80,7 +81,7 @@ private:
     void __cache_method(JNIEnv* env);
     void __clear_cache();
 
-private:
+ private:
     static jcache* instance_;
 
     JavaVM* vm_;
@@ -92,39 +93,34 @@ private:
     C2JavaExceptionHandler exception_handler_;
 };
 
+using typemap_j2c_t = owl::make_typemap<owl::pair<jboolean, bool>,
+                                        owl::pair<jbyte, int8_t>,
+                                        owl::pair<jchar, uint16_t>,
+                                        owl::pair<jshort, short>,
+                                        owl::pair<jint, int>,
+                                        owl::pair<jlong, int64_t>,
+                                        owl::pair<jfloat, float>,
+                                        owl::pair<jdouble, double>,
+                                        // owl::pair<jobject, jobject>,
+                                        // owl::pair<jobjectArray, jobjectArray>,
+                                        owl::pair<jstring, std::string>,
+                                        owl::pair<jbooleanArray, std::vector<uint8_t>>,
+                                        owl::pair<jbyteArray, std::string>,
+                                        owl::pair<jcharArray, std::vector<uint16_t>>,
+                                        owl::pair<jshortArray, std::vector<short>>,
+                                        owl::pair<jintArray, std::vector<int>>,
+                                        owl::pair<jlongArray, std::vector<int64_t>>,
+                                        owl::pair<jfloatArray, std::vector<float>>,
+                                        owl::pair<jdoubleArray, std::vector<double>>>;
 
-using typemap_j2c_t = owl::make_typemap<
-        owl::pair<jboolean, bool>,
-        owl::pair<jbyte, int8_t>,
-        owl::pair<jchar, uint16_t>,
-        owl::pair<jshort, short>,
-        owl::pair<jint, int>,
-        owl::pair<jlong, int64_t>,
-        owl::pair<jfloat, float>,
-        owl::pair<jdouble, double>,
-        //owl::pair<jobject, jobject>,
-        //owl::pair<jobjectArray, jobjectArray>,
-        owl::pair<jstring, std::string>,
-        owl::pair<jbooleanArray, std::vector<uint8_t>>,
-        owl::pair<jbyteArray, std::string>,
-        owl::pair<jcharArray, std::vector<uint16_t>>,
-        owl::pair<jshortArray, std::vector<short>>,
-        owl::pair<jintArray, std::vector<int>>,
-        owl::pair<jlongArray, std::vector<int64_t>>,
-        owl::pair<jfloatArray, std::vector<float>>,
-        owl::pair<jdoubleArray, std::vector<double>>
->;
-
-using typemap_j2jarray_t = owl::make_typemap<
-        owl::pair<jboolean, jbooleanArray>,
-        owl::pair<jbyte, jbyteArray>,
-        owl::pair<jchar, jcharArray>,
-        owl::pair<jshort, jshortArray>,
-        owl::pair<jint, jintArray>,
-        owl::pair<jlong, jlongArray>,
-        owl::pair<jfloat, jfloatArray>,
-        owl::pair<jdouble, jdoubleArray>
->;
+using typemap_j2jarray_t = owl::make_typemap<owl::pair<jboolean, jbooleanArray>,
+                                             owl::pair<jbyte, jbyteArray>,
+                                             owl::pair<jchar, jcharArray>,
+                                             owl::pair<jshort, jshortArray>,
+                                             owl::pair<jint, jintArray>,
+                                             owl::pair<jlong, jlongArray>,
+                                             owl::pair<jfloat, jfloatArray>,
+                                             owl::pair<jdouble, jdoubleArray>>;
 
 template <typename T>
 using typemap_j2c = owl::typemap_get<typemap_j2c_t, T>;
@@ -156,35 +152,23 @@ struct is_c_arithmetic {
     enum { value = begin_index_ <= index_ <= end_index_ };
 };
 
+static const char* const kJshortClassnameMap[] = {"Z", "B", "C", "S", "I", "J", "F", "D"};
 
-static const char* const kJshortClassnameMap[] = {
-        "Z", "B", "C", "S", "I", "J", "F", "D"
-};
+static const char* const kJarrayClassnameMap[] = {"[Z", "[B", "[C", "[S", "[I", "[J", "[F", "[D"};
 
-static const char* const kJarrayClassnameMap[] = {
-        "[Z", "[B", "[C", "[S", "[I", "[J", "[F", "[D"
-};
+static const char* const kJwrapperClassnameMap[] = {"java/lang/Boolean",
+                                                    "java/lang/Byte",
+                                                    "java/lang/Character",
+                                                    "java/lang/Short",
+                                                    "java/lang/Integer",
+                                                    "java/lang/Long",
+                                                    "java/lang/Float",
+                                                    "java/lang/Double"};
 
-static const char* const kJwrapperClassnameMap[] = {
-        "java/lang/Boolean",
-        "java/lang/Byte",
-        "java/lang/Character",
-        "java/lang/Short",
-        "java/lang/Integer",
-        "java/lang/Long",
-        "java/lang/Float",
-        "java/lang/Double"
-};
+static const char* const kJwrapperInitSigMap[] = {"(Z)V", "(B)V", "(C)V", "(S)V", "(I)V", "(J)V", "(F)V", "(D)V"};
 
-static const char* const kJwrapperInitSigMap[] = {
-        "(Z)V", "(B)V", "(C)V", "(S)V", "(I)V", "(J)V", "(F)V", "(D)V"
-};
-
-static const char* const kJtypeClassnameMap[] = {
-        "Z", "B", "C", "S", "I", "J", "F", "D",
-        "Ljava/lang/String;",
-        "[Z", "[B", "[C", "[S", "[I", "[J", "[F", "[D"
-};
+static const char* const kJtypeClassnameMap[] =
+    {"Z", "B", "C", "S", "I", "J", "F", "D", "Ljava/lang/String;", "[Z", "[B", "[C", "[S", "[I", "[J", "[F", "[D"};
 
 template <typename T>
 constexpr const char* jarray_classname() {
@@ -211,7 +195,6 @@ constexpr const char* jtype_classname() {
     return kJtypeClassnameMap[owl::typemap_find<typemap_j2c_t, T>::value];
 }
 
-
 std::string jstring_to_string(JNIEnv* env, jstring jstr);
 jstring cstr_to_jstring(JNIEnv* env, const char* cstr);
 jbyteArray string_to_jbytearray(JNIEnv* env, const std::string& str);
@@ -226,28 +209,62 @@ jlongArray NewArray(JNIEnv* env, jsize len, const jlong* buf);
 jfloatArray NewArray(JNIEnv* env, jsize len, const jfloat* buf);
 jdoubleArray NewArray(JNIEnv* env, jsize len, const jdouble* buf);
 
-inline jboolean* GetArrayElements(JNIEnv* env, jbooleanArray array) { return env->GetBooleanArrayElements(array, 0); }
-inline jbyte* GetArrayElements(JNIEnv* env, jbyteArray array) { return env->GetByteArrayElements(array, 0); }
-inline jchar* GetArrayElements(JNIEnv* env, jcharArray array) { return env->GetCharArrayElements(array, 0); }
-inline jshort* GetArrayElements(JNIEnv* env, jshortArray array) { return env->GetShortArrayElements(array, 0); }
-inline jint* GetArrayElements(JNIEnv* env, jintArray array) { return env->GetIntArrayElements(array, 0); }
-inline jlong* GetArrayElements(JNIEnv* env, jlongArray array) { return env->GetLongArrayElements(array, 0); }
-inline jfloat* GetArrayElements(JNIEnv* env, jfloatArray array) { return env->GetFloatArrayElements(array, 0); }
-inline jdouble* GetArrayElements(JNIEnv* env, jdoubleArray array) { return env->GetDoubleArrayElements(array, 0); }
+inline jboolean* GetArrayElements(JNIEnv* env, jbooleanArray array) {
+    return env->GetBooleanArrayElements(array, 0);
+}
+inline jbyte* GetArrayElements(JNIEnv* env, jbyteArray array) {
+    return env->GetByteArrayElements(array, 0);
+}
+inline jchar* GetArrayElements(JNIEnv* env, jcharArray array) {
+    return env->GetCharArrayElements(array, 0);
+}
+inline jshort* GetArrayElements(JNIEnv* env, jshortArray array) {
+    return env->GetShortArrayElements(array, 0);
+}
+inline jint* GetArrayElements(JNIEnv* env, jintArray array) {
+    return env->GetIntArrayElements(array, 0);
+}
+inline jlong* GetArrayElements(JNIEnv* env, jlongArray array) {
+    return env->GetLongArrayElements(array, 0);
+}
+inline jfloat* GetArrayElements(JNIEnv* env, jfloatArray array) {
+    return env->GetFloatArrayElements(array, 0);
+}
+inline jdouble* GetArrayElements(JNIEnv* env, jdoubleArray array) {
+    return env->GetDoubleArrayElements(array, 0);
+}
 
-inline void ReleaseArrayElements(JNIEnv* env, jbooleanArray array, jboolean* elems) { env->ReleaseBooleanArrayElements(array, elems, 0); }
-inline void ReleaseArrayElements(JNIEnv* env, jbyteArray array, jbyte* elems) { env->ReleaseByteArrayElements(array, elems, 0); }
-inline void ReleaseArrayElements(JNIEnv* env, jcharArray array, jchar* elems) { env->ReleaseCharArrayElements(array, elems, 0); }
-inline void ReleaseArrayElements(JNIEnv* env, jshortArray array, jshort* elems) { env->ReleaseShortArrayElements(array, elems, 0); }
-inline void ReleaseArrayElements(JNIEnv* env, jintArray array, jint* elems) { env->ReleaseIntArrayElements(array, elems, 0); }
-inline void ReleaseArrayElements(JNIEnv* env, jlongArray array, jlong* elems) { env->ReleaseLongArrayElements(array, elems, 0); }
-inline void ReleaseArrayElements(JNIEnv* env, jfloatArray array, jfloat* elems) { env->ReleaseFloatArrayElements(array, elems, 0); }
-inline void ReleaseArrayElements(JNIEnv* env, jdoubleArray array, jdouble* elems) { env->ReleaseDoubleArrayElements(array, elems, 0); }
+inline void ReleaseArrayElements(JNIEnv* env, jbooleanArray array, jboolean* elems) {
+    env->ReleaseBooleanArrayElements(array, elems, 0);
+}
+inline void ReleaseArrayElements(JNIEnv* env, jbyteArray array, jbyte* elems) {
+    env->ReleaseByteArrayElements(array, elems, 0);
+}
+inline void ReleaseArrayElements(JNIEnv* env, jcharArray array, jchar* elems) {
+    env->ReleaseCharArrayElements(array, elems, 0);
+}
+inline void ReleaseArrayElements(JNIEnv* env, jshortArray array, jshort* elems) {
+    env->ReleaseShortArrayElements(array, elems, 0);
+}
+inline void ReleaseArrayElements(JNIEnv* env, jintArray array, jint* elems) {
+    env->ReleaseIntArrayElements(array, elems, 0);
+}
+inline void ReleaseArrayElements(JNIEnv* env, jlongArray array, jlong* elems) {
+    env->ReleaseLongArrayElements(array, elems, 0);
+}
+inline void ReleaseArrayElements(JNIEnv* env, jfloatArray array, jfloat* elems) {
+    env->ReleaseFloatArrayElements(array, elems, 0);
+}
+inline void ReleaseArrayElements(JNIEnv* env, jdoubleArray array, jdouble* elems) {
+    env->ReleaseDoubleArrayElements(array, elems, 0);
+}
 
-inline std::string jarray_to_vector(JNIEnv* env, jstring jstr) { return jstring_to_string(env, jstr); }
+inline std::string jarray_to_vector(JNIEnv* env, jstring jstr) {
+    return jstring_to_string(env, jstr);
+}
 
 template <typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
-auto jarray_to_vector(JNIEnv* env, T array) ->typemap_j2c<T> {
+auto jarray_to_vector(JNIEnv* env, T array) -> typemap_j2c<T> {
     typemap_j2c<T> vec;
     if (nullptr != array && env->GetArrayLength(array) > 0) {
         auto data = GetArrayElements(env, array);
@@ -271,12 +288,12 @@ std::vector<F> jarray_to_vector2(JNIEnv* env, T array) {
 }
 
 template <typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
-auto jni_j2c_cast(JNIEnv* env, T t) ->typemap_j2c<T> {
+auto jni_j2c_cast(JNIEnv* env, T t) -> typemap_j2c<T> {
     return jarray_to_vector(env, t);
 }
 
 template <typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
-auto jni_j2c_cast(JNIEnv*, T t) ->typemap_j2c<T> {
+auto jni_j2c_cast(JNIEnv*, T t) -> typemap_j2c<T> {
     return t;
 }
 
@@ -316,7 +333,6 @@ T jni_c2j_cast(JNIEnv*, F f) {
     return f;
 }
 
-
 // String[] to std::vector<std::string>
 std::vector<std::string> jobjectarray_to_stringvector(JNIEnv* env, jobjectArray array);
 
@@ -328,7 +344,6 @@ std::vector<std::vector<std::string>> jobjectarray_to_stringvector2(JNIEnv* env,
 
 // std::vector<std::vector<std::string>> to String[][]
 jobjectArray stringvector2_to_jobjectarray(JNIEnv* env, const std::vector<std::vector<std::string>>& vec);
-
 
 template <typename T>
 struct jni_type_traits {
@@ -346,7 +361,7 @@ struct jni_type_traits<jstring> {
 // T -> (jboolean, jbyte, jchar, jshort, jint, jlong, jfloat, jdouble, jstring)
 // U -> (T, jbyte, jstring -> std::string)
 template <typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
-auto jobjectarray_to_vector2(JNIEnv* env, jobjectArray array) ->std::vector<typename jni_type_traits<T>::vector_type> {
+auto jobjectarray_to_vector2(JNIEnv* env, jobjectArray array) -> std::vector<typename jni_type_traits<T>::vector_type> {
     typedef typename jni_type_traits<T>::vector_type vector_type;
     typedef typename jni_type_traits<T>::array_type array_type;
     auto len = env->GetArrayLength(array);
@@ -443,63 +458,99 @@ auto __jni_c2j_cast(JNIEnv* env, const std::vector<T>& x) -> typemap_j2jarray<T>
     return NewArray(env, (jsize)x.size(), (const T*)x.data());
 }
 
-#define __c2j_cast(arg)         jnicat::__jni_c2j_cast(env, arg)
-#define __c2j_cast_s(arg)       jnicat::__jni_c2j_cast_s(env, arg)
+#define __c2j_cast(arg) jnicat::__jni_c2j_cast(env, arg)
+#define __c2j_cast_s(arg) jnicat::__jni_c2j_cast_s(env, arg)
 
-}// namespace jnicat
+}  // namespace jnicat
 
-#define j2c_cast(arg)           jnicat::jni_j2c_cast(env, arg)
-#define c2j_cast(T, arg)        jnicat::jni_c2j_cast<T>(env, arg)
+#define j2c_cast(arg) jnicat::jni_j2c_cast(env, arg)
+#define c2j_cast(T, arg) jnicat::jni_c2j_cast<T>(env, arg)
 
-#define j2c_cast_sv(arg)        jnicat::jobjectarray_to_stringvector(env, arg)
-#define j2c_cast_vv(T, arg)     jnicat::jobjectarray_to_vector2<T>(env, arg)
+#define j2c_cast_sv(arg) jnicat::jobjectarray_to_stringvector(env, arg)
+#define j2c_cast_vv(T, arg) jnicat::jobjectarray_to_vector2<T>(env, arg)
 
-#define c2j_cast_sv(arg)        jnicat::stringvector_to_jobjectarray(env, arg)
-#define c2j_cast_vv(T, arg)     jnicat::vector2_to_jobjectarray<T>(env, arg)
+#define c2j_cast_sv(arg) jnicat::stringvector_to_jobjectarray(env, arg)
+#define c2j_cast_vv(T, arg) jnicat::vector2_to_jobjectarray<T>(env, arg)
 
-#define c2j_cast_sv_alba(arg)   jnicat::stringvector_to_arraylist(env, arg)
-#define j2c_cast_sv_alba(arg)   jnicat::arraylist_to_stringvector(env, arg)
+#define c2j_cast_sv_alba(arg) jnicat::stringvector_to_arraylist(env, arg)
+#define j2c_cast_sv_alba(arg) jnicat::arraylist_to_stringvector(env, arg)
 
-#define j2c_cast_v(T, arg)      jnicat::jarray_to_vector2<T>(env, arg)
+#define j2c_cast_v(T, arg) jnicat::jarray_to_vector2<T>(env, arg)
 
-#define c2j_enum_cast(arg1, arg2)   jnicat::cenum_to_jobject(env, arg1, arg2)
-#define c2j_pb_cast(arg1, arg2)     jnicat::cpb_to_jobject(env, arg1, arg2)
+#define c2j_enum_cast(arg1, arg2) jnicat::cenum_to_jobject(env, arg1, arg2)
+#define c2j_pb_cast(arg1, arg2) jnicat::cpb_to_jobject(env, arg1, arg2)
 
-#define c2j_pb_cast_v(arg1, arg2)     jnicat::cpbarray_to_jobjectarray(env, arg1, arg2)
+#define c2j_pb_cast_v(arg1, arg2) jnicat::cpbarray_to_jobjectarray(env, arg1, arg2)
 
-#define j2c_pb_cast(arg1, arg2)     jnicat::jobject_to_pbstring(env, arg1, arg2)
+#define j2c_pb_cast(arg1, arg2) jnicat::jobject_to_pbstring(env, arg1, arg2)
 
-#define j2c_pb_cast_v(arg1, arg2)     jnicat::jobjectarray_to_pbstringvector(env, arg1, arg2)
+#define j2c_pb_cast_v(arg1, arg2) jnicat::jobjectarray_to_pbstringvector(env, arg1, arg2)
 
 // support for Java wrapper class Boolean,Int,etc...
 namespace jnicat {
 
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jboolean value) { env->SetBooleanField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jchar value) { env->SetCharField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jbyte value) { env->SetByteField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jshort value) { env->SetShortField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jint value) { env->SetIntField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jlong value) { env->SetLongField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jfloat value) { env->SetFloatField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jdouble value) { env->SetDoubleField(obj, fieldID, value); }
-inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jobject value) { env->SetObjectField(obj, fieldID, value); }
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jboolean value) {
+    env->SetBooleanField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jchar value) {
+    env->SetCharField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jbyte value) {
+    env->SetByteField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jshort value) {
+    env->SetShortField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jint value) {
+    env->SetIntField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jlong value) {
+    env->SetLongField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jfloat value) {
+    env->SetFloatField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jdouble value) {
+    env->SetDoubleField(obj, fieldID, value);
+}
+inline void SetField(JNIEnv* env, jobject obj, jfieldID fieldID, jobject value) {
+    env->SetObjectField(obj, fieldID, value);
+}
 
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jboolean& value) { value = env->GetBooleanField(obj, fieldID); }
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jchar& value) { value = env->GetCharField(obj, fieldID); }
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jbyte& value) { value = env->GetByteField(obj, fieldID); }
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jshort& value) { value = env->GetShortField(obj, fieldID); }
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jint& value) { value = env->GetIntField(obj, fieldID); }
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jlong& value) { value = env->GetLongField(obj, fieldID); }
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jfloat& value) { value = env->GetFloatField(obj, fieldID); }
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jdouble& value) { value = env->GetDoubleField(obj, fieldID); }
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jboolean& value) {
+    value = env->GetBooleanField(obj, fieldID);
+}
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jchar& value) {
+    value = env->GetCharField(obj, fieldID);
+}
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jbyte& value) {
+    value = env->GetByteField(obj, fieldID);
+}
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jshort& value) {
+    value = env->GetShortField(obj, fieldID);
+}
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jint& value) {
+    value = env->GetIntField(obj, fieldID);
+}
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jlong& value) {
+    value = env->GetLongField(obj, fieldID);
+}
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jfloat& value) {
+    value = env->GetFloatField(obj, fieldID);
+}
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, jdouble& value) {
+    value = env->GetDoubleField(obj, fieldID);
+}
 
 template <typename T, typename std::enable_if<std::is_convertible<T, jobject>::value>::type* = nullptr>
-inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, T& value) { value = (T)env->GetObjectField(obj, fieldID); }
+inline void GetField(JNIEnv* env, jobject obj, jfieldID fieldID, T& value) {
+    value = (T)env->GetObjectField(obj, fieldID);
+}
 
 template <typename T>
 class jref {
-public:
-    jref(JNIEnv* env, jobject obj):env_(env), obj_(obj), value_() {
+ public:
+    jref(JNIEnv* env, jobject obj) : env_(env), obj_(obj), value_() {
         cls_ = jcache::shared()->get_class(env, jfull_classname<T>());
         fid_ = jcache::shared()->get_fieldid(env, cls_, "value", jshort_classname<T>());
         if (cls_ != nullptr && fid_ != nullptr) {
@@ -512,10 +563,16 @@ public:
         }
     }
 
-    T value() const { return value_; }
-    void set_value(T value) { value_ = value; }
+    T value() const {
+        return value_;
+    }
+    void set_value(T value) {
+        value_ = value;
+    }
 
-    operator T() const { return value_; }
+    operator T() const {
+        return value_;
+    }
     jref& operator=(T value) {
         value_ = value;
         return *this;
@@ -538,14 +595,13 @@ public:
 
     jref(const jref&) = delete;
 
-private:
+ private:
     JNIEnv* env_;
     jobject obj_;
     jclass cls_;
     jfieldID fid_;
     T value_;
 };
-
 
 // Java fundamental type int,byte,etc to Java wrapper class Integer,Byte,etc
 template <typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
@@ -569,7 +625,6 @@ T jni_jobject2c(JNIEnv* env, jobject obj) {
     return value;
 }
 
-
 // jintArray    -> jarray<int>
 // T            -> bool, int, etc
 // j_type       -> jboolean, jint, etc
@@ -579,13 +634,15 @@ class jarray {
     static_assert(is_c_arithmetic<T>::value, "");
     typedef typemap_c2j<T> j_type;
     typedef typemap_j2jarray<j_type> jarray_type;
-public:
-    jarray(JNIEnv* env, jarray_type array)
-            :env_(env), array_(array), ptr_(nullptr), size_(0) {
+
+ public:
+    jarray(JNIEnv* env, jarray_type array) : env_(env), array_(array), ptr_(nullptr), size_(0) {
         size_ = env_->GetArrayLength(array_);
     }
 
-    ~jarray() { __release_ptr(); }
+    ~jarray() {
+        __release_ptr();
+    }
 
     jarray(jarray&& rhs) {
         env_ = rhs.env_;
@@ -600,16 +657,22 @@ public:
     jarray(jarray&) = delete;
     jarray& operator=(jarray&) = delete;
 
-    T* data() { return __get_ptr(); }
-    size_t size() const { return size_; }
-    bool empty() const { return size_ == 0; }
+    T* data() {
+        return __get_ptr();
+    }
+    size_t size() const {
+        return size_;
+    }
+    bool empty() const {
+        return size_ == 0;
+    }
 
     T& operator[](size_t pos) {
         assert(pos < size_);
         return data()[pos];
     }
 
-private:
+ private:
     T* __get_ptr() const {
         if (ptr_ == nullptr) {
             ptr_ = GetArrayElements(env_, array_);
@@ -624,30 +687,38 @@ private:
         }
     }
 
-private:
+ private:
     JNIEnv* env_;
     jarray_type array_;
     mutable j_type* ptr_;
     mutable size_t size_;
 };
 
-
 class jbuffer {
-public:
-    jbuffer():data_(nullptr), size_(0) {}
+ public:
+    jbuffer() : data_(nullptr), size_(0) {
+    }
 
-    jbuffer(void* data, int64_t size):data_((uint8_t*)data), size_(size) {}
+    jbuffer(void* data, int64_t size) : data_((uint8_t*)data), size_(size) {
+    }
 
     jbuffer(JNIEnv* env, jobject obj) {
         data_ = (uint8_t*)env->GetDirectBufferAddress(obj);
         size_ = env->GetDirectBufferCapacity(obj);
     }
 
-    ~jbuffer() {}
+    ~jbuffer() {
+    }
 
-    uint8_t* data() { return data_; }
-    int64_t size() const { return size_; }
-    bool empty() const { return size_ == 0; }
+    uint8_t* data() {
+        return data_;
+    }
+    int64_t size() const {
+        return size_;
+    }
+    bool empty() const {
+        return size_ == 0;
+    }
     uint8_t& operator[](size_t pos) {
         assert(pos < size_);
         return data_[pos];
@@ -660,19 +731,12 @@ public:
         return env->NewDirectByteBuffer(data_, size_);
     }
 
-private:
+ private:
     uint8_t* data_;
     int64_t size_;
 };
 
-
-enum jcachetype {
-    kCacheClass,
-    kCacheMethod,
-    kCacheStaticMethod,
-    kCacheField,
-    kCacheStaticField
-};
+enum jcachetype { kCacheClass, kCacheMethod, kCacheStaticMethod, kCacheField, kCacheStaticField };
 
 struct jcacheitem {
     const char* classname;
@@ -687,16 +751,33 @@ struct jnativeitem {
     size_t count;
 };
 
-
-inline jboolean __jvalue_cast(jvalue val, jboolean*) { return val.z; }
-inline jbyte __jvalue_cast(jvalue val, jbyte*) { return val.b; }
-inline jchar __jvalue_cast(jvalue val, jchar*) { return val.c; }
-inline jshort __jvalue_cast(jvalue val, jshort*) { return val.s; }
-inline jint __jvalue_cast(jvalue val, jint*) { return val.i; }
-inline jlong __jvalue_cast(jvalue val, jlong*) { return val.j; }
-inline jfloat __jvalue_cast(jvalue val, jfloat*) { return val.f; }
-inline jdouble __jvalue_cast(jvalue val, jdouble*) { return val.d; }
-inline jobject __jvalue_cast(jvalue val, void*) { return val.l; }
+inline jboolean __jvalue_cast(jvalue val, jboolean*) {
+    return val.z;
+}
+inline jbyte __jvalue_cast(jvalue val, jbyte*) {
+    return val.b;
+}
+inline jchar __jvalue_cast(jvalue val, jchar*) {
+    return val.c;
+}
+inline jshort __jvalue_cast(jvalue val, jshort*) {
+    return val.s;
+}
+inline jint __jvalue_cast(jvalue val, jint*) {
+    return val.i;
+}
+inline jlong __jvalue_cast(jvalue val, jlong*) {
+    return val.j;
+}
+inline jfloat __jvalue_cast(jvalue val, jfloat*) {
+    return val.f;
+}
+inline jdouble __jvalue_cast(jvalue val, jdouble*) {
+    return val.d;
+}
+inline jobject __jvalue_cast(jvalue val, void*) {
+    return val.l;
+}
 
 // T -> jni primitive types & jobject types
 template <typename T, typename std::enable_if<!std::is_void<T>::value>::type* = nullptr>
@@ -708,14 +789,17 @@ template <typename T, typename std::enable_if<std::is_void<T>::value>::type* = n
 void jvalue_cast(jvalue val) {
 }
 
-
 std::string GetStackTraceString(jthrowable e);
 
 jobject NewObjectV(JNIEnv* env, const char* classname, const char* methodname, const char* signature, va_list args);
 jobject NewObject(JNIEnv* env, const char* classname, const char* methodname, const char* signature, ...);
 jobject NewObject(JNIEnv* env, const jcacheitem* ci, ...);
 
-jvalue CallStaticMethodV(JNIEnv* env, const char* classname, const char* methodname, const char* signature, va_list args);
+jvalue CallStaticMethodV(JNIEnv* env,
+                         const char* classname,
+                         const char* methodname,
+                         const char* signature,
+                         va_list args);
 jvalue CallStaticMethod(JNIEnv* env, const char* classname, const char* methodname, const char* signature, ...);
 jvalue CallStaticMethod(JNIEnv* env, const jcacheitem* ci, ...);
 
@@ -727,15 +811,21 @@ const jcacheitem* add_cacheitem(const jcacheitem* ci);
 const jnativeitem* add_nativeitem(const jnativeitem* ni);
 
 // jobject 类型参数会返回自己，其它基本类型参数返回 nullptr
-inline jobject __filter_object_arg(jobject arg) { return arg; }
+inline jobject __filter_object_arg(jobject arg) {
+    return arg;
+}
 
 template <typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
-jobject __filter_object_arg(T) { return nullptr; }
-inline jobject __filter_object_arg(void* arg) { return nullptr; }
+jobject __filter_object_arg(T) {
+    return nullptr;
+}
+inline jobject __filter_object_arg(void* arg) {
+    return nullptr;
+}
 
 template <size_t N>
-void __delete_localref_array(JNIEnv *env, jobject (&object_args)[N]) {
-    for (auto obj: object_args) {
+void __delete_localref_array(JNIEnv* env, jobject (&object_args)[N]) {
+    for (auto obj : object_args) {
         if (obj != nullptr) {
             env->DeleteLocalRef(obj);
         }
@@ -743,13 +833,19 @@ void __delete_localref_array(JNIEnv *env, jobject (&object_args)[N]) {
 }
 
 class jnienv_ptr {
-public:
+ public:
     explicit jnienv_ptr(JavaVM* vm = nullptr);
     ~jnienv_ptr();
 
-    operator JNIEnv*() const { return env_; }
-    JNIEnv* operator->() const { return env_; }
-    JNIEnv* get() const { return env_; }
+    operator JNIEnv*() const {
+        return env_;
+    }
+    JNIEnv* operator->() const {
+        return env_;
+    }
+    JNIEnv* get() const {
+        return env_;
+    }
     void detach();
 
     jnienv_ptr(const jnienv_ptr&) = delete;
@@ -781,7 +877,7 @@ public:
 
     template <typename T, typename... Args>
     T call_static_method(const char* classname, const char* methodname, const char* signature, Args... args) {
-        jobject object_args[sizeof...(args) + 1] { __filter_object_arg(args)... };
+        jobject object_args[sizeof...(args) + 1]{__filter_object_arg(args)...};
         auto result = CallStaticMethod(env_, classname, methodname, signature, args...);
         __delete_localref_array(env_, object_args);
         return jvalue_cast<T>(result);
@@ -794,7 +890,7 @@ public:
 
     template <typename T, typename... Args>
     T call_method(jobject obj, const char* methodname, const char* signature, Args... args) {
-        jobject object_args[sizeof...(args) + 1] { __filter_object_arg(args)... };
+        jobject object_args[sizeof...(args) + 1]{__filter_object_arg(args)...};
         auto result = CallMethod(env_, obj, methodname, signature, args...);
         __delete_localref_array(env_, object_args);
         return jvalue_cast<T>(result);
@@ -836,7 +932,6 @@ public:
         return jvalue_cast<T>(CallMethod(env_, ci->name, ci->signature, args...));
     }
 
-
     template <typename T, typename std::enable_if<owl::typemap_contains<typemap_j2c_t, T>::value>::type* = nullptr>
     T get_field(jobject obj, const char* fieldname, T default_value = T()) {
         T value = default_value;
@@ -857,16 +952,19 @@ public:
         }
     }
 
-    jobject get_object_field(jobject obj, const char* fieldname, const char* signature, jobject default_value = nullptr);
+    jobject get_object_field(jobject obj,
+                             const char* fieldname,
+                             const char* signature,
+                             jobject default_value = nullptr);
     void set_object_field(jobject obj, const char* fieldname, const char* signature, jobject value);
 
-private:
+ private:
     JavaVM* vm_;
     JNIEnv* env_;
     bool attached_;
 };
 
-} // namespace jnicat
+}  // namespace jnicat
 
 template <typename T>
 using jref_t = jnicat::jref<T>;
@@ -878,30 +976,27 @@ using jbuffer_t = jnicat::jbuffer;
 using jcache = jnicat::jcache;
 using jnienv_ptr = jnicat::jnienv_ptr;
 
-#define j2c_cast_ref(T, arg)    jref_t<T>(env, arg)
-#define j2c_cast_out(T, arg)    jarray_t<T>(env, arg)
+#define j2c_cast_ref(T, arg) jref_t<T>(env, arg)
+#define j2c_cast_out(T, arg) jarray_t<T>(env, arg)
 
-#define j2c_cast_buf(arg)       jbuffer_t(env, arg)
-#define j2c_cast_obj(T, arg)    jnicat::jni_jobject2c<T>(env, arg)
-#define c2j_cast_buf(arg)       arg.to_bytebuffer(env)
-#define c2j_cast_obj(arg)       jnicat::jni_c2jobject(env, arg)
+#define j2c_cast_buf(arg) jbuffer_t(env, arg)
+#define j2c_cast_obj(T, arg) jnicat::jni_jobject2c<T>(env, arg)
+#define c2j_cast_buf(arg) arg.to_bytebuffer(env)
+#define c2j_cast_obj(arg) jnicat::jni_c2jobject(env, arg)
 
-#define c2j_new_object(methodinfo, ...) \
-    env.new_object(methodinfo, ##__VA_ARGS__)
+#define c2j_new_object(methodinfo, ...) env.new_object(methodinfo, ##__VA_ARGS__)
 
-#define c2j_call_static(T, methodinfo, ...) \
-    env.call_static_method<T>(methodinfo, ##__VA_ARGS__)
+#define c2j_call_static(T, methodinfo, ...) env.call_static_method<T>(methodinfo, ##__VA_ARGS__)
 
-#define c2j_call(T, obj, methodinfo, ...) \
-    env.call_method<T>(obj, methodinfo, ##__VA_ARGS__)
+#define c2j_call(T, obj, methodinfo, ...) env.call_method<T>(obj, methodinfo, ##__VA_ARGS__)
 
 #define c2j_call_without_release(T, obj, methodinfo, ...) \
     env.call_method_without_release<T>(obj, methodinfo, ##__VA_ARGS__)
 
 // PP_CAT
 #ifndef PP_JNICAT
-#define PP_JNICAT(x, y)	PP_JNICAT_I(x, y)
-#define PP_JNICAT_I(x, y)	x##y
+#define PP_JNICAT(x, y) PP_JNICAT_I(x, y)
+#define PP_JNICAT_I(x, y) x##y
 #endif
 
 #define JNICAT_DEFINE_CLASS(classname) \
@@ -919,12 +1014,12 @@ using jnienv_ptr = jnicat::jnienv_ptr;
 #define JNICAT_DEFINE_STATIC_FIELD(varname, classname, fieldname, signature) \
     JNICAT_DEFINE_CACHE(varname, classname, fieldname, signature, jnicat::kCacheStaticField)
 
-#define JNICAT_DEFINE_CACHE(var, classname, name, signature, type) \
-    static const jnicat::jcacheitem PP_JNICAT(ci_, var){ classname, name, signature, type }; \
+#define JNICAT_DEFINE_CACHE(var, classname, name, signature, type)                         \
+    static const jnicat::jcacheitem PP_JNICAT(ci_, var){classname, name, signature, type}; \
     static const jnicat::jcacheitem* const var = jnicat::add_cacheitem(&PP_JNICAT(ci_, var));
 
-#define JNICAT_DEFINE_JNI_METHOD(var, classname, jni_methods, count) \
-    static const jnicat::jnativeitem PP_JNICAT(ni_, var){ classname, jni_methods, count }; \
+#define JNICAT_DEFINE_JNI_METHOD(var, classname, jni_methods, count)                     \
+    static const jnicat::jnativeitem PP_JNICAT(ni_, var){classname, jni_methods, count}; \
     static const jnicat::jnativeitem* const var = jnicat::add_nativeitem(&PP_JNICAT(ni_, var));
 
 static constexpr int __sig_index(const char* s, int i) {
@@ -939,7 +1034,10 @@ template <char sig>
 struct sig_to_return_type;
 
 #define DECL_SIG_TO_RETURN_TYPE(S, R) \
-template <> struct sig_to_return_type<S> { typedef R type; };
+    template <>                       \
+    struct sig_to_return_type<S> {    \
+        typedef R type;               \
+    };
 
 DECL_SIG_TO_RETURN_TYPE('V', void)
 DECL_SIG_TO_RETURN_TYPE('[', jobject)
@@ -957,10 +1055,11 @@ template <char sig>
 using jreturn_type = typename sig_to_return_type<sig>::type;
 
 class jObject {
-public:
-    explicit jObject(jobject object):object_(object) {}
+ public:
+    explicit jObject(jobject object) : object_(object) {
+    }
 
-    jObject(const char* classname, const char* init_signature, ...):object_(0) {
+    jObject(const char* classname, const char* init_signature, ...) : object_(0) {
         va_list args;
         va_start(args, init_signature);
         object_ = jnicat::NewObjectV(env_, classname, "<init>", init_signature, args);
@@ -971,48 +1070,53 @@ public:
         env_->DeleteLocalRef(object_);
     }
 
-    jobject raw() const { return object_; }
+    jobject raw() const {
+        return object_;
+    }
 
-protected:
+ protected:
     jnienv_ptr env_;
     jobject object_;
 };
 
+#define JNICAT_CLASS_BEGIN(cpp_classname, java_classname)                                                            \
+    JNICAT_DEFINE_CLASS(java_classname)                                                                              \
+    class cpp_classname : public jObject {                                                                           \
+        typedef cpp_classname CppClassType;                                                                          \
+        static constexpr const char* classname() {                                                                   \
+            return java_classname;                                                                                   \
+        }                                                                                                            \
+                                                                                                                     \
+     public:                                                                                                         \
+        explicit cpp_classname(jobject object) : jObject(object) {                                                   \
+        }                                                                                                            \
+        template <typename... Args>                                                                                  \
+        cpp_classname(const char* init_signature, Args... args) : jObject(java_classname, init_signature, args...) { \
+        }
 
-#define JNICAT_CLASS_BEGIN(cpp_classname, java_classname) \
-JNICAT_DEFINE_CLASS(java_classname) \
-class cpp_classname: public jObject { \
-    typedef cpp_classname CppClassType; \
-    static constexpr const char* classname() { return java_classname; } \
-public: \
-    explicit cpp_classname(jobject object):jObject(object) {} \
-    template <typename... Args> \
-    cpp_classname(const char* init_signature, Args... args):jObject(java_classname, init_signature, args...) {}
+#define JNICAT_INIT_METHOD(methodname, signature)    \
+    template <typename... Args>                      \
+    static CppClassType* methodname(Args... args) {  \
+        return new CppClassType(signature, args...); \
+    }
 
+#define JNICAT_METHOD(methodname, signature)                                      \
+    template <typename... Args>                                                   \
+    auto methodname(Args... args)->jreturn_type<__sig_char(signature)> {          \
+        using R = jreturn_type<__sig_char(signature)>;                            \
+        return env_.call_method_raw<R>(object_, #methodname, signature, args...); \
+    }
 
-#define JNICAT_INIT_METHOD(methodname, signature) \
-template <typename... Args> \
-static CppClassType* methodname(Args... args) { return new CppClassType(signature, args...); }
-
-
-#define JNICAT_METHOD(methodname, signature) \
-template <typename... Args> \
-auto methodname(Args... args) ->jreturn_type<__sig_char(signature)> { \
-    using R = jreturn_type<__sig_char(signature)>; \
-    return env_.call_method_raw<R>(object_, #methodname, signature, args...); \
-}
-
-
-#define JNICAT_STATIC_METHOD(methodname, signature) \
-template <typename... Args> \
-static auto methodname(Args... args) ->jreturn_type<__sig_char(signature)> { \
-    using R = jreturn_type<__sig_char(signature)>; \
-    jnienv_ptr env; \
-    return env.call_static_method_raw<R>(classname(), #methodname, signature, args...); \
-}
-
+#define JNICAT_STATIC_METHOD(methodname, signature)                                         \
+    template <typename... Args>                                                             \
+    static auto methodname(Args... args)->jreturn_type<__sig_char(signature)> {             \
+        using R = jreturn_type<__sig_char(signature)>;                                      \
+        jnienv_ptr env;                                                                     \
+        return env.call_static_method_raw<R>(classname(), #methodname, signature, args...); \
+    }
 
 #define JNICAT_CLASS_END() \
-};
+    }                      \
+    ;
 
-#endif //JNIRPC_JNICAT_CORE_H
+#endif  // JNIRPC_JNICAT_CORE_H

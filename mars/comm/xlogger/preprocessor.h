@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -24,10 +24,8 @@
 #ifndef PREPROCESSOR_H_
 #define PREPROCESSOR_H_
 
-
 #define PP_EMPTY()
 #define PP_COMMA() ,
-
 
 // PP_CAT
 #define PP_CAT(x, y) PP_CAT_I(x, y)
@@ -44,7 +42,6 @@
 #define PP_ERROR_0x0005 PP_ERROR(0x0005, PP_SEQ_FOLD_OVERFLOW)
 #define PP_ERROR_0x0006 PP_ERROR(0x0006, PP_ARITHMETIC_OVERFLOW)
 #define PP_ERROR_0x0007 PP_ERROR(0x0007, PP_DIVISION_BY_ZERO)
-
 
 // PP_BOOL
 #define PP_BOOL(x) PP_BOOL_I(x)
@@ -69,14 +66,12 @@
 #define PP_BOOL_15 1
 #define PP_BOOL_16 1
 
-
 // PP_BITNOT
 #define PP_BITNOT(x) PP_BITNOT_I(x)
 #define PP_BITNOT_I(x) PP_NOT_##x
 
 #define PP_NOT_0 1
 #define PP_NOT_1 0
-
 
 // PP_BITAND
 #define PP_BITAND(x, y) PP_BITAND_I(x, y)
@@ -87,7 +82,6 @@
 #define PP_BITAND_10 0
 #define PP_BITAND_11 1
 
-
 // PP_BITOR
 #define PP_BITOR(x, y) PP_BITOR_I(x, y)
 #define PP_BITOR_I(x, y) PP_BITOR_##x##y
@@ -96,7 +90,6 @@
 #define PP_BITOR_01 1
 #define PP_BITOR_10 1
 #define PP_BITOR_11 1
-
 
 // PP_BITXOR
 #define PP_BITXOR(x, y) PP_BITXOR_I(x, y)
@@ -107,22 +100,17 @@
 #define PP_BITXOR_10 1
 #define PP_BITXOR_11 0
 
-
 // PP_NOT
 #define PP_NOT(x) PP_BITNOT(PP_BOOL(x))
-
 
 // PP_AND
 #define PP_AND(p, q) PP_BITAND(PP_BOOL(p), PP_BOOL(q))
 
-
 // PP_OR
 #define PP_OR(p, q) PP_BITOR(PP_BOOL(p), PP_BOOL(q))
 
-
 // PP_XOR
 #define PP_XOR(p, q) PP_BITXOR(PP_BOOL(p), PP_BOOL(q))
-
 
 // PP_IF
 #define PP_IF(cond, t, f) PP_IF_I(PP_BOOL(cond), t, f)
@@ -132,10 +120,8 @@
 #define PP_IF_0(t, f) f
 #define PP_IF_1(t, f) t
 
-
 // PP_COMMA_IF
 #define PP_COMMA_IF(cond) PP_IF(cond, PP_COMMA, PP_EMPTY)()
-
 
 // PP_ENUM
 #define PP_ENUM(count, param) PP_ENUM_REPEAT(count, PP_ENUM_M, param)
@@ -149,10 +135,9 @@
 // #define PP_NARG(...) PP_NARG_(__VA_ARGS__, PP_RSEQ_N())
 // #define PP_NARG_(...) PP_ARG_N(__VA_ARGS__)
 
-
 // for all compiler
 // #elif defined _MSC_VER
-#define PP_NARG(...) PP_NARG_ ( __VA_ARGS__, PP_RSEQ_N() )
+#define PP_NARG(...) PP_NARG_(__VA_ARGS__, PP_RSEQ_N())
 #define PP_NARG_(...) PP_ARG_N PP_BRACKET_L() __VA_ARGS__ PP_BRACKET_R()
 #define PP_BRACKET_L() (
 #define PP_BRACKET_R() )
@@ -161,129 +146,409 @@
 // #error "no supported!!"
 // #endif
 
-#define PP_NUM_PARAMS(...) PP_IF(PP_DEC(PP_NARG(__VA_ARGS__)), PP_NARG(__VA_ARGS__), PP_NUM_PARAMS_0_1_TEST(__VA_ARGS__))
-#define PP_NUM_PARAMS_0_1_TEST(_1, ...) PP_IF(PP_DEC(PP_NARG(PP_NUM_PARAMS_0 _1 ())), 0, 1)
-#define PP_NUM_PARAMS_0()	,
+#define PP_NUM_PARAMS(...) \
+    PP_IF(PP_DEC(PP_NARG(__VA_ARGS__)), PP_NARG(__VA_ARGS__), PP_NUM_PARAMS_0_1_TEST(__VA_ARGS__))
+#define PP_NUM_PARAMS_0_1_TEST(_1, ...) PP_IF(PP_DEC(PP_NARG(PP_NUM_PARAMS_0 _1())), 0, 1)
+#define PP_NUM_PARAMS_0() ,
 
 #if 0
-#define P00_ARG(                                               \
-   _1, _2, _3, _4, _5, _6, _7, _8,                               \
-   _9, _10, _11, _12, _13, _14, _15, _16,                        \
-   _17, _18, _19, _20, _21, _22, _23, _24,                       \
-   _25, _26, _27, _28, _29, _30, _31, _32,                       \
-   _33, _34, _35, _36, _37, _38, _39, _40,                       \
-   _41, _42, _43, _44, _45, _46, _47, _48,                       \
-   _49, _50, _51, _52, _53, _54, _55, _56,                       \
-   _57, _58, _59, _60, _61, _62, _63, _64,                       \
-   _65, _66, _67, _68, _69, _70, _71, _72,                       \
-   _73, _74, _75, _76, _77, _78, _79, _80,                       \
-   _81, _82, _83, _84, _85, _86, _87, _88,                       \
-   _89, _90, _91, _92, _93, _94, _95, _96,                       \
-   _97, _98, _99, _100, _101, _102, _103, _104,                  \
-   _105, _106, _107, _108, _109, _110, _111, _112,               \
-   _113, _114, _115, _116, _117, _118, _119, _120,               \
-   _121, _122, _123, _124, _125, _126, _127, _128,               \
-   _129, _130, _131, _132, _133, _134, _135, _136,               \
-   _137, _138, _139, _140, _141, _142, _143, _144,               \
-   _145, _146, _147, _148, _149, _150, _151, _152,               \
-   _153, _154, _155, _156, _157, _158, _159,                     \
-   ...) _159
+#define P00_ARG(_1,   \
+                _2,   \
+                _3,   \
+                _4,   \
+                _5,   \
+                _6,   \
+                _7,   \
+                _8,   \
+                _9,   \
+                _10,  \
+                _11,  \
+                _12,  \
+                _13,  \
+                _14,  \
+                _15,  \
+                _16,  \
+                _17,  \
+                _18,  \
+                _19,  \
+                _20,  \
+                _21,  \
+                _22,  \
+                _23,  \
+                _24,  \
+                _25,  \
+                _26,  \
+                _27,  \
+                _28,  \
+                _29,  \
+                _30,  \
+                _31,  \
+                _32,  \
+                _33,  \
+                _34,  \
+                _35,  \
+                _36,  \
+                _37,  \
+                _38,  \
+                _39,  \
+                _40,  \
+                _41,  \
+                _42,  \
+                _43,  \
+                _44,  \
+                _45,  \
+                _46,  \
+                _47,  \
+                _48,  \
+                _49,  \
+                _50,  \
+                _51,  \
+                _52,  \
+                _53,  \
+                _54,  \
+                _55,  \
+                _56,  \
+                _57,  \
+                _58,  \
+                _59,  \
+                _60,  \
+                _61,  \
+                _62,  \
+                _63,  \
+                _64,  \
+                _65,  \
+                _66,  \
+                _67,  \
+                _68,  \
+                _69,  \
+                _70,  \
+                _71,  \
+                _72,  \
+                _73,  \
+                _74,  \
+                _75,  \
+                _76,  \
+                _77,  \
+                _78,  \
+                _79,  \
+                _80,  \
+                _81,  \
+                _82,  \
+                _83,  \
+                _84,  \
+                _85,  \
+                _86,  \
+                _87,  \
+                _88,  \
+                _89,  \
+                _90,  \
+                _91,  \
+                _92,  \
+                _93,  \
+                _94,  \
+                _95,  \
+                _96,  \
+                _97,  \
+                _98,  \
+                _99,  \
+                _100, \
+                _101, \
+                _102, \
+                _103, \
+                _104, \
+                _105, \
+                _106, \
+                _107, \
+                _108, \
+                _109, \
+                _110, \
+                _111, \
+                _112, \
+                _113, \
+                _114, \
+                _115, \
+                _116, \
+                _117, \
+                _118, \
+                _119, \
+                _120, \
+                _121, \
+                _122, \
+                _123, \
+                _124, \
+                _125, \
+                _126, \
+                _127, \
+                _128, \
+                _129, \
+                _130, \
+                _131, \
+                _132, \
+                _133, \
+                _134, \
+                _135, \
+                _136, \
+                _137, \
+                _138, \
+                _139, \
+                _140, \
+                _141, \
+                _142, \
+                _143, \
+                _144, \
+                _145, \
+                _146, \
+                _147, \
+                _148, \
+                _149, \
+                _150, \
+                _151, \
+                _152, \
+                _153, \
+                _154, \
+                _155, \
+                _156, \
+                _157, \
+                _158, \
+                _159, \
+                ...)  \
+    _159
 
- #define P99_HAS_COMMA(...) P00_ARG(__VA_ARGS__,                \
-   1, 1, 1, 1, 1, 1, 1,                                          \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 1, 1,                                       \
-   1, 1, 1, 1, 1, 1, 0, 0)
+#define P99_HAS_COMMA(...) \
+    P00_ARG(__VA_ARGS__,   \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            1,             \
+            0,             \
+            0)
 
 #endif
 // PP_ENUM_PARAMS
 #define PP_ENUM_PARAMS(count, param) PP_ENUM_REPEAT(count, PP_ENUM_PARAMS_M, param)
 #define PP_ENUM_PARAMS_M(n, text) PP_COMMA_IF(n) text##n
 
-
 // PP_ENUM_BINARY_PARAMS
 #define PP_ENUM_BINARY_PARAMS(count, a, b) PP_ENUM_BINARY_REPEAT(count, PP_ENUM_BINARY_PARAMS_M, a, b)
 #define PP_ENUM_BINARY_PARAMS_M(n, a, b) PP_ENUM_BINARY_PARAMS_M_I(n, a, b)
 #define PP_ENUM_BINARY_PARAMS_M_I(n, a, b) PP_COMMA_IF(n) a##n b##n
 
-
 // PP_ENUM_TRAILING
 #define PP_ENUM_TRAILING(count, param) PP_ENUM_REPEAT(count, PP_ENUM_TRAILING_M, param)
 #define PP_ENUM_TRAILING_M(n, text) , text
 
-
 // PP_ENUM_TRAILING_PARAMS
 #define PP_ENUM_TRAILING_PARAMS(count, param) PP_ENUM_REPEAT(count, PP_ENUM_TRAILING_PARAMS_M, param)
 #define PP_ENUM_TRAILING_PARAMS_M(n, text) , text##n
-
 
 // PP_ENUM_TRAILING_BINARY_PARAMS
 #define PP_ENUM_TRAILING_BINARY_PARAMS(count, a, b) PP_ENUM_BINARY_REPEAT(count, PP_ENUM_TRAILING_BINARY_PARAMS_M, a, b)
 #define PP_ENUM_TRAILING_BINARY_PARAMS_M(n, a, b) PP_ENUM_TRAILING_BINARY_PARAMS_M_I(n, a, b)
 #define PP_ENUM_TRAILING_BINARY_PARAMS_M_I(n, a, b) , a##n b##n
 
-
 // PP_ENUM_REPEAT
 #define PP_ENUM_REPEAT(count, macro, data) PP_ENUM_REPEAT_I(count, macro, data)
 #define PP_ENUM_REPEAT_I(count, macro, data) PP_ENUM_REPEAT_##count(macro, data)
 
 #define PP_ENUM_REPEAT_0(macro, data)
-#define PP_ENUM_REPEAT_1(macro, data) PP_ENUM_REPEAT_0(macro, data)macro(0, data)
-#define PP_ENUM_REPEAT_2(macro, data) PP_ENUM_REPEAT_1(macro, data)macro(1, data)
-#define PP_ENUM_REPEAT_3(macro, data) PP_ENUM_REPEAT_2(macro, data)macro(2, data)
-#define PP_ENUM_REPEAT_4(macro, data) PP_ENUM_REPEAT_3(macro, data)macro(3, data)
-#define PP_ENUM_REPEAT_5(macro, data) PP_ENUM_REPEAT_4(macro, data)macro(4, data)
-#define PP_ENUM_REPEAT_6(macro, data) PP_ENUM_REPEAT_5(macro, data)macro(5, data)
-#define PP_ENUM_REPEAT_7(macro, data) PP_ENUM_REPEAT_6(macro, data)macro(6, data)
-#define PP_ENUM_REPEAT_8(macro, data) PP_ENUM_REPEAT_7(macro, data)macro(7, data)
-#define PP_ENUM_REPEAT_9(macro, data) PP_ENUM_REPEAT_8(macro, data)macro(8, data)
-#define PP_ENUM_REPEAT_10(macro, data) PP_ENUM_REPEAT_9(macro, data)macro(9, data)
-#define PP_ENUM_REPEAT_11(macro, data) PP_ENUM_REPEAT_10(macro, data)macro(10, data)
-#define PP_ENUM_REPEAT_12(macro, data) PP_ENUM_REPEAT_11(macro, data)macro(11, data)
-#define PP_ENUM_REPEAT_13(macro, data) PP_ENUM_REPEAT_12(macro, data)macro(12, data)
-#define PP_ENUM_REPEAT_14(macro, data) PP_ENUM_REPEAT_13(macro, data)macro(13, data)
-#define PP_ENUM_REPEAT_15(macro, data) PP_ENUM_REPEAT_14(macro, data)macro(14, data)
-#define PP_ENUM_REPEAT_16(macro, data) PP_ENUM_REPEAT_15(macro, data)macro(15, data)
-
+#define PP_ENUM_REPEAT_1(macro, data) PP_ENUM_REPEAT_0(macro, data) macro(0, data)
+#define PP_ENUM_REPEAT_2(macro, data) PP_ENUM_REPEAT_1(macro, data) macro(1, data)
+#define PP_ENUM_REPEAT_3(macro, data) PP_ENUM_REPEAT_2(macro, data) macro(2, data)
+#define PP_ENUM_REPEAT_4(macro, data) PP_ENUM_REPEAT_3(macro, data) macro(3, data)
+#define PP_ENUM_REPEAT_5(macro, data) PP_ENUM_REPEAT_4(macro, data) macro(4, data)
+#define PP_ENUM_REPEAT_6(macro, data) PP_ENUM_REPEAT_5(macro, data) macro(5, data)
+#define PP_ENUM_REPEAT_7(macro, data) PP_ENUM_REPEAT_6(macro, data) macro(6, data)
+#define PP_ENUM_REPEAT_8(macro, data) PP_ENUM_REPEAT_7(macro, data) macro(7, data)
+#define PP_ENUM_REPEAT_9(macro, data) PP_ENUM_REPEAT_8(macro, data) macro(8, data)
+#define PP_ENUM_REPEAT_10(macro, data) PP_ENUM_REPEAT_9(macro, data) macro(9, data)
+#define PP_ENUM_REPEAT_11(macro, data) PP_ENUM_REPEAT_10(macro, data) macro(10, data)
+#define PP_ENUM_REPEAT_12(macro, data) PP_ENUM_REPEAT_11(macro, data) macro(11, data)
+#define PP_ENUM_REPEAT_13(macro, data) PP_ENUM_REPEAT_12(macro, data) macro(12, data)
+#define PP_ENUM_REPEAT_14(macro, data) PP_ENUM_REPEAT_13(macro, data) macro(13, data)
+#define PP_ENUM_REPEAT_15(macro, data) PP_ENUM_REPEAT_14(macro, data) macro(14, data)
+#define PP_ENUM_REPEAT_16(macro, data) PP_ENUM_REPEAT_15(macro, data) macro(15, data)
 
 // PP_ENUM_BINARY_REPEAT
 #define PP_ENUM_BINARY_REPEAT(count, macro, data1, data2) PP_ENUM_BINARY_REPEAT_I(count, macro, data1, data2)
 #define PP_ENUM_BINARY_REPEAT_I(count, macro, data1, data2) PP_ENUM_BINARY_REPEAT_##count(macro, data1, data2)
 
 #define PP_ENUM_BINARY_REPEAT_0(macro, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_1(macro, data1, data2) PP_ENUM_BINARY_REPEAT_0(macro, data1, data2)macro(0, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_2(macro, data1, data2) PP_ENUM_BINARY_REPEAT_1(macro, data1, data2)macro(1, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_3(macro, data1, data2) PP_ENUM_BINARY_REPEAT_2(macro, data1, data2)macro(2, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_4(macro, data1, data2) PP_ENUM_BINARY_REPEAT_3(macro, data1, data2)macro(3, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_5(macro, data1, data2) PP_ENUM_BINARY_REPEAT_4(macro, data1, data2)macro(4, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_6(macro, data1, data2) PP_ENUM_BINARY_REPEAT_5(macro, data1, data2)macro(5, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_7(macro, data1, data2) PP_ENUM_BINARY_REPEAT_6(macro, data1, data2)macro(6, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_8(macro, data1, data2) PP_ENUM_BINARY_REPEAT_7(macro, data1, data2)macro(7, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) PP_ENUM_BINARY_REPEAT_8(macro, data1, data2)macro(8, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_10(macro, data1, data2) PP_ENUM_BINARY_REPEAT_9(macro, data1, data2)macro(9, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_11(macro, data1, data2) PP_ENUM_BINARY_REPEAT_9(macro, data1, data2)macro(10, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_12(macro, data1, data2) PP_ENUM_BINARY_REPEAT_9(macro, data1, data2)macro(11, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_13(macro, data1, data2) PP_ENUM_BINARY_REPEAT_9(macro, data1, data2)macro(12, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_14(macro, data1, data2) PP_ENUM_BINARY_REPEAT_9(macro, data1, data2)macro(13, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_15(macro, data1, data2) PP_ENUM_BINARY_REPEAT_9(macro, data1, data2)macro(14, data1, data2)
-#define PP_ENUM_BINARY_REPEAT_16(macro, data1, data2) PP_ENUM_BINARY_REPEAT_9(macro, data1, data2)macro(15, data1, data2)
-
+#define PP_ENUM_BINARY_REPEAT_1(macro, data1, data2) PP_ENUM_BINARY_REPEAT_0(macro, data1, data2) macro(0, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_2(macro, data1, data2) PP_ENUM_BINARY_REPEAT_1(macro, data1, data2) macro(1, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_3(macro, data1, data2) PP_ENUM_BINARY_REPEAT_2(macro, data1, data2) macro(2, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_4(macro, data1, data2) PP_ENUM_BINARY_REPEAT_3(macro, data1, data2) macro(3, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_5(macro, data1, data2) PP_ENUM_BINARY_REPEAT_4(macro, data1, data2) macro(4, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_6(macro, data1, data2) PP_ENUM_BINARY_REPEAT_5(macro, data1, data2) macro(5, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_7(macro, data1, data2) PP_ENUM_BINARY_REPEAT_6(macro, data1, data2) macro(6, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_8(macro, data1, data2) PP_ENUM_BINARY_REPEAT_7(macro, data1, data2) macro(7, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) PP_ENUM_BINARY_REPEAT_8(macro, data1, data2) macro(8, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_10(macro, data1, data2) \
+    PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) macro(9, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_11(macro, data1, data2) \
+    PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) macro(10, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_12(macro, data1, data2) \
+    PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) macro(11, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_13(macro, data1, data2) \
+    PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) macro(12, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_14(macro, data1, data2) \
+    PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) macro(13, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_15(macro, data1, data2) \
+    PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) macro(14, data1, data2)
+#define PP_ENUM_BINARY_REPEAT_16(macro, data1, data2) \
+    PP_ENUM_BINARY_REPEAT_9(macro, data1, data2) macro(15, data1, data2)
 
 // PP_INC
 #define PP_INC(x) PP_INC_I(x)
@@ -308,7 +573,6 @@
 #define PP_INC_15 16
 #define PP_INC_16 16
 
-
 // PP_DEC
 #define PP_DEC(x) PP_DEC_I(x)
 #define PP_DEC_I(x) PP_DEC_II(x)
@@ -332,7 +596,6 @@
 #define PP_DEC_15 14
 #define PP_DEC_16 15
 
-
 // PP_TUPLE_REM
 #define PP_TUPLE_REM(size) PP_TUPLE_REM_I(size)
 #define PP_TUPLE_REM_I(size) PP_TUPLE_REM_##size
@@ -354,7 +617,6 @@
 #define PP_TUPLE_REM_14(a, b, c, d, e, f, g, h, i, j, k, l, m, n) a, b, c, d, e, f, g, h, i, j, k, l, m, n
 #define PP_TUPLE_REM_15(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) a, b, c, d, e, f, g, h, i, j, k, l, m, n, o
 #define PP_TUPLE_REM_16(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
-
 
 // PP_TUPLE_ELEM
 #define PP_TUPLE_ELEM(size, i, tuple) PP_TUPLE_ELEM_I(size, i, tuple)
@@ -512,32 +774,46 @@
 #define PP_TUPLE_ELEM_16_14(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) o
 #define PP_TUPLE_ELEM_16_15(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) p
 
-
 // PP_WHILE
 #define PP_WHILE(pred, op, state) PP_WHILE_0(pred, op, state)
 
 #define PP_WHILE__(pred, op, state) state
-#define PP_WHILE_0(pred, op, state) PP_WHILE_NEXT_ITEM(0, 1, pred, state)(pred, op, PP_WHILE_NEXT_STATE(0, pred, op, state))
-#define PP_WHILE_1(pred, op, state) PP_WHILE_NEXT_ITEM(1, 2, pred, state)(pred, op, PP_WHILE_NEXT_STATE(1, pred, op, state))
-#define PP_WHILE_2(pred, op, state) PP_WHILE_NEXT_ITEM(2, 3, pred, state)(pred, op, PP_WHILE_NEXT_STATE(2, pred, op, state))
-#define PP_WHILE_3(pred, op, state) PP_WHILE_NEXT_ITEM(3, 4, pred, state)(pred, op, PP_WHILE_NEXT_STATE(3, pred, op, state))
-#define PP_WHILE_4(pred, op, state) PP_WHILE_NEXT_ITEM(4, 5, pred, state)(pred, op, PP_WHILE_NEXT_STATE(4, pred, op, state))
-#define PP_WHILE_5(pred, op, state) PP_WHILE_NEXT_ITEM(5, 6, pred, state)(pred, op, PP_WHILE_NEXT_STATE(5, pred, op, state))
-#define PP_WHILE_6(pred, op, state) PP_WHILE_NEXT_ITEM(6, 7, pred, state)(pred, op, PP_WHILE_NEXT_STATE(6, pred, op, state))
-#define PP_WHILE_7(pred, op, state) PP_WHILE_NEXT_ITEM(7, 8, pred, state)(pred, op, PP_WHILE_NEXT_STATE(7, pred, op, state))
-#define PP_WHILE_8(pred, op, state) PP_WHILE_NEXT_ITEM(8, 9, pred, state)(pred, op, PP_WHILE_NEXT_STATE(8, pred, op, state))
-#define PP_WHILE_9(pred, op, state) PP_WHILE_NEXT_ITEM(9, 10, pred, state)(pred, op, PP_WHILE_NEXT_STATE(9, pred, op, state))
-#define PP_WHILE_10(pred, op, state) PP_WHILE_NEXT_ITEM(10, 11, pred, state)(pred, op, PP_WHILE_NEXT_STATE(10, pred, op, state))
-#define PP_WHILE_11(pred, op, state) PP_WHILE_NEXT_ITEM(11, 12, pred, state)(pred, op, PP_WHILE_NEXT_STATE(11, pred, op, state))
-#define PP_WHILE_12(pred, op, state) PP_WHILE_NEXT_ITEM(12, 13, pred, state)(pred, op, PP_WHILE_NEXT_STATE(12, pred, op, state))
-#define PP_WHILE_13(pred, op, state) PP_WHILE_NEXT_ITEM(13, 14, pred, state)(pred, op, PP_WHILE_NEXT_STATE(13, pred, op, state))
-#define PP_WHILE_14(pred, op, state) PP_WHILE_NEXT_ITEM(14, 15, pred, state)(pred, op, PP_WHILE_NEXT_STATE(14, pred, op, state))
-#define PP_WHILE_15(pred, op, state) PP_WHILE_NEXT_ITEM(15, 16, pred, state)(pred, op, PP_WHILE_NEXT_STATE(15, pred, op, state))
+#define PP_WHILE_0(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(0, 1, pred, state)(pred, op, PP_WHILE_NEXT_STATE(0, pred, op, state))
+#define PP_WHILE_1(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(1, 2, pred, state)(pred, op, PP_WHILE_NEXT_STATE(1, pred, op, state))
+#define PP_WHILE_2(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(2, 3, pred, state)(pred, op, PP_WHILE_NEXT_STATE(2, pred, op, state))
+#define PP_WHILE_3(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(3, 4, pred, state)(pred, op, PP_WHILE_NEXT_STATE(3, pred, op, state))
+#define PP_WHILE_4(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(4, 5, pred, state)(pred, op, PP_WHILE_NEXT_STATE(4, pred, op, state))
+#define PP_WHILE_5(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(5, 6, pred, state)(pred, op, PP_WHILE_NEXT_STATE(5, pred, op, state))
+#define PP_WHILE_6(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(6, 7, pred, state)(pred, op, PP_WHILE_NEXT_STATE(6, pred, op, state))
+#define PP_WHILE_7(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(7, 8, pred, state)(pred, op, PP_WHILE_NEXT_STATE(7, pred, op, state))
+#define PP_WHILE_8(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(8, 9, pred, state)(pred, op, PP_WHILE_NEXT_STATE(8, pred, op, state))
+#define PP_WHILE_9(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(9, 10, pred, state)(pred, op, PP_WHILE_NEXT_STATE(9, pred, op, state))
+#define PP_WHILE_10(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(10, 11, pred, state)(pred, op, PP_WHILE_NEXT_STATE(10, pred, op, state))
+#define PP_WHILE_11(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(11, 12, pred, state)(pred, op, PP_WHILE_NEXT_STATE(11, pred, op, state))
+#define PP_WHILE_12(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(12, 13, pred, state)(pred, op, PP_WHILE_NEXT_STATE(12, pred, op, state))
+#define PP_WHILE_13(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(13, 14, pred, state)(pred, op, PP_WHILE_NEXT_STATE(13, pred, op, state))
+#define PP_WHILE_14(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(14, 15, pred, state)(pred, op, PP_WHILE_NEXT_STATE(14, pred, op, state))
+#define PP_WHILE_15(pred, op, state) \
+    PP_WHILE_NEXT_ITEM(15, 16, pred, state)(pred, op, PP_WHILE_NEXT_STATE(15, pred, op, state))
 #define PP_WHILE_16(pred, op, state) PP_ERROR(0x0001)
 
 #define PP_WHILE_NEXT_ITEM(i, n, pred, state) PP_CAT(PP_WHILE_, PP_IF(PP_BOOL(pred(i, state)), n, _))
 #define PP_WHILE_NEXT_STATE(i, pred, op, state) PP_IF(PP_BOOL(pred(i, state)), op(i, state), state)
-
 
 #if 0
 
@@ -565,7 +841,7 @@ void _f1() {
 
 #define DECL(n, text) text##n = n;
 #define DECL2(n, text) , text##n
-#define DECL3(n, text) PP_COMMA_IF(n)text##n
+#define DECL3(n, text) PP_COMMA_IF(n) text##n
 
 void test() {
     PP_BOOL(0);
@@ -630,5 +906,3 @@ void test7(int x PP_ENUM_TRAILING_BINARY_PARAMS(3, A, a)) {
 #endif
 
 #endif /* PREPROCESSOR_H_ */
-
-

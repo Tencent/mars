@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * TcpClient.h
@@ -20,14 +19,13 @@
 
 #include "tcpclient.h"
 
-#include "boost/bind.hpp"
-
 #include "autobuffer.h"
-#include "xlogger/xlogger.h"
-#include "thread/thread.h"
+#include "boost/bind.hpp"
+#include "mars/comm/tickcount.h"
 #include "platform_comm.h"
 #include "socket_address.h"
-#include "mars/comm/tickcount.h"
+#include "thread/thread.h"
+#include "xlogger/xlogger.h"
 
 #ifdef _WIN32
 #define strdup _strdup
@@ -37,19 +35,25 @@ namespace mars {
 namespace comm {
 
 TcpClient::TcpClient(const char* _ip, uint16_t _port, MTcpEvent& _event, int _timeout)
-    : ip_(strdup(_ip)) , port_(_port) , event_(_event)
-    , socket_(INVALID_SOCKET) , have_read_data_(false) , will_disconnect_(false) , writedbufid_(0)
-    , thread_(boost::bind(&TcpClient::__RunThread, this))
-    , timeout_(_timeout), status_(kTcpInit) {
-    if (!pipe_.IsCreateSuc()) status_ = kTcpInitErr;
+: ip_(strdup(_ip))
+, port_(_port)
+, event_(_event)
+, socket_(INVALID_SOCKET)
+, have_read_data_(false)
+, will_disconnect_(false)
+, writedbufid_(0)
+, thread_(boost::bind(&TcpClient::__RunThread, this))
+, timeout_(_timeout)
+, status_(kTcpInit) {
+    if (!pipe_.IsCreateSuc())
+        status_ = kTcpInitErr;
 }
 
 TcpClient::~TcpClient() {
     DisconnectAndWait();
 
-    for (std::list<AutoBuffer* >::iterator it = lst_buffer_.begin();
-            it != lst_buffer_.end(); ++it) {
-        delete(*it);
+    for (std::list<AutoBuffer*>::iterator it = lst_buffer_.begin(); it != lst_buffer_.end(); ++it) {
+        delete (*it);
     }
 
     lst_buffer_.clear();
@@ -77,13 +81,13 @@ bool TcpClient::Connect() {
 }
 
 void TcpClient::Disconnect() {
-    if (will_disconnect_) return;
+    if (will_disconnect_)
+        return;
 
     ScopedLock lock(read_disconnect_mutex_);
     will_disconnect_ = true;
     __SendBreak();
 }
-
 
 void TcpClient::DisconnectAndWait() {
     Disconnect();
@@ -93,13 +97,15 @@ void TcpClient::DisconnectAndWait() {
 }
 
 bool TcpClient::HaveDataRead() const {
-    if (kTcpConnected != status_) return false;
+    if (kTcpConnected != status_)
+        return false;
 
     return have_read_data_;
 }
 
 ssize_t TcpClient::Read(void* _buf, unsigned int _len) {
-    if (kTcpConnected != status_) return -1;
+    if (kTcpConnected != status_)
+        return -1;
 
     xassert2(INVALID_SOCKET != socket_);
     ScopedLock lock(read_disconnect_mutex_);
@@ -112,14 +118,16 @@ ssize_t TcpClient::Read(void* _buf, unsigned int _len) {
 }
 
 bool TcpClient::HaveDataWrite() const {
-    if (kTcpConnected != status_) return false;
+    if (kTcpConnected != status_)
+        return false;
 
     ScopedLock lock(write_mutex_);
     return !lst_buffer_.empty();
 }
 
 int TcpClient::Write(const void* _buf, unsigned int _len) {
-    if (kTcpConnected != status_) return -1;
+    if (kTcpConnected != status_)
+        return -1;
 
     AutoBuffer* tmpbuff = new AutoBuffer;
     tmpbuff->Write(0, _buf, _len);
@@ -133,7 +141,8 @@ int TcpClient::Write(const void* _buf, unsigned int _len) {
 }
 
 int TcpClient::WritePostData(void* _buf, unsigned int _len) {
-    if (kTcpConnected != status_) return -1;
+    if (kTcpConnected != status_)
+        return -1;
 
     AutoBuffer* tmpbuff = new AutoBuffer;
     tmpbuff->Attach((void*)_buf, _len);
@@ -150,7 +159,7 @@ void TcpClient::__Run() {
     socket_address addr = socket_address(ip_, port_);
     if (AF_INET == addr.address().sa_family) {
         struct sockaddr_in _addr;
-        in_addr_t ip  = ((sockaddr_in*)&addr.address())->sin_addr.s_addr;
+        in_addr_t ip = ((sockaddr_in*)&addr.address())->sin_addr.s_addr;
 
         if ((in_addr_t)(-1) == ip) {
             status_ = kTcpConnectIpErr;
@@ -163,29 +172,39 @@ void TcpClient::__Run() {
 
     if (socket_ == INVALID_SOCKET) {
         status_ = kTcpConnectingErr;
-        xerror2("m_socket errno=%d",  socket_errno);
-        event_.OnError(status_,  socket_errno);
+        xerror2("m_socket errno=%d", socket_errno);
+        event_.OnError(status_, socket_errno);
         return;
     }
 
     if (getNetInfo() == kWifi && socket_fix_tcp_mss(socket_) < 0) {
 #ifdef ANDROID
-        xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
+        xinfo2(TSF "wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
     }
 
 #ifdef _WIN32
-    if (0 != socket_ipv6only(socket_, 0)){ xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno)); }
+    if (0 != socket_ipv6only(socket_, 0)) {
+        xwarn2(TSF "set ipv6only failed. error %_", strerror(socket_errno));
+    }
 #endif
-    
-    xerror2_if(0 != socket_set_nobio(socket_), TSF"socket_set_nobio:%_, %_", socket_errno, socket_strerror(socket_errno));
+
+    xerror2_if(0 != socket_set_nobio(socket_),
+               TSF "socket_set_nobio:%_, %_",
+               socket_errno,
+               socket_strerror(socket_errno));
 
     int ret = ::connect(socket_, &addr.address(), addr.address_length());
 
     std::string local_ip = socket_address::getsockname(socket_).ip();
     unsigned int local_port = socket_address::getsockname(socket_).port();
 
-    xinfo2(TSF"sock:%_, local_ip:%_, local_port:%_, svr_ip:%_, svr_port:%_", socket_, local_ip, local_port, ip_, port_);
+    xinfo2(TSF "sock:%_, local_ip:%_, local_port:%_, svr_ip:%_, svr_port:%_",
+           socket_,
+           local_ip,
+           local_port,
+           ip_,
+           port_);
 
     if (0 > ret && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno)) {
         xerror2("connect errno=%d", socket_errno);
@@ -241,16 +260,17 @@ void TcpClient::__Run() {
         SocketSelect select_readwrite(pipe_, true);
         select_readwrite.PreSelect();
         select_readwrite.Exception_FD_SET(socket_);
-        
+
         tickcount_t round_tick(true);
-        
-//      if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
+
+        //      if (!have_read_data_) select_readwrite.Read_FD_SET(socket_);
         select_readwrite.Read_FD_SET(socket_);
 
         {
             ScopedLock lock(write_mutex_);
 
-            if (!lst_buffer_.empty())select_readwrite.Write_FD_SET(socket_);
+            if (!lst_buffer_.empty())
+                select_readwrite.Write_FD_SET(socket_);
         }
         selectRet = select_readwrite.Select();
 
@@ -275,9 +295,9 @@ void TcpClient::__Run() {
         if (select_readwrite.Exception_FD_ISSET(socket_)) {
             int error_opt = 0;
             socklen_t error_len = sizeof(error_opt);
-            if (0 == getsockopt(socket_, SOL_SOCKET, SO_ERROR, (char*)&error_opt, &error_len)){
+            if (0 == getsockopt(socket_, SOL_SOCKET, SO_ERROR, (char*)&error_opt, &error_len)) {
                 xerror2("error_opt=%d", error_opt);
-            }else{
+            } else {
                 xerror2("getsockopt error=%d", socket_errno);
             }
             status_ = kTcpIOErr;
@@ -302,7 +322,7 @@ void TcpClient::__Run() {
                 event_.OnDisConnect(true);
                 return;
             } else if (IS_NOBLOCK_RECV_ERRNO(socket_errno)) {
-                xwarn2(TSF"IS_NOBLOCK_RECV_ERRNO err:%_, %_", socket_errno, socket_strerror(socket_errno));
+                xwarn2(TSF "IS_NOBLOCK_RECV_ERRNO err:%_, %_", socket_errno, socket_strerror(socket_errno));
             } else {
                 status_ = kTcpIOErr;
                 lock.unlock();
@@ -326,13 +346,18 @@ void TcpClient::__Run() {
                     return;
                 }
 
-                if (0 < send_len){
+                if (0 < send_len) {
                     buf.Seek(send_len, AutoBuffer::ESeekCur);
                     double send_len_bytes = (double)send_len;
-                    double cost_sec = ((double)round_tick.gettickspan())/1000;
-                    xverbose2(TSF"debug:send_len:%_ bytes, cost_sec:%_ seconds", send_len_bytes, cost_sec);
-                    if (cost_sec > 0.0 &&send_len_bytes/cost_sec < 20*1024) {
-                        xwarn2(TSF"send speed slow:%_ bytes/sec, send_len:%_ bytes, send buf len:%_, cost_sec:%_ seconds", send_len_bytes/cost_sec, send_len_bytes, len-buf.Pos(), cost_sec);
+                    double cost_sec = ((double)round_tick.gettickspan()) / 1000;
+                    xverbose2(TSF "debug:send_len:%_ bytes, cost_sec:%_ seconds", send_len_bytes, cost_sec);
+                    if (cost_sec > 0.0 && send_len_bytes / cost_sec < 20 * 1024) {
+                        xwarn2(TSF
+                               "send speed slow:%_ bytes/sec, send_len:%_ bytes, send buf len:%_, cost_sec:%_ seconds",
+                               send_len_bytes / cost_sec,
+                               send_len_bytes,
+                               len - buf.Pos(),
+                               cost_sec);
                     }
                 }
             } else {
@@ -366,5 +391,5 @@ void TcpClient::__SendBreak() {
     pipe_.Break();
 }
 
-}
-}
+}  // namespace comm
+}  // namespace mars

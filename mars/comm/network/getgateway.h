@@ -28,8 +28,8 @@ extern "C" {
  * return value :
  *    0 : success
  *   -1 : failure    */
-int getdefaultgateway(struct in_addr * addr);
-int getdefaultgateway6(struct in6_addr * addr);
+int getdefaultgateway(struct in_addr* addr);
+int getdefaultgateway6(struct in6_addr* addr);
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -21,68 +21,67 @@
 #ifndef stn_config_h
 #define stn_config_h
 
-
-//if do not use newdns IP, comment the macro
+// if do not use newdns IP, comment the macro
 #define USE_LONG_LINK
-//task attribute max value
-#define DEF_TASK_TIME_OUT (40*1000)
+// task attribute max value
+#define DEF_TASK_TIME_OUT (40 * 1000)
 #define DEF_TASK_RETRY_COUNT (1)
 #define DEF_TASK_RETRY_INTERNAL (1 * 1000)
 
 // Heartbeart Range
-#define MinHeartInterval (3  * 60 * 1000 + 30 * 1000)   // 3.5 minute
-#define MaxHeartInterval (10 * 60 * 1000)   // 10 minute
+#define MinHeartInterval (3 * 60 * 1000 + 30 * 1000)  // 3.5 minute
+#define MaxHeartInterval (10 * 60 * 1000)             // 10 minute
 
 // Heartbeat Step
-#define HeartStep (60 * 1000)      // try to increse current heartbeat by HeartStep
-#define SuccessStep  (20 * 1000)   // when finish compute choose successHeart-=SuccessStep as the stable heartbeat
+#define HeartStep (60 * 1000)    // try to increse current heartbeat by HeartStep
+#define SuccessStep (20 * 1000)  // when finish compute choose successHeart-=SuccessStep as the stable heartbeat
 
 #define MaxHeartFailCount (2)
 #define BaseSuccCount (5)
-#define NetStableTestCount (3)     //We think it's time to test after NetStableCount times heartbeat using MinHeartInterval
+#define NetStableTestCount (3)  // We think it's time to test after NetStableCount times heartbeat using
+                                // MinHeartInterval
 
-//signalling transmits timeout related constants
-const static unsigned int kBaseFirstPackageWifiTimeout = 12*1000;
-const static unsigned int kBaseFirstPackageGPRSTimeout = 15*1000;
+// signalling transmits timeout related constants
+const static unsigned int kBaseFirstPackageWifiTimeout = 12 * 1000;
+const static unsigned int kBaseFirstPackageGPRSTimeout = 15 * 1000;
 
-const static unsigned int kMaxFirstPackageWifiTimeout = 22*1000;
-const static unsigned int kMaxFirstPackageGPRSTimeout = 30*1000;
+const static unsigned int kMaxFirstPackageWifiTimeout = 22 * 1000;
+const static unsigned int kMaxFirstPackageGPRSTimeout = 30 * 1000;
 
-const static unsigned int kGPRSMinRate = 4*1024;
-const static unsigned int kWifiMinRate = 12*1024;
+const static unsigned int kGPRSMinRate = 4 * 1024;
+const static unsigned int kWifiMinRate = 12 * 1024;
 
-const static unsigned int kWifiPackageInterval = 8*1000;
-const static unsigned int kGPRSPackageInterval = 12*1000;
+const static unsigned int kWifiPackageInterval = 8 * 1000;
+const static unsigned int kGPRSPackageInterval = 12 * 1000;
 
 const static unsigned int kWifiTaskDelay = 1500;
 const static unsigned int kGPRSTaskDelay = 3000;
 
-const static unsigned int kMaxRecvLen = 64*1024;
+const static unsigned int kMaxRecvLen = 64 * 1024;
 
-//dynamic timeout related constants
-const static unsigned int kDynTimeSmallPackageLen = 3*1024;
-const static unsigned int kDynTimeMiddlePackageLen = 10*1024;
-const static unsigned int kDynTimeBigPackageLen = 30*1024;
+// dynamic timeout related constants
+const static unsigned int kDynTimeSmallPackageLen = 3 * 1024;
+const static unsigned int kDynTimeMiddlePackageLen = 10 * 1024;
+const static unsigned int kDynTimeBigPackageLen = 30 * 1024;
 
 const static unsigned int kDynTimeSmallPackageWifiCosttime = 500;
-const static unsigned int kDynTimeMiddlePackageWifiCosttime = 2*1000;
-const static unsigned int kDynTimeBigPackageWifiCosttime = 4*1000;
-const static unsigned int kDynTimeBiggerPackageWifiCosttime = 6*1000;
+const static unsigned int kDynTimeMiddlePackageWifiCosttime = 2 * 1000;
+const static unsigned int kDynTimeBigPackageWifiCosttime = 4 * 1000;
+const static unsigned int kDynTimeBiggerPackageWifiCosttime = 6 * 1000;
 
+const static unsigned int kDynTimeSmallPackageGPRSCosttime = 1 * 1000;
+const static unsigned int kDynTimeMiddlePackageGPRSCosttime = 3 * 1000;
+const static unsigned int kDynTimeBigPackageGPRSCosttime = 5 * 1000;
+const static unsigned int kDynTimeBiggerPackageGPRSCosttime = 7 * 1000;
 
-const static unsigned int kDynTimeSmallPackageGPRSCosttime = 1*1000;
-const static unsigned int kDynTimeMiddlePackageGPRSCosttime = 3*1000;
-const static unsigned int kDynTimeBigPackageGPRSCosttime = 5*1000;
-const static unsigned int kDynTimeBiggerPackageGPRSCosttime = 7*1000;
-
-const static unsigned int kDynTimeFirstPackageWifiTimeout = 7*1000;
-const static unsigned int kDynTimeFirstPackageGPRSTimeout = 10*1000;
-const static unsigned int kDynTimeExtraWifiTimeout = 10*1000;
-const static unsigned int kDynTimeExtraGPRSTimeout = 15*1000;
+const static unsigned int kDynTimeFirstPackageWifiTimeout = 7 * 1000;
+const static unsigned int kDynTimeFirstPackageGPRSTimeout = 10 * 1000;
+const static unsigned int kDynTimeExtraWifiTimeout = 10 * 1000;
+const static unsigned int kDynTimeExtraGPRSTimeout = 15 * 1000;
 
 const static unsigned int kDynTimeMaxContinuousExcellentCount = 10;
 const static unsigned int kDynTimeMinNormalPkgCount = 6;
-const static unsigned long kDynTimeCountExpireTime = 5*60*1000;
+const static unsigned long kDynTimeCountExpireTime = 5 * 60 * 1000;
 
 const static unsigned int kDynTimeTaskFailedPkgLen = 0xffffffff;
 
@@ -93,15 +92,15 @@ const static int kDynTimeTaskMidPkgMeetExpectTag = 2;
 const static int kDynTimeTaskBigPkgMeetExpectTag = 3;
 const static int kDynTimeTaskBiggerPkgMeetExpectTag = 4;
 
-//longlink_task_manager
+// longlink_task_manager
 const static unsigned int kFastSendUseLonglinkTaskCntLimit = 0;
 
-//longlink connect params
+// longlink connect params
 const static unsigned int kLonglinkConnTimeout = 10 * 1000;
 const static unsigned int kLonglinkConnInteral = 2.5 * 1000;
 const static unsigned int kLonglinkConnMax = 3;
 
-//shortlink connect params
+// shortlink connect params
 const static unsigned int kShortlinkConnTimeout = 10 * 1000;
 const static unsigned int kShortlinkConnInterval = 2.5 * 1000;
 

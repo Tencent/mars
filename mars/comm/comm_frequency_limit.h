@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -21,28 +21,27 @@
 #define COMM_COMM_FREQUENCY_LIMIT_H_
 
 #include <stdint.h>
+
 #include <cstddef>
 #include <list>
 
 class CommFrequencyLimit {
-  public:
+ public:
     CommFrequencyLimit(size_t _count, uint64_t _time_span);
     ~CommFrequencyLimit();
 
     bool Check();  // true pass, false limit
 
-  private:
+ private:
     CommFrequencyLimit(CommFrequencyLimit&);
     CommFrequencyLimit& operator=(CommFrequencyLimit&);
 
     void __DelOlderTouchTime(uint64_t _time);
 
-  private:
+ private:
     size_t count_;
     uint64_t time_span_;
     std::list<uint64_t> touch_times_;
 };
-
-
 
 #endif /* defined(COMM_COMM_FREQUENCY_LIMIT_H_) */

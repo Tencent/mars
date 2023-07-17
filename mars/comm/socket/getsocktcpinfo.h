@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * getsocktcpinfo.h
@@ -53,15 +52,13 @@ extern "C" {
 //       ENOTSOCK  The argument sockfd is a file, not a socket.
 
 #if defined(__APPLE__) && !defined(tcp_info)
-    #define tcp_info tcp_connection_info
-    #define TCP_INFO TCP_CONNECTION_INFO
+#define tcp_info tcp_connection_info
+#define TCP_INFO TCP_CONNECTION_INFO
 #endif
-    
-    
-    
+
 int getsocktcpinfo(int _sockfd, struct tcp_info* _info);
 char* tcpinfo2str(struct tcp_info* _info, char* _info_str_buf, size_t _buf_len);
-    
+
 #ifdef __cplusplus
 }
 #endif

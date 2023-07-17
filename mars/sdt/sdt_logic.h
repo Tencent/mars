@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -25,27 +25,28 @@
 namespace mars {
 namespace sdt {
 
-	/* mars2
-	class Callback
-	{
-	public:
-		virtual ~Callback() {};
-	};
-	*/
+/* mars2
+class Callback
+{
+public:
+        virtual ~Callback() {};
+};
+*/
 
-	void SetCallBack(Callback* const callback);
+void SetCallBack(Callback* const callback);
 
-	void SetHttpNetcheckCGI(std::string cgi);
+void SetHttpNetcheckCGI(std::string cgi);
 
-	//active netcheck interface
-	void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
-	void CancelActiveCheck();
+// active netcheck interface
+void StartActiveCheck(CheckIPPorts& _longlink_check_item, CheckIPPorts& _shortlink_check_item, int _mode, int _timeout);
+void CancelActiveCheck();
 
-	extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
-	
+extern void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results);
+
 #ifdef NATIVE_CALLBACK
-    void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
+void SetSdtNativeCallback(std::shared_ptr<SdtNativeCallback> _cb);
 #endif
-}}
+}  // namespace sdt
+}  // namespace mars
 
 #endif /* SDT_INTERFACE_SDT_LOGIC_H_ */

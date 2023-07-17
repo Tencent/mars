@@ -41,13 +41,13 @@
 #define FSE_H
 
 /*-*****************************************
-*  Dependencies
-******************************************/
+ *  Dependencies
+ ******************************************/
 #include <linux/types.h> /* size_t, ptrdiff_t */
 
 /*-*****************************************
-*  FSE_PUBLIC_API : control library symbols visibility
-******************************************/
+ *  FSE_PUBLIC_API : control library symbols visibility
+ ******************************************/
 #define FSE_PUBLIC_API
 
 /*------   Version   ------*/
@@ -64,16 +64,16 @@
 FSE_PUBLIC_API unsigned FSE_versionNumber(void); /**< library version number; to be used when checking dll version */
 
 /*-*****************************************
-*  Tool functions
-******************************************/
+ *  Tool functions
+ ******************************************/
 FSE_PUBLIC_API size_t FSE_compressBound(size_t size); /* maximum compressed size */
 
 /* Error Management */
 FSE_PUBLIC_API unsigned FSE_isError(size_t code); /* tells if a return value is an error code */
 
 /*-*****************************************
-*  FSE detailed API
-******************************************/
+ *  FSE detailed API
+ ******************************************/
 /*!
 FSE_compress() does the following:
 1. count symbol occurrence from source[] into table count[]
@@ -187,7 +187,8 @@ typedef unsigned FSE_DTable; /* don't allocate that. It's just a way to be more 
 /*! FSE_buildDTable():
 	Builds 'dt', which must be already allocated, using FSE_createDTable().
 	return : 0, or an errorCode, which can be tested using FSE_isError() */
-FSE_PUBLIC_API size_t FSE_buildDTable_wksp(FSE_DTable *dt, const short *normalizedCounter, unsigned maxSymbolValue, unsigned tableLog, void *workspace, size_t workspaceSize);
+FSE_PUBLIC_API size_t FSE_buildDTable_wksp(FSE_DTable *dt, const short *normalizedCounter, unsigned maxSymbolValue, unsigned tableLog, void *workspace,
+					   size_t workspaceSize);
 
 /*! FSE_decompress_usingDTable():
 	Decompress compressed source `cSrc` of size `cSrcSize` using `dt`
@@ -228,11 +229,11 @@ If there is an error, the function will return an error code, which can be teste
 #include "bitstream.h"
 
 /* *****************************************
-*  Static allocation
-*******************************************/
+ *  Static allocation
+ *******************************************/
 /* FSE buffer bounds */
 #define FSE_NCOUNTBOUND 512
-#define FSE_BLOCKBOUND(size) (size + (size >> 7) + 4 /* constant for initial fse states */ )
+#define FSE_BLOCKBOUND(size) (size + (size >> 7) + 4 /* constant for initial fse states */)
 #define FSE_COMPRESSBOUND(size) (FSE_NCOUNTBOUND + FSE_BLOCKBOUND(size)) /* Macro version, useful for static allocation */
 
 /* It is possible to statically allocate FSE CTable/DTable as a table of FSE_CTable/FSE_DTable using below macros */
@@ -240,8 +241,8 @@ If there is an error, the function will return an error code, which can be teste
 #define FSE_DTABLE_SIZE_U32(maxTableLog) (1 + (1 << maxTableLog))
 
 /* *****************************************
-*  FSE advanced API
-*******************************************/
+ *  FSE advanced API
+ *******************************************/
 /* FSE_count_wksp() :
  * Same as FSE_count(), but using an externally provided scratch buffer.
  * `workSpace` size must be table of >= `1024` unsigned
@@ -257,7 +258,7 @@ size_t FSE_countFast_wksp(unsigned *count, unsigned *maxSymbolValuePtr, const vo
 /*! FSE_count_simple
  * Same as FSE_countFast(), but does not use any additional memory (not even on stack).
  * This function is unsafe, and will segfault if any value within `src` is `> *maxSymbolValuePtr` (presuming it's also the size of `count`).
-*/
+ */
 size_t FSE_count_simple(unsigned *count, unsigned *maxSymbolValuePtr, const void *src, size_t srcSize);
 
 unsigned FSE_optimalTableLog_internal(unsigned maxTableLog, size_t srcSize, unsigned maxSymbolValue, unsigned minus);
@@ -285,8 +286,8 @@ size_t FSE_decompress_wksp(void *dst, size_t dstCapacity, const void *cSrc, size
 /**< same as FSE_decompress(), using an externally allocated `workSpace` produced with `FSE_DTABLE_SIZE_U32(maxLog)` */
 
 /* *****************************************
-*  FSE symbol compression API
-*******************************************/
+ *  FSE symbol compression API
+ *******************************************/
 /*!
    This API consists of small unitary functions, which highly benefit from being inlined.
    Hence their body are included in next section.
@@ -348,8 +349,8 @@ If there is an error, it returns an errorCode (which can be tested using FSE_isE
 */
 
 /* *****************************************
-*  FSE symbol decompression API
-*******************************************/
+ *  FSE symbol decompression API
+ *******************************************/
 typedef struct {
 	size_t state;
 	const void *table; /* precise table may vary, depending on U16 */
@@ -411,14 +412,14 @@ Check also the states. There might be some symbols left there, if some high prob
 */
 
 /* *****************************************
-*  FSE unsafe API
-*******************************************/
+ *  FSE unsafe API
+ *******************************************/
 static unsigned char FSE_decodeSymbolFast(FSE_DState_t *DStatePtr, BIT_DStream_t *bitD);
 /* faster, but works only if nbBits is always >= 1 (otherwise, result will be corrupted) */
 
 /* *****************************************
-*  Implementation of inlined functions
-*******************************************/
+ *  Implementation of inlined functions
+ *******************************************/
 typedef struct {
 	int deltaFindState;
 	U32 deltaNbBits;
@@ -436,8 +437,8 @@ ZSTD_STATIC void FSE_initCState(FSE_CState_t *statePtr, const FSE_CTable *ct)
 }
 
 /*! FSE_initCState2() :
-*   Same as FSE_initCState(), but the first symbol to include (which will be the last to be read)
-*   uses the smallest state value possible, saving the cost of this symbol */
+ *   Same as FSE_initCState(), but the first symbol to include (which will be the last to be read)
+ *   uses the smallest state value possible, saving the cost of this symbol */
 ZSTD_STATIC void FSE_initCState2(FSE_CState_t *statePtr, const FSE_CTable *ct, U32 symbol)
 {
 	FSE_initCState(statePtr, ct);
@@ -528,13 +529,13 @@ ZSTD_STATIC BYTE FSE_decodeSymbolFast(FSE_DState_t *DStatePtr, BIT_DStream_t *bi
 ZSTD_STATIC unsigned FSE_endOfDState(const FSE_DState_t *DStatePtr) { return DStatePtr->state == 0; }
 
 /* **************************************************************
-*  Tuning parameters
-****************************************************************/
+ *  Tuning parameters
+ ****************************************************************/
 /*!MEMORY_USAGE :
-*  Memory usage formula : N->2^N Bytes (examples : 10 -> 1KB; 12 -> 4KB ; 16 -> 64KB; 20 -> 1MB; etc.)
-*  Increasing memory usage improves compression ratio
-*  Reduced memory usage can improve speed, due to cache effect
-*  Recommended max value is 14, for 16KB, which nicely fits into Intel x86 L1 cache */
+ *  Memory usage formula : N->2^N Bytes (examples : 10 -> 1KB; 12 -> 4KB ; 16 -> 64KB; 20 -> 1MB; etc.)
+ *  Increasing memory usage improves compression ratio
+ *  Reduced memory usage can improve speed, due to cache effect
+ *  Recommended max value is 14, for 16KB, which nicely fits into Intel x86 L1 cache */
 #ifndef FSE_MAX_MEMORY_USAGE
 #define FSE_MAX_MEMORY_USAGE 14
 #endif
@@ -543,22 +544,22 @@ ZSTD_STATIC unsigned FSE_endOfDState(const FSE_DState_t *DStatePtr) { return DSt
 #endif
 
 /*!FSE_MAX_SYMBOL_VALUE :
-*  Maximum symbol value authorized.
-*  Required for proper stack allocation */
+ *  Maximum symbol value authorized.
+ *  Required for proper stack allocation */
 #ifndef FSE_MAX_SYMBOL_VALUE
 #define FSE_MAX_SYMBOL_VALUE 255
 #endif
 
 /* **************************************************************
-*  template functions type & suffix
-****************************************************************/
+ *  template functions type & suffix
+ ****************************************************************/
 #define FSE_FUNCTION_TYPE BYTE
 #define FSE_FUNCTION_EXTENSION
 #define FSE_DECODE_TYPE FSE_decode_t
 
 /* ***************************************************************
-*  Constants
-*****************************************************************/
+ *  Constants
+ *****************************************************************/
 #define FSE_MAX_TABLELOG (FSE_MAX_MEMORY_USAGE - 2)
 #define FSE_MAX_TABLESIZE (1U << FSE_MAX_TABLELOG)
 #define FSE_MAXTABLESIZE_MASK (FSE_MAX_TABLESIZE - 1)
