@@ -38,8 +38,8 @@
  */
 
 /* *************************************
-*  Dependencies
-***************************************/
+ *  Dependencies
+ ***************************************/
 #include "error_private.h" /* ERR_*, ERROR */
 #include "fse.h"
 #include "huf.h"
@@ -54,8 +54,8 @@ unsigned FSE_isError(size_t code) { return ERR_isError(code); }
 unsigned HUF_isError(size_t code) { return ERR_isError(code); }
 
 /*-**************************************************************
-*  FSE NCount encoding-decoding
-****************************************************************/
+ *  FSE NCount encoding-decoding
+ ****************************************************************/
 size_t FSE_readNCount(short *normalizedCounter, unsigned *maxSVPtr, unsigned *tableLogPtr, const void *headerBuffer, size_t hbSize)
 {
 	const BYTE *const istart = (const BYTE *)headerBuffer;
@@ -164,7 +164,8 @@ size_t FSE_readNCount(short *normalizedCounter, unsigned *maxSVPtr, unsigned *ta
 	@return : size read from `src` , or an error Code .
 	Note : Needed by HUF_readCTable() and HUF_readDTableX?() .
 */
-size_t HUF_readStats_wksp(BYTE *huffWeight, size_t hwSize, U32 *rankStats, U32 *nbSymbolsPtr, U32 *tableLogPtr, const void *src, size_t srcSize, void *workspace, size_t workspaceSize)
+size_t HUF_readStats_wksp(BYTE *huffWeight, size_t hwSize, U32 *rankStats, U32 *nbSymbolsPtr, U32 *tableLogPtr, const void *src, size_t srcSize,
+			  void *workspace, size_t workspaceSize)
 {
 	U32 weightTotal;
 	const BYTE *ip = (const BYTE *)src;
@@ -191,10 +192,11 @@ size_t HUF_readStats_wksp(BYTE *huffWeight, size_t hwSize, U32 *rankStats, U32 *
 				huffWeight[n + 1] = ip[n / 2] & 15;
 			}
 		}
-	} else {						 /* header compressed with FSE (normal case) */
+	} else { /* header compressed with FSE (normal case) */
 		if (iSize + 1 > srcSize)
 			return ERROR(srcSize_wrong);
-		oSize = FSE_decompress_wksp(huffWeight, hwSize - 1, ip + 1, iSize, 6, workspace, workspaceSize); /* max (hwSize-1) values decoded, as last one is implied */
+		oSize = FSE_decompress_wksp(huffWeight, hwSize - 1, ip + 1, iSize, 6, workspace,
+					    workspaceSize); /* max (hwSize-1) values decoded, as last one is implied */
 		if (FSE_isError(oSize))
 			return oSize;
 	}

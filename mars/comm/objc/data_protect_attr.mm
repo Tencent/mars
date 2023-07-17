@@ -5,10 +5,10 @@
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
-// Unless required by applicable law or agreed to in writing, software distributed under the License is
-// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-// either express or implied. See the License for the specific language governing permissions and
-// limitations under the License.
+// Unless required by applicable law or agreed to in writing, software distributed under the License
+// is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+// or implied. See the License for the specific language governing permissions and limitations under
+// the License.
 
 //
 //  data_protect_attr.m
@@ -26,11 +26,10 @@
 
 // If '_path' is directory, the function has effect on new file but ignores existed file.
 bool setAttrProtectionNone(const char* _path) {
-    
 #if !TARGET_OS_IPHONE
     return true;
 #else
-    
+
     @autoreleasepool {
         NSString* path = [[NSString alloc] initWithUTF8String:_path];
         NSFileManager* fileManager = [NSFileManager defaultManager];
@@ -40,16 +39,17 @@ bool setAttrProtectionNone(const char* _path) {
         }
 
         BOOL ret = YES;
-        NSDictionary* old_attr = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:NULL];
+        NSDictionary* old_attr = [[NSFileManager defaultManager] attributesOfItemAtPath:path
+                                                                                  error:NULL];
         NSString* protection = [old_attr valueForKey:NSFileProtectionKey];
         if ([protection isEqualToString:NSFileProtectionNone] == NO) {
-            NSDictionary* attr = [NSDictionary dictionaryWithObject:NSFileProtectionNone forKey:NSFileProtectionKey];
+            NSDictionary* attr = [NSDictionary dictionaryWithObject:NSFileProtectionNone
+                                                             forKey:NSFileProtectionKey];
             ret = [fileManager setAttributes:attr ofItemAtPath:path error:nil];
         }
         [path release];
-        
+
         return ret;
     }
 #endif
-    
 }

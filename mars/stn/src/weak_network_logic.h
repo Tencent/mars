@@ -10,7 +10,6 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 /*
  * weak_network_logic.h
  *
@@ -21,35 +20,35 @@
 #ifndef weak_network_logic_h
 #define weak_network_logic_h
 
-#include "mars/comm/singleton.h"
 #include "comm/tickcount.h"
-#include "mars/stn/task_profile.h"
 #include "mars/baseevent/active_logic.h"
+#include "mars/comm/singleton.h"
+#include "mars/stn/task_profile.h"
 
 namespace mars {
 namespace stn {
-    
+
 class WeakNetworkLogic {
-public:
-//    SINGLETON_INTRUSIVE(WeakNetworkLogic, new WeakNetworkLogic, delete);
-    boost::function<void (int _key, int _value, bool _is_important)> report_weak_logic_;
-    
+ public:
+    //    SINGLETON_INTRUSIVE(WeakNetworkLogic, new WeakNetworkLogic, delete);
+    boost::function<void(int _key, int _value, bool _is_important)> report_weak_logic_;
+
     bool IsCurrentNetworkWeak();
     void OnConnectEvent(bool _is_suc, int _rtt, int _index);
     void OnPkgEvent(bool _is_firstpkg, int _span);
     void OnTaskEvent(const TaskProfile& _task_profile);
-    bool IsLastValidConnectFail(int64_t &_span);
-    
-public:
+    bool IsLastValidConnectFail(int64_t& _span);
+
+ public:
     WeakNetworkLogic();
     virtual ~WeakNetworkLogic();
-    
-private:
+
+ private:
     void __SignalForeground(bool _is_foreground);
     void __ReportWeakLogic(int _key, int _value, bool _is_important);
     void __MarkWeak(bool _isWeak);
-    
-private:
+
+ private:
     tickcount_t first_mark_tick_;
     tickcount_t last_mark_tick_;
     bool is_curr_weak_;
@@ -58,8 +57,8 @@ private:
     tickcount_t last_connect_suc_tick_;
     uint32_t cgi_fail_num_;
 };
-    
-}
-}
+
+}  // namespace stn
+}  // namespace mars
 
 #endif /* weak_network_logic_h */

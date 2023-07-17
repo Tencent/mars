@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * flow_limit.cc
@@ -22,8 +21,8 @@
 
 #include <algorithm>
 
-#include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/time_utils.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
 
 #if true
@@ -41,13 +40,13 @@ static const uint64_t kMaxVol = (2 * 1024);
 using namespace mars::stn;
 
 FlowLimit::FlowLimit(bool _isactive)
-    : funnel_speed_(_isactive ? kActiveSpeed : kInactiveSpeed)
-    , cur_funnel_vol_(0)
-    , time_lastflow_computer_(::gettickcount())
-{}
+: funnel_speed_(_isactive ? kActiveSpeed : kInactiveSpeed)
+, cur_funnel_vol_(0)
+, time_lastflow_computer_(::gettickcount()) {
+}
 
-FlowLimit::~FlowLimit()
-{}
+FlowLimit::~FlowLimit() {
+}
 
 bool FlowLimit::Check(const mars::stn::Task& _task, const void* _buffer, int _len) {
     xverbose_function();
@@ -59,8 +58,19 @@ bool FlowLimit::Check(const mars::stn::Task& _task, const void* _buffer, int _le
     __FlashCurVol();
 
     if (cur_funnel_vol_ + _len > kMaxVol) {
-        xerror2(TSF"Task Info: ptr=%_, cmdid=%_, need_authed=%_, cgi:%_, channel_select=%_, limit_flow=%_, cur_funnel_vol_(%_)+_len(%_)=%_,MAX_VOL:%_ ",
-                &_task, _task.cmdid, _task.need_authed, _task.cgi, _task.channel_select, _task.limit_flow, cur_funnel_vol_, _len, cur_funnel_vol_ + _len, kMaxVol);
+        xerror2(TSF
+                "Task Info: ptr=%_, cmdid=%_, need_authed=%_, cgi:%_, channel_select=%_, limit_flow=%_, "
+                "cur_funnel_vol_(%_)+_len(%_)=%_,MAX_VOL:%_ ",
+                &_task,
+                _task.cmdid,
+                _task.need_authed,
+                _task.cgi,
+                _task.channel_select,
+                _task.limit_flow,
+                cur_funnel_vol_,
+                _len,
+                cur_funnel_vol_ + _len,
+                kMaxVol);
 
         return false;
     }
@@ -73,31 +83,32 @@ void FlowLimit::Active(bool _isactive) {
     __FlashCurVol();
 
     if (!_isactive) {
-        xdebug2(TSF"iCurFunnelVol=%0, INACTIVE_MIN_VOL=%1", cur_funnel_vol_, kInactiveMinvol);
+        xdebug2(TSF "iCurFunnelVol=%0, INACTIVE_MIN_VOL=%1", cur_funnel_vol_, kInactiveMinvol);
 
         if (cur_funnel_vol_ > kInactiveMinvol)
             cur_funnel_vol_ = kInactiveMinvol;
     }
 
     funnel_speed_ = _isactive ? kActiveSpeed : kInactiveSpeed;
-    xdebug2(TSF"Active:%0, iFunnelSpeed=%1", _isactive, funnel_speed_);
+    xdebug2(TSF "Active:%0, iFunnelSpeed=%1", _isactive, funnel_speed_);
 }
 
 void FlowLimit::__FlashCurVol() {
     uint64_t timeCur = ::gettickcount();
-	xassert2(timeCur >= time_lastflow_computer_, TSF"%_, %_", timeCur, time_lastflow_computer_);
+    xassert2(timeCur >= time_lastflow_computer_, TSF "%_, %_", timeCur, time_lastflow_computer_);
     uint64_t interval = (timeCur - time_lastflow_computer_) / 1000;
-    
-    if (0 == interval) return;
 
-    xdebug2(TSF"iCurFunnelVol=%0, iFunnelSpeed=%1, interval=%2", cur_funnel_vol_, funnel_speed_, interval);
+    if (0 == interval)
+        return;
+
+    xdebug2(TSF "iCurFunnelVol=%0, iFunnelSpeed=%1, interval=%2", cur_funnel_vol_, funnel_speed_, interval);
     uint64_t funnel_vol = interval * funnel_speed_;
     if (cur_funnel_vol_ > funnel_vol) {
         cur_funnel_vol_ -= funnel_vol;
     } else {
         cur_funnel_vol_ = 0;
     }
-    xdebug2(TSF"iCurFunnelVol=%0", cur_funnel_vol_);
+    xdebug2(TSF "iCurFunnelVol=%0", cur_funnel_vol_);
 
     time_lastflow_computer_ = timeCur;
 }

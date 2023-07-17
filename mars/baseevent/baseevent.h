@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -20,8 +20,8 @@
 #ifndef BASEEVENT_INTERFACE_BASEEVENT_H_
 #define BASEEVENT_INTERFACE_BASEEVENT_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #ifdef ANDROID
 #include <jni.h>
@@ -29,12 +29,12 @@
 namespace mars {
 namespace baseevent {
 
-	extern void addLoadModule(std::string _module_name);
+extern void addLoadModule(std::string _module_name);
 
-	extern jobject getLoadLibraries(JNIEnv *_env);
+extern jobject getLoadLibraries(JNIEnv* _env);
 
-}
-}
+}  // namespace baseevent
+}  // namespace mars
 
 #endif
 

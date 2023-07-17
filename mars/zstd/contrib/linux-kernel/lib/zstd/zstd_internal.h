@@ -16,14 +16,14 @@
 #define ZSTD_CCOMMON_H_MODULE
 
 /*-*******************************************************
-*  Compiler specifics
-*********************************************************/
+ *  Compiler specifics
+ *********************************************************/
 #define FORCE_INLINE static __always_inline
 #define FORCE_NOINLINE static noinline
 
 /*-*************************************
-*  Dependencies
-***************************************/
+ *  Dependencies
+ ***************************************/
 #include "error_private.h"
 #include "mem.h"
 #include <linux/compiler.h>
@@ -32,8 +32,8 @@
 #include <linux/zstd.h>
 
 /*-*************************************
-*  shared macros
-***************************************/
+ *  shared macros
+ ***************************************/
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define CHECK_F(f)                       \
@@ -54,8 +54,8 @@
 	}
 
 /*-*************************************
-*  Common constants
-***************************************/
+ *  Common constants
+ ***************************************/
 #define ZSTD_OPT_NUM (1 << 12)
 #define ZSTD_DICT_MAGIC 0xEC30A437 /* v0.7+ */
 
@@ -110,7 +110,7 @@ static const S16 LL_defaultNorm[MaxLL + 1] = {4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
 #define LL_DEFAULTNORMLOG 6 /* for static allocation */
 static const U32 LL_defaultNormLog = LL_DEFAULTNORMLOG;
 
-static const U32 ML_bits[MaxML + 1] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0, 0,
+static const U32 ML_bits[MaxML + 1] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,	0,  0,	0,  0,	0, 0,
 				       0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 static const S16 ML_defaultNorm[MaxML + 1] = {1, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1, 1,
 					      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1};
@@ -122,19 +122,17 @@ static const S16 OF_defaultNorm[MaxOff + 1] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 
 static const U32 OF_defaultNormLog = OF_DEFAULTNORMLOG;
 
 /*-*******************************************
-*  Shared functions to include for inlining
-*********************************************/
-ZSTD_STATIC void ZSTD_copy8(void *dst, const void *src) {
-	memcpy(dst, src, 8);
-}
+ *  Shared functions to include for inlining
+ *********************************************/
+ZSTD_STATIC void ZSTD_copy8(void *dst, const void *src) { memcpy(dst, src, 8); }
 /*! ZSTD_wildcopy() :
-*   custom version of memcpy(), can copy up to 7 bytes too many (8 bytes if length==0) */
+ *   custom version of memcpy(), can copy up to 7 bytes too many (8 bytes if length==0) */
 #define WILDCOPY_OVERLENGTH 8
 ZSTD_STATIC void ZSTD_wildcopy(void *dst, const void *src, ptrdiff_t length)
 {
-	const BYTE* ip = (const BYTE*)src;
-	BYTE* op = (BYTE*)dst;
-	BYTE* const oend = op + length;
+	const BYTE *ip = (const BYTE *)src;
+	BYTE *op = (BYTE *)dst;
+	BYTE *const oend = op + length;
 	/* Work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81388.
 	 * Avoid the bad case where the loop only runs once by handling the
 	 * special case separately. This doesn't trigger the bug because it
@@ -150,8 +148,8 @@ ZSTD_STATIC void ZSTD_wildcopy(void *dst, const void *src, ptrdiff_t length)
 }
 
 /*-*******************************************
-*  Private interfaces
-*********************************************/
+ *  Private interfaces
+ *********************************************/
 typedef struct ZSTD_stats_s ZSTD_stats_t;
 
 typedef struct {

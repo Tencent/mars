@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -30,41 +30,41 @@ class AutoBuffer;
 namespace mars {
 namespace app {
 
-    /* mars2
-    class Callback {
-    public:
-        virtual ~Callback() {};
-        
-        virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
+/* mars2
+class Callback {
+public:
+    virtual ~Callback() {};
 
-        virtual std::string GetAppFilePath() = 0;
-        
-        virtual AccountInfo GetAccountInfo() = 0;
+    virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) { return false; }
 
-        virtual unsigned int GetClientVersion() = 0;
+    virtual std::string GetAppFilePath() = 0;
 
-        virtual DeviceInfo GetDeviceInfo() = 0;
-    };
-    */
+    virtual AccountInfo GetAccountInfo() = 0;
 
-    void SetCallback(Callback* const callback);
+    virtual unsigned int GetClientVersion() = 0;
 
-    //start app.h
-    mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
-    std::string GetAppFilePath();
-    AccountInfo GetAccountInfo();
-    std::string GetUserName();
-    std::string GetRecentUserName();
-    unsigned int GetClientVersion();
-    DeviceInfo GetDeviceInfo();
-    double GetOsVersion();
+    virtual DeviceInfo GetDeviceInfo() = 0;
+};
+*/
+
+void SetCallback(Callback* const callback);
+
+// start app.h
+mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
+std::string GetAppFilePath();
+AccountInfo GetAccountInfo();
+std::string GetUserName();
+std::string GetRecentUserName();
+unsigned int GetClientVersion();
+DeviceInfo GetDeviceInfo();
+double GetOsVersion();
 
 #ifdef NATIVE_CALLBACK
-    void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
+void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
 #endif
-    //end app.h
+// end app.h
 
-}}
-
+}  // namespace app
+}  // namespace mars
 
 #endif /* APPCOMM_INTERFACE_APPCOMM_LOGIC_H_ */

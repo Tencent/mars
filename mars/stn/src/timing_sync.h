@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -24,19 +24,17 @@
 
 #include "boost/function.hpp"
 #include "boost/signals2.hpp"
-
+#include "longlink.h"
 #include "mars/baseevent/active_logic.h"
+#include "mars/boot/context.h"
 #include "mars/comm/alarm.h"
 #include "mars/comm/thread/mutex.h"
 
-#include "longlink.h"
-#include "mars/boot/context.h"
-
 namespace mars {
-    namespace stn {
+namespace stn {
 
 class TimingSync {
-  public:
+ public:
     TimingSync(boot::Context* _context, comm::ActiveLogic& _active_logic);
     ~TimingSync();
 
@@ -44,18 +42,18 @@ class TimingSync {
     void OnActiveChanged(bool _is_actived);
     void OnNetworkChange();
 
-  private:
+ private:
     void __OnAlarm();
 
-  private:
-     boot::Context* context_;
-     comm::Alarm alarm_;
+ private:
+    boot::Context* context_;
+    comm::Alarm alarm_;
 
     comm::ActiveLogic& active_logic_;
     boost::signals2::scoped_connection timing_sync_active_connection_;
 };
 
-    }
-}
+}  // namespace stn
+}  // namespace mars
 
-#endif // STN_SRC_TIMING_SYNC_H_
+#endif  // STN_SRC_TIMING_SYNC_H_

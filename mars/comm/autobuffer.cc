@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,8 +10,8 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include "autobuffer.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 #ifndef _WIN32
@@ -20,7 +20,6 @@
 #endif
 
 #include "mars/comm/assert/__assert.h"
-
 
 const AutoBuffer KNullAtuoBuffer;
 
@@ -31,33 +30,18 @@ const AutoBuffer KNullAtuoBuffer;
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
-AutoBuffer::AutoBuffer(size_t _nSize)
-    : parray_(NULL)
-    , pos_(0)
-    , length_(0)
-    , capacity_(0)
-    , malloc_unitsize_(_nSize)
-{}
-
+AutoBuffer::AutoBuffer(size_t _nSize) : parray_(NULL), pos_(0), length_(0), capacity_(0), malloc_unitsize_(_nSize) {
+}
 
 AutoBuffer::AutoBuffer(void* _pbuffer, size_t _len, size_t _nSize)
-    : parray_(NULL)
-    , pos_(0)
-    , length_(0)
-    , capacity_(0)
-    , malloc_unitsize_(_nSize) {
+: parray_(NULL), pos_(0), length_(0), capacity_(0), malloc_unitsize_(_nSize) {
     Attach(_pbuffer, _len);
 }
 
 AutoBuffer::AutoBuffer(const void* _pbuffer, size_t _len, size_t _nSize)
-    : parray_(NULL)
-    , pos_(0)
-    , length_(0)
-    , capacity_(0)
-    , malloc_unitsize_(_nSize) {
+: parray_(NULL), pos_(0), length_(0), capacity_(0), malloc_unitsize_(_nSize) {
     Write(0, _pbuffer, _len);
 }
-
 
 AutoBuffer::~AutoBuffer() {
     Reset();
@@ -67,7 +51,8 @@ void AutoBuffer::AllocWrite(size_t _readytowrite, bool _changelength) {
     size_t nLen = Pos() + _readytowrite;
     __FitSize(nLen);
 
-    if (_changelength) length_ = max(nLen, length_);
+    if (_changelength)
+        length_ = max(nLen, length_);
 }
 
 void AutoBuffer::AddCapacity(size_t _len) {
@@ -84,17 +69,17 @@ void AutoBuffer::Write(const void* _pbuffer, size_t _len) {
 }
 
 void AutoBuffer::Write(off_t& _pos, const AutoBuffer& _buffer) {
-    Write((const off_t&) _pos, _buffer.Ptr(), _buffer.Length());
+    Write((const off_t&)_pos, _buffer.Ptr(), _buffer.Length());
     _pos += _buffer.Length();
 }
 
 void AutoBuffer::Write(off_t& _pos, const void* _pbuffer, size_t _len) {
-    Write((const off_t&) _pos,  _pbuffer,  _len);
+    Write((const off_t&)_pos, _pbuffer, _len);
     _pos += _len;
 }
 
 void AutoBuffer::Write(const off_t& _pos, const AutoBuffer& _buffer) {
-    Write((const off_t&) _pos, _buffer.Ptr(), _buffer.Length());
+    Write((const off_t&)_pos, _buffer.Ptr(), _buffer.Length());
 }
 
 void AutoBuffer::Write(const off_t& _pos, const void* _pbuffer, size_t _len) {
@@ -107,7 +92,7 @@ void AutoBuffer::Write(const off_t& _pos, const void* _pbuffer, size_t _len) {
     memcpy((unsigned char*)Ptr() + _pos, _pbuffer, _len);
 }
 
-void AutoBuffer::Write(TSeek _seek, const void* _pbuffer, size_t _len){
+void AutoBuffer::Write(TSeek _seek, const void* _pbuffer, size_t _len) {
     off_t pos = 0;
     switch (_seek) {
         case ESeekStart:
@@ -123,8 +108,8 @@ void AutoBuffer::Write(TSeek _seek, const void* _pbuffer, size_t _len){
             ASSERT(false);
             break;
     }
-    
-    Write(pos,  _pbuffer,  _len);
+
+    Write(pos, _pbuffer, _len);
 }
 
 size_t AutoBuffer::Read(void* _pbuffer, size_t _len) {
@@ -133,20 +118,20 @@ size_t AutoBuffer::Read(void* _pbuffer, size_t _len) {
     return readlen;
 }
 
-size_t AutoBuffer::Read(AutoBuffer& _rhs , size_t _len) {
+size_t AutoBuffer::Read(AutoBuffer& _rhs, size_t _len) {
     size_t readlen = Read(Pos(), _rhs, _len);
     Seek(readlen, ESeekCur);
     return readlen;
 }
 
 size_t AutoBuffer::Read(off_t& _pos, void* _pbuffer, size_t _len) const {
-    size_t readlen = Read((const off_t&) _pos, _pbuffer,  _len);
+    size_t readlen = Read((const off_t&)_pos, _pbuffer, _len);
     _pos += readlen;
     return readlen;
 }
 
 size_t AutoBuffer::Read(off_t& _pos, AutoBuffer& _rhs, size_t _len) const {
-    size_t readlen = Read((const off_t&) _pos, _rhs,  _len);
+    size_t readlen = Read((const off_t&)_pos, _rhs, _len);
     _pos += readlen;
     return readlen;
 }
@@ -178,7 +163,8 @@ off_t AutoBuffer::Move(off_t _move_len) {
     } else {
         size_t move_len = -_move_len;
 
-        if (move_len > Length()) move_len = Length();
+        if (move_len > Length())
+            move_len = Length();
 
         memmove(parray_, parray_ + move_len, Length() - move_len);
         Length(move_len < (size_t)Pos() ? Pos() - move_len : 0, Length() - move_len);
@@ -187,23 +173,23 @@ off_t AutoBuffer::Move(off_t _move_len) {
     return Length();
 }
 
-void  AutoBuffer::Seek(off_t _offset,  TSeek _eorigin) {
+void AutoBuffer::Seek(off_t _offset, TSeek _eorigin) {
     switch (_eorigin) {
-    case ESeekStart:
-        pos_ = _offset;
-        break;
+        case ESeekStart:
+            pos_ = _offset;
+            break;
 
-    case ESeekCur:
-        pos_ += _offset;
-        break;
+        case ESeekCur:
+            pos_ += _offset;
+            break;
 
-    case ESeekEnd:
-        pos_ = length_ + _offset;
-        break;
+        case ESeekEnd:
+            pos_ = length_ + _offset;
+            break;
 
-    default:
-        ASSERT(false);
-        break;
+        default:
+            ASSERT(false);
+            break;
     }
 
     if (pos_ < 0)
@@ -221,11 +207,11 @@ void AutoBuffer::Length(off_t _pos, size_t _lenght) {
     Seek(_pos, ESeekStart);
 }
 
-void*  AutoBuffer::Ptr(off_t _offset) {
+void* AutoBuffer::Ptr(off_t _offset) {
     return (char*)parray_ + _offset;
 }
 
-const void*  AutoBuffer::Ptr(off_t _offset) const {
+const void* AutoBuffer::Ptr(off_t _offset) const {
     return (const char*)parray_ + _offset;
 }
 
@@ -295,13 +281,17 @@ void AutoBuffer::Reset() {
 
 void AutoBuffer::__FitSize(size_t _len) {
     if (_len > capacity_) {
-        size_t mallocsize = ((_len + malloc_unitsize_ -1)/malloc_unitsize_)*malloc_unitsize_ ;
+        size_t mallocsize = ((_len + malloc_unitsize_ - 1) / malloc_unitsize_) * malloc_unitsize_;
 
         void* p = realloc(parray_, mallocsize);
 
         if (NULL == p) {
-		ASSERT2(p, "_len=%" PRIu64 ", m_nMallocUnitSize=%" PRIu64 ", nMallocSize=%" PRIu64", m_nCapacity=%" PRIu64,
-				(uint64_t)_len, (uint64_t)malloc_unitsize_, (uint64_t)mallocsize, (uint64_t)capacity_);
+            ASSERT2(p,
+                    "_len=%" PRIu64 ", m_nMallocUnitSize=%" PRIu64 ", nMallocSize=%" PRIu64 ", m_nCapacity=%" PRIu64,
+                    (uint64_t)_len,
+                    (uint64_t)malloc_unitsize_,
+                    (uint64_t)mallocsize,
+                    (uint64_t)capacity_);
 
             free(parray_);
             parray_ = NULL;
@@ -309,12 +299,12 @@ void AutoBuffer::__FitSize(size_t _len) {
             return;
         }
 
-        parray_ = (unsigned char*) p;
+        parray_ = (unsigned char*)p;
 
         ASSERT2(_len <= 50 * 1024 * 1024, "%u", (uint32_t)_len);
         ASSERT(parray_);
-        
-        memset(parray_+capacity_, 0, mallocsize-capacity_);
+
+        memset(parray_ + capacity_, 0, mallocsize - capacity_);
         capacity_ = mallocsize;
     }
 }

@@ -3,6 +3,7 @@
 //
 
 #include "context.h"
+
 #include <sstream>
 
 namespace mars {
@@ -25,7 +26,7 @@ Context* Context::CreateContext(const std::string& context_id) {
             return context;
         }
     } else {
-        s_context_index ++;
+        s_context_index++;
         auto context = new Context();
         std::stringstream ss;
         ss << std::to_string(s_context_index) << ":" << std::to_string(reinterpret_cast<uint64_t>(context));

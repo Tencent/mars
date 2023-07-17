@@ -6,8 +6,9 @@
  */
 
 #include "TestCoreService2.h"
-#include "TestCoreService.h"
+
 #include "ServiceUtil.h"
+#include "TestCoreService.h"
 
 namespace design_patterns {
 

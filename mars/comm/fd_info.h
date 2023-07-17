@@ -7,12 +7,12 @@
 
 #pragma once
 
-#include <string>
 #include <list>
+#include <string>
 
-namespace mars{
-namespace comm{
-struct FDI{
+namespace mars {
+namespace comm {
+struct FDI {
     int fd = 0;
     int type = 0;
     int error = 0;
@@ -24,10 +24,11 @@ struct FDI{
 };
 
 class FDInfo {
-public:
+ public:
     static FDI QueryFD(int fd);
     static std::list<FDI> QueryFDInfo(int maxfd);
     static std::list<std::string> PrettyFDInfo(const std::list<FDI>& fdi);
 };
 
-}};
+}  // namespace comm
+};  // namespace mars

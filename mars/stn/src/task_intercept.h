@@ -1,8 +1,8 @@
 #ifndef STN_SRC_TASK_INTERCEPT_H_
 #define STN_SRC_TASK_INTERCEPT_H_
 
-#include <string>
 #include <map>
+#include <string>
 
 struct TaskInterceptInfo {
     std::string name = "";
@@ -11,16 +11,16 @@ struct TaskInterceptInfo {
 };
 
 class TaskIntercept {
-public:
+ public:
     TaskIntercept() = default;
     ~TaskIntercept() = default;
-public:
+
+ public:
     void AddInterceptTask(const std::string& _name, const std::string& _data);
     bool GetInterceptTaskInfo(const std::string& _name, std::string& _last_data);
 
-private:
+ private:
     std::map<std::string, TaskInterceptInfo> intercept_tasks_;
-
 };
 
-#endif //MARS_TASK_INTERCEPT_H_
+#endif  // MARS_TASK_INTERCEPT_H_

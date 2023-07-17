@@ -20,38 +20,39 @@
 #ifndef LOGZSTDBUFFER_H_
 #define LOGZSTDBUFFER_H_
 
-#include <string>
 #include <stdint.h>
 
+#include <string>
+
 #include "log_base_buffer.h"
-#include "zstd/lib/zstd.h"
-#include "mars/comm/ptrbuffer.h"
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/ptrbuffer.h"
+#include "zstd/lib/zstd.h"
 
 namespace mars {
 namespace xlog {
 
 class LogCrypt;
 
-class LogZstdBuffer : public LogBaseBuffer{
-public:
+class LogZstdBuffer : public LogBaseBuffer {
+ public:
     LogZstdBuffer(void* _pbuffer, size_t _len, bool _is_compress, const char* _pubkey, int level);
     ~LogZstdBuffer();
-    
-public:
+
+ public:
     virtual size_t Compress(const void* src, size_t inLen, void* dst, size_t outLen);
     virtual void Flush(AutoBuffer& _buff);
 
-private:
+ private:
     bool __Reset();
     char __GetMagicSyncStart();
     char __GetMagicAsyncStart();
 
-private:
+ private:
     ZSTD_CCtx* cctx_;
 };
 
-}
-}
+}  // namespace xlog
+}  // namespace mars
 
 #endif /* LOGZSTDBUFFER_H_ */

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
  * in the COPYING file in the root directory of this source tree).
  */
- 
+
 /**
  * Compiler hints to indicate the fast path of an "if" branch: whether
  * the if condition is likely to be true or false.

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -18,19 +18,20 @@
  */
 
 #include "log_zlib_buffer.h"
-#include <cstdio>
-#include <time.h>
-#include <algorithm>
-#include <sys/time.h>
-#include <string.h>
-#include <errno.h>
+
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+
+#include <algorithm>
+#include <cstdio>
 
 #include "log/crypt/log_crypt.h"
 #include "log/crypt/log_magic_num.h"
 #include "log_base_buffer.h"
-
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -40,8 +41,7 @@ namespace mars {
 namespace xlog {
 
 LogZlibBuffer::LogZlibBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey)
-    :LogBaseBuffer(_pbuffer, _len, _isCompress, _pubkey) {
-
+: LogBaseBuffer(_pbuffer, _len, _isCompress, _pubkey) {
     if (is_compress_) {
         memset(&cstream_, 0, sizeof(cstream_));
     }
@@ -61,7 +61,7 @@ void LogZlibBuffer::Flush(AutoBuffer& _buff) {
     LogBaseBuffer::Flush(_buff);
 }
 
-size_t LogZlibBuffer::Compress(const void* src, size_t inLen, void* dst, size_t outLen){
+size_t LogZlibBuffer::Compress(const void* src, size_t inLen, void* dst, size_t outLen) {
     cstream_.avail_in = (uInt)inLen;
     cstream_.next_in = (Bytef*)src;
 
@@ -71,7 +71,7 @@ size_t LogZlibBuffer::Compress(const void* src, size_t inLen, void* dst, size_t 
     if (Z_OK != deflate(&cstream_, Z_SYNC_FLUSH)) {
         return -1;
     }
-    
+
     return outLen - cstream_.avail_out;
 }
 
@@ -79,13 +79,14 @@ bool LogZlibBuffer::__Reset() {
     if (!LogBaseBuffer::__Reset()) {
         return false;
     }
-    
+
     if (is_compress_) {
         cstream_.zalloc = Z_NULL;
         cstream_.zfree = Z_NULL;
         cstream_.opaque = Z_NULL;
 
-        if (Z_OK != deflateInit2(&cstream_, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY)) {
+        if (Z_OK
+            != deflateInit2(&cstream_, Z_BEST_COMPRESSION, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY)) {
             return false;
         }
     }
@@ -98,8 +99,8 @@ char LogZlibBuffer::__GetMagicSyncStart() {
 }
 
 char LogZlibBuffer::__GetMagicAsyncStart() {
-    return is_crypt_ ? LogMagicNum::kMagicAsyncZlibStart: LogMagicNum::kMagicAsyncNoCryptZlibStart;
+    return is_crypt_ ? LogMagicNum::kMagicAsyncZlibStart : LogMagicNum::kMagicAsyncNoCryptZlibStart;
 }
 
-}
-}
+}  // namespace xlog
+}  // namespace mars
