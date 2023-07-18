@@ -1,5 +1,4 @@
 #if (!UWP && !WIN32)
-#include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #else

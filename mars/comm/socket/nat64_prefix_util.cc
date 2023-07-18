@@ -206,7 +206,7 @@ bool ConvertV4toNat64V6(const struct in_addr& _v4_addr, struct in6_addr& _v6_add
         xwarn2(TSF "Current Network is not ELocalIPStack_IPv6, no need GetNetworkNat64Prefix.");
         return false;
     }
-    struct addrinfo hints, *res = NULL, *res0 = NULL;
+    struct ::addrinfo hints, *res = NULL, *res0 = NULL;
     int error = 0;
 
     memset(&hints, 0, sizeof(hints));
@@ -306,7 +306,7 @@ bool GetNetworkNat64Prefix(struct in6_addr& _nat64_prefix_in6) {
         xwarn2(TSF "Current Network is not ELocalIPStack_IPv6, no need GetNetworkNat64Prefix.");
         return false;
     }
-    struct addrinfo hints, *res = NULL, *res0 = NULL;
+    struct ::addrinfo hints, *res = NULL, *res0 = NULL;
     int error = 0;
 
     memset(&hints, 0, sizeof(hints));
