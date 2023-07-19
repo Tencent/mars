@@ -96,13 +96,8 @@ extern "C" {
 #ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 # define OPENSSL_NO_WEAK_SSL_CIPHERS
 #endif
-<<<<<<<< HEAD:mars/openssl/include/openssl/opensslconf_default.h
-#ifndef OPENSSL_NO_STATIC_ENGINE
-# define OPENSSL_NO_STATIC_ENGINE
-========
 #ifndef OPENSSL_NO_DYNAMIC_ENGINE
 # define OPENSSL_NO_DYNAMIC_ENGINE
->>>>>>>> origin/ios_trunk:mars/openssl/include/openssl/opensslconf_android-arm64.h
 #endif
 
 
