@@ -75,7 +75,7 @@
 
 #include "log_zlib_buffer.h"
 #include "log_base_buffer.h"
-#include "log_zstd_buffer.h"
+// #include "log_zstd_buffer.h"
 #include "xlogger_appender.h"
 
 #define LOG_EXT "xlog"
@@ -292,7 +292,8 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     bool use_mmap = false;
     if (OpenMmapFile(mmap_file_path, kBufferBlockLength, mmap_file_))  {
 	    if (_config.compress_mode_ == kZstd){
-		    log_buff_ = new LogZstdBuffer(mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
+            log_buff_ = new LogZlibBuffer(mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
+		    // log_buff_ = new LogZstdBuffer(mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
 	    }else {
 		    log_buff_ = new LogZlibBuffer(mmap_file_.data(), kBufferBlockLength, true, _config.pub_key_.c_str());
 	    }
@@ -300,7 +301,8 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     } else {
         char* buffer = new char[kBufferBlockLength];
 	    if (_config.compress_mode_ == kZstd){
-		    log_buff_ = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
+            log_buff_ = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());
+		    // log_buff_ = new LogZstdBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str(), _config.compress_level_);
 	    } else {
 		    log_buff_ = new LogZlibBuffer(buffer, kBufferBlockLength, true, _config.pub_key_.c_str());
 	    }
