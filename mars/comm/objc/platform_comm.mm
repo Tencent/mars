@@ -72,7 +72,7 @@ static MarsNetworkStatus __GetNetworkStatus()
 #if TARGET_OS_WATCH
     return ReachableViaWiFi;
 #else
-    return [MarsReachability getCacheReachabilityStatus:NO];
+    return [IlinkMarsReachability getCacheReachabilityStatus:NO];
 #endif
 }
 
@@ -97,7 +97,7 @@ void ResetWiFiIdCallBack() {
 
 void FlushReachability() {
 #if !TARGET_OS_WATCH
-    [MarsReachability getCacheReachabilityStatus:YES];
+    [IlinkMarsReachability getCacheReachabilityStatus:YES];
     mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     sg_wifiinfo.ssid.clear();
     sg_wifiinfo.bssid.clear();

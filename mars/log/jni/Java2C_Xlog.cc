@@ -36,7 +36,7 @@
 
 extern "C" {
 
-JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
+JNIEXPORT jlong JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_newXlogInstance
     (JNIEnv *env, jobject, jobject _log_config) {
 
     if (NULL == _log_config) {
@@ -87,7 +87,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_newXlogInstance
     return reinterpret_cast<uintptr_t>(category);
 }
 
-JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
+JNIEXPORT jlong JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_getXlogInstance
     (JNIEnv *env, jobject, jstring _nameprefix) {
     ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::comm::XloggerCategory* category = mars::xlog::GetXloggerInstance(nameprefix_jstr.GetChar());
@@ -97,13 +97,13 @@ JNIEXPORT jlong JNICALL Java_com_tencent_mars_xlog_Xlog_getXlogInstance
     return reinterpret_cast<uintptr_t>(category);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_releaseXlogInstance
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_releaseXlogInstance
     (JNIEnv *env, jobject, jstring _nameprefix) {
     ScopedJstring nameprefix_jstr(env, _nameprefix);
     mars::xlog::ReleaseXloggerInstance(nameprefix_jstr.GetChar());
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_appenderOpen
 	(JNIEnv *env, jclass clazz, jobject _log_config) {
 
     if (NULL == _log_config) {
@@ -151,16 +151,16 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderOpen
 	xlogger_SetLevel((TLogLevel)level);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderClose(JNIEnv *env, jobject) {
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_appenderClose(JNIEnv *env, jobject) {
     mars::xlog::appender_close();
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_appenderFlush(JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_sync) {
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_appenderFlush(JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_sync) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::Flush(_log_instance_ptr, _is_sync);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_logWrite
   (JNIEnv *env, jclass, jobject _log_info, jstring _log) {
 
     if (NULL == _log_info || NULL == _log) {
@@ -204,7 +204,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite
 
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_logWrite2
   (JNIEnv *env, jclass, jlong _log_instance_ptr, int _level, jstring _tag, jstring _filename,
           jstring _funcname, jint _line, jint _pid, jlong _tid, jlong _maintid, jstring _log) {
 
@@ -265,37 +265,37 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_logWrite2
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_tencent_mars_xlog_Xlog_getLogLevel
+JNIEXPORT jint JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_getLogLevel
   (JNIEnv *, jobject, jlong _log_instance_ptr) {
     if (_log_instance_ptr < 0) return kLevelNone;
     return mars::xlog::GetLevel(_log_instance_ptr);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setLogLevel
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_setLogLevel
   (JNIEnv *, jobject, jlong _log_instance_ptr, jint _log_level) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetLevel(_log_instance_ptr, (TLogLevel)_log_level);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setAppenderMode
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_setAppenderMode
   (JNIEnv *, jobject, jlong _log_instance_ptr, jint _mode) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetAppenderMode(_log_instance_ptr, (mars::xlog::TAppenderMode)_mode);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setConsoleLogOpen
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_setConsoleLogOpen
   (JNIEnv *env, jobject, jlong _log_instance_ptr, jboolean _is_open) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetConsoleLogOpen(_log_instance_ptr, _is_open);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxFileSize
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_setMaxFileSize
         (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_size) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetMaxFileSize(_log_instance_ptr, _max_size);
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_xlog_Xlog_setMaxAliveTime
+JNIEXPORT void JNICALL Java_com_tencent_mars_ilink_xlog_Xlog_setMaxAliveTime
         (JNIEnv *env, jobject, jlong _log_instance_ptr, jlong _max_time) {
     CHECK_LOG_INSTANCE(_log_instance_ptr);
     mars::xlog::SetMaxAliveTime(_log_instance_ptr, _max_time);
