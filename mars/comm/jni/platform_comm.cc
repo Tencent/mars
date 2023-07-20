@@ -119,7 +119,7 @@ void OnPlatformNetworkChange() {
 
 
 #ifndef NATIVE_CALLBACK
-DEFINE_FIND_CLASS(KPlatformCommC2Java, "com/tencent/mars/comm/PlatformComm$C2Java")
+DEFINE_FIND_CLASS(KPlatformCommC2Java, "com/tencent/mars/ilink/comm/PlatformComm$C2Java")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java)
 #endif
@@ -342,7 +342,7 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
 
 #ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo, KPlatformCommC2Java,
-                          "getCurWifiInfo", "()Lcom/tencent/mars/comm/PlatformComm$WifiInfo;")
+                          "getCurWifiInfo", "()Lcom/tencent/mars/ilink/comm/PlatformComm$WifiInfo;")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo)
 #endif
@@ -393,7 +393,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
 
 #ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo, KPlatformCommC2Java, "getCurSIMInfo",
-                          "()Lcom/tencent/mars/comm/PlatformComm$SIMInfo;")
+                          "()Lcom/tencent/mars/ilink/comm/PlatformComm$SIMInfo;")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo)
 #endif
@@ -454,7 +454,7 @@ bool getCurSIMInfo(SIMInfo& simInfo) {
 }
 
 #ifndef NATIVE_CALLBACK
-        DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo, KPlatformCommC2Java, "getAPNInfo", "()Lcom/tencent/mars/comm/PlatformComm$APNInfo;")
+        DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo, KPlatformCommC2Java, "getAPNInfo", "()Lcom/tencent/mars/ilink/comm/PlatformComm$APNInfo;")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo)
 #endif
@@ -478,7 +478,7 @@ bool getAPNInfo(APNInfo& info) {
 
     ScopedLock lock(g_net_mutex);
 
-    jobject retObj = JNU_CallStaticMethodByName(env, cacheInstance->GetClass(env, KPlatformCommC2Java), "getAPNInfo", "()Lcom/tencent/mars/comm/PlatformComm$APNInfo;").l;
+    jobject retObj = JNU_CallStaticMethodByName(env, cacheInstance->GetClass(env, KPlatformCommC2Java), "getAPNInfo", "()Lcom/tencent/mars/ilink/comm/PlatformComm$APNInfo;").l;
 
     if (NULL == retObj) {
         xinfo2(TSF"getAPNInfo error return null");
@@ -561,7 +561,7 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
 #ifdef ANDROID
 #ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new, KPlatformCommC2Java, "wakeupLock_new",
-                          "()Lcom/tencent/mars/comm/WakerLock;")
+                          "()Lcom/tencent/mars/ilink/comm/WakerLock;")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new)
 #endif
