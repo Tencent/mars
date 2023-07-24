@@ -46,6 +46,11 @@ namespace mars{
             return false;
         }
 
+
+        void OnPlatformNetworkChange() {
+            
+        }
+
         int getNetInfo() {
             xverbose_function();
 
