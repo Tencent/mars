@@ -36,9 +36,6 @@ extern "C" {
 #ifndef OPENSSL_RAND_SEED_OS
 # define OPENSSL_RAND_SEED_OS
 #endif
-#ifndef OPENSSL_NO_AFALGENG
-# define OPENSSL_NO_AFALGENG
-#endif
 #ifndef OPENSSL_NO_ASAN
 # define OPENSSL_NO_ASAN
 #endif
@@ -84,9 +81,6 @@ extern "C" {
 #ifndef OPENSSL_NO_SSL3_METHOD
 # define OPENSSL_NO_SSL3_METHOD
 #endif
-#ifndef OPENSSL_NO_TESTS
-# define OPENSSL_NO_TESTS
-#endif
 #ifndef OPENSSL_NO_UBSAN
 # define OPENSSL_NO_UBSAN
 #endif
@@ -96,13 +90,8 @@ extern "C" {
 #ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 # define OPENSSL_NO_WEAK_SSL_CIPHERS
 #endif
-<<<<<<<< HEAD:mars/openssl/include/openssl/opensslconf_default.h
 #ifndef OPENSSL_NO_STATIC_ENGINE
 # define OPENSSL_NO_STATIC_ENGINE
-========
-#ifndef OPENSSL_NO_DYNAMIC_ENGINE
-# define OPENSSL_NO_DYNAMIC_ENGINE
->>>>>>>> origin/ios_trunk:mars/openssl/include/openssl/opensslconf_android-arm64.h
 #endif
 
 
