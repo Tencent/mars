@@ -30,6 +30,7 @@ class CommFrequencyLimit {
     ~CommFrequencyLimit();
 
     bool Check();  // true pass, false limit
+    void Reset();
 
   private:
     CommFrequencyLimit(CommFrequencyLimit&);

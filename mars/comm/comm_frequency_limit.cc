@@ -61,6 +61,11 @@ bool CommFrequencyLimit::Check() {
     return true;
 }
 
+void CommFrequencyLimit::Reset() {
+    xinfo_function(TSF"");
+    touch_times_.clear();
+}
+
 void CommFrequencyLimit::__DelOlderTouchTime(uint64_t _time) {
     for (std::list<uint64_t>::iterator iter = touch_times_.begin(); iter != touch_times_.end();) {
         if ((_time - (*iter)) > time_span_) {
