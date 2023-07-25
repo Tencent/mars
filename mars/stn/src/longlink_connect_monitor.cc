@@ -325,6 +325,10 @@ uint64_t LongLinkConnectMonitor::__AutoIntervalConnect() {
 }
 
 void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
+#if defined(__linux__)
+    xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
+    RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLinkConnectMonitor::__AutoIntervalConnect, this),);
+#else
     ASYNC_BLOCK_START
     if(longlink_.IsSvrTrigOff()) {
         xinfo2(TSF"server trig off");
@@ -346,9 +350,14 @@ void LongLinkConnectMonitor::__OnSignalForeground(bool _isForeground) {
 #endif
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
+#endif
 }
 
 void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
+#if defined(__linux__)
+    xinfo2(TSF"realarm:%_, wakealarm:%_, this:%_", &rebuild_alarm_, &wake_alarm_, this);
+    RETURN_SYNC2ASYNC_FUNC(boost::bind(&LongLinkConnectMonitor::__AutoIntervalConnect, this),);
+#else
     ASYNC_BLOCK_START
     if(longlink_.IsSvrTrigOff()) {
         xinfo2(TSF"server trig off");
@@ -356,6 +365,7 @@ void LongLinkConnectMonitor::__OnSignalActive(bool _isactive) {
     }
     __AutoIntervalConnect();
     ASYNC_BLOCK_END
+#endif
 }
 
 void LongLinkConnectMonitor::__OnLongLinkStatuChanged(LongLink::TLongLinkStatus _status, const std::string& _channel_id) {
