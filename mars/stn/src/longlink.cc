@@ -49,6 +49,9 @@
 #include "mars/app/app_manager.h"
 #include "mars/stn/stn_manager.h"
 
+#include "mars/config/config_mananger.h"
+#include "config.h"
+
 #define AYNC_HANDLER  asyncreg_.Get()
 #define STATIC_RETURN_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
 
@@ -56,6 +59,7 @@ using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;
 using namespace mars::boot;
+using namespace mars::cfg;
 
 #ifdef __ANDROID__
 static const int kAlarmNoopInternalType = 103;
@@ -322,7 +326,8 @@ bool LongLink::__NoopReq(XLogger& _log, Alarm& _alarm, bool need_active_timeout)
         _alarm.Cancel();
         _alarm.Start(need_active_timeout ? (5* 1000) : (8 * 1000));
 #ifdef ANDROID
-        wakelock_->Lock(8 * 1000);
+        wakelock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockNoopReq,kLongLinkWakeupLockNoopReq));
+        //wakelock_->Lock(kLongLinkWakeupLockNoopReq);
 #endif
     } else {
         xerror2("send noop fail");
@@ -355,7 +360,8 @@ bool LongLink::__NoopResp(uint32_t _cmdid, uint32_t _taskid, AutoBuffer& _buf, A
         __NotifySmartHeartbeatHeartResult(true, false, _profile);
         xinfo2(TSF"noop succ, interval:%_", lastheartbeat_);
 #ifdef ANDROID
-        wakelock_->Lock(500);
+        wakelock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockNoopResp,kLongLinkWakeupLockNoopResp));
+        //wakelock_->Lock(kLongLinkWakeupLockNoopResp);
 #endif
     }
     
@@ -403,7 +409,8 @@ void LongLink::__OnAlarm(bool _noop_timeout) {
         OnNoopAlarmReceived(_noop_timeout);
     }
 #ifdef ANDROID
-    wakelock_->Lock(3 * 1000);
+    wakelock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockOnAlarm,kLongLinkWakeupLockOnAlarm));
+    //wakelock_->Lock(kLongLinkWakeupLockOnAlarm);
 #endif
 }
 
@@ -426,11 +433,13 @@ void LongLink::__Run() {
     __UpdateProfile(conn_profile);
     
 #ifdef ANDROID
-    wakelock_->Lock(40 * 1000);
+    wakelock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockBeforeConnection,kLongLinkWakeupLockBeforeConnection));
+    //wakelock_->Lock(kLongLinkWakeupLockBeforeConnection);
 #endif
     SOCKET sock = __RunConnect(conn_profile);
 #ifdef ANDROID
-    wakelock_->Lock(1000);
+    wakelock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockAfterConnection,kLongLinkWakeupLockAfterConnection));
+    //wakelock_->Lock(kLongLinkWakeupLockAfterConnection);
 #endif
     
     if (INVALID_SOCKET == sock) {
@@ -462,7 +471,8 @@ void LongLink::__Run() {
     if (kEctOK != errtype) __RunResponseError(errtype, errcode, conn_profile);
     
 #ifdef ANDROID
-    wakelock_->Lock(1000);
+    wakelock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockAfterReadWrite,kLongLinkWakeupLockAfterReadWrite));
+    //wakelock_->Lock(kLongLinkWakeupLockAfterReadWrite);
 #endif
     
 

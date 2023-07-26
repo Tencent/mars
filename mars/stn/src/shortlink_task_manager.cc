@@ -40,10 +40,13 @@
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
 #include "mars/stn/stn_manager.h"
+#include "mars/config/config_mananger.h"
+#include "config.h"
 
 using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;
+using namespace mars::cfg;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
@@ -165,7 +168,8 @@ void ShortLinkTaskManager::__RunLoop() {
     if (lst_cmd_.empty()) {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        wakeup_lock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyShortLinkWakeupLockEmptyCMD,kShortLinkWakeupLockEmptyCMD));
+        //wakeup_lock_->Lock(kShortLinkWakeupLockEmptyCMD);
 #endif
         return;
     }
@@ -175,7 +179,8 @@ void ShortLinkTaskManager::__RunLoop() {
 
     if (!lst_cmd_.empty()) {
 #ifdef ANDROID
-        wakeup_lock_->Lock(60 * 1000);
+        wakeup_lock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyShortLinkWakeupLockRunCMD,kShortLinkWakeupLockRunCMD));
+        //wakeup_lock_->Lock(kShortLinkWakeupLockRunCMD);
 #endif
         MessageQueue::FasterMessage(asyncreg_.Get(),
                                     MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&ShortLinkTaskManager::__RunLoop, this), "ShortLinkTaskManager::__RunLoop"),
@@ -183,7 +188,8 @@ void ShortLinkTaskManager::__RunLoop() {
     } else {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        wakeup_lock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyShortLinkWakeupLockEmptyCMD,kShortLinkWakeupLockEmptyCMD));
+        //wakeup_lock_->Lock(kShortLinkWakeupLockEmptyCMD);
 #endif
     }
 }

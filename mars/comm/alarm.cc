@@ -153,7 +153,7 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
         if (missTime <= MAX_LOCK_TIME) {
             if (NULL == wakelock_) wakelock_ = new WakeUpLock();
 
-            wakelock_->Lock(missTime + 500);     // add 00ms
+            wakelock_->Lock(missTime + wakelock_on_alarm_);     // add 00ms 这里有可能是对齐
             xinfo2(TSF"wakelock") >> group;
             return;
         }
@@ -186,20 +186,31 @@ const Thread& Alarm::RunThread() const {
     return runthread_;
 }
 
-static void StartWakeLock() {
 #ifdef ANDROID
-    static WakeUpLock wakelock; 
-    wakelock.Lock(1000);    
+void Alarm::__StartWakeLock() {
+    static WakeUpLock wakelock;
+    wakelock.Lock(wakelock_start_alarm_);
     xinfo2(TSF"StartWakeLock");
-#endif
 }
+#endif
 
 #ifdef ANDROID
 void Alarm::onAlarmImpl(int64_t _id) {
     xinfo2(TSF"onAlarm id:%_, MQ:%_", _id, MessageQueue::GetDefMessageQueue());
-    StartWakeLock(); //wakelock need be acquired in onalarm thread, or will fail if try to acquire in other threads.
+    __StartWakeLock(); //wakelock need be acquired in onalarm thread, or will fail if try to acquire in other threads.
     MessageQueue::BroadcastMessage(MessageQueue::GetDefMessageQueue(), MessageQueue::Message(KALARM_SYSTEMTITLE, _id, MessageQueue::GetDefMessageQueue(), "KALARM_SYSTEMTITLE.id"));
 }
+
+void Alarm::SetStartAlarmWakeLock(int time) {
+    xinfo2(TSF "value:%_", time);
+    wakelock_start_alarm_ = time;
+}
+
+void Alarm::SetOnAlarmWakeLock(int time) {
+    xinfo2(TSF "value:%_", time);
+    wakelock_on_alarm_ = time;
+}
+
 #endif
 
 }}

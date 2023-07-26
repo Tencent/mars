@@ -40,9 +40,12 @@
 #include "dynamic_timeout.h"
 #include "net_channel_factory.h"
 #include "mars/stn/stn_manager.h"
+#include "mars/config/config_mananger.h"
+#include "config.h"
 
 using namespace mars::stn;
 using namespace mars::comm;
+using namespace mars::cfg;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_LONKLINK_SYNC2ASYNC_FUNC(func) RETURN_SYNC2ASYNC_FUNC(func, )
@@ -258,7 +261,8 @@ void LongLinkTaskManager::__RunLoop() {
     if (lst_cmd_.empty()) {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        wakeup_lock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockEmptyCMD,kLongLinkWakeupLockEmptyCMD));
+        //wakeup_lock_->Lock(kLongLinkWakeupLockEmptyCMD);
 #endif
         return;
     }
@@ -268,7 +272,8 @@ void LongLinkTaskManager::__RunLoop() {
 
     if (!lst_cmd_.empty()) {
 #ifdef ANDROID
-        wakeup_lock_->Lock(30 * 1000);
+        wakeup_lock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockRunCMD,kLongLinkWakeupLockRunCMD));
+        //wakeup_lock_->Lock(kLongLinkWakeupLockRunCMD);
 #endif
       MessageQueue::FasterMessage(asyncreg_.Get(),
                                   MessageQueue::Message((MessageQueue::MessageTitle_t)this, boost::bind(&LongLinkTaskManager::__RunLoop, this), "LongLinkTaskManager::__RunLoop"),
@@ -276,7 +281,8 @@ void LongLinkTaskManager::__RunLoop() {
     } else {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        wakeup_lock_->Lock(context_->GetManager<ConfigManager>()->GetConfig<int>(kKeyLongLinkWakeupLockEmptyCMD,kLongLinkWakeupLockEmptyCMD));
+        //wakeup_lock_->Lock(kLongLinkWakeupLockEmptyCMD);
 #endif
     }
 }

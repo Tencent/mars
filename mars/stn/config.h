@@ -17,6 +17,7 @@
 //  Created by yerungui on 16/2/26.
 //  Copyright © 2016年 Tencent. All rights reserved.
 //
+#include <string>
 
 #ifndef stn_config_h
 #define stn_config_h
@@ -104,5 +105,37 @@ const static unsigned int kLonglinkConnMax = 3;
 //shortlink connect params
 const static unsigned int kShortlinkConnTimeout = 10 * 1000;
 const static unsigned int kShortlinkConnInterval = 2.5 * 1000;
+
+#ifdef ANDROID
+const static std::string kKeyShortLinkWakeupLockEmptyCMD = "ShortLinkEmptyCMD";
+const static unsigned int kShortLinkWakeupLockEmptyCMD = 500;
+
+const static std::string kKeyShortLinkWakeupLockRunCMD = "ShortLinkRunCMD";
+const static unsigned int kShortLinkWakeupLockRunCMD = 60 * 1000;
+
+const static std::string kKeyLongLinkWakeupLockEmptyCMD = "LongLinkEmptyCMD";
+const static unsigned int kLongLinkWakeupLockEmptyCMD = 500;
+
+const static std::string kKeyLongLinkWakeupLockRunCMD = "LongLinkRunCMD";
+const static unsigned int kLongLinkWakeupLockRunCMD = 30 * 1000;
+
+const static std::string kKeyLongLinkWakeupLockOnAlarm = "LongLinkOnAlarm";
+const static unsigned int kLongLinkWakeupLockOnAlarm = 3 * 1000;
+
+const static std::string kKeyLongLinkWakeupLockBeforeConnection = "LongLinkBeforeConnection";
+const static unsigned int kLongLinkWakeupLockBeforeConnection = 40 * 1000;
+
+const static std::string kKeyLongLinkWakeupLockAfterConnection = "LongLinkAfterConnection";
+const static unsigned int kLongLinkWakeupLockAfterConnection = 1000;
+
+const static std::string kKeyLongLinkWakeupLockAfterReadWrite = "LongLinkAfterReadWrite";
+const static unsigned int kLongLinkWakeupLockAfterReadWrite = 1000;
+
+const static std::string kKeyLongLinkWakeupLockNoopResp = "LongLinkNoopResp";
+const static unsigned int kLongLinkWakeupLockNoopResp = 500;
+
+const static std::string kKeyLongLinkWakeupLockNoopReq = "LongLinkNoopReq";
+const static unsigned int kLongLinkWakeupLockNoopReq = 8 * 1000;
+#endif
 
 #endif /* stn_config_h */

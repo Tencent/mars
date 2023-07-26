@@ -63,7 +63,6 @@ namespace app {
     void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
 #endif
     //end app.h
-
 }}
 
 

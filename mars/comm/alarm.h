@@ -27,6 +27,15 @@
 
 #ifdef ANDROID
 #include "android/wakeuplock.h"
+
+const static std::string kKeyAlarmStartWakeupLook = "AlarmStart";
+const static unsigned int kAlarmStartWakeupLook = 1000;
+
+const static std::string kKeyAlarmOnWakeupLook = "AlarmOn";
+const static unsigned int kAlarmOnWakeupLook = 500;
+
+static int                  wakelock_on_alarm_ = kAlarmOnWakeupLook;
+static int                  wakelock_start_alarm_ = kAlarmStartWakeupLook;
 #endif
 
 namespace mars {
@@ -92,6 +101,9 @@ class Alarm {
 #ifdef ANDROID
     static void onAlarmImpl(int64_t _id);
     void SetType(int _type) {type_ = _type;}
+    static void __StartWakeLock();
+    static void SetStartAlarmWakeLock(int time);
+    static void SetOnAlarmWakeLock(int time);
 #endif
 
     bool Start(int _after, bool _needWake=true);  // ms
