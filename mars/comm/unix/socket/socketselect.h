@@ -6,7 +6,6 @@
  *      Author: jiahongxu
  */
 
-
 #ifndef _SOCKSTSELECT_
 #define _SOCKSTSELECT_
 
@@ -15,11 +14,11 @@
 namespace mars {
 namespace comm {
 
-#if 0/*TARGET_OS_MAC*/
+#if 0 /*TARGET_OS_MAC*/
 #if __APPLE__
 #import <TargetConditionals.h>
 #if TARGET_OS_MAC
-    #include <sys/event.h>
+#include <sys/event.h>
 #endif
 #endif
 
@@ -66,7 +65,7 @@ class SocketSelect {
 #else
 
 class SocketSelect {
-  public:
+ public:
     SocketSelect(SocketBreaker& _breaker, bool _autoclear = false);
     virtual ~SocketSelect();
 
@@ -74,35 +73,35 @@ class SocketSelect {
     void Read_FD_SET(SOCKET _socket);
     void Write_FD_SET(SOCKET _socket);
     void Exception_FD_SET(SOCKET _socket);
-    
+
     virtual int Select();
     virtual int Select(int _msec);
 
-    int  Ret() const;
-    int  Errno() const;
+    int Ret() const;
+    int Errno() const;
 
-    int  Read_FD_ISSET(SOCKET _socket) const;
-    int  Write_FD_ISSET(SOCKET _socket) const;
-    int  Exception_FD_ISSET(SOCKET _socket) const;
+    int Read_FD_ISSET(SOCKET _socket) const;
+    int Write_FD_ISSET(SOCKET _socket) const;
+    int Exception_FD_ISSET(SOCKET _socket) const;
 
     bool IsBreak() const;
     bool IsException() const;
 
     SocketBreaker& Breaker();
 
-    SocketPoll&  Poll();
-    
-  private:
+    SocketPoll& Poll();
+
+ private:
     SocketSelect(const SocketSelect&);
     SocketSelect& operator=(const SocketSelect&);
 
-  protected:
-    SocketPoll  socket_poll_;
+ protected:
+    SocketPoll socket_poll_;
 };
 
 #endif
 
-}
-}
+}  // namespace comm
+}  // namespace mars
 
 #endif

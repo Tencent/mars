@@ -17,18 +17,16 @@
 #include <unistd.h>
 #endif
 
-
-static bool get_fd_path(int fd, char szbuf[1024]){
-
+static bool get_fd_path(int fd, char szbuf[1024]) {
 #ifdef __APPLE__
-    return -1 != fcntl(fd , F_GETPATH, szbuf);
+    return -1 != fcntl(fd, F_GETPATH, szbuf);
 #endif
 
 #ifdef __ANDROID__
     char path[64];
     snprintf(path, sizeof(path), "/proc/self/fd/%d", fd);
     ssize_t length = ::readlink(path, szbuf, 1023);
-    if (length > 0){
+    if (length > 0) {
         szbuf[length] = '\0';
         return true;
     }
@@ -37,24 +35,24 @@ static bool get_fd_path(int fd, char szbuf[1024]){
     return false;
 }
 
-namespace mars{
-namespace comm{
+namespace mars {
+namespace comm {
 
-bool FDI::IsSocket() const{
+bool FDI::IsSocket() const {
 #ifndef WIN32
     return type == S_IFSOCK;
 #else
     return true;
 #endif
 }
-bool FDI::IsFile() const{
+bool FDI::IsFile() const {
 #ifndef WIN32
     return type == S_IFREG;
 #else
     return true;
 #endif
 }
-bool FDI::IsPipe() const{
+bool FDI::IsPipe() const {
 #ifndef WIN32
     return type == S_IFIFO;
 #else
@@ -62,27 +60,27 @@ bool FDI::IsPipe() const{
 #endif
 }
 
-FDI FDInfo::QueryFD(int fd){
+FDI FDInfo::QueryFD(int fd) {
     FDI item;
     item.fd = fd;
-    
+
 #ifndef WIN32
     int flags = fcntl(fd, F_GETFD, 0);
-    if (-1 == flags){
+    if (-1 == flags) {
         item.error = errno;
         item.path_or_name = "<F_GETFD failed>";
-    }else{
+    } else {
         struct stat statbuf;
         if (fstat(fd, &statbuf) == 0) {
             item.type = (S_IFMT & statbuf.st_mode);
             item.path_or_name = "<unknown>";
-            
+
             char szbuf[1024] = {0};
-            if (get_fd_path(fd, szbuf)){
+            if (get_fd_path(fd, szbuf)) {
                 const char* path = strrchr(szbuf, '/');
-                if (path != nullptr){
+                if (path != nullptr) {
                     item.path_or_name = path;
-                }else{
+                } else {
                     item.path_or_name = szbuf;
                 }
             }
@@ -92,7 +90,7 @@ FDI FDInfo::QueryFD(int fd){
     return item;
 }
 
-std::list<FDI> FDInfo::QueryFDInfo(int maxfd){
+std::list<FDI> FDInfo::QueryFDInfo(int maxfd) {
     std::list<FDI> result;
     for (int fd = 0; fd < maxfd; fd++) {
         result.push_back(QueryFD(fd));
@@ -100,7 +98,7 @@ std::list<FDI> FDInfo::QueryFDInfo(int maxfd){
     return result;
 }
 
-static const char* type2name(int type){
+static const char* type2name(int type) {
 #ifndef WIN32
     switch (type) {
         case S_IFIFO:
@@ -125,23 +123,31 @@ static const char* type2name(int type){
 #endif
 }
 
-std::list<std::string> FDInfo::PrettyFDInfo(const std::list<FDI>& fdi){
+std::list<std::string> FDInfo::PrettyFDInfo(const std::list<FDI>& fdi) {
     std::list<std::string> result;
 #ifndef WIN32
     char szline[1024];
     std::string part;
     for (auto item : fdi) {
-        if (part.length() >= 8192){
+        if (part.length() >= 8192) {
             result.push_back(part);
             part.clear();
         }
-        size_t rv = snprintf(szline, 1024, "\r\n%d|%d|%d(%s)|%s", item.fd, item.error, item.type, type2name(item.type), item.path_or_name.c_str());
+        size_t rv = snprintf(szline,
+                             1024,
+                             "\r\n%d|%d|%d(%s)|%s",
+                             item.fd,
+                             item.error,
+                             item.type,
+                             type2name(item.type),
+                             item.path_or_name.c_str());
         part.append(szline, rv);
     }
     result.push_back(part);
 #endif
-    
+
     return result;
 }
 
-}};
+}  // namespace comm
+};  // namespace mars

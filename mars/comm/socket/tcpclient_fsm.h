@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * TcpClientFSM.h
@@ -22,8 +21,8 @@
 #define TCPCLIENTFSM_H_
 
 #include "autobuffer.h"
-#include "socket/unix_socket.h"
 #include "socket/socket_address.h"
+#include "socket/unix_socket.h"
 
 class XLogger;
 
@@ -33,7 +32,7 @@ namespace comm {
 class SocketSelect;
 
 class TcpClientFSM {
-  public:
+ public:
     enum TSocketStatus {
         EStart,
         EConnecting,
@@ -41,7 +40,7 @@ class TcpClientFSM {
         EEnd,
     };
 
-  public:
+ public:
     TcpClientFSM(const sockaddr& _addr);
     virtual ~TcpClientFSM();
 
@@ -67,11 +66,11 @@ class TcpClientFSM {
     virtual int Timeout() const;
     int Rtt() const;
 
-  private:
+ private:
     TcpClientFSM(const TcpClientFSM&);
     TcpClientFSM& operator=(const TcpClientFSM&);
 
-  protected:
+ protected:
     virtual void PreConnectSelect(SocketSelect& _sel, XLogger& _log);
     virtual void AfterConnectSelect(const SocketSelect& _sel, XLogger& _log);
     virtual void PreReadWriteSelect(SocketSelect& _sel, XLogger& _log);
@@ -87,17 +86,17 @@ class TcpClientFSM {
     virtual void _OnConnect() = 0;
     virtual void _OnConnected(int _rtt) = 0;
     virtual void _OnRecv(AutoBuffer& _recv_buff, ssize_t _recv_len) = 0;
-    virtual void _OnRequestSend(AutoBuffer& _send_buff) {}
+    virtual void _OnRequestSend(AutoBuffer& _send_buff) {
+    }
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) = 0;
     virtual void _OnClose(TSocketStatus _status, int _error, bool _remoteclose) = 0;
 
-
-  protected:
+ protected:
     TSocketStatus status_;
     TSocketStatus last_status_;
-    int           error_;
-    bool           remote_close_;
-    bool           request_send_;
+    int error_;
+    bool remote_close_;
+    bool request_send_;
 
     socket_address addr_;
     SOCKET sock_;
@@ -109,7 +108,7 @@ class TcpClientFSM {
     AutoBuffer recv_buf_;
 };
 
-}
-}
+}  // namespace comm
+}  // namespace mars
 
 #endif /* TCPCLIENTFSM_H_ */

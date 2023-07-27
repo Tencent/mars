@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * CoreServiceBase.h
@@ -29,13 +28,13 @@ namespace design_patterns {
 
 struct ServiceRegister;
 
-class CoreServiceBase: public ServiceBase {
-  protected:
+class CoreServiceBase : public ServiceBase {
+ protected:
     CoreServiceBase(const char* _servicename);
     virtual ~CoreServiceBase();
 
-  public:
-    template<typename T>
+ public:
+    template <typename T>
     T* Service() {
         if (m_publicservices.end() != m_publicservices.find(T::ServiceName()))
             return (T*)m_publicservices[T::ServiceName()];
@@ -48,16 +47,16 @@ class CoreServiceBase: public ServiceBase {
         return NULL;
     }
 
-  private:
+ private:
     void __StartupCreater();
     void __FirstGetCreater(const std::string& _servicename);
     void __Creater(std::vector<ServiceRegister>& _vec);
 
-  private:
+ private:
     TServicesMap m_services;
     TServicesMap m_publicservices;
     std::vector<ServiceBase*> m_releasevec;
 };
 
-}
+}  // namespace design_patterns
 #endif

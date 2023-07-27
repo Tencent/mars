@@ -6,11 +6,11 @@
  */
 
 #include "TestService3.h"
-#include "TestCoreService2.h"
-#include "TestService2.h"
-#include "TestService.h"
-#include "ServiceUtil.h"
 
+#include "ServiceUtil.h"
+#include "TestCoreService2.h"
+#include "TestService.h"
+#include "TestService2.h"
 
 namespace design_patterns {
 

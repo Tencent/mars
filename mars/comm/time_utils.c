@@ -5,14 +5,14 @@
  *      Author: yerungui
  */
 
-#include <sys/time.h>
 #include <stdint.h>
+#include <sys/time.h>
 
 #ifdef ANDROID
 
-#include <time.h>
 #include <errno.h>
 #include <linux/ioctl.h>
+#include <time.h>
 
 //#if __ANDROID_API__< 21 && !defined(__LP64__)
 //#include <sys/atomics.h>
@@ -20,28 +20,31 @@
 #include <stdatomic.h>
 //#endif
 
-#include "android/android_alarm.h"
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "android/android_alarm.h"
+
 uint64_t gettickcount() {
     static int s_fd = -1;
-    static int errcode  = 0;
+    static int errcode = 0;
     if (s_fd == -1 && EACCES != errcode) {
         int fd = open("/dev/alarm", O_RDONLY);
-        if (-1 == fd) errcode = errno;
-//#if __ANDROID_API__< 21 && !defined(__LP64__)
-//        if (__atomic_cmpxchg(-1, fd, &s_fd)) {
-//            if(fd != -1) close(fd);
-//        }
-//#else
+        if (-1 == fd)
+            errcode = errno;
+        //#if __ANDROID_API__< 21 && !defined(__LP64__)
+        //        if (__atomic_cmpxchg(-1, fd, &s_fd)) {
+        //            if(fd != -1) close(fd);
+        //        }
+        //#else
         atomic_int x = ATOMIC_VAR_INIT(s_fd);
         int expect = -1;
         if (!atomic_compare_exchange_strong(&x, &expect, fd)) {
-            if (fd >=0) close(fd);
+            if (fd >= 0)
+                close(fd);
         }
         s_fd = atomic_load(&x);
-//#endif
+        //#endif
     }
 
     struct timespec ts;
@@ -53,23 +56,24 @@ uint64_t gettickcount() {
         // a real error, like an exception!
         clock_gettime(CLOCK_BOOTTIME, &ts);
     }
-    return (uint64_t)ts.tv_sec*1000 + (uint64_t)ts.tv_nsec/1000000;
+    return (uint64_t)ts.tv_sec * 1000 + (uint64_t)ts.tv_nsec / 1000000;
 }
 
 uint64_t clock_app_monotonic() {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-    return (uint64_t)ts.tv_sec*1000 + (uint64_t)ts.tv_nsec/1000000;
+    return (uint64_t)ts.tv_sec * 1000 + (uint64_t)ts.tv_nsec / 1000000;
 }
 
-#elif defined __APPLE__ 
+#elif defined __APPLE__
 
 #include <TargetConditionals.h>
 
-#if 0 //defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR) //gettimeofday will rollback, KERN_BOOTTIME up late
-#include <sys/sysctl.h>
+#if 0  // defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR) //gettimeofday will rollback, KERN_BOOTTIME up
+       // late
 #include <assert.h>
 #include <mach/kern_return.h>
+#include <sys/sysctl.h>
 
 uint64_t gettickcount() {
     // On iOS mach_absolute_time stops while the device is sleeping. Instead use
@@ -94,13 +98,12 @@ uint64_t gettickcount() {
 
 uint64_t gettickcount() {
     static mach_timebase_info_data_t timebase_info = {0};
-    
+
     // Convert to nanoseconds - if this is the first time we've run, get the timebase.
-    if (timebase_info.denom == 0 )
-    {
-        (void) mach_timebase_info(&timebase_info);
+    if (timebase_info.denom == 0) {
+        (void)mach_timebase_info(&timebase_info);
     }
-    
+
     // Convert the mach time to milliseconds
     uint64_t mach_time = mach_absolute_time();
     uint64_t millis = (mach_time * timebase_info.numer) / (timebase_info.denom * 1000000);
@@ -116,9 +119,9 @@ uint64_t clock_app_monotonic() {
 
 #include <time.h>
 
-uint64_t gettickcount() {//todoyy
+uint64_t gettickcount() {  // todoyy
     struct timespec ts;
-    if (0==clock_gettime(CLOCK_MONOTONIC, &ts)){
+    if (0 == clock_gettime(CLOCK_MONOTONIC, &ts)) {
         return (ts.tv_sec * 1000ULL + ts.tv_nsec / 1000000);
     }
     return 0;
@@ -128,9 +131,9 @@ uint64_t gettickcount() {//todoyy
 
 #include <time.h>
 
-uint64_t gettickcount() {//todoyy
+uint64_t gettickcount() {  // todoyy
     struct timespec ts;
-    if (0==clock_gettime(CLOCK_MONOTONIC, &ts)){
+    if (0 == clock_gettime(CLOCK_MONOTONIC, &ts)) {
         return (ts.tv_sec * 1000ULL + ts.tv_nsec / 1000000);
     }
     return 0;
@@ -152,10 +155,11 @@ uint64_t gettickcount() {
 uint64_t clock_app_monotonic() {
     return gettickcount();
 }
-#elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP 
+#elif WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP || UWP
+
+#include <stdint.h>
 
 #include "unistd.h"
-#include <stdint.h>
 
 uint64_t gettickcount() {
     return GetTickCount64();
@@ -170,13 +174,14 @@ uint64_t clock_app_monotonic() {
 
 int64_t gettickspan(uint64_t _old_tick) {
     uint64_t cur_tick = gettickcount();
-    if (_old_tick > cur_tick) return 0;
+    if (_old_tick > cur_tick)
+        return 0;
 
     return cur_tick - _old_tick;
 }
 
 uint64_t timeMs() {
-   struct timeval tv;
-   gettimeofday(&tv,NULL);
-   return (uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000;
 }

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -16,32 +16,32 @@
  *  Created on: Dec 19, 2016
  *      Author: wutianqiang
  */
+#include "netinfo_util.h"
+
 #include <vector>
 
-#include "comm/xlogger/xlogger.h"
-#include "comm/socket/local_ipstack.h"
-#include "comm/platform_comm.h"
-#include "comm/network/getgateway.h"
 #include "comm/network/getdnssvraddrs.h"
+#include "comm/network/getgateway.h"
 #include "comm/network/getifaddrs.h"
 #include "comm/network/local_routetable.h"
-#include "comm/socket/unix_socket.h"
+#include "comm/platform_comm.h"
+#include "comm/socket/local_ipstack.h"
 #include "comm/socket/socket_address.h"
-
-#include "netinfo_util.h"
+#include "comm/socket/unix_socket.h"
+#include "comm/xlogger/xlogger.h"
 
 using namespace mars::comm;
 
 NetworkType GetNetworkType() {
     NetworkType network_type = kNetworkTypeUnknown;
     int netinfo = getNetInfo();
-    
+
     if (kWifi == netinfo) {
         network_type = kNetworkTypeWiFi;
     } else if (kMobile == netinfo) {
         RadioAccessNetworkInfo ran;
         getCurRadioAccessNetworkInfo(ran);
-        
+
         if (ran.Is2G())
             network_type = kNetworkType2G;
         else if (ran.Is3G())
@@ -56,32 +56,35 @@ NetworkType GetNetworkType() {
 
 std::string GetDetailNetInfo(bool _need_wifi_ssid) {
     XMessage detail_net_info;
-    //1.网络信息
+    // 1.网络信息
     switch (::getNetInfo()) {
         case kNoNet:
-            detail_net_info << "current network:no network, ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
+            detail_net_info << "current network:no network, ipstack:" << TLocalIPStackStr[local_ipstack_detect()]
+                            << "\n";
             break;
 
         case kWifi: {
             if (_need_wifi_ssid) {
                 WifiInfo info;
                 getCurWifiInfo(info);
-                detail_net_info << "current network:wifi, ssid:" << info.ssid << ",ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
+                detail_net_info << "current network:wifi, ssid:" << info.ssid
+                                << ",ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
             } else {
-                detail_net_info << "current network:wifi, no ssid, ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
+                detail_net_info << "current network:wifi, no ssid, ipstack:" << TLocalIPStackStr[local_ipstack_detect()]
+                                << "\n";
             }
-        }
-        break;
+        } break;
 
         case kMobile: {
             SIMInfo info;
             getCurSIMInfo(info);
             RadioAccessNetworkInfo raninfo;
             getCurRadioAccessNetworkInfo(raninfo);
-            detail_net_info << "current network:mobile, ispname:" << info.isp_name << ", info.isp_code" << info.isp_code;
-            detail_net_info	<< ", ran:" << raninfo.radio_access_network << ",ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
-        }
-        break;
+            detail_net_info << "current network:mobile, ispname:" << info.isp_name << ", info.isp_code"
+                            << info.isp_code;
+            detail_net_info << ", ran:" << raninfo.radio_access_network
+                            << ",ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
+        } break;
 
         case kOtherNet:
             detail_net_info << "current network:other, ipstack:" << TLocalIPStackStr[local_ipstack_detect()] << "\n";
@@ -91,23 +94,26 @@ std::string GetDetailNetInfo(bool _need_wifi_ssid) {
             xassert2(false);
             break;
     }
-        
-    detail_net_info << "--------NetConfig Info----------"<< "\n";
-	 //2.网络配置信息（默认网关、dns svr、路由表） 
+
+    detail_net_info << "--------NetConfig Info----------"
+                    << "\n";
+    // 2.网络配置信息（默认网关、dns svr、路由表）
     in6_addr addr6_gateway;
     memset(&addr6_gateway, 0, sizeof(addr6_gateway));
-    
+
     if (0 == getdefaultgateway6(&addr6_gateway)) {
         detail_net_info << "getdefaultgateway6:" << socket_address(addr6_gateway).ipv6() << "\n";
     } else {
-        detail_net_info << "getdefaultgateway6:" << "failed. ";
+        detail_net_info << "getdefaultgateway6:"
+                        << "failed. ";
     }
     in_addr addr_gateway;
     memset(&addr_gateway, 0, sizeof(addr_gateway));
     if (0 == getdefaultgateway(&addr_gateway)) {
         detail_net_info << "getdefaultgateway:" << socket_address(addr_gateway).ip() << "\n";
     } else {
-        detail_net_info << "getdefaultgateway:" << "failed. ";
+        detail_net_info << "getdefaultgateway:"
+                        << "failed. ";
     }
 
     std::vector<socket_address> dnssvraddrs;
@@ -122,7 +128,8 @@ std::string GetDetailNetInfo(bool _need_wifi_ssid) {
             }
         }
     } else {
-        detail_net_info << "dns server: empty." << "\n";
+        detail_net_info << "dns server: empty."
+                        << "\n";
     }
 
 #ifndef WIN32
@@ -131,25 +138,30 @@ std::string GetDetailNetInfo(bool _need_wifi_ssid) {
     detail_net_info << get_local_route_table();
 #endif
 
-    //3.网卡信息
-    detail_net_info << "----------NIC Info-----------" << "\n";
+    // 3.网卡信息
+    detail_net_info << "----------NIC Info-----------"
+                    << "\n";
     std::vector<ifaddrinfo_ip_t> v4_addrs;
     if (getifaddrs_ipv4_filter(v4_addrs, 0)) {
         for (size_t i = 0; i < v4_addrs.size(); ++i) {
-            detail_net_info << "interface name:"<<v4_addrs[i].ifa_name << ", " << (v4_addrs[i].ifa_family==AF_INET?"AF_INET":"XX_INET")
-                    << ", ip:" << v4_addrs[i].ip << "\n";
+            detail_net_info << "interface name:" << v4_addrs[i].ifa_name << ", "
+                            << (v4_addrs[i].ifa_family == AF_INET ? "AF_INET" : "XX_INET") << ", ip:" << v4_addrs[i].ip
+                            << "\n";
         }
     } else {
-        detail_net_info << "getifaddrs_ipv4_filter:false" << "\n";
+        detail_net_info << "getifaddrs_ipv4_filter:false"
+                        << "\n";
     }
     std::vector<ifaddrinfo_ip_t> v6_addrs;
     if (getifaddrs_ipv6_filter(v6_addrs, 0)) {
         for (size_t i = 0; i < v6_addrs.size(); ++i) {
-            detail_net_info << "interface name:"<<v6_addrs[i].ifa_name << ", " << (v6_addrs[i].ifa_family==AF_INET6?"AF_INET6":"XX_INET")
-                    << ", ip:" << v6_addrs[i].ip << "\n";
+            detail_net_info << "interface name:" << v6_addrs[i].ifa_name << ", "
+                            << (v6_addrs[i].ifa_family == AF_INET6 ? "AF_INET6" : "XX_INET")
+                            << ", ip:" << v6_addrs[i].ip << "\n";
         }
     } else {
-        detail_net_info << "getifaddrs_ipv6_filter:false" << "\n";
+        detail_net_info << "getifaddrs_ipv6_filter:false"
+                        << "\n";
     }
     return detail_net_info.Message();
 }

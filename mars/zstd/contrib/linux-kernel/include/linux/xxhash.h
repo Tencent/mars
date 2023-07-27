@@ -92,7 +92,7 @@
  *
  * Return:  The 32-bit hash of the data.
  */
-uint32_t xxh32(const void *input, size_t length, uint32_t seed);
+uint32_t xxh32(const void* input, size_t length, uint32_t seed);
 
 /**
  * xxh64() - calculate the 64-bit hash of the input with a given seed.
@@ -105,7 +105,7 @@ uint32_t xxh32(const void *input, size_t length, uint32_t seed);
  *
  * Return:  The 64-bit hash of the data.
  */
-uint64_t xxh64(const void *input, size_t length, uint64_t seed);
+uint64_t xxh64(const void* input, size_t length, uint64_t seed);
 
 /*-****************************
  * Streaming Hash Functions
@@ -121,27 +121,27 @@ uint64_t xxh64(const void *input, size_t length, uint64_t seed);
  * struct xxh32_state - private xxh32 state, do not use members directly
  */
 struct xxh32_state {
-	uint32_t total_len_32;
-	uint32_t large_len;
-	uint32_t v1;
-	uint32_t v2;
-	uint32_t v3;
-	uint32_t v4;
-	uint32_t mem32[4];
-	uint32_t memsize;
+    uint32_t total_len_32;
+    uint32_t large_len;
+    uint32_t v1;
+    uint32_t v2;
+    uint32_t v3;
+    uint32_t v4;
+    uint32_t mem32[4];
+    uint32_t memsize;
 };
 
 /**
  * struct xxh32_state - private xxh64 state, do not use members directly
  */
 struct xxh64_state {
-	uint64_t total_len;
-	uint64_t v1;
-	uint64_t v2;
-	uint64_t v3;
-	uint64_t v4;
-	uint64_t mem64[4];
-	uint32_t memsize;
+    uint64_t total_len;
+    uint64_t v1;
+    uint64_t v2;
+    uint64_t v3;
+    uint64_t v4;
+    uint64_t mem64[4];
+    uint32_t memsize;
 };
 
 /**
@@ -152,7 +152,7 @@ struct xxh64_state {
  *
  * Call this function on any xxh32_state to prepare for a new hashing operation.
  */
-void xxh32_reset(struct xxh32_state *state, uint32_t seed);
+void xxh32_reset(struct xxh32_state* state, uint32_t seed);
 
 /**
  * xxh32_update() - hash the data given and update the xxh32 state
@@ -165,7 +165,7 @@ void xxh32_reset(struct xxh32_state *state, uint32_t seed);
  *
  * Return:  Zero on success, otherwise an error code.
  */
-int xxh32_update(struct xxh32_state *state, const void *input, size_t length);
+int xxh32_update(struct xxh32_state* state, const void* input, size_t length);
 
 /**
  * xxh32_digest() - produce the current xxh32 hash
@@ -178,7 +178,7 @@ int xxh32_update(struct xxh32_state *state, const void *input, size_t length);
  *
  * Return: The xxh32 hash stored in the state.
  */
-uint32_t xxh32_digest(const struct xxh32_state *state);
+uint32_t xxh32_digest(const struct xxh32_state* state);
 
 /**
  * xxh64_reset() - reset the xxh64 state to start a new hashing operation
@@ -186,7 +186,7 @@ uint32_t xxh32_digest(const struct xxh32_state *state);
  * @state: The xxh64 state to reset.
  * @seed:  Initialize the hash state with this seed.
  */
-void xxh64_reset(struct xxh64_state *state, uint64_t seed);
+void xxh64_reset(struct xxh64_state* state, uint64_t seed);
 
 /**
  * xxh64_update() - hash the data given and update the xxh64 state
@@ -198,7 +198,7 @@ void xxh64_reset(struct xxh64_state *state, uint64_t seed);
  *
  * Return:  Zero on success, otherwise an error code.
  */
-int xxh64_update(struct xxh64_state *state, const void *input, size_t length);
+int xxh64_update(struct xxh64_state* state, const void* input, size_t length);
 
 /**
  * xxh64_digest() - produce the current xxh64 hash
@@ -211,7 +211,7 @@ int xxh64_update(struct xxh64_state *state, const void *input, size_t length);
  *
  * Return: The xxh64 hash stored in the state.
  */
-uint64_t xxh64_digest(const struct xxh64_state *state);
+uint64_t xxh64_digest(const struct xxh64_state* state);
 
 /*-**************************
  * Utils
@@ -223,7 +223,7 @@ uint64_t xxh64_digest(const struct xxh64_state *state);
  * @src: The source xxh32 state.
  * @dst: The destination xxh32 state.
  */
-void xxh32_copy_state(struct xxh32_state *dst, const struct xxh32_state *src);
+void xxh32_copy_state(struct xxh32_state* dst, const struct xxh32_state* src);
 
 /**
  * xxh64_copy_state() - copy the source state into the destination state
@@ -231,6 +231,6 @@ void xxh32_copy_state(struct xxh32_state *dst, const struct xxh32_state *src);
  * @src: The source xxh64 state.
  * @dst: The destination xxh64 state.
  */
-void xxh64_copy_state(struct xxh64_state *dst, const struct xxh64_state *src);
+void xxh64_copy_state(struct xxh64_state* dst, const struct xxh64_state* src);
 
 #endif /* XXHASH_H */

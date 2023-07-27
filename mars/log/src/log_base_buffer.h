@@ -20,12 +20,13 @@
 #ifndef LOGBASEBUFFER_H_
 #define LOGBASEBUFFER_H_
 
-#include <zlib.h>
-#include <string>
 #include <stdint.h>
+#include <zlib.h>
 
-#include "mars/comm/ptrbuffer.h"
+#include <string>
+
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/ptrbuffer.h"
 
 namespace mars {
 namespace xlog {
@@ -33,23 +34,26 @@ namespace xlog {
 class LogCrypt;
 
 class LogBaseBuffer {
-    
-public:
+ public:
     LogBaseBuffer(void* _pbuffer, size_t _len, bool _is_compress, const char* _pubkey);
     virtual ~LogBaseBuffer();
 
+ public:
+    static bool GetPeriodLogs(const char* _log_path,
+                              int _begin_hour,
+                              int _end_hour,
+                              unsigned long& _begin_pos,
+                              unsigned long& _end_pos,
+                              std::string& _err_msg);
 
-public:
-    static bool GetPeriodLogs(const char* _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg);
-
-public:
+ public:
     PtrBuffer& GetData();
     virtual size_t Compress(const void* src, size_t inLen, void* dst, size_t outLen) = 0;
     virtual void Flush(AutoBuffer& _buff);
     bool Write(const void* _data, size_t _length);
     bool Write(const void* _data, size_t _inputlen, AutoBuffer& _out_buff);
 
-protected:
+ protected:
     virtual bool __Reset();
     void __Flush();
     void __Clear();
@@ -58,7 +62,7 @@ protected:
     virtual char __GetMagicSyncStart() = 0;
     virtual char __GetMagicAsyncStart() = 0;
 
-protected:
+ protected:
     PtrBuffer buff_;
     bool is_compress_;
     class LogCrypt* log_crypt_;
@@ -66,7 +70,7 @@ protected:
     size_t remain_nocrypt_len_;
 };
 
-}
-}
+}  // namespace xlog
+}  // namespace mars
 
 #endif /* LOGBASEBUFFER_H_ */

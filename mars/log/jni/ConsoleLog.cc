@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -15,33 +15,37 @@
  * author : yanguoyue
  */
 
+#include <android/log.h>
 #include <stdio.h>
 #include <string.h>
-#include <android/log.h>
 
-#include "mars/comm/xlogger/xloggerbase.h"
-#include "mars/comm/xlogger/loginfo_extract.h"
 #include "mars/comm/autobuffer.h"
-
+#include "mars/comm/xlogger/loginfo_extract.h"
+#include "mars/comm/xlogger/xloggerbase.h"
 
 namespace mars {
 namespace xlog {
 
 //这里不能加日志，会导致循环调用
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
-	char result_log[16*1024] = {0};
+    char result_log[16 * 1024] = {0};
     if (_info) {
         const char* filename = ExtractFileName(_info->filename);
-        const char* strFuncName  = NULL == _info->func_name ? "" : _info->func_name;
+        const char* strFuncName = NULL == _info->func_name ? "" : _info->func_name;
 
-        snprintf(result_log,  sizeof(result_log), "[%s:%d, %s]:%s", filename, _info->line, strFuncName, _log?_log:"NULL==log!!!");
-        __android_log_write(_info->level+2, _info->tag?_info->tag:"", (const char*)result_log);
+        snprintf(result_log,
+                 sizeof(result_log),
+                 "[%s:%d, %s]:%s",
+                 filename,
+                 _info->line,
+                 strFuncName,
+                 _log ? _log : "NULL==log!!!");
+        __android_log_write(_info->level + 2, _info->tag ? _info->tag : "", (const char*)result_log);
     } else {
-    	snprintf(result_log,  sizeof(result_log) , "%s", _log?_log:"NULL==log!!!");
+        snprintf(result_log, sizeof(result_log), "%s", _log ? _log : "NULL==log!!!");
         __android_log_write(ANDROID_LOG_WARN, "", (const char*)result_log);
     }
-    
 }
 
-}
-}
+}  // namespace xlog
+}  // namespace mars

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,19 +22,15 @@
 
 #include "../coreservice_base.h"
 
-
 namespace design_patterns {
 
-class TestCoreService2: public design_patterns::CoreServiceBase {
-public:
-	TestCoreService2(TServicesMap& _parentsservices)
-	:CoreServiceBase( ServiceName(), _parentsservices)
-	{
+class TestCoreService2 : public design_patterns::CoreServiceBase {
+ public:
+    TestCoreService2(TServicesMap& _parentsservices) : CoreServiceBase(ServiceName(), _parentsservices) {
+    }
+    virtual ~TestCoreService2();
 
-	}
-	virtual ~TestCoreService2();
-
-	DEFINE_SERVICE();
+    DEFINE_SERVICE();
 };
 
 } /* namespace design_patterns */

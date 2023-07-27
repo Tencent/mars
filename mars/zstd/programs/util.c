@@ -8,24 +8,23 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
-
 /*-****************************************
-*  Dependencies
-******************************************/
-#include "util.h"       /* note : ensure that platform.h is included first ! */
-#include <errno.h>
-#include <assert.h>
+ *  Dependencies
+ ******************************************/
+#include "util.h" /* note : ensure that platform.h is included first ! */
 
-#if defined(_MSC_VER) || defined(__MINGW32__) || defined (__MSVCRT__)
-#include <direct.h>     /* needed for _mkdir in windows */
+#include <assert.h>
+#include <errno.h>
+
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MSVCRT__)
+#include <direct.h> /* needed for _mkdir in windows */
 #endif
 
-int UTIL_fileExist(const char* filename)
-{
+int UTIL_fileExist(const char* filename) {
     stat_t statbuf;
 #if defined(_MSC_VER)
     int const stat_error = _stat64(filename, &statbuf);
@@ -35,33 +34,32 @@ int UTIL_fileExist(const char* filename)
     return !stat_error;
 }
 
-int UTIL_isRegularFile(const char* infilename)
-{
+int UTIL_isRegularFile(const char* infilename) {
     stat_t statbuf;
     return UTIL_getFileStat(infilename, &statbuf); /* Only need to know whether it is a regular file */
 }
 
-int UTIL_getFileStat(const char* infilename, stat_t *statbuf)
-{
+int UTIL_getFileStat(const char* infilename, stat_t* statbuf) {
     int r;
 #if defined(_MSC_VER)
     r = _stat64(infilename, statbuf);
-    if (r || !(statbuf->st_mode & S_IFREG)) return 0;   /* No good... */
+    if (r || !(statbuf->st_mode & S_IFREG))
+        return 0; /* No good... */
 #else
     r = stat(infilename, statbuf);
-    if (r || !S_ISREG(statbuf->st_mode)) return 0;   /* No good... */
+    if (r || !S_ISREG(statbuf->st_mode))
+        return 0; /* No good... */
 #endif
     return 1;
 }
 
-int UTIL_setFileStat(const char *filename, stat_t *statbuf)
-{
+int UTIL_setFileStat(const char* filename, stat_t* statbuf) {
     int res = 0;
 
     if (!UTIL_isRegularFile(filename))
         return -1;
 
-    /* set access and modification times */
+        /* set access and modification times */
 #if defined(_WIN32) || (PLATFORM_POSIX_VERSION < 200809L)
     {
         struct utimbuf timebuf;
@@ -72,43 +70,44 @@ int UTIL_setFileStat(const char *filename, stat_t *statbuf)
 #else
     {
         /* (atime, mtime) */
-        struct timespec timebuf[2] = { {0, UTIME_NOW} };
+        struct timespec timebuf[2] = {{0, UTIME_NOW}};
         timebuf[1] = statbuf->st_mtim;
         res += utimensat(AT_FDCWD, filename, timebuf, 0);
     }
 #endif
 
 #if !defined(_WIN32)
-    res += chown(filename, statbuf->st_uid, statbuf->st_gid);  /* Copy ownership */
+    res += chown(filename, statbuf->st_uid, statbuf->st_gid); /* Copy ownership */
 #endif
 
-    res += chmod(filename, statbuf->st_mode & 07777);  /* Copy file permissions */
+    res += chmod(filename, statbuf->st_mode & 07777); /* Copy file permissions */
 
     errno = 0;
     return -res; /* number of errors is returned */
 }
 
-U32 UTIL_isDirectory(const char* infilename)
-{
+U32 UTIL_isDirectory(const char* infilename) {
     int r;
     stat_t statbuf;
 #if defined(_MSC_VER)
     r = _stat64(infilename, &statbuf);
-    if (!r && (statbuf.st_mode & _S_IFDIR)) return 1;
+    if (!r && (statbuf.st_mode & _S_IFDIR))
+        return 1;
 #else
     r = stat(infilename, &statbuf);
-    if (!r && S_ISDIR(statbuf.st_mode)) return 1;
+    if (!r && S_ISDIR(statbuf.st_mode))
+        return 1;
 #endif
     return 0;
 }
 
-int UTIL_compareStr(const void *p1, const void *p2) {
-    return strcmp(* (char * const *) p1, * (char * const *) p2);
+int UTIL_compareStr(const void* p1, const void* p2) {
+    return strcmp(*(char* const*)p1, *(char* const*)p2);
 }
 
-int UTIL_isSameFile(const char* fName1, const char* fName2)
-{
-    assert(fName1 != NULL); assert(fName2 != NULL);
+int UTIL_isSameFile(const char* fName1, const char* fName2) {
+    assert(fName1 != NULL);
+    assert(fName2 != NULL);
 #if defined(_MSC_VER) || defined(_WIN32)
     /* note : Visual does not support file identification by inode.
      *        inode does not work on Windows, even with a posix layer, like msys2.
@@ -116,72 +115,73 @@ int UTIL_isSameFile(const char* fName1, const char* fName2)
      *        aka `filename` is considered different from `subdir/../filename` */
     return !strcmp(fName1, fName2);
 #else
-    {   stat_t file1Stat;
+    {
+        stat_t file1Stat;
         stat_t file2Stat;
-        return UTIL_getFileStat(fName1, &file1Stat)
-            && UTIL_getFileStat(fName2, &file2Stat)
-            && (file1Stat.st_dev == file2Stat.st_dev)
-            && (file1Stat.st_ino == file2Stat.st_ino);
+        return UTIL_getFileStat(fName1, &file1Stat) && UTIL_getFileStat(fName2, &file2Stat)
+               && (file1Stat.st_dev == file2Stat.st_dev) && (file1Stat.st_ino == file2Stat.st_ino);
     }
 #endif
 }
 
 #ifndef _MSC_VER
 /* Using this to distinguish named pipes */
-U32 UTIL_isFIFO(const char* infilename)
-{
+U32 UTIL_isFIFO(const char* infilename) {
 /* macro guards, as defined in : https://linux.die.net/man/2/lstat */
 #if PLATFORM_POSIX_VERSION >= 200112L
     stat_t statbuf;
     int r = UTIL_getFileStat(infilename, &statbuf);
-    if (!r && S_ISFIFO(statbuf.st_mode)) return 1;
+    if (!r && S_ISFIFO(statbuf.st_mode))
+        return 1;
 #endif
     (void)infilename;
     return 0;
 }
 #endif
 
-U32 UTIL_isLink(const char* infilename)
-{
+U32 UTIL_isLink(const char* infilename) {
 /* macro guards, as defined in : https://linux.die.net/man/2/lstat */
 #if PLATFORM_POSIX_VERSION >= 200112L
     int r;
     stat_t statbuf;
     r = lstat(infilename, &statbuf);
-    if (!r && S_ISLNK(statbuf.st_mode)) return 1;
+    if (!r && S_ISLNK(statbuf.st_mode))
+        return 1;
 #endif
     (void)infilename;
     return 0;
 }
 
-U64 UTIL_getFileSize(const char* infilename)
-{
-    if (!UTIL_isRegularFile(infilename)) return UTIL_FILESIZE_UNKNOWN;
-    {   int r;
+U64 UTIL_getFileSize(const char* infilename) {
+    if (!UTIL_isRegularFile(infilename))
+        return UTIL_FILESIZE_UNKNOWN;
+    {
+        int r;
 #if defined(_MSC_VER)
         struct __stat64 statbuf;
         r = _stat64(infilename, &statbuf);
-        if (r || !(statbuf.st_mode & S_IFREG)) return UTIL_FILESIZE_UNKNOWN;
-#elif defined(__MINGW32__) && defined (__MSVCRT__)
+        if (r || !(statbuf.st_mode & S_IFREG))
+            return UTIL_FILESIZE_UNKNOWN;
+#elif defined(__MINGW32__) && defined(__MSVCRT__)
         struct _stati64 statbuf;
         r = _stati64(infilename, &statbuf);
-        if (r || !(statbuf.st_mode & S_IFREG)) return UTIL_FILESIZE_UNKNOWN;
+        if (r || !(statbuf.st_mode & S_IFREG))
+            return UTIL_FILESIZE_UNKNOWN;
 #else
         struct stat statbuf;
         r = stat(infilename, &statbuf);
-        if (r || !S_ISREG(statbuf.st_mode)) return UTIL_FILESIZE_UNKNOWN;
+        if (r || !S_ISREG(statbuf.st_mode))
+            return UTIL_FILESIZE_UNKNOWN;
 #endif
         return (U64)statbuf.st_size;
     }
 }
 
-
-U64 UTIL_getTotalFileSize(const char* const * const fileNamesTable, unsigned nbFiles)
-{
+U64 UTIL_getTotalFileSize(const char* const* const fileNamesTable, unsigned nbFiles) {
     U64 total = 0;
     int error = 0;
     unsigned n;
-    for (n=0; n<nbFiles; n++) {
+    for (n = 0; n < nbFiles; n++) {
         U64 const size = UTIL_getFileSize(fileNamesTable[n]);
         error |= (size == UTIL_FILESIZE_UNKNOWN);
         total += size;
@@ -190,23 +190,23 @@ U64 UTIL_getTotalFileSize(const char* const * const fileNamesTable, unsigned nbF
 }
 
 #ifdef _WIN32
-int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char** bufEnd, int followLinks)
-{
+int UTIL_prepareFileList(const char* dirName, char** bufStart, size_t* pos, char** bufEnd, int followLinks) {
     char* path;
     int dirLength, fnameLength, pathLength, nbFiles = 0;
     WIN32_FIND_DATAA cFile;
     HANDLE hFile;
 
     dirLength = (int)strlen(dirName);
-    path = (char*) malloc(dirLength + 3);
-    if (!path) return 0;
+    path = (char*)malloc(dirLength + 3);
+    if (!path)
+        return 0;
 
     memcpy(path, dirName, dirLength);
     path[dirLength] = '\\';
-    path[dirLength+1] = '*';
-    path[dirLength+2] = 0;
+    path[dirLength + 1] = '*';
+    path[dirLength + 2] = 0;
 
-    hFile=FindFirstFileA(path, &cFile);
+    hFile = FindFirstFileA(path, &cFile);
     if (hFile == INVALID_HANDLE_VALUE) {
         UTIL_DISPLAYLEVEL(1, "Cannot open directory '%s'\n", dirName);
         return 0;
@@ -215,31 +215,40 @@ int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char
 
     do {
         fnameLength = (int)strlen(cFile.cFileName);
-        path = (char*) malloc(dirLength + fnameLength + 2);
-        if (!path) { FindClose(hFile); return 0; }
+        path = (char*)malloc(dirLength + fnameLength + 2);
+        if (!path) {
+            FindClose(hFile);
+            return 0;
+        }
         memcpy(path, dirName, dirLength);
         path[dirLength] = '\\';
-        memcpy(path+dirLength+1, cFile.cFileName, fnameLength);
-        pathLength = dirLength+1+fnameLength;
+        memcpy(path + dirLength + 1, cFile.cFileName, fnameLength);
+        pathLength = dirLength + 1 + fnameLength;
         path[pathLength] = 0;
         if (cFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-            if ( strcmp (cFile.cFileName, "..") == 0
-              || strcmp (cFile.cFileName, ".") == 0 )
+            if (strcmp(cFile.cFileName, "..") == 0 || strcmp(cFile.cFileName, ".") == 0)
                 continue;
             /* Recursively call "UTIL_prepareFileList" with the new path. */
             nbFiles += UTIL_prepareFileList(path, bufStart, pos, bufEnd, followLinks);
-            if (*bufStart == NULL) { free(path); FindClose(hFile); return 0; }
-        } else if ( (cFile.dwFileAttributes & FILE_ATTRIBUTE_NORMAL)
-                 || (cFile.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
-                 || (cFile.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) ) {
+            if (*bufStart == NULL) {
+                free(path);
+                FindClose(hFile);
+                return 0;
+            }
+        } else if ((cFile.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) || (cFile.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)
+                   || (cFile.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)) {
             if (*bufStart + *pos + pathLength >= *bufEnd) {
                 ptrdiff_t const newListSize = (*bufEnd - *bufStart) + LIST_SIZE_INCREASE;
                 *bufStart = (char*)UTIL_realloc(*bufStart, newListSize);
-                if (*bufStart == NULL) { free(path); FindClose(hFile); return 0; }
+                if (*bufStart == NULL) {
+                    free(path);
+                    FindClose(hFile);
+                    return 0;
+                }
                 *bufEnd = *bufStart + newListSize;
             }
             if (*bufStart + *pos + pathLength < *bufEnd) {
-                memcpy(*bufStart + *pos, path, pathLength+1 /* include final \0 */);
+                memcpy(*bufStart + *pos, path, pathLength + 1 /* include final \0 */);
                 *pos += pathLength + 1;
                 nbFiles++;
             }
@@ -251,12 +260,11 @@ int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char
     return nbFiles;
 }
 
-#elif defined(__linux__) || (PLATFORM_POSIX_VERSION >= 200112L)  /* opendir, readdir require POSIX.1-2001 */
+#elif defined(__linux__) || (PLATFORM_POSIX_VERSION >= 200112L) /* opendir, readdir require POSIX.1-2001 */
 
-int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char** bufEnd, int followLinks)
-{
-    DIR *dir;
-    struct dirent *entry;
+int UTIL_prepareFileList(const char* dirName, char** bufStart, size_t* pos, char** bufEnd, int followLinks) {
+    DIR* dir;
+    struct dirent* entry;
     char* path;
     size_t dirLength, fnameLength, pathLength;
     int nbFiles = 0;
@@ -269,16 +277,19 @@ int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char
     dirLength = strlen(dirName);
     errno = 0;
     while ((entry = readdir(dir)) != NULL) {
-        if (strcmp (entry->d_name, "..") == 0 ||
-            strcmp (entry->d_name, ".") == 0) continue;
+        if (strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, ".") == 0)
+            continue;
         fnameLength = strlen(entry->d_name);
-        path = (char*) malloc(dirLength + fnameLength + 2);
-        if (!path) { closedir(dir); return 0; }
+        path = (char*)malloc(dirLength + fnameLength + 2);
+        if (!path) {
+            closedir(dir);
+            return 0;
+        }
         memcpy(path, dirName, dirLength);
 
         path[dirLength] = '/';
-        memcpy(path+dirLength+1, entry->d_name, fnameLength);
-        pathLength = dirLength+1+fnameLength;
+        memcpy(path + dirLength + 1, entry->d_name, fnameLength);
+        pathLength = dirLength + 1 + fnameLength;
         path[pathLength] = 0;
 
         if (!followLinks && UTIL_isLink(path)) {
@@ -288,18 +299,31 @@ int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char
         }
 
         if (UTIL_isDirectory(path)) {
-            nbFiles += UTIL_prepareFileList(path, bufStart, pos, bufEnd, followLinks);  /* Recursively call "UTIL_prepareFileList" with the new path. */
-            if (*bufStart == NULL) { free(path); closedir(dir); return 0; }
+            nbFiles +=
+                UTIL_prepareFileList(path,
+                                     bufStart,
+                                     pos,
+                                     bufEnd,
+                                     followLinks); /* Recursively call "UTIL_prepareFileList" with the new path. */
+            if (*bufStart == NULL) {
+                free(path);
+                closedir(dir);
+                return 0;
+            }
         } else {
             if (*bufStart + *pos + pathLength >= *bufEnd) {
                 ptrdiff_t newListSize = (*bufEnd - *bufStart) + LIST_SIZE_INCREASE;
                 assert(newListSize >= 0);
                 *bufStart = (char*)UTIL_realloc(*bufStart, (size_t)newListSize);
                 *bufEnd = *bufStart + newListSize;
-                if (*bufStart == NULL) { free(path); closedir(dir); return 0; }
+                if (*bufStart == NULL) {
+                    free(path);
+                    closedir(dir);
+                    return 0;
+                }
             }
             if (*bufStart + *pos + pathLength < *bufEnd) {
-                memcpy(*bufStart + *pos, path, pathLength + 1);  /* with final \0 */
+                memcpy(*bufStart + *pos, path, pathLength + 1); /* with final \0 */
                 *pos += pathLength + 1;
                 nbFiles++;
             }
@@ -319,55 +343,56 @@ int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char
 
 #else
 
-int UTIL_prepareFileList(const char *dirName, char** bufStart, size_t* pos, char** bufEnd, int followLinks)
-{
-    (void)bufStart; (void)bufEnd; (void)pos; (void)followLinks;
+int UTIL_prepareFileList(const char* dirName, char** bufStart, size_t* pos, char** bufEnd, int followLinks) {
+    (void)bufStart;
+    (void)bufEnd;
+    (void)pos;
+    (void)followLinks;
     UTIL_DISPLAYLEVEL(1, "Directory %s ignored (compiled without _WIN32 or _POSIX_C_SOURCE)\n", dirName);
     return 0;
 }
 
 #endif /* #ifdef _WIN32 */
 
-int UTIL_isCompressedFile(const char *inputName, const char *extensionList[])
-{
-  const char* ext = UTIL_getFileExtension(inputName);
-  while(*extensionList!=NULL)
-  {
-    const int isCompressedExtension = strcmp(ext,*extensionList);
-    if(isCompressedExtension==0)
-      return 1;
-    ++extensionList;
-  }
-   return 0;
+int UTIL_isCompressedFile(const char* inputName, const char* extensionList[]) {
+    const char* ext = UTIL_getFileExtension(inputName);
+    while (*extensionList != NULL) {
+        const int isCompressedExtension = strcmp(ext, *extensionList);
+        if (isCompressedExtension == 0)
+            return 1;
+        ++extensionList;
+    }
+    return 0;
 }
 
 /*Utility function to get file extension from file */
-const char* UTIL_getFileExtension(const char* infilename)
-{
-   const char* extension = strrchr(infilename, '.');
-   if(!extension || extension==infilename) return "";
-   return extension;
+const char* UTIL_getFileExtension(const char* infilename) {
+    const char* extension = strrchr(infilename, '.');
+    if (!extension || extension == infilename)
+        return "";
+    return extension;
 }
 
 /*
  * UTIL_createFileList - takes a list of files and directories (params: inputNames, inputNamesNb), scans directories,
  *                       and returns a new list of files (params: return value, allocatedBuffer, allocatedNamesNb).
- * After finishing usage of the list the structures should be freed with UTIL_freeFileList(params: return value, allocatedBuffer)
- * In case of error UTIL_createFileList returns NULL and UTIL_freeFileList should not be called.
+ * After finishing usage of the list the structures should be freed with UTIL_freeFileList(params: return value,
+ * allocatedBuffer) In case of error UTIL_createFileList returns NULL and UTIL_freeFileList should not be called.
  */
-const char**
-UTIL_createFileList(const char **inputNames, unsigned inputNamesNb,
-                    char** allocatedBuffer, unsigned* allocatedNamesNb,
-                    int followLinks)
-{
+const char** UTIL_createFileList(const char** inputNames,
+                                 unsigned inputNamesNb,
+                                 char** allocatedBuffer,
+                                 unsigned* allocatedNamesNb,
+                                 int followLinks) {
     size_t pos;
     unsigned i, nbFiles;
     char* buf = (char*)malloc(LIST_SIZE_INCREASE);
     char* bufend = buf + LIST_SIZE_INCREASE;
 
-    if (!buf) return NULL;
+    if (!buf)
+        return NULL;
 
-    for (i=0, pos=0, nbFiles=0; i<inputNamesNb; i++) {
+    for (i = 0, pos = 0, nbFiles = 0; i < inputNamesNb; i++) {
         if (!UTIL_isDirectory(inputNames[i])) {
             size_t const len = strlen(inputNames[i]);
             if (buf + pos + len >= bufend) {
@@ -375,26 +400,40 @@ UTIL_createFileList(const char **inputNames, unsigned inputNamesNb,
                 assert(newListSize >= 0);
                 buf = (char*)UTIL_realloc(buf, (size_t)newListSize);
                 bufend = buf + newListSize;
-                if (!buf) return NULL;
+                if (!buf)
+                    return NULL;
             }
             if (buf + pos + len < bufend) {
-                memcpy(buf+pos, inputNames[i], len+1);  /* including final \0 */
+                memcpy(buf + pos, inputNames[i], len + 1); /* including final \0 */
                 pos += len + 1;
                 nbFiles++;
             }
         } else {
             nbFiles += (unsigned)UTIL_prepareFileList(inputNames[i], &buf, &pos, &bufend, followLinks);
-            if (buf == NULL) return NULL;
-    }   }
+            if (buf == NULL)
+                return NULL;
+        }
+    }
 
-    if (nbFiles == 0) { free(buf); return NULL; }
+    if (nbFiles == 0) {
+        free(buf);
+        return NULL;
+    }
 
-    {   const char** const fileTable = (const char**)malloc((nbFiles + 1) * sizeof(*fileTable));
-        if (!fileTable) { free(buf); return NULL; }
+    {
+        const char** const fileTable = (const char**)malloc((nbFiles + 1) * sizeof(*fileTable));
+        if (!fileTable) {
+            free(buf);
+            return NULL;
+        }
 
         for (i = 0, pos = 0; i < nbFiles; i++) {
             fileTable[i] = buf + pos;
-            if (buf + pos > bufend) { free(buf); free((void*)fileTable); return NULL; }
+            if (buf + pos > bufend) {
+                free(buf);
+                free((void*)fileTable);
+                return NULL;
+            }
             pos += strlen(fileTable[i]) + 1;
         }
 
@@ -405,17 +444,14 @@ UTIL_createFileList(const char **inputNames, unsigned inputNamesNb,
     }
 }
 
-
 /*-****************************************
-*  Console log
-******************************************/
+ *  Console log
+ ******************************************/
 int g_utilDisplayLevel;
 
-
-
 /*-****************************************
-*  count the number of physical cores
-******************************************/
+ *  count the number of physical cores
+ ******************************************/
 
 #if defined(_WIN32) || defined(WIN32)
 
@@ -423,12 +459,13 @@ int g_utilDisplayLevel;
 
 typedef BOOL(WINAPI* LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 
-int UTIL_countPhysicalCores(void)
-{
+int UTIL_countPhysicalCores(void) {
     static int numPhysicalCores = 0;
-    if (numPhysicalCores != 0) return numPhysicalCores;
+    if (numPhysicalCores != 0)
+        return numPhysicalCores;
 
-    {   LPFN_GLPI glpi;
+    {
+        LPFN_GLPI glpi;
         BOOL done = FALSE;
         PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = NULL;
         PSYSTEM_LOGICAL_PROCESSOR_INFORMATION ptr = NULL;
@@ -437,17 +474,16 @@ int UTIL_countPhysicalCores(void)
 
 #if defined(_MSC_VER)
 /* Visual Studio does not like the following cast */
-#   pragma warning( disable : 4054 )  /* conversion from function ptr to data ptr */
-#   pragma warning( disable : 4055 )  /* conversion from data ptr to function ptr */
+#pragma warning(disable : 4054) /* conversion from function ptr to data ptr */
+#pragma warning(disable : 4055) /* conversion from data ptr to function ptr */
 #endif
-        glpi = (LPFN_GLPI)(void*)GetProcAddress(GetModuleHandle(TEXT("kernel32")),
-                                               "GetLogicalProcessorInformation");
+        glpi = (LPFN_GLPI)(void*)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
 
         if (glpi == NULL) {
             goto failed;
         }
 
-        while(!done) {
+        while (!done) {
             DWORD rc = glpi(buffer, &returnLength);
             if (FALSE == rc) {
                 if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
@@ -471,7 +507,6 @@ int UTIL_countPhysicalCores(void)
         ptr = buffer;
 
         while (byteOffset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= returnLength) {
-
             if (ptr->Relationship == RelationProcessorCore) {
                 numPhysicalCores++;
             }
@@ -487,10 +522,12 @@ int UTIL_countPhysicalCores(void)
 
 failed:
     /* try to fall back on GetSystemInfo */
-    {   SYSTEM_INFO sysinfo;
+    {
+        SYSTEM_INFO sysinfo;
         GetSystemInfo(&sysinfo);
         numPhysicalCores = sysinfo.dwNumberOfProcessors;
-        if (numPhysicalCores == 0) numPhysicalCores = 1; /* just in case */
+        if (numPhysicalCores == 0)
+            numPhysicalCores = 1; /* just in case */
     }
     return numPhysicalCores;
 }
@@ -501,12 +538,13 @@ failed:
 
 /* Use apple-provided syscall
  * see: man 3 sysctl */
-int UTIL_countPhysicalCores(void)
-{
+int UTIL_countPhysicalCores(void) {
     static S32 numPhysicalCores = 0; /* apple specifies int32_t */
-    if (numPhysicalCores != 0) return numPhysicalCores;
+    if (numPhysicalCores != 0)
+        return numPhysicalCores;
 
-    {   size_t size = sizeof(S32);
+    {
+        size_t size = sizeof(S32);
         int const ret = sysctlbyname("hw.physicalcpu", &numPhysicalCores, &size, NULL, 0);
         if (ret != 0) {
             if (errno == ENOENT) {
@@ -527,11 +565,11 @@ int UTIL_countPhysicalCores(void)
 /* parse /proc/cpuinfo
  * siblings / cpu cores should give hyperthreading ratio
  * otherwise fall back on sysconf */
-int UTIL_countPhysicalCores(void)
-{
+int UTIL_countPhysicalCores(void) {
     static int numPhysicalCores = 0;
 
-    if (numPhysicalCores != 0) return numPhysicalCores;
+    if (numPhysicalCores != 0)
+        return numPhysicalCores;
 
     numPhysicalCores = (int)sysconf(_SC_NPROCESSORS_ONLN);
     if (numPhysicalCores == -1) {
@@ -540,7 +578,8 @@ int UTIL_countPhysicalCores(void)
     }
 
     /* try to determine if there's hyperthreading */
-    {   FILE* const cpuinfo = fopen("/proc/cpuinfo", "r");
+    {
+        FILE* const cpuinfo = fopen("/proc/cpuinfo", "r");
 #define BUF_SIZE 80
         char buff[BUF_SIZE];
 
@@ -583,7 +622,7 @@ int UTIL_countPhysicalCores(void)
         if (siblings && cpu_cores) {
             ratio = siblings / cpu_cores;
         }
-failed:
+    failed:
         fclose(cpuinfo);
         return numPhysicalCores = numPhysicalCores / ratio;
     }
@@ -596,15 +635,17 @@ failed:
 
 /* Use physical core sysctl when available
  * see: man 4 smp, man 3 sysctl */
-int UTIL_countPhysicalCores(void)
-{
+int UTIL_countPhysicalCores(void) {
     static int numPhysicalCores = 0; /* freebsd sysctl is native int sized */
-    if (numPhysicalCores != 0) return numPhysicalCores;
+    if (numPhysicalCores != 0)
+        return numPhysicalCores;
 
 #if __FreeBSD_version >= 1300008
-    {   size_t size = sizeof(numPhysicalCores);
+    {
+        size_t size = sizeof(numPhysicalCores);
         int ret = sysctlbyname("kern.smp.cores", &numPhysicalCores, &size, NULL, 0);
-        if (ret == 0) return numPhysicalCores;
+        if (ret == 0)
+            return numPhysicalCores;
         if (errno != ENOENT) {
             perror("zstd: can't get number of physical cpus");
             exit(1);
@@ -625,11 +666,11 @@ int UTIL_countPhysicalCores(void)
 
 /* Use POSIX sysconf
  * see: man 3 sysconf */
-int UTIL_countPhysicalCores(void)
-{
+int UTIL_countPhysicalCores(void) {
     static int numPhysicalCores = 0;
 
-    if (numPhysicalCores != 0) return numPhysicalCores;
+    if (numPhysicalCores != 0)
+        return numPhysicalCores;
 
     numPhysicalCores = (int)sysconf(_SC_NPROCESSORS_ONLN);
     if (numPhysicalCores == -1) {
@@ -641,14 +682,13 @@ int UTIL_countPhysicalCores(void)
 
 #else
 
-int UTIL_countPhysicalCores(void)
-{
+int UTIL_countPhysicalCores(void) {
     /* assume 1 */
     return 1;
 }
 
 #endif
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 }
 #endif

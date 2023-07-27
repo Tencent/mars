@@ -1,5 +1,6 @@
 /*  Copyright (c) 2013-2015 Tencent. All rights reserved.  */
 #include "SocketSelect.h"
+
 #include <ws2tcpip.h>
 
 #include "comm/xlogger/xlogger.h"
@@ -8,11 +9,11 @@
 using namespace mars::comm;
 
 SocketSelectBreaker::SocketSelectBreaker()
-    : m_sendinlen(sizeof(m_sendin))
-    , m_socket_w(INVALID_SOCKET)
-    , m_socket_r(INVALID_SOCKET)
-    , m_broken(false)
-    , m_create_success(true) {
+: m_sendinlen(sizeof(m_sendin))
+, m_socket_w(INVALID_SOCKET)
+, m_socket_r(INVALID_SOCKET)
+, m_broken(false)
+, m_create_success(true) {
     ReCreate();
 }
 
@@ -115,15 +116,16 @@ bool SocketSelectBreaker::IsBreak() const {
 bool SocketSelectBreaker::Break() {
     ScopedLock lock(m_mutex);
 
-    if (m_broken) return true;
+    if (m_broken)
+        return true;
 
     char dummy[] = "1";
     int ret = sendto(m_socket_w, &dummy, strlen(dummy), 0, (sockaddr*)&m_sendin, m_sendinlen);
     m_broken = true;
 
     if (ret < 0 || ret != strlen(dummy)) {
-        xerror2(TSF"sendto Ret:%_, errno:(%_, %_)", ret, errno, WSAGetLastError());
-        m_broken =  false;
+        xerror2(TSF "sendto Ret:%_, errno:(%_, %_)", ret, errno, WSAGetLastError());
+        m_broken = false;
         ReCreate();
     }
 
@@ -131,12 +133,11 @@ bool SocketSelectBreaker::Break() {
     return m_broken;
 }
 
-
-
 bool SocketSelectBreaker::Clear() {
     ScopedLock lock(m_mutex);
 
-    if (!m_broken) return true;
+    if (!m_broken)
+        return true;
 
     char buf[128];
     struct sockaddr src = {0};
@@ -145,7 +146,7 @@ bool SocketSelectBreaker::Clear() {
     m_broken = false;
 
     if (ret < 0) {
-        xerror2(TSF"recvfrom Ret:%_, errno:(%_, %_)", ret, errno, WSAGetLastError());
+        xerror2(TSF "recvfrom Ret:%_, errno:(%_, %_)", ret, errno, WSAGetLastError());
         ReCreate();
         return false;
     }
@@ -171,15 +172,15 @@ SOCKET SocketSelectBreaker::BreakerFD() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 SocketSelect::SocketSelect(SocketSelectBreaker& _breaker, bool _autoclear)
-    : breaker_(_breaker), maxsocket_(0), errno_(0), autoclear_(_autoclear) {
+: breaker_(_breaker), maxsocket_(0), errno_(0), autoclear_(_autoclear) {
     // inital FD
     FD_ZERO(&readfd_);
     FD_ZERO(&writefd_);
     FD_ZERO(&exceptionfd_);
 }
 
-SocketSelect::~SocketSelect()
-{}
+SocketSelect::~SocketSelect() {
+}
 
 void SocketSelect::PreSelect() {
     xassert2(!IsBreak(), "Already break!");
@@ -196,9 +197,11 @@ void SocketSelect::PreSelect() {
 int SocketSelect::Select() {
     int ret = select(maxsocket_ + 1, &readfd_, &writefd_, &exceptionfd_, NULL);
 
-    if (0 > ret) errno_ = errno;
+    if (0 > ret)
+        errno_ = errno;
 
-    if (autoclear_) Breaker().Clear();
+    if (autoclear_)
+        Breaker().Clear();
 
     return ret;
 }
@@ -211,9 +214,11 @@ int SocketSelect::Select(int _msec) {
     timeval timeout = {sec, usec};
     int ret = select(maxsocket_ + 1, &readfd_, &writefd_, &exceptionfd_, &timeout);
 
-    if (0 > ret) errno_ = errno;
+    if (0 > ret)
+        errno_ = errno;
 
-    if (autoclear_) Breaker().Clear();
+    if (autoclear_)
+        Breaker().Clear();
 
     return ret;
 }
@@ -224,9 +229,11 @@ int SocketSelect::Select(int _sec, int _usec) {
     timeval timeout = {_sec, _usec};
     int ret = select(maxsocket_ + 1, &readfd_, &writefd_, &exceptionfd_, &timeout);
 
-    if (0 > ret) errno_ = errno;
+    if (0 > ret)
+        errno_ = errno;
 
-    if (autoclear_) Breaker().Clear();
+    if (autoclear_)
+        Breaker().Clear();
 
     return ret;
 }
@@ -273,4 +280,3 @@ SocketSelectBreaker& SocketSelect::Breaker() {
 int SocketSelect::Errno() const {
     return errno_;
 }
-

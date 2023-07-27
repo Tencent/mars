@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * longlink_speed_test.h
@@ -25,11 +24,9 @@
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
-
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/socket/socketselect.h"
 #include "mars/comm/socket/unix_socket.h"
-
 #include "net_source.h"
 
 enum ELongLinkSpeedTestState {
@@ -42,10 +39,10 @@ enum ELongLinkSpeedTestState {
 };
 
 namespace mars {
-    namespace stn {
+namespace stn {
 
 class LongLinkSpeedTestItem {
-  public:
+ public:
     LongLinkSpeedTestItem(const std::string& _ip, uint16_t _port);
     ~LongLinkSpeedTestItem();
 
@@ -60,11 +57,11 @@ class LongLinkSpeedTestItem {
 
     void CloseSocket();
 
-  private:
+ private:
     int __HandleSpeedTestReq();
     int __HandleSpeedTestResp();
 
-  private:
+ private:
     std::string ip_;
     unsigned int port_;
     SOCKET socket_;
@@ -78,21 +75,25 @@ class LongLinkSpeedTestItem {
 };
 
 class LongLinkSpeedTest {
-  public:
+ public:
     LongLinkSpeedTest(const boost::shared_ptr<NetSource>& _netsource);
     ~LongLinkSpeedTest();
 
-    bool GetFastestSocket(int& _fdSocket, std::string& _strIp, unsigned int& _port, IPSourceType& _type, unsigned long& _connectMillSec);
+    bool GetFastestSocket(int& _fdSocket,
+                          std::string& _strIp,
+                          unsigned int& _port,
+                          IPSourceType& _type,
+                          unsigned long& _connectMillSec);
 
     boost::shared_ptr<NetSource> GetNetSource();
-  private:
+
+ private:
     boost::shared_ptr<NetSource> netsource_;
     comm::SocketBreaker breaker_;
     comm::SocketSelect selector_;
 };
-        
-    }
-}
 
+}  // namespace stn
+}  // namespace mars
 
-#endif // STN_SRC_LONGLINK_SPEED_TEST_H_
+#endif  // STN_SRC_LONGLINK_SPEED_TEST_H_
