@@ -17,6 +17,10 @@
 #include "comm/platform_comm.h"
 #import <CoreLocation/CoreLocation.h>
 #import <Foundation/Foundation.h>
+#import <CoreFoundation/CFData.h>
+#import <Security/SecCertificate.h>
+#import <Security/SecPolicy.h>
+#import <Security/SecTrust.h>
 #include "mars/comm/macro.h"
 
 #import "comm/objc/scope_autoreleasepool.h"
@@ -499,6 +503,46 @@ bool RadioAccessNetworkInfo::IsNR() const {
 #else
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) { return false; }
 #endif
+
+static void ReleaseSecData(const void* secdata, void*) {
+    CFRelease(secdata);
+}
+int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain){
+    CFMutableArrayRef certlist = CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
+    for (int i = 0; i < certschain.size(); i++) {
+        CFDataRef dataref = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
+                                                        (const uint8_t*)certschain[i].data(),
+                                                        certschain[i].size(),
+                                                        kCFAllocatorNull);
+        CFArrayAppendValue(certlist, SecCertificateCreateWithData(nullptr, dataref));
+    }
+
+    CFStringRef label = CFStringCreateWithCString(NULL, hostname.c_str(), kCFStringEncodingUTF8);
+    SecPolicyRef policy = SecPolicyCreateSSL(true, label);
+    CFRelease(label);
+
+    SecTrustRef trustref;
+    OSStatus status = SecTrustCreateWithCertificates(certlist, policy, &trustref);
+    if (0 != status) {
+        CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData, nullptr);
+        CFRelease(certlist);
+        CFRelease(policy);
+        return -1;
+    }
+
+    SecTrustResultType result = kSecTrustResultInvalid;
+    status = SecTrustEvaluate(trustref, &result);
+    CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData, nullptr);
+    CFRelease(certlist);
+    CFRelease(policy);
+    CFRelease(trustref);
+
+    int rv = -2;
+    if (0 == status) {
+        rv = (kSecTrustResultUnspecified == result || kSecTrustResultProceed == result) ? 0 : -3;
+    }
+    return rv;
+}
 
 }  // namespace comm
 }  // namespace mars
