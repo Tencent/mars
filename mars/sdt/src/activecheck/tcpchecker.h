@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -21,29 +21,33 @@
 #ifndef SDT_SRC_ACTIVECHECK_TCPCHEKER_H_
 #define SDT_SRC_ACTIVECHECK_TCPCHEKER_H_
 
+#include "basechecker.h"
 #include "mars/comm/autobuffer.h"
 #include "mars/sdt/sdt.h"
-
-#include "basechecker.h"
 
 namespace mars {
 namespace sdt {
 
 class TcpChecker : public BaseChecker {
-  public:
+ public:
     TcpChecker();
     virtual ~TcpChecker();
 
     virtual int StartDoCheck(CheckRequestProfile& _check_request);
 
-  protected:
+ protected:
     virtual void __DoCheck(CheckRequestProfile& _check_request);
 
-  private:
+ private:
     void __NoopReq(AutoBuffer& noop_send);
-    bool __NoopResp(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body);
+    bool __NoopResp(const AutoBuffer& _packed,
+                    uint32_t& _cmdid,
+                    uint32_t& _seq,
+                    size_t& _package_len,
+                    AutoBuffer& _body);
 };
 
-}}
+}  // namespace sdt
+}  // namespace mars
 
-#endif	//SDT_SRC_ACTIVECHECK_TCPCHEKER_H_
+#endif  // SDT_SRC_ACTIVECHECK_TCPCHEKER_H_

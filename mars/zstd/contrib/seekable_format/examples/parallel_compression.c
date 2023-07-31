@@ -7,86 +7,85 @@
  * in the COPYING file in the root directory of this source tree).
  */
 
-#include <stdlib.h>    // malloc, free, exit, atoi
-#include <stdio.h>     // fprintf, perror, feof, fopen, etc.
-#include <string.h>    // strlen, memset, strcat
+#include <stdio.h>   // fprintf, perror, feof, fopen, etc.
+#include <stdlib.h>  // malloc, free, exit, atoi
+#include <string.h>  // strlen, memset, strcat
 #define ZSTD_STATIC_LINKING_ONLY
-#include <zstd.h>      // presumes zstd library is installed
+#include <zstd.h>  // presumes zstd library is installed
 #include <zstd_errors.h>
 #if defined(WIN32) || defined(_WIN32)
-#  include <windows.h>
-#  define SLEEP(x) Sleep(x)
+#include <windows.h>
+#define SLEEP(x) Sleep(x)
 #else
-#  include <unistd.h>
-#  define SLEEP(x) usleep(x * 1000)
+#include <unistd.h>
+#define SLEEP(x) usleep(x * 1000)
 #endif
 
 #define XXH_NAMESPACE ZSTD_
+#include "pool.h"  // use zstd thread pool for demo
 #include "xxhash.h"
-
-#include "pool.h"      // use zstd thread pool for demo
-
 #include "zstd_seekable.h"
 
-static void* malloc_orDie(size_t size)
-{
+static void* malloc_orDie(size_t size) {
     void* const buff = malloc(size);
-    if (buff) return buff;
+    if (buff)
+        return buff;
     /* error */
     perror("malloc:");
     exit(1);
 }
 
-static FILE* fopen_orDie(const char *filename, const char *instruction)
-{
+static FILE* fopen_orDie(const char* filename, const char* instruction) {
     FILE* const inFile = fopen(filename, instruction);
-    if (inFile) return inFile;
+    if (inFile)
+        return inFile;
     /* error */
     perror(filename);
     exit(3);
 }
 
-static size_t fread_orDie(void* buffer, size_t sizeToRead, FILE* file)
-{
+static size_t fread_orDie(void* buffer, size_t sizeToRead, FILE* file) {
     size_t const readSize = fread(buffer, 1, sizeToRead, file);
-    if (readSize == sizeToRead) return readSize;   /* good */
-    if (feof(file)) return readSize;   /* good, reached end of file */
+    if (readSize == sizeToRead)
+        return readSize; /* good */
+    if (feof(file))
+        return readSize; /* good, reached end of file */
     /* error */
     perror("fread");
     exit(4);
 }
 
-static size_t fwrite_orDie(const void* buffer, size_t sizeToWrite, FILE* file)
-{
+static size_t fwrite_orDie(const void* buffer, size_t sizeToWrite, FILE* file) {
     size_t const writtenSize = fwrite(buffer, 1, sizeToWrite, file);
-    if (writtenSize == sizeToWrite) return sizeToWrite;   /* good */
+    if (writtenSize == sizeToWrite)
+        return sizeToWrite; /* good */
     /* error */
     perror("fwrite");
     exit(5);
 }
 
-static size_t fclose_orDie(FILE* file)
-{
-    if (!fclose(file)) return 0;
+static size_t fclose_orDie(FILE* file) {
+    if (!fclose(file))
+        return 0;
     /* error */
     perror("fclose");
     exit(6);
 }
 
-static void fseek_orDie(FILE* file, long int offset, int origin)
-{
+static void fseek_orDie(FILE* file, long int offset, int origin) {
     if (!fseek(file, offset, origin)) {
-        if (!fflush(file)) return;
+        if (!fflush(file))
+            return;
     }
     /* error */
     perror("fseek");
     exit(7);
 }
 
-static long int ftell_orDie(FILE* file)
-{
+static long int ftell_orDie(FILE* file) {
     long int off = ftell(file);
-    if (off != -1) return off;
+    if (off != -1)
+        return off;
     /* error */
     perror("ftell");
     exit(8);
@@ -104,8 +103,7 @@ struct job {
     int done;
 };
 
-static void compressFrame(void* opaque)
-{
+static void compressFrame(void* opaque) {
     struct job* job = opaque;
 
     job->checksum = XXH64(job->src, job->srcSize, 0);
@@ -120,17 +118,21 @@ static void compressFrame(void* opaque)
     job->done = 1;
 }
 
-static void compressFile_orDie(const char* fname, const char* outName, int cLevel, unsigned frameSize, int nbThreads)
-{
+static void compressFile_orDie(const char* fname, const char* outName, int cLevel, unsigned frameSize, int nbThreads) {
     POOL_ctx* pool = POOL_create(nbThreads, nbThreads);
-    if (pool == NULL) { fprintf(stderr, "POOL_create() error \n"); exit(9); }
+    if (pool == NULL) {
+        fprintf(stderr, "POOL_create() error \n");
+        exit(9);
+    }
 
-    FILE* const fin  = fopen_orDie(fname, "rb");
+    FILE* const fin = fopen_orDie(fname, "rb");
     FILE* const fout = fopen_orDie(outName, "wb");
 
-    if (ZSTD_compressBound(frameSize) > 0xFFFFFFFFU) { fprintf(stderr, "Frame size too large \n"); exit(10); }
+    if (ZSTD_compressBound(frameSize) > 0xFFFFFFFFU) {
+        fprintf(stderr, "Frame size too large \n");
+        exit(10);
+    }
     unsigned dstSize = ZSTD_compressBound(frameSize);
-
 
     fseek_orDie(fin, 0, SEEK_END);
     long int length = ftell_orDie(fin);
@@ -141,7 +143,7 @@ static void compressFile_orDie(const char* fname, const char* outName, int cLeve
     struct job* jobs = malloc_orDie(sizeof(struct job) * numFrames);
 
     size_t i;
-    for(i = 0; i < numFrames; i++) {
+    for (i = 0; i < numFrames; i++) {
         void* in = malloc_orDie(frameSize);
         void* out = malloc_orDie(dstSize);
 
@@ -157,18 +159,25 @@ static void compressFile_orDie(const char* fname, const char* outName, int cLeve
     }
 
     ZSTD_frameLog* fl = ZSTD_seekable_createFrameLog(1);
-    if (fl == NULL) { fprintf(stderr, "ZSTD_seekable_createFrameLog() failed \n"); exit(11); }
+    if (fl == NULL) {
+        fprintf(stderr, "ZSTD_seekable_createFrameLog() failed \n");
+        exit(11);
+    }
     for (i = 0; i < numFrames; i++) {
-        while (!jobs[i].done) SLEEP(5); /* wake up every 5 milliseconds to check */
+        while (!jobs[i].done)
+            SLEEP(5); /* wake up every 5 milliseconds to check */
         fwrite_orDie(jobs[i].dst, jobs[i].dstSize, fout);
         free((void*)jobs[i].src);
         free(jobs[i].dst);
 
         size_t ret = ZSTD_seekable_logFrame(fl, jobs[i].dstSize, jobs[i].srcSize, jobs[i].checksum);
-        if (ZSTD_isError(ret)) { fprintf(stderr, "ZSTD_seekable_logFrame() error : %s \n", ZSTD_getErrorName(ret)); }
+        if (ZSTD_isError(ret)) {
+            fprintf(stderr, "ZSTD_seekable_logFrame() error : %s \n", ZSTD_getErrorName(ret));
+        }
     }
 
-    {   unsigned char seekTableBuff[1024];
+    {
+        unsigned char seekTableBuff[1024];
         ZSTD_outBuffer out = {seekTableBuff, 1024, 0};
         while (ZSTD_seekable_writeSeekTable(fl, &out) != 0) {
             fwrite_orDie(seekTableBuff, out.pos, fout);
@@ -183,8 +192,7 @@ static void compressFile_orDie(const char* fname, const char* outName, int cLeve
     fclose_orDie(fin);
 }
 
-static const char* createOutFilename_orDie(const char* filename)
-{
+static const char* createOutFilename_orDie(const char* filename) {
     size_t const inL = strlen(filename);
     size_t const outL = inL + 5;
     void* outSpace = malloc_orDie(outL);
@@ -196,14 +204,15 @@ static const char* createOutFilename_orDie(const char* filename)
 
 int main(int argc, const char** argv) {
     const char* const exeName = argv[0];
-    if (argc!=4) {
+    if (argc != 4) {
         printf("wrong arguments\n");
         printf("usage:\n");
         printf("%s FILE FRAME_SIZE NB_THREADS\n", exeName);
         return 1;
     }
 
-    {   const char* const inFileName = argv[1];
+    {
+        const char* const inFileName = argv[1];
         unsigned const frameSize = (unsigned)atoi(argv[2]);
         int const nbThreads = atoi(argv[3]);
 

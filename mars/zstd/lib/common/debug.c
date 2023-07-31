@@ -32,7 +32,6 @@
    - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
 ****************************************************************** */
 
-
 /*
  * This module only hosts one global variable
  * which can be used to dynamically influence the verbosity of traces,

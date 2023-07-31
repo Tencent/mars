@@ -3,6 +3,7 @@
 //
 
 #include "jnicat_core.h"
+
 #include <android/log.h>
 
 #define xdebug(args...) __android_log_print(ANDROID_LOG_DEBUG, "jnicat", args)
@@ -10,7 +11,9 @@
 
 namespace jnicat {
 
-const char* version() { return "1.2.3"; }
+const char* version() {
+    return "1.2.3";
+}
 
 std::string jstring_to_string(JNIEnv* env, jstring jstr) {
     std::string str;
@@ -41,7 +44,7 @@ jstring cstr_to_jstring(JNIEnv* env, const char* cstr) {
         bytes = env->NewByteArray(len);
         env->SetByteArrayRegion(bytes, 0, len, (const jbyte*)cstr);
     } else {
-        char null_str[1] = { 0 };
+        char null_str[1] = {0};
         bytes = env->NewByteArray(1);
         env->SetByteArrayRegion(bytes, 0, 1, (const jbyte*)null_str);
     }
@@ -142,7 +145,7 @@ jobject stringvector_to_arraylist(JNIEnv* env, const std::vector<std::string>& v
     auto ctor_method = jcache::shared()->get_methodid(env, cls, "<init>", "()V");
     auto add_method = jcache::shared()->get_methodid(env, cls, "add", "(Ljava/lang/Object;)Z");
     auto obj = env->NewObject(cls, ctor_method);
-    for (const auto& str: vec) {
+    for (const auto& str : vec) {
         auto array = string_to_jbytearray(env, str);
         env->CallBooleanMethod(obj, add_method, array);
         env->DeleteLocalRef(array);
@@ -213,7 +216,6 @@ jdoubleArray NewArray(JNIEnv* env, jsize len, const jdouble* buf) {
     return array;
 }
 
-
 static void __cache_all_cacheitem(JNIEnv* env);
 static void __register_all_jnimethod(JNIEnv* env);
 
@@ -234,11 +236,9 @@ static void enable_detach_current_thread() {
     } dummy;
 };
 
-
-
 jcache* jcache::instance_ = nullptr;
 
-jcache::jcache():vm_(nullptr), is_auto_detach_(true), exception_handler_(nullptr) {
+jcache::jcache() : vm_(nullptr), is_auto_detach_(true), exception_handler_(nullptr) {
 }
 
 jcache::~jcache() {
@@ -272,20 +272,28 @@ int jcache::init(JavaVM* vm) {
     return JNI_VERSION_1_6;
 }
 
-JavaVM* jcache::java_vm() const { return vm_; }
+JavaVM* jcache::java_vm() const {
+    return vm_;
+}
 
-void jcache::set_auto_detach(bool is_auto_detach) { is_auto_detach_ = is_auto_detach; }
+void jcache::set_auto_detach(bool is_auto_detach) {
+    is_auto_detach_ = is_auto_detach;
+}
 
-bool jcache::is_auto_detach() const { return is_auto_detach_; }
+bool jcache::is_auto_detach() const {
+    return is_auto_detach_;
+}
 
-void jcache::set_exception_handler(C2JavaExceptionHandler handler) { exception_handler_ = handler; }
+void jcache::set_exception_handler(C2JavaExceptionHandler handler) {
+    exception_handler_ = handler;
+}
 
 void jcache::__cache_class(JNIEnv* env) {
-    for (auto classname: kJarrayClassnameMap) {
+    for (auto classname : kJarrayClassnameMap) {
         get_class(env, classname);
     }
 
-    for (auto classname: kJwrapperClassnameMap) {
+    for (auto classname : kJwrapperClassnameMap) {
         get_class(env, classname);
     }
 
@@ -305,20 +313,19 @@ void jcache::__clear_cache() {
     }
 
     jnienv_ptr env(vm_);
-    for (const auto& item: classmap_) {
+    for (const auto& item : classmap_) {
         env->DeleteGlobalRef(item.second);
     }
-    for (const auto& item: fieldmap_) {
+    for (const auto& item : fieldmap_) {
         env->DeleteGlobalRef(item.first);
         delete item.second;
     }
-    for (const auto& item: methodmap_) {
+    for (const auto& item : methodmap_) {
         env->DeleteGlobalRef(item.first);
         delete item.second;
     }
     env.detach();
 }
-
 
 jclass jcache::get_class(JNIEnv* env, const char* name) {
     assert(env != nullptr);
@@ -508,7 +515,10 @@ jmethodID jcache::get_methodid(JNIEnv* env, const char* classname, const char* m
     return get_methodid(env, cls, methodname, signature);
 }
 
-jmethodID jcache::get_static_methodid(JNIEnv* env, const char* classname, const char* methodname, const char* signature) {
+jmethodID jcache::get_static_methodid(JNIEnv* env,
+                                      const char* classname,
+                                      const char* methodname,
+                                      const char* signature) {
     auto cls = get_class(env, classname);
     if (cls == nullptr) {
         return nullptr;
@@ -516,17 +526,18 @@ jmethodID jcache::get_static_methodid(JNIEnv* env, const char* classname, const 
     return get_static_methodid(env, cls, methodname, signature);
 }
 
-
 struct jobject_compare_t {
-public:
-    jobject_compare_t(JNIEnv* env, jobject obj):env_(env), obj_(obj) {}
+ public:
+    jobject_compare_t(JNIEnv* env, jobject obj) : env_(env), obj_(obj) {
+    }
     bool operator()(const jcache::class_field_map_t::value_type& rhs) const {
         return env_->IsSameObject(obj_, rhs.first);
     }
     bool operator()(const jcache::class_method_map_t::value_type& rhs) const {
         return env_->IsSameObject(obj_, rhs.first);
     }
-private:
+
+ private:
     JNIEnv* env_;
     jobject obj_;
 };
@@ -554,13 +565,13 @@ jcache::method_map_t* jcache::__get_method_map(JNIEnv* env, jclass cls) {
 }
 
 static void __dump_fieldmap(jcache::field_map_t* fmap) {
-    for (const auto& item: *fmap) {
+    for (const auto& item : *fmap) {
         xdebug("    %s -> %p", item.first.c_str(), item.second);
     }
 }
 
 static void __dump_methodmap(jcache::method_map_t* mmap) {
-    for (const auto& item: *mmap) {
+    for (const auto& item : *mmap) {
         xdebug("    %s -> %p", item.first.c_str(), item.second);
     }
 }
@@ -568,16 +579,16 @@ static void __dump_methodmap(jcache::method_map_t* mmap) {
 void jcache::dump() {
     std::lock_guard<std::mutex> lock(mutex_);
     xdebug("**********  class cache ********** count %d", (int)classmap_.size());
-    for (const auto& item: classmap_) {
+    for (const auto& item : classmap_) {
         xdebug("%s -> %p", item.first.c_str(), item.second);
     }
     xdebug("**********  field cache ********** count %d", (int)fieldmap_.size());
-    for (const auto& item: fieldmap_) {
+    for (const auto& item : fieldmap_) {
         xdebug("%p:", item.first);
         __dump_fieldmap(item.second);
     }
     xdebug("********** method cache ********** count %d", (int)methodmap_.size());
-    for (const auto& item: methodmap_) {
+    for (const auto& item : methodmap_) {
         xdebug("%p:", item.first);
         __dump_methodmap(item.second);
     }
@@ -589,7 +600,10 @@ std::string GetExceptionString(jthrowable e) {
     return j2c_cast(c2j_call(jstring, e, kThrowable_toString));
 }
 
-JNICAT_DEFINE_STATIC_METHOD(kLog_getStackTraceString, "android/util/Log", "getStackTraceString", "(Ljava/lang/Throwable;)Ljava/lang/String;")
+JNICAT_DEFINE_STATIC_METHOD(kLog_getStackTraceString,
+                            "android/util/Log",
+                            "getStackTraceString",
+                            "(Ljava/lang/Throwable;)Ljava/lang/String;")
 std::string GetStackTraceString(jthrowable e) {
     jnienv_ptr env;
     return j2c_cast(c2j_call_static(jstring, kLog_getStackTraceString, e));
@@ -604,7 +618,7 @@ void jcache::check_exception(JNIEnv* env) {
         env->ExceptionClear();
         std::string stacktrace = GetStackTraceString(e);
         // no need to call DeleteLocalRef
-        //env->DeleteLocalRef(e);
+        // env->DeleteLocalRef(e);
         if (exception_handler_ != nullptr) {
             exception_handler_(stacktrace);
         } else {
@@ -613,9 +627,8 @@ void jcache::check_exception(JNIEnv* env) {
     }
 }
 
-
 jobject NewObjectV(JNIEnv* env, const char* classname, const char* methodname, const char* signature, va_list args) {
-    //xdebug("NewObjectV(\"%s\", \"%s\", \"%s\")", classname, name, signature);
+    // xdebug("NewObjectV(\"%s\", \"%s\", \"%s\")", classname, name, signature);
     auto cls = jcache::shared()->get_class(env, classname);
     auto mid = jcache::shared()->get_methodid(env, cls, methodname, signature);
     return env->NewObjectV(cls, mid, args);
@@ -637,8 +650,12 @@ jobject NewObject(JNIEnv* env, const jcacheitem* ci, ...) {
     return result;
 }
 
-jvalue CallStaticMethodV(JNIEnv* env, const char* classname, const char* methodname, const char* signature, va_list args) {
-    //xdebug("CallStaticMethodV(\"%s\", \"%s\", \"%s\")", classname, name, signature);
+jvalue CallStaticMethodV(JNIEnv* env,
+                         const char* classname,
+                         const char* methodname,
+                         const char* signature,
+                         va_list args) {
+    // xdebug("CallStaticMethodV(\"%s\", \"%s\", \"%s\")", classname, name, signature);
     jvalue result;
     memset(&result, 0, sizeof(result));
     auto cls = jcache::shared()->get_class(env, classname);
@@ -718,7 +735,7 @@ jvalue CallStaticMethod(JNIEnv* env, const jcacheitem* ci, ...) {
 }
 
 jvalue CallMethodV(JNIEnv* env, jobject obj, const char* methodname, const char* signature, va_list args) {
-    //xdebug("CallMethodV(\"%p\", \"%s\", \"%s\")", obj, name, signature);
+    // xdebug("CallMethodV(\"%p\", \"%s\", \"%s\")", obj, name, signature);
     jvalue result;
     memset(&result, 0, sizeof(result));
     auto mid = jcache::shared()->get_methodid(env, obj, methodname, signature);
@@ -796,7 +813,6 @@ jvalue CallMethod(JNIEnv* env, jobject obj, const jcacheitem* ci, ...) {
     return result;
 }
 
-
 static std::vector<const jcacheitem*>& __get_all_cacheitem() {
     static std::vector<const jcacheitem*> cache;
     return cache;
@@ -808,9 +824,9 @@ static std::vector<const jnativeitem*>& __get_all_jnimethod() {
 }
 
 static void __cache_all_cacheitem(JNIEnv* env) {
-    //xdebug("__cache_all_cacheitem(), size %d", __get_all_cacheitem().size());
+    // xdebug("__cache_all_cacheitem(), size %d", __get_all_cacheitem().size());
     auto cache = __get_all_cacheitem();
-    for (auto ci: cache) {
+    for (auto ci : cache) {
         xdebug("cacheitem(\"%s\", \"%s\", \"%s\", %d)", ci->classname, ci->name, ci->signature, ci->type);
         switch (ci->type) {
             case kCacheClass: {
@@ -841,7 +857,7 @@ static void __cache_all_cacheitem(JNIEnv* env) {
 
 static void __register_all_jnimethod(JNIEnv* env) {
     auto cache = __get_all_jnimethod();
-    for (auto ni: cache) {
+    for (auto ni : cache) {
         auto clz = jcache::shared()->get_class(env, ni->classname);
         jint error = env->RegisterNatives(clz, ni->methods, ni->count);
         if (error != JNI_OK) {
@@ -860,9 +876,7 @@ const jnativeitem* add_nativeitem(const jnativeitem* ni) {
     return ni;
 }
 
-
-
-jnienv_ptr::jnienv_ptr(JavaVM* vm):vm_(vm), env_(nullptr), attached_(false) {
+jnienv_ptr::jnienv_ptr(JavaVM* vm) : vm_(vm), env_(nullptr), attached_(false) {
     if (vm_ == nullptr) {
         vm_ = jcache::shared()->java_vm();
     }
@@ -871,7 +885,7 @@ jnienv_ptr::jnienv_ptr(JavaVM* vm):vm_(vm), env_(nullptr), attached_(false) {
 
     JNIEnv* env = nullptr;
     jint error = vm_->GetEnv((void**)&env, JNI_VERSION_1_6);
-    //xdebug("jnienv_ptr GetEnv %d", error);
+    // xdebug("jnienv_ptr GetEnv %d", error);
     if (error == JNI_OK) {
         env_ = env;
         return;
@@ -888,7 +902,8 @@ jnienv_ptr::jnienv_ptr(JavaVM* vm):vm_(vm), env_(nullptr), attached_(false) {
     }
 }
 
-jnienv_ptr::~jnienv_ptr() {}
+jnienv_ptr::~jnienv_ptr() {
+}
 
 void jnienv_ptr::detach() {
     if (vm_ != nullptr && attached_) {
@@ -913,13 +928,12 @@ void jnienv_ptr::set_object_field(jobject obj, const char* fieldname, const char
     }
 }
 
-} // namespace jnicat
+}  // namespace jnicat
 
-
-//extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
+// extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 //    return jcache::shared()->init(vm);
 //}
 //
-//extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
+// extern "C" JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
 //    jcache::release();
 //}

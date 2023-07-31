@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -25,30 +25,31 @@
 #include <vector>
 
 #include "mars/comm/platform_comm.h"
-#include "mars/comm/thread/thread.h"
 #include "mars/comm/thread/mutex.h"
+#include "mars/comm/thread/thread.h"
 #include "mars/sdt/sdt.h"
-
 #include "netchecker_profile.h"
 
 namespace mars {
 namespace sdt {
 
 class BaseChecker {
-  public:
+ public:
     BaseChecker();
     virtual ~BaseChecker();
 
-  public:
+ public:
     virtual int StartDoCheck(CheckRequestProfile& _check_request) = 0;
     int CancelDoCheck();
 
-  protected:
+ protected:
     virtual void __DoCheck(CheckRequestProfile& _check_request) = 0;
-  protected:
+
+ protected:
     bool is_canceled_ = false;
 };
 
-}}
+}  // namespace sdt
+}  // namespace mars
 
-#endif	//SDT_SRC_ACTIVECHECK_BASECHEKCER_H_
+#endif  // SDT_SRC_ACTIVECHECK_BASECHEKCER_H_

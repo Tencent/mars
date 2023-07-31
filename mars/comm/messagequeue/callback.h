@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -17,30 +17,34 @@
  *      Author: zhouzhijie
  */
 
-
 #ifndef callback_h
 #define callback_h
-#include "mars/comm/thread/thread.h"
-#include "message_queue.h"
-#include "mars/comm/xlogger/xlogger.h"
 #include "boost/bind.hpp"
+#include "mars/comm/thread/thread.h"
+#include "mars/comm/xlogger/xlogger.h"
+#include "message_queue.h"
 
 namespace mars {
 
-    using namespace comm::MessageQueue;
+using namespace comm::MessageQueue;
 
-template<class T>
+template <class T>
 class CallBack {
-public:
-    typedef boost::function<void ()> invoke_function;
+ public:
+    typedef boost::function<void()> invoke_function;
 
-    //if MessageQueue::KNullHandler, will callback in worker thread
-    CallBack(const T& _func, MessageHandler_t _handler = comm::MessageQueue::KNullHandler):cb_handler_(_handler), cb_func_(_func), valid_(true) {}
+    // if MessageQueue::KNullHandler, will callback in worker thread
+    CallBack(const T& _func, MessageHandler_t _handler = comm::MessageQueue::KNullHandler)
+    : cb_handler_(_handler), cb_func_(_func), valid_(true) {
+    }
 
-    CallBack(const T& _func, MessageTitle_t _title, MessageHandler_t _handler = comm::MessageQueue::KNullHandler):cb_handler_(_handler), title_(_title), cb_func_(_func), valid_(true) {}
-    
-    CallBack():cb_handler_(comm::MessageQueue::KNullHandler), valid_(false) {}
-    
+    CallBack(const T& _func, MessageTitle_t _title, MessageHandler_t _handler = comm::MessageQueue::KNullHandler)
+    : cb_handler_(_handler), title_(_title), cb_func_(_func), valid_(true) {
+    }
+
+    CallBack() : cb_handler_(comm::MessageQueue::KNullHandler), valid_(false) {
+    }
+
     void set(const T& _func, MessageTitle_t _title = 0, MessageHandler_t _handler = comm::MessageQueue::KNullHandler) {
         comm::ScopedLock lock(mutex_);
         cb_handler_ = _handler;
@@ -48,39 +52,39 @@ public:
         valid_ = true;
         title_ = _title;
     }
-    
+
     operator bool() {
         comm::ScopedLock lock(mutex_);
         return valid_;
     }
 
     void invalidate() {
-        //should call in messagequeue of cb_handler_
+        // should call in messagequeue of cb_handler_
         xassert2(comm::MessageQueue::CurrentThreadMessageQueue() == comm::MessageQueue::Handler2Queue(cb_handler_));
         comm::ScopedLock lock(mutex_);
         valid_ = false;
     }
-    
-    template<typename... Args>
+
+    template <typename... Args>
     void operator()(const Args&... rest) {
         comm::ScopedLock lock(mutex_);
-        if(!valid_) {
+        if (!valid_) {
             return;
         }
-        
-        boost::function<void ()> func = boost::bind(cb_func_, rest...);
-        if(comm::MessageQueue::KNullHandler == cb_handler_) {
+
+        boost::function<void()> func = boost::bind(cb_func_, rest...);
+        if (comm::MessageQueue::KNullHandler == cb_handler_) {
             func();
             return;
         }
-        if(title_ != 0) {
+        if (title_ != 0) {
             comm::MessageQueue::AsyncInvoke(func, title_, cb_handler_);
         } else {
             comm::MessageQueue::AsyncInvoke(func, cb_handler_);
         }
     }
 
-private:
+ private:
     MessageHandler_t cb_handler_;
     MessageTitle_t title_;
     T cb_func_;
@@ -88,7 +92,6 @@ private:
     bool valid_;
 };
 
-}
-
+}  // namespace mars
 
 #endif /* callback_h */

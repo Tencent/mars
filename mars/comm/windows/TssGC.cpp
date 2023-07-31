@@ -1,13 +1,14 @@
 /*  Copyright (c) 2013-2015 Tencent. All rights reserved.  */
 
 #include "TssGC.h"
+
 #include "TlHelp32.h"
 
 std::map<void*, TssResList> TssGC::mTssList;
-CRITICAL_SECTION            TssGC::mLock;
+CRITICAL_SECTION TssGC::mLock;
 
-bool    TssGC::mLockInitFlag = false;
-DWORD   TssGC::mLastCheckTime;
+bool TssGC::mLockInitFlag = false;
+DWORD TssGC::mLastCheckTime;
 
 void TssGC::lock() {
     if (!mLockInitFlag) {
@@ -23,7 +24,7 @@ void TssGC::unlock() {
 }
 
 // res = null
-void TssGC::add(void* tss, tss_dtor_t pfn , void* res) {
+void TssGC::add(void* tss, tss_dtor_t pfn, void* res) {
     if (!tss || !pfn)
         return;
 
@@ -38,7 +39,7 @@ void TssGC::add(void* tss, tss_dtor_t pfn , void* res) {
     unlock();
 }
 
-#define   TIME_MIN_30    ((30 * 60 * 1000))
+#define TIME_MIN_30 ((30 * 60 * 1000))
 
 void TssGC::checkThread() {
     if (mLastCheckTime == 0) {
@@ -48,7 +49,7 @@ void TssGC::checkThread() {
 
     DWORD time_span = ::GetTickCount() - mLastCheckTime;
 
-    if (time_span  <  TIME_MIN_30)
+    if (time_span < TIME_MIN_30)
         return;
 
     mLastCheckTime = ::GetTickCount();
@@ -56,13 +57,13 @@ void TssGC::checkThread() {
     auto threadIds = getThreadIdAll();
 
     //�������� tss
-    for (auto itor = mTssList.begin() ; itor != mTssList.end() ; itor++) {
+    for (auto itor = mTssList.begin(); itor != mTssList.end(); itor++) {
         TssResList* tss = &((*itor).second);
 
         // ±éÀútss res
-        for (auto tss_item = tss->m_list.begin();  tss_item != tss->m_list.end();) {
+        for (auto tss_item = tss->m_list.begin(); tss_item != tss->m_list.end();) {
             DWORD id = (*tss_item).first;
-            void*  res = (*tss_item).second;
+            void* res = (*tss_item).second;
 
             if (threadIds.find(id) == threadIds.end()) {  //É¾³ý res
                 tss->pfnFree(res);
@@ -74,7 +75,6 @@ void TssGC::checkThread() {
     }
 }
 
-
 std::set<DWORD> TssGC::getThreadIdAll(void) {
     std::set<DWORD> idList;
     DWORD processId = ::GetCurrentProcessId();
@@ -83,7 +83,7 @@ std::set<DWORD> TssGC::getThreadIdAll(void) {
     if (hmeSnapshot == NULL)
         return idList;
 
-    THREADENTRY32 te = { sizeof(te) };
+    THREADENTRY32 te = {sizeof(te)};
     BOOL fOK1 = Thread32First(hmeSnapshot, &te);
 
     for (; fOK1; fOK1 = Thread32Next(hmeSnapshot, &te)) {
@@ -96,18 +96,17 @@ std::set<DWORD> TssGC::getThreadIdAll(void) {
     return idList;
 }
 
-
-void  TssGC::uninit() {
+void TssGC::uninit() {
     lock();
 
     //±éÀúËùÓÐ tss
-    for (auto itor = mTssList.begin() ; itor != mTssList.end() ; itor++) {
+    for (auto itor = mTssList.begin(); itor != mTssList.end(); itor++) {
         TssResList* tss = &((*itor).second);
 
         // ±éÀútss res
-        for (auto tss_item = tss->m_list.begin();  tss_item != tss->m_list.end();) {
+        for (auto tss_item = tss->m_list.begin(); tss_item != tss->m_list.end();) {
             DWORD id = (*tss_item).first;
-            void*  res = (*tss_item).second;
+            void* res = (*tss_item).second;
             tss->pfnFree(res);
             tss->m_list.erase(tss_item++);
         }

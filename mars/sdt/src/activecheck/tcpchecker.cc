@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -19,14 +19,12 @@
 //
 #include "tcpchecker.h"
 
-#include "mars/stn/stn_logic.h"
-
 #include "mars/comm/singleton.h"
-#include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/time_utils.h"
-#include "mars/stn/proto/longlink_packer.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "mars/sdt/constants.h"
-
+#include "mars/stn/proto/longlink_packer.h"
+#include "mars/stn/stn_logic.h"
 #include "sdt/src/checkimpl/tcpquery.h"
 #include "sdt/src/tools/netchecker_socketutils.hpp"
 
@@ -46,94 +44,107 @@ int TcpChecker::StartDoCheck(CheckRequestProfile& _check_request) {
     return BaseChecker::StartDoCheck(_check_request);
 }
 
-
 void TcpChecker::__DoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
 
-    for (CheckIPPorts_Iterator iter = _check_request.longlink_items.begin(); iter != _check_request.longlink_items.end(); ++iter) {
-    	std::string host = iter->first;
-    	for (std::vector<CheckIPPort>::iterator ipport = iter->second.begin(); ipport != iter->second.end(); ++ipport) {
+    for (CheckIPPorts_Iterator iter = _check_request.longlink_items.begin();
+         iter != _check_request.longlink_items.end();
+         ++iter) {
+        std::string host = iter->first;
+        for (std::vector<CheckIPPort>::iterator ipport = iter->second.begin(); ipport != iter->second.end(); ++ipport) {
             if (is_canceled_) {
-                xinfo2(TSF"TcpChecker is canceled.");
+                xinfo2(TSF "TcpChecker is canceled.");
                 return;
             }
-    		CheckResultProfile profile;
-			profile.netcheck_type = kTcpCheck;
-    		profile.ip = (*ipport).ip;
-    		profile.port = (*ipport).port;
-			profile.network_type = comm::getNetInfo();
+            CheckResultProfile profile;
+            profile.netcheck_type = kTcpCheck;
+            profile.ip = (*ipport).ip;
+            profile.port = (*ipport).port;
+            profile.network_type = comm::getNetInfo();
 
-    		unsigned int timeout = UNUSE_TIMEOUT == _check_request.total_timeout ? DEFAULT_TCP_CONN_TIMEOUT : _check_request.total_timeout;
-			xinfo2(TSF"tcp check ip: %0, port: %1, timeout: %2", profile.ip, profile.port, timeout);
+            unsigned int timeout =
+                UNUSE_TIMEOUT == _check_request.total_timeout ? DEFAULT_TCP_CONN_TIMEOUT : _check_request.total_timeout;
+            xinfo2(TSF "tcp check ip: %0, port: %1, timeout: %2", profile.ip, profile.port, timeout);
 
-    		uint64_t start_time = ::gettickcount();
-    		TcpQuery tcp_query(profile.ip.c_str(), profile.port, 0);
+            uint64_t start_time = ::gettickcount();
+            TcpQuery tcp_query(profile.ip.c_str(), profile.port, 0);
 
             AutoBuffer noop_send;
             __NoopReq(noop_send);
 
-            int ret = tcp_query.tcp_send((const unsigned char *)noop_send.Ptr(), (int)noop_send.Length(), timeout);
+            int ret = tcp_query.tcp_send((const unsigned char*)noop_send.Ptr(), (int)noop_send.Length(), timeout);
 
-			if (ret < 0) {
-				profile.error_code = kSndRcvErr;
-				xerror2(TSF"tcp send nooping data error.");
-			} else {
-				xinfo2(TSF"tcp check send nooping data success.");
-			}
+            if (ret < 0) {
+                profile.error_code = kSndRcvErr;
+                xerror2(TSF "tcp send nooping data error.");
+            } else {
+                xinfo2(TSF "tcp check send nooping data success.");
+            }
 
-			uint64_t cost_time = 0;
-			if (ret >= 0) {
-				AutoBuffer recv_buff;
-				recv_buff.AllocWrite(64 * 1024, false);
+            uint64_t cost_time = 0;
+            if (ret >= 0) {
+                AutoBuffer recv_buff;
+                recv_buff.AllocWrite(64 * 1024, false);
 
-				ret = tcp_query.tcp_receive(recv_buff, 64*1024, timeout);
-				cost_time = ::gettickcount() - start_time;
+                ret = tcp_query.tcp_receive(recv_buff, 64 * 1024, timeout);
+                cost_time = ::gettickcount() - start_time;
 
-				if (ret < 0) {
-					profile.error_code = kSndRcvErr;
-					xerror2(TSF"tcp recv nooping data error.");
-					_check_request.checkresult_profiles.push_back(profile);
-					continue;
-				} else {
-					uint32_t cmdid = 0, seq = 0; size_t packlen = 0; AutoBuffer recv_body;
-					profile.rtt = cost_time;
-					if (!__NoopResp(recv_buff, cmdid, seq, packlen, recv_body)) {	//not noop resp
-						profile.error_code = kTcpRespErr;
-					}
-				}
-			}
+                if (ret < 0) {
+                    profile.error_code = kSndRcvErr;
+                    xerror2(TSF "tcp recv nooping data error.");
+                    _check_request.checkresult_profiles.push_back(profile);
+                    continue;
+                } else {
+                    uint32_t cmdid = 0, seq = 0;
+                    size_t packlen = 0;
+                    AutoBuffer recv_body;
+                    profile.rtt = cost_time;
+                    if (!__NoopResp(recv_buff, cmdid, seq, packlen, recv_body)) {  // not noop resp
+                        profile.error_code = kTcpRespErr;
+                    }
+                }
+            }
 
-			_check_request.checkresult_profiles.push_back(profile);
-			_check_request.check_status = (profile.error_code == 0) ? kCheckContinue : kCheckFinish;
+            _check_request.checkresult_profiles.push_back(profile);
+            _check_request.check_status = (profile.error_code == 0) ? kCheckContinue : kCheckFinish;
 
-			if (_check_request.total_timeout != UNUSE_TIMEOUT) {
-				_check_request.total_timeout -= cost_time;
-				if (_check_request.total_timeout <= 0) {
-					xinfo2(TSF"tcp check, host: %0, timeout.", host);
-					break;
-				}
-			}
-
-    	}
+            if (_check_request.total_timeout != UNUSE_TIMEOUT) {
+                _check_request.total_timeout -= cost_time;
+                if (_check_request.total_timeout <= 0) {
+                    xinfo2(TSF "tcp check, host: %0, timeout.", host);
+                    break;
+                }
+            }
+        }
     }
 }
 
 void TcpChecker::__NoopReq(AutoBuffer& _noop_send) {
-	AutoBuffer noop_body;
-	AutoBuffer noop_extension;
-	gDefaultLongLinkEncoder.longlink_noop_req_body(noop_body, noop_extension);
-	gDefaultLongLinkEncoder.longlink_pack(gDefaultLongLinkEncoder.longlink_noop_cmdid(), Task::kNoopTaskID, noop_body, noop_extension, _noop_send, NULL);
+    AutoBuffer noop_body;
+    AutoBuffer noop_extension;
+    gDefaultLongLinkEncoder.longlink_noop_req_body(noop_body, noop_extension);
+    gDefaultLongLinkEncoder.longlink_pack(gDefaultLongLinkEncoder.longlink_noop_cmdid(),
+                                          Task::kNoopTaskID,
+                                          noop_body,
+                                          noop_extension,
+                                          _noop_send,
+                                          NULL);
 }
 
-bool TcpChecker::__NoopResp(const AutoBuffer& _packed, uint32_t& _cmdid, uint32_t& _seq, size_t& _package_len, AutoBuffer& _body) {
+bool TcpChecker::__NoopResp(const AutoBuffer& _packed,
+                            uint32_t& _cmdid,
+                            uint32_t& _seq,
+                            size_t& _package_len,
+                            AutoBuffer& _body) {
     AutoBuffer extension;
-	int unpackret = gDefaultLongLinkEncoder.longlink_unpack(_packed, _cmdid, _seq, _package_len, _body, extension, NULL);
-	if (unpackret == LONGLINK_UNPACK_OK) {
+    int unpackret =
+        gDefaultLongLinkEncoder.longlink_unpack(_packed, _cmdid, _seq, _package_len, _body, extension, NULL);
+    if (unpackret == LONGLINK_UNPACK_OK) {
         if (gDefaultLongLinkEncoder.longlink_noop_isresp(Task::kNoopTaskID, _cmdid, _seq, _body, extension)) {
-			gDefaultLongLinkEncoder.longlink_noop_resp_body(_body, extension);
-			return true;
-		}
-	}
+            gDefaultLongLinkEncoder.longlink_noop_resp_body(_body, extension);
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }

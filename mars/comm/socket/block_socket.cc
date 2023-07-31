@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -17,13 +17,13 @@
 //  Created by yerungui on 16/3/30.
 //
 
-#include "comm/socket/socketselect.h"
-#include "comm/socket/socket_address.h"
 #include "comm/autobuffer.h"
-#include "comm/time_utils.h"
-#include "comm/xlogger/xlogger.h"
 #include "comm/platform_comm.h"
+#include "comm/socket/socket_address.h"
+#include "comm/socket/socketselect.h"
+#include "comm/time_utils.h"
 #include "comm/unique_resource.h"
+#include "comm/xlogger/xlogger.h"
 
 namespace mars {
 namespace comm {
@@ -32,42 +32,47 @@ namespace comm {
  * return value:
  */
 
-SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _breaker, int& _errcode, int32_t _timeout/*ms*/){
-    //socket
+SOCKET block_socket_connect(const socket_address& _address,
+                            SocketBreaker& _breaker,
+                            int& _errcode,
+                            int32_t _timeout /*ms*/) {
+    // socket
     UniqueSocketResource sock(socket(_address.address().sa_family, SOCK_STREAM, IPPROTO_TCP));
     if (!sock.is_valid()) {
         _errcode = socket_errno;
         return sock.invalid_value();
     }
-    
+
 #ifdef _WIN32
-    if (0 != socket_ipv6only(sock.get(), 0)){ xwarn2(TSF"set ipv6only failed. error %_",strerror(socket_errno)); }
+    if (0 != socket_ipv6only(sock.get(), 0)) {
+        xwarn2(TSF "set ipv6only failed. error %_", strerror(socket_errno));
+    }
 #endif
-    
+
     int ret = socket_set_nobio(sock.get());
     if (ret != 0) {
         _errcode = socket_errno;
         return sock.invalid_value();
     }
-    
+
     if (getNetInfo() == kWifi && socket_fix_tcp_mss(sock.get()) < 0) {
 #ifdef ANDROID
-        xinfo2(TSF"wifi set tcp mss error:%0", strerror(socket_errno));
+        xinfo2(TSF "wifi set tcp mss error:%0", strerror(socket_errno));
 #endif
     }
-    
-    //connect
+
+    // connect
     ret = connect(sock.get(), &_address.address(), _address.address_length());
     if (ret != 0 && !IS_NOBLOCK_CONNECT_ERRNO(socket_errno)) {
         _errcode = socket_errno;
         return sock.invalid_value();
     }
-    
+
     SocketSelect sel(_breaker);
     sel.PreSelect();
     sel.Write_FD_SET(sock.get());
     sel.Exception_FD_SET(sock.get());
-    
+
     ret = (_timeout >= 0) ? (sel.Select(_timeout)) : (sel.Select());
     if (ret == 0) {
         _errcode = SOCKET_ERRNO(ETIMEDOUT);
@@ -76,7 +81,7 @@ SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _bre
         _errcode = sel.Errno();
         return sock.invalid_value();
     }
-    
+
     if (sel.IsException()) {
         _errcode = 0;
         return sock.invalid_value();
@@ -85,12 +90,12 @@ SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _bre
         _errcode = 0;
         return sock.invalid_value();
     }
-    
+
     if (sel.Exception_FD_ISSET(sock.get())) {
         _errcode = socket_error(sock.get());
         return sock.invalid_value();
     }
-    
+
     if (!sel.Write_FD_ISSET(sock.get())) {
         _errcode = socket_error(sock.get());
         return sock.invalid_value();
@@ -99,64 +104,66 @@ SOCKET  block_socket_connect(const socket_address& _address, SocketBreaker& _bre
     if (0 != _errcode) {
         return sock.invalid_value();
     }
-    
+
     return sock.release();
 }
-
 
 /*
  * return value:
  */
-int block_socket_send(SOCKET _sock, const void* _buffer, size_t _len, SocketBreaker& _breaker, int &_errcode, int _timeout) {
+int block_socket_send(SOCKET _sock,
+                      const void* _buffer,
+                      size_t _len,
+                      SocketBreaker& _breaker,
+                      int& _errcode,
+                      int _timeout) {
     uint64_t start = gettickcount();
     int32_t cost_time = 0;
     size_t sent_len = 0;
-    
+
     SocketSelect sel(_breaker);
-    
+
     while (true) {
-        
-        ssize_t nwrite = ::send(_sock, (const char*)_buffer+sent_len, _len-sent_len, 0);
+        ssize_t nwrite = ::send(_sock, (const char*)_buffer + sent_len, _len - sent_len, 0);
         if (nwrite == 0 || (0 > nwrite && !IS_NOBLOCK_SEND_ERRNO(socket_errno))) {
             _errcode = socket_errno;
             return -1;
         }
-        
-        if (0 < nwrite) sent_len += nwrite;
-        
+
+        if (0 < nwrite)
+            sent_len += nwrite;
+
         if (sent_len >= _len) {
             _errcode = 0;
             return (int)sent_len;
         }
-        
+
         sel.PreSelect();
         sel.Write_FD_SET(_sock);
         sel.Exception_FD_SET(_sock);
-        int ret = (0 <= _timeout)
-                ? (sel.Select((_timeout > cost_time) ? (_timeout-cost_time) : 0))
-                : (sel.Select());
+        int ret = (0 <= _timeout) ? (sel.Select((_timeout > cost_time) ? (_timeout - cost_time) : 0)) : (sel.Select());
         cost_time = (int32_t)(gettickcount() - start);
-        
+
         if (ret < 0) {
             _errcode = sel.Errno();
             return -1;
         }
-        
+
         if (ret == 0) {
             _errcode = SOCKET_ERRNO(ETIMEDOUT);
             return (int)sent_len;
         }
-        
+
         if (sel.IsException() || sel.IsBreak()) {
             _errcode = 0;
             return (int)sent_len;
         }
-        
+
         if (sel.Exception_FD_ISSET(_sock)) {
             _errcode = socket_error(_sock);
             return -1;
         }
-        
+
         if (!sel.Write_FD_ISSET(_sock)) {
             _errcode = socket_error(_sock);
             return -1;
@@ -164,76 +171,79 @@ int block_socket_send(SOCKET _sock, const void* _buffer, size_t _len, SocketBrea
     }
 }
 
-int block_socket_recv(SOCKET _sock, AutoBuffer& _buffer, size_t _max_size, SocketBreaker& _breaker, int &_errcode, int _timeout, bool _wait_full_size) {
-    
+int block_socket_recv(SOCKET _sock,
+                      AutoBuffer& _buffer,
+                      size_t _max_size,
+                      SocketBreaker& _breaker,
+                      int& _errcode,
+                      int _timeout,
+                      bool _wait_full_size) {
     uint64_t start = gettickcount();
     int32_t cost_time = 0;
     size_t recv_len = 0;
-    
+
     if (_buffer.Capacity() - _buffer.Length() < _max_size) {
         _buffer.AddCapacity(_max_size - (_buffer.Capacity() - _buffer.Length()));
     }
-    
+
     SocketSelect sel(_breaker);
     while (true) {
-        
-        ssize_t nrecv = ::recv(_sock, _buffer.Ptr(_buffer.Length()+recv_len), _max_size-recv_len, 0);
-        
+        ssize_t nrecv = ::recv(_sock, _buffer.Ptr(_buffer.Length() + recv_len), _max_size - recv_len, 0);
+
         if (0 == nrecv) {
             _errcode = 0;
-            _buffer.Length(_buffer.Pos(), _buffer.Length()+recv_len);
+            _buffer.Length(_buffer.Pos(), _buffer.Length() + recv_len);
             return (int)recv_len;
         }
-        
+
         if (0 > nrecv && !IS_NOBLOCK_READ_ERRNO(socket_errno)) {
             _errcode = socket_errno;
             return -1;
         }
-        
-        if (0 < nrecv) recv_len += nrecv;
-        
-        if (recv_len >= _max_size){
-            _buffer.Length(_buffer.Pos(), _buffer.Length()+recv_len);
+
+        if (0 < nrecv)
+            recv_len += nrecv;
+
+        if (recv_len >= _max_size) {
+            _buffer.Length(_buffer.Pos(), _buffer.Length() + recv_len);
             _errcode = 0;
             return (int)recv_len;
         }
-        
-        if (recv_len > 0 && !_wait_full_size){
-            _buffer.Length(_buffer.Pos(), _buffer.Length()+recv_len);
+
+        if (recv_len > 0 && !_wait_full_size) {
+            _buffer.Length(_buffer.Pos(), _buffer.Length() + recv_len);
             _errcode = 0;
             return (int)recv_len;
         }
-        
+
         sel.PreSelect();
         sel.Read_FD_SET(_sock);
         sel.Exception_FD_SET(_sock);
-        int ret = (0 <= _timeout)
-                ? (sel.Select((_timeout > cost_time) ? (_timeout-cost_time) : 0))
-                : (sel.Select());
+        int ret = (0 <= _timeout) ? (sel.Select((_timeout > cost_time) ? (_timeout - cost_time) : 0)) : (sel.Select());
         cost_time = (int32_t)(gettickcount() - start);
-        
+
         if (ret < 0) {
             _errcode = sel.Errno();
             return -1;
         }
-        
+
         if (ret == 0) {
             _errcode = SOCKET_ERRNO(ETIMEDOUT);
-            _buffer.Length(_buffer.Pos(), _buffer.Length()+recv_len);
+            _buffer.Length(_buffer.Pos(), _buffer.Length() + recv_len);
             return (int)recv_len;
         }
-        
+
         if (sel.IsException() || sel.IsBreak()) {
             _errcode = sel.Errno();
-            _buffer.Length(_buffer.Pos(), _buffer.Length()+recv_len);
+            _buffer.Length(_buffer.Pos(), _buffer.Length() + recv_len);
             return (int)recv_len;
         }
-        
+
         if (sel.Exception_FD_ISSET(_sock)) {
             _errcode = socket_error(_sock);
             return -1;
         }
-        
+
         if (!sel.Read_FD_ISSET(_sock)) {
             _errcode = socket_error(_sock);
             return -1;
@@ -241,5 +251,5 @@ int block_socket_recv(SOCKET _sock, AutoBuffer& _buffer, size_t _max_size, Socke
     }
 }
 
-}
-}
+}  // namespace comm
+}  // namespace mars

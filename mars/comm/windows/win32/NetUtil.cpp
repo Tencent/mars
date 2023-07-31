@@ -2,10 +2,12 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "Winhttp.h"
-#include <string>
+
 #include <iostream>
 #include <map>
+#include <string>
+
+#include "Winhttp.h"
 #include "alarm.h"
 #include "thread/mutex.h"
 
@@ -14,42 +16,42 @@ using namespace std;
 #pragma comment(lib, "Winhttp.lib")
 #pragma comment(lib, "Wininet.lib")
 
-namespace mars{
-    namespace comm{
+namespace mars {
+namespace comm {
 
 char* w2c(char* pcstr, size_t len, const wchar_t* pwstr) {
 #ifdef WIN32
     int nlength = wcslen(pwstr);
-    int nbytes = WideCharToMultiByte(CP_UTF8,   // specify the code page used to perform the conversion
-                                     0,  // no special flags to handle unmapped characters
-                                     pwstr,  // wide character string to convert
-                                     nlength,  // the number of wide characters in that string
-                                     NULL,  // no output buffer given, we just want to know how long it needs to be
-                                     0,
-                                     NULL,  // no replacement character given
-                                     NULL);   // we don't want to know if a character didn't make it through the translation
+    int nbytes =
+        WideCharToMultiByte(CP_UTF8,  // specify the code page used to perform the conversion
+                            0,        // no special flags to handle unmapped characters
+                            pwstr,    // wide character string to convert
+                            nlength,  // the number of wide characters in that string
+                            NULL,     // no output buffer given, we just want to know how long it needs to be
+                            0,
+                            NULL,   // no replacement character given
+                            NULL);  // we don't want to know if a character didn't make it through the translation
 
     // make sure the buffer is big enough for this, making it larger if necessary
 
-    if (nbytes > len) nbytes = len;
+    if (nbytes > len)
+        nbytes = len;
 
-
-    WideCharToMultiByte(CP_UTF8,   // specify the code page used to perform the conversion
-                        0,  // no special flags to handle unmapped characters
-                        pwstr,  // wide character string to convert
+    WideCharToMultiByte(CP_UTF8,  // specify the code page used to perform the conversion
+                        0,        // no special flags to handle unmapped characters
+                        pwstr,    // wide character string to convert
                         nlength,  // the number of wide characters in that string
-                        pcstr,  // put the output ascii characters at the end of the buffer
-                        nbytes,  // there is at least this much space there
-                        NULL,  // no replacement character given
+                        pcstr,    // put the output ascii characters at the end of the buffer
+                        nbytes,   // there is at least this much space there
+                        NULL,     // no replacement character given
                         NULL);
 
     pcstr[nbytes] = 0;
 #else
     sprintf(pcstr, "%s", pwstr);
 #endif
-    return pcstr ;
+    return pcstr;
 }
-
 
 typedef enum _MX_CS_PROXY_TYPE {
     MX_CS_PROXY_TYPE_NOPROXY = 0,
@@ -61,7 +63,6 @@ typedef enum _MX_CS_PROXY_TYPE {
     MX_CS_PROXY_TYPE_USEIE,
 #endif
 } MX_CS_PROXY_TYPE;
-
 
 bool getProxyAddr(const std::string& strAddr, char* strDestAddr, const char* type) {
     int nStart = strAddr.find(type);
@@ -119,7 +120,8 @@ int getIEProxy(const wchar_t* host, int& proxytype, int& port, char* strAddr, bo
 
         fAutoProxy = WinHttpGetProxyForUrl(session, host, &autoProxyOptions, &autoProxyInfo);
 
-        if (session) WinHttpCloseHandle(session);
+        if (session)
+            WinHttpCloseHandle(session);
     }
 
     if (fAutoProxy) {
@@ -144,15 +146,18 @@ int getIEProxy(const wchar_t* host, int& proxytype, int& port, char* strAddr, bo
             proxytype = MX_CS_PROXY_TYPE_HTTP;
             port = 0;
 
-            /// may be like this: "http=127.0.0.1:8888;https=127.0.0.1:8888;ftp=127.0.0.1:8888;socks=127.0.0.1:8888" "127.0.0.1:8888"
+            /// may be like this: "http=127.0.0.1:8888;https=127.0.0.1:8888;ftp=127.0.0.1:8888;socks=127.0.0.1:8888"
+            /// "127.0.0.1:8888"
             string strProxyAddr(strAddr);
 
             if (strProxyAddr.find('=') != -1) {
                 bool bFind = false;
 
-                if (bUserHttps && getProxyAddr(strProxyAddr, strAddr, "https=")) bFind = true;
+                if (bUserHttps && getProxyAddr(strProxyAddr, strAddr, "https="))
+                    bFind = true;
 
-                if (bFind == false && getProxyAddr(strProxyAddr, strAddr, "http=")) bFind = true;
+                if (bFind == false && getProxyAddr(strProxyAddr, strAddr, "http="))
+                    bFind = true;
 
                 if (bFind == false && getProxyAddr(strProxyAddr, strAddr, "socks=")) {
                     proxytype = MX_CS_PROXY_TYPE_SOCKS5;
@@ -164,23 +169,28 @@ int getIEProxy(const wchar_t* host, int& proxytype, int& port, char* strAddr, bo
         }
     }
 
-    if (autoProxyInfo.lpszProxy != NULL) GlobalFree(autoProxyInfo.lpszProxy);
+    if (autoProxyInfo.lpszProxy != NULL)
+        GlobalFree(autoProxyInfo.lpszProxy);
 
-    if (autoProxyInfo.lpszProxyBypass != NULL) GlobalFree(autoProxyInfo.lpszProxyBypass);
+    if (autoProxyInfo.lpszProxyBypass != NULL)
+        GlobalFree(autoProxyInfo.lpszProxyBypass);
 
     // if(autoProxyOptions.lpszAutoConfigUrl != NULL) GlobalFree(autoProxyOptions.lpszAutoConfigUrl);
-    if (ieProxyConfig.lpszAutoConfigUrl != NULL) GlobalFree(ieProxyConfig.lpszAutoConfigUrl);
+    if (ieProxyConfig.lpszAutoConfigUrl != NULL)
+        GlobalFree(ieProxyConfig.lpszAutoConfigUrl);
 
-    if (ieProxyConfig.lpszProxy != NULL) GlobalFree(ieProxyConfig.lpszProxy);
+    if (ieProxyConfig.lpszProxy != NULL)
+        GlobalFree(ieProxyConfig.lpszProxy);
 
-    if (ieProxyConfig.lpszProxyBypass != NULL) GlobalFree(ieProxyConfig.lpszProxyBypass);
+    if (ieProxyConfig.lpszProxyBypass != NULL)
+        GlobalFree(ieProxyConfig.lpszProxyBypass);
 
     return proxytype;
 }
 
 bool getProxyInfoImpl(int& port, std::string& strProxy, const std::string& _host) {
-	std::wstring testHost;
-	testHost.assign(_host.begin(), _host.end());
+    std::wstring testHost;
+    testHost.assign(_host.begin(), _host.end());
 
     char strAddr[256] = {0};
     int proxytype = 0;
@@ -197,33 +207,33 @@ bool getProxyInfoImpl(int& port, std::string& strProxy, const std::string& _host
     if (pos >= 0) {
         strProxy = strProxyInfo.substr(0, pos);
         port = atoi(strProxyInfo.substr(pos + 1, strProxyInfo.length()).c_str());
-    }  else {
+    } else {
         strProxy = strProxyInfo;
         port = 0;
     }
 
-	hostent* host = gethostbyname(strProxy.c_str());
-	if (host && AF_INET == host->h_addrtype){
-		struct in_addr addr = { 0 };
-		addr.s_addr = *(u_long *)host->h_addr_list[0];
-		strProxy = inet_ntoa(addr);
-	}
+    hostent* host = gethostbyname(strProxy.c_str());
+    if (host && AF_INET == host->h_addrtype) {
+        struct in_addr addr = {0};
+        addr.s_addr = *(u_long*)host->h_addr_list[0];
+        strProxy = inet_ntoa(addr);
+    }
     return true;
 }
 
 DWORD getNetworkStatus() {
-    DWORD   flags;  //������ʽ
-    BOOL   m_bOnline = InternetGetConnectedState(&flags, 0);
+    DWORD flags;  //������ʽ
+    BOOL m_bOnline = InternetGetConnectedState(&flags, 0);
     return flags;
 }
 
 bool isNetworkConnectedImpl() {
-    DWORD   flags;  //������ʽ
+    DWORD flags;  //������ʽ
 
-    BOOL   m_bOnline = InternetGetConnectedState(&flags, 0);
+    BOOL m_bOnline = InternetGetConnectedState(&flags, 0);
     return m_bOnline;
 
-    //if(m_bOnline)//����
+    // if(m_bOnline)//����
     //{
     //    if ((flags & INTERNET_CONNECTION_MODEM) ==INTERNET_CONNECTION_MODEM)
     //    {
@@ -245,4 +255,5 @@ bool isNetworkConnectedImpl() {
     // else
     //    cout<<"������\n";
 }
-}}  //namespace
+}  // namespace comm
+}  // namespace mars

@@ -1,32 +1,32 @@
-#include "mars/comm/xlogger/xloggerbase.h"
-#include "gtest/gtest.h"
-
 #include <cstring>
 #include <string>
 
+#include "gtest/gtest.h"
+#include "mars/comm/xlogger/xloggerbase.h"
+
 using namespace testing;
 
-static int calc_dump_required_length(int srcbytes){
-    //MUST CHANGE THIS IF YOU CHANGE `to_string` function.
+static int calc_dump_required_length(int srcbytes) {
+    // MUST CHANGE THIS IF YOU CHANGE `to_string` function.
     return srcbytes * 6 + 1;
 }
 
-TEST(appender, memorydump){
-    char srcbuffer[4096];    
+TEST(appender, memorydump) {
+    char srcbuffer[4096];
     char dummybuf[64];
 
     const char* dump1 = xlogger_memory_dump(srcbuffer, 1);
-    int head_bytes = snprintf(dummybuf, sizeof(dummybuf), "\n%zu bytes:\n",1);
-    EXPECT_EQ(strlen(dump1), calc_dump_required_length(1) + head_bytes + 1);    // 1 for '\n'
+    int head_bytes = snprintf(dummybuf, sizeof(dummybuf), "\n%zu bytes:\n", 1);
+    EXPECT_EQ(strlen(dump1), calc_dump_required_length(1) + head_bytes + 1);  // 1 for '\n'
 
     dump1 = xlogger_memory_dump(srcbuffer, 121);
-    head_bytes = snprintf(dummybuf, sizeof(dummybuf), "\n%zu bytes:\n",121);
-    int round = 121/32 + 1; // +1 because not aligned to 32
+    head_bytes = snprintf(dummybuf, sizeof(dummybuf), "\n%zu bytes:\n", 121);
+    int round = 121 / 32 + 1;  // +1 because not aligned to 32
     EXPECT_EQ(strlen(dump1), calc_dump_required_length(121) + head_bytes + round * 2 - 1);
 
     dump1 = xlogger_memory_dump(srcbuffer, 128);
-    head_bytes = snprintf(dummybuf, sizeof(dummybuf), "\n%zu bytes:\n",128);
-    round = 128/32;
+    head_bytes = snprintf(dummybuf, sizeof(dummybuf), "\n%zu bytes:\n", 128);
+    round = 128 / 32;
     EXPECT_EQ(strlen(dump1), calc_dump_required_length(128) + head_bytes + round * 2 - 1);
 
     EXPECT_GT(calc_dump_required_length(4096), 4096);
@@ -40,4 +40,3 @@ TEST(appender, memorydump){
 }
 
 EXPORT_GTEST_SYMBOLS(log_export_appender_unittest)
-

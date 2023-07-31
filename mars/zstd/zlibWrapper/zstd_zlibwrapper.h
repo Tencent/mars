@@ -11,24 +11,21 @@
 #ifndef ZSTD_ZLIBWRAPPER_H
 #define ZSTD_ZLIBWRAPPER_H
 
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 extern "C" {
 #endif
 
-
 #define ZLIB_CONST
 #define Z_PREFIX
-#define ZLIB_INTERNAL   /* disables gz*64 functions but fixes zlib 1.2.4 with Z_PREFIX */
+#define ZLIB_INTERNAL /* disables gz*64 functions but fixes zlib 1.2.4 with Z_PREFIX */
 #include <zlib.h>
 
 #if !defined(z_const)
-    #define z_const
+#define z_const
 #endif
 
-
 /* returns a string with version of zstd library */
-const char * zstdVersion(void);
-
+const char* zstdVersion(void);
 
 /*** COMPRESSION ***/
 /* ZWRAP_useZSTDcompression() enables/disables zstd compression during runtime.
@@ -45,18 +42,16 @@ int ZWRAP_isUsingZSTDcompression(void);
 
 /* Changes a pledged source size for a given compression stream.
    It will change ZSTD compression parameters what may improve compression speed and/or ratio.
-   The function should be called just after deflateInit() or deflateReset() and before deflate() or deflateSetDictionary().
-   It's only helpful when data is compressed in blocks.
-   There will be no change in case of deflateInit() or deflateReset() immediately followed by deflate(strm, Z_FINISH)
-   as this case is automatically detected.  */
+   The function should be called just after deflateInit() or deflateReset() and before deflate() or
+   deflateSetDictionary(). It's only helpful when data is compressed in blocks. There will be no change in case of
+   deflateInit() or deflateReset() immediately followed by deflate(strm, Z_FINISH) as this case is automatically
+   detected.  */
 int ZWRAP_setPledgedSrcSize(z_streamp strm, unsigned long long pledgedSrcSize);
 
 /* Similar to deflateReset but preserves dictionary set using deflateSetDictionary.
    It should improve compression speed because there will be less calls to deflateSetDictionary
    When using zlib compression this method redirects to deflateReset. */
 int ZWRAP_deflateReset_keepDict(z_streamp strm);
-
-
 
 /*** DECOMPRESSION ***/
 typedef enum { ZWRAP_FORCE_ZLIB, ZWRAP_AUTO } ZWRAP_decompress_type;
@@ -80,8 +75,7 @@ int ZWRAP_isUsingZSTDdecompression(z_streamp strm);
    For zlib streams this method redirects to inflateReset. */
 int ZWRAP_inflateReset_keepDict(z_streamp strm);
 
-
-#if defined (__cplusplus)
+#if defined(__cplusplus)
 }
 #endif
 

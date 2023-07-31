@@ -8,8 +8,7 @@
 #include <sys/types.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 unsigned long adler32(unsigned long adler, const unsigned char* buf, unsigned int len);

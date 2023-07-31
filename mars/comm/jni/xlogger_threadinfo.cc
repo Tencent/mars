@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -19,23 +19,20 @@
 //
 
 #include <unistd.h>
+
 #include "compiler_util.h"
 
-extern "C"
-{
-EXPORT_FUNC intmax_t xlogger_pid()
-{
+extern "C" {
+EXPORT_FUNC intmax_t xlogger_pid() {
     static intmax_t pid = getpid();
     return pid;
 }
 
-EXPORT_FUNC intmax_t xlogger_tid()
-{
+EXPORT_FUNC intmax_t xlogger_tid() {
     return gettid();
 }
 
-EXPORT_FUNC intmax_t xlogger_maintid()
-{
+EXPORT_FUNC intmax_t xlogger_maintid() {
     static intmax_t pid = getpid();
     return pid;
 }

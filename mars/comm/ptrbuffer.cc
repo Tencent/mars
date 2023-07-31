@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -32,18 +32,12 @@ const PtrBuffer KNullPtrBuffer(0, 0, 0);
 #endif
 
 PtrBuffer::PtrBuffer(void* _ptr, size_t _len, size_t _maxlen)
-    : parray_((unsigned char*)_ptr)
-    , pos_(0)
-    , length_(_len)
-    , max_length_(_maxlen) {
+: parray_((unsigned char*)_ptr), pos_(0), length_(_len), max_length_(_maxlen) {
     ASSERT(length_ <= max_length_);
 }
 
 PtrBuffer::PtrBuffer(void* _ptr, size_t _len)
-    : parray_((unsigned char*)_ptr)
-    , pos_(0)
-    , length_(_len)
-    , max_length_(_len) {
+: parray_((unsigned char*)_ptr), pos_(0), length_(_len), max_length_(_len) {
     ASSERT(length_ <= max_length_);
 }
 
@@ -85,23 +79,23 @@ size_t PtrBuffer::Read(void* _pBuffer, size_t _nLen, off_t _nPos) const {
     return nRead;
 }
 
-void  PtrBuffer::Seek(off_t _nOffset,  TSeek _eOrigin) {
+void PtrBuffer::Seek(off_t _nOffset, TSeek _eOrigin) {
     switch (_eOrigin) {
-    case kSeekStart:
-        pos_ = _nOffset;
-        break;
+        case kSeekStart:
+            pos_ = _nOffset;
+            break;
 
-    case kSeekCur:
-        pos_ += _nOffset;
-        break;
+        case kSeekCur:
+            pos_ += _nOffset;
+            break;
 
-    case kSeekEnd:
-        pos_ = length_ + _nOffset;
-        break;
+        case kSeekEnd:
+            pos_ = length_ + _nOffset;
+            break;
 
-    default:
-        ASSERT(false);
-        break;
+        default:
+            ASSERT(false);
+            break;
     }
 
     if (pos_ < 0)
@@ -120,11 +114,11 @@ void PtrBuffer::Length(off_t _nPos, size_t _nLenght) {
     Seek(_nPos, kSeekStart);
 }
 
-void*  PtrBuffer::Ptr() {
+void* PtrBuffer::Ptr() {
     return parray_;
 }
 
-const void*  PtrBuffer::Ptr() const {
+const void* PtrBuffer::Ptr() const {
     return parray_;
 }
 
@@ -169,4 +163,3 @@ void PtrBuffer::Reset() {
     length_ = 0;
     max_length_ = 0;
 }
-

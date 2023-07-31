@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -25,18 +25,28 @@
 #include <netinet/in.h>
 
 #ifndef __APPLE__
-#define IN6ADDR_V4MAPPED_INIT {{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00}}}
+#define IN6ADDR_V4MAPPED_INIT                                                                                  \
+    {                                                                                                          \
+        {                                                                                                      \
+            { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00 } \
+        }                                                                                                      \
+    }
 #endif
 
 #ifdef __APPLE__
-#define	s6_addr16   __u6_addr.__u6_addr16
-#define	s6_addr32   __u6_addr.__u6_addr32
+#define s6_addr16 __u6_addr.__u6_addr16
+#define s6_addr32 __u6_addr.__u6_addr32
 #endif
 
-#define	IN6ADDR_NAT64_INIT {{{ 0x00, 0x64, 0xff, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }}}
+#define IN6ADDR_NAT64_INIT                                                                                     \
+    {                                                                                                          \
+        {                                                                                                      \
+            { 0x00, 0x64, 0xff, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } \
+        }                                                                                                      \
+    }
 
-const in6_addr in6addr_v4mapped_init  = IN6ADDR_V4MAPPED_INIT;
-const in6_addr in6addr_nat64_init		= IN6ADDR_NAT64_INIT;
+const in6_addr in6addr_v4mapped_init = IN6ADDR_V4MAPPED_INIT;
+const in6_addr in6addr_nat64_init = IN6ADDR_NAT64_INIT;
 
 inline void IN6_SET_ADDR_V4MAPPED(in6_addr* a6, const in_addr* a4) {
     *a6 = in6addr_v4mapped_init;
@@ -54,31 +64,36 @@ inline bool IN6_IS_ADDR_NAT64(const in6_addr* a6) {
 
 #else
 #include <mstcpip.h>
-//TODO impl
-#define	IN6ADDR_NAT64_INIT {{{ 0x00, 0x64, 0xff, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }}}
+// TODO impl
+#define IN6ADDR_NAT64_INIT                                                                                     \
+    {                                                                                                          \
+        {                                                                                                      \
+            { 0x00, 0x64, 0xff, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } \
+        }                                                                                                      \
+    }
 const in6_addr in6addr_nat64_init = IN6ADDR_NAT64_INIT;
 
-#define s6_addr8    u.Byte
-#define	s6_addr16   u.Word
+#define s6_addr8 u.Byte
+#define s6_addr16 u.Word
 
 inline void IN6_SET_ADDR_NAT64(in6_addr* a6, const in_addr* a4) {
-	*a6 = in6addr_nat64_init;
-	a6->s6_bytes[12] = ((CONST UCHAR *) a4)[0];
-	a6->s6_bytes[13] = ((CONST UCHAR *) a4)[1];
-	a6->s6_bytes[14] = ((CONST UCHAR *) a4)[2];
-	a6->s6_bytes[15] = ((CONST UCHAR *) a4)[3];
+    *a6 = in6addr_nat64_init;
+    a6->s6_bytes[12] = ((CONST UCHAR*)a4)[0];
+    a6->s6_bytes[13] = ((CONST UCHAR*)a4)[1];
+    a6->s6_bytes[14] = ((CONST UCHAR*)a4)[2];
+    a6->s6_bytes[15] = ((CONST UCHAR*)a4)[3];
 }
 
 inline bool IN6_IS_ADDR_NAT64(const in6_addr* a6) {
-	return a6->s6_words[0] == htons(0x0064) && a6->s6_words[1] == htons(0x0064);
+    return a6->s6_words[0] == htons(0x0064) && a6->s6_words[1] == htons(0x0064);
 }
 
-#if UWP //???andrewu add for uwp
+#if UWP  //???andrewu add for uwp
 struct uwp_in6_addr {
-	UINT s6_addr32[4];
+    UINT s6_addr32[4];
 };
-#define s6_addr8    u.Byte
-#define s6_addr16   u.Word
+#define s6_addr8 u.Byte
+#define s6_addr16 u.Word
 #endif
 #endif
 

@@ -10,11 +10,12 @@
 /// Zstandard educational decoder implementation
 /// See https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md
 
+#include "zstd_decompress.h"
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "zstd_decompress.h"
 
 /******* UTILITY MACROS AND TYPES *********************************************/
 // Max block size decompressed size is 128 KB and literal blocks can't be
@@ -26,14 +27,15 @@
 
 /// This decoder calls exit(1) when it encounters an error, however a production
 /// library should propagate error codes
-#define ERROR(s)                                                               \
-    do {                                                                       \
-        fprintf(stderr, "Error: %s\n", s);                                     \
-        exit(1);                                                               \
+#define ERROR(s)                           \
+    do {                                   \
+        fprintf(stderr, "Error: %s\n", s); \
+        exit(1);                           \
     } while (0)
-#define INP_SIZE()                                                             \
-    ERROR("Input buffer smaller than it should be or input is "                \
-          "corrupted")
+#define INP_SIZE()                                            \
+    ERROR(                                                    \
+        "Input buffer smaller than it should be or input is " \
+        "corrupted")
 #define OUT_SIZE() ERROR("Output buffer too small for output")
 #define CORRUPTION() ERROR("Corruption detected while decompressing")
 #define BAD_ALLOC() ERROR("Memory allocation error")
@@ -62,12 +64,12 @@ typedef int64_t i64;
 /// They are written/read forward, and reads are treated as little-endian
 /// They should be used opaquely to ensure safety
 typedef struct {
-    u8 *ptr;
+    u8* ptr;
     size_t len;
 } ostream_t;
 
 typedef struct {
-    const u8 *ptr;
+    const u8* ptr;
     size_t len;
 
     // Input often reads a few bits at a time, so maintain an internal offset
@@ -78,53 +80,51 @@ typedef struct {
 /// non-byte aligned
 
 /// Reads `num` bits from a bitstream, and updates the internal offset
-static inline u64 IO_read_bits(istream_t *const in, const int num_bits);
+static inline u64 IO_read_bits(istream_t* const in, const int num_bits);
 /// Backs-up the stream by `num` bits so they can be read again
-static inline void IO_rewind_bits(istream_t *const in, const int num_bits);
+static inline void IO_rewind_bits(istream_t* const in, const int num_bits);
 /// If the remaining bits in a byte will be unused, advance to the end of the
 /// byte
-static inline void IO_align_stream(istream_t *const in);
+static inline void IO_align_stream(istream_t* const in);
 
 /// Write the given byte into the output stream
-static inline void IO_write_byte(ostream_t *const out, u8 symb);
+static inline void IO_write_byte(ostream_t* const out, u8 symb);
 
 /// Returns the number of bytes left to be read in this stream.  The stream must
 /// be byte aligned.
-static inline size_t IO_istream_len(const istream_t *const in);
+static inline size_t IO_istream_len(const istream_t* const in);
 
 /// Advances the stream by `len` bytes, and returns a pointer to the chunk that
 /// was skipped.  The stream must be byte aligned.
-static inline const u8 *IO_get_read_ptr(istream_t *const in, size_t len);
+static inline const u8* IO_get_read_ptr(istream_t* const in, size_t len);
 /// Advances the stream by `len` bytes, and returns a pointer to the chunk that
 /// was skipped so it can be written to.
-static inline u8 *IO_get_write_ptr(ostream_t *const out, size_t len);
+static inline u8* IO_get_write_ptr(ostream_t* const out, size_t len);
 
 /// Advance the inner state by `len` bytes.  The stream must be byte aligned.
-static inline void IO_advance_input(istream_t *const in, size_t len);
+static inline void IO_advance_input(istream_t* const in, size_t len);
 
 /// Returns an `ostream_t` constructed from the given pointer and length.
-static inline ostream_t IO_make_ostream(u8 *out, size_t len);
+static inline ostream_t IO_make_ostream(u8* out, size_t len);
 /// Returns an `istream_t` constructed from the given pointer and length.
-static inline istream_t IO_make_istream(const u8 *in, size_t len);
+static inline istream_t IO_make_istream(const u8* in, size_t len);
 
 /// Returns an `istream_t` with the same base as `in`, and length `len`.
 /// Then, advance `in` to account for the consumed bytes.
 /// `in` must be byte aligned.
-static inline istream_t IO_make_sub_istream(istream_t *const in, size_t len);
+static inline istream_t IO_make_sub_istream(istream_t* const in, size_t len);
 /*** END IO STREAM OPERATIONS *********/
 
 /*** BITSTREAM OPERATIONS *************/
 /// Read `num` bits (up to 64) from `src + offset`, where `offset` is in bits,
 /// and return them interpreted as a little-endian unsigned integer.
-static inline u64 read_bits_LE(const u8 *src, const int num_bits,
-                               const size_t offset);
+static inline u64 read_bits_LE(const u8* src, const int num_bits, const size_t offset);
 
 /// Read bits from the end of a HUF or FSE bitstream.  `offset` is in bits, so
 /// it updates `offset` to `offset - bits`, and then reads `bits` bits from
 /// `src + offset`.  If the offset becomes negative, the extra bits at the
 /// bottom are filled in with `0` bits instead of reading from before `src`.
-static inline u64 STREAM_read_bits(const u8 *src, const int bits,
-                                   i64 *const offset);
+static inline u64 STREAM_read_bits(const u8* src, const int bits, i64* const offset);
 /*** END BITSTREAM OPERATIONS *********/
 
 /*** BIT COUNTING OPERATIONS **********/
@@ -141,45 +141,42 @@ static inline int highest_set_bit(const u64 num);
 
 /// Structure containing all tables necessary for efficient Huffman decoding
 typedef struct {
-    u8 *symbols;
-    u8 *num_bits;
+    u8* symbols;
+    u8* num_bits;
     int max_bits;
 } HUF_dtable;
 
 /// Decode a single symbol and read in enough bits to refresh the state
-static inline u8 HUF_decode_symbol(const HUF_dtable *const dtable,
-                                   u16 *const state, const u8 *const src,
-                                   i64 *const offset);
+static inline u8 HUF_decode_symbol(const HUF_dtable* const dtable,
+                                   u16* const state,
+                                   const u8* const src,
+                                   i64* const offset);
 /// Read in a full state's worth of bits to initialize it
-static inline void HUF_init_state(const HUF_dtable *const dtable,
-                                  u16 *const state, const u8 *const src,
-                                  i64 *const offset);
+static inline void HUF_init_state(const HUF_dtable* const dtable,
+                                  u16* const state,
+                                  const u8* const src,
+                                  i64* const offset);
 
 /// Decompresses a single Huffman stream, returns the number of bytes decoded.
 /// `src_len` must be the exact length of the Huffman-coded block.
-static size_t HUF_decompress_1stream(const HUF_dtable *const dtable,
-                                     ostream_t *const out, istream_t *const in);
+static size_t HUF_decompress_1stream(const HUF_dtable* const dtable, ostream_t* const out, istream_t* const in);
 /// Same as previous but decodes 4 streams, formatted as in the Zstandard
 /// specification.
 /// `src_len` must be the exact length of the Huffman-coded block.
-static size_t HUF_decompress_4stream(const HUF_dtable *const dtable,
-                                     ostream_t *const out, istream_t *const in);
+static size_t HUF_decompress_4stream(const HUF_dtable* const dtable, ostream_t* const out, istream_t* const in);
 
 /// Initialize a Huffman decoding table using the table of bit counts provided
-static void HUF_init_dtable(HUF_dtable *const table, const u8 *const bits,
-                            const int num_symbs);
+static void HUF_init_dtable(HUF_dtable* const table, const u8* const bits, const int num_symbs);
 /// Initialize a Huffman decoding table using the table of weights provided
 /// Weights follow the definition provided in the Zstandard specification
-static void HUF_init_dtable_usingweights(HUF_dtable *const table,
-                                         const u8 *const weights,
-                                         const int num_symbs);
+static void HUF_init_dtable_usingweights(HUF_dtable* const table, const u8* const weights, const int num_symbs);
 
 /// Free the malloc'ed parts of a decoding table
-static void HUF_free_dtable(HUF_dtable *const dtable);
+static void HUF_free_dtable(HUF_dtable* const dtable);
 
 /// Deep copy a decoding table, so that it can be used and free'd without
 /// impacting the source table.
-static void HUF_copy_dtable(HUF_dtable *const dst, const HUF_dtable *const src);
+static void HUF_copy_dtable(HUF_dtable* const dst, const HUF_dtable* const src);
 /*** END HUFFMAN PRIMITIVES ***********/
 
 /*** FSE PRIMITIVES *******************/
@@ -193,58 +190,58 @@ static void HUF_copy_dtable(HUF_dtable *const dst, const HUF_dtable *const src);
 
 /// The tables needed to decode FSE encoded streams
 typedef struct {
-    u8 *symbols;
-    u8 *num_bits;
-    u16 *new_state_base;
+    u8* symbols;
+    u8* num_bits;
+    u16* new_state_base;
     int accuracy_log;
 } FSE_dtable;
 
 /// Return the symbol for the current state
-static inline u8 FSE_peek_symbol(const FSE_dtable *const dtable,
-                                 const u16 state);
+static inline u8 FSE_peek_symbol(const FSE_dtable* const dtable, const u16 state);
 /// Read the number of bits necessary to update state, update, and shift offset
 /// back to reflect the bits read
-static inline void FSE_update_state(const FSE_dtable *const dtable,
-                                    u16 *const state, const u8 *const src,
-                                    i64 *const offset);
+static inline void FSE_update_state(const FSE_dtable* const dtable,
+                                    u16* const state,
+                                    const u8* const src,
+                                    i64* const offset);
 
 /// Combine peek and update: decode a symbol and update the state
-static inline u8 FSE_decode_symbol(const FSE_dtable *const dtable,
-                                   u16 *const state, const u8 *const src,
-                                   i64 *const offset);
+static inline u8 FSE_decode_symbol(const FSE_dtable* const dtable,
+                                   u16* const state,
+                                   const u8* const src,
+                                   i64* const offset);
 
 /// Read bits from the stream to initialize the state and shift offset back
-static inline void FSE_init_state(const FSE_dtable *const dtable,
-                                  u16 *const state, const u8 *const src,
-                                  i64 *const offset);
+static inline void FSE_init_state(const FSE_dtable* const dtable,
+                                  u16* const state,
+                                  const u8* const src,
+                                  i64* const offset);
 
 /// Decompress two interleaved bitstreams (e.g. compressed Huffman weights)
 /// using an FSE decoding table.  `src_len` must be the exact length of the
 /// block.
-static size_t FSE_decompress_interleaved2(const FSE_dtable *const dtable,
-                                          ostream_t *const out,
-                                          istream_t *const in);
+static size_t FSE_decompress_interleaved2(const FSE_dtable* const dtable, ostream_t* const out, istream_t* const in);
 
 /// Initialize a decoding table using normalized frequencies.
-static void FSE_init_dtable(FSE_dtable *const dtable,
-                            const i16 *const norm_freqs, const int num_symbs,
+static void FSE_init_dtable(FSE_dtable* const dtable,
+                            const i16* const norm_freqs,
+                            const int num_symbs,
                             const int accuracy_log);
 
 /// Decode an FSE header as defined in the Zstandard format specification and
 /// use the decoded frequencies to initialize a decoding table.
-static void FSE_decode_header(FSE_dtable *const dtable, istream_t *const in,
-                                const int max_accuracy_log);
+static void FSE_decode_header(FSE_dtable* const dtable, istream_t* const in, const int max_accuracy_log);
 
 /// Initialize an FSE table that will always return the same symbol and consume
 /// 0 bits per symbol, to be used for RLE mode in sequence commands
-static void FSE_init_dtable_rle(FSE_dtable *const dtable, const u8 symb);
+static void FSE_init_dtable_rle(FSE_dtable* const dtable, const u8 symb);
 
 /// Free the malloc'ed parts of a decoding table
-static void FSE_free_dtable(FSE_dtable *const dtable);
+static void FSE_free_dtable(FSE_dtable* const dtable);
 
 /// Deep copy a decoding table, so that it can be used and free'd without
 /// impacting the source table.
-static void FSE_copy_dtable(FSE_dtable *const dst, const FSE_dtable *const src);
+static void FSE_copy_dtable(FSE_dtable* const dst, const FSE_dtable* const src);
 /*** END FSE PRIMITIVES ***************/
 
 /******* END IMPLEMENTATION PRIMITIVE PROTOTYPES ******************************/
@@ -277,7 +274,7 @@ typedef struct {
     // offset too large to be correct
     size_t current_total_output;
 
-    const u8 *dict_content;
+    const u8* dict_content;
     size_t dict_content_len;
 
     // Entropy encoding tables so they can be repeated by future blocks instead
@@ -301,7 +298,7 @@ struct dictionary_s {
     FSE_dtable of_dtable;
 
     // Raw content for backreferences
-    u8 *content;
+    u8* content;
     size_t content_size;
 
     // Offset history to prepopulate the frame's history
@@ -331,59 +328,56 @@ typedef struct {
 /// Accepts a dict argument, which may be NULL indicating no dictionary.
 /// See
 /// https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md#frame-concatenation
-static void decode_frame(ostream_t *const out, istream_t *const in,
-                         const dictionary_t *const dict);
+static void decode_frame(ostream_t* const out, istream_t* const in, const dictionary_t* const dict);
 
 // Decode data in a compressed block
-static void decompress_block(frame_context_t *const ctx, ostream_t *const out,
-                             istream_t *const in);
+static void decompress_block(frame_context_t* const ctx, ostream_t* const out, istream_t* const in);
 
 // Decode the literals section of a block
-static size_t decode_literals(frame_context_t *const ctx, istream_t *const in,
-                              u8 **const literals);
+static size_t decode_literals(frame_context_t* const ctx, istream_t* const in, u8** const literals);
 
 // Decode the sequences part of a block
-static size_t decode_sequences(frame_context_t *const ctx, istream_t *const in,
-                               sequence_command_t **const sequences);
+static size_t decode_sequences(frame_context_t* const ctx, istream_t* const in, sequence_command_t** const sequences);
 
 // Execute the decoded sequences on the literals block
-static void execute_sequences(frame_context_t *const ctx, ostream_t *const out,
-                              const u8 *const literals,
+static void execute_sequences(frame_context_t* const ctx,
+                              ostream_t* const out,
+                              const u8* const literals,
                               const size_t literals_len,
-                              const sequence_command_t *const sequences,
+                              const sequence_command_t* const sequences,
                               const size_t num_sequences);
 
 // Copies literals and returns the total literal length that was copied
-static u32 copy_literals(const size_t seq, istream_t *litstream,
-                         ostream_t *const out);
+static u32 copy_literals(const size_t seq, istream_t* litstream, ostream_t* const out);
 
 // Given an offset code from a sequence command (either an actual offset value
 // or an index for previous offset), computes the correct offset and updates
 // the offset history
-static size_t compute_offset(sequence_command_t seq, u64 *const offset_hist);
+static size_t compute_offset(sequence_command_t seq, u64* const offset_hist);
 
 // Given an offset, match length, and total output, as well as the frame
 // context for the dictionary, determines if the dictionary is used and
 // executes the copy operation
-static void execute_match_copy(frame_context_t *const ctx, size_t offset,
-                              size_t match_length, size_t total_output,
-                              ostream_t *const out);
+static void execute_match_copy(frame_context_t* const ctx,
+                               size_t offset,
+                               size_t match_length,
+                               size_t total_output,
+                               ostream_t* const out);
 
 /******* END ZSTD HELPER STRUCTS AND PROTOTYPES *******************************/
 
-size_t ZSTD_decompress(void *const dst, const size_t dst_len,
-                       const void *const src, const size_t src_len) {
+size_t ZSTD_decompress(void* const dst, const size_t dst_len, const void* const src, const size_t src_len) {
     dictionary_t* uninit_dict = create_dictionary();
-    size_t const decomp_size = ZSTD_decompress_with_dict(dst, dst_len, src,
-                                                         src_len, uninit_dict);
+    size_t const decomp_size = ZSTD_decompress_with_dict(dst, dst_len, src, src_len, uninit_dict);
     free_dictionary(uninit_dict);
     return decomp_size;
 }
 
-size_t ZSTD_decompress_with_dict(void *const dst, const size_t dst_len,
-                                 const void *const src, const size_t src_len,
+size_t ZSTD_decompress_with_dict(void* const dst,
+                                 const size_t dst_len,
+                                 const void* const src,
+                                 const size_t src_len,
                                  dictionary_t* parsed_dict) {
-
     istream_t in = IO_make_istream(src, src_len);
     ostream_t out = IO_make_ostream(dst, dst_len);
 
@@ -395,27 +389,20 @@ size_t ZSTD_decompress_with_dict(void *const dst, const size_t dst_len,
     /* this decoder assumes decompression of a single frame */
     decode_frame(&out, &in, parsed_dict);
 
-    return (size_t)(out.ptr - (u8 *)dst);
+    return (size_t)(out.ptr - (u8*)dst);
 }
 
 /******* FRAME DECODING ******************************************************/
 
-static void decode_data_frame(ostream_t *const out, istream_t *const in,
-                              const dictionary_t *const dict);
-static void init_frame_context(frame_context_t *const context,
-                               istream_t *const in,
-                               const dictionary_t *const dict);
-static void free_frame_context(frame_context_t *const context);
-static void parse_frame_header(frame_header_t *const header,
-                               istream_t *const in);
-static void frame_context_apply_dict(frame_context_t *const ctx,
-                                     const dictionary_t *const dict);
+static void decode_data_frame(ostream_t* const out, istream_t* const in, const dictionary_t* const dict);
+static void init_frame_context(frame_context_t* const context, istream_t* const in, const dictionary_t* const dict);
+static void free_frame_context(frame_context_t* const context);
+static void parse_frame_header(frame_header_t* const header, istream_t* const in);
+static void frame_context_apply_dict(frame_context_t* const ctx, const dictionary_t* const dict);
 
-static void decompress_data(frame_context_t *const ctx, ostream_t *const out,
-                            istream_t *const in);
+static void decompress_data(frame_context_t* const ctx, ostream_t* const out, istream_t* const in);
 
-static void decode_frame(ostream_t *const out, istream_t *const in,
-                         const dictionary_t *const dict) {
+static void decode_frame(ostream_t* const out, istream_t* const in, const dictionary_t* const dict) {
     const u32 magic_number = (u32)IO_read_bits(in, 32);
     // Zstandard frame
     //
@@ -437,15 +424,13 @@ static void decode_frame(ostream_t *const out, istream_t *const in,
 /// are skippable frames.
 /// See
 /// https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md#general-structure-of-zstandard-frame-format
-static void decode_data_frame(ostream_t *const out, istream_t *const in,
-                              const dictionary_t *const dict) {
+static void decode_data_frame(ostream_t* const out, istream_t* const in, const dictionary_t* const dict) {
     frame_context_t ctx;
 
     // Initialize the context that needs to be carried from block to block
     init_frame_context(&ctx, in, dict);
 
-    if (ctx.header.frame_content_size != 0 &&
-        ctx.header.frame_content_size > out->len) {
+    if (ctx.header.frame_content_size != 0 && ctx.header.frame_content_size > out->len) {
         OUT_SIZE();
     }
 
@@ -456,9 +441,7 @@ static void decode_data_frame(ostream_t *const out, istream_t *const in,
 
 /// Takes the information provided in the header and dictionary, and initializes
 /// the context for this frame
-static void init_frame_context(frame_context_t *const context,
-                               istream_t *const in,
-                               const dictionary_t *const dict) {
+static void init_frame_context(frame_context_t* const context, istream_t* const in, const dictionary_t* const dict) {
     // Most fields in context are correct when initialized to 0
     memset(context, 0, sizeof(frame_context_t));
 
@@ -474,7 +457,7 @@ static void init_frame_context(frame_context_t *const context,
     frame_context_apply_dict(context, dict);
 }
 
-static void free_frame_context(frame_context_t *const context) {
+static void free_frame_context(frame_context_t* const context) {
     HUF_free_dtable(&context->literals_dtable);
 
     FSE_free_dtable(&context->ll_dtable);
@@ -484,8 +467,7 @@ static void free_frame_context(frame_context_t *const context) {
     memset(context, 0, sizeof(frame_context_t));
 }
 
-static void parse_frame_header(frame_header_t *const header,
-                               istream_t *const in) {
+static void parse_frame_header(frame_header_t* const header, istream_t* const in) {
     // "The first header's byte is called the Frame_Header_Descriptor. It tells
     // which other fields are present. Decoding this byte is enough to tell the
     // size of Frame_Header.
@@ -579,16 +561,14 @@ static void parse_frame_header(frame_header_t *const header,
 /// A dictionary acts as initializing values for the frame context before
 /// decompression, so we implement it by applying it's predetermined
 /// tables and content to the context before beginning decompression
-static void frame_context_apply_dict(frame_context_t *const ctx,
-                                     const dictionary_t *const dict) {
+static void frame_context_apply_dict(frame_context_t* const ctx, const dictionary_t* const dict) {
     // If the content pointer is NULL then it must be an empty dict
     if (!dict || !dict->content)
         return;
 
     // If the requested dictionary_id is non-zero, the correct dictionary must
     // be present
-    if (ctx->header.dictionary_id != 0 &&
-        ctx->header.dictionary_id != dict->dictionary_id) {
+    if (ctx->header.dictionary_id != 0 && ctx->header.dictionary_id != dict->dictionary_id) {
         ERROR("Wrong dictionary provided");
     }
 
@@ -608,14 +588,12 @@ static void frame_context_apply_dict(frame_context_t *const ctx,
         FSE_copy_dtable(&ctx->ml_dtable, &dict->ml_dtable);
 
         // Copy the repeated offsets
-        memcpy(ctx->previous_offsets, dict->previous_offsets,
-               sizeof(ctx->previous_offsets));
+        memcpy(ctx->previous_offsets, dict->previous_offsets, sizeof(ctx->previous_offsets));
     }
 }
 
 /// Decompress the data from a frame block by block
-static void decompress_data(frame_context_t *const ctx, ostream_t *const out,
-                            istream_t *const in) {
+static void decompress_data(frame_context_t* const ctx, ostream_t* const out, istream_t* const in) {
     // "A frame encapsulates one or multiple blocks. Each block can be
     // compressed or not, and has a guaranteed maximum content size, which
     // depends on frame parameters. Unlike frames, each block depends on
@@ -638,48 +616,48 @@ static void decompress_data(frame_context_t *const ctx, ostream_t *const out,
         const size_t block_len = IO_read_bits(in, 21);
 
         switch (block_type) {
-        case 0: {
-            // "Raw_Block - this is an uncompressed block. Block_Size is the
-            // number of bytes to read and copy."
-            const u8 *const read_ptr = IO_get_read_ptr(in, block_len);
-            u8 *const write_ptr = IO_get_write_ptr(out, block_len);
+            case 0: {
+                // "Raw_Block - this is an uncompressed block. Block_Size is the
+                // number of bytes to read and copy."
+                const u8* const read_ptr = IO_get_read_ptr(in, block_len);
+                u8* const write_ptr = IO_get_write_ptr(out, block_len);
 
-            // Copy the raw data into the output
-            memcpy(write_ptr, read_ptr, block_len);
+                // Copy the raw data into the output
+                memcpy(write_ptr, read_ptr, block_len);
 
-            ctx->current_total_output += block_len;
-            break;
-        }
-        case 1: {
-            // "RLE_Block - this is a single byte, repeated N times. In which
-            // case, Block_Size is the size to regenerate, while the
-            // "compressed" block is just 1 byte (the byte to repeat)."
-            const u8 *const read_ptr = IO_get_read_ptr(in, 1);
-            u8 *const write_ptr = IO_get_write_ptr(out, block_len);
+                ctx->current_total_output += block_len;
+                break;
+            }
+            case 1: {
+                // "RLE_Block - this is a single byte, repeated N times. In which
+                // case, Block_Size is the size to regenerate, while the
+                // "compressed" block is just 1 byte (the byte to repeat)."
+                const u8* const read_ptr = IO_get_read_ptr(in, 1);
+                u8* const write_ptr = IO_get_write_ptr(out, block_len);
 
-            // Copy `block_len` copies of `read_ptr[0]` to the output
-            memset(write_ptr, read_ptr[0], block_len);
+                // Copy `block_len` copies of `read_ptr[0]` to the output
+                memset(write_ptr, read_ptr[0], block_len);
 
-            ctx->current_total_output += block_len;
-            break;
-        }
-        case 2: {
-            // "Compressed_Block - this is a Zstandard compressed block,
-            // detailed in another section of this specification. Block_Size is
-            // the compressed size.
+                ctx->current_total_output += block_len;
+                break;
+            }
+            case 2: {
+                // "Compressed_Block - this is a Zstandard compressed block,
+                // detailed in another section of this specification. Block_Size is
+                // the compressed size.
 
-            // Create a sub-stream for the block
-            istream_t block_stream = IO_make_sub_istream(in, block_len);
-            decompress_block(ctx, out, &block_stream);
-            break;
-        }
-        case 3:
-            // "Reserved - this is not a block. This value cannot be used with
-            // current version of this specification."
-            CORRUPTION();
-            break;
-        default:
-            IMPOSSIBLE();
+                // Create a sub-stream for the block
+                istream_t block_stream = IO_make_sub_istream(in, block_len);
+                decompress_block(ctx, out, &block_stream);
+                break;
+            }
+            case 3:
+                // "Reserved - this is not a block. This value cannot be used with
+                // current version of this specification."
+                CORRUPTION();
+                break;
+            default:
+                IMPOSSIBLE();
         }
     } while (!last_block);
 
@@ -692,46 +670,41 @@ static void decompress_data(frame_context_t *const ctx, ostream_t *const out,
 /******* END FRAME DECODING ***************************************************/
 
 /******* BLOCK DECOMPRESSION **************************************************/
-static void decompress_block(frame_context_t *const ctx, ostream_t *const out,
-                             istream_t *const in) {
+static void decompress_block(frame_context_t* const ctx, ostream_t* const out, istream_t* const in) {
     // "A compressed block consists of 2 sections :
     //
     // Literals_Section
     // Sequences_Section"
 
-
     // Part 1: decode the literals block
-    u8 *literals = NULL;
+    u8* literals = NULL;
     const size_t literals_size = decode_literals(ctx, in, &literals);
 
     // Part 2: decode the sequences block
-    sequence_command_t *sequences = NULL;
-    const size_t num_sequences =
-        decode_sequences(ctx, in, &sequences);
+    sequence_command_t* sequences = NULL;
+    const size_t num_sequences = decode_sequences(ctx, in, &sequences);
 
     // Part 3: combine literals and sequence commands to generate output
-    execute_sequences(ctx, out, literals, literals_size, sequences,
-                      num_sequences);
+    execute_sequences(ctx, out, literals, literals_size, sequences, num_sequences);
     free(literals);
     free(sequences);
 }
 /******* END BLOCK DECOMPRESSION **********************************************/
 
 /******* LITERALS DECODING ****************************************************/
-static size_t decode_literals_simple(istream_t *const in, u8 **const literals,
+static size_t decode_literals_simple(istream_t* const in,
+                                     u8** const literals,
                                      const int block_type,
                                      const int size_format);
-static size_t decode_literals_compressed(frame_context_t *const ctx,
-                                         istream_t *const in,
-                                         u8 **const literals,
+static size_t decode_literals_compressed(frame_context_t* const ctx,
+                                         istream_t* const in,
+                                         u8** const literals,
                                          const int block_type,
                                          const int size_format);
-static void decode_huf_table(HUF_dtable *const dtable, istream_t *const in);
-static void fse_decode_hufweights(ostream_t *weights, istream_t *const in,
-                                    int *const num_symbs);
+static void decode_huf_table(HUF_dtable* const dtable, istream_t* const in);
+static void fse_decode_hufweights(ostream_t* weights, istream_t* const in, int* const num_symbs);
 
-static size_t decode_literals(frame_context_t *const ctx, istream_t *const in,
-                              u8 **const literals) {
+static size_t decode_literals(frame_context_t* const ctx, istream_t* const in, u8** const literals) {
     // "Literals can be stored uncompressed or compressed using Huffman prefix
     // codes. When compressed, an optional tree description can be present,
     // followed by 1 or 4 streams."
@@ -753,40 +726,39 @@ static size_t decode_literals(frame_context_t *const ctx, istream_t *const in,
 
     if (block_type <= 1) {
         // Raw or RLE literals block
-        return decode_literals_simple(in, literals, block_type,
-                                      size_format);
+        return decode_literals_simple(in, literals, block_type, size_format);
     } else {
         // Huffman compressed literals
-        return decode_literals_compressed(ctx, in, literals, block_type,
-                                          size_format);
+        return decode_literals_compressed(ctx, in, literals, block_type, size_format);
     }
 }
 
 /// Decodes literals blocks in raw or RLE form
-static size_t decode_literals_simple(istream_t *const in, u8 **const literals,
+static size_t decode_literals_simple(istream_t* const in,
+                                     u8** const literals,
                                      const int block_type,
                                      const int size_format) {
     size_t size;
     switch (size_format) {
-    // These cases are in the form ?0
-    // In this case, the ? bit is actually part of the size field
-    case 0:
-    case 2:
-        // "Size_Format uses 1 bit. Regenerated_Size uses 5 bits (0-31)."
-        IO_rewind_bits(in, 1);
-        size = IO_read_bits(in, 5);
-        break;
-    case 1:
-        // "Size_Format uses 2 bits. Regenerated_Size uses 12 bits (0-4095)."
-        size = IO_read_bits(in, 12);
-        break;
-    case 3:
-        // "Size_Format uses 2 bits. Regenerated_Size uses 20 bits (0-1048575)."
-        size = IO_read_bits(in, 20);
-        break;
-    default:
-        // Size format is in range 0-3
-        IMPOSSIBLE();
+        // These cases are in the form ?0
+        // In this case, the ? bit is actually part of the size field
+        case 0:
+        case 2:
+            // "Size_Format uses 1 bit. Regenerated_Size uses 5 bits (0-31)."
+            IO_rewind_bits(in, 1);
+            size = IO_read_bits(in, 5);
+            break;
+        case 1:
+            // "Size_Format uses 2 bits. Regenerated_Size uses 12 bits (0-4095)."
+            size = IO_read_bits(in, 12);
+            break;
+        case 3:
+            // "Size_Format uses 2 bits. Regenerated_Size uses 20 bits (0-1048575)."
+            size = IO_read_bits(in, 20);
+            break;
+        default:
+            // Size format is in range 0-3
+            IMPOSSIBLE();
     }
 
     if (size > MAX_LITERALS_SIZE) {
@@ -799,62 +771,62 @@ static size_t decode_literals_simple(istream_t *const in, u8 **const literals,
     }
 
     switch (block_type) {
-    case 0: {
-        // "Raw_Literals_Block - Literals are stored uncompressed."
-        const u8 *const read_ptr = IO_get_read_ptr(in, size);
-        memcpy(*literals, read_ptr, size);
-        break;
-    }
-    case 1: {
-        // "RLE_Literals_Block - Literals consist of a single byte value repeated N times."
-        const u8 *const read_ptr = IO_get_read_ptr(in, 1);
-        memset(*literals, read_ptr[0], size);
-        break;
-    }
-    default:
-        IMPOSSIBLE();
+        case 0: {
+            // "Raw_Literals_Block - Literals are stored uncompressed."
+            const u8* const read_ptr = IO_get_read_ptr(in, size);
+            memcpy(*literals, read_ptr, size);
+            break;
+        }
+        case 1: {
+            // "RLE_Literals_Block - Literals consist of a single byte value repeated N times."
+            const u8* const read_ptr = IO_get_read_ptr(in, 1);
+            memset(*literals, read_ptr[0], size);
+            break;
+        }
+        default:
+            IMPOSSIBLE();
     }
 
     return size;
 }
 
 /// Decodes Huffman compressed literals
-static size_t decode_literals_compressed(frame_context_t *const ctx,
-                                         istream_t *const in,
-                                         u8 **const literals,
+static size_t decode_literals_compressed(frame_context_t* const ctx,
+                                         istream_t* const in,
+                                         u8** const literals,
                                          const int block_type,
                                          const int size_format) {
     size_t regenerated_size, compressed_size;
     // Only size_format=0 has 1 stream, so default to 4
     int num_streams = 4;
     switch (size_format) {
-    case 0:
-        // "A single stream. Both Compressed_Size and Regenerated_Size use 10
-        // bits (0-1023)."
-        num_streams = 1;
-    // Fall through as it has the same size format
-        /* fallthrough */
-    case 1:
-        // "4 streams. Both Compressed_Size and Regenerated_Size use 10 bits
-        // (0-1023)."
-        regenerated_size = IO_read_bits(in, 10);
-        compressed_size = IO_read_bits(in, 10);
-        break;
-    case 2:
-        // "4 streams. Both Compressed_Size and Regenerated_Size use 14 bits
-        // (0-16383)."
-        regenerated_size = IO_read_bits(in, 14);
-        compressed_size = IO_read_bits(in, 14);
-        break;
-    case 3:
-        // "4 streams. Both Compressed_Size and Regenerated_Size use 18 bits
-        // (0-262143)."
-        regenerated_size = IO_read_bits(in, 18);
-        compressed_size = IO_read_bits(in, 18);
-        break;
-    default:
-        // Impossible
-        IMPOSSIBLE();
+        case 0:
+            // "A single stream. Both Compressed_Size and Regenerated_Size use 10
+            // bits (0-1023)."
+            num_streams = 1;
+            // Fall through as it has the same size format
+            /* fallthrough */
+        case 1:
+            // "4 streams. Both Compressed_Size and Regenerated_Size use 10 bits
+            // (0-1023)."
+            regenerated_size = IO_read_bits(in, 10);
+            compressed_size = IO_read_bits(in, 10);
+            break;
+        case 2:
+            // "4 streams. Both Compressed_Size and Regenerated_Size use 14 bits
+            // (0-16383)."
+            regenerated_size = IO_read_bits(in, 14);
+            compressed_size = IO_read_bits(in, 14);
+            break;
+        case 3:
+            // "4 streams. Both Compressed_Size and Regenerated_Size use 18 bits
+            // (0-262143)."
+            regenerated_size = IO_read_bits(in, 18);
+            compressed_size = IO_read_bits(in, 18);
+            break;
+        default:
+            // Impossible
+            IMPOSSIBLE();
     }
     if (regenerated_size > MAX_LITERALS_SIZE) {
         CORRUPTION();
@@ -897,7 +869,7 @@ static size_t decode_literals_compressed(frame_context_t *const ctx,
 }
 
 // Decode the Huffman table description
-static void decode_huf_table(HUF_dtable *const dtable, istream_t *const in) {
+static void decode_huf_table(HUF_dtable* const dtable, istream_t* const in) {
     // "All literal values from zero (included) to last present one (excluded)
     // are represented by Weight with values from 0 to Max_Number_of_Bits."
 
@@ -918,7 +890,7 @@ static void decode_huf_table(HUF_dtable *const dtable, istream_t *const in) {
         num_symbs = header - 127;
         const size_t bytes = (num_symbs + 1) / 2;
 
-        const u8 *const weight_src = IO_get_read_ptr(in, bytes);
+        const u8* const weight_src = IO_get_read_ptr(in, bytes);
 
         for (int i = 0; i < num_symbs; i++) {
             // "They are encoded forward, 2
@@ -944,8 +916,7 @@ static void decode_huf_table(HUF_dtable *const dtable, istream_t *const in) {
     HUF_init_dtable_usingweights(dtable, weights, num_symbs);
 }
 
-static void fse_decode_hufweights(ostream_t *weights, istream_t *const in,
-                                    int *const num_symbs) {
+static void fse_decode_hufweights(ostream_t* weights, istream_t* const in, int* const num_symbs) {
     const int MAX_ACCURACY_LOG = 7;
 
     FSE_dtable dtable;
@@ -989,52 +960,44 @@ typedef enum {
 } seq_mode_t;
 
 /// The predefined FSE distribution tables for `seq_predefined` mode
-static const i16 SEQ_LITERAL_LENGTH_DEFAULT_DIST[36] = {
-    4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1,  1,  2,  2,
-    2, 2, 2, 2, 2, 2, 2, 3, 2, 1, 1, 1, 1, 1, -1, -1, -1, -1};
-static const i16 SEQ_OFFSET_DEFAULT_DIST[29] = {
-    1, 1, 1, 1, 1, 1, 2, 2, 2, 1,  1,  1,  1,  1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1};
-static const i16 SEQ_MATCH_LENGTH_DEFAULT_DIST[53] = {
-    1, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1,  1,  1,  1,  1,  1,  1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1};
+static const i16 SEQ_LITERAL_LENGTH_DEFAULT_DIST[36] = {4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1,  1,  2,  2,
+                                                        2, 2, 2, 2, 2, 2, 2, 3, 2, 1, 1, 1, 1, 1, -1, -1, -1, -1};
+static const i16 SEQ_OFFSET_DEFAULT_DIST[29] = {1, 1, 1, 1, 1, 1, 2, 2, 2, 1,  1,  1,  1,  1, 1,
+                                                1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1};
+static const i16 SEQ_MATCH_LENGTH_DEFAULT_DIST[53] = {1, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1,  1,  1,  1,  1,  1,  1, 1,
+                                                      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1, 1,
+                                                      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1};
 
 /// The sequence decoding baseline and number of additional bits to read/add
 /// https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md#the-codes-for-literals-lengths-match-lengths-and-offsets
 static const u32 SEQ_LITERAL_LENGTH_BASELINES[36] = {
-    0,  1,  2,   3,   4,   5,    6,    7,    8,    9,     10,    11,
-    12, 13, 14,  15,  16,  18,   20,   22,   24,   28,    32,    40,
-    48, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536};
-static const u8 SEQ_LITERAL_LENGTH_EXTRA_BITS[36] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  1,  1,
-    1, 1, 2, 2, 3, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    0,  1,  2,  3,  4,  5,  6,  7,  8,   9,   10,  11,   12,   13,   14,   15,    16,    18,
+    20, 22, 24, 28, 32, 40, 48, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536};
+static const u8 SEQ_LITERAL_LENGTH_EXTRA_BITS[36] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  1,  1,
+                                                     1, 1, 2, 2, 3, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
 static const u32 SEQ_MATCH_LENGTH_BASELINES[53] = {
-    3,  4,   5,   6,   7,    8,    9,    10,   11,    12,    13,   14, 15, 16,
-    17, 18,  19,  20,  21,   22,   23,   24,   25,    26,    27,   28, 29, 30,
-    31, 32,  33,  34,  35,   37,   39,   41,   43,    47,    51,   59, 67, 83,
-    99, 131, 259, 515, 1027, 2051, 4099, 8195, 16387, 32771, 65539};
-static const u8 SEQ_MATCH_LENGTH_EXTRA_BITS[53] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  1,  1,  1, 1,
-    2, 2, 3, 3, 4, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    3,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13,   14,   15,   16,   17,    18,    19,   20,
+    21, 22, 23, 24, 25, 26, 27, 28,  29,  30,  31,   32,   33,   34,   35,    37,    39,   41,
+    43, 47, 51, 59, 67, 83, 99, 131, 259, 515, 1027, 2051, 4099, 8195, 16387, 32771, 65539};
+static const u8 SEQ_MATCH_LENGTH_EXTRA_BITS[53] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0, 0,
+                                                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  1,  1,  1, 1,
+                                                   2, 2, 3, 3, 4, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
 /// Offset decoding is simpler so we just need a maximum code value
 static const u8 SEQ_MAX_CODES[3] = {35, (u8)-1, 52};
 
-static void decompress_sequences(frame_context_t *const ctx,
-                                 istream_t *const in,
-                                 sequence_command_t *const sequences,
+static void decompress_sequences(frame_context_t* const ctx,
+                                 istream_t* const in,
+                                 sequence_command_t* const sequences,
                                  const size_t num_sequences);
-static sequence_command_t decode_sequence(sequence_states_t *const state,
-                                          const u8 *const src,
-                                          i64 *const offset);
-static void decode_seq_table(FSE_dtable *const table, istream_t *const in,
-                               const seq_part_t type, const seq_mode_t mode);
+static sequence_command_t decode_sequence(sequence_states_t* const state, const u8* const src, i64* const offset);
+static void decode_seq_table(FSE_dtable* const table,
+                             istream_t* const in,
+                             const seq_part_t type,
+                             const seq_mode_t mode);
 
-static size_t decode_sequences(frame_context_t *const ctx, istream_t *in,
-                               sequence_command_t **const sequences) {
+static size_t decode_sequences(frame_context_t* const ctx, istream_t* in, sequence_command_t** const sequences) {
     // "A compressed block is a succession of sequences . A sequence is a
     // literal copy command, followed by a match copy command. A literal copy
     // command specifies a length. It is the number of bytes to be copied (or
@@ -1075,8 +1038,9 @@ static size_t decode_sequences(frame_context_t *const ctx, istream_t *in,
 }
 
 /// Decompress the FSE encoded sequence commands
-static void decompress_sequences(frame_context_t *const ctx, istream_t *in,
-                                 sequence_command_t *const sequences,
+static void decompress_sequences(frame_context_t* const ctx,
+                                 istream_t* in,
+                                 sequence_command_t* const sequences,
                                  const size_t num_sequences) {
     // "The Sequences_Section regroup all symbols required to decode commands.
     // There are 3 symbol types : literals lengths, offsets and match lengths.
@@ -1106,15 +1070,11 @@ static void decompress_sequences(frame_context_t *const ctx, istream_t *in,
     // Offsets
     // Match Lengths"
     // Update the tables we have stored in the context
-    decode_seq_table(&ctx->ll_dtable, in, seq_literal_length,
-                     (compression_modes >> 6) & 3);
+    decode_seq_table(&ctx->ll_dtable, in, seq_literal_length, (compression_modes >> 6) & 3);
 
-    decode_seq_table(&ctx->of_dtable, in, seq_offset,
-                     (compression_modes >> 4) & 3);
+    decode_seq_table(&ctx->of_dtable, in, seq_offset, (compression_modes >> 4) & 3);
 
-    decode_seq_table(&ctx->ml_dtable, in, seq_match_length,
-                     (compression_modes >> 2) & 3);
-
+    decode_seq_table(&ctx->ml_dtable, in, seq_match_length, (compression_modes >> 2) & 3);
 
     sequence_states_t states;
 
@@ -1126,7 +1086,7 @@ static void decompress_sequences(frame_context_t *const ctx, istream_t *in,
     }
 
     const size_t len = IO_istream_len(in);
-    const u8 *const src = IO_get_read_ptr(in, len);
+    const u8* const src = IO_get_read_ptr(in, len);
 
     // "After writing the last bit containing information, the compressor writes
     // a single 1-bit and then fills the byte with 0-7 0 bits of padding."
@@ -1155,9 +1115,7 @@ static void decompress_sequences(frame_context_t *const ctx, istream_t *in,
 }
 
 // Decode a single sequence and update the state
-static sequence_command_t decode_sequence(sequence_states_t *const states,
-                                          const u8 *const src,
-                                          i64 *const offset) {
+static sequence_command_t decode_sequence(sequence_states_t* const states, const u8* const src, i64* const offset) {
     // "Each symbol is a code in its own context, which specifies Baseline and
     // Number_of_Bits to add. Codes are FSE compressed, and interleaved with raw
     // additional bits in the same bitstream."
@@ -1168,8 +1126,7 @@ static sequence_command_t decode_sequence(sequence_states_t *const states,
     const u8 ml_code = FSE_peek_symbol(&states->ml_table, states->ml_state);
 
     // Offset doesn't need a max value as it's not decoded using a table
-    if (ll_code > SEQ_MAX_CODES[seq_literal_length] ||
-        ml_code > SEQ_MAX_CODES[seq_match_length]) {
+    if (ll_code > SEQ_MAX_CODES[seq_literal_length] || ml_code > SEQ_MAX_CODES[seq_match_length]) {
         CORRUPTION();
     }
 
@@ -1180,12 +1137,10 @@ static sequence_command_t decode_sequence(sequence_states_t *const states,
     seq.offset = ((u32)1 << of_code) + STREAM_read_bits(src, of_code, offset);
 
     seq.match_length =
-        SEQ_MATCH_LENGTH_BASELINES[ml_code] +
-        STREAM_read_bits(src, SEQ_MATCH_LENGTH_EXTRA_BITS[ml_code], offset);
+        SEQ_MATCH_LENGTH_BASELINES[ml_code] + STREAM_read_bits(src, SEQ_MATCH_LENGTH_EXTRA_BITS[ml_code], offset);
 
     seq.literal_length =
-        SEQ_LITERAL_LENGTH_BASELINES[ll_code] +
-        STREAM_read_bits(src, SEQ_LITERAL_LENGTH_EXTRA_BITS[ll_code], offset);
+        SEQ_LITERAL_LENGTH_BASELINES[ll_code] + STREAM_read_bits(src, SEQ_LITERAL_LENGTH_EXTRA_BITS[ll_code], offset);
 
     // "If it is not the last sequence in the block, the next operation is to
     // update states. Using the rules pre-calculated in the decoding tables,
@@ -1203,10 +1158,12 @@ static sequence_command_t decode_sequence(sequence_states_t *const states,
 
 /// Given a sequence part and table mode, decode the FSE distribution
 /// Errors if the mode is `seq_repeat` without a pre-existing table in `table`
-static void decode_seq_table(FSE_dtable *const table, istream_t *const in,
-                             const seq_part_t type, const seq_mode_t mode) {
+static void decode_seq_table(FSE_dtable* const table,
+                             istream_t* const in,
+                             const seq_part_t type,
+                             const seq_mode_t mode) {
     // Constant arrays indexed by seq_part_t
-    const i16 *const default_distributions[] = {SEQ_LITERAL_LENGTH_DEFAULT_DIST,
+    const i16* const default_distributions[] = {SEQ_LITERAL_LENGTH_DEFAULT_DIST,
                                                 SEQ_OFFSET_DEFAULT_DIST,
                                                 SEQ_MATCH_LENGTH_DEFAULT_DIST};
     const size_t default_distribution_lengths[] = {36, 29, 53};
@@ -1220,54 +1177,54 @@ static void decode_seq_table(FSE_dtable *const table, istream_t *const in,
     }
 
     switch (mode) {
-    case seq_predefined: {
-        // "Predefined_Mode : uses a predefined distribution table."
-        const i16 *distribution = default_distributions[type];
-        const size_t symbs = default_distribution_lengths[type];
-        const size_t accuracy_log = default_distribution_accuracies[type];
+        case seq_predefined: {
+            // "Predefined_Mode : uses a predefined distribution table."
+            const i16* distribution = default_distributions[type];
+            const size_t symbs = default_distribution_lengths[type];
+            const size_t accuracy_log = default_distribution_accuracies[type];
 
-        FSE_init_dtable(table, distribution, symbs, accuracy_log);
-        break;
-    }
-    case seq_rle: {
-        // "RLE_Mode : it's a single code, repeated Number_of_Sequences times."
-        const u8 symb = IO_get_read_ptr(in, 1)[0];
-        FSE_init_dtable_rle(table, symb);
-        break;
-    }
-    case seq_fse: {
-        // "FSE_Compressed_Mode : standard FSE compression. A distribution table
-        // will be present "
-        FSE_decode_header(table, in, max_accuracies[type]);
-        break;
-    }
-    case seq_repeat:
-        // "Repeat_Mode : re-use distribution table from previous compressed
-        // block."
-        // Nothing to do here, table will be unchanged
-        if (!table->symbols) {
-            // This mode is invalid if we don't already have a table
-            CORRUPTION();
+            FSE_init_dtable(table, distribution, symbs, accuracy_log);
+            break;
         }
-        break;
-    default:
-        // Impossible, as mode is from 0-3
-        IMPOSSIBLE();
-        break;
+        case seq_rle: {
+            // "RLE_Mode : it's a single code, repeated Number_of_Sequences times."
+            const u8 symb = IO_get_read_ptr(in, 1)[0];
+            FSE_init_dtable_rle(table, symb);
+            break;
+        }
+        case seq_fse: {
+            // "FSE_Compressed_Mode : standard FSE compression. A distribution table
+            // will be present "
+            FSE_decode_header(table, in, max_accuracies[type]);
+            break;
+        }
+        case seq_repeat:
+            // "Repeat_Mode : re-use distribution table from previous compressed
+            // block."
+            // Nothing to do here, table will be unchanged
+            if (!table->symbols) {
+                // This mode is invalid if we don't already have a table
+                CORRUPTION();
+            }
+            break;
+        default:
+            // Impossible, as mode is from 0-3
+            IMPOSSIBLE();
+            break;
     }
-
 }
 /******* END SEQUENCE DECODING ************************************************/
 
 /******* SEQUENCE EXECUTION ***************************************************/
-static void execute_sequences(frame_context_t *const ctx, ostream_t *const out,
-                              const u8 *const literals,
+static void execute_sequences(frame_context_t* const ctx,
+                              ostream_t* const out,
+                              const u8* const literals,
                               const size_t literals_len,
-                              const sequence_command_t *const sequences,
+                              const sequence_command_t* const sequences,
                               const size_t num_sequences) {
     istream_t litstream = IO_make_istream(literals, literals_len);
 
-    u64 *const offset_hist = ctx->previous_offsets;
+    u64* const offset_hist = ctx->previous_offsets;
     size_t total_output = ctx->current_total_output;
 
     for (size_t i = 0; i < num_sequences; i++) {
@@ -1296,24 +1253,22 @@ static void execute_sequences(frame_context_t *const ctx, ostream_t *const out,
     ctx->current_total_output = total_output;
 }
 
-static u32 copy_literals(const size_t literal_length, istream_t *litstream,
-                         ostream_t *const out) {
+static u32 copy_literals(const size_t literal_length, istream_t* litstream, ostream_t* const out) {
     // If the sequence asks for more literals than are left, the
     // sequence must be corrupted
     if (literal_length > IO_istream_len(litstream)) {
         CORRUPTION();
     }
 
-    u8 *const write_ptr = IO_get_write_ptr(out, literal_length);
-    const u8 *const read_ptr =
-         IO_get_read_ptr(litstream, literal_length);
+    u8* const write_ptr = IO_get_write_ptr(out, literal_length);
+    const u8* const read_ptr = IO_get_read_ptr(litstream, literal_length);
     // Copy literals to output
     memcpy(write_ptr, read_ptr, literal_length);
 
     return literal_length;
 }
 
-static size_t compute_offset(sequence_command_t seq, u64 *const offset_hist) {
+static size_t compute_offset(sequence_command_t seq, u64* const offset_hist) {
     size_t offset;
     // Offsets are special, we need to handle the repeat offsets
     if (seq.offset <= 3) {
@@ -1361,10 +1316,12 @@ static size_t compute_offset(sequence_command_t seq, u64 *const offset_hist) {
     return offset;
 }
 
-static void execute_match_copy(frame_context_t *const ctx, size_t offset,
-                              size_t match_length, size_t total_output,
-                              ostream_t *const out) {
-    u8 *write_ptr = IO_get_write_ptr(out, match_length);
+static void execute_match_copy(frame_context_t* const ctx,
+                               size_t offset,
+                               size_t match_length,
+                               size_t total_output,
+                               ostream_t* const out) {
+    u8* write_ptr = IO_get_write_ptr(out, match_length);
     if (total_output <= ctx->header.window_size) {
         // In this case offset might go back into the dictionary
         if (offset > total_output + ctx->dict_content_len) {
@@ -1376,10 +1333,8 @@ static void execute_match_copy(frame_context_t *const ctx, size_t offset,
             // "The rest of the dictionary is its content. The content act
             // as a "past" in front of data to compress or decompress, so it
             // can be referenced in sequence commands."
-            const size_t dict_copy =
-                MIN(offset - total_output, match_length);
-            const size_t dict_offset =
-                ctx->dict_content_len - (offset - total_output);
+            const size_t dict_copy = MIN(offset - total_output, match_length);
+            const size_t dict_offset = ctx->dict_content_len - (offset - total_output);
 
             memcpy(write_ptr, ctx->dict_content + dict_offset, dict_copy);
             write_ptr += dict_copy;
@@ -1404,7 +1359,7 @@ static void execute_match_copy(frame_context_t *const ctx, size_t offset,
 /// Get the decompressed size of an input stream so memory can be allocated in
 /// advance.
 /// This implementation assumes `src` points to a single ZSTD-compressed frame
-size_t ZSTD_get_decompressed_size(const void *src, const size_t src_len) {
+size_t ZSTD_get_decompressed_size(const void* src, const size_t src_len) {
     istream_t in = IO_make_istream(src, src_len);
 
     // get decompressed size from ZSTD frame header
@@ -1442,12 +1397,10 @@ dictionary_t* create_dictionary() {
     return dict;
 }
 
-static void init_dictionary_content(dictionary_t *const dict,
-                                    istream_t *const in);
+static void init_dictionary_content(dictionary_t* const dict, istream_t* const in);
 
-void parse_dictionary(dictionary_t *const dict, const void *src,
-                             size_t src_len) {
-    const u8 *byte_src = (const u8 *)src;
+void parse_dictionary(dictionary_t* const dict, const void* src, size_t src_len) {
+    const u8* byte_src = (const u8*)src;
     memset(dict, 0, sizeof(dictionary_t));
     if (src == NULL) { /* cannot initialize dictionary with null src */
         NULL_SRC();
@@ -1499,8 +1452,7 @@ void parse_dictionary(dictionary_t *const dict, const void *src,
     init_dictionary_content(dict, &in);
 }
 
-static void init_dictionary_content(dictionary_t *const dict,
-                                    istream_t *const in) {
+static void init_dictionary_content(dictionary_t* const dict, istream_t* const in) {
     // Copy in the content
     dict->content_size = IO_istream_len(in);
     dict->content = malloc(dict->content_size);
@@ -1508,13 +1460,13 @@ static void init_dictionary_content(dictionary_t *const dict,
         BAD_ALLOC();
     }
 
-    const u8 *const content = IO_get_read_ptr(in, dict->content_size);
+    const u8* const content = IO_get_read_ptr(in, dict->content_size);
 
     memcpy(dict->content, content, dict->content_size);
 }
 
 /// Free an allocated dictionary
-void free_dictionary(dictionary_t *const dict) {
+void free_dictionary(dictionary_t* const dict) {
     HUF_free_dtable(&dict->literals_dtable);
     FSE_free_dtable(&dict->ll_dtable);
     FSE_free_dtable(&dict->of_dtable);
@@ -1531,7 +1483,7 @@ void free_dictionary(dictionary_t *const dict) {
 /******* IO STREAM OPERATIONS *************************************************/
 
 /// Reads `num` bits from a bitstream, and updates the internal offset
-static inline u64 IO_read_bits(istream_t *const in, const int num_bits) {
+static inline u64 IO_read_bits(istream_t* const in, const int num_bits) {
     if (num_bits > 64 || num_bits <= 0) {
         ERROR("Attempt to read an invalid number of bits");
     }
@@ -1553,7 +1505,7 @@ static inline u64 IO_read_bits(istream_t *const in, const int num_bits) {
 
 /// If a non-zero number of bits have been read from the current byte, advance
 /// the offset to the next byte
-static inline void IO_rewind_bits(istream_t *const in, int num_bits) {
+static inline void IO_rewind_bits(istream_t* const in, int num_bits) {
     if (num_bits < 0) {
         ERROR("Attempting to rewind stream by a negative number of bits");
     }
@@ -1573,7 +1525,7 @@ static inline void IO_rewind_bits(istream_t *const in, int num_bits) {
 
 /// If the remaining bits in a byte will be unused, advance to the end of the
 /// byte
-static inline void IO_align_stream(istream_t *const in) {
+static inline void IO_align_stream(istream_t* const in) {
     if (in->bit_offset != 0) {
         if (in->len == 0) {
             INP_SIZE();
@@ -1585,7 +1537,7 @@ static inline void IO_align_stream(istream_t *const in) {
 }
 
 /// Write the given byte into the output stream
-static inline void IO_write_byte(ostream_t *const out, u8 symb) {
+static inline void IO_write_byte(ostream_t* const out, u8 symb) {
     if (out->len == 0) {
         OUT_SIZE();
     }
@@ -1597,31 +1549,31 @@ static inline void IO_write_byte(ostream_t *const out, u8 symb) {
 
 /// Returns the number of bytes left to be read in this stream.  The stream must
 /// be byte aligned.
-static inline size_t IO_istream_len(const istream_t *const in) {
+static inline size_t IO_istream_len(const istream_t* const in) {
     return in->len;
 }
 
 /// Returns a pointer where `len` bytes can be read, and advances the internal
 /// state.  The stream must be byte aligned.
-static inline const u8 *IO_get_read_ptr(istream_t *const in, size_t len) {
+static inline const u8* IO_get_read_ptr(istream_t* const in, size_t len) {
     if (len > in->len) {
         INP_SIZE();
     }
     if (in->bit_offset != 0) {
         ERROR("Attempting to operate on a non-byte aligned stream");
     }
-    const u8 *const ptr = in->ptr;
+    const u8* const ptr = in->ptr;
     in->ptr += len;
     in->len -= len;
 
     return ptr;
 }
 /// Returns a pointer to write `len` bytes to, and advances the internal state
-static inline u8 *IO_get_write_ptr(ostream_t *const out, size_t len) {
+static inline u8* IO_get_write_ptr(ostream_t* const out, size_t len) {
     if (len > out->len) {
         OUT_SIZE();
     }
-    u8 *const ptr = out->ptr;
+    u8* const ptr = out->ptr;
     out->ptr += len;
     out->len -= len;
 
@@ -1629,9 +1581,9 @@ static inline u8 *IO_get_write_ptr(ostream_t *const out, size_t len) {
 }
 
 /// Advance the inner state by `len` bytes
-static inline void IO_advance_input(istream_t *const in, size_t len) {
+static inline void IO_advance_input(istream_t* const in, size_t len) {
     if (len > in->len) {
-         INP_SIZE();
+        INP_SIZE();
     }
     if (in->bit_offset != 0) {
         ERROR("Attempting to operate on a non-byte aligned stream");
@@ -1642,21 +1594,21 @@ static inline void IO_advance_input(istream_t *const in, size_t len) {
 }
 
 /// Returns an `ostream_t` constructed from the given pointer and length
-static inline ostream_t IO_make_ostream(u8 *out, size_t len) {
-    return (ostream_t) { out, len };
+static inline ostream_t IO_make_ostream(u8* out, size_t len) {
+    return (ostream_t){out, len};
 }
 
 /// Returns an `istream_t` constructed from the given pointer and length
-static inline istream_t IO_make_istream(const u8 *in, size_t len) {
-    return (istream_t) { in, len, 0 };
+static inline istream_t IO_make_istream(const u8* in, size_t len) {
+    return (istream_t){in, len, 0};
 }
 
 /// Returns an `istream_t` with the same base as `in`, and length `len`
 /// Then, advance `in` to account for the consumed bytes
 /// `in` must be byte aligned
-static inline istream_t IO_make_sub_istream(istream_t *const in, size_t len) {
+static inline istream_t IO_make_sub_istream(istream_t* const in, size_t len) {
     // Consume `len` bytes of the parent stream
-    const u8 *const ptr = IO_get_read_ptr(in, len);
+    const u8* const ptr = IO_get_read_ptr(in, len);
 
     // Make a substream using the pointer to those `len` bytes
     return IO_make_istream(ptr, len);
@@ -1665,8 +1617,7 @@ static inline istream_t IO_make_sub_istream(istream_t *const in, size_t len) {
 
 /******* BITSTREAM OPERATIONS *************************************************/
 /// Read `num` bits (up to 64) from `src + offset`, where `offset` is in bits
-static inline u64 read_bits_LE(const u8 *src, const int num_bits,
-                               const size_t offset) {
+static inline u64 read_bits_LE(const u8* src, const int num_bits, const size_t offset) {
     if (num_bits > 64) {
         ERROR("Attempt to read an invalid number of bits");
     }
@@ -1695,8 +1646,7 @@ static inline u64 read_bits_LE(const u8 *src, const int num_bits,
 /// it updates `offset` to `offset - bits`, and then reads `bits` bits from
 /// `src + offset`.  If the offset becomes negative, the extra bits at the
 /// bottom are filled in with `0` bits instead of reading from before `src`.
-static inline u64 STREAM_read_bits(const u8 *const src, const int bits,
-                                   i64 *const offset) {
+static inline u64 STREAM_read_bits(const u8* const src, const int bits, i64* const offset) {
     *offset = *offset - bits;
     size_t actual_off = *offset;
     size_t actual_bits = bits;
@@ -1730,9 +1680,10 @@ static inline int highest_set_bit(const u64 num) {
 /******* END BIT COUNTING OPERATIONS ******************************************/
 
 /******* HUFFMAN PRIMITIVES ***************************************************/
-static inline u8 HUF_decode_symbol(const HUF_dtable *const dtable,
-                                   u16 *const state, const u8 *const src,
-                                   i64 *const offset) {
+static inline u8 HUF_decode_symbol(const HUF_dtable* const dtable,
+                                   u16* const state,
+                                   const u8* const src,
+                                   i64* const offset) {
     // Look up the symbol and number of bits to read
     const u8 symb = dtable->symbols[*state];
     const u8 bits = dtable->num_bits[*state];
@@ -1745,22 +1696,21 @@ static inline u8 HUF_decode_symbol(const HUF_dtable *const dtable,
     return symb;
 }
 
-static inline void HUF_init_state(const HUF_dtable *const dtable,
-                                  u16 *const state, const u8 *const src,
-                                  i64 *const offset) {
+static inline void HUF_init_state(const HUF_dtable* const dtable,
+                                  u16* const state,
+                                  const u8* const src,
+                                  i64* const offset) {
     // Read in a full `dtable->max_bits` bits to initialize the state
     const u8 bits = dtable->max_bits;
     *state = STREAM_read_bits(src, bits, offset);
 }
 
-static size_t HUF_decompress_1stream(const HUF_dtable *const dtable,
-                                     ostream_t *const out,
-                                     istream_t *const in) {
+static size_t HUF_decompress_1stream(const HUF_dtable* const dtable, ostream_t* const out, istream_t* const in) {
     const size_t len = IO_istream_len(in);
     if (len == 0) {
         INP_SIZE();
     }
-    const u8 *const src = IO_get_read_ptr(in, len);
+    const u8* const src = IO_get_read_ptr(in, len);
 
     // "Each bitstream must be read backward, that is starting from the end down
     // to the beginning. Therefore it's necessary to know the size of each
@@ -1802,8 +1752,7 @@ static size_t HUF_decompress_1stream(const HUF_dtable *const dtable,
     return symbols_written;
 }
 
-static size_t HUF_decompress_4stream(const HUF_dtable *const dtable,
-                                     ostream_t *const out, istream_t *const in) {
+static size_t HUF_decompress_4stream(const HUF_dtable* const dtable, ostream_t* const out, istream_t* const in) {
     // "Compressed size is provided explicitly : in the 4-streams variant,
     // bitstreams are preceded by 3 unsigned little-endian 16-bits values. Each
     // value represents the compressed size of one stream, in order. The last
@@ -1835,8 +1784,7 @@ static size_t HUF_decompress_4stream(const HUF_dtable *const dtable,
 /// http://www.cs.uofs.edu/~mccloske/courses/cmps340/huff_canonical_dec2015.html
 /// Codes within a level are allocated in symbol order (i.e. smaller symbols get
 /// earlier codes)
-static void HUF_init_dtable(HUF_dtable *const table, const u8 *const bits,
-                            const int num_symbs) {
+static void HUF_init_dtable(HUF_dtable* const table, const u8* const bits, const int num_symbs) {
     memset(table, 0, sizeof(HUF_dtable));
     if (num_symbs > HUF_MAX_SYMBS) {
         ERROR("Too many symbols for Huffman");
@@ -1899,9 +1847,7 @@ static void HUF_init_dtable(HUF_dtable *const table, const u8 *const bits,
     }
 }
 
-static void HUF_init_dtable_usingweights(HUF_dtable *const table,
-                                         const u8 *const weights,
-                                         const int num_symbs) {
+static void HUF_init_dtable_usingweights(HUF_dtable* const table, const u8* const weights, const int num_symbs) {
     // +1 because the last weight is not transmitted in the header
     if (num_symbs + 1 > HUF_MAX_SYMBS) {
         ERROR("Too many symbols for Huffman");
@@ -1934,20 +1880,18 @@ static void HUF_init_dtable_usingweights(HUF_dtable *const table,
         // "Number_of_Bits = Number_of_Bits ? Max_Number_of_Bits + 1 - Weight : 0"
         bits[i] = weights[i] > 0 ? (max_bits + 1 - weights[i]) : 0;
     }
-    bits[num_symbs] =
-        max_bits + 1 - last_weight; // Last weight is always non-zero
+    bits[num_symbs] = max_bits + 1 - last_weight;  // Last weight is always non-zero
 
     HUF_init_dtable(table, bits, num_symbs + 1);
 }
 
-static void HUF_free_dtable(HUF_dtable *const dtable) {
+static void HUF_free_dtable(HUF_dtable* const dtable) {
     free(dtable->symbols);
     free(dtable->num_bits);
     memset(dtable, 0, sizeof(HUF_dtable));
 }
 
-static void HUF_copy_dtable(HUF_dtable *const dst,
-                            const HUF_dtable *const src) {
+static void HUF_copy_dtable(HUF_dtable* const dst, const HUF_dtable* const src) {
     if (src->max_bits == 0) {
         memset(dst, 0, sizeof(HUF_dtable));
         return;
@@ -1972,46 +1916,46 @@ static void HUF_copy_dtable(HUF_dtable *const dst,
 /// https://github.com/Cyan4973/FiniteStateEntropy/
 
 /// Allow a symbol to be decoded without updating state
-static inline u8 FSE_peek_symbol(const FSE_dtable *const dtable,
-                                 const u16 state) {
+static inline u8 FSE_peek_symbol(const FSE_dtable* const dtable, const u16 state) {
     return dtable->symbols[state];
 }
 
 /// Consumes bits from the input and uses the current state to determine the
 /// next state
-static inline void FSE_update_state(const FSE_dtable *const dtable,
-                                    u16 *const state, const u8 *const src,
-                                    i64 *const offset) {
+static inline void FSE_update_state(const FSE_dtable* const dtable,
+                                    u16* const state,
+                                    const u8* const src,
+                                    i64* const offset) {
     const u8 bits = dtable->num_bits[*state];
     const u16 rest = STREAM_read_bits(src, bits, offset);
     *state = dtable->new_state_base[*state] + rest;
 }
 
 /// Decodes a single FSE symbol and updates the offset
-static inline u8 FSE_decode_symbol(const FSE_dtable *const dtable,
-                                   u16 *const state, const u8 *const src,
-                                   i64 *const offset) {
+static inline u8 FSE_decode_symbol(const FSE_dtable* const dtable,
+                                   u16* const state,
+                                   const u8* const src,
+                                   i64* const offset) {
     const u8 symb = FSE_peek_symbol(dtable, *state);
     FSE_update_state(dtable, state, src, offset);
     return symb;
 }
 
-static inline void FSE_init_state(const FSE_dtable *const dtable,
-                                  u16 *const state, const u8 *const src,
-                                  i64 *const offset) {
+static inline void FSE_init_state(const FSE_dtable* const dtable,
+                                  u16* const state,
+                                  const u8* const src,
+                                  i64* const offset) {
     // Read in a full `accuracy_log` bits to initialize the state
     const u8 bits = dtable->accuracy_log;
     *state = STREAM_read_bits(src, bits, offset);
 }
 
-static size_t FSE_decompress_interleaved2(const FSE_dtable *const dtable,
-                                          ostream_t *const out,
-                                          istream_t *const in) {
+static size_t FSE_decompress_interleaved2(const FSE_dtable* const dtable, ostream_t* const out, istream_t* const in) {
     const size_t len = IO_istream_len(in);
     if (len == 0) {
         INP_SIZE();
     }
-    const u8 *const src = IO_get_read_ptr(in, len);
+    const u8* const src = IO_get_read_ptr(in, len);
 
     // "Each bitstream must be read backward, that is starting from the end down
     // to the beginning. Therefore it's necessary to know the size of each
@@ -2065,8 +2009,9 @@ static size_t FSE_decompress_interleaved2(const FSE_dtable *const dtable,
     return symbols_written;
 }
 
-static void FSE_init_dtable(FSE_dtable *const dtable,
-                            const i16 *const norm_freqs, const int num_symbs,
+static void FSE_init_dtable(FSE_dtable* const dtable,
+                            const i16* const norm_freqs,
+                            const int num_symbs,
                             const int accuracy_log) {
     if (accuracy_log > FSE_MAX_ACCURACY_LOG) {
         ERROR("FSE accuracy too large");
@@ -2126,8 +2071,7 @@ static void FSE_init_dtable(FSE_dtable *const dtable,
             // than 1" probability symbol."
             do {
                 pos = (pos + step) & mask;
-            } while (pos >=
-                     high_threshold);
+            } while (pos >= high_threshold);
             // Note: no other collision checking is necessary as `step` is
             // coprime to `size`, so the cycle will visit each position exactly
             // once
@@ -2146,15 +2090,13 @@ static void FSE_init_dtable(FSE_dtable *const dtable,
         dtable->num_bits[i] = (u8)(accuracy_log - highest_set_bit(next_state_desc));
         // Baseline increases until the bit threshold is passed, at which point
         // it resets to 0
-        dtable->new_state_base[i] =
-            ((u16)next_state_desc << dtable->num_bits[i]) - size;
+        dtable->new_state_base[i] = ((u16)next_state_desc << dtable->num_bits[i]) - size;
     }
 }
 
 /// Decode an FSE header as defined in the Zstandard format specification and
 /// use the decoded frequencies to initialize a decoding table.
-static void FSE_decode_header(FSE_dtable *const dtable, istream_t *const in,
-                                const int max_accuracy_log) {
+static void FSE_decode_header(FSE_dtable* const dtable, istream_t* const in, const int max_accuracy_log) {
     // "An FSE distribution table describes the probabilities of all symbols
     // from 0 to the last present one (included) on a normalized scale of 1 <<
     // Accuracy_Log .
@@ -2256,7 +2198,7 @@ static void FSE_decode_header(FSE_dtable *const dtable, istream_t *const in,
     FSE_init_dtable(dtable, frequencies, symb, accuracy_log);
 }
 
-static void FSE_init_dtable_rle(FSE_dtable *const dtable, const u8 symb) {
+static void FSE_init_dtable_rle(FSE_dtable* const dtable, const u8 symb) {
     dtable->symbols = malloc(sizeof(u8));
     dtable->num_bits = malloc(sizeof(u8));
     dtable->new_state_base = malloc(sizeof(u16));
@@ -2273,14 +2215,14 @@ static void FSE_init_dtable_rle(FSE_dtable *const dtable, const u8 symb) {
     dtable->accuracy_log = 0;
 }
 
-static void FSE_free_dtable(FSE_dtable *const dtable) {
+static void FSE_free_dtable(FSE_dtable* const dtable) {
     free(dtable->symbols);
     free(dtable->num_bits);
     free(dtable->new_state_base);
     memset(dtable, 0, sizeof(FSE_dtable));
 }
 
-static void FSE_copy_dtable(FSE_dtable *const dst, const FSE_dtable *const src) {
+static void FSE_copy_dtable(FSE_dtable* const dst, const FSE_dtable* const src) {
     if (src->accuracy_log == 0) {
         memset(dst, 0, sizeof(FSE_dtable));
         return;

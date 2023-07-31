@@ -38,8 +38,8 @@
  */
 
 /* **************************************************************
-*  Includes
-****************************************************************/
+ *  Includes
+ ****************************************************************/
 #include "bitstream.h"
 #include "fse.h" /* header compression */
 #include "huf.h"
@@ -47,8 +47,8 @@
 #include <linux/string.h> /* memcpy, memset */
 
 /* **************************************************************
-*  Error Management
-****************************************************************/
+ *  Error Management
+ ****************************************************************/
 #define HUF_STATIC_ASSERT(c)                                   \
 	{                                                      \
 		enum { HUF_static_assert = 1 / (int)(!!(c)) }; \
@@ -63,16 +63,16 @@
 	}
 
 /* **************************************************************
-*  Utils
-****************************************************************/
+ *  Utils
+ ****************************************************************/
 unsigned HUF_optimalTableLog(unsigned maxTableLog, size_t srcSize, unsigned maxSymbolValue)
 {
 	return FSE_optimalTableLog_internal(maxTableLog, srcSize, maxSymbolValue, 1);
 }
 
 /* *******************************************************
-*  HUF : Huffman block compression
-*********************************************************/
+ *  HUF : Huffman block compression
+ *********************************************************/
 /* HUF_compressWeights() :
  * Same as FSE_compress(), but dedicated to huff0's weights compression.
  * The use case needs much less stack memory.
@@ -264,7 +264,7 @@ size_t HUF_readCTable_wksp(HUF_CElt *CTable, U32 maxSymbolValue, const void *src
 			U16 min = 0;
 			U32 n;
 			for (n = tableLog; n > 0; n--) { /* start at n=tablelog <-> w=1 */
-				valPerRank[n] = min;     /* get starting value within each rank */
+				valPerRank[n] = min;	 /* get starting value within each rank */
 				min += nbPerRank[n];
 				min >>= 1;
 			}
@@ -525,7 +525,7 @@ static void HUF_encodeSymbol(BIT_CStream_t *bitCPtr, U32 symbol, const HUF_CElt 
 
 size_t HUF_compressBound(size_t size) { return HUF_COMPRESSBOUND(size); }
 
-#define HUF_FLUSHBITS(s)  BIT_flushBits(s)
+#define HUF_FLUSHBITS(s) BIT_flushBits(s)
 
 #define HUF_FLUSHBITS_1(stream)                                            \
 	if (sizeof((stream)->bitContainer) * 8 < HUF_TABLELOG_MAX * 2 + 7) \

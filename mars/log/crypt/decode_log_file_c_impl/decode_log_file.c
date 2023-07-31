@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -11,21 +11,20 @@
 // limitations under the License.
 
 /*
-  *      Author: zhangchangrong
+ *      Author: zhangchangrong
  */
 
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "micro-ecc-master/uECC.h"
 #include "zlib.h"
 #include "zstd/lib/zstd.h"
-#include "micro-ecc-master/uECC.h"
-
 
 typedef enum { false, true } bool;
 
@@ -46,7 +45,6 @@ const int MAGIC_SYNC_NO_CRYPT_ZSTD_START = 0x0B;
 const int MAGIC_ASYNC_ZSTD_START = 0x0C;
 const int MAGIC_ASYNC_NO_CRYPT_ZSTD_START = 0x0D;
 
-
 const int MAGIC_END = 0x00;
 const int BASE_KEY = 0xCC;
 
@@ -57,44 +55,36 @@ const char* PUB_KEY = "";
 
 const int TEA_BLOCK_LEN = 8;
 
-
-bool Hex2Buffer(const char* str, size_t len, unsigned char* buffer)
-{
-    if (NULL == str || len ==0 || len % 2 != 0) {
+bool Hex2Buffer(const char* str, size_t len, unsigned char* buffer) {
+    if (NULL == str || len == 0 || len % 2 != 0) {
         return -1;
     }
 
     char tmp[3] = {0};
     size_t i;
-    for (i = 0; i < len - 1; i += 2)
-    {
+    for (i = 0; i < len - 1; i += 2) {
         size_t j;
-        for (j = 0; j < 2; ++j)
-        {
+        for (j = 0; j < 2; ++j) {
             tmp[j] = str[i + j];
-            if (!(('0' <= tmp[j] && tmp[j] <= '9') ||
-                  ('a' <= tmp[j] && tmp[j] <= 'f') ||
-                  ('A' <= tmp[j] && tmp[j] <= 'F')))
-            {
+            if (!(('0' <= tmp[j] && tmp[j] <= '9') || ('a' <= tmp[j] && tmp[j] <= 'f')
+                  || ('A' <= tmp[j] && tmp[j] <= 'F'))) {
                 return false;
             }
         }
 
-        buffer[i/2] = (unsigned char)strtol(tmp, NULL, 16);
+        buffer[i / 2] = (unsigned char)strtol(tmp, NULL, 16);
     }
     return true;
 }
 
-void teaDecrypt(uint32_t *v, uint32_t *k)
-{
+void teaDecrypt(uint32_t* v, uint32_t* k) {
     uint32_t v0 = v[0], v1 = v[1], sum, i;
     const static uint32_t delta = 0x9e3779b9;
     const static uint32_t totalSum = 0x9e3779b9 << 4;
     sum = totalSum;
 
     uint32_t k0 = k[0], k1 = k[1], k2 = k[2], k3 = k[3];
-    for (i = 0; i < 16; i++)
-    {
+    for (i = 0; i < 16; i++) {
         v1 -= ((v0 << 4) + k2) ^ (v0 + sum) ^ ((v0 >> 5) + k3);
         v0 -= ((v1 << 4) + k0) ^ (v1 + sum) ^ ((v1 >> 5) + k1);
         sum -= delta;
@@ -103,87 +93,65 @@ void teaDecrypt(uint32_t *v, uint32_t *k)
     v[1] = v1;
 }
 
-bool isGoodLogBuffer(const char* buffer, size_t bufferSize, size_t offset, int count)
-{
-    if (offset == bufferSize)
-    {
+bool isGoodLogBuffer(const char* buffer, size_t bufferSize, size_t offset, int count) {
+    if (offset == bufferSize) {
         return true;
     }
 
     int cryptKeyLen = 0;
     int headerLen = 0;
-    if (MAGIC_CRYPT_START == buffer[offset] || MAGIC_COMPRESS_CRYPT_START == buffer[offset])
-    {
+    if (MAGIC_CRYPT_START == buffer[offset] || MAGIC_COMPRESS_CRYPT_START == buffer[offset]) {
         headerLen = 1 + 4;
-    }
-    else if (NEW_MAGIC_CRYPT_START == buffer[offset] ||
-             NEW_MAGIC_COMPRESS_CRYPT_START == buffer[offset] ||
-             NEW_MAGIC_COMPRESS_CRYPT_START1 == buffer[offset])
-    {
+    } else if (NEW_MAGIC_CRYPT_START == buffer[offset] || NEW_MAGIC_COMPRESS_CRYPT_START == buffer[offset]
+               || NEW_MAGIC_COMPRESS_CRYPT_START1 == buffer[offset]) {
         headerLen = 1 + 2 + 1 + 1 + 4;
-    }
-    else if (MAGIC_ASYNC_ZLIB_START == buffer[offset] ||
-             MAGIC_SYNC_ZLIB_START == buffer[offset] ||
-             MAGIC_SYNC_NO_CRYPT_ZLIB_START == buffer[offset] ||
-             MAGIC_ASYNC_NO_CRYPT_ZLIB_START == buffer[offset] ||
-             MAGIC_ASYNC_ZSTD_START == buffer[offset] ||
-             MAGIC_SYNC_ZSTD_START == buffer[offset] ||
-             MAGIC_SYNC_NO_CRYPT_ZSTD_START == buffer[offset] ||
-             MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset])
-    {
+    } else if (MAGIC_ASYNC_ZLIB_START == buffer[offset] || MAGIC_SYNC_ZLIB_START == buffer[offset]
+               || MAGIC_SYNC_NO_CRYPT_ZLIB_START == buffer[offset] || MAGIC_ASYNC_NO_CRYPT_ZLIB_START == buffer[offset]
+               || MAGIC_ASYNC_ZSTD_START == buffer[offset] || MAGIC_SYNC_ZSTD_START == buffer[offset]
+               || MAGIC_SYNC_NO_CRYPT_ZSTD_START == buffer[offset]
+               || MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset]) {
         headerLen = 1 + 2 + 1 + 1 + 4 + 64;
         cryptKeyLen = 64;
-    }
-    else
-    {
+    } else {
         // '_buffer[%d]:%d != MAGIC_NUM_START'%(_offset, _buffer[_offset]))
         return false;
     }
 
-    if (offset + headerLen + 1 + 1 > bufferSize)
-    {
+    if (offset + headerLen + 1 + 1 > bufferSize) {
         // 'offset:%d > len(buffer):%d'%(_offset, len(_buffer))
         return false;
     }
 
     uint32_t length;
-    memcpy(&length, &buffer[offset+headerLen-cryptKeyLen-4], 4);
+    memcpy(&length, &buffer[offset + headerLen - cryptKeyLen - 4], 4);
 
-    if (offset + headerLen + length + 1 > bufferSize)
-    {
+    if (offset + headerLen + length + 1 > bufferSize) {
         // 'log length:%d, end pos %d > len(buffer):%d' % (length, _offset + headerLen + length + 1, len(_buffer))
         return false;
     }
-    if ( MAGIC_END != buffer[offset + headerLen + length])
-    {
-        // 'log length:%d, buffer[%d]:%d != MAGIC_END'%(length, _offset + headerLen + length, _buffer[_offset + headerLen + length])
+    if (MAGIC_END != buffer[offset + headerLen + length]) {
+        // 'log length:%d, buffer[%d]:%d != MAGIC_END'%(length, _offset + headerLen + length, _buffer[_offset +
+        // headerLen + length])
         return false;
     }
 
-    if (1 >= count)
-    {
+    if (1 >= count) {
         return true;
-    }
-    else
-    {
+    } else {
         return isGoodLogBuffer(buffer, bufferSize, offset + headerLen + length + 1, count - 1);
     }
 
     return true;
 }
 
-size_t getLogStartPos(const char* buffer, size_t bufferSize,  int count)
-{
+size_t getLogStartPos(const char* buffer, size_t bufferSize, int count) {
     size_t offset = 0;
-    while (1)
-    {
+    while (1) {
         if (offset >= bufferSize) {
             break;
         }
-        if (buffer[offset] >=  MAGIC_CRYPT_START && buffer[offset] <= MAGIC_ASYNC_NO_CRYPT_ZSTD_START)
-        {
-            if (isGoodLogBuffer(buffer, bufferSize, offset, count))
-            {
+        if (buffer[offset] >= MAGIC_CRYPT_START && buffer[offset] <= MAGIC_ASYNC_NO_CRYPT_ZSTD_START) {
+            if (isGoodLogBuffer(buffer, bufferSize, offset, count)) {
                 return offset;
             }
         }
@@ -192,33 +160,28 @@ size_t getLogStartPos(const char* buffer, size_t bufferSize,  int count)
     return -1;
 }
 
-void appendBuffer(char** outBuffer, size_t *outBufferSize, size_t *writePos, const char* buffer, size_t bufferSize)
-{
-    if ((*outBufferSize) - (*writePos) < bufferSize + 1) // + 1 for last \0
+void appendBuffer(char** outBuffer, size_t* outBufferSize, size_t* writePos, const char* buffer, size_t bufferSize) {
+    if ((*outBufferSize) - (*writePos) < bufferSize + 1)  // + 1 for last \0
     {
-        char *newOutBuffer = (char *)realloc(*outBuffer, (*outBufferSize) + 2 * bufferSize);
-        if (NULL != newOutBuffer)
-        {
+        char* newOutBuffer = (char*)realloc(*outBuffer, (*outBufferSize) + 2 * bufferSize);
+        if (NULL != newOutBuffer) {
             *outBuffer = newOutBuffer;
             *outBufferSize = (*outBufferSize) + 2 * bufferSize;
-        }
-        else
-        {
+        } else {
             free(*outBuffer);
             fputs("Error reallocating memory", stderr);
             exit(5);
         }
     }
 
-    memcpy(*outBuffer+(*writePos), buffer, bufferSize);
+    memcpy(*outBuffer + (*writePos), buffer, bufferSize);
     *writePos = (*writePos) + bufferSize;
 }
 
 bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, char** outBuffer, size_t* outBufferSize) {
     *outBuffer = NULL;
     *outBufferSize = 0;
-    if (compressedBytesSize == 0)
-    {
+    if (compressedBytesSize == 0) {
         return true;
     }
 
@@ -226,19 +189,18 @@ bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
     unsigned halfLength = compressedBytesSize / 2;
 
     unsigned uncompLength = fullLength;
-    char *uncomp = (char *)calloc(sizeof(char), uncompLength);
+    char* uncomp = (char*)calloc(sizeof(char), uncompLength);
 
     ZSTD_DCtx* const dctx = ZSTD_createDCtx();
 
-    ZSTD_inBuffer input = { compressedBytes, compressedBytesSize, 0 };
-    ZSTD_outBuffer output = { NULL, compressedBytesSize, 0 };
+    ZSTD_inBuffer input = {compressedBytes, compressedBytesSize, 0};
+    ZSTD_outBuffer output = {NULL, compressedBytesSize, 0};
     bool done = false;
+    size_t lastPos = output.pos;
 
-    while (!done)
-    {
-        if (output.pos >= uncompLength)
-        {
-            char *uncomp2 = (char *)calloc(sizeof(char), uncompLength + halfLength);
+    while (!done) {
+        if (output.pos >= uncompLength) {
+            char* uncomp2 = (char*)calloc(sizeof(char), uncompLength + halfLength);
             memcpy(uncomp2, uncomp, uncompLength);
             uncompLength += halfLength;
             free(uncomp);
@@ -247,10 +209,21 @@ bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
 
         output.size = uncompLength;
         output.dst = uncomp;
-        ZSTD_decompressStream(dctx, &output , &input);
+        size_t decompressResult = ZSTD_decompressStream(dctx, &output, &input);
+        if (lastPos == output.pos) {
+            fputs("ZSTD_decompressStream error\n", stderr);
+            done = true;
+        }
 
-        if (input.pos == input.size)
-        {
+        lastPos = output.pos;
+        if (input.pos == input.size) {
+            done = true;
+        }
+
+        if (input.pos == 0) {
+            char* err = "zstd decompress error";
+            output.pos = strnlen(err, 1024);
+            memcpy(uncomp, err, output.pos);
             done = true;
         }
     }
@@ -263,11 +236,9 @@ bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
 }
 
 bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, char** outBuffer, size_t* outBufferSize) {
-
     *outBuffer = NULL;
     *outBufferSize = 0;
-    if (compressedBytesSize == 0)
-    {
+    if (compressedBytesSize == 0) {
         return true;
     }
 
@@ -275,10 +246,10 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
     unsigned halfLength = compressedBytesSize / 2;
 
     unsigned uncompLength = fullLength;
-    char *uncomp = (char *)calloc(sizeof(char), uncompLength);
+    char* uncomp = (char*)calloc(sizeof(char), uncompLength);
 
     z_stream strm;
-    strm.next_in = (Bytef *)compressedBytes;
+    strm.next_in = (Bytef*)compressedBytes;
     strm.avail_in = compressedBytesSize;
     strm.total_out = 0;
     strm.zalloc = Z_NULL;
@@ -286,42 +257,41 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
 
     bool done = false;
 
-    if (inflateInit2(&strm, (-MAX_WBITS)) != Z_OK)
-    {
+    if (inflateInit2(&strm, (-MAX_WBITS)) != Z_OK) {
         free(uncomp);
         return false;
     }
 
-    while (!done)
-    {
+    while (!done) {
+        strm.next_out = (Bytef*)(uncomp + strm.total_out);
+        strm.avail_out = uncompLength - strm.total_out;
+
+        // Inflate another chunk.
+        int err = inflate(&strm, Z_SYNC_FLUSH);
+        // decompress success
+        if (strm.total_in == compressedBytesSize) {
+            break;
+        }
+        if (err == Z_STREAM_END || err == Z_BUF_ERROR || err == Z_DATA_ERROR) {
+            done = true;
+        }
+        //        else if (err != Z_OK)
+        //        {
+        //            break;
+        //        }
+
         // If our output buffer is too small
-        if (strm.total_out >= uncompLength)
-        {
+        if (strm.total_out >= uncompLength) {
             // Increase size of output buffer
-            char *uncomp2 = (char *)calloc(sizeof(char), uncompLength + halfLength);
+            char* uncomp2 = (char*)calloc(sizeof(char), uncompLength + halfLength);
             memcpy(uncomp2, uncomp, uncompLength);
             uncompLength += halfLength;
             free(uncomp);
             uncomp = uncomp2;
         }
-
-        strm.next_out = (Bytef *)(uncomp + strm.total_out);
-        strm.avail_out = uncompLength - strm.total_out;
-
-        // Inflate another chunk.
-        int err = inflate(&strm, Z_SYNC_FLUSH);
-        if (err == Z_STREAM_END)
-        {
-            done = true;
-        }
-        else if (err != Z_OK)
-        {
-            break;
-        }
     }
 
-    if (inflateEnd(&strm) != Z_OK)
-    {
+    if (inflateEnd(&strm) != Z_OK) {
         free(uncomp);
         return false;
     }
@@ -331,22 +301,21 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
     return true;
 }
 
-int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** outBuffer, size_t *outBufferSize, size_t *writePos)
-{
-    if (offset >= bufferSize)
-    {
+int decodeBuffer(const char* buffer,
+                 size_t bufferSize,
+                 size_t offset,
+                 char** outBuffer,
+                 size_t* outBufferSize,
+                 size_t* writePos) {
+    if (offset >= bufferSize) {
         return -1;
     }
 
-    if (!isGoodLogBuffer(buffer, bufferSize, offset, 1))
-    {
+    if (!isGoodLogBuffer(buffer, bufferSize, offset, 1)) {
         size_t fixpos = getLogStartPos(buffer + offset, bufferSize - offset, 1);
-        if (-1==fixpos)
-        {
+        if (-1 == fixpos) {
             return -1;
-        }
-        else
-        {
+        } else {
             char text[128];
             snprintf(text, sizeof(text), "[F]decode_log_file.py decode error len=%d\n", (int)fixpos);
             appendBuffer(outBuffer, outBufferSize, writePos, text, strlen(text));
@@ -356,30 +325,19 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
 
     size_t cryptKeyLen = 0;
     size_t headerLen = 0;
-    if (MAGIC_CRYPT_START == buffer[offset] || MAGIC_COMPRESS_CRYPT_START == buffer[offset])
-    {
+    if (MAGIC_CRYPT_START == buffer[offset] || MAGIC_COMPRESS_CRYPT_START == buffer[offset]) {
         headerLen = 1 + 4;
-    }
-    else if (NEW_MAGIC_CRYPT_START == buffer[offset] ||
-             NEW_MAGIC_COMPRESS_CRYPT_START == buffer[offset] ||
-             NEW_MAGIC_COMPRESS_CRYPT_START1 == buffer[offset])
-    {
+    } else if (NEW_MAGIC_CRYPT_START == buffer[offset] || NEW_MAGIC_COMPRESS_CRYPT_START == buffer[offset]
+               || NEW_MAGIC_COMPRESS_CRYPT_START1 == buffer[offset]) {
         headerLen = 1 + 2 + 1 + 1 + 4;
-    }
-    else if (MAGIC_ASYNC_ZLIB_START == buffer[offset] ||
-             MAGIC_SYNC_ZLIB_START == buffer[offset] ||
-             MAGIC_SYNC_NO_CRYPT_ZLIB_START == buffer[offset] ||
-             MAGIC_ASYNC_NO_CRYPT_ZLIB_START == buffer[offset] ||
-             MAGIC_ASYNC_ZSTD_START == buffer[offset] ||
-             MAGIC_SYNC_ZSTD_START == buffer[offset] ||
-             MAGIC_SYNC_NO_CRYPT_ZSTD_START == buffer[offset] ||
-             MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset])
-    {
+    } else if (MAGIC_ASYNC_ZLIB_START == buffer[offset] || MAGIC_SYNC_ZLIB_START == buffer[offset]
+               || MAGIC_SYNC_NO_CRYPT_ZLIB_START == buffer[offset] || MAGIC_ASYNC_NO_CRYPT_ZLIB_START == buffer[offset]
+               || MAGIC_ASYNC_ZSTD_START == buffer[offset] || MAGIC_SYNC_ZSTD_START == buffer[offset]
+               || MAGIC_SYNC_NO_CRYPT_ZSTD_START == buffer[offset]
+               || MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset]) {
         headerLen = 1 + 2 + 1 + 1 + 4 + 64;
         cryptKeyLen = 64;
-    }
-    else
-    {
+    } else {
         char text[128];
         snprintf(text, sizeof(text), "in DecodeBuffer _buffer[%zu]:%d != MAGIC_NUM_START", offset, (int)buffer[offset]);
         appendBuffer(outBuffer, outBufferSize, writePos, text, strlen(text));
@@ -387,16 +345,13 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
     }
 
     uint32_t length;
-    memcpy(&length, &buffer[offset+headerLen-cryptKeyLen-4], 4);
+    memcpy(&length, &buffer[offset + headerLen - cryptKeyLen - 4], 4);
 
     int key;
 
-    if (MAGIC_COMPRESS_CRYPT_START == buffer[offset] || MAGIC_CRYPT_START == buffer[offset])
-    {
+    if (MAGIC_COMPRESS_CRYPT_START == buffer[offset] || MAGIC_CRYPT_START == buffer[offset]) {
         key = BASE_KEY ^ (0xff & length) ^ buffer[offset];
-    }
-    else
-    {
+    } else {
         unsigned short seq;
         memcpy(&seq, &buffer[offset + headerLen - cryptKeyLen - 4 - 2 - 2], 2);
         char beginHour;
@@ -406,39 +361,33 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
 
         key = BASE_KEY ^ (0xff & seq) ^ buffer[offset];
 
-        if (seq != 0 && seq != 1 && lastseq != 0 && seq != (lastseq + 1))
-        {
+        if (seq != 0 && seq != 1 && lastseq != 0 && seq != (lastseq + 1)) {
             char text[128];
             snprintf(text, sizeof(text), "[F]decode_log_file.py log seq:%d-%d is missing\n", lastseq + 1, seq - 1);
             appendBuffer(outBuffer, outBufferSize, writePos, text, strlen(text));
         }
 
-        if (seq != 0)
-        {
+        if (seq != 0) {
             lastseq = seq;
         }
     }
 
-    char* tmpBuffer = (char*) realloc(NULL, length);
+    char* tmpBuffer = (char*)realloc(NULL, length);
+    memset(tmpBuffer, 0, length);
     size_t tmpBufferSize = length;
-    if (tmpBuffer == NULL)
-    {
+    if (tmpBuffer == NULL) {
         fputs("Memory error", stderr);
         exit(2);
     }
 
-    if (MAGIC_COMPRESS_CRYPT_START == buffer[offset] ||
-        NEW_MAGIC_COMPRESS_CRYPT_START == buffer[offset])
-    {
+    if (MAGIC_COMPRESS_CRYPT_START == buffer[offset] || NEW_MAGIC_COMPRESS_CRYPT_START == buffer[offset]) {
         size_t i;
-        for (i = 0; i < length; i++)
-        {
+        for (i = 0; i < length; i++) {
             tmpBuffer[i] = key ^ buffer[offset + headerLen + i];
         }
         char* decompBuffer;
         size_t decompBufferSize;
-        if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize))
-        {
+        if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize)) {
             fputs("Decompress error", stderr);
             exit(6);
         }
@@ -446,32 +395,30 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
         free(tmpBuffer);
         tmpBuffer = decompBuffer;
         tmpBufferSize = decompBufferSize;
-    }
-    else if (NEW_MAGIC_COMPRESS_CRYPT_START1 == buffer[offset])
-    {
+    } else if (NEW_MAGIC_COMPRESS_CRYPT_START1 == buffer[offset]) {
         size_t readPos = 0;
         size_t readSize = 0;
         size_t tmpBufferWritePos = 0;
-        while (readPos < length)
-        {
+        while (readPos < length) {
             uint16_t singleLogLen;
             memcpy(&singleLogLen, buffer + offset + headerLen + readPos, 2);
-            appendBuffer(&tmpBuffer, &tmpBufferSize, &tmpBufferWritePos,
-                         buffer + offset + headerLen + readPos + 2, singleLogLen);
+            appendBuffer(&tmpBuffer,
+                         &tmpBufferSize,
+                         &tmpBufferWritePos,
+                         buffer + offset + headerLen + readPos + 2,
+                         singleLogLen);
             readSize += singleLogLen;
             readPos += singleLogLen + 2;
         }
 
         size_t i;
-        for (i = 0; i < readSize; i++)
-        {
+        for (i = 0; i < readSize; i++) {
             tmpBuffer[i] = key ^ tmpBuffer[i];
         }
 
-        char *decompBuffer;
+        char* decompBuffer;
         size_t decompBufferSize;
-        if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize))
-        {
+        if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize)) {
             fputs("Decompress error", stderr);
             exit(6);
         }
@@ -479,32 +426,33 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
         free(tmpBuffer);
         tmpBuffer = decompBuffer;
         tmpBufferSize = decompBufferSize;
-    }
-    else if (MAGIC_SYNC_ZLIB_START == buffer[offset] ||
-             MAGIC_SYNC_NO_CRYPT_ZLIB_START == buffer[offset] ||
-             MAGIC_SYNC_ZSTD_START == buffer[offset] ||
-             MAGIC_SYNC_NO_CRYPT_ZSTD_START == buffer[offset])
-    {
+    } else if (MAGIC_SYNC_ZLIB_START == buffer[offset] || MAGIC_SYNC_NO_CRYPT_ZLIB_START == buffer[offset]
+               || MAGIC_SYNC_ZSTD_START == buffer[offset] || MAGIC_SYNC_NO_CRYPT_ZSTD_START == buffer[offset]) {
         memcpy(tmpBuffer, buffer + offset + headerLen, length);
-    }
-    else if (MAGIC_ASYNC_ZLIB_START == buffer[offset] || MAGIC_ASYNC_ZSTD_START == buffer[offset])
-    {
+    } else if (MAGIC_ASYNC_ZLIB_START == buffer[offset] || MAGIC_ASYNC_ZSTD_START == buffer[offset]) {
         memcpy(tmpBuffer, buffer + offset + headerLen, length);
         unsigned char clientPubKey[cryptKeyLen];
-        memcpy(clientPubKey, buffer+offset+headerLen-cryptKeyLen, cryptKeyLen);
+        memcpy(clientPubKey, buffer + offset + headerLen - cryptKeyLen, cryptKeyLen);
 
         unsigned char svrPriKey[32] = {0};
-        if (!Hex2Buffer(PRIV_KEY, 64, svrPriKey))
-        {
+        if (!Hex2Buffer(PRIV_KEY, 64, svrPriKey)) {
             fputs("Get PRIV KEY error", stderr);
             exit(7);
         }
 
         unsigned char ecdhKey[32] = {0};
-        if (0 == uECC_shared_secret(clientPubKey, svrPriKey, ecdhKey, uECC_secp256k1()))
-        {
-            fputs("Get ECDH key error", stderr);
-            exit(8);
+        if (0 == uECC_shared_secret(clientPubKey, svrPriKey, ecdhKey, uECC_secp256k1())) {
+            char* err = "Get ECDH key error";
+
+            memcpy(tmpBuffer, err, strnlen(err, 128));
+            tmpBufferSize = strnlen(err, 128);
+            appendBuffer(outBuffer, outBufferSize, writePos, tmpBuffer, tmpBufferSize);
+            free(tmpBuffer);
+
+            fputs("Get ECDH key error\n", stderr);
+            //            return -1;
+            return offset + headerLen + length + 1;
+            //            exit(8);
         }
 
         uint32_t teaKey[4];
@@ -513,24 +461,21 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
         size_t cnt = length / TEA_BLOCK_LEN;
 
         size_t i;
-        for (i = 0; i < cnt; i++)
-        {
+        for (i = 0; i < cnt; i++) {
             memcpy(tmp, tmpBuffer + i * TEA_BLOCK_LEN, TEA_BLOCK_LEN);
             teaDecrypt(tmp, teaKey);
             memcpy(tmpBuffer + i * TEA_BLOCK_LEN, tmp, TEA_BLOCK_LEN);
         }
 
-        char *decompBuffer;
+        char* decompBuffer;
         size_t decompBufferSize;
         if (MAGIC_ASYNC_ZLIB_START == buffer[offset]) {
-            if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize))
-            {
+            if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize)) {
                 fputs("Decompress error", stderr);
                 exit(6);
             }
-        } else if (MAGIC_ASYNC_ZSTD_START == buffer[offset]){
-            if (!zstdDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize))
-            {
+        } else if (MAGIC_ASYNC_ZSTD_START == buffer[offset]) {
+            if (!zstdDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize)) {
                 fputs("Decompress error", stderr);
                 exit(6);
             }
@@ -539,21 +484,17 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
         free(tmpBuffer);
         tmpBuffer = decompBuffer;
         tmpBufferSize = decompBufferSize;
-    }
-    else if (MAGIC_ASYNC_NO_CRYPT_ZLIB_START == buffer[offset] || MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset])
-    {
+    } else if (MAGIC_ASYNC_NO_CRYPT_ZLIB_START == buffer[offset] || MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset]) {
         memcpy(tmpBuffer, buffer + offset + headerLen, length);
-        char *decompBuffer;
+        char* decompBuffer;
         size_t decompBufferSize;
         if (MAGIC_ASYNC_NO_CRYPT_ZLIB_START == buffer[offset]) {
-            if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize))
-            {
+            if (!zlibDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize)) {
                 fputs("Decompress error", stderr);
                 exit(6);
             }
-        } else if (MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset]){
-            if (!zstdDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize))
-            {
+        } else if (MAGIC_ASYNC_NO_CRYPT_ZSTD_START == buffer[offset]) {
+            if (!zstdDecompress(tmpBuffer, tmpBufferSize, &decompBuffer, &decompBufferSize)) {
                 fputs("Decompress error", stderr);
                 exit(6);
             }
@@ -562,12 +503,9 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
         free(tmpBuffer);
         tmpBuffer = decompBuffer;
         tmpBufferSize = decompBufferSize;
-    }
-    else
-    {
+    } else {
         size_t i;
-        for (i = 0; i < length; i++)
-        {
+        for (i = 0; i < length; i++) {
             tmpBuffer[i] = key ^ buffer[offset + headerLen + i];
         }
     }
@@ -578,16 +516,14 @@ int decodeBuffer(const char* buffer, size_t bufferSize, size_t offset, char** ou
     return offset + headerLen + length + 1;
 }
 
-void parseFile(const char* path, const char* outPath)
-{
+void parseFile(const char* path, const char* outPath) {
     FILE* file;
     size_t bufferSize;
     char* buffer;
     size_t result;
 
     file = fopen(path, "rb");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         fputs("File error", stderr);
         exit(1);
     }
@@ -596,16 +532,14 @@ void parseFile(const char* path, const char* outPath)
     bufferSize = (size_t)ftell(file);
     rewind(file);
 
-    buffer = (char *)malloc(sizeof(char) * bufferSize);
-    if (buffer == NULL)
-    {
+    buffer = (char*)malloc(sizeof(char) * bufferSize);
+    if (buffer == NULL) {
         fputs("Memory error", stderr);
         exit(2);
     }
 
     result = fread(buffer, 1, bufferSize, file);
-    if (result != bufferSize)
-    {
+    if (result != bufferSize) {
         fputs("Reading error", stderr);
         exit(3);
     }
@@ -613,19 +547,16 @@ void parseFile(const char* path, const char* outPath)
 
     size_t startPos;
     startPos = getLogStartPos(buffer, bufferSize, 2);
-    if (-1 == startPos)
-    {
+    if (-1 == startPos) {
         return;
     }
 
     size_t outBufferSize = bufferSize * 6;
-    char *outBuffer = (char *)realloc(NULL, outBufferSize);
+    char* outBuffer = (char*)realloc(NULL, outBufferSize);
     size_t writePos = 0;
-    while (1)
-    {
+    while (1) {
         startPos = decodeBuffer(buffer, bufferSize, startPos, &outBuffer, &outBufferSize, &writePos);
-        if (-1 == startPos)
-        {
+        if (-1 == startPos) {
             break;
         }
     }
@@ -638,16 +569,12 @@ void parseFile(const char* path, const char* outPath)
     free(outBuffer);
 }
 
-void parseDir(const char* path)
-{
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir(path)) != NULL)
-    {
-        while ((ent = readdir(dir)) != NULL)
-        {
-            if (strlen(ent->d_name) > 5 && strcmp(ent->d_name + strlen(ent->d_name) - 5, ".xlog") == 0)
-            {
+void parseDir(const char* path) {
+    DIR* dir;
+    struct dirent* ent;
+    if ((dir = opendir(path)) != NULL) {
+        while ((ent = readdir(dir)) != NULL) {
+            if (strlen(ent->d_name) > 5 && strcmp(ent->d_name + strlen(ent->d_name) - 5, ".xlog") == 0) {
                 char inPath[260] = {0};
                 char outPath[260] = {0};
                 snprintf(inPath, sizeof(inPath), "%s/%s", path, ent->d_name);
@@ -657,47 +584,33 @@ void parseDir(const char* path)
             }
         }
         closedir(dir);
-    }
-    else
-    {
+    } else {
         fputs("opendir failed", stderr);
         exit(1);
     }
 }
 
-int main(int argc, char* argv[])
-{
-
-    if (argc == 2)
-    {
+int main(int argc, char* argv[]) {
+    if (argc == 2) {
         char* path = argv[1];
         struct stat path_stat;
         stat(path, &path_stat);
 
-        if (S_ISREG(path_stat.st_mode))
-        {
+        if (S_ISREG(path_stat.st_mode)) {
             char outPath[260] = {0};
             snprintf(outPath, sizeof(outPath), "%s.log", path);
             parseFile(path, outPath);
-        }
-        else if (S_ISDIR(path_stat.st_mode))
-        {
+        } else if (S_ISDIR(path_stat.st_mode)) {
             parseDir(path);
-        }
-        else
-        {
+        } else {
             fputs("openfile failed", stderr);
             return 1;
         }
-    }
-    else if (argc == 3)
-    {
+    } else if (argc == 3) {
         char* inPath = argv[1];
         char* outPath = argv[2];
         parseFile(inPath, outPath);
-    }
-    else
-    {
+    } else {
         parseDir(".");
     }
     return 0;

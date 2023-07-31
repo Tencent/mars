@@ -38,13 +38,13 @@
  */
 
 /* **************************************************************
-*  Compiler specifics
-****************************************************************/
+ *  Compiler specifics
+ ****************************************************************/
 #define FORCE_INLINE static __always_inline
 
 /* **************************************************************
-*  Includes
-****************************************************************/
+ *  Includes
+ ****************************************************************/
 #include "bitstream.h"
 #include "fse.h"
 #include <linux/compiler.h>
@@ -52,8 +52,8 @@
 #include <linux/string.h> /* memcpy, memset */
 
 /* **************************************************************
-*  Error Management
-****************************************************************/
+ *  Error Management
+ ****************************************************************/
 #define FSE_isError ERR_isError
 #define FSE_STATIC_ASSERT(c)                                   \
 	{                                                      \
@@ -69,8 +69,8 @@
 	}
 
 /* **************************************************************
-*  Templates
-****************************************************************/
+ *  Templates
+ ****************************************************************/
 /*
   designed to be included
   for type-specific functions (template emulation in C)
@@ -165,8 +165,8 @@ size_t FSE_buildDTable_wksp(FSE_DTable *dt, const short *normalizedCounter, unsi
 }
 
 /*-*******************************************************
-*  Decompression (Byte symbols)
-*********************************************************/
+ *  Decompression (Byte symbols)
+ *********************************************************/
 size_t FSE_buildDTable_rle(FSE_DTable *dt, BYTE symbolValue)
 {
 	void *ptr = dt;

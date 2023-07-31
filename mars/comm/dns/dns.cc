@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * comm_dns.cc
@@ -19,17 +18,17 @@
  */
 
 #include "dns/dns.h"
-#include "socket/unix_socket.h"
-#include "xlogger/xlogger.h"
-#include "time_utils.h"
-#include "socket/socket_address.h"
-#include "thread/condition.h"
-#include "thread/thread.h"
-#include "thread/lock.h"
-#include "mars/comm/macro.h"
 
+#include "mars/comm/macro.h"
 #include "network/getdnssvraddrs.h"
 #include "socket/local_ipstack.h"
+#include "socket/socket_address.h"
+#include "socket/unix_socket.h"
+#include "thread/condition.h"
+#include "thread/lock.h"
+#include "thread/thread.h"
+#include "time_utils.h"
+#include "xlogger/xlogger.h"
 
 namespace mars {
 namespace comm {
@@ -42,23 +41,27 @@ enum {
     kGetIPFail,
 };
 
-
 struct dnsinfo {
-    thread_tid      threadid;
-    DNS*            dns;
-    //DNS::DNSFunc    dns_func;
+    thread_tid threadid;
+    DNS* dns;
+    // DNS::DNSFunc    dns_func;
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dns_func;
-    std::string     host_name;
+    std::string host_name;
     std::vector<std::string> result;
     int status;
     bool longlink_host = false;
 };
 /*
-*/
+ */
 
 std::string DNSInfoToString(const struct dnsinfo& _info) {
     XMessage msg;
-    msg(TSF"info:%_, threadid:%_, dns:%_, host_name:%_, status:%_", &_info, _info.threadid, _info.dns, _info.host_name, _info.status);
+    msg(TSF "info:%_, threadid:%_, dns:%_, host_name:%_, status:%_",
+        &_info,
+        _info.threadid,
+        _info.dns,
+        _info.host_name,
+        _info.status);
     return msg.Message();
 }
 NO_DESTROY static std::vector<dnsinfo> sg_dnsinfo_vec;
@@ -68,9 +71,9 @@ void DNS::__GetIP() {
     xverbose_function();
 
     auto start_time = ::gettickcount();
-    
+
     std::string host_name;
-    //DNS::DNSFunc dnsfunc = NULL;
+    // DNS::DNSFunc dnsfunc = NULL;
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc;
     bool longlink_host = false;
 
@@ -87,34 +90,33 @@ void DNS::__GetIP() {
     }
 
     lock.unlock();
-    xdebug2(TSF"dnsfunc is null: %_, %_", host_name, (dnsfunc == NULL));
+    xdebug2(TSF "dnsfunc is null: %_, %_", host_name, (dnsfunc == NULL));
     if (NULL == dnsfunc) {
-        
         //
         xgroup2_define(log_group);
         std::vector<socket_address> dnssvraddrs;
         mars::comm::getdnssvraddrs(dnssvraddrs);
         xinfo2("dns server:") >> log_group;
         for (std::vector<socket_address>::iterator iter = dnssvraddrs.begin(); iter != dnssvraddrs.end(); ++iter) {
-            xinfo2(TSF"%_:%_ ", iter->ip(), iter->port()) >> log_group;
+            xinfo2(TSF "%_:%_ ", iter->ip(), iter->port()) >> log_group;
         }
-        
+
         //
         struct addrinfo hints, *single, *result;
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = PF_INET;
         hints.ai_socktype = SOCK_STREAM;
-        //in iOS work fine, in Android ipv6 stack get ipv4-ip fail
-        //and in ipv6 stack AI_ADDRCONFIGd will filter ipv4-ip but we ipv4-ip can use by nat64
-    //    hints.ai_flags = AI_V4MAPPED|AI_ADDRCONFIG;
+        // in iOS work fine, in Android ipv6 stack get ipv4-ip fail
+        // and in ipv6 stack AI_ADDRCONFIGd will filter ipv4-ip but we ipv4-ip can use by nat64
+        //    hints.ai_flags = AI_V4MAPPED|AI_ADDRCONFIG;
         int error = 0;
         TLocalIPStack ipstack = local_ipstack_detect();
         if (ELocalIPStack_IPv4 == ipstack) {
             error = getaddrinfo(host_name.c_str(), NULL, &hints, &result);
         } else {
-            error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/NULL, &result);
+            error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/ NULL, &result);
         }
-           
+
         lock.lock();
 
         iter = sg_dnsinfo_vec.begin();
@@ -125,9 +127,14 @@ void DNS::__GetIP() {
         }
 
         if (error != 0) {
-            xwarn2(TSF"error, error:%_/%_, hostname:%_, ipstack:%_", error, strerror(error), host_name.c_str(), ipstack);
+            xwarn2(TSF "error, error:%_/%_, hostname:%_, ipstack:%_",
+                   error,
+                   strerror(error),
+                   host_name.c_str(),
+                   ipstack);
 
-            if (iter != sg_dnsinfo_vec.end()) iter->status = kGetIPFail;
+            if (iter != sg_dnsinfo_vec.end())
+                iter->status = kGetIPFail;
 
             sg_condition.notifyAll();
             return;
@@ -141,36 +148,35 @@ void DNS::__GetIP() {
                 // In Indonesia, if there is no ipv6's ip, operators return 0.0.0.0.
                 if (PF_INET == single->ai_family) {
                     sockaddr_in* addr_in = (sockaddr_in*)single->ai_addr;
-//                    struct in_addr convertAddr;
+                    //                    struct in_addr convertAddr;
                     if (INADDR_ANY == addr_in->sin_addr.s_addr || INADDR_NONE == addr_in->sin_addr.s_addr) {
-                        xwarn2(TSF"hehe, addr_in->sin_addr.s_addr:%0", addr_in->sin_addr.s_addr);
+                        xwarn2(TSF "hehe, addr_in->sin_addr.s_addr:%0", addr_in->sin_addr.s_addr);
                         continue;
                     }
                 }
 
-
-//                convertAddr.s_addr = addr_in->sin_addr.s_addr;
+                //                convertAddr.s_addr = addr_in->sin_addr.s_addr;
                 socket_address sock_addr(single->ai_addr);
                 const char* ip = sock_addr.ip();
 
                 if (!socket_address(ip, 0).valid_server_address(false, true)) {
-                    xerror2(TSF"ip is invalid, ip:%0", ip);
+                    xerror2(TSF "ip is invalid, ip:%0", ip);
                     continue;
                 }
 
                 iter->result.push_back(ip);
             }
-            
+
             //
             xgroup2_define(ip_group);
-            xinfo2(TSF"host %_ resolved iplist: ", host_name) >> ip_group;
-            for(auto ip : iter->result){
-                xinfo2(TSF"%_,", ip) >> ip_group;
+            xinfo2(TSF "host %_ resolved iplist: ", host_name) >> ip_group;
+            for (auto ip : iter->result) {
+                xinfo2(TSF "%_,", ip) >> ip_group;
             }
-            
+
             freeaddrinfo(result);
             iter->status = kGetIPSuc;
-            xinfo2(TSF"cost time: %_", (::gettickcount() - start_time)) >> ip_group;
+            xinfo2(TSF "cost time: %_", (::gettickcount() - start_time)) >> ip_group;
             sg_condition.notifyAll();
         }
     } else {
@@ -180,16 +186,16 @@ void DNS::__GetIP() {
         }
 
         lock.lock();
-        
+
         iter = sg_dnsinfo_vec.begin();
         for (; iter != sg_dnsinfo_vec.end(); ++iter) {
             if (iter->threadid == ThreadUtil::currentthreadid()) {
                 break;
             }
         }
-        
+
         if (iter != sg_dnsinfo_vec.end()) {
-            iter->status = ips.empty()? kGetIPFail:kGetIPSuc;
+            iter->status = ips.empty() ? kGetIPFail : kGetIPSuc;
             iter->result = ips;
         }
         sg_condition.notifyAll();
@@ -197,14 +203,19 @@ void DNS::__GetIP() {
 }
 
 ///////////////////////////////////////////////////////////////////
-DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc):dnsfunc_(_dnsfunc) {
+DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc)
+: dnsfunc_(_dnsfunc) {
 }
 
 DNS::~DNS() {
     Cancel();
 }
 
-bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec, DNSBreaker* _breaker, bool _longlink_host) {
+bool DNS::GetHostByName(const std::string& _host_name,
+                        std::vector<std::string>& ips,
+                        long millsec,
+                        DNSBreaker* _breaker,
+                        bool _longlink_host) {
     xverbose_function("host: %s, longlink: %d", _host_name.c_str(), _longlink_host);
 
     xassert2(!_host_name.empty());
@@ -215,13 +226,14 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
 
     ScopedLock lock(sg_mutex);
 
-    if (_breaker && _breaker->isbreak) return false;
+    if (_breaker && _breaker->isbreak)
+        return false;
 
-    Thread thread(std::bind(&DNS::__GetIP, this) ,_host_name.c_str());
+    Thread thread(std::bind(&DNS::__GetIP, this), _host_name.c_str());
     int startRet = thread.start();
 
     if (startRet != 0) {
-        xerror2(TSF"start the thread fail");
+        xerror2(TSF "start the thread fail");
         return false;
     }
 
@@ -234,7 +246,8 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
     info.longlink_host = _longlink_host;
     sg_dnsinfo_vec.push_back(info);
 
-    if (_breaker) _breaker->dnsstatus = &(sg_dnsinfo_vec.back().status);
+    if (_breaker)
+        _breaker->dnsstatus = &(sg_dnsinfo_vec.back().status);
 
     uint64_t time_end = gettickcount() + (uint64_t)millsec;
 
@@ -252,9 +265,8 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
         }
 
         xassert2(it != sg_dnsinfo_vec.end());
-        
-        if (it != sg_dnsinfo_vec.end()){
 
+        if (it != sg_dnsinfo_vec.end()) {
             if (ETIMEDOUT == wait_ret) {
                 it->status = kGetIPTimeout;
             }
@@ -264,10 +276,11 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
             }
 
             if (kGetIPSuc == it->status) {
-                if (_host_name==it->host_name) {
+                if (_host_name == it->host_name) {
                     ips = it->result;
 
-                    if (_breaker) _breaker->dnsstatus = NULL;
+                    if (_breaker)
+                        _breaker->dnsstatus = NULL;
 
                     sg_dnsinfo_vec.erase(it);
                     return true;
@@ -275,19 +288,20 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
                     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
                     int i = 0;
                     for (; iter != sg_dnsinfo_vec.end(); ++iter) {
-                        xerror2(TSF"sg_info_vec[%_]:%_", i++, DNSInfoToString(*iter));
+                        xerror2(TSF "sg_info_vec[%_]:%_", i++, DNSInfoToString(*iter));
                     }
                     if (monitor_func_)
                         monitor_func_(kDNSThreadIDError);
-                    xassert2(false, TSF"_host_name:%_, it->host_name:%_", _host_name, it->host_name);
+                    xassert2(false, TSF "_host_name:%_, it->host_name:%_", _host_name, it->host_name);
                     return false;
                 }
             }
 
             if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
-                if (_breaker) _breaker->dnsstatus = NULL;
+                if (_breaker)
+                    _breaker->dnsstatus = NULL;
 
-                //xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
+                // xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
                 xinfo2(TSF "dns get ip status:%_ host:%_", it->status, it->host_name);
                 sg_dnsinfo_vec.erase(it);
                 return false;
@@ -295,7 +309,8 @@ bool DNS::GetHostByName(const std::string& _host_name, std::vector<std::string>&
 
             xassert2(false, "%d", it->status);
 
-            if (_breaker) _breaker->dnsstatus = NULL;
+            if (_breaker)
+                _breaker->dnsstatus = NULL;
 
             sg_dnsinfo_vec.erase(it);
         }
@@ -330,10 +345,11 @@ void DNS::Cancel(DNSBreaker& _breaker) {
     ScopedLock lock(sg_mutex);
     _breaker.isbreak = true;
 
-    if (_breaker.dnsstatus) *(_breaker.dnsstatus) = kGetIPCancel;
+    if (_breaker.dnsstatus)
+        *(_breaker.dnsstatus) = kGetIPCancel;
 
     sg_condition.notifyAll();
 }
 
-}
-}
+}  // namespace comm
+}  // namespace mars

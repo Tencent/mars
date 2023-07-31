@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -27,48 +27,42 @@
 namespace mars {
 namespace stn {
 
-enum DnsType {
-	kType_NewDns = 1,
-	kType_Dns = 2
-};
+enum DnsType { kType_NewDns = 1, kType_Dns = 2 };
 
 struct DnsProfile {
+    DnsProfile() {
+        Reset();
+    }
 
-	DnsProfile() {
-		Reset();
-	}
+    void Reset() {
+        start_time = gettickcount();
+        end_time = 0;
 
-	void Reset() {
-		start_time = gettickcount();
-		end_time = 0;
+        host.clear();
 
-		host.clear();
+        err_type = 0;
+        err_code = 0;
 
-		err_type = 0;
-		err_code = 0;
+        dnstype = kType_NewDns;
+    }
 
-		dnstype = kType_NewDns;
-	}
+    void OnFailed() {
+        err_type = kEctLocal;
+        err_code = -1;
+    }
 
-	void OnFailed() {
-		err_type = kEctLocal;
-		err_code = -1;
-	}
+    uint64_t start_time;
+    uint64_t end_time;
 
-	uint64_t start_time;
-	uint64_t end_time;
+    std::string host;
 
-	std::string host;
+    int err_type;
+    int err_code;
 
-	int err_type;
-	int err_code;
-
-	int dnstype;
-
+    int dnstype;
 };
 
-}
-}
-
+}  // namespace stn
+}  // namespace mars
 
 #endif /* MARS_OPEN_MARS_STN_DNS_PROFILE_H_ */
