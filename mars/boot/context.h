@@ -9,6 +9,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <atomic>
 
 #include "base_manager.h"
 
