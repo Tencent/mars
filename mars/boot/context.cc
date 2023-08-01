@@ -5,6 +5,7 @@
 #include "context.h"
 
 #include <sstream>
+#include <atomic>
 
 namespace mars {
 namespace boot {
