@@ -92,6 +92,12 @@ void TcpClient::Disconnect() {
 void TcpClient::DisconnectAndWait() {
     Disconnect();
 
+    if (INVALID_SOCKET != socket_) {
+        xinfo2(TSF "socket fd close:%_", socket_);
+        socket_close(socket_);
+        socket_ = INVALID_SOCKET;
+    }
+    
     if (thread_.isruning())
         thread_.join();
 }
@@ -381,10 +387,11 @@ void TcpClient::__Run() {
 void TcpClient::__RunThread() {
     __Run();
 
+    /* 在run过程中有可能会调到OnDisconnect,这时会触发释构,socket的值为不确定状态,一般为0,会造成文件被随机关闭的表现
     if (INVALID_SOCKET != socket_) {
         socket_close(socket_);
         socket_ = INVALID_SOCKET;
-    }
+    }*/
 }
 
 void TcpClient::__SendBreak() {
