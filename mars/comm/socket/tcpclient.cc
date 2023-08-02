@@ -387,7 +387,8 @@ void TcpClient::__Run() {
 void TcpClient::__RunThread() {
     __Run();
 
-    /* 在run过程中有可能会调到OnDisconnect,这时会触发释构,socket的值为不确定状态,一般为0,会造成文件被随机关闭的表现
+    /* 注意:后续这里不能加逻辑,因为对象很可能已经释构
+    在run过程中有会调到OnDisconnect,这时会触发释构,socket的值为不确定状态,一般为0,会造成文件被随机关闭的表现
     if (INVALID_SOCKET != socket_) {
         socket_close(socket_);
         socket_ = INVALID_SOCKET;
