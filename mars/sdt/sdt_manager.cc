@@ -35,8 +35,15 @@ void SdtManager::OnCreate() {
 }
 
 void SdtManager::OnDestroy() {
-    delete sdt_core_;
-    delete callback_;
+    xinfo_function();
+    if (sdt_core_) {
+        delete sdt_core_;
+        sdt_core_ = nullptr;
+    }
+    if (callback_) {
+        delete callback_;
+        callback_ = nullptr;
+    }
 }
 
 void SdtManager::SetCallBack(Callback* const _callback) {

@@ -73,6 +73,10 @@ void StnManager::OnCreate() {
 
 void StnManager::OnDestroy() {
     xinfo_function(TSF "mars2");
+    if(nullptr == net_core_) {
+        xwarn2(TSF"net core is nullptr. ignore destory");
+        return;
+    }
     NetCore::__Release(net_core_);
     NetCore::NetCoreRelease()();
     callback_bridge_->SetCallback(nullptr);
