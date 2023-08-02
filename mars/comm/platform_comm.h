@@ -212,7 +212,9 @@ struct RadioAccessNetworkInfo {
     bool IsUnknown() const {
         return !Is2G() && !Is3G() && !Is4G() && !Is5G();
     }
-    bool IsNR() const;
+    bool IsNR() const {
+        return radio_access_network == NR || radio_access_network == NRNSA;
+    }
 };
 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);

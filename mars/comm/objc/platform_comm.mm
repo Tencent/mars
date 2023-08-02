@@ -496,10 +496,6 @@ bool getCurRadioAccessNetworkInfo(mars::comm::RadioAccessNetworkInfo& _raninfo) 
 
     return true;
 }
-
-bool RadioAccessNetworkInfo::IsNR() const {
-    return radio_access_network == NR || radio_access_network == NRNSA;
-}
 #else
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) { return false; }
 #endif
