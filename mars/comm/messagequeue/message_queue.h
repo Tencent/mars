@@ -411,8 +411,9 @@ class MessageQueueCreater {
     static MessageQueue_t CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker,
                                                 const char* _messagequeue_name = NULL);
     static MessageQueue_t CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, thread_tid _tid);
-    static void ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id);  // block api
-    static void ReleaseNewMessageCreater(MessageQueueCreater& _creater);
+    static void ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id); // block api
+    static void ReleaseNewMessageCreator(MessageQueueCreater& _creator);
+    static void ReleaseNewMessageCreatorWithoutLock(MessageQueueCreater& _creator);
 
  private:
     MessageQueueCreater(const MessageQueueCreater&);
