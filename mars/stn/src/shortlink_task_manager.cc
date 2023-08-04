@@ -649,8 +649,9 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type, int _err
             first = next;
             continue;
         }
-        
-        if (_fail_handle == kTaskFailHandleSessionTimeout && !first->task.need_authed) {
+
+        if (_fail_handle == kTaskFailHandleSessionTimeout && _src_taskid != 0 && _src_taskid != first->task.taskid
+            && !first->task.need_authed) {
             first = next;
             continue;
         }
