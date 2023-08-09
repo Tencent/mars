@@ -799,3 +799,11 @@ mars::baseevent::OnDestroy();
 
 ## License
 Mars 使用的 MIT 协议，详细请参考 [LICENSE](https://github.com/Tencent/mars/blob/master/LICENSE)。
+
+## 信息公示
+* SDK名称：Mars
+* 版本号：0.2.0
+* 开发者：深圳市腾讯计算机系统有限公司
+* 主要功能：Mars 是微信官方的跨平台跨业务的终端基础组件。支持iOS、macOS 和Android。Mars 针对移动网络的特点进行了优化，最终提供了高性能的网络功能。
+* [Mars 使用说明](https://github.com/Tencent/mars)
+* [Mars 个人信息保护规则](https://support.weixin.qq.com/cgi-bin/mmsupportacctnodeweb-bin/pages/L60iIjTc9G2A383f)
