@@ -1048,29 +1048,6 @@ namespace MessageQueue {
         _creator.__JoinThread();
     }
 
-    void MessageQueueCreater::ReleaseNewMessageCreatorWithoutLock(MessageQueueCreater& _creator) {
-        xinfo_function();
-        if (KInvalidQueueID == _creator.messagequeue_id_) return;
-        const MessageQueue_t& id = _creator.messagequeue_id_;
-
-        std::map<MessageQueue_t, MessageQueueContent>::iterator pos = sg_messagequeue_map.find(id);
-        if (sg_messagequeue_map.end() == pos) {
-            //ASSERT2(false, "%llu", (unsigned long long)id);
-            return;
-        }
-        pos->second.breakflag = true;
-        //pos->second.breaker->Notify();
-
-        if (id == CurrentThreadMessageQueue()) return;
-        MessageQueueContent& content = pos->second;
-        if (content.lst_runloop_info.empty()) return;
-        if (KNullPost == content.lst_runloop_info.front().runing_message_id) return;
-        boost::shared_ptr<Condition> runing_cond = content.lst_runloop_info.front().runing_cond;
-        runing_cond->wait();
-
-        _creator.__JoinThread();
-    }
-
     void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
         ScopedSpinLock lock(*_sp);
         lock.unlock();
