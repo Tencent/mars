@@ -219,7 +219,7 @@ void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
 void ResetWiFiIdCallBack();
 
 inline int getCurrNetLabel(std::string& netInfo) {
-    netInfo = "defalut";
+    netInfo = "default";
     int netId = getNetInfo();
 
     if (netId == kNoNet) {
