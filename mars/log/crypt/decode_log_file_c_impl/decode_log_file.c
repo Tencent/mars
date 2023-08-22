@@ -255,7 +255,7 @@ bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
         }
 
         lastPos = output.pos;
-        if (input.pos == input.size)
+        if (input.pos == input.size && output.pos < output.size)
         {
             done = true;
         }
