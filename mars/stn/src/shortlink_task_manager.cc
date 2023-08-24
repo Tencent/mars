@@ -297,9 +297,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 
                 hosts = task.quic_host_list;
-
-                //.increment retry count when using quic.
-                ++first->remain_retry_count;
             }else{
                 xwarn2(TSF"taskid:%_ quic disabled.", first->task.taskid);
             }
@@ -486,6 +483,9 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
                 //quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
                 xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
                 net_source_->DisableQUIC();
+
+                //.increment retry count when quic failed.
+                ++it->remain_retry_count;
             }
         }
 
