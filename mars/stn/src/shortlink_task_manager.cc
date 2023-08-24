@@ -297,6 +297,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 
                 hosts = task.quic_host_list;
+
+                //.increment retry count when using quic.
+                ++first->remain_retry_count;
             }else{
                 xwarn2(TSF"taskid:%_ quic disabled.", first->task.taskid);
             }
