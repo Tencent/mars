@@ -484,8 +484,10 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
                 xwarn2(TSF"disable quic. err %_:%_", _err_type,  _status);
                 net_source_->DisableQUIC();
 
-                //.increment retry count when quic failed.
-                ++it->remain_retry_count;
+                //.increment retry count when first quic failed.
+                if (it->history_transfer_profiles.empty()){
+                    ++it->remain_retry_count;
+                }
             }
         }
 
