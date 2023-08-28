@@ -221,7 +221,7 @@ void StnCallbackBridge::RequestNetCheckShortLinkHosts(std::vector<std::string>& 
 
 void StnCallbackBridge::ReportTaskProfile(const TaskProfile& _task_profile) {
 #if !defined(ANDROID) || defined(CPP_CALL_BACK)
-
+    sg_callback->ReportTaskProfile(_task_profile);
 #else
     C2Java_ReportTaskProfile(_task_profile);
 #endif
