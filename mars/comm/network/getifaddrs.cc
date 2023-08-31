@@ -299,8 +299,15 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
     ULONG outBufLen = 0;
     GetAdaptersAddresses(AF_INET, 0, NULL, NULL, &outBufLen);
 
-    PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
-    GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen);
+	PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+    if (pAddresses == NULL) {
+        return false;
+    }
+
+    if (GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST, NULL, pAddresses, &outBufLen) != ERROR_SUCCESS) {
+        free(pAddresses);
+        return false;
+    }
 
     PIP_ADAPTER_ADDRESSES pCurrAddresses = NULL;
     PIP_ADAPTER_UNICAST_ADDRESS pUnicast = NULL;
@@ -338,10 +345,16 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
 }
 
 bool getifaddrs_ipv4_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
-    return false;
+    //TODO
+	return false;
 }
 
 bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
+    //TODO
+	return false;
+}
+bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs){
+    //TODO
     return false;
 }
 #endif

@@ -68,20 +68,28 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
 #pragma comment(lib, "Iphlpapi.lib")
 
 void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
-    FIXED_INFO fi;
-    ULONG ulOutBufLen = sizeof(fi);
-
-    if (GetNetworkParams(&fi, &ulOutBufLen) != ERROR_SUCCESS) {
+    FIXED_INFO *pFixedInfo = (FIXED_INFO *)malloc(sizeof(FIXED_INFO));
+    if (!pFixedInfo){
         return;
     }
-
-    IP_ADDR_STRING* pIPAddr = fi.DnsServerList.Next;
-
-    while (pIPAddr != NULL) {
-        _dnssvraddrs.push_back(socket_address(pIPAddr->IpAddress.String, 53));
-        pIPAddr = pIPAddr->Next;
+    ULONG ulOutBufLen = 0;
+    
+    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
+        free(pFixedInfo);
+        pFixedInfo = (FIXED_INFO *)malloc(ulOutBufLen);
+        if (!pFixedInfo){
+            return;
+        }
     }
-
+    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == NO_ERROR){
+        IP_ADDR_STRING* pIPAddr = pFixedInfo->DnsServerList.Next;
+        while (pIPAddr != NULL) {
+    		_dnssvraddrs.push_back(socket_address(pIPAddr->IpAddress.String, 53) );
+            pIPAddr = pIPAddr->Next;
+        }
+    }
+    
+    free(pFixedInfo);
     return;
 }
 #else

@@ -19,6 +19,8 @@
 
 #include "shortlink.h"
 
+#include <algorithm>
+#include <iterator>
 #include <tuple>
 
 #include "boost/bind.hpp"
@@ -337,6 +339,33 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         return INVALID_SOCKET;
     }
 
+    //.need remove ipv6 address?.
+    if (!NetSource::CanUseIPv6() || (proxy_addr && proxy_addr->valid() && proxy_addr->isv4())){
+        // ipv6 disabled, or ipv6 over ipv4 proxy.
+        //.如果代理是v4地址，则需要把地址列表中的v6地址移除(一般来说v4无法代理v6流量).
+        std::vector<socket_address> tempAddrs = vecaddr;
+        auto v4begin = std::stable_partition(tempAddrs.begin(), tempAddrs.end(), [](const socket_address& addr){
+            return addr.isv6();
+        });
+        if (v4begin != tempAddrs.end()){
+            // has ipv4, copy ipv4 address only
+            vecaddr.clear();
+            std::copy(v4begin, tempAddrs.end(), std::back_inserter(vecaddr));
+            xinfo2(TSF"ipv6 disabled %_ or ipv6 over ipv4 proxy. addrs count %_", NetSource::CanUseIPv6(), vecaddr.size());
+        }
+    }
+    
+    //.如果代理是v4地址，则需要把地址列表中的v6地址移除(一般来说v4无法代理v6流量).
+    if (proxy_addr && proxy_addr->valid() && proxy_addr->isv4() && vecaddr.size() > 1){
+        for (auto it = vecaddr.begin(); it != vecaddr.end();){
+            if (it->isv6()){
+                it = vecaddr.erase(it);
+            }else{
+                it++;
+            }
+        }
+    }
+    
     //
     _conn_profile.host = _conn_profile.ip_items[0].str_host;
     _conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
@@ -480,8 +509,16 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     //    so_linger.l_onoff = 1;
     //    so_linger.l_linger = 0;
 
-    //    xerror2_if(0 != setsockopt(sock, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger)),
-    //    TSF"SO_LINGER %_(%_)", socket_errno, socket_strerror(socket_errno));
+//    struct linger so_linger;
+//    so_linger.l_onoff = 1;
+//    so_linger.l_linger = 0;
+
+//    xerror2_if(0 != setsockopt(sock, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger)), TSF"SO_LINGER %_(%_)", socket_errno, socket_strerror(socket_errno));
+
+    if (profile.index > 0 && vecaddr.front().isv6()){
+        //.ipv6 connect failed.
+        NetSource::DisableIPv6();
+    }
     return sock;
 }
 

@@ -110,6 +110,9 @@ class NetSource {
     void SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms);
     void SetDefaultQUICRWTimeoutMs(unsigned ms);
 
+    static void DisableIPv6();
+    static bool CanUseIPv6();
+    
  public:
     NetSource(comm::ActiveLogic& _active_logic, boot::Context* _context);
     ~NetSource();

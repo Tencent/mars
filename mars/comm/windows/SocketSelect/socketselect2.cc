@@ -267,7 +267,9 @@ int SocketSelect::Select(int _msec) {
     if (WSA_WAIT_FAILED == ret)
         errno_ = WSAGetLastError();
 
-    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && ret >= WSA_WAIT_EVENT_0 + eventfd_count) {
+    // different ms, eventarray[0] is fd, so ret > WSA_WAIT_EVENT_0
+    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && ret > WSA_WAIT_EVENT_0
+        && ret < WSA_WAIT_EVENT_0 + m_filter_map.size() + eventfd_count) {
         WSANETWORKEVENTS networkevents = {0};
         int event_index = ret;
         ret = WSAEnumNetworkEvents(socketarray[event_index - WSA_WAIT_EVENT_0],
@@ -337,7 +339,10 @@ END:
         ASSERT2(WSACloseEvent(eventarray[index]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
         ++index;
     }
-
+    // for (size_t i = 0; i < vec_events_.size(); i++) {
+    //     //.event 句柄对象.
+    //     ASSERT2(WSACloseEvent(eventarray[i + 1]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+    // }
     vec_events_.clear();
     free(eventarray);
     free(socketarray);
