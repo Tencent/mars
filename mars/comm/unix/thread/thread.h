@@ -19,6 +19,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <signal.h>
+#include "mars/comm/xlogger/xlogger.h"
 
 #ifndef _WIN32
 #define __STDC_FORMAT_MACROS
@@ -139,6 +140,7 @@ class Thread {
         int res = pthread_attr_init(&attr_);
         ASSERT2(0 == res, "res=%d", res);
         if (_thread_name) strncpy(runable_ref_->thread_name, _thread_name, sizeof(runable_ref_->thread_name));
+        xinfo2(TSF"Trace Thread:(%_, %_, %_)", this, runable_ref_, runable_ref_->thread_name);
     }
 
     Thread(const char* _thread_name = NULL, bool _outside_join = false)
@@ -150,6 +152,7 @@ class Thread {
         int res = pthread_attr_init(&attr_);
         ASSERT2(0 == res, "res=%d", res);
         if (_thread_name) strncpy(runable_ref_->thread_name, _thread_name, sizeof(runable_ref_->thread_name));
+        xinfo2(TSF"Trace Thread:(%_, %_, %_)", this, runable_ref_, runable_ref_->thread_name);
     }
 
     virtual ~Thread() {
@@ -157,6 +160,7 @@ class Thread {
         ASSERT2(0 == res, "res=%d", res);
         ScopedSpinLock lock(runable_ref_->splock);
         if (0 != runable_ref_->tid && !runable_ref_->isjoined) pthread_detach(runable_ref_->tid);
+        xinfo2(TSF"Trace Thread:(%_, %_, %_, %_)", this, runable_ref_, runable_ref_->thread_name, runable_ref_->tid);
         runable_ref_->RemoveRef(lock);
     }
 
@@ -173,7 +177,9 @@ class Thread {
         runable_ref_->isjoined = outside_join_;
         runable_ref_->AddRef();
 
+        xinfo2(TSF"Trace Thread:(%_, %_, %_, %_)", this, runable_ref_, runable_ref_->thread_name, runable_ref_->tid);
         int ret =  pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine, runable_ref_);
+        xinfo2(TSF"Trace Thread:(%_, %_, %_, %_)", this, runable_ref_, runable_ref_->thread_name, runable_ref_->tid);
         ASSERT(0 == ret);
 
         if (_newone) *_newone = true;
@@ -202,7 +208,9 @@ class Thread {
         runable_ref_->isjoined = outside_join_;
         runable_ref_->AddRef();
 
+        xinfo2(TSF"Trace Thread:(%_, %_, %_, %_)", this, runable_ref_, runable_ref_->thread_name, runable_ref_->tid);
         int ret =  pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine, runable_ref_);
+        xinfo2(TSF"Trace Thread:(%_, %_, %_, %_, %_)", this, runable_ref_, runable_ref_->thread_name, runable_ref_->tid, ret);
         ASSERT(0 == ret);
 
         if (_newone) *_newone = true;
@@ -265,7 +273,9 @@ class Thread {
         runable_ref_->periodictime = periodic;
         runable_ref_->AddRef();
 
+        xinfo2(TSF"Trace Thread:(%_, %_, %_, %_)", this, runable_ref_, runable_ref_->thread_name, runable_ref_->tid);
         int ret = pthread_create(reinterpret_cast<thread_tid*>(&runable_ref_->tid), &attr_, start_routine_periodic, runable_ref_);
+        xinfo2(TSF"Trace Thread:(%_, %_, %_, %_, %_)", this, runable_ref_, runable_ref_->thread_name, runable_ref_->tid, ret);
         ASSERT(0 == ret);
 
         if (0 != ret) {
@@ -423,6 +433,7 @@ class Thread {
     }
 
     static void* start_routine(void* arg) {
+        xinfo2(TSF"Trace Thread:(%_, %_)", arg, pthread_self());
         init(arg);
         volatile RunnableReference* runableref = static_cast<RunnableReference*>(arg);
         pthread_cleanup_push(&cleanup, arg);
@@ -448,6 +459,7 @@ class Thread {
     }
 
     static void* start_routine_periodic(void* arg) {
+        xinfo2(TSF"Trace Thread:(%_, %_)", arg, pthread_self());
         init(arg);
         volatile RunnableReference* runableref = static_cast<RunnableReference*>(arg);
         pthread_cleanup_push(&cleanup, arg);
