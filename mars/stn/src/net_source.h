@@ -110,8 +110,8 @@ class NetSource {
     void SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms);
     void SetDefaultQUICRWTimeoutMs(unsigned ms);
 
-    static void DisableIPv6();
-    static bool CanUseIPv6();
+    void DisableIPv6();
+    bool CanUseIPv6();
     
  public:
     NetSource(comm::ActiveLogic& _active_logic, boot::Context* _context);
@@ -194,12 +194,17 @@ class NetSource {
     std::map<std::string, std::string> sg_host_debugip_mapping;
 
     std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
+
+    // quic
     tickcount_t sg_quic_reopen_tick = tickcount_t(true);
     bool sg_quic_enabled = true;
     TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
     unsigned sg_quic_default_rw_timeoutms = 5000;
     std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
     bool quic_forbidden_ = true;
+
+    // ipv6
+    bool sg_ipv6_enabled = true;
 
     comm::Mutex sg_ip_mutex;
 };

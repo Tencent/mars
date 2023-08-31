@@ -276,8 +276,8 @@ bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _
 }
 #else
 #ifdef WIN32
-#include <iphlpapi.h>
 #include <ws2tcpip.h>
+#include <iphlpapi.h>
 
 #include "../socket/unix_socket.h"
 #pragma comment(lib, "wsock32.lib")

@@ -340,7 +340,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     }
 
     //.need remove ipv6 address?.
-    if (!NetSource::CanUseIPv6() || (proxy_addr && proxy_addr->valid() && proxy_addr->isv4())){
+    if (!net_source_->CanUseIPv6() || (proxy_addr && proxy_addr->valid() && proxy_addr->isv4())) {
         // ipv6 disabled, or ipv6 over ipv4 proxy.
         //.如果代理是v4地址，则需要把地址列表中的v6地址移除(一般来说v4无法代理v6流量).
         std::vector<socket_address> tempAddrs = vecaddr;
@@ -351,7 +351,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             // has ipv4, copy ipv4 address only
             vecaddr.clear();
             std::copy(v4begin, tempAddrs.end(), std::back_inserter(vecaddr));
-            xinfo2(TSF"ipv6 disabled %_ or ipv6 over ipv4 proxy. addrs count %_", NetSource::CanUseIPv6(), vecaddr.size());
+            xinfo2(TSF "ipv6 disabled %_ or ipv6 over ipv4 proxy. addrs count %_",
+                   net_source_->CanUseIPv6(),
+                   vecaddr.size());
         }
     }
     
@@ -517,7 +519,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     if (profile.index > 0 && vecaddr.front().isv6()){
         //.ipv6 connect failed.
-        NetSource::DisableIPv6();
+        net_source_->DisableIPv6();
     }
     return sock;
 }

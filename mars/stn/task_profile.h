@@ -22,6 +22,7 @@
 #define TASK_PROFILE_H_
 
 #include <list>
+#include <memory>
 
 #include "mars/comm/comm_data.h"
 #include "mars/comm/socket/unix_socket.h"

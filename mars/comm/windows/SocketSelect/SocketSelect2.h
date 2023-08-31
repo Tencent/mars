@@ -19,6 +19,8 @@
 #include "socket/unix_socket.h"
 #include "thread/lock.h"
 
+#include "mars/comm/xlogger/xlogger.h"
+
 namespace mars {
 namespace comm {
 
@@ -32,14 +34,21 @@ class SocketBreaker {
 
     bool IsCreateSuc() const;
     bool ReCreate();
-
-    bool IsBreak() const;
+    void Close();
 
     bool Break();
     bool Break(int reason);
     bool Clear();
-    void Close();
+    bool PreciseBreak(uint32_t cookie) {
+        xassert2(false, "PreciseBreak hasn't implemented on windows");
+        return false;
+    }
+    bool PreciseClear(uint32_t* cookie) {
+        xassert2(false, "PreciseClear hasn't implemented on windows");
+        return false;
+    }
 
+    bool IsBreak() const;
     WSAEVENT BreakerFD() const;
     int BreakReason() const;
 

@@ -23,6 +23,7 @@
 #include <string>
 
 #include "mars/stn/stn.h"
+#include "mars/comm/time_utils.h"
 
 namespace mars {
 namespace stn {

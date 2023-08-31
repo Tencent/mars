@@ -11,6 +11,7 @@
 // limitations under the License.
 
 #include <string>
+#include <Windows.h>
 
 namespace mars {
 namespace comm {
