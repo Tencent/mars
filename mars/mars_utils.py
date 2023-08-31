@@ -170,21 +170,14 @@ def clean(path, incremental=False):
         os.makedirs(path)
 
 def clean_windows(path, incremental):
-    if not os.path.exists(path):
-        os.makedirs(path)
-        return
-    
-    if incremental:
-        return;
-    
     try:
-        if os.path.exists(path):
+        if os.path.exists(path) and not incremental:
             shutil.rmtree(path)
-            if not os.path.exists(path):
-                os.makedirs(path)
+        if not os.path.exists(path):
+            os.makedirs(path)
     except Exception:
         pass
-        
+
 def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
     for sf in sub_folder:
         # src_file = "%s/%s/" %(cmake_out, sf)
@@ -207,7 +200,7 @@ def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
 def copy_file(src, dst):
     if not os.path.isfile(src):
         print('Warning: %s not exist cwd %s' %(src, os.getcwd()))
-        return;
+        return
 
     if dst.rfind("/") != -1 and not os.path.exists(dst[:dst.rfind("/")]):
         os.makedirs(dst[:dst.rfind("/")])
@@ -371,35 +364,29 @@ def gen_mars_revision_file(version_file_path, tag=''):
 
     print (''.join(output.splitlines()))
 
-    
-def check_vs_env():
-    vs_tool_dir = os.getenv("VS140COMNTOOLS")
-    
-    if not vs_tool_dir:
-        print("You must install visual studio 2015 for build.")
-        return False
 
-    print('vs.dir: ' + vs_tool_dir)
-    envbat = vs_tool_dir + "../../vc/vcvarsall.bat"
-    print('vsvar.dir: ' + envbat)
-    p = subprocess.Popen(envbat)
-    p.wait()
-    
-    return True
-    
-def merge_win_static_libs(src_libs, dst_lib):
-    
-    vs_tool_dir = os.getenv("VS140COMNTOOLS")
-    lib_cmd = vs_tool_dir + '/../../VC/bin/lib.exe'
-    print('lib cmd:' + lib_cmd)
-    
-    src_libs.insert(0, '/OUT:' + dst_lib)
-    src_libs.insert(0, lib_cmd)
-    
-    p = subprocess.Popen(src_libs)
+def check_vs_env(bat_path:str)->bool:
+    if (bat_path == None):
+        return False
+    p = subprocess.Popen(bat_path)
     p.wait()
     if p.returncode != 0:
-        print('!!!!!!!!!!!lib.exe %s fail!!!!!!!!!!!!!!!' %(dst_lib))
+        print('!!!!!!!!!!! %s fail!!!!!!!!!!!!!!!' %(bat_path))
+        return False
+
+    return True
+
+def merge_win_static_libs(src_libs:list[str], dst_lib:str, lib_exe_path:str)->bool:
+    lib_cmd_list:list[str] = []
+    lib_cmd_list.append(lib_exe_path)
+    lib_cmd_list.append('/OUT:' + dst_lib)
+    lib_cmd_list.extend(src_libs)
+    lib_cmd:str = ' '.join(lib_cmd_list)    
+    
+    p = subprocess.Popen(lib_cmd)
+    p.wait()
+    if p.returncode != 0:
+        print('!!!!!!!!!!! %s fail!!!!!!!!!!!!!!!' %(lib_cmd))
         return False
 
     return True
