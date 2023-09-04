@@ -140,8 +140,8 @@ NetCore::~NetCore() {
     if (!already_release_net_) {
         ReleaseNet();
     }
-    // MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
-    MessageQueue::MessageQueueCreater::ReleaseNewMessageCreater(messagequeue_creater_);
+    //MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    MessageQueue::MessageQueueCreater::ReleaseNewMessageCreator(messagequeue_creater_);
 }
 
 void NetCore::ReleaseNet() {
@@ -366,6 +366,7 @@ void NetCore::StartTask(const Task& _task) {
     if (need_use_longlink_) {
         longlink = longlink_task_manager_->GetLongLink(task.channel_name);
     }
+
     //.下列逻辑是为了notify而做的，目前notify ack不需要在已有长连上进行，因此这个判断条件不需要了.
     // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong)
     //     && (!longlink || !longlink->IsConnected())) {

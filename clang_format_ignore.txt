@@ -3,3 +3,7 @@ mars/googletest
 mars/googlemock
 mars/rapidjson
 mars/log/crypt/micro-ecc-master 
+mars/comm/UWP/zlib
+mars/openssl
+mars/zstd/tests
+samples

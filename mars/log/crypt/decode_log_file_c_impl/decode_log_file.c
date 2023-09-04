@@ -289,6 +289,17 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
             free(uncomp);
             uncomp = uncomp2;
         }
+
+        strm.next_out = (Bytef*)(uncomp + strm.total_out);
+        strm.avail_out = uncompLength - strm.total_out;
+
+        // Inflate another chunk.
+        int err = inflate(&strm, Z_SYNC_FLUSH);
+        if (err == Z_STREAM_END) {
+            done = true;
+        } else if (err != Z_OK) {
+            break;
+        }
     }
 
     if (inflateEnd(&strm) != Z_OK) {
