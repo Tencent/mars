@@ -6,14 +6,12 @@
 #define MMNET_APP_MANAGER_H
 
 #include <memory>
+#include <thread>
 
 #include "mars/app/app.h"
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
 #include "mars/comm/comm_data.h"
-#include "mars/comm/thread/lock.h"
-#include "mars/comm/thread/mutex.h"
-#include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
 
 namespace mars {
@@ -48,8 +46,8 @@ class AppManager : public mars::boot::BaseManager {
     Callback* callback_;
     mars::comm::ProxyInfo proxy_info_;
     bool got_proxy_ = false;
-    mars::comm::Mutex slproxymutex_;
-    mars::comm::Thread slproxythread_;
+    std::timed_mutex slproxymutex_;
+    std::thread slproxythread_;
     uint64_t slproxytimetick_ = gettickcount();
     int slproxycount_ = 0;
 };
