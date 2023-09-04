@@ -24,8 +24,6 @@
 #include <vector>
 
 #include "boost/function.hpp"
-#include "thread/condition.h"
-#include "thread/thread.h"
 
 namespace mars {
 namespace comm {

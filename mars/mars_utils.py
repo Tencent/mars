@@ -25,8 +25,12 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/xlogger/xloggerbase.h": "xlog",
     "mars/comm/xlogger/xlogger.h": "xlog",
 
+    "mars/boot/context.h": "boot",
+    "mars/boot/base_manager.h": "boot",
+
     "mars/stn/stn.h": "stn",
     "mars/stn/stn_logic.h": "stn",
+    "mars/stn/stn_manager.h": "stn",
     "mars/stn/proto/stnproto_logic.h": "stn",
 
     "mars/baseevent/base_logic.h": "baseevent",
@@ -36,9 +40,11 @@ COMM_COPY_HEADER_FILES = {
 
     "mars/app/app.h": "app",
     "mars/app/app_logic.h": "app",
+    "mars/app/app_manager.h": "app",
 
     "mars/sdt/sdt.h": "sdt",
     "mars/sdt/sdt_logic.h": "sdt",
+    "mars/sdt/sdt_manager.h": "sdt",
     "mars/sdt/constants.h": "sdt",
     "mars/sdt/netchecker_profile.h": "sdt",
 

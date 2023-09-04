@@ -34,7 +34,7 @@ struct timespec {
     long tv_sec;
     long tv_nsec;
 };
-#endif
+#endif // defined(_MSC_VER) && (_MSC_VER < 1900)
 
 struct timezone {
     int tz_minuteswest; /* minutes W of Greenwich */
@@ -44,6 +44,6 @@ int gettimeofday(struct timeval* tv, struct timezone* tz);
 
 #ifdef __cplusplus
 }
-#endif
+#endif // __cplusplus
 
-#endif
+#endif // __SYS__TIME_H__
