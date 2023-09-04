@@ -20,21 +20,28 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/has_member.h" : "comm",
     "mars/comm/objc/scope_autoreleasepool.h": "comm",
     "mars/comm/objc/ThreadOperationQueue.h": "comm",
-    "mars/stn/stn.h": "stn",
-    "mars/stn/stn_logic.h": "stn",
-    "mars/stn/proto/stnproto_logic.h": "stn",
-    "mars/baseevent/base_logic.h": "baseevent",
+
     "mars/comm/xlogger/preprocessor.h": "xlog",
     "mars/comm/xlogger/xloggerbase.h": "xlog",
     "mars/comm/xlogger/xlogger.h": "xlog",
+
+    "mars/stn/stn.h": "stn",
+    "mars/stn/stn_logic.h": "stn",
+    "mars/stn/proto/stnproto_logic.h": "stn",
+
+    "mars/baseevent/base_logic.h": "baseevent",
+
     "mars/log/appender.h": "xlog",
     "mars/log/xlogger_interface.h": "xlog",
+
     "mars/app/app.h": "app",
     "mars/app/app_logic.h": "app",
+
     "mars/sdt/sdt.h": "sdt",
     "mars/sdt/sdt_logic.h": "sdt",
     "mars/sdt/constants.h": "sdt",
     "mars/sdt/netchecker_profile.h": "sdt",
+
     "mars/stn/proto/longlink_packer.h": "stn/proto",
 }
 
@@ -43,7 +50,6 @@ WIN_COPY_EXT_FILES = {
     "mars/comm/windows/projdef.h": "comm/windows",
     "mars/comm/windows/sys/cdefs.h": "comm/windows/sys",
     "mars/comm/windows/sys/time.h": "comm/windows/sys",
-    "mars/comm/platform_comm.h": "comm",
 }
 
 XLOG_COPY_HEADER_FILES = {
