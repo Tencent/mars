@@ -274,7 +274,7 @@ bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _
     freeifaddrs(ifap);
     return !_addrs.empty();
 }
-#else
+#else // #if (!UWP && !WIN32)
 #ifdef WIN32
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -357,4 +357,4 @@ bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs){
     //TODO
     return false;
 }
-#endif
+#endif // #if (!UWP && !WIN32) else 
