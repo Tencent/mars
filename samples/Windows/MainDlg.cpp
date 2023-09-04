@@ -116,7 +116,7 @@ LRESULT CMainDlg::OnGetConversationList(UINT /*uMsg*/, WPARAM wParam, LPARAM /*l
 	int size = conversationList->size();
 	if (size > 5)size = 5;
 
-	std::string name = (char*)(_bstr_t)m_pingServerDlg->GetUserName().c_str();
+	std::string name = (char*)(_bstr_t)m_pingServerDlg->GetAppUserName().c_str();
 	for (int i = 0; i < size; ++i)
 	{
 		const ConversationInfo& item = (*conversationList)[i];

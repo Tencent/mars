@@ -137,11 +137,11 @@ AccountInfo GetAccountInfo() {
 #endif
 }
 
-std::string GetUserName() {
+std::string GetAppUserName() {
     xverbose_function();
 
 #ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(GetUserName(), std::string(""));
+    CALL_NATIVE_CALLBACK_RETURN_FUN(GetAppUserName(), std::string(""));
 #endif
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
@@ -168,7 +168,7 @@ std::string GetUserName() {
 }
 
 std::string GetRecentUserName() {
-    return GetUserName();
+    return GetAppUserName();
 }
 
 #ifndef NATIVE_CALLBACK

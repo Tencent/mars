@@ -84,7 +84,7 @@ AccountInfo AppManager::GetAccountInfo() {
     return callback_->GetAccountInfo();
 }
 
-std::string AppManager::GetUserName() {
+std::string AppManager::GetAppUserName() {
     xassert2(callback_ != NULL);
     AccountInfo info = callback_->GetAccountInfo();
     return info.username;
@@ -95,7 +95,7 @@ std::string AppManager::GetRecentUserName() {
     if (callback_ == NULL) {
         return "";
     }
-    return GetUserName();
+    return GetAppUserName();
 }
 
 unsigned int AppManager::GetClientVersion() {

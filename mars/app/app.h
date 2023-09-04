@@ -47,7 +47,7 @@ struct DeviceInfo {
 extern mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 extern std::string GetAppFilePath();
 extern AccountInfo GetAccountInfo();
-extern std::string GetUserName();
+extern std::string GetAppUserName();
 extern std::string GetRecentUserName();
 extern unsigned int GetClientVersion();
 extern DeviceInfo GetDeviceInfo();
@@ -83,7 +83,7 @@ class Callback {
         virtual mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {return mars::comm::ProxyInfo();}
         virtual std::string GetAppFilePath() {return "";}
         virtual AccountInfo GetAccountInfo() {return AccountInfo();}
-        virtual std::string GetUserName() {return "";}
+        virtual std::string GetAppUserName() {return "";}
         virtual std::string GetRecentUserName() {return "";}
         virtual unsigned int GetClientVersion() {return 0;}
         virtual DeviceInfo GetDeviceInfo() {return DeviceInfo();}

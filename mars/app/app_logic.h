@@ -1,4 +1,4 @@
-// Tencent is pleased to support the open source community by making Mars available.
+﻿// Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
 // Licensed under the MIT License (the "License"); you may not use this file except in
@@ -53,7 +53,7 @@ void SetCallback(Callback* const callback);
 mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 std::string GetAppFilePath();
 AccountInfo GetAccountInfo();
-std::string GetUserName();
+std::string GetAppUserName();   // WinBase.h里面定义了GetUserName这个宏
 std::string GetRecentUserName();
 unsigned int GetClientVersion();
 DeviceInfo GetDeviceInfo();
