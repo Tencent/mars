@@ -54,9 +54,9 @@ mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
     }
 
     if (slproxycount_ < 3 || 5 * 1000 > gettickspan(slproxytimetick_)) {
-        slproxythread_ = std::thread([&](){
+        std::thread([&](){
             AppManager::GetProxyInfo(_host, slproxytimetick_);
-        });
+        }).detach();
     }
 
     slproxymutex_.unlock();

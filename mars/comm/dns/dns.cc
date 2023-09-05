@@ -234,6 +234,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
     info.status = kGetIPDoing;
     info.longlink_host = _longlink_host;
     sg_dnsinfo_vec.push_back(info);
+    thread.detach();
 
     if (_breaker)
         _breaker->dnsstatus = &(sg_dnsinfo_vec.back().status);
