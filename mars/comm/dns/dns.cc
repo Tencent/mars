@@ -88,12 +88,13 @@ void DNS::__GetIP() {
     bool longlink_host = iter->longlink_host;
     sg_mutex.unlock();
 
-    xdebug2(TSF "dnsfunc is null: %_, %_", host_name, (dnsfunc == nullptr));
+    xdebug2(TSF "host_name:%_, dnsfunc:%_", host_name, dnsfunc == nullptr);
     if (dnsfunc) {
         std::vector<std::string> ips;
         if (iter->status != kGetIPCancel) {
             ips = dnsfunc(host_name, longlink_host);
         }
+        xinfo2(TSF"ips size:%_", ips.size());
 
         std::lock_guard<std::mutex> lock_guard(sg_mutex);
         iter = std::find_if(sg_dnsinfo_vec.begin(), sg_dnsinfo_vec.end(), [](const DnsInfo&dnsinfo) {
@@ -103,7 +104,10 @@ void DNS::__GetIP() {
         if (iter != sg_dnsinfo_vec.end()) {
             iter->status = ips.empty() ? kGetIPFail : kGetIPSuc;
             iter->result = ips;
+        } else {
+            xerror2("iter is empty");
         }
+        xdebug2("dns func end");
         sg_condition.notify_all();
         return;
     }
@@ -137,6 +141,9 @@ void DNS::__GetIP() {
     iter = std::find_if(sg_dnsinfo_vec.begin(), sg_dnsinfo_vec.end(), [](const DnsInfo&dnsinfo) {
         return dnsinfo.threadid == std::this_thread::get_id();
     });
+    if (iter == sg_dnsinfo_vec.end()) {
+        xerror2("iter == sg_dnsinfo_vec.end");
+    }
 
     if (error != 0) {
         xwarn2(TSF "error, error:%_/%_, hostname:%_, ipstack:%_",
@@ -238,14 +245,15 @@ bool DNS::GetHostByName(const std::string& _host_name,
         uint64_t time_wait = time_end > time_cur ? time_end - time_cur : 0;
 
         std::cv_status wait_ret = sg_condition.wait_for(lock, std::chrono::milliseconds(time_wait));
+        xinfo2(TSF"wait_ret:%_", (int )wait_ret);
 
         auto it = std::find_if(sg_dnsinfo_vec.begin(), sg_dnsinfo_vec.end(), [&info](const DnsInfo&it) {
             return it.threadid == info.threadid;
         });
 
         xassert2(it != sg_dnsinfo_vec.end());
-
         if (it == sg_dnsinfo_vec.end()) {
+            xerror2("it == sg_dnsinfo_vec.end");
             return false;
         }
 
@@ -253,20 +261,14 @@ bool DNS::GetHostByName(const std::string& _host_name,
             it->status = kGetIPTimeout;
         }
 
+        xinfo2(TSF"it->status:%_", it->status);
         if (kGetIPDoing == it->status) {
             continue;
         }
 
         if (kGetIPSuc == it->status) {
-            if (_host_name == it->host_name) {
-                ips = it->result;
-
-                if (_breaker)
-                    _breaker->dnsstatus = nullptr;
-
-                sg_dnsinfo_vec.erase(it);
-                return true;
-            } else {
+            //.为什么_host_name 会不等于 it->host_name？？？thread_id不唯一？.
+            if (_host_name != it->host_name) {
                 for (size_t i = 0; i < sg_dnsinfo_vec.size(); ++i) {
                     xerror2(TSF "sg_info_vec[%_]:%_", i, DNSInfoToString(sg_dnsinfo_vec[i]));
                 }
@@ -275,6 +277,12 @@ bool DNS::GetHostByName(const std::string& _host_name,
                 xassert2(false, TSF "_host_name:%_, it->host_name:%_", _host_name, it->host_name);
                 return false;
             }
+            ips = it->result;
+            if (_breaker)
+                _breaker->dnsstatus = nullptr;
+            sg_dnsinfo_vec.erase(it);
+            xinfo2(TSF"dns succ, ips size:%_", ips.size());
+            return true;
         }
 
         if (kGetIPTimeout == it->status || kGetIPCancel == it->status || kGetIPFail == it->status) {
