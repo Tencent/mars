@@ -44,10 +44,11 @@ struct DNSBreaker {
 
 class DNS {
  public:
-    //    typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
+    typedef std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> DNSFunc;
+    typedef boost::function<void(int _key)> MonitorFunc;
 
  public:
-    DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc = NULL);
+    DNS(const DNSFunc& _dnsfunc = NULL);
     ~DNS();
 
  public:
@@ -59,12 +60,11 @@ class DNS {
     void Cancel(const std::string& _host_name = std::string());
     void Cancel(DNSBreaker& _breaker);
 
-    void SetMonitorFunc(const boost::function<void(int _key)>& _monitor_func) {
+    void SetMonitorFunc(const MonitorFunc& _monitor_func) {
         monitor_func_ = _monitor_func;
     }
 
-    void SetDnsFunc(
-        const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc) {
+    void SetDnsFunc(const DNSFunc& _dnsfunc) {
         dnsfunc_ = _dnsfunc;
     }
 
@@ -72,9 +72,8 @@ class DNS {
     void __GetIP();
 
  private:
-    //    DNSFunc dnsfunc_;
-    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
-    boost::function<void(int _key)> monitor_func_;
+    DNSFunc dnsfunc_;
+    MonitorFunc monitor_func_;
     static const int kDNSThreadIDError = 0;
 };
 }  // namespace comm
