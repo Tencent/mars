@@ -28,17 +28,17 @@
 namespace mars {
 namespace comm {
 
-struct dnsinfo;
+struct DnsInfo;
 
 struct DNSBreaker {
-    DNSBreaker() : isbreak(false), dnsstatus(NULL) {
+    DNSBreaker() : isbreak(false), dnsstatus(nullptr) {
     }
     bool isbreak;
     int* dnsstatus;
 
     void Clear() {
         isbreak = false;
-        dnsstatus = NULL;
+        dnsstatus = nullptr;
     }
 };
 
@@ -48,17 +48,17 @@ class DNS {
     typedef boost::function<void(int _key)> MonitorFunc;
 
  public:
-    DNS(const DNSFunc& _dnsfunc = NULL);
+    DNS(DNSFunc  _dnsfunc = nullptr);
     ~DNS();
 
  public:
     bool GetHostByName(const std::string& _host_name,
                        std::vector<std::string>& ips,
                        long millsec = 2000,
-                       DNSBreaker* _breaker = NULL,
+                       DNSBreaker* _breaker = nullptr,
                        bool _longlink_host = false);
     void Cancel(const std::string& _host_name = std::string());
-    void Cancel(DNSBreaker& _breaker);
+    static void Cancel(DNSBreaker& _breaker);
 
     void SetMonitorFunc(const MonitorFunc& _monitor_func) {
         monitor_func_ = _monitor_func;
