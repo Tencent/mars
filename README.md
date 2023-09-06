@@ -29,6 +29,8 @@ Start with sample usage [here](https://github.com/Tencent/mars/wiki/Mars-sample-
 
 ## Getting started
 
+python scripts only support python3.10 or higher
+
 Choose [Android](#android) or [iOS/OS X](#apple) or [Windows](#windows).
 
 ### <a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
@@ -425,6 +427,7 @@ sample 的使用请参考[这里](https://github.com/Tencent/mars/wiki/Mars-samp
 
 ## Getting started
 
+python >= 3,10
 接入 [Android](#android_cn) 或者 [iOS/OS X](#apple_cn) 或者 [Windows](#windows_cn) 。
 
 ### <a name="android_cn">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
