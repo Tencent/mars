@@ -17,10 +17,11 @@
 
 #ifndef USE_CPP_CALLBACK
 
-#include <jni.h>
-
 #include <map>
 #include <string>
+
+#include <jni.h>
+#include <android/log.h>
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseevent.h"
@@ -33,15 +34,13 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/strutil.h"
 #include "mars/comm/xlogger/xlogger.h"
-//#include "mars/log/appender.h"
-#include <android/log.h>
 
 #include "mars/stn/stn_logic.h"
-#include "stn/config.h"
-#include "stn/proto/stnproto_logic.h"
-#include "stn/src/net_core.h"
-#include "stn/src/net_source.h"
-#include "stn/src/signalling_keeper.h"
+#include "mars/stn/config.h"
+#include "mars/stn/proto/stnproto_logic.h"
+#include "mars/stn/src/net_core.h"
+#include "mars/stn/src/net_source.h"
+#include "mars/stn/src/signalling_keeper.h"
 
 using namespace mars::stn;
 
