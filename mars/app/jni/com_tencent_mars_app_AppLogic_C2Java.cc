@@ -27,6 +27,7 @@
  * author : yanguoyue
  */
 
+#ifndef USE_CPP_CALLBACK
 #include <jni.h>
 
 #include <sstream>
@@ -255,3 +256,4 @@ mars::comm::ProxyInfo GetProxyInfo(const std::string& _host) {
 
 }  // namespace app
 }  // namespace mars
+#endif

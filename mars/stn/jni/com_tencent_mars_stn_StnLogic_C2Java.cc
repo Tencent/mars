@@ -14,6 +14,7 @@
  * created on : 2012-10-19
  * author : yanguoyue
  */
+#ifndef USE_CPP_CALLBACK
 
 #include <jni.h>
 
@@ -667,3 +668,4 @@ void C2Java_ReportTaskProfile(const TaskProfile& _task_profile) {
 };
 }  // namespace stn
 }  // namespace mars
+#endif

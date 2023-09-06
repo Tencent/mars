@@ -168,6 +168,7 @@ bool SocketBreaker::PreciseClear(uint32_t* cookie) {
         return false;
     }
 
+    broken_ =  false;
     ssize_t rv = read(pipes_[0], cookie, sizeof(uint32_t));
     if (rv != sizeof(uint32_t)) {
         xerror2(TSF "read ret %_, fd %_ error %_,%_", rv, pipes_[0], errno, strerror(errno));

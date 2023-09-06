@@ -16,7 +16,7 @@
  *  Created on: 2016年4月11日
  *      Author: caoshaokun
  */
-
+#ifndef USE_CPP_CALLBACK
 #include <jni.h>
 
 #include "mars/baseevent/baseevent.h"
@@ -43,3 +43,4 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_sdt_SdtLogic_setHttpNetcheckCGI(JNI
 
 void ExportSDT() {
 }
+#endif

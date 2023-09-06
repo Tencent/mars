@@ -157,6 +157,7 @@ class LongLink {
     std::string GetDisconnectReasonText() {
         return longlink_disconnect_reason_text_;
     }
+    void TrigNoop();
 
     LongLinkEncoder& Encoder() const {
         return encoder_;
@@ -230,6 +231,8 @@ class LongLink {
     LongLinkIdentifyChecker identifychecker_;
     std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_;
     tickcount_t lastrecvtime_;
+    comm::Alarm alarmnooptimeout_;
+    bool isnooping_;
 
     SmartHeartbeat* smartheartbeat_;
     comm::WakeUpLock* wakelock_;

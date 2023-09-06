@@ -16,6 +16,7 @@
  *  Created on: 2016年8月9日
  *      Author: caoshaokun
  */
+#ifndef USE_CPP_CALLBACK
 
 #include <jni.h>
 
@@ -100,10 +101,9 @@ void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_resul
         }
         check_results_str << "]}";
 
-        JNU_CallStaticMethodByMethodInfo(env,
-                                         KC2Java_reportSignalDetectResults,
-                                         ScopedJstring(env, check_results_str.String().c_str()).GetJstr());
-    };
+	JNU_CallStaticMethodByMethodInfo(env, KC2Java_reportSignalDetectResults, ScopedJstring(env, check_results_str.String().c_str()).GetJstr());
+};
 
 }  // namespace sdt
 }  // namespace mars
+#endif

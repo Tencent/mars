@@ -46,13 +46,14 @@ using namespace mars::comm;
 static const std::string kFileName = "Heartbeat.ini";
 
 // INI key
-static const char* const kKeyModifyTime = "modifyTime";
-static const char* const kKeyCurHeart = "curHeart";
-static const char* const kKeyFailHeartCount = "failHeartCount";
-static const char* const kKeyStable = "stable";
-static const char* const kKeyNetType = "netType";
-static const char* const kKeyHeartType = "hearttype";
-static const char* const kKeyMinHeartFail = "minheartfail";
+static const char* const kKeyModifyTime      = "modifyTime";
+static const char* const kKeyCurHeart        = "curHeart";
+static const char* const kKeyFailHeartCount  = "failHeartCount";
+static const char* const kKeyStable          = "stable";
+static const char* const kKeyNetType         = "netType";
+static const char* const kKeyHeartType       = "hearttype";
+static const char* const kKeyMinHeartFail    = "minheartfail";
+int SmartHeartbeat::outer_setted_heart_ = -1;
 
 SmartHeartbeat::SmartHeartbeat(mars::boot::Context* _context)
 : report_smart_heart_(NULL)
@@ -269,8 +270,12 @@ bool SmartHeartbeat::__IsDozeStyle() {
 
 unsigned int SmartHeartbeat::GetNextHeartbeatInterval() {  //
     // xinfo_function();
+    if(outer_setted_heart_ != -1 && outer_setted_heart_ >= 0) {
+        last_heart_ = outer_setted_heart_;
+        return outer_setted_heart_;
+    }
 
-    if (ActiveLogic::Instance()->IsActive()) {
+    if(ActiveLogic::Instance()->IsActive()) {
         last_heart_ = MinHeartInterval;
         return MinHeartInterval;
     }
