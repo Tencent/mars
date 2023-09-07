@@ -21,6 +21,7 @@ namespace stn {
 
 class NetCore;
 class StnCallbackBridge;
+class LongLink;
 
 class StnManager : public mars::boot::BaseManager {
  public:
@@ -194,6 +195,8 @@ class StnManager : public mars::boot::BaseManager {
     void MakesureLonglinkConnected();
 
     bool LongLinkIsConnected();
+
+    std::shared_ptr<LongLink> DefaultLongLink();
 
     bool ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info,
                           const std::string& _test_host,

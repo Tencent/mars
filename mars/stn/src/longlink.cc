@@ -182,17 +182,12 @@ LongLink::LongLink(Context* _context,
 , connectstatus_(kConnectIdle)
 , disconnectinternalcode_(LongLinkErrCode::kNone)
 , identifychecker_(_context, _encoder, _config.name, Task::kChannelMinorLong == _config.link_type)
+, alarmnooptimeout_(boost::bind(&LongLink::__OnAlarm, this, true), false)
 #ifdef ANDROID
 , smartheartbeat_(new SmartHeartbeat(_context))
 , wakelock_(new WakeUpLock)
-#else
-, smartheartbeat_(NULL)
-, wakelock_(NULL)
 #endif
-    , encoder_(_encoder)
-    , svr_trig_off_(false)
-    , alarmnooptimeout_(boost::bind(&LongLink::__OnAlarm, this, true), false)
-    , isnooping_(false)
+, encoder_(_encoder)
 {
     xinfo2(TSF"handler:(%_,%_) linktype:%_", asyncreg_.Get().queue, asyncreg_.Get().seq, ChannelTypeString[_config.link_type]);
     conn_profile_.link_type = _config.link_type;

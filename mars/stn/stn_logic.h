@@ -38,7 +38,7 @@ class ProxyInfo;
 
 namespace stn {
 class StnCallbackBridge;
-
+class LongLink;
 // callback interface
 // mars2
 /*
@@ -154,6 +154,8 @@ extern bool (*LongLinkIsConnected)();
 extern bool (*ProxyIsAvailable)(const mars::comm::ProxyInfo& _proxy_info,
                                 const std::string& _test_host,
                                 const std::vector<std::string>& _hardcode_ips);
+
+std::shared_ptr<LongLink> DefaultLongLink();
 
 // noop is used to keep longlink conected
 // get noop taskid

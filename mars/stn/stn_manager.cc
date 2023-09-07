@@ -138,6 +138,13 @@ StnCallbackBridge* StnManager::GetStnCallbackBridge() {
     return callback_bridge_;
 }
 
+std::shared_ptr<LongLink> StnManager::DefaultLongLink() {
+    if (net_core_) {
+        return net_core_->DefaultLongLink();
+    }
+    return nullptr;
+}
+
 // #################### stn.h callback ####################
 bool StnManager::MakesureAuthed(const std::string& _host, const std::string& _user_id) {
     xassert2(callback_bridge_ != NULL);

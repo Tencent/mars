@@ -550,6 +550,16 @@ void (*MakesureLonglinkConnected_ext)(const std::string& name) = [](const std::s
     }
 };
 
+std::shared_ptr<LongLink> DefaultLongLink() {
+    xinfo_function();
+    StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
+    xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
+    if (stn_manager) {
+        return stn_manager->DefaultLongLink();
+    }
+    return nullptr;
+}
+
 // callback
 bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
