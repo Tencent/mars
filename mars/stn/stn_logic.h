@@ -26,6 +26,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
