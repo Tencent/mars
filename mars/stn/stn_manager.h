@@ -5,7 +5,7 @@
 #ifndef MMNET_STN_MANAGER_H
 #define MMNET_STN_MANAGER_H
 
-#endif  // MMNET_STN_MANAGER_H
+#include <memory>
 
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
@@ -240,3 +240,5 @@ class StnManager : public mars::boot::BaseManager {
 
 }  // namespace stn
 }  // namespace mars
+
+#endif  // MMNET_STN_MANAGER_H

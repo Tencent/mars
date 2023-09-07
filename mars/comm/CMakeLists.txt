@@ -121,9 +121,9 @@ if(ANDROID)
             jni/*.cc
             jni/*.c
             jni/util/*.cc
-            jni/jnicat/*.cpp)
+            jni/jnicat/*.cpp
             unix/xlogger_threadinfo.cc
-            )
+        )
         
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 elseif(APPLE)
