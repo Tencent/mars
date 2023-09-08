@@ -291,7 +291,10 @@ int NetCore::__ChooseChannel(const Task& _task, std::shared_ptr<LongLinkMetaData
 void NetCore::StartTask(const Task& _task) {
     
     ASYNC_BLOCK_START
-
+    if (already_release_net_) {
+        xinfo2(TSF"net core had release. ignore.");
+        return;
+    }
     xgroup2_define(group);
     xinfo2(TSF"task start long short taskid:%0, cmdid:%1, need_authed:%2, cgi:%3, channel_select:%4, limit_flow:%5, channel_name:%6",
            _task.taskid, _task.cmdid, _task.need_authed, _task.cgi.c_str(), _task.channel_select, _task.limit_flow, _task.channel_name) >> group;
