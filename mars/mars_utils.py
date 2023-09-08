@@ -56,6 +56,8 @@ WIN_COPY_EXT_FILES = {
     "mars/comm/windows/projdef.h": "comm/windows",
     "mars/comm/windows/sys/cdefs.h": "comm/windows/sys",
     "mars/comm/windows/sys/time.h": "comm/windows/sys",
+    "mars/comm/windows/zlib/zlib.h": "comm/windows/zlib",
+    "mars/comm/windows/zlib/zconf.h": "comm/windows/zlib",
 }
 
 UNIX_COPY_EXT_FILES = {
