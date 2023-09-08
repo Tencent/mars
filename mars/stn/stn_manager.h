@@ -236,6 +236,7 @@ class StnManager : public mars::boot::BaseManager {
     StnCallbackBridge* callback_bridge_ = NULL;
     std::shared_ptr<NetCore> net_core_ = NULL;
     int packer_encoder_version_;
+    std::vector<std::string> empty_longlink_hosts;
 };  // StnManager
 
 }  // namespace stn
