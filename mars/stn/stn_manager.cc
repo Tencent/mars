@@ -586,12 +586,8 @@ void StnManager::MakesureLonglinkConnected_ext(const std::string& name) {
 // #################### end stn_logci.h ####################
 
 const std::vector<std::string>& StnManager::GetLongLinkHosts() {
-    if (net_core_) {
-        return net_core_->GetNetSource()->GetLongLinkHosts();
-    } else {
-        xwarn2(TSF "net core is empty.");
-    }
-    return empty_longlink_hosts;
+    //TODO 判空
+    return net_core_->GetNetSource()->GetLongLinkHosts();
 }
 
 void StnManager::SetLongLink(const std::vector<std::string>& _hosts,
