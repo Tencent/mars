@@ -9,6 +9,7 @@
 #define CORO_ASYNC_H_
 
 #include "coroutine.h"
+#include "mars/boost/intrusive_ptr.hpp"
 #include "mars/comm/thread/thread.h"
 
 namespace coroutine {

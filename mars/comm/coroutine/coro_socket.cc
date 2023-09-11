@@ -18,6 +18,8 @@
 #include <climits>
 #include <list>
 
+#include "mars/boost/intrusive_ptr.hpp"
+
 #include "comm/autobuffer.h"
 #include "comm/platform_comm.h"
 #include "comm/socket/socket_address.h"
