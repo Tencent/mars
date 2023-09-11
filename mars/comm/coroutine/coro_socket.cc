@@ -130,7 +130,7 @@ static void __Coro_Poll(int _msec, ::SocketPoll& _socket_poll) {
         return;
     }
 
-    boost::shared_ptr<mq::RunloopCond> cond = mq::RunloopCond::CurrentCond();
+    std::shared_ptr<mq::RunloopCond> cond = mq::RunloopCond::CurrentCond();
     TaskInfo task(coroutine::RunningCoroutine(), _socket_poll);
     if (0 <= _msec) {
         task.abs_timeout_.gettickcount() += _msec;

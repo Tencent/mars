@@ -63,7 +63,7 @@ static const std::string kLibName = "stn";
 // mars2
 /*
 #define STN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (!stn_ptr) {\
         xwarn2(TSF"stn uncreate");\
         return;\
@@ -71,7 +71,7 @@ static const std::string kLibName = "stn";
     stn_ptr->func
 
 #define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (!stn_ptr) {\
         xwarn2(TSF"stn uncreate");\
         return false;\
@@ -80,7 +80,7 @@ static const std::string kLibName = "stn";
     return true
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-        boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+        std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (stn_ptr) \
     {\
         ret = stn_ptr->func;\

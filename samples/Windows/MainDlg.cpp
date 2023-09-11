@@ -38,7 +38,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	RECT rc;
 	GetClientRect(&rc);
 	m_tabView.Create(m_hWnd, rc, NULL, WS_CHILD | WS_VISIBLE, WS_EX_STATICEDGE);
-	m_pingServerDlg = boost::shared_ptr<CPingServerDlg>(new CPingServerDlg());
+	m_pingServerDlg = std::shared_ptr<CPingServerDlg>(new CPingServerDlg());
 	m_pingServerDlg->Create(m_tabView.m_hWnd);
 	m_tabView.AddPage(m_pingServerDlg->m_hWnd, _T("Ping Server"));
 	m_pingServerDlg->SetHostWnd(this);

@@ -79,7 +79,7 @@ void MarsWrapper::start()
 	NetworkService::Instance().setPushObserver(com::tencent::mars::sample::proto::CMD_ID_PUSH, this);
 }
 
-void MarsWrapper::pingServer(const std::string& _name, const std::string& _text, boost::weak_ptr<HelloCGICallback> _callback)
+void MarsWrapper::pingServer(const std::string& _name, const std::string& _text, std::weak_ptr<HelloCGICallback> _callback)
 {
 	HelloCGITask* task = new HelloCGITask();
 	task->user_ = _name;
@@ -115,7 +115,7 @@ void MarsWrapper::sendChatMsg(const ChatMsg& _chat_msg)
 
 	NetworkService::Instance().startTask(task);
 }
-void MarsWrapper::getConversationList(boost::weak_ptr<GetConvListCGICallback> _callback)
+void MarsWrapper::getConversationList(std::weak_ptr<GetConvListCGICallback> _callback)
 {
 	GetConvListCGITask* task = new GetConvListCGITask();
 	task->channel_select_ = ChannelType_ShortConn;

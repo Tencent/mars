@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/socket/socketselect.h"
 #include "mars/comm/socket/unix_socket.h"
@@ -76,7 +76,7 @@ class LongLinkSpeedTestItem {
 
 class LongLinkSpeedTest {
  public:
-    LongLinkSpeedTest(const boost::shared_ptr<NetSource>& _netsource);
+    LongLinkSpeedTest(const std::shared_ptr<NetSource>& _netsource);
     ~LongLinkSpeedTest();
 
     bool GetFastestSocket(int& _fdSocket,
@@ -85,10 +85,10 @@ class LongLinkSpeedTest {
                           IPSourceType& _type,
                           unsigned long& _connectMillSec);
 
-    boost::shared_ptr<NetSource> GetNetSource();
+    std::shared_ptr<NetSource> GetNetSource();
 
  private:
-    boost::shared_ptr<NetSource> netsource_;
+    std::shared_ptr<NetSource> netsource_;
     comm::SocketBreaker breaker_;
     comm::SocketSelect selector_;
 };

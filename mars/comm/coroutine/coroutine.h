@@ -14,7 +14,6 @@
 #define COROUTINE_H_
 
 #include <boost/coroutine/all.hpp>
-#include <boost/smart_ptr.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
 #include "mars/comm/assert/__assert.h"
@@ -77,7 +76,7 @@ inline void Yield() {
 
 inline mars::comm::mq::MessagePost_t Resume(const boost::intrusive_ptr<Wrapper>& _wrapper, int64_t _after = 0) {
     mars::comm::mq::Message message;
-    message.body1 = boost::make_shared<mars::comm::mq::AsyncInvokeFunction>([_wrapper]() {
+    message.body1 = std::make_shared<mars::comm::mq::AsyncInvokeFunction>([_wrapper]() {
         _wrapper->push_obj_();
     });
     message.body2 = _wrapper;

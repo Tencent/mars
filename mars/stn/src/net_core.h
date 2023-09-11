@@ -23,6 +23,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/singleton.h"
@@ -34,9 +35,7 @@
 #endif
 
 #include "mars/boost/function.hpp"
-#include "mars/boost/shared_ptr.hpp"
 #include "mars/boost/signals2.hpp"
-#include "mars/boost/weak_ptr.hpp"
 #include "mars/boot/context.h"
 #include "mars/comm/socket/getsocktcpinfo.h"
 

@@ -240,7 +240,7 @@ int LongLinkSpeedTestItem::__HandleSpeedTestResp() {
 
 ////////////////////////////////////////////////////////////////
 
-LongLinkSpeedTest::LongLinkSpeedTest(const boost::shared_ptr<NetSource>& _netsource)
+LongLinkSpeedTest::LongLinkSpeedTest(const std::shared_ptr<NetSource>& _netsource)
 : netsource_(_netsource), selector_(breaker_) {
     if (!breaker_.IsCreateSuc()) {
         xassert2(false, "pipe error");
@@ -384,6 +384,6 @@ bool LongLinkSpeedTest::GetFastestSocket(int& _fdSocket,
     return bRet;
 }
 
-boost::shared_ptr<NetSource> LongLinkSpeedTest::GetNetSource() {
+std::shared_ptr<NetSource> LongLinkSpeedTest::GetNetSource() {
     return netsource_;
 }
