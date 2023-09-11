@@ -305,10 +305,6 @@ int NetCore::__ChooseChannel(const Task& _task,
 
 void NetCore::StartTask(const Task& _task) {
     ASYNC_BLOCK_START
-    if (already_release_net_) {
-        xinfo2(TSF"net core had release. ignore.");
-        return;
-    }
     xgroup2_define(group);
     xinfo2(TSF
            "task start long short taskid:%0, cmdid:%1, need_authed:%2, cgi:%3, channel_select:%4, limit_flow:%5, "
