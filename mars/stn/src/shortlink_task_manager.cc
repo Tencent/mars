@@ -605,6 +605,11 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                 // quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
                 xwarn2(TSF "disable quic. err %_:%_", _err_type, _status);
                 net_source_->DisableQUIC();
+
+                //.increment retry count when first quic failed.
+                if (it->history_transfer_profiles.empty()){
+                    ++it->remain_retry_count;
+                }
             }
         }
 
