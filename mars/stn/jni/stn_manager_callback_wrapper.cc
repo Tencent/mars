@@ -122,7 +122,7 @@ void StnManagerJniCallback::OnPush(const std::string& _channel_id,
 DEFINE_FIND_METHOD(KC2Java_req2Buf,
                    KC2Java,
                    "req2Buf",
-                   "(ILjava/lang/Object;Ljava/lang/String;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;)Z")
+                   "(ILjava/lang/Object;Ljava/lang/String;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;I)Z")
 bool StnManagerJniCallback::Req2Buf(uint32_t _taskid,
                                     void* const _user_context,
                                     const std::string& _user_id,
@@ -130,7 +130,8 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid,
                                     AutoBuffer& extend,
                                     int& error_code,
                                     const int channel_select,
-                                    const std::string& host) {
+                                    const std::string& host,
+                                    const unsigned short client_sequence_id) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
@@ -154,7 +155,8 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid,
                                               byte_array_output_stream_obj,
                                               errcode_array,
                                               (jint)channel_select,
-                                              ScopedJstring(env, host.c_str()).GetJstr())
+                                              ScopedJstring(env, host.c_str()).GetJstr(),
+                                              (jint)client_sequence_id)
                        .z;
     xdebug2(TSF "mars2 kStnManagerJniCallback_Req2Buf ret:%_", ret);
     if (errcode_array) {
@@ -188,14 +190,15 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid,
     return ret;
 }
 
-DEFINE_FIND_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[II)I")
+DEFINE_FIND_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[II[I)I")
 int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
                                     void* const _user_context,
                                     const std::string& _user_id,
                                     const AutoBuffer& _inbuffer,
                                     const AutoBuffer& _extend,
                                     int& _error_code,
-                                    const int _channel_select) {
+                                    const int _channel_select,
+                                    unsigned short& server_sequence_id) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();
@@ -207,6 +210,7 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
         xdebug2(TSF "the decodeBuffer.Lenght() <= 0");
     }
     jintArray errcode_array = env->NewIntArray(1);
+    jintArray sequence_array = env->NewIntArray(1);
     jint ret = JNU_CallMethodByMethodInfo(env,
                                           callback_inst_,
                                           KC2Java_buf2Resp,
@@ -215,7 +219,8 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
                                           ScopedJstring(env, _user_id.c_str()).GetJstr(),
                                           resp_buf_jba,
                                           errcode_array,
-                                          _channel_select)
+                                          _channel_select,
+                                          sequence_array)
                    .i;
     if (resp_buf_jba != NULL) {
         env->DeleteLocalRef(resp_buf_jba);
@@ -224,6 +229,10 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
     _error_code = errcode[0];
     env->ReleaseIntArrayElements(errcode_array, errcode, 0);
     env->DeleteLocalRef(errcode_array);
+    jint* sequence = env->GetIntArrayElements(sequence_array, NULL);
+    server_sequence_id = sequence[0];
+    env->ReleaseIntArrayElements(sequence_array, sequence, 0);
+    env->DeleteLocalRef(sequence_array);
     xdebug2(TSF "mars2 StnManagerJniCallback::Buf2Res end");
     return ret;
 }
