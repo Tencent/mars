@@ -351,7 +351,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
         int error_code = 0;
-        if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host)) {
+        if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, Task::kChannelShort, host, first->task.client_sequence_id)) {
             __SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, 0, first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
             first = next;
             continue;
@@ -372,11 +372,14 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             AutoBuffer body;
             AutoBuffer extension;
             int err_code = 0;
+            unsigned short server_sequence_id = 0;
             body.Write(intercept_data.data(), intercept_data.length());
             first->transfer_profile.received_size = body.Length();
             first->transfer_profile.receive_data_size = body.Length();
             first->transfer_profile.last_receive_pkg_time = ::gettickcount();
-            int handle_type = context_->GetManager<StnManager>()->Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, Task::kChannelShort);
+            int handle_type = context_->GetManager<StnManager>()->Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, Task::kChannelShort, server_sequence_id);
+            xinfo2(TSF"server_sequence_id:%_", server_sequence_id);
+            first->task.server_sequence_id = server_sequence_id;
             ConnectProfile profile;
             __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, (unsigned int)first->transfer_profile.receive_data_size, profile);
             first = next;
@@ -502,8 +505,12 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker, ErrCmdType 
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
-    int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort);
+    unsigned short server_sequence_id = 0;
+    int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, _body, _extension, err_code, Task::kChannelShort, server_sequence_id);
     xinfo2_if(it->task.priority >= 0,  TSF"err_code %_ ",err_code);
+    xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+    it->task.server_sequence_id = server_sequence_id;
+
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type==kTaskFailHandleNoError);
     if (should_intercept_result_ && should_intercept_result_(err_code))  {
         task_intercept_.AddInterceptTask(it->task.cgi, std::string((const char*)_body.Ptr(), _body.Length()));

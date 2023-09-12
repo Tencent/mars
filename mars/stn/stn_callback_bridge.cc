@@ -100,10 +100,11 @@ bool StnCallbackBridge::Req2Buf(uint32_t _taskid,
                                 AutoBuffer& extend,
                                 int& error_code,
                                 const int channel_select,
-                                const std::string& host) {
+                                const std::string& host,
+                                const unsigned short client_sequence_id) {
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
-    return sg_callback->Req2Buf(_taskid, _user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+    return sg_callback->Req2Buf(_taskid, _user_context, _user_id, outbuffer, extend, error_code, channel_select, host, client_sequence_id);
 //#else
 //    return C2Java_Req2Buf(_taskid, _user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
 //#endif
@@ -115,10 +116,11 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 const AutoBuffer& _inbuffer,
                                 const AutoBuffer& _extend,
                                 int& _error_code,
-                                const int _channel_select) {
+                                const int _channel_select,
+                                unsigned short& server_sequence_id) {
 //#if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
-    return sg_callback->Buf2Resp(_taskid, _user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select);
+    return sg_callback->Buf2Resp(_taskid, _user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select, server_sequence_id);
 //#else
 //    return C2Java_Buf2Resp(_taskid, _user_context, _user_id, _inbuffer, _extend, _error_code, _channel_select);
 //#endif

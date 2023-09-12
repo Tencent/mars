@@ -424,7 +424,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         auto longlink_channel = longlink->Channel();
 
         if (!first->antiavalanche_checked) {
-			if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
+			if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host, first->task.client_sequence_id)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -458,7 +458,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
         
 		if (0 == bufreq.Length()) {
 
-			if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host)) {
+			if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid, first->task.user_context, first->task.user_id, bufreq, buffer_extension, error_code, longlink->Config().link_type, host, first->task.client_sequence_id)) {
 				__SingleRespHandle(first, kEctEnDecode, error_code, kTaskFailHandleTaskEnd, longlink_channel->Profile());
 				first = next;
 				continue;
@@ -478,18 +478,21 @@ void LongLinkTaskManager::__RunOnStartTask() {
             AutoBuffer body;
             AutoBuffer extension;
             int err_code = 0;
+            unsigned short server_sequence_id = 0;
             body.Write(intercept_data.data(), intercept_data.length());
             first->transfer_profile.received_size = body.Length();
             first->transfer_profile.receive_data_size = body.Length();
             first->transfer_profile.last_receive_pkg_time = ::gettickcount();
-            int handle_type = context_->GetManager<StnManager>()->Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, longlink->Config().link_type);
+            int handle_type = context_->GetManager<StnManager>()->Buf2Resp(first->task.taskid, first->task.user_context, first->task.user_id, body, extension, err_code, longlink->Config().link_type, server_sequence_id);
+            xinfo2(TSF"server_sequence_id:%_", server_sequence_id);
+            first->task.server_sequence_id = server_sequence_id;
             ConnectProfile profile;
             __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, profile);
             first = next;
             continue;
         }
 
-		first->transfer_profile.loop_start_task_time = ::gettickcount();
+        first->transfer_profile.loop_start_task_time = ::gettickcount();
         first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost, bufreq.Length(), sent_count, dynamic_timeout_.GetStatus());
         first->current_dyntime_status = (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
         first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
@@ -746,11 +749,14 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name, ErrCmdType _err
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
     
     int err_code = 0;
-    int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, longlink_meta->Config().link_type);
+    unsigned short server_sequence_id = 0;
+    int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid, it->task.user_context, it->task.user_id, body, extension, err_code, longlink_meta->Config().link_type, server_sequence_id);
     if (should_intercept_result_ && should_intercept_result_(err_code))  {
         task_intercept_.AddInterceptTask(it->task.cgi, std::string((const char*)body->Ptr(), body->Length()));
     }
-    
+    xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+    it->task.server_sequence_id = server_sequence_id;
+
     switch(handle_type){
         case kTaskFailHandleNoError:
         {

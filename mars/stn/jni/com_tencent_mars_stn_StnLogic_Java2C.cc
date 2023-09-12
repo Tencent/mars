@@ -195,6 +195,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 
 	jobject oHeaders = JNU_GetField(_env, _task, "headers", "Ljava/util/Map;").l;
 	std::map<std::string, std::string> headers = JNU_JObject2Map(_env, oHeaders);
+        jint client_sequence_id = JNU_GetField(_env, _task, "clientSequenceId", "I").i;
 
 	//init struct Task
 	struct Task task(taskid);
@@ -248,7 +249,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask
 		task.user_context = _env->NewGlobalRef(_user_context);
 		_env->DeleteLocalRef(_user_context);
 	}
-
+        task.client_sequence_id = client_sequence_id;
 	StartTask(task);
 }
 
@@ -362,6 +363,12 @@ JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genTaskID
 (JNIEnv *_env, jclass) {
     return (jint)mars::stn::GenTaskID();
 }
+
+JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genSequenceId
+    (JNIEnv *_env, jclass) {
+    return (jint)mars::stn::GenSequenceId();
+}
+
 }
 
 void ExportSTN() {

@@ -59,6 +59,9 @@ Task::Task(uint32_t _taskid) {
     max_minorlinks = 1;
 
     redirect_type = HostRedirectType::kOther;
+
+    client_sequence_id = 0;
+    server_sequence_id = 0;
 }
 
 /* mars2
