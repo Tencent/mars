@@ -55,7 +55,7 @@ std::string StnManager::GetName() {
 }
 
 void StnManager::OnInitConfigBeforeOnCreate(const int _packer_encoder_version) {
-    xdebug2(TSF "mars2 OnInitConfigBeforeOnCreate %_", _packer_encoder_version);
+    xinfo2(TSF "mars2 OnInitConfigBeforeOnCreate %_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
 }
 
