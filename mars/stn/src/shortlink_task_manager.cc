@@ -333,8 +333,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 #ifndef DISABLE_QUIC_PROTOCOL
         if (!task.quic_host_list.empty() && (task.transport_protocol & Task::kTransportProtocolQUIC)
             && 0 == first->err_code) {
-            //.task允许走quic，任务也没有出错（首次连接？）,则走quic.
-            if (net_source_->CanUseQUIC()) {
+            //.task允许重试，且允许走quic，任务也没有出错（首次连接？）,则走quic.
+            if (task.retry_count > 0 && net_source_->CanUseQUIC()) {
                 config.use_proxy = false;
                 config.use_quic = true;
                 config.quic.alpn = "h1";
@@ -342,7 +342,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
                 hosts = task.quic_host_list;
             } else {
-                xwarn2(TSF "taskid:%_ quic disabled.", first->task.taskid);
+                xwarn2(TSF "taskid:%_ quic disabled or retry disabled %_", first->task.taskid, task.retry_count);
             }
         }
 #endif
@@ -605,6 +605,11 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                 // quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
                 xwarn2(TSF "disable quic. err %_:%_", _err_type, _status);
                 net_source_->DisableQUIC();
+
+                //.increment retry count when first quic failed.
+                if (it->history_transfer_profiles.empty()){
+                    ++it->remain_retry_count;
+                }
             }
         }
 
