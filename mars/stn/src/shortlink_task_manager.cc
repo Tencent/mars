@@ -34,7 +34,9 @@
 #include "mars/comm/android/wakeuplock.h"
 #endif
 
+#include "config.h"
 #include "dynamic_timeout.h"
+#include "mars/app/app_manager.h"
 #include "mars/stn/stn_manager.h"
 #include "net_channel_factory.h"
 #include "weak_network_logic.h"
@@ -42,6 +44,7 @@
 using namespace mars::stn;
 using namespace mars::app;
 using namespace mars::comm;
+using namespace mars::app;
 
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
@@ -170,7 +173,13 @@ void ShortLinkTaskManager::__RunLoop() {
     if (lst_cmd_.empty()) {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        if (context_->GetManager<AppManager>() != nullptr) {
+            wakeup_lock_->Lock(context_->GetManager<AppManager>()->GetConfig<int>(kKeyShortLinkWakeupLockEmptyCMD,
+                                                                                  kShortLinkWakeupLockEmptyCMD));
+        } else {
+            xinfo2(TSF "appmanager no exist.");
+            wakeup_lock_->Lock(kShortLinkWakeupLockEmptyCMD);
+        }
 #endif
         return;
     }
@@ -180,7 +189,13 @@ void ShortLinkTaskManager::__RunLoop() {
 
     if (!lst_cmd_.empty()) {
 #ifdef ANDROID
-        wakeup_lock_->Lock(60 * 1000);
+        if (context_->GetManager<AppManager>() != nullptr) {
+            wakeup_lock_->Lock(context_->GetManager<AppManager>()->GetConfig<int>(kKeyShortLinkWakeupLockRunCMD,
+                                                                                  kShortLinkWakeupLockRunCMD));
+        } else {
+            xinfo2(TSF "appmanager no exist.");
+            wakeup_lock_->Lock(kShortLinkWakeupLockRunCMD);
+        }
 #endif
         MessageQueue::FasterMessage(asyncreg_.Get(),
                                     MessageQueue::Message((MessageQueue::MessageTitle_t)this,
@@ -190,7 +205,13 @@ void ShortLinkTaskManager::__RunLoop() {
     } else {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
-        wakeup_lock_->Lock(500);
+        if (context_->GetManager<AppManager>() != nullptr) {
+            wakeup_lock_->Lock(context_->GetManager<AppManager>()->GetConfig<int>(kKeyShortLinkWakeupLockEmptyCMD,
+                                                                                  kShortLinkWakeupLockEmptyCMD));
+        } else {
+            xinfo2(TSF "appmanager no exist.");
+            wakeup_lock_->Lock(kShortLinkWakeupLockEmptyCMD);
+        }
 #endif
     }
 }
@@ -1061,8 +1082,8 @@ void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     if (!_running_id)
         return;
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-    //p_shortlink->func_add_weak_net_info = NULL;
-    //p_shortlink->func_weak_net_report = NULL;
+    // p_shortlink->func_add_weak_net_info = NULL;
+    // p_shortlink->func_weak_net_report = NULL;
     ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;
