@@ -758,6 +758,9 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
 
                 if (NULL == pos) {
                     recvstatus_ = kFirstLine;
+                    if (consumed_bytes) {
+                        *consumed_bytes = _length;
+                    }
                     return recvstatus_;
                 }
 
