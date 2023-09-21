@@ -21,10 +21,11 @@ namespace mars {
 namespace app {
 
 AppManager::AppManager(Context* context) : context_(context) {
-    xverbose_function(TSF "mars2 context id %_", context_->GetContextId());
+    xinfo_function(TSF "mars2 context id %_", context_->GetContextId());
 }
 
 AppManager::~AppManager() {
+    xinfo_function();
 }
 
 std::string AppManager::GetName() {
