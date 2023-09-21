@@ -1,16 +1,16 @@
 /*
- 
+
  File: Reachability.h
  Abstract: Basic demonstration of how to use the SystemConfiguration Reachablity APIs.
- 
+
  Version: 2.2
- 
+
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple Inc.
  ("Apple") in consideration of your agreement to the following terms, and your
  use, installation, modification or redistribution of this Apple software
  constitutes acceptance of these terms.  If you do not agree with these terms,
  please do not use, install, modify or redistribute this Apple software.
- 
+
  In consideration of your agreement to abide by the following terms, and subject
  to these terms, Apple grants you a personal, non-exclusive license, under
  Apple's copyrights in this original Apple software (the "Apple Software"), to
@@ -26,13 +26,13 @@
  including but not limited to any patent rights that may be infringed by your
  derivative works or by other works in which the Apple Software may be
  incorporated.
- 
+
  The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES NO
  WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE IMPLIED
  WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION ALONE OR IN
  COMBINATION WITH YOUR PRODUCTS.
- 
+
  IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
  GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -40,21 +40,17 @@
  DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF
  CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF
  APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- 
+
  Copyright (C) 2010 Apple Inc. All Rights Reserved.
- 
+
 */
 
 #import <TargetConditionals.h>
 
-typedef enum {
-    NotReachable = 0,
-    ReachableViaWiFi,
-    ReachableViaWWAN
-} MarsNetworkStatus;
+typedef enum { NotReachable = 0, ReachableViaWiFi, ReachableViaWWAN } MarsNetworkStatus;
 
 #if TARGET_OS_WATCH
-//nothing
+// nothing
 #else
 
 #import <Foundation/Foundation.h>
@@ -62,32 +58,31 @@ typedef enum {
 
 #define kReachabilityChangedNotification @"kNetworkReachabilityChangedNotification"
 
-@interface MarsReachability: NSObject
-{
+@interface MarsReachability : NSObject {
     BOOL localWiFiRef;
     SCNetworkReachabilityRef reachabilityRef;
 }
 
-// reachabilityWithHostName- Use to check the reachability of a particular host name. 
-+ (MarsReachability*) reachabilityWithHostName: (NSString*) hostName;
+// reachabilityWithHostName- Use to check the reachability of a particular host name.
++ (MarsReachability*)reachabilityWithHostName:(NSString*)hostName;
 
-// reachabilityWithAddress- Use to check the reachability of a particular IP address. 
-+ (MarsReachability*) reachabilityWithAddress: (const struct sockaddr*) hostAddress;
+// reachabilityWithAddress- Use to check the reachability of a particular IP address.
++ (MarsReachability*)reachabilityWithAddress:(const struct sockaddr*)hostAddress;
 
-// reachabilityForInternetConnection- checks whether the default route is available.  
+// reachabilityForInternetConnection- checks whether the default route is available.
 //  Should be used by applications that do not connect to a particular host
-+ (MarsReachability*) reachabilityForInternetConnection;
++ (MarsReachability*)reachabilityForInternetConnection;
 
 // reachabilityForLocalWiFi- checks whether a local wifi connection is available.
-+ (MarsReachability*) reachabilityForLocalWiFi;
++ (MarsReachability*)reachabilityForLocalWiFi;
 
-+ (MarsNetworkStatus) getCacheReachabilityStatus:(BOOL) flash;
++ (MarsNetworkStatus)getCacheReachabilityStatus:(BOOL)flash;
 
 // Start listening for reachability notifications on the current run loop
-- (BOOL) MarsstartNotifier;
-- (void) MarsstopNotifier;
+- (BOOL)MarsstartNotifier;
+- (void)MarsstopNotifier;
 
-- (MarsNetworkStatus) currentReachabilityStatus;
+- (MarsNetworkStatus)currentReachabilityStatus;
 // WWAN may be available, but not active until a connection has been established.
 // WiFi may require a connection for VPN on Demand.
 
@@ -95,4 +90,3 @@ typedef enum {
 @end
 
 #endif
-

@@ -21,8 +21,7 @@ typedef unsigned char u8;
 // Protect against allocating too much memory for output
 #define MAX_OUTPUT_SIZE ((size_t)1024 * 1024 * 1024)
 
-static size_t read_file(const char *path, u8 **ptr)
-{
+static size_t read_file(const char* path, u8** ptr) {
     FILE* const f = fopen(path, "rb");
     if (!f) {
         fprintf(stderr, "failed to open file %s \n", path);
@@ -40,7 +39,7 @@ static size_t read_file(const char *path, u8 **ptr)
     }
 
     size_t const read = fread(*ptr, 1, size, f);
-    if (read != size) {  /* must read everything in one pass */
+    if (read != size) { /* must read everything in one pass */
         fprintf(stderr, "error while reading file %s \n", path);
         exit(1);
     }
@@ -50,8 +49,7 @@ static size_t read_file(const char *path, u8 **ptr)
     return read;
 }
 
-static void write_file(const char *path, const u8 *ptr, size_t size)
-{
+static void write_file(const char* path, const u8* ptr, size_t size) {
     FILE* const f = fopen(path, "wb");
     if (!f) {
         fprintf(stderr, "failed to open file %s \n", path);
@@ -60,20 +58,19 @@ static void write_file(const char *path, const u8 *ptr, size_t size)
 
     size_t written = 0;
     while (written < size) {
-        written += fwrite(ptr+written, 1, size, f);
+        written += fwrite(ptr + written, 1, size, f);
         if (ferror(f)) {
             fprintf(stderr, "error while writing file %s\n", path);
             exit(1);
-    }   }
+        }
+    }
 
     fclose(f);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
     if (argc < 3) {
-        fprintf(stderr, "usage: %s <file.zst> <out_path> [dictionary] \n",
-                argv[0]);
+        fprintf(stderr, "usage: %s <file.zst> <out_path> [dictionary] \n", argv[0]);
 
         return 1;
     }
@@ -90,15 +87,16 @@ int main(int argc, char **argv)
     size_t out_capacity = ZSTD_get_decompressed_size(input, input_size);
     if (out_capacity == (size_t)-1) {
         out_capacity = MAX_COMPRESSION_RATIO * input_size;
-        fprintf(stderr, "WARNING: Compressed data does not contain "
-                        "decompressed size, going to assume the compression "
-                        "ratio is at most %d (decompressed size of at most "
-                        "%u) \n",
-                MAX_COMPRESSION_RATIO, (unsigned)out_capacity);
+        fprintf(stderr,
+                "WARNING: Compressed data does not contain "
+                "decompressed size, going to assume the compression "
+                "ratio is at most %d (decompressed size of at most "
+                "%u) \n",
+                MAX_COMPRESSION_RATIO,
+                (unsigned)out_capacity);
     }
     if (out_capacity > MAX_OUTPUT_SIZE) {
-        fprintf(stderr,
-                "Required output size too large for this implementation \n");
+        fprintf(stderr, "Required output size too large for this implementation \n");
         return 1;
     }
 
@@ -112,10 +110,7 @@ int main(int argc, char **argv)
     if (dict) {
         parse_dictionary(parsed_dict, dict, dict_size);
     }
-    size_t const decompressed_size =
-        ZSTD_decompress_with_dict(output, out_capacity,
-                                  input, input_size,
-                                  parsed_dict);
+    size_t const decompressed_size = ZSTD_decompress_with_dict(output, out_capacity, input, input_size, parsed_dict);
 
     free_dictionary(parsed_dict);
 

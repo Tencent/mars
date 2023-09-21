@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,40 +22,37 @@
 #define MMCOMM_SRC_SPECIAL_INI_H_
 
 #include "mars/comm/ini.h"
-#include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/strutil.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "mars/openssl/include/openssl/md5.h"
 
 /**
  *	In order to allow the value of section is anything
  */
 class SpecialINI : public INI {
-public:
-	SpecialINI(const std::string& fileName, bool parse = true) : INI(fileName, parse){
-        
-	}
-    
-	bool Create(const std::string& section) {
+ public:
+    SpecialINI(const std::string& fileName, bool parse = true) : INI(fileName, parse) {
+    }
 
-		unsigned char sig[MD5_DIGEST_LENGTH] = {0};
-		MD5((const unsigned char*)section.c_str(), (unsigned int)section.length(), sig);
-        
+    bool Create(const std::string& section) {
+        unsigned char sig[MD5_DIGEST_LENGTH] = {0};
+        MD5((const unsigned char*)section.c_str(), (unsigned int)section.length(), sig);
+
         std::string des = strutil::MD5DigestToBase16(sig);
-		if (INI::Create(des)) {
-			Set<std::string>("name", section);
-			return true;
-		}
-        
-		return false;
-	}
-    
-	bool Select(const std::string& section) {
-        
-		unsigned char sig[16] = {0};
-		MD5((const unsigned char*)section.c_str(), (unsigned int)section.length(), sig);
+        if (INI::Create(des)) {
+            Set<std::string>("name", section);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool Select(const std::string& section) {
+        unsigned char sig[16] = {0};
+        MD5((const unsigned char*)section.c_str(), (unsigned int)section.length(), sig);
         std::string des = strutil::MD5DigestToBase16(sig);
-		return INI::Select(des);
-	}
+        return INI::Select(des);
+    }
 };
 
-#endif	// MMCOMM_SRC_SPECIAL_INI_H_
+#endif  // MMCOMM_SRC_SPECIAL_INI_H_

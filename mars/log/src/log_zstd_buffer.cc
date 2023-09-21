@@ -18,18 +18,19 @@
  */
 
 #include "log_zstd_buffer.h"
-#include <cstdio>
-#include <time.h>
-#include <algorithm>
-#include <sys/time.h>
-#include <string.h>
-#include <errno.h>
+
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
 
-#include "log/crypt/log_magic_num.h"
+#include <algorithm>
+#include <cstdio>
+
 #include "log/crypt/log_crypt.h"
-
+#include "log/crypt/log_magic_num.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -39,8 +40,7 @@ namespace mars {
 namespace xlog {
 
 LogZstdBuffer::LogZstdBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey, int level)
-:LogBaseBuffer(_pbuffer, _len, _isCompress, _pubkey) {
-
+: LogBaseBuffer(_pbuffer, _len, _isCompress, _pubkey) {
     if (is_compress_) {
         cctx_ = ZSTD_createCCtx();
         ZSTD_CCtx_setParameter(cctx_, ZSTD_c_compressionLevel, level);
@@ -49,34 +49,30 @@ LogZstdBuffer::LogZstdBuffer(void* _pbuffer, size_t _len, bool _isCompress, cons
 }
 
 LogZstdBuffer::~LogZstdBuffer() {
-
     if (is_compress_ && cctx_ != nullptr) {
         ZSTD_inBuffer input = {nullptr, 0, 0};
         ZSTD_outBuffer output = {nullptr, 0, 0};
-        ZSTD_compressStream2(cctx_, &output , &input, ZSTD_e_end);
+        ZSTD_compressStream2(cctx_, &output, &input, ZSTD_e_end);
         ZSTD_freeCCtx(cctx_);
     }
 }
 
 void LogZstdBuffer::Flush(AutoBuffer& _buff) {
-
     if (is_compress_ && cctx_ != nullptr) {
-        ZSTD_inBuffer input = {nullptr, 0, 0 };
-        ZSTD_outBuffer output = {nullptr, 0, 0 };
-        ZSTD_compressStream2(cctx_, &output , &input, ZSTD_e_end);
+        ZSTD_inBuffer input = {nullptr, 0, 0};
+        ZSTD_outBuffer output = {nullptr, 0, 0};
+        ZSTD_compressStream2(cctx_, &output, &input, ZSTD_e_end);
     }
 
     LogBaseBuffer::Flush(_buff);
 }
 
+size_t LogZstdBuffer::Compress(const void* src, size_t inLen, void* dst, size_t outLen) {
+    ZSTD_inBuffer input = {src, inLen, 0};
+    ZSTD_outBuffer output = {dst, outLen, 0};
 
-size_t LogZstdBuffer::Compress(const void* src, size_t inLen, void* dst, size_t outLen){
-
-    ZSTD_inBuffer input = { src, inLen, 0 };
-    ZSTD_outBuffer output = { dst, outLen,  0};
-    
     ZSTD_compressStream2(cctx_, &output, &input, ZSTD_e_flush);
-    
+
     return output.pos;
 }
 
@@ -100,5 +96,5 @@ char LogZstdBuffer::__GetMagicAsyncStart() {
     return is_crypt_ ? LogMagicNum::kMagicAsyncZstdStart : LogMagicNum::kMagicAsyncNoCryptZstdStart;
 }
 
-}
-}
+}  // namespace xlog
+}  // namespace mars

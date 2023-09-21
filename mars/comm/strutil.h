@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // @(#) strutil.h
@@ -41,10 +40,12 @@ bool StartsWith(const std::string& str, const std::string& substr);
 bool EndsWith(const std::string& str, const std::string& substr);
 
 std::vector<std::string>& SplitToken(const std::string& str,
-                                     const std::string& delimiters, std::vector<std::string>& ss);
+                                     const std::string& delimiters,
+                                     std::vector<std::string>& ss);
 
 // T1 is iterator, T2 is string or wstring
-template<typename T1, typename T2> bool MergeToken(const T1& begin, const T1& end, const T2& delimiter, T2& result);
+template <typename T1, typename T2>
+bool MergeToken(const T1& begin, const T1& end, const T2& delimiter, T2& result);
 /////////////////////// wstring /////////////////////////////
 std::wstring& TrimLeft(std::wstring& str);
 std::wstring& TrimRight(std::wstring& str);
@@ -61,22 +62,41 @@ std::wstring String2WString(const std::string& _src, unsigned int _cp);
 std::wstring UTF8String2Wstring(const std::string& _src);
 #endif
 std::vector<std::wstring>& SplitToken(const std::wstring& str,
-                                      const std::wstring& delimiters, std::vector<std::wstring>& ss);
+                                      const std::wstring& delimiters,
+                                      std::vector<std::wstring>& ss);
 
 // Tokenizer class
-template<class T> struct default_delimiters {};
-template<> struct default_delimiters<std::string>  { static const char* value() { return " \t\n\r;:,.?";} };
-template<> struct default_delimiters<std::wstring> { static const wchar_t* value() { return L" \t\n\r;:,.?";}};
-    
-template<class T>
-class Tokenizer {
-  public:
-    Tokenizer(const T& str, const T& delimiters = default_delimiters<T>::value())
-        : offset_(0), string_(str),  delimiters_(delimiters) {}
+template <class T>
+struct default_delimiters {};
+template <>
+struct default_delimiters<std::string> {
+    static const char* value() {
+        return " \t\n\r;:,.?";
+    }
+};
+template <>
+struct default_delimiters<std::wstring> {
+    static const wchar_t* value() {
+        return L" \t\n\r;:,.?";
+    }
+};
 
-    void Reset() {offset_ = 0;}
-    const T GetToken() const {return token_;}
-    bool NextToken() {return NextToken(delimiters_);}
+template <class T>
+class Tokenizer {
+ public:
+    Tokenizer(const T& str, const T& delimiters = default_delimiters<T>::value())
+    : offset_(0), string_(str), delimiters_(delimiters) {
+    }
+
+    void Reset() {
+        offset_ = 0;
+    }
+    const T GetToken() const {
+        return token_;
+    }
+    bool NextToken() {
+        return NextToken(delimiters_);
+    }
     bool NextToken(const T& delimiters) {
         // find the start charater of the next token.
         typename T::size_type i = string_.find_first_not_of(delimiters, offset_);
@@ -101,11 +121,11 @@ class Tokenizer {
         return true;
     }
 
-  private:
+ private:
     Tokenizer(const Tokenizer&);
     Tokenizer& operator=(const Tokenizer&);
 
-  protected:
+ protected:
     typename T::size_type offset_;
 
     const T string_;
@@ -113,7 +133,8 @@ class Tokenizer {
     T delimiters_;
 };
 
-template<typename T1, typename T2> bool MergeToken(const T1& begin, const T1& end, const T2& delimiter, T2& result) {
+template <typename T1, typename T2>
+bool MergeToken(const T1& begin, const T1& end, const T2& delimiter, T2& result) {
     if (begin == end) {
         return false;
     }
@@ -138,15 +159,15 @@ template<typename T1, typename T2> bool MergeToken(const T1& begin, const T1& en
 std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
 
-std::string ReplaceChar(const char* const input_str, char be_replaced='@', char replace_with='.');
-    
+std::string ReplaceChar(const char* const input_str, char be_replaced = '@', char replace_with = '.');
+
 std::string GetFileNameFromPath(const char* _path);
-    
+
 // find substring (case insensitive)
 size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos);
 std::string BufferMD5(const void* buffer, size_t size);
 std::string MD5DigestToBase16(const uint8_t digest[16]);
-std::string DigestToBase16(const uint8_t *digest, size_t length);
-}
+std::string DigestToBase16(const uint8_t* digest, size_t length);
+}  // namespace strutil
 
-#endif	// COMM_STRUTIL_H_
+#endif  // COMM_STRUTIL_H_

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * pingquery.h
@@ -25,7 +24,6 @@
 #include <vector>
 
 #include "boost/bind.hpp"
-
 #include "mars/comm/socket/unix_socket.h"
 
 #ifdef __APPLE__
@@ -35,9 +33,9 @@
 
 class NetCheckTrafficMonitor;
 
-#define DISALLOW_COPY_AND_ASSIGN(cls)    \
-    private:\
-    cls(const cls&);    \
+#define DISALLOW_COPY_AND_ASSIGN(cls) \
+ private:                             \
+    cls(const cls&);                  \
     cls& operator=(const cls&);
 
 namespace mars {
@@ -53,26 +51,27 @@ struct PingStatus {
 };
 
 class PingQuery {
-  public:
-    PingQuery(NetCheckTrafficMonitor* trafficMonitor = NULL): pingresult_("")
+ public:
+    PingQuery(NetCheckTrafficMonitor* trafficMonitor = NULL)
+    : pingresult_("")
 #ifdef __APPLE__
-        , nsent_(0),
-        sockfd_(-1),
-        sendtimes_(0),
-        sendcount_(0),
-        readcount_(0),
-        interval_(0),
-        timeout_(0),
-        readwrite_breaker_(),
-        alarm_(boost::bind(&PingQuery::__onAlarm, this), false)
+    , nsent_(0)
+    , sockfd_(-1)
+    , sendtimes_(0)
+    , sendcount_(0)
+    , readcount_(0)
+    , interval_(0)
+    , timeout_(0)
+    , readwrite_breaker_()
+    , alarm_(boost::bind(&PingQuery::__onAlarm, this), false)
 #endif
-        , traffic_monitor_(trafficMonitor)
-    {}
+    , traffic_monitor_(trafficMonitor) {
+    }
 
     ~PingQuery() {
     }
 
-  public:
+ public:
     /**
      * return value:
      * 0---->success
@@ -85,47 +84,55 @@ class PingQuery {
      * 0---->success
      * -1--->error
      */
-    int RunPingQuery(int queryCount, int interval/*S*/, int timeout/*S*/,
-                       const char* dest, unsigned int packetSize = 0);
+    int RunPingQuery(int queryCount,
+                     int interval /*S*/,
+                     int timeout /*S*/,
+                     const char* dest,
+                     unsigned int packetSize = 0);
 
-    int RunPingQuery(int _querycount, int interval/*S*/, int timeout/*S*/, 
-                       const char* dest, unsigned int packetSize, int* rtt);
+    int RunPingQuery(int _querycount,
+                     int interval /*S*/,
+                     int timeout /*S*/,
+                     const char* dest,
+                     unsigned int packetSize,
+                     int* rtt);
 
 #ifdef __APPLE__
-  private:
+ private:
     void proc_v4(char* ptr, ssize_t len, struct msghdr* msg, struct timeval* tvrecv);
-    int  __prepareSendAddr(const char* dest);
-    int  __runReadWrite(int& errCode);
+    int __prepareSendAddr(const char* dest);
+    int __runReadWrite(int& errCode);
     void __onAlarm();
     void __preparePacket(char* sendbuffer, int& len);
-    int  __send();
-    int  __recv();
-    int  __initialize(const char* dest);
-    void  __deinitialize();
+    int __send();
+    int __recv();
+    int __initialize(const char* dest);
+    void __deinitialize();
 #endif
 
     DISALLOW_COPY_AND_ASSIGN(PingQuery);
 
-  private:
-    std::string                pingresult_;
+ private:
+    std::string pingresult_;
 
 #ifdef __APPLE__
-    int                     nsent_;                /* add 1 for each sendto() */
-    int                     sockfd_;
-    std::vector<double>     vecrtts_;
-    int                     sendtimes_;
-    int                     sendcount_;
-    int                     readcount_;
-    int                     interval_;
-    int                     timeout_;
-    struct sockaddr          sendaddr_;
-    struct sockaddr            recvaddr_;
-    mars::comm::SocketBreaker  readwrite_breaker_;
-    mars::comm::Alarm          alarm_;
+    int nsent_; /* add 1 for each sendto() */
+    int sockfd_;
+    std::vector<double> vecrtts_;
+    int sendtimes_;
+    int sendcount_;
+    int readcount_;
+    int interval_;
+    int timeout_;
+    struct sockaddr sendaddr_;
+    struct sockaddr recvaddr_;
+    mars::comm::SocketBreaker readwrite_breaker_;
+    mars::comm::Alarm alarm_;
 #endif
     NetCheckTrafficMonitor* traffic_monitor_;
 };
 
-}}
+}  // namespace sdt
+}  // namespace mars
 
 #endif /* SDT_SRC_CHECKIMPL_PINGQUERY_H_ */

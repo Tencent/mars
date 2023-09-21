@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -31,14 +31,12 @@ namespace comm {
 class XloggerCategory;
 
 }
-}
+}  // namespace mars
 
 namespace mars {
 namespace xlog {
 
-
 mars::comm::XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level);
-
 
 mars::comm::XloggerCategory* GetXloggerInstance(const char* _nameprefix);
 
@@ -64,8 +62,7 @@ void SetMaxFileSize(uintptr_t _instance_ptr, long _max_file_size);
 
 void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds);
 
-}
-}
-
+}  // namespace xlog
+}  // namespace mars
 
 #endif  // MARS_LOG_XLOGGER_INTERFACE_H_

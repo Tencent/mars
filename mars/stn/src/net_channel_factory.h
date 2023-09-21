@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -20,14 +20,14 @@
 #ifndef SRC_NET_CHANNEL_FACTORY_H_
 #define SRC_NET_CHANNEL_FACTORY_H_
 
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
 
-#include "mars/stn/stn.h"
-#include "mars/stn/proto/longlink_packer.h"
+#include "mars/boot/context.h"
 #include "mars/comm/messagequeue/message_queue.h"
-
+#include "mars/stn/proto/longlink_packer.h"
+#include "mars/stn/stn.h"
 
 namespace mars {
 namespace stn {
@@ -39,23 +39,28 @@ class ShortLinkInterface;
 
 namespace ShortLinkChannelFactory {
 
-extern ShortLinkInterface* (*Create)(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const Task& _task, const ShortlinkConfig& _config);
+extern ShortLinkInterface* (*Create)(boot::Context* _context,
+                                     const comm::mq::MessageQueue_t& _messagequeueid,
+                                     std::shared_ptr<NetSource> _netsource,
+                                     const Task& _task,
+                                     const ShortlinkConfig& _config);
 
 extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 
-}
+}  // namespace ShortLinkChannelFactory
 
 namespace LongLinkChannelFactory {
 
-extern LongLink* (*Create)(const comm::mq::MessageQueue_t& _messagequeueid, NetSource& _netsource, const LonglinkConfig& _config);
+extern LongLink* (*Create)(boot::Context* _context,
+                           const comm::mq::MessageQueue_t& _messagequeueid,
+                           std::shared_ptr<NetSource> _netsource,
+                           const LonglinkConfig& _config);
 
 extern void (*Destory)(LongLink* _long_link_channel);
 
-}
+}  // namespace LongLinkChannelFactory
 
-}
-}
-
-
+}  // namespace stn
+}  // namespace mars
 
 #endif /* SRC_NET_CHANNEL_FACTORY_H_ */

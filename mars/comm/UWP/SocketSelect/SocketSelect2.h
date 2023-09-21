@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making GAutomator available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,19 +10,19 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 #ifndef _SOCKSTSELECT_
 #define _SOCKSTSELECT_
 
 #include <map>
-#include "thread/lock.h"
+
 #include "socket/unix_socket.h"
+#include "thread/lock.h"
 
 class SocketSelect;
 class SocketSelectBreaker {
     friend SocketSelect;
-  public:
+
+ public:
     SocketSelectBreaker();
     ~SocketSelectBreaker();
 
@@ -37,11 +37,11 @@ class SocketSelectBreaker {
 
     WSAEVENT BreakerFD() const;
 
-  private:
+ private:
     SocketSelectBreaker(const SocketSelectBreaker&);
     SocketSelectBreaker& operator=(const SocketSelectBreaker&);
 
-  private:
+ private:
     Mutex m_mutex;
     WSAEVENT m_event;
     bool m_create_success;
@@ -50,7 +50,7 @@ class SocketSelectBreaker {
 };
 
 class SocketSelect {
-  public:
+ public:
     SocketSelect(SocketSelectBreaker& _breaker, bool _autoclear = false);
     ~SocketSelect();
 
@@ -73,11 +73,11 @@ class SocketSelect {
 
     SocketSelectBreaker& Breaker();
 
-  private:
+ private:
     SocketSelect(const SocketSelect&);
     SocketSelect& operator=(const SocketSelect&);
 
-  private:
+ private:
     const bool autoclear_;
     SocketSelectBreaker& breaker_;
     bool m_broken;

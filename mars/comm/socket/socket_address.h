@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * socket_address.h
@@ -21,18 +20,17 @@
 #ifndef SOCKET_ADDRESS_H_
 #define SOCKET_ADDRESS_H_
 
-#include "unix_socket.h"
-#include "comm/socket/local_ipstack.h"
-
 #include <string.h>
 
+#include "comm/socket/local_ipstack.h"
+#include "unix_socket.h"
+
 #ifdef _WIN32
-#include "winsock2.h"   // for socket_storage
+#include "winsock2.h"  // for socket_storage
 #endif
 
 class socket_address {
-
-  public:
+ public:
     explicit socket_address(const char* _ip, uint16_t _port);
     explicit socket_address(const sockaddr_in& _addr);
     explicit socket_address(const sockaddr_in6& _addr);
@@ -62,28 +60,31 @@ class socket_address {
 
     socket_address& v4tov4mapped_address();
     socket_address& v4tonat64_address();
-    socket_address& v4tov6_address(TLocalIPStack stack=ELocalIPStack_IPv4);
+    socket_address& v4tov6_address(TLocalIPStack stack = ELocalIPStack_IPv4);
 
-    bool is_ipport_equal(const socket_address& _sa) const {return 0==strncmp(ip(), _sa.ip(), sizeof(ip_)) && port()==_sa.port();}
-	  bool fix_current_nat64_addr();
+    bool is_ipport_equal(const socket_address& _sa) const {
+        return 0 == strncmp(ip(), _sa.ip(), sizeof(ip_)) && port() == _sa.port();
+    }
+    bool fix_current_nat64_addr();
 
     static bool update_nat64_prefix();
-  public:
+
+ public:
     static socket_address getsockname(SOCKET _sock);
     static socket_address getpeername(SOCKET _sock);
 
-  private:
+ private:
     //    socket_address(const socket_address&);
     //    const socket_address& operator=(const socket_address&);
-    void  __init(const sockaddr*  _addr);
-    
+    void __init(const sockaddr* _addr);
+
     const sockaddr_in* _asv4() const;
     const sockaddr_in6* _asv6() const;
 
-  private:
+ private:
     struct sockaddr_storage addr_;
-    char   ip_[96];
-    char   url_[128];
+    char ip_[96];
+    char url_[128];
 };
 
 bool operator==(const socket_address& lhs, const socket_address& rhs);

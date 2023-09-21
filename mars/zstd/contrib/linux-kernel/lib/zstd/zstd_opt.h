@@ -22,8 +22,8 @@
 #define ZSTD_MAX_PRICE (1 << 30)
 
 /*-*************************************
-*  Price functions for optimal parser
-***************************************/
+ *  Price functions for optimal parser
+ ***************************************/
 FORCE_INLINE void ZSTD_setLog2Prices(seqStore_t *ssPtr)
 {
 	ssPtr->log2matchLengthSum = ZSTD_highbit32(ssPtr->matchLengthSum + 1);
@@ -228,8 +228,8 @@ U32 ZSTD_insertAndFindFirstIndexHash3(ZSTD_CCtx *zc, const BYTE *ip)
 }
 
 /*-*************************************
-*  Binary Tree search
-***************************************/
+ *  Binary Tree search
+ ***************************************/
 static U32 ZSTD_insertBtAndGetAllMatches(ZSTD_CCtx *zc, const BYTE *const ip, const BYTE *const iLimit, U32 nbCompares, const U32 mls, U32 extDict,
 					 ZSTD_match_t *matches, const U32 minMatchLen)
 {
@@ -322,7 +322,7 @@ static U32 ZSTD_insertBtAndGetAllMatches(ZSTD_CCtx *zc, const BYTE *const ip, co
 
 		if (match[matchLength] < ip[matchLength]) {
 			/* match is smaller than curr */
-			*smallerPtr = matchIndex;	  /* update smaller idx */
+			*smallerPtr = matchIndex;	   /* update smaller idx */
 			commonLengthSmaller = matchLength; /* all smaller will now have at least this guaranteed common length */
 			if (matchIndex <= btLow) {
 				smallerPtr = &dummy32;
@@ -399,8 +399,8 @@ static U32 ZSTD_BtGetAllMatches_selectMLS_extDict(ZSTD_CCtx *zc, /* Index table 
 }
 
 /*-*******************************
-*  Optimal parser
-*********************************/
+ *  Optimal parser
+ *********************************/
 FORCE_INLINE
 void ZSTD_compressBlock_opt_generic(ZSTD_CCtx *ctx, const void *src, size_t srcSize, const int ultra)
 {
@@ -625,8 +625,8 @@ void ZSTD_compressBlock_opt_generic(ZSTD_CCtx *ctx, const void *src, size_t srcS
 		best_off = opt[last_pos].off;
 		cur = last_pos - best_mlen;
 
-	/* store sequence */
-_storeSequence: /* cur, last_pos, best_mlen, best_off have to be set */
+		/* store sequence */
+	_storeSequence: /* cur, last_pos, best_mlen, best_off have to be set */
 		opt[0].mlen = 1;
 
 		while (1) {
@@ -939,8 +939,8 @@ void ZSTD_compressBlock_opt_extDict_generic(ZSTD_CCtx *ctx, const void *src, siz
 		best_off = opt[last_pos].off;
 		cur = last_pos - best_mlen;
 
-	/* store sequence */
-_storeSequence: /* cur, last_pos, best_mlen, best_off have to be set */
+		/* store sequence */
+	_storeSequence: /* cur, last_pos, best_mlen, best_off have to be set */
 		opt[0].mlen = 1;
 
 		while (1) {

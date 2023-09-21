@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,42 +10,41 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef PROJECT_DEFINE
 #define PROJECT_DEFINE
 
 // #define _POSIX_ 1
 
 #include <basetsd.h>
+#include <io.h>  // for close
 #include <stdint.h>
-#include <string.h>
 #include <stdio.h>
-#include <io.h>	// for close
+#include <string.h>
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-	FILE* mars_fopen_utf8(const char* _path, const char* _model);
-	int mars_mkdir_utf8(const char* _path, unsigned short _model);
-	int mars_access_utf8(char const* _path, int _model);
-	//int mars_remove_utf8(char const* _path);
+FILE* mars_fopen_utf8(const char* _path, const char* _model);
+int mars_mkdir_utf8(const char* _path, unsigned short _model);
+int mars_access_utf8(char const* _path, int _model);
+// int mars_remove_utf8(char const* _path);
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 }
-#endif 
+#endif
 
 #undef fopen
-#define fopen mars_fopen_utf8 
+#define fopen mars_fopen_utf8
 //#undef remove
 //#define remove mars_remove_utf8 // boost::filesystem::detail::remove compile error
 
-
 #ifdef WINAPI_FAMILY_PARTITION
 #include <winapifamily.h>
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PC_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PC_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_PHONE_APP) \
+    && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #define UWP 1
-#endif 
+#endif
 #endif
 
 #if !UWP
@@ -67,7 +66,7 @@ extern "C" {
 #undef access
 #define access mars_access_utf8
 #if !defined(WIN32)
-    #define sscanf sscanf_s
+#define sscanf sscanf_s
 #endif
 
 #define strdup _strdup
@@ -80,10 +79,10 @@ extern "C" {
 #define S_ISDIR(x) (_S_IFDIR & x)
 
 #if defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
-    /// This code is for Windows phone 8
-    #define PLATFORM_WP8
+/// This code is for Windows phone 8
+#define PLATFORM_WP8
 #if !UWP
-    #define InitializeCriticalSection(x) InitializeCriticalSectionEx(x, 0 , 0)
+#define InitializeCriticalSection(x) InitializeCriticalSectionEx(x, 0, 0)
 #endif
 #endif
 
@@ -97,18 +96,18 @@ extern "C" {
 #define _CRT_SECURE_NO_WARNINGS 1
 #define _CRT_NONSTDC_NO_WARNINGS 1
 #define _SCL_SECURE_NO_WARNINGS 1
-#define S_ISDIR(x) (_S_IFDIR & x) 
+#define S_ISDIR(x) (_S_IFDIR & x)
 
 typedef SSIZE_T ssize_t;
-#define  PRIu64 "I64d"
-#define  PRIuMAX	PRIu64
+#define PRIu64 "I64d"
+#define PRIuMAX PRIu64
 
 #if defined(WIN32) && !defined(SIZE_T_MAX)
-#define SIZE_T_MAX  UINT_MAX
+#define SIZE_T_MAX UINT_MAX
 #endif
 
 struct tcp_info {
-	void* dummy;
+    void* dummy;
 };
 
 #endif

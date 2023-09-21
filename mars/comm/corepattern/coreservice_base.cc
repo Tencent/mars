@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,7 +10,6 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 /*
  * CoreServiceBase.cpp
  *
@@ -18,25 +17,23 @@
  *      Author: yerungui
  */
 
+#include "comm/corepattern/coreservice_base.h"
+
 #include <set>
 
-#include "comm/corepattern/ServiceImpl.inl"
 #include "comm/bootregister.h"
-#include "comm/corepattern/coreservice_base.h"
+#include "comm/corepattern/ServiceImpl.inl"
 #include "comm/xlogger/xlogger.h"
 
 namespace design_patterns {
 
-
-CoreServiceBase::CoreServiceBase(const char* _servicename)
-    : ServiceBase(_servicename) {
+CoreServiceBase::CoreServiceBase(const char* _servicename) : ServiceBase(_servicename) {
     __StartupCreater();
 }
 
-
 CoreServiceBase::~CoreServiceBase() {
     for (std::vector<ServiceBase*>::reverse_iterator it = m_releasevec.rbegin(); it != m_releasevec.rend(); ++it) {
-        delete(*it);
+        delete (*it);
     }
 }
 
@@ -53,9 +50,9 @@ void CoreServiceBase::__StartupCreater() {
     __Creater(veccreater);
 }
 
-
 void CoreServiceBase::__FirstGetCreater(const std::string& _servicename) {
-    if (m_services.end() != m_services.find(_servicename)) return;
+    if (m_services.end() != m_services.find(_servicename))
+        return;
 
     std::vector<ServiceRegister>& svrreg = BOOT_REGISTER_CONTAINER<ServiceRegister>();
     std::vector<ServiceRegister> veccreater;
@@ -70,7 +67,6 @@ void CoreServiceBase::__FirstGetCreater(const std::string& _servicename) {
     __Creater(veccreater);
 }
 
-
 void CoreServiceBase::__Creater(std::vector<ServiceRegister>& _vec) {
     std::vector<ServiceRegister>& svrreg = BOOT_REGISTER_CONTAINER<ServiceRegister>();
     std::set<std::string> servicedepend;
@@ -83,7 +79,7 @@ void CoreServiceBase::__Creater(std::vector<ServiceRegister>& _vec) {
         size_t count = servicedepend.size();
 
         for (std::vector<ServiceRegister>::iterator it = svrreg.begin(); it != svrreg.end(); ++it) {
-            if (it->coreservice == ServiceName()  && servicedepend.end() != servicedepend.find(it->ServiceName())) {
+            if (it->coreservice == ServiceName() && servicedepend.end() != servicedepend.find(it->ServiceName())) {
                 servicedepend.insert(it->DependServicesName().begin(), it->DependServicesName().end());
             }
         }
@@ -93,9 +89,8 @@ void CoreServiceBase::__Creater(std::vector<ServiceRegister>& _vec) {
         }
     } while (true);
 
-
     for (std::vector<ServiceRegister>::iterator it = svrreg.begin(); it != svrreg.end(); ++it) {
-        if (it->coreservice == ServiceName()  && servicedepend.end() != servicedepend.find(it->ServiceName())) {
+        if (it->coreservice == ServiceName() && servicedepend.end() != servicedepend.find(it->ServiceName())) {
             servicedepend.insert(it->DependServicesName().begin(), it->DependServicesName().end());
             _vec.push_back(*it);
         }
@@ -116,7 +111,8 @@ void CoreServiceBase::__Creater(std::vector<ServiceRegister>& _vec) {
                 m_releasevec.push_back(p);
                 m_services[it->ServiceName()] = p;
 
-                if (EPublic == it->servicevisible) m_publicservices[it->ServiceName()] = p;
+                if (EPublic == it->servicevisible)
+                    m_publicservices[it->ServiceName()] = p;
 
                 it = _vec.erase(it);
             } else {
@@ -124,7 +120,8 @@ void CoreServiceBase::__Creater(std::vector<ServiceRegister>& _vec) {
             }
         }
 
-        if (0 == _vec.size()) break;
+        if (0 == _vec.size())
+            break;
 
         if (count <= _vec.size()) {
             xassert2(false);

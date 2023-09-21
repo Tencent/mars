@@ -1,9 +1,8 @@
-#include "mars/log/appender.h"
-
 #include "boost/iostreams/device/mapped_file.hpp"
-#include "mars/comm/xlogger/xloggerbase.h"
-#include "mars/comm/thread/thread.h"
 #include "mars/comm/thread/condition.h"
+#include "mars/comm/thread/thread.h"
+#include "mars/comm/xlogger/xloggerbase.h"
+#include "mars/log/appender.h"
 
 namespace mars {
 namespace xlog {
@@ -31,10 +30,8 @@ class XloggerAppender {
     void SetConsoleLog(bool _is_open);
     void SetMaxFileSize(uint64_t _max_byte_size);
     void SetMaxAliveDuration(long _max_time);
-    bool GetfilepathFromTimespan(int _timespan, const char* _prefix,
-                                    std::vector<std::string>& _filepath_vec);
-    bool MakeLogfileName(int _timespan, const char* _prefix,
-                            std::vector<std::string>& _filepath_vec);
+    bool GetfilepathFromTimespan(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
+    bool MakeLogfileName(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
 
     void TreatMappingAsFileAndFlush(TFileIOAction* _result);
 
@@ -42,25 +39,24 @@ class XloggerAppender {
     XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size);
     XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_size, bool _one_shot);
 
-    
-    
     std::string __MakeLogFileNamePrefix(const timeval& _tv, const char* _prefix);
     void __GetFileNamesByPrefix(const std::string& _logdir,
                                 const std::string& _fileprefix,
                                 const std::string& _fileext,
                                 std::vector<std::string>& _filename_vec);
     void __GetFilePathsFromTimeval(const timeval& _tv,
-                                    const std::string& _logdir,
-                                    const char* _prefix,
-                                    const std::string& _fileext,
-                                    std::vector<std::string>& _filepath_vec);
+                                   const std::string& _logdir,
+                                   const char* _prefix,
+                                   const std::string& _fileext,
+                                   std::vector<std::string>& _filepath_vec);
     long __GetNextFileIndex(const std::string& _fileprefix, const std::string& _fileext);
     void __MakeLogFileName(const timeval& _tv,
-                            const std::string& _logdir,
-                            const char* _prefix,
-                            const std::string& _fileext,
-                            char* _filepath, unsigned int _len);
-    
+                           const std::string& _logdir,
+                           const char* _prefix,
+                           const std::string& _fileext,
+                           char* _filepath,
+                           unsigned int _len);
+
     void __GetMarkInfo(char* _info, size_t _info_len);
     void __WriteTips2Console(const char* _tips_format, ...);
     bool __WriteFile(const void* _data, size_t _len, FILE* _file);
@@ -73,8 +69,7 @@ class XloggerAppender {
     void __WriteAsync(const XLoggerInfo* _info, const char* _log);
     void __DelTimeoutFile(const std::string& _log_path);
     bool __AppendFile(const std::string& _src_file, const std::string& _dst_file);
-    void __MoveOldFiles(const std::string& _src_path, const std::string& _dest_path,
-                            const std::string& _nameprefix);
+    void __MoveOldFiles(const std::string& _src_path, const std::string& _dest_path, const std::string& _nameprefix);
 
  private:
     XLogConfig config_;
@@ -92,8 +87,8 @@ class XloggerAppender {
 #endif
     bool log_close_ = true;
     comm::Condition cond_buffer_async_;
-    uint64_t max_file_size_ = 0; // 0, will not split log file.
-    long max_alive_time_ = 10 * 24 * 60 * 60;    // 10 days in second
+    uint64_t max_file_size_ = 0;               // 0, will not split log file.
+    long max_alive_time_ = 10 * 24 * 60 * 60;  // 10 days in second
 
     time_t last_time_ = 0;
     uint64_t last_tick_ = 0;
@@ -104,5 +99,5 @@ class XloggerAppender {
     std::unique_ptr<comm::Thread> thread_timeout_log_;
 };
 
-}
-}
+}  // namespace xlog
+}  // namespace mars

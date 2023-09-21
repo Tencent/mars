@@ -8,16 +8,15 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
+#include <stdio.h>   // printf
+#include <stdlib.h>  // free
+#include <zstd.h>    // presumes zstd library is installed
 
-#include <stdio.h>     // printf
-#include <stdlib.h>    // free
-#include <zstd.h>      // presumes zstd library is installed
-#include "common.h"    // Helper functions, CHECK(), and CHECK_ZSTD()
+#include "common.h"  // Helper functions, CHECK(), and CHECK_ZSTD()
 
 /* createDict() :
    `dictFileName` is supposed to have been created using `zstd --train` */
-static ZSTD_DDict* createDict_orDie(const char* dictFileName)
-{
+static ZSTD_DDict* createDict_orDie(const char* dictFileName) {
     size_t dictSize;
     printf("loading dictionary %s \n", dictFileName);
     void* const dictBuffer = mallocAndLoadFile_orDie(dictFileName, &dictSize);
@@ -27,8 +26,7 @@ static ZSTD_DDict* createDict_orDie(const char* dictFileName)
     return ddict;
 }
 
-static void decompress(const char* fname, const ZSTD_DDict* ddict)
-{
+static void decompress(const char* fname, const ZSTD_DDict* ddict) {
     size_t cSize;
     void* const cBuff = mallocAndLoadFile_orDie(fname, &cSize);
     /* Read the content size from the frame header. For simplicity we require
@@ -49,10 +47,7 @@ static void decompress(const char* fname, const ZSTD_DDict* ddict)
      */
     unsigned const expectedDictID = ZSTD_getDictID_fromDDict(ddict);
     unsigned const actualDictID = ZSTD_getDictID_fromFrame(cBuff, cSize);
-    CHECK(actualDictID == expectedDictID,
-          "DictID mismatch: expected %u got %u",
-          expectedDictID,
-          actualDictID);
+    CHECK(actualDictID == expectedDictID, "DictID mismatch: expected %u got %u", expectedDictID, actualDictID);
 
     /* Decompress using the dictionary.
      * If you need to control the decompression parameters, then use the
@@ -74,12 +69,10 @@ static void decompress(const char* fname, const ZSTD_DDict* ddict)
     free(cBuff);
 }
 
-
-int main(int argc, const char** argv)
-{
+int main(int argc, const char** argv) {
     const char* const exeName = argv[0];
 
-    if (argc<3) {
+    if (argc < 3) {
         printf("wrong arguments\n");
         printf("usage:\n");
         printf("%s [FILES] dictionary\n", exeName);
@@ -87,13 +80,14 @@ int main(int argc, const char** argv)
     }
 
     /* load dictionary only once */
-    const char* const dictName = argv[argc-1];
+    const char* const dictName = argv[argc - 1];
     ZSTD_DDict* const dictPtr = createDict_orDie(dictName);
 
     int u;
-    for (u=1; u<argc-1; u++) decompress(argv[u], dictPtr);
+    for (u = 1; u < argc - 1; u++)
+        decompress(argv[u], dictPtr);
 
     ZSTD_freeDDict(dictPtr);
-    printf("All %u files correctly decoded (in memory) \n", argc-2);
+    printf("All %u files correctly decoded (in memory) \n", argc - 2);
     return 0;
 }

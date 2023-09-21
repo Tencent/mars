@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,20 +22,20 @@
 #define STN_SRC_SIGNALLING_KEEPER_H_
 
 #include "boost/function.hpp"
-
+#include "longlink.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/socket/udpclient.h"
 
-#include "longlink.h"
-
 namespace mars {
-    namespace stn {
+namespace stn {
 
-class SignallingKeeper: comm::IAsyncUdpClientEvent {
-  public:
-    static void SetStrategy(unsigned int  _period, unsigned int _keep_time);  // ms
-  public:
-    SignallingKeeper(const LongLink& _longlink, comm::MessageQueue::MessageQueue_t _messagequeue_id, bool _use_UDP = true);
+class SignallingKeeper : comm::IAsyncUdpClientEvent {
+ public:
+    static void SetStrategy(unsigned int _period, unsigned int _keep_time);  // ms
+ public:
+    SignallingKeeper(const LongLink& _longlink,
+                     comm::MessageQueue::MessageQueue_t _messagequeue_id,
+                     bool _use_UDP = true);
     ~SignallingKeeper();
 
     void OnNetWorkDataChanged(const char*, ssize_t, ssize_t);
@@ -46,14 +46,15 @@ class SignallingKeeper: comm::IAsyncUdpClientEvent {
     virtual void OnError(comm::UdpClient* _this, int _errno);
     virtual void OnDataGramRead(comm::UdpClient* _this, void* _buf, size_t _len);
     virtual void OnDataSent(comm::UdpClient* _this);
-  public:
-    boost::function<unsigned int (const AutoBuffer&, const AutoBuffer&, int)> fun_send_signalling_buffer_;
 
-  private:
+ public:
+    boost::function<unsigned int(const AutoBuffer&, const AutoBuffer&, int)> fun_send_signalling_buffer_;
+
+ private:
     void __SendSignallingBuffer();
     void __OnTimeOut();
 
-  private:
+ private:
     comm::MessageQueue::ScopeRegister msgreg_;
     uint64_t last_touch_time_;
     bool keeping_;
@@ -64,9 +65,8 @@ class SignallingKeeper: comm::IAsyncUdpClientEvent {
     comm::UdpClient udp_client_;
     bool use_UDP_;
 };
-        
-    }
-}
 
+}  // namespace stn
+}  // namespace mars
 
-#endif // STN_SRC_SIGNALLING_KEEPER_H_
+#endif  // STN_SRC_SIGNALLING_KEEPER_H_

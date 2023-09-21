@@ -5,10 +5,10 @@
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
-// Unless required by applicable law or agreed to in writing, software distributed under the License is
-// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-// either express or implied. See the License for the specific language governing permissions and
-// limitations under the License.
+// Unless required by applicable law or agreed to in writing, software distributed under the License
+// is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+// or implied. See the License for the specific language governing permissions and limitations under
+// the License.
 //
 //  xloggr_threadinfo.m
 //  MicroMessenger
@@ -18,37 +18,32 @@
 
 #import <Foundation/NSThread.h>
 
-#include <unistd.h>
 #include <pthread.h>
+#include <unistd.h>
 
-extern "C"
-{
+extern "C" {
 static pthread_t s_mainpthread = pthread_self();
 
-intmax_t xlogger_pid()
-{
+intmax_t xlogger_pid() {
     static intmax_t pid = getpid();
     return pid;
 }
 
-intmax_t xlogger_tid()
-{
+intmax_t xlogger_tid() {
     uint64_t tid = 0;
     pthread_threadid_np(nullptr, &tid);
     return static_cast<intmax_t>(tid);
 }
 
-intmax_t xlogger_maintid()
-{
+intmax_t xlogger_maintid() {
     static intmax_t s_maintid = 0;
-    if (s_maintid == 0){
+    if (s_maintid == 0) {
         uint64_t tid = 0;
         pthread_threadid_np(s_mainpthread, &tid);
         s_maintid = static_cast<intmax_t>(tid);
     }
     return s_maintid;
 }
-    
 }
 
-void comm_export_symbols_5(){}
+void comm_export_symbols_5() {}

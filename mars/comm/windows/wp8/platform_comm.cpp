@@ -2,9 +2,8 @@
 #ifdef WP8
 
 #include "comm\platform_comm.h"
-
-#include "runtime_comm.h"
 #include "comm\xlogger\xlogger.h"
+#include "runtime_comm.h"
 #include "runtime_utils.h"
 
 using namespace PublicComponent;
@@ -18,8 +17,6 @@ bool isWifi() {
 int getStatisticsNetType() {
     return Runtime2Cs_Comm::Singleton()->getStatisticsNetType();
 }
-
-
 
 const std::string& getAppFilePath() {
     static std::string sAppFilePath;
@@ -54,9 +51,10 @@ void restartProcess() {
 bool getProxyInfo(int& /*port*/, std::string& strProxy, const std::string& /*_host*/) {
     // wp8 api implemented
 
-    ProxyInfo^ info = Runtime2Cs_Comm::Singleton()->getProxyInfo();
+    ProxyInfo ^ info = Runtime2Cs_Comm::Singleton()->getProxyInfo();
 
-    if (nullptr == info) return false;
+    if (nullptr == info)
+        return false;
 
     std::wstring wsProxy(info->strProxy->Data());
     strProxy.assign(wsProxy.begin(), wsProxy.end());
@@ -68,7 +66,7 @@ int getNetInfo() {
 }
 
 bool getCurWifiInfo(WifiInfo& wifiInfo) {
-    CurWifiInfo^ info = Runtime2Cs_Comm::Singleton()->getCurWifiInfo();
+    CurWifiInfo ^ info = Runtime2Cs_Comm::Singleton()->getCurWifiInfo();
 
     // std::wstring wsSSID(info->ssid->Data());
 
@@ -76,7 +74,6 @@ bool getCurWifiInfo(WifiInfo& wifiInfo) {
 
     return false;
 }
-
 
 unsigned int getSignal(bool /*isWifi*/) {
     //// wp8 api implemented
@@ -86,7 +83,6 @@ unsigned int getSignal(bool /*isWifi*/) {
 bool isNetworkConnected() {
     return Runtime2Cs_Comm::Singleton()->isNetworkConnected();
 }
-
 
 String^ char2PString(const char* cStr) {
     if (NULL == cStr) return "";
@@ -98,8 +94,12 @@ String^ char2PString(const char* cStr) {
 }
 
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
-    Runtime2Cs_Comm::Singleton()->ConsoleLog((int)_info->level, char2PString(_info->tag), char2PString(_info->filename), char2PString(_info->func_name), _info->line, char2PString(_log));
+    Runtime2Cs_Comm::Singleton()->ConsoleLog((int)_info->level,
+                                             char2PString(_info->tag),
+                                             char2PString(_info->filename),
+                                             char2PString(_info->func_name),
+                                             _info->line,
+                                             char2PString(_log));
 }
 
 #endif
-

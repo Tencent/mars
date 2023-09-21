@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -21,51 +21,60 @@
 #define STN_SRC_LONGLINK_MANAGER_H_
 
 #include <memory>
+
+#include "longlink.h"
 #include "longlink_connect_monitor.h"
+#include "mars/boot/context.h"
+#include "mars/comm/messagequeue/message_queue.h"
+#include "mars/stn/stn.h"
 #include "netsource_timercheck.h"
 #include "signalling_keeper.h"
-#include "longlink.h"
-#include "mars/stn/stn.h"
-#include "mars/comm/messagequeue/message_queue.h"
 
 namespace mars {
-    namespace stn {
+namespace stn {
 
 class LongLinkMetaData {
-public: 
-    LongLinkMetaData(const LonglinkConfig& _config, NetSource& _netsource, comm::ActiveLogic& _activeLogic, comm::MessageQueue::MessageQueue_t _message_id);
+ public:
+    LongLinkMetaData(boot::Context* _context,
+                     const LonglinkConfig& _config,
+                     std::shared_ptr<NetSource> _netsource,
+                     comm::ActiveLogic& _activeLogic,
+                     comm::MessageQueue::MessageQueue_t _message_id);
 
     virtual ~LongLinkMetaData();
     std::shared_ptr<LongLink> Channel() {
-        if(!longlink_) {
-            xassert2(false, TSF"null longlink, name:%_", config_.name.c_str());
+        if (!longlink_) {
+            xassert2(false, TSF "null longlink, name:%_", config_.name.c_str());
             return nullptr;
         }
         return longlink_;
     }
-    
+
     std::shared_ptr<LongLinkConnectMonitor> Monitor() {
         return longlink_monitor_;
     }
 
-    LonglinkConfig& Config() { return config_; }
+    LonglinkConfig& Config() {
+        return config_;
+    }
     std::shared_ptr<SignallingKeeper> SignalKeeper() {
         return signal_keeper_;
     }
-    
+
     std::shared_ptr<NetSourceTimerCheck> Checker() {
         return netsource_checker_;
     }
-    
-    bool IsConnected() const{
-        if (!longlink_) return false;
+
+    bool IsConnected() const {
+        if (!longlink_)
+            return false;
         return longlink_->ConnectStatus() == LongLink::TLongLinkStatus::kConnected;
     }
 
-private:
+ private:
     void __OnTimerCheckSuc(const std::string& _name);
 
-private: 
+ private:
     std::shared_ptr<LongLink> longlink_;
     std::shared_ptr<LongLinkConnectMonitor> longlink_monitor_;
     std::shared_ptr<NetSourceTimerCheck> netsource_checker_;
@@ -74,7 +83,7 @@ private:
     comm::MessageQueue::ScopeRegister asyncreg_;
 };
 
-    }
-}
+}  // namespace stn
+}  // namespace mars
 
 #endif

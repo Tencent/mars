@@ -1,13 +1,11 @@
 
 
-#ifndef	_SYS_CDEFS_H_
-#define	_SYS_CDEFS_H_
-
+#ifndef _SYS_CDEFS_H_
+#define _SYS_CDEFS_H_
 
 /* our implementation of wchar_t is only 8-bit - die die non-portable code */
-#undef  __WCHAR_TYPE__
-#define __WCHAR_TYPE__  unsigned char
-
+#undef __WCHAR_TYPE__
+#define __WCHAR_TYPE__ unsigned char
 
 /*
  * Macro to test if we're using a GNU C compiler of a specific vintage
@@ -21,23 +19,21 @@
  *	#endif
  */
 #ifdef __GNUC__
-#define	__GNUC_PREREQ__(x, y)						\
-	((__GNUC__ == (x) && __GNUC_MINOR__ >= (y)) ||			\
-	 (__GNUC__ > (x)))
+#define __GNUC_PREREQ__(x, y) ((__GNUC__ == (x) && __GNUC_MINOR__ >= (y)) || (__GNUC__ > (x)))
 #else
-#define	__GNUC_PREREQ__(x, y)	0
+#define __GNUC_PREREQ__(x, y) 0
 #endif
 
 //#include <sys/cdefs_elf.h>
 
 #if defined(__cplusplus)
-#define	__BEGIN_DECLS		extern "C" {
-#define	__END_DECLS		}
-#define	__static_cast(x,y)	static_cast<x>(y)
+#define __BEGIN_DECLS extern "C" {
+#define __END_DECLS }
+#define __static_cast(x, y) static_cast<x>(y)
 #else
-#define	__BEGIN_DECLS
-#define	__END_DECLS
-#define	__static_cast(x,y)	(x)y
+#define __BEGIN_DECLS
+#define __END_DECLS
+#define __static_cast(x, y) (x) y
 #endif
 
 /*
@@ -48,42 +44,42 @@
  * strings produced by the __STRING macro, but this only works with ANSI C.
  */
 
-#define	___STRING(x)	__STRING(x)
-#define	___CONCAT(x,y)	__CONCAT(x,y)
+#define ___STRING(x) __STRING(x)
+#define ___CONCAT(x, y) __CONCAT(x, y)
 
 #if defined(__STDC__) || defined(__cplusplus)
-#define	__P(protos)	protos		/* full-blown ANSI C */
-#define	__CONCAT(x,y)	x ## y
-#define	__STRING(x)	#x
+#define __P(protos) protos /* full-blown ANSI C */
+#define __CONCAT(x, y) x##y
+#define __STRING(x) #x
 
 #ifndef __const
-#define	__const		const		/* define reserved names to standard */
+#define __const const /* define reserved names to standard */
 #endif
 #ifndef __signed
-#define	__signed	signed
+#define __signed signed
 #endif
 //#ifndef __volatile
 //#define	__volatile	volatile
 //#endif
 #if defined(__cplusplus)
-#define	__inline	inline		/* convert to C++ keyword */
+#define __inline inline /* convert to C++ keyword */
 #else
 #if !defined(__GNUC__) && !defined(__lint__)
-#define	__inline			/* delete GCC keyword */
-#endif /* !__GNUC__  && !__lint__ */
-#endif /* !__cplusplus */
+#define __inline /* delete GCC keyword */
+#endif           /* !__GNUC__  && !__lint__ */
+#endif           /* !__cplusplus */
 
-#else	/* !(__STDC__ || __cplusplus) */
-#define	__P(protos)	()		/* traditional C preprocessor */
-#define	__CONCAT(x,y)	x/**/y
-#define	__STRING(x)	"x"
+#else                  /* !(__STDC__ || __cplusplus) */
+#define __P(protos) () /* traditional C preprocessor */
+#define __CONCAT(x, y) x /**/ y
+#define __STRING(x) "x"
 
 #ifndef __GNUC__
 //#define	__const				/* delete pseudo-ANSI C keywords */
 //#define	__inline
 //#define	__signed
 //#define	__volatile
-#endif	/* !__GNUC__ */
+#endif /* !__GNUC__ */
 
 /*
  * In non-ANSI C environments, new programs will want ANSI-only C keywords
@@ -91,21 +87,21 @@
  * Programs using the ANSI C keywords const, inline etc. as normal
  * identifiers should define -DNO_ANSI_KEYWORDS.
  */
-#ifndef	NO_ANSI_KEYWORDS
+#ifndef NO_ANSI_KEYWORDS
 //#define	const		__const		/* convert ANSI C keywords */
 //#define	inline		__inline
 //#define	signed		__signed
 //#define	volatile	__volatile
 #endif /* !NO_ANSI_KEYWORDS */
-#endif	/* !(__STDC__ || __cplusplus) */
+#endif /* !(__STDC__ || __cplusplus) */
 
 /*
  * Used for internal auditing of the NetBSD source tree.
  */
 #ifdef __AUDIT__
-#define	__aconst	__const
+#define __aconst __const
 #else
-#define	__aconst
+#define __aconst
 #endif
 
 /*
@@ -117,14 +113,14 @@
  * explicit about unsigned long so that we don't have additional
  * dependencies.
  */
-#define __UNCONST(a)	((void *)(unsigned long)(const void *)(a))
+#define __UNCONST(a) ((void*)(unsigned long)(const void*)(a))
 
 /*
  * GCC2 provides __extension__ to suppress warnings for various GNU C
  * language extensions under "-ansi -pedantic".
  */
 #if !__GNUC_PREREQ__(2, 0)
-#define	__extension__		/* delete __extension__ if non-gcc or gcc1 */
+#define __extension__ /* delete __extension__ if non-gcc or gcc1 */
 #endif
 
 /*
@@ -136,55 +132,58 @@
  * in the distribution version of 2.5.5).
  */
 #if !__GNUC_PREREQ__(2, 5)
-#define	__attribute__(x)	/* delete __attribute__ if non-gcc or gcc1 */
+#define __attribute__(x) /* delete __attribute__ if non-gcc or gcc1 */
 #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
-#define	__dead		__volatile
-#define	__pure		__const
+#define __dead __volatile
+#define __pure __const
 #endif
 #endif
 
 /* Delete pseudo-keywords wherever they are not available or needed. */
 #ifndef __dead
-#define	__dead
-#define	__pure
+#define __dead
+#define __pure
 #endif
 
 #if __GNUC_PREREQ__(2, 7)
-#define	__unused	__attribute__((__unused__))
+#define __unused __attribute__((__unused__))
 #else
-#define	__unused	/* delete */
+#define __unused /* delete */
 #endif
 
 #if __GNUC_PREREQ__(3, 1)
-#define	__used		__attribute__((__used__))
+#define __used __attribute__((__used__))
 #else
-#define	__used		/* delete */
+#define __used /* delete */
 #endif
 
 #if __GNUC_PREREQ__(2, 7)
-#define	__packed	__attribute__((__packed__))
-#define	__aligned(x)	__attribute__((__aligned__(x)))
-#define	__section(x)	__attribute__((__section__(x)))
+#define __packed __attribute__((__packed__))
+#define __aligned(x) __attribute__((__aligned__(x)))
+#define __section(x) __attribute__((__section__(x)))
 #elif defined(__lint__)
-#define	__packed	/* delete */
-#define	__aligned(x)	/* delete */
-#define	__section(x)	/* delete */
+#define __packed     /* delete */
+#define __aligned(x) /* delete */
+#define __section(x) /* delete */
 #else
-#define	__packed	error: no __packed for this compiler
-#define	__aligned(x)	error: no __aligned for this compiler
-#define	__section(x)	error: no __section for this compiler
+#define __packed \
+    error: no __packed for this compiler
+#define __aligned(x) \
+    error: no __aligned for this compiler
+#define __section(x) \
+    error: no __section for this compiler
 #endif
 
 #if !__GNUC_PREREQ__(2, 8)
-#define	__extension__
+#define __extension__
 #endif
 
 #if __GNUC_PREREQ__(2, 8)
-#define __statement(x)	__extension__(x)
+#define __statement(x) __extension__(x)
 #elif defined(lint)
-#define __statement(x)	(0)
+#define __statement(x) (0)
 #else
-#define __statement(x)	(x)
+#define __statement(x) (x)
 #endif
 
 /*
@@ -192,10 +191,10 @@
  * in GCC 2.92.
  */
 #if defined(__STDC__VERSION__) && __STDC_VERSION__ >= 199901L
-#define	__restrict	restrict
+#define __restrict restrict
 #else
 #if !__GNUC_PREREQ__(2, 92)
-#define	__restrict	/* delete __restrict when not supported */
+#define __restrict /* delete __restrict when not supported */
 #endif
 #endif
 
@@ -205,33 +204,33 @@
  */
 #if !defined(__STDC_VERSION__) || !(__STDC_VERSION__ >= 199901L)
 #if __GNUC_PREREQ__(2, 6)
-#define	__func__	__PRETTY_FUNCTION__
+#define __func__ __PRETTY_FUNCTION__
 #elif __GNUC_PREREQ__(2, 4)
-#define	__func__	__FUNCTION__
+#define __func__ __FUNCTION__
 #else
-#define	__func__	""
+#define __func__ ""
 #endif
 #endif /* !(__STDC_VERSION__ >= 199901L) */
 
 #if defined(_KERNEL)
 #if defined(NO_KERNEL_RCSIDS)
 #undef __KERNEL_RCSID
-#define	__KERNEL_RCSID(_n, _s)		/* nothing */
-#endif /* NO_KERNEL_RCSIDS */
-#endif /* _KERNEL */
+#define __KERNEL_RCSID(_n, _s) /* nothing */
+#endif                         /* NO_KERNEL_RCSIDS */
+#endif                         /* _KERNEL */
 
 #if !defined(_STANDALONE) && !defined(_KERNEL)
 #ifdef __GNUC__
-#define	__RENAME(x)	___RENAME(x)
+#define __RENAME(x) ___RENAME(x)
 #else
 #ifdef __lint__
-#define	__RENAME(x)	__symbolrename(x)
+#define __RENAME(x) __symbolrename(x)
 #else
 //#error "No function renaming possible"
 #endif /* __lint__ */
 #endif /* __GNUC__ */
-#else /* _STANDALONE || _KERNEL */
-#define	__RENAME(x)	no renaming in kernel or standalone environment
+#else  /* _STANDALONE || _KERNEL */
+#define __RENAME(x) no renaming in kernel or standalone environment
 #endif
 
 /*
@@ -240,9 +239,9 @@
  * arbitrary, might work with older compilers.
  */
 #if __GNUC_PREREQ__(2, 95)
-#define	__insn_barrier()	__asm __volatile("":::"memory")
+#define __insn_barrier() __asm __volatile("" ::: "memory")
 #else
-#define	__insn_barrier()	/* */
+#define __insn_barrier() /* */
 #endif
 
 /*
@@ -274,16 +273,16 @@
  *	  larger code.
  */
 #if __GNUC_PREREQ__(2, 96)
-#define	__predict_true(exp)	__builtin_expect((exp) != 0, 1)
-#define	__predict_false(exp)	__builtin_expect((exp) != 0, 0)
+#define __predict_true(exp) __builtin_expect((exp) != 0, 1)
+#define __predict_false(exp) __builtin_expect((exp) != 0, 0)
 #else
-#define	__predict_true(exp)	(exp)
-#define	__predict_false(exp)	(exp)
+#define __predict_true(exp) (exp)
+#define __predict_false(exp) (exp)
 #endif
 
 #if __GNUC_PREREQ__(2, 96)
-#define __noreturn    __attribute__((__noreturn__))
-#define __mallocfunc  __attribute__((malloc))
+#define __noreturn __attribute__((__noreturn__))
+#define __mallocfunc __attribute__((malloc))
 #else
 #define __noreturn
 #define __mallocfunc
@@ -333,17 +332,16 @@
  *	__link_set_entry(set, idx)
  *		Access the link set entry at index `idx' from set `set'.
  */
-#define	__link_set_foreach(pvar, set)					\
-	for (pvar = __link_set_start(set); pvar < __link_set_end(set); pvar++)
+#define __link_set_foreach(pvar, set) for (pvar = __link_set_start(set); pvar < __link_set_end(set); pvar++)
 
-#define	__link_set_entry(set, idx)	(__link_set_begin(set)[idx])
+#define __link_set_entry(set, idx) (__link_set_begin(set)[idx])
 
 /*
  * Some of the recend FreeBSD sources used in Bionic need this.
  * Originally, this is used to embed the rcs versions of each source file
  * in the generated binary. We certainly don't want this in Bionic.
  */
-#define	__FBSDID(s)	struct __hack
+#define __FBSDID(s) struct __hack
 
 /*-
  * The following definitions are an extension of the behavior originally
@@ -370,30 +368,30 @@
 
 /* Deal with IEEE Std. 1003.1-1990, in which _POSIX_C_SOURCE == 1. */
 #if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE == 1
-#undef _POSIX_C_SOURCE		/* Probably illegal, but beyond caring now. */
-#define	_POSIX_C_SOURCE		199009
+#undef _POSIX_C_SOURCE /* Probably illegal, but beyond caring now. */
+#define _POSIX_C_SOURCE 199009
 #endif
 
 /* Deal with IEEE Std. 1003.2-1992, in which _POSIX_C_SOURCE == 2. */
 #if defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE == 2
 #undef _POSIX_C_SOURCE
-#define	_POSIX_C_SOURCE		199209
+#define _POSIX_C_SOURCE 199209
 #endif
 
 /* Deal with various X/Open Portability Guides and Single UNIX Spec. */
 #ifdef _XOPEN_SOURCE
 #if _XOPEN_SOURCE - 0 >= 700
-#define	__XSI_VISIBLE		700
+#define __XSI_VISIBLE 700
 #undef _POSIX_C_SOURCE
-#define	_POSIX_C_SOURCE		200809
+#define _POSIX_C_SOURCE 200809
 #elif _XOPEN_SOURCE - 0 >= 600
-#define	__XSI_VISIBLE		600
+#define __XSI_VISIBLE 600
 #undef _POSIX_C_SOURCE
-#define	_POSIX_C_SOURCE		200112
+#define _POSIX_C_SOURCE 200112
 #elif _XOPEN_SOURCE - 0 >= 500
-#define	__XSI_VISIBLE		500
+#define __XSI_VISIBLE 500
 #undef _POSIX_C_SOURCE
-#define	_POSIX_C_SOURCE		199506
+#define _POSIX_C_SOURCE 199506
 #endif
 #endif
 
@@ -402,30 +400,30 @@
  * important.
  */
 #if defined(_POSIX_SOURCE) && !defined(_POSIX_C_SOURCE)
-#define	_POSIX_C_SOURCE		198808
+#define _POSIX_C_SOURCE 198808
 #endif
 #ifdef _POSIX_C_SOURCE
 #if _POSIX_C_SOURCE >= 200809
-#define	__POSIX_VISIBLE		200809
-#define	__ISO_C_VISIBLE		1999
+#define __POSIX_VISIBLE 200809
+#define __ISO_C_VISIBLE 1999
 #elif _POSIX_C_SOURCE >= 200112
-#define	__POSIX_VISIBLE		200112
-#define	__ISO_C_VISIBLE		1999
+#define __POSIX_VISIBLE 200112
+#define __ISO_C_VISIBLE 1999
 #elif _POSIX_C_SOURCE >= 199506
-#define	__POSIX_VISIBLE		199506
-#define	__ISO_C_VISIBLE		1990
+#define __POSIX_VISIBLE 199506
+#define __ISO_C_VISIBLE 1990
 #elif _POSIX_C_SOURCE >= 199309
-#define	__POSIX_VISIBLE		199309
-#define	__ISO_C_VISIBLE		1990
+#define __POSIX_VISIBLE 199309
+#define __ISO_C_VISIBLE 1990
 #elif _POSIX_C_SOURCE >= 199209
-#define	__POSIX_VISIBLE		199209
-#define	__ISO_C_VISIBLE		1990
+#define __POSIX_VISIBLE 199209
+#define __ISO_C_VISIBLE 1990
 #elif _POSIX_C_SOURCE >= 199009
-#define	__POSIX_VISIBLE		199009
-#define	__ISO_C_VISIBLE		1990
+#define __POSIX_VISIBLE 199009
+#define __ISO_C_VISIBLE 1990
 #else
-#define	__POSIX_VISIBLE		198808
-#define	__ISO_C_VISIBLE		0
+#define __POSIX_VISIBLE 198808
+#define __ISO_C_VISIBLE 0
 #endif /* _POSIX_C_SOURCE */
 #else
 /*-
@@ -440,21 +438,21 @@
  * _POSIX_C_SOURCE, we will assume that it wants the broader compilation
  * environment (and in fact we will never get here).
  */
-#if defined(_ANSI_SOURCE)	/* Hide almost everything. */
-#define	__POSIX_VISIBLE		0
-#define	__XSI_VISIBLE		0
-#define	__BSD_VISIBLE		0
-#define	__ISO_C_VISIBLE		1990
-#elif defined(_C99_SOURCE)	/* Localism to specify strict C99 env. */
-#define	__POSIX_VISIBLE		0
-#define	__XSI_VISIBLE		0
-#define	__BSD_VISIBLE		0
-#define	__ISO_C_VISIBLE		1999
-#else				/* Default environment: show everything. */
-#define	__POSIX_VISIBLE		200809
-#define	__XSI_VISIBLE		700
-#define	__BSD_VISIBLE		1
-#define	__ISO_C_VISIBLE		1999
+#if defined(_ANSI_SOURCE) /* Hide almost everything. */
+#define __POSIX_VISIBLE 0
+#define __XSI_VISIBLE 0
+#define __BSD_VISIBLE 0
+#define __ISO_C_VISIBLE 1990
+#elif defined(_C99_SOURCE) /* Localism to specify strict C99 env. */
+#define __POSIX_VISIBLE 0
+#define __XSI_VISIBLE 0
+#define __BSD_VISIBLE 0
+#define __ISO_C_VISIBLE 1999
+#else /* Default environment: show everything. */
+#define __POSIX_VISIBLE 200809
+#define __XSI_VISIBLE 700
+#define __BSD_VISIBLE 1
+#define __ISO_C_VISIBLE 1999
 #endif
 #endif
 
@@ -462,19 +460,19 @@
  * Default values.
  */
 #ifndef __XPG_VISIBLE
-# define __XPG_VISIBLE          700
+#define __XPG_VISIBLE 700
 #endif
 #ifndef __POSIX_VISIBLE
-# define __POSIX_VISIBLE        200809
+#define __POSIX_VISIBLE 200809
 #endif
 #ifndef __ISO_C_VISIBLE
-# define __ISO_C_VISIBLE        1999
+#define __ISO_C_VISIBLE 1999
 #endif
 #ifndef __BSD_VISIBLE
-# define __BSD_VISIBLE          1
+#define __BSD_VISIBLE 1
 #endif
 
-#define  __BIONIC__   1
+#define __BIONIC__ 1
 //#include <android/api-level.h>
 
 #endif /* !_SYS_CDEFS_H_ */

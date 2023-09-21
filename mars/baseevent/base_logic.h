@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,18 +22,18 @@
 
 #include <stdint.h>
 
-namespace mars{
-namespace baseevent{
-    void OnCreate();
-    void OnInitBeforeOnCreate(int _encoder_status);
-    void OnDestroy();
-    void OnSingalCrash(int _sig);
-    void OnExceptionCrash();
-    void OnForeground(bool _isforeground);
-    void OnNetworkChange();
-    void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
-    void OnAlarm(int64_t _id);
-}
-}
+namespace mars {
+namespace baseevent {
+void OnCreate();
+void OnInitBeforeOnCreate(int _encoder_status);
+void OnDestroy();
+void OnSingalCrash(int _sig);
+void OnExceptionCrash();
+void OnForeground(bool _isforeground);
+void OnNetworkChange();
+void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
+void OnAlarm(int64_t _id);
+}  // namespace baseevent
+}  // namespace mars
 
 #endif /* MARS_BASELOGIC_H_ */

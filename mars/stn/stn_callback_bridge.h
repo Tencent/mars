@@ -14,6 +14,7 @@
 #define STN_CALLBACK_BRIDGE_H_
 
 #include <string>
+
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
@@ -23,7 +24,11 @@ namespace stn {
 
 class StnCallbackBridge {
  public:
+    StnCallbackBridge();
     virtual ~StnCallbackBridge();
+    // mars2
+    virtual void SetCallback(Callback* const _callback);
+
     virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
 
     virtual void TrafficData(ssize_t _send, ssize_t _recv);
@@ -49,12 +54,12 @@ class StnCallbackBridge {
                          const AutoBuffer& _extend,
                          int& _error_code,
                          const int _channel_select);
-    virtual int OnTaskEnd(uint32_t _taskid, 
-                        void* const _user_context, 
-                        const std::string& _user_id,
-                        int _error_type, 
-                        int _error_code,
-                        const ConnectProfile& _profile);
+    virtual int OnTaskEnd(uint32_t _taskid,
+                          void* const _user_context,
+                          const std::string& _user_id,
+                          int _error_type,
+                          int _error_code,
+                          const ConnectProfile& _profile);
 
     virtual void ReportConnectStatus(int _status, int _longlink_status);
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
@@ -65,12 +70,12 @@ class StnCallbackBridge {
                                          uint16_t _port);
 
     virtual void OnLongLinkStatusChange(int _status);
-    //长连信令校验 ECHECK_NOW, ECHECK_NEXT = 1, ECHECK_NEVER = 2 
+    //长连信令校验 ECHECK_NOW, ECHECK_NEXT = 1, ECHECK_NEVER = 2
     virtual int GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id,
                                                AutoBuffer& _identify_buffer,
                                                AutoBuffer& _buffer_hash,
                                                int32_t& _cmdid);
-    //长连信令校验回包 
+    //长连信令校验回包
     virtual bool OnLonglinkIdentifyResponse(const std::string& _channel_id,
                                             const AutoBuffer& _response_buffer,
                                             const AutoBuffer& _identify_buffer_hash);
@@ -81,14 +86,22 @@ class StnCallbackBridge {
     virtual void ReportTaskProfile(const TaskProfile& _task_profile);
     virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
     virtual void ReportDnsProfile(const DnsProfile& _dns_profile);
+
+    // mars2
+ private:
+    Callback* sg_callback;
 };
 
 // You must get `StnCallbackBridge` object through `GetStnCallbackBridge` firstly before invoke this function,
 // then store it or release it.
+
+// mars2 cpan move to stn_manager_bridge 2022-5-28 move back 8-18
+/*
 void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
 StnCallbackBridge* GetStnCallbackBridge();
+*/
 
-}
-}
+}  // namespace stn
+}  // namespace mars
 
-#endif //STN_CALLBACK_BRIDGE_H_
+#endif  // STN_CALLBACK_BRIDGE_H_

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -20,9 +20,10 @@
 #ifndef APPCOMM_INTERFACE_APPCOMM_H_
 #define APPCOMM_INTERFACE_APPCOMM_H_
 
-#include <string>
 #include <stdint.h>
+
 #include <memory>
+#include <string>
 
 #include "mars/comm/comm_data.h"
 
@@ -30,17 +31,19 @@ namespace mars {
 namespace app {
 
 struct AccountInfo {
-	AccountInfo():uin(0), is_logoned(false){}
-	int64_t uin;
-	std::string username;
-	bool is_logoned;
+    AccountInfo() : uin(0), is_logoned(false) {
+    }
+    int64_t uin;
+    std::string username;
+    bool is_logoned;
 };
 
 struct DeviceInfo {
-	std::string devicename;
-	std::string devicetype;
+    std::string devicename;
+    std::string devicetype;
 };
-    
+
+/* mars2
 extern mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 extern std::string GetAppFilePath();
 extern AccountInfo GetAccountInfo();
@@ -49,7 +52,27 @@ extern std::string GetRecentUserName();
 extern unsigned int GetClientVersion();
 extern DeviceInfo GetDeviceInfo();
 extern double GetOsVersion();
+*/
 
+// mars2
+class Callback {
+ public:
+    virtual ~Callback(){};
+
+    virtual bool GetProxyInfo(const std::string& _host, mars::comm::ProxyInfo& _proxy_info) {
+        return false;
+    }
+
+    virtual std::string GetAppFilePath() = 0;
+
+    virtual AccountInfo GetAccountInfo() = 0;
+
+    virtual unsigned int GetClientVersion() = 0;
+
+    virtual DeviceInfo GetDeviceInfo() = 0;
+};
+
+/* mars2
 #ifdef NATIVE_CALLBACK
 
     class AppLogicNativeCallback {
@@ -68,7 +91,9 @@ extern double GetOsVersion();
     extern void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
 
 #endif //NATIVE_CALLBACK
+*/
 
-}}
+}  // namespace app
+}  // namespace mars
 
 #endif /* APPCOMM_INTERFACE_APPCOMM_H_ */

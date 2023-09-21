@@ -17,16 +17,18 @@
  *      Author: yanguoyue
  */
 
-#include <cstdio>
-#include <time.h>
-#include <algorithm>
-#include <sys/time.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
-#include <stdio.h>
-
 #include "log_base_buffer.h"
+
+#include <assert.h>
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+
+#include <algorithm>
+#include <cstdio>
+
 #include "log/crypt/log_crypt.h"
 #include "log/crypt/log_magic_num.h"
 
@@ -37,11 +39,14 @@
 namespace mars {
 namespace xlog {
 
-bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _end_hour, unsigned long& _begin_pos, unsigned long& _end_pos, std::string& _err_msg) {
-
+bool LogBaseBuffer::GetPeriodLogs(const char* _log_path,
+                                  int _begin_hour,
+                                  int _end_hour,
+                                  unsigned long& _begin_pos,
+                                  unsigned long& _end_pos,
+                                  std::string& _err_msg) {
     char msg[1024] = {0};
     char magic_end = LogMagicNum::kMagicEnd;
-
 
     if (NULL == _log_path || _end_hour <= _begin_hour) {
         snprintf(msg, sizeof(msg), "NULL == _logPath || _endHour <= _beginHour, %d, %d", _begin_hour, _end_hour);
@@ -81,7 +86,6 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
     char* header_buff = new char[LogCrypt::GetHeaderLen()];
 
     while (!feof(file) && !ferror(file)) {
-
         if ((long)(ftell(file) + LogCrypt::GetHeaderLen() + LogCrypt::GetTailerLen()) > file_size) {
             snprintf(msg, sizeof(msg), "ftell(file) + __GetHeaderLen() + sizeof(kMagicEnd)) > file_size error");
             break;
@@ -89,10 +93,13 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
 
         long before_len = ftell(file);
         if (LogCrypt::GetHeaderLen() != fread(header_buff, 1, LogCrypt::GetHeaderLen(), file)) {
-            snprintf(msg, sizeof(msg), "fread(buff.Ptr(), 1, __GetHeaderLen(), file) error:%s, before_len:%ld.", strerror(ferror(file)), before_len);
+            snprintf(msg,
+                     sizeof(msg),
+                     "fread(buff.Ptr(), 1, __GetHeaderLen(), file) error:%s, before_len:%ld.",
+                     strerror(ferror(file)),
+                     before_len);
             break;
         }
-
 
         bool fix = false;
 
@@ -105,12 +112,22 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
                 fix = true;
             } else {
                 if (0 != fseek(file, len, SEEK_CUR)) {
-                    snprintf(msg, sizeof(msg), "fseek(file, len, SEEK_CUR):%s, before_len:%ld, len:%u.", strerror(ferror(file)), before_len, len);
+                    snprintf(msg,
+                             sizeof(msg),
+                             "fseek(file, len, SEEK_CUR):%s, before_len:%ld, len:%u.",
+                             strerror(ferror(file)),
+                             before_len,
+                             len);
                     break;
                 }
                 char end;
                 if (1 != fread(&end, 1, 1, file)) {
-                    snprintf(msg, sizeof(msg), "fread(&end, 1, 1, file) err:%s, before_len:%ld, len:%u.", strerror(ferror(file)), before_len, len);
+                    snprintf(msg,
+                             sizeof(msg),
+                             "fread(&end, 1, 1, file) err:%s, before_len:%ld, len:%u.",
+                             strerror(ferror(file)),
+                             before_len,
+                             len);
                     break;
                 }
                 if (end != magic_end) {
@@ -120,22 +137,29 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
         }
 
         if (fix) {
-            if (0 !=fseek(file, before_len+1, SEEK_SET)) {
-                snprintf(msg, sizeof(msg), "fseek(file, before_len+1, SEEK_SET) err:%s, before_len:%ld.", strerror(ferror(file)), before_len);
+            if (0 != fseek(file, before_len + 1, SEEK_SET)) {
+                snprintf(msg,
+                         sizeof(msg),
+                         "fseek(file, before_len+1, SEEK_SET) err:%s, before_len:%ld.",
+                         strerror(ferror(file)),
+                         before_len);
                 break;
             }
             continue;
         }
 
-
         int begin_hour = 0;
         int end_hour = 0;
         if (!LogCrypt::GetLogHour(header_buff, LogCrypt::GetHeaderLen(), begin_hour, end_hour)) {
-            snprintf(msg, sizeof(msg), "__GetLogHour(buff.Ptr(), buff.Length(), beginHour, endHour) err, before_len:%ld.", before_len);
+            snprintf(msg,
+                     sizeof(msg),
+                     "__GetLogHour(buff.Ptr(), buff.Length(), beginHour, endHour) err, before_len:%ld.",
+                     before_len);
             break;
         }
 
-        if (begin_hour > end_hour)  begin_hour = end_hour;
+        if (begin_hour > end_hour)
+            begin_hour = end_hour;
 
         if (_err_msg.size() < 1024 * 1024) {
             _err_msg += std::to_string(begin_hour) + "-" + std::to_string(end_hour) + " ";
@@ -185,12 +209,10 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path, int _begin_hour, int _e
     }
 
     return ret;
-    
 }
 
 LogBaseBuffer::LogBaseBuffer(void* _pbuffer, size_t _len, bool _isCompress, const char* _pubkey)
-: is_compress_(_isCompress), log_crypt_(new LogCrypt(_pubkey))
-, is_crypt_(log_crypt_->IsCrypt()) {
+: is_compress_(_isCompress), log_crypt_(new LogCrypt(_pubkey)), is_crypt_(log_crypt_->IsCrypt()) {
     buff_.Attach(_pbuffer, _len);
     __Fix();
 }
@@ -208,10 +230,10 @@ void LogBaseBuffer::Flush(AutoBuffer& _buff) {
         __Clear();
         return;
     }
-    
+
     __Flush();
     _buff.Write(buff_.Ptr(), buff_.Length());
-    
+
     __Clear();
 }
 
@@ -220,7 +242,7 @@ bool LogBaseBuffer::Write(const void* _data, size_t _inputlen, AutoBuffer& _out_
         return false;
     }
 
-    log_crypt_->CryptSyncLog((char*) _data, _inputlen, _out_buff, __GetMagicSyncStart(), __GetMagicEnd());
+    log_crypt_->CryptSyncLog((char*)_data, _inputlen, _out_buff, __GetMagicSyncStart(), __GetMagicEnd());
 
     return true;
 }
@@ -230,19 +252,20 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
         return false;
     }
     if (buff_.Length() == 0) {
-        if (!__Reset()) return false;
+        if (!__Reset())
+            return false;
     }
 
     size_t before_len = buff_.Length();
     size_t write_len = _length;
-    
+
     if (is_compress_) {
         uInt avail_out = (uInt)(buff_.MaxLength() - buff_.Length() - log_crypt_->GetTailerLen());
         write_len = Compress(_data, _length, buff_.PosPtr(), avail_out);
         if (write_len == (size_t)-1) {
             return false;
         }
-        
+
     } else {
         buff_.Write(_data, _length);
     }
@@ -252,7 +275,10 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
     std::string out_buffer;
     size_t last_remain_len = remain_nocrypt_len_;
 
-    log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len, write_len + remain_nocrypt_len_, out_buffer, remain_nocrypt_len_);
+    log_crypt_->CryptAsyncLog((char*)buff_.Ptr() + before_len,
+                              write_len + remain_nocrypt_len_,
+                              out_buffer,
+                              remain_nocrypt_len_);
 
     buff_.Write(out_buffer.data(), out_buffer.size(), before_len);
 
@@ -302,6 +328,5 @@ char LogBaseBuffer::__GetMagicEnd() {
     return LogMagicNum::kMagicEnd;
 }
 
-}
-}
-
+}  // namespace xlog
+}  // namespace mars

@@ -14,9 +14,9 @@
 /* Buffer size */
 #define BUFFER_SIZE 4096
 
+#include <linux/fs.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <linux/fs.h>
 #include <linux/uaccess.h>
 
 #if DO_XXH
@@ -40,7 +40,6 @@ static int device_major;
 static bool device_is_open;
 
 static uint64_t total_length;
-
 
 #if (DO_XXH == 32)
 
@@ -82,97 +81,92 @@ static uint32_t crc;
  */
 static uint8_t buffer_in[BUFFER_SIZE];
 
-static int xxhash_test_open(struct inode *i, struct file *f)
-{
-	if (device_is_open)
-		return -EBUSY;
+static int xxhash_test_open(struct inode* i, struct file* f) {
+    if (device_is_open)
+        return -EBUSY;
 
-	device_is_open = true;
+    device_is_open = true;
 
-	total_length = 0;
+    total_length = 0;
 #if DO_XXH
-	xxh_reset(&state, 0);
+    xxh_reset(&state, 0);
 #endif
 #if DO_CRC
-	crc = 0xFFFFFFFF;
+    crc = 0xFFFFFFFF;
 #endif
 
-	printk(KERN_INFO DEVICE_NAME ": opened\n");
-	return 0;
+    printk(KERN_INFO DEVICE_NAME ": opened\n");
+    return 0;
 }
 
-static int xxhash_test_release(struct inode *i, struct file *f)
-{
-	device_is_open = false;
+static int xxhash_test_release(struct inode* i, struct file* f) {
+    device_is_open = false;
 
-	printk(KERN_INFO DEVICE_NAME ": total_len = %llu\n", total_length);
+    printk(KERN_INFO DEVICE_NAME ": total_len = %llu\n", total_length);
 #if DO_XXH
-	printk(KERN_INFO DEVICE_NAME ": " XXH_FORMAT "\n", xxh_digest(&state));
+    printk(KERN_INFO DEVICE_NAME ": " XXH_FORMAT "\n", xxh_digest(&state));
 #endif
 #if DO_CRC
-	printk(KERN_INFO DEVICE_NAME ": CRC32 = 0x%08x\n", ~crc);
+    printk(KERN_INFO DEVICE_NAME ": CRC32 = 0x%08x\n", ~crc);
 #endif
-	printk(KERN_INFO DEVICE_NAME ": closed\n");
-	return 0;
+    printk(KERN_INFO DEVICE_NAME ": closed\n");
+    return 0;
 }
 
 /*
  * Hash the data given to us from userspace.
  */
-static ssize_t xxhash_test_write(struct file *file, const char __user *buf,
-				 size_t size, loff_t *pos)
-{
-	size_t remaining = size;
+static ssize_t xxhash_test_write(struct file* file, const char __user* buf, size_t size, loff_t* pos) {
+    size_t remaining = size;
 
-	while (remaining > 0) {
+    while (remaining > 0) {
 #if DO_XXH
-		int ret;
+        int ret;
 #endif
-		size_t const copy_size = min(remaining, sizeof(buffer_in));
+        size_t const copy_size = min(remaining, sizeof(buffer_in));
 
-		if (copy_from_user(buffer_in, buf, copy_size))
-			return -EFAULT;
-		buf += copy_size;
-		remaining -= copy_size;
-		total_length += copy_size;
+        if (copy_from_user(buffer_in, buf, copy_size))
+            return -EFAULT;
+        buf += copy_size;
+        remaining -= copy_size;
+        total_length += copy_size;
 #if DO_XXH
-		if ((ret = xxh_update(&state, buffer_in, copy_size))) {
-			printk(KERN_INFO DEVICE_NAME ": xxh failure.");
-			return ret;
-		}
+        if ((ret = xxh_update(&state, buffer_in, copy_size))) {
+            printk(KERN_INFO DEVICE_NAME ": xxh failure.");
+            return ret;
+        }
 #endif
 #if DO_CRC
-		crc = crc32(crc, buffer_in, copy_size);
+        crc = crc32(crc, buffer_in, copy_size);
 #endif
-	}
-	return size;
+    }
+    return size;
 }
 /* register the character device. */
-static int __init xxhash_test_init(void)
-{
-	static const struct file_operations fileops = {
-		.owner = THIS_MODULE,
-		.open = &xxhash_test_open,
-		.release = &xxhash_test_release,
-		.write = &xxhash_test_write
-	};
+static int __init xxhash_test_init(void) {
+    static const struct file_operations fileops = {.owner = THIS_MODULE,
+                                                   .open = &xxhash_test_open,
+                                                   .release = &xxhash_test_release,
+                                                   .write = &xxhash_test_write};
 
-	device_major = register_chrdev(0, DEVICE_NAME, &fileops);
-	if (device_major < 0) {
-		return device_major;
-	}
+    device_major = register_chrdev(0, DEVICE_NAME, &fileops);
+    if (device_major < 0) {
+        return device_major;
+    }
 
-	printk(KERN_INFO DEVICE_NAME ": module loaded\n");
-	printk(KERN_INFO DEVICE_NAME ": Create a device node with "
-			"'mknod " DEVICE_NAME " c %d 0' and write data "
-			"to it.\n", device_major);
-	return 0;
+    printk(KERN_INFO DEVICE_NAME ": module loaded\n");
+    printk(KERN_INFO DEVICE_NAME
+           ": Create a device node with "
+           "'mknod " DEVICE_NAME
+           " c %d 0' and write data "
+           "to it.\n",
+           device_major);
+    return 0;
 }
 
-static void __exit xxhash_test_exit(void)
-{
-	unregister_chrdev(device_major, DEVICE_NAME);
-	printk(KERN_INFO DEVICE_NAME ": module unloaded\n");
+static void __exit xxhash_test_exit(void) {
+    unregister_chrdev(device_major, DEVICE_NAME);
+    printk(KERN_INFO DEVICE_NAME ": module unloaded\n");
 }
 
 module_init(xxhash_test_init);
@@ -180,6 +174,5 @@ module_exit(xxhash_test_exit);
 
 MODULE_DESCRIPTION("XXHash tester");
 MODULE_VERSION("1.0");
-
 
 MODULE_LICENSE("Dual BSD/GPL");

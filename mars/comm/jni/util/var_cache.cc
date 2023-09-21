@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,33 +10,34 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 /**
  * created on : 2012-07-30
  *    author  : yanguoyue
  */
 
 #include "var_cache.h"
-#include "scope_jenv.h"
-#include <stdlib.h>
+
 #include <android/log.h>
+#include <stdlib.h>
 
 #include "assert/__assert.h"
+#include "scope_jenv.h"
 #include "thread/lock.h"
 
-template <typename T> T& getListByClass(JNIEnv* _env, const jclass& _clz, std::map<jclass, T>& _map) {
+template <typename T>
+T& getListByClass(JNIEnv* _env, const jclass& _clz, std::map<jclass, T>& _map) {
     for (typename std::map<jclass, T>::iterator iter = _map.begin(); iter != _map.end(); ++iter) {
         if (_env->IsSameObject(_clz, (*iter).first))
             return (*iter).second;
     }
 
     jclass gloableClz = (jclass)_env->NewGlobalRef(_clz);
-    std::pair<typename std::map<jclass, T>::iterator, bool> retPair = _map.insert(std::pair<jclass, T>(gloableClz, T()));
+    std::pair<typename std::map<jclass, T>::iterator, bool> retPair =
+        _map.insert(std::pair<jclass, T>(gloableClz, T()));
     ASSERT(retPair.second);
 
     return retPair.first->second;
 }
-
 
 struct method_struct {
     std::string methodName;
@@ -52,19 +53,16 @@ struct field_struct {
 
 VarCache* VarCache::instance_ = NULL;
 
-VarCache::VarCache() :
-    vm_(NULL) {
+VarCache::VarCache() : vm_(NULL) {
 }
 
 VarCache::~VarCache() {
     ScopeJEnv scopeJEnv(vm_);
     JNIEnv* env = scopeJEnv.GetEnv();
 
-
     mars::comm::ScopedSpinLock lock(class_map_lock_);
 
-    for (std::map<std::string, jclass>::iterator iter = class_map_.begin();
-            iter != class_map_.end(); ++iter) {
+    for (std::map<std::string, jclass>::iterator iter = class_map_.begin(); iter != class_map_.end(); ++iter) {
         env->DeleteGlobalRef(iter->second);
     }
 }
@@ -112,7 +110,7 @@ jclass VarCache::GetClass(JNIEnv* _env, const char* const _class_path) {
         return iter->second;
     }
 
-    jclass clz = /*newClass(env, classPath);  // */_env->FindClass(_class_path);
+    jclass clz = /*newClass(env, classPath);  // */ _env->FindClass(_class_path);
 
     ASSERT2(clz != NULL, "classpath:%s", _class_path);
 
@@ -127,7 +125,7 @@ jclass VarCache::GetClass(JNIEnv* _env, const char* const _class_path) {
         return NULL;
     }
 
-    jclass gloable_clz = (jclass) _env->NewGlobalRef(clz);
+    jclass gloable_clz = (jclass)_env->NewGlobalRef(clz);
     _env->DeleteLocalRef(clz);
 
     class_map_.insert(std::pair<std::string, jclass>(_class_path, gloable_clz));
@@ -158,9 +156,10 @@ void VarCache::CacheClass(const char* const _class_path, jclass _clz) {
  * @param _signature        the signature of the method's parameter
  */
 
-
-jmethodID VarCache::GetStaticMethodId(JNIEnv* _env, jclass _clz,
-                                      const char* const _method_name, const char* const _signature) {
+jmethodID VarCache::GetStaticMethodId(JNIEnv* _env,
+                                      jclass _clz,
+                                      const char* const _method_name,
+                                      const char* const _signature) {
     if (_env->ExceptionOccurred()) {
         return NULL;
     }
@@ -179,20 +178,18 @@ jmethodID VarCache::GetStaticMethodId(JNIEnv* _env, jclass _clz,
     //    std::list<method_struct>& methodStructList = staticMethodMap[clz];
     std::list<method_struct>& methodStructList = getListByClass(_env, _clz, staticMethodMap);
 
-    for (list<method_struct>::iterator iter = methodStructList.begin();
-            iter != methodStructList.end(); ++iter) {
+    for (list<method_struct>::iterator iter = methodStructList.begin(); iter != methodStructList.end(); ++iter) {
         method_struct& mStruct = *iter;
 
         if (strcmp(mStruct._method_name.c_str(), _method_name) == 0
-                && strcmp(mStruct._signature.c_str(), _signature) == 0) {
+            && strcmp(mStruct._signature.c_str(), _signature) == 0) {
             return mStruct.mid;
         }
     }
 
 #endif
 
-    jmethodID mid = _env->GetStaticMethodID(_clz, _method_name,
-                                           _signature);
+    jmethodID mid = _env->GetStaticMethodID(_clz, _method_name, _signature);
 
     ASSERT2(mid != NULL, "NULL sig:%s, mid:%s", _signature, _method_name);
 
@@ -222,8 +219,10 @@ jmethodID VarCache::GetStaticMethodId(JNIEnv* _env, jclass _clz,
     return mid;
 }
 
-jmethodID VarCache::GetStaticMethodId(JNIEnv* _env, const char* const _class_path,
-                                      const char* const _method_name, const char* const _signature) {
+jmethodID VarCache::GetStaticMethodId(JNIEnv* _env,
+                                      const char* const _class_path,
+                                      const char* const _method_name,
+                                      const char* const _signature) {
     ASSERT(_env != NULL);
     ASSERT(_class_path != NULL);
     ASSERT(_method_name != NULL);
@@ -233,8 +232,10 @@ jmethodID VarCache::GetStaticMethodId(JNIEnv* _env, const char* const _class_pat
     return GetStaticMethodId(_env, clz, _method_name, _signature);
 }
 
-jmethodID VarCache::GetMethodId(JNIEnv* _env, jclass _clz,
-                                const char* const _method_name, const char* const _signature) {
+jmethodID VarCache::GetMethodId(JNIEnv* _env,
+                                jclass _clz,
+                                const char* const _method_name,
+                                const char* const _signature) {
     if (_env->ExceptionOccurred()) {
         return NULL;
     }
@@ -253,20 +254,18 @@ jmethodID VarCache::GetMethodId(JNIEnv* _env, jclass _clz,
     //    std::list<method_struct>& methodStructList = methodMap[clz];
     std::list<method_struct>& methodStructList = getListByClass(_env, _clz, methodMap);
 
-    for (list<method_struct>::iterator iter = methodStructList.begin();
-            iter != methodStructList.end(); ++iter) {
+    for (list<method_struct>::iterator iter = methodStructList.begin(); iter != methodStructList.end(); ++iter) {
         method_struct& mStruct = *iter;
 
         if (strcmp(mStruct._method_name.c_str(), _method_name) == 0
-                && strcmp(mStruct._signature.c_str(), _signature) == 0) {
+            && strcmp(mStruct._signature.c_str(), _signature) == 0) {
             return mStruct.mid;
         }
     }
 
 #endif
 
-    jmethodID mid = _env->GetMethodID(_clz, _method_name,
-                                     _signature);
+    jmethodID mid = _env->GetMethodID(_clz, _method_name, _signature);
 
     ASSERT2(mid != NULL, "method:%s, sig:%s", _method_name, _signature);
 
@@ -289,12 +288,13 @@ jmethodID VarCache::GetMethodId(JNIEnv* _env, jclass _clz,
         }
     }
 
-
     return mid;
 }
 
-jmethodID VarCache::GetMethodId(JNIEnv* _env, const char* const _class_path,
-                                const char* const _method_name, const char* const _signature) {
+jmethodID VarCache::GetMethodId(JNIEnv* _env,
+                                const char* const _class_path,
+                                const char* const _method_name,
+                                const char* const _signature) {
     ASSERT(_env != NULL);
     ASSERT(_class_path != NULL);
     ASSERT(_method_name != NULL);
@@ -305,8 +305,10 @@ jmethodID VarCache::GetMethodId(JNIEnv* _env, const char* const _class_path,
     return GetMethodId(_env, clz, _method_name, _signature);
 }
 
-
-jfieldID VarCache::GetStaticFieldId(JNIEnv* _env, const char* const _class_path, const char* const _name, const char* const _sig) {
+jfieldID VarCache::GetStaticFieldId(JNIEnv* _env,
+                                    const char* const _class_path,
+                                    const char* const _name,
+                                    const char* const _sig) {
     ASSERT(NULL != _env);
     ASSERT(NULL != _class_path);
     ASSERT(NULL != _name);
@@ -339,12 +341,10 @@ jfieldID VarCache::GetStaticFieldId(JNIEnv* _env, jclass _clazz, const char* con
     ScopedSpinLock lock(fieldMapLock);
     std::list<field_struct>& fieldStructList = getListByClass(_env, _clazz, fieldMap);
 
-    for (list<field_struct>::iterator iter = fieldStructList.begin();
-            iter != fieldStructList.end(); ++iter) {
+    for (list<field_struct>::iterator iter = fieldStructList.begin(); iter != fieldStructList.end(); ++iter) {
         field_struct& fStruct = *iter;
 
-        if (strcmp(fStruct.fieldName.c_str(), _name) == 0
-                && strcmp(fStruct.signature.c_str(), _sig) == 0) {
+        if (strcmp(fStruct.fieldName.c_str(), _name) == 0 && strcmp(fStruct.signature.c_str(), _sig) == 0) {
             return fStruct.fid;
         }
     }
@@ -376,15 +376,13 @@ jfieldID VarCache::GetStaticFieldId(JNIEnv* _env, jclass _clazz, const char* con
     return fid;
 }
 
-
 /**
  * description: get the jfieldID, if it does not exist in the cache,find and cache it.
  * @param _clz    find the jfieldID in the class
  * @param _field_name     the name of the field
  * @param _signature        the signature of the filed's type
  */
-jfieldID VarCache::GetFieldId(JNIEnv* _env, jclass _clz, const char* const _field_name,
-                              const char* const _signature) {
+jfieldID VarCache::GetFieldId(JNIEnv* _env, jclass _clz, const char* const _field_name, const char* const _signature) {
     if (_env->ExceptionOccurred()) {
         return NULL;
     }
@@ -403,12 +401,11 @@ jfieldID VarCache::GetFieldId(JNIEnv* _env, jclass _clz, const char* const _fiel
     //    std::list<field_struct>& fieldStructList = fieldMap[clz];
     std::list<field_struct>& fieldStructList = getListByClass(_env, _clz, fieldMap);
 
-    for (list<field_struct>::iterator iter = fieldStructList.begin();
-            iter != fieldStructList.end(); ++iter) {
+    for (list<field_struct>::iterator iter = fieldStructList.begin(); iter != fieldStructList.end(); ++iter) {
         field_struct& fStruct = *iter;
 
         if (strcmp(fStruct._field_name.c_str(), _field_name) == 0
-                && strcmp(fStruct._signature.c_str(), _signature) == 0) {
+            && strcmp(fStruct._signature.c_str(), _signature) == 0) {
             return fStruct.fid;
         }
     }
@@ -441,8 +438,10 @@ jfieldID VarCache::GetFieldId(JNIEnv* _env, jclass _clz, const char* const _fiel
     return fid;
 }
 
-jfieldID VarCache::GetFieldId(JNIEnv* _env, const char* const _class_path,
-                              const char* const _field_name, const char* const _signature) {
+jfieldID VarCache::GetFieldId(JNIEnv* _env,
+                              const char* const _class_path,
+                              const char* const _field_name,
+                              const char* const _signature) {
     ASSERT(_env != NULL);
     ASSERT(_class_path != NULL);
     ASSERT(_field_name != NULL);
@@ -452,7 +451,6 @@ jfieldID VarCache::GetFieldId(JNIEnv* _env, const char* const _class_path,
 
     return GetFieldId(_env, clz, _field_name, _signature);
 }
-
 
 /***************************************************************************************/
 #include <set>
@@ -464,13 +462,13 @@ static std::set<std::string>& __GetClassNameSet() {
 
 bool LoadClass(JNIEnv* env) {
     ASSERT(NULL != env);
-    std::set<std::string>&  class_name_set = __GetClassNameSet();
+    std::set<std::string>& class_name_set = __GetClassNameSet();
 
     for (std::set<std::string>::iterator it = class_name_set.begin(); it != class_name_set.end(); ++it) {
         jclass clz = VarCache::Singleton()->GetClass(env, (*it).c_str());
 
         if (NULL == clz) {
-        	class_name_set.clear();
+            class_name_set.clear();
             return false;
         }
     }
@@ -481,7 +479,7 @@ bool LoadClass(JNIEnv* env) {
 
 bool AddClass(const char* const _class_path) {
     ASSERT(_class_path != NULL);
-    std::set<std::string>&  classNameSet = __GetClassNameSet();
+    std::set<std::string>& classNameSet = __GetClassNameSet();
     return classNameSet.insert(_class_path).second;
 }
 
@@ -502,7 +500,10 @@ bool LoadStaticMethod(JNIEnv* _env) {
     std::set<JniMethodInfo> methoNameSet = __GetStaticMethodInfoSet();
 
     for (std::set<JniMethodInfo>::iterator iter = methoNameSet.begin(); iter != methoNameSet.end(); ++iter) {
-        jmethodID mid = VarCache::Singleton()->GetStaticMethodId(_env, (*iter).classname.c_str(), (*iter).methodname.c_str(), (*iter).methodsig.c_str());
+        jmethodID mid = VarCache::Singleton()->GetStaticMethodId(_env,
+                                                                 (*iter).classname.c_str(),
+                                                                 (*iter).methodname.c_str(),
+                                                                 (*iter).methodsig.c_str());
 
         if (NULL == mid) {
             return false;
@@ -518,7 +519,10 @@ bool LoadMethod(JNIEnv* env) {
     std::set<JniMethodInfo> methoNameSet = __GetMethodInfoSet();
 
     for (std::set<JniMethodInfo>::iterator iter = methoNameSet.begin(); iter != methoNameSet.end(); ++iter) {
-        jmethodID mid = VarCache::Singleton()->GetMethodId(env, (*iter).classname.c_str(), (*iter).methodname.c_str(), (*iter).methodsig.c_str());
+        jmethodID mid = VarCache::Singleton()->GetMethodId(env,
+                                                           (*iter).classname.c_str(),
+                                                           (*iter).methodname.c_str(),
+                                                           (*iter).methodsig.c_str());
 
         if (NULL == mid) {
             return false;
@@ -528,13 +532,12 @@ bool LoadMethod(JNIEnv* env) {
     return true;
 }
 
-
 bool AddStaticMethod(const char* const _classname, const char* const _methodname, const char* const _methodsig) {
     ASSERT(_classname != NULL);
     ASSERT(_methodname != NULL);
     ASSERT(_methodsig != NULL);
 
-    std::set<JniMethodInfo>&  method_name_set = __GetStaticMethodInfoSet();
+    std::set<JniMethodInfo>& method_name_set = __GetStaticMethodInfoSet();
 
     return method_name_set.insert(JniMethodInfo(_classname, _methodname, _methodsig)).second;
 }
@@ -544,7 +547,7 @@ bool AddMethod(const char* const _classname, const char* const _methodname, cons
     ASSERT(_methodname != NULL);
     ASSERT(_methodsig != NULL);
 
-    std::set<JniMethodInfo>&  methodNameSet = __GetMethodInfoSet();
+    std::set<JniMethodInfo>& methodNameSet = __GetMethodInfoSet();
 
     return methodNameSet.insert(JniMethodInfo(_classname, _methodname, _methodsig)).second;
 }

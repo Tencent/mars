@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * TcpServer.h
@@ -21,10 +20,10 @@
 #ifndef TcpServer_H_
 #define TcpServer_H_
 
-#include "comm/socket/unix_socket.h"
 #include "comm/socket/socketselect.h"
-#include "comm/thread/mutex.h"
+#include "comm/socket/unix_socket.h"
 #include "comm/thread/condition.h"
+#include "comm/thread/mutex.h"
 #include "comm/thread/thread.h"
 
 class XLogger;
@@ -35,18 +34,19 @@ namespace mars {
 namespace comm {
 class SocketSelect;
 }
-}
+}  // namespace mars
 
 class MTcpServer {
-  public:
-    virtual ~MTcpServer() {}
+ public:
+    virtual ~MTcpServer() {
+    }
     virtual void OnCreate(TcpServer* _server) = 0;
     virtual void OnAccept(TcpServer* _server, SOCKET _sock, const sockaddr_in& _addr) = 0;
     virtual void OnError(TcpServer* _server, int _error) = 0;
 };
 
 class TcpServer {
-  public:
+ public:
     TcpServer(const char* _ip, uint16_t _port, MTcpServer& _observer, int _backlog = 256);
     TcpServer(const sockaddr_in& _bindaddr, MTcpServer& _observer, int _backlog = 256);
     ~TcpServer();
@@ -56,22 +56,22 @@ class TcpServer {
     bool StartAndWait(bool* _newone = NULL);
     void StopAndWait();
 
-  private:
+ private:
     TcpServer(const TcpServer&);
     TcpServer& operator=(const TcpServer&);
 
-  private:
+ private:
     void __ListenThread();
 
-  protected:
-    MTcpServer&         observer_;
-    mars::comm::Thread              thread_;
-    mars::comm::Mutex                  mutex_;
-    mars::comm::Condition            cond_;
+ protected:
+    MTcpServer& observer_;
+    mars::comm::Thread thread_;
+    mars::comm::Mutex mutex_;
+    mars::comm::Condition cond_;
 
-    SOCKET                 listen_sock_;
-    socket_address*         bind_addr_;
-    const int             backlog_;
+    SOCKET listen_sock_;
+    socket_address* bind_addr_;
+    const int backlog_;
 
     mars::comm::SocketBreaker breaker_;
 };

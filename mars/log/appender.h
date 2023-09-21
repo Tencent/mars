@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * appender.h
@@ -21,20 +20,20 @@
 #ifndef APPENDER_H_
 #define APPENDER_H_
 
+#include <stdint.h>
+
 #include <string>
 #include <vector>
-#include <stdint.h>
 
 namespace mars {
 namespace xlog {
 
-enum TAppenderMode
-{
+enum TAppenderMode {
     kAppenderAsync,
     kAppenderSync,
 };
 
-enum TCompressMode{
+enum TCompressMode {
     kZlib,
     kZstd,
 };
@@ -85,7 +84,7 @@ void appender_set_console_fun(TConsoleFun _fun);
 #endif
 /*
  * By default, all logs will write to one file everyday. You can split logs to multi-file by changing max_file_size.
- * 
+ *
  * @param _max_byte_size    Max byte size of single log file, default is 0, meaning do not split.
  */
 void appender_set_max_file_size(uint64_t _max_byte_size);

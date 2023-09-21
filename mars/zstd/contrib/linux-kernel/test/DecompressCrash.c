@@ -15,34 +15,33 @@
 */
 
 /*===========================================
-*   Dependencies
-*==========================================*/
-#include <stddef.h>     /* size_t */
-#include <stdlib.h>     /* malloc, free, exit */
-#include <stdio.h>      /* fprintf */
+ *   Dependencies
+ *==========================================*/
 #include <linux/zstd.h>
+#include <stddef.h> /* size_t */
+#include <stdio.h>  /* fprintf */
+#include <stdlib.h> /* malloc, free, exit */
 
 /*===========================================
-*   Macros
-*==========================================*/
-#define MIN(a,b)  ( (a) < (b) ? (a) : (b) )
+ *   Macros
+ *==========================================*/
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-static ZSTD_DCtx *dctx = NULL;
-void *dws = NULL;
+static ZSTD_DCtx* dctx = NULL;
+void* dws = NULL;
 static void* rBuff = NULL;
 static size_t buffSize = 0;
 
-static void crash(int errorCode){
-    /* abort if AFL/libfuzzer, exit otherwise */
-    #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION /* could also use __AFL_COMPILER */
-        abort();
-    #else
-        exit(errorCode);
-    #endif
+static void crash(int errorCode) {
+/* abort if AFL/libfuzzer, exit otherwise */
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION /* could also use __AFL_COMPILER */
+    abort();
+#else
+    exit(errorCode);
+#endif
 }
 
-static void decompressCheck(const void* srcBuff, size_t srcBuffSize)
-{
+static void decompressCheck(const void* srcBuff, size_t srcBuffSize) {
     size_t const neededBuffSize = 20 * srcBuffSize;
 
     /* Allocate all buffers and contexts if not already allocated */
@@ -73,13 +72,16 @@ static void decompressCheck(const void* srcBuff, size_t srcBuffSize)
     ZSTD_decompressDCtx(dctx, rBuff, buffSize, srcBuff, srcBuffSize);
 
 #ifndef SKIP_FREE
-    free(dws); dws = NULL; dctx = NULL;
-    free(rBuff); rBuff = NULL;
+    free(dws);
+    dws = NULL;
+    dctx = NULL;
+    free(rBuff);
+    rBuff = NULL;
     buffSize = 0;
 #endif
 }
 
-int LLVMFuzzerTestOneInput(const unsigned char *srcBuff, size_t srcBuffSize) {
-  decompressCheck(srcBuff, srcBuffSize);
-  return 0;
+int LLVMFuzzerTestOneInput(const unsigned char* srcBuff, size_t srcBuffSize) {
+    decompressCheck(srcBuff, srcBuffSize);
+    return 0;
 }

@@ -38,13 +38,13 @@
  */
 
 /* **************************************************************
-*  Compiler specifics
-****************************************************************/
+ *  Compiler specifics
+ ****************************************************************/
 #define FORCE_INLINE static __always_inline
 
 /* **************************************************************
-*  Includes
-****************************************************************/
+ *  Includes
+ ****************************************************************/
 #include "bitstream.h"
 #include "fse.h"
 #include <linux/compiler.h>
@@ -53,16 +53,16 @@
 #include <linux/string.h> /* memcpy, memset */
 
 /* **************************************************************
-*  Error Management
-****************************************************************/
+ *  Error Management
+ ****************************************************************/
 #define FSE_STATIC_ASSERT(c)                                   \
 	{                                                      \
 		enum { FSE_static_assert = 1 / (int)(!!(c)) }; \
 	} /* use only *after* variable declarations */
 
 /* **************************************************************
-*  Templates
-****************************************************************/
+ *  Templates
+ ****************************************************************/
 /*
   designed to be included
   for type-specific functions (template emulation in C)
@@ -119,7 +119,7 @@ size_t FSE_buildCTable_wksp(FSE_CTable *ct, const short *normalizedCounter, unsi
 	tableU16[-1] = (U16)maxSymbolValue;
 
 	/* For explanations on how to distribute symbol values over the table :
-	*  http://fastcompression.blogspot.fr/2014/02/fse-distributing-symbol-values.html */
+	 *  http://fastcompression.blogspot.fr/2014/02/fse-distributing-symbol-values.html */
 
 	/* symbol start positions */
 	{
@@ -158,7 +158,7 @@ size_t FSE_buildCTable_wksp(FSE_CTable *ct, const short *normalizedCounter, unsi
 	{
 		U32 u;
 		for (u = 0; u < tableSize; u++) {
-			FSE_FUNCTION_TYPE s = tableSymbol[u];	/* note : static analyzer may not understand tableSymbol is properly initialized */
+			FSE_FUNCTION_TYPE s = tableSymbol[u];	     /* note : static analyzer may not understand tableSymbol is properly initialized */
 			tableU16[cumul[s]++] = (U16)(tableSize + u); /* TableU16 : sorted by symbol order; gives next state value */
 		}
 	}
@@ -192,8 +192,8 @@ size_t FSE_buildCTable_wksp(FSE_CTable *ct, const short *normalizedCounter, unsi
 }
 
 /*-**************************************************************
-*  FSE NCount encoding-decoding
-****************************************************************/
+ *  FSE NCount encoding-decoding
+ ****************************************************************/
 size_t FSE_NCountWriteBound(unsigned maxSymbolValue, unsigned tableLog)
 {
 	size_t const maxHeaderSize = (((maxSymbolValue + 1) * tableLog) >> 3) + 3;
@@ -312,8 +312,8 @@ size_t FSE_writeNCount(void *buffer, size_t bufferSize, const short *normalizedC
 }
 
 /*-**************************************************************
-*  Counting histogram
-****************************************************************/
+ *  Counting histogram
+ ****************************************************************/
 /*! FSE_count_simple
 	This function counts byte values within `src`, and store the histogram into table `count`.
 	It doesn't use any additional memory.
@@ -464,8 +464,8 @@ size_t FSE_count_wksp(unsigned *count, unsigned *maxSymbolValuePtr, const void *
 }
 
 /*-**************************************************************
-*  FSE Compression Code
-****************************************************************/
+ *  FSE Compression Code
+ ****************************************************************/
 /*! FSE_sizeof_CTable() :
 	FSE_CTable is a variable size structure which contains :
 	`U16 tableLog;`
