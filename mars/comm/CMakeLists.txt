@@ -103,18 +103,14 @@ if(MSVC)
     source_group(windows\\SocketSelect FILES ${SELF_TEMP_SRC_FILES})
     list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})      
     
-else()   
-    
+else()
     file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} unix/socket/*.cc unix/socket/*.h)
     source_group(unix\\socket FILES ${SELF_TEMP_SRC_FILES})
     list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
-
 endif()
 
 if(ANDROID)
-
     add_definitions(-DUSING_XLOG_WEAK_FUNC)
-
     file(GLOB SELF_ANDROID_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR}
             android/*.cc
             android/*.c
@@ -124,15 +120,14 @@ if(ANDROID)
             jni/jnicat/*.cpp
             unix/xlogger_threadinfo.cc
         )
-        
     list(APPEND SELF_SRC_FILES ${SELF_ANDROID_SRC_FILES})
 elseif(APPLE)
-
     file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} objc/*.mm objc/*.h)
     source_group(objc FILES ${SELF_TEMP_SRC_FILES})
     list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES} debugger/debugger_utils.c)
 elseif(UNIX)
-    list(APPEND SELF_SRC_FILES unix/xlogger_threadinfo.cc)
+    file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} unix/*.cc)
+    list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 endif()
 
 
