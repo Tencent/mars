@@ -216,8 +216,8 @@ int getNetTypeForStatistics() {
     if (!getCurRadioAccessNetworkInfo(rani)) {
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
     }
-
-    if (rani.Is2G()) {
+#if TARGET_OS_IPHONE && !TARGET_OS_WATCH
+    if (rani.Is2G()){
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_2G;
     } else if (rani.Is3G()) {
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_3G;
@@ -226,7 +226,7 @@ int getNetTypeForStatistics() {
     } else if (rani.IsNR()) {
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_5G;
     }
-
+#endif
     return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
 }
 
