@@ -263,23 +263,6 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
     }
 
     while (!done) {
-        strm.next_out = (Bytef*)(uncomp + strm.total_out);
-        strm.avail_out = uncompLength - strm.total_out;
-
-        // Inflate another chunk.
-        int err = inflate(&strm, Z_SYNC_FLUSH);
-        // decompress success
-        if (strm.total_in == compressedBytesSize) {
-            break;
-        }
-        if (err == Z_STREAM_END || err == Z_BUF_ERROR || err == Z_DATA_ERROR) {
-            done = true;
-        }
-        //        else if (err != Z_OK)
-        //        {
-        //            break;
-        //        }
-
         // If our output buffer is too small
         if (strm.total_out >= uncompLength) {
             // Increase size of output buffer
@@ -288,6 +271,17 @@ bool zlibDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
             uncompLength += halfLength;
             free(uncomp);
             uncomp = uncomp2;
+        }
+
+        strm.next_out = (Bytef*)(uncomp + strm.total_out);
+        strm.avail_out = uncompLength - strm.total_out;
+
+        // Inflate another chunk.
+        int err = inflate(&strm, Z_SYNC_FLUSH);
+        if (err == Z_STREAM_END) {
+            done = true;
+        } else if (err != Z_OK) {
+            break;
         }
     }
 
@@ -373,7 +367,6 @@ int decodeBuffer(const char* buffer,
     }
 
     char* tmpBuffer = (char*)realloc(NULL, length);
-    memset(tmpBuffer, 0, length);
     size_t tmpBufferSize = length;
     if (tmpBuffer == NULL) {
         fputs("Memory error", stderr);

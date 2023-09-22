@@ -92,7 +92,7 @@ xcshareddata
 *.pdb
 mars/win32proj/Debug/mars.lastbuildstate
 mars/win32proj/Debug/mars.unsuccessfulbuild
-
+mars/comm/verinfo.h
 
 # cmake
 CMakeCache.txt

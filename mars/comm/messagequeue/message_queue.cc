@@ -1138,19 +1138,18 @@ void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id
     ThreadUtil::join((thread_tid)_messagequeue_id);
 }
 
-void MessageQueueCreater::ReleaseNewMessageCreater(MessageQueueCreater& _creater) {
-    if (KInvalidQueueID == _creater.messagequeue_id_)
-        return;
-    BreakMessageQueueRunloop(_creater.messagequeue_id_);
-    WaitForRunningLockEnd(_creater.messagequeue_id_);
-    _creater.__JoinThread();
-    _creater.messagequeue_id_ = KInvalidQueueID;
-}
+    void MessageQueueCreater::ReleaseNewMessageCreator(MessageQueueCreater& _creator) {
+        if (KInvalidQueueID == _creator.messagequeue_id_)
+            return;
+        BreakMessageQueueRunloop(_creator.messagequeue_id_);
+        WaitForRunningLockEnd(_creator.messagequeue_id_);
+        _creator.__JoinThread();
+    }
 
-void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
-    ScopedSpinLock lock(*_sp);
-    lock.unlock();
-    delete _sp;
+    void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
+        ScopedSpinLock lock(*_sp);
+        lock.unlock();
+        delete _sp;
 
     RunLoop().Run();
 }

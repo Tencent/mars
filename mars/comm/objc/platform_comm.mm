@@ -223,7 +223,7 @@ int getNetTypeForStatistics() {
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_3G;
     } else if (rani.Is4G()) {
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_4G;
-    }else if(rani.IsNR()){
+    } else if (rani.IsNR()) {
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_5G;
     }
 

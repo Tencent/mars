@@ -140,8 +140,8 @@ NetCore::~NetCore() {
     if (!already_release_net_) {
         ReleaseNet();
     }
-    // MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
-    MessageQueue::MessageQueueCreater::ReleaseNewMessageCreater(messagequeue_creater_);
+    //MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    MessageQueue::MessageQueueCreater::ReleaseNewMessageCreator(messagequeue_creater_);
 }
 
 void NetCore::ReleaseNet() {

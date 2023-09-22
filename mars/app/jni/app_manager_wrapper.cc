@@ -10,6 +10,7 @@
 #include "mars/app/app_manager.h"
 #include "mars/app/jni/app_manager_callback_wrapper.h"
 #include "mars/boot/context.h"
+#include "mars/comm/jni/util/scoped_jstring.h"
 
 using namespace mars::boot;
 
@@ -45,6 +46,27 @@ class JniAppManager {
         appManagerCallbackWrapper->instantiate(env, instance, "callbackHandle");
         app_manager_cpp->SetCallback(appManagerJniCallback);
     }
+
+    static void JniSetConfigBooleanValue(JNIEnv* env, jobject instance, jstring jkey, jboolean jvalue) {
+        auto app_manager_cpp = jnicat::JniObjectWrapper<AppManager>::object(env, instance);
+        std::string key = (NULL == jkey ? "" : ScopedJstring(env, jkey).GetChar());
+        bool value = (jvalue == JNI_TRUE);
+        app_manager_cpp->SetConfig(key, value);
+    }
+
+    static void JniSetConfigIntValue(JNIEnv* env, jobject instance, jstring jkey, jint jvalue) {
+        auto app_manager_cpp = jnicat::JniObjectWrapper<AppManager>::object(env, instance);
+        std::string key = (NULL == jkey ? "" : ScopedJstring(env, jkey).GetChar());
+        int value = static_cast<int>(jvalue);
+        app_manager_cpp->SetConfig(key, value);
+    }
+
+    static void JniSetConfigStringValue(JNIEnv* env, jobject instance, jstring jkey, jstring jvalue) {
+        auto app_manager_cpp = jnicat::JniObjectWrapper<AppManager>::object(env, instance);
+        std::string key = (NULL == jkey ? "" : ScopedJstring(env, jkey).GetChar());
+        std::string value = (NULL == jvalue ? "" : ScopedJstring(env, jvalue).GetChar());
+        app_manager_cpp->SetConfig(key, value);
+    }
 };
 
 static const JNINativeMethod kAppManagerJniMethods[] = {
@@ -54,6 +76,13 @@ static const JNINativeMethod kAppManagerJniMethods[] = {
      (void*)&mars::app::JniAppManager::JniCreateAppManagerFromContext},
     {"OnJniDestroyAppManager", "()V", (void*)&mars::app::JniAppManager::JniOnDestroyAppManager},
     {"OnJniSetCallback", "(Ljava/lang/Object;)V", (void*)&mars::app::JniAppManager::JniSetCallback},
+    {"OnJniSetConfigBooleanValue",
+     "(Ljava/lang/String;Z)V",
+     (void*)&mars::app::JniAppManager::JniSetConfigBooleanValue},
+    {"OnJniSetConfigIntValue", "(Ljava/lang/String;I)V", (void*)&mars::app::JniAppManager::JniSetConfigIntValue},
+    {"OnJniSetConfigStringValue",
+     "(Ljava/lang/String;Ljava/lang/String;)V",
+     (void*)&mars::app::JniAppManager::JniSetConfigStringValue},
 };
 
 static const size_t kAppManagerJniMethodsCount = sizeof(kAppManagerJniMethods) / sizeof(JNINativeMethod);
