@@ -66,6 +66,14 @@ void StnManager::OnInitConfigBeforeOnCreate(const int _packer_encoder_version) {
     packer_encoder_version_ = _packer_encoder_version;
 }
 
+void StnManager::OnInitConfigBeforeOnCreateV2(const int _packer_encoder_version, std::string _packer_encoder_name) {
+    xdebug2(TSF "mars2 OnInitConfigBeforeOnCreate _packer_encoder_version:%_ _packer_encoder_name:%_",
+            _packer_encoder_version,
+            _packer_encoder_name);
+    packer_encoder_version_ = _packer_encoder_version;
+    packer_encoder_name_ = _packer_encoder_name;
+}
+
 void StnManager::OnCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
@@ -73,7 +81,7 @@ void StnManager::OnCreate() {
     xinfo_function(TSF "mars2");
     ActiveLogic::Instance();
     if (!net_core_) {
-        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
+        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
         NetCore::NetCoreCreate()(net_core_);
     }
 }
@@ -506,19 +514,20 @@ void StnManager::Reset() {
     NetCore::__Release(tmp_net_core);
     NetCore::NetCoreRelease()();
     tmp_net_core.reset();
-    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
+    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
     NetCore::NetCoreCreate()(net_core_);
 }
 
-void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
+void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::string _encoder_name) {
     xinfo_function(TSF "mars2 packer_encoder_version:%_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
+    packer_encoder_name_ = _encoder_name;
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
     NetCore::NetCoreRelease()();
     tmp_net_core.reset();
-    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
+    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
     NetCore::NetCoreCreate()(net_core_);
 }
 

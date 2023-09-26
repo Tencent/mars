@@ -180,6 +180,7 @@ struct LonglinkConfig {
     bool isMain;
     int link_type = Task::kChannelLong;
     int packer_encoder_version = PackerEncoderVersion::kOld;
+    std::string packer_encoder_name = "";
     std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
     bool need_tls;
 };
