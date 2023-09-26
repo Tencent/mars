@@ -209,10 +209,11 @@ class JniStnManager {
         stn_manager_cpp->Reset();
     }
 
-    static void JniResetAndInitEncoderVersion(JNIEnv* env, jobject instance, jint _packer_encoder_version) {
+    static void JniResetAndInitEncoderVersion(JNIEnv* env, jobject instance, jint _packer_encoder_version, jstring _packer_encoder_name) {
         xverbose_function();
         auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
-        stn_manager_cpp->ResetAndInitEncoderVersion(_packer_encoder_version);
+        std::string packer_encoder_name = (NULL == _packer_encoder_name ? "" : ScopedJstring(env, _packer_encoder_name).GetChar());
+        stn_manager_cpp->ResetAndInitEncoderVersion(_packer_encoder_version, packer_encoder_name);
     }
 
     static void JniSetBackupIPs(JNIEnv* env, jobject instance, jstring _host, jobjectArray _objarray) {
@@ -284,7 +285,7 @@ static const JNINativeMethod kStnManagerJniMethods[] = {
     {"OnJniTouchTasks", "()V", (void*)&mars::stn::JniStnManager::JniTouchTasks},
     {"OnJniClearTask", "()V", (void*)&mars::stn::JniStnManager::JniClearTask},
     {"OnJniReset", "()V", (void*)&mars::stn::JniStnManager::JniReset},
-    {"OnJniResetAndInitEncoderVersion", "(I)V", (void*)&mars::stn::JniStnManager::JniResetAndInitEncoderVersion},
+    {"OnJniResetAndInitEncoderVersion", "(ILjava/lang/String;)V", (void*)&mars::stn::JniStnManager::JniResetAndInitEncoderVersion},
     {"OnJniSetBackupIPs",
      "(Ljava/lang/String;[Ljava/lang/String;)V",
      (void*)&mars::stn::JniStnManager::JniSetBackupIPs},
