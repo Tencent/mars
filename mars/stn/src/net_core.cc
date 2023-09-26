@@ -65,8 +65,12 @@ static const int kShortlinkErrTime = 3;
 
 // bool NetCore::need_use_longlink_ = true;
 
-NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link)
+NetCore::NetCore(boot::Context* _context,
+                 int _packer_encoder_version,
+                 std::string _packer_encoder_name,
+                 bool _use_long_link)
 : packer_encoder_version_(_packer_encoder_version)
+, packer_encoder_name_(_packer_encoder_name)
 , need_use_longlink_(_use_long_link)
 , messagequeue_creater_(true, XLOGGER_TAG)
 , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
@@ -202,6 +206,7 @@ void NetCore::__InitLongLink() {
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
+    defaultConfig.packer_encoder_name = packer_encoder_name_;
     CreateLongLink(defaultConfig);
 
     // async
@@ -305,7 +310,10 @@ int NetCore::__ChooseChannel(const Task& _task,
 
 void NetCore::StartTask(const Task& _task) {
     ASYNC_BLOCK_START
-
+    if (already_release_net_) {
+        xinfo2(TSF "net core had release. ignore.");
+        return;
+    }
     xgroup2_define(group);
     xinfo2(TSF
            "task start long short taskid:%0, cmdid:%1, need_authed:%2, cgi:%3, channel_select:%4, limit_flow:%5, "
@@ -366,15 +374,21 @@ void NetCore::StartTask(const Task& _task) {
     if (need_use_longlink_) {
         longlink = longlink_task_manager_->GetLongLink(task.channel_name);
     }
-
     //.下列逻辑是为了notify而做的，目前notify ack不需要在已有长连上进行，因此这个判断条件不需要了.
-    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink || !longlink->IsConnected())){
+    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong)
+    //     && (!longlink || !longlink->IsConnected())) {
     //     //.必须长链或副长链，但指定连接不存在，则回调失败.
-    //     xerror2(TSF"err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
+    //     xerror2(TSF "err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
     //     /* mars2
-    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
+    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable,
+    //     ConnectProfile());
     //     */
-    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
+    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid,
+    //                                                   task.user_context,
+    //                                                   task.user_id,
+    //                                                   kEctLocal,
+    //                                                   kEctLocalLongLinkUnAvailable,
+    //                                                   ConnectProfile());
     //     return;
     // }
 
@@ -1263,6 +1277,10 @@ std::shared_ptr<NetSource> NetCore::GetNetSource() {
 
 int NetCore::GetPackerEncoderVersion() {
     return packer_encoder_version_;
+}
+
+std::string NetCore::GetPackerEncoderName() {
+    return packer_encoder_name_;
 }
 
 void NetCore::SetNeedUseLongLink(bool flag) {

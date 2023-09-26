@@ -134,7 +134,7 @@ extern void (*ClearTasks)();
 // the same as ClearTasks(), but also reinitialize network.
 extern void (*Reset)();
 
-extern void (*ResetAndInitEncoderVersion)(int _encoder_version);
+extern void (*ResetAndInitEncoderVersion)(int _encoder_version, std::string _encoder_name);
 
 // setting signalling's parameters.
 // if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
