@@ -51,6 +51,7 @@ enum class NetTypeForStatistics {
     NETTYPE_UNKNOWN = 6,  // ignore, DO NOT reuse
     NETTYPE_5G = 7,
 };
+
 int getNetTypeForStatistics();
 
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
@@ -59,12 +60,14 @@ struct WifiInfo {
     std::string ssid;
     std::string bssid;
 };
+
 bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false);
 
 struct SIMInfo {
     std::string isp_code;
     std::string isp_name;
 };
+
 bool getCurSIMInfo(SIMInfo& _sim_info);
 
 struct APNInfo {
@@ -74,6 +77,7 @@ struct APNInfo {
     int sub_nettype;
     std::string extra_info;
 };
+
 bool getAPNInfo(APNInfo& info);
 #if __cplusplus >= 201103L
 #define __CXX11_CONSTEXPR__ constexpr
@@ -220,11 +224,13 @@ struct RadioAccessNetworkInfo {
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
 
 unsigned int getSignal(bool isWifi);
+
 bool isNetworkConnected();
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 
 void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
+
 void ResetWiFiIdCallBack();
 
 inline int getCurrNetLabel(std::string& netInfo) {
@@ -276,6 +282,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
 
 #ifdef __APPLE__
 void FlushReachability();
+
 float publiccomponent_GetSystemVersion();
 int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain);
 #endif

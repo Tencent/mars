@@ -709,8 +709,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 }
 
 void LongLink::__RunReadWrite(SOCKET _sock, ErrCmdType& _errtype, int& _errcode, ConnectProfile& _profile) {
-    Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this, false), false);
-    Alarm alarmnooptimeout(boost::bind(&LongLink::__OnAlarm, this, true), false);
+    Alarm alarmnoopinterval(boost::bind(&LongLink::__OnAlarm, this, false), false, context_);
+    Alarm alarmnooptimeout(boost::bind(&LongLink::__OnAlarm, this, true), false, context_);
 
 #ifdef __ANDROID__
     alarmnoopinterval.SetType(kAlarmNoopInternalType);

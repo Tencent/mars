@@ -65,8 +65,12 @@ static const int kShortlinkErrTime = 3;
 
 // bool NetCore::need_use_longlink_ = true;
 
-NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link)
+NetCore::NetCore(boot::Context* _context,
+                 int _packer_encoder_version,
+                 std::string _packer_encoder_name,
+                 bool _use_long_link)
 : packer_encoder_version_(_packer_encoder_version)
+, packer_encoder_name_(_packer_encoder_name)
 , need_use_longlink_(_use_long_link)
 , messagequeue_creater_(true, XLOGGER_TAG)
 , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
@@ -202,6 +206,7 @@ void NetCore::__InitLongLink() {
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
+    defaultConfig.packer_encoder_name = packer_encoder_name_;
     CreateLongLink(defaultConfig);
 
     // async
@@ -1272,6 +1277,10 @@ std::shared_ptr<NetSource> NetCore::GetNetSource() {
 
 int NetCore::GetPackerEncoderVersion() {
     return packer_encoder_version_;
+}
+
+std::string NetCore::GetPackerEncoderName() {
+    return packer_encoder_name_;
 }
 
 void NetCore::SetNeedUseLongLink(bool flag) {
