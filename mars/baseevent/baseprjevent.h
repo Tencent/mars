@@ -24,6 +24,8 @@
 
 extern boost::signals2::signal<void()>& GetSignalOnCreate();
 extern boost::signals2::signal<void(int _encoder_version)>& GetSignalOnInitBeforeOnCreate();
+extern boost::signals2::signal<void(int _encoder_version, std::string _encoder_name)>&
+GetSignalOnInitBeforeOnCreateV2();
 extern boost::signals2::signal<void()>& GetSignalOnDestroy();
 extern boost::signals2::signal<void(int _sig)>& GetSignalOnSingalCrash();
 extern boost::signals2::signal<void()>& GetSignalOnExceptionCrash();
