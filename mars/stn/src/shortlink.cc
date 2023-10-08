@@ -193,6 +193,7 @@ void ShortLink::__Run() {
     conn_profile.tid = xlogger_tid();
     conn_profile.link_type = Task::kChannelShort;
     conn_profile.task_id = task_.taskid;
+    conn_profile.cgi = task_.cgi;
     __UpdateProfile(conn_profile);
 
     SOCKET fd_socket = __RunConnect(conn_profile);
