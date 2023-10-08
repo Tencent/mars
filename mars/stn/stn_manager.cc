@@ -74,13 +74,15 @@ void StnManager::OnCreate() {
 void StnManager::OnDestroy() {
     xinfo_function(TSF "mars2");
     if(nullptr == net_core_) {
-        xwarn2(TSF"net core is nullptr. ignore destory");
+        xwarn2(TSF"net core is nullptr. ignore destroy");
         return;
     }
-    NetCore::__Release(net_core_);
+    auto tmp_net_core = net_core_;
+    net_core_ = nullptr;
+    NetCore::__Release(tmp_net_core);
     NetCore::NetCoreRelease()();
     callback_bridge_->SetCallback(nullptr);
-    net_core_ = nullptr;
+    tmp_net_core.reset();
     delete callback_;
     delete callback_bridge_;
 }
@@ -378,55 +380,103 @@ void StnManager::SetLonglinkSvrAddr(const std::string& host,
     if (!host.empty()) {
         hosts.push_back(host);
     }
-    net_core_->GetNetSource()->SetLongLink(hosts, ports, debugip);
+    if (net_core_) {
+        net_core_->GetNetSource()->SetLongLink(hosts, ports, debugip);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::SetShortlinkSvrAddr(const uint16_t port, const std::string& debugip) {
-    net_core_->GetNetSource()->SetShortlink(port, debugip);
+    if (net_core_) {
+        net_core_->GetNetSource()->SetShortlink(port, debugip);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::SetDebugIP(const std::string& host, const std::string& ip) {
-    net_core_->GetNetSource()->SetDebugIP(host, ip);
+    if (net_core_) {
+        net_core_->GetNetSource()->SetDebugIP(host, ip);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::SetBackupIPs(const std::string& host, const std::vector<std::string>& iplist) {
-    net_core_->GetNetSource()->SetBackupIPs(host, iplist);
+    if (net_core_) {
+        net_core_->GetNetSource()->SetBackupIPs(host, iplist);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 bool StnManager::StartTask(const Task& _task) {
-    net_core_->StartTask(_task);
-    return true;
+    if (net_core_) {
+        net_core_->StartTask(_task);
+        return true;
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
+    return false;
 }
 
 void StnManager::StopTask(uint32_t _taskid) {
-    net_core_->StopTask(_taskid);
+    if (net_core_) {
+        net_core_->StopTask(_taskid);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 bool StnManager::HasTask(uint32_t taskid) {
-    return net_core_->HasTask(taskid);
+    if (net_core_) {
+        return net_core_->HasTask(taskid);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
+    return false;
 }
 
 void StnManager::RedoTasks() {
-    net_core_->RedoTasks();
+    if (net_core_) {
+        net_core_->RedoTasks();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::TouchTasks() {
-    net_core_->TouchTasks();
+    if (net_core_) {
+        net_core_->TouchTasks();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::DisableLongLink() {
-    net_core_->SetNeedUseLongLink(false);
+    if (net_core_) {
+        net_core_->SetNeedUseLongLink(false);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::ClearTasks() {
-    net_core_->ClearTasks();
+    if (net_core_) {
+        net_core_->ClearTasks();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::Reset() {
     xinfo2(TSF "mars2");
+    auto tmp_net_core = net_core_;
+    net_core_ = nullptr;
+    NetCore::__Release(tmp_net_core);
     NetCore::NetCoreRelease()();
-    NetCore::__Release(net_core_);
-    net_core_.reset();
+    tmp_net_core.reset();
     net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
     NetCore::NetCoreCreate()(net_core_);
 }
@@ -434,9 +484,11 @@ void StnManager::Reset() {
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
     xinfo_function(TSF "mars2 packer_encoder_version:%_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
+    auto tmp_net_core = net_core_;
+    net_core_ = nullptr;
+    NetCore::__Release(tmp_net_core);
     NetCore::NetCoreRelease()();
-    NetCore::__Release(net_core_);
-    net_core_.reset();
+    tmp_net_core.reset();
     net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
     NetCore::NetCoreCreate()(net_core_);
 }
@@ -447,22 +499,38 @@ void StnManager::SetSignallingStrategy(long _period, long _keepTime) {
 
 void StnManager::KeepSignalling() {
 #ifdef USE_LONG_LINK
-    net_core_->KeepSignal();
+    if (net_core_) {
+        net_core_->KeepSignal();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 #endif
 }
 
 void StnManager::StopSignalling() {
 #ifdef USE_LONG_LINK
-    net_core_->StopSignal();
-
+    if (net_core_) {
+        net_core_->StopSignal();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 #endif
 }
 
 void StnManager::MakesureLonglinkConnected() {
-    net_core_->MakeSureLongLinkConnect();
+    if (net_core_) {
+        net_core_->MakeSureLongLinkConnect();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 bool StnManager::LongLinkIsConnected() {
+    if (net_core_) {
+        return net_core_->LongLinkIsConnected();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
     return false;
 }
 
@@ -471,11 +539,19 @@ uint32_t StnManager::getNoopTaskID() {
 }
 
 void StnManager::CreateLonglink_ext(LonglinkConfig& _config) {
-    net_core_->CreateLongLink(_config);
+    if (net_core_) {
+        net_core_->CreateLongLink(_config);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::DestroyLonglink_ext(const std::string& name) {
-    net_core_->DestroyLongLink(name);
+    if (net_core_) {
+        net_core_->DestroyLongLink(name);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 std::vector<std::string> StnManager::GetAllLonglink_ext() {
@@ -483,11 +559,20 @@ std::vector<std::string> StnManager::GetAllLonglink_ext() {
 }
 
 void StnManager::MarkMainLonglink_ext(const std::string& name) {
-    net_core_->MarkMainLonglink_ext(name);
+    if (net_core_) {
+        net_core_->MarkMainLonglink_ext(name);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 bool StnManager::LongLinkIsConnected_ext(const std::string& name) {
-    return net_core_->LongLinkIsConnected_ext(name);
+    if (net_core_) {
+        return net_core_->LongLinkIsConnected_ext(name);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
+    return false;
 }
 
 bool StnManager::ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info,
@@ -498,23 +583,40 @@ bool StnManager::ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info,
 }
 
 void StnManager::MakesureLonglinkConnected_ext(const std::string& name) {
-    net_core_->MakeSureLongLinkConnect_ext(name);
+    if (net_core_) {
+        net_core_->MakeSureLongLinkConnect_ext(name);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 // #################### end stn_logci.h ####################
 
 const std::vector<std::string>& StnManager::GetLongLinkHosts() {
-    return net_core_->GetNetSource()->GetLongLinkHosts();
+    if (net_core_) {
+        return net_core_->GetNetSource()->GetLongLinkHosts();
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
+    return empty_longlink_hosts;
 }
 
 void StnManager::SetLongLink(const std::vector<std::string>& _hosts,
                              const std::vector<uint16_t>& _ports,
                              const std::string& _debugip) {
-    net_core_->GetNetSource()->SetLongLink(_hosts, _ports, _debugip);
+    if (net_core_) {
+        net_core_->GetNetSource()->SetLongLink(_hosts, _ports, _debugip);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 void StnManager::SetShortlink(const uint16_t _port, const std::string& _debugip) {
-    net_core_->GetNetSource()->SetShortlink(_port, _debugip);
+    if (net_core_) {
+        net_core_->GetNetSource()->SetShortlink(_port, _debugip);
+    } else {
+        xwarn2(TSF "net core is empty.");
+    }
 }
 
 }  // namespace stn
