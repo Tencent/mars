@@ -99,7 +99,7 @@ void SocketPoll::ReadEvent(SOCKET _fd, bool _active) {
         return _v.fd == _fd;
     });
     if (find_it == events_.end()) {
-        AddEvent(_fd, _active ? true : false, false, NULL);
+        AddEvent(_fd, _active, false, nullptr);
         return;
     }
 
@@ -114,7 +114,7 @@ void SocketPoll::WriteEvent(SOCKET _fd, bool _active) {
         return _v.fd == _fd;
     });
     if (find_it == events_.end()) {
-        AddEvent(_fd, false, _active ? true : false, NULL);
+        AddEvent(_fd, false, _active, nullptr);
         return;
     }
 
