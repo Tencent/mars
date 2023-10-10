@@ -1,4 +1,4 @@
-#include "socketbreaker.h"
+﻿#include "socketbreaker.h"
 #include "xlogger/xlogger.h"
 
 namespace mars {
@@ -63,14 +63,35 @@ bool SocketBreaker::Clear() {
     return ret;
 }
 
+// WSASetEvent无法向fd中写入cookie
 bool SocketBreaker::PreciseBreak(uint32_t cookie) {
-    xassert2(false, "PreciseBreak hasn't implemented on windows");
-    return false;
+    ScopedLock lock(m_mutex);
+    bool ret = WSASetEvent(m_event);
+    ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+    m_broken = ret;
+
+    if (!ret)
+        m_exception = WSAGetLastError();
+
+    return m_broken;
 }
 
+// WSAResetEvent无法读取fd中的cookie
 bool SocketBreaker::PreciseClear(uint32_t* cookie) {
-    xassert2(false, "PreciseClear hasn't implemented on windows");
-    return false;
+    ScopedLock lock(m_mutex);
+
+    if (!m_broken)
+        return true;
+
+    bool ret = WSAResetEvent(m_event);
+    ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+
+    m_broken = !ret;
+
+    if (!ret)
+        m_exception = WSAGetLastError();
+
+    return ret;
 }
 
 void SocketBreaker::Close() {
