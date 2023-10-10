@@ -469,14 +469,14 @@ bool HeaderFields::Range(long& _start, long& _end) const {
     return true;
 }
 
-bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const {
+bool HeaderFields::ContentRange(const std::string& line, uint64_t* start, uint64_t* end, uint64_t* total) {
     // Content-Range: bytes 0-102400/102399
 
     *start = 0;
     *end = 0;
     *total = 0;
 
-    const char* strContentRange = HeaderField(HeaderFields::KStringContentRange);
+    const char* strContentRange = line.c_str();
 
     if (strContentRange) {
         // bytes 0-102400/102399
@@ -509,6 +509,18 @@ bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total)
     }
 
     return false;
+}
+
+bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const{
+    *start = 0;
+    *end = 0;
+    *total = 0;
+    
+    const char* pline = HeaderField(HeaderFields::KStringContentRange);
+    if (!pline){
+        return false;
+    }
+    return ContentRange(pline, start, end, total);
 }
 
 const std::string HeaderFields::ToString() const {
@@ -758,6 +770,9 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
 
                 if (NULL == pos) {
                     recvstatus_ = kFirstLine;
+                    if (consumed_bytes) {
+                        *consumed_bytes = _length;
+                    }
                     return recvstatus_;
                 }
 
