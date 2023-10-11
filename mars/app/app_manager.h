@@ -11,7 +11,7 @@
 #include <thread>
 
 #include "mars/app/app.h"
-#include "mars/boost/any.hpp"
+//#include "mars/boost/any.hpp"
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
 #include "mars/comm/alarm.h"
@@ -57,14 +57,15 @@ class AppManager : public mars::boot::BaseManager {
             xwarn2(TSF "AppConfig GetConfig return default value. ");
             return default_value;
         }
-        return boost::any_cast<T>(it->second);
+        // return boost::any_cast<T>(it->second);
+        return *static_cast<T*>(it->second);
     }
 
     template <typename T>
     void SetConfig(const std::string& key, T value) {
         xinfo2(TSF "AppConfig SetConfig key:%_, value:%_", key, value);
         std::unique_lock<std::mutex> lock(mutex_);
-        config_[key] = value;
+        config_[key] = new T(value);
         types_[key] = std::type_index(typeid(T)).name();
         lock.unlock();
         __CheckCommSetting(key);
@@ -93,7 +94,8 @@ class AppManager : public mars::boot::BaseManager {
     int slproxycount_ = 0;
 
     std::mutex mutex_;
-    std::unordered_map<std::string, boost::any> config_;
+    // std::unordered_map<std::string, boost::any> config_;
+    std::unordered_map<std::string, void*> config_;
     std::unordered_map<std::string, std::string> types_;
 };
 
