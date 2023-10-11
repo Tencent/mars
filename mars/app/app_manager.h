@@ -10,11 +10,12 @@
 #include <unordered_map>
 
 #include "mars/app/app.h"
-#include "mars/boost/any.hpp"
+//#include "mars/boost/any.hpp"
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
 #include "mars/comm/alarm.h"
 #include "mars/comm/comm_data.h"
+#include "mars/comm/overlay/any.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
 #include "mars/comm/thread/thread.h"
@@ -59,7 +60,8 @@ class AppManager : public mars::boot::BaseManager {
             xwarn2(TSF "AppConfig GetConfig return default value. ");
             return default_value;
         }
-        return boost::any_cast<T>(it->second);
+        // return boost::any_cast<T>(it->second);
+        return mars_overlay::any(it->second).cast<T>();
     }
 
     template <typename T>
@@ -95,7 +97,8 @@ class AppManager : public mars::boot::BaseManager {
     int slproxycount_ = 0;
 
     std::mutex mutex_;
-    std::unordered_map<std::string, boost::any> config_;
+    // std::unordered_map<std::string, boost::any> config_;
+    std::unordered_map<std::string, mars_overlay::any> config_;
     std::unordered_map<std::string, std::string> types_;
 };
 
