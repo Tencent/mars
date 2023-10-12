@@ -196,7 +196,6 @@ bool zstdDecompress(const char* compressedBytes, size_t compressedBytesSize, cha
     ZSTD_inBuffer input = {compressedBytes, compressedBytesSize, 0};
     ZSTD_outBuffer output = {NULL, compressedBytesSize, 0};
     bool done = false;
-    size_t lastPos = output.pos;
 
     while (!done) {
         if (output.pos >= uncompLength) {

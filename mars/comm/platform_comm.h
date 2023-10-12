@@ -277,7 +277,6 @@ inline int getCurrNetLabel(std::string& netInfo) {
 #ifdef __APPLE__
 void FlushReachability();
 float publiccomponent_GetSystemVersion();
-int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain);
 #endif
 
 #ifdef ANDROID

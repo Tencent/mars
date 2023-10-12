@@ -370,20 +370,13 @@ void NetCore::StartTask(const Task& _task) {
         longlink = longlink_task_manager_->GetLongLink(task.channel_name);
     }
     //.下列逻辑是为了notify而做的，目前notify ack不需要在已有长连上进行，因此这个判断条件不需要了.
-    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong)
-    //     && (!longlink || !longlink->IsConnected())) {
+    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink || !longlink->IsConnected())){
     //     //.必须长链或副长链，但指定连接不存在，则回调失败.
-    //     xerror2(TSF "err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
+    //     xerror2(TSF"err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
     //     /* mars2
-    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable,
-    //     ConnectProfile());
+    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
     //     */
-    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid,
-    //                                                   task.user_context,
-    //                                                   task.user_id,
-    //                                                   kEctLocal,
-    //                                                   kEctLocalLongLinkUnAvailable,
-    //                                                   ConnectProfile());
+    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
     //     return;
     // }
 

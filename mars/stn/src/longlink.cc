@@ -41,6 +41,7 @@
 #include "mars/comm/socket/getsocktcpinfo.h"
 #endif
 
+#include "config.h"
 #include "mars/app/app_manager.h"
 #include "mars/stn/config.h"
 #include "mars/stn/stn_manager.h"
