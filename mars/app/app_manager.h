@@ -14,10 +14,11 @@
 //#include "mars/boost/any.hpp"
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
-#include "mars/comm/alarm.h"
 #include "mars/comm/comm_data.h"
 #include "mars/comm/time_utils.h"
-
+#ifdef ANDROID
+#include "mars/comm/alarm.h"
+#endif
 namespace mars {
 namespace app {
 
