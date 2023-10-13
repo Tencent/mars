@@ -44,7 +44,8 @@ enum {
 struct dnsinfo {
     thread_tid threadid;
     DNS* dns;
-    DNS::DNSFunc dns_func;
+    // DNS::DNSFunc    dns_func;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dns_func;
     std::string host_name;
     std::vector<std::string> result;
     int status;
@@ -72,7 +73,8 @@ void DNS::__GetIP() {
     auto start_time = ::gettickcount();
 
     std::string host_name;
-    DNS::DNSFunc dnsfunc = NULL;
+    // DNS::DNSFunc dnsfunc = NULL;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc;
     bool longlink_host = false;
 
     ScopedLock lock(sg_mutex);
@@ -200,7 +202,7 @@ void DNS::__GetIP() {
 }
 
 ///////////////////////////////////////////////////////////////////
-DNS::DNS(const DNSFunc& _dnsfunc)
+DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc)
 : dnsfunc_(_dnsfunc) {
 }
 
