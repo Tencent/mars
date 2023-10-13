@@ -69,7 +69,7 @@ class DNS {
     }
 
  private:
-    static void __GetIP();
+    void __GetIP();
 
  private:
     DNSFunc dnsfunc_;

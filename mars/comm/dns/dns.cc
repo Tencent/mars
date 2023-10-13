@@ -18,10 +18,6 @@
  */
 
 #include <utility>
-#include <condition_variable>
-#include <mutex>
-#include <thread>
-#include <sstream>
 
 #include "dns/dns.h"
 
@@ -30,6 +26,9 @@
 #include "socket/local_ipstack.h"
 #include "socket/socket_address.h"
 #include "socket/unix_socket.h"
+#include "thread/condition.h"
+#include "thread/lock.h"
+#include "thread/thread.h"
 #include "time_utils.h"
 #include "xlogger/xlogger.h"
 
@@ -45,7 +44,7 @@ enum {
 };
 
 struct DnsInfo {
-    std::thread::id threadid{};
+    thread_tid threadid{};
     DNS* dns{};
     DNS::DNSFunc dns_func;
     std::string host_name;
@@ -55,29 +54,26 @@ struct DnsInfo {
 };
 
 std::string DNSInfoToString(const struct DnsInfo& _info) {
-    std::stringstream ss;
-    ss << _info.threadid;
     XMessage msg;
     msg(TSF "info:%_, threadid:%_, dns:%_, host_name:%_, status:%_",
         &_info,
-        ss.str(),
+        _info.threadid,
         _info.dns,
         _info.host_name,
         _info.status);
     return msg.Message();
 }
-
 NO_DESTROY static std::vector<DnsInfo> sg_dnsinfo_vec;
-NO_DESTROY static std::condition_variable sg_condition;
-NO_DESTROY static std::mutex sg_mutex;
+NO_DESTROY static Condition sg_condition;
+NO_DESTROY static Mutex sg_mutex;
 void DNS::__GetIP() {
     xverbose_function();
 
     auto start_time = ::gettickcount();
 
-    sg_mutex.lock();
+    ScopedLock lock(sg_mutex);
     auto iter = std::find_if(sg_dnsinfo_vec.begin(), sg_dnsinfo_vec.end(), [](const DnsInfo&dnsinfo) {
-        return dnsinfo.threadid == std::this_thread::get_id();
+        return dnsinfo.threadid == ThreadUtil::currentthreadid();
     });
     if (iter == sg_dnsinfo_vec.end()) {
         assert(false);
@@ -86,8 +82,8 @@ void DNS::__GetIP() {
     std::string host_name = iter->host_name;
     DNS::DNSFunc dnsfunc = iter->dns_func;
     bool longlink_host = iter->longlink_host;
-    sg_mutex.unlock();
 
+    lock.unlock();
     xdebug2(TSF "dnsfunc is null: %_, %_", host_name, (dnsfunc == nullptr));
     if (dnsfunc) {
         std::vector<std::string> ips;
@@ -95,16 +91,17 @@ void DNS::__GetIP() {
             ips = dnsfunc(host_name, longlink_host);
         }
 
-        std::lock_guard<std::mutex> lock_guard(sg_mutex);
+        lock.lock();
+
         iter = std::find_if(sg_dnsinfo_vec.begin(), sg_dnsinfo_vec.end(), [](const DnsInfo&dnsinfo) {
-            return dnsinfo.threadid == std::this_thread::get_id();
+            return dnsinfo.threadid == ThreadUtil::currentthreadid();
         });
 
         if (iter != sg_dnsinfo_vec.end()) {
             iter->status = ips.empty() ? kGetIPFail : kGetIPSuc;
             iter->result = ips;
         }
-        sg_condition.notify_all();
+        sg_condition.notifyAll();
         return;
     }
 
@@ -132,10 +129,10 @@ void DNS::__GetIP() {
         error = getaddrinfo(host_name.c_str(), nullptr, /*&hints*/ nullptr, &result);
     }
 
-    std::lock_guard<std::mutex> lock_guard(sg_mutex);
+    lock.lock();
 
     iter = std::find_if(sg_dnsinfo_vec.begin(), sg_dnsinfo_vec.end(), [](const DnsInfo&dnsinfo) {
-        return dnsinfo.threadid == std::this_thread::get_id();
+        return dnsinfo.threadid == ThreadUtil::currentthreadid();
     });
 
     if (error != 0) {
@@ -148,7 +145,7 @@ void DNS::__GetIP() {
         if (iter != sg_dnsinfo_vec.end())
             iter->status = kGetIPFail;
 
-        sg_condition.notify_all();
+        sg_condition.notifyAll();
         return;
     }
     if (iter == sg_dnsinfo_vec.end()) {
@@ -187,7 +184,7 @@ void DNS::__GetIP() {
     freeaddrinfo(result);
     iter->status = kGetIPSuc;
     xinfo2(TSF "cost time: %_", (::gettickcount() - start_time)) >> ip_group;
-    sg_condition.notify_all();
+    sg_condition.notifyAll();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -212,15 +209,21 @@ bool DNS::GetHostByName(const std::string& _host_name,
         return false;
     }
 
-    std::unique_lock<std::mutex> lock(sg_mutex);
+    ScopedLock lock(sg_mutex);
 
     if (_breaker && _breaker->isbreak)
         return false;
 
-    std::thread thread([](){ __GetIP(); });
+    Thread thread(std::bind(&DNS::__GetIP, this), _host_name.c_str());
+    int startRet = thread.start();
+
+    if (startRet != 0) {
+        xerror2(TSF "start the thread fail");
+        return false;
+    }
 
     DnsInfo info;
-    info.threadid = thread.get_id();
+    info.threadid = thread.tid();
     info.host_name = _host_name;
     info.dns_func = dnsfunc_;
     info.dns = this;
@@ -237,7 +240,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
         uint64_t time_cur = gettickcount();
         uint64_t time_wait = time_end > time_cur ? time_end - time_cur : 0;
 
-        std::cv_status wait_ret = sg_condition.wait_for(lock, std::chrono::milliseconds(time_wait));
+        int wait_ret = sg_condition.wait(lock, (long)time_wait);
 
         auto it = std::find_if(sg_dnsinfo_vec.begin(), sg_dnsinfo_vec.end(), [&info](const DnsInfo&it) {
             return it.threadid == info.threadid;
@@ -249,7 +252,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
             return false;
         }
 
-        if (std::cv_status::timeout == wait_ret) {
+        if (ETIMEDOUT == wait_ret) {
             it->status = kGetIPTimeout;
         }
 
@@ -298,7 +301,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
 
 void DNS::Cancel(const std::string& _host_name) {
     xverbose_function();
-    std::lock_guard<std::mutex> lock_guard(sg_mutex);
+    ScopedLock lock(sg_mutex);
 
     for (auto & info : sg_dnsinfo_vec) {
         if (_host_name.empty() && info.dns == this) {
@@ -312,17 +315,17 @@ void DNS::Cancel(const std::string& _host_name) {
         }
     }
 
-    sg_condition.notify_all();
+    sg_condition.notifyAll();
 }
 
 void DNS::Cancel(DNSBreaker& _breaker) {
-    std::lock_guard<std::mutex> lock_guard(sg_mutex);
+    ScopedLock lock(sg_mutex);
     _breaker.isbreak = true;
 
     if (_breaker.dnsstatus)
         *(_breaker.dnsstatus) = kGetIPCancel;
 
-    sg_condition.notify_all();
+    sg_condition.notifyAll();
 }
 
 }  // namespace comm
