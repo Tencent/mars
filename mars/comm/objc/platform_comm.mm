@@ -496,6 +496,7 @@ bool getCurRadioAccessNetworkInfo(mars::comm::RadioAccessNetworkInfo& _raninfo) 
 
     return true;
 }
+
 #else
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) { return false; }
 #endif
