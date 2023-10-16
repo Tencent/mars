@@ -2,7 +2,7 @@
 #include "mars/comm/thread/condition.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/xlogger/xloggerbase.h"
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 
 namespace mars {
 namespace xlog {

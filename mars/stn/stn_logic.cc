@@ -35,7 +35,7 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 #include "stn/src/net_core.h"  //一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/proxy_test.h"

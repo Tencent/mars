@@ -15,7 +15,7 @@
 #import "comm/objc/scope_autoreleasepool.h"
 #include "comm/xlogger/loginfo_extract.h"
 #include "comm/xlogger/xlogger.h"
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 
 namespace mars {
 namespace xlog {

@@ -15,7 +15,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/thread/atomic_oper.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/stn_callback_bridge.h"
 #include "stn/src/net_core.h"  //一定要放这里，Mac os 编译

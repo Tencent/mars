@@ -29,8 +29,8 @@
 #include <algorithm>
 #include <cstdio>
 
-#include "log/crypt/log_crypt.h"
-#include "log/crypt/log_magic_num.h"
+#include "xlog/crypt/log_crypt.h"
+#include "xlog/crypt/log_magic_num.h"
 
 #ifdef WIN32
 #define snprintf _snprintf

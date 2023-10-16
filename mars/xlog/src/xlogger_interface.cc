@@ -17,7 +17,7 @@
  * @LastEditTime: 2019-03-05 15:10:50
  */
 
-#include "xlogger_interface.h"
+#include "mars/xlog/xlogger_interface.h"
 
 #include <functional>
 #include <map>

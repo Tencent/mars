@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 
 #ifdef _WIN32
 #define PRIdMAX "lld"

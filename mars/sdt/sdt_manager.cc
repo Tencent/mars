@@ -5,7 +5,7 @@
 #include "sdt_manager.h"
 
 #include "mars/comm/xlogger/xlogger.h"
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 #include "sdt/src/activecheck/httpchecker.h"
 #include "sdt/src/sdt_core.h"
 
