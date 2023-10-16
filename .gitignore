@@ -55,7 +55,7 @@ xcshareddata
 /mars/log/win32proj/Debug/*.pdb
 /mars/log/win32proj/Debug/log.tlog/*.tlog
 /mars/log/win32proj/Debug/log.tlog/*.lastbuildstate
-/mars/log/win32proj/Debug/log.tlog/*
+/mars/xlog/win32proj/Debug/log.tlog/*
 /samples/win32test/Debug/*.obj
 /samples/win32test/Debug/*.idb
 /samples/win32test/Debug/*.pdb

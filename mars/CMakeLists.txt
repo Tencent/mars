@@ -9,7 +9,7 @@ add_subdirectory(comm comm)
 add_subdirectory(boost boost)
 add_subdirectory(app app)
 add_subdirectory(baseevent baseevent)
-add_subdirectory(log xlog)
+add_subdirectory(xlog xlog)
 add_subdirectory(sdt sdt)
 add_subdirectory(stn stn)
 
@@ -37,10 +37,10 @@ if(ANDROID)
         add_definitions(-DNATIVE_CALLBACK)
     endif()
 
-    find_library(log-lib log)
+    find_library(log-lib xlog)
     find_library(z-lib z)
 
-    link_directories(app baseevent log sdt stn comm boost zstd)
+    link_directories(app baseevent xlog sdt stn comm boost zstd)
 
     # marsxlog
     set(SELF_LIB_NAME marsxlog)
