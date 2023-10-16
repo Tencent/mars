@@ -20,8 +20,8 @@
 #include "mars/comm/jni/util/scoped_jstring.h"
 #include "mars/comm/jni/util/var_cache.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "mars/log/appender.h"
-#include "mars/log/xlogger_interface.h"
+#include "mars/xlog/appender.h"
+#include "mars/xlog/xlogger_interface.h"
 
 #define LONGTHREADID2INT(a) ((a >> 32) ^ ((a & 0xFFFF)))
 

@@ -25,7 +25,7 @@
 #include "proto/generate/main.pb.h"
 #include "proto/generate/messagepush.pb.h"
 #include "mars/comm/xlogger/xloggerbase.h"
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 
 static const char* g_host = "marsopen.cn";
 
