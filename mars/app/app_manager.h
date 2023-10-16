@@ -1,4 +1,4 @@
-﻿//
+//
 // Created by Changpeng Pan on 2022/8/29.
 //
 
@@ -16,6 +16,7 @@
 #include "mars/boot/context.h"
 #include "mars/comm/comm_data.h"
 #include "mars/comm/time_utils.h"
+#include "mars/comm/xlogger/xlogger.h"
 #ifdef ANDROID
 #include "mars/comm/alarm.h"
 #endif
