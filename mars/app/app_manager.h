@@ -16,7 +16,7 @@
 #include "mars/boot/context.h"
 #include "mars/comm/comm_data.h"
 #include "mars/comm/time_utils.h"
-#include "mars/comm/xlogger/xlogger.h"
+#include "mars/xlog/xlogger.h"
 #ifdef ANDROID
 #include "mars/comm/alarm.h"
 #endif
