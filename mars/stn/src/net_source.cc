@@ -641,6 +641,27 @@ void NetSource::SetDefaultQUICRWTimeoutMs(unsigned ms) {
     sg_quic_default_timeout_source = TimeoutSource::kServerDefault;
 }
 
+unsigned NetSource::GetQUICConnectTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {
+    ScopedLock lock(sg_ip_mutex);
+    auto iter = cgi_quic_connect_timeoutms_mapping_.find(_cgi);
+    if (iter != cgi_quic_connect_timeoutms_mapping_.end()) {
+        *outsource = TimeoutSource::kCgiSpecial;
+        return iter->second;
+    }
+
+    *outsource = quic_default_connect_timeout_source_;
+    return quic_default_conn_timeoutms_;
+}
+void NetSource::SetQUICConnectTimeoutMs(const std::string& _cgi, unsigned ms) {
+    ScopedLock lock(sg_ip_mutex);
+    cgi_quic_connect_timeoutms_mapping_[_cgi] = ms;
+}
+void NetSource::SetDefaultQUICConnectTimeoutMs(unsigned ms) {
+    ScopedLock lock(sg_ip_mutex);
+    quic_default_conn_timeoutms_ = ms;
+    quic_default_connect_timeout_source_ = TimeoutSource::kServerDefault;
+}
+
 std::string NetSource::DumpTable(const std::vector<IPPortItem>& _ipport_items) {
     XMessage stream;
 

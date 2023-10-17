@@ -339,8 +339,14 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.use_quic = true;
                 config.quic.alpn = "h1";
                 config.quic.enable_0rtt = true;
-
+                TimeoutSource source;
+                config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
+                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
+                    config.quic.conn_timeout_ms, source);
                 hosts = task.quic_host_list;
+
+                first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
+                first->transfer_profile.connect_profile.quic_conn_timeout_source = source;
             } else {
                 xwarn2(TSF "taskid:%_ quic disabled or retry disabled %_", first->task.taskid, task.retry_count);
             }

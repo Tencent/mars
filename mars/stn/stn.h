@@ -182,6 +182,7 @@ struct QuicParameters {
     bool enable_0rtt = true;
     std::string alpn;
     std::string hostname;
+    unsigned conn_timeout_ms = 0;
 };
 struct ShortlinkConfig {
  public:
