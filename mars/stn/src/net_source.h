@@ -110,6 +110,10 @@ class NetSource {
     void SetQUICRWTimeoutMs(const std::string& _cgi, unsigned ms);
     void SetDefaultQUICRWTimeoutMs(unsigned ms);
 
+    unsigned GetQUICConnectTimeoutMs(const std::string& _cgi, TimeoutSource* outsource);
+    void SetQUICConnectTimeoutMs(const std::string& _cgi, unsigned ms);
+    void SetDefaultQUICConnectTimeoutMs(unsigned ms);
+
  public:
     NetSource(comm::ActiveLogic& _active_logic, boot::Context* _context);
     ~NetSource();
@@ -193,9 +197,15 @@ class NetSource {
     std::map<std::string, std::pair<std::string, uint16_t>> sg_cgi_debug_mapping;
     tickcount_t sg_quic_reopen_tick = tickcount_t(true);
     bool sg_quic_enabled = true;
+
+    
     TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
     unsigned sg_quic_default_rw_timeoutms = 5000;
     std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
+
+    TimeoutSource quic_default_connect_timeout_source_ = TimeoutSource::kClientDefault;
+    unsigned quic_default_conn_timeoutms_ = 250;
+    std::map<std::string, unsigned> cgi_quic_connect_timeoutms_mapping_;
     bool quic_forbidden_ = true;
 
     comm::Mutex sg_ip_mutex;
