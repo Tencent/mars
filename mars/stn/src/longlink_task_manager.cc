@@ -474,6 +474,9 @@ void LongLinkTaskManager::__RunOnStartTask() {
         auto longlink_channel = longlink->Channel();
 
         if (!first->antiavalanche_checked) {
+            // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
+            first->task.client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
+            xinfo2(TSF "client_sequence_id:%_", first->task.client_sequence_id);
             if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid,
                                                              first->task.user_context,
                                                              first->task.user_id,
@@ -580,7 +583,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
                                                                            err_code,
                                                                            longlink->Config().link_type,
                                                                            server_sequence_id);
-            xinfo2(TSF"server_sequence_id:%_", server_sequence_id);
+            xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
             first->task.server_sequence_id = server_sequence_id;
             ConnectProfile profile;
             __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, profile);
