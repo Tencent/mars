@@ -393,7 +393,7 @@ static bool GetWinV6GateWay() {
     PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
     ULONG outBufLen = 0;
     DWORD dwRetVal = 0;
-    char buff[100];
+    char buff[100] = {'\0'};
     DWORD bufflen = 100;
     bool result = false;
 

@@ -243,7 +243,7 @@ static const char* inet_ntop_v6(const void* src, char* dst, socklen_t size) {
         return NULL;
     }
     const uint16* as_shorts = reinterpret_cast<const uint16*>(src);
-    int runpos[8];
+    int runpos[8] = {0};
     int current = 1;
     int max = 1;
     int maxpos = -1;
