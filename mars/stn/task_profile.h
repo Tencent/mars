@@ -140,6 +140,9 @@ struct ConnectProfile {
         channel_type = 0;
         rtt_by_socket = 0;
 
+        begin_connect_timestamp_ms = 0;
+        end_connect_timestamp_ms = 0;
+
         task_id = 0;
     }
 
@@ -222,6 +225,10 @@ struct ConnectProfile {
     uint64_t retrans_byte_count;
     int channel_type;
     int rtt_by_socket;
+
+    //
+    uint64_t begin_connect_timestamp_ms;
+    uint64_t end_connect_timestamp_ms;
 
     uint32_t task_id;
 };
