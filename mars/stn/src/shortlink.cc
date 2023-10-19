@@ -394,6 +394,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     ShortLinkConnectObserver connect_observer(*this);
 
     _conn_profile.start_connect_time = ::gettickcount();
+    struct timeval now;
+    gettimeofday(&now, nullptr);
+    _conn_profile.begin_connect_timestamp_ms = now.tv_sec * 1000 + now.tv_usec / 1000;
 
     if (outter_vec_addr_.empty()) {
         auto ip_timeout = net_source_->GetIpConnectTimeout();
@@ -407,6 +410,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                                            proxy_addr,
                                            _conn_profile.proxy_info.username,
                                            _conn_profile.proxy_info.password);
+    gettimeofday(&now, nullptr);
+    _conn_profile.end_connect_timestamp_ms = now.tv_sec * 1000 + now.tv_usec / 1000;
     _conn_profile.connect_successful_time = ::gettickcount();
     delete proxy_addr;
     bool contain_v6 = __ContainIPv6(vecaddr);
