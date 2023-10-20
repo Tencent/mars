@@ -35,4 +35,4 @@ extern void freeifaddrs(struct ifaddrs* ifa);
 __END_DECLS
 #endif  // __ANDROID_API__
 
-#endif  //_IFADDRS_H_
+#endif  //_IFADDRS_2_H_

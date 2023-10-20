@@ -55,82 +55,7 @@ static void __WOULDBLOCK(SOCKET _sock, bool _block) {
 
 namespace mars {
 namespace comm {
-SocketBreaker::SocketBreaker() : m_broken(false), m_create_success(true), m_exception(0) {
-    ReCreate();
-}
 
-SocketBreaker::~SocketBreaker() {
-    Close();
-}
-
-bool SocketBreaker::IsCreateSuc() const {
-    return m_create_success;
-}
-
-bool SocketBreaker::ReCreate() {
-    m_event = WSACreateEvent();
-    m_create_success = WSA_INVALID_EVENT != m_event;
-    ASSERT2(m_create_success, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
-    m_exception = WSAGetLastError();
-    m_broken = !m_create_success;
-    return m_create_success;
-}
-
-bool SocketBreaker::IsBreak() const {
-    return m_broken;
-}
-
-bool SocketBreaker::Break() {
-    ScopedLock lock(m_mutex);
-    bool ret = WSASetEvent(m_event);
-    ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
-    m_broken = ret;
-
-    if (!ret)
-        m_exception = WSAGetLastError();
-
-    return m_broken;
-}
-
-bool SocketBreaker::Break(int reason) {
-    m_reason = reason;
-    return Break();
-}
-
-bool SocketBreaker::Clear() {
-    ScopedLock lock(m_mutex);
-
-    if (!m_broken)
-        return true;
-
-    bool ret = WSAResetEvent(m_event);
-    ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
-
-    m_broken = !ret;
-
-    if (!ret)
-        m_exception = WSAGetLastError();
-
-    return ret;
-}
-
-void SocketBreaker::Close() {
-    bool ret = WSACloseEvent(m_event);
-    ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
-    m_exception = WSAGetLastError();
-    m_event = WSA_INVALID_EVENT;
-    m_broken = true;
-}
-
-WSAEVENT SocketBreaker::BreakerFD() const {
-    return m_event;
-}
-
-int SocketBreaker::BreakReason() const {
-    return m_reason;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 SocketSelect::SocketSelect(SocketBreaker& _breaker, bool _autoclear)
 : autoclear_(_autoclear), breaker_(_breaker), m_broken(false), errno_(0) {
     // inital FD
@@ -267,7 +192,9 @@ int SocketSelect::Select(int _msec) {
     if (WSA_WAIT_FAILED == ret)
         errno_ = WSAGetLastError();
 
-    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && ret >= WSA_WAIT_EVENT_0 + eventfd_count) {
+    // different ms, eventarray[0] is fd, so ret > WSA_WAIT_EVENT_0
+    if (WSA_WAIT_FAILED != ret && WSA_WAIT_TIMEOUT != ret && ret > WSA_WAIT_EVENT_0
+        && ret < WSA_WAIT_EVENT_0 + m_filter_map.size() + eventfd_count) {
         WSANETWORKEVENTS networkevents = {0};
         int event_index = ret;
         ret = WSAEnumNetworkEvents(socketarray[event_index - WSA_WAIT_EVENT_0],
@@ -337,7 +264,10 @@ END:
         ASSERT2(WSACloseEvent(eventarray[index]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
         ++index;
     }
-
+    // for (size_t i = 0; i < vec_events_.size(); i++) {
+    //     //.event 句柄对象.
+    //     ASSERT2(WSACloseEvent(eventarray[i + 1]), "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+    // }
     vec_events_.clear();
     free(eventarray);
     free(socketarray);

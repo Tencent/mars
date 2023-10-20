@@ -15,14 +15,18 @@
  * author : yanguoyue
  */
 
-#include <jni.h>
+#ifndef USE_CPP_CALLBACK
 
 #include <map>
 #include <string>
 
+#include <jni.h>
+#include <android/log.h>
+
 #include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseevent.h"
 #include "mars/baseevent/baseprjevent.h"
+#include "mars/boot/context.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/jni/util/comm_function.h"
 #include "mars/comm/jni/util/scope_jenv.h"
@@ -31,15 +35,15 @@
 #include "mars/comm/singleton.h"
 #include "mars/comm/strutil.h"
 #include "mars/comm/xlogger/xlogger.h"
-//#include "mars/log/appender.h"
-#include <android/log.h>
 
 #include "mars/stn/stn_logic.h"
-#include "stn/config.h"
-#include "stn/proto/stnproto_logic.h"
-#include "stn/src/net_core.h"
-#include "stn/src/net_source.h"
-#include "stn/src/signalling_keeper.h"
+#include "mars/stn/stn_manager.h"
+#include "mars/stn/config.h"
+#include "mars/stn/proto/stnproto_logic.h"
+#include "mars/stn/src/net_core.h"
+#include "mars/stn/src/net_source.h"
+#include "mars/stn/src/signalling_keeper.h"
+#include "mars/stn/src/smart_heartbeat.h"
 
 using namespace mars::stn;
 
@@ -356,7 +360,15 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setClientVersion(JNIEn
 JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genTaskID(JNIEnv* _env, jclass) {
     return (jint)mars::stn::GenTaskID();
 }
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_trigNooping
+(JNIEnv *_env, jclass) {
+    SmartHeartbeat::SetHeartBeat(0);
+    mars::stn::DefaultLongLink()->TrigNoop();
+}
+
 }
 
 void ExportSTN() {
 }
+#endif

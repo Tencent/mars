@@ -9,7 +9,6 @@
 #include "./dns.h"
 
 #include "./coro_async.h"
-#include "boost/smart_ptr.hpp"
 #include "network/getdnssvraddrs.h"
 #include "socket/socket_address.h"
 #include "socket/unix_socket.h"

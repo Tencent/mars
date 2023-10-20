@@ -27,7 +27,6 @@
 
 #include "boost/any.hpp"
 #include "boost/function.hpp"
-#include "boost/smart_ptr.hpp"
 
 #if UWP  //???andrewu temp compile pass
 #include "boost/utility/result_of.hpp"
@@ -128,7 +127,7 @@ struct Message {
     template <class F>
     Message(const MessageTitle_t& _title, const F& _func, const std::string& _name = "")
     : title(_title)
-    , body1(boost::make_shared<AsyncInvokeFunction>())
+    , body1(std::make_shared<AsyncInvokeFunction>())
     , body2()
     , anr_timeout(10 * 60 * 1000)
     , msg_name(_name)
@@ -140,7 +139,7 @@ struct Message {
                 msg_name = funcname;
             }
         }
-        *boost::any_cast<boost::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
+        *boost::any_cast<std::shared_ptr<AsyncInvokeFunction> >(body1) = _func;
     }
 
     bool operator==(const Message& _rhs) const {
@@ -383,7 +382,7 @@ class RunloopCond {
     RunloopCond(){};
     virtual ~RunloopCond(){};
 
-    static boost::shared_ptr<RunloopCond> CurrentCond();
+    static std::shared_ptr<RunloopCond> CurrentCond();
 
  public:
     virtual const boost::typeindex::type_info& type() const = 0;
@@ -398,7 +397,7 @@ class RunloopCond {
 class MessageQueueCreater {
  public:
     MessageQueueCreater(bool _iscreate = false, const char* _msg_queue_name = NULL);
-    MessageQueueCreater(boost::shared_ptr<RunloopCond> _breaker,
+    MessageQueueCreater(std::shared_ptr<RunloopCond> _breaker,
                         bool _iscreate = false,
                         const char* _msg_queue_name = NULL);
     ~MessageQueueCreater();
@@ -408,9 +407,9 @@ class MessageQueueCreater {
     void CancelAndWait();
 
     static MessageQueue_t CreateNewMessageQueue(const char* _messagequeue_name = NULL);
-    static MessageQueue_t CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker,
+    static MessageQueue_t CreateNewMessageQueue(std::shared_ptr<RunloopCond> _breaker,
                                                 const char* _messagequeue_name = NULL);
-    static MessageQueue_t CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, thread_tid _tid);
+    static MessageQueue_t CreateNewMessageQueue(std::shared_ptr<RunloopCond> _breaker, thread_tid _tid);
     static void ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id); // block api
     static void ReleaseNewMessageCreator(MessageQueueCreater& _creator);
 
@@ -425,7 +424,7 @@ class MessageQueueCreater {
     Thread thread_;
     Mutex messagequeue_mutex_;
     MessageQueue_t messagequeue_id_;
-    boost::shared_ptr<RunloopCond> breaker_;
+    std::shared_ptr<RunloopCond> breaker_;
 };
 
 template <typename R>
@@ -514,7 +513,7 @@ class AsyncResult {
     // AsyncResult(const AsyncResult& _ref);
 
  private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <>
@@ -571,7 +570,7 @@ class AsyncResult<void> {
     // AsyncResult(const AsyncResult& _ref);
 
  private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <typename R>
@@ -631,7 +630,7 @@ class AsyncResult<R&> {
     // AsyncResult(const AsyncResult& _ref);
 
  private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <typename R>
@@ -691,7 +690,7 @@ class AsyncResult<const R&> {
     // AsyncResult(const AsyncResult& _ref);
 
  private:
-    boost::shared_ptr<AsyncResultWrapper> wrapper_;
+    std::shared_ptr<AsyncResultWrapper> wrapper_;
 };
 
 template <typename R>

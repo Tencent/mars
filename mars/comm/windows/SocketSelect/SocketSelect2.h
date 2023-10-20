@@ -18,43 +18,11 @@
 
 #include "socket/unix_socket.h"
 #include "thread/lock.h"
+#include "mars/comm/xlogger/xlogger.h"
+#include "socketbreaker.h"
 
 namespace mars {
 namespace comm {
-
-class SocketSelect;
-class SocketBreaker {
-    friend SocketSelect;
-
- public:
-    SocketBreaker();
-    ~SocketBreaker();
-
-    bool IsCreateSuc() const;
-    bool ReCreate();
-
-    bool IsBreak() const;
-
-    bool Break();
-    bool Break(int reason);
-    bool Clear();
-    void Close();
-
-    WSAEVENT BreakerFD() const;
-    int BreakReason() const;
-
- private:
-    SocketBreaker(const SocketBreaker&);
-    SocketBreaker& operator=(const SocketBreaker&);
-
- private:
-    Mutex m_mutex;
-    WSAEVENT m_event;
-    bool m_create_success;
-    bool m_broken;
-    int m_exception;
-    int m_reason;
-};
 
 class SocketSelect {
  public:

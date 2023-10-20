@@ -560,21 +560,28 @@ void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
 #pragma comment(lib, "Iphlpapi.lib")
 
 void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
-    FIXED_INFO fi;
-    ULONG ulOutBufLen = sizeof(fi);
-
-    if (::GetNetworkParams(&fi, &ulOutBufLen) != ERROR_SUCCESS) {
-        xinfo2(TSF " GetNetworkParams() failed");
+    FIXED_INFO *pFixedInfo = (FIXED_INFO *)malloc(sizeof(FIXED_INFO));
+    if (!pFixedInfo){
         return;
     }
-
-    IP_ADDR_STRING* pIPAddr = fi.DnsServerList.Next;
-
-    while (pIPAddr != NULL) {
-        _dns_servers.push_back(pIPAddr->IpAddress.String);
-        pIPAddr = pIPAddr->Next;
+    ULONG ulOutBufLen = 0;
+    
+    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
+        free(pFixedInfo);
+        pFixedInfo = (FIXED_INFO *)malloc(ulOutBufLen);
+        if (!pFixedInfo){
+            return;
+        }
     }
+    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == NO_ERROR){
+        IP_ADDR_STRING* pIPAddr = pFixedInfo->DnsServerList.Next;
 
+        while (pIPAddr != NULL) {
+        	_dns_servers.push_back(pIPAddr->IpAddress.String);
+            pIPAddr = pIPAddr->Next;
+        }
+    }
+    free(pFixedInfo);
     return;
 }
 #else

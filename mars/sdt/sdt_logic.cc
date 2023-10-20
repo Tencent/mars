@@ -40,7 +40,7 @@ static const std::string kLibName = "sdt";
 
 /* mars2
 #define SDT_WEAK_CALL(func) \
-    boost::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<SdtCore> sdt_ptr = SdtCore::Singleton::Instance_Weak().lock();\
     if (!sdt_ptr) {\
         xwarn2(TSF"sdt uncreate");\
         return;\

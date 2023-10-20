@@ -9,7 +9,7 @@ using namespace PublicComponent;
 using namespace Platform;
 
 std::string getUserNameNoLog() {
-    String ^ psUserName = Runtime2Cs_Logic::Singleton()->getUserName();
+    String ^ psUserName = Runtime2Cs_Logic::Singleton()->GetAppUserName();
 
     // std::wstring wsUsername(psUserName->Data());
     std::string sUsername = String2stdstring(psUserName);
@@ -18,7 +18,7 @@ std::string getUserNameNoLog() {
     return sUsername;
 }
 
-std::string getUserName() {
+std::string GetAppUserName() {
     xverbose_function();
 
     std::string userName = getUserNameNoLog();
@@ -31,7 +31,7 @@ std::string getUserName() {
 std::string getRecentUserName() {
     xverbose_function();
 
-    return getUserName();
+    return GetAppUserName();
 }
 
 unsigned int getClientVersionNoLog() {

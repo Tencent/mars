@@ -43,9 +43,6 @@
 #include "mars/comm/bootrun.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/macro.h"
-#include "mars/comm/thread/lock.h"
-#include "mars/comm/thread/mutex.h"
-#include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
 
@@ -219,7 +216,7 @@ AccountInfo GetAccountInfo() {
     return AccountInfo();
 }
 
-std::string GetUserName() {
+std::string GetAppUserName() {
     /*mars2
     xassert2(sg_callback != NULL);
     AccountInfo info = sg_callback->GetAccountInfo();
@@ -228,7 +225,7 @@ std::string GetUserName() {
     AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
     xassert2(NULL != app_manager, "mars2 app_manager is empty.");
     if (app_manager) {
-        return app_manager->GetUserName();
+        return app_manager->GetAppUserName();
     }
     return "";
 }
@@ -236,7 +233,7 @@ std::string GetUserName() {
 std::string GetRecentUserName() {
     /* mars2
     xassert2(sg_callback != NULL);
-    return GetUserName();
+    return GetAppUserName();
     */
     AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
     xassert2(NULL != app_manager, "mars2 app_manager is empty.");

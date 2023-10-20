@@ -50,14 +50,17 @@ mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
         return proxy_info_;
     }
 
-    ScopedLock lock(slproxymutex_, false);
-    if (!lock.timedlock(500))
+    if (!slproxymutex_.try_lock_for(std::chrono::milliseconds(500))) {
         return mars::comm::ProxyInfo();
-
-    if (slproxycount_ < 3 || 5 * 1000 > gettickspan(slproxytimetick_)) {
-        slproxythread_.start(boost::bind(&AppManager::GetProxyInfo, this, _host, slproxytimetick_));
     }
 
+    if (slproxycount_ < 3 || 5 * 1000 > gettickspan(slproxytimetick_)) {
+        std::thread([&](){
+            AppManager::GetProxyInfo(_host, slproxytimetick_);
+        }).detach();
+    }
+
+    slproxymutex_.unlock();
     if (got_proxy_) {
         return proxy_info_;
     }
@@ -82,7 +85,7 @@ AccountInfo AppManager::GetAccountInfo() {
     return callback_->GetAccountInfo();
 }
 
-std::string AppManager::GetUserName() {
+std::string AppManager::GetAppUserName() {
     xassert2(callback_ != NULL);
     AccountInfo info = callback_->GetAccountInfo();
     return info.username;
@@ -93,7 +96,7 @@ std::string AppManager::GetRecentUserName() {
     if (callback_ == NULL) {
         return "";
     }
-    return GetUserName();
+    return GetAppUserName();
 }
 
 unsigned int AppManager::GetClientVersion() {
@@ -120,7 +123,7 @@ void AppManager::GetProxyInfo(const std::string& _host, uint64_t _timetick) {
     xinfo_function(TSF "time tick:%_, host:%_", _timetick, _host);
     mars::comm::ProxyInfo proxy_info;
     if (!callback_->GetProxyInfo(_host, proxy_info)) {
-        mars::comm::ScopedLock lock(slproxymutex_);
+        std::lock_guard<std::timed_mutex> lock(slproxymutex_);
         if (_timetick != slproxytimetick_) {
             return;
         }
@@ -128,39 +131,37 @@ void AppManager::GetProxyInfo(const std::string& _host, uint64_t _timetick) {
         return;
     }
 
-    mars::comm::ScopedLock lock(slproxymutex_);
-    if (_timetick != slproxytimetick_) {
-        return;
+    {
+        std::lock_guard<std::timed_mutex> lock(slproxymutex_);
+        if (_timetick != slproxytimetick_) {
+            return;
+        }
+        ++slproxycount_;
+        proxy_info_ = proxy_info;
+        if (mars::comm::kProxyNone == proxy_info_.type || !proxy_info_.ip.empty() || proxy_info_.host.empty()) {
+            got_proxy_ = true;
+            return;
+        }
     }
-
-    ++slproxycount_;
-
-    proxy_info_ = proxy_info;
-
-    if (mars::comm::kProxyNone == proxy_info_.type || !proxy_info_.ip.empty() || proxy_info_.host.empty()) {
-        got_proxy_ = true;
-        return;
-    }
-
-    std::string host = proxy_info_.host;
-    lock.unlock();
 
     mars::comm::DNS dns;
     std::vector<std::string> ips;
-    dns.GetHostByName(host, ips);
+    dns.GetHostByName(proxy_info_.host, ips);
 
     if (ips.empty()) {
         return;
     }
 
-    lock.lock();
-    proxy_info_.ip = ips.front();
-    got_proxy_ = true;
+    {
+        std::lock_guard<std::timed_mutex> lock(slproxymutex_);
+        proxy_info_.ip = ips.front();
+        got_proxy_ = true;
+    }
 }
 
 // #if TARGET_OS_IPHONE
 void AppManager::ClearProxyInfo() {
-    mars::comm::ScopedLock lock(slproxymutex_);
+    std::lock_guard<std::timed_mutex> lock(slproxymutex_);
     slproxytimetick_ = gettickcount();
     slproxycount_ = 0;
     got_proxy_ = false;

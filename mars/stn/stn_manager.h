@@ -5,7 +5,7 @@
 #ifndef MMNET_STN_MANAGER_H
 #define MMNET_STN_MANAGER_H
 
-#endif  // MMNET_STN_MANAGER_H
+#include <memory>
 
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
@@ -21,6 +21,7 @@ namespace stn {
 
 class NetCore;
 class StnCallbackBridge;
+class LongLink;
 
 class StnManager : public mars::boot::BaseManager {
  public:
@@ -195,6 +196,8 @@ class StnManager : public mars::boot::BaseManager {
 
     bool LongLinkIsConnected();
 
+    std::shared_ptr<LongLink> DefaultLongLink();
+
     bool ProxyIsAvailable(const mars::comm::ProxyInfo& _proxy_info,
                           const std::string& _test_host,
                           const std::vector<std::string>& _hardcode_ips);
@@ -241,3 +244,5 @@ class StnManager : public mars::boot::BaseManager {
 
 }  // namespace stn
 }  // namespace mars
+
+#endif  // MMNET_STN_MANAGER_H

@@ -8,18 +8,18 @@
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
+#include <thread>
 
 #include "mars/app/app.h"
-#include "mars/boost/any.hpp"
+//#include "mars/boost/any.hpp"
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
-#include "mars/comm/alarm.h"
 #include "mars/comm/comm_data.h"
-#include "mars/comm/thread/lock.h"
-#include "mars/comm/thread/mutex.h"
-#include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
-
+#include "mars/xlog/xlogger.h"
+#ifdef ANDROID
+#include "mars/comm/alarm.h"
+#endif
 namespace mars {
 namespace app {
 
@@ -37,7 +37,7 @@ class AppManager : public mars::boot::BaseManager {
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
     std::string GetAppFilePath();
     AccountInfo GetAccountInfo();
-    std::string GetUserName();
+    std::string GetAppUserName();   // WinBase.h里面定义了GetUserName这个宏
     std::string GetRecentUserName();
     unsigned int GetClientVersion();
     DeviceInfo GetDeviceInfo();
@@ -59,14 +59,15 @@ class AppManager : public mars::boot::BaseManager {
             xwarn2(TSF "AppConfig GetConfig return default value. ");
             return default_value;
         }
-        return boost::any_cast<T>(it->second);
+        // return boost::any_cast<T>(it->second);
+        return *static_cast<T*>(it->second);
     }
 
     template <typename T>
     void SetConfig(const std::string& key, T value) {
         xinfo2(TSF "AppConfig SetConfig key:%_, value:%_", key, value);
         std::unique_lock<std::mutex> lock(mutex_);
-        config_[key] = value;
+        config_[key] = new T(value);
         types_[key] = std::type_index(typeid(T)).name();
         lock.unlock();
         __CheckCommSetting(key);
@@ -89,13 +90,14 @@ class AppManager : public mars::boot::BaseManager {
     Callback* callback_;
     mars::comm::ProxyInfo proxy_info_;
     bool got_proxy_ = false;
-    mars::comm::Mutex slproxymutex_;
-    mars::comm::Thread slproxythread_;
+    std::timed_mutex slproxymutex_;
+    std::thread slproxythread_;
     uint64_t slproxytimetick_ = gettickcount();
     int slproxycount_ = 0;
 
     std::mutex mutex_;
-    std::unordered_map<std::string, boost::any> config_;
+    // std::unordered_map<std::string, boost::any> config_;
+    std::unordered_map<std::string, void*> config_;
     std::unordered_map<std::string, std::string> types_;
 };
 

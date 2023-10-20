@@ -86,6 +86,9 @@ class SmartHeartbeat {
 
     // MIUI align alarm response at Times of five minutes, We should  handle this case specailly.
     void JudgeDozeStyle();
+    static void SetHeartBeat(unsigned  int _heart) {
+        outer_setted_heart_ = _heart;
+    }
 
  private:
     void __DumpHeartInfo();
@@ -112,6 +115,8 @@ class SmartHeartbeat {
     int doze_mode_count_;
     int normal_mode_count_;
     tickcount_t noop_start_tick_;
+
+    static int outer_setted_heart_;
 };
 
 #endif  // STN_SRC_SMART_HEARTBEAT_H_

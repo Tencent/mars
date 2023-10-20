@@ -85,7 +85,7 @@ struct MessageWrapper {
     MessageTiming timing;
     TMessageTiming periodstatus;
     uint64_t record_time;
-    boost::shared_ptr<Condition> wait_end_cond;
+    std::shared_ptr<Condition> wait_end_cond;
 };
 
 struct HandlerWrapper {
@@ -105,10 +105,10 @@ struct HandlerWrapper {
 
 struct RunLoopInfo {
     RunLoopInfo() : runing_message(NULL) {
-        runing_cond = boost::make_shared<Condition>();
+        runing_cond = std::make_shared<Condition>();
     }
 
-    boost::shared_ptr<Condition> runing_cond;
+    std::shared_ptr<Condition> runing_cond;
     MessagePost_t runing_message_id;
     Message* runing_message;
     std::list<MessageHandler_t> runing_handler;
@@ -150,7 +150,7 @@ struct MessageQueueContent {
 
     MessageHandler_t invoke_reg;
     bool breakflag;
-    boost::shared_ptr<RunloopCond> breaker;
+    std::shared_ptr<RunloopCond> breaker;
     std::list<MessageWrapper*> lst_message;
     std::list<HandlerWrapper*> lst_handler;
 
@@ -259,7 +259,7 @@ void WaitForRunningLockEnd(const MessagePost_t& _message) {
     if (find_it == content.lst_runloop_info.end())
         return;
 
-    boost::shared_ptr<Condition> runing_cond = find_it->runing_cond;
+    std::shared_ptr<Condition> runing_cond = find_it->runing_cond;
     runing_cond->wait(lock);
 }
 
@@ -280,7 +280,7 @@ void WaitForRunningLockEnd(const MessageQueue_t& _messagequeueid) {
     if (KNullPost == content.lst_runloop_info.front().runing_message_id)
         return;
 
-    boost::shared_ptr<Condition> runing_cond = content.lst_runloop_info.front().runing_cond;
+    std::shared_ptr<Condition> runing_cond = content.lst_runloop_info.front().runing_cond;
     runing_cond->wait(lock);
 }
 
@@ -302,7 +302,7 @@ void WaitForRunningLockEnd(const MessageHandler_t& _handler) {
     for (auto& i : content.lst_runloop_info) {
         for (auto& x : i.runing_handler) {
             if (_handler == x) {
-                boost::shared_ptr<Condition> runing_cond = i.runing_cond;
+                std::shared_ptr<Condition> runing_cond = i.runing_cond;
                 runing_cond->wait(lock);
                 return;
             }
@@ -579,7 +579,7 @@ bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs) {
             if (is_in_mq)
                 return false;
 
-            boost::shared_ptr<Condition> runing_cond = find_it->runing_cond;
+            std::shared_ptr<Condition> runing_cond = find_it->runing_cond;
             if (_timeoutInMs < 0) {
                 runing_cond->wait(lock);
             } else {
@@ -602,9 +602,9 @@ bool WaitMessage(const MessagePost_t& _message, long _timeoutInMs) {
 
         } else {
             if (!((*find_it)->wait_end_cond))
-                (*find_it)->wait_end_cond = boost::make_shared<Condition>();
+                (*find_it)->wait_end_cond = std::make_shared<Condition>();
 
-            boost::shared_ptr<Condition> wait_end_cond = (*find_it)->wait_end_cond;
+            std::shared_ptr<Condition> wait_end_cond = (*find_it)->wait_end_cond;
             if (_timeoutInMs < 0) {
                 wait_end_cond->wait(lock);
             } else {
@@ -782,7 +782,7 @@ MessagePost_t RunningMessageID(const MessageQueue_t& _id) {
 }
 
 static void __AsyncInvokeHandler(const MessagePost_t& _id, Message& _message) {
-    auto spfunc = boost::any_cast<boost::shared_ptr<AsyncInvokeFunction> >(_message.body1);
+    auto spfunc = boost::any_cast<std::shared_ptr<AsyncInvokeFunction> >(_message.body1);
     if (!spfunc || spfunc->empty()) {
         xerror2(TSF "!! call empty function: %_", _message.msg_name);
     }
@@ -795,7 +795,7 @@ MessageHandler_t InstallAsyncHandler(const MessageQueue_t& id) {
     return InstallMessageHandler(__AsyncInvokeHandler, false, id);
 }
 
-static MessageQueue_t __CreateMessageQueueInfo(boost::shared_ptr<RunloopCond>& _breaker, thread_tid _tid) {
+static MessageQueue_t __CreateMessageQueueInfo(std::shared_ptr<RunloopCond>& _breaker, thread_tid _tid) {
     ScopedLock lock(sg_messagequeue_map_mutex);
 
     MessageQueue_t id = (MessageQueue_t)_tid;
@@ -808,7 +808,7 @@ static MessageQueue_t __CreateMessageQueueInfo(boost::shared_ptr<RunloopCond>& _
         if (_breaker)
             content.breaker = _breaker;
         else
-            content.breaker = boost::make_shared<Cond>();
+            content.breaker = std::make_shared<Cond>();
     }
 
     return id;
@@ -873,7 +873,7 @@ static void __ANRCheckCallback(bool _iOS_style, const mars::comm::check_content&
     MessageHandler_t mq_id = *((MessageHandler_t*)_content.extra_info);
     xinfo2(TSF "anr check content:%_, handler:(%_,%_)", _content.call_id, mq_id.queue, mq_id.seq);
 
-    boost::shared_ptr<Thread> thread(new Thread(boost::bind(__ANRAssert, _iOS_style, _content, mq_id)));
+    std::shared_ptr<Thread> thread(new Thread(boost::bind(__ANRAssert, _iOS_style, _content, mq_id)));
     thread->start_after(kWaitANRTimeout);
 
     MessageQueue::AsyncInvoke(
@@ -1032,7 +1032,7 @@ void RunLoop::Run() {
     }
 }
 
-boost::shared_ptr<RunloopCond> RunloopCond::CurrentCond() {
+std::shared_ptr<RunloopCond> RunloopCond::CurrentCond() {
     ScopedLock lock(sg_messagequeue_map_mutex);
     MessageQueue_t id = (MessageQueue_t)ThreadUtil::currentthreadid();
 
@@ -1041,15 +1041,15 @@ boost::shared_ptr<RunloopCond> RunloopCond::CurrentCond() {
         MessageQueueContent& content = pos->second;
         return content.breaker;
     } else {
-        return boost::shared_ptr<RunloopCond>();
+        return std::shared_ptr<RunloopCond>();
     }
 }
 
 MessageQueueCreater::MessageQueueCreater(bool _iscreate, const char* _msg_queue_name)
-: MessageQueueCreater(boost::shared_ptr<RunloopCond>(), _iscreate, _msg_queue_name) {
+: MessageQueueCreater(std::shared_ptr<RunloopCond>(), _iscreate, _msg_queue_name) {
 }
 
-MessageQueueCreater::MessageQueueCreater(boost::shared_ptr<RunloopCond> _breaker,
+MessageQueueCreater::MessageQueueCreater(std::shared_ptr<RunloopCond> _breaker,
                                          bool _iscreate,
                                          const char* _msg_queue_name)
 : thread_(boost::bind(&MessageQueueCreater::__ThreadRunloop, this), _msg_queue_name)
@@ -1103,11 +1103,11 @@ void MessageQueueCreater::CancelAndWait() {
     }
 }
 
-MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker, thread_tid _tid) {
+MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(std::shared_ptr<RunloopCond> _breaker, thread_tid _tid) {
     return (__CreateMessageQueueInfo(_breaker, _tid));
 }
 
-MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<RunloopCond> _breaker,
+MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(std::shared_ptr<RunloopCond> _breaker,
                                                           const char* _messagequeue_name) {
     SpinLock* sp = new SpinLock;
     Thread thread(boost::bind(&__ThreadNewRunloop, sp), _messagequeue_name, true);
@@ -1125,7 +1125,7 @@ MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(boost::shared_ptr<Runl
 }
 
 MessageQueue_t MessageQueueCreater::CreateNewMessageQueue(const char* _messagequeue_name) {
-    return CreateNewMessageQueue(boost::shared_ptr<RunloopCond>(), _messagequeue_name);
+    return CreateNewMessageQueue(std::shared_ptr<RunloopCond>(), _messagequeue_name);
 }
 
 // TODO ThreadUtil::join do not set thread isjoined, then when join a joined thread will crash.
@@ -1138,18 +1138,19 @@ void MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue_t _messagequeue_id
     ThreadUtil::join((thread_tid)_messagequeue_id);
 }
 
-    void MessageQueueCreater::ReleaseNewMessageCreator(MessageQueueCreater& _creator) {
-        if (KInvalidQueueID == _creator.messagequeue_id_)
-            return;
-        BreakMessageQueueRunloop(_creator.messagequeue_id_);
-        WaitForRunningLockEnd(_creator.messagequeue_id_);
-        _creator.__JoinThread();
+void MessageQueueCreater::ReleaseNewMessageCreator(MessageQueueCreater& _creator) {
+    if (KInvalidQueueID == _creator.messagequeue_id_) {
+        return;
     }
+    BreakMessageQueueRunloop(_creator.messagequeue_id_);
+    WaitForRunningLockEnd(_creator.messagequeue_id_);
+    _creator.__JoinThread();
+}
 
-    void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
-        ScopedSpinLock lock(*_sp);
-        lock.unlock();
-        delete _sp;
+void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
+    ScopedSpinLock lock(*_sp);
+    lock.unlock();
+    delete _sp;
 
     RunLoop().Run();
 }

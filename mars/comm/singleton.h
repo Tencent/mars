@@ -15,10 +15,9 @@
 
 #include <list>
 #include <thread>
+#include <memory>
 
-#include "boost/shared_ptr.hpp"
 #include "boost/signals2.hpp"
-#include "boost/weak_ptr.hpp"
 #include "mars/comm/macro.h"
 #include "mars/comm/thread/lock.h"
 
@@ -34,8 +33,8 @@
 #define SINGLETON_INTRUSIVE(classname, creater, destoryer)                                                \
     class Singleton {                                                                                     \
      public:                                                                                              \
-        static boost::shared_ptr<classname>& instance_shared_ptr() {                                      \
-            NO_DESTROY static boost::shared_ptr<classname> s_ptr;                                         \
+        static std::shared_ptr<classname>& instance_shared_ptr() {                                        \
+            NO_DESTROY static std::shared_ptr<classname> s_ptr;                                           \
             return s_ptr;                                                                                 \
         }                                                                                                 \
         static mars::comm::Mutex& singleton_mutex() {                                                     \
@@ -46,12 +45,12 @@
             NO_DESTROY static boost::signals2::signal<void()> s_signal;                                   \
             return s_signal;                                                                              \
         }                                                                                                 \
-        static boost::signals2::signal<void(boost::shared_ptr<classname>)>& SignalInstance() {            \
-            NO_DESTROY static boost::signals2::signal<void(boost::shared_ptr<classname>)> s_signal;       \
+        static boost::signals2::signal<void(std::shared_ptr<classname>)>& SignalInstance() {              \
+            NO_DESTROY static boost::signals2::signal<void(std::shared_ptr<classname>)> s_signal;         \
             return s_signal;                                                                              \
         }                                                                                                 \
-        static boost::signals2::signal<void(boost::shared_ptr<classname>)>& SignalRelease() {             \
-            NO_DESTROY static boost::signals2::signal<void(boost::shared_ptr<classname>)> s_signal;       \
+        static boost::signals2::signal<void(std::shared_ptr<classname>)>& SignalRelease() {               \
+            NO_DESTROY static boost::signals2::signal<void(std::shared_ptr<classname>)> s_signal;         \
             return s_signal;                                                                              \
         }                                                                                                 \
         static boost::signals2::signal<void()>& SignalReleaseEnd() {                                      \
@@ -68,15 +67,15 @@
         }                                                                                                 \
                                                                                                           \
      public:                                                                                              \
-        static boost::shared_ptr<classname> Instance() {                                                  \
-            boost::shared_ptr<classname> ret = instance_shared_ptr();                                     \
+        static std::shared_ptr<classname> Instance() {                                                    \
+            std::shared_ptr<classname> ret = instance_shared_ptr();                                       \
             if (ret)                                                                                      \
                 return ret;                                                                               \
                                                                                                           \
             mars::comm::ScopedLock lock(singleton_mutex());                                               \
             if (!instance_shared_ptr()) {                                                                 \
                 SignalInstanceBegin()();                                                                  \
-                boost::shared_ptr<classname> temp(const_cast<classname*>(creater), Singleton::Delete);    \
+                std::shared_ptr<classname> temp(const_cast<classname*>(creater), Singleton::Delete);      \
                 SignalInstance()(temp);                                                                   \
                 instance_shared_ptr().swap(temp);                                                         \
             }                                                                                             \
@@ -84,22 +83,22 @@
         }                                                                                                 \
                                                                                                           \
         template <class T>                                                                                \
-        static boost::shared_ptr<classname> Instance(const T& _creater) {                                 \
-            boost::shared_ptr<classname> ret = instance_shared_ptr();                                     \
+        static std::shared_ptr<classname> Instance(const T& _creater) {                                   \
+            std::shared_ptr<classname> ret = instance_shared_ptr();                                       \
             if (ret)                                                                                      \
                 return ret;                                                                               \
                                                                                                           \
             mars::comm::ScopedLock lock(singleton_mutex());                                               \
             if (!instance_shared_ptr()) {                                                                 \
                 SignalInstanceBegin()();                                                                  \
-                boost::shared_ptr<classname> temp(const_cast<classname*>(_creater()), Singleton::Delete); \
+                std::shared_ptr<classname> temp(const_cast<classname*>(_creater()), Singleton::Delete);   \
                 SignalInstance()(temp);                                                                   \
                 instance_shared_ptr().swap(temp);                                                         \
             }                                                                                             \
             return (instance_shared_ptr());                                                               \
         }                                                                                                 \
                                                                                                           \
-        static boost::weak_ptr<classname> Instance_Weak() {                                               \
+        static std::weak_ptr<classname> Instance_Weak() {                                               \
             return instance_shared_ptr();                                                                 \
         }                                                                                                 \
                                                                                                           \
@@ -120,7 +119,7 @@
         static void AsyncRelease() {                                                                      \
             mars::comm::ScopedLock lock(singleton_mutex());                                               \
             if (instance_shared_ptr()) {                                                                  \
-                boost::shared_ptr<classname> tmp_ptr = instance_shared_ptr();                             \
+                std::shared_ptr<classname> tmp_ptr = instance_shared_ptr();                               \
                 SignalRelease()(tmp_ptr);                                                                 \
                 instance_shared_ptr().reset();                                                            \
                 SignalReleaseEnd()();                                                                     \
@@ -131,7 +130,7 @@
             }                                                                                             \
         }                                                                                                 \
                                                                                                           \
-        static boost::shared_ptr<classname> Reset() {                                                     \
+        static std::shared_ptr<classname> Reset() {                                                       \
             mars::comm::ScopedLock lock(singleton_mutex());                                               \
             if (instance_shared_ptr()) {                                                                  \
                 SignalResetOld()(*const_cast<classname*>(instance_shared_ptr().get()));                   \
@@ -185,10 +184,10 @@ class Singleton {
     template <typename T>
     class SingletonInstance {
      public:
-        // static boost::shared_ptr<T> instance_shared_ptr;
+        // static std::shared_ptr<T> instance_shared_ptr;
 
-        static boost::shared_ptr<T>& instance_shared_ptr() {
-            NO_DESTROY static boost::shared_ptr<T> ptr;
+        static std::shared_ptr<T>& instance_shared_ptr() {
+            NO_DESTROY static std::shared_ptr<T> ptr;
             return ptr;
         }
         static mars::comm::Mutex& singleton_mutex() {
@@ -230,8 +229,8 @@ class Singleton {
     }
 
     template <typename T, typename CREATER, typename DESTORYER>
-    static boost::shared_ptr<T> Instance(CREATER _creater, DESTORYER _destoryer) {
-        boost::shared_ptr<T> ret = SingletonInstance<T>::instance_shared_ptr();
+    static std::shared_ptr<T> Instance(CREATER _creater, DESTORYER _destoryer) {
+        std::shared_ptr<T> ret = SingletonInstance<T>::instance_shared_ptr();
 
         if (ret)
             return ret;
@@ -247,7 +246,7 @@ class Singleton {
     }
 
     template <typename T>
-    static boost::weak_ptr<T> Instance_Weak() {
+    static std::weak_ptr<T> Instance_Weak() {
         return SingletonInstance<T>::instance_shared_ptr();
     }
 
@@ -260,7 +259,7 @@ class Singleton {
 };
 
 // template<typename T>
-// boost::shared_ptr<T> Singleton::SingletonInstance<T>::instance_shared_ptr;
+// std::shared_ptr<T> Singleton::SingletonInstance<T>::instance_shared_ptr;
 
 // template<typename T>
 // Mutex Singleton::SingletonInstance<T>::singleton_mutex();

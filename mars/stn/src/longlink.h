@@ -157,6 +157,7 @@ class LongLink {
     std::string GetDisconnectReasonText() {
         return longlink_disconnect_reason_text_;
     }
+    void TrigNoop();
 
     LongLinkEncoder& Encoder() const {
         return encoder_;
@@ -230,14 +231,16 @@ class LongLink {
     LongLinkIdentifyChecker identifychecker_;
     std::list<std::pair<Task, move_wrapper<AutoBuffer>>> lstsenddata_;
     tickcount_t lastrecvtime_;
+    comm::Alarm alarmnooptimeout_;
+    bool isnooping_ = false;
 
-    SmartHeartbeat* smartheartbeat_;
-    comm::WakeUpLock* wakelock_;
+    SmartHeartbeat* smartheartbeat_ = nullptr;
+    comm::WakeUpLock* wakelock_ = nullptr;
 
     LongLinkEncoder& encoder_;
     unsigned long long lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
-    bool svr_trig_off_;  // with minor longlink, if server close the socket, do not auto rebuild until task
+    bool svr_trig_off_ = false;  // with minor longlink, if server close the socket, do not auto rebuild until task
 };
 
 }  // namespace stn

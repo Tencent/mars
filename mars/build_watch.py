@@ -82,7 +82,7 @@ def main():
             build_watch(sys.argv[1])
             break
         else:
-            num = raw_input('Enter menu:\n1. Clean && build.\n2. Gen Watch Project.\n3. Exit\n')
+            num = input('Enter menu:\n1. Clean && build.\n2. Gen Watch Project.\n3. Exit\n')
             if num == '1':
                 build_watch()
                 break

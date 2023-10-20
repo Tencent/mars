@@ -35,7 +35,7 @@
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "mars/log/appender.h"
+#include "mars/xlog/appender.h"
 #include "stn/src/net_core.h"  //一定要放这里，Mac os 编译
 #include "stn/src/net_source.h"
 #include "stn/src/proxy_test.h"
@@ -63,7 +63,7 @@ static const std::string kLibName = "stn";
 // mars2
 /*
 #define STN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (!stn_ptr) {\
         xwarn2(TSF"stn uncreate");\
         return;\
@@ -71,7 +71,7 @@ static const std::string kLibName = "stn";
     stn_ptr->func
 
 #define STN_RETURN_WEAK_CALL(func) \
-    boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+    std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (!stn_ptr) {\
         xwarn2(TSF"stn uncreate");\
         return false;\
@@ -80,7 +80,7 @@ static const std::string kLibName = "stn";
     return true
 
 #define STN_WEAK_CALL_RETURN(func, ret) \
-        boost::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
+        std::shared_ptr<NetCore> stn_ptr = NetCore::Singleton::Instance_Weak().lock();\
     if (stn_ptr) \
     {\
         ret = stn_ptr->func;\
@@ -549,6 +549,16 @@ void (*MakesureLonglinkConnected_ext)(const std::string& name) = [](const std::s
         stn_manager->MakesureLonglinkConnected_ext(name);
     }
 };
+
+std::shared_ptr<LongLink> DefaultLongLink() {
+    xinfo_function();
+    StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
+    xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
+    if (stn_manager) {
+        return stn_manager->DefaultLongLink();
+    }
+    return nullptr;
+}
 
 // callback
 bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {

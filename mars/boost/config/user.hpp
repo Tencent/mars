@@ -143,3 +143,9 @@
 #ifdef ANDROID //only for android stlport
 #include "boost/boost_stdexcept"
 #endif
+
+#ifdef WIN32
+    #ifdef BOOST_HAS_GETTIMEOFDAY
+    #  undef BOOST_HAS_GETTIMEOFDAY
+    #endif
+#endif

@@ -236,8 +236,8 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
         xassert2(false, TSF "string length %_ too long.", _len);
         return "";
     }
-    char outbuffer[512];
-
+    char outbuffer[512 + 1];
+    
     unsigned int outoffset = 0;
     const char* ptr = _str;
     unsigned int length = _len / 2;

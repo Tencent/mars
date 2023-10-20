@@ -9,6 +9,7 @@
 #define CORO_ASYNC_H_
 
 #include "coroutine.h"
+#include "mars/boost/intrusive_ptr.hpp"
 #include "mars/comm/thread/thread.h"
 
 namespace coroutine {
@@ -42,7 +43,7 @@ class WaitThread {
     typename boost::disable_if<typename boost::is_void<typename boost::result_of<F()>::type>,
                                typename boost::result_of<F()>::type>::type
     operator()(const F& _block_func, int64_t _timeout = -1, int* _status = NULL) {
-        boost::shared_ptr<Wrapper_> wrapper = wrapper_;
+        std::shared_ptr<Wrapper_> wrapper = wrapper_;
         mars::comm::ScopedLock lock(wrapper_->mutex);
         wrapper->wrapper = RunningCoroutine();
 
@@ -51,7 +52,7 @@ class WaitThread {
         }
 
         typedef typename boost::result_of<F()>::type R;
-        boost::shared_ptr<R> result(new R);
+        std::shared_ptr<R> result(new R);
 
         mars::comm::mq::AsyncResult<R> async_result(
             _block_func,
@@ -87,7 +88,7 @@ class WaitThread {
     template <typename F>
     typename boost::enable_if<typename boost::is_void<typename boost::result_of<F()>::type>>::type
     operator()(const F& _block_func, int64_t _timeout = -1, int* _status = NULL) {
-        boost::shared_ptr<Wrapper_> wrapper = wrapper_;
+        std::shared_ptr<Wrapper_> wrapper = wrapper_;
         mars::comm::ScopedLock lock(wrapper_->mutex);
         wrapper->wrapper = RunningCoroutine();
 
@@ -146,7 +147,7 @@ class WaitThread {
 
  private:
     mars::comm::Thread thread_;
-    boost::shared_ptr<Wrapper_> wrapper_;
+    std::shared_ptr<Wrapper_> wrapper_;
 };
 
 template <typename F>

@@ -14,7 +14,7 @@ include_directories(proto/protobuf)
 include_directories(../../mars/comm)
 include_directories(../../mars/openssl/include)
 
-add_subdirectory(../../mars/log xlog.out)
+add_subdirectory(../../mars/xlog xlog.out)
 add_subdirectory(../../mars/app app.out)
 add_subdirectory(../../mars/baseevent baseevent.out)
 add_subdirectory(../../mars/boost boost.out)

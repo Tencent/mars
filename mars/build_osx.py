@@ -115,7 +115,7 @@ def main():
             build_osx(sys.argv[1])
             break
         else:
-            num = raw_input('Enter menu:\n1. Clean && build.\n2. Gen OSX Project.\n3. Build xlog.\n4. Exit\n')
+            num = input('Enter menu:\n1. Clean && build.\n2. Gen OSX Project.\n3. Build xlog.\n4. Exit\n')
             if num == '1':
                 build_osx()
                 break

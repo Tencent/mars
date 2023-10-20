@@ -18,6 +18,8 @@
 #include <climits>
 #include <list>
 
+#include "mars/boost/intrusive_ptr.hpp"
+
 #include "comm/autobuffer.h"
 #include "comm/platform_comm.h"
 #include "comm/socket/socket_address.h"
@@ -130,7 +132,7 @@ static void __Coro_Poll(int _msec, ::SocketPoll& _socket_poll) {
         return;
     }
 
-    boost::shared_ptr<mq::RunloopCond> cond = mq::RunloopCond::CurrentCond();
+    std::shared_ptr<mq::RunloopCond> cond = mq::RunloopCond::CurrentCond();
     TaskInfo task(coroutine::RunningCoroutine(), _socket_poll);
     if (0 <= _msec) {
         task.abs_timeout_.gettickcount() += _msec;

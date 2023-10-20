@@ -133,7 +133,7 @@ def main():
             build_windows(False, sys.argv[1], sys.argv[2])
             break
         else:
-            num = raw_input('Enter menu(or usage: python build_windows.py <tag> <Debug/Release>):\n'\
+            num = input('Enter menu(or usage: python build_windows.py <tag> <Debug/Release>):\n'\
             '1. Clean && build mars Release.\n2. Build mars Release incrementally.\n3. Clean && build mars Debug.\n'\
             '4. Build mars Debug incrementally.\n5. Clean && build xlog Release.\n6. Clean && build xlog Debug.\n7. Gen mars project file.\n8. Exit\n')
             if num == '1':

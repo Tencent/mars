@@ -1,7 +1,11 @@
 #ifndef getaddrinfo_with_timeout_h
 #define getaddrinfo_with_timeout_h
 
+#ifdef _WIN32
+#include <Winsock2.h>
+#else
 #include <netdb.h>
+#endif  // _WIN32
 
 namespace mars {
 namespace comm {
