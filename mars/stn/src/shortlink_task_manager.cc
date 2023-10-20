@@ -423,6 +423,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
         int error_code = 0;
+
+        // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
+        first->task.client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
+        xinfo2(TSF "client_sequence_id:%_", first->task.client_sequence_id);
         if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid,
                                                          first->task.user_context,
                                                          first->task.user_id,
@@ -477,7 +481,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                            err_code,
                                                                            Task::kChannelShort,
                                                                            server_sequence_id);
-            xinfo2(TSF"server_sequence_id:%_", server_sequence_id);
+            xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
             first->task.server_sequence_id = server_sequence_id;
             ConnectProfile profile;
             __SingleRespHandle(first,
@@ -633,7 +637,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                 net_source_->DisableQUIC();
 
                 //.increment retry count when first quic failed.
-                if (it->history_transfer_profiles.empty()){
+                if (it->history_transfer_profiles.empty()) {
                     ++it->remain_retry_count;
                 }
             }
