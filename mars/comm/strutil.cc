@@ -237,7 +237,7 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
         return "";
     }
     char outbuffer[512 + 1];
-
+    
     unsigned int outoffset = 0;
     const char* ptr = _str;
     unsigned int length = _len / 2;

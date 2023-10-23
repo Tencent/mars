@@ -1,6 +1,6 @@
 
-#include "socket/unix_socket.h"
 #include "thread/lock.h"
+#include "socket/unix_socket.h"
 
 namespace mars {
 namespace comm {

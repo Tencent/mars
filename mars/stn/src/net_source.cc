@@ -623,15 +623,15 @@ bool NetSource::CanUseQUIC() {
     return sg_quic_enabled;
 }
 
-void NetSource::DisableIPv6() {
-    ScopedLock lock(sg_ip_mutex);
-    xwarn2_if(sg_ipv6_enabled, TSF "ipv6 disabled.");
-    sg_ipv6_enabled = false;
+void NetSource::DisableIPv6(){
+	ScopedLock lock(sg_ip_mutex);
+	xwarn2_if(sg_ipv6_enabled, TSF"ipv6 disabled.");
+	sg_ipv6_enabled = false;
 }
 
-bool NetSource::CanUseIPv6() {
-    ScopedLock lock(sg_ip_mutex);
-    return sg_ipv6_enabled;
+bool NetSource::CanUseIPv6(){
+	ScopedLock lock(sg_ip_mutex);
+	return sg_ipv6_enabled;
 }
 
 unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {

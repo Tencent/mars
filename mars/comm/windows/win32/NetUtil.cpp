@@ -230,7 +230,7 @@ DWORD getNetworkStatus() {
 bool g_network_inited = false;
 bool g_network_status = false;
 bool isNetworkConnectedImpl() {
-    if (g_network_inited)
+    if (g_network_inited)   
         return g_network_status;
 
     DWORD flags = 0;

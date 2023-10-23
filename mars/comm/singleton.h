@@ -14,8 +14,8 @@
 #define COMM_SINGLETON_H_
 
 #include <list>
-#include <memory>
 #include <thread>
+#include <memory>
 
 #include "boost/signals2.hpp"
 #include "mars/comm/macro.h"
@@ -30,124 +30,124 @@
 #define SINGLETON_RELEASE(class_name) design_patterns::Singleton::Release<class_name>()
 #define SINGLETON_RELEASE_ALL() design_patterns::Singleton::ReleaseAll()
 
-#define SINGLETON_INTRUSIVE(classname, creater, destoryer)                                               \
-    class Singleton {                                                                                    \
-     public:                                                                                             \
-        static std::shared_ptr<classname>& instance_shared_ptr() {                                       \
-            NO_DESTROY static std::shared_ptr<classname> s_ptr;                                          \
-            return s_ptr;                                                                                \
-        }                                                                                                \
-        static mars::comm::Mutex& singleton_mutex() {                                                    \
-            NO_DESTROY static mars::comm::Mutex s_mutex;                                                 \
-            return s_mutex;                                                                              \
-        }                                                                                                \
-        static boost::signals2::signal<void()>& SignalInstanceBegin() {                                  \
-            NO_DESTROY static boost::signals2::signal<void()> s_signal;                                  \
-            return s_signal;                                                                             \
-        }                                                                                                \
-        static boost::signals2::signal<void(std::shared_ptr<classname>)>& SignalInstance() {             \
-            NO_DESTROY static boost::signals2::signal<void(std::shared_ptr<classname>)> s_signal;        \
-            return s_signal;                                                                             \
-        }                                                                                                \
-        static boost::signals2::signal<void(std::shared_ptr<classname>)>& SignalRelease() {              \
-            NO_DESTROY static boost::signals2::signal<void(std::shared_ptr<classname>)> s_signal;        \
-            return s_signal;                                                                             \
-        }                                                                                                \
-        static boost::signals2::signal<void()>& SignalReleaseEnd() {                                     \
-            NO_DESTROY static boost::signals2::signal<void()> s_signal;                                  \
-            return s_signal;                                                                             \
-        }                                                                                                \
-        static boost::signals2::signal<void(classname&)>& SignalResetOld() {                             \
-            NO_DESTROY static boost::signals2::signal<void(classname&)> s_signal;                        \
-            return s_signal;                                                                             \
-        }                                                                                                \
-        static boost::signals2::signal<void(classname&)>& SignalResetNew() {                             \
-            NO_DESTROY static boost::signals2::signal<void(classname&)> s_signal;                        \
-            return s_signal;                                                                             \
-        }                                                                                                \
-                                                                                                         \
-     public:                                                                                             \
-        static std::shared_ptr<classname> Instance() {                                                   \
-            std::shared_ptr<classname> ret = instance_shared_ptr();                                      \
-            if (ret)                                                                                     \
-                return ret;                                                                              \
-                                                                                                         \
-            mars::comm::ScopedLock lock(singleton_mutex());                                              \
-            if (!instance_shared_ptr()) {                                                                \
-                SignalInstanceBegin()();                                                                 \
-                std::shared_ptr<classname> temp(const_cast<classname*>(creater), Singleton::Delete);     \
-                SignalInstance()(temp);                                                                  \
-                instance_shared_ptr().swap(temp);                                                        \
-            }                                                                                            \
-            return (instance_shared_ptr());                                                              \
-        }                                                                                                \
-                                                                                                         \
-        template <class T>                                                                               \
-        static std::shared_ptr<classname> Instance(const T& _creater) {                                  \
-            std::shared_ptr<classname> ret = instance_shared_ptr();                                      \
-            if (ret)                                                                                     \
-                return ret;                                                                              \
-                                                                                                         \
-            mars::comm::ScopedLock lock(singleton_mutex());                                              \
-            if (!instance_shared_ptr()) {                                                                \
-                SignalInstanceBegin()();                                                                 \
-                std::shared_ptr<classname> temp(const_cast<classname*>(_creater()), Singleton::Delete);  \
-                SignalInstance()(temp);                                                                  \
-                instance_shared_ptr().swap(temp);                                                        \
-            }                                                                                            \
-            return (instance_shared_ptr());                                                              \
-        }                                                                                                \
-                                                                                                         \
-        static std::weak_ptr<classname> Instance_Weak() {                                                \
-            return instance_shared_ptr();                                                                \
-        }                                                                                                \
-                                                                                                         \
-        static void Release() {                                                                          \
-            mars::comm::ScopedLock lock(singleton_mutex());                                              \
-            if (instance_shared_ptr()) {                                                                 \
-                SignalRelease()(instance_shared_ptr());                                                  \
-                instance_shared_ptr().reset();                                                           \
-                int waitCnt = 0;                                                                         \
-                while (instance_shared_ptr() && instance_shared_ptr().use_count() > 0 && waitCnt < 40) { \
-                    usleep(5000);                                                                        \
-                    waitCnt++;                                                                           \
-                }                                                                                        \
-                SignalReleaseEnd()();                                                                    \
-            }                                                                                            \
-        }                                                                                                \
-                                                                                                         \
-        static void AsyncRelease() {                                                                     \
-            mars::comm::ScopedLock lock(singleton_mutex());                                              \
-            if (instance_shared_ptr()) {                                                                 \
-                std::shared_ptr<classname> tmp_ptr = instance_shared_ptr();                              \
-                SignalRelease()(tmp_ptr);                                                                \
-                instance_shared_ptr().reset();                                                           \
-                SignalReleaseEnd()();                                                                    \
-                std::thread t([=]() mutable {                                                            \
-                    tmp_ptr.reset();                                                                     \
-                });                                                                                      \
-                t.detach();                                                                              \
-            }                                                                                            \
-        }                                                                                                \
-                                                                                                         \
-        static std::shared_ptr<classname> Reset() {                                                      \
-            mars::comm::ScopedLock lock(singleton_mutex());                                              \
-            if (instance_shared_ptr()) {                                                                 \
-                SignalResetOld()(*const_cast<classname*>(instance_shared_ptr().get()));                  \
-                instance_shared_ptr().reset();                                                           \
-            }                                                                                            \
-                                                                                                         \
-            if (!instance_shared_ptr()) {                                                                \
-                instance_shared_ptr().reset(const_cast<classname*>(creater), Singleton::Delete);         \
-                SignalResetNew()(*const_cast<classname*>(instance_shared_ptr().get()));                  \
-            }                                                                                            \
-            return (instance_shared_ptr());                                                              \
-        }                                                                                                \
-                                                                                                         \
-     private:                                                                                            \
-        static void Delete(classname* _ptr) {                                                            \
-            destoryer(_ptr);                                                                             \
-        }                                                                                                \
+#define SINGLETON_INTRUSIVE(classname, creater, destoryer)                                                \
+    class Singleton {                                                                                     \
+     public:                                                                                              \
+        static std::shared_ptr<classname>& instance_shared_ptr() {                                        \
+            NO_DESTROY static std::shared_ptr<classname> s_ptr;                                           \
+            return s_ptr;                                                                                 \
+        }                                                                                                 \
+        static mars::comm::Mutex& singleton_mutex() {                                                     \
+            NO_DESTROY static mars::comm::Mutex s_mutex;                                                  \
+            return s_mutex;                                                                               \
+        }                                                                                                 \
+        static boost::signals2::signal<void()>& SignalInstanceBegin() {                                   \
+            NO_DESTROY static boost::signals2::signal<void()> s_signal;                                   \
+            return s_signal;                                                                              \
+        }                                                                                                 \
+        static boost::signals2::signal<void(std::shared_ptr<classname>)>& SignalInstance() {              \
+            NO_DESTROY static boost::signals2::signal<void(std::shared_ptr<classname>)> s_signal;         \
+            return s_signal;                                                                              \
+        }                                                                                                 \
+        static boost::signals2::signal<void(std::shared_ptr<classname>)>& SignalRelease() {               \
+            NO_DESTROY static boost::signals2::signal<void(std::shared_ptr<classname>)> s_signal;         \
+            return s_signal;                                                                              \
+        }                                                                                                 \
+        static boost::signals2::signal<void()>& SignalReleaseEnd() {                                      \
+            NO_DESTROY static boost::signals2::signal<void()> s_signal;                                   \
+            return s_signal;                                                                              \
+        }                                                                                                 \
+        static boost::signals2::signal<void(classname&)>& SignalResetOld() {                              \
+            NO_DESTROY static boost::signals2::signal<void(classname&)> s_signal;                         \
+            return s_signal;                                                                              \
+        }                                                                                                 \
+        static boost::signals2::signal<void(classname&)>& SignalResetNew() {                              \
+            NO_DESTROY static boost::signals2::signal<void(classname&)> s_signal;                         \
+            return s_signal;                                                                              \
+        }                                                                                                 \
+                                                                                                          \
+     public:                                                                                              \
+        static std::shared_ptr<classname> Instance() {                                                    \
+            std::shared_ptr<classname> ret = instance_shared_ptr();                                       \
+            if (ret)                                                                                      \
+                return ret;                                                                               \
+                                                                                                          \
+            mars::comm::ScopedLock lock(singleton_mutex());                                               \
+            if (!instance_shared_ptr()) {                                                                 \
+                SignalInstanceBegin()();                                                                  \
+                std::shared_ptr<classname> temp(const_cast<classname*>(creater), Singleton::Delete);      \
+                SignalInstance()(temp);                                                                   \
+                instance_shared_ptr().swap(temp);                                                         \
+            }                                                                                             \
+            return (instance_shared_ptr());                                                               \
+        }                                                                                                 \
+                                                                                                          \
+        template <class T>                                                                                \
+        static std::shared_ptr<classname> Instance(const T& _creater) {                                   \
+            std::shared_ptr<classname> ret = instance_shared_ptr();                                       \
+            if (ret)                                                                                      \
+                return ret;                                                                               \
+                                                                                                          \
+            mars::comm::ScopedLock lock(singleton_mutex());                                               \
+            if (!instance_shared_ptr()) {                                                                 \
+                SignalInstanceBegin()();                                                                  \
+                std::shared_ptr<classname> temp(const_cast<classname*>(_creater()), Singleton::Delete);   \
+                SignalInstance()(temp);                                                                   \
+                instance_shared_ptr().swap(temp);                                                         \
+            }                                                                                             \
+            return (instance_shared_ptr());                                                               \
+        }                                                                                                 \
+                                                                                                          \
+        static std::weak_ptr<classname> Instance_Weak() {                                               \
+            return instance_shared_ptr();                                                                 \
+        }                                                                                                 \
+                                                                                                          \
+        static void Release() {                                                                           \
+            mars::comm::ScopedLock lock(singleton_mutex());                                               \
+            if (instance_shared_ptr()) {                                                                  \
+                SignalRelease()(instance_shared_ptr());                                                   \
+                instance_shared_ptr().reset();                                                            \
+                int waitCnt = 0;                                                                          \
+                while (instance_shared_ptr() && instance_shared_ptr().use_count() > 0 && waitCnt < 40) {  \
+                    usleep(5000);                                                                         \
+                    waitCnt++;                                                                            \
+                }                                                                                         \
+                SignalReleaseEnd()();                                                                     \
+            }                                                                                             \
+        }                                                                                                 \
+                                                                                                          \
+        static void AsyncRelease() {                                                                      \
+            mars::comm::ScopedLock lock(singleton_mutex());                                               \
+            if (instance_shared_ptr()) {                                                                  \
+                std::shared_ptr<classname> tmp_ptr = instance_shared_ptr();                               \
+                SignalRelease()(tmp_ptr);                                                                 \
+                instance_shared_ptr().reset();                                                            \
+                SignalReleaseEnd()();                                                                     \
+                std::thread t([=]() mutable {                                                             \
+                    tmp_ptr.reset();                                                                      \
+                });                                                                                       \
+                t.detach();                                                                               \
+            }                                                                                             \
+        }                                                                                                 \
+                                                                                                          \
+        static std::shared_ptr<classname> Reset() {                                                       \
+            mars::comm::ScopedLock lock(singleton_mutex());                                               \
+            if (instance_shared_ptr()) {                                                                  \
+                SignalResetOld()(*const_cast<classname*>(instance_shared_ptr().get()));                   \
+                instance_shared_ptr().reset();                                                            \
+            }                                                                                             \
+                                                                                                          \
+            if (!instance_shared_ptr()) {                                                                 \
+                instance_shared_ptr().reset(const_cast<classname*>(creater), Singleton::Delete);          \
+                SignalResetNew()(*const_cast<classname*>(instance_shared_ptr().get()));                   \
+            }                                                                                             \
+            return (instance_shared_ptr());                                                               \
+        }                                                                                                 \
+                                                                                                          \
+     private:                                                                                             \
+        static void Delete(classname* _ptr) {                                                             \
+            destoryer(_ptr);                                                                              \
+        }                                                                                                 \
     }
 
 namespace design_patterns {

@@ -314,7 +314,7 @@ void LogBaseBuffer::__Clear() {
 
 void LogBaseBuffer::__Fix() {
     uint32_t raw_log_len = 0;
-    if (log_crypt_->Fix((char*)buff_.Ptr(), buff_.Length(), raw_log_len)) {
+    if (log_crypt_->Fix((char*) buff_.Ptr(), buff_.Length(), raw_log_len)) {
         if (raw_log_len + log_crypt_->GetHeaderLen() >= buff_.MaxLength()) {
             raw_log_len = buff_.MaxLength() - log_crypt_->GetHeaderLen() - log_crypt_->GetTailerLen();
         }

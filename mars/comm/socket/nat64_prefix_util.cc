@@ -50,7 +50,7 @@ static const uint8_t kOurDefineV4Addr_index3[5] = {192, 0, 2, 0, 1};
 // static bool IsIPv4Addr(const std::string& _str) {
 //	struct in_addr v4_addr= {0};
 //	return socket_inet_pton(AF_INET, _str.c_str(), &v4_addr)==0; //1 for success, 0 for invalid ip, -1 for other
-// error
+//error
 //}
 static size_t GetSuffixZeroCount(uint8_t* _buf, size_t _buf_len) {
     size_t zero_count = 0;

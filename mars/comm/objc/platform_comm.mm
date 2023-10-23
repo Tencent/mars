@@ -15,9 +15,9 @@
  * author : yerungui
  */
 #include "comm/platform_comm.h"
-#import <CoreFoundation/CFData.h>
 #import <CoreLocation/CoreLocation.h>
 #import <Foundation/Foundation.h>
+#import <CoreFoundation/CFData.h>
 #import <Security/SecCertificate.h>
 #import <Security/SecPolicy.h>
 #import <Security/SecTrust.h>
@@ -501,14 +501,16 @@ bool getCurRadioAccessNetworkInfo(mars::comm::RadioAccessNetworkInfo& _raninfo) 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) { return false; }
 #endif
 
-static void ReleaseSecData(const void* secdata, void*) { CFRelease(secdata); }
-int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain) {
-    CFMutableArrayRef certlist =
-        CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
+static void ReleaseSecData(const void* secdata, void*) {
+    CFRelease(secdata);
+}
+int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain){
+    CFMutableArrayRef certlist = CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
     for (int i = 0; i < certschain.size(); i++) {
-        CFDataRef dataref =
-            CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, (const uint8_t*)certschain[i].data(),
-                                        certschain[i].size(), kCFAllocatorNull);
+        CFDataRef dataref = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
+                                                        (const uint8_t*)certschain[i].data(),
+                                                        certschain[i].size(),
+                                                        kCFAllocatorNull);
         CFArrayAppendValue(certlist, SecCertificateCreateWithData(nullptr, dataref));
     }
 
@@ -519,8 +521,7 @@ int OSVerifyCertificate(const std::string& hostname, const std::vector<std::stri
     SecTrustRef trustref;
     OSStatus status = SecTrustCreateWithCertificates(certlist, policy, &trustref);
     if (0 != status) {
-        CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData,
-                             nullptr);
+        CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData, nullptr);
         CFRelease(certlist);
         CFRelease(policy);
         return -1;
@@ -528,8 +529,7 @@ int OSVerifyCertificate(const std::string& hostname, const std::vector<std::stri
 
     SecTrustResultType result = kSecTrustResultInvalid;
     status = SecTrustEvaluate(trustref, &result);
-    CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData,
-                         nullptr);
+    CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData, nullptr);
     CFRelease(certlist);
     CFRelease(policy);
     CFRelease(trustref);

@@ -511,13 +511,13 @@ bool HeaderFields::ContentRange(const std::string& line, uint64_t* start, uint64
     return false;
 }
 
-bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const {
+bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const{
     *start = 0;
     *end = 0;
     *total = 0;
-
+    
     const char* pline = HeaderField(HeaderFields::KStringContentRange);
-    if (!pline) {
+    if (!pline){
         return false;
     }
     return ContentRange(pline, start, end, total);

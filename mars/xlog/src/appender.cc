@@ -264,8 +264,7 @@ void XloggerAppender::Close() {
     thread_moveold_ = nullptr;
     thread_timeout_log_ = nullptr;
 
-    if (log_close_)
-        return;
+    if (log_close_) return;
 
     char mark_info[512] = {0};
     __GetMarkInfo(mark_info, sizeof(mark_info));
@@ -1228,7 +1227,7 @@ void XloggerAppender::TreatMappingAsFileAndFlush(TFileIOAction* _result) {
     } else {
         log_buff_ = new LogZlibBuffer(data.release(), kBufferBlockLength, true, config_.pub_key_.c_str());
     }
-
+	
     log_close_ = false;
 
     // try write mapping to logfile

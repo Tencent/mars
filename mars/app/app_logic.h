@@ -53,7 +53,7 @@ void SetCallback(Callback* const callback);
 mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 std::string GetAppFilePath();
 AccountInfo GetAccountInfo();
-std::string GetAppUserName();  // WinBase.h里面定义了GetUserName这个宏
+std::string GetAppUserName();   // WinBase.h里面定义了GetUserName这个宏
 std::string GetRecentUserName();
 unsigned int GetClientVersion();
 DeviceInfo GetDeviceInfo();

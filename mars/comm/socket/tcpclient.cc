@@ -97,7 +97,7 @@ void TcpClient::DisconnectAndWait() {
         socket_close(socket_);
         socket_ = INVALID_SOCKET;
     }
-
+    
     if (thread_.isruning())
         thread_.join();
 }

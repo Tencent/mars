@@ -46,6 +46,7 @@ static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
 static const unsigned short kReservedSequenceIdStart = 0xFFFF;
 
+
 enum PackerEncoderVersion {
     kOld = 1,
     kNew = 2,
@@ -138,7 +139,7 @@ struct Task {
     std::string function;
     std::string cgi_prefix;
     HostRedirectType redirect_type;
-    unsigned short client_sequence_id;  //用于与后台上报对应的sequence id.
+    unsigned short client_sequence_id;//用于与后台上报对应的sequence id.
     unsigned short server_sequence_id;
 };
 

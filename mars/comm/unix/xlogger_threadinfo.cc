@@ -18,8 +18,8 @@
 //  Copyright (c) 2013年 Tencent. All rights reserved.
 //
 
-#include <inttypes.h>
 #include <unistd.h>
+#include <inttypes.h>
 #ifndef __ANDROID__
 #include <sys/syscall.h>
 #endif
@@ -31,7 +31,8 @@ EXPORT_FUNC intmax_t xlogger_pid() {
     return pid;
 }
 
-EXPORT_FUNC intmax_t xlogger_tid() {
+EXPORT_FUNC intmax_t xlogger_tid()
+{
 #ifdef __ANDROID__
     return gettid();
 #else

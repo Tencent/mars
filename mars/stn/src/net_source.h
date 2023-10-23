@@ -116,7 +116,7 @@ class NetSource {
 
     void DisableIPv6();
     bool CanUseIPv6();
-
+    
  public:
     NetSource(comm::ActiveLogic& _active_logic, boot::Context* _context);
     ~NetSource();
@@ -203,6 +203,7 @@ class NetSource {
     tickcount_t sg_quic_reopen_tick = tickcount_t(true);
     bool sg_quic_enabled = true;
 
+    
     TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
     unsigned sg_quic_default_rw_timeoutms = 5000;
     std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
