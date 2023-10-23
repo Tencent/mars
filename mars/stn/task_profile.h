@@ -98,6 +98,8 @@ struct ConnectProfile {
         is_fast_fallback_tcp = 0;
         quic_rw_timeout_source = TimeoutSource::kClientDefault;
         quic_rw_timeout_ms = 5000;
+        quic_conn_timeout_source = TimeoutSource::kClientDefault;
+        quic_conn_timeout_ms = 250;
 
         local_ip.clear();
         local_port = 0;
@@ -168,6 +170,8 @@ struct ConnectProfile {
     int is_fast_fallback_tcp;
     TimeoutSource quic_rw_timeout_source;  // 0:client.default; 1: svr.default; 2: cgi.special
     unsigned quic_rw_timeout_ms;
+    TimeoutSource quic_conn_timeout_source;  // 0:client.default; 1: svr.default; 2: cgi.special
+    unsigned quic_conn_timeout_ms;
 
     std::string ip;
     uint16_t port;

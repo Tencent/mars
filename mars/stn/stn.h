@@ -44,6 +44,9 @@ class LongLinkEncoder;
 
 static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
+static const unsigned short kReservedSequenceIdStart = 0xFFFF;
+
+
 enum PackerEncoderVersion {
     kOld = 1,
     kNew = 2,
@@ -136,6 +139,8 @@ struct Task {
     std::string function;
     std::string cgi_prefix;
     HostRedirectType redirect_type;
+    unsigned short client_sequence_id;//用于与后台上报对应的sequence id.
+    unsigned short server_sequence_id;
 };
 
 struct CgiProfile {
@@ -182,6 +187,7 @@ struct QuicParameters {
     bool enable_0rtt = true;
     std::string alpn;
     std::string hostname;
+    unsigned conn_timeout_ms = 0;
 };
 struct ShortlinkConfig {
  public:
@@ -451,7 +457,8 @@ class Callback {
                          AutoBuffer& extend,
                          int& error_code,
                          const int channel_select,
-                         const std::string& host) = 0;
+                         const std::string& host,
+                         const unsigned short client_sequence_id) = 0;
     //底层回包返回给上层解析
     virtual int Buf2Resp(uint32_t _taskid,
                          void* const _user_context,
@@ -459,7 +466,8 @@ class Callback {
                          const AutoBuffer& _inbuffer,
                          const AutoBuffer& _extend,
                          int& _error_code,
-                         const int _channel_select) = 0;
+                         const int _channel_select,
+                         unsigned short& server_sequence_id) = 0;
     //任务执行结束
     virtual int OnTaskEnd(uint32_t _taskid,
                           void* const _user_context,

@@ -36,14 +36,16 @@ class StnManagerJniCallback : public Callback {
                          AutoBuffer& extend,
                          int& error_code,
                          const int channel_select,
-                         const std::string& host) override;
+                         const std::string& host,
+                         const unsigned short client_sequence_id) override;
     virtual int Buf2Resp(uint32_t _taskid,
                          void* const _user_context,
                          const std::string& _user_id,
                          const AutoBuffer& _inbuffer,
                          const AutoBuffer& _extend,
                          int& _error_code,
-                         const int _channel_select) override;
+                         const int _channel_select,
+                         unsigned short& server_sequence_id) override;
     virtual int OnTaskEnd(uint32_t _taskid,
                           void* const _user_context,
                           const std::string& _user_id,

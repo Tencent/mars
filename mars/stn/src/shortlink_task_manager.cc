@@ -360,8 +360,14 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.use_quic = true;
                 config.quic.alpn = "h1";
                 config.quic.enable_0rtt = true;
-
+                TimeoutSource source;
+                config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
+                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
+                    config.quic.conn_timeout_ms, source);
                 hosts = task.quic_host_list;
+
+                first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
+                first->transfer_profile.connect_profile.quic_conn_timeout_source = source;
             } else {
                 xwarn2(TSF "taskid:%_ quic disabled or cant retry %_", first->task.taskid, task.retry_count);
             }
@@ -430,7 +436,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                          buffer_extension,
                                                          error_code,
                                                          Task::kChannelShort,
-                                                         host)) {
+                                                         host,
+                                                         first->task.client_sequence_id)) {
             __SingleRespHandle(
                 first,
                 kEctEnDecode,
@@ -463,6 +470,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             AutoBuffer body;
             AutoBuffer extension;
             int err_code = 0;
+            unsigned short server_sequence_id = 0;
             body.Write(intercept_data.data(), intercept_data.length());
             first->transfer_profile.received_size = body.Length();
             first->transfer_profile.receive_data_size = body.Length();
@@ -473,7 +481,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                            body,
                                                                            extension,
                                                                            err_code,
-                                                                           Task::kChannelShort);
+                                                                           Task::kChannelShort,
+                                                                           server_sequence_id);
+            xinfo2(TSF"server_sequence_id:%_", server_sequence_id);
+            first->task.server_sequence_id = server_sequence_id;
             ConnectProfile profile;
             __SingleRespHandle(first,
                                kEctEnDecode,
@@ -649,14 +660,18 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
+    unsigned short server_sequence_id = 0;
     int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid,
                                                                    it->task.user_context,
                                                                    it->task.user_id,
                                                                    _body,
                                                                    _extension,
                                                                    err_code,
-                                                                   Task::kChannelShort);
+                                                                   Task::kChannelShort,
+                                                                   server_sequence_id);
     xinfo2_if(it->task.priority >= 0, TSF "err_code %_ ", err_code);
+    xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+    it->task.server_sequence_id = server_sequence_id;
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type == kTaskFailHandleNoError);
     if (should_intercept_result_ && should_intercept_result_(err_code)) {
         task_intercept_.AddInterceptTask(it->task.cgi, std::string((const char*)_body.Ptr(), _body.Length()));

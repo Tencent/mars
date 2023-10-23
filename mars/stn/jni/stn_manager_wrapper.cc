@@ -116,6 +116,7 @@ class JniStnManager {
 
         jobject oHeaders = JNU_GetField(env, _task, "headers", "Ljava/util/Map;").l;
         std::map<std::string, std::string> headers = JNU_JObject2Map(env, oHeaders);
+        jint client_sequence_id = JNU_GetField(env, _task, "clientSequenceId", "I").i;
 
         // init struct Task
         struct Task task(taskid);
@@ -169,7 +170,7 @@ class JniStnManager {
             task.user_context = env->NewGlobalRef(_user_context);
             env->DeleteLocalRef(_user_context);
         }
-
+        task.client_sequence_id = client_sequence_id;
         stn_manager_cpp->StartTask(task);
     }
 
@@ -261,6 +262,12 @@ class JniStnManager {
         auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
         return stn_manager_cpp->GenTaskID();
     }
+
+    static jint JniGenSequenceId(JNIEnv* env, jobject instance) {
+        xverbose_function();
+        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
+        return stn_manager_cpp->GenSequenceId();
+    }
 };
 
 static const JNINativeMethod kStnManagerJniMethods[] = {
@@ -293,6 +300,7 @@ static const JNINativeMethod kStnManagerJniMethods[] = {
     {"OnJniKeepSignalling", "()V", (void*)&mars::stn::JniStnManager::JniKeepSignalling},
     {"OnJniStopSignalling", "()V", (void*)&mars::stn::JniStnManager::JniStopSignalling},
     {"OnJniGenTaskID", "()I", (void*)&mars::stn::JniStnManager::JniGenTaskID},
+    {"OnJniGenSequenceId", "()I", (void*)&mars::stn::JniStnManager::JniGenSequenceId},
 };
 
 static const size_t kStnManagerJniMethodsCount = sizeof(kStnManagerJniMethods) / sizeof(JNINativeMethod);

@@ -73,7 +73,8 @@ class StnManager : public mars::boot::BaseManager {
                  AutoBuffer& extend,
                  int& error_code,
                  int channel_select,
-                 const std::string& host);
+                 const std::string& host,
+                 const unsigned short client_sequence_id);
     // 底层回包返回给上层解析
     int Buf2Resp(uint32_t taskid,
                  void* const user_context,
@@ -81,7 +82,8 @@ class StnManager : public mars::boot::BaseManager {
                  const AutoBuffer& inbuffer,
                  const AutoBuffer& extend,
                  int& error_code,
-                 int channel_select);
+                 int channel_select,
+                 unsigned short& server_sequence_id);
     // 任务执行结束
     int OnTaskEnd(uint32_t taskid,
                   void* const user_context,
@@ -125,6 +127,8 @@ class StnManager : public mars::boot::BaseManager {
 
     //.生成taskid.
     uint32_t GenTaskID();
+
+    unsigned short GenSequenceId();
 
  public:
     std::function<void(const ::mars::stn::DnsProfile& _dns_profile)> ReportDnsProfileFunc;

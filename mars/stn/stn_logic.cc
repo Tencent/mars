@@ -609,13 +609,14 @@ bool Req2Buf(uint32_t taskid,
              AutoBuffer& extend,
              int& error_code,
              const int channel_select,
-             const std::string& host) {
+             const std::string& host,
+             const unsigned short client_sequence_id) {
     xdebug2(TSF "mars2 Req2Buf");
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
         return stn_manager
-            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host, client_sequence_id);
     }
     return false;
 }
@@ -626,12 +627,14 @@ int Buf2Resp(uint32_t taskid,
              const AutoBuffer& inbuffer,
              const AutoBuffer& extend,
              int& error_code,
-             const int channel_select) {
+             const int channel_select,
+             unsigned short& server_sequence_id
+             ) {
     xdebug2(TSF "mars2 Buf2Resp");
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
-        return stn_manager->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
+        return stn_manager->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select, server_sequence_id);
     }
     return 0;
 }
@@ -760,6 +763,15 @@ uint32_t GenTaskID() {
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
         return stn_manager->GenTaskID();
+    }
+    return 0;
+}
+
+unsigned short GenSequenceId() {
+    StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
+    xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
+    if (stn_manager) {
+        return stn_manager->GenSequenceId();
     }
     return 0;
 }
