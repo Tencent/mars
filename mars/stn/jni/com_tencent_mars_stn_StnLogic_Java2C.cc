@@ -362,17 +362,17 @@ JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genTaskID(JNIEnv* _env
     return (jint)mars::stn::GenTaskID();
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_trigNooping
-(JNIEnv *_env, jclass) {
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_trigNooping(JNIEnv *_env, jclass) {
     SmartHeartbeat::SetHeartBeat(0);
     mars::stn::DefaultLongLink()->TrigNoop();
 }
 
-JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genSequenceId
-    (JNIEnv *_env, jclass) {
+JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genSequenceId(JNIEnv *_env, jclass) {
     return (jint)mars::stn::GenSequenceId();
+}
 }
 
 void ExportSTN() {
 }
+
 #endif
