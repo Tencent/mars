@@ -18,8 +18,6 @@
 #include <climits>
 #include <list>
 
-#include "mars/boost/intrusive_ptr.hpp"
-
 #include "comm/autobuffer.h"
 #include "comm/platform_comm.h"
 #include "comm/socket/socket_address.h"
@@ -27,6 +25,7 @@
 #include "comm/time_utils.h"
 #include "comm/xlogger/xlogger.h"
 #include "coroutine.h"
+#include "mars/boost/intrusive_ptr.hpp"
 
 namespace coroutine {
 

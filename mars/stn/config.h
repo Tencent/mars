@@ -39,8 +39,9 @@
 
 #define MaxHeartFailCount (2)
 #define BaseSuccCount (5)
-#define NetStableTestCount (3)  // We think it's time to test after NetStableCount times heartbeat using
-                                // MinHeartInterval
+#define NetStableTestCount \
+    (3)  // We think it's time to test after NetStableCount times heartbeat using
+         // MinHeartInterval
 
 // signalling transmits timeout related constants
 const static unsigned int kBaseFirstPackageWifiTimeout = 12 * 1000;

@@ -13,10 +13,10 @@
 #ifndef COROUTINE_H_
 #define COROUTINE_H_
 
-#include "mars/boost/intrusive_ptr.hpp"
 #include <boost/coroutine/all.hpp>
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 
+#include "mars/boost/intrusive_ptr.hpp"
 #include "mars/comm/assert/__assert.h"
 #include "mars/comm/messagequeue/message_queue.h"
 

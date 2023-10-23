@@ -20,10 +20,10 @@
 #ifndef STN_SRC_LONGLINK_SPEED_TEST_H_
 #define STN_SRC_LONGLINK_SPEED_TEST_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
-#include <memory>
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/socket/socketselect.h"
 #include "mars/comm/socket/unix_socket.h"

@@ -57,54 +57,54 @@ DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_reportSignalDetectResults)
 #endif
 void (*ReportNetCheckResult)(const std::vector<CheckResultProfile>& _check_results) =
     [](const std::vector<CheckResultProfile>& _check_results) {
-    xverbose_function();
+        xverbose_function();
 
 #ifdef NATIVE_CALLBACK
-    auto native_cb = sdn_native_callback_instance.lock();
-    if (native_cb) {
-        native_cb->ReportNetCheckResult(_check_results);
-        return;
-    }
+        auto native_cb = sdn_native_callback_instance.lock();
+        if (native_cb) {
+            native_cb->ReportNetCheckResult(_check_results);
+            return;
+        }
 #endif
 
-    VarCache* cache_instance = VarCache::Singleton();
-    ScopeJEnv scope_jenv(cache_instance->GetJvm());
-    JNIEnv* env = scope_jenv.GetEnv();
+        VarCache* cache_instance = VarCache::Singleton();
+        ScopeJEnv scope_jenv(cache_instance->GetJvm());
+        JNIEnv* env = scope_jenv.GetEnv();
 
-    XMessage check_results_str;
-    check_results_str << "{";
-    check_results_str << "\"details\":[";
-    std::vector<CheckResultProfile>::const_iterator iter = _check_results.begin();
-    for (; iter != _check_results.end();) {
+        XMessage check_results_str;
         check_results_str << "{";
-        check_results_str << "\"detectType\":" << iter->netcheck_type;
-        check_results_str << ",\"errorCode\":" << iter->error_code;
-        check_results_str << ",\"networkType\":" << iter->network_type;
-        check_results_str << ",\"detectIP\":\"" << iter->ip << "\"";
-        check_results_str << ",\"port\":" << iter->port;
-        check_results_str << ",\"conntime\":" << iter->conntime;
-        check_results_str << ",\"rtt\":" << iter->rtt;
-        check_results_str << ",\"rttStr\":\"" << iter->rtt_str << "\"";
-        check_results_str << ",\"httpStatusCode\":" << iter->status_code;
-        check_results_str << ",\"pingCheckCount\":" << iter->checkcount;
-        check_results_str << ",\"pingLossRate\":\"" << iter->loss_rate << "\"";
-        check_results_str << ",\"dnsDomain\":\"" << iter->domain_name << "\"";
-        check_results_str << ",\"localDns\":\"" << iter->local_dns << "\"";
-        check_results_str << ",\"dnsIP1\":\"" << iter->ip1 << "\"";
-        check_results_str << ",\"dnsIP2\":\"" << iter->ip2 << "\"";
-        check_results_str << "}";
-        if (++iter != _check_results.end()) {
-            check_results_str << ",";
-        } else {
-            break;
+        check_results_str << "\"details\":[";
+        std::vector<CheckResultProfile>::const_iterator iter = _check_results.begin();
+        for (; iter != _check_results.end();) {
+            check_results_str << "{";
+            check_results_str << "\"detectType\":" << iter->netcheck_type;
+            check_results_str << ",\"errorCode\":" << iter->error_code;
+            check_results_str << ",\"networkType\":" << iter->network_type;
+            check_results_str << ",\"detectIP\":\"" << iter->ip << "\"";
+            check_results_str << ",\"port\":" << iter->port;
+            check_results_str << ",\"conntime\":" << iter->conntime;
+            check_results_str << ",\"rtt\":" << iter->rtt;
+            check_results_str << ",\"rttStr\":\"" << iter->rtt_str << "\"";
+            check_results_str << ",\"httpStatusCode\":" << iter->status_code;
+            check_results_str << ",\"pingCheckCount\":" << iter->checkcount;
+            check_results_str << ",\"pingLossRate\":\"" << iter->loss_rate << "\"";
+            check_results_str << ",\"dnsDomain\":\"" << iter->domain_name << "\"";
+            check_results_str << ",\"localDns\":\"" << iter->local_dns << "\"";
+            check_results_str << ",\"dnsIP1\":\"" << iter->ip1 << "\"";
+            check_results_str << ",\"dnsIP2\":\"" << iter->ip2 << "\"";
+            check_results_str << "}";
+            if (++iter != _check_results.end()) {
+                check_results_str << ",";
+            } else {
+                break;
+            }
         }
-    }
-    check_results_str << "]}";
+        check_results_str << "]}";
 
-    JNU_CallStaticMethodByMethodInfo(env,
-                                    KC2Java_reportSignalDetectResults,
-                                    ScopedJstring(env, check_results_str.String().c_str()).GetJstr());
-};
+        JNU_CallStaticMethodByMethodInfo(env,
+                                         KC2Java_reportSignalDetectResults,
+                                         ScopedJstring(env, check_results_str.String().c_str()).GetJstr());
+    };
 
 }  // namespace sdt
 }  // namespace mars

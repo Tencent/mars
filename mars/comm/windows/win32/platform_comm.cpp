@@ -88,8 +88,8 @@ int getNetTypeForStatistics() {
     return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
 }
 
-        void OnPlatformNetworkChange(){
-        }
+void OnPlatformNetworkChange() {
+}
 }  // namespace comm
 
 namespace xlog {

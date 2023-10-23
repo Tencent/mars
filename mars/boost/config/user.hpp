@@ -1,8 +1,8 @@
 //  boost/config/user.hpp  ---------------------------------------------------//
 
-//  (C) Copyright John Maddock 2001. 
-//  Use, modification and distribution are subject to the 
-//  Boost Software License, Version 1.0. (See accompanying file 
+//  (C) Copyright John Maddock 2001.
+//  Use, modification and distribution are subject to the
+//  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  Do not check in modified versions of this file,
@@ -56,7 +56,6 @@
 // compiler/platform/library:
 // #define BOOST_ASSERT_CONFIG
 
-
 // define if you want to disable threading support, even
 // when available:
 // #define BOOST_DISABLE_THREADS
@@ -65,61 +64,61 @@
 // even when available:
 // #define BOOST_DISABLE_WIN32
 
-// BOOST_DISABLE_ABI_HEADERS: Stops boost headers from including any 
-// prefix/suffix headers that normally control things like struct 
-// packing and alignment. 
+// BOOST_DISABLE_ABI_HEADERS: Stops boost headers from including any
+// prefix/suffix headers that normally control things like struct
+// packing and alignment.
 // #define BOOST_DISABLE_ABI_HEADERS
 
 // BOOST_ABI_PREFIX: A prefix header to include in place of whatever
-// boost.config would normally select, any replacement should set up 
-// struct packing and alignment options as required. 
+// boost.config would normally select, any replacement should set up
+// struct packing and alignment options as required.
 // #define BOOST_ABI_PREFIX my-header-name
 
-// BOOST_ABI_SUFFIX: A suffix header to include in place of whatever 
-// boost.config would normally select, any replacement should undo 
-// the effects of the prefix header. 
+// BOOST_ABI_SUFFIX: A suffix header to include in place of whatever
+// boost.config would normally select, any replacement should undo
+// the effects of the prefix header.
 // #define BOOST_ABI_SUFFIX my-header-name
 
-// BOOST_ALL_DYN_LINK: Forces all libraries that have separate source, 
-// to be linked as dll's rather than static libraries on Microsoft Windows 
-// (this macro is used to turn on __declspec(dllimport) modifiers, so that 
-// the compiler knows which symbols to look for in a dll rather than in a 
-// static library).  Note that there may be some libraries that can only 
-// be statically linked (Boost.Test for example) and others which may only 
-// be dynamically linked (Boost.Threads for example), in these cases this 
+// BOOST_ALL_DYN_LINK: Forces all libraries that have separate source,
+// to be linked as dll's rather than static libraries on Microsoft Windows
+// (this macro is used to turn on __declspec(dllimport) modifiers, so that
+// the compiler knows which symbols to look for in a dll rather than in a
+// static library).  Note that there may be some libraries that can only
+// be statically linked (Boost.Test for example) and others which may only
+// be dynamically linked (Boost.Threads for example), in these cases this
 // macro has no effect.
 // #define BOOST_ALL_DYN_LINK
- 
-// BOOST_WHATEVER_DYN_LINK: Forces library "whatever" to be linked as a dll 
-// rather than a static library on Microsoft Windows: replace the WHATEVER 
-// part of the macro name with the name of the library that you want to 
-// dynamically link to, for example use BOOST_DATE_TIME_DYN_LINK or 
-// BOOST_REGEX_DYN_LINK etc (this macro is used to turn on __declspec(dllimport) 
-// modifiers, so that the compiler knows which symbols to look for in a dll 
-// rather than in a static library).  
-// Note that there may be some libraries that can only be statically linked 
-// (Boost.Test for example) and others which may only be dynamically linked 
+
+// BOOST_WHATEVER_DYN_LINK: Forces library "whatever" to be linked as a dll
+// rather than a static library on Microsoft Windows: replace the WHATEVER
+// part of the macro name with the name of the library that you want to
+// dynamically link to, for example use BOOST_DATE_TIME_DYN_LINK or
+// BOOST_REGEX_DYN_LINK etc (this macro is used to turn on __declspec(dllimport)
+// modifiers, so that the compiler knows which symbols to look for in a dll
+// rather than in a static library).
+// Note that there may be some libraries that can only be statically linked
+// (Boost.Test for example) and others which may only be dynamically linked
 // (Boost.Threads for example), in these cases this macro is unsupported.
 // #define BOOST_WHATEVER_DYN_LINK
- 
-// BOOST_ALL_NO_LIB: Tells the config system not to automatically select 
-// which libraries to link against.  
-// Normally if a compiler supports #pragma lib, then the correct library 
-// build variant will be automatically selected and linked against, 
-// simply by the act of including one of that library's headers.  
+
+// BOOST_ALL_NO_LIB: Tells the config system not to automatically select
+// which libraries to link against.
+// Normally if a compiler supports #pragma lib, then the correct library
+// build variant will be automatically selected and linked against,
+// simply by the act of including one of that library's headers.
 // This macro turns that feature off.
- #define BOOST_ALL_NO_LIB
- #define BOOST_THREAD_BUILD_LIB 1
- 
- #define BOOST_HAS_GETTIMEOFDAY
- 
-// BOOST_WHATEVER_NO_LIB: Tells the config system not to automatically 
-// select which library to link against for library "whatever", 
-// replace WHATEVER in the macro name with the name of the library; 
-// for example BOOST_DATE_TIME_NO_LIB or BOOST_REGEX_NO_LIB.  
-// Normally if a compiler supports #pragma lib, then the correct library 
-// build variant will be automatically selected and linked against, simply 
-// by the act of including one of that library's headers.  This macro turns 
+#define BOOST_ALL_NO_LIB
+#define BOOST_THREAD_BUILD_LIB 1
+
+#define BOOST_HAS_GETTIMEOFDAY
+
+// BOOST_WHATEVER_NO_LIB: Tells the config system not to automatically
+// select which library to link against for library "whatever",
+// replace WHATEVER in the macro name with the name of the library;
+// for example BOOST_DATE_TIME_NO_LIB or BOOST_REGEX_NO_LIB.
+// Normally if a compiler supports #pragma lib, then the correct library
+// build variant will be automatically selected and linked against, simply
+// by the act of including one of that library's headers.  This macro turns
 // that feature off.
 // #define BOOST_WHATEVER_NO_LIB
 
@@ -140,12 +139,12 @@
 #ifndef BOOST_SYSTEM_NO_DEPRECATED
 #define BOOST_SYSTEM_NO_DEPRECATED 1
 #endif
-#ifdef ANDROID //only for android stlport
+#ifdef ANDROID  // only for android stlport
 #include "boost/boost_stdexcept"
 #endif
 
 #ifdef WIN32
-    #ifdef BOOST_HAS_GETTIMEOFDAY
-    #  undef BOOST_HAS_GETTIMEOFDAY
-    #endif
+#ifdef BOOST_HAS_GETTIMEOFDAY
+#undef BOOST_HAS_GETTIMEOFDAY
+#endif
 #endif

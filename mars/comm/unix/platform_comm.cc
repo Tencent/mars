@@ -7,7 +7,6 @@ namespace mars {
 namespace comm {
 
 void OnPlatformNetworkChange() {
-
 }
 
 int getNetInfo() {
@@ -46,11 +45,13 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
     return false;
 }
 
-void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {}
+void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
+}
 
-void ResetWiFiIdCallBack() {}
+void ResetWiFiIdCallBack() {
+}
 
-} // namespace comm
+}  // namespace comm
 
 namespace xlog {
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
@@ -80,7 +81,6 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
     printf(log);
 }
 
-}
+}  // namespace xlog
 
-} // namespace mars
-
+}  // namespace mars

@@ -131,8 +131,11 @@ ZBUFF_DEPRECATED("use ZSTD_initDStream_usingDict")
 size_t ZBUFF_decompressInitDictionary(ZBUFF_DCtx* dctx, const void* dict, size_t dictSize);
 
 ZBUFF_DEPRECATED("use ZSTD_decompressStream")
-size_t
-    ZBUFF_decompressContinue(ZBUFF_DCtx* dctx, void* dst, size_t* dstCapacityPtr, const void* src, size_t* srcSizePtr);
+size_t ZBUFF_decompressContinue(ZBUFF_DCtx* dctx,
+                                void* dst,
+                                size_t* dstCapacityPtr,
+                                const void* src,
+                                size_t* srcSizePtr);
 
 /*-***************************************************************************
  *  Streaming decompression howto

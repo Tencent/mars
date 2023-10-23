@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2017 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -11,45 +11,46 @@
 // limitations under the License.
 
 /*
-*  MarsWrapper.h
-*
-*  Created on: 2017-7-7
-*      Author: chenzihao
-*/
+ *  MarsWrapper.h
+ *
+ *  Created on: 2017-7-7
+ *      Author: chenzihao
+ */
 
 #ifndef _MARS_WRAPPER_H_
 #define _MARS_WRAPPER_H_
-#include "Wrapper/NetworkObserver.h"
-#include "HelloCGITask.h"
 #include "GetConvListCGITask.h"
+#include "HelloCGITask.h"
+#include "Wrapper/NetworkObserver.h"
 
-struct ChatMsg
-{
-	std::string topic_; 
-	std::string from_;
-	std::string content_;
+struct ChatMsg {
+    std::string topic_;
+    std::string from_;
+    std::string content_;
 };
 
-class ChatMsgObserver
-{
-public:
-	virtual void OnRecvChatMsg(const ChatMsg& msg) = 0;
+class ChatMsgObserver {
+ public:
+    virtual void OnRecvChatMsg(const ChatMsg& msg) = 0;
 };
-class MarsWrapper : public PushObserver
-{
-public:
-	static MarsWrapper& Instance();
+class MarsWrapper : public PushObserver {
+ public:
+    static MarsWrapper& Instance();
 
+    virtual void OnPush(uint64_t _channel_id,
+                        uint32_t _cmdid,
+                        uint32_t _taskid,
+                        const AutoBuffer& _body,
+                        const AutoBuffer& _extend);
 
-	virtual void OnPush(uint64_t _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const AutoBuffer& _extend);
+    void setChatMsgObserver(ChatMsgObserver* _observer);
+    void sendChatMsg(const ChatMsg& _chat_msg);
+    void start();
+    void pingServer(const std::string& _name, const std::string& _text, std::weak_ptr<HelloCGICallback> _callback);
+    void getConversationList(std::weak_ptr<GetConvListCGICallback> _callback);
 
-	void setChatMsgObserver(ChatMsgObserver* _observer);
-	void sendChatMsg(const ChatMsg& _chat_msg);
-	void start();
-	void pingServer(const std::string& _name, const std::string& _text, std::weak_ptr<HelloCGICallback> _callback);
-	void getConversationList(std::weak_ptr<GetConvListCGICallback> _callback);
-protected:
-	MarsWrapper();
-	ChatMsgObserver* chat_msg_observer_;
+ protected:
+    MarsWrapper();
+    ChatMsgObserver* chat_msg_observer_;
 };
 #endif

@@ -362,8 +362,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;

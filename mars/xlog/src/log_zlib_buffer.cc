@@ -29,9 +29,9 @@
 #include <algorithm>
 #include <cstdio>
 
+#include "log_base_buffer.h"
 #include "xlog/crypt/log_crypt.h"
 #include "xlog/crypt/log_magic_num.h"
-#include "log_base_buffer.h"
 
 #ifdef WIN32
 #define snprintf _snprintf

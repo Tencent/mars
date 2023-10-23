@@ -1189,11 +1189,10 @@ FORCE_INLINE_TEMPLATE seq_t ZSTD_decodeSequenceLong(seqState_t* seqState, ZSTD_l
     {
         size_t const pos = seqState->pos + seq.litLength;
         const BYTE* const matchBase = (seq.offset > pos) ? seqState->dictEnd : seqState->prefixStart;
-        seq.match =
-            matchBase
-            + pos - seq.offset; /* note : this operation can overflow when seq.offset is really too large, which can
-                                 * only happen when input is corrupted. No consequence though : no memory access will
-                                 * occur, overly large offset will be detected in ZSTD_execSequenceLong() */
+        seq.match = matchBase + pos
+                    - seq.offset; /* note : this operation can overflow when seq.offset is really too large, which can
+                                   * only happen when input is corrupted. No consequence though : no memory access will
+                                   * occur, overly large offset will be detected in ZSTD_execSequenceLong() */
         seqState->pos = pos + seq.matchLength;
     }
 

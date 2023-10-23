@@ -5,11 +5,11 @@
 #ifndef MMNET_BASE_CONTEXT_H
 #define MMNET_BASE_CONTEXT_H
 
+#include <atomic>
 #include <map>
 #include <mutex>
 #include <string>
 #include <vector>
-#include <atomic>
 
 #include "base_manager.h"
 

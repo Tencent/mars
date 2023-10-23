@@ -572,10 +572,11 @@ extern "C" {
 
 #define ERROR(name) (size_t) - PREFIX(name)
 
-#define ERROR_LIST(ITEM)                                                                                          \
-    ITEM(PREFIX(No_Error))                                                                                        \
-    ITEM(PREFIX(GENERIC)) ITEM(PREFIX(dstSize_tooSmall)) ITEM(PREFIX(srcSize_wrong)) ITEM(PREFIX(prefix_unknown)) \
-        ITEM(PREFIX(corruption_detected)) ITEM(PREFIX(tableLog_tooLarge)) ITEM(PREFIX(maxSymbolValue_tooLarge))   \
+#define ERROR_LIST(ITEM)                                                                                        \
+    ITEM(PREFIX(No_Error))                                                                                      \
+    ITEM(PREFIX(GENERIC))                                                                                       \
+    ITEM(PREFIX(dstSize_tooSmall)) ITEM(PREFIX(srcSize_wrong)) ITEM(PREFIX(prefix_unknown))                     \
+        ITEM(PREFIX(corruption_detected)) ITEM(PREFIX(tableLog_tooLarge)) ITEM(PREFIX(maxSymbolValue_tooLarge)) \
             ITEM(PREFIX(maxSymbolValue_tooSmall)) ITEM(PREFIX(maxCode))
 
 #define ERROR_GENERATE_ENUM(ENUM) ENUM,
@@ -785,8 +786,9 @@ extern "C" {
  ******************************************/
 /* Huff0 buffer bounds */
 #define HUF_CTABLEBOUND 129
-#define HUF_BLOCKBOUND(size) (size + (size >> 8) + 8) /* only true if incompressible pre-filtered with fast heuristic \
-                                                       */
+#define HUF_BLOCKBOUND(size)                                                                 \
+    (size + (size >> 8) + 8) /* only true if incompressible pre-filtered with fast heuristic \
+                              */
 #define HUF_COMPRESSBOUND(size) \
     (HUF_CTABLEBOUND + HUF_BLOCKBOUND(size)) /* Macro version, useful for static allocation */
 
