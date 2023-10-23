@@ -42,14 +42,14 @@
 #define BITSTREAM_H_MODULE
 
 /*
-*  This API consists of small unitary functions, which must be inlined for best performance.
-*  Since link-time-optimization is not available for all compilers,
-*  these functions are defined into a .h to be included.
-*/
+ *  This API consists of small unitary functions, which must be inlined for best performance.
+ *  Since link-time-optimization is not available for all compilers,
+ *  these functions are defined into a .h to be included.
+ */
 
 /*-****************************************
-*  Dependencies
-******************************************/
+ *  Dependencies
+ ******************************************/
 #include "error_private.h" /* error codes and messages */
 #include "mem.h"	   /* unaligned access routines */
 
@@ -61,12 +61,12 @@
 #define STREAM_ACCUMULATOR_MIN ((U32)(ZSTD_32bits() ? STREAM_ACCUMULATOR_MIN_32 : STREAM_ACCUMULATOR_MIN_64))
 
 /*-******************************************
-*  bitStream encoding API (write forward)
-********************************************/
+ *  bitStream encoding API (write forward)
+ ********************************************/
 /* bitStream can mix input from multiple sources.
-*  A critical property of these streams is that they encode and decode in **reverse** direction.
-*  So the first bit sequence you add will be the last to be read, like a LIFO stack.
-*/
+ *  A critical property of these streams is that they encode and decode in **reverse** direction.
+ *  So the first bit sequence you add will be the last to be read, like a LIFO stack.
+ */
 typedef struct {
 	size_t bitContainer;
 	int bitPos;
@@ -81,25 +81,25 @@ ZSTD_STATIC void BIT_flushBits(BIT_CStream_t *bitC);
 ZSTD_STATIC size_t BIT_closeCStream(BIT_CStream_t *bitC);
 
 /* Start with initCStream, providing the size of buffer to write into.
-*  bitStream will never write outside of this buffer.
-*  `dstCapacity` must be >= sizeof(bitD->bitContainer), otherwise @return will be an error code.
-*
-*  bits are first added to a local register.
-*  Local register is size_t, hence 64-bits on 64-bits systems, or 32-bits on 32-bits systems.
-*  Writing data into memory is an explicit operation, performed by the flushBits function.
-*  Hence keep track how many bits are potentially stored into local register to avoid register overflow.
-*  After a flushBits, a maximum of 7 bits might still be stored into local register.
-*
-*  Avoid storing elements of more than 24 bits if you want compatibility with 32-bits bitstream readers.
-*
-*  Last operation is to close the bitStream.
-*  The function returns the final size of CStream in bytes.
-*  If data couldn't fit into `dstBuffer`, it will return a 0 ( == not storable)
-*/
+ *  bitStream will never write outside of this buffer.
+ *  `dstCapacity` must be >= sizeof(bitD->bitContainer), otherwise @return will be an error code.
+ *
+ *  bits are first added to a local register.
+ *  Local register is size_t, hence 64-bits on 64-bits systems, or 32-bits on 32-bits systems.
+ *  Writing data into memory is an explicit operation, performed by the flushBits function.
+ *  Hence keep track how many bits are potentially stored into local register to avoid register overflow.
+ *  After a flushBits, a maximum of 7 bits might still be stored into local register.
+ *
+ *  Avoid storing elements of more than 24 bits if you want compatibility with 32-bits bitstream readers.
+ *
+ *  Last operation is to close the bitStream.
+ *  The function returns the final size of CStream in bytes.
+ *  If data couldn't fit into `dstBuffer`, it will return a 0 ( == not storable)
+ */
 
 /*-********************************************
-*  bitStream decoding API (read backward)
-**********************************************/
+ *  bitStream decoding API (read backward)
+ **********************************************/
 typedef struct {
 	size_t bitContainer;
 	unsigned bitsConsumed;
@@ -121,18 +121,18 @@ ZSTD_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t *bitD);
 ZSTD_STATIC unsigned BIT_endOfDStream(const BIT_DStream_t *bitD);
 
 /* Start by invoking BIT_initDStream().
-*  A chunk of the bitStream is then stored into a local register.
-*  Local register size is 64-bits on 64-bits systems, 32-bits on 32-bits systems (size_t).
-*  You can then retrieve bitFields stored into the local register, **in reverse order**.
-*  Local register is explicitly reloaded from memory by the BIT_reloadDStream() method.
-*  A reload guarantee a minimum of ((8*sizeof(bitD->bitContainer))-7) bits when its result is BIT_DStream_unfinished.
-*  Otherwise, it can be less than that, so proceed accordingly.
-*  Checking if DStream has reached its end can be performed with BIT_endOfDStream().
-*/
+ *  A chunk of the bitStream is then stored into a local register.
+ *  Local register size is 64-bits on 64-bits systems, 32-bits on 32-bits systems (size_t).
+ *  You can then retrieve bitFields stored into the local register, **in reverse order**.
+ *  Local register is explicitly reloaded from memory by the BIT_reloadDStream() method.
+ *  A reload guarantee a minimum of ((8*sizeof(bitD->bitContainer))-7) bits when its result is BIT_DStream_unfinished.
+ *  Otherwise, it can be less than that, so proceed accordingly.
+ *  Checking if DStream has reached its end can be performed with BIT_endOfDStream().
+ */
 
 /*-****************************************
-*  unsafe API
-******************************************/
+ *  unsafe API
+ ******************************************/
 ZSTD_STATIC void BIT_addBitsFast(BIT_CStream_t *bitC, size_t value, unsigned nbBits);
 /* faster, but works only if value is "clean", meaning all high bits above nbBits are 0 */
 
@@ -143,18 +143,18 @@ ZSTD_STATIC size_t BIT_readBitsFast(BIT_DStream_t *bitD, unsigned nbBits);
 /* faster, but works only if nbBits >= 1 */
 
 /*-**************************************************************
-*  Internal functions
-****************************************************************/
+ *  Internal functions
+ ****************************************************************/
 ZSTD_STATIC unsigned BIT_highbit32(register U32 val) { return 31 - __builtin_clz(val); }
 
 /*=====    Local Constants   =====*/
-static const unsigned BIT_mask[] = {0,       1,       3,       7,	0xF,      0x1F,     0x3F,     0x7F,      0xFF,
-				    0x1FF,   0x3FF,   0x7FF,   0xFFF,    0x1FFF,   0x3FFF,   0x7FFF,   0xFFFF,    0x1FFFF,
+static const unsigned BIT_mask[] = {0,	     1,	      3,       7,	 0xF,	   0x1F,     0x3F,     0x7F,	  0xFF,
+				    0x1FF,   0x3FF,   0x7FF,   0xFFF,	 0x1FFF,   0x3FFF,   0x7FFF,   0xFFFF,	  0x1FFFF,
 				    0x3FFFF, 0x7FFFF, 0xFFFFF, 0x1FFFFF, 0x3FFFFF, 0x7FFFFF, 0xFFFFFF, 0x1FFFFFF, 0x3FFFFFF}; /* up to 26 bits */
 
 /*-**************************************************************
-*  bitStream encoding
-****************************************************************/
+ *  bitStream encoding
+ ****************************************************************/
 /*! BIT_initCStream() :
  *  `dstCapacity` must be > sizeof(void*)
  *  @return : 0 if success,
@@ -228,14 +228,14 @@ ZSTD_STATIC size_t BIT_closeCStream(BIT_CStream_t *bitC)
 }
 
 /*-********************************************************
-* bitStream decoding
-**********************************************************/
+ * bitStream decoding
+ **********************************************************/
 /*! BIT_initDStream() :
-*   Initialize a BIT_DStream_t.
-*   `bitD` : a pointer to an already allocated BIT_DStream_t structure.
-*   `srcSize` must be the *exact* size of the bitStream, in bytes.
-*   @return : size of stream (== srcSize) or an errorCode if a problem is detected
-*/
+ *   Initialize a BIT_DStream_t.
+ *   `bitD` : a pointer to an already allocated BIT_DStream_t structure.
+ *   `srcSize` must be the *exact* size of the bitStream, in bytes.
+ *   @return : size of stream (== srcSize) or an errorCode if a problem is detected
+ */
 ZSTD_STATIC size_t BIT_initDStream(BIT_DStream_t *bitD, const void *srcBuffer, size_t srcSize)
 {
 	if (srcSize < 1) {
@@ -298,7 +298,7 @@ ZSTD_STATIC size_t BIT_lookBits(const BIT_DStream_t *bitD, U32 nbBits)
 }
 
 /*! BIT_lookBitsFast() :
-*   unsafe version; only works only if nbBits >= 1 */
+ *   unsafe version; only works only if nbBits >= 1 */
 ZSTD_STATIC size_t BIT_lookBitsFast(const BIT_DStream_t *bitD, U32 nbBits)
 {
 	U32 const bitMask = sizeof(bitD->bitContainer) * 8 - 1;
@@ -320,7 +320,7 @@ ZSTD_STATIC size_t BIT_readBits(BIT_DStream_t *bitD, U32 nbBits)
 }
 
 /*! BIT_readBitsFast() :
-*   unsafe version; only works only if nbBits >= 1 */
+ *   unsafe version; only works only if nbBits >= 1 */
 ZSTD_STATIC size_t BIT_readBitsFast(BIT_DStream_t *bitD, U32 nbBits)
 {
 	size_t const value = BIT_lookBitsFast(bitD, nbBits);
@@ -364,8 +364,8 @@ ZSTD_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t *bitD)
 }
 
 /*! BIT_endOfDStream() :
-*   @return Tells if DStream has exactly reached its end (all bits consumed).
-*/
+ *   @return Tells if DStream has exactly reached its end (all bits consumed).
+ */
 ZSTD_STATIC unsigned BIT_endOfDStream(const BIT_DStream_t *DStream)
 {
 	return ((DStream->ptr == DStream->start) && (DStream->bitsConsumed == sizeof(DStream->bitContainer) * 8));

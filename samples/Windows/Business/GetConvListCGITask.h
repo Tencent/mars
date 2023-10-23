@@ -21,9 +21,9 @@
 #define _GETCONVLIST_CGI_TASK_H_
 
 #include "Wrapper/CGITask.h"
+#include <memory>
 
 #include "proto/generate/main.pb.h"
-#include "mars/boost/weak_ptr.hpp"
 class GetConvListCGITask;
 struct ConversationInfo
 {
@@ -43,7 +43,7 @@ public:
 	virtual int Buf2Resp(uint32_t _taskid, void* const _user_context, const AutoBuffer& _inbuffer, const AutoBuffer& _extend, int& _error_code, const int _channel_select);
 
 	std::string access_token_;
-	boost::weak_ptr<GetConvListCGICallback> callback_;
+	std::weak_ptr<GetConvListCGICallback> callback_;
 };
 
 #endif

@@ -1,10 +1,9 @@
 /**
  * created on : 2012-07-19
- * author : yanguoyue 
+ * author : yanguoyue
  */
 
 void ImportLibs() {
-	
-	extern void ExportXlog();
-	ExportXlog();
+    extern void ExportXlog();
+    ExportXlog();
 }

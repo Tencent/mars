@@ -3,4 +3,4 @@
 
 #define EINVAL 22
 
-#endif // LINUX_ERRNO_H_
+#endif  // LINUX_ERRNO_H_

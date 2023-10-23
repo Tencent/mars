@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * platform_comm.h
@@ -21,13 +20,12 @@
 #ifndef COMM_PLATFORM_COMM_H_
 #define COMM_PLATFORM_COMM_H_
 
-#include <string>
 #include <functional>
+#include <string>
 
-#ifdef ANDROID 
+#ifdef ANDROID
 #include "mars/comm/thread/mutex.h"
 #endif
-
 
 #ifndef __cplusplus
 #error "C++ only"
@@ -36,18 +34,13 @@
 namespace mars {
 namespace comm {
 
-enum NetType {
-    kNoNet = -1,
-    kWifi = 1,
-    kMobile = 2,
-    kOtherNet = 3
-};
+enum NetType { kNoNet = -1, kWifi = 1, kMobile = 2, kOtherNet = 3 };
 
 void OnPlatformNetworkChange();
 
 int getNetInfo();
 
-enum class NetTypeForStatistics{
+enum class NetTypeForStatistics {
     NETTYPE_NON = -1,
     NETTYPE_NOT_WIFI = 0,
     NETTYPE_WIFI = 1,
@@ -55,7 +48,7 @@ enum class NetTypeForStatistics{
     NETTYPE_2G = 3,
     NETTYPE_3G = 4,
     NETTYPE_4G = 5,
-    NETTYPE_UNKNOWN = 6,    //ignore, DO NOT reuse
+    NETTYPE_UNKNOWN = 6,  // ignore, DO NOT reuse
     NETTYPE_5G = 7,
 };
 int getNetTypeForStatistics();
@@ -75,16 +68,17 @@ struct SIMInfo {
 bool getCurSIMInfo(SIMInfo& _sim_info);
 
 struct APNInfo {
-    APNInfo(): nettype(kNoNet-1), sub_nettype(0), extra_info("") {}
+    APNInfo() : nettype(kNoNet - 1), sub_nettype(0), extra_info("") {
+    }
     int nettype;
     int sub_nettype;
     std::string extra_info;
 };
 bool getAPNInfo(APNInfo& info);
 #if __cplusplus >= 201103L
-#  define __CXX11_CONSTEXPR__ constexpr
+#define __CXX11_CONSTEXPR__ constexpr
 #else
-#  define __CXX11_CONSTEXPR__
+#define __CXX11_CONSTEXPR__
 #endif
 
 __CXX11_CONSTEXPR__ static const char* const GPRS = "GPRS";
@@ -97,9 +91,9 @@ __CXX11_CONSTEXPR__ static const char* const CDMAEVDORev0 = "CDMAEVDORev0";
 __CXX11_CONSTEXPR__ static const char* const CDMAEVDORevA = "CDMAEVDORevA";
 __CXX11_CONSTEXPR__ static const char* const CDMAEVDORevB = "CDMAEVDORevB";
 __CXX11_CONSTEXPR__ static const char* const eHRPD = "eHRPD";
-__CXX11_CONSTEXPR__ static const char* const LTE  = "LTE";
-__CXX11_CONSTEXPR__ static const char* const UMTS  = "UMTS";
-__CXX11_CONSTEXPR__ static const char* const CDMA  = "CDMA";
+__CXX11_CONSTEXPR__ static const char* const LTE = "LTE";
+__CXX11_CONSTEXPR__ static const char* const UMTS = "UMTS";
+__CXX11_CONSTEXPR__ static const char* const CDMA = "CDMA";
 __CXX11_CONSTEXPR__ static const char* const HSPA = "HSPA";
 __CXX11_CONSTEXPR__ static const char* const IDEN = "IDEN";
 __CXX11_CONSTEXPR__ static const char* const HSPAP = "HSPA+";
@@ -107,7 +101,6 @@ __CXX11_CONSTEXPR__ static const char* const G5 = "5G";
 __CXX11_CONSTEXPR__ static const char* const NR = "NR";
 __CXX11_CONSTEXPR__ static const char* const NRNSA = "NRNSA";
 __CXX11_CONSTEXPR__ static const char* const WIFI = "WIFI";
-
 
 struct RadioAccessNetworkInfo {
     /***
@@ -155,7 +148,8 @@ struct RadioAccessNetworkInfo {
         iPhone以及大部分主流手机的支持制式路线，使用率高达70%，现中国联通路线，技术成熟。为欧洲提议，全球流行。
 
         2.CDMA IS 95 - CDMA 2000 EV-DO Rev.A - LTE FDD／UMB路线
-        由2G非主流CDMA演变而来，技术稳定，使用率高达20%，现中国电信路线。美国高通提议，LTE FDD转接部分为摩托罗拉公司提议。美日韩流行。
+        由2G非主流CDMA演变而来，技术稳定，使用率高达20%，现中国电信路线。美国高通提议，LTE
+    FDD转接部分为摩托罗拉公司提议。美日韩流行。
 
         3.GSM - TD-SCDMA - LTE TDD路线
         与第一个路线相反，它采用了TD时分技术，不可能和FD频分技术融合。技术新兴，使用率高达10%，兼容终端不多，现中国移动路线，中国大唐提议，中国流行，受Govements看好，支持。
@@ -192,20 +186,35 @@ struct RadioAccessNetworkInfo {
         TD-HSUPA+：TD-SCDMA的高级加速技术，主要增加上传速度，可与TD-HSDPA（+）自由调节。（中国未发展，移动想跳过）
 
         3.9G：
-        LTE FDD：Wi-Fi终结者，拥有比WLAN快10倍的能力，估速将达到4M／S以上，兼容性强！是CDMA2000和WCDMA歧路同归的重要制式！（中国未发展）
-        LTE TDD：世博会展出对象，尖端技术，比FDD早发展一年，网速和FDD差不多，但不成熟，兼容性弱！（湖北移动、上海移动已启动试运营，国家大力推广）
+        LTE
+    FDD：Wi-Fi终结者，拥有比WLAN快10倍的能力，估速将达到4M／S以上，兼容性强！是CDMA2000和WCDMA歧路同归的重要制式！（中国未发展）
+        LTE
+    TDD：世博会展出对象，尖端技术，比FDD早发展一年，网速和FDD差不多，但不成熟，兼容性弱！（湖北移动、上海移动已启动试运营，国家大力推广）
     ***/
 
+    std::string radio_access_network;
 
-
-    std::string  radio_access_network;
-
-    bool Is2G() const { return radio_access_network == GPRS || radio_access_network == CDMA1x || radio_access_network == Edge || radio_access_network == CDMAEVDORev0 || radio_access_network == UMTS || radio_access_network == CDMA;}
-    bool Is3G() const { return radio_access_network == WCDMA || radio_access_network == CDMAEVDORevA || radio_access_network == HSDPA || radio_access_network == HSUPA || radio_access_network == CDMAEVDORevB || radio_access_network == eHRPD || radio_access_network == HSPAP || radio_access_network == HSPA;}
-    bool Is4G() const { return radio_access_network == LTE;}
-    bool Is5G() const { return radio_access_network == G5;}
-    bool IsUnknown() const { return !Is2G() && !Is3G() && !Is4G() && !Is5G();}
-    bool IsNR() const;
+    bool Is2G() const {
+        return radio_access_network == GPRS || radio_access_network == CDMA1x || radio_access_network == Edge
+               || radio_access_network == CDMAEVDORev0 || radio_access_network == UMTS || radio_access_network == CDMA;
+    }
+    bool Is3G() const {
+        return radio_access_network == WCDMA || radio_access_network == CDMAEVDORevA || radio_access_network == HSDPA
+               || radio_access_network == HSUPA || radio_access_network == CDMAEVDORevB || radio_access_network == eHRPD
+               || radio_access_network == HSPAP || radio_access_network == HSPA;
+    }
+    bool Is4G() const {
+        return radio_access_network == LTE;
+    }
+    bool Is5G() const {
+        return radio_access_network == G5;
+    }
+    bool IsUnknown() const {
+        return !Is2G() && !Is3G() && !Is4G() && !Is5G();
+    }
+    bool IsNR() const {
+        return radio_access_network == NR || radio_access_network == NRNSA;
+    }
 };
 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
@@ -228,38 +237,38 @@ inline int getCurrNetLabel(std::string& netInfo) {
     }
 
     switch (netId) {
-    case kWifi: {
-        WifiInfo wifiInfo;
+        case kWifi: {
+            WifiInfo wifiInfo;
 
-        if (getCurWifiInfo(wifiInfo)) {
-            netInfo = wifiInfo.ssid.empty() ? "empty_ssid" : wifiInfo.ssid;
-        } else {
-            netInfo = "no_ssid_wifi";
+            if (getCurWifiInfo(wifiInfo)) {
+                netInfo = wifiInfo.ssid.empty() ? "empty_ssid" : wifiInfo.ssid;
+            } else {
+                netInfo = "no_ssid_wifi";
+            }
+
+            break;
         }
 
-        break;
-    }
+        case kMobile: {
+            SIMInfo simInfo;
 
-    case kMobile: {
-        SIMInfo simInfo;
+            if (getCurSIMInfo(simInfo)) {
+                netInfo = simInfo.isp_code.empty() ? "empty_ispCode" : simInfo.isp_code;
+            } else {
+                netInfo = "no_ispCode_mobile";
+            }
 
-        if (getCurSIMInfo(simInfo)) {
-            netInfo = simInfo.isp_code.empty() ? "empty_ispCode" : simInfo.isp_code;
-        } else {
-            netInfo = "no_ispCode_mobile";
+            break;
         }
 
-        break;
-    }
+        case kOtherNet: {
+            netInfo = "other";
+            break;
+        }
 
-    case kOtherNet: {
-        netInfo = "other";
-        break;
-    }
-
-    default: {
-        break;
-    }
+        default: {
+            break;
+        }
     }
 
     return netId;
@@ -268,6 +277,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
 #ifdef __APPLE__
 void FlushReachability();
 float publiccomponent_GetSystemVersion();
+int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain);
 #endif
 
 #ifdef ANDROID
@@ -275,49 +285,82 @@ bool startAlarm(int type, int64_t id, int after);
 bool stopAlarm(int64_t id);
 
 void* wakeupLock_new();
-void  wakeupLock_delete(void* _object);
-void  wakeupLock_Lock(void* _object);
-void  wakeupLock_Lock_Timeout(void* _object, int64_t _timeout);
-void  wakeupLock_Unlock(void* _object);
-bool  wakeupLock_IsLocking(void* _object);
+void wakeupLock_delete(void* _object);
+void wakeupLock_Lock(void* _object);
+void wakeupLock_Lock_Timeout(void* _object, int64_t _timeout);
+void wakeupLock_Unlock(void* _object);
+bool wakeupLock_IsLocking(void* _object);
 
 #ifdef NATIVE_CALLBACK
-    #include <memory>
-    class PlatformNativeCallback {
-    public:
-        PlatformNativeCallback() = default;
-        virtual ~PlatformNativeCallback() = default;
-        bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host){return false;}
-        bool getAPNInfo(APNInfo& info){return false;}
-        virtual int getNetInfo() {return -1;}
-        virtual int getNetTypeForStatistics();
-        virtual bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info) {return false;}
-        virtual bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false) {return false;}
-        virtual bool getCurSIMInfo(SIMInfo& _sim_info) {return false;}
-        virtual unsigned int getSignal(bool isWifi) {return -1;}
-        virtual bool isNetworkConnected() {return false;}
-        virtual bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {return false;}
-        virtual int getCurrNetLabel(std::string& netInfo) {return -1;}
+#include <memory>
+class PlatformNativeCallback {
+ public:
+    PlatformNativeCallback() = default;
+    virtual ~PlatformNativeCallback() = default;
+    bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
+        return false;
+    }
+    bool getAPNInfo(APNInfo& info) {
+        return false;
+    }
+    virtual int getNetInfo() {
+        return -1;
+    }
+    virtual int getNetTypeForStatistics();
+    virtual bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info) {
+        return false;
+    }
+    virtual bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh = false) {
+        return false;
+    }
+    virtual bool getCurSIMInfo(SIMInfo& _sim_info) {
+        return false;
+    }
+    virtual unsigned int getSignal(bool isWifi) {
+        return -1;
+    }
+    virtual bool isNetworkConnected() {
+        return false;
+    }
+    virtual bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
+        return false;
+    }
+    virtual int getCurrNetLabel(std::string& netInfo) {
+        return -1;
+    }
 
-        virtual bool startAlarm(int type, int64_t id, int after) {return false;}
-        virtual bool stopAlarm(int64_t id) {return false;}
-        void* wakeupLock_new() {return nullptr;}
-        void  wakeupLock_delete(void* _object) {}
-        void  wakeupLock_Lock(void* _object) {}
-        void  wakeupLock_Lock_Timeout(void* _object, int64_t _timeout) {}
-        void  wakeupLock_Unlock(void* _object) {}
-        bool  wakeupLock_IsLocking(void* _object) {return false;}
-    };
-    extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCallback> _cb);
+    virtual bool startAlarm(int type, int64_t id, int after) {
+        return false;
+    }
+    virtual bool stopAlarm(int64_t id) {
+        return false;
+    }
+    void* wakeupLock_new() {
+        return nullptr;
+    }
+    void wakeupLock_delete(void* _object) {
+    }
+    void wakeupLock_Lock(void* _object) {
+    }
+    void wakeupLock_Lock_Timeout(void* _object, int64_t _timeout) {
+    }
+    void wakeupLock_Unlock(void* _object) {
+    }
+    bool wakeupLock_IsLocking(void* _object) {
+        return false;
+    }
+};
+extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCallback> _cb);
 
 #endif
 
 #endif
 
 #ifdef ANDROID
-    std::string GetCurrentProcessName();
+std::string GetCurrentProcessName();
 #endif
 
-}}
+}  // namespace comm
+}  // namespace mars
 
 #endif /* COMM_PLATFORM_COMM_H_ */

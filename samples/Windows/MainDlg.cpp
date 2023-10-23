@@ -38,7 +38,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	RECT rc;
 	GetClientRect(&rc);
 	m_tabView.Create(m_hWnd, rc, NULL, WS_CHILD | WS_VISIBLE, WS_EX_STATICEDGE);
-	m_pingServerDlg = boost::shared_ptr<CPingServerDlg>(new CPingServerDlg());
+	m_pingServerDlg = std::shared_ptr<CPingServerDlg>(new CPingServerDlg());
 	m_pingServerDlg->Create(m_tabView.m_hWnd);
 	m_tabView.AddPage(m_pingServerDlg->m_hWnd, _T("Ping Server"));
 	m_pingServerDlg->SetHostWnd(this);
@@ -116,7 +116,7 @@ LRESULT CMainDlg::OnGetConversationList(UINT /*uMsg*/, WPARAM wParam, LPARAM /*l
 	int size = conversationList->size();
 	if (size > 5)size = 5;
 
-	std::string name = (char*)(_bstr_t)m_pingServerDlg->GetUserName().c_str();
+	std::string name = (char*)(_bstr_t)m_pingServerDlg->GetAppUserName().c_str();
 	for (int i = 0; i < size; ++i)
 	{
 		const ConversationInfo& item = (*conversationList)[i];

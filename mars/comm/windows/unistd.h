@@ -28,9 +28,9 @@
 #ifndef _UNISTD_H_
 #define _UNISTD_H_
 
-#include <sys/cdefs.h>
-#include <io.h>
 #include <dirent.h>
+#include <io.h>
+#include <sys/cdefs.h>
 #ifndef WP8
 #include <process.h>
 #endif
@@ -38,10 +38,10 @@
 __BEGIN_DECLS
 
 /* Macros for access() */
-#define R_OK  4  /* Read */
-#define W_OK  2  /* Write */
-#define X_OK  1  /* Execute */
-#define F_OK  0  /* Existence */
+#define R_OK 4 /* Read */
+#define W_OK 2 /* Write */
+#define X_OK 1 /* Execute */
+#define F_OK 0 /* Existence */
 
 #define S_IRWXU 0
 #define S_IRWXG 0
@@ -51,7 +51,7 @@ __BEGIN_DECLS
 
 typedef unsigned short mode_t;
 
-//extern int  mkdir(const char*, mode_t);
+// extern int  mkdir(const char*, mode_t);
 extern unsigned int sleep(unsigned int);
 extern void usleep(unsigned long);
 //#define access _access

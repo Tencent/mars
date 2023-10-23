@@ -8,12 +8,12 @@
  */
 #pragma once
 
-#include "utils/Range.h"
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+
+#include "utils/Range.h"
 
 namespace pzstd {
 /**
@@ -36,29 +36,29 @@ namespace pzstd {
  */
 class SkippableFrame {
  public:
-  static constexpr std::size_t kSize = 12;
+    static constexpr std::size_t kSize = 12;
 
  private:
-  std::uint32_t frameSize_;
-  std::array<std::uint8_t, kSize> data_;
-  static constexpr std::uint32_t kSkippableFrameMagicNumber = 0x184D2A50;
-  // Could be improved if the size fits in less bytes
-  static constexpr std::uint32_t kFrameContentsSize = kSize - 8;
+    std::uint32_t frameSize_;
+    std::array<std::uint8_t, kSize> data_;
+    static constexpr std::uint32_t kSkippableFrameMagicNumber = 0x184D2A50;
+    // Could be improved if the size fits in less bytes
+    static constexpr std::uint32_t kFrameContentsSize = kSize - 8;
 
  public:
-   // Write the skippable frame to data_ in LE format.
-  explicit SkippableFrame(std::uint32_t size);
+    // Write the skippable frame to data_ in LE format.
+    explicit SkippableFrame(std::uint32_t size);
 
-  // Read the skippable frame from bytes in LE format.
-  static std::size_t tryRead(ByteRange bytes);
+    // Read the skippable frame from bytes in LE format.
+    static std::size_t tryRead(ByteRange bytes);
 
-  ByteRange data() const {
-    return {data_.data(), data_.size()};
-  }
+    ByteRange data() const {
+        return {data_.data(), data_.size()};
+    }
 
-  // Size of the next frame.
-  std::size_t frameSize() const {
-    return frameSize_;
-  }
+    // Size of the next frame.
+    std::size_t frameSize() const {
+        return frameSize_;
+    }
 };
-}
+}  // namespace pzstd

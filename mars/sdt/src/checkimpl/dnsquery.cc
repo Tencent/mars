@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,25 +10,23 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include "dnsquery.h"
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <string>
+#include <vector>
 #if defined __APPLE__
 #include <fstream>
 #endif
 
-#include "mars/comm/xlogger/xlogger.h"
 #include "mars/comm/socket/socket_address.h"
-
+#include "mars/comm/xlogger/xlogger.h"
 #include "sdt/src/tools/netchecker_trafficmonitor.h"
 
 #define TRAFFIC_LIMIT_RET_CODE (INT_MIN)
@@ -38,38 +36,36 @@
 #define NAME_SVR_LEN (10)
 
 // Type field of Query and Answer
-#define T_A         1       /* host address */
-#define T_NS        2       /* authoritative server */
-#define T_CNAME     5       /* canonical name */
-#define T_SOA       6       /* start of authority zone */
-#define T_PTR       12      /* domain name pointer */
-#define T_MX        15      /* mail routing information */
+#define T_A 1     /* host address */
+#define T_NS 2    /* authoritative server */
+#define T_CNAME 5 /* canonical name */
+#define T_SOA 6   /* start of authority zone */
+#define T_PTR 12  /* domain name pointer */
+#define T_MX 15   /* mail routing information */
 
 namespace {
 // DNS header structure
 #pragma pack(push, 1)
 struct DNS_HEADER {
-    unsigned    short id;           // identification number
+    unsigned short id;  // identification number
 
-    unsigned    char rd     : 1;    // recursion desired
-    unsigned    char tc     : 1;    // truncated message
-    unsigned    char aa     : 1;    // authoritive answer
-    unsigned    char opcode : 4;    // purpose of message
-    unsigned    char qr     : 1;    // query/response flag
+    unsigned char rd : 1;      // recursion desired
+    unsigned char tc : 1;      // truncated message
+    unsigned char aa : 1;      // authoritive answer
+    unsigned char opcode : 4;  // purpose of message
+    unsigned char qr : 1;      // query/response flag
 
-    unsigned    char rcode  : 4;    // response code
-    unsigned    char cd     : 1;    // checking disabled
-    unsigned    char ad     : 1;    // authenticated data
-    unsigned    char z      : 1;    // its z! reserved
-    unsigned    char ra     : 1;    // recursion available
+    unsigned char rcode : 4;  // response code
+    unsigned char cd : 1;     // checking disabled
+    unsigned char ad : 1;     // authenticated data
+    unsigned char z : 1;      // its z! reserved
+    unsigned char ra : 1;     // recursion available
 
-    unsigned    short q_count;      // number of question entries
-    unsigned    short ans_count;    // number of answer entries
-    unsigned    short auth_count;   // number of authority entries
-    unsigned    short add_count;    // number of resource entries
+    unsigned short q_count;     // number of question entries
+    unsigned short ans_count;   // number of answer entries
+    unsigned short auth_count;  // number of authority entries
+    unsigned short add_count;   // number of resource entries
 };
-
-
 
 // Constant sized fields of query structure
 struct QUESTION {
@@ -77,40 +73,51 @@ struct QUESTION {
     unsigned short qclass;
 };
 
-
 // Constant sized fields of the resource record structure
-struct  R_DATA {
+struct R_DATA {
     unsigned short type;
     unsigned short _class;
-    unsigned int   ttl;
+    unsigned int ttl;
     unsigned short data_len;
 };
 #pragma pack(pop)
 
 // Pointers to resource record contents
 struct RES_RECORD {
-    unsigned char*  name;
-    struct R_DATA*  resource;
-    unsigned char*  rdata;
+    unsigned char* name;
+    struct R_DATA* resource;
+    unsigned char* rdata;
 };
 
 // Structure of a Query
 typedef struct {
-    unsigned char*       name;
-    struct QUESTION*     ques;
+    unsigned char* name;
+    struct QUESTION* ques;
 } QUERY;
 
-}
+}  // namespace
 
 //函数原型声明
-static void           ChangetoDnsNameFormat(unsigned char*, std::string);
+static void ChangetoDnsNameFormat(unsigned char*, std::string);
 static unsigned char* ReadName(unsigned char*, unsigned char*, int*);
-static void           GetHostDnsServerIP(std::vector<std::string>& _dns_servers);
-static void           PrepareDnsQueryPacket(unsigned char* _buf, struct DNS_HEADER* _dns, unsigned char* _qname, const std::string& _host);
-static void           ReadRecvAnswer(unsigned char* _buf, struct DNS_HEADER* _dns, unsigned char* _reader, struct RES_RECORD* _answers);
-static int            RecvWithinTime(int _fd, char* _buf, size_t _buf_n, struct sockaddr* _addr, socklen_t* _len, unsigned int _sec, unsigned _usec);
-static void           FreeAll(struct RES_RECORD* _answers);
-static bool           isValidIpAddress(const char* _ipaddress);
+static void GetHostDnsServerIP(std::vector<std::string>& _dns_servers);
+static void PrepareDnsQueryPacket(unsigned char* _buf,
+                                  struct DNS_HEADER* _dns,
+                                  unsigned char* _qname,
+                                  const std::string& _host);
+static void ReadRecvAnswer(unsigned char* _buf,
+                           struct DNS_HEADER* _dns,
+                           unsigned char* _reader,
+                           struct RES_RECORD* _answers);
+static int RecvWithinTime(int _fd,
+                          char* _buf,
+                          size_t _buf_n,
+                          struct sockaddr* _addr,
+                          socklen_t* _len,
+                          unsigned int _sec,
+                          unsigned _usec);
+static void FreeAll(struct RES_RECORD* _answers);
+static bool isValidIpAddress(const char* _ipaddress);
 
 /**
  *函数名:    socket_gethostbyname
@@ -122,36 +129,43 @@ static bool           isValidIpAddress(const char* _ipaddress);
  *返回值:          当返回-1表示查询失败，当返回0则表示查询成功
  *
  */
-int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeout /*ms*/, const char* _dnsserver, NetCheckTrafficMonitor* _traffic_monitor) {
-    xinfo2(TSF"in socket_gethostbyname,_host=%0", _host);
+int socket_gethostbyname(const char* _host,
+                         socket_ipinfo_t* _ipinfo,
+                         int _timeout /*ms*/,
+                         const char* _dnsserver,
+                         NetCheckTrafficMonitor* _traffic_monitor) {
+    xinfo2(TSF "in socket_gethostbyname,_host=%0", _host);
 
-    if (NULL == _host) return -1;
+    if (NULL == _host)
+        return -1;
 
-    if (NULL == _ipinfo) return -1;
+    if (NULL == _ipinfo)
+        return -1;
 
-    if (_timeout <= 0) _timeout = DEFAULT_TIMEOUT;
+    if (_timeout <= 0)
+        _timeout = DEFAULT_TIMEOUT;
 
     std::vector<std::string> dns_servers;
 
     if (_dnsserver && isValidIpAddress(_dnsserver)) {
-        xinfo2(TSF"DNS server: %0", _dnsserver);
+        xinfo2(TSF "DNS server: %0", _dnsserver);
         dns_servers.push_back(_dnsserver);
     } else {
-        xinfo2(TSF"use default DNS server.");
+        xinfo2(TSF "use default DNS server.");
         GetHostDnsServerIP(dns_servers);
     }
 
     SOCKET sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);  // UDP packet for DNS queries
 
     if (sock < 0) {
-        xerror2(TSF"in socket_gethostbyname get socket error");
+        xerror2(TSF "in socket_gethostbyname get socket error");
         return -1;
     }
 
     struct sockaddr_in dest = {0};
 
     if (dns_servers.empty()) {
-        xerror2(TSF"No dns servers error.");
+        xerror2(TSF "No dns servers error.");
         ::socket_close(sock);
         return -1;
     }
@@ -161,7 +175,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
     dest = *(struct sockaddr_in*)(&socket_address((*iter).c_str(), DNS_PORT).address());
 
     struct RES_RECORD answers[SOCKET_MAX_IP_COUNT];  // the replies from the DNS server
-    memset(answers, 0, sizeof(RES_RECORD)*SOCKET_MAX_IP_COUNT);
+    memset(answers, 0, sizeof(RES_RECORD) * SOCKET_MAX_IP_COUNT);
 
     int ret = -1;
 
@@ -172,7 +186,8 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
         struct DNS_HEADER* dns = (struct DNS_HEADER*)send_buf;
         unsigned char* qname = (unsigned char*)&send_buf[sizeof(struct DNS_HEADER)];
         PrepareDnsQueryPacket(send_buf, dns, qname, _host);
-        unsigned long send_packlen = sizeof(struct DNS_HEADER) + (strlen((const char*)qname) + 1) + sizeof(struct QUESTION);
+        unsigned long send_packlen =
+            sizeof(struct DNS_HEADER) + (strlen((const char*)qname) + 1) + sizeof(struct QUESTION);
 
         if (NULL != _traffic_monitor) {
             if (_traffic_monitor->sendLimitCheck(send_packlen)) {
@@ -182,7 +197,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
         }
 
         if (sendto(sock, (char*)send_buf, send_packlen, 0, (struct sockaddr*)&dest, sizeof(dest)) == -1) {
-            xerror2(TSF"send dns query error.");
+            xerror2(TSF "send dns query error.");
             break;
         }
 
@@ -192,8 +207,15 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
 
         int recvPacketLen = 0;
 
-        if ((recvPacketLen = RecvWithinTime(sock, (char*)recv_buf, BUF_LEN, (struct sockaddr*)&recv_src, &recv_src_len, _timeout / 1000, (_timeout % 1000) * 1000)) == -1) {
-            xerror2(TSF"receive dns query error.");
+        if ((recvPacketLen = RecvWithinTime(sock,
+                                            (char*)recv_buf,
+                                            BUF_LEN,
+                                            (struct sockaddr*)&recv_src,
+                                            &recv_src_len,
+                                            _timeout / 1000,
+                                            (_timeout % 1000) * 1000))
+            == -1) {
+            xerror2(TSF "receive dns query error.");
             break;
         }
 
@@ -205,11 +227,12 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
         }
 
         // move ahead of the dns header and the query field
-        unsigned char* reader = &recv_buf[sizeof(struct DNS_HEADER) + (strlen((const char*)qname) + 1) + sizeof(struct QUESTION)];
-        dns = (struct DNS_HEADER*)recv_buf;   // 指向recv_buf的header
+        unsigned char* reader =
+            &recv_buf[sizeof(struct DNS_HEADER) + (strlen((const char*)qname) + 1) + sizeof(struct QUESTION)];
+        dns = (struct DNS_HEADER*)recv_buf;  // 指向recv_buf的header
         ReadRecvAnswer(recv_buf, dns, reader, answers);
 
-        // 把查询到的IP放入返回参数_ipinfo结构体中 
+        // 把查询到的IP放入返回参数_ipinfo结构体中
         int answer_count = std::min(SOCKET_MAX_IP_COUNT, (int)ntohs(dns->ans_count));
         _ipinfo->size = 0;
 
@@ -222,7 +245,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
         }
 
         if (0 >= _ipinfo->size) {  // unkown host, dns->rcode == 3
-            xerror2(TSF"unknown host.");
+            xerror2(TSF "unknown host.");
             break;
         }
 
@@ -231,9 +254,9 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
     } while (false);
 
     FreeAll(answers);
-    xinfo2(TSF"close fd in dnsquery,sock=%0", sock);
+    xinfo2(TSF "close fd in dnsquery,sock=%0", sock);
     ::socket_close(sock);
-    return ret;  //* 查询DNS服务器超时 
+    return ret;  //* 查询DNS服务器超时
 }
 
 int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeout /*ms*/, const char* _dnsserver) {
@@ -242,7 +265,7 @@ int socket_gethostbyname(const char* _host, socket_ipinfo_t* _ipinfo, int _timeo
 bool isValidIpAddress(const char* _ipaddress) {
     struct sockaddr_in sa;
 
-    int result = socket_inet_pton(AF_INET, _ipaddress, (void*) & (sa.sin_addr));
+    int result = socket_inet_pton(AF_INET, _ipaddress, (void*)&(sa.sin_addr));
     return result != 0;
 }
 
@@ -271,14 +294,14 @@ void ReadRecvAnswer(unsigned char* _buf, struct DNS_HEADER* _dns, unsigned char*
         _reader = _reader + sizeof(struct R_DATA);
 
         if (ntohs(_answers[i].resource->type) == 1) {  // if its an ipv4 address
-            _answers[i].rdata = (unsigned char*)malloc(ntohs(_answers[i].resource->data_len)+1);
+            _answers[i].rdata = (unsigned char*)malloc(ntohs(_answers[i].resource->data_len) + 1);
 
             if (NULL == _answers[i].rdata) {
-                xerror2(TSF"answer error.");
+                xerror2(TSF "answer error.");
                 return;
             }
 
-            for (j = 0 ; j < ntohs(_answers[i].resource->data_len) ; j++)
+            for (j = 0; j < ntohs(_answers[i].resource->data_len); j++)
                 _answers[i].rdata[j] = _reader[j];
 
             _answers[i].rdata[ntohs(_answers[i].resource->data_len)] = '\0';
@@ -295,13 +318,13 @@ unsigned char* ReadName(unsigned char* _reader, unsigned char* _buffer, int* _co
     unsigned int p = 0, jumped = 0, offset;
     const unsigned int INIT_SIZE = 256, INCREMENT = 64;
     int timesForRealloc = 0;
-    int i , j;
+    int i, j;
 
     *_count = 1;
-    name   = (unsigned char*)malloc(INIT_SIZE);
+    name = (unsigned char*)malloc(INIT_SIZE);
 
     if (NULL == name) {
-        xerror2(TSF"malloc error.");
+        xerror2(TSF "malloc error.");
         return NULL;
     }
 
@@ -310,7 +333,9 @@ unsigned char* ReadName(unsigned char* _reader, unsigned char* _buffer, int* _co
     // read the names in 3www6google3com format
     while (*_reader != 0) {
         if (*_reader >= 192) {  // 192 = 11000000 ,如果该字节前两位bit为11，则表示使用的是地址偏移来表示name
-            offset = (*_reader) * 256 + *(_reader + 1) - 49152;  // 49152 = 11000000 00000000  计算相对于报文起始地址的偏移字节数，即去除两位为11的bit，剩下的14位表示的值
+            offset = (*_reader) * 256 + *(_reader + 1)
+                     - 49152;  // 49152 = 11000000 00000000
+                               // 计算相对于报文起始地址的偏移字节数，即去除两位为11的bit，剩下的14位表示的值
             _reader = _buffer + offset - 1;
             jumped = 1;  // we have jumped to another location so counting wont go up!
         } else
@@ -318,7 +343,8 @@ unsigned char* ReadName(unsigned char* _reader, unsigned char* _buffer, int* _co
 
         _reader = _reader + 1;
 
-        if (jumped == 0) *_count = *_count + 1;  // if we have not jumped to another location then we can count up
+        if (jumped == 0)
+            *_count = *_count + 1;  // if we have not jumped to another location then we can count up
 
         if (*_count >= (int)(INIT_SIZE + INCREMENT * timesForRealloc)) {
             timesForRealloc++;
@@ -327,7 +353,7 @@ unsigned char* ReadName(unsigned char* _reader, unsigned char* _buffer, int* _co
             more_name = (unsigned char*)realloc(name, (INIT_SIZE + INCREMENT * timesForRealloc));
 
             if (NULL == more_name) {
-                xerror2(TSF"realloc error.");
+                xerror2(TSF "realloc error.");
                 free(name);
                 return NULL;
             }
@@ -338,7 +364,8 @@ unsigned char* ReadName(unsigned char* _reader, unsigned char* _buffer, int* _co
 
     name[p] = '\0';  // string complete
 
-    if (jumped == 1) *_count = *_count + 1;  // number of steps we actually moved forward in the packet
+    if (jumped == 1)
+        *_count = *_count + 1;  // number of steps we actually moved forward in the packet
 
     // now convert 3www6google3com0 to www.google.com
     for (i = 0; i < (int)strlen((const char*)name); i++) {
@@ -358,7 +385,7 @@ unsigned char* ReadName(unsigned char* _reader, unsigned char* _buffer, int* _co
 
 // this will convert www.google.com to 3www6google3com
 void ChangetoDnsNameFormat(unsigned char* _qname, std::string _hostname) {
-    int lock = 0 , i;
+    int lock = 0, i;
     _hostname.append(".");
     const char* host = _hostname.c_str();
 
@@ -377,8 +404,11 @@ void ChangetoDnsNameFormat(unsigned char* _qname, std::string _hostname) {
     *_qname++ = '\0';
 }
 
-void PrepareDnsQueryPacket(unsigned char* _buf, struct DNS_HEADER* _dns, unsigned char* _qname, const std::string& _host) {
-    struct QUESTION*  qinfo = NULL;
+void PrepareDnsQueryPacket(unsigned char* _buf,
+                           struct DNS_HEADER* _dns,
+                           unsigned char* _qname,
+                           const std::string& _host) {
+    struct QUESTION* qinfo = NULL;
     // Set the DNS structure to standard queries
     _dns->id = getpid();
     _dns->qr = 0;      // This is a query
@@ -387,24 +417,30 @@ void PrepareDnsQueryPacket(unsigned char* _buf, struct DNS_HEADER* _dns, unsigne
     _dns->tc = 0;      // This message is not truncated
     _dns->rd = 1;      // Recursion Desired
     _dns->ra = 0;      // Recursion not available!
-    _dns->z  = 0;
+    _dns->z = 0;
     _dns->ad = 0;
     _dns->cd = 0;
     _dns->rcode = 0;
-    _dns->q_count = htons(1);   // we have only 1 question
-    _dns->ans_count  = 0;
+    _dns->q_count = htons(1);  // we have only 1 question
+    _dns->ans_count = 0;
     _dns->auth_count = 0;
-    _dns->add_count  = 0;
+    _dns->add_count = 0;
     // point to the query portion
     _qname = (unsigned char*)&_buf[sizeof(struct DNS_HEADER)];
     ChangetoDnsNameFormat(_qname, _host);  // 将传入的域名host转换为标准的DNS报文可用的格式，存入qname中
     qinfo = (struct QUESTION*)&_buf[sizeof(struct DNS_HEADER) + (strlen((const char*)_qname) + 1)];  // fill it
 
-    qinfo->qtype = htons(1);  //只查询 ipv4 address
+    qinfo->qtype = htons(1);   //只查询 ipv4 address
     qinfo->qclass = htons(1);  // its internet
 }
 
-int RecvWithinTime(int _fd, char* _buf, size_t _buf_n, struct sockaddr* _addr, socklen_t* _len, unsigned int _sec, unsigned _usec) {
+int RecvWithinTime(int _fd,
+                   char* _buf,
+                   size_t _buf_n,
+                   struct sockaddr* _addr,
+                   socklen_t* _len,
+                   unsigned int _sec,
+                   unsigned _usec) {
     struct timeval tv;
     fd_set readfds, exceptfds;
     int n = 0;
@@ -434,7 +470,7 @@ label:
 
     if (FD_ISSET(_fd, &exceptfds)) {
         // socket异常处理
-        xerror2(TSF"socket exception.");
+        xerror2(TSF "socket exception.");
         return -1;
     }
 
@@ -457,17 +493,17 @@ void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
     __system_property_get("net.dns2", buf2);
     _dns_servers.push_back(std::string(buf1));  // 主DNS
     _dns_servers.push_back(std::string(buf2));  // 备DNS
-    xinfo2(TSF"main dns: %0", std::string(buf1).c_str());
-    xinfo2(TSF"sub dns: %0", std::string(buf2).c_str());
+    xinfo2(TSF "main dns: %0", std::string(buf1).c_str());
+    xinfo2(TSF "sub dns: %0", std::string(buf2).c_str());
 }
 
-#elif defined __APPLE__ 
+#elif defined __APPLE__
 #include <TargetConditionals.h>
 #include <resolv.h>
 #define RESOLV_CONFIG_PATH ("/etc/resolv.conf")
 #if TARGET_OS_IPHONE
 void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
-	_dns_servers.clear();
+    _dns_servers.clear();
     std::ifstream fin(RESOLV_CONFIG_PATH);
 
     const int LINE_LENGTH = 256;
@@ -493,53 +529,59 @@ void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
         struct __res_state stat = {0};
         res_ninit(&stat);
 
-//        if (stat.nsaddr_list != 0) {
-            struct sockaddr_in tmpaddrs;
+        //        if (stat.nsaddr_list != 0) {
+        struct sockaddr_in tmpaddrs;
 
-            for (int i = 0; i < stat.nscount; i++) {
-                tmpaddrs = stat.nsaddr_list[i];
-                const char* nsIP = socket_address(tmpaddrs).ip();
+        for (int i = 0; i < stat.nscount; i++) {
+            tmpaddrs = stat.nsaddr_list[i];
+            const char* nsIP = socket_address(tmpaddrs).ip();
 
-                if (NULL != nsIP)
-                	_dns_servers.push_back(std::string(nsIP));
-            }
-//        }
+            if (NULL != nsIP)
+                _dns_servers.push_back(std::string(nsIP));
+        }
+        //        }
 
         res_ndestroy(&stat);
     }
 }
 #else
-void GetHostDnsServerIP(std::vector<std::string>& _dns_servers)
-{
-    //EMPTY FOR MAC
+void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
+    // EMPTY FOR MAC
 }
-#endif //endif TARGET_OS_IPHONE
+#endif  // endif TARGET_OS_IPHONE
 #elif defined WP8
 void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
 }
 #elif defined _WIN32
+#include <Iphlpapi.h>
 #include <stdio.h>
 #include <windows.h>
-#include <Iphlpapi.h>
 
 #pragma comment(lib, "Iphlpapi.lib")
 
 void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
-    FIXED_INFO fi;
-    ULONG ulOutBufLen = sizeof(fi);
-
-    if (::GetNetworkParams(&fi, &ulOutBufLen) != ERROR_SUCCESS) {
-        xinfo2(TSF" GetNetworkParams() failed");
+    FIXED_INFO *pFixedInfo = (FIXED_INFO *)malloc(sizeof(FIXED_INFO));
+    if (!pFixedInfo){
         return;
     }
-
-    IP_ADDR_STRING* pIPAddr = fi.DnsServerList.Next;
-
-    while (pIPAddr != NULL) {
-    	_dns_servers.push_back(pIPAddr->IpAddress.String);
-        pIPAddr = pIPAddr->Next;
+    ULONG ulOutBufLen = 0;
+    
+    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
+        free(pFixedInfo);
+        pFixedInfo = (FIXED_INFO *)malloc(ulOutBufLen);
+        if (!pFixedInfo){
+            return;
+        }
     }
+    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == NO_ERROR){
+        IP_ADDR_STRING* pIPAddr = pFixedInfo->DnsServerList.Next;
 
+        while (pIPAddr != NULL) {
+        	_dns_servers.push_back(pIPAddr->IpAddress.String);
+            pIPAddr = pIPAddr->Next;
+        }
+    }
+    free(pFixedInfo);
     return;
 }
 #else
@@ -548,4 +590,3 @@ void GetHostDnsServerIP(std::vector<std::string>& _dns_servers) {
 }
 
 #endif
-

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,66 +22,64 @@
 #define TASK_PROFILE_H_
 
 #include <list>
+#include <memory>
 
-#include "boost/shared_ptr.hpp"
-
-#include "mars/comm/time_utils.h"
 #include "mars/comm/comm_data.h"
-#include "mars/stn/stn.h"
-#include "mars/stn/config.h"
 #include "mars/comm/socket/unix_socket.h"
+#include "mars/comm/time_utils.h"
+#include "mars/stn/config.h"
+#include "mars/stn/stn.h"
 
 namespace mars {
-namespace stn  {
+namespace stn {
 
 struct ProfileExtension {
+    ProfileExtension() {
+    }
+    virtual ~ProfileExtension() {
+    }
 
-	ProfileExtension() {}
-	virtual ~ProfileExtension() {}
-
-	virtual void Reset() {}
+    virtual void Reset() {
+    }
 };
 
 struct NoopProfile {
-
     NoopProfile() {
-    	Reset();
+        Reset();
     }
 
     void Reset() {
         success = false;
         noop_internal = 0;
         noop_actual_internal = 0;
-    	noop_cost = 0;
+        noop_cost = 0;
         noop_starttime = 0;
     }
 
-    bool     success;
+    bool success;
     uint64_t noop_internal;
     uint64_t noop_actual_internal;
     uint64_t noop_cost;
     uint64_t noop_starttime;
 };
 
-
 struct ConnectProfile {
-    
     ConnectProfile() {
         Reset();
     }
-    
-    void Reset(){
+
+    void Reset() {
         net_type.clear();
         nettype_for_report = -1;
         ispcode = 0;
         tid = 0;
-        
+
         start_time = 0;
         dns_time = 0;
         dns_endtime = 0;
-        //todo
+        // todo
         ip_items.clear();
-        
+
         conn_reason = 0;
         conn_time = 0;
         conn_errcode = 0;
@@ -100,6 +98,8 @@ struct ConnectProfile {
         is_fast_fallback_tcp = 0;
         quic_rw_timeout_source = TimeoutSource::kClientDefault;
         quic_rw_timeout_ms = 5000;
+        quic_conn_timeout_source = TimeoutSource::kClientDefault;
+        quic_conn_timeout_ms = 250;
 
         local_ip.clear();
         local_port = 0;
@@ -108,7 +108,7 @@ struct ConnectProfile {
         link_type = Task::kChannelLong;
         tried_443port = 0;
         tried_80port = 0;
-        
+
         disconn_time = 0;
         disconn_errtype = kEctOK;
         disconn_errcode = 0;
@@ -118,7 +118,7 @@ struct ConnectProfile {
 
         noop_profiles.clear();
         if (extension_ptr)
-        		extension_ptr->Reset();
+            extension_ptr->Reset();
         socket_fd = INVALID_SOCKET;
         keepalive_timeout = 0;
         is_reused_fd = false;
@@ -137,25 +137,28 @@ struct ConnectProfile {
         start_read_packet_time = 0;
         read_packet_finished_time = 0;
         retrans_byte_count = 0;
-		
+
         tls_handshake_mismatch = false;
         tls_handshake_success = false;
         channel_type = 0;
         rtt_by_socket = 0;
 
+        begin_connect_timestamp_ms = 0;
+        end_connect_timestamp_ms = 0;
+
         task_id = 0;
     }
-    
+
     std::string net_type;
     int nettype_for_report;
     int ispcode;
     intmax_t tid;
-    
+
     uint64_t start_time;
     uint64_t dns_time;
     uint64_t dns_endtime;
     std::vector<IPPortItem> ip_items;
-    
+
     int conn_reason;
     uint64_t conn_time;
     int conn_errcode;
@@ -168,8 +171,10 @@ struct ConnectProfile {
     int certverify_cost;
     int is0rtt;
     int is_fast_fallback_tcp;
-    TimeoutSource quic_rw_timeout_source; //0:client.default; 1: svr.default; 2: cgi.special
+    TimeoutSource quic_rw_timeout_source;  // 0:client.default; 1: svr.default; 2: cgi.special
     unsigned quic_rw_timeout_ms;
+    TimeoutSource quic_conn_timeout_source;  // 0:client.default; 1: svr.default; 2: cgi.special
+    unsigned quic_conn_timeout_ms;
 
     std::string ip;
     uint16_t port;
@@ -182,7 +187,7 @@ struct ConnectProfile {
     int link_type;
     int tried_443port;
     int tried_80port;
-    
+
     uint64_t disconn_time;
     ErrCmdType disconn_errtype;
     int disconn_errcode;
@@ -192,10 +197,10 @@ struct ConnectProfile {
 
     std::vector<NoopProfile> noop_profiles;
 
-    boost::shared_ptr<ProfileExtension> extension_ptr;
+    std::shared_ptr<ProfileExtension> extension_ptr;
     mars::comm::ProxyInfo proxy_info;
 
-    //keep alive config
+    // keep alive config
     SOCKET socket_fd;
     int (*closefunc)(SOCKET) = &socket_close;
     SOCKET (*createstream_func)(SOCKET) = nullptr;
@@ -204,17 +209,17 @@ struct ConnectProfile {
     bool is_reused_fd;
     int local_net_stack;
     uint64_t req_byte_count;
-    std::string cgi; 
+    std::string cgi;
     bool ipv6_connect_failed;
     bool ipv6only_but_v4_successful;
     bool ipv6_failed_but_v4_successful;
     bool dual_stack_but_use_v4;
-    //opreator identify
+    // opreator identify
     std::string connection_identify;
     bool tls_handshake_mismatch;
     bool tls_handshake_success;
-	
-	//for cgi caller
+
+    // for cgi caller
     uint64_t start_connect_time;
     uint64_t connect_successful_time;
     uint64_t start_tls_handshake_time;
@@ -226,15 +231,18 @@ struct ConnectProfile {
     int channel_type;
     int rtt_by_socket;
 
+    //
+    uint64_t begin_connect_timestamp_ms;
+    uint64_t end_connect_timestamp_ms;
+
     uint32_t task_id;
 };
 
-        
 struct TransferProfile {
-    TransferProfile(const Task& _task):task(_task){
+    TransferProfile(const Task& _task) : task(_task) {
         Reset();
     }
-    
+
     void Reset() {
         connect_profile.Reset();
         loop_start_task_time = 0;
@@ -243,40 +251,40 @@ struct TransferProfile {
         last_receive_pkg_time = 0;
         read_write_timeout = 0;
         first_pkg_timeout = 0;
-        
+
         sent_size = 0;
         send_data_size = 0;
         received_size = 0;
         receive_data_size = 0;
-        
+
         external_ip.clear();
-        
+
         error_type = 0;
         error_code = 0;
     }
-    
-    const Task task; //change "const Task& task" to "const Task task". fix a memory reuse bug.
+
+    const Task task;  // change "const Task& task" to "const Task task". fix a memory reuse bug.
     ConnectProfile connect_profile;
-    
-    uint64_t loop_start_task_time;  // ms
-    uint64_t first_start_send_time; //ms
-    uint64_t start_send_time;    // ms
+
+    uint64_t loop_start_task_time;   // ms
+    uint64_t first_start_send_time;  // ms
+    uint64_t start_send_time;        // ms
     uint64_t last_receive_pkg_time;  // ms
-    uint64_t read_write_timeout;    // ms
-    uint64_t first_pkg_timeout;  // ms
-    
+    uint64_t read_write_timeout;     // ms
+    uint64_t first_pkg_timeout;      // ms
+
     size_t sent_size;
     size_t send_data_size;
     size_t received_size;
     size_t receive_data_size;
-    
+
     std::string external_ip;
-    
+
     int error_type;
     int error_code;
 };
-    
-//do not insert or delete
+
+// do not insert or delete
 enum TaskFailStep {
     kStepSucc = 0,
     kStepDns,
@@ -288,48 +296,47 @@ enum TaskFailStep {
     kStepTimeout,
     kStepServer,
 };
-        
+
 struct TaskProfile {
-    
     static uint64_t ComputeTaskTimeout(const Task& _task) {
         uint64_t readwritetimeout = 15 * 1000;
-        
+
         if (0 < _task.server_process_cost)
             readwritetimeout = _task.server_process_cost + 15 * 1000;
-        
-        int trycount = 0;// DEF_TASK_RETRY_COUNT;
-        
+
+        int trycount = 0;  // DEF_TASK_RETRY_COUNT;
+
         if (0 <= _task.retry_count)
             trycount = _task.retry_count;
-        
+
         trycount++;
-        
+
         uint64_t task_timeout = (readwritetimeout + 5 * 1000) * trycount;
         if (_task.long_polling) {
             task_timeout = (_task.long_polling_timeout + 5 * 1000);
         }
-        
-        if (0 < _task.total_timeout &&  (uint64_t)_task.total_timeout < task_timeout)
+
+        if (0 < _task.total_timeout && (uint64_t)_task.total_timeout < task_timeout)
             task_timeout = _task.total_timeout;
-        
-        return  task_timeout;
+
+        return task_timeout;
     }
-    
-    TaskProfile(const Task& _task):task(_task), transfer_profile(task), task_timeout(ComputeTaskTimeout(_task)), start_task_time(::gettickcount()){
-        
+
+    TaskProfile(const Task& _task)
+    : task(_task), transfer_profile(task), task_timeout(ComputeTaskTimeout(_task)), start_task_time(::gettickcount()) {
         remain_retry_count = task.retry_count;
         force_no_retry = false;
-        
+
         running_id = 0;
-        
+
         end_task_time = 0;
         retry_start_time = 0;
 
         last_failed_dyntime_status = 0;
         current_dyntime_status = 0;
-        
+
         antiavalanche_checked = false;
-        
+
         use_proxy = false;
         retry_time_interval = 0;
 
@@ -337,48 +344,60 @@ struct TaskProfile {
         err_code = 0;
         link_type = 0;
         allow_sessiontimeout_retry = true;
+
+        // mars2
+        is_weak_network = false;
+        is_last_valid_connect_fail = false;
     }
-    
+
     void InitSendParam() {
         transfer_profile.Reset();
         running_id = 0;
     }
-    
+
     void PushHistory() {
         history_transfer_profiles.push_back(transfer_profile);
     }
-    
+
     TaskFailStep GetFailStep() const {
-        if(kEctOK == err_type && 0 == err_code) return kStepSucc;
-        if(kEctDns == err_type) return kStepDns;
-        if(transfer_profile.connect_profile.ip_index == -1) return kStepConnect;
-        if(transfer_profile.last_receive_pkg_time == 0) return kStepFirstPkg;
-        if(kEctEnDecode == err_type)    return kStepDecode;
-        if(kEctSocket == err_type || kEctHttp == err_type || kEctNetMsgXP == err_type)  return kStepPkgPkg;
-        if(kEctLocalTaskTimeout == err_code)    return kStepTimeout;
-        if(kEctServer == err_type || (kEctOK == err_type && err_code != 0))    return kStepServer;
+        if (kEctOK == err_type && 0 == err_code)
+            return kStepSucc;
+        if (kEctDns == err_type)
+            return kStepDns;
+        if (transfer_profile.connect_profile.ip_index == -1)
+            return kStepConnect;
+        if (transfer_profile.last_receive_pkg_time == 0)
+            return kStepFirstPkg;
+        if (kEctEnDecode == err_type)
+            return kStepDecode;
+        if (kEctSocket == err_type || kEctHttp == err_type || kEctNetMsgXP == err_type)
+            return kStepPkgPkg;
+        if (kEctLocalTaskTimeout == err_code)
+            return kStepTimeout;
+        if (kEctServer == err_type || (kEctOK == err_type && err_code != 0))
+            return kStepServer;
         return kStepOther;
     }
 
     Task task;
     TransferProfile transfer_profile;
     intptr_t running_id;
-    
+
     const uint64_t task_timeout;
     const uint64_t start_task_time;  // ms
-    uint64_t end_task_time;	//ms
+    uint64_t end_task_time;          // ms
     uint64_t retry_start_time;
 
     int remain_retry_count;
     bool force_no_retry;
-    
+
     int last_failed_dyntime_status;
     int current_dyntime_status;
-    
+
     bool antiavalanche_checked;
-    
+
     bool use_proxy;
-    uint64_t retry_time_interval;    // ms
+    uint64_t retry_time_interval;  // ms
 
     ErrCmdType err_type;
     int err_code;
@@ -387,14 +406,20 @@ struct TaskProfile {
 
     std::vector<TransferProfile> history_transfer_profiles;
     std::string channel_name;
+
+    // mars2
+    bool is_weak_network;
+    bool is_last_valid_connect_fail;
 };
-        
 
 void __SetLastFailedStatus(std::list<TaskProfile>::iterator _it);
-uint64_t __ReadWriteTimeout(uint64_t  _first_pkg_timeout);
-uint64_t  __FirstPkgTimeout(int64_t  _init_first_pkg_timeout, size_t _sendlen, int _send_count, int _dynamictimeout_status);
+uint64_t __ReadWriteTimeout(uint64_t _first_pkg_timeout);
+uint64_t __FirstPkgTimeout(int64_t _init_first_pkg_timeout,
+                           size_t _sendlen,
+                           int _send_count,
+                           int _dynamictimeout_status);
 bool __CompareTask(const TaskProfile& _first, const TaskProfile& _second);
-}}
+}  // namespace stn
+}  // namespace mars
 
 #endif
-

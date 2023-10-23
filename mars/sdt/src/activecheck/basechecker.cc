@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -38,7 +38,7 @@ int BaseChecker::StartDoCheck(CheckRequestProfile& _check_request) {
     xinfo_function();
     // timeout and finish net checker.
     if (_check_request.total_timeout <= 0) {
-        xinfo2(TSF"req.total_timeout_=%_, check finish!", _check_request.total_timeout);
+        xinfo2(TSF "req.total_timeout_=%_, check finish!", _check_request.total_timeout);
         _check_request.check_status = kCheckFinish;
         return 0;
     }

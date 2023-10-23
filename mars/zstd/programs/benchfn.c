@@ -8,80 +8,82 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-
-
 /* *************************************
-*  Includes
-***************************************/
-#include <stdlib.h>      /* malloc, free */
-#include <string.h>      /* memset */
-#include <assert.h>      /* assert */
-
-#include "timefn.h"        /* UTIL_time_t, UTIL_getTime */
+ *  Includes
+ ***************************************/
 #include "benchfn.h"
 
+#include <assert.h> /* assert */
+#include <stdlib.h> /* malloc, free */
+#include <string.h> /* memset */
+
+#include "timefn.h" /* UTIL_time_t, UTIL_getTime */
 
 /* *************************************
-*  Constants
-***************************************/
-#define TIMELOOP_MICROSEC     SEC_TO_MICRO      /* 1 second */
-#define TIMELOOP_NANOSEC      (1*1000000000ULL) /* 1 second */
+ *  Constants
+ ***************************************/
+#define TIMELOOP_MICROSEC SEC_TO_MICRO       /* 1 second */
+#define TIMELOOP_NANOSEC (1 * 1000000000ULL) /* 1 second */
 
-#define KB *(1 <<10)
-#define MB *(1 <<20)
-#define GB *(1U<<30)
-
+#define KB *(1 << 10)
+#define MB *(1 << 20)
+#define GB *(1U << 30)
 
 /* *************************************
-*  Debug errors
-***************************************/
+ *  Debug errors
+ ***************************************/
 #if defined(DEBUG) && (DEBUG >= 1)
-#  include <stdio.h>       /* fprintf */
-#  define DISPLAY(...)       fprintf(stderr, __VA_ARGS__)
-#  define DEBUGOUTPUT(...) { if (DEBUG) DISPLAY(__VA_ARGS__); }
+#include <stdio.h> /* fprintf */
+#define DISPLAY(...) fprintf(stderr, __VA_ARGS__)
+#define DEBUGOUTPUT(...)          \
+    {                             \
+        if (DEBUG)                \
+            DISPLAY(__VA_ARGS__); \
+    }
 #else
-#  define DEBUGOUTPUT(...)
+#define DEBUGOUTPUT(...)
 #endif
 
-
 /* error without displaying */
-#define RETURN_QUIET_ERROR(retValue, ...) {           \
-    DEBUGOUTPUT("%s: %i: \n", __FILE__, __LINE__);    \
-    DEBUGOUTPUT("Error : ");                          \
-    DEBUGOUTPUT(__VA_ARGS__);                         \
-    DEBUGOUTPUT(" \n");                               \
-    return retValue;                                  \
-}
+#define RETURN_QUIET_ERROR(retValue, ...)              \
+    {                                                  \
+        DEBUGOUTPUT("%s: %i: \n", __FILE__, __LINE__); \
+        DEBUGOUTPUT("Error : ");                       \
+        DEBUGOUTPUT(__VA_ARGS__);                      \
+        DEBUGOUTPUT(" \n");                            \
+        return retValue;                               \
+    }
 
 /* Abort execution if a condition is not met */
-#define CONTROL(c) { if (!(c)) { DEBUGOUTPUT("error: %s \n", #c); abort(); } }
-
+#define CONTROL(c)                           \
+    {                                        \
+        if (!(c)) {                          \
+            DEBUGOUTPUT("error: %s \n", #c); \
+            abort();                         \
+        }                                    \
+    }
 
 /* *************************************
-*  Benchmarking an arbitrary function
-***************************************/
+ *  Benchmarking an arbitrary function
+ ***************************************/
 
-int BMK_isSuccessful_runOutcome(BMK_runOutcome_t outcome)
-{
+int BMK_isSuccessful_runOutcome(BMK_runOutcome_t outcome) {
     return outcome.error_tag_never_ever_use_directly == 0;
 }
 
 /* warning : this function will stop program execution if outcome is invalid !
  *           check outcome validity first, using BMK_isValid_runResult() */
-BMK_runTime_t BMK_extract_runTime(BMK_runOutcome_t outcome)
-{
+BMK_runTime_t BMK_extract_runTime(BMK_runOutcome_t outcome) {
     CONTROL(outcome.error_tag_never_ever_use_directly == 0);
     return outcome.internal_never_ever_use_directly;
 }
 
-size_t BMK_extract_errorResult(BMK_runOutcome_t outcome)
-{
+size_t BMK_extract_errorResult(BMK_runOutcome_t outcome) {
     CONTROL(outcome.error_tag_never_ever_use_directly != 0);
     return outcome.error_result_never_ever_use_directly;
 }
 
-static BMK_runOutcome_t BMK_runOutcome_error(size_t errorResult)
-{
+static BMK_runOutcome_t BMK_runOutcome_error(size_t errorResult) {
     BMK_runOutcome_t b;
     memset(&b, 0, sizeof(b));
     b.error_tag_never_ever_use_directly = 1;
@@ -89,14 +91,12 @@ static BMK_runOutcome_t BMK_runOutcome_error(size_t errorResult)
     return b;
 }
 
-static BMK_runOutcome_t BMK_setValid_runTime(BMK_runTime_t runTime)
-{
+static BMK_runOutcome_t BMK_setValid_runTime(BMK_runTime_t runTime) {
     BMK_runOutcome_t outcome;
     outcome.error_tag_never_ever_use_directly = 0;
     outcome.internal_never_ever_use_directly = runTime;
     return outcome;
 }
-
 
 /* initFn will be measured once, benchFn will be measured `nbLoops` times */
 /* initFn is optional, provide NULL if none */
@@ -105,46 +105,55 @@ static BMK_runOutcome_t BMK_setValid_runTime(BMK_runTime_t runTime)
 /* can report result of benchFn for each block into blockResult. */
 /* blockResult is optional, provide NULL if this information is not required */
 /* note : time per loop can be reported as zero if run time < timer resolution */
-BMK_runOutcome_t BMK_benchFunction(BMK_benchParams_t p,
-                                   unsigned nbLoops)
-{
+BMK_runOutcome_t BMK_benchFunction(BMK_benchParams_t p, unsigned nbLoops) {
     size_t dstSize = 0;
-    nbLoops += !nbLoops;   /* minimum nbLoops is 1 */
+    nbLoops += !nbLoops; /* minimum nbLoops is 1 */
 
     /* init */
-    {   size_t i;
-        for(i = 0; i < p.blockCount; i++) {
-            memset(p.dstBuffers[i], 0xE5, p.dstCapacities[i]);  /* warm up and erase result buffer */
-    }   }
+    {
+        size_t i;
+        for (i = 0; i < p.blockCount; i++) {
+            memset(p.dstBuffers[i], 0xE5, p.dstCapacities[i]); /* warm up and erase result buffer */
+        }
+    }
 
     /* benchmark */
-    {   UTIL_time_t const clockStart = UTIL_getTime();
+    {
+        UTIL_time_t const clockStart = UTIL_getTime();
         unsigned loopNb, blockNb;
-        if (p.initFn != NULL) p.initFn(p.initPayload);
+        if (p.initFn != NULL)
+            p.initFn(p.initPayload);
         for (loopNb = 0; loopNb < nbLoops; loopNb++) {
             for (blockNb = 0; blockNb < p.blockCount; blockNb++) {
-                size_t const res = p.benchFn(p.srcBuffers[blockNb], p.srcSizes[blockNb],
-                                   p.dstBuffers[blockNb], p.dstCapacities[blockNb],
-                                   p.benchPayload);
+                size_t const res = p.benchFn(p.srcBuffers[blockNb],
+                                             p.srcSizes[blockNb],
+                                             p.dstBuffers[blockNb],
+                                             p.dstCapacities[blockNb],
+                                             p.benchPayload);
                 if (loopNb == 0) {
-                    if (p.blockResults != NULL) p.blockResults[blockNb] = res;
+                    if (p.blockResults != NULL)
+                        p.blockResults[blockNb] = res;
                     if ((p.errorFn != NULL) && (p.errorFn(res))) {
                         RETURN_QUIET_ERROR(BMK_runOutcome_error(res),
-                            "Function benchmark failed on block %u (of size %u) with error %i",
-                            blockNb, (unsigned)p.srcSizes[blockNb], (int)res);
+                                           "Function benchmark failed on block %u (of size %u) with error %i",
+                                           blockNb,
+                                           (unsigned)p.srcSizes[blockNb],
+                                           (int)res);
                     }
                     dstSize += res;
-            }   }
-        }  /* for (loopNb = 0; loopNb < nbLoops; loopNb++) */
+                }
+            }
+        } /* for (loopNb = 0; loopNb < nbLoops; loopNb++) */
 
-        {   PTime const totalTime = UTIL_clockSpanNano(clockStart);
+        {
+            PTime const totalTime = UTIL_clockSpanNano(clockStart);
             BMK_runTime_t rt;
             rt.nanoSecPerRun = (double)totalTime / nbLoops;
             rt.sumOfReturn = dstSize;
             return BMK_setValid_runTime(rt);
-    }   }
+        }
+    }
 }
-
 
 /* ====  Benchmarking any function, providing intermediate results  ==== */
 
@@ -155,41 +164,54 @@ struct BMK_timedFnState_s {
     BMK_runTime_t fastestRun;
     unsigned nbLoops;
     UTIL_time_t coolTime;
-};  /* typedef'd to BMK_timedFnState_t within bench.h */
+}; /* typedef'd to BMK_timedFnState_t within bench.h */
 
-BMK_timedFnState_t* BMK_createTimedFnState(unsigned total_ms, unsigned run_ms)
-{
+BMK_timedFnState_t* BMK_createTimedFnState(unsigned total_ms, unsigned run_ms) {
     BMK_timedFnState_t* const r = (BMK_timedFnState_t*)malloc(sizeof(*r));
-    if (r == NULL) return NULL;   /* malloc() error */
+    if (r == NULL)
+        return NULL; /* malloc() error */
     BMK_resetTimedFnState(r, total_ms, run_ms);
     return r;
 }
 
-void BMK_freeTimedFnState(BMK_timedFnState_t* state) { free(state); }
+void BMK_freeTimedFnState(BMK_timedFnState_t* state) {
+    free(state);
+}
 
-BMK_timedFnState_t*
-BMK_initStatic_timedFnState(void* buffer, size_t size, unsigned total_ms, unsigned run_ms)
-{
-    typedef char check_size[ 2 * (sizeof(BMK_timedFnState_shell) >= sizeof(struct BMK_timedFnState_s)) - 1];  /* static assert : a compilation failure indicates that BMK_timedFnState_shell is not large enough */
-    typedef struct { check_size c; BMK_timedFnState_t tfs; } tfs_align;  /* force tfs to be aligned at its next best position */
-    size_t const tfs_alignment = offsetof(tfs_align, tfs); /* provides the minimal alignment restriction for BMK_timedFnState_t */
+BMK_timedFnState_t* BMK_initStatic_timedFnState(void* buffer, size_t size, unsigned total_ms, unsigned run_ms) {
+    typedef char check_size[2 * (sizeof(BMK_timedFnState_shell) >= sizeof(struct BMK_timedFnState_s))
+                            - 1]; /* static assert : a compilation failure indicates that BMK_timedFnState_shell is not
+                                     large enough */
+    typedef struct {
+        check_size c;
+        BMK_timedFnState_t tfs;
+    } tfs_align; /* force tfs to be aligned at its next best position */
+    size_t const tfs_alignment =
+        offsetof(tfs_align, tfs); /* provides the minimal alignment restriction for BMK_timedFnState_t */
     BMK_timedFnState_t* const r = (BMK_timedFnState_t*)buffer;
-    if (buffer == NULL) return NULL;
-    if (size < sizeof(struct BMK_timedFnState_s)) return NULL;
-    if ((size_t)buffer % tfs_alignment) return NULL;  /* buffer must be properly aligned */
+    if (buffer == NULL)
+        return NULL;
+    if (size < sizeof(struct BMK_timedFnState_s))
+        return NULL;
+    if ((size_t)buffer % tfs_alignment)
+        return NULL; /* buffer must be properly aligned */
     BMK_resetTimedFnState(r, total_ms, run_ms);
     return r;
 }
 
-void BMK_resetTimedFnState(BMK_timedFnState_t* timedFnState, unsigned total_ms, unsigned run_ms)
-{
-    if (!total_ms) total_ms = 1 ;
-    if (!run_ms) run_ms = 1;
-    if (run_ms > total_ms) run_ms = total_ms;
+void BMK_resetTimedFnState(BMK_timedFnState_t* timedFnState, unsigned total_ms, unsigned run_ms) {
+    if (!total_ms)
+        total_ms = 1;
+    if (!run_ms)
+        run_ms = 1;
+    if (run_ms > total_ms)
+        run_ms = total_ms;
     timedFnState->timeSpent_ns = 0;
     timedFnState->timeBudget_ns = (PTime)total_ms * TIMELOOP_NANOSEC / 1000;
     timedFnState->runBudget_ns = (PTime)run_ms * TIMELOOP_NANOSEC / 1000;
-    timedFnState->fastestRun.nanoSecPerRun = (double)TIMELOOP_NANOSEC * 2000000000;  /* hopefully large enough : must be larger than any potential measurement */
+    timedFnState->fastestRun.nanoSecPerRun =
+        (double)TIMELOOP_NANOSEC
+        * 2000000000; /* hopefully large enough : must be larger than any potential measurement */
     timedFnState->fastestRun.sumOfReturn = (size_t)(-1LL);
     timedFnState->nbLoops = 1;
     timedFnState->coolTime = UTIL_getTime();
@@ -197,20 +219,16 @@ void BMK_resetTimedFnState(BMK_timedFnState_t* timedFnState, unsigned total_ms, 
 
 /* Tells if nb of seconds set in timedFnState for all runs is spent.
  * note : this function will return 1 if BMK_benchFunctionTimed() has actually errored. */
-int BMK_isCompleted_TimedFn(const BMK_timedFnState_t* timedFnState)
-{
+int BMK_isCompleted_TimedFn(const BMK_timedFnState_t* timedFnState) {
     return (timedFnState->timeSpent_ns >= timedFnState->timeBudget_ns);
 }
 
-
 #undef MIN
-#define MIN(a,b)   ( (a) < (b) ? (a) : (b) )
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-#define MINUSABLETIME  (TIMELOOP_NANOSEC / 2)  /* 0.5 seconds */
+#define MINUSABLETIME (TIMELOOP_NANOSEC / 2) /* 0.5 seconds */
 
-BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont,
-                                  BMK_benchParams_t p)
-{
+BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont, BMK_benchParams_t p) {
     PTime const runBudget_ns = cont->runBudget_ns;
     PTime const runTimeMin_ns = runBudget_ns / 2;
     int completed = 0;
@@ -219,11 +237,12 @@ BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont,
     while (!completed) {
         BMK_runOutcome_t const runResult = BMK_benchFunction(p, cont->nbLoops);
 
-        if(!BMK_isSuccessful_runOutcome(runResult)) { /* error : move out */
+        if (!BMK_isSuccessful_runOutcome(runResult)) { /* error : move out */
             return runResult;
         }
 
-        {   BMK_runTime_t const newRunTime = BMK_extract_runTime(runResult);
+        {
+            BMK_runTime_t const newRunTime = BMK_extract_runTime(runResult);
             double const loopDuration_ns = newRunTime.nanoSecPerRun * cont->nbLoops;
 
             cont->timeSpent_ns += (unsigned long long)loopDuration_ns;
@@ -235,22 +254,23 @@ BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont,
             } else {
                 /* previous run was too short : blindly increase workload by x multiplier */
                 const unsigned multiplier = 10;
-                assert(cont->nbLoops < ((unsigned)-1) / multiplier);  /* avoid overflow */
+                assert(cont->nbLoops < ((unsigned)-1) / multiplier); /* avoid overflow */
                 cont->nbLoops *= multiplier;
             }
 
-            if(loopDuration_ns < runTimeMin_ns) {
-                /* don't report results for which benchmark run time was too small : increased risks of rounding errors */
+            if (loopDuration_ns < runTimeMin_ns) {
+                /* don't report results for which benchmark run time was too small : increased risks of rounding errors
+                 */
                 assert(completed == 0);
                 continue;
             } else {
-                if(newRunTime.nanoSecPerRun < bestRunTime.nanoSecPerRun) {
+                if (newRunTime.nanoSecPerRun < bestRunTime.nanoSecPerRun) {
                     bestRunTime = newRunTime;
                 }
                 completed = 1;
             }
         }
-    }   /* while (!completed) */
+    } /* while (!completed) */
 
     return BMK_setValid_runTime(bestRunTime);
 }

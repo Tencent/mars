@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -20,26 +20,25 @@
 #ifndef MMCOMM_SRC_ACTIVE_LOGIC_H_
 #define MMCOMM_SRC_ACTIVE_LOGIC_H_
 
-#include "boost/signals2.hpp"
-
-#include "mars/comm/alarm.h"
-#include "mars/comm/thread/mutex.h"
-#include "mars/comm/singleton.h"
 #include <memory>
+
+#include "boost/signals2.hpp"
+#include "mars/comm/alarm.h"
+#include "mars/comm/singleton.h"
+#include "mars/comm/thread/mutex.h"
 
 namespace mars {
 namespace comm {
 
-class ActiveLogic
-{
-public:
-//    SINGLETON_INTRUSIVE(ActiveLogic, new ActiveLogic, delete);
-    boost::signals2::signal<void (bool _isForeground)> SignalForeground;
-    boost::signals2::signal<void (bool _isactive)> SignalActive;
+class ActiveLogic {
+ public:
+    //    SINGLETON_INTRUSIVE(ActiveLogic, new ActiveLogic, delete);
+    boost::signals2::signal<void(bool _isForeground)> SignalForeground;
+    boost::signals2::signal<void(bool _isactive)> SignalActive;
     static std::shared_ptr<ActiveLogic> Instance();
     static void Release();
 
-public:
+ public:
     ActiveLogic();
     virtual ~ActiveLogic();
 
@@ -51,17 +50,17 @@ public:
 
     void SwitchActiveStateForDebug(bool _active);
 
-private:
+ private:
     void __OnInActive();
 
-private:
-    bool   isforeground_;
-    bool   isactive_;
-    Alarm  alarm_;
+ private:
+    bool isforeground_;
+    bool isactive_;
+    Alarm alarm_;
     uint64_t lastforegroundchangetime_;
     static std::shared_ptr<ActiveLogic> inst_;
 };
 
-}
-}
-#endif // MMCOMM_SRC_ACTIVE_LOGIC_H_
+}  // namespace comm
+}  // namespace mars
+#endif  // MMCOMM_SRC_ACTIVE_LOGIC_H_

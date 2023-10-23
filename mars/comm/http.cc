@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -18,12 +18,14 @@
 //
 
 #include "http.h"
+
 #include <stdio.h>
-#include <cstddef>
 #include <stdlib.h>
+
+#include <cstddef>
 #ifdef WIN32
 #include <algorithm>
-#endif //WIN32
+#endif  // WIN32
 #include "comm/strutil.h"
 #include "comm/xlogger/xlogger.h"
 
@@ -71,61 +73,49 @@ static THttpVersion __GetHttpVersion(const std::string& _strVersion) {
         }
     }
 
-    xerror2(TSF"invalid httpversion:%_", _strVersion);
+    xerror2(TSF "invalid httpversion:%_", _strVersion);
     return kVersion_Unknow;
 }
 
 static bool __ParserHeaders(const std::string& _strHeaders, HeaderFields& _headers) {
-    
     std::string::size_type linebegin = 0;
     std::string::size_type lineend = 0;
-    
-    while ((lineend = _strHeaders.find(KStringCRLF, lineend, strlen(KStringCRLF))) != std::string::npos){
-        
+
+    while ((lineend = _strHeaders.find(KStringCRLF, lineend, strlen(KStringCRLF))) != std::string::npos) {
         std::string line = _strHeaders.substr(linebegin, lineend - linebegin);
-        
+
         std::string::size_type namebegin = line.find_first_not_of(KStringColon, 0, strlen(KStringColon));
-        if (namebegin != std::string::npos){
+        if (namebegin != std::string::npos) {
             std::string::size_type nameend = line.find_first_of(KStringColon, 0, strlen(KStringColon));
             std::string name = line.substr(0, nameend);
-            if (line.length() > nameend + strlen(KStringColon)){
+            if (line.length() > nameend + strlen(KStringColon)) {
                 std::string value = line.substr(nameend + strlen(KStringColon));
-                
+
                 strutil::Trim(name);
                 strutil::Trim(value);
-                
+
                 _headers.HeaderFiled(name.c_str(), value.c_str());
             }
         }
-        
+
         lineend += strlen(KStringCRLF);
         linebegin = lineend;
     }
-    
+
     return true;
 }
 
 // implement of RequestLine
 
-const char* const RequestLine::kHttpMethodString[kMax] = {
-    "UNKNOWN",
-    "GET",
-    "POST",
-    "OPTIONS",
-    "HEAD",
-    "PUT",
-    "DELETE",
-    "TRACE",
-    "CONNECT"
-};
+const char* const RequestLine::kHttpMethodString[kMax] =
+    {"UNKNOWN", "GET", "POST", "OPTIONS", "HEAD", "PUT", "DELETE", "TRACE", "CONNECT"};
 
-RequestLine::RequestLine(): http_method_(kGet), http_version_(kVersion_1_0) { }
+RequestLine::RequestLine() : http_method_(kGet), http_version_(kVersion_1_0) {
+}
 
 RequestLine::RequestLine(THttpMethod _httpMethod, const char* _url, THttpVersion _httpVersion)
-    : http_method_(_httpMethod)
-    , req_url_(_url)
-    , http_version_(_httpVersion)
-{ }
+: http_method_(_httpMethod), req_url_(_url), http_version_(_httpVersion) {
+}
 
 void RequestLine::Method(RequestLine::THttpMethod _method) {
     http_method_ = _method;
@@ -134,7 +124,6 @@ void RequestLine::Method(RequestLine::THttpMethod _method) {
 RequestLine::THttpMethod RequestLine::Method() const {
     return http_method_;
 }
-
 
 void RequestLine::Version(THttpVersion _version) {
     http_version_ = _version;
@@ -167,7 +156,8 @@ std::string RequestLine::ToString() const {
 bool RequestLine::FromString(const std::string& _requestline) {
     std::string::size_type pos = _requestline.find(KStringCRLF);
 
-    if (pos == std::string::npos) return false;
+    if (pos == std::string::npos)
+        return false;
 
     std::string str = _requestline.substr(0, pos);
     std::vector<std::string> strVer;
@@ -176,8 +166,8 @@ bool RequestLine::FromString(const std::string& _requestline) {
     xassert2(strVer.size() >= 3);
 
     if (strVer.size() < 3) {
-//        xerror2(TSF"requestline:%_, strver:%_", _requestline.c_str(), str.c_str());
-        xassert2(false, TSF"requestline:%_, strver:%_", _requestline.c_str(), str.c_str());
+        //        xerror2(TSF"requestline:%_, strver:%_", _requestline.c_str(), str.c_str());
+        xassert2(false, TSF "requestline:%_, strver:%_", _requestline.c_str(), str.c_str());
         return false;
     }
 
@@ -191,7 +181,7 @@ bool RequestLine::FromString(const std::string& _requestline) {
     }
 
     if (kUnknown == httpmethod) {
-        xerror2(TSF"invalid http method:%_", strVer[0].c_str());
+        xerror2(TSF "invalid http method:%_", strVer[0].c_str());
         return false;
     }
 
@@ -199,18 +189,16 @@ bool RequestLine::FromString(const std::string& _requestline) {
     req_url_ = strVer[1];
     http_version_ = __GetHttpVersion(strVer[2]);
 
-    if (http_version_ == kVersion_Unknow) return false;
+    if (http_version_ == kVersion_Unknow)
+        return false;
 
     return true;
 }
 
-
 // implement of StatusLine
 
-StatusLine::StatusLine()
-    : http_version_(kVersion_1_0)
-    , statuscode_(0)
-{}
+StatusLine::StatusLine() : http_version_(kVersion_1_0), statuscode_(0) {
+}
 
 StatusLine::StatusLine(THttpVersion _httpversion, int _statuscode, const std::string& _reasonphrase) {
     http_version_ = _httpversion;
@@ -260,7 +248,8 @@ std::string StatusLine::ToString() const {
 bool StatusLine::FromString(const std::string& _statusline) {
     std::string::size_type pos = _statusline.find(KStringCRLF);
 
-    if (pos == std::string::npos) return false;
+    if (pos == std::string::npos)
+        return false;
 
     std::string str = _statusline.substr(0, pos);
     std::vector<std::string> strVer;
@@ -269,13 +258,14 @@ bool StatusLine::FromString(const std::string& _statusline) {
     xassert2(strVer.size() >= 2);
 
     if (strVer.size() < 2) {
-        xerror2(TSF"strVer.size() < 2, _statusline=%0", _statusline.c_str());
+        xerror2(TSF "strVer.size() < 2, _statusline=%0", _statusline.c_str());
         return false;
     }
 
     http_version_ = __GetHttpVersion(strVer[0]);
 
-    if (http_version_ == kVersion_Unknow) return false;
+    if (http_version_ == kVersion_Unknow)
+        return false;
 
     statuscode_ = (int)strtol(strVer[1].c_str(), NULL, 10);
 
@@ -286,10 +276,7 @@ bool StatusLine::FromString(const std::string& _statusline) {
     return true;
 }
 
-
-
 // implement of HeaderFields
-
 
 const char* const HeaderFields::KStringHost = "Host";
 const char* const HeaderFields::KStringAccept = "Accept";
@@ -320,7 +307,6 @@ const char* const KStringNoCache = "no-cache";
 const char* const KStringOctetType = "application/octet-stream";
 const char* const KStringKeepAliveTimeout = "timeout=";
 const uint32_t KDefaultKeepAliveTimeout = 5;
-
 
 std::pair<const std::string, std::string> HeaderFields::MakeContentLength(uint64_t _len) {
     return std::make_pair(KStringContentLength, std::to_string(_len));
@@ -355,11 +341,11 @@ std::pair<const std::string, std::string> HeaderFields::MakeContentTypeOctetStre
     return std::make_pair(KStringContentType, KStringOctetType);
 }
 
-void HeaderFields::CopyFrom(const HeaderFields& rhs){
+void HeaderFields::CopyFrom(const HeaderFields& rhs) {
     headers_.clear();
     headers_.insert(rhs.headers_.begin(), rhs.headers_.end());
 }
-    
+
 void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
     InsertOrUpdate(std::make_pair(_name, _value));
 }
@@ -367,23 +353,23 @@ void HeaderFields::HeaderFiled(const char* _name, const char* _value) {
 void HeaderFields::HeaderFiled(const std::pair<const std::string, std::string>& _headerfield) {
     InsertOrUpdate(_headerfield);
 }
-    
-void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield){
+
+void HeaderFields::InsertOrUpdate(const std::pair<const std::string, std::string>& _headerfield) {
     headers_[_headerfield.first] = _headerfield.second;
 }
-    
-void HeaderFields::Manipulate(const std::pair<const std::string, std::string>& _headerfield){
+
+void HeaderFields::Manipulate(const std::pair<const std::string, std::string>& _headerfield) {
     std::string v = _headerfield.second;
-    if (strutil::Trim(v).empty()){
+    if (strutil::Trim(v).empty()) {
         // empty value means remove header
-        xwarn2(TSF"remove field %_ from request.", _headerfield.first);
+        xwarn2(TSF "remove field %_ from request.", _headerfield.first);
         headers_.erase(_headerfield.first);
-    }else{
+    } else {
         InsertOrUpdate(_headerfield);
     }
 }
 
-//void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
+// void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
 //    headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
 //}
 
@@ -397,43 +383,48 @@ const char* HeaderFields::HeaderField(const char* _key) const {
     return NULL;
 }
 
-bool HeaderFields::IsTransferEncodingChunked() const{
+bool HeaderFields::IsTransferEncodingChunked() const {
     const char* transferEncoding = HeaderField(HeaderFields::KStringTransferEncoding);
 
-    if (transferEncoding && 0 == strcasecmp(transferEncoding, KStringChunked)) return true;
+    if (transferEncoding && 0 == strcasecmp(transferEncoding, KStringChunked))
+        return true;
 
     return false;
 }
-bool HeaderFields::IsConnectionClose() const{
+bool HeaderFields::IsConnectionClose() const {
     const char* conn = HeaderField(HeaderFields::KStringConnection);
-    if (conn && 0 == strcasecmp(conn, KStringClose)) return true;
-        
+    if (conn && 0 == strcasecmp(conn, KStringClose))
+        return true;
+
     return false;
 }
 
 bool HeaderFields::IsConnectionKeepAlive() const {
-    const char* conn = HeaderField(HeaderFields::KStringConnection);    
-    if (conn && 0 == strcasecmp(conn, KStringKeepalive)) return true;
-        
+    const char* conn = HeaderField(HeaderFields::KStringConnection);
+    if (conn && 0 == strcasecmp(conn, KStringKeepalive))
+        return true;
+
     return false;
 }
 
 uint32_t HeaderFields::KeepAliveTimeout() const {
-    if(NULL == HeaderField(HeaderFields::KStringConnection))    return KDefaultKeepAliveTimeout;
-    std::string aliveConfig = (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
-    if(aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
+    if (NULL == HeaderField(HeaderFields::KStringConnection))
+        return KDefaultKeepAliveTimeout;
+    std::string aliveConfig =
+        (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
+    if (aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
         return KDefaultKeepAliveTimeout;
     }
-    
+
     std::vector<std::string> tokens;
     strutil::SplitToken(aliveConfig, ",", tokens);
     auto iter = tokens.begin();
-    while(iter != tokens.end()) {
+    while (iter != tokens.end()) {
         size_t pos = iter->find(KStringKeepAliveTimeout);
-        if(pos != std::string::npos) {
+        if (pos != std::string::npos) {
             const char* value = iter->c_str() + sizeof(KStringKeepAliveTimeout);
             int timeout = (int)strtol(value, NULL, 10);
-            if(timeout > 0 && timeout < 60)
+            if (timeout > 0 && timeout < 60)
                 return (uint32_t)timeout;
             return KDefaultKeepAliveTimeout;
         }
@@ -442,7 +433,7 @@ uint32_t HeaderFields::KeepAliveTimeout() const {
     return KDefaultKeepAliveTimeout;
 }
 
-uint64_t HeaderFields::ContentLength() const{
+uint64_t HeaderFields::ContentLength() const {
     const char* strContentLength = HeaderField(HeaderFields::KStringContentLength);
     uint64_t contentLength = 0;
 
@@ -458,34 +449,34 @@ bool HeaderFields::Range(long& _start, long& _end) const {
     if (NULL == strRange) {
         return false;
     }
-    
+
     std::string range(strRange);
     if (!strutil::StartsWith(range, std::string("bytes="))) {
         return false;
     }
     std::string bytes = range.substr(6);
     strutil::Trim(bytes);
-    
+
     size_t range_start = bytes.find("-");
     if (std::string::npos == range_start) {
         return false;
     }
-    
+
     std::string startstr = bytes.substr(0, range_start);
     _start = strtol(startstr.c_str(), NULL, 10);
     std::string endstr = bytes.substr(range_start + 1);
     _end = strtol(endstr.c_str(), NULL, 10);
     return true;
 }
-    
-bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const{
+
+bool HeaderFields::ContentRange(const std::string& line, uint64_t* start, uint64_t* end, uint64_t* total) {
     // Content-Range: bytes 0-102400/102399
 
     *start = 0;
     *end = 0;
     *total = 0;
 
-    const char* strContentRange = HeaderField(HeaderFields::KStringContentRange);
+    const char* strContentRange = line.c_str();
 
     if (strContentRange) {
         // bytes 0-102400/102399
@@ -509,7 +500,6 @@ bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total)
                 std::string endstr = bytes.substr(range_start + 1, range_end - range_start - 1);
                 *end = strtoull(endstr.c_str(), NULL, 10);
 
-
                 std::string totalstr = bytes.substr(range_end + 1);
                 *total = strtoull(totalstr.c_str(), NULL, 10);
 
@@ -521,28 +511,41 @@ bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total)
     return false;
 }
 
+bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const{
+    *start = 0;
+    *end = 0;
+    *total = 0;
+    
+    const char* pline = HeaderField(HeaderFields::KStringContentRange);
+    if (!pline){
+        return false;
+    }
+    return ContentRange(pline, start, end, total);
+}
+
 const std::string HeaderFields::ToString() const {
-    if (headers_.empty()) return "";
+    if (headers_.empty())
+        return "";
 
     std::string str;
 
-    for (std::map<const std::string, std::string, less>::const_iterator iter = headers_.begin(); iter != headers_.end(); ++iter) {
+    for (std::map<const std::string, std::string, less>::const_iterator iter = headers_.begin(); iter != headers_.end();
+         ++iter) {
         str += iter->first + KStringColon + KStringSpace + iter->second + KStringCRLF;
     }
 
     return str;
 }
-    
-std::list<std::pair<const std::string, const std::string>> HeaderFields::GetAsList() const{
+
+std::list<std::pair<const std::string, const std::string>> HeaderFields::GetAsList() const {
     std::list<std::pair<const std::string, const std::string>> result;
-    
+
     for (auto entry : headers_) {
         result.push_back({entry.first, entry.second});
     }
-    
+
     return result;
 }
-
 
 // implement of IStreamBodyProvider
 const char* IStreamBodyProvider::EofData() {
@@ -561,15 +564,9 @@ void IStreamBodyProvider::AppendTail(AutoBuffer& _body) {
     _body.Write(KStringCRLF, strlen(KStringCRLF));
 }
 
-
-
-
 // implement of Builder
-Builder::Builder(TCsMode _csmode)
-    : csmode_(_csmode)
-    , blockbody_(NULL)
-    , streambody_(NULL)
-    , is_manage_body_(false) {}
+Builder::Builder(TCsMode _csmode) : csmode_(_csmode), blockbody_(NULL), streambody_(NULL), is_manage_body_(false) {
+}
 
 Builder::~Builder() {
     if (is_manage_body_) {
@@ -613,10 +610,9 @@ void Builder::BlockBody(IBlockBodyProvider* _body, bool _manage) {
     xassert2(streambody_ == NULL);
 
     if (NULL != streambody_) {
-        xerror2(TSF"setBlockBody, but streambody had set");
+        xerror2(TSF "setBlockBody, but streambody had set");
         return;
     }
-
 
     if (NULL != blockbody_ && _manage) {
         delete blockbody_;
@@ -631,7 +627,7 @@ void Builder::StreamBody(IStreamBodyProvider* _body, bool _manage) {
     xassert2(blockbody_ == NULL);
 
     if (NULL != blockbody_) {
-        xerror2(TSF"setStreamBody, but blockbody had set");
+        xerror2(TSF "setStreamBody, but blockbody had set");
         return;
     }
 
@@ -639,7 +635,6 @@ void Builder::StreamBody(IStreamBodyProvider* _body, bool _manage) {
         delete streambody_;
         streambody_ = NULL;
     }
-
 
     streambody_ = _body;
     is_manage_body_ = _manage;
@@ -669,11 +664,13 @@ bool Builder::HeaderToBuffer(AutoBuffer& _header) {
     else
         firstline = statusline_.ToString();
 
-    if (firstline.empty()) return false;
+    if (firstline.empty())
+        return false;
 
     const std::string strheaders = headfields_.ToString();
 
-    if (strheaders.empty()) return false;
+    if (strheaders.empty())
+        return false;
 
     _header.Write(firstline.c_str(), firstline.size());
     _header.Write(strheaders.c_str(), strheaders.size());
@@ -682,37 +679,38 @@ bool Builder::HeaderToBuffer(AutoBuffer& _header) {
 }
 
 bool Builder::HttpToBuffer(AutoBuffer& _http) {
-
     if (blockbody_) {
         if (blockbody_->Length() > 0) {
             headfields_.HeaderFiled(headfields_.MakeContentLength((int)blockbody_->Length()));
-            if (!HeaderToBuffer(_http) || !blockbody_->FillData(_http)) return false;
+            if (!HeaderToBuffer(_http) || !blockbody_->FillData(_http))
+                return false;
         }
 
     } else if (streambody_) {
-    		headfields_.HeaderFiled(headfields_.MakeTransferEncodingChunked());
-    		if (!HeaderToBuffer(_http)) return false;
+        headfields_.HeaderFiled(headfields_.MakeTransferEncodingChunked());
+        if (!HeaderToBuffer(_http))
+            return false;
         if (streambody_->HaveData()) {
-            if (!streambody_->Data(_http)) return false;
+            if (!streambody_->Data(_http))
+                return false;
         }
     } else {
-    		return HeaderToBuffer(_http);
+        return HeaderToBuffer(_http);
     }
 
     return true;
 }
 
-
 // implement of Parser
 Parser::Parser(BodyReceiver* _body, bool _manage)
-    : recvstatus_(kStart)
-    , response_header_ready_(false)
-    , csmode_(kRespond)
-    , headfields_()
-    , bodyreceiver_(_body)
-    , is_manage_body_(_manage)
-    , firstlinelength_(0)
-    , headerlength_(0){
+: recvstatus_(kStart)
+, response_header_ready_(false)
+, csmode_(kRespond)
+, headfields_()
+, bodyreceiver_(_body)
+, is_manage_body_(_manage)
+, firstlinelength_(0)
+, headerlength_(0) {
 }
 
 Parser::~Parser() {
@@ -724,38 +722,40 @@ Parser::~Parser() {
     }
 }
 
-Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* consumed_bytes, bool only_parse_header/* = false*/) {
-    if((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_==kBody) {
-        xwarn2(TSF"status:%_", recvstatus_);
+Parser::TRecvStatus Parser::Recv(const void* _buffer,
+                                 size_t _length,
+                                 size_t* consumed_bytes,
+                                 bool only_parse_header /* = false*/) {
+    if ((NULL == _buffer || 0 == _length) && Fields().IsConnectionClose() && recvstatus_ == kBody) {
+        xwarn2(TSF "status:%_", recvstatus_);
         recvstatus_ = kEnd;
         bodyreceiver_->EndData();
-        return  recvstatus_;
-    }
-    
-    if ((NULL == _buffer || 0 == _length)){
-        xwarn2(TSF"Recv(%_, %_), status:%_", NULL==_buffer?"NULL":_buffer, _length, recvstatus_);
         return recvstatus_;
     }
-    
-    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
-        
+
+    if ((NULL == _buffer || 0 == _length)) {
+        xwarn2(TSF "Recv(%_, %_), status:%_", NULL == _buffer ? "NULL" : _buffer, _length, recvstatus_);
+        return recvstatus_;
+    }
+
+    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_) {
         headerbuf_.Write(_buffer, std::min(_length, (size_t)4096));
-        
+
         const char* pszbuf = (const char*)headerbuf_.Ptr();
         size_t length = headerbuf_.Length();
-    
-        if (length > 4){
+
+        if (length > 4) {
             char* pos = string_strnstr(pszbuf, "\r\n\r\n", (int)length);
-            if (pos != NULL){
+            if (pos != NULL) {
                 headerbuf_.Length(0, pos - pszbuf + 4);
                 response_header_ready_ = true;
             }
         }
     }
-    
+
     recvbuf_.Write(_buffer, _length);
     size_t origin_size = recvbuf_.Length();
-    
+
     while (true) {
         switch (recvstatus_) {
             case kStart:
@@ -763,21 +763,24 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                 char* pBuf = (char*)recvbuf_.Ptr();
                 char* pos = string_strnstr(pBuf, KStringCRLF, (int)recvbuf_.Length());
                 if (NULL == pos && 8 * 1024 < recvbuf_.Length()) {
-                    xerror2(TSF"wrong first line 8k buffer no found CRLF");
+                    xerror2(TSF "wrong first line 8k buffer no found CRLF");
                     recvstatus_ = kFirstLineError;
                     return recvstatus_;
                 }
-                
+
                 if (NULL == pos) {
                     recvstatus_ = kFirstLine;
+                    if (consumed_bytes) {
+                        *consumed_bytes = _length;
+                    }
                     return recvstatus_;
                 }
-                
+
                 ptrdiff_t firstlinelength = pos - pBuf + 2;
                 std::string firstline = std::string(pBuf, (size_t)firstlinelength);
-                
+
                 bool parseFirstlineSuc = false;
-                
+
                 if (strutil::StartsWith(firstline, "HTTP/")) {
                     if (statusline_.FromString(firstline)) {
                         csmode_ = kRespond;
@@ -789,193 +792,191 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer, size_t _length, size_t* co
                         parseFirstlineSuc = true;
                     }
                 }
-                
+
                 if (!parseFirstlineSuc) {
-                    xerror2(TSF"wrong first line: %0", firstline);
+                    xerror2(TSF "wrong first line: %0", firstline);
                     recvstatus_ = kFirstLineError;
                     return recvstatus_;
                 }
-                
+
                 headerbuf_.Write(recvbuf_.Ptr(), firstlinelength);
                 // HTTP/1.1 4.7 Unauthorized\r\n\r\n
                 char* pos_2crlf = string_strnstr(pBuf, "\r\n\r\n", (int)recvbuf_.Length());
                 if (NULL != pos_2crlf && pos_2crlf == pos) {
                     recvstatus_ = kBody;
-                    recvbuf_.Move(- (firstlinelength + 2));
+                    recvbuf_.Move(-(firstlinelength + 2));
                 } else {
                     recvstatus_ = kHeaderFields;
-                    recvbuf_.Move(- firstlinelength);
+                    recvbuf_.Move(-firstlinelength);
                 }
-                
-                if (consumed_bytes){
+
+                if (consumed_bytes) {
                     *consumed_bytes = origin_size - recvbuf_.Length();
                 }
-                
+
                 firstlinelength_ = firstlinelength;
-            }
-                break;
-                
+            } break;
+
             case kHeaderFields: {
                 char* pBuf = (char*)recvbuf_.Ptr();
                 char* pos = string_strnstr(pBuf, "\r\n\r\n", (int)recvbuf_.Length());
-                
+
                 if (NULL == pos && 128 * 1024 < recvbuf_.Length()) {
-                    xerror2(TSF"wrong header fields 128k buffer no found CRLFCRLF");
+                    xerror2(TSF "wrong header fields 128k buffer no found CRLFCRLF");
                     recvstatus_ = kHeaderFieldsError;
                     return recvstatus_;
                 }
-                
-                if (NULL == pos) return recvstatus_;
-                
+
+                if (NULL == pos)
+                    return recvstatus_;
+
                 ptrdiff_t headerslength = pos - pBuf + 4;
                 std::string headers = std::string(pBuf, (size_t)headerslength);
-                
+
                 bool ret = __ParserHeaders(headers, headfields_);
-                
+
                 if (false == ret) {
                     recvstatus_ = kHeaderFieldsError;
                     return recvstatus_;
                 }
-                
+
                 recvstatus_ = kBody;
                 headerbuf_.Write(recvbuf_.Ptr(), headerslength);
                 recvbuf_.Move(-headerslength);
-                
-                if (consumed_bytes){
+
+                if (consumed_bytes) {
                     *consumed_bytes = origin_size - recvbuf_.Length();
                 }
-                
+
                 headerlength_ = headerslength;
-                if (only_parse_header){
-                    xwarn2(TSF"only parse headers.");
+                if (only_parse_header) {
+                    xwarn2(TSF "only parse headers.");
                     return recvstatus_;
                 }
-            }
-                break;
-                
+            } break;
+
             case kBody: {
                 xassert2(bodyreceiver_);
-                
+
                 if (bodyreceiver_) {
                     // chunked
-                    
+
                     if (headfields_.IsTransferEncodingChunked()) {
                         char* chunkSizeBegin = (char*)recvbuf_.Ptr();
                         char* chunkSizeEnd = string_strnstr(chunkSizeBegin, KStringCRLF, (int)recvbuf_.Length());
-                        
+
                         if (NULL == chunkSizeEnd) {
                             return recvstatus_;
                         }
-                        
+
                         std::string strChunkSize = std::string(chunkSizeBegin, chunkSizeEnd);
                         strutil::Trim(strChunkSize);
-                        
+
                         int64_t chunkSize = strtol(strChunkSize.c_str(), NULL, 16);
-                        
+
                         ptrdiff_t sizeLen = chunkSizeEnd - chunkSizeBegin;
-                        
+
                         if (0 != chunkSize) {
-                            if ((ptrdiff_t)recvbuf_.Length() < chunkSize + sizeLen + 4)  return recvstatus_;
-                            
+                            if ((ptrdiff_t)recvbuf_.Length() < chunkSize + sizeLen + 4)
+                                return recvstatus_;
+
                             char* chunkBegin = chunkSizeEnd + 2;
                             char* chunkEnd = chunkBegin + chunkSize;
-                            
+
                             if (*chunkEnd != '\r' || *(chunkEnd + 1) != '\n') {
                                 recvstatus_ = kBodyError;
                                 return recvstatus_;
                             }
-                            
+
                             bodyreceiver_->AppendData(chunkBegin, (size_t)chunkSize);
-                            
+
                             recvbuf_.Move(-(chunkEnd - chunkSizeBegin + 2));
-                            
-                            if (consumed_bytes){
+
+                            if (consumed_bytes) {
                                 *consumed_bytes = origin_size - recvbuf_.Length();
                             }
                         } else {  // last chunk
                             char* trailerBegin = chunkSizeEnd + 2;
-                            
-                            if (recvbuf_.Length() < (unsigned int)(sizeLen + 4)) return recvstatus_;
-                            
+
+                            if (recvbuf_.Length() < (unsigned int)(sizeLen + 4))
+                                return recvstatus_;
+
                             char* trailerEnd = string_strnstr(trailerBegin, KStringCRLF, (int)recvbuf_.Length());
-                            
+
                             if (NULL == trailerEnd)
                                 return recvstatus_;
-                            
+
                             recvstatus_ = kEnd;
                             bodyreceiver_->EndData();
-                            
-                            
+
                             recvbuf_.Move(-(trailerEnd - chunkSizeBegin + 2));
-                            
-                            if (consumed_bytes){
+
+                            if (consumed_bytes) {
                                 *consumed_bytes = origin_size - recvbuf_.Length();
                             }
                         }
                     } else {  // no chunk
                         int64_t contentLength = headfields_.ContentLength();
                         int64_t appendlen = 0;
-                        if (Fields().IsConnectionClose() && 0==contentLength) {
+                        if (Fields().IsConnectionClose() && 0 == contentLength) {
                             appendlen = int64_t(recvbuf_.Length());
                         } else if (int64_t(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
                             appendlen = int64_t(recvbuf_.Length());
                         else {
-                            xwarn2(TSF"recv len bigger than contentlen, (%_, %_, %_)", recvbuf_.Length(), bodyreceiver_->Length(), contentLength);
+                            xwarn2(TSF "recv len bigger than contentlen, (%_, %_, %_)",
+                                   recvbuf_.Length(),
+                                   bodyreceiver_->Length(),
+                                   contentLength);
                             appendlen = contentLength - int64_t(bodyreceiver_->Length());
                         }
-                        
+
                         bodyreceiver_->AppendData(recvbuf_.Ptr(), (size_t)appendlen);
                         recvbuf_.Move(-appendlen);
-                        
-                        if (consumed_bytes){
+
+                        if (consumed_bytes) {
                             *consumed_bytes = origin_size - recvbuf_.Length();
                         }
-                        
+
                         if ((int64_t)bodyreceiver_->Length() == contentLength) {
                             recvstatus_ = kEnd;
                             bodyreceiver_->EndData();
-                            return  recvstatus_;
+                            return recvstatus_;
                         }
                     }
                 }
-                
+
                 if (0 == recvbuf_.Length())
                     return recvstatus_;
-            }
-                break;
-                
+            } break;
+
             case kEnd: {
                 return recvstatus_;
-            }
-                break;
-                
+            } break;
+
             default:
                 break;
         }
     }
-    
-    xassert2(false, TSF"status:%_", recvstatus_);
+
+    xassert2(false, TSF "status:%_", recvstatus_);
     return recvstatus_;
 }
 
-    
 Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
-
     if (NULL == _recv_buffer.Ptr() || 0 == _recv_buffer.Length()) {
-        xwarn2(TSF"Recv(%_, %_), status:%_", _recv_buffer.Ptr() , _recv_buffer.Length(), recvstatus_);
+        xwarn2(TSF "Recv(%_, %_), status:%_", _recv_buffer.Ptr(), _recv_buffer.Length(), recvstatus_);
         return recvstatus_;
     }
 
-    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_){
-        
+    if (recvstatus_ < kBody && headerbuf_.Length() < 4096 && !response_header_ready_) {
         headerbuf_.Write(_recv_buffer.Ptr(), std::min(_recv_buffer.Length(), (size_t)4096));
-        
+
         const char* pszbuf = (const char*)headerbuf_.Ptr();
         size_t length = headerbuf_.Length();
-        
-        if (length > 4){
+
+        if (length > 4) {
             char* pos = string_strnstr(pszbuf, "\r\n\r\n", (int)length);
-            if (pos != NULL){
+            if (pos != NULL) {
                 headerbuf_.Length(0, pos - pszbuf + 4);
                 response_header_ready_ = true;
             }
@@ -984,174 +985,174 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
 
     while (true) {
         switch (recvstatus_) {
-        case kStart:
-        case kFirstLine: {
-            char* pBuf = (char*)_recv_buffer.Ptr();
-            char* pos = string_strnstr(pBuf, KStringCRLF, (int)_recv_buffer.Length());
+            case kStart:
+            case kFirstLine: {
+                char* pBuf = (char*)_recv_buffer.Ptr();
+                char* pos = string_strnstr(pBuf, KStringCRLF, (int)_recv_buffer.Length());
 
-            if (NULL == pos && 8 * 1024 < _recv_buffer.Length()) {
-                xerror2(TSF"wrong first line 8k buffer no found CRLF");
-                recvstatus_ = kFirstLineError;
-                return recvstatus_;
-            }
-
-            if (NULL == pos) {
-                recvstatus_ = kFirstLine;
-                return recvstatus_;
-            }
-
-            ptrdiff_t firstlinelength = pos - pBuf + 2;
-            std::string firstline = std::string(pBuf, (size_t)firstlinelength);
-
-            bool parseFirstlineSuc = false;
-
-            if (strutil::StartsWith(firstline, "HTTP/")) {
-                if (statusline_.FromString(firstline)) {
-                    csmode_ = kRespond;
-                    parseFirstlineSuc = true;
+                if (NULL == pos && 8 * 1024 < _recv_buffer.Length()) {
+                    xerror2(TSF "wrong first line 8k buffer no found CRLF");
+                    recvstatus_ = kFirstLineError;
+                    return recvstatus_;
                 }
-            } else {
-                if (requestline_.FromString(firstline)) {
-                    csmode_ = kRequest;
-                    parseFirstlineSuc = true;
+
+                if (NULL == pos) {
+                    recvstatus_ = kFirstLine;
+                    return recvstatus_;
                 }
-            }
 
-            if (!parseFirstlineSuc) {
-                xerror2(TSF"wrong first line: %0", firstline);
-                recvstatus_ = kFirstLineError;
-                return recvstatus_;
-            }
+                ptrdiff_t firstlinelength = pos - pBuf + 2;
+                std::string firstline = std::string(pBuf, (size_t)firstlinelength);
 
-            recvstatus_ = kHeaderFields;
-            _recv_buffer.Move(- firstlinelength);
-            firstlinelength_ = firstlinelength;
-        }
-        break;
+                bool parseFirstlineSuc = false;
 
-        case kHeaderFields: {
-            char* pBuf = (char*)_recv_buffer.Ptr();
-            char* pos = string_strnstr(pBuf, "\r\n\r\n", (int)_recv_buffer.Length());
-
-            if (NULL == pos && 128 * 1024 < _recv_buffer.Length()) {
-                xerror2(TSF"wrong header fields 128k buffer no found CRLFCRLF");
-                recvstatus_ = kHeaderFieldsError;
-                return recvstatus_;
-            }
-
-            if (NULL == pos) return recvstatus_;
-
-            ptrdiff_t headerslength = pos - pBuf + 4;
-            std::string headers = std::string(pBuf, (size_t)headerslength);
-
-            bool ret = __ParserHeaders(headers, headfields_);
-
-            if (false == ret) {
-                recvstatus_ = kHeaderFieldsError;
-                return recvstatus_;
-            }
-
-            recvstatus_ = kBody;
-            _recv_buffer.Move(-headerslength);
-            headerlength_ = headerslength;
-        }
-        break;
-
-        case kBody: {
-            xassert2(bodyreceiver_);
-
-            if (bodyreceiver_) {
-                // chunked
-
-                if (headfields_.IsTransferEncodingChunked()) {
-                    char* chunkSizeBegin = (char*)_recv_buffer.Ptr();
-                    char* chunkSizeEnd = string_strnstr(chunkSizeBegin, KStringCRLF, (int)_recv_buffer.Length());
-
-                    if (NULL == chunkSizeEnd) {
-                        return recvstatus_;
+                if (strutil::StartsWith(firstline, "HTTP/")) {
+                    if (statusline_.FromString(firstline)) {
+                        csmode_ = kRespond;
+                        parseFirstlineSuc = true;
                     }
+                } else {
+                    if (requestline_.FromString(firstline)) {
+                        csmode_ = kRequest;
+                        parseFirstlineSuc = true;
+                    }
+                }
 
-                    std::string strChunkSize = std::string(chunkSizeBegin, chunkSizeEnd);
-                    strutil::Trim(strChunkSize);
+                if (!parseFirstlineSuc) {
+                    xerror2(TSF "wrong first line: %0", firstline);
+                    recvstatus_ = kFirstLineError;
+                    return recvstatus_;
+                }
 
-                    int64_t chunkSize = strtol(strChunkSize.c_str(), NULL, 16);
+                recvstatus_ = kHeaderFields;
+                _recv_buffer.Move(-firstlinelength);
+                firstlinelength_ = firstlinelength;
+            } break;
 
-                    ptrdiff_t sizeLen = chunkSizeEnd - chunkSizeBegin;
+            case kHeaderFields: {
+                char* pBuf = (char*)_recv_buffer.Ptr();
+                char* pos = string_strnstr(pBuf, "\r\n\r\n", (int)_recv_buffer.Length());
 
-                    if (0 != chunkSize) {
-                        if ((ptrdiff_t)_recv_buffer.Length() < chunkSize + sizeLen + 4)  return recvstatus_;
+                if (NULL == pos && 128 * 1024 < _recv_buffer.Length()) {
+                    xerror2(TSF "wrong header fields 128k buffer no found CRLFCRLF");
+                    recvstatus_ = kHeaderFieldsError;
+                    return recvstatus_;
+                }
 
-                        char* chunkBegin = chunkSizeEnd + 2;
-                        char* chunkEnd = chunkBegin + chunkSize;
+                if (NULL == pos)
+                    return recvstatus_;
 
-                        if (*chunkEnd != '\r' || *(chunkEnd + 1) != '\n') {
-                            recvstatus_ = kBodyError;
+                ptrdiff_t headerslength = pos - pBuf + 4;
+                std::string headers = std::string(pBuf, (size_t)headerslength);
+
+                bool ret = __ParserHeaders(headers, headfields_);
+
+                if (false == ret) {
+                    recvstatus_ = kHeaderFieldsError;
+                    return recvstatus_;
+                }
+
+                recvstatus_ = kBody;
+                _recv_buffer.Move(-headerslength);
+                headerlength_ = headerslength;
+            } break;
+
+            case kBody: {
+                xassert2(bodyreceiver_);
+
+                if (bodyreceiver_) {
+                    // chunked
+
+                    if (headfields_.IsTransferEncodingChunked()) {
+                        char* chunkSizeBegin = (char*)_recv_buffer.Ptr();
+                        char* chunkSizeEnd = string_strnstr(chunkSizeBegin, KStringCRLF, (int)_recv_buffer.Length());
+
+                        if (NULL == chunkSizeEnd) {
                             return recvstatus_;
                         }
 
-                        bodyreceiver_->AppendData(chunkBegin, (size_t)chunkSize);
+                        std::string strChunkSize = std::string(chunkSizeBegin, chunkSizeEnd);
+                        strutil::Trim(strChunkSize);
 
-                        _recv_buffer.Move(-(chunkEnd - chunkSizeBegin + 2));
-                    } else {  // last chunk
-                        char* trailerBegin = chunkSizeEnd + 2;
+                        int64_t chunkSize = strtol(strChunkSize.c_str(), NULL, 16);
 
-                        if (_recv_buffer.Length() < (unsigned int)(sizeLen + 4)) return recvstatus_;
+                        ptrdiff_t sizeLen = chunkSizeEnd - chunkSizeBegin;
 
-                        char* trailerEnd = string_strnstr(trailerBegin, KStringCRLF, (int)_recv_buffer.Length());
+                        if (0 != chunkSize) {
+                            if ((ptrdiff_t)_recv_buffer.Length() < chunkSize + sizeLen + 4)
+                                return recvstatus_;
 
-                        if (NULL == trailerEnd)
+                            char* chunkBegin = chunkSizeEnd + 2;
+                            char* chunkEnd = chunkBegin + chunkSize;
+
+                            if (*chunkEnd != '\r' || *(chunkEnd + 1) != '\n') {
+                                recvstatus_ = kBodyError;
+                                return recvstatus_;
+                            }
+
+                            bodyreceiver_->AppendData(chunkBegin, (size_t)chunkSize);
+
+                            _recv_buffer.Move(-(chunkEnd - chunkSizeBegin + 2));
+                        } else {  // last chunk
+                            char* trailerBegin = chunkSizeEnd + 2;
+
+                            if (_recv_buffer.Length() < (unsigned int)(sizeLen + 4))
+                                return recvstatus_;
+
+                            char* trailerEnd = string_strnstr(trailerBegin, KStringCRLF, (int)_recv_buffer.Length());
+
+                            if (NULL == trailerEnd)
+                                return recvstatus_;
+
+                            recvstatus_ = kEnd;
+                            bodyreceiver_->EndData();
+
+                            _recv_buffer.Move(-(trailerEnd - chunkSizeBegin + 2));
+                        }
+                    } else {  // no chunk
+                        int64_t contentLength = headfields_.ContentLength();
+                        int64_t appendlen = 0;
+
+                        if (int64_t(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
+                            appendlen = int64_t(_recv_buffer.Length());
+                        else {
+                            xwarn2(TSF "contentLength:%_, body.len:%_, recv len:%_",
+                                   contentLength,
+                                   int64_t(bodyreceiver_->Length()),
+                                   _recv_buffer.Length());
+                            appendlen = contentLength - int64_t(bodyreceiver_->Length());
+                        }
+
+                        bodyreceiver_->AppendData(_recv_buffer.Ptr(), (size_t)appendlen);
+                        _recv_buffer.Move(-appendlen);
+
+                        if ((int64_t)bodyreceiver_->Length() == contentLength) {
+                            recvstatus_ = kEnd;
+                            bodyreceiver_->EndData();
                             return recvstatus_;
-
-                        recvstatus_ = kEnd;
-                        bodyreceiver_->EndData();
-
-
-                        _recv_buffer.Move(-(trailerEnd - chunkSizeBegin + 2));
-                    }
-                } else {  // no chunk
-                    int64_t contentLength = headfields_.ContentLength();
-                    int64_t appendlen = 0;
-
-                    if (int64_t(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
-                        appendlen = int64_t(_recv_buffer.Length());
-                    else {
-                        xwarn2(TSF"contentLength:%_, body.len:%_, recv len:%_", contentLength, int64_t(bodyreceiver_->Length()), _recv_buffer.Length());
-                        appendlen = contentLength - int64_t(bodyreceiver_->Length());
-                    }
-
-                    bodyreceiver_->AppendData(_recv_buffer.Ptr(), (size_t)appendlen);
-                    _recv_buffer.Move(-appendlen);
-
-                    if ((int64_t)bodyreceiver_->Length() == contentLength) {
-                        recvstatus_ = kEnd;
-                        bodyreceiver_->EndData();
-                        return  recvstatus_;
+                        }
                     }
                 }
-            }
 
-            if (0 == _recv_buffer.Length())
+                if (0 == _recv_buffer.Length())
+                    return recvstatus_;
+            } break;
+
+            case kEnd: {
                 return recvstatus_;
-        }
-        break;
+            } break;
 
-        case kEnd: {
-            return recvstatus_;
-        }
-        break;
-
-        default:
-            break;
+            default:
+                break;
         }
     }
 
-    xassert2(false, TSF"status:%_", recvstatus_);
+    xassert2(false, TSF "status:%_", recvstatus_);
     return recvstatus_;
 }
 
 Parser::TRecvStatus Parser::RecvStatus() const {
     return recvstatus_;
-
 }
 
 TCsMode Parser::CsMode() const {
@@ -1182,7 +1183,7 @@ const BodyReceiver& Parser::Body() const {
     return *bodyreceiver_;
 }
 
-const AutoBuffer& Parser::HeaderBuffer() const{
+const AutoBuffer& Parser::HeaderBuffer() const {
     return headerbuf_;
 }
 
@@ -1193,26 +1194,24 @@ bool Parser::FirstLineReady() const {
 bool Parser::FieldsReady() const {
     return kHeaderFieldsError < recvstatus_;
 }
-    
+
 size_t Parser::FirstLineLength() const {
     return firstlinelength_;
 }
-    
-size_t Parser::HeaderLength() const{
+
+size_t Parser::HeaderLength() const {
     return headerlength_;
 }
 
 bool Parser::BodyReady() const {
     return kBodyError < recvstatus_;
 }
-bool Parser::BodyRecving() const{
+bool Parser::BodyRecving() const {
     return kBody == recvstatus_;
 }
 
 bool Parser::Error() const {
-    return kFirstLineError == recvstatus_
-           || kHeaderFieldsError == recvstatus_
-           || kBodyError == recvstatus_;
+    return kFirstLineError == recvstatus_ || kHeaderFieldsError == recvstatus_ || kBodyError == recvstatus_;
 }
 
 bool Parser::Success() const {
@@ -1222,16 +1221,17 @@ bool Parser::Success() const {
 ///////////////////////// test code
 
 class TestChunkProvider : public IStreamBodyProvider {
-  public:
-    TestChunkProvider()
-        : m_isEnd(false) {}
+ public:
+    TestChunkProvider() : m_isEnd(false) {
+    }
 
     bool HaveData() const {
         return m_buffer.Length() > 0;
     }
 
     bool Data(AutoBuffer& _body) {
-        if (m_buffer.Length() == 0) return false;
+        if (m_buffer.Length() == 0)
+            return false;
 
         _body.Write(m_buffer.Ptr(), m_buffer.Length());
         m_buffer.Reset();
@@ -1255,16 +1255,17 @@ class TestChunkProvider : public IStreamBodyProvider {
         m_buffer.Write(buffer.Ptr(), buffer.Length());
     }
 
-  private:
+ private:
     AutoBuffer m_buffer;
     bool m_isEnd;
 };
 
 class TestBodyReceiver : public BodyReceiver {
-  public:
-    TestBodyReceiver() {}
-    ~TestBodyReceiver() {}
-
+ public:
+    TestBodyReceiver() {
+    }
+    ~TestBodyReceiver() {
+    }
 
     void AppendData(const void* _body, size_t _length) {
         BodyReceiver::AppendData(_body, _length);
@@ -1275,9 +1276,8 @@ class TestBodyReceiver : public BodyReceiver {
         return buffer;
     }
 
-  private:
+ private:
     AutoBuffer buffer;
 };
 
-
-}
+}  // namespace http

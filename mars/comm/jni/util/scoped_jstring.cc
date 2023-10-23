@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * ScopedJstring.cpp
@@ -26,10 +25,7 @@
 #include "assert/__assert.h"
 
 ScopedJstring::ScopedJstring(JNIEnv* _env, jstring _jstr)
-: env_(_env)
-, jstr_((jstring)_env->NewLocalRef(_jstr))
-, char_(NULL)
-, jstr2char_(true) {
+: env_(_env), jstr_((jstring)_env->NewLocalRef(_jstr)), char_(NULL), jstr2char_(true) {
     ASSERT(env_);
     if (NULL == env_ || NULL == jstr_) {
         return;
@@ -39,15 +35,11 @@ ScopedJstring::ScopedJstring(JNIEnv* _env, jstring _jstr)
         return;
     }
 
-    char_ =  env_->GetStringUTFChars(jstr_, NULL);
+    char_ = env_->GetStringUTFChars(jstr_, NULL);
 }
 
 ScopedJstring::ScopedJstring(JNIEnv* _env, const char* _char)
-: env_(_env)
-, jstr_(NULL)
-, char_(_char)
-, jstr2char_(false) {
-
+: env_(_env), jstr_(NULL), char_(_char), jstr2char_(false) {
     ASSERT(env_);
     if (NULL == env_ || NULL == _char) {
         return;
@@ -61,10 +53,10 @@ ScopedJstring::ScopedJstring(JNIEnv* _env, const char* _char)
     jmethodID ctorID = env_->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
 
     jbyteArray bytes = env_->NewByteArray((jsize)strlen(char_));
-    env_->SetByteArrayRegion(bytes, 0, (jsize)strlen(char_), (jbyte*) char_);
+    env_->SetByteArrayRegion(bytes, 0, (jsize)strlen(char_), (jbyte*)char_);
     jstring encoding = env_->NewStringUTF("utf-8");
 
-    jstr_ = (jstring) env_->NewObject(strClass, ctorID, bytes, encoding);
+    jstr_ = (jstring)env_->NewObject(strClass, ctorID, bytes, encoding);
 
     env_->DeleteLocalRef(bytes);
     env_->DeleteLocalRef(encoding);
@@ -95,7 +87,7 @@ const char* ScopedJstring::GetChar() const {
     return char_;
 }
 
-const char* ScopedJstring::SafeGetChar() const{
+const char* ScopedJstring::SafeGetChar() const {
     const char* realstr = GetChar();
     return NULL == realstr ? "" : realstr;
 }
@@ -107,4 +99,3 @@ jstring ScopedJstring::GetJstr() const {
 
     return jstr_;
 }
-

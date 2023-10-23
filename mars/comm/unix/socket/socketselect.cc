@@ -6,8 +6,6 @@
  *      Author: zhoudingping
  */
 
-
-
 #include "socketselect.h"
 
 #include <poll.h>
@@ -19,7 +17,7 @@
 namespace mars {
 namespace comm {
 
-#if 0/*TARGET_OS_MAC*/
+#if 0 /*TARGET_OS_MAC*/
 SocketSelect::SocketSelect(SocketBreaker& _breaker, bool _autoclear)
 : breaker_(_breaker), kq_(0), events_(NULL), trigered_events_(0), errno_(0), autoclear_(_autoclear)
 {
@@ -181,30 +179,47 @@ int SocketSelect::Errno() const
 
 #else
 
-SocketSelect::SocketSelect(SocketBreaker& _breaker, bool _autoclear)
-: socket_poll_(_breaker, _autoclear)
-{}
+SocketSelect::SocketSelect(SocketBreaker& _breaker, bool _autoclear) : socket_poll_(_breaker, _autoclear) {
+}
 
-SocketSelect::~SocketSelect() {}
+SocketSelect::~SocketSelect() {
+}
 
-void SocketSelect::PreSelect() { socket_poll_.ClearEvent(); }
-int  SocketSelect::Select() { return Select(-1); }
-int  SocketSelect::Select(int _msec) { return socket_poll_.Poll(_msec); }
+void SocketSelect::PreSelect() {
+    socket_poll_.ClearEvent();
+}
+int SocketSelect::Select() {
+    return Select(-1);
+}
+int SocketSelect::Select(int _msec) {
+    return socket_poll_.Poll(_msec);
+}
 
-void SocketSelect::Read_FD_SET(SOCKET _socket) { socket_poll_.ReadEvent(_socket, true); }
-void SocketSelect::Write_FD_SET(SOCKET _socket) { socket_poll_.WriteEvent(_socket, true); }
-void SocketSelect::Exception_FD_SET(SOCKET _socket) { socket_poll_.NullEvent(_socket); }
+void SocketSelect::Read_FD_SET(SOCKET _socket) {
+    socket_poll_.ReadEvent(_socket, true);
+}
+void SocketSelect::Write_FD_SET(SOCKET _socket) {
+    socket_poll_.WriteEvent(_socket, true);
+}
+void SocketSelect::Exception_FD_SET(SOCKET _socket) {
+    socket_poll_.NullEvent(_socket);
+}
 
 int SocketSelect::Read_FD_ISSET(SOCKET _socket) const {
     const std::vector<PollEvent>& events = socket_poll_.TriggeredEvents();
-    auto find_it = std::find_if(events.begin(), events.end(), [_socket](const PollEvent& _v){ return _v.FD() == _socket; });
-    if (find_it == events.end()) return 0;
+    auto find_it = std::find_if(events.begin(), events.end(), [_socket](const PollEvent& _v) {
+        return _v.FD() == _socket;
+    });
+    if (find_it == events.end())
+        return 0;
     return find_it->Readable() || find_it->HangUp();
 }
 
 int SocketSelect::Write_FD_ISSET(SOCKET _socket) const {
     const std::vector<PollEvent>& events = socket_poll_.TriggeredEvents();
-    auto find_it = std::find_if(events.begin(), events.end(), [_socket](const PollEvent& _v){ return _v.FD() == _socket; });
+    auto find_it = std::find_if(events.begin(), events.end(), [_socket](const PollEvent& _v) {
+        return _v.FD() == _socket;
+    });
     if (find_it == events.end()) {
         return 0;
     }
@@ -213,20 +228,35 @@ int SocketSelect::Write_FD_ISSET(SOCKET _socket) const {
 
 int SocketSelect::Exception_FD_ISSET(SOCKET _socket) const {
     const std::vector<PollEvent>& events = socket_poll_.TriggeredEvents();
-    auto find_it = std::find_if(events.begin(), events.end(), [_socket](const PollEvent& _v){ return _v.FD() == _socket; });
-    if (find_it == events.end()) return 0;
+    auto find_it = std::find_if(events.begin(), events.end(), [_socket](const PollEvent& _v) {
+        return _v.FD() == _socket;
+    });
+    if (find_it == events.end())
+        return 0;
     return find_it->Error() || find_it->Invalid();
 }
 
-int  SocketSelect::Ret() const { return socket_poll_.Ret(); }
-int  SocketSelect::Errno() const { return socket_poll_.Errno(); }
-bool SocketSelect::IsException() const { return socket_poll_.BreakerIsError(); }
-bool SocketSelect::IsBreak() const { return socket_poll_.BreakerIsBreak(); }
+int SocketSelect::Ret() const {
+    return socket_poll_.Ret();
+}
+int SocketSelect::Errno() const {
+    return socket_poll_.Errno();
+}
+bool SocketSelect::IsException() const {
+    return socket_poll_.BreakerIsError();
+}
+bool SocketSelect::IsBreak() const {
+    return socket_poll_.BreakerIsBreak();
+}
 
-SocketBreaker& SocketSelect::Breaker() { return socket_poll_.Breaker(); }
-SocketPoll& SocketSelect::Poll() { return socket_poll_; }
+SocketBreaker& SocketSelect::Breaker() {
+    return socket_poll_.Breaker();
+}
+SocketPoll& SocketSelect::Poll() {
+    return socket_poll_;
+}
 
 #endif
 
-}
-}
+}  // namespace comm
+}  // namespace mars

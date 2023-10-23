@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /********************************************************************
     created:    2012/9/13
@@ -21,9 +20,10 @@
 #include "comm/assert/__assert.h"
 #include "mars/comm/macro.h"
 #ifdef DEBUG
-#include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <vector>
 
 #ifdef ANDROID
@@ -37,35 +37,34 @@ enum TMemoryType {
     ECPPArrayType = 2,
 };
 
-const char* gs_typename[] = {
-    "ECType",
-    "ECPPType",
-    "ECPPArrayType"
-};
+const char* gs_typename[] = {"ECType", "ECPPType", "ECPPArrayType"};
 
 struct CrtMem {
-    const char*                _crtFileName;
-    int                        _crtLine;
-    const char*                _crtFuncName;
-    void*                    _crtMemAddr;
-    size_t                  _crtMemLen;
-    TMemoryType                _crtMemoryType;
-
+    const char* _crtFileName;
+    int _crtLine;
+    const char* _crtFuncName;
+    void* _crtMemAddr;
+    size_t _crtMemLen;
+    TMemoryType _crtMemoryType;
 };
 
 NO_DESTROY static std::vector<CrtMem> gs_CrtMemRoot;
 
-static void __LogAlloc(void* _retp, size_t _size, const char* _filename, int _line, const char* _func, TMemoryType _type) {
+static void __LogAlloc(void* _retp,
+                       size_t _size,
+                       const char* _filename,
+                       int _line,
+                       const char* _func,
+                       TMemoryType _type) {
     ASSERT(_retp);
 
     CrtMem crtMemCell;
-    crtMemCell._crtFileName   = _filename;
-    crtMemCell._crtLine       = _line;
-    crtMemCell._crtFuncName   = _func;
-    crtMemCell._crtMemAddr    = _retp;
-    crtMemCell._crtMemLen     = _size;
+    crtMemCell._crtFileName = _filename;
+    crtMemCell._crtLine = _line;
+    crtMemCell._crtFuncName = _func;
+    crtMemCell._crtMemAddr = _retp;
+    crtMemCell._crtMemLen = _size;
     crtMemCell._crtMemoryType = _type;
-
 
     gs_CrtMemRoot.push_back(crtMemCell);
 }
@@ -90,42 +89,42 @@ static void __DeleteLogAlloc(void* _p, const char* _filename, int _line, const c
 }
 
 extern "C" {
-    void* malloc_dbg(size_t _size, const char* _filename, int _line, const char* _func) {
-        void* ret = malloc(_size);
-        ASSERT(ret);
+void* malloc_dbg(size_t _size, const char* _filename, int _line, const char* _func) {
+    void* ret = malloc(_size);
+    ASSERT(ret);
 
-        if (ret)
-            __LogAlloc(ret, _size, _filename, _line, _func, ECType);
+    if (ret)
+        __LogAlloc(ret, _size, _filename, _line, _func, ECType);
 
-        return ret;
-    }
+    return ret;
+}
 
-    void* calloc_dbg(size_t _num, size_t _size, const char* _filename, int _line, const char* _func) {
-        void* ret = calloc(_num, _size);
-        __LogAlloc(ret, _num * _size, _filename, _line, _func, ECType);
-        return ret;
-    }
+void* calloc_dbg(size_t _num, size_t _size, const char* _filename, int _line, const char* _func) {
+    void* ret = calloc(_num, _size);
+    __LogAlloc(ret, _num * _size, _filename, _line, _func, ECType);
+    return ret;
+}
 
-    void* realloc_dbg(void* _oldpointer, size_t _newsize, const char* _filename, int _line, const char* _func) {
-        if (NULL != _oldpointer)
-            __DeleteLogAlloc(_oldpointer, _filename, _line, _func, ECType);
+void* realloc_dbg(void* _oldpointer, size_t _newsize, const char* _filename, int _line, const char* _func) {
+    if (NULL != _oldpointer)
+        __DeleteLogAlloc(_oldpointer, _filename, _line, _func, ECType);
 
-        void* ret = realloc(_oldpointer, _newsize);
-        ASSERT(ret);
+    void* ret = realloc(_oldpointer, _newsize);
+    ASSERT(ret);
 
-        if (ret)
-            __LogAlloc(ret, _newsize, _filename, _line, _func, ECType);
+    if (ret)
+        __LogAlloc(ret, _newsize, _filename, _line, _func, ECType);
 
-        return ret;
-    }
+    return ret;
+}
 
-    void  free_dbg(void* _p, const char* _filename, int _line, const char* _func) {
-        if (!_p)
-            return;
+void free_dbg(void* _p, const char* _filename, int _line, const char* _func) {
+    if (!_p)
+        return;
 
-        __DeleteLogAlloc(_p, _filename, _line, _func, ECType);
-        free(_p);
-    }
+    __DeleteLogAlloc(_p, _filename, _line, _func, ECType);
+    free(_p);
+}
 
 }  // "C"
 
@@ -183,7 +182,7 @@ void operator delete[](void* _p, size_t /*_size*/) {
 
 #endif
 
-extern "C" void DumpMemoryLeaks(void (* _pfunoutput)(const char*)) {
+extern "C" void DumpMemoryLeaks(void (*_pfunoutput)(const char*)) {
     ASSERT(_pfunoutput);
 #ifdef DEBUG
 
@@ -198,8 +197,8 @@ extern "C" void DumpMemoryLeaks(void (* _pfunoutput)(const char*)) {
 
     for (std::vector<CrtMem>::iterator it = gs_CrtMemRoot.begin(); it != gs_CrtMemRoot.end(); ++it) {
         strstream << "[" << it->_crtFileName << ", " << it->_crtLine << ", " << it->_crtFuncName << "]"
-                  << ": block at " << it->_crtMemAddr << ", type= " << gs_typename[it->_crtMemoryType] << ", " << it->_crtMemLen
-                  << " bytes long\n Data <";
+                  << ": block at " << it->_crtMemAddr << ", type= " << gs_typename[it->_crtMemoryType] << ", "
+                  << it->_crtMemLen << " bytes long\n Data <";
 
         size_t length = it->_crtMemLen < 100 ? it->_crtMemLen : 50;
         char buf[12];
