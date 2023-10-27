@@ -191,6 +191,9 @@ class XLogger {
     void Clear() {
         m_message.clear();
     }
+    void NoPrefix() {
+        m_info.noprefix = 1;
+    }
 
 #ifdef __GNUC__
     __attribute__((__format__(printf, 2, 0)))

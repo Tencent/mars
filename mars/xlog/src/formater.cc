@@ -73,7 +73,7 @@ void log_formater(const XLoggerInfo* _info, const char* _logbody, PtrBuffer& _lo
         return;
     }
 
-    if (NULL != _info) {
+    if (NULL != _info && _info->noprefix == 0) {
         const char* filename = ExtractFileName(_info->filename);
 
 #if _WIN32

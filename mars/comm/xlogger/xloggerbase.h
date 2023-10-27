@@ -50,6 +50,7 @@ typedef struct XLoggerInfo_t {
     intmax_t tid;
     intmax_t maintid;
     int traceLog;
+    int noprefix;
 } XLoggerInfo;
 // If there are fewer initializers in a brace-enclosed list than there are elements or members of an aggregate,
 // or fewer characters in a string literal used to initialize an array of known size than there are elements
