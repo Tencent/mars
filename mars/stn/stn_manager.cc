@@ -5,8 +5,9 @@
 #include "mars/stn/stn_manager.h"
 
 #include <stdlib.h>
-
 #include <map>
+#include <iostream>
+#include <random>
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseevent.h"
@@ -40,6 +41,11 @@ namespace stn {
 
 static const std::string kLibName = "stn";
 static uint32_t gs_taskid = 1;
+
+static uint32_t gs_sequence_id = 1;
+static std::random_device rd;
+static std::mt19937 mt_seed(rd());
+static std::uniform_int_distribution<int> dist(0, 65535);
 
 StnManager::StnManager(Context* context) : context_(context) {
     ReportDnsProfileFunc = std::bind(&StnManager::__ReportDnsProfile, this, std::placeholders::_1);
@@ -195,11 +201,13 @@ bool StnManager::Req2Buf(uint32_t taskid,
                          AutoBuffer& extend,
                          int& error_code,
                          int channel_select,
-                         const std::string& host) {
+                         const std::string& host,
+                         const unsigned short client_sequence_id) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
         return callback_bridge_
-            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host);
+            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host,
+                                         client_sequence_id);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
         return false;
@@ -213,10 +221,11 @@ int StnManager::Buf2Resp(uint32_t taskid,
                          const AutoBuffer& inbuffer,
                          const AutoBuffer& extend,
                          int& error_code,
-                         int channel_select) {
+                         int channel_select,
+                         unsigned short& server_sequence_id) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
-        return callback_bridge_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select);
+        return callback_bridge_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select, server_sequence_id);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
         return 0;
@@ -362,6 +371,12 @@ uint32_t StnManager::GenTaskID() {
         atomic_write32(&gs_taskid, 1);
     }
     return atomic_inc32(&gs_taskid);
+}
+
+unsigned short StnManager::GenSequenceId() {
+    unsigned short sequence = dist(mt_seed);
+    xdebug2(TSF"sequence %_", sequence);
+    return sequence;
 }
 // #################### end stn.h / callback ####################
 

@@ -199,7 +199,8 @@ extern bool Req2Buf(uint32_t taskid,
                     AutoBuffer& extend,
                     int& error_code,
                     const int channel_select,
-                    const std::string& host);
+                    const std::string& host,
+                    const unsigned short client_sequence_id);
 //底层回包返回给上层解析
 extern int Buf2Resp(uint32_t taskid,
                     void* const user_context,
@@ -207,7 +208,8 @@ extern int Buf2Resp(uint32_t taskid,
                     const AutoBuffer& inbuffer,
                     const AutoBuffer& extend,
                     int& error_code,
-                    const int channel_select);
+                    const int channel_select,
+                    unsigned short& server_sequence_id);
 //任务执行结束
 extern int OnTaskEnd(uint32_t taskid,
                      void* const user_context,
@@ -250,6 +252,7 @@ extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& 
 extern void ReportDnsProfile(const DnsProfile& _dns_profile);
 //.生成taskid.
 extern uint32_t GenTaskID();
+extern unsigned short GenSequenceId();
 // end callback
 }  // namespace stn
 }  // namespace mars

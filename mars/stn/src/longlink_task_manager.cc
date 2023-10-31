@@ -474,6 +474,9 @@ void LongLinkTaskManager::__RunOnStartTask() {
         auto longlink_channel = longlink->Channel();
 
         if (!first->antiavalanche_checked) {
+            // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
+            first->task.client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
+            xinfo2(TSF "client_sequence_id:%_", first->task.client_sequence_id);
             if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid,
                                                              first->task.user_context,
                                                              first->task.user_id,
@@ -481,7 +484,8 @@ void LongLinkTaskManager::__RunOnStartTask() {
                                                              buffer_extension,
                                                              error_code,
                                                              longlink->Config().link_type,
-                                                             host)) {
+                                                             host,
+                                                             first->task.client_sequence_id)) {
                 __SingleRespHandle(first,
                                    kEctEnDecode,
                                    error_code,
@@ -537,7 +541,8 @@ void LongLinkTaskManager::__RunOnStartTask() {
                                                              buffer_extension,
                                                              error_code,
                                                              longlink->Config().link_type,
-                                                             host)) {
+                                                             host,
+                                                             first->task.client_sequence_id)) {
                 __SingleRespHandle(first,
                                    kEctEnDecode,
                                    error_code,
@@ -565,6 +570,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
             AutoBuffer body;
             AutoBuffer extension;
             int err_code = 0;
+            unsigned short server_sequence_id = 0;
             body.Write(intercept_data.data(), intercept_data.length());
             first->transfer_profile.received_size = body.Length();
             first->transfer_profile.receive_data_size = body.Length();
@@ -575,7 +581,10 @@ void LongLinkTaskManager::__RunOnStartTask() {
                                                                            body,
                                                                            extension,
                                                                            err_code,
-                                                                           longlink->Config().link_type);
+                                                                           longlink->Config().link_type,
+                                                                           server_sequence_id);
+            xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+            first->task.server_sequence_id = server_sequence_id;
             ConnectProfile profile;
             __SingleRespHandle(first, kEctEnDecode, err_code, handle_type, profile);
             first = next;
@@ -970,16 +979,21 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name,
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
+    unsigned short server_sequence_id = 0;
+
     int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid,
                                                                    it->task.user_context,
                                                                    it->task.user_id,
                                                                    body,
                                                                    extension,
                                                                    err_code,
-                                                                   longlink_meta->Config().link_type);
+                                                                   longlink_meta->Config().link_type,
+                                                                   server_sequence_id);
     if (should_intercept_result_ && should_intercept_result_(err_code)) {
         task_intercept_.AddInterceptTask(it->task.cgi, std::string((const char*)body->Ptr(), body->Length()));
     }
+    xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+    it->task.server_sequence_id = server_sequence_id;
 
     switch (handle_type) {
         case kTaskFailHandleNoError: {
