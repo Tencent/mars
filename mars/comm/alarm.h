@@ -28,10 +28,10 @@
 #ifdef ANDROID
 #include "android/wakeuplock.h"
 
-const static std::string kKeyAlarmStartWakeupLook = "AlarmStart";
+const static char* const kKeyAlarmStartWakeupLook = "AlarmStart";
 const static unsigned int kAlarmStartWakeupLook = 1000;
 
-const static std::string kKeyAlarmOnWakeupLook = "AlarmOn";
+const static char* const kKeyAlarmOnWakeupLook = "AlarmOn";
 const static unsigned int kAlarmOnWakeupLook = 500;
 
 static int wakelock_on_alarm_ = kAlarmOnWakeupLook;
