@@ -76,6 +76,7 @@ void DNS::__GetIP() {
     // DNS::DNSFunc dnsfunc = NULL;
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc;
     bool longlink_host = false;
+    int status = kGetIPDoing;
 
     ScopedLock lock(sg_mutex);
     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
@@ -85,6 +86,7 @@ void DNS::__GetIP() {
             host_name = iter->host_name;
             dnsfunc = iter->dns_func;
             longlink_host = iter->longlink_host;
+            status = iter->status;
             break;
         }
     }
@@ -181,7 +183,7 @@ void DNS::__GetIP() {
         }
     } else {
         std::vector<std::string> ips;
-        if (iter->status != kGetIPCancel) {
+        if (status != kGetIPCancel) { // 此时iter可能已经失效了
             ips = dnsfunc(host_name, longlink_host);
         }
 
