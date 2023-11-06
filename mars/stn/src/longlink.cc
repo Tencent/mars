@@ -507,6 +507,7 @@ void LongLink::__Run() {
                    ChannelTypeString[config_.link_type]);
 
     ConnectProfile conn_profile;
+    conn_profile.accountInfo = context_->GetManager<AppManager>()->GetAccountInfo();
     conn_profile.start_time = cur_time;
     conn_profile.conn_reason = conn_profile_.disconn_errcode;
     getCurrNetLabel(conn_profile.net_type);
