@@ -28,6 +28,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/stn/config.h"
 #include "mars/stn/stn.h"
+#include "mars/app/app.h"
 
 namespace mars {
 namespace stn {
@@ -141,6 +142,7 @@ struct ConnectProfile {
         rtt_by_socket = 0;
 
         task_id = 0;
+        accountInfo = app::AccountInfo();
     }
 
     std::string net_type;
@@ -224,6 +226,7 @@ struct ConnectProfile {
     int rtt_by_socket;
 
     uint32_t task_id;
+    app::AccountInfo accountInfo;
 };
 
 struct TransferProfile {

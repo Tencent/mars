@@ -182,6 +182,7 @@ void ShortLink::__Run() {
     xinfo_function(TSF "%_, net:%_", message.String(), getNetInfo());
 
     ConnectProfile conn_profile;
+    conn_profile.accountInfo = context_->GetManager<AppManager>()->GetAccountInfo();
     int type = getCurrNetLabel(conn_profile.net_type);
     if (type == kMobile) {
         conn_profile.ispcode = strtoll(conn_profile.net_type.c_str(), nullptr, 10);
