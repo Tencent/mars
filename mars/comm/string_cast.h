@@ -39,7 +39,11 @@
 template <typename T>
 char* string_cast_itoa(const T& value, char* result, uint8_t base = 10, bool upper_case = true) {
     if (!(2 <= base && base <= 36)) {
+#ifdef __WIN32
+        strcpy_s(result, strlen(result), "itoa err");
+#else
         strcpy(result, "itoa err");
+#endif
         return result;
     }
 
