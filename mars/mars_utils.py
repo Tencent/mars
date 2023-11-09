@@ -30,7 +30,10 @@ COMM_COPY_HEADER_FILES = {
     "mars/stn/stn.h": "stn",
     "mars/stn/stn_logic.h": "stn",
     "mars/stn/stn_manager.h": "stn",
+    "mars/stn/task_profile.h": "stn",
     "mars/stn/proto/stnproto_logic.h": "stn",
+    "mars/stn/proto/shortlink_packer.h": "stn/proto",
+    "mars/stn/proto/longlink_packer.h": "stn/proto",
 
     "mars/baseevent/base_logic.h": "baseevent",
 
@@ -46,8 +49,6 @@ COMM_COPY_HEADER_FILES = {
     "mars/sdt/sdt_manager.h": "sdt",
     "mars/sdt/constants.h": "sdt",
     "mars/sdt/netchecker_profile.h": "sdt",
-
-    "mars/stn/proto/longlink_packer.h": "stn/proto",
 }
 
 WIN_COPY_EXT_FILES = {
