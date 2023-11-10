@@ -41,7 +41,6 @@ void SdtManager::OnDestroy() {
         sdt_core_ = nullptr;
     }
     if (callback_) {
-        delete callback_;
         callback_ = nullptr;
     }
 }

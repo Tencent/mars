@@ -5,8 +5,9 @@
 #include "mars/stn/stn_manager.h"
 
 #include <stdlib.h>
-#include <map>
+
 #include <iostream>
+#include <map>
 #include <random>
 
 #include "mars/baseevent/active_logic.h"
@@ -16,9 +17,9 @@
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/thread/atomic_oper.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "mars/xlog/appender.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/stn_callback_bridge.h"
+#include "mars/xlog/appender.h"
 #include "stn/src/net_core.h"  //一定要放这里，Mac os 编译
 #include "stn/src/proxy_test.h"
 #include "stn/src/signalling_keeper.h"
@@ -79,8 +80,8 @@ void StnManager::OnCreate() {
 
 void StnManager::OnDestroy() {
     xinfo_function(TSF "mars2");
-    if(nullptr == net_core_) {
-        xwarn2(TSF"net core is nullptr. ignore destroy");
+    if (nullptr == net_core_) {
+        xwarn2(TSF "net core is nullptr. ignore destroy");
         return;
     }
     auto tmp_net_core = net_core_;
@@ -89,7 +90,7 @@ void StnManager::OnDestroy() {
     NetCore::NetCoreRelease()();
     callback_bridge_->SetCallback(nullptr);
     tmp_net_core.reset();
-    delete callback_;
+    callback_ = nullptr;
     delete callback_bridge_;
 }
 void StnManager::OnSingalCrash(int _sig) {
@@ -212,8 +213,14 @@ bool StnManager::Req2Buf(uint32_t taskid,
                          const unsigned short client_sequence_id) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
-        return callback_bridge_
-            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host,
+        return callback_bridge_->Req2Buf(taskid,
+                                         user_context,
+                                         _user_id,
+                                         outbuffer,
+                                         extend,
+                                         error_code,
+                                         channel_select,
+                                         host,
                                          client_sequence_id);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
@@ -232,7 +239,14 @@ int StnManager::Buf2Resp(uint32_t taskid,
                          unsigned short& server_sequence_id) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
-        return callback_bridge_->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select, server_sequence_id);
+        return callback_bridge_->Buf2Resp(taskid,
+                                          user_context,
+                                          _user_id,
+                                          inbuffer,
+                                          extend,
+                                          error_code,
+                                          channel_select,
+                                          server_sequence_id);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
         return 0;
@@ -382,7 +396,7 @@ uint32_t StnManager::GenTaskID() {
 
 unsigned short StnManager::GenSequenceId() {
     unsigned short sequence = dist(mt_seed);
-    xdebug2(TSF"sequence %_", sequence);
+    xdebug2(TSF "sequence %_", sequence);
     return sequence;
 }
 // #################### end stn.h / callback ####################
