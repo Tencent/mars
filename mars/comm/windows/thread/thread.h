@@ -19,7 +19,7 @@
 
 #include "assert/__assert.h"
 #include "condition.h"
-#include "mars/openssl/include/openssl/crypto.h"
+#include "openssl/crypto.h"
 #include "thread/runnable.h"
 
 typedef HANDLE thread_handler;

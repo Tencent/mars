@@ -24,7 +24,7 @@
 #include "mars/comm/ini.h"
 #include "mars/comm/strutil.h"
 #include "mars/comm/xlogger/xlogger.h"
-#include "mars/openssl/include/openssl/md5.h"
+#include "openssl/md5.h"
 
 /**
  *	In order to allow the value of section is anything
