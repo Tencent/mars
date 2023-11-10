@@ -77,8 +77,8 @@ void StnManager::OnDestroy() {
     NetCore::NetCoreRelease()();
     callback_bridge_->SetCallback(nullptr);
     net_core_ = nullptr;
-    delete callback_;
     delete callback_bridge_;
+    callback_ = NULL;
 }
 void StnManager::OnSingalCrash(int _sig) {
     mars::xlog::appender_close();
