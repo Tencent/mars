@@ -234,13 +234,16 @@ def copy_file(src, dst):
 
     if dst.rfind("/") != -1 and not os.path.exists(dst[:dst.rfind("/")]):
         os.makedirs(dst[:dst.rfind("/")])
+    if dst.rfind("\\") != -1 and not os.path.exists(dst[:dst.rfind("\\")]):
+        os.makedirs(dst[:dst.rfind("\\")])
 
     shutil.copy(src, dst)
 
 
 def copy_file_mapping(header_file_mappings, header_files_src_base, header_files_dst_end):
     for (src, dst) in header_file_mappings.items():
-        copy_file(header_files_src_base + src, header_files_dst_end + "/" + dst + '/' + src[src.rfind("/"):])
+        copy_file(os.path.join(header_files_src_base, src), 
+                  os.path.join(header_files_dst_end, dst, src[src.rfind("/")+1:]))
 
 
 def make_static_framework(src_lib, dst_framework, header_file_mappings, header_files_src_base='./'):
@@ -252,7 +255,8 @@ def make_static_framework(src_lib, dst_framework, header_file_mappings, header_f
 
     framework_path = dst_framework + '/Headers'
     for (src, dst) in header_file_mappings.items():
-        copy_file(header_files_src_base + src, framework_path + "/" + dst + '/' + src[src.rfind("/"):])
+        copy_file(os.path.join(header_files_src_base, src), 
+                  os.path.join(framework_path, dst, src[src.rfind("/")+1:]))
 
     return True
 
