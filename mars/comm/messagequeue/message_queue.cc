@@ -1159,6 +1159,7 @@ void MessageQueueCreater::__JoinThread() {
     if (ThreadUtil::currentthreadid() != thread_.tid()) {
         thread_.join();
     }
+    messagequeue_id_ = KInvalidQueueID;
 }
 
 MessageQueue_t GetDefMessageQueue() {
