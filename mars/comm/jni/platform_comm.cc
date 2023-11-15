@@ -239,9 +239,9 @@ int getNetInfo() {
 #endif
 
     // 防止获取的信息不准确，切换网络后延迟 1min 再使用缓存信息，1min 这个值没什么讲究主要是做个延迟。
-    if (g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
-        return g_NetInfo;
-    }
+    // if (g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
+    //     return g_NetInfo;
+    // }
 
     // if (coroutine::isCoroutine())
     //     return coroutine::MessageInvoke(&getNetInfo);
