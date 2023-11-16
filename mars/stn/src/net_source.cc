@@ -18,19 +18,14 @@
 
 #include "net_source.h"
 
-#include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
 
 #include <algorithm>
 #include <set>
 
-#include "boost/bind.hpp"
-#include "mars/comm/marcotoolkit.h"
+#include "mars/comm/strutil.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/shuffle.h"
-#include "mars/comm/socket/unix_socket.h"
-#include "mars/comm/strutil.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
@@ -261,6 +256,15 @@ bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config,
 }
 
 bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items) {
+	xinfo2(TSF"link type:%_, sg_longlink_debugip:%_, sg_minorlong_debugip, "
+			  "sg_longlink_hosts:%_, sg_longlink_ports:%_, sg_host_debugip_mapping:%_",
+		   _config.link_type,
+		   sg_longlink_debugip,
+		   sg_minorlong_debugip,
+		   strutil::DumpVector(sg_longlink_hosts),
+		   strutil::DumpVector(sg_longlink_ports),
+		   strutil::DumpMap(sg_host_debugip_mapping)
+		   );
     for (std::vector<std::string>::iterator ip_iter = sg_longlink_hosts.begin(); ip_iter != sg_longlink_hosts.end();
          ++ip_iter) {
         if (sg_host_debugip_mapping.find(*ip_iter) != sg_host_debugip_mapping.end()) {
