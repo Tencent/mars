@@ -23,7 +23,7 @@
 
 #include <string>
 #include <vector>
-
+#include <map>
 // declaration
 namespace strutil {
 /////////////////////// string /////////////////////////////
@@ -158,11 +158,47 @@ bool MergeToken(const T1& begin, const T1& end, const T2& delimiter, T2& result)
 
 std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
+std::string Hex2Str(const std::string &hex);
+std::string Str2Hex(const std::string &str);
 
 std::string ReplaceChar(const char* const input_str, char be_replaced = '@', char replace_with = '.');
-
 std::string GetFileNameFromPath(const char* _path);
 
+std::string DumpVector(const std::vector<std::string>& vec, const std::string &separator = ", ");
+template <typename T>
+std::string DumpVector(const std::vector<T>& vec, const std::string &separator = ", ") {
+	std::string result = "{";
+	for (const auto &it : vec) {
+		result += (std::to_string(it) + separator);
+	}
+	return result + "}";
+}
+
+std::string DumpMap(const std::map<std::string, std::string>& map, const std::string &separator = ", ");
+template <typename T1, typename T2>
+std::string DumpMap(const std::map<T1, T2>& map, const std::string &separator = ", ") {
+	std::string result = "{";
+	for (const auto &it : map) {
+		result += ("{" + std::to_string(it.first) + ":" + std::to_string(it.second) + "}" + separator);
+	}
+	return result + "}";
+}
+template <typename T1 >
+std::string DumpMap(const std::map<T1, std::string>& map, const std::string &separator = ", ") {
+	std::string result = "{";
+	for (const auto &it : map) {
+		result += ("{" + std::to_string(it.first) + ":" + it.second + "}" + separator);
+	}
+	return result + "}";
+}
+template <typename T2>
+std::string DumpMap(const std::map<std::string, T2>& map, const std::string &separator = ", ") {
+	std::string result = "{";
+	for (const auto &it : map) {
+		result += ("{" + it.first + ":" + std::to_string(it.second) + "}" + separator);
+	}
+	return result + "}";
+}
 // find substring (case insensitive)
 size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos);
 std::string BufferMD5(const void* buffer, size_t size);
