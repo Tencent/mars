@@ -256,7 +256,7 @@ bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config,
 }
 
 bool NetSource::__GetLonglinkDebugIPPort(const struct LonglinkConfig& _config, std::vector<IPPortItem>& _ipport_items) {
-	xinfo2(TSF"link type:%_, sg_longlink_debugip:%_, sg_minorlong_debugip, "
+	xinfo2(TSF"link type:%_, sg_longlink_debugip:%_, sg_minorlong_debugip:%_, "
 			  "sg_longlink_hosts:%_, sg_longlink_ports:%_, sg_host_debugip_mapping:%_",
 		   _config.link_type,
 		   sg_longlink_debugip,
