@@ -38,7 +38,7 @@ enum NetType { kNoNet = -1, kWifi = 1, kMobile = 2, kOtherNet = 3 };
 
 void OnPlatformNetworkChange();
 
-int getNetInfo();
+int getNetInfo(bool realtime = false);
 
 enum class NetTypeForStatistics {
     NETTYPE_NON = -1,
@@ -65,7 +65,7 @@ struct SIMInfo {
     std::string isp_code;
     std::string isp_name;
 };
-bool getCurSIMInfo(SIMInfo& _sim_info);
+bool getCurSIMInfo(SIMInfo& _sim_info, bool realtime = false);
 
 struct APNInfo {
     APNInfo() : nettype(kNoNet - 1), sub_nettype(0), extra_info("") {
@@ -227,9 +227,9 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
 void ResetWiFiIdCallBack();
 
-inline int getCurrNetLabel(std::string& netInfo) {
+inline int getCurrNetLabelImpl(std::string& netInfo, bool realtime) {
     netInfo = "defalut";
-    int netId = getNetInfo();
+    int netId = getNetInfo(realtime);
 
     if (netId == kNoNet) {
         netInfo = "";
@@ -240,7 +240,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
         case kWifi: {
             WifiInfo wifiInfo;
 
-            if (getCurWifiInfo(wifiInfo)) {
+            if (getCurWifiInfo(wifiInfo, realtime)) {
                 netInfo = wifiInfo.ssid.empty() ? "empty_ssid" : wifiInfo.ssid;
             } else {
                 netInfo = "no_ssid_wifi";
@@ -252,7 +252,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
         case kMobile: {
             SIMInfo simInfo;
 
-            if (getCurSIMInfo(simInfo)) {
+            if (getCurSIMInfo(simInfo, realtime)) {
                 netInfo = simInfo.isp_code.empty() ? "empty_ispCode" : simInfo.isp_code;
             } else {
                 netInfo = "no_ispCode_mobile";
@@ -272,6 +272,14 @@ inline int getCurrNetLabel(std::string& netInfo) {
     }
 
     return netId;
+}
+
+inline int getCurrNetLabel(std::string& netInfo) {
+    return getCurrNetLabelImpl(netInfo, false);
+}
+
+inline int getRealtimeNetLabel(std::string& netInfo) {
+    return getCurrNetLabelImpl(netInfo, true);
 }
 
 #ifdef __APPLE__

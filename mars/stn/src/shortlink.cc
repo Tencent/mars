@@ -181,10 +181,11 @@ void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
 
 void ShortLink::__Run() {
     xmessage2_define(message, TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
-    xinfo_function(TSF "%_, net:%_", message.String(), getNetInfo());
+    xinfo_function(TSF "%_, net:%_, realtime:%_", message.String(), getNetInfo(), task_.need_realtime_netinfo);
 
     ConnectProfile conn_profile;
-    int type = getCurrNetLabel(conn_profile.net_type);
+    int type = task_.need_realtime_netinfo ? getRealtimeNetLabel(conn_profile.net_type)
+                                           : getCurrNetLabel(conn_profile.net_type);
     if (type == kMobile) {
         conn_profile.ispcode = strtoll(conn_profile.net_type.c_str(), nullptr, 10);
     }
@@ -386,7 +387,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                   "must static or global function.");
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value,
                   "must static or global function.");
-    int type = getCurrNetLabel(_conn_profile.net_type);
+    int type = task_.need_realtime_netinfo ? getRealtimeNetLabel(_conn_profile.net_type)
+                                           : getCurrNetLabel(_conn_profile.net_type);
     if (type == kMobile) {
         _conn_profile.ispcode = strtoll(_conn_profile.net_type.c_str(), nullptr, 10);
     }

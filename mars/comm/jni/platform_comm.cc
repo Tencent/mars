@@ -233,14 +233,14 @@ DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getNetInfo, KPlatformCommC2Java, "
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getNetInfo)
 #endif
-int getNetInfo() {
+int getNetInfo(bool realtime /*=false*/) {
     xverbose_function();
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(getNetInfo(), -1);
 #endif
 
     // 防止获取的信息不准确，切换网络后延迟 1min 再使用缓存信息，1min 这个值没什么讲究主要是做个延迟。
-    if (g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
+    if (!realtime && g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
         return g_NetInfo;
     }
 
@@ -254,7 +254,7 @@ int getNetInfo() {
     jint netType = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getNetInfo).i;
     g_NetInfo = netType;
 
-    xinfo2(TSF "netInfo= %_", netType);
+    xinfo2(TSF "lastest netInfo %_", netType);
     return netType;
 }
 
@@ -353,10 +353,10 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     CALL_NATIVE_CALLBACK_RETURN_FUN(getCurWifiInfo(wifiInfo, _force_refresh), false);
 #endif
 
-    // if (!_force_refresh && !g_wifi_info.ssid.empty()) {
-    //     wifiInfo = g_wifi_info;
-    //     return true;
-    // }
+    if (!_force_refresh && !g_wifi_info.ssid.empty()) {
+        wifiInfo = g_wifi_info;
+        return true;
+    }
 
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&getCurWifiInfo, boost::ref(wifiInfo), _force_refresh));
@@ -388,6 +388,8 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     env->DeleteLocalRef(bssidJstr);
     env->DeleteLocalRef(retObj);
 
+    xinfo2(TSF "lastest ssid %_ bssid %_", wifiInfo.ssid, wifiInfo.bssid);
+
     return true;
 }
 
@@ -399,13 +401,13 @@ DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo,
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo)
 #endif
-bool getCurSIMInfo(SIMInfo& simInfo) {
+bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
     xverbose_function();
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(getCurSIMInfo(simInfo), false);
 #endif
 
-    if (!g_sim_info.isp_code.empty()) {
+    if (!realtime && !g_sim_info.isp_code.empty()) {
         simInfo = g_sim_info;
         return true;
     }
@@ -440,6 +442,8 @@ bool getCurSIMInfo(SIMInfo& simInfo) {
 
     g_sim_info.isp_code = icJstr.GetChar();
     env->DeleteLocalRef(ispCodeJstr);
+
+    xinfo2(TSF "lastest isp %_", g_sim_info.isp_code);
 
     if (NULL == ispNameJstr) {
         return true;

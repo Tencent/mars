@@ -140,6 +140,7 @@ struct Task {
     HostRedirectType redirect_type;
     unsigned short client_sequence_id;  // 用于与后台上报对应的sequence id.
     unsigned short server_sequence_id;
+    bool need_realtime_netinfo;  // need realtime net info. for network-cross checking
 };
 
 struct CgiProfile {
