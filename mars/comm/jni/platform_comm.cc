@@ -65,6 +65,7 @@ Mutex g_net_mutex;
 void OnPlatformNetworkChange() {
 #ifdef ANDROID
     ScopedLock lock(g_net_mutex);
+    xinfo_function(TSF "net %_ ssid %_ isp %_", g_NetInfo, g_wifi_info.ssid, g_sim_info.isp_code);
     g_NetInfo = 0;
     g_last_networkchange_tick = gettickcount();
     g_wifi_info.ssid.clear();
@@ -239,9 +240,9 @@ int getNetInfo() {
 #endif
 
     // 防止获取的信息不准确，切换网络后延迟 1min 再使用缓存信息，1min 这个值没什么讲究主要是做个延迟。
-    // if (g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
-    //     return g_NetInfo;
-    // }
+    if (g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
+        return g_NetInfo;
+    }
 
     // if (coroutine::isCoroutine())
     //     return coroutine::MessageInvoke(&getNetInfo);
@@ -253,8 +254,8 @@ int getNetInfo() {
     jint netType = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getNetInfo).i;
     g_NetInfo = netType;
 
-    xverbose2(TSF "netInfo= %0", netType);
-    return (int)netType;
+    xinfo2(TSF "netInfo= %_", netType);
+    return netType;
 }
 
 #ifndef NATIVE_CALLBACK
@@ -352,10 +353,10 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     CALL_NATIVE_CALLBACK_RETURN_FUN(getCurWifiInfo(wifiInfo, _force_refresh), false);
 #endif
 
-    if (!_force_refresh && !g_wifi_info.ssid.empty()) {
-        wifiInfo = g_wifi_info;
-        return true;
-    }
+    // if (!_force_refresh && !g_wifi_info.ssid.empty()) {
+    //     wifiInfo = g_wifi_info;
+    //     return true;
+    // }
 
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&getCurWifiInfo, boost::ref(wifiInfo), _force_refresh));
