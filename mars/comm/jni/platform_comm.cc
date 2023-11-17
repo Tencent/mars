@@ -413,7 +413,7 @@ bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
     }
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurSIMInfo, boost::ref(simInfo)));
+        return coroutine::MessageInvoke(boost::bind(&getCurSIMInfo, boost::ref(simInfo), realtime));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
