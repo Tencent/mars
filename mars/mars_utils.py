@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import shutil
 import time
 import subprocess
+from typing import List
 
 COMM_COPY_HEADER_FILES = {
     "mars/comm/verinfo.h": "comm",
@@ -408,7 +409,7 @@ def check_vs_env(bat_path: str) -> bool:
     return True
 
 
-def merge_win_static_libs(src_libs: list[str], dst_lib: str, lib_exe_path: str) -> bool:
+def merge_win_static_libs(src_libs: List[str], dst_lib: str, lib_exe_path: str) -> bool:
     assert lib_exe_path != None
     assert src_libs.count != 0
     assert dst_lib != None
