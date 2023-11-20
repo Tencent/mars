@@ -6,7 +6,7 @@
 build/
 /mars/captures
 obj/
-
+.vscode/
 *.swp
 *.pyc
 xcuserdata
