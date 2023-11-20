@@ -409,6 +409,9 @@ def check_vs_env(bat_path: str) -> bool:
 
 
 def merge_win_static_libs(src_libs: list[str], dst_lib: str, lib_exe_path: str) -> bool:
+    assert lib_exe_path != None
+    assert src_libs.count != 0
+    assert dst_lib != None
     lib_cmd_list: list[str] = [lib_exe_path, '/OUT:' + dst_lib]
     lib_cmd_list.extend(src_libs)
     lib_cmd: str = ' '.join(lib_cmd_list)
