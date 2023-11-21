@@ -279,7 +279,7 @@ inline int getCurrNetLabel(std::string& netInfo) {
 }
 
 inline int getRealtimeNetLabel(std::string& netInfo) {
-    return getCurrNetLabelImpl(netInfo, true);
+    return getCurrNetLabelImpl(netInfo, false);
 }
 
 #ifdef __APPLE__
