@@ -439,7 +439,7 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
 }
 
 #if TARGET_OS_IPHONE && !TARGET_OS_WATCH
-bool getCurSIMInfo(mars::comm::SIMInfo& simInfo) {
+bool getCurSIMInfo(mars::comm::SIMInfo& simInfo, bool/* realtime = false*/) {
     NO_DESTROY static mars::comm::Mutex mutex;
     mars::comm::ScopedLock lock(mutex);
 
