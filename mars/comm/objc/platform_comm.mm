@@ -71,11 +71,11 @@ static float __GetSystemVersion() {
 }
 #endif
 
-static MarsNetworkStatus __GetNetworkStatus() {
+static MarsNetworkStatus __GetNetworkStatus(BOOL realtime = NO) {
 #if TARGET_OS_WATCH
     return ReachableViaWiFi;
 #else
-    return [MarsReachability getCacheReachabilityStatus:NO];
+    return [MarsReachability getCacheReachabilityStatus:realtime];
 #endif
 }
 
@@ -183,7 +183,7 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
 
 void OnPlatformNetworkChange() {}
 
-int getNetInfo() {
+int getNetInfo(bool realtime/*=false*/) {
     xverbose_function();
     SCOPE_POOL();
 
@@ -191,7 +191,7 @@ int getNetInfo() {
     return mars::comm::kWifi;
 #endif
 
-    switch (__GetNetworkStatus()) {
+    switch (__GetNetworkStatus(realtime ? YES : NO)) {
         case NotReachable:
             return mars::comm::kNoNet;
         case ReachableViaWiFi:
@@ -204,7 +204,7 @@ int getNetInfo() {
 }
 
 int getNetTypeForStatistics() {
-    int type = getNetInfo();
+    int type = getNetInfo(false);
     if (mars::comm::kWifi == type) {
         return (int)mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
     }
@@ -469,7 +469,7 @@ bool getCurSIMInfo(SIMInfo& simInfo) { return false; }
 
 bool getAPNInfo(mars::comm::APNInfo& info) {
     mars::comm::RadioAccessNetworkInfo raninfo;
-    if (mars::comm::kMobile != getNetInfo()) return false;
+    if (mars::comm::kMobile != getNetInfo(false)) return false;
     if (!mars::comm::getCurRadioAccessNetworkInfo(raninfo)) return false;
 
     info.nettype = mars::comm::kMobile;
