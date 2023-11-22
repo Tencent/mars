@@ -81,7 +81,6 @@ class ThreadUtil {
     }
 
 	static void join (thread_tid _tid) {
-        ASSERT(_tid != currentthreadid());
         if (_tid == currentthreadid())
             return;
 
