@@ -71,8 +71,7 @@ if(MSVC)
     include_directories(windows/SocketSelect)
     include_directories(windows/thread)
     include_directories(windows/win32)
-    include_directories(windows/zlib)
-    
+
     list(REMOVE_ITEM SELF_SRC_FILES
             network/local_routetable.h
             network/local_routetable.cc
@@ -83,10 +82,6 @@ if(MSVC)
     source_group(windows FILES ${SELF_TEMP_SRC_FILES})
     list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
             
-    file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} windows/zlib/*.c windows/zlib/*.h)
-    source_group(windows\\zlib FILES ${SELF_TEMP_SRC_FILES})
-    list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
-    
     file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} windows/win32/*.cpp windows/win32/*.h)
     source_group(windows\\win32 FILES ${SELF_TEMP_SRC_FILES})
     list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})   
