@@ -667,6 +667,11 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
     xinfo2(TSF "rwtimeout %_, timeout.source %_, ", timeout, _conn_profile.quic_rw_timeout_source) >> group_close;
 
     _conn_profile.start_read_packet_time = ::gettickcount();
+    if (task_.need_realtime_netinfo) {
+        getRealtimeNetLabel(_conn_profile.net_type);
+    } else {
+        getCurrNetLabel(_conn_profile.net_type);
+    }
     while (true) {
         int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, timeout);
         xinfo2(TSF "socketOperator_ Recv %_/%_", recv_ret, _err_code);
