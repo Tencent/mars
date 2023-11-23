@@ -112,6 +112,7 @@ void UdpClient::SetIpPort(const std::string& _ip, int _port) {
 }
 
 void UdpClient::__InitSocket(const std::string& _ip, int _port) {
+    xdebug_function(TSF "ip:%_, port:%_", _ip, _port);
     int errCode = 0;
 
     bzero(&addr_, sizeof(addr_));
