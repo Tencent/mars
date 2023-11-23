@@ -117,7 +117,13 @@ void UdpClient::__InitSocket(const std::string& _ip, int _port) {
     bzero(&addr_, sizeof(addr_));
     addr_ = *(struct sockaddr_in*)(&socket_address(_ip.c_str(), _port).address());
 
-    fd_socket_ = socket(AF_INET, SOCK_DGRAM, 0);
+    in6_addr addr6 = IN6ADDR_ANY_INIT;
+    if (socket_inet_pton(AF_INET6, _ip.c_str(), &addr6)) {
+        fd_socket_ = socket(AF_INET6, SOCK_DGRAM, 0);
+    } else {
+        fd_socket_ = socket(AF_INET, SOCK_DGRAM, 0);
+    }
+
     if (fd_socket_ == INVALID_SOCKET) {
         errCode = socket_errno;
         xerror2(TSF "udp socket create error, error: %0", socket_strerror(errCode));
