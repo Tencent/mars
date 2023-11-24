@@ -172,6 +172,15 @@ def remove_cmake_files(path):
         os.remove(f)
 
 
+def remove_if_exist(path: str):
+    if not os.path.exists(path):
+        return
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        os.remove(path)
+
+
 def clean_except(path, except_list):
     for fpath, dirs, fs in os.walk(path):
         in_except = False
@@ -240,8 +249,8 @@ def copy_file(src, dst):
 
 def copy_file_mapping(header_file_mappings, header_files_src_base, header_files_dst_end):
     for (src, dst) in header_file_mappings.items():
-        copy_file(os.path.join(header_files_src_base, src), 
-                  os.path.join(header_files_dst_end, dst, src[src.rfind("/")+1:]))
+        copy_file(os.path.join(header_files_src_base, src),
+                  os.path.join(header_files_dst_end, dst, src[src.rfind("/") + 1:]))
 
 
 def make_static_framework(src_lib, dst_framework, header_file_mappings, header_files_src_base='./'):
@@ -253,8 +262,8 @@ def make_static_framework(src_lib, dst_framework, header_file_mappings, header_f
 
     framework_path = dst_framework + '/Headers'
     for (src, dst) in header_file_mappings.items():
-        copy_file(os.path.join(header_files_src_base, src), 
-                  os.path.join(framework_path, dst, src[src.rfind("/")+1:]))
+        copy_file(os.path.join(header_files_src_base, src),
+                  os.path.join(framework_path, dst, src[src.rfind("/") + 1:]))
 
     return True
 
