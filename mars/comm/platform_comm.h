@@ -229,49 +229,23 @@ void ResetWiFiIdCallBack();
 
 inline int getCurrNetLabelImpl(std::string& netInfo, bool realtime) {
     netInfo = "defalut";
-    int netId = getNetInfo(realtime);
-
-    if (netId == kNoNet) {
-        netInfo = "";
-        return netId;
-    }
-
-    switch (netId) {
+    int nettype = getNetInfo(realtime);
+    switch (nettype) {
         case kWifi: {
-            WifiInfo wifiInfo;
-
-            if (getCurWifiInfo(wifiInfo, realtime)) {
-                netInfo = wifiInfo.ssid.empty() ? "empty_ssid" : wifiInfo.ssid;
-            } else {
-                netInfo = "no_ssid_wifi";
-            }
-
-            break;
-        }
+            WifiInfo info;
+            getCurWifiInfo(info, realtime);
+            netInfo = "wifi_" + info.ssid;
+        } break;
 
         case kMobile: {
-            SIMInfo simInfo;
-
-            if (getCurSIMInfo(simInfo, realtime)) {
-                netInfo = simInfo.isp_code.empty() ? "empty_ispCode" : simInfo.isp_code;
-            } else {
-                netInfo = "no_ispCode_mobile";
-            }
-
+            SIMInfo info;
+            getCurSIMInfo(info, realtime);
+            netInfo = "mobile_" + info.isp_name + "_" + info.isp_code;
+        } break;
+        default:
             break;
-        }
-
-        case kOtherNet: {
-            netInfo = "other";
-            break;
-        }
-
-        default: {
-            break;
-        }
     }
-
-    return netId;
+    return nettype;
 }
 
 inline int getCurrNetLabel(std::string& netInfo) {
