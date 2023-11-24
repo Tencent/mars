@@ -20,6 +20,7 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/has_member.h": "comm",
     "mars/comm/objc/scope_autoreleasepool.h": "comm",
     "mars/comm/objc/ThreadOperationQueue.h": "comm",
+    "mars/comm/socket/unix_socket.h": "comm/socket",
 
     "mars/comm/xlogger/preprocessor.h": "xlog",
     "mars/comm/xlogger/xloggerbase.h": "xlog",
@@ -29,6 +30,7 @@ COMM_COPY_HEADER_FILES = {
     "mars/boot/base_manager.h": "boot",
 
     "mars/stn/stn.h": "stn",
+    "mars/stn/config.h": "stn",
     "mars/stn/stn_logic.h": "stn",
     "mars/stn/stn_manager.h": "stn",
     "mars/stn/task_profile.h": "stn",
