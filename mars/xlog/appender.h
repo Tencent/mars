@@ -64,6 +64,7 @@ struct XLogConfig {
 enum TConsoleFun {
     kConsolePrintf,
     kConsoleNSLog,
+    kConsoleOSLog,
 };
 #endif
 
