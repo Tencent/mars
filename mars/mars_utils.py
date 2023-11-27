@@ -249,9 +249,7 @@ def is_different_file(file1: str, file2: str) -> bool:
 
 
 def copy_file(src, dst):
-    if not os.path.isfile(src):
-        print('Warning: %s not exist cwd %s' % (src, os.getcwd()))
-        return
+    assert os.path.isfile(src), src
 
     if dst.rfind("/") != -1 and not os.path.exists(dst[:dst.rfind("/")]):
         os.makedirs(dst[:dst.rfind("/")])
@@ -262,10 +260,25 @@ def copy_file(src, dst):
         shutil.copy(src, dst)
 
 
-def copy_file_mapping(header_file_mappings, header_files_src_base, header_files_dst_end):
+def copy_file_mapping(header_file_mappings: dict[str, str], header_files_src_base: str, header_files_dst_end: str):
     for (src, dst) in header_file_mappings.items():
         copy_file(os.path.join(header_files_src_base, src),
                   os.path.join(header_files_dst_end, dst, src[src.rfind("/") + 1:]))
+
+
+def copy_folder(src: str, dst: str):
+    assert os.path.exists(src), src
+    assert os.path.isdir(src), src
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+
+    for name in os.listdir(src):
+        absolute_src_file: str = os.path.join(src, name)
+        absolute_dst_file: str = os.path.join(dst, name)
+        if os.path.isdir(absolute_src_file):
+            copy_folder(absolute_src_file, absolute_dst_file)
+        else:
+            copy_file(absolute_src_file, absolute_dst_file)
 
 
 def make_static_framework(src_lib, dst_framework, header_file_mappings, header_files_src_base='./'):
