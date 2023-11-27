@@ -3,6 +3,7 @@ import os
 import shutil
 import time
 import subprocess
+import hashlib
 from typing import List
 
 COMM_COPY_HEADER_FILES = {
@@ -238,6 +239,15 @@ def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
             print("%s not exists" % pdb)
 
 
+def is_different_file(file1: str, file2: str) -> bool:
+    assert os.path.exists(file1)
+    if not os.path.exists(file2):
+        return True
+    md51: str = hashlib.md5(open(file1, 'rb').read()).hexdigest()
+    md52: str = hashlib.md5(open(file2, 'rb').read()).hexdigest()
+    return md51 != md52
+
+
 def copy_file(src, dst):
     if not os.path.isfile(src):
         print('Warning: %s not exist cwd %s' % (src, os.getcwd()))
@@ -248,7 +258,8 @@ def copy_file(src, dst):
     if dst.rfind("\\") != -1 and not os.path.exists(dst[:dst.rfind("\\")]):
         os.makedirs(dst[:dst.rfind("\\")])
 
-    shutil.copy(src, dst)
+    if is_different_file(src, dst):
+        shutil.copy(src, dst)
 
 
 def copy_file_mapping(header_file_mappings, header_files_src_base, header_files_dst_end):
