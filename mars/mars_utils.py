@@ -5,6 +5,7 @@ import time
 import subprocess
 import hashlib
 from typing import List
+from typing import Dict
 
 COMM_COPY_HEADER_FILES = {
     "mars/comm/verinfo.h": "comm",
@@ -260,7 +261,7 @@ def copy_file(src, dst):
         shutil.copy(src, dst)
 
 
-def copy_file_mapping(header_file_mappings: dict[str, str], header_files_src_base: str, header_files_dst_end: str):
+def copy_file_mapping(header_file_mappings: Dict[str, str], header_files_src_base: str, header_files_dst_end: str):
     for (src, dst) in header_file_mappings.items():
         copy_file(os.path.join(header_files_src_base, src),
                   os.path.join(header_files_dst_end, dst, src[src.rfind("/") + 1:]))
