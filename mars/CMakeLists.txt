@@ -37,7 +37,7 @@ if(ANDROID)
         add_definitions(-DNATIVE_CALLBACK)
     endif()
 
-    find_library(log-lib xlog)
+    find_library(log-lib log)
     find_library(z-lib z)
 
     link_directories(app baseevent xlog sdt stn comm boost zstd)
