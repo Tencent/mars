@@ -74,7 +74,9 @@ class UdpClient {
 
  private:
     SOCKET fd_socket_;
+    bool is_v6_ip_;
     struct sockaddr_in addr_;
+    struct sockaddr_in6 addr_v6_;
     IAsyncUdpClientEvent* event_;
 
     SocketBreaker breaker_;
