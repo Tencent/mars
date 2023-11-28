@@ -107,17 +107,41 @@ void UdpClient::SendAsync(void* _buf, size_t _len) {
 }
 
 void UdpClient::SetIpPort(const std::string& _ip, int _port) {
-    bzero(&addr_, sizeof(addr_));
-    addr_ = *(struct sockaddr_in*)(&socket_address(_ip.c_str(), _port).address());
+    in6_addr addr6 = IN6ADDR_ANY_INIT;
+    if (socket_inet_pton(AF_INET6, _ip.c_str(), &addr6)) {
+        is_v6_ip_ = true;
+        bzero(&addr_v6_, sizeof(addr_v6_));
+        addr_v6_ = *(struct sockaddr_in6*)(&socket_address(_ip.c_str(), _port).address_fix());
+    } else {
+        is_v6_ip_ = false;
+        bzero(&addr_, sizeof(addr_));
+        addr_ = *(struct sockaddr_in*)(&socket_address(_ip.c_str(), _port).address());
+    }
 }
 
 void UdpClient::__InitSocket(const std::string& _ip, int _port) {
+    xdebug_function(TSF "ip:%_, port:%_", _ip, _port);
     int errCode = 0;
+    in6_addr addr6 = IN6ADDR_ANY_INIT;
+    if (socket_inet_pton(AF_INET6, _ip.c_str(), &addr6)) {
+        is_v6_ip_ = true;
+        bzero(&addr_v6_, sizeof(addr_v6_));
+        addr_v6_ = *(struct sockaddr_in6*)(&socket_address(_ip.c_str(), _port).address_fix());
+    } else {
+        is_v6_ip_ = false;
+        bzero(&addr_, sizeof(addr_));
+        addr_ = *(struct sockaddr_in*)(&socket_address(_ip.c_str(), _port).address());
+    }
 
-    bzero(&addr_, sizeof(addr_));
-    addr_ = *(struct sockaddr_in*)(&socket_address(_ip.c_str(), _port).address());
+    if (is_v6_ip_) {
+        xinfo2(TSF "ip %_ is V6", _ip);
+        fd_socket_ = socket(AF_INET6, SOCK_DGRAM, 0);
 
-    fd_socket_ = socket(AF_INET, SOCK_DGRAM, 0);
+    } else {
+        xinfo2(TSF "ip %_ is V4", _ip);
+        fd_socket_ = socket(AF_INET, SOCK_DGRAM, 0);
+    }
+
     if (fd_socket_ == INVALID_SOCKET) {
         errCode = socket_errno;
         xerror2(TSF "udp socket create error, error: %0", socket_strerror(errCode));
@@ -223,7 +247,13 @@ int UdpClient::__DoSelect(bool _bReadSet, bool _bWriteSet, void* _buf, size_t _l
     }
 
     if (selector_.Write_FD_ISSET(fd_socket_)) {
-        int ret = (int)sendto(fd_socket_, (const char*)_buf, _len, 0, (sockaddr*)&addr_, sizeof(sockaddr_in));
+        int ret = 0;
+        if (is_v6_ip_) {
+            ret = (int)sendto(fd_socket_, (const char*)_buf, _len, 0, (sockaddr*)&addr_v6_, sizeof(sockaddr_in6));
+        } else {
+            ret = (int)sendto(fd_socket_, (const char*)_buf, _len, 0, (sockaddr*)&addr_, sizeof(sockaddr_in));
+        }
+
         if (ret == -1) {
             _errno = socket_errno;
             xerror2(TSF "sendto error: %0", socket_strerror(_errno));
