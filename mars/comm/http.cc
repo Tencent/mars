@@ -799,7 +799,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                     return recvstatus_;
                 }
 
-                headerbuf_.Write(recvbuf_.Ptr(), firstlinelength);
                 // HTTP/1.1 4.7 Unauthorized\r\n\r\n
                 char* pos_2crlf = string_strnstr(pBuf, "\r\n\r\n", (int)recvbuf_.Length());
                 if (NULL != pos_2crlf && pos_2crlf == pos) {
@@ -841,7 +840,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                 }
 
                 recvstatus_ = kBody;
-                headerbuf_.Write(recvbuf_.Ptr(), headerslength);
                 recvbuf_.Move(-headerslength);
 
                 if (consumed_bytes) {
