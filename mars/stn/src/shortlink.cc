@@ -181,10 +181,11 @@ void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
 
 void ShortLink::__Run() {
     xmessage2_define(message, TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
-    xinfo_function(TSF "%_, net:%_", message.String(), getNetInfo());
+    xinfo_function(TSF "%_, net:%_, realtime:%_", message.String(), getNetInfo(), task_.need_realtime_netinfo);
 
     ConnectProfile conn_profile;
-    int type = getCurrNetLabel(conn_profile.net_type);
+    int type = task_.need_realtime_netinfo ? getRealtimeNetLabel(conn_profile.net_type)
+                                           : getCurrNetLabel(conn_profile.net_type);
     if (type == kMobile) {
         conn_profile.ispcode = strtoll(conn_profile.net_type.c_str(), nullptr, 10);
     }
@@ -345,10 +346,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         // ipv6 disabled, or ipv6 over ipv4 proxy.
         //.如果代理是v4地址，则需要把地址列表中的v6地址移除(一般来说v4无法代理v6流量).
         std::vector<socket_address> tempAddrs = vecaddr;
-        auto v4begin = std::stable_partition(tempAddrs.begin(), tempAddrs.end(), [](const socket_address& addr){
+        auto v4begin = std::stable_partition(tempAddrs.begin(), tempAddrs.end(), [](const socket_address& addr) {
             return addr.isv6();
         });
-        if (v4begin != tempAddrs.end()){
+        if (v4begin != tempAddrs.end()) {
             // has ipv4, copy ipv4 address only
             vecaddr.clear();
             std::copy(v4begin, tempAddrs.end(), std::back_inserter(vecaddr));
@@ -357,18 +358,18 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                    vecaddr.size());
         }
     }
-    
+
     //.如果代理是v4地址，则需要把地址列表中的v6地址移除(一般来说v4无法代理v6流量).
-    if (proxy_addr && proxy_addr->valid() && proxy_addr->isv4() && vecaddr.size() > 1){
-        for (auto it = vecaddr.begin(); it != vecaddr.end();){
-            if (it->isv6()){
+    if (proxy_addr && proxy_addr->valid() && proxy_addr->isv4() && vecaddr.size() > 1) {
+        for (auto it = vecaddr.begin(); it != vecaddr.end();) {
+            if (it->isv6()) {
                 it = vecaddr.erase(it);
-            }else{
+            } else {
                 it++;
             }
         }
     }
-    
+
     //
     _conn_profile.host = _conn_profile.ip_items[0].str_host;
     _conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
@@ -386,7 +387,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                   "must static or global function.");
     static_assert(!std::is_member_function_pointer<decltype(_conn_profile.issubstream_func)>::value,
                   "must static or global function.");
-    int type = getCurrNetLabel(_conn_profile.net_type);
+    int type = task_.need_realtime_netinfo ? getRealtimeNetLabel(_conn_profile.net_type)
+                                           : getCurrNetLabel(_conn_profile.net_type);
     if (type == kMobile) {
         _conn_profile.ispcode = strtoll(_conn_profile.net_type.c_str(), nullptr, 10);
     }
@@ -517,13 +519,14 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     //    so_linger.l_onoff = 1;
     //    so_linger.l_linger = 0;
 
-//    struct linger so_linger;
-//    so_linger.l_onoff = 1;
-//    so_linger.l_linger = 0;
+    //    struct linger so_linger;
+    //    so_linger.l_onoff = 1;
+    //    so_linger.l_linger = 0;
 
-//    xerror2_if(0 != setsockopt(sock, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger)), TSF"SO_LINGER %_(%_)", socket_errno, socket_strerror(socket_errno));
+    //    xerror2_if(0 != setsockopt(sock, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger)),
+    //    TSF"SO_LINGER %_(%_)", socket_errno, socket_strerror(socket_errno));
 
-    if (profile.index > 0 && vecaddr.front().isv6()){
+    if (profile.index > 0 && vecaddr.front().isv6()) {
         //.ipv6 connect failed.
         net_source_->DisableIPv6();
     }
@@ -664,6 +667,11 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
     xinfo2(TSF "rwtimeout %_, timeout.source %_, ", timeout, _conn_profile.quic_rw_timeout_source) >> group_close;
 
     _conn_profile.start_read_packet_time = ::gettickcount();
+    if (task_.need_realtime_netinfo) {
+        getRealtimeNetLabel(_conn_profile.net_type);
+    } else {
+        getCurrNetLabel(_conn_profile.net_type);
+    }
     while (true) {
         int recv_ret = socketOperator_->Recv(_socket, recv_buf, KBufferSize, _err_code, timeout);
         xinfo2(TSF "socketOperator_ Recv %_/%_", recv_ret, _err_code);
