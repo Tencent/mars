@@ -382,8 +382,10 @@ DWORD GetAdaptersAddressesWrapper(const ULONG Family,
     if (dwRetVal != NO_ERROR) {
         xerror2(TSF "Family:%_, Flags:%_, AdapterAddressesLen:%_, dwRetVal:%_, iter:%_",
             Family, Flags, AdapterAddressesLen, dwRetVal, iter);
-        free(pAdapterAddresses);
-        pAdapterAddresses = nullptr;
+	if (pAdapterAddresses) {
+            free(pAdapterAddresses);
+            pAdapterAddresses = nullptr;
+	}
     }
 
     return dwRetVal;
