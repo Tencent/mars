@@ -351,83 +351,115 @@ static void __local_info(std::string& _log) {
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 
-static bool GetWinV4GateWay() {
-    PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
-    ULONG outBufLen = 0;
+DWORD GetAdaptersAddressesWrapper(const ULONG Family, 
+                                  const ULONG Flags,
+                                  const PVOID Reserved,
+                                  _Out_ PIP_ADAPTER_ADDRESSES& pAdapterAddresses) {
     DWORD dwRetVal = 0;
-    char buff[100];
-    DWORD bufflen = 100;
+    int iter = 0;
+    constexpr int max_iter = 3;
+    ULONG AdapterAddressesLen = 15000;
+    do {
+        xassert2(pAdapterAddresses == nullptr);
+        pAdapterAddresses = (IP_ADAPTER_ADDRESSES*)malloc(AdapterAddressesLen);
+        if (pAdapterAddresses == nullptr) {
+            xerror2(TSF"can not malloc %_ bytes", AdapterAddressesLen);
+            return ERROR_OUTOFMEMORY;
+        }
+
+        dwRetVal = GetAdaptersAddresses(Family, Flags, NULL, pAdapterAddresses, &AdapterAddressesLen);
+
+        if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+            free(pAdapterAddresses);
+            pAdapterAddresses = nullptr;
+        } else {
+            break;
+        }
+
+        iter++;
+    } while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (iter < max_iter));
+
+    if (dwRetVal != NO_ERROR) {
+        xerror2(TSF "Family:%_, Flags:%_, AdapterAddressesLen:%_, dwRetVal:%_, iter:%_",
+            Family, Flags, AdapterAddressesLen, dwRetVal, iter);
+        free(pAdapterAddresses);
+        pAdapterAddresses = nullptr;
+    }
+
+    return dwRetVal;
+}
+
+static bool GetWinV4GateWay() {
+    constexpr int BUFF_LEN = 100;
+    char buff[BUFF_LEN] = {'\0'};
     bool result = false;
 
-    GetAdaptersAddresses(AF_UNSPEC, 0, NULL, pAddresses, &outBufLen);
+    PIP_ADAPTER_ADDRESSES pAdapterAddresses = nullptr;
+    DWORD dwRetVal =
+        GetAdaptersAddressesWrapper(AF_INET, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAdapterAddresses);
 
-    pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+    if (dwRetVal != NO_ERROR) {
+        xinfo2("ipv4 stack detect GetAdaptersAddresses failed.");
+        return false;
+    }
 
-    if ((dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen))
-        == NO_ERROR) {
-        PIP_ADAPTER_ADDRESSES pCurAddress = pAddresses;
-        while (pCurAddress) {
-            PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pCurAddress->FirstGatewayAddress;
-            if (gateway) {
-                SOCKET_ADDRESS gateway_address = gateway->Address;
-                if (gateway->Address.lpSockaddr->sa_family == AF_INET) {
-                    sockaddr_in* sa_in = (sockaddr_in*)gateway->Address.lpSockaddr;
-                    xinfo2(TSF "gateway IPV4: %_", socket_inet_ntop(AF_INET, &(sa_in->sin_addr), buff, bufflen));
-                    struct sockaddr_in addr;
-                    if (socket_inet_pton(AF_INET, buff, &addr.sin_addr) == 1) {
-                        xinfo2(TSF "this is true v4 !");
-                        result = true;
-                    }
+    PIP_ADAPTER_ADDRESSES pCurAddress = pAdapterAddresses;
+    while (pCurAddress) {
+        PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pCurAddress->FirstGatewayAddress;
+        if (gateway) {
+            SOCKET_ADDRESS gateway_address = gateway->Address;
+            if (gateway->Address.lpSockaddr->sa_family == AF_INET) {
+                sockaddr_in* sa_in = (sockaddr_in*)gateway->Address.lpSockaddr;
+                xinfo2(TSF "gateway IPV4: %_", socket_inet_ntop(AF_INET, &(sa_in->sin_addr), buff, BUFF_LEN));
+                struct sockaddr_in addr;
+                if (socket_inet_pton(AF_INET, buff, &addr.sin_addr) == 1) {
+                    xinfo2(TSF "this is true v4 !");
+                    result = true;
                 }
             }
-            pCurAddress = pCurAddress->Next;
         }
-    } else {
-        xinfo2("ipv4 stack detect GetAdaptersAddresses failed.");
+        pCurAddress = pCurAddress->Next;
     }
-    free(pAddresses);
+
+    free(pAdapterAddresses);
     return result;
 }
 
 static bool GetWinV6GateWay() {
-    PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
-    ULONG outBufLen = 0;
-    DWORD dwRetVal = 0;
-    char buff[100] = {'\0'};
-    DWORD bufflen = 100;
+    constexpr int BUFF_LEN = 100;
+    char buff[BUFF_LEN] = {'\0'};
     bool result = false;
+    PIP_ADAPTER_ADDRESSES pAdapterAddresses = nullptr;
+    DWORD dwRetVal =
+        GetAdaptersAddressesWrapper(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAdapterAddresses);
 
-    GetAdaptersAddresses(AF_UNSPEC, 0, NULL, pAddresses, &outBufLen);
+    if (dwRetVal != NO_ERROR) {
+        xinfo2("ipv6 stack detect GetAdaptersAddresses failed.");
+        return false;
+    }
 
-    pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
-
-    if ((dwRetVal = GetAdaptersAddresses(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAddresses, &outBufLen))
-        == NO_ERROR) {
-        PIP_ADAPTER_ADDRESSES pCurAddress = pAddresses;
-        while (pCurAddress) {
-            PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pCurAddress->FirstGatewayAddress;
-            if (gateway) {
-                SOCKET_ADDRESS gateway_address = gateway->Address;
-                if (gateway->Address.lpSockaddr->sa_family == AF_INET6) {
-                    sockaddr_in6* sa_in6 = (sockaddr_in6*)gateway->Address.lpSockaddr;
-                    xinfo2(TSF "gateway IPV6: %_", socket_inet_ntop(AF_INET6, &(sa_in6->sin6_addr), buff, bufflen));
-                    struct sockaddr_in6 addr6;
-                    if (socket_inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
-                        std::string v6_s(buff);
-                        if (v6_s == "::") {
-                            xwarn2("the v6 is fake!");
-                        } else {
-                            result = true;
-                        }
+    PIP_ADAPTER_ADDRESSES pCurAddress = pAdapterAddresses;
+    while (pCurAddress) {
+        PIP_ADAPTER_GATEWAY_ADDRESS_LH gateway = pCurAddress->FirstGatewayAddress;
+        if (gateway) {
+            SOCKET_ADDRESS gateway_address = gateway->Address;
+            if (gateway->Address.lpSockaddr->sa_family == AF_INET6) {
+                sockaddr_in6* sa_in6 = (sockaddr_in6*)gateway->Address.lpSockaddr;
+                xinfo2(TSF "gateway IPV6: %_", socket_inet_ntop(AF_INET6, &(sa_in6->sin6_addr), buff, BUFF_LEN));
+                struct sockaddr_in6 addr6;
+                if (socket_inet_pton(AF_INET6, buff, &addr6.sin6_addr) == 1) {
+                    std::string v6_s(buff);
+                    if (v6_s == "::") {
+                        xwarn2("the v6 is fake!");
+                    } else {
+                        result = true;
                     }
                 }
             }
-            pCurAddress = pCurAddress->Next;
         }
-    } else {
-        xinfo2("ipv6 stack detect GetAdaptersAddresses failed.");
+        pCurAddress = pCurAddress->Next;
     }
-    free(pAddresses);
+    free(pAdapterAddresses);
     return result;
 }
 
