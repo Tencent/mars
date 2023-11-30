@@ -59,6 +59,9 @@ int Context::Init() {
     if (!is_init_) {
         is_init_ = true;
     }
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnCreate();
+    }
     return 0;
 }
 
@@ -68,8 +71,55 @@ int Context::UnInit() {
         return -1;
     }
     is_init_ = false;
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnDestroy();
+    }
     return 0;
 }
+
+void Context::OnSingalCrash(int _sig) {
+    S_SCOPED_LOCK();
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnSingalCrash(_sig);
+    }
+}
+
+void Context::OnExceptionCrash() {
+    S_SCOPED_LOCK();
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnExceptionCrash();
+    }
+}
+
+void Context::OnForeground(bool _is_foreground) {
+    S_SCOPED_LOCK();
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnForeground(_is_foreground);
+    }
+}
+
+void Context::OnNetworkChange(void (*pre_change)()) {
+    S_SCOPED_LOCK();
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnNetworkChange(pre_change);
+    }
+}
+
+void Context::OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv) {
+    S_SCOPED_LOCK();
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnNetworkDataChange(_tag, _send, _recv);
+    }
+}
+
+#ifdef ANDROID
+void Context::OnAlarm(int64_t _id) {
+    S_SCOPED_LOCK();
+    for (std::map<std::string, void*>::iterator it = manager_map_.begin(); it != manager_map_.end(); ++it) {
+        ((BaseManager*)it->second)->OnAlarm(_id);
+    }
+}
+#endif
 
 void Context::SetContextId(const std::string& context_id) {
     context_id_ = context_id;

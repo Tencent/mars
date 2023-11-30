@@ -28,21 +28,21 @@ class StnManager : public mars::boot::BaseManager {
     explicit StnManager(mars::boot::Context* context);
     ~StnManager() override;
     std::string GetName() override;
+    void OnCreate() override;
+    void OnDestroy() override;
+    void OnSingalCrash(int _sig) override;
+    void OnExceptionCrash() override;
+    void OnNetworkChange(void (*pre_change)()) override;
+    void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) override;
+#ifdef ANDROID
+    void OnAlarm(int64_t _id) override;
+#endif
 
  private:
     mars::boot::Context* context_;
 
  public:
     void OnInitConfigBeforeOnCreate(const int _packer_encoder_version);
-    void OnCreate();
-    void OnDestroy();
-    void OnSingalCrash(int _sig);
-    void OnExceptionCrash();
-    void OnNetworkChange(void (*pre_change)());
-    void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv);
-#ifdef ANDROID
-    void OnAlarm(int64_t _id);
-#endif
 
  public:
     // 外部接口

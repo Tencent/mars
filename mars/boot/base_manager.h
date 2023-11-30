@@ -18,6 +18,17 @@ class BaseManager {
     virtual ~BaseManager() {
     }
     virtual std::string GetName() = 0;
+
+    virtual void OnCreate(){};
+    virtual void OnDestroy(){};
+    virtual void OnSingalCrash(int _sig){};
+    virtual void OnExceptionCrash(){};
+    virtual void OnForeground(bool _isforeground){};
+    virtual void OnNetworkChange(void (*pre_change)()){};
+    virtual void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv){};
+#ifdef ANDROID
+    virtual void OnAlarm(int64_t _id);
+#endif
 };
 }  // namespace boot
 }  // namespace mars

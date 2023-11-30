@@ -25,12 +25,6 @@ std::string SdtManager::GetName() {
     return typeid(SdtManager).name();
 }
 
-void SdtManager::Init() {
-}
-
-void SdtManager::UnInit() {
-}
-
 void SdtManager::OnCreate() {
 }
 
@@ -43,6 +37,7 @@ void SdtManager::OnDestroy() {
     if (callback_) {
         callback_ = nullptr;
     }
+    return 0;
 }
 
 void SdtManager::SetCallBack(Callback* const _callback) {

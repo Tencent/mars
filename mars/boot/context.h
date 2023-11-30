@@ -5,11 +5,11 @@
 #ifndef MMNET_BASE_CONTEXT_H
 #define MMNET_BASE_CONTEXT_H
 
+#include <atomic>
 #include <map>
 #include <mutex>
 #include <string>
 #include <vector>
-#include <atomic>
 
 #include "base_manager.h"
 
@@ -26,6 +26,14 @@ class Context {
  public:
     int Init();
     int UnInit();
+    void OnSingalCrash(int _sig);
+    void OnExceptionCrash();
+    void OnForeground(bool _is_foreground);
+    void OnNetworkChange(void (*pre_change)());
+    void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
+#ifdef ANDROID
+    void OnAlarm(int64_t _id);
+#endif
     void SetContextId(const std::string& context_id);
     const std::string& GetContextId();
 

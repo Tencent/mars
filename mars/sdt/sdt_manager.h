@@ -24,15 +24,11 @@ class SdtManager : public mars::boot::BaseManager {
     explicit SdtManager(mars::boot::Context* context);
     virtual ~SdtManager() override;
     std::string GetName() override;
-    void Init();
-    void UnInit();
+    void OnCreate() override;
+    void OnDestroy() override;
 
  private:
     mars::boot::Context* context_;
-
- public:
-    void OnCreate();
-    void OnDestroy();
 
  public:
     void SetCallBack(Callback* const callback);
