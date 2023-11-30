@@ -22,10 +22,13 @@
 
 #include <stdint.h>
 
+#include <string>
+
 namespace mars {
 namespace baseevent {
 void OnCreate();
 void OnInitBeforeOnCreate(int _encoder_status);
+void OnInitBeforeOnCreateV2(int _encoder_status, std::string _encoder_name);
 void OnDestroy();
 void OnSingalCrash(int _sig);
 void OnExceptionCrash();

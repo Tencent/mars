@@ -102,6 +102,14 @@ static void onInitConfigBeforeOnCreate(int _packer_encoder_version) {
     // xinfo2(TSF"mars2 onInitConfigBeforeOnCreate finish.");
 }
 
+static void onInitConfigBeforeOnCreateV2(int _packer_encoder_version, std::string _pack_encoder_name) {
+    StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
+    xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
+    if (stn_manager) {
+        stn_manager->OnInitConfigBeforeOnCreateV2(_packer_encoder_version, _pack_encoder_name);
+    }
+}
+
 static void onCreate() {
     /* mars2
 #if !UWP && !defined(WIN32)
@@ -213,6 +221,7 @@ static void __initbind_baseprjevent() {
 #endif
     GetSignalOnCreate().connect(&onCreate);
     GetSignalOnInitBeforeOnCreate().connect(boost::bind(&onInitConfigBeforeOnCreate, _1));
+    GetSignalOnInitBeforeOnCreateV2().connect(boost::bind(&onInitConfigBeforeOnCreateV2, _1, _2));
     GetSignalOnDestroy().connect(1, &onDestroy);  // low priority signal func
     GetSignalOnSingalCrash().connect(&onSingalCrash);
     GetSignalOnExceptionCrash().connect(&onExceptionCrash);
@@ -323,20 +332,23 @@ void (*Reset)() = []() {
     }
 };
 
-void (*ResetAndInitEncoderVersion)(int _packer_encoder_version) = [](int _packer_encoder_version) {
-    /* mars2
-        xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
-    LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
-        NetCore::Singleton::Release();
-        NetCore::Singleton::Instance();
-    */
-    xinfo2(TSF "mars2 Reset stn_logic ResetAndInitEncoderVersion");
-    StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
-    xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
-    if (stn_manager) {
-        stn_manager->ResetAndInitEncoderVersion(_packer_encoder_version);
-    }
-};
+void (*ResetAndInitEncoderVersion)(int _packer_encoder_version, std::string _packer_encoder_name) =
+    [](int _packer_encoder_version, std::string _packer_encoder_name) {
+        /* mars2
+            xinfo2(TSF "stn reset, encoder version: %_", _packer_encoder_version);
+        LongLinkEncoder::SetEncoderVersion(_packer_encoder_version);
+            NetCore::Singleton::Release();
+            NetCore::Singleton::Instance();
+        */
+        xinfo2(TSF "mars2 ResetAndInitEncoderVersion _packer_encoder_version:%_ _packer_encoder_hame:%_",
+               _packer_encoder_version,
+               _packer_encoder_name);
+        StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
+        xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
+        if (stn_manager) {
+            stn_manager->ResetAndInitEncoderVersion(_packer_encoder_version, _packer_encoder_name);
+        }
+    };
 
 void (*MakesureLonglinkConnected)() = []() {
     /* mars2
@@ -615,8 +627,15 @@ bool Req2Buf(uint32_t taskid,
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
-        return stn_manager
-            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host, client_sequence_id);
+        return stn_manager->Req2Buf(taskid,
+                                    user_context,
+                                    _user_id,
+                                    outbuffer,
+                                    extend,
+                                    error_code,
+                                    channel_select,
+                                    host,
+                                    client_sequence_id);
     }
     return false;
 }
@@ -628,13 +647,19 @@ int Buf2Resp(uint32_t taskid,
              const AutoBuffer& extend,
              int& error_code,
              const int channel_select,
-             unsigned short& server_sequence_id
-             ) {
+             unsigned short& server_sequence_id) {
     xdebug2(TSF "mars2 Buf2Resp");
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
-        return stn_manager->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select, server_sequence_id);
+        return stn_manager->Buf2Resp(taskid,
+                                     user_context,
+                                     _user_id,
+                                     inbuffer,
+                                     extend,
+                                     error_code,
+                                     channel_select,
+                                     server_sequence_id);
     }
     return 0;
 }

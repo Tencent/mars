@@ -20,10 +20,10 @@
 #ifndef STN_SRC_NET_CORE_H_
 #define STN_SRC_NET_CORE_H_
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/singleton.h"
@@ -127,6 +127,7 @@ class NetCore {
 
     std::shared_ptr<NetSource> GetNetSource();
     int GetPackerEncoderVersion();
+    std::string GetPackerEncoderName();
 
  public:
 #ifdef USE_LONG_LINK
@@ -143,7 +144,10 @@ class NetCore {
 #endif
 
  public:
-    NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link = true);
+    NetCore(boot::Context* _context,
+            int _packer_encoder_version,
+            std::string _packer_encoder_name = "",
+            bool _use_long_link = true);
     virtual ~NetCore();
     static void __Release(std::shared_ptr<NetCore> _instance);
     void ReleaseNet();
@@ -224,6 +228,7 @@ class NetCore {
 
  private:
     int packer_encoder_version_;
+    std::string packer_encoder_name_;
     bool need_use_longlink_;
     bool already_release_net_ = false;
     comm::MessageQueue::MessageQueueCreater messagequeue_creater_;

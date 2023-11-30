@@ -46,7 +46,6 @@ static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
 static const unsigned short kReservedSequenceIdStart = 0xFFFF;
 
-
 enum PackerEncoderVersion {
     kOld = 1,
     kNew = 2,
@@ -139,7 +138,7 @@ struct Task {
     std::string function;
     std::string cgi_prefix;
     HostRedirectType redirect_type;
-    unsigned short client_sequence_id;//用于与后台上报对应的sequence id.
+    unsigned short client_sequence_id;  //用于与后台上报对应的sequence id.
     unsigned short server_sequence_id;
 };
 
@@ -179,6 +178,7 @@ struct LonglinkConfig {
     bool isMain;
     int link_type = Task::kChannelLong;
     int packer_encoder_version = PackerEncoderVersion::kOld;
+    std::string packer_encoder_name = "";
     std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
     bool need_tls;
 };
