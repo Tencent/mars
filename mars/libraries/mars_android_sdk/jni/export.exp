@@ -32,6 +32,7 @@ global:
   
     JNI_OnLoad; 
     Java_com*;
+    Dart_*;
      
 local:
     _Z22appender_set_console_logb;

@@ -19,6 +19,7 @@
 
 #ifndef MARS_LOG_XLOGGER_INTERFACE_H_
 #define MARS_LOG_XLOGGER_INTERFACE_H_
+#define DART_EXPORT __attribute__((visibility("default"))) __attribute__((used))
 
 #include <stdint.h>
 
@@ -64,5 +65,9 @@ void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds);
 
 }  // namespace xlog
 }  // namespace mars
+
+extern "C" {
+    DART_EXPORT void Dart_XloggerWrite(uintptr_t _instance_ptr, int _level, const char* _tag, int _pid, int _tid, int _main_tid, const char* _log);
+}
 
 #endif  // MARS_LOG_XLOGGER_INTERFACE_H_

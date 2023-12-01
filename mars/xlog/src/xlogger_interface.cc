@@ -197,3 +197,19 @@ void SetMaxAliveTime(uintptr_t _instance_ptr, long _alive_seconds) {
 
 }  // namespace xlog
 }  // namespace mars
+
+extern "C" {
+DART_EXPORT void Dart_XloggerWrite(uintptr_t _instance_ptr, int _level, const char* _tag, int _pid, int _tid, int _main_tid, const char* _log) {
+    XLoggerInfo xlog_info;
+    gettimeofday(&xlog_info.timeval, nullptr);
+    xlog_info.level = (TLogLevel)_level;
+    xlog_info.pid = _pid;
+    xlog_info.tid = _tid;
+    xlog_info.maintid = _main_tid;
+    xlog_info.tag = _tag;
+    xlog_info.filename = "";
+    xlog_info.func_name = "";
+    xlog_info.line = 0;
+    mars::xlog::XloggerWrite(_instance_ptr, &xlog_info, _log);
+}
+}
