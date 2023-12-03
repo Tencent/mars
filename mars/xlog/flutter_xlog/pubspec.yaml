@@ -35,10 +35,12 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.tencent.xlog.flutter_xlog
-        pluginClass: FlutterXlogPlugin
+        package: com.tencent.xlog.flutter
+        pluginClass: FlutterXLogPlugin
+        ffiPlugin: true
       ios:
-        pluginClass: FlutterXlogPlugin
+        pluginClass: FlutterXLogPlugin
+        ffiPlugin: true
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

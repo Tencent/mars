@@ -38,6 +38,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        main.jniLibs.srcDirs += 'src/main/jniLibs'
     }
 
     defaultConfig {
@@ -49,6 +50,11 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+    }
+
+    packagingOptions {
+        pickFirst 'jniLibs/armeabi-v7a/libc++_shared.so'
+        pickFirst 'jniLibs/arm64-v8a/libc++_shared.so'
     }
 
     buildTypes {

@@ -1,3 +1,3 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.tencent.xlog.flutter_xlog">
+  package="com.tencent.xlog.flutter">
 </manifest>

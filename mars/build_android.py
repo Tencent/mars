@@ -41,6 +41,7 @@ ANDROID_SYMBOL_PATH = 'libraries/mars_android_sdk/obj/local/'
 ANDROID_LIBS_PATH = 'libraries/mars_android_sdk/libs/'
 ANDROID_XLOG_SYMBOL_PATH = 'libraries/mars_xlog_sdk/obj/local/'
 ANDROID_XLOG_LIBS_PATH = 'libraries/mars_xlog_sdk/libs/'
+ANDROID_FLUTTER_XLOG_LIBS_PATH = 'xlog/flutter_xlog/android/src/main/jniLibs/'
 
 
 ANDROID_STRIP_FILE = {
@@ -131,8 +132,19 @@ def build_android(incremental, arch, target_option=''):
     for f in glob.glob('%s/*.so' %(lib_path)):
         os.system('%s %s' %(strip_cmd, f))
 
+    if len(target_option) > 0:
+        flutter_lib_path = ANDROID_FLUTTER_XLOG_LIBS_PATH + arch
+        if os.path.exists(flutter_lib_path):
+            shutil.rmtree(flutter_lib_path)
+        os.mkdir(flutter_lib_path)
+        for f in glob.glob('%s/*.so' %(lib_path)):
+            shutil.copy(f, flutter_lib_path)
+
+
     print('==================Output========================')
     print('libs(release): %s' %(lib_path))
+    if len(target_option) > 0:
+        print('flutter_libs(release): %s' %(flutter_lib_path))
     print('symbols(must store permanently): %s' %(symbol_path))
 
 

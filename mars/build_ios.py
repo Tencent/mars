@@ -118,8 +118,12 @@ def build_ios_xlog(tag=''):
     dst_framework_path = INSTALL_PATH + '/mars.framework'
     make_static_framework(lipo_dst_lib, dst_framework_path, XLOG_COPY_HEADER_FILES, '../')
 
+    flutter_framework_path = 'xlog/flutter_xlog/ios/Frameworks/mars.framework'
+    make_static_framework(lipo_dst_lib, flutter_framework_path, XLOG_COPY_HEADER_FILES, '../')
+
     print('==================Output========================')
     print(dst_framework_path)
+    print(flutter_framework_path)
 
 
 
