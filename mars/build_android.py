@@ -136,7 +136,7 @@ def build_android(incremental, arch, target_option=''):
         flutter_lib_path = ANDROID_FLUTTER_XLOG_LIBS_PATH + arch
         if os.path.exists(flutter_lib_path):
             shutil.rmtree(flutter_lib_path)
-        os.mkdir(flutter_lib_path)
+        os.makedirs(flutter_lib_path)
         for f in glob.glob('%s/*.so' %(lib_path)):
             shutil.copy(f, flutter_lib_path)
 
