@@ -24,6 +24,7 @@
 #include "mars/comm/time_utils.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/thread/lock.h"
+#include "mars/comm/messagequeue/message_queue.h"
 
 using namespace mars::comm;
 
@@ -42,6 +43,7 @@ namespace mars{
         void OnDestroy()
         {
             GetSignalOnDestroy()();
+            MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::GetDefMessageQueue());
         }
         
         void OnSingalCrash(int _sig)
