@@ -50,7 +50,7 @@ public class Xlog implements Log.LogImp {
 		public int cachedays = 0;
 	}
 
-    public static void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
+    public void open(boolean isLoadLib, int level, int mode, String cacheDir, String logDir, String nameprefix, String pubkey) {
 		if (isLoadLib) {
 			System.loadLibrary("c++_shared");
 			System.loadLibrary("marsxlog");
@@ -160,7 +160,7 @@ public class Xlog implements Log.LogImp {
 	@Override
 	public native void setConsoleLogOpen(long logInstancePtr, boolean isOpen);	//set whether the console prints log
 
-	private static native void appenderOpen(XLogConfig logConfig);
+	public native void appenderOpen(XLogConfig logConfig);
 
 	@Override
 	public native void appenderClose();

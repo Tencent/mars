@@ -6,11 +6,11 @@
 #import <xlog-swift-bridge.h>
 
 @implementation XLogBridge
-- (void)open:(NSUInteger)level cacheDir:(NSString*)cacheDir logDir:(NSString*)logDir prefix:(NSString*)prefix cacheDays:(NSUInteger)cacheDays consoleLogOpen:(BOOL)consoleLogOpen {
+- (void)open:(NSUInteger)level cacheDir:(NSString*)cacheDir logDir:(NSString*)logDir prefix:(NSString*)prefix cacheDays:(NSUInteger)cacheDays pubKey:(NSString*)pubKey consoleLogOpen:(BOOL)consoleLogOpen {
     xlogger_SetLevel((TLogLevel)level);
     mars::xlog::appender_set_console_log(consoleLogOpen);
     mars::xlog::XLogConfig config;
-    config.pub_key_ = "";
+    config.pub_key_ = pubKey;
     config.mode_ = mars::xlog::kAppenderAsync;
     config.logdir_ = [logDir UTF8String];
     config.nameprefix_ = [prefix UTF8String];

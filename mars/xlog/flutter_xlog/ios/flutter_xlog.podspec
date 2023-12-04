@@ -5,13 +5,13 @@
 Pod::Spec.new do |s|
   s.name             = 'flutter_xlog'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'A plugin for use Mars XLog in flutter project..'
   s.description      = <<-DESC
-A new Flutter plugin project.
+A plugin for use Mars XLog in flutter project..
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/jqctop1/mars'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'jqctop1@qq.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.vendored_frameworks = "Frameworks/*.framework"

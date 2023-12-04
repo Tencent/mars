@@ -19,6 +19,7 @@ public class FlutterXLogPlugin: NSObject, FlutterPlugin {
         let namePrefix = params["namePrefix"] as! String;
         let cacheDays = params["cacheDays"] as! UInt;
         let consoleLogOpen = params["consoleLogOpen"] as! Bool;
+        let pubKey = params["pubKey"] as! String;
         bridge.open(level, cacheDir: cacheDir, logDir: logDir, prefix:namePrefix, cacheDays: cacheDays, consoleLogOpen: consoleLogOpen);
         result(nil);
     case "close":

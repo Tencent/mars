@@ -9,14 +9,15 @@ class FlutterXLogPlugin extends PlatformInterface {
 
   final methodChannel = const MethodChannel('flutter_xlog');
 
-  Future<void> open(int level, String cacheDir, String logDir, String namePrefix, int cacheDays, bool consoleLogOpen) {
+  Future<void> open(int level, String cacheDir, String logDir, String namePrefix, int cacheDays, bool consoleLogOpen, String pubKey) {
     return methodChannel.invokeMethod<void>('open', {
       'level': level,
       'cacheDir': cacheDir,
       'logDir': logDir,
       'namePrefix': namePrefix,
       'cacheDays': cacheDays,
-      'consoleLogOpen': consoleLogOpen
+      'consoleLogOpen': consoleLogOpen,
+      'pubKey': pubKey
     });
   }
 

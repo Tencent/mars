@@ -22,6 +22,7 @@ class XLogConfig {
   final String namePrefix;
   final int cacheDays;
   final bool consoleLogOpen;
+  final String pubKey;
 
   XLogConfig({
     this.level = LogLevel.INFO,
@@ -29,7 +30,8 @@ class XLogConfig {
     required this.logDir,
     this.namePrefix = 'mars_xlog',
     this.cacheDays = 0,
-    this.consoleLogOpen = false
+    this.consoleLogOpen = false,
+    this.pubKey = ''
   });
 }
 
@@ -45,7 +47,7 @@ class XLog {
       void Function(int instancePtr, int level, Pointer<Utf8> tag, int pid, int tid, int mainTid, Pointer<Utf8> log)>("Dart_XloggerWrite");
 
   static Future<void> open(XLogConfig config) async {
-      _xLogPlugin.open(config.level.index, config.cacheDir, config.logDir, config.namePrefix, config.cacheDays, config.consoleLogOpen);
+      _xLogPlugin.open(config.level.index, config.cacheDir, config.logDir, config.namePrefix, config.cacheDays, config.consoleLogOpen, config.pubKey);
   }
 
   static void v(String tag, String msg) {
