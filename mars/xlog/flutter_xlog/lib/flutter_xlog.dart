@@ -43,7 +43,7 @@ class XLog {
       ? DynamicLibrary.open('libmarsxlog.so')
       : DynamicLibrary.process();
 
-  static final _fun_write_log = _dylib.lookupFunction<Void Function(UintPtr, Int32, Pointer<Utf8>, Int32, Int32, Int32, Pointer<Utf8>),
+  static final _funWriteLog = _dylib.lookupFunction<Void Function(UintPtr, Int32, Pointer<Utf8>, Int32, Int32, Int32, Pointer<Utf8>),
       void Function(int instancePtr, int level, Pointer<Utf8> tag, int pid, int tid, int mainTid, Pointer<Utf8> log)>("Dart_XloggerWrite");
 
   static Future<void> open(XLogConfig config) async {
@@ -77,7 +77,7 @@ class XLog {
   static void _writeLog(LogLevel level, String tag, String msg) {
     final tagPtr = tag.toNativeUtf8();
     final msgPtr = '[${Isolate.current.debugName}] $msg'.toNativeUtf8();
-    _fun_write_log(0, level.index, tagPtr, pid, 0, 0, msgPtr);
+    _funWriteLog(0, level.index, tagPtr, pid, 0, 0, msgPtr);
     malloc.free(tagPtr);
     malloc.free(msgPtr);
   }
