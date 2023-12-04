@@ -63,6 +63,7 @@ Mutex g_net_mutex;
 // 把 platform 编译到相应 so 中时这个函数一定要被调用。不然缓存信息清除不了
 // 参看 stn_logic.cc
 void OnPlatformNetworkChange() {
+    xdebug_function();
 #ifdef ANDROID
     ScopedLock lock(g_net_mutex);
     g_NetInfo = 0;
