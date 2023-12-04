@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -43,7 +43,7 @@ static void __initbind_baseprjevent() {
 
 BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
-#define INACTIVE_TIMEOUT (10*60*1000) //ms
+#define INACTIVE_TIMEOUT (10 * 60 * 1000)  // ms
 
 #ifdef ANDROID
 static void onAlarm(int64_t id) {
@@ -54,15 +54,15 @@ static const int kAlarmType = 114;
 
 std::shared_ptr<ActiveLogic> ActiveLogic::inst_ = nullptr;
 std::shared_ptr<ActiveLogic> ActiveLogic::Instance() {
-	static Mutex mtx;
-	if(!inst_) {
-		ScopedLock lock(mtx);
-		if(!inst_) {
-			inst_ = std::make_shared<ActiveLogic>();
-		}
-	}
+    static Mutex mtx;
+    if (!inst_) {
+        ScopedLock lock(mtx);
+        if (!inst_) {
+            inst_ = std::make_shared<ActiveLogic>();
+        }
+    }
 
-	return inst_;
+    return inst_;
 }
 
 void ActiveLogic::Release() {
@@ -70,43 +70,46 @@ void ActiveLogic::Release() {
 }
 
 ActiveLogic::ActiveLogic()
-: isforeground_(false), isactive_(true)
+: isforeground_(false)
+, isactive_(true)
 , alarm_(boost::bind(&ActiveLogic::__OnInActive, this), false)
-, lastforegroundchangetime_(::gettickcount())
-{
-    xinfo_function(TSF"MQ:%_, this:%_", MessageQueue::GetDefMessageQueue(), this);
+, lastforegroundchangetime_(::gettickcount()) {
+    xinfo_function(TSF "MQ:%_, this:%_", MessageQueue::GetDefMessageQueue(), this);
 
 #ifdef __ANDROID__
     GetSignalOnAlarm().connect(&onAlarm);
     alarm_.SetType(kAlarmType);
 #endif
 #ifndef __APPLE__
-        if (!alarm_.Start(INACTIVE_TIMEOUT))
-       	{
-            xerror2(TSF"m_alarm.Start false");
-    	}
+    if (!alarm_.Start(INACTIVE_TIMEOUT)) {
+        xerror2(TSF "m_alarm.Start false");
+    }
 #endif
 }
 
-ActiveLogic::~ActiveLogic()
-{
+ActiveLogic::~ActiveLogic() {
     xinfo_function();
-	MessageQueue::CancelMessage(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()), (MessageQueue::MessageTitle_t)this);
-	MessageQueue::WaitForRunningLockEnd(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()));
+    if (MessageQueue::IsDefMessageQueueRunning()) {
+        MessageQueue::CancelMessage(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()),
+                                    (MessageQueue::MessageTitle_t)this);
+        MessageQueue::WaitForRunningLockEnd(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()));
+    }
 }
 
-void ActiveLogic::OnForeground(bool _isforeground)
-{
-	if (MessageQueue::GetDefMessageQueue()!=MessageQueue::CurrentThreadMessageQueue())
-	{
-        MessageQueue::AsyncInvoke(boost::bind(&ActiveLogic::OnForeground, this, _isforeground), (MessageQueue::MessageTitle_t)this, mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()), "ActiveLogic::OnForeground");
-		return;
-	}
+void ActiveLogic::OnForeground(bool _isforeground) {
+    if (MessageQueue::GetDefMessageQueue() != MessageQueue::CurrentThreadMessageQueue()) {
+        MessageQueue::AsyncInvoke(boost::bind(&ActiveLogic::OnForeground, this, _isforeground),
+                                  (MessageQueue::MessageTitle_t)this,
+                                  mq::DefAsyncInvokeHandler(mq::GetDefMessageQueue()),
+                                  "ActiveLogic::OnForeground");
+        return;
+    }
 
     xgroup2_define(group);
-    xinfo2(TSF"OnForeground:%0, change:%1, this:%2", _isforeground, _isforeground!=isforeground_, this) >> group;
+    xinfo2(TSF "OnForeground:%0, change:%1, this:%2", _isforeground, _isforeground != isforeground_, this) >> group;
 
-    if (_isforeground == isforeground_) return;
+    if (_isforeground == isforeground_)
+        return;
 
     bool oldisactive = isactive_;
     isactive_ = true;
@@ -114,56 +117,49 @@ void ActiveLogic::OnForeground(bool _isforeground)
     lastforegroundchangetime_ = ::gettickcount();
     alarm_.Cancel();
 
-    if (!isforeground_)
-    {
+    if (!isforeground_) {
 #ifndef __APPLE__
-        if (!alarm_.Start(INACTIVE_TIMEOUT))
-       	{
-            xerror2(TSF"m_alarm.Start false") >> group;
-    	}
+        if (!alarm_.Start(INACTIVE_TIMEOUT)) {
+            xerror2(TSF "m_alarm.Start false") >> group;
+        }
 #endif
     }
 
-    bool isnotify = oldisactive!=isactive_;
+    bool isnotify = oldisactive != isactive_;
     SignalForeground(isforeground_);
 
-    if (isnotify)
-    {
-    	xinfo2(TSF"active change:%0", isactive_) >> group;
-    	SignalActive(isactive_);
+    if (isnotify) {
+        xinfo2(TSF "active change:%0", isactive_) >> group;
+        SignalActive(isactive_);
     }
 }
 
-bool ActiveLogic::IsActive() const
-{
+bool ActiveLogic::IsActive() const {
     return isactive_;
 }
 
-bool ActiveLogic::IsForeground() const
-{
-	return isforeground_;
+bool ActiveLogic::IsForeground() const {
+    return isforeground_;
 }
 
-uint64_t ActiveLogic::LastForegroundChangeTime() const
-{
-	return lastforegroundchangetime_;
+uint64_t ActiveLogic::LastForegroundChangeTime() const {
+    return lastforegroundchangetime_;
 }
 
-void ActiveLogic::__OnInActive()
-{
+void ActiveLogic::__OnInActive() {
     xdebug_function();
-    if (!isforeground_) isactive_ = false;
+    if (!isforeground_)
+        isactive_ = false;
 
-    bool  isactive = isactive_;
-    xinfo2(TSF"active change:%0", isactive_);
+    bool isactive = isactive_;
+    xinfo2(TSF "active change:%0", isactive_);
     SignalActive(isactive);
 }
-
 
 void ActiveLogic::SwitchActiveStateForDebug(bool _active) {
     isactive_ = _active;
     __OnInActive();
 }
 
-}
-}
+}  // namespace comm
+}  // namespace mars
