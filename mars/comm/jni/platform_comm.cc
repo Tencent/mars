@@ -63,6 +63,7 @@ Mutex g_net_mutex;
 // 把 platform 编译到相应 so 中时这个函数一定要被调用。不然缓存信息清除不了
 // 参看 stn_logic.cc
 void OnPlatformNetworkChange() {
+    xdebug_function();
 #ifdef ANDROID
     ScopedLock lock(g_net_mutex);
     g_NetInfo = 0;
@@ -232,14 +233,14 @@ DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getNetInfo, KPlatformCommC2Java, "
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getNetInfo)
 #endif
-int getNetInfo() {
+int getNetInfo(bool realtime /*=false*/) {
     xverbose_function();
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(getNetInfo(), -1);
 #endif
 
     // 防止获取的信息不准确，切换网络后延迟 1min 再使用缓存信息，1min 这个值没什么讲究主要是做个延迟。
-    if (g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
+    if (!realtime && g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
         return g_NetInfo;
     }
 
@@ -398,19 +399,19 @@ DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo,
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo)
 #endif
-bool getCurSIMInfo(SIMInfo& simInfo) {
+bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
     xverbose_function();
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(getCurSIMInfo(simInfo), false);
 #endif
 
-    if (!g_sim_info.isp_code.empty()) {
+    if (!realtime && !g_sim_info.isp_code.empty()) {
         simInfo = g_sim_info;
         return true;
     }
 
     if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurSIMInfo, boost::ref(simInfo)));
+        return coroutine::MessageInvoke(boost::bind(&getCurSIMInfo, boost::ref(simInfo), realtime));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());

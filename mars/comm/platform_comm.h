@@ -38,7 +38,7 @@ enum NetType { kNoNet = -1, kWifi = 1, kMobile = 2, kOtherNet = 3 };
 
 void OnPlatformNetworkChange();
 
-int getNetInfo();
+int getNetInfo(bool realtime = false);
 
 enum class NetTypeForStatistics {
     NETTYPE_NON = -1,
@@ -65,7 +65,7 @@ struct SIMInfo {
     std::string isp_code;
     std::string isp_name;
 };
-bool getCurSIMInfo(SIMInfo& _sim_info);
+bool getCurSIMInfo(SIMInfo& _sim_info, bool realtime = false);
 
 struct APNInfo {
     APNInfo() : nettype(kNoNet - 1), sub_nettype(0), extra_info("") {
@@ -227,51 +227,33 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
 void ResetWiFiIdCallBack();
 
-inline int getCurrNetLabel(std::string& netInfo) {
+inline int getCurrNetLabelImpl(std::string& netInfo, bool realtime) {
     netInfo = "defalut";
-    int netId = getNetInfo();
-
-    if (netId == kNoNet) {
-        netInfo = "";
-        return netId;
-    }
-
-    switch (netId) {
+    int nettype = getNetInfo(realtime);
+    switch (nettype) {
         case kWifi: {
-            WifiInfo wifiInfo;
-
-            if (getCurWifiInfo(wifiInfo)) {
-                netInfo = wifiInfo.ssid.empty() ? "empty_ssid" : wifiInfo.ssid;
-            } else {
-                netInfo = "no_ssid_wifi";
-            }
-
-            break;
-        }
+            WifiInfo info;
+            getCurWifiInfo(info, realtime);
+            netInfo = "wifi_" + info.ssid;
+        } break;
 
         case kMobile: {
-            SIMInfo simInfo;
-
-            if (getCurSIMInfo(simInfo)) {
-                netInfo = simInfo.isp_code.empty() ? "empty_ispCode" : simInfo.isp_code;
-            } else {
-                netInfo = "no_ispCode_mobile";
-            }
-
+            SIMInfo info;
+            getCurSIMInfo(info, realtime);
+            netInfo = "mobile_" + info.isp_name + "_" + info.isp_code;
+        } break;
+        default:
             break;
-        }
-
-        case kOtherNet: {
-            netInfo = "other";
-            break;
-        }
-
-        default: {
-            break;
-        }
     }
+    return nettype;
+}
 
-    return netId;
+inline int getCurrNetLabel(std::string& netInfo) {
+    return getCurrNetLabelImpl(netInfo, false);
+}
+
+inline int getRealtimeNetLabel(std::string& netInfo) {
+    return getCurrNetLabelImpl(netInfo, true);
 }
 
 #ifdef __APPLE__

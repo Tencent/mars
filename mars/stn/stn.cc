@@ -63,6 +63,8 @@ Task::Task(uint32_t _taskid) {
 
     client_sequence_id = 0;
     server_sequence_id = 0;
+
+    need_realtime_netinfo = false;
 }
 
 /* mars2

@@ -286,6 +286,7 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid,
     jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt", "J");
     jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType", "I");
     jfieldID fid_protocolType = env->GetFieldID(cgiProfileCls, "protocolType", "I");
+    jfieldID fid_netType = env->GetFieldID(cgiProfileCls, "netType", "Ljava/lang/String;");
 
     uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
     env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
@@ -299,6 +300,8 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid,
     env->SetLongField(jobj_cgiItem, fid_rtt, _profile.rtt);
     env->SetIntField(jobj_cgiItem, fid_channelType, _profile.channel_type);
     env->SetIntField(jobj_cgiItem, fid_protocolType, _profile.transport_protocol);
+    env->SetObjectField(jobj_cgiItem, fid_netType, ScopedJstring(env, _profile.nettype.c_str()).GetJstr());
+
     int ret = (int)JNU_CallMethodByMethodInfo(env,
                                               callback_inst_,
                                               KC2Java_onTaskEnd,
