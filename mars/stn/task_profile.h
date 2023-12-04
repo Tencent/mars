@@ -230,6 +230,7 @@ struct ConnectProfile {
     uint64_t retrans_byte_count;
     int channel_type;
     int rtt_by_socket;
+    std::string netlabel;
 
     //
     uint64_t begin_connect_timestamp_ms;
