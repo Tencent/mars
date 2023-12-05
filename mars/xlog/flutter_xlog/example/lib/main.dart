@@ -33,16 +33,22 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     XLog.i("MyApp", "build _MyAppState");
-    compute((message) => {
-      XLog.i("MyApp", "$message in Isolate")
+    compute((message) {
+      XLog.i("MyApp", "$message in Isolate");
     }, "compute in build");
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: const Text('FlutterXLog example app'),
         ),
-        body: Center (
-            child: Text('Cached XLog in $cacheDir \nWrite XLog to $logDir \n')
+        body: Column (
+            children: [
+              Text('Cached XLog in $cacheDir \nWrite XLog to $logDir \n'),
+              TextButton(onPressed: () {
+                XLog.i("MyApp", "click");
+                XLog.close();
+              }, child: const Text('close XLog'))
+            ]
         ),
       ),
     );

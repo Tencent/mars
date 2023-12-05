@@ -2,6 +2,9 @@ import Flutter
 import UIKit
 
 public class FlutterXLogPlugin: NSObject, FlutterPlugin {
+
+  var bridge = XLogBridge();
+
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "flutter_xlog", binaryMessenger: registrar.messenger())
     let instance = FlutterXLogPlugin()
@@ -11,7 +14,6 @@ public class FlutterXLogPlugin: NSObject, FlutterPlugin {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "open":
-        var bridge = XLogBridge();
         let params = call.arguments as! [String:Any];
         let level = params["level"] as! UInt;
         let cacheDir = params["cacheDir"] as! String;
@@ -20,10 +22,10 @@ public class FlutterXLogPlugin: NSObject, FlutterPlugin {
         let cacheDays = params["cacheDays"] as! UInt;
         let consoleLogOpen = params["consoleLogOpen"] as! Bool;
         let pubKey = params["pubKey"] as! String;
-        bridge.open(level, cacheDir: cacheDir, logDir: logDir, prefix:namePrefix, cacheDays: cacheDays, consoleLogOpen: consoleLogOpen);
+        bridge.open(level, cacheDir: cacheDir, logDir: logDir, prefix: namePrefix, cacheDays: cacheDays, pubKey: pubKey, consoleLogOpen: consoleLogOpen);
         result(nil);
     case "close":
-        result(nil);
+        bridge.close();
     default:
         result(FlutterMethodNotImplemented)
     }

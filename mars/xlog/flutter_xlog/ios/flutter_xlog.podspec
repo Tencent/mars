@@ -11,7 +11,7 @@ A plugin for use Mars XLog in flutter project..
                        DESC
   s.homepage         = 'https://github.com/jqctop1/mars'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'jqctop1@qq.com' }
+  s.author           = { '' => 'jqctop1@qq.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.vendored_frameworks = "Frameworks/*.framework"

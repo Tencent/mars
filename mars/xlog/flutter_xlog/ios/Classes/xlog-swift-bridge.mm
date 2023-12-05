@@ -10,7 +10,7 @@
     xlogger_SetLevel((TLogLevel)level);
     mars::xlog::appender_set_console_log(consoleLogOpen);
     mars::xlog::XLogConfig config;
-    config.pub_key_ = pubKey;
+    config.pub_key_ = [pubKey UTF8String];
     config.mode_ = mars::xlog::kAppenderAsync;
     config.logdir_ = [logDir UTF8String];
     config.nameprefix_ = [prefix UTF8String];
