@@ -55,7 +55,7 @@ mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
     }
 
     if (slproxycount_ < 3 || 5 * 1000 > gettickspan(slproxytimetick_)) {
-        std::thread([=](){
+        std::thread([=]() {
             AppManager::GetProxyInfo(_host, slproxytimetick_);
         }).detach();
     }
@@ -109,14 +109,27 @@ unsigned int AppManager::GetClientVersion() {
 
 DeviceInfo AppManager::GetDeviceInfo() {
     xassert2(callback_ != NULL);
-
-    DeviceInfo device_info;
-    if (!device_info.devicename.empty() || !device_info.devicetype.empty()) {
-        return device_info;
+    if (callback_) {
+        return callback_->GetDeviceInfo();
     }
 
-    device_info = callback_->GetDeviceInfo();
-    return device_info;
+    DeviceInfo empty;
+    empty.devicename = "DEFAULT";
+    empty.devicetype = "UNKNOWN";
+
+#ifdef ANDROID
+    empty.devicetype = "ANDROID";
+#elif defined(__WIN32__)
+    empty.devicetype = "WINDOWS";
+#elif defined(__APPLE__)
+#if TARGET_OS_IPHONE
+    empty.devicetype = "IPHONE";
+#else
+    empty.devicetype = "APPLE";
+#endif
+#endif
+
+    return empty;
 }
 
 void AppManager::GetProxyInfo(const std::string& _host, uint64_t _timetick) {
