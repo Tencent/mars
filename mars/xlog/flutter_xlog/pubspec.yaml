@@ -1,7 +1,7 @@
 name: flutter_xlog
 description: "A plugin for use Mars XLog in flutter project."
 version: 0.0.1
-homepage: https://github.com/jqctop1/mars/tree/master/mars/xlog/flutter_xlog
+repository: https://github.com/jqctop1/mars/tree/master/mars/xlog/flutter_xlog
 
 environment:
   sdk: '>=3.2.1 <4.0.0'
