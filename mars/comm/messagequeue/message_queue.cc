@@ -30,6 +30,7 @@
 #include "boost/bind.hpp"
 #include "comm/anr.h"
 #include "comm/bootrun.h"
+#include "comm/macro.h"
 #include "comm/messagequeue/message_queue.h"
 #include "comm/thread/lock.h"
 #include "comm/time_utils.h"
@@ -1147,9 +1148,10 @@ void MessageQueueCreater::__ThreadNewRunloop(SpinLock* _sp) {
     RunLoop().Run();
 }
 
+NO_DESTROY Mutex sg_defmessagequeue_mutex;
 static MessageQueueCreater* sg_defmessagequeue = nullptr;
 MessageQueue_t GetDefMessageQueue() {
-    ScopedLock lock(sg_messagequeue_map_mutex);
+    ScopedLock lock(sg_defmessagequeue_mutex);
     if (!sg_defmessagequeue) {
         sg_defmessagequeue = new MessageQueueCreater;
         return sg_defmessagequeue->CreateMessageQueue();
@@ -1159,7 +1161,7 @@ MessageQueue_t GetDefMessageQueue() {
 }
 
 void ReleaseDefMessageQueue() {
-    ScopedLock lock(sg_messagequeue_map_mutex);
+    ScopedLock lock(sg_defmessagequeue_mutex);
     if (sg_defmessagequeue != nullptr) {
         sg_defmessagequeue->CancelAndWait();
         sg_defmessagequeue = nullptr;
@@ -1167,8 +1169,8 @@ void ReleaseDefMessageQueue() {
 }
 
 bool IsDefMessageQueueRunning() {
-    ScopedLock lock(sg_messagequeue_map_mutex);
-    return sg_defmessagequeue != nullptr;
+    ScopedLock lock(sg_defmessagequeue_mutex);
+    return sg_defmessagequeue != nullptr && sg_defmessagequeue->GetMessageQueue() != KInvalidQueueID;
 }
 
 MessageQueue_t GetDefTaskQueue() {
