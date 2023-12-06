@@ -1,15 +1,11 @@
 name: flutter_xlog
 description: "A plugin for use Mars XLog in flutter project."
-version: 0.0.2-dev
+version: 0.0.5-dev
 repository: https://github.com/jqctop1/mars/tree/master/mars/xlog/flutter_xlog
 
 environment:
   sdk: '>=3.2.1 <4.0.0'
   flutter: '>=3.3.0'
-
-platforms:
-  android:
-  ios:
 
 dependencies:
   flutter:
@@ -42,10 +38,8 @@ flutter:
       android:
         package: com.tencent.xlog.flutter
         pluginClass: FlutterXLogPlugin
-        ffiPlugin: true
       ios:
         pluginClass: FlutterXLogPlugin
-        ffiPlugin: true
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

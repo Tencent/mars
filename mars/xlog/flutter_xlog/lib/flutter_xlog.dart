@@ -3,7 +3,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:ffi/ffi.dart';
-import 'flutter_xlog_plugin.dart';
+import 'package:flutter/services.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 enum LogLevel {
   VERBOSE,
@@ -37,7 +38,7 @@ class XLogConfig {
 
 class XLog {
 
-  static final FlutterXLogPlugin _xLogPlugin = FlutterXLogPlugin();
+  static final _FlutterXLogPlugin _xLogPlugin = _FlutterXLogPlugin();
 
   static final DynamicLibrary _dylib = Platform.isAndroid
       ? DynamicLibrary.open('libmarsxlog.so')
@@ -82,3 +83,30 @@ class XLog {
     malloc.free(msgPtr);
   }
 }
+
+class _FlutterXLogPlugin extends PlatformInterface {
+
+  _FlutterXLogPlugin() : super(token: _token);
+
+  static final Object _token = Object();
+
+  final methodChannel = const MethodChannel('flutter_xlog');
+
+  Future<void> open(int level, String cacheDir, String logDir, String namePrefix, int cacheDays, bool consoleLogOpen, String pubKey) {
+    return methodChannel.invokeMethod<void>('open', {
+      'level': level,
+      'cacheDir': cacheDir,
+      'logDir': logDir,
+      'namePrefix': namePrefix,
+      'cacheDays': cacheDays,
+      'consoleLogOpen': consoleLogOpen,
+      'pubKey': pubKey
+    });
+  }
+
+  Future<void> close() {
+    return methodChannel.invokeMethod<void>('close');
+  }
+
+}
+

@@ -1,3 +1,3 @@
-## 0.0.1-dev
+## 0.0.*-dev
 
-* Support to use Mars XLog in flutter project.
+* [Developing] Support to use Mars XLog in flutter project.
