@@ -1,6 +1,6 @@
 name: flutter_xlog
 description: "A plugin for use Mars-XLog in flutter project. Marx-XLog is a reliable and cross-platform component for record log into file."
-version: 0.0.7-dev
+version: 0.1.0
 repository: https://github.com/jqctop1/mars/tree/master/mars/xlog/flutter_xlog
 
 environment:
