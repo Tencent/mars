@@ -249,6 +249,7 @@ def is_different_file(file1: str, file2: str) -> bool:
     return md51 != md52
 
 
+# dst是文件的路径，不是文件所在的文件夹的路径
 def copy_file(src, dst):
     assert os.path.isfile(src), src
 
