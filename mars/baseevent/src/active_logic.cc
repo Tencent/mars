@@ -17,18 +17,17 @@
  *      Author: yerungui
  */
 
-#include "boost/bind.hpp"
-
 #include "mars/baseevent/active_logic.h"
+
+#include "boost/bind.hpp"
 #include "mars/baseevent/baseprjevent.h"
-#include "mars/comm/singleton.h"
-#include "mars/comm/xlogger/xlogger.h"
-#include "mars/comm/thread/lock.h"
-#include "mars/comm/time_utils.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/messagequeue/message_queue.h"
-
+#include "mars/comm/singleton.h"
+#include "mars/comm/thread/lock.h"
 #include "mars/comm/thread/mutex.h"
+#include "mars/comm/time_utils.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 namespace mars {
 namespace comm {
@@ -89,11 +88,7 @@ ActiveLogic::ActiveLogic()
 
 ActiveLogic::~ActiveLogic() {
     xinfo_function();
-    if (MessageQueue::IsDefMessageQueueRunning()) {
-        MessageQueue::CancelMessage(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()),
-                                    (MessageQueue::MessageTitle_t)this);
-        MessageQueue::WaitForRunningLockEnd(MessageQueue::DefAsyncInvokeHandler(MessageQueue::GetDefMessageQueue()));
-    }
+    MessageQueue::ReleaseDefMessageQueue();
 }
 
 void ActiveLogic::OnForeground(bool _isforeground) {
