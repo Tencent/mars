@@ -15,9 +15,9 @@
  * author : yerungui
  */
 #include "comm/platform_comm.h"
+#import <CoreFoundation/CFData.h>
 #import <CoreLocation/CoreLocation.h>
 #import <Foundation/Foundation.h>
-#import <CoreFoundation/CFData.h>
 #import <Security/SecCertificate.h>
 #import <Security/SecPolicy.h>
 #import <Security/SecTrust.h>
@@ -274,37 +274,37 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
     wifiInfo.ssid = SIMULATOR_NET_INFO;
     wifiInfo.bssid = SIMULATOR_NET_INFO;
     return true;
-//#elif !TARGET_OS_IPHONE
+// #elif !TARGET_OS_IPHONE
 //
-//    NO_DESTROY static mars::comm::Mutex mutex;
-//    mars::comm::ScopedLock lock(mutex);
+//     NO_DESTROY static mars::comm::Mutex mutex;
+//     mars::comm::ScopedLock lock(mutex);
 //
-//    static float version = 0.0;
+//     static float version = 0.0;
 //
-//    CWInterface* info = nil;
+//     CWInterface* info = nil;
 //
-//    if (version < 0.1) {
-//        version = __GetSystemVersion();
-//    }
+//     if (version < 0.1) {
+//         version = __GetSystemVersion();
+//     }
 //
-//    if (version < 10.10) {
-//        static CWInterface* s_info = [[CWInterface interface] retain];
-//        info = s_info;
-//    } else {
-//        CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
-//        if (nil != wificlient) info = [wificlient interface];
-//    }
+//     if (version < 10.10) {
+//         static CWInterface* s_info = [[CWInterface interface] retain];
+//         info = s_info;
+//     } else {
+//         CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
+//         if (nil != wificlient) info = [wificlient interface];
+//     }
 //
-//    if (nil == info) return false;
-//    if (info.ssid != nil) {
-//        const char* ssid = [info.ssid UTF8String];
-//        if (NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
-//        // wifiInfo.bssid = [info.bssid UTF8String];
-//    } else {
-//        wifiInfo.ssid = USE_WIRED;
-//        wifiInfo.bssid = USE_WIRED;
-//    }
-//    return true;
+//     if (nil == info) return false;
+//     if (info.ssid != nil) {
+//         const char* ssid = [info.ssid UTF8String];
+//         if (NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
+//         // wifiInfo.bssid = [info.bssid UTF8String];
+//     } else {
+//         wifiInfo.ssid = USE_WIRED;
+//         wifiInfo.bssid = USE_WIRED;
+//     }
+//     return true;
 //
 #elif TARGET_OS_WATCH
     wifiInfo.ssid = IWATCH_NET_INFO;
@@ -331,19 +331,19 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
         return false;
     }
     wifi_id_lock.unlock();
-    
+
 #if TARGET_OS_IPHONE
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
         return false;
     }
 #endif
-    
+
     mars::comm::ScopedLock lock(sg_wifiinfo_mutex);
     if (__WiFiInfoIsValid(sg_wifiinfo) && !_force_refresh) {
         wifiInfo = sg_wifiinfo;
         return true;
     }
-    
+
     wifi_id_lock.lock();
     // g_new_wifi_id_cb表示来自微信的调用, 而非外部开源调用，只有微信会设置g_new_wifi_id_cb
     // 为了减少定位图片的出现次数:
@@ -356,7 +356,7 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
     }
     wifi_id_lock.unlock();
     lock.unlock();
-    
+
 #if TARGET_OS_IPHONE
     NSArray* ifs = nil;
     @synchronized(@"CNCopySupportedInterfaces") {
@@ -365,31 +365,31 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
     if (ifs == nil) {
         return false;
     }
-    
+
     id info = nil;
     for (NSString* ifnam in ifs) {
         info = (id)CNCopyCurrentNetworkInfo((CFStringRef)ifnam);
         if (info && [info count] && info[@"SSID"]) {
             break;
         }
-        
+
         if (nil != info) {
             CFRelease(info);
             info = nil;
         }
     }
-    
+
     if (info == nil) {
         CFRelease(ifs);
         return false;
     }
-    
+
     const char* ssid_cstr = [[info objectForKey:@"SSID"] UTF8String];
     const char* bssid_cstr = [[info objectForKey:@"BSSID"] UTF8String];
     if (NULL != ssid_cstr) {
         wifiInfo.ssid = ssid_cstr;
     }
-    
+
     if (NULL != bssid_cstr) {
         wifiInfo.bssid = bssid_cstr;
     }
@@ -397,26 +397,26 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
     CFRelease(ifs);
 #else
     CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
-    if (wificlient == nil){
+    if (wificlient == nil) {
         return false;
     }
     CWInterface* info = [wificlient interface];
-    if (info == nil){
+    if (info == nil) {
         return false;
     }
-    
+
     wifiInfo.ssid = USE_WIRED;
     wifiInfo.bssid = USE_WIRED;
-    
+
     if (info.ssid != nil) {
         const char* ssid = [info.ssid UTF8String];
-        if (NULL != ssid){
+        if (NULL != ssid) {
             wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
         }
     }
-    if (info.bssid != nil){
+    if (info.bssid != nil) {
         const char* bssid = [info.bssid UTF8String];
-        if (NULL != bssid){
+        if (NULL != bssid) {
             wifiInfo.bssid.assign(bssid, strnlen(bssid, 32));
         }
     }
@@ -532,16 +532,31 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) { return fal
 #endif
 
 static void ReleaseSecData(const void* secdata, void*) {
-    CFRelease(secdata);
+    if (secdata != NULL) {
+        CFRelease(secdata);
+    }
 }
-int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain){
-    CFMutableArrayRef certlist = CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
+int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain) {
+    SCOPE_POOL();
+    xinfo2(TSF "host %_ chain %_", hostname, certschain.size());
+    if (certschain.empty()) {
+        return -1;
+    }
+
+    CFMutableArrayRef certlist =
+        CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
     for (int i = 0; i < certschain.size(); i++) {
-        CFDataRef dataref = CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
-                                                        (const uint8_t*)certschain[i].data(),
-                                                        certschain[i].size(),
-                                                        kCFAllocatorNull);
-        CFArrayAppendValue(certlist, SecCertificateCreateWithData(nullptr, dataref));
+        CFDataRef dataref =
+            CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, (const uint8_t*)certschain[i].data(),
+                                        certschain[i].size(), kCFAllocatorNull);
+        SecCertificateRef secref = SecCertificateCreateWithData(nullptr, dataref);
+        if (secref == NULL) {
+            CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)),
+                                 ReleaseSecData, nullptr);
+            xerror2(TSF "SecCertificateCreateWithData failed, size %_", certschain[i].size());
+            return -1;
+        }
+        CFArrayAppendValue(certlist, secref);
     }
 
     CFStringRef label = CFStringCreateWithCString(NULL, hostname.c_str(), kCFStringEncodingUTF8);
@@ -551,7 +566,8 @@ int OSVerifyCertificate(const std::string& hostname, const std::vector<std::stri
     SecTrustRef trustref;
     OSStatus status = SecTrustCreateWithCertificates(certlist, policy, &trustref);
     if (0 != status) {
-        CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData, nullptr);
+        CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData,
+                             nullptr);
         CFRelease(certlist);
         CFRelease(policy);
         return -1;
@@ -559,7 +575,8 @@ int OSVerifyCertificate(const std::string& hostname, const std::vector<std::stri
 
     SecTrustResultType result = kSecTrustResultInvalid;
     status = SecTrustEvaluate(trustref, &result);
-    CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData, nullptr);
+    CFArrayApplyFunction(certlist, CFRangeMake(0, CFArrayGetCount(certlist)), ReleaseSecData,
+                         nullptr);
     CFRelease(certlist);
     CFRelease(policy);
     CFRelease(trustref);
