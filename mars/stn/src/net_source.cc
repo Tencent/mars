@@ -631,7 +631,7 @@ void NetSource::DisableIPv6(){
 
 bool NetSource::CanUseIPv6(){
 	ScopedLock lock(sg_ip_mutex);
-	return sg_ipv6_enabled;
+	return true;
 }
 
 unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {
