@@ -341,6 +341,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         return INVALID_SOCKET;
     }
 
+#ifdef _WIN32
     //.need remove ipv6 address?.
     if (!net_source_->CanUseIPv6() || (proxy_addr && proxy_addr->valid() && proxy_addr->isv4())) {
         // ipv6 disabled, or ipv6 over ipv4 proxy.
@@ -369,6 +370,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             }
         }
     }
+#endif
 
     //
     _conn_profile.host = _conn_profile.ip_items[0].str_host;
@@ -525,11 +527,13 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     //    xerror2_if(0 != setsockopt(sock, SOL_SOCKET, SO_LINGER, (const char*)&so_linger, sizeof(so_linger)),
     //    TSF"SO_LINGER %_(%_)", socket_errno, socket_strerror(socket_errno));
-
+#ifdef _WIN32
     if (profile.index > 0 && vecaddr.front().isv6()) {
         //.ipv6 connect failed.
         net_source_->DisableIPv6();
     }
+#endif
+
     return sock;
 }
 
