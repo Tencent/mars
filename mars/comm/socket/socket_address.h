@@ -25,10 +25,6 @@
 #include "comm/socket/local_ipstack.h"
 #include "unix_socket.h"
 
-#ifdef _WIN32
-#include "winsock2.h"  // for socket_storage
-#endif
-
 class socket_address {
  public:
     explicit socket_address(const char* _ip, uint16_t _port);

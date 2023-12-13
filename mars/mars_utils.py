@@ -3,7 +3,9 @@ import os
 import shutil
 import time
 import subprocess
+import hashlib
 from typing import List
+from typing import Dict
 
 COMM_COPY_HEADER_FILES = {
     "mars/comm/verinfo.h": "comm",
@@ -20,6 +22,7 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/has_member.h": "comm",
     "mars/comm/objc/scope_autoreleasepool.h": "comm",
     "mars/comm/objc/ThreadOperationQueue.h": "comm",
+    "mars/comm/socket/unix_socket.h": "comm/socket",
 
     "mars/comm/xlogger/preprocessor.h": "xlog",
     "mars/comm/xlogger/xloggerbase.h": "xlog",
@@ -29,6 +32,7 @@ COMM_COPY_HEADER_FILES = {
     "mars/boot/base_manager.h": "boot",
 
     "mars/stn/stn.h": "stn",
+    "mars/stn/config.h": "stn",
     "mars/stn/stn_logic.h": "stn",
     "mars/stn/stn_manager.h": "stn",
     "mars/stn/task_profile.h": "stn",
@@ -174,6 +178,15 @@ def remove_cmake_files(path):
         os.remove(f)
 
 
+def remove_if_exist(path: str):
+    if not os.path.exists(path):
+        return
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        os.remove(path)
+
+
 def clean_except(path, except_list):
     for fpath, dirs, fs in os.walk(path):
         in_except = False
@@ -227,20 +240,49 @@ def copy_windows_pdb(cmake_out, sub_folder, config, dst_folder):
             print("%s not exists" % pdb)
 
 
+def is_different_file(file1: str, file2: str) -> bool:
+    assert os.path.exists(file1)
+    if not os.path.exists(file2):
+        return True
+    md51: str = hashlib.md5(open(file1, 'rb').read()).hexdigest()
+    md52: str = hashlib.md5(open(file2, 'rb').read()).hexdigest()
+    return md51 != md52
+
+
+# dst是文件的路径，不是文件所在的文件夹的路径
 def copy_file(src, dst):
-    if not os.path.isfile(src):
-        print('Warning: %s not exist cwd %s' % (src, os.getcwd()))
-        return
+    assert os.path.isfile(src), src
 
     if dst.rfind("/") != -1 and not os.path.exists(dst[:dst.rfind("/")]):
         os.makedirs(dst[:dst.rfind("/")])
+    if dst.rfind("\\") != -1 and not os.path.exists(dst[:dst.rfind("\\")]):
+        os.makedirs(dst[:dst.rfind("\\")])
 
-    shutil.copy(src, dst)
+    if is_different_file(src, dst):
+        shutil.copy(src, dst)
 
 
-def copy_file_mapping(header_file_mappings, header_files_src_base, header_files_dst_end):
+def copy_file_mapping(header_file_mappings: Dict[str, str], header_files_src_base: str, header_files_dst_end: str):
     for (src, dst) in header_file_mappings.items():
-        copy_file(header_files_src_base + src, header_files_dst_end + "/" + dst + '/' + src[src.rfind("/"):])
+        copy_file(os.path.join(header_files_src_base, src),
+                  os.path.join(header_files_dst_end, dst, src[src.rfind("/") + 1:]))
+
+
+# dst为复制后文件夹的路径，而非文件夹的父目录的路径。
+# 若复制前dst非空，本函数不会清空dst文件夹中的内容。
+def copy_folder(src: str, dst: str):
+    assert os.path.exists(src), src
+    assert os.path.isdir(src), src
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+
+    for name in os.listdir(src):
+        absolute_src_file: str = os.path.join(src, name)
+        absolute_dst_file: str = os.path.join(dst, name)
+        if os.path.isdir(absolute_src_file):
+            copy_folder(absolute_src_file, absolute_dst_file)
+        else:
+            copy_file(absolute_src_file, absolute_dst_file)
 
 
 def make_static_framework(src_lib, dst_framework, header_file_mappings, header_files_src_base='./'):
@@ -252,7 +294,8 @@ def make_static_framework(src_lib, dst_framework, header_file_mappings, header_f
 
     framework_path = dst_framework + '/Headers'
     for (src, dst) in header_file_mappings.items():
-        copy_file(header_files_src_base + src, framework_path + "/" + dst + '/' + src[src.rfind("/"):])
+        copy_file(os.path.join(header_files_src_base, src),
+                  os.path.join(framework_path, dst, src[src.rfind("/") + 1:]))
 
     return True
 
