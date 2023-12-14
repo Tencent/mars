@@ -92,11 +92,11 @@ if (ZSTD_BUILD_SHARED)
     endif()
 endif ()
 if (ZSTD_BUILD_STATIC)
-    add_library(libzstd_static STATIC ${Sources} ${Headers})
+    add_library(zstd STATIC ${Sources} ${Headers})
     if (ZSTD_MULTITHREAD_SUPPORT)
-        set_property(TARGET libzstd_static APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_MULTITHREAD")
+        set_property(TARGET zstd APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_MULTITHREAD")
         if (UNIX)
-            target_link_libraries(libzstd_static ${THREADS_LIBS})
+            target_link_libraries(zstd ${THREADS_LIBS})
         endif ()
     endif ()
 endif ()
@@ -107,7 +107,7 @@ if (MSVC)
         set_property(TARGET libzstd_shared APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_DLL_EXPORT=1;ZSTD_HEAPMODE=0;_CONSOLE;_CRT_SECURE_NO_WARNINGS")
     endif ()
     if (ZSTD_BUILD_STATIC)
-        set_property(TARGET libzstd_static APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_HEAPMODE=0;_CRT_SECURE_NO_WARNINGS")
+        set_property(TARGET zstd APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_HEAPMODE=0;_CRT_SECURE_NO_WARNINGS")
     endif ()
 endif ()
 
@@ -130,7 +130,7 @@ endif ()
 
 if (ZSTD_BUILD_STATIC)
     set_target_properties(
-            libzstd_static
+            zstd
             PROPERTIES
             OUTPUT_NAME ${STATIC_LIBRARY_BASE_NAME})
 endif ()
@@ -164,7 +164,7 @@ if (ZSTD_BUILD_SHARED)
                                    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif()
 if (ZSTD_BUILD_STATIC)
-    install(TARGETS libzstd_static ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+    install(TARGETS zstd ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif ()
 
 # uninstall target
