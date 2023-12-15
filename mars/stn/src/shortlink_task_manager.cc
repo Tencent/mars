@@ -201,7 +201,7 @@ void ShortLinkTaskManager::__RunLoop() {
                                     MessageQueue::Message((MessageQueue::MessageTitle_t)this,
                                                           boost::bind(&ShortLinkTaskManager::__RunLoop, this),
                                                           "ShortLinkTaskManager::__RunLoop"),
-                                    MessageQueue::MessageTiming(1000));
+                                    MessageQueue::MessageTiming(DEF_TASK_RUN_LOOP_TIMING));
     } else {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
@@ -323,13 +323,18 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //重试间隔
+        // retry time interval is 1 second, but when last connect is quic, retry now
         if (first->retry_time_interval > curtime - first->retry_start_time) {
-            xinfo2(TSF "retry interval, taskid:%0, task retry late task, wait:%1",
-                   first->task.taskid,
-                   (curtime - first->transfer_profile.loop_start_task_time) / 1000);
-            first = next;
-            continue;
+            if (first->history_transfer_profiles.empty()
+                || first->history_transfer_profiles.back().connect_profile.transport_protocol
+                       != Task::kTransportProtocolQUIC) {
+                xinfo2(TSF "retry interval, taskid:%0, task retry late task, wait:%1, retry:%2",
+                       first->task.taskid,
+                       (curtime - first->transfer_profile.loop_start_task_time) / 1000,
+                       first->history_transfer_profiles.empty() ? "false" : "true");
+                first = next;
+                continue;
+            }
         }
 
         // proxy
