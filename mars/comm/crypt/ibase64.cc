@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-namespace Comm {
+namespace mars {
+namespace comm {
 
 static void init_conversion_tables(void);
 
@@ -169,4 +170,6 @@ static void init_conversion_tables(void) {
 
     tables_initialised = 1;
 }
-}  // namespace Comm
+
+}  // namespace mars
+}  // namespace comm
