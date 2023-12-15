@@ -262,6 +262,17 @@ struct TransferProfile {
 
         error_type = 0;
         error_code = 0;
+
+        begin_first_get_host_time = 0;
+        end_first_get_host_time = 0;
+        begin_retry_get_host_time = 0;
+        end_retry_get_host_time = 0;
+        begin_make_sure_auth_time = 0;
+        end_make_sure_auth_time = 0;
+        begin_req2buf_time = 0;
+        end_req2buf_time = 0;
+        begin_buf2resp_time = 0;
+        end_buf2resp_time = 0;
     }
 
     const Task task;  // change "const Task& task" to "const Task task". fix a memory reuse bug.
@@ -283,6 +294,17 @@ struct TransferProfile {
 
     int error_type;
     int error_code;
+
+    uint64_t begin_first_get_host_time;
+    uint64_t end_first_get_host_time;
+    uint64_t begin_retry_get_host_time;
+    uint64_t end_retry_get_host_time;
+    uint64_t begin_make_sure_auth_time;
+    uint64_t end_make_sure_auth_time;
+    uint64_t begin_req2buf_time;
+    uint64_t end_req2buf_time;
+    uint64_t begin_buf2resp_time;
+    uint64_t end_buf2resp_time;
 };
 
 // do not insert or delete
