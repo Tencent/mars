@@ -362,8 +362,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
@@ -375,7 +378,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 #endif
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
+            first->transfer_profile.begin_first_get_host_time = gettickcount();
             realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
+            first->transfer_profile.end_first_get_host_time = gettickcount();
+
         } else {
             xwarn2(TSF "mars2 get_real_host_ is null.");
         }
@@ -385,7 +391,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             //.使用quic但拿到的host为空（一般是svr部署问题），则回退到tcp.
             config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true);
             hosts = task.shortlink_host_list;
+            first->transfer_profile.begin_retry_get_host_time = gettickcount();
             realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
+            first->transfer_profile.end_retry_get_host_time = gettickcount();
         }
 
         first->task.shortlink_host_list = hosts;
@@ -406,7 +414,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   first->task.need_authed);
         // make sure login
         if (first->task.need_authed) {
+            first->transfer_profile.begin_make_sure_auth_time = gettickcount();
             bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
+            first->transfer_profile.end_make_sure_auth_time = gettickcount();
             xinfo2_if(!first->task.long_polling && first->task.priority >= 0,
                       TSF "auth result %_ host %_",
                       ismakesureauthsuccess,
@@ -433,6 +443,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
         first->task.client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
         xinfo2(TSF "client_sequence_id:%_", first->task.client_sequence_id);
+
+        first->transfer_profile.begin_req2buf_time = gettickcount();
         if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid,
                                                          first->task.user_context,
                                                          first->task.user_id,
@@ -442,6 +454,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                          Task::kChannelShort,
                                                          host,
                                                          first->task.client_sequence_id)) {
+            first->transfer_profile.end_req2buf_time = gettickcount();
             __SingleRespHandle(
                 first,
                 kEctEnDecode,
@@ -452,6 +465,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             first = next;
             continue;
         }
+        first->transfer_profile.end_req2buf_time = gettickcount();
 
         //雪崩检测
         xassert2(fun_anti_avalanche_check_);
@@ -665,6 +679,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
 
     int err_code = 0;
     unsigned short server_sequence_id = 0;
+    it->transfer_profile.begin_buf2resp_time = gettickcount();
     int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid,
                                                                    it->task.user_context,
                                                                    it->task.user_id,
@@ -675,6 +690,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                                                    server_sequence_id);
     xinfo2_if(it->task.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+    it->transfer_profile.end_buf2resp_time = gettickcount();
     it->task.server_sequence_id = server_sequence_id;
     socket_pool_.Report(_conn_profile.is_reused_fd, true, handle_type == kTaskFailHandleNoError);
     if (should_intercept_result_ && should_intercept_result_(err_code)) {
