@@ -306,6 +306,22 @@ struct TransferProfile {
     uint64_t end_buf2resp_time;
 };
 
+struct PrepareProfile {
+    uint64_t start_task_call_time;
+    uint64_t begin_process_hosts_time;
+    uint64_t end_process_hosts_time;
+
+    PrepareProfile() {
+        Reset();
+    }
+
+    void Reset() {
+        start_task_call_time = 0;
+        begin_process_hosts_time = 0;
+        end_process_hosts_time = 0;
+    }
+};
+
 // do not insert or delete
 enum TaskFailStep {
     kStepSucc = 0,
@@ -344,8 +360,12 @@ struct TaskProfile {
         return task_timeout;
     }
 
-    TaskProfile(const Task& _task)
-    : task(_task), transfer_profile(task), task_timeout(ComputeTaskTimeout(_task)), start_task_time(::gettickcount()) {
+    TaskProfile(const Task& _task, PrepareProfile _profile)
+    : task(_task)
+    , prepare_profile(_profile)
+    , transfer_profile(task)
+    , task_timeout(ComputeTaskTimeout(_task))
+    , start_task_time(::gettickcount()) {
         remain_retry_count = task.retry_count;
         force_no_retry = false;
 
@@ -373,6 +393,7 @@ struct TaskProfile {
     }
 
     void InitSendParam() {
+        // prepare_profile.Reset();//need not reset
         transfer_profile.Reset();
         running_id = 0;
     }
@@ -402,6 +423,7 @@ struct TaskProfile {
     }
 
     Task task;
+    PrepareProfile prepare_profile;
     TransferProfile transfer_profile;
     intptr_t running_id;
 
