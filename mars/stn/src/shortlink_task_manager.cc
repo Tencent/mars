@@ -90,7 +90,7 @@ ShortLinkTaskManager::~ShortLinkTaskManager() {
 #endif
 }
 
-bool ShortLinkTaskManager::StartTask(const Task& _task) {
+bool ShortLinkTaskManager::StartTask(const Task& _task, PrepareProfile _prepare_profile) {
     xverbose_function();
 
     if (_task.send_only) {
@@ -106,7 +106,7 @@ bool ShortLinkTaskManager::StartTask(const Task& _task) {
 
     xdebug2(TSF "taskid:%0", _task.taskid);
 
-    TaskProfile task(_task);
+    TaskProfile task(_task, _prepare_profile);
     task.link_type = Task::kChannelShort;
 
     lst_cmd_.push_back(task);
@@ -325,9 +325,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         //重试间隔
         if (first->retry_time_interval > curtime - first->retry_start_time) {
-            xdebug2(TSF "retry interval, taskid:%0, task retry late task, wait:%1",
-                    first->task.taskid,
-                    (curtime - first->transfer_profile.loop_start_task_time) / 1000);
+            xinfo2(TSF "retry interval, taskid:%0, task retry late task, wait:%1",
+                   first->task.taskid,
+                   (curtime - first->transfer_profile.loop_start_task_time) / 1000);
             first = next;
             continue;
         }
@@ -1102,6 +1102,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         _it->retry_start_time = 0;
     }
 
+    // TODO cpan 重试间隔
     _it->retry_time_interval = DEF_TASK_RETRY_INTERNAL;
 
     return false;

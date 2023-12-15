@@ -338,7 +338,8 @@ void NetCore::StartTask(const Task& _task) {
            _task.priority,
            _task.report_arg)
         >> group;
-
+    PrepareProfile _profile;
+    _profile.start_task_call_time = gettickcount();
     Task task = _task;
     if (!__ValidAndInitDefault(task, group)) {
         ConnectProfile profile;
@@ -349,10 +350,11 @@ void NetCore::StartTask(const Task& _task) {
             ->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalTaskParam, profile);
         return;
     }
-
+    _profile.begin_process_hosts_time = gettickcount();
     if (task_process_hook_) {
         task_process_hook_(task);
     }
+    _profile.end_process_hosts_time = gettickcount();
 
     if (0 == task.channel_select) {
         xerror2(TSF "error channelType (%_, %_), ", kEctLocal, kEctLocalChannelSelect) >> group;
@@ -447,7 +449,7 @@ void NetCore::StartTask(const Task& _task) {
 
     xgroup2() << group;
     if (!need_use_longlink_) {
-        start_ok = shortlink_task_manager_->StartTask(task);
+        start_ok = shortlink_task_manager_->StartTask(task, _profile);
     } else {
         int channel = __ChooseChannel(task, longlink, minorlonglink);
         switch (channel) {
@@ -460,7 +462,7 @@ void NetCore::StartTask(const Task& _task) {
 
             case Task::kChannelShort:
                 task.shortlink_fallback_hostlist = task.shortlink_host_list;
-                start_ok = shortlink_task_manager_->StartTask(task);
+                start_ok = shortlink_task_manager_->StartTask(task, _profile);
                 break;
 
             default:
