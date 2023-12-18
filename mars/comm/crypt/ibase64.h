@@ -1,7 +1,7 @@
 
 /**
 @file
-@brief Base64º”√‹Ω‚√‹∫Ø ˝
+@brief base64 encode/decode
   $Id$
 @author $Author$
 @date $Date$
@@ -12,7 +12,8 @@
 
 #pragma once
 
-namespace Comm {
+namespace mars {
+namespace comm {
 /**
  * Given a source string of length len, this returns the amount of
  * memory the destination string should have.
@@ -54,4 +55,5 @@ int EncodeBase64(const unsigned char* sSrc, unsigned char* sTarget, const int nS
 */
 int DecodeBase64(const unsigned char* sSrc, unsigned char* sTarget, const int nSize);
 
-}  // namespace Comm
+}  // namespace mars
+}  // namespace comm

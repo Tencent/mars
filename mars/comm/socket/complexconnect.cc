@@ -335,7 +335,7 @@ class ConnectHttpTunelCheckFSM : public ConnectCheckFSM {
                 char* dstbuf = (char*)malloc(dstlen);
                 memset(dstbuf, 0, dstlen);
 
-                int retsize = Comm::EncodeBase64((unsigned char*)account_info.c_str(),
+                int retsize = mars::comm::EncodeBase64((unsigned char*)account_info.c_str(),
                                                  (unsigned char*)dstbuf,
                                                  (int)account_info.length());
                 dstbuf[retsize] = '\0';
