@@ -32,7 +32,21 @@ global:
   
     JNI_OnLoad; 
     Java_com*;
-     
+
+    *mars*xlog*NewXloggerInstance*;
+    *mars*xlog*GetXloggerInstance*;
+    *mars*xlog*ReleaseXloggerInstance*;
+    *mars*xlog*XloggerWrite*;
+    *mars*xlog*IsEnabledFor*;
+    *mars*xlog*GetLevel*;
+    *mars*xlog*SetLevel*;
+    *mars*xlog*SetAppenderMode*;
+    *mars*xlog*Flush*;
+    *mars*xlog*FlushAll*;
+    *mars*xlog*SetConsoleLogOpen*;
+    *mars*xlog*SetMaxFileSize*;
+    *mars*xlog*SetMaxAliveTime*;
+
 local:
     _Z22appender_set_console_logb;
     _Z24appender_set_console_logb;
