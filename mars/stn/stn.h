@@ -46,7 +46,6 @@ static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
 static const unsigned short kReservedSequenceIdStart = 0xFFFF;
 
-
 enum PackerEncoderVersion {
     kOld = 1,
     kNew = 2,
@@ -54,8 +53,8 @@ enum PackerEncoderVersion {
 
 enum HostRedirectType {
     kFull = 0,
-    kFuzzy = 1,   //通过 fuzzy
-    kPrefix = 2,  //通过 isprefixmatch (这个很可能已经废弃)
+    kFuzzy = 1,   // 通过 fuzzy
+    kPrefix = 2,  // 通过 isprefixmatch (这个很可能已经废弃)
     kOther = 3
 };
 
@@ -139,8 +138,9 @@ struct Task {
     std::string function;
     std::string cgi_prefix;
     HostRedirectType redirect_type;
-    unsigned short client_sequence_id;//用于与后台上报对应的sequence id.
+    unsigned short client_sequence_id;  // 用于与后台上报对应的sequence id.
     unsigned short server_sequence_id;
+    bool need_realtime_netinfo;  // need realtime net info. for network-cross checking
 };
 
 struct CgiProfile {
@@ -155,6 +155,7 @@ struct CgiProfile {
     int channel_type = 0;
     int transport_protocol = 0;
     int rtt = 0;
+    std::string nettype;
 };
 
 struct LonglinkConfig {
@@ -438,18 +439,18 @@ class Callback {
     }
     virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id) = 0;
 
-    //流量统计
+    // 流量统计
     virtual void TrafficData(ssize_t _send, ssize_t _recv) = 0;
 
-    //底层询问上层该host对应的ip列表
+    // 底层询问上层该host对应的ip列表
     virtual std::vector<std::string> OnNewDns(const std::string& host, bool _longlink_host) = 0;
-    //网络层收到push消息回调
+    // 网络层收到push消息回调
     virtual void OnPush(const std::string& _channel_id,
                         uint32_t _cmdid,
                         uint32_t _taskid,
                         const AutoBuffer& _body,
                         const AutoBuffer& _extend) = 0;
-    //底层获取task要发送的数据
+    // 底层获取task要发送的数据
     virtual bool Req2Buf(uint32_t _taskid,
                          void* const _user_context,
                          const std::string& _user_id,
@@ -459,7 +460,7 @@ class Callback {
                          const int channel_select,
                          const std::string& host,
                          const unsigned short client_sequence_id) = 0;
-    //底层回包返回给上层解析
+    // 底层回包返回给上层解析
     virtual int Buf2Resp(uint32_t _taskid,
                          void* const _user_context,
                          const std::string& _user_id,
@@ -468,7 +469,7 @@ class Callback {
                          int& _error_code,
                          const int _channel_select,
                          unsigned short& server_sequence_id) = 0;
-    //任务执行结束
+    // 任务执行结束
     virtual int OnTaskEnd(uint32_t _taskid,
                           void* const _user_context,
                           const std::string& _user_id,
@@ -476,7 +477,7 @@ class Callback {
                           int _error_code,
                           const CgiProfile& _profile) = 0;
 
-    //上报网络连接状态
+    // 上报网络连接状态
     virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     }
@@ -489,12 +490,12 @@ class Callback {
 
     virtual void OnLongLinkStatusChange(int _status) {
     }
-    //长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2
+    // 长连信令校验 ECHECK_NOW = 0, ECHECK_NEXT = 1, ECHECK_NEVER = 2
     virtual int GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id,
                                                AutoBuffer& _identify_buffer,
                                                AutoBuffer& _buffer_hash,
                                                int32_t& _cmdid) = 0;
-    //长连信令校验回包
+    // 长连信令校验回包
     virtual bool OnLonglinkIdentifyResponse(const std::string& _channel_id,
                                             const AutoBuffer& _response_buffer,
                                             const AutoBuffer& _identify_buffer_hash) = 0;

@@ -511,13 +511,13 @@ bool HeaderFields::ContentRange(const std::string& line, uint64_t* start, uint64
     return false;
 }
 
-bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const{
+bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const {
     *start = 0;
     *end = 0;
     *total = 0;
-    
+
     const char* pline = HeaderField(HeaderFields::KStringContentRange);
-    if (!pline){
+    if (!pline) {
         return false;
     }
     return ContentRange(pline, start, end, total);
@@ -799,7 +799,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                     return recvstatus_;
                 }
 
-                headerbuf_.Write(recvbuf_.Ptr(), firstlinelength);
                 // HTTP/1.1 4.7 Unauthorized\r\n\r\n
                 char* pos_2crlf = string_strnstr(pBuf, "\r\n\r\n", (int)recvbuf_.Length());
                 if (NULL != pos_2crlf && pos_2crlf == pos) {
@@ -841,7 +840,6 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                 }
 
                 recvstatus_ = kBody;
-                headerbuf_.Write(recvbuf_.Ptr(), headerslength);
                 recvbuf_.Move(-headerslength);
 
                 if (consumed_bytes) {

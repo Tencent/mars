@@ -280,6 +280,18 @@ class INI {
         }
     }
 
+    void ClearSelection() {
+        if (currentsection.empty()) {
+            return;
+        }
+        INI::sectionsit_t iter = sections.begin();
+        auto sec = sections.find(currentsection);
+        if (sec != sections.end()) {
+            sections.erase(sec);
+        }
+        currentsection = "";
+    }
+
     void Save(const std::string& filename = "") {
         FILE* file = fopen(((filename == "") ? this->filename : filename).c_str(), "wb");
 
