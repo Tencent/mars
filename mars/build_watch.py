@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 import glob
@@ -9,10 +9,10 @@ from mars_utils import *
 SCRIPT_PATH = os.path.split(os.path.realpath(__file__))[0]
 
 BUILD_OUT_PATH = 'cmake_build/watchos'
-INSTALL_PATH = BUILD_OUT_PATH + '/Darwin.out'
+INSTALL_PATH = os.path.join(BUILD_OUT_PATH, 'watchOS.out')
 
-WATCH_BUILD_SIMULATOR_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=SIMULATOR_WATCHOS -DIOS_DEPLOYMENT_TARGET=2.0 -DIOS_ARCH="i386" -DENABLE_ARC=0 -DENABLE_BITCODE=1 -DENABLE_VISIBILITY=1 && make -j8 && make install'
-WATCH_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=WATCHOS -DIOS_DEPLOYMENT_TARGET=2.0 -DIOS_ARCH="armv7k;arm64_32" -DENABLE_ARC=0 -DENABLE_BITCODE=1 -DENABLE_VISIBILITY=1 && make -j8 && make install'
+WATCH_BUILD_SIMULATOR_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=SIMULATOR_WATCHOS -DIOS_DEPLOYMENT_TARGET=2.0 -DARCH="i386" -DENABLE_ARC=0 -DENABLE_BITCODE=1 -DENABLE_VISIBILITY=1 && make -j8 && make install'
+WATCH_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=WATCHOS -DIOS_DEPLOYMENT_TARGET=2.0 -DARCH="armv7k;arm64_32" -DENABLE_ARC=0 -DENABLE_BITCODE=1 -DENABLE_VISIBILITY=1 && make -j8 && make install'
 
 GEN_WATCH_OS_PROJ = 'cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DIOS_PLATFORM=OS -DIOS_DEPLOYMENT_TARGET=2.0 -DIOS_ARCH="armv7;arm64" -DCMAKE_XCODE_ATTRIBUTE_VALID_ARCHS="armv7k;arm64_32" -DENABLE_ARC=0 -DENABLE_BITCODE=1 -DENABLE_VISIBILITY=1'
 
