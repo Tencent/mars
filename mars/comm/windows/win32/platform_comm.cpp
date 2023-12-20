@@ -45,7 +45,7 @@ bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& info) {
     return false;
 }
 
-int getNetInfo() {
+int getNetInfo(bool realtime /* = false*/) {
     xverbose_function();
 
     return isNetworkConnected() ? kWifi : kNoNet;
