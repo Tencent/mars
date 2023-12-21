@@ -260,6 +260,14 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
     return ret;
 }
 
+std::string Hex2Str(const std::string &hex) {
+    return Hex2Str(hex.data(), hex.size());
+}
+
+std::string Str2Hex(const std::string &str) {
+    return Str2Hex(str.data(), str.size());
+}
+
 std::string ReplaceChar(const char* const input_str, char be_replaced, char replace_with) {
     std::string output_str(input_str);
     size_t len = output_str.size();

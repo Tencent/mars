@@ -158,6 +158,8 @@ bool MergeToken(const T1& begin, const T1& end, const T2& delimiter, T2& result)
 
 std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
+std::string Hex2Str(const std::string &hex);
+std::string Str2Hex(const std::string &str);
 
 std::string ReplaceChar(const char* const input_str, char be_replaced = '@', char replace_with = '.');
 
