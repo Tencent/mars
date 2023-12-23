@@ -170,6 +170,55 @@ size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos
 std::string BufferMD5(const void* buffer, size_t size);
 std::string MD5DigestToBase16(const uint8_t digest[16]);
 std::string DigestToBase16(const uint8_t* digest, size_t length);
+
+template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+std::string to_string(const T& v) {
+    return std::to_string(v);
+}
+
+template <typename T, std::enable_if_t<std::is_enum<T>::value, bool> = true>
+std::string to_string(const T& v) {
+    return std::to_string(static_cast<int>(v));
+}
+
+// std::string
+template <typename T, std::enable_if_t<std::is_same<T, std::string>::value, bool> = true>
+std::string to_string(const T& v) {
+    return v;
+}
+
+// char*
+template <typename T, std::enable_if_t<std::is_same<std::remove_cv_t<T>, char*>::value, bool> = true>
+std::string to_string(const T& v) {
+    return std::string(v);
+}
+
+// literal strings
+template <typename T, std::size_t N, std::enable_if_t<std::is_same<T, char>::value, bool> = true>
+std::string to_string(T const (&v)[N]) {
+    return std::string(v);
+}
+
+template <typename T1, typename T2>
+std::string to_string(const std::pair<T1, T2> & v) {
+    return "{" + to_string(v.first) + ":" + to_string(v.second) + "}";
+}
+
+template <class T>
+std::string join_to_string(const T &stl,
+                         const std::string &seperator = ",",
+                         const std::string &prefix = "",
+                         const std::string &postfix = "") {
+    if (stl.empty()) {
+        return {};
+    }
+    std::string rtn = prefix;
+    for (const auto &it : stl) {
+        rtn.append(strutil::to_string(it)).append(seperator);
+    }
+    return rtn.append(postfix);
+}
+
 }  // namespace strutil
 
 #endif  // COMM_STRUTIL_H_
