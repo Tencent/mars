@@ -71,7 +71,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     return false;
 }
 
-bool getCurSIMInfo(SIMInfo& bsinfo) {
+bool getCurSIMInfo(SIMInfo& simInfo, bool realtime) {
     return false;
 }
 
