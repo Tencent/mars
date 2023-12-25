@@ -10,7 +10,7 @@ void OnPlatformNetworkChange() {
 
 }
 
-int getNetInfo() {
+int getNetInfo(bool) {
     return kWifi;
 }
 
@@ -26,7 +26,7 @@ bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh) {
     return false;
 }
 
-bool getCurSIMInfo(SIMInfo& _sim_info) {
+bool getCurSIMInfo(SIMInfo& _sim_info, bool) {
     return false;
 }
 
@@ -77,7 +77,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
              strFuncName,
              _info->line,
              _log);
-    printf(log);
+    printf("%s", log);
 }
 
 }
