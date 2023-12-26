@@ -87,7 +87,7 @@ class ShortLinkTaskManager {
                          comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -128,6 +128,13 @@ class ShortLinkTaskManager {
                             int _fail_handle,
                             size_t _resp_length,
                             const ConnectProfile& _connect_profile);
+    bool __NewSingleRespHandle(ShortLinkInterface* _worker,
+                               TaskProfile& _it,
+                               ErrCmdType _err_type,
+                               int _err_code,
+                               int _fail_handle,
+                               size_t _resp_length,
+                               const ConnectProfile& _connect_profile);
 
     std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
 
@@ -136,6 +143,13 @@ class ShortLinkTaskManager {
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
+
+    bool __GetInterceptTaskInfo(const std::string& _name, std::string& _last_data);
+    int __OnGetStatus();
+    void __OnCgiTaskStatistic(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time);
+    void __OnAddInterceptTask(const std::string& _name, const std::string& _data);
+    void __OnSocketPoolReport(bool _is_reused, bool _has_received, bool _is_decode_ok);
+    void __OnSocketPoolTryAdd(IPPortItem item, ConnectProfile& _conn_profile);
 
  private:
     boot::Context* context_;

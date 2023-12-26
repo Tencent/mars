@@ -21,6 +21,7 @@
 #define SRC_NET_CHANNEL_FACTORY_H_
 
 #include <functional>
+#include <list>
 #include <string>
 #include <vector>
 
@@ -42,8 +43,9 @@ namespace ShortLinkChannelFactory {
 extern ShortLinkInterface* (*Create)(boot::Context* _context,
                                      const comm::mq::MessageQueue_t& _messagequeueid,
                                      std::shared_ptr<NetSource> _netsource,
-                                     const Task& _task,
-                                     const ShortlinkConfig& _config);
+                                     TaskProfile& _task_profile,
+                                     const ShortlinkConfig& _config,
+                                     int _sent_count);
 
 extern void (*Destory)(ShortLinkInterface* _short_link_channel);
 

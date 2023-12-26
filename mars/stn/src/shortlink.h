@@ -50,8 +50,9 @@ class ShortLink : public ShortLinkInterface {
     ShortLink(boot::Context* _context,
               comm::MessageQueue::MessageQueue_t _messagequeueid,
               std::shared_ptr<NetSource> _netsource,
-              const Task& _task,
+              TaskProfile& _task_profile,
               bool _use_proxy,
+              int _sent_count,
               std::unique_ptr<SocketOperator> _operator = nullptr);
     virtual ~ShortLink();
 
@@ -62,14 +63,22 @@ class ShortLink : public ShortLinkInterface {
     void SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms);
 
  protected:
+    virtual void OnStart();
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
     virtual bool IsKeepAlive() const {
         return is_keep_alive_;
     }
 
     virtual void __Run();
+    virtual bool __RunReq2Buf();
     virtual SOCKET __RunConnect(ConnectProfile& _conn_profile);
     virtual void __RunReadWrite(SOCKET _sock, int& _errtype, int& _errcode, ConnectProfile& _conn_profile);
+    virtual bool __RunBuf2Resp(ErrCmdType _err_type,
+                               int _status,
+                               AutoBuffer& _body,
+                               AutoBuffer& _extension,
+                               ConnectProfile& _conn_profile,
+                               bool _report = true);
     void __CancelAndWaitWorkerThread();
 
     void __UpdateProfile(const ConnectProfile _conn_profile);
@@ -90,6 +99,7 @@ class ShortLink : public ShortLinkInterface {
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::shared_ptr<NetSource> net_source_;
     std::unique_ptr<SocketOperator> socketOperator_;
+    TaskProfile& task_profile_;
     Task task_;
     comm::Thread thread_;
 
@@ -105,6 +115,7 @@ class ShortLink : public ShortLinkInterface {
 
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
+    int sent_count_;
 };
 
 }  // namespace stn

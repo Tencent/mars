@@ -31,7 +31,7 @@ namespace stn {
 class ShortLinkInterface {
  public:
     virtual ~ShortLinkInterface(){};
-
+    virtual void OnStart() = 0;
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _buffer_extend) = 0;
     virtual ConnectProfile Profile() const {
         return ConnectProfile();
@@ -72,6 +72,33 @@ class ShortLinkInterface {
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func_host_filter;
     std::function<void(bool _connect_timeout, struct tcp_info& _info)> func_add_weak_net_info;
     std::function<void(bool _timeout, struct tcp_info& _info)> func_weak_net_report;
+    CallBack<boost::function<bool(ShortLinkInterface* _worker,
+                                  TaskProfile& _task_profile,
+                                  ErrCmdType _err_type,
+                                  int _err_code,
+                                  int _fail_handle,
+                                  size_t _resp_length,
+                                  const ConnectProfile& _connect_profile)> >
+        OnSingleRespHandle;
+    boost::function<bool(const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
+    std::function<bool(const std::string& _name, std::string& _last_data)> OnGetInterceptTaskInfo;
+    std::function<int()> OnGetStatus;
+    boost::function<void(int _status_code)> fun_shortlink_response_;
+    boost::function<
+        void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)>
+        fun_notify_retry_all_tasks;
+    boost::function<void(int _line,
+                         ErrCmdType _err_type,
+                         int _err_code,
+                         const std::string& _ip,
+                         const std::string& _host,
+                         uint16_t _port)>
+        fun_notify_network_err_;
+    std::function<void(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time)> OnCgiTaskStatistic;
+    std::function<bool(int _error_code)> should_intercept_result_;
+    std::function<void(const std::string& _name, const std::string& _data)> OnAddInterceptTask;
+    std::function<void(bool _is_reused, bool _has_received, bool _is_decode_ok)> OnSocketPoolReport;
+    std::function<void(IPPortItem item, ConnectProfile& _conn_profile)> OnSocketPoolTryAddCache;
 };
 
 }  // namespace stn
