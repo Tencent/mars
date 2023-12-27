@@ -47,6 +47,10 @@ class ShortLinkInterface {
     }
     virtual void OnNetTimeout() {
     }
+    virtual void SetRunByTaskManager(bool flag) = 0;
+    virtual bool IsRunByTaskManager() const {
+        return true;
+    }
 
     CallBack<boost::function<void(int _line,
                                   ErrCmdType _errtype,

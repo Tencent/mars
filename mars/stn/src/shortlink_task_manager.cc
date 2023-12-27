@@ -561,6 +561,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             boost::bind(&ShortLinkTaskManager::__NewSingleRespHandle, this, _1, _2, _3, _4, _5, _6, _7),
             worker,
             AYNC_HANDLER);
+
+        //        worker->OnSingleRespHandle =
+        //            boost::bind(&ShortLinkTaskManager::__NewSingleRespHandle, this, _1, _2, _3, _4, _5, _6, _7);
         worker->fun_anti_avalanche_check_ = fun_anti_avalanche_check_;
         worker->OnGetInterceptTaskInfo = std::bind(&ShortLinkTaskManager::__GetInterceptTaskInfo,
                                                    this,
@@ -939,11 +942,17 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
 
         if (_callback_runing_task_only && !first->running_id) {
             first = next;
+            if (first->running_id) {
+                __DeleteShortLink(first->running_id);
+            }
             continue;
         }
 
         if (_fail_handle == kTaskFailHandleSessionTimeout && !first->task.need_authed) {
             first = next;
+            if (first->running_id) {
+                __DeleteShortLink(first->running_id);
+            }
             continue;
         }
 
@@ -997,7 +1006,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
                                               const ConnectProfile& _connect_profile) {
     xverbose_function();
     xassert2(kEctServer != _err_type);
-    xassert2(_it != lst_cmd_.end());
+    // xassert2(_it != lst_cmd_.end());
 
     if (_it == lst_cmd_.end())
         return false;
@@ -1183,8 +1192,10 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
 }
 
 void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
-    if (!_running_id)
+    if (!_running_id) {
+        xinfo2(TSF "invalid runnging id.");
         return;
+    }
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
     // p_shortlink->func_add_weak_net_info = NULL;
     // p_shortlink->func_weak_net_report = NULL;

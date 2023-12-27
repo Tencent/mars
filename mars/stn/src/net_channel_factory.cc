@@ -46,6 +46,7 @@ ShortLinkInterface* (*Create)(boot::Context* _context,
 };
 
 void (*Destory)(ShortLinkInterface* _short_link_channel) = [](ShortLinkInterface* _short_link_channel) {
+    xdebug_function();
     delete _short_link_channel;
     _short_link_channel = NULL;
 };
