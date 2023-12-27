@@ -53,6 +53,7 @@ class ShortLink : public ShortLinkInterface {
               TaskProfile& _task_profile,
               bool _use_proxy,
               int _sent_count,
+              bool _use_quic,
               std::unique_ptr<SocketOperator> _operator = nullptr);
     virtual ~ShortLink();
 

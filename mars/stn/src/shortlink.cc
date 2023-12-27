@@ -144,6 +144,7 @@ ShortLink::ShortLink(boot::Context* _context,
                      TaskProfile& _task_profile,
                      bool _use_proxy,
                      int _sent_count,
+                     bool _use_quic,
                      std::unique_ptr<SocketOperator> _operator)
 : context_(_context)
 , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
@@ -159,7 +160,7 @@ ShortLink::ShortLink(boot::Context* _context,
 , tracker_(shortlink_tracker::Create())
 , is_keep_alive_(CheckKeepAlive(_task_profile.task))
 , sent_count_(_sent_count)
-, is_run_with_task_manager_(true) {
+, is_run_with_task_manager_(_use_quic ? false : true) {
     xinfo2(TSF "%_, handler:(%_,%_), long polling: %_ ",
            this,
            asyncreg_.Get().queue,

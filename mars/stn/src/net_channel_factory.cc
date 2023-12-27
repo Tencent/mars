@@ -42,7 +42,13 @@ ShortLinkInterface* (*Create)(boot::Context* _context,
                                                     const ShortlinkConfig& _config,
                                                     int _sent_count) -> ShortLinkInterface* {
     xdebug2(TSF "use weak func Create");
-    return new ShortLink(_context, _messagequeueid, _netsource, _task_profile, _config.use_proxy, _sent_count);
+    return new ShortLink(_context,
+                         _messagequeueid,
+                         _netsource,
+                         _task_profile,
+                         _config.use_proxy,
+                         _sent_count,
+                         _config.use_quic);
 };
 
 void (*Destory)(ShortLinkInterface* _short_link_channel) = [](ShortLinkInterface* _short_link_channel) {
