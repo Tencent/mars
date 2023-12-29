@@ -942,17 +942,17 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
 
         if (_callback_runing_task_only && !first->running_id) {
             first = next;
-            if (first->running_id) {
-                __DeleteShortLink(first->running_id);
-            }
+            //            if (first->running_id) {
+            //                __DeleteShortLink(first->running_id);
+            //            }
             continue;
         }
 
         if (_fail_handle == kTaskFailHandleSessionTimeout && !first->task.need_authed) {
             first = next;
-            if (first->running_id) {
-                __DeleteShortLink(first->running_id);
-            }
+            //            if (first->running_id) {
+            //                __DeleteShortLink(first->running_id);
+            //            }
             continue;
         }
 
@@ -963,12 +963,6 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
                 xinfo2(TSF "axauth to timeout queue %_, cgi %_ ", first->task.taskid, first->task.cgi);
                 first->allow_sessiontimeout_retry = false;
                 first->remain_retry_count++;
-                __DeleteShortLink(first->running_id);
-                first->PushHistory();
-                first->InitSendParam();
-                first = next;
-                continue;
-            } else {
                 __DeleteShortLink(first->running_id);
                 first->PushHistory();
                 first->InitSendParam();
