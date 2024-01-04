@@ -168,6 +168,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    std::mutex mutex_;
 };
 
 }  // namespace stn

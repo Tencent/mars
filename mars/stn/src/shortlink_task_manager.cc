@@ -127,7 +127,6 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
             xinfo2(TSF "find the task, taskid:%0", _taskid);
 
             __DeleteShortLink(first->running_id);
-            first->running_id = 0;
             lst_cmd_.erase(first);
             return true;
         }
@@ -161,7 +160,6 @@ void ShortLinkTaskManager::ClearTasks() {
 
     for (std::list<TaskProfile>::iterator it = lst_cmd_.begin(); it != lst_cmd_.end(); ++it) {
         __DeleteShortLink(it->running_id);
-        it->running_id = 0;
     }
 
     lst_cmd_.clear();
@@ -967,7 +965,6 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
                 first->allow_sessiontimeout_retry = false;
                 first->remain_retry_count++;
                 __DeleteShortLink(first->running_id);
-                first->running_id = 0;
                 first->PushHistory();
                 first->InitSendParam();
                 first = next;
@@ -1103,7 +1100,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
         __DeleteShortLink(_it->running_id);
-        _it->running_id = 0;
+
         lst_cmd_.erase(_it);
 
         return true;
@@ -1143,7 +1140,6 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->err_type = _err_type;
     _it->err_code = _err_code;
     __DeleteShortLink(_it->running_id);
-    _it->running_id = 0;
     _it->PushHistory();
     if (on_timeout_or_remote_shutdown_) {
         on_timeout_or_remote_shutdown_(*_it);
@@ -1196,12 +1192,17 @@ void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
         return;
     }
     xinfo2(TSF "running_id:%_", _running_id);
-    ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-    // p_shortlink->func_add_weak_net_info = NULL;
-    // p_shortlink->func_weak_net_report = NULL;
-    ShortLinkChannelFactory::Destory(p_shortlink);
-    MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
-    p_shortlink = NULL;
+    intptr_t temp_ptr = _running_id;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
+        // p_shortlink->func_add_weak_net_info = NULL;
+        // p_shortlink->func_weak_net_report = NULL;
+        ShortLinkChannelFactory::Destory(p_shortlink);
+        _running_id = 0;
+        p_shortlink = NULL;
+    }
+    MessageQueue::CancelMessage(asyncreg_.Get(), temp_ptr);
 }
 
 ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const {
