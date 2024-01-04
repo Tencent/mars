@@ -122,7 +122,7 @@ class ShortLink : public ShortLinkInterface {
     uint32_t v6connect_timeout_ms_ = 1000;
 
     // boost::scoped_ptr<shortlink_tracker> tracker_;
-    std::shared_ptr<shortlink_tracker> tracker_;
+    std::unique_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
     int sent_count_;
     bool is_run_with_task_manager_;
