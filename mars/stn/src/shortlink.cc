@@ -178,6 +178,7 @@ ShortLink::~ShortLink() {
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
     dns_util_.Cancel();
+    tracker_.reset();
 }
 
 void ShortLink::OnStart() {
