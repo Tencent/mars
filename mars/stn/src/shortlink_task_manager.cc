@@ -109,8 +109,11 @@ bool ShortLinkTaskManager::StartTask(const Task& _task, PrepareProfile _prepare_
     TaskProfile task(_task, _prepare_profile);
     task.link_type = Task::kChannelShort;
 
-    lst_cmd_.push_back(task);
-    lst_cmd_.sort(__CompareTask);
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        lst_cmd_.push_back(task);
+        lst_cmd_.sort(__CompareTask);
+    }
 
     __RunLoop();
     return true;
@@ -119,15 +122,20 @@ bool ShortLinkTaskManager::StartTask(const Task& _task, PrepareProfile _prepare_
 bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
     xverbose_function();
 
+    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
+    mutex_.unlock();
 
     while (first != last) {
         if (_taskid == first->task.taskid) {
             xinfo2(TSF "find the task, taskid:%0", _taskid);
 
             __DeleteShortLink(first->running_id);
-            lst_cmd_.erase(first);
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                lst_cmd_.erase(first);
+            }
             return true;
         }
 
@@ -140,8 +148,10 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
 bool ShortLinkTaskManager::HasTask(uint32_t _taskid) const {
     xverbose_function();
 
+    // std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
+    // mutex_.unlock();
 
     while (first != last) {
         if (_taskid == first->task.taskid) {
@@ -162,7 +172,10 @@ void ShortLinkTaskManager::ClearTasks() {
         __DeleteShortLink(it->running_id);
     }
 
-    lst_cmd_.clear();
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        lst_cmd_.clear();
+    }
 }
 
 unsigned int ShortLinkTaskManager::GetTasksContinuousFailCount() {
@@ -222,8 +235,10 @@ void ShortLinkTaskManager::__RunOnTimeout() {
     xverbose2(TSF "lst_cmd_ size=%0", lst_cmd_.size());
     socket_pool_.CleanTimeout();
 
+    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
+    mutex_.unlock();
 
     uint64_t cur_time = ::gettickcount();
 
@@ -310,8 +325,10 @@ void ShortLinkTaskManager::__RunOnTimeout() {
 
 void ShortLinkTaskManager::__RunOnStartTask() {
     xverbose_function();
+    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
+    mutex_.unlock();
 
     uint64_t curtime = ::gettickcount();
     int sent_count = 0;
@@ -887,8 +904,10 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 void ShortLinkTaskManager::RedoTasks() {
     xinfo_function();
 
+    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
+    mutex_.unlock();
 
     while (first != last) {
         std::list<TaskProfile>::iterator next = first;
@@ -933,8 +952,10 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
     xassert2(kEctOK != _err_type);
     xdebug2(TSF "ect=%0, errcode=%1 taskid:=%2", _err_type, _err_code, _src_taskid);
 
+    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
+    mutex_.unlock();
 
     while (first != last) {
         std::list<TaskProfile>::iterator next = first;
@@ -1101,7 +1122,10 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
         __DeleteShortLink(_it->running_id);
 
-        lst_cmd_.erase(_it);
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            lst_cmd_.erase(_it);
+        }
 
         return true;
     }
@@ -1206,8 +1230,10 @@ void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
 }
 
 ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const {
+    // std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
+    // mutex_.unlock();
 
     while (first != last) {
         if ((first->running_id) && _taskid == first->task.taskid) {
