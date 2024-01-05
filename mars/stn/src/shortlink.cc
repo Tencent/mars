@@ -329,11 +329,18 @@ void ShortLink::__Run() {
 
     if (INVALID_SOCKET == fd_socket)
         return;
-    if (OnSend) {
-        OnSend(this);
-    } else {
-        xwarn2(TSF "OnSend NULL.");
-    }
+    // if (OnSend) {
+    // OnSend(this);
+    if (task_profile_.transfer_profile.first_start_send_time == 0)
+        task_profile_.transfer_profile.first_start_send_time = ::gettickcount();
+    task_profile_.transfer_profile.start_send_time = ::gettickcount();
+    xdebug2(TSF "taskid:%_, worker:%_, nStartSendTime:%_",
+            task_.taskid,
+            this,
+            task_profile_.transfer_profile.start_send_time / 1000);
+    //} else {
+    //    xwarn2(TSF "OnSend NULL.");
+    //}
     int errtype = 0;
     int errcode = 0;
     __RunReadWrite(fd_socket, errtype, errcode, conn_profile);
@@ -859,10 +866,33 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
             GetSignalOnNetworkDataChange()(XLOGGER_TAG, 0, recv_ret);
 
             xinfo2(TSF "recv len:%_ ", recv_ret) >> group_recv;
-            if (OnRecv)
-                OnRecv(this, (unsigned int)(recv_buf.Length() - recv_pos), (unsigned int)recv_buf.Length());
+            // if (OnRecv){
+            // OnRecv(this, (unsigned int)(recv_buf.Length() - recv_pos), (unsigned int)recv_buf.Length());
+
+            if (task_profile_.transfer_profile.last_receive_pkg_time == 0)
+                // WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() -
+                // it->transfer_profile.start_send_time));
+                net_source_->GetWeakNetworkLogic()->OnPkgEvent(
+                    true,
+                    (int)(::gettickcount() - task_profile_.transfer_profile.start_send_time));
             else
-                xwarn2(TSF "OnRecv NULL.");
+                // WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() -
+                // it->transfer_profile.last_receive_pkg_time));
+                net_source_->GetWeakNetworkLogic()->OnPkgEvent(
+                    false,
+                    (int)(::gettickcount() - task_profile_.transfer_profile.last_receive_pkg_time));
+            task_profile_.transfer_profile.last_receive_pkg_time = ::gettickcount();
+            task_profile_.transfer_profile.received_size = (unsigned int)(recv_buf.Length() - recv_pos);
+            task_profile_.transfer_profile.receive_data_size = (unsigned int)recv_buf.Length();
+            xdebug2(TSF "worker:%_, last_recvtime:%_, cachedsize:%_, totalsize:%_",
+                    this,
+                    task_profile_.transfer_profile.last_receive_pkg_time / 1000,
+                    (unsigned int)(recv_buf.Length() - recv_pos),
+                    (unsigned int)recv_buf.Length());
+
+            //}else{
+            //    xwarn2(TSF "OnRecv NULL.");
+            //}
             recv_pos = recv_buf.Pos();
         }
 
