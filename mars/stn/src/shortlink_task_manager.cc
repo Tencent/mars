@@ -1127,6 +1127,10 @@ ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const {
 }
 
 SOCKET ShortLinkTaskManager::__OnGetCacheSocket(const IPPortItem& _address) {
+    if (_address.transport_protocol == Task::kTransportProtocolQUIC) {
+        xwarn2(TSF "forbid quic fd cache %_", _address.str_host);
+        return INVALID_SOCKET;
+    }
     return socket_pool_.GetSocket(_address);
 }
 
