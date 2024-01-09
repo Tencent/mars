@@ -87,7 +87,7 @@ class ShortLinkTaskManager {
                          comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -107,27 +107,34 @@ class ShortLinkTaskManager {
     void __RunOnTimeout();
     void __RunOnStartTask();
 
-    void __OnResponse(ShortLinkInterface* _worker,
-                      ErrCmdType _err_type,
-                      int _status,
-                      AutoBuffer& _body,
-                      AutoBuffer& _extension,
-                      bool _cancel_retry,
-                      ConnectProfile& _conn_profile);
-    void __OnSend(ShortLinkInterface* _worker);
-    void __OnRecv(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size);
+    //    void __OnResponse(ShortLinkInterface* _worker,
+    //                      ErrCmdType _err_type,
+    //                      int _status,
+    //                      AutoBuffer& _body,
+    //                      AutoBuffer& _extension,
+    //                      bool _cancel_retry,
+    //                      ConnectProfile& _conn_profile);
+    //    void __OnSend(ShortLinkInterface* _worker);
+    //    void __OnRecv(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size);
 
     void __BatchErrorRespHandle(ErrCmdType _err_type,
                                 int _err_code,
                                 int _fail_handle,
                                 uint32_t _src_taskid,
                                 bool _callback_runing_task_only = true);
-    bool __SingleRespHandle(std::list<TaskProfile>::iterator _it,
-                            ErrCmdType _err_type,
-                            int _err_code,
-                            int _fail_handle,
-                            size_t _resp_length,
-                            const ConnectProfile& _connect_profile);
+    //    bool __SingleRespHandle(std::list<TaskProfile>::iterator _it,
+    //                            ErrCmdType _err_type,
+    //                            int _err_code,
+    //                            int _fail_handle,
+    //                            size_t _resp_length,
+    //                            const ConnectProfile& _connect_profile);
+    //    bool __NewSingleRespHandle(ShortLinkInterface* _worker,
+    //                               TaskProfile& _it,
+    //                               ErrCmdType _err_type,
+    //                               int _err_code,
+    //                               int _fail_handle,
+    //                               size_t _resp_length,
+    //                               const ConnectProfile& _connect_profile);
 
     std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
 
@@ -136,6 +143,18 @@ class ShortLinkTaskManager {
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
+
+    bool __GetInterceptTaskInfo(const std::string& _name, std::string& _last_data);
+    int __OnGetStatus();
+    void __OnCgiTaskStatistic(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time);
+    void __OnAddInterceptTask(const std::string& _name, const std::string& _data);
+    void __OnSocketPoolReport(bool _is_reused, bool _has_received, bool _is_decode_ok);
+    void __OnSocketPoolTryAdd(IPPortItem item, ConnectProfile& _conn_profile);
+
+    void __OnEraseCmdList(intptr_t& _running_id);
+    void __OnSetUserProxy(bool _user_proxy);
+    void __OnResetFailCount();
+    void __OnInCreaseFailCount();
 
  private:
     boot::Context* context_;
@@ -154,6 +173,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    std::mutex mutex_;
 };
 
 }  // namespace stn
