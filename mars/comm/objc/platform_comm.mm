@@ -464,7 +464,7 @@ bool getCurSIMInfo(mars::comm::SIMInfo& simInfo, bool /* realtime = false*/) {
 
 #else
 
-bool getCurSIMInfo(SIMInfo& simInfo) { return false; }
+bool getCurSIMInfo(SIMInfo& simInfo, bool realtime) { return false; }
 #endif
 
 bool getAPNInfo(mars::comm::APNInfo& info) {
