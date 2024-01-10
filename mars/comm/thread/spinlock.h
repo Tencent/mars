@@ -23,53 +23,27 @@
 #include <libkern/OSAtomic.h>
 #include <os/lock.h>
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0
-#define splock os_unfair_lock
-#define splockinit(lock) {*lock = OS_UNFAIR_LOCK_INIT;}
-#define splocklock os_unfair_lock_lock
-#define splockunlock os_unfair_lock_unlock
-#define splocktrylock os_unfair_lock_trylock
-#else
-#define splock OSSpinLock
-#define splockinit(lock) {*lock = OS_SPINLOCK_INIT;}
-#define splocklock OSSpinLockLock
-#define splockunlock OSSpinLockUnlock
-#define splocktrylock OSSpinLockTry
-#endif
-
 class SpinLock
 {
-public:
-    typedef splock handle_type;
      
 public:
-     SpinLock(){ splockinit(&lock_);}
+     SpinLock();
+     ~SpinLock();
      
-     bool lock()
-     {
-         splocklock(&lock_);
-         return true;
-     }
+     bool lock();
      
-     bool unlock()
-     {
-         splockunlock(&lock_);
-         return true;
-     }
+     bool unlock();
      
-     bool trylock()
-     {
-         return splocktrylock(&lock_);
-     }
+     bool trylock();
      
-    splock* internal() { return &lock_; }
 private:
      SpinLock(const SpinLock&);
      SpinLock& operator = (const SpinLock&);
      
 private:
-     splock lock_;
+     void* lock_;
 };
+
 
 #else
 
