@@ -33,18 +33,19 @@ namespace ShortLinkChannelFactory {
 ShortLinkInterface* (*Create)(boot::Context* _context,
                               const mq::MessageQueue_t& _messagequeueid,
                               std::shared_ptr<NetSource> _netsource,
-                              const Task& _task,
+                              TaskProfile& _task_profile,
                               const ShortlinkConfig& _config) =
     [](boot::Context* _context,
        const mq::MessageQueue_t& _messagequeueid,
        std::shared_ptr<NetSource> _netsource,
-       const Task& _task,
+       TaskProfile& _task_profile,
        const ShortlinkConfig& _config) -> ShortLinkInterface* {
     xdebug2(TSF "use weak func Create");
-    return new ShortLink(_context, _messagequeueid, _netsource, _task, _config.use_proxy);
+    return new ShortLink(_context, _messagequeueid, _netsource, _task_profile, _config.use_proxy);
 };
 
 void (*Destory)(ShortLinkInterface* _short_link_channel) = [](ShortLinkInterface* _short_link_channel) {
+    xdebug_function();
     delete _short_link_channel;
     _short_link_channel = NULL;
 };

@@ -50,18 +50,28 @@ class ShortLink : public ShortLinkInterface {
     ShortLink(boot::Context* _context,
               comm::MessageQueue::MessageQueue_t _messagequeueid,
               std::shared_ptr<NetSource> _netsource,
-              const Task& _task,
+              TaskProfile& _task_profile,
               bool _use_proxy,
               std::unique_ptr<SocketOperator> _operator = nullptr);
     virtual ~ShortLink();
 
     ConnectProfile Profile() const {
-        return conn_profile_;
+        // return conn_profile_;
+        return task_profile_.transfer_profile.connect_profile;
     }
 
     void SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms);
 
+ public:
+    void SetNeedCustomPack(bool flag);
+    bool IsNeedCustomPack() const {
+        return is_need_custom_pack_;
+    }
+    void OnSend();
+    void OnRecv(unsigned int _cached_size, unsigned int _total_size);
+
  protected:
+    virtual void OnStart();
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
     virtual bool IsKeepAlive() const {
         return is_keep_alive_;
@@ -70,6 +80,19 @@ class ShortLink : public ShortLinkInterface {
     virtual void __Run();
     virtual SOCKET __RunConnect(ConnectProfile& _conn_profile);
     virtual void __RunReadWrite(SOCKET _sock, int& _errtype, int& _errcode, ConnectProfile& _conn_profile);
+    virtual bool __RunReq2Buf();
+    virtual bool __RunBuf2Resp(ErrCmdType _err_type,
+                               int _status,
+                               AutoBuffer& _body,
+                               AutoBuffer& _extension,
+                               ConnectProfile& _conn_profile,
+                               bool _report = true);
+    virtual bool OnSingleRespHandle(ErrCmdType _err_type,
+                                    int _err_code,
+                                    int _fail_handle,
+                                    size_t _resp_length,
+                                    const ConnectProfile& _connect_profile);
+
     void __CancelAndWaitWorkerThread();
 
     void __UpdateProfile(const ConnectProfile _conn_profile);
@@ -90,7 +113,7 @@ class ShortLink : public ShortLinkInterface {
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::shared_ptr<NetSource> net_source_;
     std::unique_ptr<SocketOperator> socketOperator_;
-    Task task_;
+    TaskProfile& task_profile_;
     comm::Thread thread_;
 
     ConnectProfile conn_profile_;
@@ -105,6 +128,7 @@ class ShortLink : public ShortLinkInterface {
 
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
+    bool is_need_custom_pack_;
 };
 
 }  // namespace stn

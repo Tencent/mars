@@ -35,6 +35,12 @@ void __SetLastFailedStatus(std::list<TaskProfile>::iterator _it) {
     }
 }
 
+void __SetLastFailedStatusWithProfile(TaskProfile& _task_profile) {
+    if (_task_profile.remain_retry_count > 0) {
+        _task_profile.last_failed_dyntime_status = _task_profile.current_dyntime_status;
+    }
+}
+
 uint64_t __ReadWriteTimeout(uint64_t _first_pkg_timeout) {
     uint64_t rate = (kMobile != getNetInfo()) ? kWifiMinRate : kGPRSMinRate;
     return _first_pkg_timeout + 1000 * kMaxRecvLen / rate;

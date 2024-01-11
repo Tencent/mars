@@ -42,7 +42,7 @@ namespace ShortLinkChannelFactory {
 extern ShortLinkInterface* (*Create)(boot::Context* _context,
                                      const comm::mq::MessageQueue_t& _messagequeueid,
                                      std::shared_ptr<NetSource> _netsource,
-                                     const Task& _task,
+                                     TaskProfile& _task_profile,
                                      const ShortlinkConfig& _config);
 
 extern void (*Destory)(ShortLinkInterface* _short_link_channel);

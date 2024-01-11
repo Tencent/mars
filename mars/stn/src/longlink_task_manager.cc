@@ -103,7 +103,8 @@ bool LongLinkTaskManager::StartTask(const Task& _task, int _channel) {
     xverbose_function();
     xdebug2(TSF "taskid=%0", _task.taskid);
 
-    TaskProfile task(_task);
+    PrepareProfile profile;
+    TaskProfile task(_task, profile);
     task.link_type = _channel;
 
     if (_channel == Task::kChannelMinorLong) {  // already fixed host redirect, getted real host

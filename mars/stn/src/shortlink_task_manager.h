@@ -25,6 +25,7 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <mutex>
 
 #include "boost/function.hpp"
 #include "mars/boot/context.h"
@@ -54,12 +55,12 @@ class ShortLinkTaskManager {
     boost::function<
         int(ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)>
         fun_callback_;
-    boost::function<void(int _line,
-                         ErrCmdType _err_type,
-                         int _err_code,
-                         const std::string& _ip,
-                         const std::string& _host,
-                         uint16_t _port)>
+    std::function<void(int _line,
+                       ErrCmdType _err_type,
+                       int _err_code,
+                       const std::string& _ip,
+                       const std::string& _host,
+                       uint16_t _port)>
         fun_notify_network_err_;
     boost::function<bool(const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
     boost::function<void(int _status_code)> fun_shortlink_response_;
@@ -87,7 +88,7 @@ class ShortLinkTaskManager {
                          comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -100,42 +101,62 @@ class ShortLinkTaskManager {
 
     unsigned int GetTasksContinuousFailCount();
 
-    ConnectProfile GetConnectProfile(uint32_t _taskid) const;
+    ConnectProfile GetConnectProfile(uint32_t _taskid) const;  //这个函数有点不太合理,是不是可以回调task_profile
 
  private:
     void __RunLoop();
     void __RunOnTimeout();
     void __RunOnStartTask();
+    void __RunOnBatchError(ErrCmdType _err_type,
+                           int _err_code,
+                           int _fail_handle,
+                           uint32_t _src_taskid,
+                           bool _callback_runing_task_only = true);
 
-    void __OnResponse(ShortLinkInterface* _worker,
-                      ErrCmdType _err_type,
-                      int _status,
-                      AutoBuffer& _body,
-                      AutoBuffer& _extension,
-                      bool _cancel_retry,
-                      ConnectProfile& _conn_profile);
-    void __OnSend(ShortLinkInterface* _worker);
-    void __OnRecv(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size);
+    /*
+        void __OnResponse(ShortLinkInterface* _worker,
+                          ErrCmdType _err_type,
+                          int _status,
+                          AutoBuffer& _body,
+                          AutoBuffer& _extension,
+                          bool _cancel_retry,
+                          ConnectProfile& _conn_profile);
+        void __OnSend(ShortLinkInterface* _worker);
+        void __OnRecv(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size);
 
-    void __BatchErrorRespHandle(ErrCmdType _err_type,
+        void __BatchErrorRespHandle(ErrCmdType _err_type,
+                                    int _err_code,
+                                    int _fail_handle,
+                                    uint32_t _src_taskid,
+                                    bool _callback_runing_task_only = true);
+        bool __SingleRespHandle(std::list<TaskProfile>::iterator _it,
+                                ErrCmdType _err_type,
                                 int _err_code,
                                 int _fail_handle,
-                                uint32_t _src_taskid,
-                                bool _callback_runing_task_only = true);
-    bool __SingleRespHandle(std::list<TaskProfile>::iterator _it,
-                            ErrCmdType _err_type,
-                            int _err_code,
-                            int _fail_handle,
-                            size_t _resp_length,
-                            const ConnectProfile& _connect_profile);
+                                size_t _resp_length,
+                                const ConnectProfile& _connect_profile);
 
+*/
     std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
 
     void __DeleteShortLink(intptr_t& _running_id);
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
-    void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
+    //    void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
-    void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
+    //    void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
+
+    bool __GetInterceptTaskInfo(const std::string& _name, std::string& _last_data);
+    int __OnGetStatus();
+    void __OnCgiTaskStatistic(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time);
+    void __OnAddInterceptTask(const std::string& _name, const std::string& _data);
+    void __OnSocketPoolReport(bool _is_reused, bool _has_received, bool _is_decode_ok);
+    void __OnSocketPoolTryAdd(IPPortItem item, ConnectProfile& _conn_profile);
+
+    void __OnEraseCmdList(intptr_t& _running_id);
+    void __OnSetUserProxy(bool _user_proxy);
+    void __OnResetFailCount();
+    void __OnInCreaseFailCount();
+    // int __OnGetSendCount();
 
  private:
     boot::Context* context_;
@@ -154,6 +175,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    std::mutex mutex_;
 };
 
 }  // namespace stn
