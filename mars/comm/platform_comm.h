@@ -240,7 +240,7 @@ inline int getCurrNetLabelImpl(std::string& netInfo, bool realtime) {
         case kMobile: {
             SIMInfo info;
             getCurSIMInfo(info, realtime);
-            netInfo = "mobile_" + info.isp_name + "_" + info.isp_code;
+            netInfo = "mobile_" + info.isp_code;
         } break;
         default:
             break;
