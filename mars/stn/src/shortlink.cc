@@ -176,14 +176,16 @@ ShortLink::~ShortLink() {
     }
     __CleanInterface();
     __CancelAndWaitWorkerThread();
-    asyncreg_.CancelAndWait();
+    //    asyncreg_.CancelAndWait();
     dns_util_.Cancel();
     tracker_.reset();
 }
 
 void ShortLink::OnStart() {
     xinfo_function();
-    thread_.start();
+    if (!thread_.isruning()) {
+        thread_.start();
+    }
 }
 
 void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
@@ -191,7 +193,7 @@ void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
     xdebug2(XTHIS)(TSF "bufReq.size:%_", _buf_req.Length());
     send_body_.Attach(_buf_req);
     send_extend_.Attach(_buffer_extend);
-    if (!IsRunByTaskManager()) {
+    if (!thread_.isruning()) {
         thread_.start();
     }
 }
@@ -1210,11 +1212,11 @@ bool ShortLink::__RunBuf2Resp(ErrCmdType _err_type,
 void ShortLink::__UpdateProfile(const ConnectProfile _conn_profile) {
     // STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
     // TODO cpan
-    ConnectProfile profile = conn_profile_;
-    conn_profile_ = _conn_profile;
-    conn_profile_.tls_handshake_successful_time = profile.tls_handshake_successful_time;
-    conn_profile_.tls_handshake_mismatch = profile.tls_handshake_mismatch;
-    conn_profile_.tls_handshake_success = profile.tls_handshake_success;
+    //    ConnectProfile profile = conn_profile_;
+    //    conn_profile_ = _conn_profile;
+    //    conn_profile_.tls_handshake_successful_time = profile.tls_handshake_successful_time;
+    //    conn_profile_.tls_handshake_mismatch = profile.tls_handshake_mismatch;
+    //    conn_profile_.tls_handshake_success = profile.tls_handshake_success;
 }
 
 void ShortLink::__RunResponseError(ErrCmdType _type, int _errcode, ConnectProfile& _conn_profile, bool _report) {
@@ -1229,6 +1231,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
                              AutoBuffer& _extension,
                              ConnectProfile& _conn_profile,
                              bool _report) {
+    xinfo2(TSF "cpan-cgi cgi%_ runningid:%_", task_.cgi, task_profile_.running_id);
     _conn_profile.disconn_errtype = _errType;
     _conn_profile.disconn_errcode = _status;
     _conn_profile.channel_type = mars::stn::Task::kChannelShort;
@@ -1246,9 +1249,11 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
     move_wrapper<AutoBuffer> body(_body);
     move_wrapper<AutoBuffer> extension(_extension);
     if (IsRunByTaskManager()) {
+        xinfo2(TSF "cpan-cgi cgi%_ runningid:%_", task_.cgi, task_profile_.running_id);
         __RunBuf2Resp(_errType, _status, body, extension, _conn_profile);
     } else {
         if (OnResponse) {
+            xinfo2(TSF "cpan-cgi cgi%_ runningid:%_", task_.cgi, task_profile_.running_id);
             OnResponse(this, _errType, _status, body, extension, false, _conn_profile);
         } else {
             xwarn2(TSF "OnResponse NULL.");
@@ -1344,7 +1349,7 @@ bool ShortLink::__SingleRespHandle(TaskProfile& _task_profile,
                                         _task_profile.task,
                                         (unsigned int)(curtime - _task_profile.start_task_time));
         int errcode = _err_code;
-
+        xinfo2(TSF "cpan-cgi cgi%_ runningid:%_ errcode:%_", task_.cgi, task_profile_.running_id, errcode);
         if (_task_profile.running_id) {
             if (kEctOK == _err_type) {
                 errcode = cgi_retcode;
@@ -1371,7 +1376,7 @@ bool ShortLink::__SingleRespHandle(TaskProfile& _task_profile,
         // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
 
         // TODO
-        // net_source_->GetWeakNetworkLogic()->OnTaskEvent(_task_profile);
+        net_source_->GetWeakNetworkLogic()->OnTaskEvent(_task_profile);
 
         //        __DeleteShortLink(_task_profile.running_id);
         //        {
@@ -1380,14 +1385,9 @@ bool ShortLink::__SingleRespHandle(TaskProfile& _task_profile,
         //        }
 
         intptr_t temp_running_id = _task_profile.running_id;
-        if (on_delete_shortlink_) {
-            on_delete_shortlink_(temp_running_id);
+        if (on_delete_shortlink_erase_cmd_list_) {
+            on_delete_shortlink_erase_cmd_list_(temp_running_id);
         }
-
-        if (on_erase_cmd_list_ && temp_running_id) {
-            on_erase_cmd_list_(temp_running_id);
-        }
-
         return true;
     }
 
@@ -1427,12 +1427,14 @@ bool ShortLink::__SingleRespHandle(TaskProfile& _task_profile,
     _task_profile.err_type = _err_type;
     _task_profile.err_code = _err_code;
     //__DeleteShortLink(_task_profile.running_id);
-    if (on_delete_shortlink_) {
-        on_delete_shortlink_(_task_profile.running_id);
-    }
+
     _task_profile.PushHistory();
     if (on_timeout_or_remote_shutdown_) {
         on_timeout_or_remote_shutdown_(_task_profile);
+    }
+    // delete后 on_timeout_or_remote_shutdown_就空了
+    if (on_delete_shortlink_) {
+        on_delete_shortlink_(_task_profile.running_id);
     }
     _task_profile.InitSendParam();
 
@@ -1449,7 +1451,7 @@ bool ShortLink::__SingleRespHandle(TaskProfile& _task_profile,
 
     // TODO cpan 重试间隔
     _task_profile.retry_time_interval = DEF_TASK_RETRY_INTERNAL;
-
+    xinfo2(TSF "cpan-cgi cgi%_ runningid:%_ ", task_.cgi, task_profile_.running_id);
     return false;
 }
 

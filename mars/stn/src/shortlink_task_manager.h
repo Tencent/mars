@@ -174,6 +174,7 @@ class ShortLinkTaskManager {
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
     std::mutex mutex_;
+    std::mutex mutex_run_loop_;
 };
 
 }  // namespace stn

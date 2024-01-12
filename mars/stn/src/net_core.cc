@@ -879,9 +879,9 @@ void NetCore::__OnShortLinkNetworkError(int _line,
                                         const std::string& _ip,
                                         const std::string& _host,
                                         uint16_t _port) {
-    SYNC2ASYNC_FUNC(
-        boost::bind(&NetCore::__OnShortLinkNetworkError, this, _line, _err_type, _err_code, _ip, _host, _port));
-    xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
+    //    SYNC2ASYNC_FUNC(
+    //        boost::bind(&NetCore::__OnShortLinkNetworkError, this, _line, _err_type, _err_code, _ip, _host, _port));
+    //    xassert2(MessageQueue::CurrentThreadMessageQueue() == messagequeue_creater_.GetMessageQueue());
 
     if (already_release_net_) {
         return;

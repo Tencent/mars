@@ -122,7 +122,7 @@ bool ShortLinkTaskManager::StartTask(const Task& _task, PrepareProfile _prepare_
 bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
     xverbose_function();
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    //    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
     //    mutex_.unlock();
@@ -184,6 +184,10 @@ unsigned int ShortLinkTaskManager::GetTasksContinuousFailCount() {
 
 void ShortLinkTaskManager::__RunLoop() {
     xverbose_function();
+    xinfo2(TSF "cpan-cgi:%_ size:%_", this, lst_cmd_.size());
+
+    std::lock_guard<std::mutex> lock(mutex_);
+
     if (lst_cmd_.empty()) {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
@@ -198,7 +202,7 @@ void ShortLinkTaskManager::__RunLoop() {
         return;
     }
 
-    //__RunOnTimeout();
+    __RunOnTimeout();
     __RunOnStartTask();
 
     if (!lst_cmd_.empty()) {
@@ -215,7 +219,7 @@ void ShortLinkTaskManager::__RunLoop() {
                                     MessageQueue::Message((MessageQueue::MessageTitle_t)this,
                                                           boost::bind(&ShortLinkTaskManager::__RunLoop, this),
                                                           "ShortLinkTaskManager::__RunLoop"),
-                                    MessageQueue::MessageTiming(DEF_TASK_RUN_LOOP_TIMING));
+                                    MessageQueue::MessageTiming(1000));
     } else {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
@@ -235,10 +239,10 @@ void ShortLinkTaskManager::__RunOnTimeout() {
     xverbose2(TSF "lst_cmd_ size=%0", lst_cmd_.size());
     socket_pool_.CleanTimeout();
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    //    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
-    mutex_.unlock();
+    //    mutex_.unlock();
 
     uint64_t cur_time = ::gettickcount();
 
@@ -329,7 +333,7 @@ void ShortLinkTaskManager::__RunOnTimeout() {
 
 void ShortLinkTaskManager::__RunOnStartTask() {
     xverbose_function();
-    std::lock_guard<std::mutex> lock(mutex_);
+    //    std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
     // mutex_.unlock();
@@ -566,6 +570,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                      *first,
                                                                      config,
                                                                      sent_count);
+        worker->SetRunByTaskManager(true);
         worker->func_host_filter = get_real_host_strict_match_;
         worker->func_add_weak_net_info =
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
@@ -633,7 +638,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->fun_callback_ = fun_callback_;
         worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
         worker->on_delete_shortlink_ = std::bind(&ShortLinkTaskManager::__DeleteShortLink, this, std::placeholders::_1);
-        worker->on_erase_cmd_list_ = std::bind(&ShortLinkTaskManager::__OnEraseCmdList, this, std::placeholders::_1);
+        worker->on_delete_shortlink_erase_cmd_list_ =
+            std::bind(&ShortLinkTaskManager::__OnEraseCmdList, this, std::placeholders::_1);
         worker->on_set_use_proxy_ = std::bind(&ShortLinkTaskManager::__OnSetUserProxy, this, std::placeholders::_1);
         worker->on_reset_fail_count_ = std::bind(&ShortLinkTaskManager::__OnResetFailCount, this);
         worker->on_increase_fail_count_ = std::bind(&ShortLinkTaskManager::__OnInCreaseFailCount, this);
@@ -918,7 +924,7 @@ struct find_seq {
 void ShortLinkTaskManager::RedoTasks() {
     xinfo_function();
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    // std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
     //    mutex_.unlock();
@@ -975,10 +981,10 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
     xassert2(kEctOK != _err_type);
     xdebug2(TSF "ect=%0, errcode=%1 taskid:=%2", _err_type, _err_code, _src_taskid);
 
-    std::lock_guard<std::mutex> lock(mutex_);
+    // std::lock_guard<std::mutex> lock(mutex_);
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
-    mutex_.unlock();
+    // mutex_.unlock();
 
     while (first != last) {
         std::list<TaskProfile>::iterator next = first;
@@ -1245,13 +1251,15 @@ void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
     {
         std::lock_guard<std::mutex> lock(mutex_);
         ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-        // p_shortlink->func_add_weak_net_info = NULL;
-        // p_shortlink->func_weak_net_report = NULL;
+
+        p_shortlink->func_add_weak_net_info = NULL;
+        p_shortlink->func_weak_net_report = NULL;
+
         ShortLinkChannelFactory::Destory(p_shortlink);
         _running_id = 0;
         p_shortlink = NULL;
     }
-    MessageQueue::CancelMessage(asyncreg_.Get(), temp_ptr);
+    // MessageQueue::CancelMessage(asyncreg_.Get(), temp_ptr);
 }
 
 ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const {
@@ -1309,7 +1317,7 @@ int ShortLinkTaskManager::__OnGetStatus() {
 }
 
 void ShortLinkTaskManager::__OnCgiTaskStatistic(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time) {
-    dynamic_timeout_.CgiTaskStatistic(_cgi_uri, _total_size, _cost_time);
+    // dynamic_timeout_.CgiTaskStatistic(_cgi_uri, _total_size, _cost_time);
 }
 
 void ShortLinkTaskManager::__OnAddInterceptTask(const std::string& _name, const std::string& _data) {
@@ -1333,8 +1341,10 @@ void ShortLinkTaskManager::__OnSocketPoolTryAdd(IPPortItem item, ConnectProfile&
 }
 
 void ShortLinkTaskManager::__OnEraseCmdList(intptr_t& _running_id) {
+    intptr_t temp_runnging_id = _running_id;
+    __DeleteShortLink(_running_id);
     std::lock_guard<std::mutex> lock(mutex_);
-    std::list<TaskProfile>::iterator it = __LocateBySeq(_running_id);
+    std::list<TaskProfile>::iterator it = __LocateBySeq(temp_runnging_id);
     lst_cmd_.erase(it);
 }
 

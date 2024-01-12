@@ -30,7 +30,10 @@ namespace stn {
 
 class ShortLinkInterface {
  public:
-    virtual ~ShortLinkInterface(){};
+    virtual ~ShortLinkInterface() {
+        func_add_weak_net_info = NULL;
+        func_weak_net_report = NULL;
+    };
     virtual void OnStart() = 0;
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _buffer_extend) = 0;
     virtual ConnectProfile Profile() const {
@@ -65,7 +68,7 @@ class ShortLinkInterface {
                                   const std::string& _ip,
                                   const std::string& _host,
                                   uint16_t _port)> >
-        func_network_report;
+        func_network_report;  // message queen
     CallBack<boost::function<void(ShortLinkInterface* _worker,
                                   ErrCmdType _err_type,
                                   int _status,
@@ -74,15 +77,16 @@ class ShortLinkInterface {
                                   bool _cancel_retry,
                                   ConnectProfile& _conn_profile)> >
         OnResponse;
-    CallBack<boost::function<void(ShortLinkInterface* _worker)> > OnSend;
-    CallBack<boost::function<void(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> >
-        OnRecv;
+    // CallBack<boost::function<void(ShortLinkInterface* _worker)> > OnSend;
+    // CallBack<boost::function<void(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)>
+    // >
+    //   OnRecv;
     boost::function<void(uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET(const IPPortItem& _address)> GetCacheSocket;
 
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func_host_filter;
-    std::function<void(bool _connect_timeout, struct tcp_info& _info)> func_add_weak_net_info;
-    std::function<void(bool _timeout, struct tcp_info& _info)> func_weak_net_report;
+    std::function<void(bool _connect_timeout, struct tcp_info& _info)> func_add_weak_net_info = NULL;
+    std::function<void(bool _timeout, struct tcp_info& _info)> func_weak_net_report = NULL;
     //    CallBack<boost::function<bool(ShortLinkInterface* _worker,
     //                                  TaskProfile& _task_profile,
     //                                  ErrCmdType _err_type,
@@ -117,7 +121,7 @@ class ShortLinkInterface {
         fun_callback_;
     std::function<void(const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
     std::function<void(intptr_t& _running_id)> on_delete_shortlink_;
-    std::function<void(intptr_t& _running_id)> on_erase_cmd_list_;
+    std::function<void(intptr_t& _running_id)> on_delete_shortlink_erase_cmd_list_;
     std::function<void(bool _user_proxy)> on_set_use_proxy_;
     std::function<void()> on_reset_fail_count_;
     std::function<void()> on_increase_fail_count_;
