@@ -71,7 +71,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
-{
+, lp(owl::main_looper()) {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_",
                    asyncreg_.Get().queue,
@@ -92,7 +92,6 @@ ShortLinkTaskManager::~ShortLinkTaskManager() {
 
 bool ShortLinkTaskManager::StartTask(const Task& _task, PrepareProfile _prepare_profile) {
     xverbose_function();
-
     if (_task.send_only) {
         xassert2(false);
         xerror2(TSF "taskid:%_, short link should have resp", _task.taskid);
@@ -185,7 +184,7 @@ void ShortLinkTaskManager::__RunLoop() {
     }
 
     __RunOnTimeout();
-    __RunOnStartTask();
+    __RunOnStartTaskNew();
 
     if (!lst_cmd_.empty()) {
 #ifdef ANDROID
@@ -591,6 +590,36 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         ++sent_count;
         first = next;
     }
+}
+
+void ShortLinkTaskManager::__RunOnStartTaskNew() {
+    // zlog::add_appender(new zlog::colored_console_appender());
+    // zlog::set_level(zlog::debug);
+    //    constexpr int kValue = -1;
+    //    owl::promise p = owl::promise::resolve(kValue);
+    //    p.via(owl::main_looper());
+    //    p.then([](int i) {
+    //         xinfo2(TSF "cpan xxx");
+    //         return owl::promise::resolve(1);
+    //     })
+    //        .then([](int i) {
+    //            xinfo2(TSF "cpan xxx");
+    //            return owl::promise::resolve(1);
+    //        })
+    //        .fail([]() {
+    //            xinfo2(TSF "cpan xxx");
+    //        })
+    //        .always([] {
+    //            xinfo2(TSF "cpan xxx");
+    //        });
+    //    zdebug("hello 2");
+    //    // 启动 main_looper，run_main_looper() 会一直阻塞直到 quit() 被调用
+    //    zdebug("main looper start...");
+    //    //    owl::run_main_looper();
+    zdebug("main looper finished...");
+    lp->async([] {
+        xinfo2(TSF "cpan xxx");
+    });
 }
 
 struct find_seq {

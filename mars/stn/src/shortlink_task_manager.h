@@ -31,6 +31,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
+#include "owl/async.h"
 #include "shortlink.h"
 #include "socket_pool.h"
 #include "task_intercept.h"
@@ -106,6 +107,7 @@ class ShortLinkTaskManager {
     void __RunLoop();
     void __RunOnTimeout();
     void __RunOnStartTask();
+    void __RunOnStartTaskNew();
 
     void __OnResponse(ShortLinkInterface* _worker,
                       ErrCmdType _err_type,
@@ -138,6 +140,21 @@ class ShortLinkTaskManager {
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
  private:
+    void __GetRealHost();     // do nothing
+    void __ReGetRealHost();   // do nothing
+    void __MakeSureAuthed();  // next
+
+    void __Req2Buf();             // SingleRespHandle
+    void __CheckInterceptTask();  // SingleRespHandle
+    void __ShortLinkOnSend();     //
+    void __ShortLinkOnRecv();
+    void __ShortLinkOnResponse();  // SingleRespHandle
+    void __GetCacheSocket();
+    void __OnHandShakeCompleted();
+
+    void __SingleResp();
+
+ private:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::shared_ptr<NetSource> net_source_;
@@ -154,6 +171,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    owl::looper* lp;
 };
 
 }  // namespace stn
