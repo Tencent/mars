@@ -33,6 +33,12 @@
 
 static const char kWellKnownNat64Prefix[] = {'6', '4', ':', 'f', 'f', '9', 'b', ':', ':', '\0'};
 
+socket_address::socket_address() {
+    sockaddr sock_addr = {0};
+    sock_addr.sa_family = AF_UNSPEC;
+    __init((sockaddr*)&sock_addr);
+}
+
 socket_address::socket_address(const char* _ip, uint16_t _port) {
     in6_addr addr6 = IN6ADDR_ANY_INIT;
     in_addr addr4 = {0};
