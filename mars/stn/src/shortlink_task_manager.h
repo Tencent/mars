@@ -25,8 +25,10 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <memory>
 
 #include "boost/function.hpp"
+#include "connect_history.h"
 #include "mars/boot/context.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
@@ -91,7 +93,7 @@ class ShortLinkTaskManager {
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
-    void RedoTasks();
+    void RedoTasks(RedoTaskReason reason);
     void TouchTasks();
     void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
     void SetDebugHost(const std::string& _host) {
@@ -137,10 +139,10 @@ class ShortLinkTaskManager {
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
- private:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::shared_ptr<NetSource> net_source_;
+    std::shared_ptr<ConnectHistory> connect_history_;
 
     std::list<TaskProfile> lst_cmd_;
 

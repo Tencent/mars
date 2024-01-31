@@ -20,13 +20,14 @@
 #ifndef SOCKET_ADDRESS_H_
 #define SOCKET_ADDRESS_H_
 
-#include <string.h>
+#include <cstring>
 
 #include "comm/socket/local_ipstack.h"
 #include "unix_socket.h"
 
 class socket_address {
  public:
+    socket_address();
     explicit socket_address(const char* _ip, uint16_t _port);
     explicit socket_address(const sockaddr_in& _addr);
     explicit socket_address(const sockaddr_in6& _addr);
@@ -65,7 +66,6 @@ class socket_address {
 
     static bool update_nat64_prefix();
 
- public:
     static socket_address getsockname(SOCKET _sock);
     static socket_address getpeername(SOCKET _sock);
 
@@ -77,7 +77,6 @@ class socket_address {
     const sockaddr_in* _asv4() const;
     const sockaddr_in6* _asv6() const;
 
- private:
     struct sockaddr_storage addr_;
     char ip_[96];
     char url_[128];

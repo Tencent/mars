@@ -20,6 +20,7 @@
 #include "shortlink_task_manager.h"
 
 #include <algorithm>
+#include <memory>
 #include <set>
 
 #include "boost/bind.hpp"
@@ -30,11 +31,13 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
+#include "stn.h"
 #ifdef ANDROID
 #include "mars/comm/android/wakeuplock.h"
 #endif
 
 #include "config.h"
+#include "connect_history.h"
 #include "dynamic_timeout.h"
 #include "mars/app/app_manager.h"
 #include "mars/stn/stn_manager.h"
@@ -77,6 +80,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
                    asyncreg_.Get().queue,
                    asyncreg_.Get().seq,
                    MessageQueue::Handler2Queue(asyncreg_.Get()));
+    connect_history_ = std::make_shared<ConnectHistory>();
 }
 
 ShortLinkTaskManager::~ShortLinkTaskManager() {
@@ -323,7 +327,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //重试间隔
+        // 重试间隔
         if (first->retry_time_interval > curtime - first->retry_start_time) {
             xdebug2(TSF "retry interval, taskid:%0, task retry late task, wait:%1",
                     first->task.taskid,
@@ -360,10 +364,15 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.use_quic = true;
                 config.quic.alpn = "h1";
                 config.quic.enable_0rtt = true;
+                config.connect_history = connect_history_;
+
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
@@ -453,7 +462,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //雪崩检测
+        // 雪崩检测
         xassert2(fun_anti_avalanche_check_);
 
         if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
@@ -751,15 +760,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                     handle_type,
                     it->task.taskid,
                     it->task.user_id);
-            //#ifdef __APPLE__
-            //            //.test only.
-            //            const char* pbuffer = (const char*)_body.Ptr();
-            //            for (size_t off = 0; off < _body.Length();){
-            //                size_t len = std::min((size_t)512, _body.Length() - off);
-            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-            //                off += len;
-            //            }
-            //#endif
+            // #ifdef __APPLE__
+            //             //.test only.
+            //             const char* pbuffer = (const char*)_body.Ptr();
+            //             for (size_t off = 0; off < _body.Length();){
+            //                 size_t len = std::min((size_t)512, _body.Length() - off);
+            //                 xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                 off += len;
+            //             }
+            // #endif
             __SingleRespHandle(it,
                                kEctEnDecode,
                                err_code,
@@ -822,7 +831,7 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
     }
 }
 
-void ShortLinkTaskManager::RedoTasks() {
+void ShortLinkTaskManager::RedoTasks(RedoTaskReason reason) {
     xinfo_function();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
@@ -845,6 +854,10 @@ void ShortLinkTaskManager::RedoTasks() {
         }
 
         first = next;
+    }
+
+    if (reason == RedoTaskReason::kNetworkChanged) {
+        connect_history_->Reset();
     }
 
     socket_pool_.Clear();

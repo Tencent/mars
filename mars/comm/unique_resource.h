@@ -113,7 +113,7 @@ class UniqueResource {
     void _Free() {
         if (data_.v != traits_type::InvalidValue()) {
             data_.Free(data_.v);
-            xdebug2(TSF "%_ resource %_ released.", this, data_.v);
+            xdebug2(TSF "%_ fd: %_ closed.", this, data_.v);
             data_.v = traits_type::InvalidValue();
         }
     }

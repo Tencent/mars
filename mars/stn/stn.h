@@ -190,6 +190,8 @@ struct QuicParameters {
     std::string hostname;
     unsigned conn_timeout_ms = 0;
 };
+
+class ConnectHistory;
 struct ShortlinkConfig {
  public:
     ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls) {
@@ -198,6 +200,7 @@ struct ShortlinkConfig {
     bool use_tls = true;
     bool use_quic = false;
     QuicParameters quic;
+    std::shared_ptr<ConnectHistory> connect_history;
 };
 
 enum TaskFailHandleType {
@@ -317,6 +320,11 @@ enum TimeoutSource {
     kClientDefault = 0,
     kServerDefault = 1,
     kCgiSpecial = 2,
+};
+
+enum class RedoTaskReason {
+    kNetworkChanged = 0,
+    kClientRequest = 1,
 };
 
 // move form longlink
