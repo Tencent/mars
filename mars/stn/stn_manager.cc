@@ -359,11 +359,12 @@ void StnManager::RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostli
 // 底层向上层上报cgi执行结果
 void StnManager::ReportTaskProfile(const TaskProfile& _task_profile) {
     xassert2(callback_bridge_ != NULL);
-    if (callback_bridge_) {
-        callback_bridge_->ReportTaskProfile(_task_profile);
-    } else {
-        xwarn2(TSF "mars2 callback_bridget is null.");
-    }
+    // TODO cpan LinkLinkTask ShortLinkTask
+    //    if (callback_bridge_) {
+    //        callback_bridge_->ReportTaskProfile(_task_profile);
+    //    } else {
+    //        xwarn2(TSF "mars2 callback_bridget is null.");
+    //    }
 }
 
 // 底层通知上层cgi命中限制

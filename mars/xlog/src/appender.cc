@@ -264,7 +264,8 @@ void XloggerAppender::Close() {
     thread_moveold_ = nullptr;
     thread_timeout_log_ = nullptr;
 
-    if (log_close_) return;
+    if (log_close_)
+        return;
 
     char mark_info[512] = {0};
     __GetMarkInfo(mark_info, sizeof(mark_info));
@@ -814,7 +815,8 @@ bool XloggerAppender::__OpenLogFile(const std::string& _log_dir) {
     last_time_ = now_time;
 
 #ifdef __APPLE__
-    assert(logfile_);
+    // TODO cpan
+    // assert(logfile_);
 #endif
     return nullptr != logfile_;
 }
@@ -1227,7 +1229,7 @@ void XloggerAppender::TreatMappingAsFileAndFlush(TFileIOAction* _result) {
     } else {
         log_buff_ = new LogZlibBuffer(data.release(), kBufferBlockLength, true, config_.pub_key_.c_str());
     }
-	
+
     log_close_ = false;
 
     // try write mapping to logfile

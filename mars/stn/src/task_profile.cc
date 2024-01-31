@@ -23,6 +23,7 @@
 #include "dynamic_timeout.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/xlogger/xlogger.h"
+#include "owl/coroutine.h"
 
 using namespace mars::comm;
 

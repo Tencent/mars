@@ -32,6 +32,9 @@
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
 #include "owl/async.h"
+#include "owl/coroutine.h"
+//#include "owl/promise.h"
+#include "owl/zlog/console_appender.h"
 #include "shortlink.h"
 #include "socket_pool.h"
 #include "task_intercept.h"
@@ -107,31 +110,39 @@ class ShortLinkTaskManager {
     void __RunLoop();
     void __RunOnTimeout();
     void __RunOnStartTask();
-    void __RunOnStartTaskNew();
 
-    void __OnResponse(ShortLinkInterface* _worker,
+    //    void __OnResponse(ShortLinkInterface* _worker,
+    //                      ErrCmdType _err_type,
+    //                      int _status,
+    //                      AutoBuffer& _body,
+    //                      AutoBuffer& _extension,
+    //                      bool _cancel_retry,
+    //                      ConnectProfile& _conn_profile);
+    void __OnResponse(CoJobTaskProfile& _task_profile,
                       ErrCmdType _err_type,
                       int _status,
                       AutoBuffer& _body,
                       AutoBuffer& _extension,
                       bool _cancel_retry,
                       ConnectProfile& _conn_profile);
-    void __OnSend(ShortLinkInterface* _worker);
-    void __OnRecv(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size);
+    void __OnSend(TaskProfile& task_profile);
+    void __OnRecv(TaskProfile& task_profile, unsigned int _cached_size, unsigned int _total_size);
 
     void __BatchErrorRespHandle(ErrCmdType _err_type,
                                 int _err_code,
                                 int _fail_handle,
                                 uint32_t _src_taskid,
                                 bool _callback_runing_task_only = true);
-    bool __SingleRespHandle(std::list<TaskProfile>::iterator _it,
-                            ErrCmdType _err_type,
-                            int _err_code,
-                            int _fail_handle,
-                            size_t _resp_length,
-                            const ConnectProfile& _connect_profile);
+    //    bool __SingleRespHandle(std::list<TaskProfile>::iterator _it,
+    //                            ErrCmdType _err_type,
+    //                            int _err_code,
+    //                            int _fail_handle,
+    //                            size_t _resp_length,
+    //                            const ConnectProfile& _connect_profile);
 
-    std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
+    //    std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
+
+    //    std::list<TaskProfile>::iterator __LocateByTask(Task& _task);
 
     void __DeleteShortLink(intptr_t& _running_id);
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
@@ -139,12 +150,14 @@ class ShortLinkTaskManager {
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
+    static bool __CompareTask(const CoJobTaskProfile& _first, const CoJobTaskProfile& _second);
+
  private:
-    void __GetRealHost();     // do nothing
+    int __GetRealHost();      // do nothing
     void __ReGetRealHost();   // do nothing
     void __MakeSureAuthed();  // next
 
-    void __Req2Buf();             // SingleRespHandle
+    // owl::promise2<int> __Req2Buf();  // SingleRespHandle
     void __CheckInterceptTask();  // SingleRespHandle
     void __ShortLinkOnSend();     //
     void __ShortLinkOnRecv();
@@ -154,12 +167,20 @@ class ShortLinkTaskManager {
 
     void __SingleResp();
 
+    void __CoLaunchStartTask(CoJobTaskProfile task_profile);
+    bool __SingleRespHandle(CoJobTaskProfile& task_profile,
+                            ErrCmdType _err_type,
+                            int _err_code,
+                            int _fail_handle,
+                            size_t _resp_length,
+                            const ConnectProfile& _connect_profile);
+
  private:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::shared_ptr<NetSource> net_source_;
 
-    std::list<TaskProfile> lst_cmd_;
+    std::list<CoJobTaskProfile> lst_cmd_;
 
     bool default_use_proxy_;
     unsigned int tasks_continuous_fail_count_;
@@ -171,7 +192,13 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
-    owl::looper* lp;
+
+    owl::looper* owl_looper_ = NULL;
+    std::shared_ptr<owl::co_scope> owl_scope_ = NULL;
+    //    owl::co_job run_loop_ = NULL;
+    owl::looper* owl_lst_looper_ = NULL;
+    owl::thread_pool* owl_task_looper;
+    owl::async_scope* owl_task_scope;
 };
 
 }  // namespace stn

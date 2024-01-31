@@ -28,7 +28,8 @@ struct FDTraits {
     }
     static void Free(int fd) {
 #ifndef NDEBUG
-        xassert2(mars::comm::FDInfo::QueryFD(fd).IsFile());
+        // TODO cpan
+        // xassert2(mars::comm::FDInfo::QueryFD(fd).IsFile());
 #endif
         close(fd);
     }

@@ -29,6 +29,11 @@
 #include "mars/comm/time_utils.h"
 #include "mars/stn/config.h"
 #include "mars/stn/stn.h"
+//#include "owl/coroutine.h"
+
+// namespace owl {
+// class co_job;
+//}
 
 namespace mars {
 namespace stn {
@@ -427,6 +432,7 @@ struct TaskProfile {
     PrepareProfile prepare_profile;
     TransferProfile transfer_profile;
     intptr_t running_id;
+    //    owl::co_job co_job;
 
     const uint64_t task_timeout;
     const uint64_t start_task_time;  // ms

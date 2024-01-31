@@ -24,9 +24,21 @@
 #include "mars/comm/messagequeue/callback.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
+#include "owl/coroutine.h"
 
 namespace mars {
 namespace stn {
+
+struct CoJobTaskProfile {
+    owl::co_job job = nullptr;
+    TaskProfile task_profile;
+    CoJobTaskProfile(TaskProfile _task_profile) : task_profile(_task_profile) {
+    }
+
+    void setCoJob(owl::co_job _job) {
+        job = _job;
+    }
+};
 
 class ShortLinkInterface {
  public:
@@ -55,17 +67,29 @@ class ShortLinkInterface {
                                   const std::string& _host,
                                   uint16_t _port)> >
         func_network_report;
-    CallBack<boost::function<void(ShortLinkInterface* _worker,
-                                  ErrCmdType _err_type,
-                                  int _status,
-                                  AutoBuffer& _body,
-                                  AutoBuffer& _extension,
-                                  bool _cancel_retry,
-                                  ConnectProfile& _conn_profile)> >
+
+    //    CallBack<boost::function<void(ShortLinkInterface* _worker,
+    //                                  ErrCmdType _err_type,
+    //                                  int _status,
+    //                                  AutoBuffer& _body,
+    //                                  AutoBuffer& _extension,
+    //                                  bool _cancel_retry,
+    //                                  ConnectProfile& _conn_profile)> >
+    //        OnResponse;
+
+    std::function<void(TaskProfile& _task_profile)> OnSend;
+
+    std::function<void(TaskProfile& _task_profile, unsigned int _cached_size, unsigned int _total_size)> OnRecv;
+
+    std::function<void(CoJobTaskProfile& _task_profile,
+                       ErrCmdType _err_type,
+                       int _status,
+                       AutoBuffer& _body,
+                       AutoBuffer& _extension,
+                       bool _cancel_retry,
+                       ConnectProfile& _conn_profile)>
         OnResponse;
-    CallBack<boost::function<void(ShortLinkInterface* _worker)> > OnSend;
-    CallBack<boost::function<void(ShortLinkInterface* _worker, unsigned int _cached_size, unsigned int _total_size)> >
-        OnRecv;
+
     boost::function<void(uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET(const IPPortItem& _address)> GetCacheSocket;
 
