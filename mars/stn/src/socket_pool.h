@@ -134,20 +134,15 @@ class SocketPool {
 
                 // create sub stream for quic
                 xassert2(_item.transport_protocol == Task::kTransportProtocolQUIC);
-                int subfd = iter->CreateStream();
-                if (subfd == INVALID_SOCKET) {
-                    xwarn2(TSF "create substream failed. url %_:%_ fd %_", _item.str_ip, _item.port, iter->socket_fd);
-                    socket_pool_.erase(iter);
-                    return INVALID_SOCKET;
-                }
+                // int subfd = iter->CreateStream();
+                // if (subfd == INVALID_SOCKET) {
+                //     xwarn2(TSF "create substream failed. url %_:%_ fd %_", _item.str_ip, _item.port,
+                //     iter->socket_fd); socket_pool_.erase(iter); return INVALID_SOCKET;
+                // }
                 // recalc keepalive time
-                xinfo2(TSF "get from cache url %_:%_ owner %_ stream %_",
-                       _item.str_ip,
-                       _item.port,
-                       iter->socket_fd,
-                       subfd);
+                xinfo2(TSF "get from cache url %_:%_ fd %_", _item.str_ip, _item.port, iter->socket_fd);
                 iter->ResetTimeout();
-                return subfd;
+                return iter->socket_fd;
             }
             iter++;
         }
