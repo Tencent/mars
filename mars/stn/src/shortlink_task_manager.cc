@@ -623,16 +623,21 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
             if (_status != kEctSocketShutdown) {  // ignore server close error
                 socket_pool_.Report(_conn_profile.is_reused_fd, false, false);
             }
-        } else if (_conn_profile.ip_index >= 0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
-            IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
-            CacheSocketItem cache_item(item,
-                                       _conn_profile.socket_fd,
-                                       _conn_profile.keepalive_timeout,
-                                       _conn_profile.closefunc,
-                                       _conn_profile.createstream_func,
-                                       _conn_profile.issubstream_func);
-            if (!socket_pool_.AddCache(cache_item)) {
-                _conn_profile.closefunc(cache_item.socket_fd);
+        } else if (_conn_profile.ip_index >= 0
+                   && _conn_profile.ip_index < static_cast<int>(_conn_profile.ip_items.size())) {
+            if (_conn_profile.transport_protocol == Task::kTransportProtocolTCP) {
+                IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
+                CacheSocketItem cache_item(item,
+                                           _conn_profile.socket_fd,
+                                           _conn_profile.keepalive_timeout,
+                                           _conn_profile.closefunc,
+                                           _conn_profile.createstream_func,
+                                           _conn_profile.issubstream_func);
+                if (!socket_pool_.AddCache(cache_item)) {
+                    _conn_profile.closefunc(cache_item.socket_fd);
+                }
+            } else {
+                _conn_profile.closefunc(_conn_profile.socket_fd);
             }
         } else {
             xassert2(false, "not match");
