@@ -31,6 +31,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
+#include "owl/coroutine.h"
 #include "shortlink.h"
 #include "socket_pool.h"
 #include "task_intercept.h"
@@ -87,7 +88,7 @@ class ShortLinkTaskManager {
                          comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
-    bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
+    bool StartTask(const Task& _task, PrepareProfile& _prepare_profile);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -137,6 +138,8 @@ class ShortLinkTaskManager {
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
+    void __OnChanReceive();
+
  private:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
@@ -154,8 +157,11 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    owl::looper* owl_looper_ = NULL;
+    std::shared_ptr<owl::co_scope> owl_scope_ = NULL;
+    // std::shared_ptr<owl::co_looper_scope<owl::co_shared_stack_strategy<>>> owl_shared_scope_ = NULL;
+    std::shared_ptr<owl::co_channel<uint32_t>> owl_channel_ = NULL;
 };
-
 }  // namespace stn
 }  // namespace mars
 

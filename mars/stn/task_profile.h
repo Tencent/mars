@@ -391,6 +391,8 @@ struct TaskProfile {
         // mars2
         is_weak_network = false;
         is_last_valid_connect_fail = false;
+
+        co_job_name = "";
     }
 
     void InitSendParam() {
@@ -455,6 +457,8 @@ struct TaskProfile {
     // mars2
     bool is_weak_network;
     bool is_last_valid_connect_fail;
+
+    std::string co_job_name;
 };
 
 void __SetLastFailedStatus(std::list<TaskProfile>::iterator _it);
