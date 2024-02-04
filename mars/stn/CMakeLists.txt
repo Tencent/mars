@@ -43,3 +43,6 @@ elseif(ANDROID)
 endif()
 
 BuildWithUnitTest("${PROJECT_NAME}" "${SELF_SRC_FILES}")
+
+message("OWL:${OWL}")
+target_link_libraries(${PROJECT_NAME} PRIVATE "${OWL}")

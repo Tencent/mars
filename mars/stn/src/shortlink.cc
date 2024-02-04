@@ -177,6 +177,7 @@ void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
     send_body_.Attach(_buf_req);
     send_extend_.Attach(_buffer_extend);
     thread_.start();
+    //    __Run();
 }
 
 void ShortLink::__Run() {
@@ -826,7 +827,8 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 }
 
 void ShortLink::__UpdateProfile(const ConnectProfile _conn_profile) {
-    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
+    // TODO cpan begin
+    // STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
     ConnectProfile profile = conn_profile_;
     conn_profile_ = _conn_profile;
     conn_profile_.tls_handshake_successful_time = profile.tls_handshake_successful_time;
