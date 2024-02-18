@@ -8,7 +8,9 @@ project (baseevent)
 include(../comm/CMakeUtils.txt)
 include(../comm/CMakeExtraFlags.txt)
 
-
+if(OHOS)
+    add_definitions(-DOHOS)
+endif()
 include_directories(.)
 include_directories(src)
 include_directories(..)
