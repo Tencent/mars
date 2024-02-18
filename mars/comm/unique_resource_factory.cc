@@ -36,7 +36,9 @@ std::wstring string2wstring(const std::string& input) {
 #else
 
 #include <fcntl.h>
+#ifndef OHOS
 #include <sys/stat.h>
+#endif
 #include <sys/types.h>
 
 #define READFLAG (O_RDONLY)
