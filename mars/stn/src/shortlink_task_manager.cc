@@ -92,10 +92,18 @@ ShortLinkTaskManager::~ShortLinkTaskManager() {
 #ifdef ANDROID
     delete wakeup_lock_;
 #endif
-    if (owl_scope_)
-        if (owl_channel_) {
-            owl_channel_->close();
-        }
+    if (owl_channel_) {
+        owl_channel_->close();
+        owl_channel_ = nullptr;
+    }
+    if (owl_scope_) {
+        owl_scope_->cancel();
+        owl_scope_ = nullptr;
+    }
+    if (owl_looper_) {
+        owl_looper_->quit();
+        owl_looper_ = nullptr;
+    }
 }
 
 bool ShortLinkTaskManager::StartTask(const Task& _task, PrepareProfile& _prepare_profile) {
@@ -177,6 +185,7 @@ void ShortLinkTaskManager::ClearTasks() {
 
     // TODO cpan CHECK
     owl_scope_->cancel();
+    owl_looper_->quit();
 
     for (std::list<TaskProfile>::iterator it = lst_cmd_.begin(); it != lst_cmd_.end(); ++it) {
         __DeleteShortLink(it->running_id);
@@ -469,7 +478,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             xdebug2(TSF "cgi can use tls: %_, host: %_", use_tls, hosts[0]);
         }
         config.use_tls = use_tls;
-
+        zdebug("cpan cgi %_ priority %_", first->task.cgi, first->task.priority);
+        owl::co_options options = owl::co_options::with_priority(first->task.priority);
         auto job = owl_scope_->co_launch([=] {
             AutoBuffer bufreq;
             AutoBuffer buffer_extension;
@@ -655,12 +665,8 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                         ConnectProfile& _conn_profile) {
     //    auto __body = std::make_shared<AutoBuffer>(body);
     //    auto __extension = std::make_shared<AutoBuffer>(extension);
-     move_wrapper<AutoBuffer> _body(__body);
-     move_wrapper<AutoBuffer> _extension(__extension);
-//    AutoBuffer _body;
-//    AutoBuffer _extension;
-//    _body.Write(___body);
-//    _extension.Write(___extension);
+    move_wrapper<AutoBuffer> _body(__body);
+    move_wrapper<AutoBuffer> _extension(__extension);
     owl_scope_->co_launch([this, _worker, _err_type, _status, _body, _extension, _cancel_retry, _conn_profile] {
         xdebug2(TSF "worker=%0, _err_type=%1, _status=%2, _body.lenght=%3, _cancel_retry=%4",
                 _worker,
