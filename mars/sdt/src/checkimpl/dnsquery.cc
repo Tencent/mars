@@ -378,8 +378,9 @@ unsigned char* ReadName(unsigned char* _reader, unsigned char* _buffer, int* _co
 
         name[i] = '.';
     }
-
-    name[i - 1] = '\0';  // remove the last dot
+    if (i > 0) {
+        name[i - 1] = '\0';  // remove the last dot
+    }
     return name;
 }
 
