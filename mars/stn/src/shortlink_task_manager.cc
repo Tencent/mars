@@ -78,9 +78,10 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
                    asyncreg_.Get().seq,
                    MessageQueue::Handler2Queue(asyncreg_.Get()));
     owl_looper_ = owl::create_looper("shortlink_task_manager_looper");
-    owl_scope_ = std::make_shared<owl::co_scope>("shortlink_task_manager");
+    owl_scope_ = std::make_shared<owl::co_scope>("shortlink_task_manager_scope");
     owl_scope_.get()->options().exec = owl_looper_;
     owl_channel_ = std::make_shared<owl::co_channel<uint32_t>>();
+    __OnChanReceive();
 }
 
 ShortLinkTaskManager::~ShortLinkTaskManager() {
@@ -93,15 +94,21 @@ ShortLinkTaskManager::~ShortLinkTaskManager() {
     delete wakeup_lock_;
 #endif
     if (owl_channel_) {
-        owl_channel_->close();
-        owl_channel_ = nullptr;
+        zdebug("OWL __OnChanReceive close");
+        co_with_context(owl_looper_) {
+            owl_channel_->close();
+        };
+        // owl_channel_ = nullptr;
     }
     if (owl_scope_) {
+        zdebug("OWL Scope cancle");
         owl_scope_->cancel();
         owl_scope_ = nullptr;
     }
     if (owl_looper_) {
+        zdebug("OWL Looper quit");
         owl_looper_->quit();
+        owl_looper_->join();
         owl_looper_ = nullptr;
     }
 }
@@ -150,8 +157,8 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
 
             owl_scope_->co_launch([=] {
                 owl_channel_->send(first->task.taskid);
+                //__OnChanReceive();
             });
-            __OnChanReceive();
 
             return true;
         }
@@ -478,7 +485,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             xdebug2(TSF "cgi can use tls: %_, host: %_", use_tls, hosts[0]);
         }
         config.use_tls = use_tls;
-        zdebug("cpan cgi %_ priority %_", first->task.cgi, first->task.priority);
+        zdebug("OWL cpan cgi %_ priority %_", first->task.cgi, first->task.priority);
         owl::co_options options = owl::co_options::with_priority(first->task.priority);
         auto job = owl_scope_->co_launch([=] {
             AutoBuffer bufreq;
@@ -1122,8 +1129,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
          */
         owl_scope_->co_launch([=] {
             owl_channel_->send(_it->task.taskid);
+            //__OnChanReceive();
         });
-        __OnChanReceive();
 
         return true;
     }
@@ -1253,18 +1260,19 @@ void ShortLinkTaskManager::__OnAddWeakNetInfo(bool _connect_timeout, struct tcp_
 void ShortLinkTaskManager::__OnChanReceive() {
     zdebug_function();
     owl_scope_->co_launch([=] {
-        for (auto x : *owl_channel_) {
+        while (owl_channel_ != nullptr) {
+            auto x = owl_channel_->receive();
             auto first = lst_cmd_.begin();
             auto last = lst_cmd_.end();
             while (lst_cmd_.size() > 0 && first != last) {
                 if (x == first->task.taskid) {
-                    zdebug("__OnChanReceive task %_", x);
-                    zdebug("__OnChanReceive lst_cmd before %_", lst_cmd_.size());
+                    zdebug("OWL __OnChanReceive task %_", x);
+                    zdebug("OWL __OnChanReceive lst_cmd before %_", lst_cmd_.size());
                     co_non_cancellable() {
                         __DeleteShortLink(first->running_id);
                         lst_cmd_.erase(first);
                     };
-                    zdebug("__OnChanReceive lst_cmd after%_", lst_cmd_.size());
+                    zdebug("OWL __OnChanReceive lst_cmd after%_", lst_cmd_.size());
                     break;
                 }
                 ++first;
