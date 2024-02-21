@@ -102,7 +102,7 @@ add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
 install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
 get_filename_component(EXPORT_XLOG_EXP_FILE ohoslibraries/export.exp ABSOLUTE)
 set(SELF_XLOG_LINKER_FLAG "-Wl,--gc-sections -Wl,--version-script='${EXPORT_XLOG_EXP_FILE}'") 
-target_link_libraries(${SELF_LIB_NAME} "${SELF_XLOG_LINKER_FLAG}"
+target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
                         xlog
                         mars-boost
                         comm
