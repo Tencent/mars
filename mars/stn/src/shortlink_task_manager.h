@@ -157,7 +157,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
-    owl::looper* owl_looper_ = NULL;
+    std::shared_ptr<owl::looper> owl_looper_ = NULL;
     std::shared_ptr<owl::co_scope> owl_scope_ = NULL;
     // std::shared_ptr<owl::co_looper_scope<owl::co_shared_stack_strategy<>>> owl_shared_scope_ = NULL;
     std::shared_ptr<owl::co_channel<uint32_t>> owl_channel_ = NULL;

@@ -3,6 +3,7 @@
 #include "comm/jni/jnicat/jnicat_core.h"
 #include "comm/jni/util/scope_jenv.h"
 #include "comm/jni/util/var_cache.h"
+#include "owl/coroutine.h"
 
 static void MyExceptionHandler(const std::string& stacktrace) {
     std::abort();
@@ -25,6 +26,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* jvm, void* reserved) {
 
     jcache::shared()->set_exception_handler(&MyExceptionHandler);
     jcache::shared()->init(jvm);
+
+    owl::co_prepare_jvm(jvm);
 
     return JNI_VERSION_1_6;
 }
