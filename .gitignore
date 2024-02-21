@@ -116,3 +116,4 @@ cmake_build
 *.settings
 mars/cmake-build-debug
 mars/openssl/include/openssl/*
+mars/owl/*

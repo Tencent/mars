@@ -63,7 +63,12 @@ list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} owl/mpl/*.cc owl/mpl/*.h)
 source_group(owl FILES ${SELF_TEMP_SRC_FILES})
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
- 
+
+include_directories(../../../mars/mars/owl)
+file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} ../owl/*.h ../owl/coroutine/*.h)
+source_group(owl2 FILES ${SELF_TEMP_SRC_FILES})
+list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
+
 if(MSVC)
     add_definitions(/FI"../projdef.h")
     

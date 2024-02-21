@@ -58,6 +58,15 @@ using namespace mars::app;
 // std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_; boost::function<bool (int _error_code)>
 // ShortLinkTaskManager::should_intercept_result_;
 
+#define COROUTINE_STACK_SIZE (512 * 1024)
+#ifdef __ANDROID__
+#define MAIN_THREAD_STACK_SIZE (1024 * 1024 * 7)
+#define COROUTINE_TOTAL_STACK_SIZE (1024 * 1024 * 6)
+#else
+#define MAIN_THREAD_STACK_SIZE (0)
+#define MAX_CONCURRENT_COUNT (100)
+#endif
+
 ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
                                            std::shared_ptr<NetSource> _netsource,
                                            DynamicTimeout& _dynamictimeout,
@@ -77,9 +86,42 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
                    asyncreg_.Get().queue,
                    asyncreg_.Get().seq,
                    MessageQueue::Handler2Queue(asyncreg_.Get()));
-    owl_looper_ = owl::create_looper("shortlink_task_manager_looper");
+
+    owl_looper_ = std::shared_ptr<owl::looper>(
+        owl::create_looper("shortlink_task_manager_looper",
+                           MAIN_THREAD_STACK_SIZE,
+                           [] {
+                               xdebug2(TSF "OWL aff conetxt looper start hhhhhh!");
+                               auto co_tid = std::this_thread::get_id();
+// calling java from coroutine function will crash,
+// we can't use heap memory as coroutine's stack
+#ifdef __ANDROID__
+                               char stack[COROUTINE_TOTAL_STACK_SIZE];
+                               owl::co_set_stack(stack, COROUTINE_TOTAL_STACK_SIZE, COROUTINE_STACK_SIZE);
+                               xdebug2(TSF "OWL before enable jni");
+                               owl::co_enable_jni();
+                               xdebug2(TSF "OWL after enable jni");
+#else
+                                   owl::co_set_stack(nullptr, 0, COROUTINE_STACK_SIZE);
+                                   owl::co_set_max_concurrent_count(MAX_CONCURRENT_COUNT);
+#endif
+                               owl::this_looper()->run_until_quit();
+                               xdebug2(TSF "caff conetxt looper end hhh!");
+                           }),
+        [](owl::looper* ptr) {
+            xdebug2(TSF "context looper exiting");
+            ptr->quit();
+            ptr->join();
+            delete ptr;
+        });
+
+    //    owl_looper_ = std::shared_ptr<owl::looper>(owl::create_looper("shortlink_task_manager_looper"));
+    //    xdebug2(TSF "OWL before enable jni");
+    //    owl::co_enable_jni();
+    //    xdebug2(TSF "OWL after enable jni");
+    // owl_looper_ = owl::create_looper("shortlink_task_manager_looper");
     owl_scope_ = std::make_shared<owl::co_scope>("shortlink_task_manager_scope");
-    owl_scope_.get()->options().exec = owl_looper_;
+    owl_scope_.get()->options().exec = owl_looper_.get();
     owl_channel_ = std::make_shared<owl::co_channel<uint32_t>>();
     __OnChanReceive();
 }
@@ -94,19 +136,19 @@ ShortLinkTaskManager::~ShortLinkTaskManager() {
     delete wakeup_lock_;
 #endif
     if (owl_channel_) {
-        zdebug("OWL __OnChanReceive close");
-        co_with_context(owl_looper_) {
+        xdebug2(TSF "OWL __OnChanReceive close");
+        co_with_context(owl_looper_.get()) {
             owl_channel_->close();
         };
         // owl_channel_ = nullptr;
     }
     if (owl_scope_) {
-        zdebug("OWL Scope cancle");
+        xdebug2(TSF "OWL Scope cancle");
         owl_scope_->cancel();
         owl_scope_ = nullptr;
     }
     if (owl_looper_) {
-        zdebug("OWL Looper quit");
+        xdebug2(TSF "OWL Looper quit");
         owl_looper_->quit();
         owl_looper_->join();
         owl_looper_ = nullptr;
@@ -485,7 +527,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             xdebug2(TSF "cgi can use tls: %_, host: %_", use_tls, hosts[0]);
         }
         config.use_tls = use_tls;
-        zdebug("OWL cpan cgi %_ priority %_", first->task.cgi, first->task.priority);
+        xdebug2(TSF "OWL cpan cgi %_ priority %_", first->task.cgi, first->task.priority);
         owl::co_options options = owl::co_options::with_priority(first->task.priority);
         auto job = owl_scope_->co_launch([=] {
             AutoBuffer bufreq;
@@ -1260,19 +1302,19 @@ void ShortLinkTaskManager::__OnAddWeakNetInfo(bool _connect_timeout, struct tcp_
 void ShortLinkTaskManager::__OnChanReceive() {
     zdebug_function();
     owl_scope_->co_launch([=] {
-        while (owl_channel_ != nullptr) {
+        while (owl_channel_ != nullptr && !owl_channel_->is_closed()) {
             auto x = owl_channel_->receive();
             auto first = lst_cmd_.begin();
             auto last = lst_cmd_.end();
             while (lst_cmd_.size() > 0 && first != last) {
                 if (x == first->task.taskid) {
-                    zdebug("OWL __OnChanReceive task %_", x);
-                    zdebug("OWL __OnChanReceive lst_cmd before %_", lst_cmd_.size());
+                    xdebug2(TSF "OWL __OnChanReceive task %_", x);
+                    xdebug2(TSF "OWL __OnChanReceive lst_cmd before %_", lst_cmd_.size());
                     co_non_cancellable() {
                         __DeleteShortLink(first->running_id);
                         lst_cmd_.erase(first);
                     };
-                    zdebug("OWL __OnChanReceive lst_cmd after%_", lst_cmd_.size());
+                    xdebug2(TSF "OWL __OnChanReceive lst_cmd after%_", lst_cmd_.size());
                     break;
                 }
                 ++first;
