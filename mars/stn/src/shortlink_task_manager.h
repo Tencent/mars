@@ -160,7 +160,7 @@ class ShortLinkTaskManager {
     std::shared_ptr<owl::looper> owl_looper_ = NULL;
     std::shared_ptr<owl::co_scope> owl_scope_ = NULL;
     // std::shared_ptr<owl::co_looper_scope<owl::co_shared_stack_strategy<>>> owl_shared_scope_ = NULL;
-    std::shared_ptr<owl::co_channel<uint32_t>> owl_channel_ = NULL;
+    std::shared_ptr<owl::co_channel<Task>> owl_channel_ = NULL;
 };
 }  // namespace stn
 }  // namespace mars
