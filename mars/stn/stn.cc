@@ -65,6 +65,7 @@ Task::Task(uint32_t _taskid) {
     server_sequence_id = 0;
 
     need_realtime_netinfo = false;
+    need_erase = false;
 }
 
 /* mars2

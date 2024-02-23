@@ -122,7 +122,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
     // owl_looper_ = owl::create_looper("shortlink_task_manager_looper");
     owl_scope_ = std::make_shared<owl::co_scope>("shortlink_task_manager_scope");
     owl_scope_.get()->options().exec = owl_looper_.get();
-    owl_channel_ = std::make_shared<owl::co_channel<uint32_t>>();
+    owl_channel_ = std::make_shared<owl::co_channel<Task>>();
     __OnChanReceive();
 }
 
@@ -196,9 +196,9 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
             __DeleteShortLink(first->running_id);
             lst_cmd_.erase(first);
             */
-
+            first->task.need_erase = true;
             owl_scope_->co_launch([=] {
-                owl_channel_->send(first->task.taskid);
+                owl_channel_->send(first->task);
                 //__OnChanReceive();
             });
 
@@ -1169,8 +1169,9 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         __DeleteShortLink(_it->running_id);
         lst_cmd_.erase(_it);
          */
+        _it->task.need_erase = true;
         owl_scope_->co_launch([=] {
-            owl_channel_->send(_it->task.taskid);
+            owl_channel_->send(_it->task);
             //__OnChanReceive();
         });
 
@@ -1210,8 +1211,13 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->transfer_profile.error_code = _err_code;
     _it->err_type = _err_type;
     _it->err_code = _err_code;
-    __DeleteShortLink(_it->running_id);
+    //__DeleteShortLink(_it->running_id);
     _it->PushHistory();
+    _it->task.need_erase = false;
+    owl_scope_->co_launch([=] {
+        owl_channel_->send(_it->task);
+        //__OnChanReceive();
+    });
     if (on_timeout_or_remote_shutdown_) {
         on_timeout_or_remote_shutdown_(*_it);
     }
@@ -1307,12 +1313,14 @@ void ShortLinkTaskManager::__OnChanReceive() {
             auto first = lst_cmd_.begin();
             auto last = lst_cmd_.end();
             while (lst_cmd_.size() > 0 && first != last) {
-                if (x == first->task.taskid) {
-                    xdebug2(TSF "OWL __OnChanReceive task %_", x);
+                if (x.taskid == first->task.taskid) {
+                    xdebug2(TSF "OWL __OnChanReceive task %_", x.taskid);
                     xdebug2(TSF "OWL __OnChanReceive lst_cmd before %_", lst_cmd_.size());
                     co_non_cancellable() {
                         __DeleteShortLink(first->running_id);
-                        lst_cmd_.erase(first);
+                        if (x.need_erase) {
+                            lst_cmd_.erase(first);
+                        }
                     };
                     xdebug2(TSF "OWL __OnChanReceive lst_cmd after%_", lst_cmd_.size());
                     break;
