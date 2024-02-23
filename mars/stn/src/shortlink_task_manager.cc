@@ -196,9 +196,10 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
             __DeleteShortLink(first->running_id);
             lst_cmd_.erase(first);
             */
-            first->task.need_erase = true;
+            Task task = first->task;
+            task.need_erase = true;
             owl_scope_->co_launch([=] {
-                owl_channel_->send(first->task);
+                owl_channel_->send(task);
                 //__OnChanReceive();
             });
 
@@ -1169,9 +1170,10 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         __DeleteShortLink(_it->running_id);
         lst_cmd_.erase(_it);
          */
-        _it->task.need_erase = true;
+        Task task = _it->task;
+        task.need_erase = true;
         owl_scope_->co_launch([=] {
-            owl_channel_->send(_it->task);
+            owl_channel_->send(task);
             //__OnChanReceive();
         });
 
@@ -1213,9 +1215,10 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->err_code = _err_code;
     //__DeleteShortLink(_it->running_id);
     _it->PushHistory();
-    _it->task.need_erase = false;
+    Task task = _it->task;
+    task.need_erase = true;
     owl_scope_->co_launch([=] {
-        owl_channel_->send(_it->task);
+        owl_channel_->send(task);
         //__OnChanReceive();
     });
     if (on_timeout_or_remote_shutdown_) {
@@ -1310,6 +1313,7 @@ void ShortLinkTaskManager::__OnChanReceive() {
     owl_scope_->co_launch([=] {
         while (owl_channel_ != nullptr && !owl_channel_->is_closed()) {
             auto x = owl_channel_->receive();
+
             auto first = lst_cmd_.begin();
             auto last = lst_cmd_.end();
             while (lst_cmd_.size() > 0 && first != last) {
