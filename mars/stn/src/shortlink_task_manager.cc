@@ -140,13 +140,15 @@ ShortLinkTaskManager::~ShortLinkTaskManager() {
         co_with_context(owl_looper_.get()) {
             owl_channel_->close();
         };
-        // owl_channel_ = nullptr;
     }
     if (owl_scope_) {
         xdebug2(TSF "OWL Scope cancle");
         owl_scope_->cancel();
+        owl_scope_->join();
         owl_scope_ = nullptr;
+        owl_channel_ = nullptr;
     }
+
     if (owl_looper_) {
         xdebug2(TSF "OWL Looper quit");
         owl_looper_->quit();
@@ -200,6 +202,7 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
             task.need_erase = true;
             owl_scope_->co_launch([=] {
                 owl_channel_->send(task);
+                xdebug2(TSF "OWL send task %_", task.taskid);
                 //__OnChanReceive();
             });
 
@@ -233,9 +236,28 @@ void ShortLinkTaskManager::ClearTasks() {
 
     xinfo2(TSF "cmd size:%0", lst_cmd_.size());
 
-    // TODO cpan CHECK
-    owl_scope_->cancel();
-    owl_looper_->quit();
+    if (owl_channel_) {
+        xdebug2(TSF "OWL __OnChanReceive close");
+        co_with_context(owl_looper_.get()) {
+            owl_channel_->close();
+        };
+    }
+    if (owl_scope_) {
+        xdebug2(TSF "OWL Scope cancle");
+        owl_scope_->cancel();
+        owl_scope_->join();
+        owl_scope_ = nullptr;
+        owl_channel_ = nullptr;
+    }
+
+    if (owl_looper_) {
+        xdebug2(TSF "OWL Looper quit");
+        owl_looper_->quit();
+        owl_looper_->join();
+        owl_looper_ = nullptr;
+    }
+
+    xdebug2(TSF "OWL ClearTasks cancel and quit.");
 
     for (std::list<TaskProfile>::iterator it = lst_cmd_.begin(); it != lst_cmd_.end(); ++it) {
         __DeleteShortLink(it->running_id);
@@ -243,6 +265,11 @@ void ShortLinkTaskManager::ClearTasks() {
 
     // TODO cpan begin
     lst_cmd_.clear();
+
+    owl_scope_ = std::make_shared<owl::co_scope>("shortlink_task_manager_scope");
+    owl_scope_.get()->options().exec = owl_looper_.get();
+    owl_channel_ = std::make_shared<owl::co_channel<Task>>();
+    __OnChanReceive();
 }
 
 unsigned int ShortLinkTaskManager::GetTasksContinuousFailCount() {
@@ -1174,6 +1201,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         task.need_erase = true;
         owl_scope_->co_launch([=] {
             owl_channel_->send(task);
+            xdebug2(TSF "OWL send task %_", task.taskid);
             //__OnChanReceive();
         });
 
@@ -1219,6 +1247,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     task.need_erase = true;
     owl_scope_->co_launch([=] {
         owl_channel_->send(task);
+        xdebug2(TSF "OWL send task %_", task.taskid);
         //__OnChanReceive();
     });
     if (on_timeout_or_remote_shutdown_) {
@@ -1313,7 +1342,7 @@ void ShortLinkTaskManager::__OnChanReceive() {
     owl_scope_->co_launch([=] {
         while (owl_channel_ != nullptr && !owl_channel_->is_closed()) {
             auto x = owl_channel_->receive();
-
+            xdebug2(TSF "OWL receive add msg.");
             auto first = lst_cmd_.begin();
             auto last = lst_cmd_.end();
             while (lst_cmd_.size() > 0 && first != last) {
@@ -1332,5 +1361,6 @@ void ShortLinkTaskManager::__OnChanReceive() {
                 ++first;
             }
         }
+        xdebug2(TSF "OWL __OnChanReceive channel is nullptr or closed.");
     });
 }
