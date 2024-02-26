@@ -392,13 +392,14 @@ struct TaskProfile {
         is_weak_network = false;
         is_last_valid_connect_fail = false;
 
-        co_job_name = "";
+        owl_job = 0;
     }
 
     void InitSendParam() {
         // prepare_profile.Reset();//need not reset
         transfer_profile.Reset();
         running_id = 0;
+        owl_job = 0;
     }
 
     void PushHistory() {
@@ -458,7 +459,7 @@ struct TaskProfile {
     bool is_weak_network;
     bool is_last_valid_connect_fail;
 
-    std::string co_job_name;
+    intptr_t owl_job;
 };
 
 void __SetLastFailedStatus(std::list<TaskProfile>::iterator _it);

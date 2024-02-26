@@ -138,7 +138,10 @@ class ShortLinkTaskManager {
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
-    void __OnChanReceive();
+    void __OnOwlInit();
+    void __OnOwlUnInit();
+    void __OnOwlReceive();
+    void __OnDeleteOwlJob(intptr_t& _owl_job);
 
  private:
     boot::Context* context_;
