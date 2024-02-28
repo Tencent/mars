@@ -2,10 +2,10 @@
 #ifndef Mars_verinfo_h
 #define Mars_verinfo_h
 
-#define MARS_REVISION "${mars_rev}"
-#define MARS_PATH "${mars_branch}"
+#define MARS_REVISION "13e1ec55"
+#define MARS_PATH "release/android/2024-t1"
 #define MARS_URL ""
-#define MARS_BUILD_TIME "20231114"
-#define MARS_TAG "1.0.0-SNAPSHOT"
+#define MARS_BUILD_TIME "2024-02-28 11:22:06"
+#define MARS_TAG ""
 
 #endif
