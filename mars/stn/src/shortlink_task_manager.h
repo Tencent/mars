@@ -40,6 +40,21 @@ class AutoBuffer;
 
 namespace mars {
 
+enum OwlTaskAction {
+    kAddTask = 0,
+    kRemoveTask = 1,
+    kRunLoop = 2,
+};
+
+struct OwlTask {
+    OwlTask(){};
+    ~OwlTask(){};
+    mars::stn::Task task;
+    mars::stn::PrepareProfile prepare_profile;
+    bool need_erase;
+    OwlTaskAction action;
+};
+
 namespace comm {
 #ifdef ANDROID
 class WakeUpLock;
@@ -105,6 +120,7 @@ class ShortLinkTaskManager {
 
  private:
     void __RunLoop();
+    void __RunLoopJob();
     void __RunOnTimeout();
     void __RunOnStartTask();
 
@@ -163,7 +179,7 @@ class ShortLinkTaskManager {
     std::shared_ptr<owl::looper> owl_looper_ = NULL;
     std::shared_ptr<owl::co_scope> owl_scope_ = NULL;
     // std::shared_ptr<owl::co_looper_scope<owl::co_shared_stack_strategy<>>> owl_shared_scope_ = NULL;
-    std::shared_ptr<owl::co_channel<Task>> owl_channel_ = NULL;
+    std::shared_ptr<owl::co_channel<OwlTask>> owl_channel_ = NULL;
 };
 }  // namespace stn
 }  // namespace mars
