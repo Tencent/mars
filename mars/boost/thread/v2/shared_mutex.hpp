@@ -149,147 +149,218 @@ public:
 
  */
 
+#include <boost/thread/condition_variable.hpp>
 #include <boost/thread/detail/config.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
+#ifdef BOOST_THREAD_USES_CHRONO
 #include <boost/chrono.hpp>
-#include <climits>
+#endif
+#include <boost/bind/bind.hpp>
 #include <boost/system/system_error.hpp>
-#define BOOST_THREAD_INLINE inline
+#include <climits>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
   namespace thread_v2 {
 
     class shared_mutex
     {
-      typedef ::boost::mutex              mutex_t;
-      typedef ::boost::condition_variable cond_t;
-      typedef unsigned                count_t;
+      typedef mars_boost::mutex              mutex_t;
+      typedef mars_boost::condition_variable cond_t;
+      typedef unsigned                  count_t;
 
       mutex_t mut_;
       cond_t  gate1_;
+      // the gate2_ condition variable is only used by functions that
+      // have taken write_entered_ but are waiting for no_readers()
       cond_t  gate2_;
       count_t state_;
 
       static const count_t write_entered_ = 1U << (sizeof(count_t)*CHAR_BIT - 1);
       static const count_t n_readers_ = ~write_entered_;
 
-    public:
-      BOOST_THREAD_INLINE shared_mutex();
-      BOOST_THREAD_INLINE ~shared_mutex();
+      bool no_writer() const
+      {
+        return (state_ & write_entered_) == 0;
+      }
 
-#ifndef BOOST_NO_CXX11_DELETED_FUNCTIONS
-      shared_mutex(shared_mutex const&) = delete;
-      shared_mutex& operator=(shared_mutex const&) = delete;
-#else // BOOST_NO_CXX11_DELETED_FUNCTIONS
-    private:
+      bool one_writer() const
+      {
+        return (state_ & write_entered_) != 0;
+      }
+
+      bool no_writer_no_readers() const
+      {
+        //return (state_ & write_entered_) == 0 &&
+        //       (state_ & n_readers_) == 0;
+        return state_ == 0;
+      }
+
+      bool no_writer_no_max_readers() const
+      {
+        return (state_ & write_entered_) == 0 &&
+               (state_ & n_readers_) != n_readers_;
+      }
+
+      bool no_readers() const
+      {
+        return (state_ & n_readers_) == 0;
+      }
+
+      bool one_or_more_readers() const
+      {
+        return (state_ & n_readers_) > 0;
+      }
+
       shared_mutex(shared_mutex const&);
       shared_mutex& operator=(shared_mutex const&);
+
     public:
-#endif // BOOST_NO_CXX11_DELETED_FUNCTIONS
+      shared_mutex();
+      ~shared_mutex();
 
       // Exclusive ownership
 
-      BOOST_THREAD_INLINE void lock();
-      BOOST_THREAD_INLINE bool try_lock();
+      void lock();
+      bool try_lock();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
       bool try_lock_for(const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_lock_until(mars_boost::chrono::steady_clock::now() + rel_time);
+        return try_lock_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_lock_until(
+      bool try_lock_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock();
-
+#endif
+#if defined BOOST_THREAD_USES_DATETIME
+      template<typename T>
+      bool timed_lock(T const & abs_or_rel_time);
+#endif
+      void unlock();
 
       // Shared ownership
 
-      BOOST_THREAD_INLINE void lock_shared();
-      BOOST_THREAD_INLINE bool try_lock_shared();
+      void lock_shared();
+      bool try_lock_shared();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
-      bool
-      try_lock_shared_for(const mars_boost::chrono::duration<Rep, Period>& rel_time)
+      bool try_lock_shared_for(const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_lock_shared_until(mars_boost::chrono::steady_clock::now() +
-            rel_time);
+        return try_lock_shared_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_lock_shared_until(
+      bool try_lock_shared_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock_shared();
-
-#if defined BOOST_THREAD_USES_DATETIME
-      bool timed_lock(system_time const& timeout);
-      template<typename TimeDuration>
-      bool timed_lock(TimeDuration const & relative_time)
-      {
-          return timed_lock(get_system_time()+relative_time);
-      }
-      bool timed_lock_shared(system_time const& timeout);
-      template<typename TimeDuration>
-      bool timed_lock_shared(TimeDuration const & relative_time)
-      {
-        return timed_lock_shared(get_system_time()+relative_time);
-      }
 #endif
+#if defined BOOST_THREAD_USES_DATETIME
+      template<typename T>
+      bool timed_lock_shared(T const & abs_or_rel_time);
+#endif
+      void unlock_shared();
     };
 
-    template <class Clock, class Duration>
-    bool
-    shared_mutex::try_lock_until(
-        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
+    inline shared_mutex::shared_mutex()
+    : state_(0)
+    {
+    }
+
+    inline shared_mutex::~shared_mutex()
+    {
+      mars_boost::lock_guard<mutex_t> _(mut_);
+    }
+
+    // Exclusive ownership
+
+    inline void shared_mutex::lock()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ & write_entered_)
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate1_.wait_until(lk, abs_time);
-          if ((state_ & write_entered_) == 0)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
-      }
+      gate1_.wait(lk, mars_boost::bind(&shared_mutex::no_writer, mars_boost::ref(*this)));
       state_ |= write_entered_;
-      if (state_ & n_readers_)
+      gate2_.wait(lk, mars_boost::bind(&shared_mutex::no_readers, mars_boost::ref(*this)));
+    }
+
+    inline bool shared_mutex::try_lock()
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!no_writer_no_readers())
       {
-        while (true)
-        {
-          mars_boost::cv_status status = gate2_.wait_until(lk, abs_time);
-          if ((state_ & n_readers_) == 0)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-          {
-            state_ &= ~write_entered_;
-            return false;
-          }
-        }
+        return false;
       }
+      state_ = write_entered_;
       return true;
     }
 
+#ifdef BOOST_THREAD_USES_CHRONO
     template <class Clock, class Duration>
-    bool
-    shared_mutex::try_lock_shared_until(
+    bool shared_mutex::try_lock_until(
         const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      if ((state_ & write_entered_) || (state_ & n_readers_) == n_readers_)
+      if (!gate1_.wait_until(lk, abs_time, mars_boost::bind(
+            &shared_mutex::no_writer, mars_boost::ref(*this))))
       {
-        while (true)
-        {
-          mars_boost::cv_status status = gate1_.wait_until(lk, abs_time);
-          if ((state_ & write_entered_) == 0 &&
-              (state_ & n_readers_) < n_readers_)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
+        return false;
+      }
+      state_ |= write_entered_;
+      if (!gate2_.wait_until(lk, abs_time, mars_boost::bind(
+            &shared_mutex::no_readers, mars_boost::ref(*this))))
+      {
+        state_ &= ~write_entered_;
+        return false;
+      }
+      return true;
+    }
+#endif
+
+#if defined BOOST_THREAD_USES_DATETIME
+    template<typename T>
+    bool shared_mutex::timed_lock(T const & abs_or_rel_time)
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.timed_wait(lk, abs_or_rel_time, mars_boost::bind(
+            &shared_mutex::no_writer, mars_boost::ref(*this))))
+      {
+        return false;
+      }
+      state_ |= write_entered_;
+      if (!gate2_.timed_wait(lk, abs_or_rel_time, mars_boost::bind(
+            &shared_mutex::no_readers, mars_boost::ref(*this))))
+      {
+        state_ &= ~write_entered_;
+        return false;
+      }
+      return true;
+    }
+#endif
+
+    inline void shared_mutex::unlock()
+    {
+      mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(one_writer());
+      BOOST_ASSERT(no_readers());
+      state_ = 0;
+      // notify all since multiple *lock_shared*() calls may be able
+      // to proceed in response to this notification
+      gate1_.notify_all();
+    }
+
+    // Shared ownership
+
+    inline void shared_mutex::lock_shared()
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      gate1_.wait(lk, mars_boost::bind(&shared_mutex::no_writer_no_max_readers, mars_boost::ref(*this)));
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= num_readers;
+    }
+
+    inline bool shared_mutex::try_lock_shared()
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!no_writer_no_max_readers())
+      {
+        return false;
       }
       count_t num_readers = (state_ & n_readers_) + 1;
       state_ &= ~n_readers_;
@@ -297,78 +368,76 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
       return true;
     }
 
-#if defined BOOST_THREAD_USES_DATETIME
-    bool shared_mutex::timed_lock(system_time const& abs_time)
+#ifdef BOOST_THREAD_USES_CHRONO
+    template <class Clock, class Duration>
+    bool shared_mutex::try_lock_shared_until(
+        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ & write_entered_)
+      if (!gate1_.wait_until(lk, abs_time, mars_boost::bind(
+            &shared_mutex::no_writer_no_max_readers, mars_boost::ref(*this))))
       {
-        while (true)
-        {
-          bool status = gate1_.timed_wait(lk, abs_time);
-          if ((state_ & write_entered_) == 0)
-            break;
-          if (!status)
-            return false;
-        }
+        return false;
       }
-      state_ |= write_entered_;
-      if (state_ & n_readers_)
-      {
-        while (true)
-        {
-          bool status = gate2_.timed_wait(lk, abs_time);
-          if ((state_ & n_readers_) == 0)
-            break;
-          if (!status)
-          {
-            state_ &= ~write_entered_;
-            return false;
-          }
-        }
-      }
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= num_readers;
       return true;
     }
-      bool shared_mutex::timed_lock_shared(system_time const& abs_time)
-      {
-        mars_boost::unique_lock<mutex_t> lk(mut_);
-        if (state_ & write_entered_)
-        {
-          while (true)
-          {
-            bool status = gate1_.timed_wait(lk, abs_time);
-            if ((state_ & write_entered_) == 0)
-              break;
-            if (!status )
-              return false;
-          }
-        }
-        state_ |= write_entered_;
-        if (state_ & n_readers_)
-        {
-          while (true)
-          {
-            bool status = gate2_.timed_wait(lk, abs_time);
-            if ((state_ & n_readers_) == 0)
-              break;
-            if (!status)
-            {
-              state_ &= ~write_entered_;
-              return false;
-            }
-          }
-        }
-        return true;
-      }
 #endif
+
+#if defined BOOST_THREAD_USES_DATETIME
+    template<typename T>
+    bool shared_mutex::timed_lock_shared(T const & abs_or_rel_time)
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.timed_wait(lk, abs_or_rel_time, mars_boost::bind(
+            &shared_mutex::no_writer_no_max_readers, mars_boost::ref(*this))))
+      {
+        return false;
+      }
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= num_readers;
+      return true;
+    }
+#endif
+
+    inline void shared_mutex::unlock_shared()
+    {
+      mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(one_or_more_readers());
+      count_t num_readers = (state_ & n_readers_) - 1;
+      state_ &= ~n_readers_;
+      state_ |= num_readers;
+      if (no_writer())
+      {
+        if (num_readers == n_readers_ - 1)
+          gate1_.notify_one();
+      }
+      else
+      {
+        if (num_readers == 0)
+          gate2_.notify_one();
+      }
+    }
+
+  }  // thread_v2
+}  // boost
+
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+  namespace thread_v2 {
+
     class upgrade_mutex
     {
       typedef mars_boost::mutex              mutex_t;
       typedef mars_boost::condition_variable cond_t;
-      typedef unsigned                count_t;
+      typedef unsigned                  count_t;
 
       mutex_t mut_;
       cond_t  gate1_;
+      // the gate2_ condition variable is only used by functions that
+      // have taken write_entered_ but are waiting for no_readers()
       cond_t  gate2_;
       count_t state_;
 
@@ -376,677 +445,597 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
       static const unsigned upgradable_entered_ = write_entered_ >> 1;
       static const unsigned n_readers_ = ~(write_entered_ | upgradable_entered_);
 
-    public:
+      bool no_writer() const
+      {
+        return (state_ & write_entered_) == 0;
+      }
 
-      BOOST_THREAD_INLINE upgrade_mutex();
-      BOOST_THREAD_INLINE ~upgrade_mutex();
+      bool one_writer() const
+      {
+        return (state_ & write_entered_) != 0;
+      }
 
-#ifndef BOOST_CXX11_NO_DELETED_FUNCTIONS
-      upgrade_mutex(const upgrade_mutex&) = delete;
-      upgrade_mutex& operator=(const upgrade_mutex&) = delete;
-#else // BOOST_CXX11_NO_DELETED_FUNCTIONS
-    private:
+      bool no_writer_no_max_readers() const
+      {
+        return (state_ & write_entered_) == 0 &&
+               (state_ & n_readers_) != n_readers_;
+      }
+
+      bool no_writer_no_upgrader() const
+      {
+        return (state_ & (write_entered_ | upgradable_entered_)) == 0;
+      }
+
+      bool no_writer_no_upgrader_no_readers() const
+      {
+        //return (state_ & (write_entered_ | upgradable_entered_)) == 0 &&
+        //       (state_ & n_readers_) == 0;
+        return state_ == 0;
+      }
+
+      bool no_writer_no_upgrader_one_reader() const
+      {
+        //return (state_ & (write_entered_ | upgradable_entered_)) == 0 &&
+        //       (state_ & n_readers_) == 1;
+        return state_ == 1;
+      }
+
+      bool no_writer_no_upgrader_no_max_readers() const
+      {
+        return (state_ & (write_entered_ | upgradable_entered_)) == 0 &&
+               (state_ & n_readers_) != n_readers_;
+      }
+
+      bool no_upgrader() const
+      {
+        return (state_ & upgradable_entered_) == 0;
+      }
+
+      bool one_upgrader() const
+      {
+        return (state_ & upgradable_entered_) != 0;
+      }
+
+      bool no_readers() const
+      {
+        return (state_ & n_readers_) == 0;
+      }
+
+      bool one_reader() const
+      {
+        return (state_ & n_readers_) == 1;
+      }
+
+      bool one_or_more_readers() const
+      {
+        return (state_ & n_readers_) > 0;
+      }
+
       upgrade_mutex(const upgrade_mutex&);
       upgrade_mutex& operator=(const upgrade_mutex&);
+
     public:
-#endif // BOOST_CXX11_NO_DELETED_FUNCTIONS
+      upgrade_mutex();
+      ~upgrade_mutex();
 
       // Exclusive ownership
 
-      BOOST_THREAD_INLINE void lock();
-      BOOST_THREAD_INLINE bool try_lock();
+      void lock();
+      bool try_lock();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
       bool try_lock_for(const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_lock_until(mars_boost::chrono::steady_clock::now() + rel_time);
+        return try_lock_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_lock_until(
+      bool try_lock_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock();
+#endif
+#if defined BOOST_THREAD_USES_DATETIME
+      template<typename T>
+      bool timed_lock(T const & abs_or_rel_time);
+#endif
+      void unlock();
 
       // Shared ownership
 
-      BOOST_THREAD_INLINE void lock_shared();
-      BOOST_THREAD_INLINE bool try_lock_shared();
+      void lock_shared();
+      bool try_lock_shared();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
-      bool
-      try_lock_shared_for(const mars_boost::chrono::duration<Rep, Period>& rel_time)
+      bool try_lock_shared_for(const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_lock_shared_until(mars_boost::chrono::steady_clock::now() +
-            rel_time);
+        return try_lock_shared_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_lock_shared_until(
+      bool try_lock_shared_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock_shared();
+#endif
+#if defined BOOST_THREAD_USES_DATETIME
+      template<typename T>
+      bool timed_lock_shared(T const & abs_or_rel_time);
+#endif
+      void unlock_shared();
 
       // Upgrade ownership
 
-      BOOST_THREAD_INLINE void lock_upgrade();
-      BOOST_THREAD_INLINE bool try_lock_upgrade();
+      void lock_upgrade();
+      bool try_lock_upgrade();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
-      bool
-      try_lock_upgrade_for(
+      bool try_lock_upgrade_for(
           const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_lock_upgrade_until(mars_boost::chrono::steady_clock::now() +
-            rel_time);
+        return try_lock_upgrade_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_lock_upgrade_until(
+      bool try_lock_upgrade_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock_upgrade();
+#endif
+#if defined BOOST_THREAD_USES_DATETIME
+      template<typename T>
+      bool timed_lock_upgrade(T const & abs_or_rel_time);
+#endif
+      void unlock_upgrade();
 
       // Shared <-> Exclusive
 
-      BOOST_THREAD_INLINE bool try_unlock_shared_and_lock();
+#ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
+      //bool unlock_shared_and_lock(); // can cause a deadlock if used
+      bool try_unlock_shared_and_lock();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
-      bool
-      try_unlock_shared_and_lock_for(
+      bool try_unlock_shared_and_lock_for(
           const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_unlock_shared_and_lock_until(
-            mars_boost::chrono::steady_clock::now() + rel_time);
+        return try_unlock_shared_and_lock_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_unlock_shared_and_lock_until(
+      bool try_unlock_shared_and_lock_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock_and_lock_shared();
+#endif
+#endif
+      void unlock_and_lock_shared();
 
       // Shared <-> Upgrade
 
-      BOOST_THREAD_INLINE bool try_unlock_shared_and_lock_upgrade();
+#ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
+      //bool unlock_shared_and_lock_upgrade(); // can cause a deadlock if used
+      bool try_unlock_shared_and_lock_upgrade();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
-      bool
-      try_unlock_shared_and_lock_upgrade_for(
+      bool try_unlock_shared_and_lock_upgrade_for(
           const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_unlock_shared_and_lock_upgrade_until(
-            mars_boost::chrono::steady_clock::now() + rel_time);
+        return try_unlock_shared_and_lock_upgrade_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_unlock_shared_and_lock_upgrade_until(
+      bool try_unlock_shared_and_lock_upgrade_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock_upgrade_and_lock_shared();
+#endif
+#endif
+      void unlock_upgrade_and_lock_shared();
 
       // Upgrade <-> Exclusive
 
-      BOOST_THREAD_INLINE void unlock_upgrade_and_lock();
-      BOOST_THREAD_INLINE bool try_unlock_upgrade_and_lock();
+      void unlock_upgrade_and_lock();
+      bool try_unlock_upgrade_and_lock();
+#ifdef BOOST_THREAD_USES_CHRONO
       template <class Rep, class Period>
-      bool
-      try_unlock_upgrade_and_lock_for(
+      bool try_unlock_upgrade_and_lock_for(
           const mars_boost::chrono::duration<Rep, Period>& rel_time)
       {
-        return try_unlock_upgrade_and_lock_until(
-            mars_boost::chrono::steady_clock::now() + rel_time);
+        return try_unlock_upgrade_and_lock_until(chrono::steady_clock::now() + rel_time);
       }
       template <class Clock, class Duration>
-      bool
-      try_unlock_upgrade_and_lock_until(
+      bool try_unlock_upgrade_and_lock_until(
           const mars_boost::chrono::time_point<Clock, Duration>& abs_time);
-      BOOST_THREAD_INLINE void unlock_and_lock_upgrade();
-
-#if defined BOOST_THREAD_USES_DATETIME
-      inline bool timed_lock(system_time const& abs_time);
-      template<typename TimeDuration>
-      bool timed_lock(TimeDuration const & relative_time)
-      {
-          return timed_lock(get_system_time()+relative_time);
-      }
-      inline bool timed_lock_shared(system_time const& abs_time);
-      template<typename TimeDuration>
-      bool timed_lock_shared(TimeDuration const & relative_time)
-      {
-        return timed_lock_shared(get_system_time()+relative_time);
-      }
-      inline bool timed_lock_upgrade(system_time const& abs_time);
-      template<typename TimeDuration>
-      bool timed_lock_upgrade(TimeDuration const & relative_time)
-      {
-          return timed_lock_upgrade(get_system_time()+relative_time);
-      }
 #endif
-
+      void unlock_and_lock_upgrade();
     };
 
-    template <class Clock, class Duration>
-    bool
-    upgrade_mutex::try_lock_until(
-        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ & (write_entered_ | upgradable_entered_))
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate1_.wait_until(lk, abs_time);
-          if ((state_ & (write_entered_ | upgradable_entered_)) == 0)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
-      }
-      state_ |= write_entered_;
-      if (state_ & n_readers_)
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate2_.wait_until(lk, abs_time);
-          if ((state_ & n_readers_) == 0)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-          {
-            state_ &= ~write_entered_;
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    template <class Clock, class Duration>
-    bool
-    upgrade_mutex::try_lock_shared_until(
-        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      if ((state_ & write_entered_) || (state_ & n_readers_) == n_readers_)
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate1_.wait_until(lk, abs_time);
-          if ((state_ & write_entered_) == 0 &&
-              (state_ & n_readers_) < n_readers_)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
-      }
-      count_t num_readers = (state_ & n_readers_) + 1;
-      state_ &= ~n_readers_;
-      state_ |= num_readers;
-      return true;
-    }
-
-    template <class Clock, class Duration>
-    bool
-    upgrade_mutex::try_lock_upgrade_until(
-        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      if ((state_ & (write_entered_ | upgradable_entered_)) ||
-          (state_ & n_readers_) == n_readers_)
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate1_.wait_until(lk, abs_time);
-          if ((state_ & (write_entered_ | upgradable_entered_)) == 0 &&
-              (state_ & n_readers_) < n_readers_)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
-      }
-      count_t num_readers = (state_ & n_readers_) + 1;
-      state_ &= ~n_readers_;
-      state_ |= upgradable_entered_ | num_readers;
-      return true;
-    }
-
-#if defined BOOST_THREAD_USES_DATETIME
-      bool upgrade_mutex::timed_lock(system_time const& abs_time)
-      {
-        mars_boost::unique_lock<mutex_t> lk(mut_);
-        if (state_ & (write_entered_ | upgradable_entered_))
-        {
-          while (true)
-          {
-            bool status = gate1_.timed_wait(lk, abs_time);
-            if ((state_ & (write_entered_ | upgradable_entered_)) == 0)
-              break;
-            if (!status)
-              return false;
-          }
-        }
-        state_ |= write_entered_;
-        if (state_ & n_readers_)
-        {
-          while (true)
-          {
-            bool status = gate2_.timed_wait(lk, abs_time);
-            if ((state_ & n_readers_) == 0)
-              break;
-            if (!status)
-            {
-              state_ &= ~write_entered_;
-              return false;
-            }
-          }
-        }
-        return true;
-      }
-      bool upgrade_mutex::timed_lock_shared(system_time const& abs_time)
-      {
-        mars_boost::unique_lock<mutex_t> lk(mut_);
-        if ((state_ & write_entered_) || (state_ & n_readers_) == n_readers_)
-        {
-          while (true)
-          {
-            bool status = gate1_.timed_wait(lk, abs_time);
-            if ((state_ & write_entered_) == 0 &&
-                (state_ & n_readers_) < n_readers_)
-              break;
-            if (!status)
-              return false;
-          }
-        }
-        count_t num_readers = (state_ & n_readers_) + 1;
-        state_ &= ~n_readers_;
-        state_ |= num_readers;
-        return true;
-      }
-      bool upgrade_mutex::timed_lock_upgrade(system_time const& abs_time)
-      {
-        mars_boost::unique_lock<mutex_t> lk(mut_);
-        if ((state_ & (write_entered_ | upgradable_entered_)) ||
-            (state_ & n_readers_) == n_readers_)
-        {
-          while (true)
-          {
-            bool status = gate1_.timed_wait(lk, abs_time);
-            if ((state_ & (write_entered_ | upgradable_entered_)) == 0 &&
-                (state_ & n_readers_) < n_readers_)
-              break;
-            if (!status)
-              return false;
-          }
-        }
-        count_t num_readers = (state_ & n_readers_) + 1;
-        state_ &= ~n_readers_;
-        state_ |= upgradable_entered_ | num_readers;
-        return true;
-      }
-
-#endif
-    template <class Clock, class Duration>
-    bool
-    upgrade_mutex::try_unlock_shared_and_lock_until(
-        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ != 1)
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate2_.wait_until(lk, abs_time);
-          if (state_ == 1)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
-      }
-      state_ = write_entered_;
-      return true;
-    }
-
-    template <class Clock, class Duration>
-    bool
-    upgrade_mutex::try_unlock_shared_and_lock_upgrade_until(
-        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      if ((state_ & (write_entered_ | upgradable_entered_)) != 0)
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate2_.wait_until(lk, abs_time);
-          if ((state_ & (write_entered_ | upgradable_entered_)) == 0)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
-      }
-      state_ |= upgradable_entered_;
-      return true;
-    }
-
-    template <class Clock, class Duration>
-    bool
-    upgrade_mutex::try_unlock_upgrade_and_lock_until(
-        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      if ((state_ & n_readers_) != 1)
-      {
-        while (true)
-        {
-          mars_boost::cv_status status = gate2_.wait_until(lk, abs_time);
-          if ((state_ & n_readers_) == 1)
-            break;
-          if (status == mars_boost::cv_status::timeout)
-            return false;
-        }
-      }
-      state_ = write_entered_;
-      return true;
-    }
-
-    //////
-    // shared_mutex
-
-    shared_mutex::shared_mutex()
-    : state_(0)
-    {
-    }
-
-    shared_mutex::~shared_mutex()
-    {
-      mars_boost::lock_guard<mutex_t> _(mut_);
-    }
-
-    // Exclusive ownership
-
-    void
-    shared_mutex::lock()
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      while (state_ & write_entered_)
-        gate1_.wait(lk);
-      state_ |= write_entered_;
-      while (state_ & n_readers_)
-        gate2_.wait(lk);
-    }
-
-    bool
-    shared_mutex::try_lock()
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ == 0)
-      {
-        state_ = write_entered_;
-        return true;
-      }
-      return false;
-    }
-
-    void
-    shared_mutex::unlock()
-    {
-      mars_boost::lock_guard<mutex_t> _(mut_);
-      state_ = 0;
-      gate1_.notify_all();
-    }
-
-    // Shared ownership
-
-    void
-    shared_mutex::lock_shared()
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      while ((state_ & write_entered_) || (state_ & n_readers_) == n_readers_)
-        gate1_.wait(lk);
-      count_t num_readers = (state_ & n_readers_) + 1;
-      state_ &= ~n_readers_;
-      state_ |= num_readers;
-    }
-
-    bool
-    shared_mutex::try_lock_shared()
-    {
-      mars_boost::unique_lock<mutex_t> lk(mut_);
-      count_t num_readers = state_ & n_readers_;
-      if (!(state_ & write_entered_) && num_readers != n_readers_)
-      {
-        ++num_readers;
-        state_ &= ~n_readers_;
-        state_ |= num_readers;
-        return true;
-      }
-      return false;
-    }
-
-    void
-    shared_mutex::unlock_shared()
-    {
-      mars_boost::lock_guard<mutex_t> _(mut_);
-      count_t num_readers = (state_ & n_readers_) - 1;
-      state_ &= ~n_readers_;
-      state_ |= num_readers;
-      if (state_ & write_entered_)
-      {
-        if (num_readers == 0)
-          gate2_.notify_one();
-      }
-      else
-      {
-        if (num_readers == n_readers_ - 1)
-          gate1_.notify_one();
-      }
-    }
-
-    // upgrade_mutex
-
-    upgrade_mutex::upgrade_mutex()
+    inline upgrade_mutex::upgrade_mutex()
     : gate1_(),
       gate2_(),
       state_(0)
     {
     }
 
-    upgrade_mutex::~upgrade_mutex()
+    inline upgrade_mutex::~upgrade_mutex()
     {
       mars_boost::lock_guard<mutex_t> _(mut_);
     }
 
     // Exclusive ownership
 
-    void
-    upgrade_mutex::lock()
+    inline void upgrade_mutex::lock()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      while (state_ & (write_entered_ | upgradable_entered_))
-        gate1_.wait(lk);
+      gate1_.wait(lk, mars_boost::bind(&upgrade_mutex::no_writer_no_upgrader, mars_boost::ref(*this)));
       state_ |= write_entered_;
-      while (state_ & n_readers_)
-        gate2_.wait(lk);
+      gate2_.wait(lk, mars_boost::bind(&upgrade_mutex::no_readers, mars_boost::ref(*this)));
     }
 
-    bool
-    upgrade_mutex::try_lock()
+    inline bool upgrade_mutex::try_lock()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ == 0)
+      if (!no_writer_no_upgrader_no_readers())
       {
-        state_ = write_entered_;
-        return true;
+        return false;
       }
-      return false;
+      state_ = write_entered_;
+      return true;
     }
 
-    void
-    upgrade_mutex::unlock()
+#ifdef BOOST_THREAD_USES_CHRONO
+    template <class Clock, class Duration>
+    bool upgrade_mutex::try_lock_until(
+        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_upgrader, mars_boost::ref(*this))))
+      {
+        return false;
+      }
+      state_ |= write_entered_;
+      if (!gate2_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_readers, mars_boost::ref(*this))))
+      {
+        state_ &= ~write_entered_;
+        return false;
+      }
+      return true;
+    }
+#endif
+
+#if defined BOOST_THREAD_USES_DATETIME
+    template<typename T>
+    bool upgrade_mutex::timed_lock(T const & abs_or_rel_time)
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.timed_wait(lk, abs_or_rel_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_upgrader, mars_boost::ref(*this))))
+      {
+        return false;
+      }
+      state_ |= write_entered_;
+      if (!gate2_.timed_wait(lk, abs_or_rel_time, mars_boost::bind(
+            &upgrade_mutex::no_readers, mars_boost::ref(*this))))
+      {
+        state_ &= ~write_entered_;
+        return false;
+      }
+      return true;
+    }
+#endif
+
+    inline void upgrade_mutex::unlock()
     {
       mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(one_writer());
+      BOOST_ASSERT(no_upgrader());
+      BOOST_ASSERT(no_readers());
       state_ = 0;
+      // notify all since multiple *lock_shared*() calls and a *lock_upgrade*()
+      // call may be able to proceed in response to this notification
       gate1_.notify_all();
     }
 
     // Shared ownership
 
-    void
-    upgrade_mutex::lock_shared()
+    inline void upgrade_mutex::lock_shared()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      while ((state_ & write_entered_) || (state_ & n_readers_) == n_readers_)
-        gate1_.wait(lk);
+      gate1_.wait(lk, mars_boost::bind(&upgrade_mutex::no_writer_no_max_readers, mars_boost::ref(*this)));
       count_t num_readers = (state_ & n_readers_) + 1;
       state_ &= ~n_readers_;
       state_ |= num_readers;
     }
 
-    bool
-    upgrade_mutex::try_lock_shared()
+    inline bool upgrade_mutex::try_lock_shared()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      count_t num_readers = state_ & n_readers_;
-      if (!(state_ & write_entered_) && num_readers != n_readers_)
+      if (!no_writer_no_max_readers())
       {
-        ++num_readers;
-        state_ &= ~n_readers_;
-        state_ |= num_readers;
-        return true;
+        return false;
       }
-      return false;
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= num_readers;
+      return true;
     }
 
-    void
-    upgrade_mutex::unlock_shared()
+#ifdef BOOST_THREAD_USES_CHRONO
+    template <class Clock, class Duration>
+    bool upgrade_mutex::try_lock_shared_until(
+        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_max_readers, mars_boost::ref(*this))))
+      {
+        return false;
+      }
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= num_readers;
+      return true;
+    }
+#endif
+
+#if defined BOOST_THREAD_USES_DATETIME
+    template<typename T>
+    bool upgrade_mutex::timed_lock_shared(T const & abs_or_rel_time)
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.timed_wait(lk, abs_or_rel_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_max_readers, mars_boost::ref(*this))))
+      {
+        return false;
+      }
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= num_readers;
+      return true;
+    }
+#endif
+
+    inline void upgrade_mutex::unlock_shared()
     {
       mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(one_or_more_readers());
       count_t num_readers = (state_ & n_readers_) - 1;
       state_ &= ~n_readers_;
       state_ |= num_readers;
-      if (state_ & write_entered_)
-      {
-        if (num_readers == 0)
-          gate2_.notify_one();
-      }
-      else
+      if (no_writer())
       {
         if (num_readers == n_readers_ - 1)
           gate1_.notify_one();
+      }
+      else
+      {
+        if (num_readers == 0)
+          gate2_.notify_one();
       }
     }
 
     // Upgrade ownership
 
-    void
-    upgrade_mutex::lock_upgrade()
+    inline void upgrade_mutex::lock_upgrade()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      while ((state_ & (write_entered_ | upgradable_entered_)) ||
-          (state_ & n_readers_) == n_readers_)
-        gate1_.wait(lk);
+      gate1_.wait(lk, mars_boost::bind(&upgrade_mutex::no_writer_no_upgrader_no_max_readers, mars_boost::ref(*this)));
       count_t num_readers = (state_ & n_readers_) + 1;
       state_ &= ~n_readers_;
       state_ |= upgradable_entered_ | num_readers;
     }
 
-    bool
-    upgrade_mutex::try_lock_upgrade()
+    inline bool upgrade_mutex::try_lock_upgrade()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      count_t num_readers = state_ & n_readers_;
-      if (!(state_ & (write_entered_ | upgradable_entered_))
-          && num_readers != n_readers_)
+      if (!no_writer_no_upgrader_no_max_readers())
       {
-        ++num_readers;
-        state_ &= ~n_readers_;
-        state_ |= upgradable_entered_ | num_readers;
-        return true;
+        return false;
       }
-      return false;
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= upgradable_entered_ | num_readers;
+      return true;
     }
 
-    void
-    upgrade_mutex::unlock_upgrade()
+#ifdef BOOST_THREAD_USES_CHRONO
+    template <class Clock, class Duration>
+    bool upgrade_mutex::try_lock_upgrade_until(
+        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
     {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_upgrader_no_max_readers, mars_boost::ref(*this))))
       {
-        mars_boost::lock_guard<mutex_t> _(mut_);
-        count_t num_readers = (state_ & n_readers_) - 1;
-        state_ &= ~(upgradable_entered_ | n_readers_);
-        state_ |= num_readers;
+        return false;
       }
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= upgradable_entered_ | num_readers;
+      return true;
+    }
+#endif
+
+#if defined BOOST_THREAD_USES_DATETIME
+    template<typename T>
+    bool upgrade_mutex::timed_lock_upgrade(T const & abs_or_rel_time)
+    {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      if (!gate1_.timed_wait(lk, abs_or_rel_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_upgrader_no_max_readers, mars_boost::ref(*this))))
+      {
+        return false;
+      }
+      count_t num_readers = (state_ & n_readers_) + 1;
+      state_ &= ~n_readers_;
+      state_ |= upgradable_entered_ | num_readers;
+      return true;
+    }
+#endif
+
+    inline void upgrade_mutex::unlock_upgrade()
+    {
+      mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(no_writer());
+      BOOST_ASSERT(one_upgrader());
+      BOOST_ASSERT(one_or_more_readers());
+      count_t num_readers = (state_ & n_readers_) - 1;
+      state_ &= ~(upgradable_entered_ | n_readers_);
+      state_ |= num_readers;
+      // notify all since both a *lock*() and a *lock_shared*() call
+      // may be able to proceed in response to this notification
       gate1_.notify_all();
     }
 
     // Shared <-> Exclusive
 
-    bool
-    upgrade_mutex::try_unlock_shared_and_lock()
+#ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
+    inline bool upgrade_mutex::try_unlock_shared_and_lock()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ == 1)
+      BOOST_ASSERT(one_or_more_readers());
+      if (!no_writer_no_upgrader_one_reader())
       {
-        state_ = write_entered_;
-        return true;
+        return false;
       }
-      return false;
+      state_ = write_entered_;
+      return true;
     }
 
-    void
-    upgrade_mutex::unlock_and_lock_shared()
+#ifdef BOOST_THREAD_USES_CHRONO
+    template <class Clock, class Duration>
+    bool upgrade_mutex::try_unlock_shared_and_lock_until(
+        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
     {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      BOOST_ASSERT(one_or_more_readers());
+      if (!gate1_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_upgrader, mars_boost::ref(*this))))
       {
-        mars_boost::lock_guard<mutex_t> _(mut_);
-        state_ = 1;
+        return false;
       }
+      count_t num_readers = (state_ & n_readers_) - 1;
+      state_ &= ~n_readers_;
+      state_ |= (write_entered_ | num_readers);
+      if (!gate2_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_readers, mars_boost::ref(*this))))
+      {
+        ++num_readers;
+        state_ &= ~(write_entered_ | n_readers_);
+        state_ |= num_readers;
+        return false;
+      }
+      return true;
+    }
+#endif
+#endif
+
+    inline void upgrade_mutex::unlock_and_lock_shared()
+    {
+      mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(one_writer());
+      BOOST_ASSERT(no_upgrader());
+      BOOST_ASSERT(no_readers());
+      state_ = 1;
+      // notify all since multiple *lock_shared*() calls and a *lock_upgrade*()
+      // call may be able to proceed in response to this notification
       gate1_.notify_all();
     }
 
     // Shared <-> Upgrade
 
-    bool
-    upgrade_mutex::try_unlock_shared_and_lock_upgrade()
+#ifdef BOOST_THREAD_PROVIDES_SHARED_MUTEX_UPWARDS_CONVERSIONS
+    inline bool upgrade_mutex::try_unlock_shared_and_lock_upgrade()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (!(state_ & (write_entered_ | upgradable_entered_)))
+      BOOST_ASSERT(one_or_more_readers());
+      if (!no_writer_no_upgrader())
       {
-        state_ |= upgradable_entered_;
-        return true;
+        return false;
       }
-      return false;
+      state_ |= upgradable_entered_;
+      return true;
     }
 
-    void
-    upgrade_mutex::unlock_upgrade_and_lock_shared()
+#ifdef BOOST_THREAD_USES_CHRONO
+    template <class Clock, class Duration>
+    bool upgrade_mutex::try_unlock_shared_and_lock_upgrade_until(
+        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
     {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      BOOST_ASSERT(one_or_more_readers());
+      if (!gate1_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_writer_no_upgrader, mars_boost::ref(*this))))
       {
-        mars_boost::lock_guard<mutex_t> _(mut_);
-        state_ &= ~upgradable_entered_;
+        return false;
       }
+      state_ |= upgradable_entered_;
+      return true;
+    }
+#endif
+#endif
+
+    inline void upgrade_mutex::unlock_upgrade_and_lock_shared()
+    {
+      mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(no_writer());
+      BOOST_ASSERT(one_upgrader());
+      BOOST_ASSERT(one_or_more_readers());
+      state_ &= ~upgradable_entered_;
+      // notify all since only one *lock*() or *lock_upgrade*() call can win and
+      // proceed in response to this notification, but a *lock_shared*() call may
+      // also be waiting and could steal the notification
       gate1_.notify_all();
     }
 
     // Upgrade <-> Exclusive
 
-    void
-    upgrade_mutex::unlock_upgrade_and_lock()
+    inline void upgrade_mutex::unlock_upgrade_and_lock()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
+      BOOST_ASSERT(no_writer());
+      BOOST_ASSERT(one_upgrader());
+      BOOST_ASSERT(one_or_more_readers());
       count_t num_readers = (state_ & n_readers_) - 1;
       state_ &= ~(upgradable_entered_ | n_readers_);
       state_ |= write_entered_ | num_readers;
-      while (state_ & n_readers_)
-        gate2_.wait(lk);
+      gate2_.wait(lk, mars_boost::bind(&upgrade_mutex::no_readers, mars_boost::ref(*this)));
     }
 
-    bool
-    upgrade_mutex::try_unlock_upgrade_and_lock()
+    inline bool upgrade_mutex::try_unlock_upgrade_and_lock()
     {
       mars_boost::unique_lock<mutex_t> lk(mut_);
-      if (state_ == (upgradable_entered_ | 1))
+      BOOST_ASSERT(no_writer());
+      BOOST_ASSERT(one_upgrader());
+      BOOST_ASSERT(one_or_more_readers());
+      if (!one_reader())
       {
-        state_ = write_entered_;
-        return true;
+        return false;
       }
-      return false;
+      state_ = write_entered_;
+      return true;
     }
 
-    void
-    upgrade_mutex::unlock_and_lock_upgrade()
+#ifdef BOOST_THREAD_USES_CHRONO
+    template <class Clock, class Duration>
+    bool upgrade_mutex::try_unlock_upgrade_and_lock_until(
+        const mars_boost::chrono::time_point<Clock, Duration>& abs_time)
     {
+      mars_boost::unique_lock<mutex_t> lk(mut_);
+      BOOST_ASSERT(no_writer());
+      BOOST_ASSERT(one_upgrader());
+      BOOST_ASSERT(one_or_more_readers());
+      count_t num_readers = (state_ & n_readers_) - 1;
+      state_ &= ~(upgradable_entered_ | n_readers_);
+      state_ |= (write_entered_ | num_readers);
+      if (!gate2_.wait_until(lk, abs_time, mars_boost::bind(
+            &upgrade_mutex::no_readers, mars_boost::ref(*this))))
       {
-        mars_boost::lock_guard<mutex_t> _(mut_);
-        state_ = upgradable_entered_ | 1;
+        ++num_readers;
+        state_ &= ~(write_entered_ | n_readers_);
+        state_ |= (upgradable_entered_ | num_readers);
+        return false;
       }
+      return true;
+    }
+#endif
+
+    inline void upgrade_mutex::unlock_and_lock_upgrade()
+    {
+      mars_boost::lock_guard<mutex_t> _(mut_);
+      BOOST_ASSERT(one_writer());
+      BOOST_ASSERT(no_upgrader());
+      BOOST_ASSERT(no_readers());
+      state_ = upgradable_entered_ | 1;
+      // notify all since multiple *lock_shared*() calls may be able
+      // to proceed in response to this notification
       gate1_.notify_all();
     }
 

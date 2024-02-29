@@ -442,7 +442,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //重试间隔, 不影响第一次发送的任务
+        // 重试间隔, 不影响第一次发送的任务
         if (first->task.retry_count > first->remain_retry_count && !canretry) {
             xdebug2_if(canprint,
                        TSF "retry interval:%0, curtime:%1, lastbatcherrortime_:%2, curtime-m_lastbatcherrortime:%3",
@@ -1262,17 +1262,33 @@ bool LongLinkTaskManager::AddLongLink(LonglinkConfig& _config) {
     longlink_metas_[_config.name] =
         std::make_shared<LongLinkMetaData>(context_, _config, netsource_, active_logic_, asyncreg_.Get().queue);
     longlink = GetLongLinkNoLock(_config.name);
-    longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, _1);
-    longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv, this, _1, _2, _3);
-    longlink->Channel()->OnResponse =
-        boost::bind(&LongLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7, _8);
-    longlink->Channel()->SignalConnection.connect(boost::bind(&LongLinkTaskManager::__SignalConnection, this, _1, _2));
-    longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+    longlink->Channel()->OnSend = boost::bind(&LongLinkTaskManager::__OnSend, this, boost::placeholders::_1);
+    longlink->Channel()->OnRecv = boost::bind(&LongLinkTaskManager::__OnRecv,
+                                              this,
+                                              boost::placeholders::_1,
+                                              boost::placeholders::_2,
+                                              boost::placeholders::_3);
+    longlink->Channel()->OnResponse = boost::bind(&LongLinkTaskManager::__OnResponse,
+                                                  this,
+                                                  boost::placeholders::_1,
+                                                  boost::placeholders::_2,
+                                                  boost::placeholders::_3,
+                                                  boost::placeholders::_4,
+                                                  boost::placeholders::_5,
+                                                  boost::placeholders::_6,
+                                                  boost::placeholders::_7,
+                                                  boost::placeholders::_8);
+    longlink->Channel()->SignalConnection.connect(
+        boost::bind(&LongLinkTaskManager::__SignalConnection, this, boost::placeholders::_1, boost::placeholders::_2));
+    longlink->Channel()->OnHandshakeCompleted = boost::bind(&LongLinkTaskManager::__OnHandshakeCompleted,
+                                                            this,
+                                                            boost::placeholders::_1,
+                                                            boost::placeholders::_2);
 #ifdef ANDROID
     longlink->Channel()->OnNoopAlarmSet =
-        boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), _1);
+        boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmSet, longlink->Monitor(), boost::placeholders::_1);
     longlink->Channel()->OnNoopAlarmReceived =
-        boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), _1);
+        boost::bind(&LongLinkConnectMonitor::OnHeartbeatAlarmReceived, longlink->Monitor(), boost::placeholders::_1);
 #endif
 #ifdef __APPLE__
     longlink->Monitor()->fun_longlink_reset_ = boost::bind(&LongLinkTaskManager::__ResetLongLink, this, _config.name);
@@ -1316,9 +1332,9 @@ void LongLinkTaskManager::ReleaseLongLink(const std::string _name) {
         //        longlink->Channel()->OnSend = NULL;
         //        longlink->Channel()->OnRecv = NULL;
         //        longlink->Channel()->OnResponse = NULL;
-        //#ifdef __APPLE__
+        // #ifdef __APPLE__
         //        longlink->Monitor()->fun_longlink_reset_ = NULL;
-        //#endif
+        // #endif
         xinfo2(TSF "destroy long link %_ ", _name);
         // }, AYNC_HANDLER);
     }

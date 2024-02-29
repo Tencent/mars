@@ -15,16 +15,16 @@
 // $Date$
 // $Revision$
 
-#   include <boost/mpl/limits/unrolling.hpp>
-#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
+#   include <boost/mpl/limits/unrolling.hpp>
 
 #   include <boost/preprocessor/arithmetic/sub.hpp>
-#   include <boost/preprocessor/iterate.hpp>
+#   include <boost/preprocessor/cat.hpp>
 #   include <boost/preprocessor/dec.hpp>
 #   include <boost/preprocessor/inc.hpp>
-#   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 // local macros, #undef-ined at the end of the header
 

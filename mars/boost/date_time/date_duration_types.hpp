@@ -8,10 +8,11 @@
  * Author: Jeff Garland, Bart Garst
  * $Date$
  */
-                                                                                
+
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/date_duration.hpp>
 #include <boost/date_time/int_adapter.hpp>
 #include <boost/date_time/special_defs.hpp>
-#include <boost/date_time/date_duration.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace date_time {
@@ -19,17 +20,17 @@ namespace date_time {
 
   //! Additional duration type that represents a number of n*7 days
   template <class duration_config>
-  class weeks_duration : public date_duration<duration_config> {
+  class BOOST_SYMBOL_VISIBLE weeks_duration : public date_duration<duration_config> {
   public:
-    weeks_duration(typename duration_config::impl_type w) 
+    BOOST_CXX14_CONSTEXPR weeks_duration(typename duration_config::impl_type w) 
       : date_duration<duration_config>(w * 7) {}
-    weeks_duration(special_values sv) 
+    BOOST_CXX14_CONSTEXPR weeks_duration(special_values sv) 
       : date_duration<duration_config>(sv) {}
   };
 
   // predeclare
   template<class t>
-  class years_duration;
+  class BOOST_SYMBOL_VISIBLE years_duration;
 
   //! additional duration type that represents a logical month
   /*! A logical month enables things like: "date(2002,Mar,2) + months(2) -> 
@@ -37,7 +38,7 @@ namespace date_time {
    * also be a last-day-of-the-month.
    */
   template<class base_config>
-  class months_duration 
+  class BOOST_SYMBOL_VISIBLE months_duration
   {
     private:
       typedef typename base_config::int_rep int_rep;
@@ -48,106 +49,104 @@ namespace date_time {
       typedef months_duration<base_config> months_type;
       typedef years_duration<base_config> years_type;
     public:
-      months_duration(int_rep num) : _m(num) {}
-      months_duration(special_values sv) : _m(sv) 
+      BOOST_CXX14_CONSTEXPR months_duration(int_rep num) : _m(num) {}
+      BOOST_CXX14_CONSTEXPR months_duration(special_values sv) : _m(sv) 
       {
         _m = int_rep::from_special(sv);
       }
       int_rep number_of_months() const { return _m; }
       //! returns a negative duration
-      duration_type get_neg_offset(const date_type& d) const
+      BOOST_CXX14_CONSTEXPR duration_type get_neg_offset(const date_type& d) const
       {
         month_adjustor_type m_adj(_m.as_number());
         return duration_type(m_adj.get_neg_offset(d));
       }
-      duration_type get_offset(const date_type& d) const
+      BOOST_CXX14_CONSTEXPR duration_type get_offset(const date_type& d) const
       {
         month_adjustor_type m_adj(_m.as_number());
         return duration_type(m_adj.get_offset(d));
       }
-      bool operator==(const months_type& rhs) const
+      BOOST_CONSTEXPR bool operator==(const months_type& rhs) const
       {
         return(_m == rhs._m);
       }
-      bool operator!=(const months_type& rhs) const
+      BOOST_CONSTEXPR bool operator!=(const months_type& rhs) const
       {
         return(_m != rhs._m);
       }
-      months_type operator+(const months_type& rhs)const
+      BOOST_CXX14_CONSTEXPR months_type operator+(const months_type& rhs)const
       {
         return months_type(_m + rhs._m);
       }
-      months_type& operator+=(const months_type& rhs)
+      BOOST_CXX14_CONSTEXPR months_type& operator+=(const months_type& rhs)
       {
         _m = _m + rhs._m;
         return *this;
       }
-      months_type operator-(const months_type& rhs)const
+      BOOST_CXX14_CONSTEXPR months_type operator-(const months_type& rhs)const
       {
         return months_type(_m - rhs._m);
       }
-      months_type& operator-=(const months_type& rhs)
+      BOOST_CXX14_CONSTEXPR months_type& operator-=(const months_type& rhs)
       {
         _m = _m - rhs._m;
         return *this;
       }
-      months_type operator*(const int_type rhs)const
+      BOOST_CXX14_CONSTEXPR months_type operator*(const int_type rhs)const
       {
         return months_type(_m * rhs);
       }
-      months_type& operator*=(const int_type rhs)
+      BOOST_CXX14_CONSTEXPR months_type& operator*=(const int_type rhs)
       {
         _m = _m * rhs;
         return *this;
       }
-      months_type operator/(const int_type rhs)const
+      BOOST_CXX14_CONSTEXPR months_type operator/(const int_type rhs)const
       {
         return months_type(_m / rhs);
       }
-      months_type& operator/=(const int_type rhs)
+      BOOST_CXX14_CONSTEXPR months_type& operator/=(const int_type rhs)
       {
         _m = _m / rhs;
         return *this;
       }
-      months_type operator+(const years_type& y)const
+      BOOST_CXX14_CONSTEXPR months_type operator+(const years_type& y)const
       {
         return months_type(y.number_of_years() * 12 + _m);
       }
-      months_type& operator+=(const years_type& y)
+      BOOST_CXX14_CONSTEXPR months_type& operator+=(const years_type& y)
       {
         _m = y.number_of_years() * 12 + _m;
         return *this;
       }
-      months_type operator-(const years_type& y) const
+      BOOST_CXX14_CONSTEXPR months_type operator-(const years_type& y) const
       {
         return months_type(_m - y.number_of_years() * 12);
       }
-      months_type& operator-=(const years_type& y)
+      BOOST_CXX14_CONSTEXPR months_type& operator-=(const years_type& y)
       {
         _m = _m - y.number_of_years() * 12;
         return *this;
       }
-
       //
-      friend date_type operator+(const date_type& d, const months_type& m)
+      BOOST_CXX14_CONSTEXPR friend date_type operator+(const date_type& d, const months_type& m)
       {
         return d + m.get_offset(d);
       }
-      friend date_type operator+=(date_type& d, const months_type& m)
+      BOOST_CXX14_CONSTEXPR friend date_type operator+=(date_type& d, const months_type& m)
       {
         return d += m.get_offset(d);
       }
-      friend date_type operator-(const date_type& d, const months_type& m)
+      BOOST_CXX14_CONSTEXPR friend date_type operator-(const date_type& d, const months_type& m)
       {
         // get_neg_offset returns a negative duration, so we add
         return d + m.get_neg_offset(d);
       }
-      friend date_type operator-=(date_type& d, const months_type& m)
+      BOOST_CXX14_CONSTEXPR friend date_type operator-=(date_type& d, const months_type& m)
       {
         // get_neg_offset returns a negative duration, so we add
         return d += m.get_neg_offset(d);
       }
-        
     private:
       int_rep _m;
   };
@@ -159,7 +158,7 @@ namespace date_time {
    * 2004-Feb-29).
    */
   template<class base_config>
-  class years_duration 
+  class BOOST_SYMBOL_VISIBLE years_duration
   {
     private:
       typedef typename base_config::int_rep int_rep;
@@ -170,24 +169,24 @@ namespace date_time {
       typedef years_duration<base_config> years_type;
       typedef months_duration<base_config> months_type;
     public:
-      years_duration(int_rep num) : _y(num) {}
-      years_duration(special_values sv) : _y(sv) 
+      BOOST_CXX14_CONSTEXPR years_duration(int_rep num) : _y(num) {}
+      BOOST_CXX14_CONSTEXPR years_duration(special_values sv) : _y(sv) 
       {
         _y = int_rep::from_special(sv);
       }
-      int_rep number_of_years() const { return _y; }
+      BOOST_CXX14_CONSTEXPR int_rep number_of_years() const { return _y; }
       //! returns a negative duration
-      duration_type get_neg_offset(const date_type& d) const
+      BOOST_CXX14_CONSTEXPR duration_type get_neg_offset(const date_type& d) const
       {
         month_adjustor_type m_adj(_y.as_number() * 12);
         return duration_type(m_adj.get_neg_offset(d));
       }
-      duration_type get_offset(const date_type& d) const
+      BOOST_CXX14_CONSTEXPR duration_type get_offset(const date_type& d) const
       {
         month_adjustor_type m_adj(_y.as_number() * 12);
         return duration_type(m_adj.get_offset(d));
       }
-      bool operator==(const years_type& rhs) const
+      BOOST_CXX14_CONSTEXPR bool operator==(const years_type& rhs) const
       {
         return(_y == rhs._y);
       }
@@ -195,75 +194,72 @@ namespace date_time {
       {
         return(_y != rhs._y);
       }
-      years_type operator+(const years_type& rhs)const
+      BOOST_CXX14_CONSTEXPR years_type operator+(const years_type& rhs)const
       {
         return years_type(_y + rhs._y);
       }
-      years_type& operator+=(const years_type& rhs)
+      BOOST_CXX14_CONSTEXPR years_type& operator+=(const years_type& rhs)
       {
         _y = _y + rhs._y;
         return *this;
       }
-      years_type operator-(const years_type& rhs)const
+      BOOST_CXX14_CONSTEXPR years_type operator-(const years_type& rhs)const
       {
         return years_type(_y - rhs._y);
       }
-      years_type& operator-=(const years_type& rhs)
+      BOOST_CXX14_CONSTEXPR years_type& operator-=(const years_type& rhs)
       {
         _y = _y - rhs._y;
         return *this;
       }
-      years_type operator*(const int_type rhs)const
+      BOOST_CXX14_CONSTEXPR years_type operator*(const int_type rhs)const
       {
         return years_type(_y * rhs);
       }
-      years_type& operator*=(const int_type rhs)
+      BOOST_CXX14_CONSTEXPR years_type& operator*=(const int_type rhs)
       {
         _y = _y * rhs;
         return *this;
       }
-      years_type operator/(const int_type rhs)const
+      BOOST_CXX14_CONSTEXPR years_type operator/(const int_type rhs)const
       {
         return years_type(_y / rhs);
       }
-      years_type& operator/=(const int_type rhs)
+      BOOST_CXX14_CONSTEXPR years_type& operator/=(const int_type rhs)
       {
         _y = _y / rhs;
         return *this;
       }
-      months_type operator+(const months_type& m) const
+      BOOST_CXX14_CONSTEXPR months_type operator+(const months_type& m) const
       {
         return(months_type(_y * 12 + m.number_of_months()));
       }
-      months_type operator-(const months_type& m) const
+      BOOST_CXX14_CONSTEXPR months_type operator-(const months_type& m) const
       {
         return(months_type(_y * 12 - m.number_of_months()));
       }
-
       //
-      friend date_type operator+(const date_type& d, const years_type& y)
+      BOOST_CXX14_CONSTEXPR friend date_type operator+(const date_type& d, const years_type& y)
       {
         return d + y.get_offset(d);
       }
-      friend date_type operator+=(date_type& d, const years_type& y)
+      BOOST_CXX14_CONSTEXPR friend date_type operator+=(date_type& d, const years_type& y)
       {
         return d += y.get_offset(d);
       }
-      friend date_type operator-(const date_type& d, const years_type& y)
+      BOOST_CXX14_CONSTEXPR friend date_type operator-(const date_type& d, const years_type& y)
       {
         // get_neg_offset returns a negative duration, so we add
         return d + y.get_neg_offset(d);
       }
-      friend date_type operator-=(date_type& d, const years_type& y)
+      BOOST_CXX14_CONSTEXPR friend date_type operator-=(date_type& d, const years_type& y)
       {
         // get_neg_offset returns a negative duration, so we add
         return d += y.get_neg_offset(d);
       }
-
     private:
       int_rep _y;
   };
-
 }} // namespace mars_boost::date_time
 
 #endif // DATE_DURATION_TYPES_HPP___

@@ -12,7 +12,7 @@
  *  -------------------------------------------------  *
  *  |  0  |  4  |  8  |  12 |  16 |  20 |  24 |  28 |  *
  *  -------------------------------------------------  *
- *  |    TOC    |    R14    |    R15    |    R16    |  *
+ *  |    R13    |    R14    |    R15    |    R16    |  *
  *  -------------------------------------------------  *
  *  -------------------------------------------------  *
  *  |  8  |  9  |  10 |  11 |  12 |  13 |  14 |  15 |  *
@@ -61,73 +61,73 @@
  *  -------------------------------------------------  *
  *  | 224 | 228 | 232 | 236 | 240 | 244 | 248 | 252 |  *
  *  -------------------------------------------------  *
- *  | TOC saved |    FCTX   |    DATA   |           |  *
+ *  |    FCTX   |    DATA   |           |           |  *
  *  -------------------------------------------------  *
  *                                                     *
  *******************************************************/
 
 .text
 .align 2
-.globl ontop_fcontext
+.globl _ontop_fcontext
 
 _ontop_fcontext:
     ; reserve space on stack
     subi  r1, r1, 184
 
-    std  %r14, 8(%r1)  ; save R14
-    std  %r15, 16(%r1)  ; save R15
-    std  %r16, 24(%r1)  ; save R16
-    std  %r17, 32(%r1)  ; save R17
-    std  %r18, 40(%r1)  ; save R18
-    std  %r19, 48(%r1)  ; save R19
-    std  %r20, 56(%r1)  ; save R20
-    std  %r21, 64(%r1)  ; save R21
-    std  %r22, 72(%r1)  ; save R22
-    std  %r23, 80(%r1)  ; save R23
-    std  %r24, 88(%r1)  ; save R24
-    std  %r25, 96(%r1)  ; save R25
-    std  %r26, 104(%r1)  ; save R26
-    std  %r27, 112(%r1)  ; save R27
-    std  %r29, 120(%r1)  ; save R28
-    std  %r29, 128(%r1)  ; save R29
-    std  %r30, 136(%r1)  ; save R30
-    std  %r31, 144(%r1)  ; save R31
-    std  %r3,  152(%r1)  ; save hidden
+    std  r14, 8(r1)  ; save R14
+    std  r15, 16(r1)  ; save R15
+    std  r16, 24(r1)  ; save R16
+    std  r17, 32(r1)  ; save R17
+    std  r18, 40(r1)  ; save R18
+    std  r19, 48(r1)  ; save R19
+    std  r20, 56(r1)  ; save R20
+    std  r21, 64(r1)  ; save R21
+    std  r22, 72(r1)  ; save R22
+    std  r23, 80(r1)  ; save R23
+    std  r24, 88(r1)  ; save R24
+    std  r25, 96(r1)  ; save R25
+    std  r26, 104(r1)  ; save R26
+    std  r27, 112(r1)  ; save R27
+    std  r28, 120(r1)  ; save R28
+    std  r29, 128(r1)  ; save R29
+    std  r30, 136(r1)  ; save R30
+    std  r31, 144(r1)  ; save R31
+    std  r3,  152(r1)  ; save hidden
 
     ; save CR
     mfcr  r0
-    std  r0, 160(r1)
+    std   r0, 160(r1)
     ; save LR
     mflr  r0
-    std  r0, 168(r1)
+    std   r0, 168(r1)
     ; save LR as PC
-    std  r0, 176(r1)
+    std   r0, 176(r1)
 
     ; store RSP (pointing to context-data) in R7
-    mr  %r7, %r1
+    mr  r7, r1
 
     ; restore RSP (pointing to context-data) from R4
     mr  r1, r4
 
-    ld  %r14, 8(%r1)  ; restore R14
-    ld  %r15, 16(%r1)  ; restore R15
-    ld  %r16, 24(%r1)  ; restore R16
-    ld  %r17, 32(%r1)  ; restore R17
-    ld  %r18, 40(%r1)  ; restore R18
-    ld  %r19, 48(%r1)  ; restore R19
-    ld  %r20, 56(%r1)  ; restore R20
-    ld  %r21, 64(%r1)  ; restore R21
-    ld  %r22, 72(%r1)  ; restore R22
-    ld  %r23, 80(%r1)  ; restore R23
-    ld  %r24, 88(%r1)  ; restore R24
-    ld  %r25, 96(%r1)  ; restore R25
-    ld  %r26, 104(%r1)  ; restore R26
-    ld  %r27, 112(%r1)  ; restore R27
-    ld  %r28, 120(%r1)  ; restore R28
-    ld  %r29, 128(%r1)  ; restore R29
-    ld  %r30, 136(%r1)  ; restore R30
-    ld  %r31, 144(%r1)  ; restore R31
-    ld  %r4,  152(%r1)  ; restore hidden
+    ld  r14, 8(r1)  ; restore R14
+    ld  r15, 16(r1)  ; restore R15
+    ld  r16, 24(r1)  ; restore R16
+    ld  r17, 32(r1)  ; restore R17
+    ld  r18, 40(r1)  ; restore R18
+    ld  r19, 48(r1)  ; restore R19
+    ld  r20, 56(r1)  ; restore R20
+    ld  r21, 64(r1)  ; restore R21
+    ld  r22, 72(r1)  ; restore R22
+    ld  r23, 80(r1)  ; restore R23
+    ld  r24, 88(r1)  ; restore R24
+    ld  r25, 96(r1)  ; restore R25
+    ld  r26, 104(r1)  ; restore R26
+    ld  r27, 112(r1)  ; restore R27
+    ld  r28, 120(r1)  ; restore R28
+    ld  r29, 128(r1)  ; restore R29
+    ld  r30, 136(r1)  ; restore R30
+    ld  r31, 144(r1)  ; restore R31
+    ld  r4,  152(r1)  ; restore hidden
 
     ; restore CR
     ld  r0, 160(r1)
@@ -141,8 +141,8 @@ _ontop_fcontext:
     addi  r1, r1, 184
 
     ; return transfer_t
-    std  %r7, 0(%r4)
-    std  %r5, 8(%r4)
+    std  r7, 0(r4)
+    std  r5, 8(r4)
 
     ; restore CTR
     mtctr  r6

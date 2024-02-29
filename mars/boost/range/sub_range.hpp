@@ -19,14 +19,14 @@
     #pragma warning( disable : 4996 )
 #endif
 
-#include <boost/range/config.hpp>
-#include <boost/range/iterator_range.hpp>
-#include <boost/range/value_type.hpp>
-#include <boost/range/size_type.hpp>
-#include <boost/range/difference_type.hpp>
-#include <boost/range/reference.hpp>
-#include <boost/range/algorithm/equal.hpp>
 #include <boost/assert.hpp>
+#include <boost/range/algorithm/equal.hpp>
+#include <boost/range/config.hpp>
+#include <boost/range/difference_type.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/range/reference.hpp>
+#include <boost/range/size_type.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/type_traits/is_reference.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
@@ -190,7 +190,7 @@ public:
         template< class ForwardRange2 >
         sub_range(
             ForwardRange2& r,
-            BOOST_DEDUCED_TYPENAME ::boost::enable_if<
+            BOOST_DEDUCED_TYPENAME ::mars_boost::enable_if<
                 is_compatible_range<ForwardRange2>
             >::type* = 0
         )
@@ -201,7 +201,7 @@ public:
         template< class ForwardRange2 >
         sub_range(
             const ForwardRange2& r,
-            BOOST_DEDUCED_TYPENAME ::boost::enable_if<
+            BOOST_DEDUCED_TYPENAME ::mars_boost::enable_if<
                 is_compatible_range<const ForwardRange2>
             >::type* = 0
         )
@@ -235,7 +235,7 @@ public:
         { }
 
         template<class ForwardRange2>
-        BOOST_DEDUCED_TYPENAME ::boost::enable_if<
+        BOOST_DEDUCED_TYPENAME ::mars_boost::enable_if<
             is_compatible_range<ForwardRange2>,
             sub_range&
         >::type
@@ -246,7 +246,7 @@ public:
         }
 
         template<class ForwardRange2>
-        BOOST_DEDUCED_TYPENAME ::boost::enable_if<
+        BOOST_DEDUCED_TYPENAME ::mars_boost::enable_if<
             is_compatible_range<const ForwardRange2>,
             sub_range&
         >::type

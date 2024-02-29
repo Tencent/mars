@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_ROTATE_COPY_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_ROTATE_COPY_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
+#include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
-#include <algorithm>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -39,6 +39,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
     } // namespace range
     using range::rotate_copy;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

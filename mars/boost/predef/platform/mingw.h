@@ -5,28 +5,29 @@ Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt)
 */
 
-#ifndef BOOST_PREDEF_COMPILER_MINGW_H
-#define BOOST_PREDEF_COMPILER_MINGW_H
+#ifndef BOOST_PREDEF_PLAT_MINGW_H
+#define BOOST_PREDEF_PLAT_MINGW_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_PLAT_MINGW`]
+/* tag::reference[]
+= `BOOST_PLAT_MINGW`
 
-[@http://en.wikipedia.org/wiki/MinGW MinGW] platform.
+http://en.wikipedia.org/wiki/MinGW[MinGW] platform, either variety.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__MINGW32__`] [__predef_detection__]]
-    [[`__MINGW64__`] [__predef_detection__]]
+| `+__MINGW32__+` | {predef_detection}
+| `+__MINGW64__+` | {predef_detection}
 
-    [[`__MINGW64_VERSION_MAJOR`, `__MINGW64_VERSION_MINOR`] [V.R.0]]
-    [[`__MINGW32_VERSION_MAJOR`, `__MINGW32_VERSION_MINOR`] [V.R.0]]
-    ]
- */
+| `+__MINGW64_VERSION_MAJOR+`, `+__MINGW64_VERSION_MINOR+` | V.R.0
+| `+__MINGW32_VERSION_MAJOR+`, `+__MINGW32_VERSION_MINOR+` | V.R.0
+|===
+*/ // end::reference[]
 
 #define BOOST_PLAT_MINGW BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
@@ -56,7 +57,7 @@ Version number available as major, minor, and patch.
 #   include <boost/predef/detail/platform_detected.h>
 #endif
 
-#define BOOST_PLAT_MINGW_NAME "MinGW"
+#define BOOST_PLAT_MINGW_NAME "MinGW (any variety)"
 
 #endif
 

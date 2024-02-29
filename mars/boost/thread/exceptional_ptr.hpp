@@ -6,8 +6,8 @@
 #ifndef BOOST_THREAD_EXCEPTIONAL_PTR_HPP
 #define BOOST_THREAD_EXCEPTIONAL_PTR_HPP
 
-#include <boost/thread/detail/move.hpp>
 #include <boost/exception_ptr.hpp>
+#include <boost/thread/detail/move.hpp>
 
 #include <boost/config/abi_prefix.hpp>
 
@@ -37,7 +37,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     return exceptional_ptr();
   }
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #include <boost/config/abi_suffix.hpp>
 

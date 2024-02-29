@@ -2,9 +2,9 @@
 
 //  Copyright Beman Dawes and Daryle Walker 1999.  Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
 
-//  See http://www.boost.org/libs/integer for documentation.
+//  See https://www.boost.org/libs/integer for documentation.
 
 //  Revision History
 //   22 Sep 01  Added value-based integer templates. (Daryle Walker)
@@ -17,9 +17,9 @@
 
 #include <boost/integer_fwd.hpp>  // self include
 
+#include <boost/cstdint.hpp>         // for mars_boost::int64_t and BOOST_NO_INTEGRAL_INT64_T
 #include <boost/integer_traits.hpp>  // for mars_boost::::mars_boost::integer_traits
 #include <boost/limits.hpp>          // for ::std::numeric_limits
-#include <boost/cstdint.hpp>         // for mars_boost::int64_t and BOOST_NO_INTEGRAL_INT64_T
 #include <boost/static_assert.hpp>
 
 //
@@ -137,7 +137,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
   {
      BOOST_STATIC_ASSERT_MSG(Bits <= (int)(sizeof(mars_boost::uintmax_t) * CHAR_BIT),
          "No suitable unsigned integer type with the requested number of bits is available.");
-#if (defined(__BORLANDC__) || defined(__CODEGEAR__)) && defined(BOOST_NO_INTEGRAL_INT64_T)
+#if (defined(BOOST_BORLANDC) || defined(__CODEGEAR__)) && defined(BOOST_NO_INTEGRAL_INT64_T)
      // It's really not clear why this workaround should be needed... shrug I guess!  JM
      BOOST_STATIC_CONSTANT(int, s =
            6 +
@@ -219,7 +219,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #endif
   struct uint_value_t
   {
-#if (defined(__BORLANDC__) || defined(__CODEGEAR__))
+#if (defined(BOOST_BORLANDC) || defined(__CODEGEAR__))
      // It's really not clear why this workaround should be needed... shrug I guess!  JM
 #if defined(BOOST_NO_INTEGRAL_INT64_T)
       BOOST_STATIC_CONSTANT(unsigned, which =

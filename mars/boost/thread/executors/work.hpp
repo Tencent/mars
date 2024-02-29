@@ -8,8 +8,10 @@
 #define BOOST_THREAD_EXECUTORS_WORK_HPP
 
 #include <boost/thread/detail/config.hpp>
-#include <boost/thread/detail/nullary_function.hpp>
+#if defined BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION && defined BOOST_THREAD_PROVIDES_EXECUTORS && defined BOOST_THREAD_USES_MOVE
+
 #include <boost/thread/csbl/functional.hpp>
+#include <boost/thread/detail/nullary_function.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -24,7 +26,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     typedef csbl::function<void()> work_pq;
 #endif
   }
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
-
+#endif
 #endif //  BOOST_THREAD_EXECUTORS_WORK_HPP

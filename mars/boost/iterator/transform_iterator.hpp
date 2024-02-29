@@ -7,26 +7,30 @@
 #ifndef BOOST_TRANSFORM_ITERATOR_23022003THW_HPP
 #define BOOST_TRANSFORM_ITERATOR_23022003THW_HPP
 
-#include <boost/iterator.hpp>
+#include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 #include <boost/iterator/detail/enable_if.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/bool.hpp>
 #include <boost/type_traits/function_traits.hpp>
-#include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/is_class.hpp>
+#include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/is_reference.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/utility/result_of.hpp>
 
+#include <iterator>
 
 #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-# include <boost/type_traits/is_base_and_derived.hpp>
-
+#include <boost/type_traits/is_base_and_derived.hpp>
 #endif
+
+#if !BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3003))
+#include <boost/static_assert.hpp>
+#endif
+
 #include <boost/iterator/detail/config_def.hpp>
 
 
@@ -47,7 +51,11 @@ namespace iterators {
         // the function.
         typedef typename ia_dflt_help<
             Reference
+#ifdef BOOST_RESULT_OF_USE_TR1
           , result_of<const UnaryFunc(typename std::iterator_traits<Iterator>::reference)>
+#else
+          , result_of<const UnaryFunc&(typename std::iterator_traits<Iterator>::reference)>
+#endif
         >::type reference;
 
         // To get the default for Value: remove any reference on the
@@ -150,7 +158,7 @@ namespace iterators {
       return transform_iterator<UnaryFunc, Iterator>(it, UnaryFunc());
   }
 
-#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
+#if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
   template <class Return, class Argument, class Iterator>
   inline transform_iterator< Return (*)(Argument), Iterator, Return>
   make_transform_iterator(Iterator it, Return (*fun)(Argument))

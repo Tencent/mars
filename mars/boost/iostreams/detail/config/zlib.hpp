@@ -11,7 +11,7 @@
 #ifndef BOOST_IOSTREAMS_DETAIL_CONFIG_ZLIB_HPP_INCLUDED
 #define BOOST_IOSTREAMS_DETAIL_CONFIG_ZLIB_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -19,9 +19,9 @@
 
 #if defined(BOOST_ZLIB_BINARY)
 # if defined(BOOST_MSVC) || \
-     defined(__BORLANDC__) || \
+     defined(BOOST_BORLANDC) || \
      (defined(__MWERKS__) && defined(_WIN32) && (__MWERKS__ >= 0x3000)) || \
-     (defined(__ICL) && defined(_MSC_EXTENSIONS) && (_MSC_VER >= 1200)) \
+     (defined(__ICL) && defined(_MSC_EXTENSIONS)) \
      /**/
 
 // Specify the name of the .lib file.

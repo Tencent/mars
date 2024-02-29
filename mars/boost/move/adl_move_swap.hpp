@@ -22,8 +22,7 @@
 
 //Based on Boost.Core's swap.
 //Many thanks to Steven Watanabe, Joseph Gauterin and Niels Dekker.
-
-#include <boost/config.hpp>
+#include <boost/move/detail/workaround.hpp>  //forceinline
 #include <cstddef> //for std::size_t
 
 //Try to avoid including <algorithm>, as it's quite big
@@ -156,7 +155,7 @@ struct and_op_not
 {};
 
 template<class T>
-void swap_proxy(T& x, T& y, typename mars_boost::move_detail::enable_if_c<!mars_boost::move_detail::has_move_emulation_enabled_impl<T>::value>::type* = 0)
+BOOST_MOVE_FORCEINLINE void swap_proxy(T& x, T& y, typename mars_boost::move_detail::enable_if_c<!mars_boost::move_detail::has_move_emulation_enabled_impl<T>::value>::type* = 0)
 {
    //use std::swap if argument dependent lookup fails
    //Use using directive ("using namespace xxx;") instead as some older compilers
@@ -166,14 +165,14 @@ void swap_proxy(T& x, T& y, typename mars_boost::move_detail::enable_if_c<!mars_
 }
 
 template<class T>
-void swap_proxy(T& x, T& y
+BOOST_MOVE_FORCEINLINE void swap_proxy(T& x, T& y
                , typename mars_boost::move_detail::enable_if< and_op_not_impl<mars_boost::move_detail::has_move_emulation_enabled_impl<T>
                                                                         , mars_boost_move_member_swap::has_member_swap<T> >
                                                        >::type* = 0)
 {  T t(::mars_boost::move(x)); x = ::mars_boost::move(y); y = ::mars_boost::move(t);  }
 
 template<class T>
-void swap_proxy(T& x, T& y
+BOOST_MOVE_FORCEINLINE void swap_proxy(T& x, T& y
                , typename mars_boost::move_detail::enable_if< and_op_impl< mars_boost::move_detail::has_move_emulation_enabled_impl<T>
                                                                     , mars_boost_move_member_swap::has_member_swap<T> >
                                                        >::type* = 0)
@@ -186,7 +185,7 @@ void swap_proxy(T& x, T& y
 namespace mars_boost_move_adl_swap{
 
 template<class T>
-void swap_proxy(T& x, T& y)
+BOOST_MOVE_FORCEINLINE void swap_proxy(T& x, T& y)
 {
    using std::swap;
    swap(x, y);
@@ -223,9 +222,49 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost{
 //!   -  Otherwise a move-based swap is called, equivalent to: 
 //!      <code>T t(::mars_boost::move(x)); x = ::mars_boost::move(y); y = ::mars_boost::move(t);</code>.
 template<class T>
-void adl_move_swap(T& x, T& y)
+BOOST_MOVE_FORCEINLINE void adl_move_swap(T& x, T& y)
 {
    ::mars_boost_move_adl_swap::swap_proxy(x, y);
+}
+
+//! Exchanges elements between range [first1, last1) and another range starting at first2
+//! using mars_boost::adl_move_swap.
+//! 
+//! Parameters:
+//!   first1, last1   -   the first range of elements to swap
+//!   first2   -   beginning of the second range of elements to swap
+//!
+//! Type requirements:
+//!   - ForwardIt1, ForwardIt2 must meet the requirements of ForwardIterator.
+//!   - The types of dereferenced ForwardIt1 and ForwardIt2 must meet the
+//!     requirements of Swappable
+//!
+//! Return value: Iterator to the element past the last element exchanged in the range
+//! beginning with first2.
+template<class ForwardIt1, class ForwardIt2>
+ForwardIt2 adl_move_swap_ranges(ForwardIt1 first1, ForwardIt1 last1, ForwardIt2 first2)
+{
+    while (first1 != last1) {
+      ::mars_boost::adl_move_swap(*first1, *first2);
+      ++first1;
+      ++first2;
+    }
+   return first2;
+}
+
+template<class BidirIt1, class BidirIt2>
+BidirIt2 adl_move_swap_ranges_backward(BidirIt1 first1, BidirIt1 last1, BidirIt2 last2)
+{
+   while (first1 != last1) {
+      ::mars_boost::adl_move_swap(*(--last1), *(--last2));
+   }
+   return last2;
+}
+
+template<class ForwardIt1, class ForwardIt2>
+void adl_move_iter_swap(ForwardIt1 a, ForwardIt2 b)
+{
+   mars_boost::adl_move_swap(*a, *b); 
 }
 
 }  //namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost{

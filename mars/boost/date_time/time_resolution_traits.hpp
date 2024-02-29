@@ -9,11 +9,11 @@
  * $Date$
  */
 
-
 #include <boost/cstdint.hpp>
-#include <boost/date_time/time_defs.hpp>
-#include <boost/date_time/int_adapter.hpp>
 #include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/int_adapter.hpp>
+#include <boost/date_time/time_defs.hpp>
+#include <ctime>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace date_time {
@@ -22,7 +22,7 @@ namespace date_time {
   template <typename T>
   // JDG [7/6/02 made a template],
   // moved here from time_duration.hpp 2003-Sept-4.
-  inline T absolute_value(T x)
+  inline BOOST_CXX14_CONSTEXPR T absolute_value(T x)
   {
     return x < 0 ? -x : x;
   }
@@ -31,34 +31,57 @@ namespace date_time {
   struct time_resolution_traits_bi32_impl {
     typedef mars_boost::int32_t int_type;
     typedef mars_boost::int32_t impl_type;
-    static int_type as_number(impl_type i){ return i;}
+    static BOOST_CXX14_CONSTEXPR int_type as_number(impl_type i){ return i;}
     //! Used to determine if implemented type is int_adapter or int
-    static bool is_adapted() { return false;}
+    static BOOST_CXX14_CONSTEXPR bool is_adapted() { return false;}
   };
   //! traits struct for time_resolution_traits implementation type
   struct time_resolution_traits_adapted32_impl {
     typedef mars_boost::int32_t int_type;
     typedef mars_boost::date_time::int_adapter<mars_boost::int32_t> impl_type;
-    static int_type as_number(impl_type i){ return i.as_number();}
+    static BOOST_CXX14_CONSTEXPR int_type as_number(impl_type i){ return i.as_number();}
     //! Used to determine if implemented type is int_adapter or int
-    static bool is_adapted() { return true;}
+    static BOOST_CXX14_CONSTEXPR bool is_adapted() { return true;}
   };
   //! traits struct for time_resolution_traits implementation type
   struct time_resolution_traits_bi64_impl {
     typedef mars_boost::int64_t int_type;
     typedef mars_boost::int64_t impl_type;
-    static int_type as_number(impl_type i){ return i;}
+    static BOOST_CXX14_CONSTEXPR int_type as_number(impl_type i){ return i;}
     //! Used to determine if implemented type is int_adapter or int
-    static bool is_adapted() { return false;}
+    static BOOST_CXX14_CONSTEXPR bool is_adapted() { return false;}
   };
   //! traits struct for time_resolution_traits implementation type
   struct time_resolution_traits_adapted64_impl {
     typedef mars_boost::int64_t int_type;
     typedef mars_boost::date_time::int_adapter<mars_boost::int64_t> impl_type;
-    static int_type as_number(impl_type i){ return i.as_number();}
+    static BOOST_CXX14_CONSTEXPR int_type as_number(impl_type i){ return i.as_number();}
     //! Used to determine if implemented type is int_adapter or int
-    static bool is_adapted() { return true;}
+    static BOOST_CXX14_CONSTEXPR bool is_adapted() { return true;}
   };
+
+  //
+  // Note about var_type, which is used to define the variable that
+  // stores hours, minutes, and seconds values:
+  //
+  // In Boost 1.65.1 and earlier var_type was mars_boost::int32_t which suffers
+  // the year 2038 problem.  Binary serialization of posix_time uses
+  // 32-bit values, and uses serialization version 0.
+  //
+  // In Boost 1.66.0 the var_type changed to std::time_t, however
+  // binary serialization was not properly versioned, so on platforms
+  // where std::time_t is 32-bits, it remains compatible, however on
+  // platforms where std::time_t is 64-bits, binary serialization ingest
+  // will be incompatible with previous versions.  Furthermore, binary
+  // serialized output from 1.66.0 will not be compatible with future
+  // versions.  Yes, it's a mess.  Static assertions were not present
+  // in the serialization code to protect against this possibility.
+  //
+  // In Boost 1.67.0 the var_type was changed to mars_boost::int64_t, 
+  // ensuring the output size is 64 bits, and the serialization version
+  // was bumped.  Static assertions were added as well, protecting
+  // future changes in this area.
+  //
 
   template<typename frac_sec_type,
            time_resolutions res,
@@ -68,7 +91,7 @@ namespace date_time {
            typename frac_sec_type::int_type resolution_adjust,
 #endif
            unsigned short frac_digits,
-           typename var_type = mars_boost::int32_t >
+           typename var_type = mars_boost::int64_t >     // see note above
   class time_resolution_traits {
   public:
     typedef typename frac_sec_type::int_type fractional_seconds_type;
@@ -80,11 +103,11 @@ namespace date_time {
     typedef var_type  sec_type;
 
     // bring in function from frac_sec_type traits structs
-    static fractional_seconds_type as_number(impl_type i)
+    static BOOST_CXX14_CONSTEXPR fractional_seconds_type as_number(impl_type i)
     {
       return frac_sec_type::as_number(i);
     }
-    static bool is_adapted()
+    static BOOST_CXX14_CONSTEXPR bool is_adapted()
     {
       return frac_sec_type::is_adapted();
     }
@@ -96,23 +119,23 @@ namespace date_time {
     BOOST_STATIC_CONSTANT(fractional_seconds_type, ticks_per_second = resolution_adjust);
 #endif
 
-    static time_resolutions resolution()
+    static BOOST_CXX14_CONSTEXPR time_resolutions resolution()
     {
       return res;
     }
-    static unsigned short num_fractional_digits()
+    static BOOST_CXX14_CONSTEXPR unsigned short num_fractional_digits()
     {
       return frac_digits;
     }
-    static fractional_seconds_type res_adjust()
+    static BOOST_CXX14_CONSTEXPR fractional_seconds_type res_adjust()
     {
       return resolution_adjust;
     }
     //! Any negative argument results in a negative tick_count
-    static tick_type to_tick_count(hour_type hours,
-                                   min_type  minutes,
-                                   sec_type  seconds,
-                                   fractional_seconds_type  fs)
+    static BOOST_CXX14_CONSTEXPR tick_type to_tick_count(hour_type hours,
+                                                         min_type  minutes,
+                                                         sec_type  seconds,
+                                                         fractional_seconds_type  fs)
     {
       if(hours < 0 || minutes < 0 || seconds < 0 || fs < 0)
       {
@@ -120,14 +143,14 @@ namespace date_time {
         minutes = absolute_value(minutes);
         seconds = absolute_value(seconds);
         fs = absolute_value(fs);
-        return (((((fractional_seconds_type(hours)*3600)
-                   + (fractional_seconds_type(minutes)*60)
-                   + seconds)*res_adjust()) + fs) * -1);
+        return static_cast<tick_type>(((((fractional_seconds_type(hours)*3600)
+                                       + (fractional_seconds_type(minutes)*60)
+                                       + seconds)*res_adjust()) + fs) * -1);
       }
 
-      return (((fractional_seconds_type(hours)*3600)
-               + (fractional_seconds_type(minutes)*60)
-               + seconds)*res_adjust()) + fs;
+      return static_cast<tick_type>((((fractional_seconds_type(hours)*3600)
+                                    + (fractional_seconds_type(minutes)*60)
+                                    + seconds)*res_adjust()) + fs);
     }
 
   };

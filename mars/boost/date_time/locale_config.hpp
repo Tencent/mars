@@ -1,7 +1,7 @@
 #ifndef DATE_TIME_LOCALE_CONFIG_HPP___
 #define DATE_TIME_LOCALE_CONFIG_HPP___
 
-/* Copyright (c) 2002-2006 CrystalClear Software, Inc.
+/* Copyright (c) 2002-2020 CrystalClear Software, Inc.
  * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
@@ -17,12 +17,14 @@
 // defines BOOST_NO_STD_LOCALE (gcc 2.95.x)
 
 #include "boost/config.hpp" //sets BOOST_NO_STD_LOCALE
-#include "boost/detail/workaround.hpp"
+#include "boost/config/workaround.hpp"
 
 //This file basically becomes a noop if locales are not properly supported
 #if (defined(BOOST_NO_STD_LOCALE)  \
  || (BOOST_WORKAROUND( BOOST_MSVC, < 1300)) \
- || (BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT( 0x581 )) ) )
+ || (BOOST_WORKAROUND( BOOST_BORLANDC, BOOST_TESTED_AT( 0x581 )) ) \
+ || (BOOST_WORKAROUND( BOOST_XLCPP_ZOS, BOOST_TESTED_AT( 0x42010000 )) ) /* <cctype> "shadows" the locale enabled overloads from <locale> */ \
+ )
 #define BOOST_DATE_TIME_NO_LOCALE
 #endif
 

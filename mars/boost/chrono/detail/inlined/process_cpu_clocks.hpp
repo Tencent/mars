@@ -15,11 +15,12 @@
 #include <boost/chrono/config.hpp>
 #if defined(BOOST_CHRONO_HAS_PROCESS_CLOCKS)
 
-#include <boost/version.hpp>
 #include <boost/chrono/process_cpu_clocks.hpp>
 #include <boost/throw_exception.hpp>
+#include <boost/version.hpp>
+#if defined BOOST_CHRONO_PROVIDE_HYBRID_ERROR_HANDLING
 #include <boost/system/system_error.hpp>
-
+#endif
 //----------------------------------------------------------------------------//
 //                                Windows                                     //
 //----------------------------------------------------------------------------//

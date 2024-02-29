@@ -1,0 +1,110 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Requirements</title>
+<link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../index.html" title="Chapter 1. Context">
+<link rel="up" href="../index.html" title="Chapter 1. Context">
+<link rel="prev" href="overview.html" title="Overview">
+<link rel="next" href="ff.html" title="Context switching with fibers">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="overview.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="ff.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="context.requirements"></a><a class="link" href="requirements.html" title="Requirements">Requirements</a>
+</h2></div></div></div>
+<p>
+      If <span class="bold"><strong>Boost.Context</strong></span> uses fcontext_t (the default)
+      as its implementation, it must be built for the particular compiler(s) and
+      CPU architecture(s) being targeted. Using <a class="link" href="ff/implementations__fcontext_t__ucontext_t_and_winfiber.html#implementation"><span class="emphasis"><em>fcontext_t</em></span></a>,
+      <span class="bold"><strong>Boost.Context</strong></span> includes assembly code and,
+      therefore, requires GNU as and GNU preprocessor for supported POSIX systems,
+      MASM for Windows/x86 systems and ARMasm for Windows/arm systems.
+    </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        MASM64 (ml64.exe) is a part of Microsoft's Windows Driver Kit.
+      </p></td></tr>
+</table></div>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../../../doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        Please note that <code class="computeroutput"><span class="identifier">address</span><span class="special">-</span><span class="identifier">model</span><span class="special">=</span><span class="number">64</span></code> must be
+        given to bjam command line on 64bit Windows for 64bit build; otherwise 32bit
+        code will be generated.
+      </p></td></tr>
+</table></div>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../../../doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        For cross-compiling the lib you must specify certain additional properties
+        at bjam command line: <code class="computeroutput"><span class="identifier">target</span><span class="special">-</span><span class="identifier">os</span></code>, <code class="computeroutput"><span class="identifier">abi</span></code>, <code class="computeroutput"><span class="identifier">binary</span><span class="special">-</span><span class="identifier">format</span></code>,
+        <code class="computeroutput"><span class="identifier">architecture</span></code> and <code class="computeroutput"><span class="identifier">address</span><span class="special">-</span><span class="identifier">model</span></code>.
+      </p></td></tr>
+</table></div>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../../../doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        Windows using fcontext_t: for safe SEH the property 'asmflags=\safeseh' must
+        be specified at bjam command line.
+      </p></td></tr>
+</table></div>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../../../doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        Windows using fcontext_t: turn off global program optimization (/GL) and
+        change /EHsc (compiler assumes that functions declared as extern "C"
+        never throw a C++ exception) to /EHs (tells compiler assumes that functions
+        declared as extern "C" may throw an exception).
+      </p></td></tr>
+</table></div>
+<p>
+      Because this library uses C++11 extensively, it requires a compatible compiler.
+      Known minimum working versions are as follows: Microsoft Visual Studio 2015
+      (msvc-14.0), GCC 4.8 (with -std=c++11), Clang 3.4 (with -std=c++11). Other
+      compilers may work, if they support the following language features: auto declarations,
+      constexpr, defaulted functions, final, hdr thread, hdr tuple, lambdas, noexcept,
+      nullptr, rvalue references, template aliases. thread local, variadic templates.
+    </p>
+</div>
+<div class="copyright-footer">Copyright © 2014 Oliver Kowalke<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="overview.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="ff.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

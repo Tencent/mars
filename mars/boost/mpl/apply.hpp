@@ -21,10 +21,10 @@
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/apply_fwd.hpp>
 #   include <boost/mpl/apply_wrap.hpp>
-#   include <boost/mpl/placeholders.hpp>
-#   include <boost/mpl/lambda.hpp>
-#   include <boost/mpl/aux_/na.hpp>
 #   include <boost/mpl/aux_/lambda_support.hpp>
+#   include <boost/mpl/aux_/na.hpp>
+#   include <boost/mpl/lambda.hpp>
+#   include <boost/mpl/placeholders.hpp>
 #endif
 
 #include <boost/mpl/aux_/config/use_preprocessed.hpp>
@@ -37,22 +37,22 @@
 
 #else
 
-#   include <boost/mpl/limits/arity.hpp>
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/partial_spec_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/enum.hpp>
-#   include <boost/mpl/aux_/config/lambda.hpp>
 #   include <boost/mpl/aux_/config/dtp.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
 #   include <boost/mpl/aux_/config/eti.hpp>
+#   include <boost/mpl/aux_/config/lambda.hpp>
 #   include <boost/mpl/aux_/config/msvc.hpp>
 #   include <boost/mpl/aux_/config/workaround.hpp>
+#   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/enum.hpp>
+#   include <boost/mpl/aux_/preprocessor/params.hpp>
+#   include <boost/mpl/aux_/preprocessor/partial_spec_params.hpp>
+#   include <boost/mpl/limits/arity.hpp>
 
+#   include <boost/preprocessor/cat.hpp>
 #   include <boost/preprocessor/comma_if.hpp>
 #   include <boost/preprocessor/inc.hpp>
 #   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/cat.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

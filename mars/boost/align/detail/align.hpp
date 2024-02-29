@@ -1,40 +1,38 @@
 /*
-(c) 2014 Glen Joseph Fernandes
-<glenjofe -at- gmail.com>
+Copyright 2014-2020 Glen Joseph Fernandes
+(glenjofe@gmail.com)
 
-Distributed under the Boost Software
-License, Version 1.0.
-http://boost.org/LICENSE_1_0.txt
+Distributed under the Boost Software License, Version 1.0.
+(http://www.boost.org/LICENSE_1_0.txt)
 */
 #ifndef BOOST_ALIGN_DETAIL_ALIGN_HPP
 #define BOOST_ALIGN_DETAIL_ALIGN_HPP
 
-#include <boost/assert.hpp>
-#include <boost/align/detail/address.hpp>
 #include <boost/align/detail/is_alignment.hpp>
-#include <cstddef>
+#include <boost/assert.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace alignment {
 
-inline void* align(std::size_t alignment, std::size_t size,
-    void*& ptr, std::size_t& space)
+inline void*
+align(std::size_t alignment, std::size_t size, void*& ptr,
+    std::size_t& space)
 {
-    BOOST_ASSERT(detail::is_alignment(alignment));
-    std::size_t n = detail::address(ptr) & (alignment - 1);
-    if (n != 0) {
-        n = alignment - n;
+    BOOST_ASSERT(mars_boost::alignment::detail::is_alignment(alignment));
+    if (size <= space) {
+        char* p = reinterpret_cast<char*>(~(alignment - 1) &
+            (reinterpret_cast<std::size_t>(ptr) + alignment - 1));
+        std::size_t n = p - static_cast<char*>(ptr);
+        if (n <= space - size) {
+            ptr = p;
+            space -= n;
+            return p;
+        }
     }
-    void* p = 0;
-    if (n <= space && size <= space - n) {
-        p = static_cast<char*>(ptr) + n;
-        ptr = p;
-        space -= n;
-    }
-    return p;
+    return 0;
 }
 
-} /* .alignment */
-} /* .boost */
+} /* alignment */
+} /* boost */
 
 #endif

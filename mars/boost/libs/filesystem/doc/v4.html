@@ -1,0 +1,69 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Filesystem V4</title>
+<link href="styles.css" rel="stylesheet">
+
+<body>
+
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+  <tr>
+    <td width="277">
+<a href="../../../index.htm">
+<img src="../../../boost.png" alt="boost.png (6897 bytes)" align="middle" width="300" height="86" border="0"></a></td>
+    <td align="middle">
+    <font size="7">Filesystem
+    Version 4<br></font></td>
+  </tr>
+</table>
+
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse"
+ bordercolor="#111111" bgcolor="#D7EEFF" width="100%">
+  <tr>
+    <td><a href="index.htm">Home</a> &nbsp;&nbsp;
+    <a href="tutorial.html">Tutorial</a> &nbsp;&nbsp;
+    <a href="reference.html">Reference</a> &nbsp;&nbsp;
+    <a href="faq.htm">FAQ</a> &nbsp;&nbsp;
+    <a href="release_history.html">Releases</a> &nbsp;&nbsp;
+    <a href="portability_guide.htm">Portability</a> &nbsp;&nbsp;
+    <a href="v4.html">V4</a> &nbsp;&nbsp;
+    <a href="v3.html">V3 Intro</a> &nbsp;&nbsp;
+    <a href="v3_design.html">V3 Design</a> &nbsp;&nbsp;
+    <a href="deprecated.html">Deprecated</a> &nbsp;&nbsp;
+    <a href="issue_reporting.html">Bug Reports </a>&nbsp;&nbsp;
+    </td>
+</table>
+
+<h1>Boost Filesystem Version 4</h1>
+
+<p>Version 4 is a significant revision of the Boost Filesystem library that makes its interface and
+behavior closer to std::filesystem that was introduced in C++17 and updated in the later standards.
+It removes the features that were <a href="deprecated.html">deprecated</a> in Version 3 and makes a number of breaking changes.</p>
+
+<p>Users can select Boost.Filesystem v4 version by defining <code>BOOST_FILESYSTEM_VERSION</code> macro to 4 when compiling their code. There is no need to separately compile Boost.Filesystem for each library version &mdash; a single binary supports both v3 and v4. Users should avoid using both v3 and v4 in the same application as this can lead to subtle bugs.</p>
+
+<h2>Breaking changes</h2>
+
+<ul>
+  <li><a href="reference.html#path-filename"><code>path::filename</code></a> no longer returns root name or root directory if the path contains no
+  other elements. For example, on Windows <code>path("C:").filename()</code> used to return "C:" and <code>path("C:\").filename()</code> used to return "\" and both will return an empty path now. This also affects <code>path::stem</code> and <code>path::extension</code> methods, as those are based on <code>path::filename</code>.</li>
+  <li><a href="reference.html#path-stem"><code>path::stem</code></a> and <a href="reference.html#path-extension"><code>path::extension</code></a> no longer treat a filename that starts with a dot and has no other dots as an extension. Filenames starting with a dot are commonly treated as filenames with an empty extension. The leading dot is used to indicate a hidden file on most UNIX-like systems.</li>
+  <li><a href="reference.html#path-filename"><code>path::filename</code></a> and <a href="reference.html#path-iterators"><code>path::iterator</code></a> no longer return an implicit trailing dot (".") element if the path ends with a directory separator. Instead, an empty path is returned, similar to C++17 std::filesystem. This also affects other methods that are defined in terms of iterators or filename, such as <code>path::stem</code>, <code>path::compare</code> or <code>lexicographical_compare</code>. For example, <code>path("a/b/") == path("a/b/.")</code> no longer holds true.</li>
+  <li><a href="reference.html#lexically_normal"><code>path::lexically_normal</code></a> no longer produces a trailing dot (".") element and omits a directory separator after a trailing dot-dot ("..") element in the normalized paths.</li>
+  <li><a href="reference.html#path-appends"><code>path</code> appends</a> consider root name and root directory of the appended path. If the appended path is absolute, or root name is present and differs from the source path, the resulting path is equivalent to the appended path. If root directory is present, the result is the root directory and relative path rebased on top of the root name of the source path. Otherwise, the behavior is similar to v3. This behavior is similar to C++17 std::filesystem.</li>
+  <li><code>path</code> no longer supports construction, assignment or appending from containers of characters. Use string types or iterators as the source for these opereations instead.</li>
+  <li><a href="reference.html#path-remove_filename"><code>path::remove_filename</code></a> preserves the trailing directory separator, so that <code>path::has_filename</code> returns <code>false</code> after a successful call to <code>path::remove_filename</code>.</li>
+  <li><code>directory_entry</code> constructors and modifiers that initialize or modify path of the directory entry automatically call <code>directory_entry::refresh</code> instead of clearing cached file statuses. This means that the file identified by the new path needs to be accessible in the filesystem at the point of the call.</li>
+  <li><code>directory_entry</code> constructors and modifiers that accept <code>file_status</code> arguments to initialize cached file statuses are removed. The amount of cached data
+  is an implementation detail of <code>directory_entry</code>, and in the future it may not be limited to just file statuses. Users should rely on automatic refreshes of the cached data.</li>
+</ul>
+
+<hr>
+<p>&copy; Copyright Andrey Semashev, 2021-2023</p>
+<p>Distributed under the Boost Software License, Version 1.0. See
+<a href="http://www.boost.org/LICENSE_1_0.txt">www.boost.org/LICENSE_1_0.txt</a></p>
+
+</body>
+
+</html>

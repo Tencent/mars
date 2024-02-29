@@ -35,14 +35,18 @@ template<> struct arithmetic_type<2>
     typedef char (&result_type) [2];
 };
 
+#ifndef BOOST_NO_INTRINSIC_WCHAR_T
+
 template<> struct arithmetic_type<3>
 {
     typedef wchar_t type;
     typedef char (&result_type) [3];
 };
 
+#endif
+
 // There are five standard signed integer types:
-// “signed char”, “short int”, “int”, “long int”, and “long long int”.
+// "signed char", "short int", "int", "long int", and "long long int".
 
 template<> struct arithmetic_type<4>
 {
@@ -75,8 +79,8 @@ template<> struct arithmetic_type<8>
 };
 
 // For each of the standard signed integer types, there exists a corresponding
-// (but different) standard unsigned integer type: “unsigned char”, “unsigned short int”,
-// “unsigned int”, “unsigned long int”, and “unsigned long long int”
+// (but different) standard unsigned integer type: "unsigned char", "unsigned short int",
+// "unsigned int", "unsigned long int", and "unsigned long long int"
 
 template<> struct arithmetic_type<9>
 {
@@ -170,7 +174,9 @@ private:
 
     static arithmetic_type<1>::result_type select( arithmetic_type<1>::type );
     static arithmetic_type<2>::result_type select( arithmetic_type<2>::type );
+#ifndef BOOST_NO_INTRINSIC_WCHAR_T
     static arithmetic_type<3>::result_type select( arithmetic_type<3>::type );
+#endif
     static arithmetic_type<4>::result_type select( arithmetic_type<4>::type );
     static arithmetic_type<5>::result_type select( arithmetic_type<5>::type );
     static arithmetic_type<6>::result_type select( arithmetic_type<6>::type );
@@ -200,9 +206,11 @@ private:
 
     static bool cond();
 
+    BOOST_STATIC_CONSTANT(int, selector = sizeof(select(cond() ? T() : U())));
+
 public:
 
-    typedef typename arithmetic_type< sizeof(select( cond()? T(): U() )) >::type type;
+    typedef typename arithmetic_type<selector>::type type;
 };
 
 } // namespace type_traits_detail

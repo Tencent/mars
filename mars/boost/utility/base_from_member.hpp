@@ -47,13 +47,14 @@
 //         {}
 // This macro should only persist within this file.
 
-#define BOOST_PRIVATE_CTR_DEF( z, n, data )                            \
-    template < BOOST_PP_ENUM_PARAMS(n, typename T) >                   \
-    explicit base_from_member( BOOST_PP_ENUM_BINARY_PARAMS(n, T, x) )  \
-        : member( BOOST_PP_ENUM_PARAMS(n, x) )                         \
-        {}                                                             \
+#ifndef BOOST_UTILITY_DOCS
+#define BOOST_PRIVATE_CTR_DEF( z, n, data )                   \
+    template < BOOST_PP_ENUM_PARAMS(n, typename T) >          \
+    base_from_member( BOOST_PP_ENUM_BINARY_PARAMS(n, T, x) )  \
+        : member( BOOST_PP_ENUM_PARAMS(n, x) )                \
+        {}                                                    \
     /**/
-
+#endif // BOOST_UTILITY_DOCS
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -142,7 +143,8 @@ protected:
         : member()
         {}
 
-    BOOST_PP_REPEAT_FROM_TO( 1, BOOST_PP_INC(BOOST_BASE_FROM_MEMBER_MAX_ARITY),
+    template < typename T0 > explicit base_from_member( T0 x0 ) : member( x0 ) {}
+    BOOST_PP_REPEAT_FROM_TO( 2, BOOST_PP_INC(BOOST_BASE_FROM_MEMBER_MAX_ARITY),
      BOOST_PRIVATE_CTR_DEF, _ )
 #endif
 

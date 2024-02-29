@@ -8,25 +8,26 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_COMPILER_COMEAU_H
 #define BOOST_PREDEF_COMPILER_COMEAU_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
 #define BOOST_COMP_COMO BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
-/*`
-[heading `BOOST_COMP_COMO`]
+/* tag::reference[]
+= `BOOST_COMP_COMO`
 
-[@http://en.wikipedia.org/wiki/Comeau_C/C%2B%2B Comeau C++] compiler.
+http://en.wikipedia.org/wiki/Comeau_C/C%2B%2B[Comeau {CPP}] compiler.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__COMO__`] [__predef_detection__]]
+| `+__COMO__+` | {predef_detection}
 
-    [[`__COMO_VERSION__`] [V.R.P]]
-    ]
- */
+| `+__COMO_VERSION__+` | V.R.P
+|===
+*/ // end::reference[]
 
 #if defined(__COMO__)
 #   if !defined(BOOST_COMP_COMO_DETECTION) && defined(__COMO_VERSION__)

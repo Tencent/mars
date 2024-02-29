@@ -32,8 +32,18 @@
 // MinGW-w64 provides intrin.h for both 32 and 64-bit targets.
 # define BOOST_SP_HAS_INTRIN_H
 
+#elif defined( __LP64__ )
+
+// We have to use intrin.h on Cygwin 64
+# define BOOST_SP_HAS_INTRIN_H
+
 // Intel C++ on Windows on VC10+ stdlib
 #elif defined( BOOST_INTEL_WIN ) && defined( _CPPLIB_VER ) && _CPPLIB_VER >= 520
+
+# define BOOST_SP_HAS_INTRIN_H
+
+// clang-cl on Windows on VC10+ stdlib
+#elif defined( __clang__ ) && defined( _MSC_VER ) && defined( _CPPLIB_VER ) && _CPPLIB_VER >= 520
 
 # define BOOST_SP_HAS_INTRIN_H
 
@@ -146,13 +156,13 @@ extern "C" __declspec(dllimport) long __stdcall InterlockedExchangeAdd( long vol
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
-# define BOOST_SP_INTERLOCKED_INCREMENT ::boost::detail::InterlockedIncrement
-# define BOOST_SP_INTERLOCKED_DECREMENT ::boost::detail::InterlockedDecrement
-# define BOOST_SP_INTERLOCKED_COMPARE_EXCHANGE ::boost::detail::InterlockedCompareExchange
-# define BOOST_SP_INTERLOCKED_EXCHANGE ::boost::detail::InterlockedExchange
-# define BOOST_SP_INTERLOCKED_EXCHANGE_ADD ::boost::detail::InterlockedExchangeAdd
+# define BOOST_SP_INTERLOCKED_INCREMENT ::mars_boost::detail::InterlockedIncrement
+# define BOOST_SP_INTERLOCKED_DECREMENT ::mars_boost::detail::InterlockedDecrement
+# define BOOST_SP_INTERLOCKED_COMPARE_EXCHANGE ::mars_boost::detail::InterlockedCompareExchange
+# define BOOST_SP_INTERLOCKED_EXCHANGE ::mars_boost::detail::InterlockedExchange
+# define BOOST_SP_INTERLOCKED_EXCHANGE_ADD ::mars_boost::detail::InterlockedExchangeAdd
 
 #else
 

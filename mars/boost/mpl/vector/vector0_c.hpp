@@ -14,8 +14,8 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/vector/vector0.hpp>
 #include <boost/mpl/integral_c.hpp>
+#include <boost/mpl/vector/vector0.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

@@ -84,21 +84,21 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         typedef R result_type;
 
         template<typename Func, typename ... Args, std::size_t N>
-        R operator()(Func &func, BOOST_SIGNALS2_TUPLE<Args...> args, mpl::size_t<N>) const
+        R operator()(Func &func, const BOOST_SIGNALS2_TUPLE<Args...> & args, mpl::size_t<N>) const
         {
           typedef typename make_unsigned_meta_array<N>::type indices_type;
           return m_invoke<Func>(func, indices_type(), args);
         }
       private:
         template<typename Func, unsigned ... indices, typename ... Args>
-          R m_invoke(Func &func, unsigned_meta_array<indices...>, BOOST_SIGNALS2_TUPLE<Args...> args,
+          R m_invoke(Func &func, unsigned_meta_array<indices...>, const BOOST_SIGNALS2_TUPLE<Args...> & args,
             typename mars_boost::disable_if<mars_boost::is_void<typename Func::result_type> >::type * = 0
           ) const
         {
           return func(BOOST_SIGNALS2_GET<indices>(args)...);
         }
         template<typename Func, unsigned ... indices, typename ... Args>
-          R m_invoke(Func &func, unsigned_meta_array<indices...>, BOOST_SIGNALS2_TUPLE<Args...> args,
+          R m_invoke(Func &func, unsigned_meta_array<indices...>, const BOOST_SIGNALS2_TUPLE<Args...> & args,
             typename mars_boost::enable_if<mars_boost::is_void<typename Func::result_type> >::type * = 0
           ) const
         {
@@ -110,9 +110,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // only exists to quiet some unused parameter warnings
         // on certain compilers (some versions of gcc and msvc)
         template<typename Func>
-        R m_invoke(Func &func, unsigned_meta_array<>, BOOST_SIGNALS2_TUPLE<>, 
-          typename mars_boost::enable_if<mars_boost::is_void<typename Func::result_type> >::type * = 0
-        ) const
+          R m_invoke(Func &func, unsigned_meta_array<>, const BOOST_SIGNALS2_TUPLE<> &, 
+            typename mars_boost::enable_if<mars_boost::is_void<typename Func::result_type> >::type * = 0
+          ) const
         {
           func();
           return R();

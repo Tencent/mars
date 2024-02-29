@@ -10,14 +10,20 @@
 // William Kempf, Jesse Jones and Karl Nelson were all very helpful in the
 // design of this library.
 
-#include <functional> // unary_function, binary_function
-
-#include <boost/preprocessor/iterate.hpp>
-#include <boost/detail/workaround.hpp>
-
 #ifndef BOOST_FUNCTION_MAX_ARGS
 #  define BOOST_FUNCTION_MAX_ARGS 10
 #endif // BOOST_FUNCTION_MAX_ARGS
+
+#if !defined(BOOST_FUNCTION_MAX_ARGS_DEFINED) || (BOOST_FUNCTION_MAX_ARGS_DEFINED != BOOST_FUNCTION_MAX_ARGS)
+
+#if !defined(BOOST_FUNCTION_MAX_ARGS_DEFINED)
+#define BOOST_FUNCTION_MAX_ARGS_DEFINED 0
+#endif
+
+#include <functional> // unary_function, binary_function
+
+#include <boost/config/workaround.hpp>
+#include <boost/preprocessor/iterate.hpp>
 
 // Include the prologue here so that the use of file-level iteration
 // in anything that may be included by function_template.hpp doesn't break
@@ -64,3 +70,7 @@
 #  include BOOST_PP_ITERATE()
 #  undef BOOST_PP_ITERATION_PARAMS_1
 #endif
+
+#include <boost/function/detail/epilogue.hpp>
+
+#endif // !defined(BOOST_FUNCTION_MAX_ARGS_DEFINED) || (BOOST_FUNCTION_MAX_ARGS_DEFINED != BOOST_FUNCTION_MAX_ARGS)

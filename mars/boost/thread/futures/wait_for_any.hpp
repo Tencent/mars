@@ -10,13 +10,13 @@
 
 #include <boost/thread/detail/config.hpp>
 
+#include <boost/thread/condition_variable.hpp>
 #include <boost/thread/detail/move.hpp>
 #include <boost/thread/futures/is_future_type.hpp>
 #include <boost/thread/lock_algorithms.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include <boost/core/enable_if.hpp>
-#include <boost/next_prior.hpp>
 #include <boost/scoped_array.hpp>
 
 #include <iterator>
@@ -55,14 +55,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         typedef count_type count_type_portable;
 #endif
         count_type_portable count;
-        mars_boost::scoped_array<boost::unique_lock<boost::mutex> > locks;
+        mars_boost::scoped_array<mars_boost::unique_lock<mars_boost::mutex> > locks;
 
         all_futures_lock(std::vector<registered_waiter>& waiters) :
-          count(waiters.size()), locks(new mars_boost::unique_lock<boost::mutex>[count])
+          count(waiters.size()), locks(new mars_boost::unique_lock<mars_boost::mutex>[count])
         {
           for (count_type_portable i = 0; i < count; ++i)
           {
-            locks[i] = BOOST_THREAD_MAKE_RV_REF(mars_boost::unique_lock<boost::mutex>(waiters[i].future_->mutex()));
+            locks[i] = BOOST_THREAD_MAKE_RV_REF(mars_boost::unique_lock<mars_boost::mutex>(waiters[i].future_->mutex()));
           }
         }
 
@@ -154,7 +154,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
       waiter.add(*current);
     }
-    return mars_boost::next(begin, waiter.wait());
+
+    std::advance( begin, waiter.wait() );
+    return begin;
   }
 }
 

@@ -9,16 +9,16 @@
 #ifndef BOOST_TT_HAS_NOTHROW_COPY_HPP_INCLUDED
 #define BOOST_TT_HAS_NOTHROW_COPY_HPP_INCLUDED
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 
 #ifdef BOOST_HAS_NOTHROW_COPY
 
-#if defined(BOOST_CLANG) || defined(__GNUC__) || defined(__ghs__) || defined(__CODEGEARC__) || defined(__SUNPRO_CC)
-#include <boost/type_traits/is_volatile.hpp>
+#if defined(BOOST_CLANG) || defined(__GNUC__) || defined(__ghs__) || defined(BOOST_CODEGEARC) || defined(__SUNPRO_CC)
+#include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/is_copy_constructible.hpp>
 #include <boost/type_traits/is_reference.hpp>
-#include <boost/type_traits/is_array.hpp>
+#include <boost/type_traits/is_volatile.hpp>
 #ifdef BOOST_INTEL
 #include <boost/type_traits/is_pod.hpp>
 #endif
@@ -26,8 +26,8 @@
 #include <boost/type_traits/has_trivial_copy.hpp>
 #include <boost/type_traits/is_array.hpp>
 #ifdef BOOST_INTEL
-#include <boost/type_traits/add_lvalue_reference.hpp>
 #include <boost/type_traits/add_const.hpp>
+#include <boost/type_traits/add_lvalue_reference.hpp>
 #endif
 #endif
 

@@ -8,7 +8,7 @@
 #  */
 #
 # /* Revised by Paul Mensonides (2002-2011) */
-# /* Revised by Edward Diener (2011,2015) */
+# /* Revised by Edward Diener (2011,2015,2020) */
 #
 # /* See http://www.boost.org for most recent version. */
 #
@@ -19,25 +19,11 @@
 #
 # /* BOOST_PP_EAT */
 #
-# if BOOST_PP_VARIADICS
-#    define BOOST_PP_EAT(...)
-# else
-#    define BOOST_PP_EAT(x)
-# endif
+# define BOOST_PP_EAT(...)
 #
 # /* BOOST_PP_TUPLE_EAT */
 #
-# if BOOST_PP_VARIADICS
-#    define BOOST_PP_TUPLE_EAT(size) BOOST_PP_EAT
-# else
-#    if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_MWCC()
-#        define BOOST_PP_TUPLE_EAT(size) BOOST_PP_TUPLE_EAT_I(size)
-#    else
-#        define BOOST_PP_TUPLE_EAT(size) BOOST_PP_TUPLE_EAT_OO((size))
-#        define BOOST_PP_TUPLE_EAT_OO(par) BOOST_PP_TUPLE_EAT_I ## par
-#    endif
-#    define BOOST_PP_TUPLE_EAT_I(size) BOOST_PP_TUPLE_EAT_ ## size
-# endif
+# define BOOST_PP_TUPLE_EAT(size) BOOST_PP_EAT
 #
 # if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_MWCC()
 #     define BOOST_PP_TUPLE_EAT_N(size) BOOST_PP_TUPLE_EAT_N_I(size)
@@ -45,7 +31,7 @@
 #     define BOOST_PP_TUPLE_EAT_N(size) BOOST_PP_TUPLE_EAT_N_OO((size))
 #     define BOOST_PP_TUPLE_EAT_N_OO(par) BOOST_PP_TUPLE_EAT_N_I ## par
 # endif
-# define BOOST_PP_TUPLE_EAT_N_I(size) BOOST_PP_TUPLE_EAT_ ## size
+# define BOOST_PP_TUPLE_EAT_N_I(size) BOOST_PP_EAT
 #
 # define BOOST_PP_TUPLE_EAT_1(e0)
 # define BOOST_PP_TUPLE_EAT_2(e0, e1)

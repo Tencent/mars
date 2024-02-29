@@ -1,0 +1,643 @@
+[/
+          Copyright Oliver Kowalke 2016.
+ Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+          http://www.boost.org/LICENSE_1_0.txt
+]
+
+[#ff]
+[section:ff Context switching with fibers]
+
+[note __fiber__ is the reference implementation of C++ proposal
+[@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0876r0.pdf P0876R0:
+fibers without scheduler].]
+
+A __fiber__ represents the state of the control flow of a program at a given
+point in time. Fibers can be suspended and resumed later in order to change the
+control flow of a program.
+
+Modern micro-processors are registers machines; the content of processor
+registers represent a fiber of the executed program at a given point in time.
+Operating systems simulate parallel execution of programs on a single processor
+by switching between programs (context switch) by preserving and restoring the
+fiber, e.g. the content of all registers.
+
+
+[heading __fib__]
+
+__fib__ captures the current fiber (the rest of the computation; code after
+__fib__) and triggers a context switch. The context switch is achieved by
+preserving certain registers (including instruction and stack pointer), defined
+by the calling convention of the ABI, of the current fiber and restoring those
+registers of the resumed fiber. The control flow of the resumed fiber continues.
+The current fiber is suspended and passed as argument to the resumed fiber.
+
+__fib__ expects a __context_fn__ with signature `'fiber(fiber && f)'`. The
+parameter `f` represents the current fiber from which this fiber was resumed
+(e.g. that has called __fib__).
+
+On return the __context_fn__ of the current fiber has to specify an __fib__ to
+which the execution control is transferred after termination of the current
+fiber.
+
+If an instance with valid state goes out of scope and the __context_fn__ has not
+yet returned, the stack is traversed in order to access the control structure
+(address stored at the first stack frame) and fiber's stack is deallocated via
+the __stack_allocator__.
+
+[note [link segmented ['Segmented stacks]] are supported by __fib__ using [link
+implementation ['ucontext_t]].]
+
+
+__fib__ represents a __fiber__; it contains the content of preserved registers
+and manages the associated stack (allocation/deallocation). __fib__ is a
+one-shot fiber - it can be used only once, after calling __resume__ or
+__resume_with__ it is invalidated.
+
+__fib__ is  only move-constructible and move-assignable.
+
+As a first-class object __fib__ can be applied to and returned from a function,
+assigned to a variable or stored in a container.
+
+A fiber is continued by calling `resume()`/`resume_with()`.
+
+
+[heading Usage]
+
+        namespace ctx=boost::context;
+        int a;
+        ctx::fiber source{[&a](ctx::fiber&& sink){
+            a=0;
+            int b=1;
+            for(;;){
+                sink=std::move(sink).resume();
+                int next=a+b;
+                a=b;
+                b=next;
+            }
+            return std::move(sink);
+        }};
+        for (int j=0;j<10;++j) {
+            source=std::move(source).resume();
+            std::cout << a << " ";
+        }
+
+        output:
+            0 1 1 2 3 5 8 13 21 34
+
+This simple example demonstrates the basic usage of __fib__ as a ['generator].
+The fiber `sink` represents the ['main]-fiber (function `main()`).
+`sink` is captured (current-fiber) by invoking __fib__ and passed as parameter
+to the lambda.
+
+Because the state is invalidated (one-shot fiber) by each call of __resume__,
+the new state of the __fib__, returned by __resume__, needs to be assigned to
+`sink` after each call. In order to express the invalidation of the resumed fiber,
+the member functions `resume()` and `resume_with()` are rvalue-ref qualified.
+Both functions bind only to rvalues. Thus an lvalue fiber must be casted to an
+rvalue via `std::move()`.
+
+The lambda that calculates the Fibonacci numbers is executed inside the fiber
+represented by `source`. Calculated Fibonacci numbers are transferred between
+the two fibers via variable `a` (lambda capture reference).
+
+The locale variables `b` and ` next` remain their values during each context
+switch. This is possible due `source` has its own stack and the stack is
+exchanged by each context switch.
+
+
+[heading Parameter passing]
+
+Data can be transferred between two fibers via global pointers, calling wrappers
+(like `std::bind`) or lambda captures.
+
+    namespace ctx=boost::context;
+    int i=1;
+    ctx::fiber f1{[&i](ctx::fiber&& f2){
+        std::printf("inside f1,i==%d\n",i);
+        i+=1;
+        return std::move(f2).resume();
+    }};
+    f1=std::move(f1).resume();
+    std::printf("i==%d\n",i);
+
+    output:
+        inside c1,i==1
+        i==2
+
+`f1.resume()` enters the lambda in fiber represented by `f1` with lambda capture
+reference `i=1`. The expression `f2.resume()` resumes the fiber `f2`. On return
+of `f1.resume()`, the variable `i` has the value of `i+1`.
+
+
+[heading Exception handling]
+
+If the function executed inside a __context_fn__ emits an exception, the
+application is terminated by calling `std::terminate()`. `std::exception_ptr`
+can be used to transfer exceptions between different fibers.
+
+[important Do not jump from inside a catch block.]
+
+
+[#ff_ontop]
+[heading Executing function on top of a fiber]
+
+Sometimes it is useful to execute a new function on top of a resumed fiber. For
+this purpose __resume_with__ has to be used.
+The function passed as argument must accept a rvalue reference to __fib__ and
+return __fib__.
+
+    namespace ctx=boost::context;
+    int data=0;
+    ctx::fiber f1{[&data](ctx::fiber&& f2) {
+        std::cout << "f1: entered first time: " << data << std::endl;
+        data+=1;
+        f2=std::move(f2).resume();
+        std::cout << "f1: entered second time: " << data << std::endl;
+        data+=1;
+        f2=std::move(f2).resume();
+        std::cout << "f1: entered third time: " << data << std::endl;
+        return std::move(f2);
+    }};
+    f1=std::move(f1).resume();
+    std::cout << "f1: returned first time: " << data << std::endl;
+    data+=1;
+    f1=std::move(f1).resume();
+    std::cout << "f1: returned second time: " << data << std::endl;
+    data+=1;
+    f1=std::move(f1).resume_with([&data](ctx::fiber&& f2){
+        std::cout << "f2: entered: " << data << std::endl;
+        data=-1;
+        return std::move(f2);
+    });
+    std::cout << "f1: returned third time" << std::endl;
+
+    output:
+        f1: entered first time: 0
+        f1: returned first time: 1
+        f1: entered second time: 2
+        f1: returned second time: 3
+        f2: entered: 4
+        f1: entered third time: -1
+        f1: returned third time
+
+
+The expression `f1.resume_with(...)` executes a lambda on top of fiber `f1`,
+e.g. an additional stack frame is allocated on top of the stack.
+This lambda assigns `-1` to `data` and returns to the second invocation of
+`f1.resume()`.
+
+Another option is to execute a function on top of the fiber that throws
+an exception.
+
+    namespace ctx=boost::context;
+    struct my_exception : public std::runtime_error {
+        ctx::fiber    f;
+        my_exception(ctx::fiber&& f_,std::string const& what) :
+            std::runtime_error{ what },
+            f{ std::move(f_) } {
+        }
+    };
+
+    ctx::fiber f{[](ctx::fiber && f) ->ctx::fiber {
+        std::cout << "entered" << std::endl;
+        try {
+            f=std::move(f).resume();
+        } catch (my_exception & ex) {
+            std::cerr << "my_exception: " << ex.what() << std::endl;
+            return std::move(ex.f);
+        }
+        return {};
+    });
+    f=std::move(f).resume();
+    f=std::move(f).resume_with([](ctx::fiber && f) ->ctx::fiber {
+        throw my_exception(std::move(f),"abc");
+        return {};
+    });
+
+    output:
+        entered
+        my_exception: abc
+
+In this exception `my_exception` is throw from a function invoked on-top of
+fiber `f` and catched inside the `for`-loop.
+
+[heading Stack unwinding]
+On construction of __fib__ a stack is allocated.
+If the __context_fn__ returns the stack will be destructed.
+If the __context_fn__ has not yet returned and the destructor of an valid
+__fib__ instance (e.g. ['fiber::operator bool()] returns
+`true`) is called, the stack will be destructed too.
+
+[important Code executed by __context_fn__ must not prevent the propagation ofs
+the __forced_unwind__ exception.  Absorbing that exception will cause stack
+unwinding to fail.  Thus, any code that catches all exceptions must re-throw any
+pending __forced_unwind__ exception.]
+
+
+[#ff_prealloc]
+[heading Allocating control structures on top of stack]
+Allocating control structures on top of the stack requires to allocated the
+__stack_context__ and create the control structure with placement new before
+__fib__ is created.
+[note The user is responsible for destructing the control structure at the top
+of the stack.]
+
+    namespace ctx=boost::context;
+    // stack-allocator used for (de-)allocating stack
+    fixedsize_stack salloc(4048);
+    // allocate stack space
+    stack_context sctx(salloc.allocate());
+    // reserve space for control structure on top of the stack
+    void * sp=static_cast<char*>(sctx.sp)-sizeof(my_control_structure);
+    std::size_t size=sctx.size-sizeof(my_control_structure);
+    // placement new creates control structure on reserved space
+    my_control_structure * cs=new(sp)my_control_structure(sp,size,sctx,salloc);
+    ...
+    // destructing the control structure
+    cs->~my_control_structure();
+    ...
+    struct my_control_structure  {
+        // captured fiber
+        ctx::fiber   f;
+
+        template< typename StackAllocator >
+        my_control_structure(void * sp,std::size_t size,stack_context sctx,StackAllocator salloc) :
+            // create captured fiber
+            f{std::allocator_arg,preallocated(sp,size,sctx),salloc,entry_func} {
+        }
+        ...
+    };
+
+
+[heading Inverting the control flow]
+
+    namespace ctx=boost::context;
+    /*
+     * grammar:
+     *   P ---> E '\0'
+     *   E ---> T {('+'|'-') T}
+     *   T ---> S {('*'|'/') S}
+     *   S ---> digit | '(' E ')'
+     */
+    class Parser{
+       char next;
+       std::istream& is;
+       std::function<void(char)> cb;
+
+       char pull(){
+            return std::char_traits<char>::to_char_type(is.get());
+       }
+
+       void scan(){
+           do{
+               next=pull();
+           }
+           while(isspace(next));
+       }
+
+    public:
+       Parser(std::istream& is_,std::function<void(char)> cb_) :
+          next(), is(is_), cb(cb_)
+        {}
+
+       void run() {
+          scan();
+          E();
+       }
+
+    private:
+       void E(){
+          T();
+          while (next=='+'||next=='-'){
+             cb(next);
+             scan();
+             T();
+          }
+       }
+
+       void T(){
+          S();
+          while (next=='*'||next=='/'){
+             cb(next);
+             scan();
+             S();
+          }
+       }
+
+       void S(){
+          if (isdigit(next)){
+             cb(next);
+             scan();
+          }
+          else if(next=='('){
+             cb(next);
+             scan();
+             E();
+             if (next==')'){
+                 cb(next);
+                 scan();
+             }else{
+                 throw std::runtime_error("parsing failed");
+             }
+          }
+          else{
+             throw std::runtime_error("parsing failed");
+          }
+       }
+    };
+
+    std::istringstream is("1+1");
+    // user-code pulls parsed data from parser
+    // invert control flow
+    char c;
+    bool done=false;
+    // execute parser in new fiber
+    ctx::fiber source{[&is,&c,&done](ctx::fiber&& sink){
+        // create parser with callback function
+        Parser p(is,
+                 [&sink,&c](char c_){
+                    // resume main fiber
+                    c=c_;
+                    sink=std::move(sink).resume();
+                 });
+            // start recursive parsing
+            p.run();
+            // signal termination
+            done=true;
+            // resume main fiber
+            return std::move(sink);
+    }};
+    source=std::move(source).resume();
+    while(!done){
+        printf("Parsed: %c\n",c);
+        source=std::move(source).resume();
+    }
+
+    output:
+        Parsed: 1
+        Parsed: +
+        Parsed: 1
+
+In this example a recursive descent parser uses a callback to emit a newly
+passed symbol. Using __fib__ the control flow can be inverted, e.g. the
+user-code pulls parsed symbols from the parser - instead to get pushed from the
+parser (via callback).
+
+The data (character) is transferred between the two fibers.
+
+
+[#implementation]
+[section Implementations: fcontext_t, ucontext_t and WinFiber]
+
+[heading fcontext_t]
+The implementation uses __fcontext__ per default. fcontext_t is based on
+assembler and not available for all platforms. It provides a much better
+performance than __ucontext__
+(the context switch takes two magnitudes of order less CPU cycles; see section
+[link performance ['performance]]) and __winfib__.
+
+[note Because the TIB (thread information block on Windows) is not fully
+described in the MSDN, it might be possible that not all required TIB-parts are
+swapped. Using WinFiber implementation migh be an alternative.]
+
+
+[heading ucontext_t]
+As an alternative, [@https://en.wikipedia.org/wiki/Setcontext __ucontext__]
+can be used by compiling with `BOOST_USE_UCONTEXT` and b2 property
+`context-impl=ucontext`.
+__ucontext__ might be available on a broader range of POSIX-platforms but has
+some [link ucontext ['disadvantages]] (for instance deprecated since
+POSIX.1-2003, not C99 conform).
+
+[note __fib__ supports [link segmented ['Segmented stacks]] only with
+__ucontext__ as its implementation.]
+
+
+[heading WinFiber]
+With `BOOST_USE_WINFIB` and b2 property `context-impl=winfib` Win32-Fibers are
+used as implementation for __fib__.
+
+[note The first call of __fib__ converts the thread into a Windows fiber by
+invoking `ConvertThreadToFiber()`. If desired, `ConvertFiberToThread()` has
+to be called by the user explicitly in order to release resources allocated
+by `ConvertThreadToFiber()` (e.g. after using boost.context). ]
+
+[endsect]
+
+
+[section Class `fiber`]
+
+    #include <boost/context/fiber.hpp>
+
+    class fiber {
+    public:
+        fiber() noexcept;
+
+        template<typename Fn>
+        fiber(Fn && fn);
+
+        template<typename StackAlloc, typename Fn>
+        fiber(std::allocator_arg_t, StackAlloc && salloc, Fn && fn);
+
+        ~fiber();
+
+        fiber(fiber && other) noexcept;
+
+        fiber & operator=(fiber && other) noexcept;
+
+        fiber(fiber const& other) noexcept = delete;
+        fiber & operator=(fiber const& other) noexcept = delete;
+
+        fiber resume() &&;
+
+        template<typename Fn>
+        fiber resume_with(Fn && fn) &&;
+
+        explicit operator bool() const noexcept;
+
+        bool operator!() const noexcept;
+
+        bool operator==(fiber const& other) const noexcept;
+
+        bool operator!=(fiber const& other) const noexcept;
+
+        bool operator<(fiber const& other) const noexcept;
+
+        bool operator>(fiber const& other) const noexcept;
+
+        bool operator<=(fiber const& other) const noexcept;
+
+        bool operator>=(fiber const& other) const noexcept;
+
+        template<typename charT,class traitsT>
+        friend std::basic_ostream<charT,traitsT> &
+        operator<<(std::basic_ostream<charT,traitsT> & os,fiber const& other) {
+
+        void swap(fiber & other) noexcept;
+    };
+
+[constructor_heading ff..constructor1]
+
+    fiber() noexcept;
+
+[variablelist
+[[Effects:] [Creates a invalid fiber.]]
+[[Throws:] [Nothing.]]
+]
+
+[constructor_heading ff..constructor2]
+
+    template<typename Fn>
+    fiber(Fn && fn);
+
+    template<typename StackAlloc, typename Fn>
+    fiber(std::allocator_arg_t, StackAlloc && salloc, Fn && fn);
+
+[variablelist
+[[Effects:] [Creates a new fiber and prepares the context to execute `fn`.
+`fixedsize_stack` is used as default stack allocator
+(stack size == fixedsize_stack::traits::default_size()). The constructor with
+argument type `preallocated`, is used to create a user defined data
+[link ff_prealloc (for instance additional control structures)] on top of the
+stack.]]
+]
+
+[destructor_heading ff..destructor destructor]
+
+    ~fiber();
+
+[variablelist
+[[Effects:] [Destructs the associated stack if `*this` is a valid fiber,
+e.g. ['fiber::operator bool()] returns `true`.]]
+[[Throws:] [Nothing.]]
+]
+
+[move_constructor_heading ff..move constructor]
+
+    fiber(fiber && other) noexcept;
+
+[variablelist
+[[Effects:] [Moves underlying capture fiber to `*this`.]]
+[[Throws:] [Nothing.]]
+]
+
+[move_assignment_heading ff..move assignment]
+
+    fiber & operator=(fiber && other) noexcept;
+
+[variablelist
+[[Effects:] [Moves the state of `other` to `*this` using move semantics.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_call..operator()]
+
+        fiber resume() &&;
+
+        template<typename Fn>
+        fiber resume_with(Fn && fn) &&;
+
+[variablelist
+[[Effects:] [Captures current fiber and resumes `*this`.
+The function `resume_with`, is used to execute function `fn` in the execution context of
+`*this` (e.g. the stack frame of `fn` is allocated on stack of `*this`).]]
+[[Returns:] [The fiber representing the fiber that has been
+suspended.]]
+[[Note:] [Because `*this` gets invalidated, `resume()` and `resume_with()` are rvalue-ref
+qualified and bind only to rvalues.]]
+[[Note:] [Function `fn` needs to return `fiber`.]]
+[[Note:] [The returned fiber indicates if the suspended fiber has
+terminated (return from context-function) via `bool operator()`.]]
+]
+
+[operator_heading ff..operator_bool..operator bool]
+
+    explicit operator bool() const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this` points to a captured fiber.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_not..operator!]
+
+    bool operator!() const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this` does not point to a captured fiber.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_equal..operator==]
+
+        bool operator==(fiber const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this` and `other` represent the same fiber,
+`false` otherwise.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_notequal..operator!=]
+
+        bool operator!=(fiber const& other) const noexcept;
+
+[variablelist
+[[Returns:] [[`! (other == * this)]]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_less..operator<]
+
+        bool operator<(fiber const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this != other` is true and the
+implementation-defined total order of `fiber` values places `*this`
+before `other`, false otherwise.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_greater..operator>]
+
+        bool operator>(fiber const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`other < * this`]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_lesseq..operator<=]
+
+        bool operator<=(fiber const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`! (other < * this)`]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading ff..operator_greatereq..operator>=]
+
+        bool operator>=(fiber const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`! (* this < other)`]]
+[[Throws:] [Nothing.]]
+]
+
+[hding ff_..Non-member function [`operator<<()]]
+
+        template<typename charT,class traitsT>
+        std::basic_ostream<charT,traitsT> &
+        operator<<(std::basic_ostream<charT,traitsT> & os,fiber const& other);
+
+[variablelist
+[[Effects:] [Writes the representation of `other` to stream `os`.]]
+[[Returns:] [`os`]]
+]
+
+[endsect]
+
+
+[endsect]

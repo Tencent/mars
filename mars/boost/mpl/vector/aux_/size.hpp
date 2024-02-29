@@ -14,11 +14,11 @@
 // $Date$
 // $Revision$
 
+#include <boost/mpl/aux_/config/ctps.hpp>
+#include <boost/mpl/aux_/config/typeof.hpp>
 #include <boost/mpl/size_fwd.hpp>
 #include <boost/mpl/vector/aux_/O1_size.hpp>
 #include <boost/mpl/vector/aux_/tag.hpp>
-#include <boost/mpl/aux_/config/typeof.hpp>
-#include <boost/mpl/aux_/config/ctps.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

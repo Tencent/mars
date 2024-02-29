@@ -137,7 +137,7 @@
 #define BOOST_SIGNALS2_SIGNAL_TEMPLATE_SPECIALIZATION_DECL(arity) BOOST_SIGNALS2_SIGNAL_TEMPLATE_DECL(arity)
 #define BOOST_SIGNALS2_SIGNAL_TEMPLATE_SPECIALIZATION
 
-#define BOOST_SIGNALS2_STD_FUNCTIONAL_BASE(result_type) std_functional_base
+#define BOOST_SIGNALS2_STD_FUNCTIONAL_BASE std_functional_base
 
 #define BOOST_SIGNALS2_PP_COMMA_IF(arity) BOOST_PP_COMMA_IF(arity)
 
@@ -205,8 +205,8 @@
   ExtendedSlotFunction, \
   Mutex>
 
-#define BOOST_SIGNALS2_STD_FUNCTIONAL_BASE(result_type) \
-  std_functional_base<result_type , Args...>
+#define BOOST_SIGNALS2_STD_FUNCTIONAL_BASE \
+  std_functional_base<Args...>
 
 #define BOOST_SIGNALS2_PP_COMMA_IF(arity) ,
 

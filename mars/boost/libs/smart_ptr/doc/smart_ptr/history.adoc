@@ -1,0 +1,117 @@
+////
+Copyright 1999 Greg Colvin and Beman Dawes
+Copyright 2002 Darin Adler
+Copyright 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[[history]]
+[appendix]
+# History and Acknowledgments
+:idprefix: history_
+
+## Summer 1994
+
+Greg Colvin http://www.open-std.org/jtc1/sc22/wg21/docs/papers/1994/N0555.pdf[proposed]
+to the {cpp} Standards Committee classes named `auto_ptr` and `counted_ptr` which were very
+similar to what we now call `scoped_ptr` and `shared_ptr`. In one of the very few cases
+where the Library Working Group's recommendations were not followed by the full committee,
+`counted_ptr` was rejected and surprising transfer-of-ownership semantics were added to `auto_ptr`.
+
+## October 1998
+
+Beman Dawes proposed reviving the original semantics under the names `safe_ptr` and `counted_ptr`,
+meeting of Per Andersson, Matt Austern, Greg Colvin, Sean Corfield, Pete Becker, Nico Josuttis,
+Dietmar Kühl, Nathan Myers, Chichiang Wan and Judy Ward. During the discussion, the four new class
+names were finalized, it was decided that there was no need to exactly follow the `std::auto_ptr`
+interface, and various function signatures and semantics were finalized.
+
+Over the next three months, several implementations were considered for `shared_ptr`, and discussed
+on the http://www.boost.org/[boost.org] mailing list. The implementation questions revolved around
+the reference count which must be kept, either attached to the pointed to object, or detached elsewhere.
+Each of those variants have themselves two major variants:
+
+* Direct detached: the `shared_ptr` contains a pointer to the object, and a pointer to the count. 
+* Indirect detached: the `shared_ptr` contains a pointer to a helper object, which in turn contains a pointer to the object and the count. 
+* Embedded attached: the count is a member of the object pointed to. 
+* Placement attached: the count is attached via operator new manipulations.
+
+Each implementation technique has advantages and disadvantages. We went so far as to run various timings
+of the direct and indirect approaches, and found that at least on Intel Pentium chips there was very little
+measurable difference. Kevlin Henney provided a paper he wrote on "Counted Body Techniques." Dietmar Kühl
+suggested an elegant partial template specialization technique to allow users to choose which implementation
+they preferred, and that was also experimented with.
+
+But Greg Colvin and Jerry Schwarz argued that "parameterization will discourage users", and in the end we choose
+to supply only the direct implementation.
+
+## May 1999
+
+In April and May, 1999, Valentin Bonnard and David Abrahams made a number of suggestions resulting in numerous improvements.
+
+## September 1999
+
+Luis Coelho provided `shared_ptr::swap` and `shared_array::swap`.
+
+## November 1999
+
+Darin Adler provided `operator ==`, `operator !=`, and `std::swap` and `std::less` specializations for shared types.
+
+## May 2001
+
+Vladimir Prus suggested requiring a complete type on destruction. Refinement evolved in discussions including Dave Abrahams,
+Greg Colvin, Beman Dawes, Rainer Deyke, Peter Dimov, John Maddock, Vladimir Prus, Shankar Sai, and others.
+
+## January 2002
+
+Peter Dimov reworked all four classes, adding features, fixing bugs, splitting them into four separate headers, and adding
+`weak_ptr`.
+
+## March 2003
+
+Peter Dimov, Beman Dawes and Greg Colvin http://open-std.org/jtc1/sc22/wg21/docs/papers/2003/n1450.html[proposed] `shared_ptr`
+and `weak_ptr` for inclusion in the Standard Library via the first Library Technical Report (known as TR1). The proposal was
+accepted and eventually went on to become a part of the {cpp} standard in its 2011 iteration.
+
+## July 2007
+
+Peter Dimov and Beman Dawes http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2351.htm[proposed] a number of enhancements
+to `shared_ptr` as it was entering the working paper that eventually became the {cpp}11 standard.
+
+## November 2012
+
+Glen Fernandes provided implementations of `make_shared` and `allocate_shared` for arrays. They achieve a single allocation
+for an array that can be initialized with constructor arguments or initializer lists as well as overloads for default initialization
+and no value initialization.
+
+Peter Dimov aided this development by extending `shared_ptr` to support arrays via the syntax `shared_ptr<T[]>` and `shared_ptr<T[N]>`.
+
+## April 2013
+
+Peter Dimov http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3640.html[proposed] the extension of `shared_ptr` to support
+arrays for inclusion into the standard, and it was accepted.
+
+## February 2014
+
+Glen Fernandes updated `make_shared` and `allocate_shared` to conform to the specification in {cpp} standard paper
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3870.html[N3870], and implemented `make_unique` for arrays and objects.
+
+Peter Dimov and Glen Fernandes updated the scalar and array implementations, respectively, to resolve {cpp} standard library defect 2070.
+
+## February 2017
+
+Glen Fernandes rewrote `allocate_shared` and `make_shared` for arrays for a more optimal and more maintainable implementation.
+
+## June 2017
+
+Peter Dimov and Glen Fernandes rewrote the documentation in Asciidoc format.
+
+Peter Dimov added `atomic_shared_ptr` and `local_shared_ptr`.
+
+## August 2019
+
+Glen Fernandes implemented `allocate_unique` for scalars and arrays.

@@ -15,45 +15,46 @@ http://www.boost.org/LICENSE_1_0.txt)
  */
 #include <boost/predef/os/macos.h>
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_OS_BSD`]
+/* tag::reference[]
+= `BOOST_OS_BSD`
 
-[@http://en.wikipedia.org/wiki/Berkeley_Software_Distribution BSD] operating system.
+http://en.wikipedia.org/wiki/Berkeley_Software_Distribution[BSD] operating system.
 
 BSD has various branch operating systems possible and each detected
 individually. This detects the following variations and sets a specific
 version number macro to match:
 
-* `BOOST_OS_BSD_DRAGONFLY` [@http://en.wikipedia.org/wiki/DragonFly_BSD DragonFly BSD]
-* `BOOST_OS_BSD_FREE` [@http://en.wikipedia.org/wiki/Freebsd FreeBSD]
-* `BOOST_OS_BSD_BSDI` [@http://en.wikipedia.org/wiki/BSD/OS BSDi BSD/OS]
-* `BOOST_OS_BSD_NET` [@http://en.wikipedia.org/wiki/Netbsd NetBSD]
-* `BOOST_OS_BSD_OPEN` [@http://en.wikipedia.org/wiki/Openbsd OpenBSD]
+* `BOOST_OS_BSD_DRAGONFLY` http://en.wikipedia.org/wiki/DragonFly_BSD[DragonFly BSD]
+* `BOOST_OS_BSD_FREE` http://en.wikipedia.org/wiki/Freebsd[FreeBSD]
+* `BOOST_OS_BSD_BSDI` http://en.wikipedia.org/wiki/BSD/OS[BSDi BSD/OS]
+* `BOOST_OS_BSD_NET` http://en.wikipedia.org/wiki/Netbsd[NetBSD]
+* `BOOST_OS_BSD_OPEN` http://en.wikipedia.org/wiki/Openbsd[OpenBSD]
 
-[note The general `BOOST_OS_BSD` is set in all cases to indicate some form
-of BSD. If the above variants is detected the corresponding macro is also set.]
+NOTE: The general `BOOST_OS_BSD` is set in all cases to indicate some form
+of BSD. If the above variants is detected the corresponding macro is also set.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`BSD`] [__predef_detection__]]
-    [[`_SYSTYPE_BSD`] [__predef_detection__]]
+| `BSD` | {predef_detection}
+| `+_SYSTYPE_BSD+` | {predef_detection}
 
-    [[`BSD4_2`] [4.2.0]]
-    [[`BSD4_3`] [4.3.0]]
-    [[`BSD4_4`] [4.4.0]]
-    [[`BSD`] [V.R.0]]
-    ]
- */
+| `BSD4_2` | 4.2.0
+| `BSD4_3` | 4.3.0
+| `BSD4_4` | 4.4.0
+| `BSD` | V.R.0
+|===
+*/ // end::reference[]
 
 #include <boost/predef/os/bsd/bsdi.h>
 #include <boost/predef/os/bsd/dragonfly.h>
 #include <boost/predef/os/bsd/free.h>
-#include <boost/predef/os/bsd/open.h>
 #include <boost/predef/os/bsd/net.h>
+#include <boost/predef/os/bsd/open.h>
 
 #ifndef BOOST_OS_BSD
 #define BOOST_OS_BSD BOOST_VERSION_NUMBER_NOT_AVAILABLE
@@ -89,15 +90,13 @@ of BSD. If the above variants is detected the corresponding macro is also set.]
 
 #define BOOST_OS_BSD_NAME "BSD"
 
-#else
+#endif
 
 #include <boost/predef/os/bsd/bsdi.h>
 #include <boost/predef/os/bsd/dragonfly.h>
 #include <boost/predef/os/bsd/free.h>
-#include <boost/predef/os/bsd/open.h>
 #include <boost/predef/os/bsd/net.h>
-
-#endif
+#include <boost/predef/os/bsd/open.h>
 
 #include <boost/predef/detail/test.h>
 BOOST_PREDEF_DECLARE_TEST(BOOST_OS_BSD,BOOST_OS_BSD_NAME)

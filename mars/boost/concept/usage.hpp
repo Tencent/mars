@@ -5,15 +5,22 @@
 # define BOOST_CONCEPT_USAGE_DWA2006919_HPP
 
 # include <boost/concept/assert.hpp>
-# include <boost/detail/workaround.hpp>
 # include <boost/concept/detail/backward_compatibility.hpp>
+# include <boost/config/workaround.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace concepts { 
 
 template <class Model>
 struct usage_requirements
 {
+#   if defined(BOOST_GCC) && (BOOST_GCC >= 110000)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wnonnull"
+#   endif
     ~usage_requirements() { ((Model*)0)->~Model(); }
+#   if defined(BOOST_GCC) && (BOOST_GCC >= 110000)
+#   pragma GCC diagnostic pop
+#   endif
 };
 
 #  if BOOST_WORKAROUND(__GNUC__, <= 3)

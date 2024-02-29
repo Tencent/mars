@@ -12,13 +12,17 @@
 #ifndef BOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
 #define BOOST_TT_IS_CONVERTIBLE_HPP_INCLUDED
 
-#include <boost/type_traits/intrinsics.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/type_traits/integral_constant.hpp>
-#ifndef BOOST_IS_CONVERTIBLE
-#include <boost/type_traits/detail/yes_no_type.hpp>
-#include <boost/type_traits/detail/config.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/is_array.hpp>
+#include <boost/type_traits/is_complete.hpp>
+#include <boost/type_traits/is_void.hpp>
+#ifndef BOOST_IS_CONVERTIBLE
+#include <boost/type_traits/detail/config.hpp>
+#include <boost/type_traits/detail/yes_no_type.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
+#include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/is_void.hpp>
 #if !defined(BOOST_NO_IS_ABSTRACT)
 #include <boost/type_traits/is_abstract.hpp>
@@ -92,7 +96,7 @@ namespace detail {
       static const bool value = sizeof(test<From, To>(0)) == 1;
    };
 
-#elif defined(__BORLANDC__) && (__BORLANDC__ < 0x560)
+#elif defined(BOOST_BORLANDC) && (BOOST_BORLANDC < 0x560)
 //
 // special version for Borland compilers
 // this version breaks when used for some
@@ -116,7 +120,7 @@ struct is_convertible_impl
 #pragma option pop
 };
 
-#elif defined(__GNUC__) || defined(__BORLANDC__) && (__BORLANDC__ < 0x600)
+#elif defined(__GNUC__) || defined(BOOST_BORLANDC) && (BOOST_BORLANDC < 0x600)
 // special version for gcc compiler + recent Borland versions
 // note that this does not pass UDT's through (...)
 
@@ -354,7 +358,7 @@ struct is_convertible_impl
        value = ( ::mars_boost::detail::is_convertible_basic_impl<From,To>::value && ! ::mars_boost::is_array<To>::value && ! ::mars_boost::is_function<To>::value) 
     };
 };
-#elif !defined(__BORLANDC__) || __BORLANDC__ > 0x551
+#elif !defined(BOOST_BORLANDC) || BOOST_BORLANDC > 0x551
 template <typename From, typename To>
 struct is_convertible_impl
 {
@@ -474,12 +478,26 @@ template <class From> struct is_convertible_impl_dispatch<From, void volatile> :
 } // namespace detail
 
 template <class From, class To> 
-struct is_convertible : public integral_constant<bool, ::mars_boost::detail::is_convertible_impl_dispatch<From, To>::value> {};
+struct is_convertible : public integral_constant<bool, ::mars_boost::detail::is_convertible_impl_dispatch<From, To>::value> 
+{
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<To>::value || mars_boost::is_void<To>::value || mars_boost::is_array<To>::value, "Destination argument type to is_convertible must be a complete type");
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<From>::value || mars_boost::is_void<From>::value || mars_boost::is_array<From>::value, "From argument type to is_convertible must be a complete type");
+};
 
 #else
 
 template <class From, class To>
-struct is_convertible : public integral_constant<bool, BOOST_IS_CONVERTIBLE(From, To)> {};
+struct is_convertible : public integral_constant<bool, BOOST_IS_CONVERTIBLE(From, To)> 
+{
+#if defined(BOOST_MSVC)
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<From>::value || mars_boost::is_void<From>::value || mars_boost::is_array<From>::value || mars_boost::is_reference<From>::value, "From argument type to is_convertible must be a complete type");
+#endif
+#if defined(__clang__)
+   // clang's intrinsic doesn't assert on incomplete types:
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<To>::value || mars_boost::is_void<To>::value || mars_boost::is_array<To>::value, "Destination argument type to is_convertible must be a complete type");
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<From>::value || mars_boost::is_void<From>::value || mars_boost::is_array<From>::value, "From argument type to is_convertible must be a complete type");
+#endif
+};
 
 #endif
 

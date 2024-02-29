@@ -14,13 +14,13 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/iterator_tags.hpp>
-#include <boost/mpl/next_prior.hpp>
-#include <boost/mpl/deref.hpp>
-#include <boost/mpl/list/aux_/item.hpp>
-#include <boost/mpl/aux_/na.hpp>
-#include <boost/mpl/aux_/lambda_spec.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
+#include <boost/mpl/aux_/lambda_spec.hpp>
+#include <boost/mpl/aux_/na.hpp>
+#include <boost/mpl/deref.hpp>
+#include <boost/mpl/iterator_tags.hpp>
+#include <boost/mpl/list/aux_/item.hpp>
+#include <boost/mpl/next_prior.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

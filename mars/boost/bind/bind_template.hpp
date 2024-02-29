@@ -325,7 +325,7 @@
 
     template<class V> void accept(V & v) const
     {
-#if !defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( __BORLANDC__ )
+#if !defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( BOOST_BORLANDC )
 
         using mars_boost::visit_each;
 

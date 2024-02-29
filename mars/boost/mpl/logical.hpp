@@ -14,8 +14,8 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/or.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/not.hpp>
+#include <boost/mpl/or.hpp>
 
 #endif // BOOST_MPL_LOGICAL_HPP_INCLUDED

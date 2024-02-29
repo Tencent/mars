@@ -2,7 +2,7 @@
 #define _DATE_TIME_ADJUST_FUNCTORS_HPP___
 
 /* Copyright (c) 2002,2003 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
@@ -14,26 +14,21 @@
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace date_time {
-  
+
 
   //! Functor to iterate a fixed number of days
   template<class date_type>
-  class day_functor 
+  class day_functor
   {
   public:
     typedef typename date_type::duration_type duration_type;
     day_functor(int f) : f_(f) {}
-    duration_type get_offset(const date_type& d) const 
+    duration_type get_offset(const date_type&) const
     {
-      // why is 'd' a parameter???
-      // fix compiler warnings
-      d.year();
       return duration_type(f_);
     }
-    duration_type get_neg_offset(const date_type& d) const 
+    duration_type get_neg_offset(const date_type&) const
     {
-      // fix compiler warnings
-      d.year();
       return duration_type(-f_);
     }
   private:
@@ -43,7 +38,7 @@ namespace date_time {
 
   //! Provides calculation to find next nth month given a date
   /*! This adjustment function provides the logic for 'month-based'
-   *  advancement on a ymd based calendar.  The policy it uses 
+   *  advancement on a ymd based calendar.  The policy it uses
    *  to handle the non existant end of month days is to back
    *  up to the last day of the month.  Also, if the starting
    *  date is the last day of a month, this functor will attempt
@@ -51,7 +46,7 @@ namespace date_time {
 
    */
   template<class date_type>
-  class month_functor 
+  class month_functor
   {
   public:
     typedef typename date_type::duration_type duration_type;
@@ -60,7 +55,7 @@ namespace date_time {
     typedef typename cal_type::day_type day_type;
 
     month_functor(int f) : f_(f), origDayOfMonth_(0) {}
-    duration_type get_offset(const date_type& d) const 
+    duration_type get_offset(const date_type& d) const
     {
       ymd_type ymd(d.year_month_day());
       if (origDayOfMonth_ == 0) {
@@ -71,11 +66,9 @@ namespace date_time {
         }
       }
       typedef date_time::wrapping_int2<short,1,12> wrap_int2;
-      typedef typename wrap_int2::int_type int_type;
       wrap_int2 wi(ymd.month);
       //calc the year wrap around, add() returns 0 or 1 if wrapped
-      int_type year = wi.add(static_cast<int_type>(f_)); 
-      year = static_cast<int_type>(year + ymd.year); //calculate resulting year
+      const typename ymd_type::year_type year(static_cast<typename ymd_type::year_type::value_type>(ymd.year + wi.add(f_)));
 //       std::cout << "trace wi: " << wi.as_int() << std::endl;
 //       std::cout << "trace year: " << year << std::endl;
       //find the last day for the new month
@@ -91,7 +84,7 @@ namespace date_time {
       return date_type(year, wi.as_int(), dayOfMonth) - d;
     }
     //! Returns a negative duration_type
-    duration_type get_neg_offset(const date_type& d) const 
+    duration_type get_neg_offset(const date_type& d) const
     {
       ymd_type ymd(d.year_month_day());
       if (origDayOfMonth_ == 0) {
@@ -102,11 +95,9 @@ namespace date_time {
         }
       }
       typedef date_time::wrapping_int2<short,1,12> wrap_int2;
-      typedef typename wrap_int2::int_type int_type;
       wrap_int2 wi(ymd.month);
       //calc the year wrap around, add() returns 0 or 1 if wrapped
-      int_type year = wi.subtract(static_cast<int_type>(f_)); 
-      year = static_cast<int_type>(year + ymd.year); //calculate resulting year
+      const typename ymd_type::year_type year(static_cast<typename ymd_type::year_type::value_type>(ymd.year + wi.subtract(f_)));
       //find the last day for the new month
       day_type resultingEndOfMonthDay(cal_type::end_of_month_day(year, wi.as_int()));
       //original was the end of month -- force to last day of month
@@ -127,24 +118,19 @@ namespace date_time {
 
   //! Functor to iterate a over weeks
   template<class date_type>
-  class week_functor 
+  class week_functor
   {
   public:
     typedef typename date_type::duration_type duration_type;
     typedef typename date_type::calendar_type calendar_type;
     week_functor(int f) : f_(f) {}
-    duration_type get_offset(const date_type& d) const 
+    duration_type get_offset(const date_type&) const
     {
-      // why is 'd' a parameter???
-      // fix compiler warnings
-      d.year();
-      return duration_type(f_*calendar_type::days_in_week());
+      return duration_type(f_*static_cast<int>(calendar_type::days_in_week()));
     }
-    duration_type get_neg_offset(const date_type& d) const 
+    duration_type get_neg_offset(const date_type&) const
     {
-      // fix compiler warnings
-      d.year();
-      return duration_type(-f_*calendar_type::days_in_week());
+      return duration_type(-f_*static_cast<int>(calendar_type::days_in_week()));
     }
   private:
     int f_;
@@ -152,17 +138,17 @@ namespace date_time {
 
   //! Functor to iterate by a year adjusting for leap years
   template<class date_type>
-  class year_functor 
+  class year_functor
   {
   public:
     //typedef typename date_type::year_type year_type;
     typedef typename date_type::duration_type duration_type;
     year_functor(int f) : _mf(f * 12) {}
-    duration_type get_offset(const date_type& d) const 
+    duration_type get_offset(const date_type& d) const
     {
       return _mf.get_offset(d);
     }
-    duration_type get_neg_offset(const date_type& d) const 
+    duration_type get_neg_offset(const date_type& d) const
     {
       return _mf.get_neg_offset(d);
     }
@@ -170,7 +156,7 @@ namespace date_time {
     month_functor<date_type> _mf;
   };
 
-  
+
 } }//namespace date_time
 
 

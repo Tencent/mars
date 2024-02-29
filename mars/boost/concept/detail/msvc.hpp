@@ -4,13 +4,13 @@
 #ifndef BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
 # define BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
 
-# include <boost/preprocessor/cat.hpp>
 # include <boost/concept/detail/backward_compatibility.hpp>
 # include <boost/config.hpp>
+# include <boost/preprocessor/cat.hpp>
 
 # ifdef BOOST_OLD_CONCEPT_SUPPORT
 #  include <boost/concept/detail/has_constraints.hpp>
-#  include <boost/mpl/if.hpp>
+#  include <boost/type_traits/conditional.hpp>
 # endif
 
 # ifdef BOOST_MSVC
@@ -54,7 +54,7 @@ namespace detail
 
 template <class Model>
 struct require
-  : mpl::if_c<
+  : mars_boost::conditional<
         not_satisfied<Model>::value
       , detail::constraint
 # ifndef BOOST_NO_PARTIAL_SPECIALIZATION

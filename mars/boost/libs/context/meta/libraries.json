@@ -1,0 +1,16 @@
+{
+    "key": "context",
+    "name": "Context",
+    "authors": [
+        "Oliver Kowalke"
+    ],
+    "description": "(C++11) Context switching library.",
+    "category": [
+        "Concurrent",
+        "System"
+    ],
+    "maintainers": [
+        "Oliver Kowalke <oliver.kowalke -at- gmail.com>"
+    ],
+    "cxxstd": "11"
+}

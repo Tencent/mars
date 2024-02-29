@@ -14,11 +14,19 @@
 
 #include <boost/assert.hpp>
 #include <boost/config.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include <boost/pool/pool.hpp>
 
 #include <boost/context/detail/config.hpp>
 #include <boost/context/stack_context.hpp>
 #include <boost/context/stack_traits.hpp>
+
+#if defined(BOOST_CONTEXT_USE_MAP_STACK)
+extern "C" {
+#include <stdlib.h>
+#include <sys/mman.h>
+}
+#endif
 
 #if defined(BOOST_USE_VALGRIND)
 #include <valgrind/valgrind.h>
@@ -31,6 +39,31 @@
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace context {
 
+#if defined(BOOST_CONTEXT_USE_MAP_STACK)
+namespace detail {
+template< typename traitsT >
+struct map_stack_allocator {
+    typedef std::size_t size_type;
+    typedef std::ptrdiff_t difference_type;
+
+    static char * malloc( const size_type bytes) {
+        void * block;
+        if ( ::posix_memalign( &block, traitsT::page_size(), bytes) != 0) {
+            return 0;
+        }
+        if ( mmap( block, bytes, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON | MAP_FIXED | MAP_STACK, -1, 0) == MAP_FAILED) {
+            std::free( block);
+            return 0;
+        }
+        return reinterpret_cast< char * >( block);
+    }
+    static void free( char * const block) {
+        std::free( block);
+    }
+};
+}
+#endif
+
 template< typename traitsT >
 class basic_pooled_fixedsize_stack {
 private:
@@ -38,7 +71,11 @@ private:
     private:
         std::atomic< std::size_t >                                  use_count_;
         std::size_t                                                 stack_size_;
+#if defined(BOOST_CONTEXT_USE_MAP_STACK)
+        mars_boost::pool< detail::map_stack_allocator< traitsT > >       storage_;
+#else
         mars_boost::pool< mars_boost::default_user_allocator_malloc_free >    storage_;
+#endif
 
     public:
         storage( std::size_t stack_size, std::size_t next_size, std::size_t max_size) :

@@ -15,11 +15,11 @@
 # pragma once
 #endif
 
-#include <boost/range/config.hpp>
 #include <boost/range/begin.hpp>
+#include <boost/range/config.hpp>
 #include <boost/range/end.hpp>
 
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost 
 { 
 
     template< class T >

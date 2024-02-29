@@ -9,12 +9,12 @@
 #ifndef BOOST_TT_DECAY_HPP_INCLUDED
 #define BOOST_TT_DECAY_HPP_INCLUDED
 
+#include <boost/type_traits/add_pointer.hpp>
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/remove_bounds.hpp>
-#include <boost/type_traits/add_pointer.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/remove_cv.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost 
 {
@@ -37,6 +37,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
        typedef typename mars_boost::detail::decay_imp<Ty, mars_boost::is_array<Ty>::value, mars_boost::is_function<Ty>::value>::type type;
     };
     
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using decay_t = typename decay<T>::type;
+
+#endif
+
 } // namespace mars_boost
 
 

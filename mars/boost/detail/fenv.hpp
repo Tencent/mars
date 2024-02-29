@@ -22,8 +22,8 @@
     !defined(_FENV_H)
   #define _FENV_H
 
-  #include <features.h>
   #include <bits/fenv.h>
+  #include <features.h>
 
   extern "C" {
     extern int fegetexceptflag (fexcept_t*, int) __THROW;

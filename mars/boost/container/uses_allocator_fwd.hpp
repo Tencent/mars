@@ -11,8 +11,8 @@
 #ifndef BOOST_CONTAINER_USES_ALLOCATOR_FWD_HPP
 #define BOOST_CONTAINER_USES_ALLOCATOR_FWD_HPP
 
-#include <boost/container/detail/workaround.hpp>
 #include <boost/container/detail/std_fwd.hpp>
+#include <boost/container/detail/workaround.hpp>
 
 //! \file
 //!   This header forward declares mars_boost::container::constructible_with_allocator_prefix,
@@ -30,8 +30,8 @@ namespace container {
       static ::std::allocator_arg_t *dummy;
    };
 
-   template <int Dummy>
-   ::std::allocator_arg_t *std_allocator_arg_holder<Dummy>::dummy;
+   template <int Dummy>                                             //Silence null-reference compiler warnings
+   ::std::allocator_arg_t *std_allocator_arg_holder<Dummy>::dummy = reinterpret_cast< ::std::allocator_arg_t * >(0x1234);
 
 typedef const std::allocator_arg_t & allocator_arg_t;
 

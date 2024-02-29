@@ -11,18 +11,16 @@
 #ifndef BOOST_CSBL_MEMORY_UNIQUE_PTR_HPP
 #define BOOST_CSBL_MEMORY_UNIQUE_PTR_HPP
 
+#include <boost/smart_ptr/make_unique.hpp>
 #include <boost/thread/csbl/memory/config.hpp>
-
-#include <boost/move/unique_ptr.hpp>
-#include <boost/move/make_unique.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
   namespace csbl
   {
-    using ::boost::movelib::unique_ptr;
-    using ::boost::movelib::make_unique;
-
+    using ::std::unique_ptr;
+    using ::mars_boost::make_unique;
   }
 }
+
 #endif // header

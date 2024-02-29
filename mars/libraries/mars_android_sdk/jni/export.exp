@@ -21,7 +21,6 @@ global:
     __xlogger_AssertP_impl;
     __xlogger_Assert_impl;
     __xlogger_VPrint_impl;
-    __xlogger_Print_impl;
     __xlogger_Write_impl;
 
   
@@ -48,7 +47,5 @@ global:
     *mars*xlog*SetMaxAliveTime*;
 
 local:
-    _Z22appender_set_console_logb;
-    _Z24appender_set_console_logb;
     *;
 };

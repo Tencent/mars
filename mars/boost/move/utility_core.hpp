@@ -25,10 +25,10 @@
 #  pragma once
 #endif
 
-#include <boost/move/detail/config_begin.hpp>
 #include <boost/move/core.hpp>
+#include <boost/move/detail/config_begin.hpp>
 #include <boost/move/detail/meta_utils.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/move/detail/workaround.hpp>  //forceinline
 
 #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !defined(BOOST_MOVE_DOXYGEN_INVOKED)
 
@@ -47,7 +47,7 @@
    //////////////////////////////////////////////////////////////////////////////
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < T &
       , enable_move_utility_emulation<T>
       , has_move_emulation_disabled<T>
@@ -58,7 +58,7 @@
    }
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < rv<T>&
       , enable_move_utility_emulation<T>
       , has_move_emulation_enabled<T>
@@ -69,7 +69,7 @@
    }
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < rv<T>&
       , enable_move_utility_emulation<T>
       , has_move_emulation_enabled<T>
@@ -86,7 +86,7 @@
    //////////////////////////////////////////////////////////////////////////////
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < T &
       , enable_move_utility_emulation<T>
       , ::mars_boost::move_detail::is_rv<T>
@@ -97,7 +97,7 @@
    }
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < const T &
       , enable_move_utility_emulation<T>
       , ::mars_boost::move_detail::is_not_rv<T>
@@ -114,7 +114,7 @@
    //////////////////////////////////////////////////////////////////////////////
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < T &
       , enable_move_utility_emulation<T>
       , ::mars_boost::move_detail::is_rv<T>
@@ -125,7 +125,7 @@
    }
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < typename ::mars_boost::move_detail::add_lvalue_reference<T>::type
       , enable_move_utility_emulation<T>
       , ::mars_boost::move_detail::is_not_rv<T>
@@ -140,7 +140,7 @@
    }
 
    template <class T>
-   inline typename ::mars_boost::move_detail::enable_if_and
+   BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::enable_if_and
       < rv<T>&
       , enable_move_utility_emulation<T>
       , ::mars_boost::move_detail::is_not_rv<T>
@@ -202,13 +202,14 @@
 
          //Old move approach, lvalues could bind to rvalue references
          template <class T>
-         inline typename ::mars_boost::move_detail::remove_reference<T>::type && move(T&& t) BOOST_NOEXCEPT
+         BOOST_MOVE_FORCEINLINE typename ::mars_boost::move_detail::remove_reference<T>::type && move(T&& t) BOOST_NOEXCEPT
          {  return t;   }
 
       #else //BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
 
          template <class T>
-         inline typename ::mars_boost::move_detail::remove_reference<T>::type && move(T&& t) BOOST_NOEXCEPT
+         BOOST_MOVE_INTRINSIC_CAST
+         typename ::mars_boost::move_detail::remove_reference<T>::type && move(T&& t) BOOST_NOEXCEPT
          { return static_cast<typename ::mars_boost::move_detail::remove_reference<T>::type &&>(t); }
 
       #endif   //BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES
@@ -238,55 +239,22 @@
          //Old move approach, lvalues could bind to rvalue references
 
          template <class T>
-         inline T&& forward(typename ::mars_boost::move_detail::identity<T>::type&& t) BOOST_NOEXCEPT
+         BOOST_MOVE_FORCEINLINE T&& forward(typename ::mars_boost::move_detail::identity<T>::type&& t) BOOST_NOEXCEPT
          {  return t;   }
 
       #else //Old move
 
          template <class T>
-         inline T&& forward(typename ::mars_boost::move_detail::remove_reference<T>::type& t) BOOST_NOEXCEPT
+         BOOST_MOVE_INTRINSIC_CAST
+         T&& forward(typename ::mars_boost::move_detail::remove_reference<T>::type& t) BOOST_NOEXCEPT
          {  return static_cast<T&&>(t);   }
 
          template <class T>
-         inline T&& forward(typename ::mars_boost::move_detail::remove_reference<T>::type&& t) BOOST_NOEXCEPT
+         BOOST_MOVE_INTRINSIC_CAST
+         T&& forward(typename ::mars_boost::move_detail::remove_reference<T>::type&& t) BOOST_NOEXCEPT
          {
             //"mars_boost::forward<T> error: 'T' is a lvalue reference, can't forward as rvalue.";
-            BOOST_STATIC_ASSERT(!mars_boost::move_detail::is_lvalue_reference<T>::value);
-            return static_cast<T&&>(t);
-         }
-
-      #endif   //BOOST_MOVE_DOXYGEN_INVOKED
-
-      //////////////////////////////////////////////////////////////////////////////
-      //
-      //                         move_if_not_lvalue_reference
-      //
-      //////////////////////////////////////////////////////////////////////////////
-
-
-      #if defined(BOOST_MOVE_DOXYGEN_INVOKED)
-         //! <b>Effects</b>: Calls `mars_boost::move` if `input_reference` is not a lvalue reference.
-         //!   Otherwise returns the reference
-         template <class T> output_reference move_if_not_lvalue_reference(input_reference) noexcept;
-      #elif defined(BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
-
-         //Old move approach, lvalues could bind to rvalue references
-
-         template <class T>
-         inline T&& move_if_not_lvalue_reference(typename ::mars_boost::move_detail::identity<T>::type&& t) BOOST_NOEXCEPT
-         {  return t;   }
-
-      #else //Old move
-
-         template <class T>
-         inline T&& move_if_not_lvalue_reference(typename ::mars_boost::move_detail::remove_reference<T>::type& t) BOOST_NOEXCEPT
-         {  return static_cast<T&&>(t);   }
-
-         template <class T>
-         inline T&& move_if_not_lvalue_reference(typename ::mars_boost::move_detail::remove_reference<T>::type&& t) BOOST_NOEXCEPT
-         {
-            //"mars_boost::forward<T> error: 'T' is a lvalue reference, can't forward as rvalue.";
-            BOOST_STATIC_ASSERT(!mars_boost::move_detail::is_lvalue_reference<T>::value);
+            BOOST_MOVE_STATIC_ASSERT(!mars_boost::move_detail::is_lvalue_reference<T>::value);
             return static_cast<T&&>(t);
          }
 
@@ -294,7 +262,45 @@
 
       }  //namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
-   #endif   //#if defined(BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE)
+   #endif   //BOOST_MOVE_USE_STANDARD_LIBRARY_MOVE
+
+   //////////////////////////////////////////////////////////////////////////////
+   //
+   //                         move_if_not_lvalue_reference
+   //
+   //////////////////////////////////////////////////////////////////////////////
+
+   namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+
+   #if defined(BOOST_MOVE_DOXYGEN_INVOKED)
+      //! <b>Effects</b>: Calls `mars_boost::move` if `input_reference` is not a lvalue reference.
+      //!   Otherwise returns the reference
+      template <class T> output_reference move_if_not_lvalue_reference(input_reference) noexcept;
+   #elif defined(BOOST_MOVE_OLD_RVALUE_REF_BINDING_RULES)
+
+      //Old move approach, lvalues could bind to rvalue references
+
+      template <class T>
+      BOOST_MOVE_FORCEINLINE T&& move_if_not_lvalue_reference(typename ::mars_boost::move_detail::identity<T>::type&& t) BOOST_NOEXCEPT
+      {  return t;   }
+
+   #else //Old move
+
+      template <class T>
+      BOOST_MOVE_FORCEINLINE T&& move_if_not_lvalue_reference(typename ::mars_boost::move_detail::remove_reference<T>::type& t) BOOST_NOEXCEPT
+      {  return static_cast<T&&>(t);   }
+
+      template <class T>
+      BOOST_MOVE_FORCEINLINE T&& move_if_not_lvalue_reference(typename ::mars_boost::move_detail::remove_reference<T>::type&& t) BOOST_NOEXCEPT
+      {
+         //"mars_boost::forward<T> error: 'T' is a lvalue reference, can't forward as rvalue.";
+         BOOST_MOVE_STATIC_ASSERT(!mars_boost::move_detail::is_lvalue_reference<T>::value);
+         return static_cast<T&&>(t);
+      }
+
+   #endif   //BOOST_MOVE_DOXYGEN_INVOKED
+
+   }  //namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 #endif   //BOOST_NO_CXX11_RVALUE_REFERENCES
 

@@ -8,20 +8,21 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_OS_BEOS_H
 #define BOOST_PREDEF_OS_BEOS_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_OS_BEOS`]
+/* tag::reference[]
+= `BOOST_OS_BEOS`
 
-[@http://en.wikipedia.org/wiki/BeOS BeOS] operating system.
+http://en.wikipedia.org/wiki/BeOS[BeOS] operating system.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__BEOS__`] [__predef_detection__]]
-    ]
- */
+| `+__BEOS__+` | {predef_detection}
+|===
+*/ // end::reference[]
 
 #define BOOST_OS_BEOS BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

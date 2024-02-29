@@ -1,5 +1,5 @@
 //
-// Copyright (c) Antony Polukhin, 2013-2014.
+// Copyright 2013-2023 Antony Polukhin.
 //
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -22,17 +22,17 @@
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace typeindex { namespace detail {
 
 template <class T>
-inline const stl_type_index::type_info_t& stl_construct_typeid_ref(const T*) BOOST_NOEXCEPT {
+inline const stl_type_index::type_info_t& stl_construct_typeid_ref(const T*) noexcept {
     return typeid(T);
 }
 
 }}} // namespace mars_boost::typeindex::detail
 
 /// @cond
-#define BOOST_TYPE_INDEX_REGISTER_CLASS                                                                                     \
-    virtual const mars_boost::typeindex::stl_type_index::type_info_t& boost_type_index_type_id_runtime_() const BOOST_NOEXCEPT { \
-        return mars_boost::typeindex::detail::stl_construct_typeid_ref(this);                                                    \
-    }                                                                                                                       \
+#define BOOST_TYPE_INDEX_REGISTER_CLASS                                                                               \
+    virtual const mars_boost::typeindex::stl_type_index::type_info_t& boost_type_index_type_id_runtime_() const noexcept { \
+        return mars_boost::typeindex::detail::stl_construct_typeid_ref(this);                                              \
+    }                                                                                                                 \
 /**/
 /// @endcond
 

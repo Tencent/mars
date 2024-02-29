@@ -19,9 +19,9 @@
 // last known compiler version:
 #if (__BORLANDC__ > 0x613)
 //#  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
+#     error "boost: Unknown compiler version - please run the configure tests and report the results"
 //#  else
-//#     pragma message( "Unknown compiler version - please run the configure tests and report the results")
+//#     pragma message( "boost: Unknown compiler version - please run the configure tests and report the results")
 //#  endif
 #elif (__BORLANDC__ == 0x600)
 #  error "CBuilderX preview compiler is no longer supported"
@@ -174,6 +174,7 @@
 #define BOOST_NO_CXX11_CONSTEXPR
 #define BOOST_NO_CXX11_DECLTYPE_N3276
 #define BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+#define BOOST_NO_CXX11_DEFAULTED_MOVES
 #define BOOST_NO_CXX11_DELETED_FUNCTIONS
 #define BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS
 #define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
@@ -185,6 +186,7 @@
 #define BOOST_NO_CXX11_RVALUE_REFERENCES
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #define BOOST_NO_SFINAE_EXPR
+#define BOOST_NO_CXX11_SFINAE_EXPR
 #define BOOST_NO_CXX11_TEMPLATE_ALIASES
 #define BOOST_NO_CXX11_UNICODE_LITERALS    // UTF-8 still not supported
 #define BOOST_NO_CXX11_VARIADIC_TEMPLATES
@@ -192,10 +194,14 @@
 #define BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
 #define BOOST_NO_CXX11_USER_DEFINED_LITERALS
 #define BOOST_NO_CXX11_ALIGNAS
+#define BOOST_NO_CXX11_ALIGNOF
 #define BOOST_NO_CXX11_TRAILING_RESULT_TYPES
 #define BOOST_NO_CXX11_INLINE_NAMESPACES
 #define BOOST_NO_CXX11_REF_QUALIFIERS
 #define BOOST_NO_CXX11_FINAL
+#define BOOST_NO_CXX11_OVERRIDE
+#define BOOST_NO_CXX11_THREAD_LOCAL
+#define BOOST_NO_CXX11_UNRESTRICTED_UNION
 
 // C++ 14:
 #if !defined(__cpp_aggregate_nsdmi) || (__cpp_aggregate_nsdmi < 201304)
@@ -224,6 +230,20 @@
 #endif
 #if !defined(__cpp_variable_templates) || (__cpp_variable_templates < 201304)
 #  define BOOST_NO_CXX14_VARIABLE_TEMPLATES
+#endif
+
+// C++17
+#if !defined(__cpp_structured_bindings) || (__cpp_structured_bindings < 201606)
+#  define BOOST_NO_CXX17_STRUCTURED_BINDINGS
+#endif
+#if !defined(__cpp_inline_variables) || (__cpp_inline_variables < 201606)
+#  define BOOST_NO_CXX17_INLINE_VARIABLES
+#endif
+#if !defined(__cpp_fold_expressions) || (__cpp_fold_expressions < 201603)
+#  define BOOST_NO_CXX17_FOLD_EXPRESSIONS
+#endif
+#if !defined(__cpp_if_constexpr) || (__cpp_if_constexpr < 201606)
+#  define BOOST_NO_CXX17_IF_CONSTEXPR
 #endif
 
 #if __BORLANDC__ >= 0x590
@@ -315,4 +335,5 @@
 // (Niels Dekker, LKEB, April 2010)
 #define BOOST_NO_COMPLETE_VALUE_INITIALIZATION
 
-#define BOOST_COMPILER "Borland C++ version " BOOST_STRINGIZE(__BORLANDC__)
+#define BOOST_BORLANDC __BORLANDC__
+#define BOOST_COMPILER "Classic Borland C++ version " BOOST_STRINGIZE(__BORLANDC__)

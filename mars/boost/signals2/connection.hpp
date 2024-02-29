@@ -14,9 +14,10 @@
 #ifndef BOOST_SIGNALS2_CONNECTION_HPP
 #define BOOST_SIGNALS2_CONNECTION_HPP
 
+#include <boost/config.hpp>
+#include <boost/core/noncopyable.hpp>
 #include <boost/function.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/null_output_iterator.hpp>
@@ -229,22 +230,22 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     public:
       friend class shared_connection_block;
 
-      connection() {}
-      connection(const connection &other): _weak_connection_body(other._weak_connection_body)
+      connection() BOOST_NOEXCEPT {}
+      connection(const connection &other) BOOST_NOEXCEPT: _weak_connection_body(other._weak_connection_body)
       {}
-      connection(const mars_boost::weak_ptr<detail::connection_body_base> &connectionBody):
+      connection(const mars_boost::weak_ptr<detail::connection_body_base> &connectionBody) BOOST_NOEXCEPT:
         _weak_connection_body(connectionBody)
       {}
       
       // move support
 #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-      connection(connection && other): _weak_connection_body(std::move(other._weak_connection_body))
+      connection(connection && other) BOOST_NOEXCEPT: _weak_connection_body(std::move(other._weak_connection_body))
       {
         // make sure other is reset, in case it is a scoped_connection (so it
         // won't disconnect on destruction after being moved away from).
         other._weak_connection_body.reset();
       }
-      connection & operator=(connection && other)
+      connection & operator=(connection && other) BOOST_NOEXCEPT
       {
         if(&other == this) return *this;
         _weak_connection_body = std::move(other._weak_connection_body);
@@ -254,7 +255,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         return *this;
       }
 #endif // !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-      connection & operator=(const connection & other)
+      connection & operator=(const connection & other) BOOST_NOEXCEPT
       {
         if(&other == this) return *this;
         _weak_connection_body = other._weak_connection_body;
@@ -296,7 +297,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         mars_boost::shared_ptr<detail::connection_body_base> otherConnectionBody(other._weak_connection_body.lock());
         return connectionBody < otherConnectionBody;
       }
-      void swap(connection &other)
+      void swap(connection &other) BOOST_NOEXCEPT
       {
         using std::swap;
         swap(_weak_connection_body, other._weak_connection_body);
@@ -305,7 +306,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
       mars_boost::weak_ptr<detail::connection_body_base> _weak_connection_body;
     };
-    inline void swap(connection &conn1, connection &conn2)
+    inline void swap(connection &conn1, connection &conn2) BOOST_NOEXCEPT
     {
       conn1.swap(conn2);
     }
@@ -313,15 +314,15 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     class scoped_connection: public connection
     {
     public:
-      scoped_connection() {}
-      scoped_connection(const connection &other):
+      scoped_connection() BOOST_NOEXCEPT {}
+      scoped_connection(const connection &other) BOOST_NOEXCEPT:
         connection(other)
       {}
       ~scoped_connection()
       {
         disconnect();
       }
-      scoped_connection& operator=(const connection &rhs)
+      scoped_connection& operator=(const connection &rhs) BOOST_NOEXCEPT
       {
         disconnect();
         connection::operator=(rhs);
@@ -330,20 +331,20 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
       // move support
 #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-      scoped_connection(scoped_connection && other): connection(std::move(other))
+      scoped_connection(scoped_connection && other) BOOST_NOEXCEPT: connection(std::move(other))
       {
       }
-      scoped_connection(connection && other): connection(std::move(other))
+      scoped_connection(connection && other) BOOST_NOEXCEPT: connection(std::move(other))
       {
       }
-      scoped_connection & operator=(scoped_connection && other)
+      scoped_connection & operator=(scoped_connection && other) BOOST_NOEXCEPT
       {
         if(&other == this) return *this;
         disconnect();
         connection::operator=(std::move(other));
         return *this;
       }
-      scoped_connection & operator=(connection && other)
+      scoped_connection & operator=(connection && other) BOOST_NOEXCEPT
       {
         if(&other == this) return *this;
         disconnect();
@@ -364,7 +365,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     };
     // Sun 5.9 compiler doesn't find the swap for base connection class when
     // arguments are scoped_connection, so we provide this explicitly.
-    inline void swap(scoped_connection &conn1, scoped_connection &conn2)
+    inline void swap(scoped_connection &conn1, scoped_connection &conn2) BOOST_NOEXCEPT
     {
       conn1.swap(conn2);
     }

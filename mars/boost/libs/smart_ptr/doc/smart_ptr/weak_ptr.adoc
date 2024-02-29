@@ -1,0 +1,368 @@
+////
+Copyright 1999 Greg Colvin and Beman Dawes
+Copyright 2002 Darin Adler
+Copyright 2002-2005, 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#weak_ptr]
+# weak_ptr: Non-owning Observer
+:toc:
+:toc-title:
+:idprefix: weak_ptr_
+
+## Description
+
+The `weak_ptr` class template stores a "weak reference" to an object that's already managed by a `shared_ptr`.
+To access the object, a `weak_ptr` can be converted to a `shared_ptr` using the `shared_ptr` constructor taking
+`weak_ptr`, or the `weak_ptr` member function `lock`. When the last `shared_ptr` to the object goes away and the
+object is deleted, the attempt to obtain a `shared_ptr` from the `weak_ptr` instances that refer to the deleted
+object will fail: the constructor will throw an exception of type `boost::bad_weak_ptr`, and `weak_ptr::lock` will
+return an empty `shared_ptr`.
+
+Every `weak_ptr` meets the `CopyConstructible` and `Assignable` requirements of the {cpp} Standard Library, and so
+can be used in standard library containers. Comparison operators are supplied so that `weak_ptr` works with the standard
+library's associative containers.
+
+`weak_ptr` operations never throw exceptions.
+
+The class template is parameterized on `T`, the type of the object pointed to.
+
+Compared to `shared_ptr`, `weak_ptr` provides a very limited subset of operations since accessing its stored pointer is
+often dangerous in multithreaded programs, and sometimes unsafe even within a single thread (that is, it may invoke undefined
+behavior.) Pretend for a moment that `weak_ptr` had a get member function that returned a raw pointer, and consider this innocent
+piece of code:
+
+```
+shared_ptr<int> p(new int(5));
+weak_ptr<int> q(p);
+
+// some time later
+
+if(int * r = q.get())
+{
+    // use *r
+}
+```
+
+Imagine that after the `if`, but immediately before `r` is used, another thread executes the statement `p.reset()`. Now `r` is a dangling pointer.
+
+The solution to this problem is to create a temporary `shared_ptr` from `q`:
+
+```
+shared_ptr<int> p(new int(5));
+weak_ptr<int> q(p);
+
+// some time later
+
+if(shared_ptr<int> r = q.lock())
+{
+    // use *r
+}
+```
+
+Now `r` holds a reference to the object that was pointed by `q`. Even if `p.reset()` is executed in another thread, the object will stay alive until
+`r` goes out of scope or is reset. By obtaining a `shared_ptr` to the object, we have effectively locked it against destruction.
+
+## Synopsis
+
+`weak_ptr` is defined in `<boost/smart_ptr/weak_ptr.hpp>`.
+
+```
+namespace boost {
+
+  template<class T> class weak_ptr {
+  public:
+
+    typedef /*see below*/ element_type;
+
+    weak_ptr() noexcept;
+
+    template<class Y> weak_ptr(shared_ptr<Y> const & r) noexcept;
+    weak_ptr(weak_ptr const & r) noexcept;
+    template<class Y> weak_ptr(weak_ptr<Y> const & r) noexcept;
+
+    weak_ptr(weak_ptr && r) noexcept;
+
+    template<class Y> weak_ptr(shared_ptr<Y> const & r, element_type * p) noexcept;
+    template<class Y> weak_ptr(weak_ptr<Y> const & r, element_type * p) noexcept;
+    template<class Y> weak_ptr(weak_ptr<Y> && r, element_type * p) noexcept;
+
+    ~weak_ptr() noexcept;
+
+    weak_ptr & operator=(weak_ptr const & r) noexcept;
+    weak_ptr & operator=(weak_ptr && r) noexcept;
+    template<class Y> weak_ptr & operator=(weak_ptr<Y> const & r) noexcept;
+    template<class Y> weak_ptr & operator=(shared_ptr<Y> const & r) noexcept;
+
+    long use_count() const noexcept;
+    bool expired() const noexcept;
+
+    bool empty() const noexcept;
+
+    shared_ptr<T> lock() const noexcept;
+
+    void reset() noexcept;
+
+    void swap(weak_ptr<T> & b) noexcept;
+
+    template<class Y> bool owner_before( weak_ptr<Y> const & r ) const noexcept;
+    template<class Y> bool owner_before( shared_ptr<Y> const & r ) const noexcept;
+
+    template<class Y> bool owner_equals( weak_ptr<Y> const & r ) const noexcept;
+    template<class Y> bool owner_equals( shared_ptr<Y> const & r ) const noexcept;
+
+    std::size_t owner_hash_value() const noexcept;
+  };
+
+  template<class T, class U>
+    bool operator<(weak_ptr<T> const & a, weak_ptr<U> const & b) noexcept;
+
+  template<class T> void swap(weak_ptr<T> & a, weak_ptr<T> & b) noexcept;
+}
+```
+
+## Members
+
+### element_type
+```
+typedef ... element_type;
+```
+`element_type` is `T` when `T` is not an array type, and `U` when `T` is `U[]` or `U[N]`.
+
+### constructors
+```
+weak_ptr() noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Constructs an empty `weak_ptr`.
+Postconditions:: `use_count() == 0`.
+
+```
+template<class Y> weak_ptr(shared_ptr<Y> const & r) noexcept;
+```
+```
+weak_ptr(weak_ptr const & r) noexcept;
+```
+```
+template<class Y> weak_ptr(weak_ptr<Y> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: If `r` is empty, constructs an empty `weak_ptr`; otherwise, constructs a `weak_ptr` that shares ownership with `r` as if by storing a copy of the pointer stored in `r`.
+Postconditions:: `use_count() == r.use_count()`.
+
+```
+weak_ptr(weak_ptr && r) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `weak_ptr` that has the value `r` held.
+Postconditions:: `r` is empty.
+
+### aliasing constructors
+```
+template<class Y> weak_ptr(shared_ptr<Y> const & r, element_type * p) noexcept;
+```
+```
+template<class Y> weak_ptr(weak_ptr<Y> const & r, element_type * p) noexcept;
+```
+```
+template<class Y> weak_ptr(weak_ptr<Y> && r, element_type * p) noexcept;
+```
+Effects:: Constructs a `weak_ptr` from `r` as if by using the corresponding converting/copy/move constructor, but stores `p` instead.
+Postconditions:: `use_count() == r.use_count()`. When `!expired()`, `shared_ptr<T>(*this).get() == p`.
+
+NOTE: These constructors are an extension, not present in `std::weak_ptr`.
+
+### destructor
+```
+~weak_ptr() noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Destroys this `weak_ptr` but has no effect on the object its stored pointer points to.
+
+### assignment
+```
+weak_ptr & operator=(weak_ptr const & r) noexcept;
+```
+```
+weak_ptr & operator=(weak_ptr && r) noexcept;
+```
+```
+template<class Y> weak_ptr & operator=(weak_ptr<Y> const & r) noexcept;
+```
+```
+template<class Y> weak_ptr & operator=(shared_ptr<Y> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `weak_ptr(r).swap(*this)`.
+
+NOTE: The implementation is free to meet the effects (and the implied guarantees) via different means, without creating a temporary.
+
+### use_count
+```
+long use_count() const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  0 if `*this` is empty; otherwise, the number of `shared_ptr` objects that share ownership with `*this`.
+
+### expired
+```
+bool expired() const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  `use_count() == 0`.
+
+### empty
+```
+bool empty() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `true` when `*this` is empty, `false` otherwise.
+
+NOTE: This function is an extension, not present in `std::weak_ptr`.
+
+### lock
+```
+shared_ptr<T> lock() const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  `expired()? shared_ptr<T>(): shared_ptr<T>(*this)`.
+
+### reset
+```
+void reset() noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Equivalent to `weak_ptr().swap(*this)`.
+
+### swap
+```
+void swap(weak_ptr & b) noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Exchanges the contents of the two smart pointers.
+
+### owner_before
+```
+template<class Y> bool owner_before( weak_ptr<Y> const & r ) const noexcept;
+```
+```
+template<class Y> bool owner_before( shared_ptr<Y> const & r ) const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  See the description of `operator<`.
+
+### owner_equals
+```
+template<class Y> bool owner_equals( weak_ptr<Y> const & r ) const noexcept;
+```
+```
+template<class Y> bool owner_equals( shared_ptr<Y> const & r ) const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  `true` if and only if `*this` and `r` share ownership or are both empty.
+
+### owner_hash_value
+```
+std::size_t owner_hash_value() const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  An unspecified hash value such that two instances that share ownership
+  have the same hash value.
+
+## Free Functions
+
+### comparison
+```
+template<class T, class U>
+  bool operator<(weak_ptr<T> const & a, weak_ptr<U> const & b) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: An unspecified value such that
+- `operator<` is a strict weak ordering as described in section [lib.alg.sorting] of the {cpp} standard; 
+- under the equivalence relation defined by `operator<`, `!(a < b) && !(b < a)`, two `weak_ptr` instances
+  are equivalent if and only if they share ownership or are both empty.
+
+NOTE: Allows `weak_ptr` objects to be used as keys in associative containers.
+
+### swap
+```
+template<class T> void swap(weak_ptr<T> & a, weak_ptr<T> & b) noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Equivalent to `a.swap(b)`.
+
+## Frequently Asked Questions
+
+[qanda]
+Can an object create a weak_ptr to itself in its constructor?::
+
+  No. A `weak_ptr` can only be created from a `shared_ptr`, and at object construction time no
+  `shared_ptr` to the object exists yet. Even if you could create a temporary `shared_ptr` to `this`,
+  it would go out of scope at the end of the constructor, and all `weak_ptr` instances would instantly expire.
++
+The solution is to make the constructor private, and supply a factory function that returns a `shared_ptr`:
++
+```
+class X
+{
+private:
+
+    X();
+
+public:
+
+    static shared_ptr<X> create()
+    {
+        shared_ptr<X> px(new X);
+        // create weak pointers from px here
+        return px;
+    }
+};
+```

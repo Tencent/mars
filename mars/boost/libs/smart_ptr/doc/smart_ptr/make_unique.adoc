@@ -1,0 +1,120 @@
+////
+Copyright 2017 Peter Dimov
+Copyright 2017 Glen Joseph Fernandes (glenjofe@gmail.com)
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#make_unique]
+# make_unique: Creating unique_ptr
+:toc:
+:toc-title:
+:idprefix: make_unique_
+
+## Description
+
+The `make_unique` function templates provide convenient and safe ways to
+create `std::unique_ptr` objects.
+
+## Rationale
+
+The {cpp}11 standard introduced `std::unique_ptr` but did not provide any
+`make_unique` utility like `std::make_shared` that provided the same
+exception safety and facility to avoid writing `new` expressions. Before it
+was implemented by some standard library vendors (and prior to the {cpp}14
+standard introducing `std::make_unique`), this library provided it due to
+requests from users.
+
+This library also provides additional overloads of `make_unique` for
+default-initialization, when users do not need or want to incur the expense
+of value-initialization. The {cpp}20 standard now provides this feature with
+`std::make_unique_for_overwrite`.
+
+## Synopsis
+
+`make_unique` is defined in `<boost/smart_ptr/make_unique.hpp>`.
+
+[subs=+quotes]
+```
+namespace boost {
+  `// T is not an array`
+  template<class T, class... Args>
+    std::unique_ptr<T> make_unique(Args&&... args);
+
+  `// T is not an array`
+  template<class T>
+    std::unique_ptr<T> make_unique(type_identity_t<T>&& v);
+
+  `// T is an array of unknown bounds`
+  template<class T>
+    std::unique_ptr<T> make_unique(std::size_t n);
+
+  `// T is not an array`
+  template<class T>
+    std::unique_ptr<T> make_unique_noinit();
+
+  `// T is an array of unknown bounds`
+  template<class T>
+    std::unique_ptr<T> make_unique_noinit(std::size_t n);
+}
+```
+
+## Free Functions
+
+```
+template<class T, class... Args>
+  std::unique_ptr<T> make_unique(Args&&... args);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array.
+Returns:: `std::unique_ptr<T>(new T(std::forward<Args>(args)\...)`.
+Example:: `auto p = make_unique<int>();`
+
+```
+template<class T>
+  std::unique_ptr<T> make_unique(type_identity_t<T>&& v);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array.
+Returns:: `std::unique_ptr<T>(new T(std::move(v))`.
+Example:: `auto p = make_unique<std::vector<int> >({1, 2});`
+
+```
+template<class T>
+  std::unique_ptr<T> make_unique(std::size_t n);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: `std::unique_ptr<T>(new remove_extent_t<T>[n]())`.
+Example:: `auto p = make_unique<double[]>(1024);`
+
+```
+template<class T>
+  std::unique_ptr<T> make_unique_noinit();
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array.
+Returns:: `std::unique_ptr<T>(new T)`.
+Example:: `auto p = make_unique_noinit<std::array<double, 1024> >();`
+
+```
+template<class T>
+  std::unique_ptr<T> make_unique_noinit(std::size_t n);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: `std::unique_ptr<T>(new remove_extent_t<T>[n])`.
+Example:: `auto p = make_unique_noinit<double[]>(1024);`

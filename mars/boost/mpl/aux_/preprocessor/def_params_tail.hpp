@@ -14,14 +14,14 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/limits/arity.hpp>
 #include <boost/mpl/aux_/config/dtp.hpp>
 #include <boost/mpl/aux_/config/preprocessor.hpp>
+#include <boost/mpl/limits/arity.hpp>
 
 #include <boost/preprocessor/comma_if.hpp>
-#include <boost/preprocessor/logical/and.hpp>
-#include <boost/preprocessor/identity.hpp>
 #include <boost/preprocessor/empty.hpp>
+#include <boost/preprocessor/identity.hpp>
+#include <boost/preprocessor/logical/and.hpp>
 
 // BOOST_MPL_PP_DEF_PARAMS_TAIL(1,T,value): , T1 = value, .., Tn = value
 // BOOST_MPL_PP_DEF_PARAMS_TAIL(2,T,value): , T2 = value, .., Tn = value
@@ -65,10 +65,10 @@
 
 #   include <boost/preprocessor/arithmetic/add.hpp>
 #   include <boost/preprocessor/arithmetic/sub.hpp>
-#   include <boost/preprocessor/inc.hpp>
-#   include <boost/preprocessor/tuple/elem.hpp>
-#   include <boost/preprocessor/repeat.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/inc.hpp>
+#   include <boost/preprocessor/repeat.hpp>
+#   include <boost/preprocessor/tuple/elem.hpp>
 
 #   define BOOST_MPL_PP_AUX_TAIL_PARAM_FUNC(unused, i, op) \
     , BOOST_PP_CAT( \

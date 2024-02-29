@@ -8,12 +8,12 @@
 #ifndef BOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
 #define BOOST_TT_TYPE_WITH_ALIGNMENT_INCLUDED
 
+#include <boost/config.hpp>
+#include <boost/detail/workaround.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/is_pod.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/config.hpp>
-#include <cstddef>
-#include <boost/detail/workaround.hpp>
+#include <cstddef> // size_t
 
 #ifdef BOOST_MSVC
 #   pragma warning(push)
@@ -25,9 +25,8 @@
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+#ifndef BOOST_BORLANDC
    namespace detail{
-
-#ifndef __BORLANDC__
 
       union max_align
       {
@@ -76,7 +75,7 @@ template <std::size_t Target> struct short_alignment<Target, false>{ typedef typ
 template <std::size_t Target, bool check> struct char_alignment{ typedef char type; };
 template <std::size_t Target> struct char_alignment<Target, false>{ typedef typename short_alignment<Target, mars_boost::alignment_of<short>::value >= Target>::type type; };
 
-}
+} // namespace detail
 
 template <std::size_t Align>
 struct type_with_alignment 
@@ -121,7 +120,7 @@ template<> struct is_pod< ::mars_boost::tt_align_ns::a128> : public true_type{};
 // registers.  Therefore we extend type_with_alignment<> to support
 // such types, however, we have to be careful to use a builtin type
 // whenever possible otherwise we break previously working code:
-// see http://article.gmane.org/gmane.comp.lib.boost.devel/173011
+// see https://lists.boost.org/Archives/boost/2014/03/212391.php
 // for an example and test case.  Thus types like a8 below will
 // be used *only* if the existing implementation can't provide a type
 // with suitable alignment.  This does mean however, that type_with_alignment<>
@@ -228,7 +227,7 @@ namespace detail {
 typedef ::mars_boost::tt_align_ns::a16 max_align;
 
 }
-//#if ! BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x610))
+//#if ! BOOST_WORKAROUND(BOOST_CODEGEARC, BOOST_TESTED_AT(0x610))
 template <> struct is_pod< ::mars_boost::tt_align_ns::a2> : public true_type{};
 template <> struct is_pod< ::mars_boost::tt_align_ns::a4> : public true_type{};
 template <> struct is_pod< ::mars_boost::tt_align_ns::a8> : public true_type{};

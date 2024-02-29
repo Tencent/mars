@@ -20,8 +20,6 @@
 #  include BOOST_ABI_SUFFIX
 #endif
 
-#if defined( __BORLANDC__ )
+#if defined( BOOST_BORLANDC )
 #pragma nopushoptwarn
 #endif
-
-

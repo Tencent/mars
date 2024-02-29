@@ -1,6 +1,6 @@
 // Copyright Kevlin Henney, 2000-2005.
 // Copyright Alexander Nasonov, 2006-2010.
-// Copyright Antony Polukhin, 2011-2014.
+// Copyright Antony Polukhin, 2011-2023.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -27,12 +27,11 @@
 #define BOOST_LCAST_NO_WCHAR_T
 #endif
 
+#include <boost/core/cmath.hpp>
+#include <boost/detail/workaround.hpp>
+#include <boost/limits.hpp>
 #include <cstddef>
 #include <cstring>
-#include <boost/limits.hpp>
-#include <boost/detail/workaround.hpp>
-#include <boost/math/special_functions/sign.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 #include <boost/lexical_cast/detail/lcast_char_constants.hpp>
 
@@ -40,7 +39,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
     namespace detail
     {
         template <class CharT>
-        bool lc_iequal(const CharT* val, const CharT* lcase, const CharT* ucase, unsigned int len) BOOST_NOEXCEPT {
+        bool lc_iequal(const CharT* val, const CharT* lcase, const CharT* ucase, unsigned int len) noexcept {
             for( unsigned int i=0; i < len; ++i ) {
                 if ( val[i] != lcase[i] && val[i] != ucase[i] ) return false;
             }
@@ -53,9 +52,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         inline bool parse_inf_nan_impl(const CharT* begin, const CharT* end, T& value
             , const CharT* lc_NAN, const CharT* lc_nan
             , const CharT* lc_INFINITY, const CharT* lc_infinity
-            , const CharT opening_brace, const CharT closing_brace) BOOST_NOEXCEPT
+            , const CharT opening_brace, const CharT closing_brace) noexcept
         {
-            using namespace std;
             if (begin == end) return false;
             const CharT minus = lcast_char_constants<CharT>::minus;
             const CharT plus = lcast_char_constants<CharT>::plus;
@@ -72,14 +70,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
                 begin += 3;
                 if (end != begin) {
                     /* It is 'nan(...)' or some bad input*/
-                    
+
                     if (end - begin < 2) return false; // bad input
                     -- end;
                     if (*begin != opening_brace || *end != closing_brace) return false; // bad input
                 }
 
                 if( !has_minus ) value = std::numeric_limits<T>::quiet_NaN();
-                else value = (mars_boost::math::changesign) (std::numeric_limits<T>::quiet_NaN());
+                else value = mars_boost::core::copysign(std::numeric_limits<T>::quiet_NaN(), static_cast<T>(-1));
                 return true;
             } else if (
                 ( /* 'INF' or 'inf' */
@@ -94,7 +92,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
              )
             {
                 if( !has_minus ) value = std::numeric_limits<T>::infinity();
-                else value = (mars_boost::math::changesign) (std::numeric_limits<T>::infinity());
+                else value = -std::numeric_limits<T>::infinity();
                 return true;
             }
 
@@ -104,26 +102,25 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         template <class CharT, class T>
         bool put_inf_nan_impl(CharT* begin, CharT*& end, const T& value
                          , const CharT* lc_nan
-                         , const CharT* lc_infinity) BOOST_NOEXCEPT
+                         , const CharT* lc_infinity) noexcept
         {
-            using namespace std;
             const CharT minus = lcast_char_constants<CharT>::minus;
-            if ((mars_boost::math::isnan)(value)) {
-                if ((mars_boost::math::signbit)(value)) {
+            if (mars_boost::core::isnan(value)) {
+                if (mars_boost::core::signbit(value)) {
                     *begin = minus;
                     ++ begin;
                 }
 
-                memcpy(begin, lc_nan, 3 * sizeof(CharT));
+                std::memcpy(begin, lc_nan, 3 * sizeof(CharT));
                 end = begin + 3;
                 return true;
-            } else if ((mars_boost::math::isinf)(value)) {
-                if ((mars_boost::math::signbit)(value)) {
+            } else if (mars_boost::core::isinf(value)) {
+                if (mars_boost::core::signbit(value)) {
                     *begin = minus;
                     ++ begin;
                 }
 
-                memcpy(begin, lc_infinity, 3 * sizeof(CharT));
+                std::memcpy(begin, lc_infinity, 3 * sizeof(CharT));
                 end = begin + 3;
                 return true;
             }
@@ -134,7 +131,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 #ifndef BOOST_LCAST_NO_WCHAR_T
         template <class T>
-        bool parse_inf_nan(const wchar_t* begin, const wchar_t* end, T& value) BOOST_NOEXCEPT {
+        bool parse_inf_nan(const wchar_t* begin, const wchar_t* end, T& value) noexcept {
             return parse_inf_nan_impl(begin, end, value
                                , L"NAN", L"nan"
                                , L"INFINITY", L"infinity"
@@ -142,14 +139,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         }
 
         template <class T>
-        bool put_inf_nan(wchar_t* begin, wchar_t*& end, const T& value) BOOST_NOEXCEPT {
+        bool put_inf_nan(wchar_t* begin, wchar_t*& end, const T& value) noexcept {
             return put_inf_nan_impl(begin, end, value, L"nan", L"infinity");
         }
 
 #endif
 #if !defined(BOOST_NO_CXX11_CHAR16_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
         template <class T>
-        bool parse_inf_nan(const char16_t* begin, const char16_t* end, T& value) BOOST_NOEXCEPT {
+        bool parse_inf_nan(const char16_t* begin, const char16_t* end, T& value) noexcept {
             return parse_inf_nan_impl(begin, end, value
                                , u"NAN", u"nan"
                                , u"INFINITY", u"infinity"
@@ -157,13 +154,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         }
 
         template <class T>
-        bool put_inf_nan(char16_t* begin, char16_t*& end, const T& value) BOOST_NOEXCEPT {
+        bool put_inf_nan(char16_t* begin, char16_t*& end, const T& value) noexcept {
             return put_inf_nan_impl(begin, end, value, u"nan", u"infinity");
         }
 #endif
 #if !defined(BOOST_NO_CXX11_CHAR32_T) && !defined(BOOST_NO_CXX11_UNICODE_LITERALS)
         template <class T>
-        bool parse_inf_nan(const char32_t* begin, const char32_t* end, T& value) BOOST_NOEXCEPT {
+        bool parse_inf_nan(const char32_t* begin, const char32_t* end, T& value) noexcept {
             return parse_inf_nan_impl(begin, end, value
                                , U"NAN", U"nan"
                                , U"INFINITY", U"infinity"
@@ -171,13 +168,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         }
 
         template <class T>
-        bool put_inf_nan(char32_t* begin, char32_t*& end, const T& value) BOOST_NOEXCEPT {
+        bool put_inf_nan(char32_t* begin, char32_t*& end, const T& value) noexcept {
             return put_inf_nan_impl(begin, end, value, U"nan", U"infinity");
         }
 #endif
 
         template <class CharT, class T>
-        bool parse_inf_nan(const CharT* begin, const CharT* end, T& value) BOOST_NOEXCEPT {
+        bool parse_inf_nan(const CharT* begin, const CharT* end, T& value) noexcept {
             return parse_inf_nan_impl(begin, end, value
                                , "NAN", "nan"
                                , "INFINITY", "infinity"
@@ -185,7 +182,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         }
 
         template <class CharT, class T>
-        bool put_inf_nan(CharT* begin, CharT*& end, const T& value) BOOST_NOEXCEPT {
+        bool put_inf_nan(CharT* begin, CharT*& end, const T& value) noexcept {
             return put_inf_nan_impl(begin, end, value, "nan", "infinity");
         }
     }

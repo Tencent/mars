@@ -1,0 +1,114 @@
+# Boost Filesystem Library test Jamfile
+
+# (C) Copyright Beman Dawes 2002-2006
+# (C) Copyright Andrey Semashev 2020
+# Distributed under the Boost Software License, Version 1.0.
+# See www.boost.org/LICENSE_1_0.txt
+
+import testing ;
+import os ;
+
+# The rule checks we're running on Windows that supports mklink command (Vista and later)
+rule check-mklink ( properties * )
+{
+    local result ;
+
+    if <target-os>windows in $(properties)
+    {
+        # mklink is a builtin shell command, so we can't check if an executable exists.
+        # Testing the exit status of the mklink command (in the hope that it will be different
+        # when the command is not supported) is inconclusive as for some reason Windows 8.1 shell
+        # always returns exit code of 1. We have to match the output of the command. :(
+        # Note that the output may be localized, so pick some part that is likely to be stable regardless
+        # of localization.
+        local output = [ SHELL "mklink /?" : exit-status ] ;
+        if [ MATCH (MKLINK) : $(output[1]) ]
+        {
+            result = <define>BOOST_FILESYSTEM_HAS_MKLINK ;
+
+            if ! $(.annouced-mklink)
+            {
+                ECHO "    - Boost.Filesystem: mklink found" ;
+                .annouced-mklink = 1 ;
+            }
+        }
+        else
+        {
+            if ! $(.annouced-mklink)
+            {
+                ECHO "    - Boost.Filesystem: mklink not found" ;
+                .annouced-mklink = 1 ;
+            }
+        }
+    }
+
+    #ECHO Result: $(result) ;
+    return $(result) ;
+}
+
+project
+    : requirements
+      <include>.
+      <target-os>windows:<define>_SCL_SECURE_NO_WARNINGS
+      <target-os>windows:<define>_SCL_SECURE_NO_DEPRECATE
+      <target-os>windows:<define>_CRT_SECURE_NO_WARNINGS
+      <target-os>windows:<define>_CRT_SECURE_NO_DEPRECATE
+      <library>/boost/filesystem//mars_boost_filesystem
+      <conditional>@check-mklink
+    ;
+
+# Some tests are run both statically and as shared libraries since Filesystem
+# has a history of bugs that appear only in one type of build or the other.
+
+path-constant HERE : . ;
+
+local VIS ;
+
+if [ os.environ UBSAN ]
+{
+    VIS = <visibility>global
+       -<library>/boost/filesystem//mars_boost_filesystem
+        <library>/boost/filesystem//mars_boost_filesystem/<visibility>global ;
+}
+
+run config_info.cpp : : : <link>shared <test-info>always_show_run_output ;
+run config_info.cpp : : : <link>static <test-info>always_show_run_output : config_info_static ;
+run convenience_test.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+compile macro_default_test.cpp ;
+run odr1_test.cpp odr2_test.cpp ;
+run deprecated_test.cpp : : : <define>BOOST_FILESYSTEM_VERSION=3 ;
+run fstream_test.cpp : : : $(VIS) <define>BOOST_FILESYSTEM_VERSION=4 ;
+run cstdio_test.cpp : : : $(VIS) <define>BOOST_FILESYSTEM_VERSION=4 ;
+run large_file_support_test.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+run locale_info.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 <test-info>always_show_run_output ;
+run operations_test.cpp : : : <link>shared <define>BOOST_FILESYSTEM_VERSION=4 <test-info>always_show_run_output ;
+run operations_test.cpp : : : <link>static <define>BOOST_FILESYSTEM_VERSION=4 : operations_test_static ;
+run operations_unit_test.cpp : $(HERE) : : <link>shared <define>BOOST_FILESYSTEM_VERSION=4 <test-info>always_show_run_output ;
+run copy_test.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+compile-fail cf_path_nullptr_test.cpp ;
+compile path_iter_ctor_overload_test.cpp ;
+compile path_operator_ambiguity.cpp : <toolset>gcc:<warnings-as-errors>on ;
+run path_test.cpp : : : <link>shared <define>BOOST_FILESYSTEM_VERSION=4 ;
+run path_test.cpp : : : <link>static <define>BOOST_FILESYSTEM_VERSION=4 : path_test_static ;
+run path_test.cpp : : : <link>shared <define>BOOST_FILESYSTEM_VERSION=3 : path_test_v3 ;
+run path_unit_test.cpp : : : <link>shared $(VIS) <define>BOOST_FILESYSTEM_VERSION=4 ;
+run path_unit_test.cpp : : : <link>static $(VIS) <define>BOOST_FILESYSTEM_VERSION=4 : path_unit_test_static ;
+run path_unit_test.cpp : : : <link>shared $(VIS) <define>BOOST_FILESYSTEM_VERSION=3 : path_unit_test_v3 ;
+run relative_test.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+run ../example/simple_ls.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+run ../example/file_status.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+run foreach_test.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+
+# `quick` target (for CI)
+run quick.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+
+# Tests for specific issues
+run issues/70-71-copy.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+
+run issues/99_canonical_with_junction_point.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+run issues/reparse_tag_file_placeholder.cpp : : : <define>BOOST_FILESYSTEM_VERSION=4 ;
+
+if [ os.environ BOOST_FILESYSTEM_TEST_WITH_EXAMPLES ]
+{
+    build-project ../example ;
+}

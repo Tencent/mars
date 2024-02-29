@@ -52,10 +52,10 @@
 
 #   include <boost/preprocessor/arithmetic/add.hpp>
 #   include <boost/preprocessor/arithmetic/sub.hpp>
+#   include <boost/preprocessor/cat.hpp>
 #   include <boost/preprocessor/comma_if.hpp>
 #   include <boost/preprocessor/repeat.hpp>
 #   include <boost/preprocessor/tuple/elem.hpp>
-#   include <boost/preprocessor/cat.hpp>
 
 #   define BOOST_MPL_PP_AUX_EXT_PARAM_FUNC(unused, i, op) \
     BOOST_PP_COMMA_IF(i) \

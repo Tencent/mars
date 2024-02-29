@@ -15,17 +15,17 @@
 */
 
 #include "boost/date_time/date.hpp"
-#include "boost/date_time/period.hpp"
 #include "boost/date_time/gregorian/greg_calendar.hpp"
 #include "boost/date_time/gregorian/greg_duration.hpp"
+#include "boost/date_time/period.hpp"
 #if defined(BOOST_DATE_TIME_OPTIONAL_GREGORIAN_TYPES)
 #include "boost/date_time/gregorian/greg_duration_types.hpp"
 #endif
-#include "boost/date_time/gregorian/greg_date.hpp"
-#include "boost/date_time/date_generators.hpp"
-#include "boost/date_time/date_clock_device.hpp"
-#include "boost/date_time/date_iterator.hpp"
 #include "boost/date_time/adjust_functors.hpp"
+#include "boost/date_time/date_clock_device.hpp"
+#include "boost/date_time/date_generators.hpp"
+#include "boost/date_time/date_iterator.hpp"
+#include "boost/date_time/gregorian/greg_date.hpp"
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 

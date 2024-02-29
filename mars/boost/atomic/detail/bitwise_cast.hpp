@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2009 Helge Bahmann
  * Copyright (c) 2012 Tim Blechmann
- * Copyright (c) 2013 - 2014 Andrey Semashev
+ * Copyright (c) 2013-2018, 2020-2021 Andrey Semashev
  */
 /*!
  * \file   atomic/detail/bitwise_cast.hpp
@@ -16,38 +16,143 @@
 #ifndef BOOST_ATOMIC_DETAIL_BITWISE_CAST_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_BITWISE_CAST_HPP_INCLUDED_
 
+#include <boost/atomic/detail/addressof.hpp>
 #include <boost/atomic/detail/config.hpp>
-#if !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_MEMCPY)
-#include <cstring>
-#endif
+#include <boost/atomic/detail/header.hpp>
+#include <boost/atomic/detail/string_ops.hpp>
+#include <boost/atomic/detail/type_traits/has_unique_object_representations.hpp>
+#include <boost/atomic/detail/type_traits/integral_constant.hpp>
+#include <boost/atomic/detail/type_traits/remove_cv.hpp>
+#include <cstddef>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_NO_HAS_UNIQUE_OBJECT_REPRESENTATIONS)
+
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_bit_cast)
+#define BOOST_ATOMIC_DETAIL_BIT_CAST(x, y) __builtin_bit_cast(x, y)
+#endif
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_BIT_CAST) && defined(BOOST_MSVC) && BOOST_MSVC >= 1926
+#define BOOST_ATOMIC_DETAIL_BIT_CAST(x, y) __builtin_bit_cast(x, y)
+#endif
+
+#endif // !defined(BOOST_ATOMIC_DETAIL_NO_HAS_UNIQUE_OBJECT_REPRESENTATIONS)
+
+#if defined(BOOST_NO_CXX11_CONSTEXPR) || !defined(BOOST_ATOMIC_DETAIL_BIT_CAST) || !defined(BOOST_ATOMIC_DETAIL_HAS_BUILTIN_ADDRESSOF)
+#define BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_BITWISE_CAST
+#endif
+
+#if !defined(BOOST_ATOMIC_DETAIL_NO_CXX11_CONSTEXPR_BITWISE_CAST)
+#define BOOST_ATOMIC_DETAIL_CONSTEXPR_BITWISE_CAST BOOST_CONSTEXPR
+#else
+#define BOOST_ATOMIC_DETAIL_CONSTEXPR_BITWISE_CAST
+#endif
+
+#if defined(BOOST_GCC) && BOOST_GCC >= 80000
+#pragma GCC diagnostic push
+// copying an object of non-trivial type X from an array of Y. This is benign because we use memcpy to copy trivially copyable objects.
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace atomics {
 namespace detail {
 
-template< typename To, typename From >
-BOOST_FORCEINLINE To bitwise_cast(From const& from) BOOST_NOEXCEPT
+template< std::size_t ValueSize, typename To >
+BOOST_FORCEINLINE void clear_tail_padding_bits(To& to, atomics::detail::true_type) BOOST_NOEXCEPT
 {
-    struct
-    {
-        To to;
-    }
-    value = {};
+    BOOST_ATOMIC_DETAIL_MEMSET(reinterpret_cast< unsigned char* >(atomics::detail::addressof(to)) + ValueSize, 0, sizeof(To) - ValueSize);
+}
+
+template< std::size_t ValueSize, typename To >
+BOOST_FORCEINLINE void clear_tail_padding_bits(To&, atomics::detail::false_type) BOOST_NOEXCEPT
+{
+}
+
+template< std::size_t ValueSize, typename To >
+BOOST_FORCEINLINE void clear_tail_padding_bits(To& to) BOOST_NOEXCEPT
+{
+    atomics::detail::clear_tail_padding_bits< ValueSize >(to, atomics::detail::integral_constant< bool, ValueSize < sizeof(To) >());
+}
+
+template< typename To, std::size_t FromValueSize, typename From >
+BOOST_FORCEINLINE To bitwise_cast_memcpy(From const& from) BOOST_NOEXCEPT
+{
+    typedef typename atomics::detail::remove_cv< To >::type unqualified_to_t;
+    unqualified_to_t to;
+#if !defined(BOOST_ATOMIC_NO_CLEAR_PADDING)
+    From from2(from);
+    BOOST_ATOMIC_DETAIL_CLEAR_PADDING(atomics::detail::addressof(from2));
     BOOST_ATOMIC_DETAIL_MEMCPY
     (
-        &reinterpret_cast< char& >(value.to),
-        &reinterpret_cast< const char& >(from),
-        (sizeof(From) < sizeof(To) ? sizeof(From) : sizeof(To))
+        atomics::detail::addressof(to),
+        atomics::detail::addressof(from2),
+        (FromValueSize < sizeof(unqualified_to_t) ? FromValueSize : sizeof(unqualified_to_t))
     );
-    return value.to;
+#else
+    BOOST_ATOMIC_DETAIL_MEMCPY
+    (
+        atomics::detail::addressof(to),
+        atomics::detail::addressof(from),
+        (FromValueSize < sizeof(unqualified_to_t) ? FromValueSize : sizeof(unqualified_to_t))
+    );
+#endif
+    atomics::detail::clear_tail_padding_bits< FromValueSize >(to);
+    return to;
+}
+
+#if defined(BOOST_ATOMIC_DETAIL_BIT_CAST)
+
+template< typename To, std::size_t FromValueSize, typename From >
+BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_BITWISE_CAST To bitwise_cast_impl(From const& from, atomics::detail::true_type) BOOST_NOEXCEPT
+{
+    // This implementation is only called when the From type has no padding and From and To have the same size
+    return BOOST_ATOMIC_DETAIL_BIT_CAST(typename atomics::detail::remove_cv< To >::type, from);
+}
+
+template< typename To, std::size_t FromValueSize, typename From >
+BOOST_FORCEINLINE To bitwise_cast_impl(From const& from, atomics::detail::false_type) BOOST_NOEXCEPT
+{
+    return atomics::detail::bitwise_cast_memcpy< To, FromValueSize >(from);
+}
+
+template< typename To, std::size_t FromValueSize, typename From >
+BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_BITWISE_CAST To bitwise_cast(From const& from) BOOST_NOEXCEPT
+{
+    return atomics::detail::bitwise_cast_impl< To, FromValueSize >(from, atomics::detail::integral_constant< bool,
+        FromValueSize == sizeof(To) && atomics::detail::has_unique_object_representations< From >::value >());
+}
+
+#else // defined(BOOST_ATOMIC_DETAIL_BIT_CAST)
+
+template< typename To, std::size_t FromValueSize, typename From >
+BOOST_FORCEINLINE To bitwise_cast(From const& from) BOOST_NOEXCEPT
+{
+    return atomics::detail::bitwise_cast_memcpy< To, FromValueSize >(from);
+}
+
+#endif // defined(BOOST_ATOMIC_DETAIL_BIT_CAST)
+
+//! Converts the source object to the target type, possibly by padding or truncating it on the right, and clearing any padding bits (if supported by compiler). Preserves value bits unchanged.
+template< typename To, typename From >
+BOOST_FORCEINLINE BOOST_ATOMIC_DETAIL_CONSTEXPR_BITWISE_CAST To bitwise_cast(From const& from) BOOST_NOEXCEPT
+{
+    return atomics::detail::bitwise_cast< To, sizeof(From) >(from);
 }
 
 } // namespace detail
 } // namespace atomics
 } // namespace mars_boost
+
+#if defined(BOOST_GCC) && BOOST_GCC >= 80000
+#pragma GCC diagnostic pop
+#endif
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_DETAIL_BITWISE_CAST_HPP_INCLUDED_

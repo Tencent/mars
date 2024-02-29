@@ -40,6 +40,7 @@ using mars_boost::move_detail::remove_pointer;
 using mars_boost::move_detail::add_pointer;
 using mars_boost::move_detail::true_type;
 using mars_boost::move_detail::false_type;
+using mars_boost::move_detail::voider;
 using mars_boost::move_detail::enable_if_c;
 using mars_boost::move_detail::enable_if;
 using mars_boost::move_detail::disable_if_c;
@@ -86,8 +87,8 @@ struct ls_zeros<1>
 
 // Infrastructure for providing a default type for T::TNAME if absent.
 #define BOOST_INTRUSIVE_INSTANTIATE_DEFAULT_TYPE_TMPLT(TNAME)     \
-   template <typename T, typename DefaultType>                    \
-   struct boost_intrusive_default_type_ ## TNAME                  \
+   template <typename T>                                          \
+   struct boost_intrusive_has_type_ ## TNAME                      \
    {                                                              \
       template <typename X>                                       \
       static char test(int, typename X::TNAME*);                  \
@@ -95,19 +96,29 @@ struct ls_zeros<1>
       template <typename X>                                       \
       static int test(...);                                       \
                                                                   \
-      struct DefaultWrap { typedef DefaultType TNAME; };          \
-                                                                  \
       static const bool value = (1 == sizeof(test<T>(0, 0)));     \
+   };                                                             \
+                                                                  \
+   template <typename T, typename DefaultType>                    \
+   struct boost_intrusive_default_type_ ## TNAME                  \
+   {                                                              \
+      struct DefaultWrap { typedef DefaultType TNAME; };          \
                                                                   \
       typedef typename                                            \
          ::mars_boost::intrusive::detail::if_c                         \
-            <value, T, DefaultWrap>::type::TNAME type;            \
+            < boost_intrusive_has_type_ ## TNAME<T>::value        \
+            , T, DefaultWrap>::type::TNAME type;                  \
    };                                                             \
    //
 
 #define BOOST_INTRUSIVE_OBTAIN_TYPE_WITH_DEFAULT(INSTANTIATION_NS_PREFIX, T, TNAME, TIMPL)   \
       typename INSTANTIATION_NS_PREFIX                                                       \
          boost_intrusive_default_type_ ## TNAME< T, TIMPL >::type                            \
+//
+
+#define BOOST_INTRUSIVE_HAS_TYPE(INSTANTIATION_NS_PREFIX, T, TNAME)  \
+      INSTANTIATION_NS_PREFIX                                        \
+         boost_intrusive_has_type_ ## TNAME< T >::value              \
 //
 
 #define BOOST_INTRUSIVE_INSTANTIATE_EVAL_DEFAULT_TYPE_TMPLT(TNAME)\
@@ -144,7 +155,7 @@ template <class T>\
 struct TRAITS_PREFIX##_bool\
 {\
    template<bool Add>\
-   struct two_or_three {yes_type _[2 + Add];};\
+   struct two_or_three {yes_type _[2u + (unsigned)Add];};\
    template <class U> static yes_type test(...);\
    template <class U> static two_or_three<U::TYPEDEF_TO_FIND> test (int);\
    static const std::size_t value = sizeof(test<T>(0));\

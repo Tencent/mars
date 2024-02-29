@@ -15,7 +15,7 @@
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 //* is a type T a fundamental type described in the standard (3.9.1)
-#if defined( __CODEGEARC__ )
+#if defined( BOOST_CODEGEARC )
 template <class T> struct is_fundamental : public integral_constant<bool, __is_fundamental(T)> {};
 #else
 template <class T> struct is_fundamental : public integral_constant<bool, ::mars_boost::is_arithmetic<T>::value || ::mars_boost::is_void<T>::value> {};

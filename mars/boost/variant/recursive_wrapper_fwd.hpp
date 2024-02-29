@@ -3,8 +3,8 @@
 // See http://www.boost.org for updates, documentation, and revision history.
 //-----------------------------------------------------------------------------
 //
-// Copyright (c) 2002
-// Eric Friedman, Itay Maman
+// Copyright (c) 2002 Eric Friedman, Itay Maman
+// Copyright (c) 2016-2023 Antony Polukhin
 //
 // Portions Copyright (C) 2002 David Abrahams
 //
@@ -15,9 +15,12 @@
 #ifndef BOOST_VARIANT_RECURSIVE_WRAPPER_FWD_HPP
 #define BOOST_VARIANT_RECURSIVE_WRAPPER_FWD_HPP
 
-#include "boost/mpl/aux_/config/ctps.hpp"
-#include "boost/mpl/aux_/lambda_support.hpp"
+#include <boost/mpl/aux_/config/ctps.hpp>
+#include <boost/mpl/aux_/lambda_support.hpp>
+#include <boost/mpl/bool.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_constructible.hpp>
+#include <boost/type_traits/is_nothrow_move_constructible.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -39,10 +42,38 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 //
 template <typename T> class recursive_wrapper;
 
+
+///////////////////////////////////////////////////////////////////////////////
+// metafunction is_constructible partial specializations.
+//
+// recursive_wrapper<T> is constructible only from T and recursive_wrapper<T>.
+//
+template <class T>          struct is_constructible<recursive_wrapper<T>, T>                            : mars_boost::true_type{};
+template <class T>          struct is_constructible<recursive_wrapper<T>, const T>                      : mars_boost::true_type{};
+template <class T>          struct is_constructible<recursive_wrapper<T>, T&>                           : mars_boost::true_type{};
+template <class T>          struct is_constructible<recursive_wrapper<T>, const T&>                     : mars_boost::true_type{};
+template <class T>          struct is_constructible<recursive_wrapper<T>, recursive_wrapper<T> >        : mars_boost::true_type{};
+template <class T>          struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<T> >  : mars_boost::true_type{};
+template <class T>          struct is_constructible<recursive_wrapper<T>, recursive_wrapper<T>& >       : mars_boost::true_type{};
+template <class T>          struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<T>& > : mars_boost::true_type{};
+
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, U >                           : mars_boost::false_type{};
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, const U >                     : mars_boost::false_type{};
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, U& >                          : mars_boost::false_type{};
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, const U& >                    : mars_boost::false_type{};
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, recursive_wrapper<U> >        : mars_boost::false_type{};
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<U> >  : mars_boost::false_type{};
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, recursive_wrapper<U>& >       : mars_boost::false_type{};
+template <class T, class U> struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<U>& > : mars_boost::false_type{};
+
+// recursive_wrapper is not nothrow move constructible, because it's constructor does dynamic memory allocation.
+// This specialisation is required to workaround GCC6 issue: https://svn.boost.org/trac/boost/ticket/12680
+template <class T> struct is_nothrow_move_constructible<recursive_wrapper<T> > : mars_boost::false_type{};
+
 ///////////////////////////////////////////////////////////////////////////////
 // metafunction is_recursive_wrapper (modeled on code by David Abrahams)
 //
-// True iff specified type matches recursive_wrapper<T>.
+// True if specified type matches recursive_wrapper<T>.
 //
 
 namespace detail {

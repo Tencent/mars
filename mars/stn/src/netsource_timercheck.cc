@@ -56,8 +56,8 @@ NetSourceTimerCheck::NetSourceTimerCheck(boot::Context* _context,
     xinfo2(TSF "handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
     frequency_limit_ = new CommFrequencyLimit(kMaxSpeedTestCount, kIntervalTime);
 
-    active_connection_ =
-        _active_logic.SignalActive.connect(boost::bind(&NetSourceTimerCheck::__OnActiveChanged, this, _1));
+    active_connection_ = _active_logic.SignalActive.connect(
+        boost::bind(&NetSourceTimerCheck::__OnActiveChanged, this, boost::placeholders::_1));
 
     if (_active_logic.IsActive()) {
         __StartCheck();

@@ -17,10 +17,10 @@
 #define BOOST_RANDOM_CONST_MOD_HPP
 
 #include <boost/assert.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/integer_traits.hpp>
-#include <boost/type_traits/make_unsigned.hpp>
 #include <boost/random/detail/large_arithmetic.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/make_unsigned.hpp>
 
 #include <boost/random/detail/disable_warnings.hpp>
 

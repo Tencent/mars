@@ -16,7 +16,7 @@
 
 #include <boost/mpl/aux_/config/workaround.hpp>
 
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x561)) \
+#if BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x561)) \
  || BOOST_WORKAROUND(__GNUC__, < 3) \
  || BOOST_WORKAROUND(__MWERKS__, <= 0x3001)
 #   define BOOST_MPL_AUX_STATIC_CAST(T, expr) (T)(expr)

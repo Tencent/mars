@@ -11,7 +11,7 @@
 #ifndef BOOST_IOSTREAMS_POSITIONING_HPP_INCLUDED
 #define BOOST_IOSTREAMS_POSITIONING_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -75,7 +75,7 @@ inline stream_offset position_to_offset(std::streampos pos) { return pos; }
 // Dinkumware version. The value of _Myoff cannot be extracted directly, but can
 // be calculated as the difference between the result of converting the 
 // std::fpos to a std::streamoff and the result of converting the member _Fpos
-// to a long. The latter operation is accomplished with the macro _FPOSOFF, 
+// to a long. The latter operation is accomplished with the macro BOOST_IOSTREAMS_FPOSOFF,
 // which works correctly on platforms where std::fpos_t is an integral type and 
 // platforms where it is a struct
 
@@ -85,7 +85,7 @@ inline stream_offset fpos_t_to_offset(std::fpos_t pos)
 #  if defined(_POSIX_) || (_INTEGRAL_MAX_BITS >= 64) || defined(__IBMCPP__)
     return pos;
 #  else
-    return _FPOSOFF(pos);
+    return BOOST_IOSTREAMS_FPOSOFF(pos);
 #  endif
 }
 
@@ -104,7 +104,7 @@ inline stream_offset position_to_offset(std::streampos pos)
     return fpos_t_to_offset(streampos_to_fpos_t(pos)) +
         static_cast<stream_offset>(
             static_cast<std::streamoff>(pos) -
-            _FPOSOFF(streampos_to_fpos_t(pos))
+            BOOST_IOSTREAMS_FPOSOFF(streampos_to_fpos_t(pos))
         );
 }
 

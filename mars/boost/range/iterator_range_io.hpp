@@ -35,10 +35,10 @@
 # endif
 #endif // _STLP_NO_IOSTREAMS
 
-#include <boost/range/iterator_range_core.hpp>
-#include <iterator>
 #include <algorithm>
+#include <boost/range/iterator_range_core.hpp>
 #include <cstddef>
+#include <iterator>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -82,7 +82,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 # endif
 #endif // _STLP_NO_IOSTREAMS
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #undef BOOST_OLD_IOSTREAMS
 

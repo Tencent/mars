@@ -12,19 +12,24 @@
 #define BOOST_TT_IS_NOTHROW_MOVE_ASSIGNABLE_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <boost/type_traits/has_trivial_move_assign.hpp>
-#include <boost/type_traits/has_nothrow_assign.hpp>
-#include <boost/type_traits/is_array.hpp>
-#include <boost/type_traits/is_reference.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/type_traits/declval.hpp>
+#include <boost/type_traits/enable_if.hpp>
+#include <boost/type_traits/has_nothrow_assign.hpp>
+#include <boost/type_traits/has_trivial_move_assign.hpp>
+#include <boost/type_traits/is_array.hpp>
+#include <boost/type_traits/is_complete.hpp>
+#include <boost/type_traits/is_reference.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 #ifdef BOOST_IS_NOTHROW_MOVE_ASSIGN
 
 template <class T>
-struct is_nothrow_move_assignable : public integral_constant<bool, BOOST_IS_NOTHROW_MOVE_ASSIGN(T)>{};
+struct is_nothrow_move_assignable : public integral_constant<bool, BOOST_IS_NOTHROW_MOVE_ASSIGN(T)>
+{
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<T>::value, "Arguments to is_nothrow_move_assignable must be complete types");
+};
 template <class T> struct is_nothrow_move_assignable<T const> : public false_type{};
 template <class T> struct is_nothrow_move_assignable<T volatile> : public false_type{};
 template <class T> struct is_nothrow_move_assignable<T const volatile> : public false_type{};
@@ -33,7 +38,7 @@ template <class T> struct is_nothrow_move_assignable<T&> : public false_type{};
 template <class T> struct is_nothrow_move_assignable<T&&> : public false_type{};
 #endif
 
-#elif !defined(BOOST_NO_CXX11_NOEXCEPT) && !defined(BOOST_NO_SFINAE_EXPR)
+#elif !defined(BOOST_NO_CXX11_NOEXCEPT) && !defined(BOOST_NO_SFINAE_EXPR) && !BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40700)
 
 namespace detail{
 
@@ -43,14 +48,17 @@ struct false_or_cpp11_noexcept_move_assignable: public ::mars_boost::false_type 
 template <class T>
 struct false_or_cpp11_noexcept_move_assignable <
         T,
-        typename ::mars_boost::enable_if_c<sizeof(T) && BOOST_NOEXCEPT_EXPR(::mars_boost::declval<T&>() = ::mars_boost::declval<T>())>::type
+        typename ::mars_boost::enable_if_<sizeof(T) && BOOST_NOEXCEPT_EXPR(::mars_boost::declval<T&>() = ::mars_boost::declval<T>())>::type
     > : public ::mars_boost::integral_constant<bool, BOOST_NOEXCEPT_EXPR(::mars_boost::declval<T&>() = ::mars_boost::declval<T>())>
 {};
 
 }
 
 template <class T>
-struct is_nothrow_move_assignable : public integral_constant<bool, ::mars_boost::detail::false_or_cpp11_noexcept_move_assignable<T>::value>{};
+struct is_nothrow_move_assignable : public integral_constant<bool, ::mars_boost::detail::false_or_cpp11_noexcept_move_assignable<T>::value>
+{
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<T>::value, "Arguments to is_nothrow_move_assignable must be complete types");
+};
 
 template <class T> struct is_nothrow_move_assignable<T const> : public ::mars_boost::false_type {};
 template <class T> struct is_nothrow_move_assignable<T const volatile> : public ::mars_boost::false_type{};
@@ -64,7 +72,10 @@ template <class T> struct is_nothrow_move_assignable<T&&> : public ::mars_boost:
 
 template <class T>
 struct is_nothrow_move_assignable : public integral_constant<bool,
-   (::mars_boost::has_trivial_move_assign<T>::value || ::mars_boost::has_nothrow_assign<T>::value) &&  ! ::mars_boost::is_array<T>::value>{};
+   (::mars_boost::has_trivial_move_assign<T>::value || ::mars_boost::has_nothrow_assign<T>::value) &&  ! ::mars_boost::is_array<T>::value>
+{
+   BOOST_STATIC_ASSERT_MSG(mars_boost::is_complete<T>::value, "Arguments to is_nothrow_move_assignable must be complete types");
+};
 
 #endif
 

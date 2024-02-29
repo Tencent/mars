@@ -3,48 +3,42 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 // (C) Copyright 2007 Anthony Williams
 // (C) Copyright 2007 David Deakins
-// (C) Copyright 2011-2013 Vicente J. Botet Escriba
+// (C) Copyright 2011-2018 Vicente J. Botet Escriba
 
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x400
-#endif
-
-#ifndef WINVER
-#define WINVER 0x400
-#endif
 //#define BOOST_THREAD_VERSION 3
 
-#include <boost/thread/thread_only.hpp>
-#include <boost/thread/once.hpp>
-#include <boost/thread/tss.hpp>
+#include <boost/assert.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/detail/tss_hooks.hpp>
 #include <boost/thread/future.hpp>
-#include <boost/assert.hpp>
-#include <boost/cstdint.hpp>
+#include <boost/thread/once.hpp>
+#include <boost/thread/thread_only.hpp>
+#include <boost/thread/tss.hpp>
+#include <boost/winapi/config.hpp>
 #if defined BOOST_THREAD_USES_DATETIME
 #include <boost/date_time/posix_time/conversion.hpp>
 #include <boost/thread/thread_time.hpp>
 #endif
+#include <algorithm>
 #include <boost/thread/csbl/memory/unique_ptr.hpp>
 #include <memory>
-#include <algorithm>
 #ifndef UNDER_CE
 #include <process.h>
 #endif
+#include <boost/predef/platform.h>
 #include <stdio.h>
 #include <windows.h>
-#include <boost/predef/platform.h>
 
 #if BOOST_PLAT_WINDOWS_RUNTIME
-#include <mutex>
-#include <atomic>
 #include <Activation.h>
+#include <atomic>
+#include <mutex>
+#include <windows.system.threading.h>
 #include <wrl\client.h>
 #include <wrl\event.h>
-#include <wrl\wrappers\corewrappers.h>
 #include <wrl\ftm.h>
-#include <windows.system.threading.h>
+#include <wrl\wrappers\corewrappers.h>
 #pragma comment(lib, "runtimeobject.lib")
 #endif
 
@@ -60,13 +54,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             i->second->unlock();
             i->first->notify_all();
         }
+//#ifndef BOOST_NO_EXCEPTIONS
         for (async_states_t::iterator i = async_states_.begin(), e = async_states_.end();
                 i != e; ++i)
         {
-#ifndef BOOST_NO_EXCEPTIONS
-            (*i)->make_ready();
-#endif
+            (*i)->notify_deferred();
         }
+//#endif
     }
   }
 
@@ -89,7 +83,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
         void create_current_thread_tls_key()
         {
-            tss_cleanup_implemented(); // if anyone uses TSS, we need the cleanup linked in
+            mars_boosttss_cleanup_implemented(); // if anyone uses TSS, we need the cleanup linked in
 #if !BOOST_PLAT_WINDOWS_RUNTIME
             current_thread_tls_key=TlsAlloc();
             BOOST_ASSERT(current_thread_tls_key!=TLS_OUT_OF_INDEXES);
@@ -161,8 +155,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             DWORD ret=data->start_address_(data->arglist_);
             return ret;
         }
-
-        //typedef void* uintptr_t;
 
         inline uintptr_t _beginthreadex(void* security, unsigned stack_size, unsigned (__stdcall* start_address)(void*),
                                               void* arglist, unsigned initflag, unsigned* thrdaddr)
@@ -284,7 +276,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                             = current_thread_data->tss_data.begin();
                         if(current->second.func && (current->second.value!=0))
                         {
-                            (*current->second.func)(current->second.value);
+                            (*current->second.caller)(current->second.func,current->second.value);
                         }
                         current_thread_data->tss_data.erase(current);
                     }
@@ -307,12 +299,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             BOOST_CATCH(thread_interrupted const&)
             {
             }
-// Removed as it stops the debugger identifying the cause of the exception
-// Unhandled exceptions still cause the application to terminate
-//             BOOST_CATCH(...)
-//             {
-//                 std::terminate();
-//             }
+            // Unhandled exceptions still cause the application to terminate
             BOOST_CATCH_END
 #endif
             run_thread_exit_callbacks();
@@ -330,7 +317,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
          if (!thread_info->thread_handle.start(&thread_start_function, thread_info.get(), &thread_info->id))
          {
              intrusive_ptr_release(thread_info.get());
-//           mars_boost::throw_exception(thread_resource_error());
              return false;
          }
          return true;
@@ -339,7 +325,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         if(!new_thread)
         {
             return false;
-//            mars_boost::throw_exception(thread_resource_error());
         }
         intrusive_ptr_add_ref(thread_info.get());
         thread_info->thread_handle=(detail::win32::handle)(new_thread);
@@ -355,12 +340,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         attr;
         return start_thread_noexcept();
 #else
-      //uintptr_t const new_thread=_beginthreadex(attr.get_security(),attr.get_stack_size(),&thread_start_function,thread_info.get(),CREATE_SUSPENDED,&thread_info->id);
-      uintptr_t const new_thread=_beginthreadex(0,static_cast<unsigned int>(attr.get_stack_size()),&thread_start_function,thread_info.get(),CREATE_SUSPENDED,&thread_info->id);
+      uintptr_t const new_thread=_beginthreadex(0,static_cast<unsigned int>(attr.get_stack_size()),&thread_start_function,thread_info.get(),
+                                                CREATE_SUSPENDED | STACK_SIZE_PARAM_IS_A_RESERVATION, &thread_info->id);
       if(!new_thread)
       {
         return false;
-//          mars_boost::throw_exception(thread_resource_error());
       }
       intrusive_ptr_add_ref(thread_info.get());
       thread_info->thread_handle=(detail::win32::handle)(new_thread);
@@ -388,8 +372,10 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             ~externally_launched_thread() {
               BOOST_ASSERT(notify.empty());
               notify.clear();
+//#ifndef BOOST_NO_EXCEPTIONS
               BOOST_ASSERT(async_states_.empty());
               async_states_.clear();
+//#endif
             }
 
             void run()
@@ -457,7 +443,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         detail::thread_data_ptr local_thread_info=(get_thread_info)();
         if(local_thread_info)
         {
-            this_thread::interruptible_wait(this->native_handle(),detail::timeout::sentinel());
+            this_thread::interruptible_wait(this->native_handle(), detail::internal_platform_timepoint::getMax());
             release_handle();
             return true;
         }
@@ -467,18 +453,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         }
     }
 
-#if defined BOOST_THREAD_USES_DATETIME
-    bool thread::timed_join(mars_boost::system_time const& wait_until)
-    {
-      return do_try_join_until(mars_boost::detail::get_milliseconds_until(wait_until));
-    }
-#endif
-    bool thread::do_try_join_until_noexcept(uintmax_t milli, bool& res)
+    bool thread::do_try_join_until_noexcept(detail::internal_platform_timepoint const &timeout, bool& res)
     {
       detail::thread_data_ptr local_thread_info=(get_thread_info)();
       if(local_thread_info)
       {
-          if(!this_thread::interruptible_wait(this->native_handle(),milli))
+          if(!this_thread::interruptible_wait(this->native_handle(), timeout))
           {
             res=false;
             return true;
@@ -516,7 +496,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     bool thread::interruption_requested() const BOOST_NOEXCEPT
     {
         detail::thread_data_ptr local_thread_info=(get_thread_info)();
-        return local_thread_info.get() && (detail::win32::WaitForSingleObjectEx(local_thread_info->interruption_handle,0,0)==0);
+        return local_thread_info.get() && (winapi::WaitForSingleObjectEx(local_thread_info->interruption_handle,0,0)==0);
     }
 
 #endif
@@ -532,7 +512,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
       // a bit too strict: Windows XP with SP3 would be sufficient
 #if BOOST_PLAT_WINDOWS_RUNTIME                                    \
-    || ( defined(BOOST_USE_WINAPI_VERSION) && ( BOOST_USE_WINAPI_VERSION <= BOOST_WINAPI_VERSION_WINXP ) ) \
+    || ( BOOST_USE_WINAPI_VERSION <= BOOST_WINAPI_VERSION_WINXP ) \
     || ( ( defined(__MINGW32__) && !defined(__MINGW64__) ) && _WIN32_WINNT < 0x0600)
         return 0;
 #else
@@ -542,12 +522,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         GetLogicalProcessorInformation(NULL, &size);
         if (ERROR_INSUFFICIENT_BUFFER != GetLastError())
             return 0;
+        const size_t Elements = size / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
 
-        std::vector<SYSTEM_LOGICAL_PROCESSOR_INFORMATION> buffer(size);
+        std::vector<SYSTEM_LOGICAL_PROCESSOR_INFORMATION> buffer(Elements);
         if (GetLogicalProcessorInformation(&buffer.front(), &size) == FALSE)
             return 0;
 
-        const size_t Elements = size / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
 
         for (size_t i = 0; i < Elements; ++i) {
             if (buffer[i].Relationship == RelationProcessorCore)
@@ -579,62 +559,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
     namespace this_thread
     {
-        namespace
-        {
-            LARGE_INTEGER get_due_time(detail::timeout const&  target_time)
-            {
-                LARGE_INTEGER due_time={{0,0}};
-                if(target_time.relative)
-                {
-                    detail::win32::ticks_type const elapsed_milliseconds=detail::win32::GetTickCount64_()()-target_time.start;
-                    LONGLONG const remaining_milliseconds=(target_time.milliseconds-elapsed_milliseconds);
-                    LONGLONG const hundred_nanoseconds_in_one_millisecond=10000;
-
-                    if(remaining_milliseconds>0)
-                    {
-                        due_time.QuadPart=-(remaining_milliseconds*hundred_nanoseconds_in_one_millisecond);
-                    }
-                }
-                else
-                {
-                    SYSTEMTIME target_system_time={0,0,0,0,0,0,0,0};
-                    target_system_time.wYear=target_time.abs_time.date().year();
-                    target_system_time.wMonth=target_time.abs_time.date().month();
-                    target_system_time.wDay=target_time.abs_time.date().day();
-                    target_system_time.wHour=(WORD)target_time.abs_time.time_of_day().hours();
-                    target_system_time.wMinute=(WORD)target_time.abs_time.time_of_day().minutes();
-                    target_system_time.wSecond=(WORD)target_time.abs_time.time_of_day().seconds();
-
-                    if(!SystemTimeToFileTime(&target_system_time,((FILETIME*)&due_time)))
-                    {
-                        due_time.QuadPart=0;
-                    }
-                    else
-                    {
-                        long const hundred_nanoseconds_in_one_second=10000000;
-                        posix_time::time_duration::tick_type const ticks_per_second=
-                            target_time.abs_time.time_of_day().ticks_per_second();
-                        if(ticks_per_second>hundred_nanoseconds_in_one_second)
-                        {
-                            posix_time::time_duration::tick_type const
-                                ticks_per_hundred_nanoseconds=
-                                ticks_per_second/hundred_nanoseconds_in_one_second;
-                            due_time.QuadPart+=
-                                target_time.abs_time.time_of_day().fractional_seconds()/
-                                ticks_per_hundred_nanoseconds;
-                        }
-                        else
-                        {
-                            due_time.QuadPart+=
-                                target_time.abs_time.time_of_day().fractional_seconds()*
-                                (hundred_nanoseconds_in_one_second/ticks_per_second);
-                        }
-                    }
-                }
-                return due_time;
-            }
-        }
-
 #ifndef UNDER_CE
 #if !BOOST_PLAT_WINDOWS_RUNTIME
         namespace detail_
@@ -652,7 +576,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     } Detailed;
                 } Reason;
             } REASON_CONTEXT, *PREASON_CONTEXT;
-            //static REASON_CONTEXT default_reason_context={0/*POWER_REQUEST_CONTEXT_VERSION*/, 0x00000001/*POWER_REQUEST_CONTEXT_SIMPLE_STRING*/, (LPWSTR)L"generic"};
             typedef BOOL (WINAPI *setwaitabletimerex_t)(HANDLE, const LARGE_INTEGER *, LONG, PTIMERAPCROUTINE, LPVOID, PREASON_CONTEXT, ULONG);
             static inline BOOL WINAPI SetWaitableTimerEx_emulation(HANDLE hTimer, const LARGE_INTEGER *lpDueTime, LONG lPeriod, PTIMERAPCROUTINE pfnCompletionRoutine, LPVOID lpArgToCompletionRoutine, PREASON_CONTEXT WakeContext, ULONG TolerableDelay)
             {
@@ -686,7 +609,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         }
 #endif
 #endif
-        bool interruptible_wait(detail::win32::handle handle_to_wait_for,detail::timeout target_time)
+        bool interruptible_wait(detail::win32::handle handle_to_wait_for, detail::internal_platform_timepoint const &timeout)
         {
             detail::win32::handle handles[4]={0};
             unsigned handle_count=0;
@@ -712,17 +635,26 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #ifndef UNDER_CE
 #if !BOOST_PLAT_WINDOWS_RUNTIME
             // Preferentially use coalescing timers for better power consumption and timer accuracy
-            if(!target_time.is_sentinel())
+            if(timeout != detail::internal_platform_timepoint::getMax())
             {
-                detail::timeout::remaining_time const time_left=target_time.remaining_milliseconds();
+                mars_boost::intmax_t const time_left_msec = (timeout - detail::internal_platform_clock::now()).getMs();
                 timer_handle=CreateWaitableTimer(NULL,false,NULL);
                 if(timer_handle!=0)
                 {
-                    ULONG tolerable=32; // Empirical testing shows Windows ignores this when <= 26
-                    if(time_left.milliseconds/20>tolerable)  // 5%
-                        tolerable=time_left.milliseconds/20;
-                    LARGE_INTEGER due_time=get_due_time(target_time);
-                    //bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,&detail_::default_reason_context,tolerable)!=0;
+                    ULONG const min_tolerable=32; // Empirical testing shows Windows ignores this when <= 26
+                    ULONG const max_tolerable=1000;
+                    ULONG tolerable=min_tolerable;
+                    if(time_left_msec/20>tolerable)  // 5%
+                    {
+                        tolerable=static_cast<ULONG>(time_left_msec/20);
+                        if(tolerable>max_tolerable)
+                            tolerable=max_tolerable;
+                    }
+                    LARGE_INTEGER due_time={{0,0}};
+                    if(time_left_msec>0)
+                    {
+                        due_time.QuadPart=-(time_left_msec*10000); // negative indicates relative time
+                    }
                     bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,NULL,tolerable)!=0;
                     if(set_time_succeeded)
                     {
@@ -735,18 +667,21 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #endif
 
             bool const using_timer=timeout_index!=~0u;
-            detail::timeout::remaining_time time_left(0);
+            mars_boost::intmax_t time_left_msec(INFINITE);
+            if(!using_timer && timeout != detail::internal_platform_timepoint::getMax())
+            {
+                time_left_msec = (timeout - detail::internal_platform_clock::now()).getMs();
+                if(time_left_msec < 0)
+                {
+                    time_left_msec = 0;
+                }
+            }
 
             do
             {
-                if(!using_timer)
-                {
-                    time_left=target_time.remaining_milliseconds();
-                }
-
                 if(handle_count)
                 {
-                    unsigned long const notified_index=detail::win32::WaitForMultipleObjectsEx(handle_count,handles,false,using_timer?INFINITE:time_left.milliseconds, 0);
+                    unsigned long const notified_index=winapi::WaitForMultipleObjectsEx(handle_count,handles,false,static_cast<DWORD>(time_left_msec), 0);
                     if(notified_index<handle_count)
                     {
                         if(notified_index==wait_handle_index)
@@ -756,7 +691,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #if defined BOOST_THREAD_PROVIDES_INTERRUPTIONS
                         else if(notified_index==interruption_index)
                         {
-                            detail::win32::ResetEvent(detail::get_current_thread_data()->interruption_handle);
+                            winapi::ResetEvent(detail::get_current_thread_data()->interruption_handle);
                             throw thread_interrupted();
                         }
 #endif
@@ -768,20 +703,21 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 }
                 else
                 {
-                    detail::win32::sleep(time_left.milliseconds);
+                    detail::win32::sleep(static_cast<unsigned long>(time_left_msec));
                 }
-                if(target_time.relative)
+
+                if(!using_timer && timeout != detail::internal_platform_timepoint::getMax())
                 {
-                    target_time.milliseconds-=detail::timeout::max_non_infinite_wait;
+                    time_left_msec = (timeout - detail::internal_platform_clock::now()).getMs();
                 }
             }
-            while(time_left.more);
+            while(time_left_msec == INFINITE || time_left_msec > 0);
             return false;
         }
 
         namespace no_interruption_point
         {
-        bool non_interruptible_wait(detail::win32::handle handle_to_wait_for,detail::timeout target_time)
+        bool non_interruptible_wait(detail::win32::handle handle_to_wait_for, detail::internal_platform_timepoint const &timeout)
         {
             detail::win32::handle handles[3]={0};
             unsigned handle_count=0;
@@ -797,17 +733,26 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #ifndef UNDER_CE
 #if !BOOST_PLAT_WINDOWS_RUNTIME
             // Preferentially use coalescing timers for better power consumption and timer accuracy
-            if(!target_time.is_sentinel())
+            if(timeout != detail::internal_platform_timepoint::getMax())
             {
-                detail::timeout::remaining_time const time_left=target_time.remaining_milliseconds();
+                mars_boost::intmax_t const time_left_msec = (timeout - detail::internal_platform_clock::now()).getMs();
                 timer_handle=CreateWaitableTimer(NULL,false,NULL);
                 if(timer_handle!=0)
                 {
-                    ULONG tolerable=32; // Empirical testing shows Windows ignores this when <= 26
-                    if(time_left.milliseconds/20>tolerable)  // 5%
-                        tolerable=time_left.milliseconds/20;
-                    LARGE_INTEGER due_time=get_due_time(target_time);
-                    //bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,&detail_::default_reason_context,tolerable)!=0;
+                    ULONG const min_tolerable=32; // Empirical testing shows Windows ignores this when <= 26
+                    ULONG const max_tolerable=1000;
+                    ULONG tolerable=min_tolerable;
+                    if(time_left_msec/20>tolerable)  // 5%
+                    {
+                        tolerable=static_cast<ULONG>(time_left_msec/20);
+                        if(tolerable>max_tolerable)
+                            tolerable=max_tolerable;
+                    }
+                    LARGE_INTEGER due_time={{0,0}};
+                    if(time_left_msec>0)
+                    {
+                        due_time.QuadPart=-(time_left_msec*10000); // negative indicates relative time
+                    }
                     bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,NULL,tolerable)!=0;
                     if(set_time_succeeded)
                     {
@@ -820,18 +765,21 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #endif
 
             bool const using_timer=timeout_index!=~0u;
-            detail::timeout::remaining_time time_left(0);
+            mars_boost::intmax_t time_left_msec(INFINITE);
+            if(!using_timer && timeout != detail::internal_platform_timepoint::getMax())
+            {
+                time_left_msec = (timeout - detail::internal_platform_clock::now()).getMs();
+                if(time_left_msec < 0)
+                {
+                    time_left_msec = 0;
+                }
+            }
 
             do
             {
-                if(!using_timer)
-                {
-                    time_left=target_time.remaining_milliseconds();
-                }
-
                 if(handle_count)
                 {
-                    unsigned long const notified_index=detail::win32::WaitForMultipleObjectsEx(handle_count,handles,false,using_timer?INFINITE:time_left.milliseconds, 0);
+                    unsigned long const notified_index=winapi::WaitForMultipleObjectsEx(handle_count,handles,false,static_cast<DWORD>(time_left_msec), 0);
                     if(notified_index<handle_count)
                     {
                         if(notified_index==wait_handle_index)
@@ -846,14 +794,15 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 }
                 else
                 {
-                    detail::win32::sleep(time_left.milliseconds);
+                    detail::win32::sleep(static_cast<unsigned long>(time_left_msec));
                 }
-                if(target_time.relative)
+
+                if(!using_timer && timeout != detail::internal_platform_timepoint::getMax())
                 {
-                    target_time.milliseconds-=detail::timeout::max_non_infinite_wait;
+                    time_left_msec = (timeout - detail::internal_platform_clock::now()).getMs();
                 }
             }
-            while(time_left.more);
+            while(time_left_msec == INFINITE || time_left_msec > 0);
             return false;
         }
         }
@@ -868,7 +817,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 return current_thread_data->id;
             }
 #endif
-            return detail::win32::GetCurrentThreadId();
+            return winapi::GetCurrentThreadId();
 #else
             return thread::id(get_or_make_current_thread_data());
 #endif
@@ -879,7 +828,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         {
             if(interruption_enabled() && interruption_requested())
             {
-                detail::win32::ResetEvent(detail::get_current_thread_data()->interruption_handle);
+                winapi::ResetEvent(detail::get_current_thread_data()->interruption_handle);
                 throw thread_interrupted();
             }
         }
@@ -891,7 +840,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
         bool interruption_requested() BOOST_NOEXCEPT
         {
-            return detail::get_current_thread_data() && (detail::win32::WaitForSingleObjectEx(detail::get_current_thread_data()->interruption_handle,0,0)==0);
+            return detail::get_current_thread_data() && (winapi::WaitForSingleObjectEx(detail::get_current_thread_data()->interruption_handle,0,0)==0);
         }
 #endif
 
@@ -972,11 +921,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         }
 
         void add_new_tss_node(void const* key,
-                              mars_boost::shared_ptr<tss_cleanup_function> func,
+                              detail::tss_data_node::cleanup_caller_t caller,
+                              detail::tss_data_node::cleanup_func_t func,
                               void* tss_data)
         {
             detail::thread_data_base* const current_thread_data(get_or_make_current_thread_data());
-            current_thread_data->tss_data.insert(std::make_pair(key,tss_data_node(func,tss_data)));
+            current_thread_data->tss_data.insert(std::make_pair(key,tss_data_node(caller,func,tss_data)));
         }
 
         void erase_tss_node(void const* key)
@@ -986,17 +936,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         }
 
         void set_tss_data(void const* key,
-                          mars_boost::shared_ptr<tss_cleanup_function> func,
+                          detail::tss_data_node::cleanup_caller_t caller,
+                          detail::tss_data_node::cleanup_func_t func,
                           void* tss_data,bool cleanup_existing)
         {
             if(tss_data_node* const current_node=find_tss_data(key))
             {
                 if(cleanup_existing && current_node->func && (current_node->value!=0))
                 {
-                    (*current_node->func)(current_node->value);
+                    (*current_node->caller)(current_node->func,current_node->value);
                 }
                 if(func || (tss_data!=0))
                 {
+                    current_node->caller=caller;
                     current_node->func=func;
                     current_node->value=tss_data;
                 }
@@ -1007,23 +959,23 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             }
             else if(func || (tss_data!=0))
             {
-                add_new_tss_node(key,func,tss_data);
+                add_new_tss_node(key,caller,func,tss_data);
             }
         }
     }
 
-    BOOST_THREAD_DECL void __cdecl on_process_enter()
+    BOOST_THREAD_DECL void __cdecl mars_booston_process_enter()
     {}
 
-    BOOST_THREAD_DECL void __cdecl on_thread_enter()
+    BOOST_THREAD_DECL void __cdecl mars_booston_thread_enter()
     {}
 
-    BOOST_THREAD_DECL void __cdecl on_process_exit()
+    BOOST_THREAD_DECL void __cdecl mars_booston_process_exit()
     {
         mars_boost::cleanup_tls_key();
     }
 
-    BOOST_THREAD_DECL void __cdecl on_thread_exit()
+    BOOST_THREAD_DECL void __cdecl mars_booston_thread_exit()
     {
         mars_boost::run_thread_exit_callbacks();
     }
@@ -1036,16 +988,5 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         current_thread_data->notify_all_at_thread_exit(&cond, lk.release());
       }
     }
-//namespace detail {
-//
-//    void BOOST_THREAD_DECL make_ready_at_thread_exit(shared_ptr<shared_state_base> as)
-//    {
-//      detail::thread_data_base* const current_thread_data(detail::get_current_thread_data());
-//      if(current_thread_data)
-//      {
-//        current_thread_data->make_ready_at_thread_exit(as);
-//      }
-//    }
-//}
 }
 

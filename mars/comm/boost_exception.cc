@@ -19,13 +19,16 @@
 
 #include <exception>
 
+#include "boost/assert/source_location.hpp"
 #include "comm/xlogger/xlogger.h"
 
-namespace mars_boost {}
-namespace boost = mars_boost;
 namespace mars_boost {
 
 void throw_exception(std::exception const& e) {
     xfatal2(TSF "boost exception:%_", e.what());
+}
+
+void throw_exception(std::exception const& e, mars_boost::source_location const& loc) {
+    xfatal2(TSF "boost exception:%_ from:%_", e.what(), loc.to_string());
 }
 }  // namespace mars_boost

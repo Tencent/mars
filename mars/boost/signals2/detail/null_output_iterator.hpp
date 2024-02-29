@@ -11,7 +11,7 @@
 #ifndef BOOST_SIGNALS2_NULL_OUTPUT_ITERATOR_HPP
 #define BOOST_SIGNALS2_NULL_OUTPUT_ITERATOR_HPP
 
-#include <boost/function_output_iterator.hpp>
+#include <boost/iterator/function_output_iterator.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {

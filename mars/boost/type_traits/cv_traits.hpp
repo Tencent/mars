@@ -13,12 +13,12 @@
 #define BOOST_TT_CV_TRAITS_HPP_INCLUDED
 
 #include <boost/type_traits/add_const.hpp>
-#include <boost/type_traits/add_volatile.hpp>
 #include <boost/type_traits/add_cv.hpp>
+#include <boost/type_traits/add_volatile.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/is_volatile.hpp>
 #include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/remove_volatile.hpp>
 #include <boost/type_traits/remove_cv.hpp>
+#include <boost/type_traits/remove_volatile.hpp>
 
 #endif // BOOST_TT_CV_TRAITS_HPP_INCLUDED

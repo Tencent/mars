@@ -9,11 +9,11 @@
 #ifndef BOOST_TT_IS_SCALAR_HPP_INCLUDED
 #define BOOST_TT_IS_SCALAR_HPP_INCLUDED
 
+#include <boost/config.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <boost/type_traits/is_enum.hpp>
-#include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/is_member_pointer.hpp>
-#include <boost/config.hpp>
+#include <boost/type_traits/is_pointer.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 

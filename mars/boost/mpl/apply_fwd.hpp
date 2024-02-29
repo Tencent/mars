@@ -32,15 +32,15 @@
 
 #else
 
-#   include <boost/mpl/limits/arity.hpp>
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/params.hpp>
+#   include <boost/mpl/limits/arity.hpp>
 
+#   include <boost/preprocessor/cat.hpp>
 #   include <boost/preprocessor/comma_if.hpp>
 #   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/cat.hpp>
 
 // agurt, 15/jan/02: top-level 'apply' template gives an ICE on MSVC
 // (for known reasons)

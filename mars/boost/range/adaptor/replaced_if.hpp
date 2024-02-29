@@ -12,15 +12,15 @@
 #define BOOST_RANGE_ADAPTOR_REPLACED_IF_IMPL_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <boost/range/adaptor/argument_fwd.hpp>
-#include <boost/range/iterator_range.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/value_type.hpp>
-#include <boost/range/concepts.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/optional/optional.hpp>
+#include <boost/range/adaptor/argument_fwd.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/concepts.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/range/value_type.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -103,13 +103,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             T m_to;
         };
 
-        template< class Pred, class SinglePassRange >
+        template< class Pred, class SinglePassRange, class Value >
         inline replaced_if_range<Pred, SinglePassRange>
-        operator|(
-            SinglePassRange& r,
-            const replace_if_holder<
-                Pred,
-                BOOST_DEDUCED_TYPENAME range_value<SinglePassRange>::type>& f)
+        operator|(SinglePassRange& r, const replace_if_holder<Pred, Value>& f)
         {
             BOOST_RANGE_CONCEPT_ASSERT((
                 SinglePassRangeConcept<SinglePassRange>));
@@ -118,13 +114,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 r, f.pred(), f.to());
         }
 
-        template< class Pred, class SinglePassRange >
+        template< class Pred, class SinglePassRange, class Value >
         inline replaced_if_range<Pred, const SinglePassRange>
-        operator|(
-            const SinglePassRange& r,
-            const replace_if_holder<
-                Pred,
-                BOOST_DEDUCED_TYPENAME range_value<SinglePassRange>::type>& f)
+        operator|(const SinglePassRange& r, const replace_if_holder<Pred, Value>& f)
         {
             BOOST_RANGE_CONCEPT_ASSERT((
                 SinglePassRangeConcept<const SinglePassRange>));
@@ -145,10 +137,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     range_detail::forwarder2TU<range_detail::replace_if_holder>();
         }
 
-        template<class Pred, class SinglePassRange>
+        template< class Pred, class SinglePassRange, class Value >
         inline replaced_if_range<Pred, SinglePassRange>
-        replace_if(SinglePassRange& rng, Pred pred,
-                   BOOST_DEDUCED_TYPENAME range_value<SinglePassRange>::type to)
+        replace_if(SinglePassRange& rng, Pred pred, Value to)
         {
             BOOST_RANGE_CONCEPT_ASSERT((
                 SinglePassRangeConcept<SinglePassRange>));
@@ -157,12 +148,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 rng, pred, to);
         }
 
-        template<class Pred, class SinglePassRange>
+        template< class Pred, class SinglePassRange, class Value >
         inline replaced_if_range<Pred, const SinglePassRange>
-        replace_if(
-            const SinglePassRange& rng,
-            Pred pred,
-            BOOST_DEDUCED_TYPENAME range_value<const SinglePassRange>::type to)
+        replace_if(const SinglePassRange& rng, Pred pred, Value to)
         {
             BOOST_RANGE_CONCEPT_ASSERT((
                 SinglePassRangeConcept<const SinglePassRange>));

@@ -1,5 +1,5 @@
 //
-// Copyright (c) Antony Polukhin, 2012-2014.
+// Copyright 2012-2023 Antony Polukhin.
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -23,25 +23,25 @@
 #if defined(BOOST_TYPE_INDEX_USER_TYPEINDEX)
 #   include BOOST_TYPE_INDEX_USER_TYPEINDEX
 #   ifdef BOOST_HAS_PRAGMA_DETECT_MISMATCH
-#       pragma detect_mismatch( "mars_boost__type_index__abi", "user defined type_index class is used: " BOOST_STRINGIZE(BOOST_TYPE_INDEX_USER_TYPEINDEX))
+#       pragma detect_mismatch( "boost__type_index__abi", "user defined type_index class is used: " BOOST_STRINGIZE(BOOST_TYPE_INDEX_USER_TYPEINDEX))
 #   endif
 #elif (!defined(BOOST_NO_RTTI) && !defined(BOOST_TYPE_INDEX_FORCE_NO_RTTI_COMPATIBILITY)) || defined(BOOST_MSVC)
 #   include <boost/type_index/stl_type_index.hpp>
 #   if defined(BOOST_NO_RTTI) || defined(BOOST_TYPE_INDEX_FORCE_NO_RTTI_COMPATIBILITY)
 #       include <boost/type_index/detail/stl_register_class.hpp>
 #       ifdef BOOST_HAS_PRAGMA_DETECT_MISMATCH
-#           pragma detect_mismatch( "mars_boost__type_index__abi", "RTTI is off - typeid() is used only for templates")
+#           pragma detect_mismatch( "boost__type_index__abi", "RTTI is off - typeid() is used only for templates")
 #       endif
 #   else
 #       ifdef BOOST_HAS_PRAGMA_DETECT_MISMATCH
-#           pragma detect_mismatch( "mars_boost__type_index__abi", "RTTI is used")
+#           pragma detect_mismatch( "boost__type_index__abi", "RTTI is used")
 #       endif
 #   endif
 #else
 #   include <boost/type_index/ctti_type_index.hpp>
 #   include <boost/type_index/detail/ctti_register_class.hpp>
 #   ifdef BOOST_HAS_PRAGMA_DETECT_MISMATCH
-#       pragma detect_mismatch( "mars_boost__type_index__abi", "RTTI is off - using CTTI")
+#       pragma detect_mismatch( "boost__type_index__abi", "RTTI is off - using CTTI")
 #   endif
 #endif
 
@@ -208,7 +208,7 @@ typedef type_index::type_info_t type_info;
 /// \throw Nothing.
 /// \return mars_boost::typeindex::type_index with information about the specified type T.
 template <class T>
-inline type_index type_id() BOOST_NOEXCEPT {
+inline type_index type_id() noexcept {
     return type_index::type_id<T>();
 }
 
@@ -228,13 +228,13 @@ inline type_index type_id() BOOST_NOEXCEPT {
 /// \throw Nothing.
 /// \return mars_boost::typeindex::type_index with information about the specified type T.
 template <class T>
-inline type_index type_id_with_cvr() BOOST_NOEXCEPT {
+inline type_index type_id_with_cvr() noexcept {
     return type_index::type_id_with_cvr<T>();
 }
 
 /// Function that works exactly like C++ typeid(rtti_val) call, but returns mars_boost::type_index.
 ///
-/// Retunrs runtime information about specified type.
+/// Returns runtime information about specified type.
 ///
 /// \b Requirements: RTTI available or Base and Derived classes must be marked with BOOST_TYPE_INDEX_REGISTER_CLASS.
 ///
@@ -249,11 +249,11 @@ inline type_index type_id_with_cvr() BOOST_NOEXCEPT {
 /// std::cout << ti.pretty_name();  // Outputs 'Derived'
 /// \endcode
 ///
-/// \param runtime_val Varaible which runtime type must be returned.
+/// \param runtime_val Variable which runtime type must be returned.
 /// \throw Nothing.
 /// \return mars_boost::typeindex::type_index with information about the specified variable.
 template <class T>
-inline type_index type_id_runtime(const T& runtime_val) BOOST_NOEXCEPT {
+inline type_index type_id_runtime(const T& runtime_val) noexcept {
     return type_index::type_id_runtime(runtime_val);
 }
 

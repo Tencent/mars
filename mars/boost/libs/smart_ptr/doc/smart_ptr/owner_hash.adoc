@@ -1,0 +1,56 @@
+////
+Copyright 2020 Peter Dimov
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#owner_hash]
+# owner_hash
+:toc:
+:toc-title:
+:idprefix: owner_hash_to_
+
+## Description
+
+`owner_hash<T>` is a helper function object that takes a smart pointer `p`
+and returns `p.owner_hash_value()`. It's useful for creating unordered
+containers of `shared_ptr` that use ownership-based equality, instead of
+the default pointer value equality. (It can be used with `weak_ptr` too,
+but there's no need, because `boost::hash` and `std::hash` for `weak_ptr`
+already use ownership-based equality.)
+
+## Example
+
+```
+std::unordered_set< boost::shared_ptr<void>,
+  boost::owner_hash< boost::shared_ptr<void> >,
+  boost::owner_equal_to< boost::shared_ptr<void> > > set;
+```
+
+## Synopsis
+
+`owner_hash` is defined in `<boost/smart_ptr/owner_hash.hpp>`.
+
+```
+namespace boost {
+
+  template<class T> struct owner_hash
+  {
+    typedef std::size_t result_type;
+    typedef T argument_type;
+
+    std::size_t operator()( T const & p ) const noexcept;
+  };
+}
+```
+
+## Members
+
+```
+std::size_t operator()( T const & p ) const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  `p.owner_hash_value()`.

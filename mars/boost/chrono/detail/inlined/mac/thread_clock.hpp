@@ -11,12 +11,13 @@
 
 //--------------------------------------------------------------------------------------//
 
+#include <boost/assert.hpp>
 #include <boost/chrono/config.hpp>
 #include <boost/chrono/thread_clock.hpp>
 #include <cassert>
 
-# include <pthread.h>
 # include <mach/thread_act.h>
+# include <pthread.h>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace chrono {
 
@@ -57,21 +58,21 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
         mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
         if ( thread_info(port, THREAD_BASIC_INFO, (thread_info_t)&info, &count) != KERN_SUCCESS )
         {
-            if (BOOST_CHRONO_IS_THROWS(ec))
+            if (::mars_boost::chrono::is_throws(ec))
             {
                 mars_boost::throw_exception(
                         system::system_error(
                                 EINVAL,
-                                BOOST_CHRONO_SYSTEM_CATEGORY,
+                                ::mars_boost::system::system_category(),
                                 "chrono::thread_clock" ));
             }
             else
             {
-                ec.assign( errno, BOOST_CHRONO_SYSTEM_CATEGORY );
+                ec.assign( errno, ::mars_boost::system::system_category() );
                 return time_point();
             }
         }
-        if (!BOOST_CHRONO_IS_THROWS(ec))
+        if (!::mars_boost::chrono::is_throws(ec))
         {
             ec.clear();
         }

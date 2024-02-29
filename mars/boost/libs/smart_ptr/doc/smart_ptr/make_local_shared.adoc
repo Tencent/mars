@@ -1,0 +1,81 @@
+////
+Copyright 2017 Glen Joseph Fernandes (glenjofe@gmail.com)
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#make_local_shared]
+# make_local_shared: Creating local_shared_ptr
+:toc:
+:toc-title:
+:idprefix: make_local_shared_
+
+## Description
+
+The function templates `make_local_shared` and `allocate_local_shared` provide
+convenient, safe and efficient ways to create `local_shared_ptr` objects. They
+are analogous to `make_shared` and `allocate_shared` for `shared_ptr`.
+
+## Synopsis
+
+`make_local_shared` and `allocate_local_shared` are defined in
+`<boost/smart_ptr/make_local_shared.hpp>`.
+
+[subs=+quotes]
+```
+namespace boost {
+  `// T is not an array`
+  template<class T, class... Args>
+    local_shared_ptr<T> make_local_shared(Args&&... args);
+  template<class T, class A, class... Args>
+    local_shared_ptr<T> allocate_local_shared(const A& a, Args&&... args);
+
+  `// T is an array of unknown bounds`
+  template<class T>
+    local_shared_ptr<T> make_local_shared(std::size_t n);
+  template<class T, class A>
+    local_shared_ptr<T> allocate_local_shared(const A& a, std::size_t n);
+
+  `// T is an array of known bounds`
+  template<class T>
+    local_shared_ptr<T> make_local_shared();
+  template<class T, class A>
+    local_shared_ptr<T> allocate_local_shared(const A& a);
+
+  `// T is an array of unknown bounds`
+  template<class T>
+    local_shared_ptr<T> make_local_shared(std::size_t n,
+      const remove_extent_t<T>& v);
+  template<class T, class A>
+    local_shared_ptr<T> allocate_local_shared(const A& a, std::size_t n,
+      const remove_extent_t<T>& v);
+
+  `// T is an array of known bounds`
+  template<class T>
+    local_shared_ptr<T> make_local_shared(const remove_extent_t<T>& v);
+  template<class T, class A>
+    local_shared_ptr<T> allocate_local_shared(const A& a,
+      const remove_extent_t<T>& v);
+
+  `// T is not an array of known bounds`
+  template<class T>
+    local_shared_ptr<T> make_local_shared_noinit();
+  template<class T, class A>
+    local_shared_ptr<T> allocate_local_shared_noinit(const A& a);
+
+  `// T is an array of unknown bounds`
+  template<class T>
+    local_shared_ptr<T> make_local_shared_noinit(std::size_t n);
+  template<class T, class A>
+    local_shared_ptr<T> allocate_local_shared_noinit(const A& a,
+      std::size_t n);
+}
+```
+
+## Description
+
+The requirements and effects of these functions are the same as `make_shared`
+and `allocate_shared`, except that a `local_shared_ptr` is returned.

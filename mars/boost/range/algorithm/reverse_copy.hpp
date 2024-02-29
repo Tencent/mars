@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_REVERSE_COPY_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_REVERSE_COPY_HPP_INCLUDED
 
-#include <boost/concept_check.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/concepts.hpp>
-#include <boost/iterator/iterator_concepts.hpp>
 #include <algorithm>
+#include <boost/concept_check.hpp>
+#include <boost/iterator/iterator_concepts.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/concepts.hpp>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -35,6 +35,6 @@ inline OutputIterator reverse_copy(const BidirectionalRange& rng, OutputIterator
 
     } // namespace range
     using range::reverse_copy;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

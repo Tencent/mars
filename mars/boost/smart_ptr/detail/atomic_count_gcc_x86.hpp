@@ -13,6 +13,17 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include <boost/smart_ptr/detail/sp_obsolete.hpp>
+
+#if defined(BOOST_SP_REPORT_IMPLEMENTATION)
+
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("Using g++/x86 atomic_count")
+
+#endif
+
+BOOST_SP_OBSOLETE()
+
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
 
@@ -72,6 +83,6 @@ private:
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_GCC_X86_HPP_INCLUDED

@@ -7,6 +7,8 @@
 #  *                                                                          *
 #  ************************************************************************** */
 #
+# /* Revised by Edward Diener (2020) */
+#
 # /* See http://www.boost.org for most recent version. */
 #
 # ifndef BOOST_PREPROCESSOR_SEQ_FOLD_LEFT_HPP
@@ -25,6 +27,10 @@
 # if 0
 #    define BOOST_PP_SEQ_FOLD_LEFT(op, state, seq) ...
 # endif
+#
+# include <boost/preprocessor/config/config.hpp>
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # define BOOST_PP_SEQ_FOLD_LEFT BOOST_PP_CAT(BOOST_PP_SEQ_FOLD_LEFT_, BOOST_PP_AUTO_REC(BOOST_PP_SEQ_FOLD_LEFT_P, 256))
 # define BOOST_PP_SEQ_FOLD_LEFT_P(n) BOOST_PP_CAT(BOOST_PP_SEQ_FOLD_LEFT_CHECK_, BOOST_PP_SEQ_FOLD_LEFT_I_ ## n(BOOST_PP_SEQ_FOLD_LEFT_O, BOOST_PP_NIL, (nil), 1))
@@ -1065,6 +1071,52 @@
 #    define BOOST_PP_SEQ_FOLD_LEFT_I_254(op, st, ss, sz) BOOST_PP_IF(BOOST_PP_DEC(sz), BOOST_PP_SEQ_FOLD_LEFT_I_255, BOOST_PP_SEQ_FOLD_LEFT_F)(op, op##(255, st, BOOST_PP_SEQ_HEAD(ss)), BOOST_PP_SEQ_TAIL(ss), BOOST_PP_DEC(sz))
 #    define BOOST_PP_SEQ_FOLD_LEFT_I_255(op, st, ss, sz) BOOST_PP_IF(BOOST_PP_DEC(sz), BOOST_PP_SEQ_FOLD_LEFT_I_256, BOOST_PP_SEQ_FOLD_LEFT_F)(op, op##(256, st, BOOST_PP_SEQ_HEAD(ss)), BOOST_PP_SEQ_TAIL(ss), BOOST_PP_DEC(sz))
 #    define BOOST_PP_SEQ_FOLD_LEFT_I_256(op, st, ss, sz) BOOST_PP_IF(BOOST_PP_DEC(sz), BOOST_PP_SEQ_FOLD_LEFT_I_257, BOOST_PP_SEQ_FOLD_LEFT_F)(op, op##(257, st, BOOST_PP_SEQ_HEAD(ss)), BOOST_PP_SEQ_TAIL(ss), BOOST_PP_DEC(sz))
+# endif
+#
+# else
+#
+# include <boost/preprocessor/config/limits.hpp>
+#
+# if BOOST_PP_LIMIT_SEQ == 256
+# define BOOST_PP_SEQ_FOLD_LEFT BOOST_PP_CAT(BOOST_PP_SEQ_FOLD_LEFT_, BOOST_PP_DEC(BOOST_PP_AUTO_REC(BOOST_PP_SEQ_FOLD_LEFT_P, 256)))
+# elif BOOST_PP_LIMIT_SEQ == 512
+# define BOOST_PP_SEQ_FOLD_LEFT BOOST_PP_CAT(BOOST_PP_SEQ_FOLD_LEFT_, BOOST_PP_DEC(BOOST_PP_AUTO_REC(BOOST_PP_SEQ_FOLD_LEFT_P, 512)))
+# elif BOOST_PP_LIMIT_SEQ == 1024
+# define BOOST_PP_SEQ_FOLD_LEFT BOOST_PP_CAT(BOOST_PP_SEQ_FOLD_LEFT_, BOOST_PP_DEC(BOOST_PP_AUTO_REC(BOOST_PP_SEQ_FOLD_LEFT_P, 1024)))
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_SEQ limit
+# endif
+#
+# define BOOST_PP_SEQ_FOLD_LEFT_P(n) BOOST_PP_SEQ_FOLD_LEFT_P_DEC(BOOST_PP_DEC(n))
+# define BOOST_PP_SEQ_FOLD_LEFT_P_DEC(n) BOOST_PP_CAT(BOOST_PP_SEQ_FOLD_LEFT_CHECK_, BOOST_PP_CAT(BOOST_PP_SEQ_FOLD_LEFT_I_,n)(BOOST_PP_SEQ_FOLD_LEFT_O, BOOST_PP_NIL, (nil), 1))
+# define BOOST_PP_SEQ_FOLD_LEFT_O(s, st, _) st
+#
+# if BOOST_PP_LIMIT_SEQ == 256
+# define BOOST_PP_SEQ_FOLD_LEFT_257(op, st, ss) BOOST_PP_ERROR(0x0005)
+# define BOOST_PP_SEQ_FOLD_LEFT_I_257(op, st, ss, sz) BOOST_PP_ERROR(0x0005)
+# elif BOOST_PP_LIMIT_SEQ == 512
+# define BOOST_PP_SEQ_FOLD_LEFT_513(op, st, ss) BOOST_PP_ERROR(0x0005)
+# define BOOST_PP_SEQ_FOLD_LEFT_I_513(op, st, ss, sz) BOOST_PP_ERROR(0x0005)
+# elif BOOST_PP_LIMIT_SEQ == 1024
+# define BOOST_PP_SEQ_FOLD_LEFT_1025(op, st, ss) BOOST_PP_ERROR(0x0005)
+# define BOOST_PP_SEQ_FOLD_LEFT_I_1025(op, st, ss, sz) BOOST_PP_ERROR(0x0005)
+# endif
+#
+# define BOOST_PP_SEQ_FOLD_LEFT_CHECK_BOOST_PP_NIL 1
+#
+# define BOOST_PP_SEQ_FOLD_LEFT_F(op, st, ss, sz) st
+#
+# if BOOST_PP_LIMIT_SEQ == 256
+# include <boost/preprocessor/seq/limits/fold_left_256.hpp>
+# elif BOOST_PP_LIMIT_SEQ == 512
+# include <boost/preprocessor/seq/limits/fold_left_256.hpp>
+# include <boost/preprocessor/seq/limits/fold_left_512.hpp>
+# elif BOOST_PP_LIMIT_SEQ == 1024
+# include <boost/preprocessor/seq/limits/fold_left_1024.hpp>
+# include <boost/preprocessor/seq/limits/fold_left_256.hpp>
+# include <boost/preprocessor/seq/limits/fold_left_512.hpp>
+# endif
+#
 # endif
 #
 # endif

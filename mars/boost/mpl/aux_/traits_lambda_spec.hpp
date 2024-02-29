@@ -14,10 +14,10 @@
 // $Date$
 // $Revision$
 
+#include <boost/mpl/aux_/config/lambda.hpp>
+#include <boost/mpl/aux_/preprocessor/params.hpp>
 #include <boost/mpl/sequence_tag_fwd.hpp>
 #include <boost/mpl/void.hpp>
-#include <boost/mpl/aux_/preprocessor/params.hpp>
-#include <boost/mpl/aux_/config/lambda.hpp>
 
 #if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
 

@@ -1,0 +1,296 @@
+////
+Copyright 2017 Peter Dimov
+Copyright 2017 Glen Joseph Fernandes (glenjofe@gmail.com)
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#make_shared]
+# make_shared: Creating shared_ptr
+:toc:
+:toc-title:
+:idprefix: make_shared_
+
+## Description
+
+The function templates `make_shared` and `allocate_shared` provide convenient,
+safe and efficient ways to create `shared_ptr` objects.
+
+## Rationale
+
+Consistent use of `shared_ptr` can eliminate the need to use an explicit
+`delete`, but alone it provides no support in avoiding explicit `new`. There
+were repeated requests from users for a factory function that creates an
+object of a given type and returns a `shared_ptr` to it. Besides convenience
+and style, such a function is also exception safe and considerably faster
+because it can use a single allocation for both the object and its
+corresponding control block, eliminating a significant portion of
+`shared_ptr` construction overhead. This eliminates one of the major
+efficiency complaints about `shared_ptr`.
+
+The family of overloaded function templates, `make_shared` and
+`allocate_shared`, were provided to address this need. `make_shared` uses the
+global `operator new` to allocate memory, whereas `allocate_shared` uses an
+user-supplied allocator, allowing finer control.
+
+The rationale for choosing the name `make_shared` is that the expression
+`make_shared<Widget>()` can be read aloud and conveys the intended meaning.
+
+Originally the Boost function templates `allocate_shared` and `make_shared`
+were provided for scalar objects only. There was a need to have efficient
+allocation of array objects. One criticism of class template `shared_array`
+was always the lack of a utility like `make_shared` that uses only a single
+allocation. When `shared_ptr` was enhanced to support array types, additional
+overloads of `allocate_shared` and `make_shared` were provided for array
+types.
+
+## Synopsis
+
+`make_shared` and `allocate_shared` are defined in
+`<boost/smart_ptr/make_shared.hpp>`.
+
+[subs=+quotes]
+```
+namespace boost {
+  `// T is not an array`
+  template<class T, class... Args>
+    shared_ptr<T> make_shared(Args&&... args);
+  template<class T, class A, class... Args>
+    shared_ptr<T> allocate_shared(const A& a, Args&&... args);
+
+  `// T is an array of unknown bounds`
+  template<class T>
+    shared_ptr<T> make_shared(std::size_t n);
+  template<class T, class A>
+    shared_ptr<T> allocate_shared(const A& a, std::size_t n);
+
+  `// T is an array of known bounds`
+  template<class T>
+    shared_ptr<T> make_shared();
+  template<class T, class A>
+    shared_ptr<T> allocate_shared(const A& a);
+
+  `// T is an array of unknown bounds`
+  template<class T> shared_ptr<T>
+    make_shared(std::size_t n, const remove_extent_t<T>& v);
+  template<class T, class A> shared_ptr<T>
+    allocate_shared(const A& a, std::size_t n, const remove_extent_t<T>& v);
+
+  `// T is an array of known bounds`
+  template<class T>
+    shared_ptr<T> make_shared(const remove_extent_t<T>& v);
+  template<class T, class A>
+    shared_ptr<T> allocate_shared(const A& a, const remove_extent_t<T>& v);
+
+  `// T is not an array of unknown bounds`
+  template<class T>
+    shared_ptr<T> make_shared_noinit();
+  template<class T, class A>
+    shared_ptr<T> allocate_shared_noinit(const A& a);
+
+  `// T is an array of unknown bounds`
+  template<class T>
+    shared_ptr<T> make_shared_noinit(std::size_t n);
+  template<class T, class A>
+    shared_ptr<T> allocate_shared_noinit(const A& a, std::size_t n);
+}
+```
+
+## Common Requirements
+
+The common requirements that apply to all `make_shared` and `allocate_shared`
+overloads, unless specified otherwise, are described below.
+
+Requires:: `A` shall be an _allocator_. The copy constructor and destructor
+of `A` shall not throw exceptions.
+
+Effects:: Allocates memory for an object of type `T`  or `n` objects of `U`
+(if `T` is an array type of the form `U[]` and  `n` is determined by
+arguments, as specified by the concrete overload). The object is initialized
+from arguments as specified by the concrete overload. Uses a rebound copy of
+`a` (for an unspecified `value_type`) to allocate memory. If an exception is
+thrown, the functions have no effect.
+
+Returns:: A `shared_ptr` instance that stores and owns the address of the
+newly constructed object.
+
+Postconditions:: `r.get() != 0` and `r.use_count() == 1`, where `r`
+is the return value.
+
+Throws:: `std::bad_alloc`, an exception thrown from `A::allocate`, or from the
+initialization of the object.
+
+Remarks::
+* Performs no more than one memory allocation. This provides efficiency
+equivalent to an intrusive smart pointer.
+* When an object of an array type is specified to be initialized to a value of
+the same type `v`, this shall be interpreted to mean that each array element
+of the object is initialized to the corresponding element from `v`.
+* When an object of an array type is specified to be value-initialized, this
+shall be interpreted to mean that each array element of the object is
+value-initialized.
+* When a (sub)object of non-array type `U` is specified to be initialized to
+a value `v`, or constructed from `args\...`, `make_shared` shall perform
+this initialization via the expression `::new(p) U(expr)` (where
+`_expr_` is `v` or `std::forward<Args>(args)\...)` respectively) and `p`
+has type `void*` and points to storage suitable to hold an object of type
+`U`.
+* When a (sub)object of non-array type `U` is specified to be initialized to
+a value `v`, or constructed from `args\...`, `allocate_shared` shall
+perform this initialization via the expression
+`std::allocator_traits<A2>::construct(a2, p, expr)` (where
+`_expr_` is `v` or `std::forward<Args>(args)\...)` respectively), `p`
+points to storage suitable to hold an object of type `U`, and `a2` of
+type `A2` is a potentially rebound copy of `a`.
+* When a (sub)object of non-array type `U` is specified to be
+default-initialized, `make_shared_noinit` and `allocate_shared_noinit` shall
+perform this initialization via the expression `::new(p) U`, where
+`p` has type `void*` and points to storage suitable to hold an object of
+type `U`.
+* When a (sub)object of non-array type `U` is specified to be
+value-initialized, `make_shared` shall perform this initialization via the
+expression `::new(p) U()`, where `p` has type `void*` and points to
+storage suitable to hold an object of type `U`.
+* When a (sub)object of non-array type `U` is specified to be
+value-initialized, `allocate_shared` shall perform this initialization via the
+expression `std::allocator_traits<A2>::construct(a2, p)`, where
+`p` points to storage suitable to hold an object of type `U` and `a2` of
+type `A2` is a potentially rebound copy of `a`.
+* Array elements are initialized in ascending order of their addresses.
+* When the lifetime of the object managed by the return value ends, or when
+the initialization of an array element throws an exception, the initialized
+elements should be destroyed in the reverse order of their construction.
+
+NOTE: These functions will typically allocate more memory than the total size
+of the element objects to allow for internal bookkeeping structures such as
+the reference counts.
+
+## Free Functions
+
+```
+template<class T, class... Args>
+  shared_ptr<T> make_shared(Args&&... args);
+```
+```
+template<class T, class A, class... Args>
+  shared_ptr<T> allocate_shared(const A& a, Args&&... args);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array.
+Returns:: A `shared_ptr` to an object of type `T`, constructed from
+`args\...`.
+Examples::
+* `auto p = make_shared<int>();`
+* `auto p = make_shared<std::vector<int> >(16, 1);`
+
+```
+template<class T>
+  shared_ptr<T> make_shared(std::size_t n);
+```
+```
+template<class T, class A>
+  shared_ptr<T> allocate_shared(const A& a, std::size_t n);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: A `shared_ptr` to a sequence of `n` value-initialized objects of
+type `remove_extent_t<T>`.
+Examples::
+* `auto p = make_shared<double[]>(1024);`
+* `auto p = make_shared<double[][2][2]>(6);`
+
+```
+template<class T>
+  shared_ptr<T> make_shared();
+```
+```
+template<class T, class A>
+  shared_ptr<T> allocate_shared(const A& a);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of known bounds.
+Returns:: A `shared_ptr` to a sequence of `extent_v<T>` value-initialized
+objects of type `remove_extent_t<T>`.
+Examples::
+* `auto p = make_shared<double[1024]>();`
+* `auto p = make_shared<double[6][2][2]>();`
+
+```
+template<class T> shared_ptr<T>
+  make_shared(std::size_t n, const remove_extent_t<T>& v);
+```
+```
+template<class T, class A> shared_ptr<T>
+  allocate_shared(const A& a, std::size_t n, const remove_extent_t<T>& v);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: A `shared_ptr` to a sequence of `n` objects of type
+`remove_extent_t<T>`, each initialized to `v`.
+Examples::
+* `auto p = make_shared<double[]>(1024, 1.0);`
+* `auto p = make_shared<double[][2]>(6, {1.0, 0.0});`
+* `auto p = make_shared<std::vector<int>[]>(4, {1, 2});`
+
+```
+template<class T>
+  shared_ptr<T> make_shared(const remove_extent_t<T>& v);
+```
+```
+template<class T, class A>
+  shared_ptr<T> allocate_shared(const A& a, const remove_extent_t<T>& v);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of known bounds.
+Returns:: A `shared_ptr` to a sequence of `extent_v<T>` objects of type
+`remove_extent_t<T>`, each initialized to `v`.
+Examples::
+* `auto p = make_shared<double[1024]>(1.0);`
+* `auto p = make_shared<double[6][2]>({1.0, 0.0});`
+* `auto p = make_shared<std::vector<int>[4]>({1, 2});`
+
+```
+template<class T>
+  shared_ptr<T> make_shared_noinit();
+```
+```
+template<class T, class A>
+  shared_ptr<T> allocate_shared_noinit(const A& a);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array, or is an array of known bounds.
+Returns:: A `shared_ptr` to a default-initialized object of type `T`, or a
+sequence of `extent_v<T>` default-initialized objects of type
+`remove_extent_t<T>`, respectively.
+Example:: `auto p = make_shared_noinit<double[1024]>();`
+
+```
+template<class T>
+  shared_ptr<T> make_shared_noinit(std::size_t n);
+```
+```
+template<class T, class A>
+  shared_ptr<T> allocate_shared_noinit(const A& a, std::size_t n);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: A `shared_ptr` to a sequence of `_n_` default-initialized objects
+of type `remove_extent_t<T>`.
+Example:: `auto p = make_shared_noinit<double[]>(1024);`

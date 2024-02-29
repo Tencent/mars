@@ -9,68 +9,70 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_HARDWARE_SIMD_X86_H
 #define BOOST_PREDEF_HARDWARE_SIMD_X86_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/hardware/simd/x86/versions.h>
+#include <boost/predef/version_number.h>
 
-/*`
- [heading `BOOST_HW_SIMD_X86`]
+/* tag::reference[]
+= `BOOST_HW_SIMD_X86`
 
- The SIMD extension for x86 (*if detected*).
- Version number depends on the most recent detected extension.
+The SIMD extension for x86 (*if detected*).
+Version number depends on the most recent detected extension.
 
- [table
-     [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-     [[`__SSE__`] [__predef_detection__]]
-     [[`_M_X64`] [__predef_detection__]]
-     [[`_M_IX86_FP >= 1`] [__predef_detection__]]
+| `+__SSE__+` | {predef_detection}
+| `+_M_X64+` | {predef_detection}
+| `_M_IX86_FP >= 1` | {predef_detection}
 
-     [[`__SSE2__`] [__predef_detection__]]
-     [[`_M_X64`] [__predef_detection__]]
-     [[`_M_IX86_FP >= 2`] [__predef_detection__]]
+| `+__SSE2__+` | {predef_detection}
+| `+_M_X64+` | {predef_detection}
+| `_M_IX86_FP >= 2` | {predef_detection}
 
-     [[`__SSE3__`] [__predef_detection__]]
+| `+__SSE3__+` | {predef_detection}
 
-     [[`__SSSE3__`] [__predef_detection__]]
+| `+__SSSE3__+` | {predef_detection}
 
-     [[`__SSE4_1__`] [__predef_detection__]]
+| `+__SSE4_1__+` | {predef_detection}
 
-     [[`__SSE4_2__`] [__predef_detection__]]
+| `+__SSE4_2__+` | {predef_detection}
 
-     [[`__AVX__`] [__predef_detection__]]
+| `+__AVX__+` | {predef_detection}
 
-     [[`__FMA__`] [__predef_detection__]]
+| `+__FMA__+` | {predef_detection}
 
-     [[`__AVX2__`] [__predef_detection__]]
-     ]
+| `+__AVX2__+` | {predef_detection}
+|===
 
- [table
-     [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-     [[`__SSE__`] [BOOST_HW_SIMD_X86_SSE_VERSION]]
-     [[`_M_X64`] [BOOST_HW_SIMD_X86_SSE_VERSION]]
-     [[`_M_IX86_FP >= 1`] [BOOST_HW_SIMD_X86_SSE_VERSION]]
+| `+__SSE__+` | BOOST_HW_SIMD_X86_SSE_VERSION
+| `+_M_X64+` | BOOST_HW_SIMD_X86_SSE_VERSION
+| `_M_IX86_FP >= 1` | BOOST_HW_SIMD_X86_SSE_VERSION
 
-     [[`__SSE2__`] [BOOST_HW_SIMD_X86_SSE2_VERSION]]
-     [[`_M_X64`] [BOOST_HW_SIMD_X86_SSE2_VERSION]]
-     [[`_M_IX86_FP >= 2`] [BOOST_HW_SIMD_X86_SSE2_VERSION]]
+| `+__SSE2__+` | BOOST_HW_SIMD_X86_SSE2_VERSION
+| `+_M_X64+` | BOOST_HW_SIMD_X86_SSE2_VERSION
+| `_M_IX86_FP >= 2` | BOOST_HW_SIMD_X86_SSE2_VERSION
 
-     [[`__SSE3__`] [BOOST_HW_SIMD_X86_SSE3_VERSION]]
+| `+__SSE3__+` | BOOST_HW_SIMD_X86_SSE3_VERSION
 
-     [[`__SSSE3__`] [BOOST_HW_SIMD_X86_SSSE3_VERSION]]
+| `+__SSSE3__+` | BOOST_HW_SIMD_X86_SSSE3_VERSION
 
-     [[`__SSE4_1__`] [BOOST_HW_SIMD_X86_SSE4_1_VERSION]]
+| `+__SSE4_1__+` | BOOST_HW_SIMD_X86_SSE4_1_VERSION
 
-     [[`__SSE4_2__`] [BOOST_HW_SIMD_X86_SSE4_2_VERSION]]
+| `+__SSE4_2__+` | BOOST_HW_SIMD_X86_SSE4_2_VERSION
 
-     [[`__AVX__`] [BOOST_HW_SIMD_X86_AVX_VERSION]]
+| `+__AVX__+` | BOOST_HW_SIMD_X86_AVX_VERSION
 
-     [[`__FMA__`] [BOOST_HW_SIMD_X86_FMA3_VERSION]]
+| `+__FMA__+` | BOOST_HW_SIMD_X86_FMA3_VERSION
 
-     [[`__AVX2__`] [BOOST_HW_SIMD_x86_AVX2_VERSION]]
-     ]
+| `+__AVX2__+` | BOOST_HW_SIMD_X86_AVX2_VERSION
+|===
 
- */
+*/ // end::reference[]
 
 #define BOOST_HW_SIMD_X86 BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
@@ -99,10 +101,10 @@ http://www.boost.org/LICENSE_1_0.txt)
 #if !defined(BOOST_HW_SIMD_X86) && defined(__SSE3__)
 #   define BOOST_HW_SIMD_X86 BOOST_HW_SIMD_X86_SSE3_VERSION
 #endif
-#if !defined(BOOST_HW_SIMD_X86) && (defined(__SSE2__) || defined(_M_X64) || _M_IX86_FP >= 2)
+#if !defined(BOOST_HW_SIMD_X86) && (defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2))
 #   define BOOST_HW_SIMD_X86 BOOST_HW_SIMD_X86_SSE2_VERSION
 #endif
-#if !defined(BOOST_HW_SIMD_X86) && (defined(__SSE__) || defined(_M_X64) || _M_IX86_FP >= 1)
+#if !defined(BOOST_HW_SIMD_X86) && (defined(__SSE__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 1))
 #   define BOOST_HW_SIMD_X86 BOOST_HW_SIMD_X86_SSE_VERSION
 #endif
 #if !defined(BOOST_HW_SIMD_X86) && defined(__MMX__)

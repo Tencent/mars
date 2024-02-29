@@ -8,7 +8,7 @@
 #ifndef BOOST_IOSTREAMS_CONCEPTS_HPP_INCLUDED
 #define BOOST_IOSTREAMS_CONCEPTS_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -25,7 +25,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
 
 //--------------Definitions of helper templates for device concepts-----------//
 
-template<typename Mode, typename Ch = BOOST_IOSTREAMS_DEFAULT_ARG(char)>
+template<typename Mode, typename Ch = char>
 struct device {
     typedef Ch char_type;
     struct category
@@ -51,7 +51,7 @@ struct device {
     void imbue(const Locale&) { }
 };
 
-template<typename Mode, typename Ch = BOOST_IOSTREAMS_DEFAULT_ARG(wchar_t)>
+template<typename Mode, typename Ch = wchar_t>
 struct wdevice : device<Mode, Ch> { };
 
 typedef device<input>    source;
@@ -61,7 +61,7 @@ typedef wdevice<output>  wsink;
 
 //--------------Definitions of helper templates for simple filter concepts----//
 
-template<typename Mode, typename Ch = BOOST_IOSTREAMS_DEFAULT_ARG(char)>
+template<typename Mode, typename Ch = char>
 struct filter {
     typedef Ch char_type;
     struct category
@@ -93,7 +93,7 @@ struct filter {
     void imbue(const Locale&) { }
 };
 
-template<typename Mode, typename Ch = BOOST_IOSTREAMS_DEFAULT_ARG(wchar_t)>
+template<typename Mode, typename Ch = wchar_t>
 struct wfilter : filter<Mode, Ch> { };
 
 typedef filter<input>      input_filter;

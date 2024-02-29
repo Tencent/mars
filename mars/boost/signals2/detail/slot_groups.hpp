@@ -11,8 +11,8 @@
 #ifndef BOOST_SIGNALS2_SLOT_GROUPS_HPP
 #define BOOST_SIGNALS2_SLOT_GROUPS_HPP
 
-#include <boost/signals2/connection.hpp>
 #include <boost/optional.hpp>
+#include <boost/signals2/connection.hpp>
 #include <list>
 #include <map>
 #include <utility>

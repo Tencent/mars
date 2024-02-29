@@ -14,12 +14,12 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/config/workaround.hpp>
 #include <boost/config.hpp>
+#include <boost/mpl/aux_/config/workaround.hpp>
 
 #if    !defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC) \
     && !defined(BOOST_MPL_PREPROCESSING_MODE) \
-    && BOOST_WORKAROUND(__BORLANDC__, < 0x582)
+    && BOOST_WORKAROUND(BOOST_BORLANDC, < 0x582)
 
 #   define BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC
 

@@ -8,17 +8,17 @@
 #ifndef BOOST_IOSTREAMS_INPUT_SEQUENCE_HPP_INCLUDED
 #define BOOST_IOSTREAMS_INPUT_SEQUENCE_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
-#include <utility>           // pair.
 #include <boost/config.hpp>  // DEDUCED_TYPENAME, MSVC.
 #include <boost/detail/workaround.hpp>
 #include <boost/iostreams/detail/wrap_unwrap.hpp>
 #include <boost/iostreams/operations_fwd.hpp>  // is_custom 
 #include <boost/iostreams/traits.hpp>
 #include <boost/mpl/if.hpp>
+#include <utility>           // pair.
 
 // Must come last.
 #include <boost/iostreams/detail/config/disable_warnings.hpp>

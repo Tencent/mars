@@ -12,8 +12,8 @@
 #ifndef BOOST_THREAD_DETAIL_IS_CONVERTIBLE_HPP
 #define BOOST_THREAD_DETAIL_IS_CONVERTIBLE_HPP
 
-#include <boost/type_traits/is_convertible.hpp>
 #include <boost/thread/detail/move.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -43,7 +43,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #endif
   }
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 
 #endif //  BOOST_THREAD_DETAIL_MEMORY_HPP

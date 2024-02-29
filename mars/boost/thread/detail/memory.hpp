@@ -14,9 +14,9 @@
 
 #include <boost/config.hpp>
 
-#include <boost/thread/csbl/memory/pointer_traits.hpp>
 #include <boost/thread/csbl/memory/allocator_arg.hpp>
 #include <boost/thread/csbl/memory/allocator_traits.hpp>
+#include <boost/thread/csbl/memory/pointer_traits.hpp>
 #include <boost/thread/csbl/memory/scoped_allocator.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost

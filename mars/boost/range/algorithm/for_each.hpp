@@ -9,13 +9,13 @@
 #ifndef BOOST_RANGE_ALGORITHM_FOR_EACH_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_FOR_EACH_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/range/end.hpp>
 #include <boost/ref.hpp>
-#include <algorithm>
+#include <boost/utility/enable_if.hpp>
 
 #if BOOST_WORKAROUND(BOOST_MSVC, == 1600)
 #include <xutility>
@@ -32,7 +32,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             template<typename Iterator, typename UnaryFunction>
             inline UnaryFunction
             for_each_impl(Iterator first, Iterator last, UnaryFunction fun,
-                          typename ::boost::enable_if<
+                          typename ::mars_boost::enable_if<
                             is_reference_wrapper<UnaryFunction>,
                             void
                           >::type* = 0)
@@ -105,6 +105,6 @@ inline UnaryFunction for_each(const SinglePassRange& rng, UnaryFunction fun)
 
     } // namespace range
     using range::for_each;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

@@ -15,11 +15,11 @@
 # pragma once
 #endif
 
+#include <boost/iterator/iterator_traits.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/range/config.hpp>
-#include <boost/range/iterator.hpp>
 #include <boost/range/has_range_iterator.hpp>
-#include <boost/iterator/iterator_traits.hpp>
+#include <boost/range/iterator.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost

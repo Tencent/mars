@@ -8,7 +8,7 @@
 #ifndef BOOST_IOSTREAMS_IMBUE_HPP_INCLUDED
 #define BOOST_IOSTREAMS_IMBUE_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 

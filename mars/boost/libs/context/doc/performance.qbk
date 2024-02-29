@@ -1,0 +1,28 @@
+[/
+          Copyright Oliver Kowalke 2014.
+ Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+          http://www.boost.org/LICENSE_1_0.txt
+]
+
+[#performance]
+[section:performance Performance]
+
+Performance measurements were taken using `std::chrono::highresolution_clock`,
+with overhead corrections.
+The code was compiled with gcc-6.3.1, using build options:
+variant = release, optimization = speed.
+Tests were executed on dual Intel XEON E5 2620v4 2.2GHz, 16C/32T, 64GB RAM,
+running Linux (x86_64).
+
+[table Performance of context switch
+    [[callcc()/continuation (fcontext_t)] [callcc()/continuation (ucontext_t)] [callcc()/continuation (Windows-Fiber)]]
+    [
+        [9 ns / 19 CPU cycles]
+        [547 ns / 1130 CPU cycles]
+        [49 ns / 98 CPU cycles]
+    ]
+]
+
+
+[endsect]

@@ -9,11 +9,11 @@
 //  http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/is_volatile.hpp>
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_volatile.hpp>
 #include <boost/type_traits/conditional.hpp>
+#include <boost/type_traits/is_const.hpp>
+#include <boost/type_traits/is_volatile.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -28,6 +28,12 @@ public:
 
     typedef typename mars_boost::conditional<mars_boost::is_volatile<U>::value, typename mars_boost::add_volatile<CT>::type, CT>::type type;
 };
+
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T, class U> using copy_cv_t = typename copy_cv<T, U>::type;
+
+#endif
 
 } // namespace mars_boost
 

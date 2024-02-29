@@ -14,8 +14,8 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/pop_front_fwd.hpp>
 #include <boost/mpl/aux_/config/typeof.hpp>
+#include <boost/mpl/pop_front_fwd.hpp>
 
 #if defined(BOOST_MPL_CFG_TYPEOF_BASED_SEQUENCES)
 

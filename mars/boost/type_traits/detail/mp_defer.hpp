@@ -9,8 +9,8 @@
 //  http://www.boost.org/LICENSE_1_0.txt
 //
 
-#include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/conditional.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -25,12 +25,12 @@ template<template<class...> class F, class... T>
 struct mp_valid_impl
 {
     template<template<class...> class G, class = G<T...>>
-    static mars_boost::true_type check(int);
+    static mars_boost::true_type check_s(int);
 
     template<template<class...> class>
-    static mars_boost::false_type check(...);
+    static mars_boost::false_type check_s(...);
 
-    using type = decltype(check<F>(0));
+    using type = decltype(check_s<F>(0));
 };
 
 template<template<class...> class F, class... T>

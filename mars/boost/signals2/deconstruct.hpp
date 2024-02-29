@@ -64,7 +64,7 @@ public:
     }
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
     template<class... Args>
-      const shared_ptr<T>& postconstruct(Args && ... args)
+      const shared_ptr<T>& postconstruct(Args && ... args) const
     {
         if(!_postconstructed)
         {

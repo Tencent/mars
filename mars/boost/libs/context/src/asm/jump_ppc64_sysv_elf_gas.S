@@ -66,6 +66,7 @@
  *                                                     *
  *******************************************************/
 
+.file "jump_ppc64_sysv_elf_gas.S"
 .globl jump_fcontext
 #if _CALL_ELF == 2
 	.text
@@ -115,11 +116,13 @@ jump_fcontext:
     std  %r25, 96(%r1)  # save R25
     std  %r26, 104(%r1)  # save R26
     std  %r27, 112(%r1)  # save R27
-    std  %r29, 120(%r1)  # save R28
+    std  %r28, 120(%r1)  # save R28
     std  %r29, 128(%r1)  # save R29
     std  %r30, 136(%r1)  # save R30
     std  %r31, 144(%r1)  # save R31
+#if _CALL_ELF != 2
     std  %r3,  152(%r1)  # save hidden
+#endif
 
     # save CR
     mfcr  %r0
@@ -133,10 +136,13 @@ jump_fcontext:
     # store RSP (pointing to context-data) in R6
     mr  %r6, %r1
 
+#if _CALL_ELF == 2
+    # restore RSP (pointing to context-data) from R3
+    mr  %r1, %r3
+#else
     # restore RSP (pointing to context-data) from R4
     mr  %r1, %r4
 
-#if _CALL_ELF != 2
     ld  %r2,  0(%r1)  # restore TOC
 #endif
     ld  %r14, 8(%r1)  # restore R14
@@ -157,7 +163,9 @@ jump_fcontext:
     ld  %r29, 128(%r1)  # restore R29
     ld  %r30, 136(%r1)  # restore R30
     ld  %r31, 144(%r1)  # restore R31
+#if _CALL_ELF != 2
     ld  %r3,  152(%r1)  # restore hidden
+#endif
 
     # restore CR
     ld  %r0, 160(%r1)
@@ -174,15 +182,33 @@ jump_fcontext:
     # adjust stack
     addi  %r1, %r1, 184
 
+#if _CALL_ELF == 2
+    # copy transfer_t into transfer_fn arg registers
+    mr  %r3, %r6
+    # arg pointer already in %r4
+
+    # jump to context
+    bctr
+	.size jump_fcontext, .-jump_fcontext
+#else
+    # zero in r3 indicates first jump to context-function
+    cmpdi %r3, 0
+    beq use_entry_arg
+
     # return transfer_t
     std  %r6, 0(%r3)
     std  %r5, 8(%r3)
 
     # jump to context
     bctr
-#if _CALL_ELF == 2
-	.size jump_fcontext, .-jump_fcontext
-#else
+
+use_entry_arg:
+    # copy transfer_t into transfer_fn arg registers
+    mr  %r3, %r6
+    mr  %r4, %r5
+
+    # jump to context
+    bctr
 # ifdef _CALL_LINUX
 	.size .jump_fcontext, .-.L.jump_fcontext
 # else

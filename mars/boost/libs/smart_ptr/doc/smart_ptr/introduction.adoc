@@ -1,0 +1,53 @@
+////
+Copyright 1999 Greg Colvin and Beman Dawes
+Copyright 2002 Darin Adler
+Copyright 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#introduction]
+# Introduction
+:toc:
+:toc-title:
+:idprefix: intro_
+
+Smart pointers are objects which store pointers to dynamically allocated (heap) objects.
+They behave much like built-in {cpp} pointers except that they automatically delete the object
+pointed to at the appropriate time. Smart pointers are particularly useful in the face of
+exceptions as they ensure proper destruction of dynamically allocated objects. They can also be
+used to keep track of dynamically allocated objects shared by multiple owners.
+
+Conceptually, smart pointers are seen as owning the object pointed to, and thus responsible for
+deletion of the object when it is no longer needed. As such, they are examples of the "resource
+acquisition is initialization" idiom described in Bjarne Stroustrup's "The C++ Programming Language",
+3rd edition, Section 14.4, Resource Management.
+
+This library provides six smart pointer class templates:
+
+* `<<scoped_ptr,scoped_ptr>>`, used to contain ownership of a dynamically allocated object to the current scope;
+* `<<scoped_array,scoped_array>>`, which provides scoped ownership for a dynamically allocated array;
+* `<<shared_ptr,shared_ptr>>`, a versatile tool for managing shared ownership of an object or array;
+* `<<weak_ptr,weak_ptr>>`, a non-owning observer to a `shared_ptr`-managed object that can be promoted temporarily to `shared_ptr`;
+* `<<intrusive_ptr,intrusive_ptr>>`, a pointer to objects with an embedded reference count;
+* `<<local_shared_ptr,local_shared_ptr>>`, providing shared ownership within a single thread.
+
+`shared_ptr` and `weak_ptr` are part of the {cpp} standard since its 2011 iteration.
+
+In addition, the library contains the following supporting utility functions and classes:
+
+* `<<make_shared,make_shared>>` and `allocate_shared`, factory functions for creating objects that return a `shared_ptr`;
+* `<<make_unique,make_unique>>`, a factory function returning `std::unique_ptr`;
+* `<<allocate_unique,allocate_unique>>`, a factory function for creating objects using an allocator that returns a `std::unique_ptr`;
+* `<<enable_shared_from_this,enable_shared_from_this>>`, a helper base class that enables the acquisition of a `shared_ptr` pointing to `this`;
+* `<<enable_shared_from,enable_shared_from>>`, a newer and better replacement for `enable_shared_from_this`;
+* `<<pointer_to_other,pointer_to_other>>`, a helper trait for converting one smart pointer type to another;
+* `<<pointer_cast,static_pointer_cast>>` and companions, generic smart pointer casts;
+* `<<intrusive_ref_counter,intrusive_ref_counter>>`, a helper base class containing a reference count.
+* `<<atomic_shared_ptr,atomic_shared_ptr>>`, a helper class implementing the interface of `std::atomic` for a value of type `shared_ptr`.
+
+As a general rule, the destructor or `operator delete` for an object managed by pointers in the library
+are not allowed to throw exceptions.

@@ -1,6 +1,7 @@
-//  error_code support implementation file  ----------------------------------//
+//  error_code stub implementation, for compatibility only
 
 //  Copyright Beman Dawes 2002, 2006
+//  Copyright Peter Dimov 2018
 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -13,8 +14,18 @@
 // the library is being built (possibly exporting rather than importing code)
 #define BOOST_SYSTEM_SOURCE
 
-#include <boost/system/error_code.hpp>
+#include <boost/system/config.hpp>
 
-#ifndef BOOST_ERROR_CODE_HEADER_ONLY
-#include <boost/system/detail/error_code.ipp>
-#endif
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+{
+
+namespace system
+{
+
+BOOST_SYSTEM_DECL void dummy_exported_function()
+{
+}
+
+} // namespace system
+
+} // namespace mars_boost

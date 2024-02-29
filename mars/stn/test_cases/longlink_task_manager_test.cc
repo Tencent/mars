@@ -86,14 +86,36 @@ static int CallBack(int _from,
 }
 
 static void initLongLinkTaskManager(CMMLongLinkTaskManager& _longLinkTaskManager, LongLinkSvrPush& _longLinkSvrPush) {
-    _longLinkTaskManager.funNotify = boost::bind(&LongLinkSvrPush::OnLongLinkResponse, &_longLinkSvrPush, _1, _2, _3);
-    _longLinkTaskManager.funCallback = boost::bind(&CallBack, 0, _1, _2, _3, _4, _5, _6);
-    _longLinkTaskManager.funAntiAvalancheCheck = boost::bind(Check, _1, _2, _3);
+    _longLinkTaskManager.funNotify = boost::bind(&LongLinkSvrPush::OnLongLinkResponse,
+                                                 &_longLinkSvrPush,
+                                                 boost::placeholders::_1,
+                                                 boost::placeholders::_2,
+                                                 boost::placeholders::_3);
+    _longLinkTaskManager.funCallback = boost::bind(&CallBack,
+                                                   0,
+                                                   boost::placeholders::_1,
+                                                   boost::placeholders::_2,
+                                                   boost::placeholders::_3,
+                                                   boost::placeholders::_4,
+                                                   boost::placeholders::_5,
+                                                   boost::placeholders::_6);
+    _longLinkTaskManager.funAntiAvalancheCheck =
+        boost::bind(Check, boost::placeholders::_1, boost::placeholders::_2, boost::placeholders::_3);
     _longLinkTaskManager.funmakeSureAuth = ::makeSureAuth;
     _longLinkTaskManager.funreq2Buf = ::req2Buf;
     _longLinkTaskManager.funbuf2Resp = ::buf2Resp;
-    _longLinkTaskManager.LongLinkChannel().FuncNetworkReport = boost::bind(&OnLongLinkNetworkError, _1, _2, _3, _4, _5);
-    _longLinkTaskManager.funNotifyNetworkError = boost::bind(&OnLongLinkNetworkError, _1, _2, _3, _4, _5);
+    _longLinkTaskManager.LongLinkChannel().FuncNetworkReport = boost::bind(&OnLongLinkNetworkError,
+                                                                           boost::placeholders::_1,
+                                                                           boost::placeholders::_2,
+                                                                           boost::placeholders::_3,
+                                                                           boost::placeholders::_4,
+                                                                           boost::placeholders::_5);
+    _longLinkTaskManager.funNotifyNetworkError = boost::bind(&OnLongLinkNetworkError,
+                                                             boost::placeholders::_1,
+                                                             boost::placeholders::_2,
+                                                             boost::placeholders::_3,
+                                                             boost::placeholders::_4,
+                                                             boost::placeholders::_5);
 }
 
 class CDetour /* add ": public CMember" to enable access to member variables... */

@@ -10,8 +10,8 @@
 #define BOOST_TT_REMOVE_ALL_EXTENTS_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <cstddef>
 #include <boost/detail/workaround.hpp>
+#include <cstddef> // size_t
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -22,12 +22,18 @@ template <class T, std::size_t N> struct remove_all_extents<T[N]> : public remov
 template <class T, std::size_t N> struct remove_all_extents<T const[N]> : public remove_all_extents<T const>{};
 template <class T, std::size_t N> struct remove_all_extents<T volatile[N]> : public remove_all_extents<T volatile>{};
 template <class T, std::size_t N> struct remove_all_extents<T const volatile[N]> : public remove_all_extents<T const volatile>{};
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x610)) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x610)) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
 template <class T> struct remove_all_extents<T[]> : public remove_all_extents<T>{};
 template <class T> struct remove_all_extents<T const[]> : public remove_all_extents<T const>{};
 template <class T> struct remove_all_extents<T volatile[]> : public remove_all_extents<T volatile>{};
 template <class T> struct remove_all_extents<T const volatile[]> : public remove_all_extents<T const volatile>{};
 #endif
+#endif
+
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using remove_all_extents_t = typename remove_all_extents<T>::type;
+
 #endif
 
 } // namespace mars_boost

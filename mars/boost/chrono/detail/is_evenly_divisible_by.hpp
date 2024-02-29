@@ -8,18 +8,12 @@
 #ifndef BOOST_CHRONO_DETAIL_IS_EVENLY_DIVISIBLE_BY_HPP
 #define BOOST_CHRONO_DETAIL_IS_EVENLY_DIVISIBLE_BY_HPP
 
-#include <boost/chrono/config.hpp>
-
-#include <boost/mpl/logical.hpp>
-#include <boost/ratio/detail/overflow_helpers.hpp>
+#include <boost/ratio/detail/is_evenly_divisible_by.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace chrono {
 namespace chrono_detail {
 
-//  template <class R1, class R2>
-//  struct is_evenly_divisible_by : public mars_boost::mpl::bool_ < ratio_divide<R1, R2>::type::den == 1 >
-//  {};
   template <class R1, class R2>
   struct is_evenly_divisible_by : public mars_boost::ratio_detail::is_evenly_divisible_by<R1, R2>
   {};

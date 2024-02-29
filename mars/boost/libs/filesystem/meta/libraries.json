@@ -1,0 +1,15 @@
+{
+    "key": "filesystem",
+    "name": "Filesystem",
+    "authors": [
+        "Beman Dawes"
+    ],
+    "description": "The Boost Filesystem Library provides portable facilities to query and manipulate paths, files, and directories.",
+    "category": [
+        "System"
+    ],
+    "maintainers": [
+        "Andrey Semashev <andrey.semashev -at- gmail.com>"
+    ],
+    "cxxstd": "11"
+}

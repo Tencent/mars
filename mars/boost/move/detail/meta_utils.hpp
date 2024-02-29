@@ -14,14 +14,13 @@
 #ifndef BOOST_MOVE_DETAIL_META_UTILS_HPP
 #define BOOST_MOVE_DETAIL_META_UTILS_HPP
 
-#ifndef BOOST_CONFIG_HPP
-#  include <boost/config.hpp>
-#endif
-#
 #if defined(BOOST_HAS_PRAGMA_ONCE)
 #  pragma once
 #endif
+#include <boost/move/detail/addressof.hpp>
+#include <boost/move/detail/config_begin.hpp>
 #include <boost/move/detail/meta_utils_core.hpp>
+#include <boost/move/detail/workaround.hpp>  //forceinline
 #include <cstddef>   //for std::size_t
 
 //Small meta-typetraits to support move
@@ -58,8 +57,8 @@ struct apply
 template< bool C_ >
 struct bool_ : integral_constant<bool, C_>
 {
-     operator bool() const { return C_; }
-   bool operator()() const { return C_; }
+   BOOST_MOVE_FORCEINLINE operator bool() const { return C_; }
+   BOOST_MOVE_FORCEINLINE bool operator()() const { return C_; }
 };
 
 typedef bool_<true>        true_;
@@ -69,6 +68,12 @@ typedef bool_<false>       false_;
 //              nat
 //////////////////////////////////////
 struct nat{};
+struct nat2{};
+struct nat3{};
+
+template <unsigned N>
+struct natN
+{};
 
 //////////////////////////////////////
 //          yes_type/no_type
@@ -220,7 +225,7 @@ struct identity
 {
    typedef T type;
    typedef typename add_const_lvalue_reference<T>::type reference;
-   reference operator()(reference t)
+   BOOST_MOVE_FORCEINLINE reference operator()(reference t) const
    {  return t;   }
 };
 
@@ -241,36 +246,7 @@ struct is_class_or_union
 //////////////////////////////////////
 //             addressof
 //////////////////////////////////////
-template<class T>
-struct addr_impl_ref
-{
-   T & v_;
-   inline addr_impl_ref( T & v ): v_( v ) {}
-   inline operator T& () const { return v_; }
 
-   private:
-   addr_impl_ref & operator=(const addr_impl_ref &);
-};
-
-template<class T>
-struct addressof_impl
-{
-   static inline T * f( T & v, long )
-   {
-      return reinterpret_cast<T*>(
-         &const_cast<char&>(reinterpret_cast<const volatile char &>(v)));
-   }
-
-   static inline T * f( T * v, int )
-   {  return v;  }
-};
-
-template<class T>
-inline T * addressof( T & v )
-{
-   return ::mars_boost::move_detail::addressof_impl<T>::f
-      ( ::mars_boost::move_detail::addr_impl_ref<T>( v ), 0 );
-}
 
 //////////////////////////////////////
 //          has_pointer_type
@@ -314,6 +290,17 @@ class is_convertible
 
 #endif
 
+template <class T, class U, bool IsSame = is_same<T, U>::value>
+struct is_same_or_convertible
+   : is_convertible<T, U>
+{};
+
+template <class T, class U>
+struct is_same_or_convertible<T, U, true>
+{
+   static const bool value = true;
+};
+
 template<
       bool C
     , typename F1
@@ -345,6 +332,16 @@ struct enable_if_convertible
 template<class T, class U, class R = void>
 struct disable_if_convertible
    : disable_if< is_convertible<T, U>, R>
+{};
+
+template<class T, class U, class R = void>
+struct enable_if_same_or_convertible
+   : enable_if< is_same_or_convertible<T, U>, R>
+{};
+
+template<class T, class U, class R = void>
+struct disable_if_same_or_convertible
+   : disable_if< is_same_or_convertible<T, U>, R>
 {};
 
 //////////////////////////////////////////////////////////////////////////////
@@ -560,5 +557,7 @@ template< class T > struct remove_rvalue_reference { typedef T type; };
 
 }  //namespace move_detail {
 }  //namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+
+#include <boost/move/detail/config_end.hpp>
 
 #endif //#ifndef BOOST_MOVE_DETAIL_META_UTILS_HPP

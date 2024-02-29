@@ -15,11 +15,18 @@
 #include <boost/config.hpp>
 
 #include <boost/context/detail/config.hpp>
+#if defined(BOOST_NO_CXX17_STD_INVOKE)
 #include <boost/context/detail/invoke.hpp>
+#endif
 #include <boost/context/detail/index_sequence.hpp>
 
 #ifdef BOOST_HAS_ABI_HEADERS
 # include BOOST_ABI_PREFIX
+#endif
+
+#if defined(BOOST_MSVC)
+# pragma warning(push)
+# pragma warning(disable: 4100)
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
@@ -29,9 +36,17 @@ namespace detail {
 template< typename Fn, typename Tpl, std::size_t ... I >
 auto
 apply_impl( Fn && fn, Tpl && tpl, index_sequence< I ... >) 
-    -> decltype( invoke( std::forward< Fn >( fn), std::get< I >( std::forward< Tpl >( tpl) ) ... ) )
+#if defined(BOOST_NO_CXX17_STD_INVOKE)
+    -> decltype( mars_boost::context::detail::invoke( std::forward< Fn >( fn), std::get< I >( std::forward< Tpl >( tpl) ) ... ) )
+#else
+    -> decltype( std::invoke( std::forward< Fn >( fn), std::get< I >( std::forward< Tpl >( tpl) ) ... ) )
+#endif
 {
-    return invoke( std::forward< Fn >( fn), std::get< I >( std::forward< Tpl >( tpl) ) ... );
+#if defined(BOOST_NO_CXX17_STD_INVOKE)
+    return mars_boost::context::detail::invoke( std::forward< Fn >( fn), std::get< I >( std::forward< Tpl >( tpl) ) ... );
+#else
+    return std::invoke( std::forward< Fn >( fn), std::get< I >( std::forward< Tpl >( tpl) ) ... );
+#endif
 }
 
 template< typename Fn, typename Tpl >
@@ -47,6 +62,10 @@ apply( Fn && fn, Tpl && tpl)
 }
 
 }}}
+
+#if defined(BOOST_MSVC)
+# pragma warning(pop)
+#endif
 
 #ifdef BOOST_HAS_ABI_HEADERS
 #include BOOST_ABI_SUFFIX

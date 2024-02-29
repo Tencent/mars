@@ -1,0 +1,38 @@
+# Boost Filesystem test/issues Jamfile
+
+# Copyright Beman Dawes 2014
+
+# Distributed under the Boost Software License, Version 1.0.
+# See www.boost.org/LICENSE_1_0.txt
+
+# Library home page: http://www.boost.org/libs/filesystem
+
+project
+    : requirements
+      <library>/boost/filesystem//mars_boost_filesystem
+      <link>static
+    ;
+
+   test-suite "filesystem-issues" :
+#       [ run 9054_static_const_codecvt_segfault_pre_main.cpp
+#           :  :  : <link>shared : 9054_shared ]
+#       [ run 9054_static_const_codecvt_segfault_pre_main.cpp
+#           :  :  : <link>static : 9054_static ]
+#       [ run hello_filesystem.cpp
+#           :  :  : <link>shared : hello_shared ]
+#       [ run hello_filesystem.cpp
+#           :  :  : <link>static : hello_static ]
+#       [ run 9219.cpp
+#           :  :  : <link>shared : 9219_shared ]
+#       [ run 9219.cpp
+#           :  :  : <link>static : 9219_static ]
+#       [ run 10485.cpp
+#           :  :  : <link>shared <test-info>always_show_run_output ]
+#       [ run copy_file-compilation-error-2015-05-04.cpp ]
+        [ run 6638-convert_aux-fails-init-global.cpp
+           :  :  : <link>shared : 6638_shared ]
+        [ run 6638-convert_aux-fails-init-global.cpp
+           :  :  : <link>static : 6638_static ]
+
+       ;
+

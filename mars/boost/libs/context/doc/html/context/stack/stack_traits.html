@@ -1,0 +1,155 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Class stack_traits</title>
+<link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Chapter 1. Context">
+<link rel="up" href="../stack.html" title="Stack allocation">
+<link rel="prev" href="segmented.html" title="Class segmented_stack">
+<link rel="next" href="stack_context.html" title="Class stack_context">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="segmented.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stack.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="stack_context.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="context.stack.stack_traits"></a><a class="link" href="stack_traits.html" title="Class stack_traits">Class <span class="emphasis"><em>stack_traits</em></span></a>
+</h3></div></div></div>
+<p>
+        <span class="emphasis"><em>stack_traits</em></span> models a <span class="emphasis"><em>stack-traits</em></span>
+        providing a way to access certain properites defined by the enironment. Stack
+        allocators use <span class="emphasis"><em>stack-traits</em></span> to allocate stacks.
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">context</span><span class="special">/</span><span class="identifier">stack_traits</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="keyword">struct</span> <span class="identifier">stack_traits</span> <span class="special">{</span>
+    <span class="keyword">static</span> <span class="keyword">bool</span> <span class="identifier">is_unbounded</span><span class="special">()</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">page_size</span><span class="special">()</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">default_size</span><span class="special">()</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">minimum_size</span><span class="special">()</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">maximum_size</span><span class="special">()</span> <span class="keyword">noexcept</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<h5>
+<a name="context.stack.stack_traits.h0"></a>
+        <span class="phrase"><a name="context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__keyword__bool__phrase___phrase_role__identifier__is_unbounded__phrase__phrase_role__special______phrase___code_"></a></span><a class="link" href="stack_traits.html#context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__keyword__bool__phrase___phrase_role__identifier__is_unbounded__phrase__phrase_role__special______phrase___code_"><code class="computeroutput"><span class="keyword">static</span> <span class="keyword">bool</span> <span class="identifier">is_unbounded</span><span class="special">()</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              Returns <code class="computeroutput"><span class="keyword">true</span></code> if the environment
+              defines no limit for the size of a stack.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<h5>
+<a name="context.stack.stack_traits.h1"></a>
+        <span class="phrase"><a name="context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__page_size__phrase__phrase_role__special______phrase___code_"></a></span><a class="link" href="stack_traits.html#context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__page_size__phrase__phrase_role__special______phrase___code_"><code class="computeroutput"><span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">page_size</span><span class="special">()</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              Returns the page size in bytes.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<h5>
+<a name="context.stack.stack_traits.h2"></a>
+        <span class="phrase"><a name="context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__default_size__phrase__phrase_role__special______phrase___code_"></a></span><a class="link" href="stack_traits.html#context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__default_size__phrase__phrase_role__special______phrase___code_"><code class="computeroutput"><span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">default_size</span><span class="special">()</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              Returns a default stack size, which may be platform specific. If the
+              stack is unbounded then the present implementation returns the maximum
+              of <code class="computeroutput"><span class="number">64</span> <span class="identifier">kB</span></code>
+              and <code class="computeroutput"><span class="identifier">minimum_size</span><span class="special">()</span></code>.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<h5>
+<a name="context.stack.stack_traits.h3"></a>
+        <span class="phrase"><a name="context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__minimum_size__phrase__phrase_role__special______phrase___code_"></a></span><a class="link" href="stack_traits.html#context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__minimum_size__phrase__phrase_role__special______phrase___code_"><code class="computeroutput"><span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">minimum_size</span><span class="special">()</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              Returns the minimum size in bytes of stack defined by the environment
+              (Win32 4kB/Win64 8kB, defined by rlimit on POSIX).
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<h5>
+<a name="context.stack.stack_traits.h4"></a>
+        <span class="phrase"><a name="context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__maximum_size__phrase__phrase_role__special______phrase___code_"></a></span><a class="link" href="stack_traits.html#context.stack.stack_traits._code__phrase_role__keyword__static__phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__maximum_size__phrase__phrase_role__special______phrase___code_"><code class="computeroutput"><span class="keyword">static</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">maximum_size</span><span class="special">()</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Preconditions:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="identifier">is_unbounded</span><span class="special">()</span></code>
+              returns <code class="computeroutput"><span class="keyword">false</span></code>.
+            </p></dd>
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              Returns the maximum size in bytes of stack defined by the environment.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+</div>
+<div class="copyright-footer">Copyright © 2014 Oliver Kowalke<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="segmented.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stack.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="stack_context.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

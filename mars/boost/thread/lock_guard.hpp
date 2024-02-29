@@ -9,12 +9,12 @@
 
 #include <boost/thread/detail/config.hpp>
 #include <boost/thread/detail/delete.hpp>
-#include <boost/thread/detail/move.hpp>
 #include <boost/thread/detail/lockable_wrapper.hpp>
+#include <boost/thread/detail/move.hpp>
 #include <boost/thread/lock_options.hpp>
 #if ! defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
-#include <boost/thread/is_locked_by_this_thread.hpp>
 #include <boost/assert.hpp>
+#include <boost/thread/is_locked_by_this_thread.hpp>
 #endif
 
 #include <boost/config/abi_prefix.hpp>
@@ -23,7 +23,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
 
   template <typename Mutex>
-  class lock_guard
+  class BOOST_THREAD_SCOPED_CAPABILITY lock_guard
   {
   private:
     Mutex& m;
@@ -32,13 +32,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     typedef Mutex mutex_type;
     BOOST_THREAD_NO_COPYABLE( lock_guard )
 
-    explicit lock_guard(Mutex& m_) :
+    explicit lock_guard(Mutex& m_) BOOST_THREAD_ACQUIRE(m_) :
       m(m_)
     {
       m.lock();
     }
 
-    lock_guard(Mutex& m_, adopt_lock_t) :
+    lock_guard(Mutex& m_, adopt_lock_t) BOOST_THREAD_REQUIRES(m_) :
       m(m_)
     {
 #if ! defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
@@ -62,7 +62,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     }
 
 #endif
-    ~lock_guard()
+    ~lock_guard() BOOST_THREAD_RELEASE()
     {
       m.unlock();
     }

@@ -3,14 +3,14 @@
  * Copyright Jens Maurer 2000
  * Distributed under the Boost Software License, Version 1.0. (See
  * accompanying file LICENSE_1_0.txt or copy at
- * http://www.boost.org/LICENSE_1_0.txt)
+ * https://www.boost.org/LICENSE_1_0.txt)
  *
  * $Id$
  *
  * Idea by Beman Dawes, Ed Brey, Steve Cleary, and Nathan Myers
  */
 
-//  See http://www.boost.org/libs/integer for documentation.
+//  See https://www.boost.org/libs/integer for documentation.
 
 
 #ifndef BOOST_INTEGER_TRAITS_HPP
@@ -103,7 +103,7 @@ class integer_traits<wchar_t>
     // library: they are wrong!
 #if defined(WCHAR_MIN) && defined(WCHAR_MAX) && !defined(__APPLE__)
     public detail::integer_traits_base<wchar_t, WCHAR_MIN, WCHAR_MAX>
-#elif defined(__BORLANDC__) || defined(__CYGWIN__) || defined(__MINGW32__) || (defined(__BEOS__) && defined(__GNUC__))
+#elif defined(BOOST_BORLANDC) || defined(__CYGWIN__) || defined(__MINGW32__) || (defined(__BEOS__) && defined(__GNUC__))
     // No WCHAR_MIN and WCHAR_MAX, whar_t is short and unsigned:
     public detail::integer_traits_base<wchar_t, 0, 0xffff>
 #elif (defined(__sgi) && (!defined(__SGI_STL_PORT) || __SGI_STL_PORT < 0x400))\

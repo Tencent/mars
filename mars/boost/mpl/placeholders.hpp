@@ -46,8 +46,8 @@
 
 #   include <boost/mpl/aux_/nttp_decl.hpp>
 #   include <boost/mpl/limits/arity.hpp>
-#   include <boost/preprocessor/iterate.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 // watch out for GNU gettext users, who #define _(x)
 #if !defined(_) || defined(BOOST_MPL_CFG_NO_UNNAMED_PLACEHOLDER_SUPPORT)

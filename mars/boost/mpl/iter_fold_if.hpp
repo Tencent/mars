@@ -15,18 +15,18 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/begin_end.hpp>
-#include <boost/mpl/logical.hpp>
 #include <boost/mpl/always.hpp>
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/pair.hpp>
 #include <boost/mpl/apply.hpp>
-#include <boost/mpl/aux_/iter_fold_if_impl.hpp>
-#include <boost/mpl/aux_/na_spec.hpp>
-#include <boost/mpl/aux_/lambda_support.hpp>
 #include <boost/mpl/aux_/config/forwarding.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/aux_/iter_fold_if_impl.hpp>
+#include <boost/mpl/aux_/lambda_support.hpp>
+#include <boost/mpl/aux_/na_spec.hpp>
+#include <boost/mpl/begin_end.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/logical.hpp>
+#include <boost/mpl/pair.hpp>
 
 #include <boost/type_traits/is_same.hpp>
 

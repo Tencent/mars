@@ -1,0 +1,170 @@
+////
+Copyright 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#atomic_shared_ptr]
+# atomic_shared_ptr
+:toc:
+:toc-title:
+:idprefix: atomic_shared_ptr_
+
+## Description
+
+The class template `atomic_shared_ptr<T>` implements the interface of `std::atomic`
+for a contained value of type `shared_ptr<T>`. Concurrent access to `atomic_shared_ptr`
+is not a data race.
+
+## Synopsis
+
+`atomic_shared_ptr` is defined in `<boost/smart_ptr/atomic_shared_ptr.hpp>`.
+
+```
+namespace boost {
+
+  template<class T> class atomic_shared_ptr {
+  private:
+
+    shared_ptr<T> p_; // exposition only
+
+    atomic_shared_ptr(const atomic_shared_ptr&) = delete;
+    atomic_shared_ptr& operator=(const atomic_shared_ptr&) = delete;
+
+  public:
+
+    constexpr atomic_shared_ptr() noexcept;
+    atomic_shared_ptr( shared_ptr<T> p ) noexcept;
+
+    atomic_shared_ptr& operator=( shared_ptr<T> r ) noexcept;
+
+    bool is_lock_free() const noexcept;
+
+    shared_ptr<T> load( int = 0 ) const noexcept;
+    operator shared_ptr<T>() const noexcept;
+
+    void store( shared_ptr<T> r, int = 0 ) noexcept;
+
+    shared_ptr<T> exchange( shared_ptr<T> r, int = 0 ) noexcept;
+
+    bool compare_exchange_weak( shared_ptr<T>& v, const shared_ptr<T>& w, int, int ) noexcept;
+    bool compare_exchange_weak( shared_ptr<T>& v, const shared_ptr<T>& w, int = 0 ) noexcept;
+    bool compare_exchange_strong( shared_ptr<T>& v, const shared_ptr<T>& w, int, int ) noexcept;
+    bool compare_exchange_strong( shared_ptr<T>& v, const shared_ptr<T>& w, int = 0 ) noexcept;
+
+    bool compare_exchange_weak( shared_ptr<T>& v, shared_ptr<T>&& w, int, int ) noexcept;
+    bool compare_exchange_weak( shared_ptr<T>& v, shared_ptr<T>&& w, int = 0 ) noexcept;
+    bool compare_exchange_strong( shared_ptr<T>& v, shared_ptr<T>&& w, int, int ) noexcept;
+    bool compare_exchange_strong( shared_ptr<T>& v, shared_ptr<T>&& w, int = 0 ) noexcept;
+  };
+}
+```
+
+## Members
+
+```
+constexpr atomic_shared_ptr() noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Default-initializes `p_`.
+
+```
+atomic_shared_ptr( shared_ptr<T> p ) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Initializes `p_` to `p`.
+
+```
+atomic_shared_ptr& operator=( shared_ptr<T> r ) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: `p_.swap(r)`.
+Returns:: `*this`.
+
+```
+bool is_lock_free() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `false`.
+
+NOTE: This implementation is not lock-free.
+
+```
+shared_ptr<T> load( int = 0 ) const noexcept;
+```
+```
+operator shared_ptr<T>() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `p_`.
+
+NOTE: The `int` argument is intended to be of type `memory_order`, but is ignored.
+  This implementation is lock-based and therefore always sequentially consistent.
+
+```
+void store( shared_ptr<T> r, int = 0 ) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: `p_.swap(r)`.
+
+```
+shared_ptr<T> exchange( shared_ptr<T> r, int = 0 ) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: `p_.swap(r)`.
+Returns:: The old value of `p_`.
+
+```
+bool compare_exchange_weak( shared_ptr<T>& v, const shared_ptr<T>& w, int, int ) noexcept;
+```
+```
+bool compare_exchange_weak( shared_ptr<T>& v, const shared_ptr<T>& w, int = 0 ) noexcept;
+```
+```
+bool compare_exchange_strong( shared_ptr<T>& v, const shared_ptr<T>& w, int, int ) noexcept;
+```
+```
+bool compare_exchange_strong( shared_ptr<T>& v, const shared_ptr<T>& w, int = 0 ) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: If `p_` is equivalent to `v`, assigns `w` to `p_`, otherwise assigns `p_` to `v`.
+Returns:: `true` if `p_` was equivalent to `v`, `false` otherwise.
+Remarks:: Two `shared_ptr` instances are equivalent if they store the same pointer value and _share ownership_.
+
+```
+bool compare_exchange_weak( shared_ptr<T>& v, shared_ptr<T>&& w, int, int ) noexcept;
+```
+```
+bool compare_exchange_weak( shared_ptr<T>& v, shared_ptr<T>&& w, int = 0 ) noexcept;
+```
+```
+bool compare_exchange_strong( shared_ptr<T>& v, shared_ptr<T>&& w, int, int ) noexcept;
+```
+```
+bool compare_exchange_strong( shared_ptr<T>& v, shared_ptr<T>&& w, int = 0 ) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: If `p_` is equivalent to `v`, assigns `std::move(w)` to `p_`, otherwise assigns `p_` to `v`.
+Returns:: `true` if `p_` was equivalent to `v`, `false` otherwise.
+Remarks:: The old value of `w` is not preserved in either case.

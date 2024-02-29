@@ -9,11 +9,11 @@
 #ifndef BOOST_RANGE_ALGORITHM_REPLACE_COPY_IF_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_REPLACE_COPY_IF_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -41,6 +41,6 @@ replace_copy_if(const ForwardRange& rng, OutputIterator out_it, Predicate pred,
 
     } // namespace range
     using range::replace_copy_if;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

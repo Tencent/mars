@@ -15,17 +15,17 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/begin_end.hpp>
-#include <boost/mpl/iterator_category.hpp>
 #include <boost/mpl/advance.hpp>
-#include <boost/mpl/distance.hpp>
-#include <boost/mpl/next_prior.hpp>
-#include <boost/mpl/deref.hpp>
-#include <boost/mpl/min_max.hpp>
-#include <boost/mpl/pair.hpp>
-#include <boost/mpl/iterator_tags.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
+#include <boost/mpl/begin_end.hpp>
+#include <boost/mpl/deref.hpp>
+#include <boost/mpl/distance.hpp>
+#include <boost/mpl/iterator_category.hpp>
+#include <boost/mpl/iterator_tags.hpp>
+#include <boost/mpl/min_max.hpp>
+#include <boost/mpl/next_prior.hpp>
+#include <boost/mpl/pair.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

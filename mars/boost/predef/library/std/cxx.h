@@ -10,28 +10,29 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/predef/library/std/_prefix.h>
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_LIB_STD_CXX`]
+/* tag::reference[]
+= `BOOST_LIB_STD_CXX`
 
-[@http://libcxx.llvm.org/ libc++] C++ Standard Library.
+http://libcxx.llvm.org/[libc++] {CPP} Standard Library.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`_LIBCPP_VERSION`] [__predef_detection__]]
+| `+_LIBCPP_VERSION+` | {predef_detection}
 
-    [[`_LIBCPP_VERSION`] [V.0.P]]
-    ]
- */
+| `+_LIBCPP_VERSION+` | V.0.P
+|===
+*/ // end::reference[]
 
 #define BOOST_LIB_STD_CXX BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
 #if defined(_LIBCPP_VERSION)
 #   undef BOOST_LIB_STD_CXX
-#   define BOOST_LIB_STD_CXX BOOST_PREDEF_MAKE_10_VPPP(_LIBCPP_VERSION)
+#   define BOOST_LIB_STD_CXX BOOST_PREDEF_MAKE_10_VVPPP(_LIBCPP_VERSION)
 #endif
 
 #if BOOST_LIB_STD_CXX

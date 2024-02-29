@@ -10,15 +10,16 @@
 #define BOOST_TT_REMOVE_POINTER_HPP_INCLUDED
 
 #include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 
 #if defined(BOOST_MSVC)
-#include <boost/type_traits/remove_cv.hpp>
 #include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/remove_cv.hpp>
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
-#ifdef BOOST_MSVC
+#if BOOST_WORKAROUND(BOOST_MSVC, < 1900)
 
 namespace detail{
 
@@ -69,6 +70,12 @@ template <class T> struct remove_pointer<T*>{ typedef T type; };
 template <class T> struct remove_pointer<T*const>{ typedef T type; };
 template <class T> struct remove_pointer<T*volatile>{ typedef T type; };
 template <class T> struct remove_pointer<T*const volatile>{ typedef T type; };
+
+#endif
+
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using remove_pointer_t = typename remove_pointer<T>::type;
 
 #endif
 

@@ -38,7 +38,7 @@ namespace detail
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // !defined( BOOST_NO_CXX11_NULLPTR )
 

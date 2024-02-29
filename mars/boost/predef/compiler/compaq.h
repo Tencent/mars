@@ -8,25 +8,26 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_COMPILER_COMPAQ_H
 #define BOOST_PREDEF_COMPILER_COMPAQ_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_COMP_DEC`]
+/* tag::reference[]
+= `BOOST_COMP_DEC`
 
-[@http://www.openvms.compaq.com/openvms/brochures/deccplus/ Compaq C/C++] compiler.
+http://www.openvms.compaq.com/openvms/brochures/deccplus/[Compaq C/{CPP}] compiler.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__DECCXX`] [__predef_detection__]]
-    [[`__DECC`] [__predef_detection__]]
+| `+__DECCXX+` | {predef_detection}
+| `+__DECC+` | {predef_detection}
 
-    [[`__DECCXX_VER`] [V.R.P]]
-    [[`__DECC_VER`] [V.R.P]]
-    ]
- */
+| `+__DECCXX_VER+` | V.R.P
+| `+__DECC_VER+` | V.R.P
+|===
+*/ // end::reference[]
 
 #define BOOST_COMP_DEC BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
@@ -38,7 +39,7 @@ Version number available as major, minor, and patch.
 #       define BOOST_COMP_DEC_DETECTION BOOST_PREDEF_MAKE_10_VVRR0PP00(__DECC_VER)
 #   endif
 #   if !defined(BOOST_COMP_DEC_DETECTION)
-#       define BOOST_COM_DEC_DETECTION BOOST_VERSION_NUMBER_AVAILABLE
+#       define BOOST_COMP_DEC_DETECTION BOOST_VERSION_NUMBER_AVAILABLE
 #   endif
 #endif
 

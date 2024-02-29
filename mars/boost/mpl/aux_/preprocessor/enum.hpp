@@ -29,6 +29,10 @@
     BOOST_PP_CAT(BOOST_MPL_PP_ENUM_,n)(param) \
     /**/
     
+#   define BOOST_MPL_PP_ENUM_Z(z_ignored, n, param) \
+    BOOST_PP_CAT(BOOST_MPL_PP_ENUM_,n)(param) \
+    /**/
+    
 #   define BOOST_MPL_PP_ENUM_0(p)
 #   define BOOST_MPL_PP_ENUM_1(p) p
 #   define BOOST_MPL_PP_ENUM_2(p) p,p
@@ -51,6 +55,14 @@
 
 #   define BOOST_MPL_PP_ENUM(n, param) \
     BOOST_PP_REPEAT( \
+          n \
+        , BOOST_MPL_PP_AUX_ENUM_FUNC \
+        , param \
+        ) \
+    /**/
+
+#   define BOOST_MPL_PP_ENUM_Z(z, n, param) \
+    BOOST_PP_REPEAT_ ## z( \
           n \
         , BOOST_MPL_PP_AUX_ENUM_FUNC \
         , param \

@@ -11,17 +11,19 @@
 #ifndef BOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED
 #define BOOST_TT_HAS_TRIVIAL_MOVE_CONSTRUCTOR_HPP_INCLUDED
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
+#include <cstddef> // size_t
 
 #ifdef BOOST_HAS_TRIVIAL_MOVE_CONSTRUCTOR
 
 #if defined(BOOST_MSVC) || defined(BOOST_INTEL)
 #include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/is_reference.hpp>
 #include <boost/type_traits/is_volatile.hpp>
 #endif
 
-#if defined(__GNUC__) || defined(__clang)
+#if defined(__GNUC__) || defined(__clang__)
 #include <boost/type_traits/is_constructible.hpp>
 #include <boost/type_traits/is_volatile.hpp>
 #endif

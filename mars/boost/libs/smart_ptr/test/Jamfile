@@ -1,0 +1,432 @@
+#  Boost.SmartPtr Library test Jamfile
+#
+#  Copyright (c) 2003-2018 Peter Dimov
+#  Copyright (c) 2003 Dave Abrahams
+#
+#  Distributed under the Boost Software License, Version 1.0. (See
+#  accompanying file LICENSE_1_0.txt or copy at
+#  http://www.boost.org/LICENSE_1_0.txt)
+
+import testing ;
+import ../../config/checks/config : requires ;
+
+project
+    : requirements
+      <toolset>gcc:<cxxflags>-Wno-non-virtual-dtor
+      <toolset>gcc:<cxxflags>-Wno-deprecated-declarations
+      #<toolset>gcc:<cxxflags>-Wno-delete-non-virtual-dtor (not in 4.4/4.6)
+    ;
+
+local cnhash = [ requires cxx11_decltype cxx11_noexcept ] <toolset>gcc-4.6:<build>no ;
+
+# quick test (for CI)
+run quick.cpp ;
+
+# full test suite
+run smart_ptr_test.cpp ;
+run shared_ptr_basic_test.cpp ;
+run shared_ptr_test.cpp ;
+run weak_ptr_test.cpp ;
+run weak_ptr_move_test.cpp ;
+run shared_from_this_test.cpp ;
+run get_deleter_test.cpp ;
+run intrusive_ptr_test.cpp ;
+run intrusive_ptr_move_test.cpp ;
+run intrusive_ref_counter_test.cpp ;
+run atomic_count_test.cpp ;
+run lw_mutex_test.cpp ;
+run lw_mutex_test.cpp : : : <define>BOOST_USE_WINDOWS_H : lw_mutex_test.win_h ;
+compile-fail shared_ptr_assign_fail.cpp ;
+compile-fail shared_ptr_delete_fail.cpp ;
+compile-fail shared_ptr_compare_fail.cpp ;
+run shared_ptr_alloc2_test.cpp ;
+run pointer_cast_test.cpp ;
+run cpp11_pointer_cast_test.cpp ;
+compile pointer_to_other_test.cpp ;
+run auto_ptr_rv_test.cpp ;
+run shared_ptr_alias_test.cpp ;
+run shared_ptr_rv_test.cpp ;
+run shared_ptr_rv_pointer_cast_test.cpp ;
+run shared_ptr_move_test.cpp ;
+run shared_ptr_alias_move_test.cpp ;
+run shared_ptr_reinterpret_pointer_cast_test.cpp ;
+compile-fail shared_ptr_pv_fail.cpp ;
+run sp_unary_addr_test.cpp ;
+compile-fail scoped_ptr_eq_fail.cpp ;
+compile-fail scoped_array_eq_fail.cpp ;
+run esft_regtest.cpp ;
+run yield_k_test.cpp ;
+run yield_k_test.cpp : : : <threading>multi : yield_k_test.mt ;
+run spinlock_test.cpp ;
+run spinlock_try_test.cpp ;
+run spinlock_try_test.cpp : : : <threading>multi : spinlock_try_test.mt ;
+run spinlock_pool_test.cpp
+  : : :
+  # msvc-8.0, 9.0 optimizer codegen bug for `x % 41`
+  <toolset>msvc-8.0,<variant>release:<build>no
+  <toolset>msvc-9.0,<variant>release:<build>no ;
+
+run make_shared_test.cpp ;
+run make_shared_move_emulation_test.cpp
+  : : :
+  <toolset>clang-3.5,<cxxstd>03:<build>no
+  <toolset>clang-3.6,<cxxstd>03:<build>no
+  <toolset>clang-3.7,<cxxstd>03:<build>no
+  ;
+
+run make_shared_perfect_forwarding_test.cpp ;
+run shared_ptr_convertible_test.cpp ;
+run wp_convertible_test.cpp ;
+run ip_convertible_test.cpp ;
+run allocate_shared_test.cpp ;
+run sp_atomic_test.cpp ;
+run esft_void_test.cpp ;
+run esft_second_ptr_test.cpp ;
+run make_shared_esft_test.cpp ;
+run allocate_shared_esft_test.cpp ;
+run sp_recursive_assign_test.cpp ;
+run sp_recursive_assign2_test.cpp ;
+run sp_recursive_assign_rv_test.cpp ;
+run sp_recursive_assign2_rv_test.cpp ;
+
+compile-fail auto_ptr_lv_fail.cpp
+  : <toolset>gcc-4.4.7:<build>no <toolset>gcc-4.4:<build>no ;
+
+run atomic_count_test2.cpp ;
+run sp_typeinfo_test.cpp ;
+compile make_shared_fp_test.cpp ;
+run sp_hash_test.cpp
+  : : : $(cnhash) ;
+run get_deleter_array_test.cpp ;
+run ip_hash_test.cpp
+  : : : $(cnhash) ;
+run owner_less_test.cpp ;
+run sp_unique_ptr_test.cpp ;
+run sp_array_test.cpp ;
+compile sp_array_cv_test.cpp ;
+run sp_convertible_test.cpp ;
+run sp_array_n_test.cpp ;
+run sp_array_cast_test.cpp ;
+run sp_zero_compare_test.cpp ;
+run sp_nullptr_test.cpp ;
+run sa_nullptr_test.cpp ;
+run shared_ptr_alloc3_test.cpp ;
+run shared_ptr_alloc11_test.cpp ;
+run shared_ptr_alloc_construct11_test.cpp ;
+run allocate_shared_alloc11_test.cpp ;
+run allocate_shared_construct11_test.cpp ;
+run sp_interlocked_test.cpp ;
+
+compile-fail array_fail_spa_sp_c.cpp ;
+compile-fail array_fail_sp_spa_c.cpp ;
+compile-fail array_fail_spa_spa_c.cpp ;
+compile-fail array_fail_spa_wp_c.cpp ;
+compile-fail array_fail_sp_wpa_c.cpp ;
+compile-fail array_fail_spa_wpa_c.cpp ;
+compile-fail array_fail_wpa_wp_c.cpp ;
+compile-fail array_fail_wp_wpa_c.cpp ;
+compile-fail array_fail_wpa_wpa_c.cpp ;
+compile-fail array_fail_ap_spa_c.cpp ;
+compile-fail array_fail_upa_sp_c.cpp ;
+compile-fail array_fail_up_spa_c.cpp ;
+
+compile-fail array_fail_spa_sp_mc.cpp ;
+compile-fail array_fail_sp_spa_mc.cpp ;
+compile-fail array_fail_spa_spa_mc.cpp ;
+compile-fail array_fail_spa_wp_mc.cpp ;
+compile-fail array_fail_sp_wpa_mc.cpp ;
+compile-fail array_fail_spa_wpa_mc.cpp ;
+compile-fail array_fail_wpa_wp_mc.cpp ;
+compile-fail array_fail_wp_wpa_mc.cpp ;
+compile-fail array_fail_wpa_wpa_mc.cpp ;
+compile-fail array_fail_ap_spa_mc.cpp ;
+compile-fail array_fail_upa_sp_mc.cpp ;
+compile-fail array_fail_up_spa_mc.cpp ;
+
+compile-fail array_fail_spa_sp_a.cpp ;
+compile-fail array_fail_sp_spa_a.cpp ;
+compile-fail array_fail_spa_spa_a.cpp ;
+compile-fail array_fail_spa_wp_a.cpp ;
+compile-fail array_fail_sp_wpa_a.cpp ;
+compile-fail array_fail_spa_wpa_a.cpp ;
+compile-fail array_fail_wpa_wp_a.cpp ;
+compile-fail array_fail_wp_wpa_a.cpp ;
+compile-fail array_fail_wpa_wpa_a.cpp ;
+compile-fail array_fail_ap_spa_a.cpp ;
+compile-fail array_fail_upa_sp_a.cpp ;
+compile-fail array_fail_up_spa_a.cpp ;
+
+compile-fail array_fail_spa_sp_ma.cpp ;
+compile-fail array_fail_sp_spa_ma.cpp ;
+compile-fail array_fail_spa_spa_ma.cpp ;
+compile-fail array_fail_spa_wp_ma.cpp ;
+compile-fail array_fail_sp_wpa_ma.cpp ;
+compile-fail array_fail_spa_wpa_ma.cpp ;
+compile-fail array_fail_wpa_wp_ma.cpp ;
+compile-fail array_fail_wp_wpa_ma.cpp ;
+compile-fail array_fail_wpa_wpa_ma.cpp ;
+compile-fail array_fail_ap_spa_ma.cpp ;
+compile-fail array_fail_upa_sp_ma.cpp ;
+compile-fail array_fail_up_spa_ma.cpp ;
+
+compile-fail array_fail_dereference.cpp ;
+compile-fail array_fail_member_access.cpp ;
+compile-fail array_fail_array_access.cpp ;
+
+run make_shared_array_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run make_shared_arrays_test.cpp ;
+run make_shared_array_throws_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run make_shared_array_esft_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run make_shared_array_noinit_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run make_shared_array_value_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run allocate_shared_array_test.cpp ;
+run allocate_shared_arrays_test.cpp ;
+run allocate_shared_array_throws_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run allocate_shared_array_esft_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run allocate_shared_array_noinit_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run allocate_shared_array_value_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+run allocate_shared_array_construct_test.cpp ;
+
+run make_unique_test.cpp ;
+run make_unique_args_test.cpp ;
+run make_unique_value_test.cpp
+  : : : <toolset>gcc-4.6:<cxxflags>-fno-deduce-init-list ;
+run make_unique_noinit_test.cpp ;
+run make_unique_throws_test.cpp ;
+run make_unique_array_test.cpp ;
+run make_unique_array_noinit_test.cpp ;
+run make_unique_array_throws_test.cpp ;
+
+run shared_from_raw_test.cpp ;
+run shared_from_raw_test2.cpp ;
+run shared_from_raw_test3.cpp ;
+run shared_from_raw_test4.cpp ;
+run shared_from_raw_test5.cpp ;
+run shared_from_raw_test6.cpp ;
+
+run weak_from_raw_test.cpp ;
+run weak_from_raw_test2.cpp ;
+run weak_from_raw_test3.cpp ;
+run weak_from_raw_test4.cpp ;
+run weak_from_raw_test5.cpp ;
+
+compile sp_explicit_inst_test.cpp ;
+
+run weak_from_this_test.cpp ;
+run weak_from_this_test2.cpp ;
+
+run sp_bml_unique_ptr_test.cpp ;
+
+run sp_hash_test2.cpp
+  : : : $(cnhash) ;
+run sp_hash_test3.cpp
+  : : : $(cnhash) ;
+
+run pointer_cast_test2.cpp ;
+
+compile-fail pointer_cast_st_fail.cpp ;
+compile-fail pointer_cast_st_fail2.cpp ;
+compile-fail pointer_cast_st_fail3.cpp ;
+
+compile-fail pointer_cast_co_fail.cpp ;
+compile-fail pointer_cast_co_fail2.cpp ;
+compile-fail pointer_cast_co_fail3.cpp ;
+
+compile-fail pointer_cast_dy_fail.cpp ;
+compile-fail pointer_cast_dy_fail2.cpp ;
+compile-fail pointer_cast_dy_fail3.cpp ;
+
+run sp_nothrow_test.cpp ;
+
+compile make_shared_msvc_test.cpp ;
+
+compile lwm_win32_cs_test.cpp ;
+
+run atomic_sp_test.cpp ;
+
+run sp_constexpr_test.cpp ;
+run sp_constexpr_test2.cpp ;
+
+run atomic_sp_constexpr_test.cpp ;
+
+run shared_ptr_fn_test.cpp ;
+
+run get_deleter_test2.cpp ;
+run get_deleter_test3.cpp ;
+run get_deleter_array_test2.cpp ;
+run get_deleter_array_test3.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+
+run sp_convertible_test2.cpp ;
+
+run local_sp_test.cpp ;
+run lsp_array_test.cpp ;
+run lsp_array_n_test.cpp ;
+run lsp_array_cv_test.cpp ;
+run lsp_array_cast_test.cpp ;
+
+run get_local_deleter_test.cpp ;
+run get_local_deleter_test2.cpp ;
+run get_local_deleter_test3.cpp ;
+run get_local_deleter_array_test.cpp ;
+run get_local_deleter_array_test2.cpp ;
+
+run make_local_shared_test.cpp ;
+run make_local_shared_esft_test.cpp ;
+run allocate_local_shared_test.cpp ;
+run allocate_local_shared_esft_test.cpp ;
+
+run make_local_shared_array_test.cpp ;
+run make_local_shared_arrays_test.cpp
+  : : : <toolset>gcc-4.6.3_0x:<cxxflags>-fno-deduce-init-list ;
+run make_local_shared_array_throws_test.cpp ;
+run make_local_shared_array_esft_test.cpp ;
+run make_local_shared_array_noinit_test.cpp ;
+run make_local_shared_array_value_test.cpp ;
+run allocate_local_shared_array_test.cpp ;
+run allocate_local_shared_arrays_test.cpp
+  : : : <toolset>gcc-4.6.3_0x:<cxxflags>-fno-deduce-init-list ;
+run allocate_local_shared_array_throws_test.cpp ;
+run allocate_local_shared_array_esft_test.cpp ;
+run allocate_local_shared_array_noinit_test.cpp ;
+run allocate_local_shared_array_value_test.cpp ;
+run allocate_local_shared_array_construct_test.cpp ;
+
+run local_sp_fn_test.cpp ;
+run lsp_convertible_test.cpp ;
+run lsp_convertible_test2.cpp ;
+
+run make_shared_array_tmp_test.cpp
+  : : : <toolset>msvc-8.0:<build>no ;
+
+run lw_thread_test.cpp
+  : : : <threading>multi ;
+
+compile sp_windows_h_test.cpp ;
+compile spinlock_windows_h_test.cpp ;
+compile yield_k_windows_h_test.cpp ;
+
+lib dll_test : dll_test_lib.cpp : <link>shared:<define>DLL_TEST_DYN_LINK=1 ;
+explicit dll_test ;
+
+run dll_test_main.cpp dll_test : : : <link>static : dll_test_static ;
+run dll_test_main.cpp dll_test : : : <link>shared <undefined-sanitizer>norecover:<build>no : dll_test_shared ;
+
+run make_shared_const_test.cpp ;
+run make_local_shared_const_test.cpp ;
+
+lib abi_test_mt : abi_test_lib.cpp : <link>static ;
+explicit abi_test_mt ;
+
+obj abi_test_lib_nt : abi_test_lib.cpp : <define>BOOST_DISABLE_THREADS ;
+explicit abi_test_lib_nt ;
+
+lib abi_test_nt : abi_test_lib_nt : <link>static ;
+explicit abi_test_nt ;
+
+run abi_test_main.cpp abi_test_mt : : : <define>BOOST_DISABLE_THREADS : abi_test_nt_mt ;
+run abi_test_main.cpp abi_test_nt : : : : abi_test_mt_nt ;
+
+run abi_test_main.cpp abi_test_mt/<cxxstd>0x : : : <cxxstd>98 : abi_test_03_11 ;
+run abi_test_main.cpp abi_test_mt/<cxxstd>98 : : : <cxxstd>0x : abi_test_11_03 ;
+
+run weak_ptr_alias_test.cpp ;
+run weak_ptr_alias_move_test.cpp ;
+
+run sp_typeinfo_test.cpp : : : <rtti>off : sp_typeinfo_test_no_rtti ;
+
+run get_deleter_test.cpp  : : : <rtti>off <toolset>gcc-4.4.7,<cxxstd>0x:<build>no <toolset>gcc-4.4,<cxxstd>0x:<build>no : get_deleter_test_no_rtti ;
+run get_deleter_test2.cpp : : : <rtti>off <toolset>gcc-4.4.7,<cxxstd>0x:<build>no <toolset>gcc-4.4,<cxxstd>0x:<build>no : get_deleter_test2_no_rtti ;
+run get_deleter_test3.cpp : : : <rtti>off <toolset>gcc-4.4.7,<cxxstd>0x:<build>no <toolset>gcc-4.4,<cxxstd>0x:<build>no : get_deleter_test3_no_rtti ;
+
+run shared_from_test.cpp ;
+run weak_from_test.cpp ;
+run weak_from_test2.cpp ;
+
+run allocate_unique_aggregate_test.cpp ;
+run allocate_unique_args_test.cpp ;
+run allocate_unique_array_construct_test.cpp ;
+run allocate_unique_array_noinit_test.cpp ;
+run allocate_unique_arrays_test.cpp ;
+run allocate_unique_array_test.cpp ;
+run allocate_unique_array_throws_test.cpp ;
+run allocate_unique_array_value_test.cpp ;
+run allocate_unique_construct_test.cpp ;
+run allocate_unique_noinit_test.cpp ;
+run allocate_unique_test.cpp ;
+run allocate_unique_throws_test.cpp ;
+run allocate_unique_value_test.cpp ;
+run get_allocator_pointer_test.cpp ;
+
+run sp_guides_test.cpp ;
+run sp_guides_test2.cpp ;
+run wp_guides_test.cpp ;
+
+compile-fail shared_from_fail.cpp ;
+compile-fail weak_from_fail.cpp ;
+
+compile sp_override_test.cpp ;
+compile sp_pedantic_test.cpp
+  : <warnings>pedantic
+    <toolset>msvc:<warnings-as-errors>on
+    <toolset>gcc:<warnings-as-errors>on
+    <toolset>clang:<warnings-as-errors>on
+    <toolset>clang-15:<cxxflags>-Wno-deprecated-builtins
+    ;
+
+run sp_owner_before_test.cpp ;
+run sp_owner_equals_test.cpp ;
+run lsp_owner_before_test.cpp ;
+run lsp_owner_equals_test.cpp ;
+
+run owner_equal_to_test.cpp ;
+run owner_equal_to_test2.cpp ;
+
+run owner_less_test2.cpp ;
+
+run ip_hash_test2.cpp ;
+run sp_hash_test4.cpp ;
+
+run lsp_hash_test.cpp
+  : : : $(cnhash)  ;
+run lsp_hash_test2.cpp ;
+
+run atomic_count_mt_test.cpp
+  : : : <threading>multi ;
+
+run spinlock_mt_test.cpp
+  : : : <threading>multi ;
+
+run spinlock_pool_mt_test.cpp
+  : : : <threading>multi ;
+
+run shared_ptr_mt_test.cpp
+  : : : <threading>multi ;
+
+run weak_ptr_mt_test.cpp
+  : : : <threading>multi ;
+
+compile sp_report_implementation.cpp ;
+
+run sp_owner_hash_value_test.cpp ;
+
+run wp_hash_test.cpp
+  : : : $(cnhash) ;
+run wp_hash_test2.cpp ;
+
+run wp_unordered_test.cpp ;
+
+run owner_hash_test.cpp ;
+run sp_unordered_test.cpp ;
+
+run sp_unique_ptr_test2.cpp ;
+run sp_move_only_deleter.cpp ;

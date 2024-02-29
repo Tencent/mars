@@ -44,109 +44,369 @@ struct is_function_ptr_helper
 // preprocessor-generated part, don't edit by hand!
 
 template <class R >
-struct is_function_ptr_helper<R (*)()> { BOOST_STATIC_CONSTANT(bool, value = true); };
+struct is_function_ptr_helper<R(*)()> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
 template <class R >
-struct is_function_ptr_helper<R (*)( ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0>
-struct is_function_ptr_helper<R (*)( T0)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0>
-struct is_function_ptr_helper<R (*)( T0 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1>
-struct is_function_ptr_helper<R (*)( T0 , T1)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1>
-struct is_function_ptr_helper<R (*)( T0 , T1 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21 , class T22>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21 , T22)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21 , class T22>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21 , T22 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21 , class T22 , class T23>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21 , T22 , T23)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21 , class T22 , class T23>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21 , T22 , T23 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21 , class T22 , class T23 , class T24>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21 , T22 , T23 , T24)> { BOOST_STATIC_CONSTANT(bool, value = true); };
-template <class R , class T0 , class T1 , class T2 , class T3 , class T4 , class T5 , class T6 , class T7 , class T8 , class T9 , class T10 , class T11 , class T12 , class T13 , class T14 , class T15 , class T16 , class T17 , class T18 , class T19 , class T20 , class T21 , class T22 , class T23 , class T24>
-struct is_function_ptr_helper<R (*)( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 , T9 , T10 , T11 , T12 , T13 , T14 , T15 , T16 , T17 , T18 , T19 , T20 , T21 , T22 , T23 , T24 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+struct is_function_ptr_helper<R(*)(...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R >
+struct is_function_ptr_helper<R(*)()noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R >
+struct is_function_ptr_helper<R(*)(...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0>
+struct is_function_ptr_helper<R(*)(T0)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0>
+struct is_function_ptr_helper<R(*)(T0 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0>
+struct is_function_ptr_helper<R(*)(T0)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0>
+struct is_function_ptr_helper<R(*)(T0 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1>
+struct is_function_ptr_helper<R(*)(T0, T1)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1>
+struct is_function_ptr_helper<R(*)(T0, T1 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1>
+struct is_function_ptr_helper<R(*)(T0, T1)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1>
+struct is_function_ptr_helper<R(*)(T0, T1 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2>
+struct is_function_ptr_helper<R(*)(T0, T1, T2)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2>
+struct is_function_ptr_helper<R(*)(T0, T1, T2 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2>
+struct is_function_ptr_helper<R(*)(T0, T1, T2)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2>
+struct is_function_ptr_helper<R(*)(T0, T1, T2 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23, class T24>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23, class T24>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24 ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#ifdef __cpp_noexcept_function_type
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23, class T24>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R, class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15, class T16, class T17, class T18, class T19, class T20, class T21, class T22, class T23, class T24>
+struct is_function_ptr_helper<R(*)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24 ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+#endif
+#endif
 #else
 
 #undef BOOST_STATIC_CONSTANT
@@ -171,6 +431,14 @@ struct is_function_ptr_helper<R (*)(BOOST_PP_ENUM_PARAMS(BOOST_PP_COUNTER,T))> {
 @#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
 template <class R BOOST_PP_COMMA_IF(BOOST_PP_COUNTER) BOOST_PP_ENUM_PARAMS(BOOST_PP_COUNTER,class T)>
 struct is_function_ptr_helper<R (*)(BOOST_PP_ENUM_PARAMS(BOOST_PP_COUNTER,T) ...)> { BOOST_STATIC_CONSTANT(bool, value = true); };
+@#endif
+@#ifdef __cpp_noexcept_function_type
+template <class R BOOST_PP_COMMA_IF(BOOST_PP_COUNTER) BOOST_PP_ENUM_PARAMS(BOOST_PP_COUNTER, class T)>
+struct is_function_ptr_helper<R(*)(BOOST_PP_ENUM_PARAMS(BOOST_PP_COUNTER, T))noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+@#ifndef BOOST_TT_NO_ELLIPSIS_IN_FUNC_TESTING
+template <class R BOOST_PP_COMMA_IF(BOOST_PP_COUNTER) BOOST_PP_ENUM_PARAMS(BOOST_PP_COUNTER, class T)>
+struct is_function_ptr_helper<R(*)(BOOST_PP_ENUM_PARAMS(BOOST_PP_COUNTER, T) ...)noexcept> { BOOST_STATIC_CONSTANT(bool, value = true); };
+@#endif
 @#endif
 #undef BOOST_PP_COUNTER
 #endif // BOOST_PP_IS_ITERATING

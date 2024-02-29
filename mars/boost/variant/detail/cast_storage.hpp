@@ -13,7 +13,7 @@
 #ifndef BOOST_VARIANT_DETAIL_CAST_STORAGE_HPP
 #define BOOST_VARIANT_DETAIL_CAST_STORAGE_HPP
 
-#include "boost/config.hpp"
+#include <boost/config.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace detail { namespace variant {

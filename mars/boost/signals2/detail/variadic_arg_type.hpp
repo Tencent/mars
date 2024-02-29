@@ -32,15 +32,20 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         typedef typename variadic_arg_type<n - 1, Args...>::type type;
       };
 
-      template <typename R, typename ... Args>
+      template <typename ... Args>
         struct std_functional_base
       {};
-      template <typename R, typename T1>
-        struct std_functional_base<R, T1>: public std::unary_function<T1, R>
-      {};
-      template <typename R, typename T1, typename T2>
-        struct std_functional_base<R, T1, T2>: public std::binary_function<T1, T2, R>
-      {};
+      template <typename T1>
+        struct std_functional_base<T1>
+      {
+        typedef T1 argument_type;
+      };
+      template <typename T1, typename T2>
+        struct std_functional_base<T1, T2>
+      {
+        typedef T1 first_argument_type;
+        typedef T2 second_argument_type;
+      };
     } // namespace detail
   } // namespace signals2
 } // namespace mars_boost

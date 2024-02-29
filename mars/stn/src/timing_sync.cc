@@ -62,7 +62,7 @@ static int GetAlarmTime(bool _is_actived, bool _is_logoned) {
 TimingSync::TimingSync(boot::Context* _context, ActiveLogic& _active_logic)
 : context_(_context), alarm_(boost::bind(&TimingSync::__OnAlarm, this), false), active_logic_(_active_logic) {
     timing_sync_active_connection_ =
-        _active_logic.SignalActive.connect(boost::bind(&TimingSync::OnActiveChanged, this, _1));
+        _active_logic.SignalActive.connect(boost::bind(&TimingSync::OnActiveChanged, this, boost::placeholders::_1));
 #ifdef __ANDROID__
     alarm_.SetType(kAlarmType);
 #endif

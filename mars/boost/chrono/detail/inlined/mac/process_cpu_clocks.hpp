@@ -10,9 +10,9 @@
 
 //--------------------------------------------------------------------------------------//
 
+#include <boost/assert.hpp>
 #include <boost/chrono/config.hpp>
 #include <boost/chrono/process_cpu_clocks.hpp>
-#include <boost/assert.hpp>
 
 #include <sys/time.h> //for gettimeofday and timeval
 #include <sys/times.h> //for times
@@ -95,12 +95,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       clock_t c = ::times(&tm);
       if (c == clock_t(-1)) // error
       {
-        if (BOOST_CHRONO_IS_THROWS(ec))
+        if (::mars_boost::chrono::is_throws(ec))
         {
-          mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_real_cpu_clock"));
+          mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_real_cpu_clock"));
         } else
         {
-          ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+          ec.assign(errno, ::mars_boost::system::system_category());
           return time_point();
         }
       } else
@@ -108,19 +108,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         long factor = chrono_detail::tick_factor();
         if (factor != -1)
         {
-          if (!BOOST_CHRONO_IS_THROWS(ec))
+          if (!::mars_boost::chrono::is_throws(ec))
           {
             ec.clear();
           }
           return time_point(nanoseconds(c * factor));
         } else
         {
-          if (BOOST_CHRONO_IS_THROWS(ec))
+          if (::mars_boost::chrono::is_throws(ec))
           {
-            mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_real_cpu_clock"));
+            mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_real_cpu_clock"));
           } else
           {
-            ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+            ec.assign(errno, ::mars_boost::system::system_category());
             return time_point();
           }
         }
@@ -129,12 +129,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       clock_t c = ::clock();
       if (c == clock_t(-1)) // error
       {
-        if (BOOST_CHRONO_IS_THROWS(ec))
+        if (::mars_boost::chrono::is_throws(ec))
         {
-          mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_real_cpu_clock"));
+          mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_real_cpu_clock"));
         } else
         {
-          ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+          ec.assign(errno, ::mars_boost::system::system_category());
           return time_point();
         }
       } else
@@ -142,19 +142,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         long factor = chrono_detail::tick_factor();
         if (factor != -1)
         {
-          if (!BOOST_CHRONO_IS_THROWS(ec))
+          if (!::mars_boost::chrono::is_throws(ec))
           {
             ec.clear();
           }
           return time_point(nanoseconds(c * factor));
         } else
         {
-          if (BOOST_CHRONO_IS_THROWS(ec))
+          if (::mars_boost::chrono::is_throws(ec))
           {
-            mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_real_cpu_clock"));
+            mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_real_cpu_clock"));
           } else
           {
-            ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+            ec.assign(errno, ::mars_boost::system::system_category());
             return time_point();
           }
         }
@@ -171,12 +171,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       clock_t c = ::times(&tm);
       if (c == clock_t(-1)) // error
       {
-        if (BOOST_CHRONO_IS_THROWS(ec))
+        if (::mars_boost::chrono::is_throws(ec))
         {
-          mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_user_cpu_clock"));
+          mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_user_cpu_clock"));
         } else
         {
-          ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+          ec.assign(errno, ::mars_boost::system::system_category());
           return time_point();
         }
       } else
@@ -184,19 +184,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         long factor = chrono_detail::tick_factor();
         if (factor != -1)
         {
-          if (!BOOST_CHRONO_IS_THROWS(ec))
+          if (!::mars_boost::chrono::is_throws(ec))
           {
             ec.clear();
           }
           return time_point(nanoseconds((tm.tms_utime + tm.tms_cutime) * factor));
         } else
         {
-          if (BOOST_CHRONO_IS_THROWS(ec))
+          if (::mars_boost::chrono::is_throws(ec))
           {
-            mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_user_cpu_clock"));
+            mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_user_cpu_clock"));
           } else
           {
-            ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+            ec.assign(errno, ::mars_boost::system::system_category());
             return time_point();
           }
         }
@@ -254,12 +254,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       clock_t c = ::times(&tm);
       if (c == clock_t(-1)) // error
       {
-        if (BOOST_CHRONO_IS_THROWS(ec))
+        if (::mars_boost::chrono::is_throws(ec))
         {
-          mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_system_cpu_clock"));
+          mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_system_cpu_clock"));
         } else
         {
-          ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+          ec.assign(errno, ::mars_boost::system::system_category());
           return time_point();
         }
       } else
@@ -267,19 +267,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         long factor = chrono_detail::tick_factor();
         if (factor != -1)
         {
-          if (!BOOST_CHRONO_IS_THROWS(ec))
+          if (!::mars_boost::chrono::is_throws(ec))
           {
             ec.clear();
           }
           return time_point(nanoseconds((tm.tms_stime + tm.tms_cstime) * factor));
         } else
         {
-          if (BOOST_CHRONO_IS_THROWS(ec))
+          if (::mars_boost::chrono::is_throws(ec))
           {
-            mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_system_cpu_clock"));
+            mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_system_cpu_clock"));
           } else
           {
-            ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+            ec.assign(errno, ::mars_boost::system::system_category());
             return time_point();
           }
         }
@@ -319,12 +319,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       clock_t c = ::times(&tm);
       if (c == clock_t(-1)) // error
       {
-        if (BOOST_CHRONO_IS_THROWS(ec))
+        if (::mars_boost::chrono::is_throws(ec))
         {
-          mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_clock"));
+          mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_clock"));
         } else
         {
-          ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+          ec.assign(errno, ::mars_boost::system::system_category());
           return time_point();
         }
       } else
@@ -338,12 +338,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           return time_point(duration(r));
         } else
         {
-          if (BOOST_CHRONO_IS_THROWS(ec))
+          if (::mars_boost::chrono::is_throws(ec))
           {
-            mars_boost::throw_exception(system::system_error(errno, BOOST_CHRONO_SYSTEM_CATEGORY, "chrono::process_clock"));
+            mars_boost::throw_exception(system::system_error(errno, ::mars_boost::system::system_category(), "chrono::process_clock"));
           } else
           {
-            ec.assign(errno, BOOST_CHRONO_SYSTEM_CATEGORY);
+            ec.assign(errno, ::mars_boost::system::system_category());
             return time_point();
           }
         }

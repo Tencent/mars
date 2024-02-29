@@ -8,26 +8,27 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_OS_QNXNTO_H
 #define BOOST_PREDEF_OS_QNXNTO_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_OS_QNX`]
+/* tag::reference[]
+= `BOOST_OS_QNX`
 
-[@http://en.wikipedia.org/wiki/QNX QNX] operating system.
+http://en.wikipedia.org/wiki/QNX[QNX] operating system.
 Version number available as major, and minor if possible. And
 version 4 is specifically detected.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__QNX__`] [__predef_detection__]]
-    [[`__QNXNTO__`] [__predef_detection__]]
+| `+__QNX__+` | {predef_detection}
+| `+__QNXNTO__+` | {predef_detection}
 
-    [[`_NTO_VERSION`] [V.R.0]]
-    [[`__QNX__`] [4.0.0]]
-    ]
- */
+| `+_NTO_VERSION+` | V.R.0
+| `+__QNX__+` | 4.0.0
+|===
+*/ // end::reference[]
 
 #define BOOST_OS_QNX BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

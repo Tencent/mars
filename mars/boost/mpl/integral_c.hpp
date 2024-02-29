@@ -14,10 +14,10 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/integral_c_fwd.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
 #include <boost/mpl/aux_/config/static_constant.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/integral_c_fwd.hpp>
 
 #if BOOST_WORKAROUND(__HP_aCC, <= 53800)
 // the type of non-type template arguments may not depend on template arguments
@@ -33,7 +33,7 @@
 
 
 #if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
- && !BOOST_WORKAROUND(__BORLANDC__, <= 0x551)
+ && !BOOST_WORKAROUND(BOOST_BORLANDC, <= 0x551)
 BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 // 'bool' constant doesn't have 'next'/'prior' members
 template< bool C >

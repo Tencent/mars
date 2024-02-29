@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_LOWER_BOUND_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_LOWER_BOUND_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/detail/range_return.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -31,7 +31,7 @@ inline BOOST_DEDUCED_TYPENAME disable_if<
     is_const<ForwardRange>,
     BOOST_DEDUCED_TYPENAME range_iterator<ForwardRange>::type
 >::type
-lower_bound( ForwardRange& rng, Value val )
+lower_bound( ForwardRange& rng, const Value& val )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<ForwardRange> ));
     return std::lower_bound(mars_boost::begin(rng), mars_boost::end(rng), val);
@@ -40,7 +40,7 @@ lower_bound( ForwardRange& rng, Value val )
 /// \overload
 template< class ForwardRange, class Value >
 inline BOOST_DEDUCED_TYPENAME range_iterator<const ForwardRange>::type
-lower_bound( const ForwardRange& rng, Value val )
+lower_bound( const ForwardRange& rng, const Value& val )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
     return std::lower_bound(mars_boost::begin(rng), mars_boost::end(rng), val);
@@ -52,7 +52,7 @@ inline BOOST_DEDUCED_TYPENAME disable_if<
     is_const<ForwardRange>,
     BOOST_DEDUCED_TYPENAME range_iterator<ForwardRange>::type
 >::type
-lower_bound( ForwardRange& rng, Value val, SortPredicate pred )
+lower_bound( ForwardRange& rng, const Value& val, SortPredicate pred )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<ForwardRange> ));
     return std::lower_bound(mars_boost::begin(rng), mars_boost::end(rng), val, pred);
@@ -61,7 +61,7 @@ lower_bound( ForwardRange& rng, Value val, SortPredicate pred )
 /// \overload
 template< class ForwardRange, class Value, class SortPredicate >
 inline BOOST_DEDUCED_TYPENAME range_iterator<const ForwardRange>::type
-lower_bound( const ForwardRange& rng, Value val, SortPredicate pred )
+lower_bound( const ForwardRange& rng, const Value& val, SortPredicate pred )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
     return std::lower_bound(mars_boost::begin(rng), mars_boost::end(rng), val, pred);
@@ -73,7 +73,7 @@ inline BOOST_DEDUCED_TYPENAME disable_if<
     is_const<ForwardRange>,
     BOOST_DEDUCED_TYPENAME range_return<ForwardRange,re>::type
 >::type
-lower_bound( ForwardRange& rng, Value val )
+lower_bound( ForwardRange& rng, const Value& val )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<ForwardRange> ));
     return range_return<ForwardRange,re>::
@@ -84,7 +84,7 @@ lower_bound( ForwardRange& rng, Value val )
 /// \overload
 template< range_return_value re, class ForwardRange, class Value >
 inline BOOST_DEDUCED_TYPENAME range_return<const ForwardRange,re>::type
-lower_bound( const ForwardRange& rng, Value val )
+lower_bound( const ForwardRange& rng, const Value& val )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
     return range_return<const ForwardRange,re>::
@@ -98,7 +98,7 @@ inline BOOST_DEDUCED_TYPENAME disable_if<
     is_const<ForwardRange>,
     BOOST_DEDUCED_TYPENAME range_return<ForwardRange,re>::type
 >::type
-lower_bound( ForwardRange& rng, Value val, SortPredicate pred )
+lower_bound( ForwardRange& rng, const Value& val, SortPredicate pred )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<ForwardRange> ));
     return range_return<ForwardRange,re>::
@@ -109,7 +109,7 @@ lower_bound( ForwardRange& rng, Value val, SortPredicate pred )
 /// \overload
 template< range_return_value re, class ForwardRange, class Value, class SortPredicate >
 inline BOOST_DEDUCED_TYPENAME range_return<const ForwardRange,re>::type
-lower_bound( const ForwardRange& rng, Value val, SortPredicate pred )
+lower_bound( const ForwardRange& rng, const Value& val, SortPredicate pred )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
     return range_return<const ForwardRange,re>::
@@ -119,6 +119,6 @@ lower_bound( const ForwardRange& rng, Value val, SortPredicate pred )
 
     } // namespace range
     using range::lower_bound;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

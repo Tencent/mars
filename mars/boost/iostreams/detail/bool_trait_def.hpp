@@ -21,7 +21,7 @@
 // Description: Used to generate the traits classes is_istream, is_ostream,
 //      etc.
 //
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
 # define BOOST_IOSTREAMS_TRAIT_NAMESPACE(trait)
 #else
 # define BOOST_IOSTREAMS_TRAIT_NAMESPACE(trait) BOOST_PP_CAT(trait, _impl_):: 

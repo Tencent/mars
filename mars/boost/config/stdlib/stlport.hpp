@@ -62,11 +62,11 @@
 // then the io stream facets are not available in namespace std::
 //
 #ifdef _STLPORT_VERSION
-#  if !(_STLPORT_VERSION >= 0x500) && !defined(_STLP_OWN_IOSTREAMS) && defined(_STLP_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(__BORLANDC__)
+#  if !(_STLPORT_VERSION >= 0x500) && !defined(_STLP_OWN_IOSTREAMS) && defined(_STLP_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(BOOST_BORLANDC)
 #     define BOOST_NO_STD_LOCALE
 #  endif
 #else
-#  if !defined(__SGI_STL_OWN_IOSTREAMS) && defined(__STL_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(__BORLANDC__)
+#  if !defined(__SGI_STL_OWN_IOSTREAMS) && defined(__STL_USE_NAMESPACES) && defined(BOOST_NO_USING_TEMPLATE) && !defined(BOOST_BORLANDC)
 #     define BOOST_NO_STD_LOCALE
 #  endif
 #endif
@@ -128,7 +128,7 @@
 // BCB6 does cause problems. If we detect C++ Builder, then don't define 
 // BOOST_NO_STDC_NAMESPACE
 //
-#if !defined(__BORLANDC__) && !defined(__DMC__)
+#if !defined(BOOST_BORLANDC) && !defined(__DMC__)
 //
 // If STLport is using it's own namespace, and the real names are in
 // the global namespace, then we duplicate STLport's using declarations
@@ -143,7 +143,7 @@
 #     define BOOST_NO_STDC_NAMESPACE
 #     define BOOST_NO_EXCEPTION_STD_NAMESPACE
 #  endif
-#elif defined(__BORLANDC__) && __BORLANDC__ < 0x560
+#elif defined(BOOST_BORLANDC) && BOOST_BORLANDC < 0x560
 // STLport doesn't import std::abs correctly:
 #include <stdlib.h>
 namespace std { using ::abs; }
@@ -192,7 +192,7 @@ namespace std{ using _STLP_VENDOR_CSTD::strcmp; using _STLP_VENDOR_CSTD::strcpy;
 // Borland ships a version of STLport with C++ Builder 6 that lacks
 // hashtables and the like:
 //
-#if defined(__BORLANDC__) && (__BORLANDC__ == 0x560)
+#if defined(BOOST_BORLANDC) && (BOOST_BORLANDC == 0x560)
 #  undef BOOST_HAS_HASH
 #endif
 
@@ -228,12 +228,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { usi
 #  define BOOST_NO_CXX11_HDR_UNORDERED_SET
 #  define BOOST_NO_CXX11_NUMERIC_LIMITS
 #  define BOOST_NO_CXX11_ALLOCATOR
+#  define BOOST_NO_CXX11_POINTER_TRAITS
 #  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
 #  define BOOST_NO_CXX11_SMART_PTR
 #  define BOOST_NO_CXX11_HDR_FUNCTIONAL
 #  define BOOST_NO_CXX11_HDR_ATOMIC
 #  define BOOST_NO_CXX11_STD_ALIGN
 #  define BOOST_NO_CXX11_ADDRESSOF
+#  define BOOST_NO_CXX11_HDR_EXCEPTION
 
 #if defined(__has_include)
 #if !__has_include(<shared_mutex>)
@@ -244,5 +246,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { usi
 #else
 #  define BOOST_NO_CXX14_HDR_SHARED_MUTEX
 #endif
+
+// C++14 features
+#  define BOOST_NO_CXX14_STD_EXCHANGE
+
+// C++17 features
+#  define BOOST_NO_CXX17_STD_APPLY
+#  define BOOST_NO_CXX17_STD_INVOKE
+#  define BOOST_NO_CXX17_ITERATOR_TRAITS
 
 #define BOOST_STDLIB "STLPort standard library version " BOOST_STRINGIZE(__SGI_STL_PORT)

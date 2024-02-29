@@ -9,24 +9,24 @@
 #ifndef BOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED
 #define BOOST_TT_IS_BASE_AND_DERIVED_HPP_INCLUDED
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 #ifndef BOOST_IS_BASE_OF
-#include <boost/type_traits/is_class.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_convertible.hpp>
 #include <boost/config.hpp>
 #include <boost/static_assert.hpp>
-#endif
-#include <boost/type_traits/remove_cv.hpp>
+#include <boost/type_traits/is_class.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_same.hpp>
+#endif
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/remove_cv.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 namespace detail {
 
 #ifndef BOOST_IS_BASE_OF
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581)) \
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x581)) \
  && !BOOST_WORKAROUND(__SUNPRO_CC , <= 0x540) \
  && !BOOST_WORKAROUND(__EDG_VERSION__, <= 243) \
  && !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
@@ -235,7 +235,7 @@ template <class Base, class Derived> struct is_base_and_derived<Base&, Derived> 
 template <class Base, class Derived> struct is_base_and_derived<Base, Derived&> : public false_type{};
 template <class Base, class Derived> struct is_base_and_derived<Base&, Derived&> : public false_type{};
 
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x610))
+#if BOOST_WORKAROUND(BOOST_CODEGEARC, BOOST_TESTED_AT(0x610))
 template <class Base> struct is_base_and_derived<Base, Base> : public true_type{};
 #endif
 

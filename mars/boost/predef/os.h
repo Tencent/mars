@@ -13,14 +13,13 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/predef/os/aix.h>
 #include <boost/predef/os/amigaos.h>
-#include <boost/predef/os/android.h>
 #include <boost/predef/os/beos.h>
 #include <boost/predef/os/bsd.h>
 #include <boost/predef/os/cygwin.h>
 #include <boost/predef/os/haiku.h>
 #include <boost/predef/os/hpux.h>
-#include <boost/predef/os/irix.h>
 #include <boost/predef/os/ios.h>
+#include <boost/predef/os/irix.h>
 #include <boost/predef/os/linux.h>
 #include <boost/predef/os/macos.h>
 #include <boost/predef/os/os400.h>

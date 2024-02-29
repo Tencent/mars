@@ -15,12 +15,14 @@
 */
 
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/detail/workaround.hpp>
-#include <boost/date_time/compiler_config.hpp>
 #include <boost/date_time/c_time.hpp>
+#include <boost/date_time/compiler_config.hpp>
 #include <boost/date_time/time_clock.hpp>
-#include <boost/date_time/filetime_functions.hpp>
+#include <boost/detail/workaround.hpp>
+#include <boost/shared_ptr.hpp>
+#if defined(BOOST_HAS_FTIME)
+#include <boost/winapi/time.hpp>
+#endif
 
 #ifdef BOOST_DATE_TIME_HAS_HIGH_PRECISION_CLOCK
 
@@ -85,10 +87,19 @@ namespace date_time {
       std::time_t t = tv.tv_sec;
       mars_boost::uint32_t sub_sec = tv.tv_usec;
 #elif defined(BOOST_HAS_FTIME)
-      winapi::file_time ft;
-      winapi::get_system_time_as_file_time(ft);
-      uint64_t micros = winapi::file_time_to_microseconds(ft); // it will not wrap, since ft is the current time
-                                                               // and cannot be before 1970-Jan-01
+      mars_boost::winapi::FILETIME_ ft;
+      mars_boost::winapi::GetSystemTimeAsFileTime(&ft);
+#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))
+      // Some runtime library implementations expect local times as the norm for ctime functions.
+      {
+        mars_boost::winapi::FILETIME_ local_ft;
+        mars_boost::winapi::FileTimeToLocalFileTime(&ft, &local_ft);
+        ft = local_ft;
+      }
+#endif
+
+      mars_boost::uint64_t micros = file_time_to_microseconds(ft); // it will not wrap, since ft is the current time
+                                                              // and cannot be before 1970-Jan-01
       std::time_t t = static_cast<std::time_t>(micros / 1000000UL); // seconds since epoch
       // microseconds -- static casts suppress warnings
       mars_boost::uint32_t sub_sec = static_cast<mars_boost::uint32_t>(micros % 1000000UL);
@@ -115,6 +126,26 @@ namespace date_time {
 
       return time_type(d,td);
     }
+
+#if defined(BOOST_HAS_FTIME)
+    /*!
+     * The function converts file_time into number of microseconds elapsed since 1970-Jan-01
+     *
+     * \note Only dates after 1970-Jan-01 are supported. Dates before will be wrapped.
+     */
+    static mars_boost::uint64_t file_time_to_microseconds(mars_boost::winapi::FILETIME_ const& ft)
+    {
+      // shift is difference between 1970-Jan-01 & 1601-Jan-01
+      // in 100-nanosecond units
+      const mars_boost::uint64_t shift = 116444736000000000ULL; // (27111902 << 32) + 3577643008
+
+      // 100-nanos since 1601-Jan-01
+      mars_boost::uint64_t ft_as_integer = (static_cast< mars_boost::uint64_t >(ft.dwHighDateTime) << 32) | static_cast< mars_boost::uint64_t >(ft.dwLowDateTime);
+
+      ft_as_integer -= shift; // filetime is now 100-nanos since 1970-Jan-01
+      return (ft_as_integer / 10U); // truncate to microseconds
+    }
+#endif
   };
 
 

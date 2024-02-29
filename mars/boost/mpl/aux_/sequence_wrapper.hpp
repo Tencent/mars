@@ -22,13 +22,13 @@
 #   include <boost/mpl/aux_/nttp_decl.hpp>
 
 #   include <boost/preprocessor/arithmetic/sub.hpp>
-#   include <boost/preprocessor/tuple/elem.hpp>
-#   include <boost/preprocessor/enum_params_with_a_default.hpp>
-#   include <boost/preprocessor/enum_params.hpp>
-#   include <boost/preprocessor/enum.hpp>
-#   include <boost/preprocessor/repeat.hpp>
 #   include <boost/preprocessor/comma_if.hpp>
+#   include <boost/preprocessor/enum.hpp>
+#   include <boost/preprocessor/enum_params.hpp>
+#   include <boost/preprocessor/enum_params_with_a_default.hpp>
 #   include <boost/preprocessor/iterate.hpp>
+#   include <boost/preprocessor/repeat.hpp>
+#   include <boost/preprocessor/tuple/elem.hpp>
 
 #if defined(BOOST_MPL_PREPROCESSING_MODE)
 #   undef LONG_MAX

@@ -99,10 +99,10 @@
 // Dynamic shared object (DSO) and dynamic-link library (DLL) support
 //
 #if __GNUC__ >= 4
-#  if (defined(_WIN32) || defined(__WIN32__) || defined(WIN32)) && !defined(__CYGWIN__)
+#  if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__)
      // All Win32 development environments, including 64-bit Windows and MinGW, define
      // _WIN32 or one of its variant spellings. Note that Cygwin is a POSIX environment,
-     // so does not define _WIN32 or its variants.
+     // so does not define _WIN32 or its variants, but still supports dllexport/dllimport.
 #    define BOOST_HAS_DECLSPEC
 #    define BOOST_SYMBOL_EXPORT __attribute__((__dllexport__))
 #    define BOOST_SYMBOL_IMPORT __attribute__((__dllimport__))
@@ -133,14 +133,23 @@
 //
 // Recent GCC versions have __int128 when in 64-bit mode.
 //
-// We disable this if the compiler is really nvcc as it
-// doesn't actually support __int128 as of CUDA_VERSION=5000
+// We disable this if the compiler is really nvcc with C++03 as it
+// doesn't actually support __int128 as of CUDA_VERSION=7500
 // even though it defines __SIZEOF_INT128__.
 // See https://svn.boost.org/trac/boost/ticket/8048
+//     https://svn.boost.org/trac/boost/ticket/11852
 // Only re-enable this for nvcc if you're absolutely sure
 // of the circumstances under which it's supported:
 //
-#if defined(__SIZEOF_INT128__) && !defined(__CUDACC__)
+#if defined(__CUDACC__)
+#  if defined(BOOST_GCC_CXX11)
+#    define BOOST_NVCC_CXX11
+#  else
+#    define BOOST_NVCC_CXX03
+#  endif
+#endif
+
+#if defined(__SIZEOF_INT128__) && !defined(BOOST_NVCC_CXX03)
 #  define BOOST_HAS_INT128
 #endif
 //
@@ -148,12 +157,16 @@
 // include a std lib header to detect this - not ideal, but we'll
 // be including <cstddef> later anyway when we select the std lib.
 //
+// Nevertheless, as of CUDA 7.5, using __float128 with the host
+// compiler in pre-C++11 mode is still not supported.
+// See https://svn.boost.org/trac/boost/ticket/11852
+//
 #ifdef __cplusplus
 #include <cstddef>
 #else
 #include <stddef.h>
 #endif
-#if defined(_GLIBCXX_USE_FLOAT128) && !defined(__STRICT_ANSI__)
+#if defined(_GLIBCXX_USE_FLOAT128) && !defined(__STRICT_ANSI__) && !defined(BOOST_NVCC_CXX03)
 # define BOOST_HAS_FLOAT128
 #endif
 
@@ -206,6 +219,7 @@
 #  define BOOST_NO_CXX11_LOCAL_CLASS_TEMPLATE_PARAMETERS
 #  define BOOST_NO_CXX11_RAW_LITERALS
 #  define BOOST_NO_CXX11_UNICODE_LITERALS
+#  define BOOST_NO_CXX11_ALIGNOF
 #endif
 
 // C++0x features in 4.5.1 and later
@@ -219,7 +233,7 @@
 // C++0x features in 4.6.n and later
 //
 #if (BOOST_GCC_VERSION < 40600) || !defined(BOOST_GCC_CXX11)
-#define BOOST_NO_CXX11_CONSTEXPR
+#define BOOST_NO_CXX11_DEFAULTED_MOVES
 #define BOOST_NO_CXX11_NOEXCEPT
 #define BOOST_NO_CXX11_NULLPTR
 #define BOOST_NO_CXX11_RANGE_BASED_FOR
@@ -229,16 +243,21 @@
 // C++0x features in 4.7.n and later
 //
 #if (BOOST_GCC_VERSION < 40700) || !defined(BOOST_GCC_CXX11)
+// Note that while constexpr is partly supported in gcc-4.6 it's a 
+// pre-std version with several bugs:
+#  define BOOST_NO_CXX11_CONSTEXPR
 #  define BOOST_NO_CXX11_FINAL
 #  define BOOST_NO_CXX11_TEMPLATE_ALIASES
 #  define BOOST_NO_CXX11_USER_DEFINED_LITERALS
 #  define BOOST_NO_CXX11_FIXED_LENGTH_VARIADIC_TEMPLATE_EXPANSION_PACKS
+#  define BOOST_NO_CXX11_OVERRIDE
 #endif
 
 // C++0x features in 4.8.n and later
 //
 #if (BOOST_GCC_VERSION < 40800) || !defined(BOOST_GCC_CXX11)
-#  define BOOST_NO_CXX11_ALIGNAS
+#  define BOOST_NO_CXX11_THREAD_LOCAL
+#  define BOOST_NO_CXX11_SFINAE_EXPR
 #endif
 
 // C++0x features in 4.8.1 and later
@@ -247,6 +266,20 @@
 #  define BOOST_NO_CXX11_DECLTYPE_N3276
 #  define BOOST_NO_CXX11_REF_QUALIFIERS
 #  define BOOST_NO_CXX14_BINARY_LITERALS
+#endif
+
+// C++0x features in 4.9.n and later
+//
+#if (BOOST_GCC_VERSION < 40900) || !defined(BOOST_GCC_CXX11)
+// Although alignas support is added in gcc 4.8, it does not accept
+// dependent constant expressions as an argument until gcc 4.9.
+#  define BOOST_NO_CXX11_ALIGNAS
+#endif
+
+// C++0x features in 5.1 and later
+//
+#if (BOOST_GCC_VERSION < 50100) || !defined(BOOST_GCC_CXX11)
+#  define BOOST_NO_CXX11_UNRESTRICTED_UNION
 #endif
 
 // C++14 features in 4.9.0 and later
@@ -269,8 +302,34 @@
 #if !defined(__cpp_constexpr) || (__cpp_constexpr < 201304)
 #  define BOOST_NO_CXX14_CONSTEXPR
 #endif
-#if !defined(__cpp_variable_templates) || (__cpp_variable_templates < 201304)
+#if (BOOST_GCC_VERSION < 50200) || !defined(__cpp_variable_templates) || (__cpp_variable_templates < 201304)
 #  define BOOST_NO_CXX14_VARIABLE_TEMPLATES
+#endif
+
+// C++17
+#if !defined(__cpp_structured_bindings) || (__cpp_structured_bindings < 201606)
+#  define BOOST_NO_CXX17_STRUCTURED_BINDINGS
+#endif
+#if !defined(__cpp_inline_variables) || (__cpp_inline_variables < 201606)
+#  define BOOST_NO_CXX17_INLINE_VARIABLES
+#endif
+#if !defined(__cpp_fold_expressions) || (__cpp_fold_expressions < 201603)
+#  define BOOST_NO_CXX17_FOLD_EXPRESSIONS
+#endif
+#if !defined(__cpp_if_constexpr) || (__cpp_if_constexpr < 201606)
+#  define BOOST_NO_CXX17_IF_CONSTEXPR
+#endif
+
+#if __GNUC__ >= 7
+#  define BOOST_FALLTHROUGH __attribute__((fallthrough))
+#endif
+
+#if (__GNUC__ < 11) && defined(__MINGW32__) && !defined(__MINGW64__)
+// thread_local was broken on mingw for all 32bit compiler releases prior to 11.x, see
+// https://sourceforge.net/p/mingw-w64/bugs/527/
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83562
+// Not setting this causes program termination on thread exit.
+#define BOOST_NO_CXX11_THREAD_LOCAL
 #endif
 
 //
@@ -278,10 +337,20 @@
 #if __GNUC__ >= 4
 #  define BOOST_ATTRIBUTE_UNUSED __attribute__((__unused__))
 #endif
-//
-// __builtin_unreachable:
-#if BOOST_GCC_VERSION >= 40800
+
+// Type aliasing hint. Supported since gcc 3.3.
+#define BOOST_MAY_ALIAS __attribute__((__may_alias__))
+
+// Unreachable code markup
+#if BOOST_GCC_VERSION >= 40500
 #define BOOST_UNREACHABLE_RETURN(x) __builtin_unreachable();
+#endif
+
+// Deprecated symbol markup
+#if BOOST_GCC_VERSION >= 40500
+#define BOOST_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#else
+#define BOOST_DEPRECATED(msg) __attribute__((deprecated))
 #endif
 
 #ifndef BOOST_COMPILER
@@ -297,18 +366,18 @@
 
 // versions check:
 // we don't know gcc prior to version 3.30:
-#if (BOOST_GCC_VERSION< 30300)
+#if (BOOST_GCC_VERSION < 30300)
 #  error "Compiler not configured - please reconfigure"
 #endif
 //
-// last known and checked version is 4.9:
-#if (BOOST_GCC_VERSION > 40900)
+// last known and checked version is 8.1:
+#if (BOOST_GCC_VERSION > 80100)
 #  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
+#     error "Boost.Config is older than your compiler - please check for an updated Boost release."
 #  else
 // we don't emit warnings here anymore since there are no defect macros defined for
 // gcc post 3.4, so any failures are gcc regressions...
-//#     warning "Unknown compiler version - please run the configure tests and report the results"
+//#     warning "boost: Unknown compiler version - please run the configure tests and report the results"
 #  endif
 #endif
 

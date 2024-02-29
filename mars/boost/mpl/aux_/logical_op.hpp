@@ -14,24 +14,24 @@
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION!
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/bool.hpp>
-#   include <boost/mpl/aux_/nested_type_wknd.hpp>
-#   include <boost/mpl/aux_/na_spec.hpp>
 #   include <boost/mpl/aux_/lambda_support.hpp>
+#   include <boost/mpl/aux_/na_spec.hpp>
+#   include <boost/mpl/aux_/nested_type_wknd.hpp>
+#   include <boost/mpl/bool.hpp>
 #endif
 
-#include <boost/mpl/limits/arity.hpp>
-#include <boost/mpl/aux_/preprocessor/params.hpp>
-#include <boost/mpl/aux_/preprocessor/ext_params.hpp>
-#include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
-#include <boost/mpl/aux_/preprocessor/enum.hpp>
-#include <boost/mpl/aux_/preprocessor/sub.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
+#include <boost/mpl/aux_/preprocessor/enum.hpp>
+#include <boost/mpl/aux_/preprocessor/ext_params.hpp>
+#include <boost/mpl/aux_/preprocessor/params.hpp>
+#include <boost/mpl/aux_/preprocessor/sub.hpp>
+#include <boost/mpl/limits/arity.hpp>
 
+#include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/inc.hpp>
-#include <boost/preprocessor/cat.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

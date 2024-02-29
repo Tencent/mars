@@ -23,15 +23,15 @@
 
 ==============================================================================*/
 
-#include <boost/preprocessor/control/deduce_d.hpp>
-#include <boost/preprocessor/facilities/identity.hpp>
-#include <boost/preprocessor/cat.hpp>
-#include <boost/preprocessor/seq/cat.hpp>
-#include <boost/preprocessor/seq/transform.hpp>
 #include <boost/preprocessor/arithmetic/mod.hpp>
-#include <boost/preprocessor/seq/size.hpp>
-#include <boost/preprocessor/facilities/empty.hpp>
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/control/deduce_d.hpp>
 #include <boost/preprocessor/control/while.hpp>
+#include <boost/preprocessor/facilities/empty.hpp>
+#include <boost/preprocessor/facilities/identity.hpp>
+#include <boost/preprocessor/seq/cat.hpp>
+#include <boost/preprocessor/seq/size.hpp>
+#include <boost/preprocessor/seq/transform.hpp>
 
 #define BOOST_BINARY( bit_groupings )                                          \
   BOOST_BINARY_LITERAL_D( BOOST_PP_DEDUCE_D(), bit_groupings ) 
@@ -68,6 +68,7 @@
   ( (0) BOOST_DETAIL_CREATE_BINARY_LITERAL_OCTAL_SEQUENCE( d, bit_groupings )  \
   ) 
 
+#ifndef BOOST_UTILITY_DOCS
 #define BOOST_DETAIL_CREATE_BINARY_LITERAL_OCTAL_SEQUENCE( d, bit_groupings )  \
   BOOST_PP_SEQ_TRANSFORM                                                       \
   ( BOOST_DETAIL_TRIPLE_TO_OCTAL_OPERATION                                     \
@@ -703,6 +704,6 @@
 #define BOOST_DETAIL_BINARY_LITERAL_ELEMENT_11111100 (1)(1)(1)(1)(1)(1)(0)(0), 
 #define BOOST_DETAIL_BINARY_LITERAL_ELEMENT_11111101 (1)(1)(1)(1)(1)(1)(0)(1), 
 #define BOOST_DETAIL_BINARY_LITERAL_ELEMENT_11111110 (1)(1)(1)(1)(1)(1)(1)(0), 
-#define BOOST_DETAIL_BINARY_LITERAL_ELEMENT_11111111 (1)(1)(1)(1)(1)(1)(1)(1), 
-
+#define BOOST_DETAIL_BINARY_LITERAL_ELEMENT_11111111 (1)(1)(1)(1)(1)(1)(1)(1),
+#endif // BOOST_UTILITY_DOCS
 #endif

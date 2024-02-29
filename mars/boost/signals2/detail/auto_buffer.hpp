@@ -17,20 +17,22 @@
 #pragma warning(disable:4996)
 #endif
 
+#include <algorithm>
 #include <boost/assert.hpp>
-#include <boost/iterator/reverse_iterator.hpp>
+#include <boost/config.hpp>
+#include <boost/core/allocator_access.hpp>
+#include <boost/core/invoke_swap.hpp>
 #include <boost/iterator/iterator_traits.hpp>
+#include <boost/iterator/reverse_iterator.hpp>
 #include <boost/mpl/if.hpp>
-#include <boost/multi_index/detail/scope_guard.hpp>
-#include <boost/swap.hpp>
+#include <boost/signals2/detail/scope_guard.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/type_traits/alignment_of.hpp>
-#include <boost/type_traits/has_nothrow_copy.hpp>
 #include <boost/type_traits/has_nothrow_assign.hpp>
+#include <boost/type_traits/has_nothrow_copy.hpp>
 #include <boost/type_traits/has_trivial_assign.hpp>
 #include <boost/type_traits/has_trivial_constructor.hpp>
 #include <boost/type_traits/has_trivial_destructor.hpp>
-#include <algorithm>
 #include <cstring>
 #include <iterator>
 #include <memory>
@@ -139,10 +141,10 @@ namespace detail
     public:
         typedef Allocator                                allocator_type;
         typedef T                                        value_type;
-        typedef typename Allocator::size_type            size_type;
-        typedef typename Allocator::difference_type      difference_type;
+        typedef typename mars_boost::allocator_size_type<Allocator>::type size_type;
+        typedef typename mars_boost::allocator_difference_type<Allocator>::type difference_type;
         typedef T*                                       pointer;
-        typedef typename Allocator::pointer              allocator_pointer;
+        typedef typename mars_boost::allocator_pointer<Allocator>::type allocator_pointer;
         typedef const T*                                 const_pointer;
         typedef T&                                       reference;
         typedef const T&                                 const_reference;
@@ -248,6 +250,14 @@ namespace detail
             auto_buffer_destroy( where, mars_boost::has_trivial_destructor<T>() );
         }
 
+        void auto_buffer_destroy()
+        {
+            BOOST_ASSERT( is_valid() );
+            if( buffer_ ) // do we need this check? Yes, but only
+                // for N = 0u + local instances in one_sided_swap()
+                auto_buffer_destroy( mars_boost::has_trivial_destructor<T>() );
+        }
+
         void destroy_back_n( size_type n, const mars_boost::false_type& )
         {
             BOOST_ASSERT( n > 0 );
@@ -280,11 +290,10 @@ namespace detail
         pointer move_to_new_buffer( size_type new_capacity, const mars_boost::false_type& )
         {
             pointer new_buffer = allocate( new_capacity ); // strong
-            mars_boost::multi_index::detail::scope_guard guard =
-                mars_boost::multi_index::detail::make_obj_guard( *this,
-                                                            &auto_buffer::deallocate,
-                                                            new_buffer,
-                                                            new_capacity );
+            scope_guard guard = make_obj_guard( *this,
+                                                &auto_buffer::deallocate,
+                                                new_buffer,
+                                                new_capacity );
             copy_impl( begin(), end(), new_buffer ); // strong
             guard.dismiss();                         // nothrow
             return new_buffer;
@@ -301,7 +310,7 @@ namespace detail
         {
             pointer new_buffer = move_to_new_buffer( new_capacity,
                                                  mars_boost::has_nothrow_copy<T>() );
-            (*this).~auto_buffer();
+            auto_buffer_destroy();
             buffer_   = new_buffer;
             members_.capacity_ = new_capacity;
             BOOST_ASSERT( size_ <= members_.capacity_ );
@@ -323,8 +332,8 @@ namespace detail
             auto_buffer temp( l.begin(), l.end() );
             assign_impl( r.begin(), r.end(), l.begin() );
             assign_impl( temp.begin(), temp.end(), r.begin() );
-            mars_boost::swap( l.size_, r.size_ );
-            mars_boost::swap( l.members_.capacity_, r.members_.capacity_ );
+            mars_boost::core::invoke_swap( l.size_, r.size_ );
+            mars_boost::core::invoke_swap( l.members_.capacity_, r.members_.capacity_ );
         }
 
         static void swap_helper( auto_buffer& l, auto_buffer& r,
@@ -343,19 +352,19 @@ namespace detail
 
             size_type i = 0u;
             for(  ; i < min_size; ++i )
-                mars_boost::swap( (*smallest)[i], (*largest)[i] );
+                mars_boost::core::invoke_swap( (*smallest)[i], (*largest)[i] );
 
             for( ; i < max_size; ++i )
                 smallest->unchecked_push_back( (*largest)[i] );
 
             largest->pop_back_n( diff );
-            mars_boost::swap( l.members_.capacity_, r.members_.capacity_ );
+            mars_boost::core::invoke_swap( l.members_.capacity_, r.members_.capacity_ );
         }
 
         void one_sided_swap( auto_buffer& temp ) // nothrow
         {
             BOOST_ASSERT( !temp.is_on_stack() );
-            this->~auto_buffer();
+            auto_buffer_destroy();
             // @remark: must be nothrow
             get_allocator()    = temp.get_allocator();
             members_.capacity_ = temp.members_.capacity_;
@@ -506,14 +515,13 @@ namespace detail
                 {
                     // @remark: we release memory as early as possible
                     //          since we only give the basic guarantee
-                    (*this).~auto_buffer();
+                    auto_buffer_destroy();
                     buffer_ = 0;
                     pointer new_buffer = allocate( r.size() );
-                    mars_boost::multi_index::detail::scope_guard guard =
-                        mars_boost::multi_index::detail::make_obj_guard( *this,
-                                                                    &auto_buffer::deallocate,
-                                                                    new_buffer,
-                                                                    r.size() );
+                    scope_guard guard = make_obj_guard( *this,
+                                                        &auto_buffer::deallocate,
+                                                        new_buffer,
+                                                        r.size() );
                     copy_impl( r.begin(), r.end(), new_buffer );
                     guard.dismiss();
                     buffer_            = new_buffer;
@@ -597,10 +605,7 @@ namespace detail
 
         ~auto_buffer()
         {
-            BOOST_ASSERT( is_valid() );
-            if( buffer_ ) // do we need this check? Yes, but only
-                // for N = 0u + local instances in one_sided_swap()
-                auto_buffer_destroy( mars_boost::has_trivial_destructor<T>() );
+            auto_buffer_destroy();
         }
 
     public:
@@ -971,7 +976,7 @@ namespace detail
 
         pointer uninitialized_grow( size_type n ) // strong
         {
-            if( size_ + n <= members_.capacity_ )
+            if( size_ + n > members_.capacity_ )
                 reserve( size_ + n );
 
             pointer res = end();
@@ -1009,10 +1014,10 @@ namespace detail
             bool both_on_heap  = !on_stack && !r_on_stack;
             if( both_on_heap )
             {
-                mars_boost::swap( get_allocator(), r.get_allocator() );
-                mars_boost::swap( members_.capacity_, r.members_.capacity_ );
-                mars_boost::swap( buffer_, r.buffer_ );
-                mars_boost::swap( size_, r.size_ );
+                mars_boost::core::invoke_swap( get_allocator(), r.get_allocator() );
+                mars_boost::core::invoke_swap( members_.capacity_, r.members_.capacity_ );
+                mars_boost::core::invoke_swap( buffer_, r.buffer_ );
+                mars_boost::core::invoke_swap( size_, r.size_ );
                 BOOST_ASSERT( is_valid() );
                 BOOST_ASSERT( r.is_valid() );
                 return;
@@ -1033,10 +1038,10 @@ namespace detail
                 pointer new_buffer = static_cast<T*>(other->members_.address());
                 copy_impl( one_on_stack->begin(), one_on_stack->end(),
                            new_buffer );                            // strong
-                one_on_stack->~auto_buffer();                       // nothrow
-                mars_boost::swap( get_allocator(), r.get_allocator() );  // assume nothrow
-                mars_boost::swap( members_.capacity_, r.members_.capacity_ );
-                mars_boost::swap( size_, r.size_ );
+                one_on_stack->auto_buffer_destroy();                       // nothrow
+                mars_boost::core::invoke_swap( get_allocator(), r.get_allocator() );  // assume nothrow
+                mars_boost::core::invoke_swap( members_.capacity_, r.members_.capacity_ );
+                mars_boost::core::invoke_swap( size_, r.size_ );
                 one_on_stack->buffer_ = other->buffer_;
                 other->buffer_        = new_buffer;
                 BOOST_ASSERT( other->is_on_stack() );
@@ -1116,7 +1121,7 @@ namespace detail
     inline bool operator<=( const auto_buffer<T,SBP,GP,A>& l,
                             const auto_buffer<T,SBP,GP,A>& r )
     {
-        return !(r > l);
+        return !(l > r);
     }
 
     template< class T, class SBP, class GP, class A >

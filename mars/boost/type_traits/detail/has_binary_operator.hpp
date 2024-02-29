@@ -7,19 +7,7 @@
 //  See http://www.boost.org/libs/type_traits for most recent version including documentation.
 
 #include <boost/config.hpp>
-#include <boost/type_traits/detail/yes_no_type.hpp>
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_base_of.hpp>
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/is_convertible.hpp>
-#include <boost/type_traits/is_fundamental.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_pointer.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_void.hpp>
-#include <boost/type_traits/remove_cv.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
-#include <boost/type_traits/remove_reference.hpp>
+#include <boost/type_traits/detail/config.hpp>
 
 // cannot include this header without getting warnings of the kind:
 // gcc:
@@ -37,11 +25,77 @@
 #   pragma GCC system_header
 #elif defined(BOOST_MSVC)
 #   pragma warning ( push )
-#   pragma warning ( disable : 4018 4244 4547 4800 4804 4805 4913)
+#   pragma warning ( disable : 4018 4244 4547 4800 4804 4805 4913 4133)
 #   if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
 #       pragma warning ( disable : 6334)
 #   endif
 #endif
+
+#if defined(BOOST_TT_HAS_ACCURATE_BINARY_OPERATOR_DETECTION)
+
+#include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_convertible.hpp>
+#include <boost/type_traits/is_void.hpp>
+#include <boost/type_traits/make_void.hpp>
+#include <utility>
+
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+{
+
+   namespace binary_op_detail {
+
+      struct dont_care;
+
+      template <class T, class U, class Ret, class = void>
+      struct BOOST_JOIN(BOOST_TT_TRAIT_NAME, _ret_imp) : public mars_boost::false_type {};
+
+      template <class T, class U, class Ret>
+      struct BOOST_JOIN(BOOST_TT_TRAIT_NAME, _ret_imp)<T, U, Ret, typename mars_boost::make_void<decltype(std::declval<typename add_reference<T>::type>() BOOST_TT_TRAIT_OP std::declval<typename add_reference<U>::type>())>::type>
+         : public mars_boost::integral_constant<bool, ::mars_boost::is_convertible<decltype(std::declval<typename add_reference<T>::type>() BOOST_TT_TRAIT_OP std::declval<typename add_reference<U>::type>()), Ret>::value> {};
+
+      template <class T, class U, class = void >
+      struct BOOST_JOIN(BOOST_TT_TRAIT_NAME, _void_imp) : public mars_boost::false_type {};
+
+      template <class T, class U>
+      struct BOOST_JOIN(BOOST_TT_TRAIT_NAME, _void_imp)<T, U, typename mars_boost::make_void<decltype(std::declval<typename add_reference<T>::type>() BOOST_TT_TRAIT_OP std::declval<typename add_reference<U>::type>())>::type>
+         : public mars_boost::integral_constant<bool, ::mars_boost::is_void<decltype(std::declval<typename add_reference<T>::type>() BOOST_TT_TRAIT_OP std::declval<typename add_reference<U>::type>())>::value> {};
+
+      template <class T, class U, class = void>
+      struct BOOST_JOIN(BOOST_TT_TRAIT_NAME, _dc_imp) : public mars_boost::false_type {};
+
+      template <class T, class U>
+      struct BOOST_JOIN(BOOST_TT_TRAIT_NAME, _dc_imp)<T, U, typename mars_boost::make_void<decltype(std::declval<typename add_reference<T>::type>() BOOST_TT_TRAIT_OP std::declval<typename add_reference<U>::type>())>::type>
+         : public mars_boost::true_type {};
+
+   }
+
+   template <class T, class U = T, class Ret = mars_boost::binary_op_detail::dont_care>
+   struct BOOST_TT_TRAIT_NAME : public mars_boost::binary_op_detail:: BOOST_JOIN(BOOST_TT_TRAIT_NAME, _ret_imp) <T, U, Ret> {};
+   template <class T, class U>
+   struct BOOST_TT_TRAIT_NAME<T, U, void> : public mars_boost::binary_op_detail:: BOOST_JOIN(BOOST_TT_TRAIT_NAME, _void_imp) <T, U> {};
+   template <class T, class U>
+   struct BOOST_TT_TRAIT_NAME<T, U, mars_boost::binary_op_detail::dont_care> : public mars_boost::binary_op_detail:: BOOST_JOIN(BOOST_TT_TRAIT_NAME, _dc_imp) <T, U> {};
+
+
+}
+
+#else
+
+#include <boost/type_traits/detail/is_likely_lambda.hpp>
+#include <boost/type_traits/detail/yes_no_type.hpp>
+#include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+#include <boost/type_traits/is_const.hpp>
+#include <boost/type_traits/is_convertible.hpp>
+#include <boost/type_traits/is_fundamental.hpp>
+#include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/is_void.hpp>
+#include <boost/type_traits/remove_cv.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace detail {
@@ -217,6 +271,9 @@ struct BOOST_TT_TRAIT_NAME : public integral_constant<bool, (::mars_boost::detai
 
 } // namespace mars_boost
 
+#endif
+
 #if defined(BOOST_MSVC)
 #   pragma warning ( pop )
 #endif
+

@@ -9,14 +9,17 @@
 //  See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt
 //
-//  See http://www.boost.org/libs/smart_ptr/make_shared.html
-//  for documentation.
+//  See http://www.boost.org/libs/smart_ptr/ for documentation.
 
 #include <boost/config.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/move/core.hpp>
+#include <boost/move/utility_core.hpp>
+#include <boost/smart_ptr/detail/requires_cxx11.hpp>
 #include <boost/smart_ptr/detail/sp_forward.hpp>
-#include <boost/type_traits/type_with_alignment.hpp>
+#include <boost/smart_ptr/detail/sp_noexcept.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/type_with_alignment.hpp>
 #include <cstddef>
 #include <new>
 
@@ -39,14 +42,14 @@ template< class T > class sp_ms_deleter
 {
 private:
 
-    typedef typename sp_aligned_storage< sizeof( T ), ::boost::alignment_of< T >::value >::type storage_type;
+    typedef typename sp_aligned_storage< sizeof( T ), ::mars_boost::alignment_of< T >::value >::type storage_type;
 
     bool initialized_;
     storage_type storage_;
 
 private:
 
-    void destroy()
+    void destroy() BOOST_SP_NOEXCEPT
     {
         if( initialized_ )
         {
@@ -68,39 +71,39 @@ private:
 
 public:
 
-    sp_ms_deleter() BOOST_NOEXCEPT : initialized_( false )
+    sp_ms_deleter() BOOST_SP_NOEXCEPT : initialized_( false )
     {
     }
 
-    template<class A> explicit sp_ms_deleter( A const & ) BOOST_NOEXCEPT : initialized_( false )
+    template<class A> explicit sp_ms_deleter( A const & ) BOOST_SP_NOEXCEPT : initialized_( false )
     {
     }
 
     // optimization: do not copy storage_
-    sp_ms_deleter( sp_ms_deleter const & ) BOOST_NOEXCEPT : initialized_( false )
+    sp_ms_deleter( sp_ms_deleter const & ) BOOST_SP_NOEXCEPT : initialized_( false )
     {
     }
 
-    ~sp_ms_deleter()
-    {
-        destroy();
-    }
-
-    void operator()( T * )
+    ~sp_ms_deleter() BOOST_SP_NOEXCEPT
     {
         destroy();
     }
 
-    static void operator_fn( T* ) // operator() can't be static
+    void operator()( T * ) BOOST_SP_NOEXCEPT
+    {
+        destroy();
+    }
+
+    static void operator_fn( T* ) BOOST_SP_NOEXCEPT // operator() can't be static
     {
     }
 
-    void * address() BOOST_NOEXCEPT
+    void * address() BOOST_SP_NOEXCEPT
     {
         return storage_.data_;
     }
 
-    void set_initialized() BOOST_NOEXCEPT
+    void set_initialized() BOOST_SP_NOEXCEPT
     {
         initialized_ = true;
     }
@@ -110,7 +113,7 @@ template< class T, class A > class sp_as_deleter
 {
 private:
 
-    typedef typename sp_aligned_storage< sizeof( T ), ::boost::alignment_of< T >::value >::type storage_type;
+    typedef typename sp_aligned_storage< sizeof( T ), ::mars_boost::alignment_of< T >::value >::type storage_type;
 
     storage_type storage_;
     A a_;
@@ -118,7 +121,7 @@ private:
 
 private:
 
-    void destroy()
+    void destroy() BOOST_SP_NOEXCEPT
     {
         if( initialized_ )
         {
@@ -140,35 +143,35 @@ private:
 
 public:
 
-    sp_as_deleter( A const & a ) BOOST_NOEXCEPT : a_( a ), initialized_( false )
+    sp_as_deleter( A const & a ) BOOST_SP_NOEXCEPT : a_( a ), initialized_( false )
     {
     }
 
     // optimization: do not copy storage_
-    sp_as_deleter( sp_as_deleter const & r ) BOOST_NOEXCEPT : a_( r.a_), initialized_( false )
+    sp_as_deleter( sp_as_deleter const & r ) BOOST_SP_NOEXCEPT : a_( r.a_), initialized_( false )
     {
     }
 
-    ~sp_as_deleter()
-    {
-        destroy();
-    }
-
-    void operator()( T * )
+    ~sp_as_deleter() BOOST_SP_NOEXCEPT
     {
         destroy();
     }
 
-    static void operator_fn( T* ) // operator() can't be static
+    void operator()( T * ) BOOST_SP_NOEXCEPT
+    {
+        destroy();
+    }
+
+    static void operator_fn( T* ) BOOST_SP_NOEXCEPT // operator() can't be static
     {
     }
 
-    void * address() BOOST_NOEXCEPT
+    void * address() BOOST_SP_NOEXCEPT
     {
         return storage_.data_;
     }
 
-    void set_initialized() BOOST_NOEXCEPT
+    void set_initialized() BOOST_SP_NOEXCEPT
     {
         initialized_ = true;
     }
@@ -185,7 +188,7 @@ template< class T > struct sp_if_not_array< T[] >
 {
 };
 
-#if !defined( __BORLANDC__ ) || !BOOST_WORKAROUND( __BORLANDC__, < 0x600 )
+#if !defined( BOOST_BORLANDC ) || !BOOST_WORKAROUND( BOOST_BORLANDC, < 0x600 )
 
 template< class T, std::size_t N > struct sp_if_not_array< T[N] >
 {
@@ -209,7 +212,7 @@ template< class T > typename mars_boost::detail::sp_if_not_array< T >::type make
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
@@ -226,7 +229,7 @@ template< class T, class A > typename mars_boost::detail::sp_if_not_array< T >::
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
@@ -247,7 +250,7 @@ template< class T, class... Args > typename mars_boost::detail::sp_if_not_array<
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
@@ -308,7 +311,7 @@ template< class T > typename mars_boost::detail::sp_if_not_array< T >::type make
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
@@ -325,7 +328,7 @@ template< class T, class A > typename mars_boost::detail::sp_if_not_array< T >::
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
@@ -338,474 +341,21 @@ template< class T, class A > typename mars_boost::detail::sp_if_not_array< T >::
     return mars_boost::shared_ptr< T >( pt, pt2 );
 }
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
-// For example MSVC 10.0
-
-template< class T, class A1 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2, class A3 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2, class A3 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2, class A3, class A4 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2, class A3, class A4 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2, class A3, class A4, class A5 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2, class A3, class A4, class A5 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2, class A3, class A4, class A5, class A6 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 ),
-        mars_boost::detail::sp_forward<A7>( a7 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 ),
-        mars_boost::detail::sp_forward<A7>( a7 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 ),
-        mars_boost::detail::sp_forward<A7>( a7 ),
-        mars_boost::detail::sp_forward<A8>( a8 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 ),
-        mars_boost::detail::sp_forward<A7>( a7 ),
-        mars_boost::detail::sp_forward<A8>( a8 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8, A9 && a9 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T(
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 ),
-        mars_boost::detail::sp_forward<A7>( a7 ),
-        mars_boost::detail::sp_forward<A8>( a8 ),
-        mars_boost::detail::sp_forward<A9>( a9 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 && a1, A2 && a2, A3 && a3, A4 && a4, A5 && a5, A6 && a6, A7 && a7, A8 && a8, A9 && a9 )
-{
-    mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
-
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
-
-    void * pv = pd->address();
-
-    ::new( pv ) T( 
-        mars_boost::detail::sp_forward<A1>( a1 ),
-        mars_boost::detail::sp_forward<A2>( a2 ),
-        mars_boost::detail::sp_forward<A3>( a3 ),
-        mars_boost::detail::sp_forward<A4>( a4 ),
-        mars_boost::detail::sp_forward<A5>( a5 ),
-        mars_boost::detail::sp_forward<A6>( a6 ),
-        mars_boost::detail::sp_forward<A7>( a7 ),
-        mars_boost::detail::sp_forward<A8>( a8 ),
-        mars_boost::detail::sp_forward<A9>( a9 )
-        );
-
-    pd->set_initialized();
-
-    T * pt2 = static_cast< T* >( pv );
-
-    mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
-    return mars_boost::shared_ptr< T >( pt, pt2 );
-}
-
-#else // !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
-
 // C++03 version
 
 template< class T, class A1 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -815,15 +365,18 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -833,15 +386,19 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -851,15 +408,19 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -869,15 +430,20 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2, class A3 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -887,15 +453,20 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2, class A3 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -905,15 +476,21 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2, class A3, class A4 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -923,15 +500,21 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2, class A3, class A4 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -941,15 +524,22 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2, class A3, class A4, class A5 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -959,15 +549,22 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -977,15 +574,23 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -995,15 +600,23 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -1013,15 +626,24 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6, BOOST_FWD_REF(A7) a7 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6, a7 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 ),
+        mars_boost::forward<A7>( a7 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -1031,15 +653,24 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6, BOOST_FWD_REF(A7) a7 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6, a7 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 ),
+        mars_boost::forward<A7>( a7 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -1049,15 +680,25 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6, BOOST_FWD_REF(A7) a7, BOOST_FWD_REF(A8) a8 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6, a7, a8 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 ),
+        mars_boost::forward<A7>( a7 ),
+        mars_boost::forward<A8>( a8 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -1067,15 +708,25 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6, BOOST_FWD_REF(A7) a7, BOOST_FWD_REF(A8) a8 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6, a7, a8 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 ),
+        mars_boost::forward<A7>( a7 ),
+        mars_boost::forward<A8>( a8 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -1085,15 +736,26 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
 }
 
 template< class T, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
-typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8, A9 const & a9 )
+typename mars_boost::detail::sp_if_not_array< T >::type make_shared( BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6, BOOST_FWD_REF(A7) a7, BOOST_FWD_REF(A8) a8, BOOST_FWD_REF(A9) a9 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ) );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6, a7, a8, a9 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 ),
+        mars_boost::forward<A7>( a7 ),
+        mars_boost::forward<A8>( a8 ),
+        mars_boost::forward<A9>( a9 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -1103,15 +765,26 @@ typename mars_boost::detail::sp_if_not_array< T >::type make_shared( A1 const & 
 }
 
 template< class T, class A, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 >
-typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, A1 const & a1, A2 const & a2, A3 const & a3, A4 const & a4, A5 const & a5, A6 const & a6, A7 const & a7, A8 const & a8, A9 const & a9 )
+typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const & a, BOOST_FWD_REF(A1) a1, BOOST_FWD_REF(A2) a2, BOOST_FWD_REF(A3) a3, BOOST_FWD_REF(A4) a4, BOOST_FWD_REF(A5) a5, BOOST_FWD_REF(A6) a6, BOOST_FWD_REF(A7) a7, BOOST_FWD_REF(A8) a8, BOOST_FWD_REF(A9) a9 )
 {
     mars_boost::shared_ptr< T > pt( static_cast< T* >( 0 ), BOOST_SP_MSD( T ), a );
 
-    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
+    mars_boost::detail::sp_ms_deleter< T > * pd = static_cast<mars_boost::detail::sp_ms_deleter< T > *>( pt._internal_get_untyped_deleter() );
 
     void * pv = pd->address();
 
-    ::new( pv ) T( a1, a2, a3, a4, a5, a6, a7, a8, a9 );
+    ::new( pv ) T(
+        mars_boost::forward<A1>( a1 ),
+        mars_boost::forward<A2>( a2 ),
+        mars_boost::forward<A3>( a3 ),
+        mars_boost::forward<A4>( a4 ),
+        mars_boost::forward<A5>( a5 ),
+        mars_boost::forward<A6>( a6 ),
+        mars_boost::forward<A7>( a7 ),
+        mars_boost::forward<A8>( a8 ),
+        mars_boost::forward<A9>( a9 )
+        );
+
     pd->set_initialized();
 
     T * pt2 = static_cast< T* >( pv );
@@ -1119,13 +792,11 @@ typename mars_boost::detail::sp_if_not_array< T >::type allocate_shared( A const
     mars_boost::detail::sp_enable_shared_from_this( &pt, pt2, pt2 );
     return mars_boost::shared_ptr< T >( pt, pt2 );
 }
-
-#endif // !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
 #endif // !defined( BOOST_NO_CXX11_VARIADIC_TEMPLATES ) && !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 
 #undef BOOST_SP_MSD
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // #ifndef BOOST_SMART_PTR_MAKE_SHARED_OBJECT_HPP_INCLUDED

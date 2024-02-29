@@ -13,12 +13,13 @@
 #define BOOST_SIGNALS2_SLOT_BASE_HPP
 
 #include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 #include <boost/signals2/detail/foreign_ptr.hpp>
 #include <boost/signals2/expired_slot.hpp>
 #include <boost/signals2/signal_base.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/variant.hpp>
+#include <boost/weak_ptr.hpp>
 #include <vector>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
@@ -76,7 +77,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           locked_objects.push_back(apply_visitor(detail::lock_weak_ptr_visitor(), *it));
           if(apply_visitor(detail::expired_weak_ptr_visitor(), *it))
           {
-            BOOST_THROW_EXCEPTION( expired_slot());
+            mars_boost::throw_exception(expired_slot());
           }
         }
         return locked_objects;

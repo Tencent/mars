@@ -14,12 +14,12 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/size_fwd.hpp>
-#include <boost/mpl/sequence_tag.hpp>
-#include <boost/mpl/aux_/size_impl.hpp>
-#include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
 #include <boost/mpl/aux_/msvc_eti_base.hpp>
+#include <boost/mpl/aux_/na_spec.hpp>
+#include <boost/mpl/aux_/size_impl.hpp>
+#include <boost/mpl/sequence_tag.hpp>
+#include <boost/mpl/size_fwd.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

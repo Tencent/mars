@@ -7,7 +7,13 @@
 #  *                                                                          *
 #  ************************************************************************** */
 #
+# /* Revised by Edward Diener (2020) */
+#
 # /* See http://www.boost.org for most recent version. */
+#
+# include <boost/preprocessor/config/config.hpp>
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # if BOOST_PP_LOCAL_R(256)
     BOOST_PP_LOCAL_MACRO(256)
@@ -779,4 +785,23 @@
 # endif
 # if BOOST_PP_LOCAL_R(0)
     BOOST_PP_LOCAL_MACRO(0)
+# endif
+#
+# else
+#
+# include <boost/preprocessor/config/limits.hpp>
+#
+# if BOOST_PP_LIMIT_ITERATION == 256
+# include <boost/preprocessor/iteration/detail/limits/rlocal_256.hpp>
+# elif BOOST_PP_LIMIT_ITERATION == 512
+# include <boost/preprocessor/iteration/detail/limits/rlocal_256.hpp>
+# include <boost/preprocessor/iteration/detail/limits/rlocal_512.hpp>
+# elif BOOST_PP_LIMIT_ITERATION == 1024
+# include <boost/preprocessor/iteration/detail/limits/rlocal_1024.hpp>
+# include <boost/preprocessor/iteration/detail/limits/rlocal_256.hpp>
+# include <boost/preprocessor/iteration/detail/limits/rlocal_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_ITERATION limit
+# endif
+#
 # endif

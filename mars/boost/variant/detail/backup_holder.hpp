@@ -13,8 +13,8 @@
 #ifndef BOOST_VARIANT_DETAIL_BACKUP_HOLDER_HPP
 #define BOOST_VARIANT_DETAIL_BACKUP_HOLDER_HPP
 
-#include "boost/config.hpp"
-#include "boost/assert.hpp"
+#include <boost/assert.hpp>
+#include <boost/config.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace detail { namespace variant {

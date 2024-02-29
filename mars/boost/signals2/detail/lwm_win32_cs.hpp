@@ -3,7 +3,6 @@
 //
 //  Copyright (c) 2002, 2003 Peter Dimov
 //  Copyright (c) 2008 Frank Mori Hess
-//  Copyright (c) Microsoft Corporation 2014
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -15,17 +14,21 @@
 
 // MS compatible compilers support #pragma once
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
 #endif
 
 #include <boost/assert.hpp>
 
-#if defined(BOOST_USE_WINDOWS_H) || defined(UWP)
-#  include <windows.h>
-#endif
+#ifdef BOOST_USE_WINDOWS_H
 
-#include <boost/predef/platform.h>
+#include <windows.h>
+
+#else
+
+struct _RTL_CRITICAL_SECTION;
+
+#endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -33,8 +36,10 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 namespace signals2
 {
 
+namespace detail
+{
 
-#if !defined(BOOST_USE_WINDOWS_H) && !defined(UWP)
+#ifndef BOOST_USE_WINDOWS_H
 
 struct critical_section
 {
@@ -50,27 +55,35 @@ struct critical_section
 #endif
 };
 
-#if BOOST_PLAT_WINDOWS_RUNTIME
-extern "C" __declspec(dllimport) void __stdcall InitializeCriticalSectionEx(critical_section *, unsigned long, unsigned long);
-#else
-extern "C" __declspec(dllimport) void __stdcall InitializeCriticalSection(critical_section *);
-#endif
-extern "C" __declspec(dllimport) void __stdcall EnterCriticalSection(critical_section *);
-extern "C" __declspec(dllimport) int __stdcall TryEnterCriticalSection(critical_section *);
-extern "C" __declspec(dllimport) void __stdcall LeaveCriticalSection(critical_section *);
-extern "C" __declspec(dllimport) void __stdcall DeleteCriticalSection(critical_section *);
+extern "C" __declspec(dllimport) void __stdcall InitializeCriticalSection(::_RTL_CRITICAL_SECTION *);
+extern "C" __declspec(dllimport) void __stdcall EnterCriticalSection(::_RTL_CRITICAL_SECTION *);
+extern "C" __declspec(dllimport) int __stdcall TryEnterCriticalSection(::_RTL_CRITICAL_SECTION *);
+extern "C" __declspec(dllimport) void __stdcall LeaveCriticalSection(::_RTL_CRITICAL_SECTION *);
+extern "C" __declspec(dllimport) void __stdcall DeleteCriticalSection(::_RTL_CRITICAL_SECTION *);
 
-#else
+typedef ::_RTL_CRITICAL_SECTION rtl_critical_section;
+
+#else // #ifndef BOOST_USE_WINDOWS_H
 
 typedef ::CRITICAL_SECTION critical_section;
 
+using ::InitializeCriticalSection;
+using ::EnterCriticalSection;
+using ::TryEnterCriticalSection;
+using ::LeaveCriticalSection;
+using ::DeleteCriticalSection;
+
+typedef ::CRITICAL_SECTION rtl_critical_section;
+
 #endif // #ifndef BOOST_USE_WINDOWS_H
+
+} // namespace detail
 
 class mutex
 {
 private:
 
-    critical_section cs_;
+    mars_boost::signals2::detail::critical_section cs_;
 
     mutex(mutex const &);
     mutex & operator=(mutex const &);
@@ -79,27 +92,23 @@ public:
 
     mutex()
     {
-#if BOOST_PLAT_WINDOWS_RUNTIME
-        InitializeCriticalSectionEx(&cs_, 4000, 0);
-#else
-        InitializeCriticalSection(&cs_);
-#endif
+        mars_boost::signals2::detail::InitializeCriticalSection(reinterpret_cast< mars_boost::signals2::detail::rtl_critical_section* >(&cs_)); 
     }
 
     ~mutex()
     {
-        DeleteCriticalSection(&cs_);
+        mars_boost::signals2::detail::DeleteCriticalSection(reinterpret_cast< mars_boost::signals2::detail::rtl_critical_section* >(&cs_)); 
     }
 
     void lock()
     {
-        EnterCriticalSection(&cs_);
+        mars_boost::signals2::detail::EnterCriticalSection(reinterpret_cast< mars_boost::signals2::detail::rtl_critical_section* >(&cs_)); 
     }
 // TryEnterCriticalSection only exists on Windows NT 4.0 and later
 #if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0400))
     bool try_lock()
     {
-        return TryEnterCriticalSection(&cs_) != 0;
+        return mars_boost::signals2::detail::TryEnterCriticalSection(reinterpret_cast< mars_boost::signals2::detail::rtl_critical_section* >(&cs_)) != 0;
     }
 #else
     bool try_lock()
@@ -110,7 +119,7 @@ public:
 #endif
     void unlock()
     {
-        LeaveCriticalSection(&cs_);
+        mars_boost::signals2::detail::LeaveCriticalSection(reinterpret_cast< mars_boost::signals2::detail::rtl_critical_section* >(&cs_));
     }
 };
 

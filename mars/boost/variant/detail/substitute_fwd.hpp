@@ -13,29 +13,16 @@
 #ifndef BOOST_VARIANT_DETAIL_SUBSTITUTE_FWD_HPP
 #define BOOST_VARIANT_DETAIL_SUBSTITUTE_FWD_HPP
 
-#include "boost/mpl/aux_/lambda_arity_param.hpp"
-#include "boost/mpl/aux_/template_arity.hpp"
-#include "boost/mpl/int_fwd.hpp"
+#include <boost/mpl/aux_/lambda_arity_param.hpp>
+#include <boost/mpl/aux_/template_arity.hpp>
+#include <boost/mpl/int_fwd.hpp>
 
 
-///////////////////////////////////////////////////////////////////////////////
-// BOOST_VARIANT_DETAIL_NO_SUBSTITUTE
-//
-// Defined if 'substitute' is not implementable on the current compiler.
-//
-
-#include "boost/mpl/aux_/config/ctps.hpp"
-#include "boost/mpl/aux_/config/ttp.hpp"
-
-#if defined(BOOST_NO_TEMPLATE_TEMPLATE_PARAMETERS) \
- && !defined(BOOST_VARIANT_DETAIL_NO_SUBSTITUTE)
-#   define BOOST_VARIANT_DETAIL_NO_SUBSTITUTE
-#endif
+#include <boost/mpl/aux_/config/ctps.hpp>
+#include <boost/mpl/aux_/config/ttp.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace detail { namespace variant {
-
-#if !defined(BOOST_VARIANT_DETAIL_NO_SUBSTITUTE)
 
 ///////////////////////////////////////////////////////////////////////////////
 // metafunction substitute
@@ -49,8 +36,6 @@ template <
         )
     >
 struct substitute;
-
-#endif // !defined(BOOST_VARIANT_DETAIL_NO_SUBSTITUTE)
 
 }} // namespace detail::variant
 } // namespace mars_boost

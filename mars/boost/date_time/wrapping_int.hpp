@@ -9,6 +9,7 @@
  * $Date$
  */
 
+#include "boost/config.hpp"
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace date_time {
@@ -32,19 +33,19 @@ class wrapping_int {
 public:
   typedef int_type_ int_type;
   //typedef overflow_type_ overflow_type;
-  static int_type wrap_value() {return wrap_val;}
+  static BOOST_CONSTEXPR int_type wrap_value() {return wrap_val;}
   //!Add, return true if wrapped
-  wrapping_int(int_type v) : value_(v) {}
+  BOOST_CXX14_CONSTEXPR wrapping_int(int_type v) : value_(v) {}
   //! Explicit converion method
-  int_type as_int()   const   {return value_;}
-  operator int_type() const   {return value_;}
+  BOOST_CONSTEXPR int_type as_int()   const   {return value_;}
+  BOOST_CONSTEXPR operator int_type() const   {return value_;}
   //!Add, return number of wraps performed
   /*! The sign of the returned value will indicate which direction the
    * wraps went. Ex: add a negative number and wrapping under could occur,
    * this would be indicated by a negative return value. If wrapping over
    * took place, a positive value would be returned */
   template< typename IntT >
-  IntT add(IntT v)
+  BOOST_CXX14_CONSTEXPR IntT add(IntT v)
   {
     int_type remainder = static_cast<int_type>(v % (wrap_val));
     IntT overflow = static_cast<IntT>(v / (wrap_val));
@@ -58,7 +59,7 @@ public:
    * occur, this would be indicated by a negative return value. If
    * wrapping under took place, a positive value would be returned. */
   template< typename IntT >
-  IntT subtract(IntT v)
+  BOOST_CXX14_CONSTEXPR IntT subtract(IntT v)
   {
     int_type remainder = static_cast<int_type>(v % (wrap_val));
     IntT underflow = static_cast<IntT>(-(v / (wrap_val)));
@@ -69,7 +70,7 @@ private:
   int_type value_;
 
   template< typename IntT >
-  IntT calculate_wrap(IntT wrap)
+  BOOST_CXX14_CONSTEXPR IntT calculate_wrap(IntT wrap)
   {
     if ((value_) >= wrap_val)
     {
@@ -95,11 +96,11 @@ template<typename int_type_, int_type_ wrap_min, int_type_ wrap_max>
 class wrapping_int2 {
 public:
   typedef int_type_ int_type;
-  static int_type wrap_value() {return wrap_max;}
-  static int_type min_value()  {return wrap_min;}
+  static BOOST_CONSTEXPR int_type wrap_value() {return wrap_max;}
+  static BOOST_CONSTEXPR int_type min_value()  {return wrap_min;}
   /*! If initializing value is out of range of [wrap_min, wrap_max],
    * value will be initialized to closest of min or max */
-  wrapping_int2(int_type v) : value_(v) {
+  BOOST_CXX14_CONSTEXPR wrapping_int2(int_type v) : value_(v) {
     if(value_ < wrap_min)
     {
       value_ = wrap_min;
@@ -110,15 +111,15 @@ public:
     }
   }
   //! Explicit converion method
-  int_type as_int()   const   {return value_;}
-  operator int_type() const {return value_;}
+  BOOST_CONSTEXPR int_type as_int()   const   {return value_;}
+  BOOST_CONSTEXPR operator int_type() const {return value_;}
   //!Add, return number of wraps performed
   /*! The sign of the returned value will indicate which direction the
    * wraps went. Ex: add a negative number and wrapping under could occur,
    * this would be indicated by a negative return value. If wrapping over
    * took place, a positive value would be returned */
   template< typename IntT >
-  IntT add(IntT v)
+  BOOST_CXX14_CONSTEXPR IntT add(IntT v)
   {
     int_type remainder = static_cast<int_type>(v % (wrap_max - wrap_min + 1));
     IntT overflow = static_cast<IntT>(v / (wrap_max - wrap_min + 1));
@@ -131,7 +132,7 @@ public:
    * occur, this would be indicated by a positive return value. If
    * wrapping under took place, a negative value would be returned */
   template< typename IntT >
-  IntT subtract(IntT v)
+  BOOST_CXX14_CONSTEXPR IntT subtract(IntT v)
   {
     int_type remainder = static_cast<int_type>(v % (wrap_max - wrap_min + 1));
     IntT underflow = static_cast<IntT>(-(v / (wrap_max - wrap_min + 1)));
@@ -143,7 +144,7 @@ private:
   int_type value_;
 
   template< typename IntT >
-  IntT calculate_wrap(IntT wrap)
+  BOOST_CXX14_CONSTEXPR IntT calculate_wrap(IntT wrap)
   {
     if ((value_) > wrap_max)
     {

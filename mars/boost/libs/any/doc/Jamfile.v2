@@ -1,0 +1,63 @@
+# Copyright Antony Polukhin, 2013-2023.
+#
+# Use, modification, and distribution are
+# subject to the Boost Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+using boostbook ;
+using quickbook ;
+using doxygen ;
+using xsltproc ;
+
+project any/doc ;
+
+local doxygen_params =
+        <doxygen:param>EXTRACT_ALL=NO
+        <doxygen:param>EXTRACT_PRIVATE=NO
+        <doxygen:param>HIDE_UNDOC_MEMBERS=YES
+        <doxygen:param>EXTRACT_PRIVATE=NO
+        <doxygen:param>ENABLE_PREPROCESSING=YES
+        <doxygen:param>EXPAND_ONLY_PREDEF=YES
+        <doxygen:param>MACRO_EXPANSION=YES
+        <doxygen:param>INLINE_SIMPLE_STRUCTS=YES
+        <doxygen:param>SORT_MEMBER_DOCS=NO
+        <doxygen:param>"ALIASES= \\
+            \"forcedlink{1}=\\xmlonly<link linkend='any.\\1'>\\endxmlonly \\1\\xmlonly</link>\\endxmlonly\" \\
+        "
+        <doxygen:param>"PREDEFINED= \\
+            \"BOOST_ANY_DOXYGEN_INVOKED=1\" \\
+            \"BOOST_NOEXCEPT=noexcept\" \\
+            \"BOOST_CONSTEXPR=constexpr\" \\
+            \"BOOST_CONSTEXPR_OR_CONST=constexpr\" \\
+            \"BOOST_STATIC_ASSERT_MSG=static_assert\" \\
+        "
+    ;
+
+doxygen autodoc_any
+    :
+        [ glob ../../../boost/any.hpp ]
+        [ glob ../../../boost/any/*.hpp ]
+    :
+        $(doxygen_params)
+        <xsl:param>"boost.doxygen.reftitle=Reference Section of Boost.Any"
+    ;
+
+boostbook any-doc
+    :
+        any.qbk
+    :
+        <dependency>autodoc_any
+        <xsl:param>boost.root=https://www.boost.org/doc/libs/1_82_0
+        #<xsl:param>boost.root=../../../.
+        <xml:param>html.stylesheet=../../../../doc/src/boostbook.css
+    ;
+
+###############################################################################
+alias boostdoc
+    : any-doc/<format>docbook
+    :
+    :
+    : ;
+explicit boostdoc ;
+alias boostrelease ;
+explicit boostrelease ;

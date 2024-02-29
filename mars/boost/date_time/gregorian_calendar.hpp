@@ -9,6 +9,7 @@
  * $Date$
  */
 
+#include <boost/date_time/compiler_config.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace date_time {
@@ -19,13 +20,13 @@ namespace date_time {
       can be used in the creation of date systems or just to perform calculations.
       All the methods of this class are static functions, so the intent is to
       never create instances of this class.
-    @param ymd_type_ Struct type representing the year, month, day.  The ymd_type must
+    @tparam ymd_type_ Struct type representing the year, month, day.  The ymd_type must
            define a of types for the year, month, and day.  These types need to be
            arithmetic types.
-    @param date_int_type_ Underlying type for the date count.  Must be an arithmetic type.
+    @tparam date_int_type_ Underlying type for the date count.  Must be an arithmetic type.
   */
   template<typename ymd_type_, typename date_int_type_>
-  class gregorian_calendar_base {
+  class BOOST_SYMBOL_VISIBLE gregorian_calendar_base {
   public:
     //! define a type a date split into components
     typedef ymd_type_  ymd_type;
@@ -39,19 +40,18 @@ namespace date_time {
     typedef date_int_type_ date_int_type;
 
 
-    static unsigned short day_of_week(const ymd_type& ymd);
-    static int week_number(const ymd_type&ymd);
-    //static unsigned short day_of_year(date_int_type);
-    static date_int_type day_number(const ymd_type& ymd);
-    static date_int_type julian_day_number(const ymd_type& ymd);
-    static date_int_type modjulian_day_number(const ymd_type& ymd);
-    static ymd_type from_day_number(date_int_type);
-    static ymd_type from_julian_day_number(date_int_type);
-    static ymd_type from_modjulian_day_number(date_int_type);
-    static bool is_leap_year(year_type);
-    static unsigned short end_of_month_day(year_type y, month_type m);
-    static ymd_type epoch();
-    static unsigned short days_in_week();
+    static BOOST_CXX14_CONSTEXPR unsigned short day_of_week(const ymd_type& ymd);
+    static BOOST_CXX14_CONSTEXPR int week_number(const ymd_type&ymd);
+    static BOOST_CXX14_CONSTEXPR date_int_type day_number(const ymd_type& ymd);
+    static BOOST_CXX14_CONSTEXPR date_int_type julian_day_number(const ymd_type& ymd);
+    static BOOST_CXX14_CONSTEXPR date_int_type modjulian_day_number(const ymd_type& ymd);
+    static BOOST_CXX14_CONSTEXPR ymd_type from_day_number(date_int_type);
+    static BOOST_CXX14_CONSTEXPR ymd_type from_julian_day_number(date_int_type);
+    static BOOST_CXX14_CONSTEXPR ymd_type from_modjulian_day_number(date_int_type);
+    static BOOST_CXX14_CONSTEXPR bool is_leap_year(year_type);
+    static BOOST_CXX14_CONSTEXPR unsigned short end_of_month_day(year_type y, month_type m);
+    static BOOST_CXX14_CONSTEXPR ymd_type epoch();
+    static BOOST_CXX14_CONSTEXPR unsigned short days_in_week();
 
   };
 
@@ -59,9 +59,8 @@ namespace date_time {
 
 } } //namespace
 
-#ifndef NO_BOOST_DATE_TIME_INLINE
 #include "boost/date_time/gregorian_calendar.ipp"
-#endif
+
 
 
 

@@ -86,6 +86,12 @@
 #  define BOOST_SYMBOL_VISIBLE __global
 #endif
 
+// Deprecated symbol markup
+// Oracle Studio 12.4 supports deprecated attribute with a message; this is the first release that supports the attribute.
+#if (__SUNPRO_CC >= 0x5130)
+#define BOOST_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#endif
+
 #if (__SUNPRO_CC < 0x5130)
 // C++03 features in 12.4:
 #define BOOST_NO_TWO_PHASE_NAME_LOOKUP
@@ -120,9 +126,12 @@
 #define BOOST_NO_CXX11_TEMPLATE_ALIASES
 #define BOOST_NO_CXX11_UNICODE_LITERALS
 #define BOOST_NO_CXX11_ALIGNAS
+#define BOOST_NO_CXX11_ALIGNOF
 #define BOOST_NO_CXX11_TRAILING_RESULT_TYPES
 #define BOOST_NO_CXX11_INLINE_NAMESPACES
 #define BOOST_NO_CXX11_FINAL
+#define BOOST_NO_CXX11_OVERRIDE
+#define BOOST_NO_CXX11_UNRESTRICTED_UNION
 #endif
 
 #if (__SUNPRO_CC < 0x5140) || (__cplusplus < 201103)
@@ -132,6 +141,7 @@
 #define BOOST_NO_CXX11_DECLTYPE_N3276
 #define BOOST_NO_CXX11_USER_DEFINED_LITERALS
 #define BOOST_NO_CXX11_REF_QUALIFIERS
+#define BOOST_NO_CXX11_THREAD_LOCAL
 #endif
 
 #define BOOST_NO_COMPLETE_VALUE_INITIALIZATION
@@ -140,6 +150,7 @@
 //
 #  define BOOST_HAS_LONG_LONG
 
+#define BOOST_NO_CXX11_SFINAE_EXPR
 
 // C++ 14:
 #if !defined(__cpp_aggregate_nsdmi) || (__cpp_aggregate_nsdmi < 201304)
@@ -151,7 +162,7 @@
 #if !defined(__cpp_constexpr) || (__cpp_constexpr < 201304)
 #  define BOOST_NO_CXX14_CONSTEXPR
 #endif
-#if !defined(__cpp_decltype_auto) || (__cpp_decltype_auto < 201304)
+#if !defined(__cpp_decltype_auto) || (__cpp_decltype_auto < 201304) || (__cplusplus < 201402L)
 #  define BOOST_NO_CXX14_DECLTYPE_AUTO
 #endif
 #if (__cplusplus < 201304) // There's no SD6 check for this....
@@ -169,6 +180,27 @@
 #if !defined(__cpp_variable_templates) || (__cpp_variable_templates < 201304)
 #  define BOOST_NO_CXX14_VARIABLE_TEMPLATES
 #endif
+
+// C++17
+#if !defined(__cpp_structured_bindings) || (__cpp_structured_bindings < 201606)
+#  define BOOST_NO_CXX17_STRUCTURED_BINDINGS
+#endif
+#if !defined(__cpp_inline_variables) || (__cpp_inline_variables < 201606)
+#  define BOOST_NO_CXX17_INLINE_VARIABLES
+#endif
+#if !defined(__cpp_fold_expressions) || (__cpp_fold_expressions < 201603)
+#  define BOOST_NO_CXX17_FOLD_EXPRESSIONS
+#endif
+#if !defined(__cpp_if_constexpr) || (__cpp_if_constexpr < 201606)
+#  define BOOST_NO_CXX17_IF_CONSTEXPR
+#endif
+
+// Turn on threading support for Solaris 12.
+// Ticket #11972
+#if (__SUNPRO_CC >= 0x5140) && defined(__SunOS_5_12) && !defined(BOOST_HAS_THREADS)
+# define BOOST_HAS_THREADS
+#endif
+
 //
 // Version
 //
@@ -182,9 +214,9 @@
 #error "Compiler not supported or configured - please reconfigure"
 #endif
 //
-// last known and checked version is 0x590:
-#if (__SUNPRO_CC > 0x590)
+// last known and checked version:
+#if (__SUNPRO_CC > 0x5150)
 #  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
+#     error "Boost.Config is older than your compiler - please check for an updated Boost release."
 #  endif
 #endif

@@ -10,6 +10,12 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/thread/detail/config.hpp>
+
+#ifdef BOOST_MSVC
+# pragma warning(push)
+# pragma warning(disable: 4702) // unreachable code
+#endif
+
 #include <boost/thread/detail/platform.hpp>
 #if defined(BOOST_THREAD_PLATFORM_WIN32)
 #include <boost/thread/win32/once.hpp>
@@ -40,5 +46,9 @@ inline void call_once(Function func,once_flag& flag)
 }
 
 #include <boost/config/abi_suffix.hpp>
+
+#ifdef BOOST_MSVC
+# pragma warning(pop)
+#endif
 
 #endif

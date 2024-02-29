@@ -1,0 +1,60 @@
+#  Copyright Vladimir Prus 2005. Use, modification and
+#  distribution is subject to the Boost Software License, Version
+#  1.0. (See accompanying file LICENSE_1_0.txt or copy at
+#  http://www.boost.org/LICENSE_1_0.txt)
+#
+# For more information, see http://www.boost.org/libs/any
+#
+
+build-project unique_any ;
+
+import ../../config/checks/config : requires ;
+
+import testing ;
+
+project
+    : source-location .
+    : requirements
+        [ requires cxx11_rvalue_references ]
+    ;
+
+test-suite any :
+    [ run any_test.cpp ]
+    [ run any_test.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : any_test_no_rtti  ]
+    [ run any_test_rv.cpp ]
+    [ run any_test_rv.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : any_test_rv_no_rtti  ]
+    [ run any_test_mplif.cpp ]
+    [ compile-fail any_cast_cv_failed.cpp ]
+    [ compile-fail any_test_temporary_to_ref_failed.cpp ]
+    [ compile-fail any_test_cv_to_rv_failed.cpp ]
+    [ run basic_any_test.cpp ]
+    [ run basic_any_test.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : basic_any_test_no_rtti  ]
+    [ run basic_any_test_rv.cpp ]
+    [ run basic_any_test_rv.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : basic_any_test_rv_no_rtti  ]
+    [ run basic_any_test_mplif.cpp ]
+    [ run basic_any_test_large_object.cpp ]
+    [ run basic_any_test_small_object.cpp ]
+    [ compile-fail basic_any_cast_cv_failed.cpp ]
+    [ compile-fail basic_any_test_alignment_power_of_two_failed.cpp ]
+    [ compile-fail basic_any_test_cv_to_rv_failed.cpp ]
+    [ compile-fail basic_any_test_multiply_size_failed.cpp ]
+    [ compile-fail basic_any_test_size_alignment_zero_failed.cpp ]
+    [ compile-fail basic_any_test_size_less_alignment_failed.cpp ]
+    [ compile-fail basic_any_test_temporary_to_ref_failed.cpp ]
+
+    [ compile-fail any_from_basic_any.cpp ]
+    [ compile-fail any_to_basic_any.cpp ]
+    [ compile-fail basic_any_from_any.cpp ]
+    [ compile-fail basic_any_to_any.cpp ]
+    [ compile-fail any_from_basic_any_rv.cpp ]
+    [ compile-fail any_to_basic_any_rv.cpp ]
+    [ compile-fail basic_any_from_any_rv.cpp ]
+    [ compile-fail basic_any_to_any_rv.cpp ]
+
+    [ compile-fail basic_any_from_basic_any.cpp ]
+    [ compile-fail basic_any_to_basic_any.cpp ]
+    [ compile-fail basic_any_from_basic_any_rv.cpp ]
+    [ compile-fail basic_any_to_basic_any_rv.cpp ]
+  ;
+
+

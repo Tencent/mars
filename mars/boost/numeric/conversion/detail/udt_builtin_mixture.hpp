@@ -12,18 +12,18 @@
 
 #include "boost/type_traits/is_arithmetic.hpp"
 
-#include "boost/numeric/conversion/udt_builtin_mixture_enum.hpp"
 #include "boost/numeric/conversion/detail/meta.hpp"
+#include "boost/numeric/conversion/udt_builtin_mixture_enum.hpp"
 
-#include "boost/mpl/integral_c.hpp"
+#include "boost/type_traits/integral_constant.hpp"
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace numeric { namespace convdetail
 {
   // Integral Constants for 'UdtMixture'
-  typedef mpl::integral_c<udt_builtin_mixture_enum, builtin_to_builtin> builtin2builtin_c ;
-  typedef mpl::integral_c<udt_builtin_mixture_enum, builtin_to_udt>     builtin2udt_c ;
-  typedef mpl::integral_c<udt_builtin_mixture_enum, udt_to_builtin>     udt2builtin_c ;
-  typedef mpl::integral_c<udt_builtin_mixture_enum, udt_to_udt>         udt2udt_c ;
+  typedef mars_boost::integral_constant<udt_builtin_mixture_enum, builtin_to_builtin> builtin2builtin_c ;
+  typedef mars_boost::integral_constant<udt_builtin_mixture_enum, builtin_to_udt>     builtin2udt_c ;
+  typedef mars_boost::integral_constant<udt_builtin_mixture_enum, udt_to_builtin>     udt2builtin_c ;
+  typedef mars_boost::integral_constant<udt_builtin_mixture_enum, udt_to_udt>         udt2udt_c ;
 
   // Metafunction:
   //

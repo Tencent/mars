@@ -15,16 +15,16 @@
 // $Date$
 // $Revision$
 
-#   include <boost/mpl/limits/unrolling.hpp>
-#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
-#   include <boost/mpl/aux_/config/workaround.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
 #   include <boost/mpl/aux_/config/eti.hpp>
+#   include <boost/mpl/aux_/config/workaround.hpp>
+#   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
+#   include <boost/mpl/limits/unrolling.hpp>
 
-#   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/dec.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/dec.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 // local macros, #undef-ined at the end of the header
 
@@ -60,7 +60,7 @@ struct AUX778076_FOLD_IMPL_NAME;
 
 #if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 
-#   if !BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#   if !BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
 
 #   define BOOST_PP_ITERATION_PARAMS_1 \
     (3,(0, BOOST_MPL_LIMIT_UNROLLING, <boost/mpl/aux_/fold_impl_body.hpp>))
@@ -125,7 +125,7 @@ struct AUX778076_FOLD_IMPL_NAME<-1,Last,Last,State,ForwardOp>
     typedef Last iterator;
 };
 
-#   else // BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#   else // BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
 
 // Borland have some serious problems with the unrolled version, so
 // we always use a basic implementation
@@ -164,7 +164,7 @@ struct AUX778076_FOLD_IMPL_NAME<N,Last,Last,State,ForwardOp >
     typedef state type;
 };
 
-#   endif // BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#   endif // BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
  
 #else // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 

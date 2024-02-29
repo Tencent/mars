@@ -63,7 +63,9 @@ class Alarm {
     , after_(0)
     , starttime_(0)
     , endtime_(0)
-    , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
+    , reg_(MessageQueue::InstallMessageHandler(
+          boost::bind(&Alarm::OnAlarm, this, boost::placeholders::_1, boost::placeholders::_2),
+          true))
 #ifdef ANDROID
     , wakelock_(NULL)
     , type_(-1)
@@ -84,7 +86,9 @@ class Alarm {
     , after_(0)
     , starttime_(0)
     , endtime_(0)
-    , reg_(MessageQueue::InstallMessageHandler(boost::bind(&Alarm::OnAlarm, this, _1, _2), true))
+    , reg_(MessageQueue::InstallMessageHandler(
+          boost::bind(&Alarm::OnAlarm, this, boost::placeholders::_1, boost::placeholders::_2),
+          true))
 #ifdef ANDROID
     , wakelock_(NULL)
     , type_(-1)

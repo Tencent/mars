@@ -7,7 +7,13 @@
 #  *                                                                          *
 #  ************************************************************************** */
 #
+# /* Revised by Edward Diener (2020) */
+#
 # /* See http://www.boost.org for most recent version. */
+#
+# include <boost/preprocessor/config/config.hpp>
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # if BOOST_PP_ITERATION_FINISH_1 <= 256 && BOOST_PP_ITERATION_START_1 >= 256
 #    define BOOST_PP_ITERATION_1 256
@@ -1293,4 +1299,23 @@
 #    define BOOST_PP_ITERATION_1 0
 #    include BOOST_PP_FILENAME_1
 #    undef BOOST_PP_ITERATION_1
+# endif
+#
+# else
+#
+# include <boost/preprocessor/config/limits.hpp>
+#
+# if BOOST_PP_LIMIT_ITERATION == 256
+# include <boost/preprocessor/iteration/detail/iter/limits/reverse1_256.hpp>
+# elif BOOST_PP_LIMIT_ITERATION == 512
+# include <boost/preprocessor/iteration/detail/iter/limits/reverse1_256.hpp>
+# include <boost/preprocessor/iteration/detail/iter/limits/reverse1_512.hpp>
+# elif BOOST_PP_LIMIT_ITERATION == 1024
+# include <boost/preprocessor/iteration/detail/iter/limits/reverse1_1024.hpp>
+# include <boost/preprocessor/iteration/detail/iter/limits/reverse1_256.hpp>
+# include <boost/preprocessor/iteration/detail/iter/limits/reverse1_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_ITERATION limit
+# endif
+#
 # endif

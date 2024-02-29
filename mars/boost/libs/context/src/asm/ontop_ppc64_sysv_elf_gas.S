@@ -66,6 +66,7 @@
  *                                                     *
  *******************************************************/
 
+.file "ontop_ppc64_sysv_elf_gas.S"
 .globl ontop_fcontext
 #if _CALL_ELF == 2
 	.text
@@ -115,11 +116,13 @@ ontop_fcontext:
     std  %r25, 96(%r1)  # save R25
     std  %r26, 104(%r1)  # save R26
     std  %r27, 112(%r1)  # save R27
-    std  %r29, 120(%r1)  # save R28
+    std  %r28, 120(%r1)  # save R28
     std  %r29, 128(%r1)  # save R29
     std  %r30, 136(%r1)  # save R30
     std  %r31, 144(%r1)  # save R31
+#if _CALL_ELF != 2
     std  %r3,  152(%r1)  # save hidden
+#endif
 
     # save CR
     mfcr  %r0
@@ -133,12 +136,14 @@ ontop_fcontext:
     # store RSP (pointing to context-data) in R7
     mr  %r7, %r1
 
+#if _CALL_ELF == 2
+    # restore RSP (pointing to context-data) from R3
+    mr  %r1, %r3
+#else
     # restore RSP (pointing to context-data) from R4
     mr  %r1, %r4
-
-#if _CALL_ELF != 2
-    ld  %r2,  0(%r1)  # restore TOC
 #endif
+
     ld  %r14, 8(%r1)  # restore R14
     ld  %r15, 16(%r1)  # restore R15
     ld  %r16, 24(%r1)  # restore R16
@@ -157,31 +162,76 @@ ontop_fcontext:
     ld  %r29, 128(%r1)  # restore R29
     ld  %r30, 136(%r1)  # restore R30
     ld  %r31, 144(%r1)  # restore R31
-    ld  %r4,  152(%r1)  # restore hidden
+#if _CALL_ELF != 2
+    ld  %r3,  152(%r1)  # restore hidden
+#endif
 
     # restore CR
     ld  %r0, 160(%r1)
     mtcr  %r0
+
+#if _CALL_ELF == 2
+    # restore CTR
+    mtctr  %r5
+
+    # store cb entrypoint in %r12, used for TOC calculation
+    mr %r12, %r5
+
+    # copy transfer_t into ontop_fn arg registers
+    mr  %r3, %r7
+    # arg pointer already in %r4
+#else
+    # copy transfer_t into ontop_fn arg registers
+    mr  %r4, %r7
+    # arg pointer already in %r5
+    # hidden arg already in %r3
+
+    # restore CTR
+    ld   %r7, 0(%r6)
+    mtctr  %r7
+    # restore TOC
+    ld   %r2, 8(%r6)
+
+    # zero in r3 indicates first jump to context-function
+    cmpdi  %r3, 0
+    beq  use_entry_arg
+#endif
+
+return_to_ctx:
     # restore LR
     ld  %r0, 168(%r1)
     mtlr  %r0
-    # ignore PC
 
     # adjust stack
     addi  %r1, %r1, 184
 
-    # return transfer_t
-    std  %r7, 0(%r4)
-    std  %r5, 8(%r4)
-
-    # restore CTR
-    mtctr  %r6
-
     # jump to context
     bctr
+
 #if _CALL_ELF == 2
 	.size ontop_fcontext, .-ontop_fcontext
 #else
+use_entry_arg:
+    # compute return-value struct address
+    # (passed has hidden arg to ontop_fn)
+    addi  %r3, %r1, 8
+
+    # jump to context and update LR
+    bctrl
+
+    # restore CTR
+    ld   %r7, 176(%r1)
+    mtctr  %r7
+#if _CALL_ELF != 2
+    # restore TOC
+    ld   %r2, 0(%r1)
+#endif
+
+    # copy returned transfer_t into entry_fn arg registers
+    ld  %r3, 8(%r1)
+    ld  %r4, 16(%r1)
+
+    b  return_to_ctx
 # ifdef _CALL_LINUX
 	.size .ontop_fcontext, .-.L.ontop_fcontext
 # else

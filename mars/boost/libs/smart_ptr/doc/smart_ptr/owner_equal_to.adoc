@@ -1,0 +1,45 @@
+////
+Copyright 2020 Peter Dimov
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#owner_equal_to]
+# owner_equal_to
+:toc:
+:toc-title:
+:idprefix: owner_equal_to_
+
+## Description
+
+`owner_equal_to<T>` is a helper function object that compares two smart
+pointer objects using `owner_equals`.
+
+## Synopsis
+
+`owner_equal_to` is defined in `<boost/smart_ptr/owner_equal_to.hpp>`.
+
+```
+namespace boost {
+
+  template<class T = void> struct owner_equal_to
+  {
+    typedef bool result_type;
+    typedef T first_argument_type;
+    typedef T second_argument_type;
+
+    template<class U, class V> bool operator()( U const & u, V const & v ) const noexcept;
+  };
+}
+```
+
+## Members
+
+```
+template<class U, class V> bool operator()( U const & u, V const & v ) const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  `u.owner_equals( v )`.

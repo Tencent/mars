@@ -10,23 +10,24 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/predef/library/std/_prefix.h>
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_LIB_STD_SGI`]
+/* tag::reference[]
+= `BOOST_LIB_STD_SGI`
 
-[@http://www.sgi.com/tech/stl/ SGI] Standard C++ library.
+http://www.sgi.com/tech/stl/[SGI] Standard {CPP} library.
 If available version number as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__STL_CONFIG_H`] [__predef_detection__]]
+| `+__STL_CONFIG_H+` | {predef_detection}
 
-    [[`__SGI_STL`] [V.R.P]]
-    ]
- */
+| `+__SGI_STL+` | V.R.P
+|===
+*/ // end::reference[]
 
 #define BOOST_LIB_STD_SGI BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

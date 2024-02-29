@@ -25,7 +25,7 @@
 // to replace the platform-native BSD one. G++ users
 // should also always be able to do this on MaxOS X.
 //
-#  include <boost/config/posix_features.hpp>
+#  include <boost/config/detail/posix_features.hpp>
 #  ifndef BOOST_HAS_STDINT_H
 #     define BOOST_HAS_STDINT_H
 #  endif

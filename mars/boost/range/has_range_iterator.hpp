@@ -35,11 +35,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         template<class T>
         struct has_range_iterator_impl<
             T,
-            BOOST_DEDUCED_TYPENAME ::boost::enable_if<
+            BOOST_DEDUCED_TYPENAME ::mars_boost::enable_if<
                 BOOST_DEDUCED_TYPENAME mpl::eval_if<is_const<T>,
-                    has_type<range_const_iterator<
+                    has_type<mars_boost::range_const_iterator<
                                 BOOST_DEDUCED_TYPENAME remove_const<T>::type> >,
-                    has_type<range_mutable_iterator<T> >
+                    has_type<mars_boost::range_mutable_iterator<T> >
                 >::type
             >::type
         >
@@ -56,8 +56,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         template<class T>
         struct has_range_const_iterator_impl<
             T,
-            BOOST_DEDUCED_TYPENAME ::boost::enable_if<
-                has_type<range_const_iterator<T> >
+            BOOST_DEDUCED_TYPENAME ::mars_boost::enable_if<
+                has_type<mars_boost::range_const_iterator<T> >
             >::type
         >
             : mars_boost::mpl::true_
@@ -77,7 +77,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         : range_detail::has_range_const_iterator_impl<
             BOOST_DEDUCED_TYPENAME remove_reference<T>::type>
     {};
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard
 

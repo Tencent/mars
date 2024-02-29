@@ -15,13 +15,13 @@
 # pragma once
 #endif
 
+#include <boost/mpl/eval_if.hpp>
 #include <boost/range/config.hpp>
-#include <boost/range/range_fwd.hpp>
-#include <boost/range/mutable_iterator.hpp>
 #include <boost/range/const_iterator.hpp>
+#include <boost/range/mutable_iterator.hpp>
+#include <boost/range/range_fwd.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/remove_const.hpp>
-#include <boost/mpl/eval_if.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -69,6 +69,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
 #endif
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif

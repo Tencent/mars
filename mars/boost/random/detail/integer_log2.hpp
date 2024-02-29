@@ -15,8 +15,8 @@
 #define BOOST_RANDOM_DETAIL_INTEGER_LOG2_HPP
 
 #include <boost/config.hpp>
+#include <boost/integer/integer_log2.hpp>
 #include <boost/limits.hpp>
-#include <boost/pending/integer_log2.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace random {

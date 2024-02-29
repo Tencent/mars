@@ -1,0 +1,335 @@
+////
+Copyright 2019-2021 Glen Joseph Fernandes (glenjofe@gmail.com)
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#allocate_unique]
+# allocate_unique: Creating unique_ptr
+:toc:
+:toc-title:
+:idprefix: allocate_unique_
+
+## Description
+
+The `allocate_unique` family of function templates provide convenient and safe
+ways to obtain a `std::unique_ptr` that manages a new object created using an
+allocator.
+
+## Rationale
+
+The {cpp}14 standard introduced `std::make_unique` which used operator `new` to
+create new objects. However, there is no convenient facility in the standard
+library to use an allocator for the creation of the objects managed by
+`std::unique_ptr`. Users writing allocator aware code have often requested an
+`allocate_unique` factory function. This function is to `std::unique_ptr` what
+`std::allocate_shared` is to `std::shared_ptr`.
+
+## Synopsis
+
+`allocate_unique` is defined in `<boost/smart_ptr/allocate_unique.hpp>`.
+
+[subs=+quotes]
+```
+namespace boost {
+  template<class T, class A>
+  class alloc_deleter;
+
+  template<class T, class A>
+  using alloc_noinit_deleter = alloc_deleter<T, noinit_adaptor<A>>;
+
+  `// T is not an array`
+  template<class T, class A, class... Args>
+    std::unique_ptr<T, alloc_deleter<T, A>>
+      allocate_unique(const A& a, Args&&... args);
+
+  `// T is not an array`
+  template<class T, class A>
+    std::unique_ptr<T, alloc_deleter<T, A>>
+      allocate_unique(const A& a, type_identity_t<T>&& v);
+
+  `// T is an array of unknown bounds`
+  template<class T, class A>
+    std::unique_ptr<T, alloc_deleter<T, A>>
+      allocate_unique(const A& a, std::size_t n);
+
+  `// T is an array of known bounds`
+  template<class T, class A>
+    std::unique_ptr<remove_extent_t<T>[], alloc_deleter<T, A>>
+      allocate_unique(const A& a);
+
+  `// T is an array of unknown bounds`
+  template<class T, class A>
+    std::unique_ptr<T, alloc_deleter<T, A>>
+      allocate_unique(const A& a, std::size_t n, const remove_extent_t<T>& v);
+
+  `// T is an array of known bounds`
+  template<class T, class A>
+    std::unique_ptr<remove_extent_t<T>[], alloc_deleter<T, A>>
+      allocate_unique(const A& a, const remove_extent_t<T>& v);
+
+  `// T is not an array`
+  template<class T, class A>
+    std::unique_ptr<T, alloc_noinit_deleter<T, A>>
+      allocate_unique_noinit(const A& a);
+
+  `// T is an array of unknown bounds`
+  template<class T, class A>
+    std::unique_ptr<T, alloc_noinit_deleter<T, A>>
+      allocate_unique_noinit(const A& a, std::size_t n);
+
+  `// T is an array of known bounds`
+  template<class T, class A>
+    std::unique_ptr<remove_extent_t<T>[], alloc_noinit_deleter<T, A>>
+      allocate_unique_noinit(const A& a);
+
+  template<class T, class U, class A>
+    allocator_pointer_t<allocator_rebind_t<A, remove_cv_t<remove_extent_t<T>>>>
+      get_allocator_pointer(const std::unique_ptr<T,
+        alloc_deleter<U, A>>& p) noexcept;
+}
+```
+
+## Common Requirements
+
+The common requirements that apply to all `allocate_unique` and
+`allocate_unique_noinit` overloads, unless specified otherwise, are described
+below.
+
+Requires:: `A` shall be an _allocator_. The copy constructor and destructor
+of `A` shall not throw exceptions.
+
+Effects:: Allocates memory for an object of type `T` or `n` objects of `U`
+(if `T` is an array type of the form `U[]` and  `n` is determined by
+arguments, as specified by the concrete overload). The object is initialized
+from arguments as specified by the concrete overload. Uses a rebound copy of
+`a` (for an unspecified `value_type`) to allocate memory. If an exception is
+thrown, the functions have no effect.
+
+Returns:: A `std::unique_ptr` instance that stores and owns the address of the
+newly constructed object.
+
+Postconditions:: `r.get() != 0`, where `r` is the return value.
+
+Throws:: An exception thrown from `A::allocate`, or from the initialization of
+the object.
+
+Remarks::
+* When an object of an array type is specified to be initialized to a value of
+the same type `v`, this shall be interpreted to mean that each array element
+of the object is initialized to the corresponding element from `v`.
+* When an object of an array type is specified to be value-initialized, this
+shall be interpreted to mean that each array element of the object is
+value-initialized.
+* When a (sub)object of non-array type `U` is specified to be initialized to a
+value `v`, or constructed from `args\...`, `allocate_unique` shall perform this
+initialization via the expression
+`std::allocator_traits<A2>::construct(a2, p, expr)` (where `_expr_` is `v` or
+`std::forward<Args>(args)\...)` respectively), `p` points to storage suitable
+to hold an object of type `U`, and `a2` of type `A2` is a potentially rebound
+copy of `a`.
+* When a (sub)object of non-array type `U` is specified to be
+default-initialized, `allocate_unique_noinit` shall perform this initialization
+via the expression `::new(p) U`, where `p` has type `void*` and points to
+storage suitable to hold an object of type `U`.
+* When a (sub)object of non-array type `U` is specified to be
+value-initialized, `allocate_unique` shall perform this initialization via the
+expression `std::allocator_traits<A2>::construct(a2, p)`, where `p` points to
+storage suitable to hold an object of type `U` and `a2` of type `A2` is a
+potentially rebound copy of `a`.
+* Array elements are initialized in ascending order of their addresses.
+* When the lifetime of the object managed by the return value ends, or when the
+initialization of an array element throws an exception, the initialized
+elements should be destroyed in the reverse order of their construction.
+
+## Free Functions
+
+```
+template<class T, class A, class... Args>
+  std::unique_ptr<T, alloc_deleter<T, A>>
+    allocate_unique(const A& a, Args&&... args);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array.
+Returns:: A `std::unique_ptr` to an object of type `T`, constructed from
+`args\...`.
+Examples::
+* `auto p = allocate_unique<int>(a);`
+* `auto p = allocate_unique<std::vector<int>>(a, 16, 1);`
+
+```
+template<class T, class A>
+  std::unique_ptr<T, alloc_deleter<T, A>>
+    allocate_unique(const A& a, type_identity_t<T>&& v);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array.
+Returns:: A `std::unique_ptr` to an object of type `T`, constructed from `v`.
+Example:: `auto p = allocate_unique<std::vector<int>>(a, {1, 2});`
+
+```
+template<class T, class A>
+  std::unique_ptr<T, alloc_deleter<T, A>>
+    allocate_unique(const A& a, std::size_t n);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: A `std::unique_ptr` to a sequence of `n` value-initialized objects of
+type `remove_extent_t<T>`.
+Examples::
+* `auto p = allocate_unique<double[]>(a, 1024);`
+* `auto p = allocate_unique<double[][2][2]>(a, 6);`
+
+```
+template<class T, class A>
+  std::unique_ptr<remove_extent_t<T>[], alloc_deleter<T, A>>
+    allocate_unique(const A& a);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of known bounds.
+Returns:: A `std::unique_ptr` to a sequence of `extent_v<T>` value-initialized
+objects of type `remove_extent_t<T>`.
+Examples::
+* `auto p = allocate_unique<double[1024]>(a);`
+* `auto p = allocate_unique<double[6][2][2]>(a);`
+
+```
+template<class T, class A>
+  std::unique_ptr<T, alloc_deleter<T, A>>
+    allocate_unique(const A& a, std::size_t n, const remove_extent_t<T>& v);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: A `std::unique_ptr` to a sequence of `n` objects of type
+`remove_extent_t<T>`, each initialized to `v`.
+Examples::
+* `auto p = allocate_unique<double[]>(a, 1024, 1.0);`
+* `auto p = allocate_unique<double[][2]>(a, 6, {1.0, 0.0});`
+* `auto p = allocate_unique<std::vector<int>[]>(a, 4, {1, 2});`
+
+```
+template<class T, class A>
+  std::unique_ptr<remove_extent_t<T>[], alloc_deleter<T, A>>
+    allocate_unique(const A& a, const remove_extent_t<T>& v);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of known bounds.
+Returns:: A `std::unique_ptr` to a sequence of `extent_v<T>` objects of type
+`remove_extent_t<T>`, each initialized to `v`.
+Examples::
+* `auto p = allocate_unique<double[1024]>(a, 1.0);`
+* `auto p = allocate_unique<double[6][2]>(a, {1.0, 0.0});`
+* `auto p = allocate_unique<std::vector<int>[4]>(a, {1, 2});`
+
+```
+template<class T, class A>
+  std::unique_ptr<T, alloc_noinit_deleter<T, A>>
+    allocate_unique_noinit(const A& a);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is not an array.
+Returns:: A `std::unique_ptr` to a default-initialized object of type `T`.
+Example:: `auto p = allocate_unique_noinit<double>(a);`
+
+```
+template<class T, class A>
+  std::unique_ptr<T, alloc_noinit_deleter<T, A>>
+    allocate_unique_noinit(const A& a, std::size_t n);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of unknown bounds.
+Returns:: A `std::unique_ptr` to a sequence of `n` default-initialized objects
+of type `remove_extent_t<T>`.
+Example:: `auto p = allocate_unique_noinit<double[]>(a, 1024);`
+
+```
+template<class T, class A>
+  std::unique_ptr<remove_extent_t<T>, alloc_noinit_deleter<T, A>>
+    allocate_unique_noinit(const A& a);
+```
+[none]
+* {blank}
++
+Constraints:: `T` is an array of known bounds.
+Returns:: A `std::unique_ptr` to a sequence of `extent_v<T>`
+default-initialized objects of type `remove_extent_t<T>`.
+Example:: `auto p = allocate_unique_noinit<double[1024]>(a);`
+
+```
+template<class T, class U, class A>
+  allocator_pointer_t<allocator_rebind_t<A, remove_cv_t<remove_extent_t<T>>>>
+    get_allocator_pointer(const std::unique_ptr<T,
+      alloc_deleter<U, A>>& p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: The allocator pointer to the allocation.
+Example:: `auto r = boost::get_allocator_ptr(p);`
+
+## Deleter
+
+Class template `alloc_deleter` is the deleter used by the `allocate_unique`
+functions.
+
+### Synopsis
+
+[subs=+quotes]
+```
+template<class T, class A>
+class alloc_deleter {
+public:
+  using pointer = `unspecified`;
+
+  explicit alloc_deleter(const A& a) noexcept;
+
+  void operator()(pointer p);
+};
+```
+
+### Members
+
+[subs=+quotes]
+```
+using pointer = `unspecified`;
+```
+[none]
+* {blank}
++
+A type that satisfies _NullablePointer_.
+
+```
+explicit alloc_deleter(const A& a) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Initializes the stored allocator from `a`.
+
+```
+void operator()(pointer p);
+```
+[none]
+* {blank}
++
+Effects:: Destroys the objects and deallocates the storage referenced by `p`,
+using the stored allocator.

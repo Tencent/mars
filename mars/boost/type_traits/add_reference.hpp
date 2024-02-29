@@ -9,8 +9,8 @@
 #ifndef BOOST_TT_ADD_REFERENCE_HPP_INCLUDED
 #define BOOST_TT_ADD_REFERENCE_HPP_INCLUDED
 
-#include <boost/detail/workaround.hpp>
 #include <boost/config.hpp>
+#include <boost/detail/workaround.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -49,10 +49,17 @@ template <class T> struct add_reference<T&>
 // these full specialisations are always required:
 template <> struct add_reference<void> { typedef void type; };
 #ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS
-template <> struct add_reference<const void> { typedef void type; };
-template <> struct add_reference<const volatile void> { typedef void type; };
-template <> struct add_reference<volatile void> { typedef void type; };
+template <> struct add_reference<const void> { typedef const void type; };
+template <> struct add_reference<const volatile void> { typedef const volatile void type; };
+template <> struct add_reference<volatile void> { typedef volatile void type; };
 #endif
+
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+template <class T> using add_reference_t = typename add_reference<T>::type;
+
+#endif
+
 
 } // namespace mars_boost
 

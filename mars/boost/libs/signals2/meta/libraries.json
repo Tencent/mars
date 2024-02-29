@@ -1,0 +1,16 @@
+{
+    "key": "signals2",
+    "name": "Signals2",
+    "authors": [
+        "Frank Mori Hess"
+    ],
+    "description": "Managed signals & slots callback implementation (thread-safe version 2).",
+    "category": [
+        "Function-objects",
+        "Patterns"
+    ],
+    "maintainers": [
+        "Frank Mori Hess <fmhess -at- users.sourceforge.net>"
+    ],
+    "cxxstd": "03"
+}

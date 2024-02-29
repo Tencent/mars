@@ -3,8 +3,7 @@
 // See http://www.boost.org for updates, documentation, and revision history.
 //-----------------------------------------------------------------------------
 //
-// Copyright (c) 2011
-// Antony Polukhin
+// Copyright (c) 2011-2023 Antony Polukhin
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -18,10 +17,10 @@
 # pragma once
 #endif
 
-#include <boost/variant/variant_fwd.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <boost/functional/hash_fwd.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <boost/variant/variant_fwd.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 

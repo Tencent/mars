@@ -14,9 +14,9 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/preprocessor/default_params.hpp>
-#include <boost/mpl/aux_/na.hpp>
 #include <boost/mpl/aux_/arity_spec.hpp>
+#include <boost/mpl/aux_/na.hpp>
+#include <boost/mpl/aux_/preprocessor/default_params.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

@@ -14,9 +14,9 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/clear_fwd.hpp>
-#include <boost/mpl/aux_/traits_lambda_spec.hpp>
 #include <boost/mpl/aux_/config/eti.hpp>
+#include <boost/mpl/aux_/traits_lambda_spec.hpp>
+#include <boost/mpl/clear_fwd.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

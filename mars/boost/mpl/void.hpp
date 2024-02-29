@@ -14,11 +14,11 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/void_fwd.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/config/msvc.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/aux_/na_spec.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/void_fwd.hpp>
 
 BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 

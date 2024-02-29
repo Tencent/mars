@@ -14,9 +14,9 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/yes_no.hpp>
 #include <boost/mpl/aux_/config/eti.hpp>
 #include <boost/mpl/aux_/config/static_constant.hpp>
+#include <boost/mpl/aux_/yes_no.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl { namespace aux {
 

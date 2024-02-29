@@ -15,12 +15,12 @@
 
 #include <cstddef> // for std::size_t
 
-#include "boost/config.hpp"
-#include "boost/detail/workaround.hpp"
-#include "boost/type_traits/alignment_of.hpp"
-#include "boost/type_traits/type_with_alignment.hpp"
-#include "boost/type_traits/is_pod.hpp"
-#include "boost/type_traits/conditional.hpp"
+#include <boost/config.hpp>
+#include <boost/detail/workaround.hpp>
+#include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/conditional.hpp>
+#include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/type_with_alignment.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -73,7 +73,7 @@ template <
     , std::size_t alignment_ = std::size_t(-1)
 >
 class aligned_storage : 
-#ifndef __BORLANDC__
+#ifndef BOOST_BORLANDC
    private 
 #else
    public

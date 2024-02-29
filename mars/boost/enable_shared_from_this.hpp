@@ -10,7 +10,7 @@
 //  See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt
 //
-//  http://www.boost.org/libs/smart_ptr/enable_shared_from_this.html
+//  See http://www.boost.org/libs/smart_ptr/ for documentation.
 //
 
 #include <boost/smart_ptr/enable_shared_from_this.hpp>

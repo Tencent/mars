@@ -14,9 +14,9 @@
 # ifndef BOOST_PREPROCESSOR_REPETITION_ENUM_SHIFTED_HPP
 # define BOOST_PREPROCESSOR_REPETITION_ENUM_SHIFTED_HPP
 #
-# include <boost/preprocessor/cat.hpp>
 # include <boost/preprocessor/arithmetic/dec.hpp>
 # include <boost/preprocessor/arithmetic/inc.hpp>
+# include <boost/preprocessor/cat.hpp>
 # include <boost/preprocessor/config/config.hpp>
 # include <boost/preprocessor/debug/error.hpp>
 # include <boost/preprocessor/detail/auto_rec.hpp>

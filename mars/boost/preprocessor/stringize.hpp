@@ -28,6 +28,6 @@
 #    define BOOST_PP_STRINGIZE(text) BOOST_PP_STRINGIZE_I(text)
 # endif
 #
-# define BOOST_PP_STRINGIZE_I(text) #text
+# define BOOST_PP_STRINGIZE_I(...) #__VA_ARGS__
 #
 # endif

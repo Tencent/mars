@@ -1,0 +1,96 @@
+# Function library
+
+# Copyright Douglas Gregor 2001-2003. Use, modification and
+# distribution is subject to the Boost Software License, Version
+# 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+# For more information, see http://www.boost.org/
+
+import testing ;
+
+project
+  : default-build
+    <warnings>extra
+  : requirements
+    <toolset>msvc:<warnings-as-errors>on
+    <toolset>gcc:<warnings-as-errors>on
+    <toolset>clang:<warnings-as-errors>on
+  ;
+
+run function_test.cpp ;
+# /usr/include/c++/4.4/bits/shared_ptr.h:146: error: cannot use typeid with -fno-rtti
+run function_test.cpp : : : <rtti>off <toolset>gcc-4.4,<cxxstd>0x:<build>no : function_test_no_rtti ;
+run function_n_test.cpp ;
+run allocator_test.cpp ;
+run stateless_test.cpp ;
+run lambda_test.cpp ;
+compile-fail function_test_fail1.cpp ;
+compile-fail function_test_fail2.cpp ;
+compile function_30.cpp ;
+compile function_30_repeat.cpp ;
+run function_arith_cxx98.cpp ;
+run function_arith_portable.cpp ;
+run sum_avg_cxx98.cpp ;
+run sum_avg_portable.cpp ;
+run mem_fun_cxx98.cpp ;
+run mem_fun_portable.cpp ;
+run std_bind_cxx98.cpp ;
+run std_bind_portable.cpp ;
+run function_ref_cxx98.cpp ;
+run function_ref_portable.cpp ;
+run contains_test.cpp ;
+run contains2_test.cpp ;
+run nothrow_swap.cpp ;
+run rvalues_test.cpp ;
+compile function_typeof_test.cpp
+   : <cxxstd>03:<build>no <cxxstd>98:<build>no <cxxstd>0x:<build>no ;
+run result_arg_types_test.cpp ;
+
+lib throw_bad_function_call : throw_bad_function_call.cpp : <link>shared:<define>THROW_BAD_FUNCTION_CALL_DYN_LINK=1 ;
+
+run test_bad_function_call.cpp throw_bad_function_call : : : <link>shared : test_bad_function_call_shared ;
+run test_bad_function_call.cpp throw_bad_function_call : : : <link>static : test_bad_function_call_static ;
+
+lib mixed_cxxstd : mixed_cxxstd.cpp : <link>shared:<define>MIXED_CXXSTD_DYN_LINK=1 ;
+
+run test_mixed_cxxstd.cpp mixed_cxxstd : : : <link>shared : mixed_cxxstd_shared ;
+run test_mixed_cxxstd.cpp mixed_cxxstd : : : <link>static : mixed_cxxstd_static ;
+
+run test_mixed_cxxstd.cpp mixed_cxxstd/<cxxstd>98 : : : <link>shared : mixed_cxxstd_shared_98 ;
+run test_mixed_cxxstd.cpp mixed_cxxstd/<cxxstd>98 : : : <link>static : mixed_cxxstd_static_98 ;
+
+run test_mixed_cxxstd.cpp mixed_cxxstd/<cxxstd>0x : : : <link>shared : mixed_cxxstd_shared_0x ;
+run test_mixed_cxxstd.cpp mixed_cxxstd/<cxxstd>0x : : : <link>static : mixed_cxxstd_static_0x ;
+
+local check14 = [ check-target-builds mixed_cxxstd/<cxxstd>14 : : <build>no ] ;
+
+run test_mixed_cxxstd.cpp mixed_cxxstd/<cxxstd>14 : : : <link>shared $(check14) : mixed_cxxstd_shared_14 ;
+run test_mixed_cxxstd.cpp mixed_cxxstd/<cxxstd>14 : : : <link>static $(check14) : mixed_cxxstd_static_14 ;
+
+lib return_function : return_function.cpp : <link>shared:<define>RETURN_FUNCTION_DYN_LINK=1 ;
+
+run test_return_function.cpp return_function : : : <link>shared : return_function_shared ;
+run test_return_function.cpp return_function : : : <link>static : return_function_static ;
+
+run test_return_function.cpp return_function/<cxxstd>98 : : : <link>shared : return_function_shared_98 ;
+run test_return_function.cpp return_function/<cxxstd>98 : : : <link>static : return_function_static_98 ;
+
+run test_return_function.cpp return_function/<cxxstd>0x : : : <link>shared : return_function_shared_0x ;
+run test_return_function.cpp return_function/<cxxstd>0x : : : <link>static : return_function_static_0x ;
+
+run test_return_function.cpp return_function/<cxxstd>14 : : : <link>shared $(check14) : return_function_shared_14 ;
+run test_return_function.cpp return_function/<cxxstd>14 : : : <link>static $(check14) : return_function_static_14 ;
+
+run quick.cpp ;
+
+compile issue_42.cpp ;
+
+run fn_eq_bind_test.cpp ;
+
+# /usr/include/c++/4.4/bits/shared_ptr.h:146: error: cannot use typeid with -fno-rtti
+run contains_test.cpp : : : <rtti>off <toolset>gcc-4.4,<cxxstd>0x:<build>no : contains_test_no_rtti ;
+run contains2_test.cpp : : : <rtti>off <toolset>gcc-4.4,<cxxstd>0x:<build>no : contains2_test_no_rtti ;
+
+run contains3_test.cpp ;
+run contains3_test.cpp : : : <rtti>off <toolset>gcc-4.4,<cxxstd>0x:<build>no : contains3_test_no_rtti ;

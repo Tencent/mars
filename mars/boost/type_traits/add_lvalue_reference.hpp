@@ -22,6 +22,12 @@ template <class T> struct add_lvalue_reference<T&&>
 };
 #endif
 
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using add_lvalue_reference_t = typename add_lvalue_reference<T>::type;
+
+#endif
+
 }
 
 #endif  // BOOST_TYPE_TRAITS_EXT_ADD_LVALUE_REFERENCE__HPP

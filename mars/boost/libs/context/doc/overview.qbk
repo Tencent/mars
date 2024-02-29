@@ -1,0 +1,41 @@
+[/
+          Copyright Oliver Kowalke 2014.
+ Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+          http://www.boost.org/LICENSE_1_0.txt
+]
+
+[section:overview Overview]
+
+__boost_context__ is a foundational library that provides a sort of cooperative
+multitasking on a single thread. By providing an abstraction of the current
+execution state in the current thread, including the stack (with local
+variables) and stack pointer, all registers and CPU flags, and the instruction
+pointer, a execution context represents a specific point in the application's
+execution path. This is useful for building higher-level abstractions, like
+__coroutines__, __coop_threads__ or an equivalent to
+[@http://msdn.microsoft.com/en-us/library/9k7k7cf0%28v=vs.80%29.aspx C# keyword __yield__]
+in C++.
+
+__cc__/__con__ provides the means to suspend the current execution path and to
+transfer execution control, thereby permitting another context to run on the
+current thread. This state full transfer mechanism enables a context to suspend
+execution from within nested functions and, later, to resume from where it was
+suspended. While the execution path represented by a __con__ only runs on a
+single thread, it can be migrated to another thread at any given time.
+
+A [@http://en.wikipedia.org/wiki/Context_switch context switch] between threads
+requires system calls (involving the OS kernel), which can cost more than
+thousand CPU cycles on x86 CPUs. By contrast, transferring control vias
+__cc__/__con__ requires only few CPU cycles because it does not involve system
+calls as it is done within a single thread.
+
+All functions and classes are contained in the namespace __context_ns__.
+
+[note This library requires C++11!]
+
+[important Windows using fcontext_t: turn off global program optimization (/GL) and change /EHsc (compiler
+assumes that functions declared as extern "C" never throw a C++ exception) to /EHs (tells
+compiler assumes that functions declared as extern "C" may throw an exception).]
+
+[endsect]

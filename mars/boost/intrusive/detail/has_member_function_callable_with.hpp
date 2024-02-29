@@ -11,21 +11,35 @@
 #ifndef BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_CALLABLE_WITH_HPP
 #define BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_CALLABLE_WITH_HPP
 
-//Mark that we don't support 0 arg calls due to compiler ICE in GCC 3.4/4.0/4.1 and
-//wrong SFINAE for GCC 4.2/4.3
-#if defined(__GNUC__) && !defined(__clang__) && ((__GNUC__*100 + __GNUC_MINOR__*10) >= 340) && ((__GNUC__*100 + __GNUC_MINOR__*10) <= 430)
-   #define BOOST_INTRUSIVE_DETAIL_HAS_MEMBER_FUNCTION_CALLABLE_WITH_0_ARGS_UNSUPPORTED
-#elif defined(BOOST_INTEL) && (BOOST_INTEL < 1200 )
-   #define BOOST_INTRUSIVE_DETAIL_HAS_MEMBER_FUNCTION_CALLABLE_WITH_0_ARGS_UNSUPPORTED
+#ifndef BOOST_CONFIG_HPP
+#  include <boost/config.hpp>
 #endif
-#include <cstddef>
-#include <boost/move/utility_core.hpp>
+
+//In case no decltype and no variadics, mark that we don't support 0 arg calls due to
+//compiler ICE in GCC 3.4/4.0/4.1 and, wrong SFINAE for GCC 4.2/4.3/MSVC10/MSVC11
+#if defined(BOOST_NO_CXX11_DECLTYPE) && defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#  if defined(BOOST_GCC) && (BOOST_GCC < 40400)
+#     define BOOST_INTRUSIVE_DETAIL_HAS_MEMBER_FUNCTION_CALLABLE_WITH_0_ARGS_UNSUPPORTED
+#  elif defined(BOOST_INTEL) && (BOOST_INTEL < 1200)
+#     define BOOST_INTRUSIVE_DETAIL_HAS_MEMBER_FUNCTION_CALLABLE_WITH_0_ARGS_UNSUPPORTED
+#  elif defined(BOOST_MSVC) && (BOOST_MSVC < 1800)
+#     define BOOST_INTRUSIVE_DETAIL_HAS_MEMBER_FUNCTION_CALLABLE_WITH_0_ARGS_UNSUPPORTED
+#  endif
+#endif   //#if defined(BOOST_NO_CXX11_DECLTYPE) && defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+
 #include <boost/move/detail/fwd_macros.hpp>
+#include <boost/move/utility_core.hpp>
+#include <cstddef>
 
 namespace mars_boost_intrusive_hmfcw {
 
 typedef char yes_type;
 struct no_type{ char dummy[2]; };
+
+struct dont_care
+{
+   dont_care(...);
+};
 
 #if defined(BOOST_NO_CXX11_DECLTYPE)
 
@@ -39,11 +53,6 @@ struct make_dontcare
 
 #endif
 
-struct dont_care
-{
-   dont_care(...);
-};
-
 struct private_type
 {
    static private_type p;
@@ -56,7 +65,7 @@ yes_type is_private_type(private_type const &);
 
 #endif   //#if defined(BOOST_NO_CXX11_DECLTYPE)
 
-#if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
+#if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_NO_CXX11_DECLTYPE)
 
 template<typename T> struct remove_cv                    {  typedef T type;   };
 template<typename T> struct remove_cv<const T>           {  typedef T type;   };
@@ -124,7 +133,31 @@ BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_NS_BEG
    //    declaration, special case and 0 arg specializaton
    //
    /////////////////////////////////////////////////////////
-   /////////////////////////////////////////////////////////
+
+   template <typename Type>
+   class BOOST_MOVE_CAT(has_member_function_named_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)
+   {
+      struct BaseMixin
+      {
+         void BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME()
+         {} //Some compilers require the definition or linker errors happen
+      };
+
+      struct Base
+         : public mars_boost_intrusive_hmfcw::remove_cv<Type>::type, public BaseMixin
+      {  //Declare the unneeded default constructor as some old compilers wrongly require it with is_convertible
+         Base(){}
+      };
+      template <typename T, T t> class Helper{};
+
+      template <typename U>
+      static mars_boost_intrusive_hmfcw::no_type  deduce
+         (U*, Helper<void (BaseMixin::*)(), &U::BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME>* = 0);
+      static mars_boost_intrusive_hmfcw::yes_type deduce(...);
+
+      public:
+      static const bool value = sizeof(mars_boost_intrusive_hmfcw::yes_type) == sizeof(deduce((Base*)0));
+   };
 
    #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
       /////////////////////////////////////////////////////////
@@ -136,52 +169,45 @@ BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_NS_BEG
       /////////////////////////////////////////////////////////
 
       //defined(BOOST_NO_CXX11_DECLTYPE) must be true
-      template<class Fun, class ...DontCares>
+      template<class Fun>
       struct FunWrapTmpl : Fun
       {
          using Fun::BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME;
+         FunWrapTmpl();
+         template<class ...DontCares>
          mars_boost_intrusive_hmfcw::private_type BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME(DontCares...) const;
       };
 
-      template<typename Fun, class ...Args>
-      struct BOOST_MOVE_CAT(has_member_function_callable_with_,BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<Fun, Args...>
-      {
-         typedef FunWrapTmpl<typename mars_boost_intrusive_hmfcw::make_dontcare<Args>::type...> FunWrap;
+      template<typename Fun, bool HasFunc, class ...Args>
+      struct BOOST_MOVE_CAT(has_member_function_callable_with_impl_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME);
 
-         static bool const value = (sizeof(mars_boost_intrusive_hmfcw::no_type) ==
-                                    sizeof(mars_boost_intrusive_hmfcw::is_private_type
-                                             ( (::mars_boost::move_detail::declval< FunWrap<Fun> >().
+      //No BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME member specialization
+      template<typename Fun, class ...Args>
+      struct BOOST_MOVE_CAT(has_member_function_callable_with_impl_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)
+         <Fun, false, Args...>
+      {
+         static const bool value = false;
+      };
+
+      template<typename Fun, class ...Args>
+      struct BOOST_MOVE_CAT(has_member_function_callable_with_impl_,BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<Fun, true, Args...>
+      {
+         static bool const value = (sizeof(mars_boost_intrusive_hmfcw::no_type) == sizeof(mars_boost_intrusive_hmfcw::is_private_type
+                                             ( (::mars_boost::move_detail::declval
+                                                   < FunWrapTmpl<Fun> >().
                                                    BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME(::mars_boost::move_detail::declval<Args>()...), 0) )
                                           )
                                     );
       };
+
+      template<typename Fun, class ...Args>
+      struct BOOST_MOVE_CAT(has_member_function_callable_with_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)
+         : public BOOST_MOVE_CAT(has_member_function_callable_with_impl_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)
+            <Fun
+            , BOOST_MOVE_CAT(has_member_function_named_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<Fun>::value
+            , Args...>
+      {};
    #else //defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-
-      //Preprocessor must be used to generate specializations instead of variadic templates
-
-      template <typename Type>
-      class BOOST_MOVE_CAT(has_member_function_named_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)
-      {
-         struct BaseMixin
-         {
-            void BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME();
-         };
-
-         struct Base
-            : public mars_boost_intrusive_hmfcw::remove_cv<Type>::type, public BaseMixin
-         {  //Declare the unneeded default constructor as some old compilers wrongly require it with is_convertible
-            Base();
-         };
-         template <typename T, T t> class Helper{};
-
-         template <typename U>
-         static mars_boost_intrusive_hmfcw::no_type  deduce
-            (U*, Helper<void (BaseMixin::*)(), &U::BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME>* = 0);
-         static mars_boost_intrusive_hmfcw::yes_type deduce(...);
-
-         public:
-         static const bool value = sizeof(mars_boost_intrusive_hmfcw::yes_type) == sizeof(deduce((Base*)0));
-      };
 
       /////////////////////////////////////////////////////////
       /////////////////////////////////////////////////////////
@@ -221,24 +247,24 @@ BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_NS_BEG
 
             #if !defined(BOOST_INTRUSIVE_DETAIL_HAS_MEMBER_FUNCTION_CALLABLE_WITH_0_ARGS_UNSUPPORTED)
 
-            template<class F, std::size_t N = sizeof(mars_boost::move_detail::declval<F>().BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME(), 0)>
-            struct BOOST_MOVE_CAT(zeroarg_checker_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)
-            {  mars_boost_intrusive_hmfcw::yes_type dummy[N ? 1 : 2];   };
+               template<class F, std::size_t N = sizeof(mars_boost::move_detail::declval<F>().BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME(), 0)>
+               struct BOOST_MOVE_CAT(zeroarg_checker_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)
+               {  mars_boost_intrusive_hmfcw::yes_type dummy[N ? 1 : 2];   };
 
-            template<typename Fun>
-            struct BOOST_MOVE_CAT(has_member_function_callable_with_impl_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<Fun, true>
-            {
-               template<class U> static BOOST_MOVE_CAT(zeroarg_checker_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<U>
-                  Test(BOOST_MOVE_CAT(zeroarg_checker_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<U>*);
-               template<class U> static mars_boost_intrusive_hmfcw::no_type Test(...);
-               static const bool value = sizeof(Test< Fun >(0)) == sizeof(mars_boost_intrusive_hmfcw::yes_type);
-            };
+               template<typename Fun>
+               struct BOOST_MOVE_CAT(has_member_function_callable_with_impl_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<Fun, true>
+               {
+                  template<class U> static BOOST_MOVE_CAT(zeroarg_checker_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<U>
+                     Test(BOOST_MOVE_CAT(zeroarg_checker_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<U>*);
+                  template<class U> static mars_boost_intrusive_hmfcw::no_type Test(...);
+                  static const bool value = sizeof(Test< Fun >(0)) == sizeof(mars_boost_intrusive_hmfcw::yes_type);
+               };
 
             #else //defined(BOOST_INTRUSIVE_DETAIL_HAS_MEMBER_FUNCTION_CALLABLE_WITH_0_ARGS_UNSUPPORTED)
 
                template<typename Fun>
                struct BOOST_MOVE_CAT(has_member_function_callable_with_impl_, BOOST_INTRUSIVE_HAS_MEMBER_FUNCTION_CALLABLE_WITH_FUNCNAME)<Fun, true>
-               {//GCC [3.4-4.3) gives ICE when instantiating the 0 arg version so it is not supported.
+               {  //Some compilers gives ICE when instantiating the 0 arg version so it is not supported.
                   static const bool value = true;
                };
 

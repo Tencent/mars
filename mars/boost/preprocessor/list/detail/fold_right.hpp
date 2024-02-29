@@ -8,11 +8,16 @@
 #  */
 #
 # /* Revised by Paul Mensonides (2002) */
+# /* Revised by Edward Diener (2020) */
 #
 # /* See http://www.boost.org for most recent version. */
 #
 # ifndef BOOST_PREPROCESSOR_LIST_DETAIL_FOLD_RIGHT_HPP
 # define BOOST_PREPROCESSOR_LIST_DETAIL_FOLD_RIGHT_HPP
+#
+# include <boost/preprocessor/config/config.hpp>
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # include <boost/preprocessor/list/fold_left.hpp>
 # include <boost/preprocessor/list/reverse.hpp>
@@ -273,5 +278,26 @@
 # define BOOST_PP_LIST_FOLD_RIGHT_254(o, s, l) BOOST_PP_LIST_FOLD_LEFT_254(o, s, BOOST_PP_LIST_REVERSE_D(254, l))
 # define BOOST_PP_LIST_FOLD_RIGHT_255(o, s, l) BOOST_PP_LIST_FOLD_LEFT_255(o, s, BOOST_PP_LIST_REVERSE_D(255, l))
 # define BOOST_PP_LIST_FOLD_RIGHT_256(o, s, l) BOOST_PP_LIST_FOLD_LEFT_256(o, s, BOOST_PP_LIST_REVERSE_D(256, l))
+#
+# else
+#
+# include <boost/preprocessor/config/limits.hpp>
+# include <boost/preprocessor/list/fold_left.hpp>
+# include <boost/preprocessor/list/reverse.hpp>
+#
+# if BOOST_PP_LIMIT_WHILE == 256
+# include <boost/preprocessor/list/detail/limits/fold_right_256.hpp>
+# elif BOOST_PP_LIMIT_WHILE == 512
+# include <boost/preprocessor/list/detail/limits/fold_right_256.hpp>
+# include <boost/preprocessor/list/detail/limits/fold_right_512.hpp>
+# elif BOOST_PP_LIMIT_WHILE == 1024
+# include <boost/preprocessor/list/detail/limits/fold_right_1024.hpp>
+# include <boost/preprocessor/list/detail/limits/fold_right_256.hpp>
+# include <boost/preprocessor/list/detail/limits/fold_right_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_WHILE limit
+# endif
+#
+# endif
 #
 # endif

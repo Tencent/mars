@@ -15,8 +15,8 @@
 // $Revision$
 
 #include <boost/mpl/empty_fwd.hpp>
-#include <boost/mpl/not.hpp>
 #include <boost/mpl/list/aux_/tag.hpp>
+#include <boost/mpl/not.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

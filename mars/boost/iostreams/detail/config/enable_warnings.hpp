@@ -8,7 +8,7 @@
 #if defined(BOOST_MSVC)
 # pragma warning(pop)
 #else
-# if BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+# if BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
 #  pragma warn .8008     // Condition always true/false.
 #  pragma warn .8066     // Unreachable code.
 #  pragma warn .8071     // Conversion may lose significant digits.

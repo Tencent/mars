@@ -35,6 +35,12 @@ template <class T> struct add_volatile{ typedef T volatile type; };
 
 template <class T> struct add_volatile<T&>{ typedef T& type; };
 
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using add_volatile_t = typename add_volatile<T>::type;
+
+#endif
+
 } // namespace mars_boost
 
 #endif // BOOST_TT_ADD_VOLATILE_HPP_INCLUDED

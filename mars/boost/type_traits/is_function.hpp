@@ -11,92 +11,17 @@
 #ifndef BOOST_TT_IS_FUNCTION_HPP_INCLUDED
 #define BOOST_TT_IS_FUNCTION_HPP_INCLUDED
 
-#include <boost/type_traits/is_reference.hpp>
+#include <boost/config/workaround.hpp>
 #include <boost/type_traits/detail/config.hpp>
 
-#if !defined(BOOST_TT_TEST_MS_FUNC_SIGS)
-#   include <boost/type_traits/detail/is_function_ptr_helper.hpp>
-#else
-#   include <boost/type_traits/detail/is_function_ptr_tester.hpp>
-#   include <boost/type_traits/detail/yes_no_type.hpp>
-#endif
+#ifdef BOOST_TT_HAS_ACCURATE_IS_FUNCTION
 
-// is a type a function?
-// Please note that this implementation is unnecessarily complex:
-// we could just use !is_convertible<T*, const volatile void*>::value,
-// except that some compilers erroneously allow conversions from
-// function pointers to void*.
-
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
-
-#if !defined( __CODEGEARC__ )
-
-namespace detail {
-
-#if !defined(BOOST_TT_TEST_MS_FUNC_SIGS)
-template<bool is_ref = true>
-struct is_function_chooser
-{
-   template< typename T > struct result_
-      : public false_type {};
-};
-
-template <>
-struct is_function_chooser<false>
-{
-    template< typename T > struct result_
-        : public ::mars_boost::type_traits::is_function_ptr_helper<T*> {};
-};
-
-template <typename T>
-struct is_function_impl
-    : public is_function_chooser< ::mars_boost::is_reference<T>::value >
-        ::BOOST_NESTED_TEMPLATE result_<T>
-{
-};
+#include <boost/type_traits/detail/is_function_cxx_11.hpp>
 
 #else
 
-template <typename T>
-struct is_function_impl
-{
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
-#pragma warning(push)
-#pragma warning(disable:6334)
-#endif
-    static T* t;
-    BOOST_STATIC_CONSTANT(
-        bool, value = sizeof(::mars_boost::type_traits::is_function_ptr_tester(t))
-        == sizeof(::mars_boost::type_traits::yes_type)
-        );
-#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
-#pragma warning(pop)
-#endif
-};
-
-template <typename T>
-struct is_function_impl<T&> : public false_type
-{};
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-template <typename T>
-struct is_function_impl<T&&> : public false_type
-{};
-#endif
+#include <boost/type_traits/detail/is_function_cxx_03.hpp>
 
 #endif
-
-} // namespace detail
-
-#endif // !defined( __CODEGEARC__ )
-
-#if defined( __CODEGEARC__ )
-template <class T> struct is_function : integral_constant<bool, __is_function(T)> {};
-#else
-template <class T> struct is_function : integral_constant<bool, ::mars_boost::detail::is_function_impl<T>::value> {};
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-template <class T> struct is_function<T&&> : public false_type {};
-#endif
-#endif
-} // namespace mars_boost
 
 #endif // BOOST_TT_IS_FUNCTION_HPP_INCLUDED

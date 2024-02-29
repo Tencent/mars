@@ -14,11 +14,11 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
-#include <boost/mpl/aux_/nested_type_wknd.hpp>
-#include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
+#include <boost/mpl/aux_/na_spec.hpp>
+#include <boost/mpl/aux_/nested_type_wknd.hpp>
+#include <boost/mpl/aux_/nttp_decl.hpp>
+#include <boost/mpl/bool.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

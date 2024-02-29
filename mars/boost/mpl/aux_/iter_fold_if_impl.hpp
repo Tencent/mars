@@ -16,11 +16,11 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/identity.hpp>
-#   include <boost/mpl/next.hpp>
-#   include <boost/mpl/if.hpp>
 #   include <boost/mpl/apply.hpp>
 #   include <boost/mpl/aux_/value_wknd.hpp>
+#   include <boost/mpl/identity.hpp>
+#   include <boost/mpl/if.hpp>
+#   include <boost/mpl/next.hpp>
 #endif
 
 #include <boost/mpl/aux_/config/use_preprocessed.hpp>
@@ -35,10 +35,10 @@
 
 #   include <boost/mpl/limits/unrolling.hpp>
 #   include <boost/preprocessor/arithmetic/sub.hpp>
-#   include <boost/preprocessor/repeat.hpp>
-#   include <boost/preprocessor/inc.hpp>
-#   include <boost/preprocessor/dec.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/dec.hpp>
+#   include <boost/preprocessor/inc.hpp>
+#   include <boost/preprocessor/repeat.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl { namespace aux {
 

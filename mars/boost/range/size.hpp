@@ -15,13 +15,13 @@
 # pragma once
 #endif
 
-#include <boost/range/config.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/size_type.hpp>
-#include <boost/range/detail/has_member_size.hpp>
 #include <boost/assert.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/config.hpp>
+#include <boost/range/detail/has_member_size.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size_type.hpp>
 #include <boost/utility.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
@@ -30,7 +30,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
 
         template<class SinglePassRange>
-        inline typename ::boost::enable_if<
+        inline typename ::mars_boost::enable_if<
             has_member_size<SinglePassRange>,
             typename range_size<const SinglePassRange>::type
         >::type
@@ -62,7 +62,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         BOOST_RANGE_CONCEPT_ASSERT((mars_boost::SinglePassRangeConcept<SinglePassRange>));
 #endif
 
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564)) && \
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x564)) && \
     !BOOST_WORKAROUND(__GNUC__, < 3) \
     /**/
         using namespace range_detail;

@@ -14,8 +14,8 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/has_xxx.hpp>
 #include <boost/mpl/aux_/config/has_apply.hpp>
+#include <boost/mpl/has_xxx.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl { namespace aux {
 #if !defined(BOOST_MPL_CFG_NO_HAS_APPLY)

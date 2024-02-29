@@ -3,7 +3,7 @@
 // See http://www.boost.org for updates, documentation, and revision history.
 //-----------------------------------------------------------------------------
 //
-// Copyright (c) 2014-2015 Antony Polukhin
+// Copyright (c) 2014-2023 Antony Polukhin
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -12,8 +12,8 @@
 #ifndef BOOST_VARIANT_DETAIL_HAS_RESULT_TYPE_HPP
 #define BOOST_VARIANT_DETAIL_HAS_RESULT_TYPE_HPP
 
-#include "boost/config.hpp"
-#include "boost/type_traits/remove_reference.hpp"
+#include <boost/config.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace detail { namespace variant {

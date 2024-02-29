@@ -33,15 +33,17 @@
 #define BOOST_TUPLE_BASIC_HPP
 
 
+#include <cstddef> // for std::size_t
 #include <utility> // needed for the assignment from pair to tuple
 
-#include "boost/type_traits/cv_traits.hpp"
-#include "boost/type_traits/function_traits.hpp"
-#include "boost/utility/swap.hpp"
+#include <boost/core/invoke_swap.hpp>
+#include <boost/type_traits/cv_traits.hpp>
+#include <boost/type_traits/function_traits.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 
-#include "boost/detail/workaround.hpp" // needed for BOOST_WORKAROUND
+#include <boost/detail/workaround.hpp> // needed for BOOST_WORKAROUND
 
-#if BOOST_GCC >= 40700
+#if defined(BOOST_GCC) && (BOOST_GCC >= 40700)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 #endif
@@ -92,7 +94,7 @@ namespace detail {
 template<class T>
 class generate_error;
 
-template<int N>
+template<std::size_t N>
 struct drop_front {
     template<class Tuple>
     struct apply {
@@ -126,21 +128,21 @@ struct drop_front<0> {
 
 #ifndef BOOST_NO_CV_SPECIALIZATIONS
 
-template<int N, class T>
+template<std::size_t N, class T>
 struct element
 {
   typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
       apply<T>::type::head_type type;
 };
 
-template<int N, class T>
+template<std::size_t N, class T>
 struct element<N, const T>
 {
 private:
   typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
       apply<T>::type::head_type unqualified_type;
 public:
-#if BOOST_WORKAROUND(__BORLANDC__,<0x600)
+#if BOOST_WORKAROUND(BOOST_BORLANDC,<0x600)
   typedef const unqualified_type type;
 #else
   typedef BOOST_DEDUCED_TYPENAME mars_boost::add_const<unqualified_type>::type type;
@@ -150,14 +152,14 @@ public:
 
 namespace detail {
 
-template<int N, class T, bool IsConst>
+template<std::size_t N, class T, bool IsConst>
 struct element_impl
 {
   typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
       apply<T>::type::head_type type;
 };
 
-template<int N, class T>
+template<std::size_t N, class T>
 struct element_impl<N, T, true /* IsConst */>
 {
   typedef BOOST_DEDUCED_TYPENAME detail::drop_front<N>::BOOST_NESTED_TEMPLATE
@@ -168,7 +170,7 @@ struct element_impl<N, T, true /* IsConst */>
 } // end of namespace detail
 
 
-template<int N, class T>
+template<std::size_t N, class T>
 struct element:
   public detail::element_impl<N, T, ::mars_boost::is_const<T>::value>
 {
@@ -209,7 +211,7 @@ template <class T> struct access_traits<T&> {
 
 // get function for non-const cons-lists, returns a reference to the element
 
-template<int N, class HT, class TT>
+template<std::size_t N, class HT, class TT>
 inline typename access_traits<
                   typename element<N, cons<HT, TT> >::type
                 >::non_const_type
@@ -223,7 +225,7 @@ get(cons<HT, TT>& c) {
 // get function for const cons-lists, returns a const reference to
 // the element. If the element is a reference, returns the reference
 // as such (that is, can return a non-const reference)
-template<int N, class HT, class TT>
+template<std::size_t N, class HT, class TT>
 inline typename access_traits<
                   typename element<N, cons<HT, TT> >::type
                 >::const_type
@@ -309,6 +311,7 @@ struct cons {
       tail (t2, t3, t4, t5, t6, t7, t8, t9, t10, detail::cnull())
       {}
 
+  cons( const cons& u ) : head(u.head), tail(u.tail) {}
 
   template <class HT2, class TT2>
   cons( const cons<HT2, TT2>& u ) : head(u.head), tail(u.tail) {}
@@ -331,7 +334,7 @@ struct cons {
   }
 
   // get member functions (non-const and const)
-  template <int N>
+  template <std::size_t N>
   typename access_traits<
              typename element<N, cons<HT, TT> >::type
            >::non_const_type
@@ -339,7 +342,7 @@ struct cons {
     return mars_boost::tuples::get<N>(*this); // delegate to non-member get
   }
 
-  template <int N>
+  template <std::size_t N>
   typename access_traits<
              typename element<N, cons<HT, TT> >::type
            >::const_type
@@ -388,6 +391,8 @@ struct cons<HT, null_type> {
        const null_type&, const null_type&, const null_type&)
   : head () {}
 
+  cons( const cons& u ) : head(u.head) {}
+
   template <class HT2>
   cons( const cons<HT2, null_type>& u ) : head(u.head) {}
 
@@ -399,7 +404,7 @@ struct cons<HT, null_type> {
   // is illformed if HT is a reference
   cons& operator=(const cons& u) { head = u.head; return *this; }
 
-  template <int N>
+  template <std::size_t N>
   typename access_traits<
              typename element<N, self_type>::type
             >::non_const_type
@@ -407,7 +412,7 @@ struct cons<HT, null_type> {
     return mars_boost::tuples::get<N>(*this);
   }
 
-  template <int N>
+  template <std::size_t N>
   typename access_traits<
              typename element<N, self_type>::type
            >::const_type
@@ -420,28 +425,28 @@ struct cons<HT, null_type> {
 // templates for finding out the length of the tuple -------------------
 
 template<class T>
-struct length  {
-  BOOST_STATIC_CONSTANT(int, value = 1 + length<typename T::tail_type>::value);
+struct length: mars_boost::integral_constant<std::size_t, 1 + length<typename T::tail_type>::value>
+{
 };
 
 template<>
-struct length<tuple<> > {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+struct length<tuple<> >: mars_boost::integral_constant<std::size_t, 0>
+{
 };
 
 template<>
-struct length<tuple<> const> {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+struct length<tuple<> const>: mars_boost::integral_constant<std::size_t, 0>
+{
 };
 
 template<>
-struct length<null_type> {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+struct length<null_type>: mars_boost::integral_constant<std::size_t, 0>
+{
 };
 
 template<>
-struct length<null_type const> {
-  BOOST_STATIC_CONSTANT(int, value = 0);
+struct length<null_type const>: mars_boost::integral_constant<std::size_t, 0>
+{
 };
 
 namespace detail {
@@ -484,7 +489,7 @@ public:
 // access_traits<T>::parameter_type takes non-reference types as const T&
   tuple() {}
 
-  tuple(typename access_traits<T0>::parameter_type t0)
+  explicit tuple(typename access_traits<T0>::parameter_type t0)
     : inherited(t0, detail::cnull(), detail::cnull(), detail::cnull(),
                 detail::cnull(), detail::cnull(), detail::cnull(),
                 detail::cnull(), detail::cnull(), detail::cnull()) {}
@@ -672,20 +677,20 @@ struct make_tuple_traits<T&> {
 // All arrays are converted to const. This is because make_tuple takes its
 // parameters as const T& and thus the knowledge of the potential
 // non-constness of actual argument is lost.
-template<class T, int n>  struct make_tuple_traits <T[n]> {
+template<class T, std::size_t n>  struct make_tuple_traits <T[n]> {
   typedef const T (&type)[n];
 };
 
-template<class T, int n>
+template<class T, std::size_t n>
 struct make_tuple_traits<const T[n]> {
   typedef const T (&type)[n];
 };
 
-template<class T, int n>  struct make_tuple_traits<volatile T[n]> {
+template<class T, std::size_t n>  struct make_tuple_traits<volatile T[n]> {
   typedef const volatile T (&type)[n];
 };
 
-template<class T, int n>
+template<class T, std::size_t n>
 struct make_tuple_traits<const volatile T[n]> {
   typedef const volatile T (&type)[n];
 };
@@ -959,11 +964,11 @@ void swap(tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>& lhs,
 inline void swap(null_type&, null_type&) {}
 template<class HH>
 inline void swap(cons<HH, null_type>& lhs, cons<HH, null_type>& rhs) {
-  ::mars_boost::swap(lhs.head, rhs.head);
+  ::mars_boost::core::invoke_swap(lhs.head, rhs.head);
 }
 template<class HH, class TT>
 inline void swap(cons<HH, TT>& lhs, cons<HH, TT>& rhs) {
-  ::mars_boost::swap(lhs.head, rhs.head);
+  ::mars_boost::core::invoke_swap(lhs.head, rhs.head);
   ::mars_boost::tuples::swap(lhs.tail, rhs.tail);
 }
 template <class T0, class T1, class T2, class T3, class T4,
@@ -979,11 +984,9 @@ inline void swap(tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>& lhs,
 } // end of namespace mars_boost
 
 
-#if BOOST_GCC >= 40700
+#if defined(BOOST_GCC) && (BOOST_GCC >= 40700)
 #pragma GCC diagnostic pop
 #endif
 
 
 #endif // BOOST_TUPLE_BASIC_HPP
-
-

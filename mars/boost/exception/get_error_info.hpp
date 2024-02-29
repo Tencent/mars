@@ -3,19 +3,27 @@
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef UUID_1A590226753311DD9E4CCF6156D89593
-#define UUID_1A590226753311DD9E4CCF6156D89593
-#if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#ifndef BOOST_EXCEPTION_1A590226753311DD9E4CCF6156D89593
+#define BOOST_EXCEPTION_1A590226753311DD9E4CCF6156D89593
+
+#include <boost/assert.hpp>
+#include <boost/config.hpp>
+#include <boost/exception/detail/error_info_impl.hpp>
+#include <boost/exception/detail/shared_ptr.hpp>
+#include <boost/exception/detail/type_info.hpp>
+#include <boost/exception/exception.hpp>
+
+#ifndef BOOST_EXCEPTION_ENABLE_WARNINGS
+#if __GNUC__*100+__GNUC_MINOR__>301
 #pragma GCC system_header
 #endif
-#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#ifdef __clang__
+#pragma clang system_header
+#endif
+#ifdef _MSC_VER
 #pragma warning(push,1)
 #endif
-
-#include <boost/exception/exception.hpp>
-#include <boost/exception/detail/error_info_impl.hpp>
-#include <boost/exception/detail/type_info.hpp>
-#include <boost/shared_ptr.hpp>
+#endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace
 mars_boost

@@ -11,9 +11,9 @@
 #ifndef BOOST_RANGE_ADAPTOR_REVERSED_HPP
 #define BOOST_RANGE_ADAPTOR_REVERSED_HPP
 
-#include <boost/range/iterator_range.hpp>
-#include <boost/range/concepts.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
+#include <boost/range/concepts.hpp>
+#include <boost/range/iterator_range.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -21,14 +21,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
         template< class R >
         struct reversed_range : 
-            public mars_boost::iterator_range<
+            public mars_boost::iterator_range< 
                       mars_boost::reverse_iterator<
                         BOOST_DEDUCED_TYPENAME range_iterator<R>::type 
                                               >
                                          >
         {
         private:
-            typedef mars_boost::iterator_range<
+            typedef mars_boost::iterator_range< 
                       mars_boost::reverse_iterator<
                         BOOST_DEDUCED_TYPENAME range_iterator<R>::type 
                                               >

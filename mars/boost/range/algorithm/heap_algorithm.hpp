@@ -9,11 +9,11 @@
 #ifndef BOOST_RANGE_ALGORITHM_HEAP_ALGORITHM_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_HEAP_ALGORITHM_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -189,6 +189,6 @@ inline const RandomAccessRange& sort_heap(const RandomAccessRange& rng, Compare 
     using range::pop_heap;
     using range::make_heap;
     using range::sort_heap;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

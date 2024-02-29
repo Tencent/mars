@@ -1,0 +1,535 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Context switching with call/cc</title>
+<link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../index.html" title="Chapter 1. Context">
+<link rel="up" href="../index.html" title="Chapter 1. Context">
+<link rel="prev" href="ff/class__fiber_.html" title="Class fiber">
+<link rel="next" href="cc/implementations__fcontext_t__ucontext_t_and_winfiber.html" title="Implementations: fcontext_t, ucontext_t and WinFiber">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="ff/class__fiber_.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="cc/implementations__fcontext_t__ucontext_t_and_winfiber.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="context.cc"></a><a name="cc"></a><a class="link" href="cc.html" title="Context switching with call/cc">Context switching with call/cc</a>
+</h2></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="cc/implementations__fcontext_t__ucontext_t_and_winfiber.html">Implementations:
+      fcontext_t, ucontext_t and WinFiber</a></span></dt>
+<dt><span class="section"><a href="cc/class__continuation_.html">Class <code class="computeroutput"><span class="identifier">continuation</span></code></a></span></dt>
+</dl></div>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        <span class="emphasis"><em>call/cc</em></span> is the reference implementation of C++ proposal
+        <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0534r3.pdf" target="_top">P0534R3:
+        call/cc (call-with-current-continuation): A low-level API for stackful context
+        switching</a>.
+      </p></td></tr>
+</table></div>
+<p>
+      <span class="emphasis"><em>call/cc</em></span> (call with current continuation) is a universal
+      control operator (well-known from the programming language Scheme) that captures
+      the current continuation as a first-class object and pass it as an argument
+      to another continuation.
+    </p>
+<p>
+      A continuation (abstract concept of functional programming languages) represents
+      the state of the control flow of a program at a given point in time. Continuations
+      can be suspended and resumed later in order to change the control flow of a
+      program.
+    </p>
+<p>
+      Modern micro-processors are registers machines; the content of processor registers
+      represent a continuation of the executed program at a given point in time.
+      Operating systems simulate parallel execution of programs on a single processor
+      by switching between programs (context switch) by preserving and restoring
+      the continuation, e.g. the content of all registers.
+    </p>
+<h4>
+<a name="context.cc.h0"></a>
+      <span class="phrase"><a name="context.cc._link_linkend__cc___emphasis_callcc____emphasis___link_"></a></span><a class="link" href="cc.html#context.cc._link_linkend__cc___emphasis_callcc____emphasis___link_"><span class="emphasis"><em>callcc()</em></span></a>
+    </h4>
+<p>
+      <a class="link" href="cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a> is the C++ equivalent
+      to Scheme's <span class="emphasis"><em>call/cc</em></span> operator. It captures the current
+      continuation (the rest of the computation; code after <a class="link" href="cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a>)
+      and triggers a context switch. The context switch is achieved by preserving
+      certain registers (including instruction and stack pointer), defined by the
+      calling convention of the ABI, of the current continuation and restoring those
+      registers of the resumed continuation. The control flow of the resumed continuation
+      continues. The current continuation is suspended and passed as argument to
+      the resumed continuation.
+    </p>
+<p>
+      <a class="link" href="cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a> expects a <span class="emphasis"><em>context-function</em></span>
+      with signature <code class="computeroutput"><span class="char">'continuation(continuation &amp;&amp;
+      c)'</span></code>. The parameter <code class="computeroutput"><span class="identifier">c</span></code>
+      represents the current continuation from which this continuation was resumed
+      (e.g. that has called <a class="link" href="cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a>).
+    </p>
+<p>
+      On return the <span class="emphasis"><em>context-function</em></span> of the current continuation
+      has to specify an <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a>
+      to which the execution control is transferred after termination of the current
+      continuation.
+    </p>
+<p>
+      If an instance with valid state goes out of scope and the <span class="emphasis"><em>context-function</em></span>
+      has not yet returned, the stack is traversed in order to access the control
+      structure (address stored at the first stack frame) and continuation's stack
+      is deallocated via the <span class="emphasis"><em>StackAllocator</em></span>.
+    </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        <a class="link" href="stack/segmented.html#segmented"><span class="emphasis"><em>Segmented stacks</em></span></a> are
+        supported by <a class="link" href="cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a> using
+        <a class="link" href="ff/implementations__fcontext_t__ucontext_t_and_winfiber.html#implementation"><span class="emphasis"><em>ucontext_t</em></span></a>.
+      </p></td></tr>
+</table></div>
+<h4>
+<a name="context.cc.h1"></a>
+      <span class="phrase"><a name="context.cc._link_linkend__cc___emphasis_continuation__emphasis___link_"></a></span><a class="link" href="cc.html#context.cc._link_linkend__cc___emphasis_continuation__emphasis___link_"><span class="emphasis"><em>continuation</em></span></a>
+    </h4>
+<p>
+      <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a> represents a continuation;
+      it contains the content of preserved registers and manages the associated stack
+      (allocation/deallocation). <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a>
+      is a one-shot continuation - it can be used only once, after calling <span class="emphasis"><em>continuation::resume()</em></span>
+      or <span class="emphasis"><em>continuation::resume_with()</em></span> it is invalidated.
+    </p>
+<p>
+      <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a> is only move-constructible
+      and move-assignable.
+    </p>
+<p>
+      As a first-class object <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a>
+      can be applied to and returned from a function, assigned to a variable or stored
+      in a container.
+    </p>
+<p>
+      A continuation is continued by calling <code class="computeroutput"><span class="identifier">resume</span><span class="special">()</span></code>/<code class="computeroutput"><span class="identifier">resume_with</span><span class="special">()</span></code>.
+    </p>
+<h4>
+<a name="context.cc.h2"></a>
+      <span class="phrase"><a name="context.cc.usage"></a></span><a class="link" href="cc.html#context.cc.usage">Usage</a>
+    </h4>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">ctx</span><span class="special">=</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">context</span><span class="special">;</span>
+<span class="keyword">int</span> <span class="identifier">a</span><span class="special">;</span>
+<span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="identifier">source</span><span class="special">=</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">callcc</span><span class="special">(</span>
+    <span class="special">[&amp;</span><span class="identifier">a</span><span class="special">](</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">sink</span><span class="special">){</span>
+        <span class="identifier">a</span><span class="special">=</span><span class="number">0</span><span class="special">;</span>
+        <span class="keyword">int</span> <span class="identifier">b</span><span class="special">=</span><span class="number">1</span><span class="special">;</span>
+        <span class="keyword">for</span><span class="special">(;;){</span>
+            <span class="identifier">sink</span><span class="special">=</span><span class="identifier">sink</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+            <span class="keyword">int</span> <span class="identifier">next</span><span class="special">=</span><span class="identifier">a</span><span class="special">+</span><span class="identifier">b</span><span class="special">;</span>
+            <span class="identifier">a</span><span class="special">=</span><span class="identifier">b</span><span class="special">;</span>
+            <span class="identifier">b</span><span class="special">=</span><span class="identifier">next</span><span class="special">;</span>
+        <span class="special">}</span>
+        <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">sink</span><span class="special">);</span>
+    <span class="special">});</span>
+<span class="keyword">for</span> <span class="special">(</span><span class="keyword">int</span> <span class="identifier">j</span><span class="special">=</span><span class="number">0</span><span class="special">;</span><span class="identifier">j</span><span class="special">&lt;</span><span class="number">10</span><span class="special">;++</span><span class="identifier">j</span><span class="special">)</span> <span class="special">{</span>
+    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">a</span> <span class="special">&lt;&lt;</span> <span class="string">" "</span><span class="special">;</span>
+    <span class="identifier">source</span><span class="special">=</span><span class="identifier">source</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+<span class="special">}</span>
+
+<span class="identifier">output</span><span class="special">:</span>
+    <span class="number">0</span> <span class="number">1</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">5</span> <span class="number">8</span> <span class="number">13</span> <span class="number">21</span> <span class="number">34</span>
+</pre>
+<p>
+      This simple example demonstrates the basic usage of <span class="emphasis"><em>call/cc</em></span>
+      as a <span class="emphasis"><em>generator</em></span>. The continuation <code class="computeroutput"><span class="identifier">sink</span></code>
+      represents the <span class="emphasis"><em>main</em></span>-continuation (function <code class="computeroutput"><span class="identifier">main</span><span class="special">()</span></code>).
+      <code class="computeroutput"><span class="identifier">sink</span></code> is captured (current-continuation)
+      by invoking <a class="link" href="cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a> and passed
+      as parameter to the lambda.
+    </p>
+<p>
+      Because the state is invalidated (one-shot continuation) by each call of <span class="emphasis"><em>continuation::resume()</em></span>,
+      the new state of the <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a>,
+      returned by <span class="emphasis"><em>continuation::resume()</em></span>, needs to be assigned
+      to <code class="computeroutput"><span class="identifier">sink</span></code> after each call.
+    </p>
+<p>
+      The lambda that calculates the Fibonacci numbers is executed inside the continuation
+      represented by <code class="computeroutput"><span class="identifier">source</span></code>. Calculated
+      Fibonacci numbers are transferred between the two continuations via variable
+      <code class="computeroutput"><span class="identifier">a</span></code> (lambda capture reference).
+    </p>
+<p>
+      The locale variables <code class="computeroutput"><span class="identifier">b</span></code> and
+      <code class="computeroutput"> <span class="identifier">next</span></code> remain their values during
+      each context switch. This is possible due <code class="computeroutput"><span class="identifier">source</span></code>
+      has its own stack and the stack is exchanged by each context switch.
+    </p>
+<h4>
+<a name="context.cc.h3"></a>
+      <span class="phrase"><a name="context.cc.parameter_passing"></a></span><a class="link" href="cc.html#context.cc.parameter_passing">Parameter
+      passing</a>
+    </h4>
+<p>
+      Data can be transferred between two continuations via global pointers, calling
+      wrappers (like <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">bind</span></code>) or lambda captures.
+    </p>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">ctx</span><span class="special">=</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">context</span><span class="special">;</span>
+<span class="keyword">int</span> <span class="identifier">i</span><span class="special">=</span><span class="number">1</span><span class="special">;</span>
+<span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="identifier">c1</span><span class="special">=</span><span class="identifier">callcc</span><span class="special">([&amp;</span><span class="identifier">i</span><span class="special">](</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">c2</span><span class="special">){</span>
+            <span class="identifier">std</span><span class="special">::</span><span class="identifier">printf</span><span class="special">(</span><span class="string">"inside c1,i==%d\n"</span><span class="special">,</span><span class="identifier">i</span><span class="special">);</span>
+            <span class="identifier">i</span><span class="special">+=</span><span class="number">1</span><span class="special">;</span>
+            <span class="keyword">return</span> <span class="identifier">c2</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+        <span class="special">});</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">printf</span><span class="special">(</span><span class="string">"i==%d\n"</span><span class="special">,</span><span class="identifier">i</span><span class="special">);</span>
+
+<span class="identifier">output</span><span class="special">:</span>
+    <span class="identifier">inside</span> <span class="identifier">c1</span><span class="special">,</span><span class="identifier">i</span><span class="special">==</span><span class="number">1</span>
+    <span class="identifier">i</span><span class="special">==</span><span class="number">2</span>
+</pre>
+<p>
+      <code class="computeroutput"><span class="identifier">callcc</span><span class="special">(&lt;</span><span class="identifier">lambda</span><span class="special">&gt;)</span></code>
+      enters the lambda in continuation represented by <code class="computeroutput"><span class="identifier">c1</span></code>
+      with lambda capture reference <code class="computeroutput"><span class="identifier">i</span><span class="special">=</span><span class="number">1</span></code>. The expression
+      <code class="computeroutput"><span class="identifier">c2</span><span class="special">.</span><span class="identifier">resume</span><span class="special">()</span></code>
+      resumes the continuation <code class="computeroutput"><span class="identifier">c2</span></code>.
+      On return of <code class="computeroutput"><span class="identifier">callcc</span><span class="special">(&lt;</span><span class="identifier">lambda</span><span class="special">&gt;)</span></code>,
+      the variable <code class="computeroutput"><span class="identifier">i</span></code> has the value
+      of <code class="computeroutput"><span class="identifier">i</span><span class="special">+</span><span class="number">1</span></code>.
+    </p>
+<h4>
+<a name="context.cc.h4"></a>
+      <span class="phrase"><a name="context.cc.exception_handling"></a></span><a class="link" href="cc.html#context.cc.exception_handling">Exception
+      handling</a>
+    </h4>
+<p>
+      If the function executed inside a <span class="emphasis"><em>context-function</em></span> emits
+      an exception, the application is terminated by calling <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">terminate</span><span class="special">()</span></code>. <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">exception_ptr</span></code>
+      can be used to transfer exceptions between different continuations.
+    </p>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../../../doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        Do not jump from inside a catch block.
+      </p></td></tr>
+</table></div>
+<a name="cc_ontop"></a><h4>
+<a name="context.cc.h5"></a>
+      <span class="phrase"><a name="context.cc.executing_function_on_top_of_a_continuation"></a></span><a class="link" href="cc.html#context.cc.executing_function_on_top_of_a_continuation">Executing
+      function on top of a continuation</a>
+    </h4>
+<p>
+      Sometimes it is useful to execute a new function on top of a resumed continuation.
+      For this purpose <span class="emphasis"><em>continuation::resume_with()</em></span> has to be
+      used. The function passed as argument must accept a rvalue reference to <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a> and return <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a>.
+    </p>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">ctx</span><span class="special">=</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">context</span><span class="special">;</span>
+<span class="keyword">int</span> <span class="identifier">data</span><span class="special">=</span><span class="number">0</span><span class="special">;</span>
+<span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="identifier">c</span><span class="special">=</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">callcc</span><span class="special">([&amp;</span><span class="identifier">data</span><span class="special">](</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">c</span><span class="special">)</span> <span class="special">{</span>
+                    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"f1: entered first time: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">data</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+                    <span class="identifier">data</span><span class="special">+=</span><span class="number">1</span><span class="special">;</span>
+                    <span class="identifier">c</span><span class="special">=</span><span class="identifier">c</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+                    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"f1: entered second time: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">data</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+                    <span class="identifier">data</span><span class="special">+=</span><span class="number">1</span><span class="special">;</span>
+                    <span class="identifier">c</span><span class="special">=</span><span class="identifier">c</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+                    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"f1: entered third time: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">data</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+                    <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">c</span><span class="special">);</span>
+                <span class="special">});</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"f1: returned first time: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">data</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="identifier">data</span><span class="special">+=</span><span class="number">1</span><span class="special">;</span>
+<span class="identifier">c</span><span class="special">=</span><span class="identifier">c</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"f1: returned second time: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">data</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="identifier">data</span><span class="special">+=</span><span class="number">1</span><span class="special">;</span>
+<span class="identifier">c</span><span class="special">=</span><span class="identifier">c</span><span class="special">.</span><span class="identifier">resume_with</span><span class="special">([&amp;</span><span class="identifier">data</span><span class="special">](</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">c</span><span class="special">){</span>
+                    <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"f2: entered: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">data</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+                    <span class="identifier">data</span><span class="special">=-</span><span class="number">1</span><span class="special">;</span>
+                    <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span> <span class="identifier">c</span><span class="special">);</span>
+                <span class="special">});</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"f1: returned third time"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+
+<span class="identifier">output</span><span class="special">:</span>
+    <span class="identifier">f1</span><span class="special">:</span> <span class="identifier">entered</span> <span class="identifier">first</span> <span class="identifier">time</span><span class="special">:</span> <span class="number">0</span>
+    <span class="identifier">f1</span><span class="special">:</span> <span class="identifier">returned</span> <span class="identifier">first</span> <span class="identifier">time</span><span class="special">:</span> <span class="number">1</span>
+    <span class="identifier">f1</span><span class="special">:</span> <span class="identifier">entered</span> <span class="identifier">second</span> <span class="identifier">time</span><span class="special">:</span> <span class="number">2</span>
+    <span class="identifier">f1</span><span class="special">:</span> <span class="identifier">returned</span> <span class="identifier">second</span> <span class="identifier">time</span><span class="special">:</span> <span class="number">3</span>
+    <span class="identifier">f2</span><span class="special">:</span> <span class="identifier">entered</span><span class="special">:</span> <span class="number">4</span>
+    <span class="identifier">f1</span><span class="special">:</span> <span class="identifier">entered</span> <span class="identifier">third</span> <span class="identifier">time</span><span class="special">:</span> <span class="special">-</span><span class="number">1</span>
+    <span class="identifier">f1</span><span class="special">:</span> <span class="identifier">returned</span> <span class="identifier">third</span> <span class="identifier">time</span>
+</pre>
+<p>
+      The expression <code class="computeroutput"><span class="identifier">c</span><span class="special">.</span><span class="identifier">resume_with</span><span class="special">(...)</span></code>
+      executes a lambda on top of continuation <code class="computeroutput"><span class="identifier">c</span></code>,
+      e.g. an additional stack frame is allocated on top of the stack. This lambda
+      assigns <code class="computeroutput"><span class="special">-</span><span class="number">1</span></code>
+      to <code class="computeroutput"><span class="identifier">data</span></code> and returns to the
+      second invocation of <code class="computeroutput"><span class="identifier">c</span><span class="special">.</span><span class="identifier">resume</span><span class="special">()</span></code>.
+    </p>
+<p>
+      Another option is to execute a function on top of the continuation that throws
+      an exception.
+    </p>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">ctx</span><span class="special">=</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">context</span><span class="special">;</span>
+<span class="keyword">struct</span> <span class="identifier">my_exception</span> <span class="special">:</span> <span class="keyword">public</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">runtime_error</span> <span class="special">{</span>
+    <span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span>    <span class="identifier">c</span><span class="special">;</span>
+    <span class="identifier">my_exception</span><span class="special">(</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">c_</span><span class="special">,</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">string</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">what</span><span class="special">)</span> <span class="special">:</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">runtime_error</span><span class="special">{</span> <span class="identifier">what</span> <span class="special">},</span>
+        <span class="identifier">c</span><span class="special">{</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span> <span class="identifier">c_</span><span class="special">)</span> <span class="special">}</span> <span class="special">{</span>
+    <span class="special">}</span>
+<span class="special">};</span>
+
+<span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="identifier">c</span><span class="special">=</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">callcc</span><span class="special">([](</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">c</span><span class="special">)</span> <span class="special">{</span>
+    <span class="keyword">for</span> <span class="special">(;;)</span> <span class="special">{</span>
+        <span class="keyword">try</span> <span class="special">{</span>
+            <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"entered"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+            <span class="identifier">c</span><span class="special">=</span><span class="identifier">c</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+        <span class="special">}</span> <span class="keyword">catch</span> <span class="special">(</span><span class="identifier">my_exception</span> <span class="special">&amp;</span> <span class="identifier">ex</span><span class="special">)</span> <span class="special">{</span>
+            <span class="identifier">std</span><span class="special">::</span><span class="identifier">cerr</span> <span class="special">&lt;&lt;</span> <span class="string">"my_exception: "</span> <span class="special">&lt;&lt;</span> <span class="identifier">ex</span><span class="special">.</span><span class="identifier">what</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+            <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">ex</span><span class="special">.</span><span class="identifier">c</span><span class="special">);</span>
+        <span class="special">}</span>
+    <span class="special">}</span>
+    <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">c</span><span class="special">);</span>
+<span class="special">});</span>
+<span class="identifier">c</span> <span class="special">=</span> <span class="identifier">c</span><span class="special">.</span><span class="identifier">resume_with</span><span class="special">(</span>
+       <span class="special">[](</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">c</span><span class="special">){</span>
+           <span class="keyword">throw</span> <span class="identifier">my_exception</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">c</span><span class="special">),</span><span class="string">"abc"</span><span class="special">);</span>
+           <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span> <span class="identifier">c</span><span class="special">);</span>
+       <span class="special">});</span>
+
+<span class="identifier">output</span><span class="special">:</span>
+    <span class="identifier">entered</span>
+    <span class="identifier">my_exception</span><span class="special">:</span> <span class="identifier">abc</span>
+</pre>
+<p>
+      In this exception <code class="computeroutput"><span class="identifier">my_exception</span></code>
+      is throw from a function invoked on-top of continuation <code class="computeroutput"><span class="identifier">c</span></code>
+      and catched inside the <code class="computeroutput"><span class="keyword">for</span></code>-loop.
+    </p>
+<h4>
+<a name="context.cc.h6"></a>
+      <span class="phrase"><a name="context.cc.stack_unwinding"></a></span><a class="link" href="cc.html#context.cc.stack_unwinding">Stack
+      unwinding</a>
+    </h4>
+<p>
+      On construction of <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a>
+      a stack is allocated. If the <span class="emphasis"><em>context-function</em></span> returns
+      the stack will be destructed. If the <span class="emphasis"><em>context-function</em></span>
+      has not yet returned and the destructor of an valid <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a>
+      instance (e.g. <span class="emphasis"><em>continuation::operator bool()</em></span> returns
+      <code class="computeroutput"><span class="keyword">true</span></code>) is called, the stack will
+      be destructed too.
+    </p>
+<div class="important"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../../../../../doc/src/images/important.png"></td>
+<th align="left">Important</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        Code executed by <span class="emphasis"><em>context-function</em></span> must not prevent the
+        propagation ofs the <span class="emphasis"><em>detail::forced_unwind</em></span> exception.
+        Absorbing that exception will cause stack unwinding to fail. Thus, any code
+        that catches all exceptions must re-throw any pending <span class="emphasis"><em>detail::forced_unwind</em></span>
+        exception.
+      </p></td></tr>
+</table></div>
+<a name="cc_prealloc"></a><h4>
+<a name="context.cc.h7"></a>
+      <span class="phrase"><a name="context.cc.allocating_control_structures_on_top_of_stack"></a></span><a class="link" href="cc.html#context.cc.allocating_control_structures_on_top_of_stack">Allocating
+      control structures on top of stack</a>
+    </h4>
+<p>
+      Allocating control structures on top of the stack requires to allocated the
+      <span class="emphasis"><em>stack_context</em></span> and create the control structure with placement
+      new before <a class="link" href="cc.html#cc"><span class="emphasis"><em>continuation</em></span></a> is created.
+    </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        The user is responsible for destructing the control structure at the top
+        of the stack.
+      </p></td></tr>
+</table></div>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">ctx</span><span class="special">=</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">context</span><span class="special">;</span>
+<span class="comment">// stack-allocator used for (de-)allocating stack</span>
+<span class="identifier">fixedsize_stack</span> <span class="identifier">salloc</span><span class="special">(</span><span class="number">4048</span><span class="special">);</span>
+<span class="comment">// allocate stack space</span>
+<span class="identifier">stack_context</span> <span class="identifier">sctx</span><span class="special">(</span><span class="identifier">salloc</span><span class="special">.</span><span class="identifier">allocate</span><span class="special">());</span>
+<span class="comment">// reserve space for control structure on top of the stack</span>
+<span class="keyword">void</span> <span class="special">*</span> <span class="identifier">sp</span><span class="special">=</span><span class="keyword">static_cast</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">*&gt;(</span><span class="identifier">sctx</span><span class="special">.</span><span class="identifier">sp</span><span class="special">)-</span><span class="keyword">sizeof</span><span class="special">(</span><span class="identifier">my_control_structure</span><span class="special">);</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">size</span><span class="special">=</span><span class="identifier">sctx</span><span class="special">.</span><span class="identifier">size</span><span class="special">-</span><span class="keyword">sizeof</span><span class="special">(</span><span class="identifier">my_control_structure</span><span class="special">);</span>
+<span class="comment">// placement new creates control structure on reserved space</span>
+<span class="identifier">my_control_structure</span> <span class="special">*</span> <span class="identifier">cs</span><span class="special">=</span><span class="keyword">new</span><span class="special">(</span><span class="identifier">sp</span><span class="special">)</span><span class="identifier">my_control_structure</span><span class="special">(</span><span class="identifier">sp</span><span class="special">,</span><span class="identifier">size</span><span class="special">,</span><span class="identifier">sctx</span><span class="special">,</span><span class="identifier">salloc</span><span class="special">);</span>
+<span class="special">...</span>
+<span class="comment">// destructing the control structure</span>
+<span class="identifier">cs</span><span class="special">-&gt;~</span><span class="identifier">my_control_structure</span><span class="special">();</span>
+<span class="special">...</span>
+<span class="keyword">struct</span> <span class="identifier">my_control_structure</span>  <span class="special">{</span>
+    <span class="comment">// captured continuation</span>
+    <span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span>   <span class="identifier">c</span><span class="special">;</span>
+
+    <span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">StackAllocator</span> <span class="special">&gt;</span>
+    <span class="identifier">my_control_structure</span><span class="special">(</span><span class="keyword">void</span> <span class="special">*</span> <span class="identifier">sp</span><span class="special">,</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">size</span><span class="special">,</span><span class="identifier">stack_context</span> <span class="identifier">sctx</span><span class="special">,</span><span class="identifier">StackAllocator</span> <span class="identifier">salloc</span><span class="special">)</span> <span class="special">:</span>
+        <span class="comment">// create captured continuation</span>
+        <span class="identifier">c</span><span class="special">{}</span> <span class="special">{</span>
+        <span class="identifier">c</span><span class="special">=</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">callcc</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator_arg</span><span class="special">,</span><span class="identifier">preallocated</span><span class="special">(</span><span class="identifier">sp</span><span class="special">,</span><span class="identifier">size</span><span class="special">,</span><span class="identifier">sctx</span><span class="special">),</span><span class="identifier">salloc</span><span class="special">,</span><span class="identifier">entry_func</span><span class="special">);</span>
+    <span class="special">}</span>
+    <span class="special">...</span>
+<span class="special">};</span>
+</pre>
+<h4>
+<a name="context.cc.h8"></a>
+      <span class="phrase"><a name="context.cc.inverting_the_control_flow"></a></span><a class="link" href="cc.html#context.cc.inverting_the_control_flow">Inverting
+      the control flow</a>
+    </h4>
+<pre class="programlisting"><span class="keyword">namespace</span> <span class="identifier">ctx</span><span class="special">=</span><span class="identifier">boost</span><span class="special">::</span><span class="identifier">context</span><span class="special">;</span>
+<span class="comment">/*
+ * grammar:
+ *   P ---&gt; E '\0'
+ *   E ---&gt; T {('+'|'-') T}
+ *   T ---&gt; S {('*'|'/') S}
+ *   S ---&gt; digit | '(' E ')'
+ */</span>
+<span class="keyword">class</span> <span class="identifier">Parser</span><span class="special">{</span>
+   <span class="keyword">char</span> <span class="identifier">next</span><span class="special">;</span>
+   <span class="identifier">std</span><span class="special">::</span><span class="identifier">istream</span><span class="special">&amp;</span> <span class="identifier">is</span><span class="special">;</span>
+   <span class="identifier">std</span><span class="special">::</span><span class="identifier">function</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">(</span><span class="keyword">char</span><span class="special">)&gt;</span> <span class="identifier">cb</span><span class="special">;</span>
+
+   <span class="keyword">char</span> <span class="identifier">pull</span><span class="special">(){</span>
+        <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">char_traits</span><span class="special">&lt;</span><span class="keyword">char</span><span class="special">&gt;::</span><span class="identifier">to_char_type</span><span class="special">(</span><span class="identifier">is</span><span class="special">.</span><span class="identifier">get</span><span class="special">());</span>
+   <span class="special">}</span>
+
+   <span class="keyword">void</span> <span class="identifier">scan</span><span class="special">(){</span>
+       <span class="keyword">do</span><span class="special">{</span>
+           <span class="identifier">next</span><span class="special">=</span><span class="identifier">pull</span><span class="special">();</span>
+       <span class="special">}</span>
+       <span class="keyword">while</span><span class="special">(</span><span class="identifier">isspace</span><span class="special">(</span><span class="identifier">next</span><span class="special">));</span>
+   <span class="special">}</span>
+
+<span class="keyword">public</span><span class="special">:</span>
+   <span class="identifier">Parser</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">istream</span><span class="special">&amp;</span> <span class="identifier">is_</span><span class="special">,</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">function</span><span class="special">&lt;</span><span class="keyword">void</span><span class="special">(</span><span class="keyword">char</span><span class="special">)&gt;</span> <span class="identifier">cb_</span><span class="special">)</span> <span class="special">:</span>
+      <span class="identifier">next</span><span class="special">(),</span> <span class="identifier">is</span><span class="special">(</span><span class="identifier">is_</span><span class="special">),</span> <span class="identifier">cb</span><span class="special">(</span><span class="identifier">cb_</span><span class="special">)</span>
+    <span class="special">{}</span>
+
+   <span class="keyword">void</span> <span class="identifier">run</span><span class="special">()</span> <span class="special">{</span>
+      <span class="identifier">scan</span><span class="special">();</span>
+      <span class="identifier">E</span><span class="special">();</span>
+   <span class="special">}</span>
+
+<span class="keyword">private</span><span class="special">:</span>
+   <span class="keyword">void</span> <span class="identifier">E</span><span class="special">(){</span>
+      <span class="identifier">T</span><span class="special">();</span>
+      <span class="keyword">while</span> <span class="special">(</span><span class="identifier">next</span><span class="special">==</span><span class="char">'+'</span><span class="special">||</span><span class="identifier">next</span><span class="special">==</span><span class="char">'-'</span><span class="special">){</span>
+         <span class="identifier">cb</span><span class="special">(</span><span class="identifier">next</span><span class="special">);</span>
+         <span class="identifier">scan</span><span class="special">();</span>
+         <span class="identifier">T</span><span class="special">();</span>
+      <span class="special">}</span>
+   <span class="special">}</span>
+
+   <span class="keyword">void</span> <span class="identifier">T</span><span class="special">(){</span>
+      <span class="identifier">S</span><span class="special">();</span>
+      <span class="keyword">while</span> <span class="special">(</span><span class="identifier">next</span><span class="special">==</span><span class="char">'*'</span><span class="special">||</span><span class="identifier">next</span><span class="special">==</span><span class="char">'/'</span><span class="special">){</span>
+         <span class="identifier">cb</span><span class="special">(</span><span class="identifier">next</span><span class="special">);</span>
+         <span class="identifier">scan</span><span class="special">();</span>
+         <span class="identifier">S</span><span class="special">();</span>
+      <span class="special">}</span>
+   <span class="special">}</span>
+
+   <span class="keyword">void</span> <span class="identifier">S</span><span class="special">(){</span>
+      <span class="keyword">if</span> <span class="special">(</span><span class="identifier">isdigit</span><span class="special">(</span><span class="identifier">next</span><span class="special">)){</span>
+         <span class="identifier">cb</span><span class="special">(</span><span class="identifier">next</span><span class="special">);</span>
+         <span class="identifier">scan</span><span class="special">();</span>
+      <span class="special">}</span>
+      <span class="keyword">else</span> <span class="keyword">if</span><span class="special">(</span><span class="identifier">next</span><span class="special">==</span><span class="char">'('</span><span class="special">){</span>
+         <span class="identifier">cb</span><span class="special">(</span><span class="identifier">next</span><span class="special">);</span>
+         <span class="identifier">scan</span><span class="special">();</span>
+         <span class="identifier">E</span><span class="special">();</span>
+         <span class="keyword">if</span> <span class="special">(</span><span class="identifier">next</span><span class="special">==</span><span class="char">')'</span><span class="special">){</span>
+             <span class="identifier">cb</span><span class="special">(</span><span class="identifier">next</span><span class="special">);</span>
+             <span class="identifier">scan</span><span class="special">();</span>
+         <span class="special">}</span><span class="keyword">else</span><span class="special">{</span>
+             <span class="keyword">throw</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">runtime_error</span><span class="special">(</span><span class="string">"parsing failed"</span><span class="special">);</span>
+         <span class="special">}</span>
+      <span class="special">}</span>
+      <span class="keyword">else</span><span class="special">{</span>
+         <span class="keyword">throw</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">runtime_error</span><span class="special">(</span><span class="string">"parsing failed"</span><span class="special">);</span>
+      <span class="special">}</span>
+   <span class="special">}</span>
+<span class="special">};</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">istringstream</span> <span class="identifier">is</span><span class="special">(</span><span class="string">"1+1"</span><span class="special">);</span>
+<span class="comment">// execute parser in new continuation</span>
+<span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="identifier">source</span><span class="special">;</span>
+<span class="comment">// user-code pulls parsed data from parser</span>
+<span class="comment">// invert control flow</span>
+<span class="keyword">char</span> <span class="identifier">c</span><span class="special">;</span>
+<span class="keyword">bool</span> <span class="identifier">done</span><span class="special">=</span><span class="keyword">false</span><span class="special">;</span>
+<span class="identifier">source</span><span class="special">=</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">callcc</span><span class="special">(</span>
+        <span class="special">[&amp;</span><span class="identifier">is</span><span class="special">,&amp;</span><span class="identifier">c</span><span class="special">,&amp;</span><span class="identifier">done</span><span class="special">](</span><span class="identifier">ctx</span><span class="special">::</span><span class="identifier">continuation</span> <span class="special">&amp;&amp;</span> <span class="identifier">sink</span><span class="special">){</span>
+        <span class="comment">// create parser with callback function</span>
+        <span class="identifier">Parser</span> <span class="identifier">p</span><span class="special">(</span><span class="identifier">is</span><span class="special">,</span>
+                 <span class="special">[&amp;</span><span class="identifier">sink</span><span class="special">,&amp;</span><span class="identifier">c</span><span class="special">](</span><span class="keyword">char</span> <span class="identifier">c_</span><span class="special">){</span>
+                    <span class="comment">// resume main continuation</span>
+                    <span class="identifier">c</span><span class="special">=</span><span class="identifier">c_</span><span class="special">;</span>
+                    <span class="identifier">sink</span><span class="special">=</span><span class="identifier">sink</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+                 <span class="special">});</span>
+            <span class="comment">// start recursive parsing</span>
+            <span class="identifier">p</span><span class="special">.</span><span class="identifier">run</span><span class="special">();</span>
+            <span class="comment">// signal termination</span>
+            <span class="identifier">done</span><span class="special">=</span><span class="keyword">true</span><span class="special">;</span>
+            <span class="comment">// resume main continuation</span>
+            <span class="keyword">return</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">move</span><span class="special">(</span><span class="identifier">sink</span><span class="special">);</span>
+        <span class="special">});</span>
+<span class="keyword">while</span><span class="special">(!</span><span class="identifier">done</span><span class="special">){</span>
+    <span class="identifier">printf</span><span class="special">(</span><span class="string">"Parsed: %c\n"</span><span class="special">,</span><span class="identifier">c</span><span class="special">);</span>
+    <span class="identifier">source</span><span class="special">=</span><span class="identifier">source</span><span class="special">.</span><span class="identifier">resume</span><span class="special">();</span>
+<span class="special">}</span>
+
+<span class="identifier">output</span><span class="special">:</span>
+    <span class="identifier">Parsed</span><span class="special">:</span> <span class="number">1</span>
+    <span class="identifier">Parsed</span><span class="special">:</span> <span class="special">+</span>
+    <span class="identifier">Parsed</span><span class="special">:</span> <span class="number">1</span>
+</pre>
+<p>
+      In this example a recursive descent parser uses a callback to emit a newly
+      passed symbol. Using <span class="emphasis"><em>call/cc</em></span> the control flow can be inverted,
+      e.g. the user-code pulls parsed symbols from the parser - instead to get pushed
+      from the parser (via callback).
+    </p>
+<p>
+      The data (character) is transferred between the two continuations.
+    </p>
+</div>
+<div class="copyright-footer">Copyright © 2014 Oliver Kowalke<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="ff/class__fiber_.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="cc/implementations__fcontext_t__ucontext_t_and_winfiber.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

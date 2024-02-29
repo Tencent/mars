@@ -1,0 +1,106 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Implementations: fcontext_t, ucontext_t and WinFiber</title>
+<link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Chapter 1. Context">
+<link rel="up" href="../cc.html" title="Context switching with call/cc">
+<link rel="prev" href="../cc.html" title="Context switching with call/cc">
+<link rel="next" href="class__continuation_.html" title="Class continuation">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../cc.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../cc.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="class__continuation_.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="context.cc.implementations__fcontext_t__ucontext_t_and_winfiber"></a><a name="implementation0"></a><a class="link" href="implementations__fcontext_t__ucontext_t_and_winfiber.html" title="Implementations: fcontext_t, ucontext_t and WinFiber">Implementations:
+      fcontext_t, ucontext_t and WinFiber</a>
+</h3></div></div></div>
+<h5>
+<a name="context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.h0"></a>
+        <span class="phrase"><a name="context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.fcontext_t"></a></span><a class="link" href="implementations__fcontext_t__ucontext_t_and_winfiber.html#context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.fcontext_t">fcontext_t</a>
+      </h5>
+<p>
+        The implementation uses <span class="emphasis"><em>fcontext_t</em></span> per default. fcontext_t
+        is based on assembler and not available for all platforms. It provides a
+        much better performance than <span class="emphasis"><em>ucontext_t</em></span> (the context
+        switch takes two magnitudes of order less CPU cycles; see section <a class="link" href="../performance.html#performance"><span class="emphasis"><em>performance</em></span></a>)
+        and <span class="emphasis"><em>WinFiber</em></span>.
+      </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          Because the TIB (thread information block on Windows) is not fully described
+          in the MSDN, it might be possible that not all required TIB-parts are swapped.
+          Using WinFiber implementation migh be an alternative.
+        </p></td></tr>
+</table></div>
+<h5>
+<a name="context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.h1"></a>
+        <span class="phrase"><a name="context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.ucontext_t"></a></span><a class="link" href="implementations__fcontext_t__ucontext_t_and_winfiber.html#context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.ucontext_t">ucontext_t</a>
+      </h5>
+<p>
+        As an alternative, <a href="https://en.wikipedia.org/wiki/Setcontext" target="_top"><span class="emphasis"><em>ucontext_t</em></span></a>
+        can be used by compiling with <code class="computeroutput"><span class="identifier">BOOST_USE_UCONTEXT</span></code>
+        and b2 property <code class="computeroutput"><span class="identifier">context</span><span class="special">-</span><span class="identifier">impl</span><span class="special">=</span><span class="identifier">ucontext</span></code>.
+        <span class="emphasis"><em>ucontext_t</em></span> might be available on a broader range of
+        POSIX-platforms but has some <a class="link" href="../rationale/other_apis_.html#ucontext"><span class="emphasis"><em>disadvantages</em></span></a>
+        (for instance deprecated since POSIX.1-2003, not C99 conform).
+      </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          <a class="link" href="../cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a> supports <a class="link" href="../stack/segmented.html#segmented"><span class="emphasis"><em>Segmented stacks</em></span></a> only with
+          <span class="emphasis"><em>ucontext_t</em></span> as its implementation.
+        </p></td></tr>
+</table></div>
+<h5>
+<a name="context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.h2"></a>
+        <span class="phrase"><a name="context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.winfiber"></a></span><a class="link" href="implementations__fcontext_t__ucontext_t_and_winfiber.html#context.cc.implementations__fcontext_t__ucontext_t_and_winfiber.winfiber">WinFiber</a>
+      </h5>
+<p>
+        With <code class="computeroutput"><span class="identifier">BOOST_USE_WINFIB</span></code> and
+        b2 property <code class="computeroutput"><span class="identifier">context</span><span class="special">-</span><span class="identifier">impl</span><span class="special">=</span><span class="identifier">winfib</span></code>
+        Win32-Fibers are used as implementation for <a class="link" href="../cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a>.
+      </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          The first call of <a class="link" href="../cc.html#cc"><span class="emphasis"><em>callcc()</em></span></a>
+          converts the thread into a Windows fiber by invoking <code class="computeroutput"><span class="identifier">ConvertThreadToFiber</span><span class="special">()</span></code>. If desired, <code class="computeroutput"><span class="identifier">ConvertFiberToThread</span><span class="special">()</span></code> has to be called by the user explicitly
+          in order to release resources allocated by <code class="computeroutput"><span class="identifier">ConvertThreadToFiber</span><span class="special">()</span></code> (e.g. after using boost.context).
+        </p></td></tr>
+</table></div>
+</div>
+<div class="copyright-footer">Copyright © 2014 Oliver Kowalke<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../cc.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../cc.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="class__continuation_.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

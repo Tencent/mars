@@ -22,10 +22,11 @@
 #define BOOST_TT_IS_CONST_HPP_INCLUDED
 
 #include <boost/type_traits/integral_constant.hpp>
+#include <cstddef> // size_t
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
-#if defined( __CODEGEARC__ )
+#if defined( BOOST_CODEGEARC )
 
    template <class T>
    struct is_const : public integral_constant<bool, __is_const(T)> {};
@@ -35,7 +36,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
    template <class T>
    struct is_const : public false_type {};
    template <class T> struct is_const<T const> : public true_type{};
-   template <class T, size_t N> struct is_const<T const[N]> : public true_type{};
+   template <class T, std::size_t N> struct is_const<T const[N]> : public true_type{};
    template <class T> struct is_const<T const[]> : public true_type{};
 
 #endif

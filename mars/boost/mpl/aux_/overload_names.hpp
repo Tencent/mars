@@ -14,8 +14,8 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/ptr_to_ref.hpp>
 #include <boost/mpl/aux_/config/operators.hpp>
+#include <boost/mpl/aux_/ptr_to_ref.hpp>
 
 #if defined(BOOST_MPL_CFG_USE_OPERATORS_OVERLOADING)
 

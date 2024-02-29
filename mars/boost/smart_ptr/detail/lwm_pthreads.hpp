@@ -82,6 +82,6 @@ public:
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_LWM_PTHREADS_HPP_INCLUDED

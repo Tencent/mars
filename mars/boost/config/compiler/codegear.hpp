@@ -9,6 +9,155 @@
 
 //  CodeGear C++ compiler setup:
 
+//
+// versions check:
+// last known and checked version is 0x740
+#if (__CODEGEARC__ > 0x740)
+#  if defined(BOOST_ASSERT_CONFIG)
+#     error "boost: Unknown compiler version - please run the configure tests and report the results"
+#  else
+#     pragma message( "boost: Unknown compiler version - please run the configure tests and report the results")
+#  endif
+#endif
+
+#ifdef __clang__ // Clang enhanced Windows compiler
+
+#  include "clang.hpp"
+#  define BOOST_NO_CXX11_THREAD_LOCAL
+#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
+
+// This bug has been reported to Embarcadero
+
+#if defined(BOOST_HAS_INT128)
+#undef BOOST_HAS_INT128
+#endif
+#if defined(BOOST_HAS_FLOAT128)
+#undef BOOST_HAS_FLOAT128
+#endif
+
+// The clang-based compilers can not do 128 atomic exchanges
+
+#define BOOST_ATOMIC_NO_CMPXCHG16B
+
+// 32 functions are missing from the current RTL in cwchar, so it really can not be used even if it exists
+
+#  define BOOST_NO_CWCHAR
+
+#  ifndef __MT__  /* If compiling in single-threaded mode, assume there is no CXX11_HDR_ATOMIC */
+#    define BOOST_NO_CXX11_HDR_ATOMIC
+#  endif
+
+/* temporarily disable this until we can link against fegetround fesetround feholdexcept */
+
+#define BOOST_NO_FENV_H
+
+/* Reported this bug to Embarcadero with the latest C++ Builder Rio release */
+
+#define BOOST_NO_CXX11_HDR_EXCEPTION
+
+//
+// check for exception handling support:
+//
+#if !defined(_CPPUNWIND) && !defined(__EXCEPTIONS) && !defined(BOOST_NO_EXCEPTIONS)
+#  define BOOST_NO_EXCEPTIONS
+#endif
+
+/*
+
+// On non-Win32 platforms let the platform config figure this out:
+#ifdef _WIN32
+#  define BOOST_HAS_STDINT_H
+#endif
+
+//
+// __int64:
+//
+#if !defined(__STRICT_ANSI__)
+#  define BOOST_HAS_MS_INT64
+#endif
+//
+// all versions have a <dirent.h>:
+//
+#if !defined(__STRICT_ANSI__)
+#  define BOOST_HAS_DIRENT_H
+#endif
+//
+// Disable Win32 support in ANSI mode:
+//
+#  pragma defineonoption BOOST_DISABLE_WIN32 -A
+//
+// MSVC compatibility mode does some nasty things:
+// TODO: look up if this doesn't apply to the whole 12xx range
+//
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+#  define BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+#  define BOOST_NO_VOID_RETURNS
+#endif
+//
+
+*/
+
+// Specific settings for Embarcadero drivers
+#  define BOOST_EMBTC          __CODEGEARC__
+#  define BOOST_EMBTC_FULL_VER ((__clang_major__      << 16) | \
+                                (__clang_minor__      <<  8) | \
+                                 __clang_patchlevel__         )
+
+// Detecting which Embarcadero driver is being used
+#if defined(BOOST_EMBTC)
+#  if defined(_WIN64)
+#    define BOOST_EMBTC_WIN64 1
+#    define BOOST_EMBTC_WINDOWS 1
+#    ifndef BOOST_USE_WINDOWS_H
+#      define BOOST_USE_WINDOWS_H
+#    endif
+#  elif defined(_WIN32)
+#    define BOOST_EMBTC_WIN32C 1
+#    define BOOST_EMBTC_WINDOWS 1
+#    ifndef BOOST_USE_WINDOWS_H
+#      define BOOST_USE_WINDOWS_H
+#    endif
+#  elif defined(__APPLE__) && defined(__arm__)
+#    define BOOST_EMBTC_IOSARM 1
+#    define BOOST_EMBTC_IOS 1
+#  elif defined(__APPLE__) && defined(__aarch64__)
+#    define BOOST_EMBTC_IOSARM64 1
+#    define BOOST_EMBTC_IOS 1
+#  elif defined(__ANDROID__) && defined(__arm__)
+#    define BOOST_EMBTC_AARM 1
+#    define BOOST_EMBTC_ANDROID 1
+#  elif
+#    if defined(BOOST_ASSERT_CONFIG)
+#       error "Unknown Embarcadero driver"
+#    else
+#       warning "Unknown Embarcadero driver"
+#    endif /* defined(BOOST_ASSERT_CONFIG) */
+#  endif
+#endif /* defined(BOOST_EMBTC) */
+
+#if defined(BOOST_EMBTC_WINDOWS)
+
+#if !defined(_chdir)
+#define _chdir(x) chdir(x)
+#endif
+
+#if !defined(_dup2)
+#define _dup2(x,y) dup2(x,y)
+#endif
+
+#endif
+
+#  undef BOOST_COMPILER
+#  define BOOST_COMPILER "Embarcadero-Clang C++ version " BOOST_STRINGIZE(__CODEGEARC__) " clang: " __clang_version__
+// #  define __CODEGEARC_CLANG__ __CODEGEARC__
+// #  define __EMBARCADERO_CLANG__ __CODEGEARC__
+// #  define __BORLANDC_CLANG__ __BORLANDC__
+
+#else // #if !defined(__clang__)
+
+# define BOOST_CODEGEARC  __CODEGEARC__
+# define BOOST_BORLANDC   __BORLANDC__
+
 #if !defined( BOOST_WITH_CODEGEAR_WARNINGS )
 // these warnings occur frequently in optimized template code
 # pragma warn -8004 // var assigned value, but never used
@@ -16,16 +165,6 @@
 # pragma warn -8066 // dead code can never execute
 # pragma warn -8104 // static members with ctors not threadsafe
 # pragma warn -8105 // reference member in class without ctors
-#endif
-//
-// versions check:
-// last known and checked version is 0x621
-#if (__CODEGEARC__ > 0x621)
-#  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
-#  else
-#     pragma message( "Unknown compiler version - please run the configure tests and report the results")
-#  endif
 #endif
 
 // CodeGear C++ Builder 2009
@@ -78,6 +217,8 @@
 #  define BOOST_HAS_PRAGMA_ONCE
 #endif
 
+#define BOOST_NO_FENV_H
+
 //
 // C++0x macros:
 //
@@ -112,16 +253,22 @@
 #define BOOST_NO_CXX11_RAW_LITERALS
 #define BOOST_NO_CXX11_RVALUE_REFERENCES
 #define BOOST_NO_SFINAE_EXPR
+#define BOOST_NO_CXX11_SFINAE_EXPR
 #define BOOST_NO_CXX11_TEMPLATE_ALIASES
 #define BOOST_NO_CXX11_UNICODE_LITERALS
 #define BOOST_NO_CXX11_VARIADIC_TEMPLATES
 #define BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
 #define BOOST_NO_CXX11_USER_DEFINED_LITERALS
 #define BOOST_NO_CXX11_ALIGNAS
+#define BOOST_NO_CXX11_ALIGNOF
 #define BOOST_NO_CXX11_TRAILING_RESULT_TYPES
 #define BOOST_NO_CXX11_INLINE_NAMESPACES
 #define BOOST_NO_CXX11_REF_QUALIFIERS
 #define BOOST_NO_CXX11_FINAL
+#define BOOST_NO_CXX11_OVERRIDE
+#define BOOST_NO_CXX11_THREAD_LOCAL
+#define BOOST_NO_CXX11_DECLTYPE_N3276
+#define BOOST_NO_CXX11_UNRESTRICTED_UNION
 
 // C++ 14:
 #if !defined(__cpp_aggregate_nsdmi) || (__cpp_aggregate_nsdmi < 201304)
@@ -150,6 +297,23 @@
 #endif
 #if !defined(__cpp_variable_templates) || (__cpp_variable_templates < 201304)
 #  define BOOST_NO_CXX14_VARIABLE_TEMPLATES
+#endif
+
+// C++17
+#if !defined(__cpp_structured_bindings) || (__cpp_structured_bindings < 201606)
+#  define BOOST_NO_CXX17_STRUCTURED_BINDINGS
+#endif
+
+#if !defined(__cpp_inline_variables) || (__cpp_inline_variables < 201606)
+#  define BOOST_NO_CXX17_INLINE_VARIABLES
+#endif
+
+#if !defined(__cpp_fold_expressions) || (__cpp_fold_expressions < 201603)
+#  define BOOST_NO_CXX17_FOLD_EXPRESSIONS
+#endif
+
+#if !defined(__cpp_if_constexpr) || (__cpp_if_constexpr < 201606)
+#  define BOOST_NO_CXX17_IF_CONSTEXPR
 #endif
 
 //
@@ -218,3 +382,4 @@
 
 #define BOOST_COMPILER "CodeGear C++ version " BOOST_STRINGIZE(__CODEGEARC__)
 
+#endif // #if !defined(__clang__)

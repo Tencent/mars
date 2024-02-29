@@ -9,23 +9,31 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_PLAT_WINDOWS_STORE_H
 #define BOOST_PREDEF_PLAT_WINDOWS_STORE_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
 #include <boost/predef/os/windows.h>
+#include <boost/predef/platform/windows_uwp.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_PLAT_WINDOWS_STORE`]
+/* tag::reference[]
+= `BOOST_PLAT_WINDOWS_STORE`
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+https://docs.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide[UWP]
+for Windows Store development.
 
-    [[`WINAPI_FAMILY == WINAPI_FAMILY_APP`] [__predef_detection__]]
-    ]
- */
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
+
+| `WINAPI_FAMILY == WINAPI_FAMILY_PC_APP` | {predef_detection}
+| `WINAPI_FAMILY == WINAPI_FAMILY_APP` (deprecated) | {predef_detection}
+|===
+*/ // end::reference[]
 
 #define BOOST_PLAT_WINDOWS_STORE BOOST_VERSION_NUMBER_NOT_AVAILABLE
 
-#if BOOST_OS_WINDOWS && defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_APP
+#if BOOST_OS_WINDOWS && \
+    ((defined(WINAPI_FAMILY_PC_APP) && WINAPI_FAMILY == WINAPI_FAMILY_PC_APP) || \
+     (defined(WINAPI_FAMILY_APP)    && WINAPI_FAMILY == WINAPI_FAMILY_APP))
 #   undef BOOST_PLAT_WINDOWS_STORE
 #   define BOOST_PLAT_WINDOWS_STORE BOOST_VERSION_NUMBER_AVAILABLE
 #endif

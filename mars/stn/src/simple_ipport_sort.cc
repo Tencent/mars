@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <deque>
 
-#include "boost/accumulators/numeric/functional.hpp"
 #include "boost/bind.hpp"
 #include "boost/filesystem.hpp"
 #include "mars/app/app.h"
@@ -423,9 +422,11 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
         return false;
     };
 
-    items_history.erase(
-        std::remove_copy_if(_items.begin(), _items.end(), items_history.begin(), !boost::bind<bool>(find_lambda, _1)),
-        items_history.end());
+    items_history.erase(std::remove_copy_if(_items.begin(),
+                                            _items.end(),
+                                            items_history.begin(),
+                                            !boost::bind<bool>(find_lambda, boost::placeholders::_1)),
+                        items_history.end());
     items_new.erase(std::remove_copy_if(_items.begin(), _items.end(), items_new.begin(), find_lambda), items_new.end());
     xassert2(_items.size() == items_history.size() + items_new.size(),
              TSF "_item:%_, history:%_, new:%_",
@@ -440,9 +441,13 @@ void SimpleIPPortSort::__SortbyBanned(std::vector<IPPortItem>& _items, bool _use
         };
 
         std::vector<BanItem>::const_iterator l =
-            std::find_if(_ban_fail_list_.begin(), _ban_fail_list_.end(), boost::bind<bool>(find_lr_lambda, _1, _l));
+            std::find_if(_ban_fail_list_.begin(),
+                         _ban_fail_list_.end(),
+                         boost::bind<bool>(find_lr_lambda, boost::placeholders::_1, _l));
         std::vector<BanItem>::const_iterator r =
-            std::find_if(_ban_fail_list_.begin(), _ban_fail_list_.end(), boost::bind<bool>(find_lr_lambda, _1, _r));
+            std::find_if(_ban_fail_list_.begin(),
+                         _ban_fail_list_.end(),
+                         boost::bind<bool>(find_lr_lambda, boost::placeholders::_1, _r));
 
         xassert2(l != _ban_fail_list_.end());
         xassert2(r != _ban_fail_list_.end());

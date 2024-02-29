@@ -20,16 +20,16 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/bind_fwd.hpp>
-#   include <boost/mpl/placeholders.hpp>
-#   include <boost/mpl/next.hpp>
-#   include <boost/mpl/protect.hpp>
 #   include <boost/mpl/apply_wrap.hpp>
-#   include <boost/mpl/limits/arity.hpp>
-#   include <boost/mpl/aux_/na.hpp>
 #   include <boost/mpl/aux_/arity_spec.hpp>
+#   include <boost/mpl/aux_/na.hpp>
 #   include <boost/mpl/aux_/type_wrapper.hpp>
 #   include <boost/mpl/aux_/yes_no.hpp>
+#   include <boost/mpl/bind_fwd.hpp>
+#   include <boost/mpl/limits/arity.hpp>
+#   include <boost/mpl/next.hpp>
+#   include <boost/mpl/placeholders.hpp>
+#   include <boost/mpl/protect.hpp>
 #   if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 #       include <boost/type_traits/is_reference.hpp>
 #   endif 
@@ -51,24 +51,24 @@
 
 #else
 
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
-#   include <boost/mpl/aux_/preprocessor/partial_spec_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/ext_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
-#   include <boost/mpl/aux_/preprocessor/enum.hpp>
-#   include <boost/mpl/aux_/preprocessor/add.hpp>
-#   include <boost/mpl/aux_/config/dmc_ambiguous_ctps.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
-#   include <boost/mpl/aux_/config/ttp.hpp>
+#   include <boost/mpl/aux_/config/dmc_ambiguous_ctps.hpp>
 #   include <boost/mpl/aux_/config/dtp.hpp>
+#   include <boost/mpl/aux_/config/ttp.hpp>
 #   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/aux_/preprocessor/add.hpp>
+#   include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
+#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/enum.hpp>
+#   include <boost/mpl/aux_/preprocessor/ext_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/params.hpp>
+#   include <boost/mpl/aux_/preprocessor/partial_spec_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
 
-#   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/comma_if.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/comma_if.hpp>
 #   include <boost/preprocessor/inc.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

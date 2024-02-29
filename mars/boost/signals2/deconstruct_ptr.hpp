@@ -16,11 +16,11 @@
 #define BOOST_SIGNALS2_DECONSTRUCT_PTR_HPP
 
 #include <boost/assert.hpp>
-#include <boost/checked_delete.hpp>
+#include <boost/core/checked_delete.hpp>
+#include <boost/core/no_exceptions_support.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/signals2/postconstructible.hpp>
 #include <boost/signals2/predestructible.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/core/no_exceptions_support.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -49,7 +49,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         BOOST_CATCH(...)
         {
           BOOST_ASSERT(false);
-        } BOOST_CATCH_END
+        }
+        BOOST_CATCH_END
       }
     }
 

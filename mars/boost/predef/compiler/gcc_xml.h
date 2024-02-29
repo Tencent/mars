@@ -8,20 +8,21 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_COMPILER_GCC_XML_H
 #define BOOST_PREDEF_COMPILER_GCC_XML_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_COMP_GCCXML`]
+/* tag::reference[]
+= `BOOST_COMP_GCCXML`
 
-[@http://www.gccxml.org/ GCC XML] compiler.
+http://www.gccxml.org/[GCC XML] compiler.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__GCCXML__`] [__predef_detection__]]
-    ]
- */
+| `+__GCCXML__+` | {predef_detection}
+|===
+*/ // end::reference[]
 
 #define BOOST_COMP_GCCXML BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

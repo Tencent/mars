@@ -13,18 +13,18 @@
 #include "boost/config.hpp"
 #include "boost/limits.hpp"
 
-#include "boost/numeric/conversion/sign_mixture_enum.hpp"
 #include "boost/numeric/conversion/detail/meta.hpp"
+#include "boost/numeric/conversion/sign_mixture_enum.hpp"
 
-#include "boost/mpl/integral_c.hpp"
+#include "boost/type_traits/integral_constant.hpp"
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace numeric { namespace convdetail
 {
   // Integral Constants for 'SignMixture'
-  typedef mpl::integral_c<sign_mixture_enum, unsigned_to_unsigned> unsig2unsig_c ;
-  typedef mpl::integral_c<sign_mixture_enum, signed_to_signed>     sig2sig_c ;
-  typedef mpl::integral_c<sign_mixture_enum, signed_to_unsigned>   sig2unsig_c ;
-  typedef mpl::integral_c<sign_mixture_enum, unsigned_to_signed>   unsig2sig_c ;
+  typedef mars_boost::integral_constant<sign_mixture_enum, unsigned_to_unsigned> unsig2unsig_c ;
+  typedef mars_boost::integral_constant<sign_mixture_enum, signed_to_signed>     sig2sig_c ;
+  typedef mars_boost::integral_constant<sign_mixture_enum, signed_to_unsigned>   sig2unsig_c ;
+  typedef mars_boost::integral_constant<sign_mixture_enum, unsigned_to_signed>   unsig2sig_c ;
 
   // Metafunction:
   //

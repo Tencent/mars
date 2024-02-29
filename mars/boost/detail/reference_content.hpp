@@ -15,14 +15,14 @@
 
 #include "boost/config.hpp"
 
-#   include "boost/mpl/bool.hpp"
 #   include "boost/type_traits/has_nothrow_copy.hpp"
-
-#include "boost/mpl/void.hpp"
+#   include "boost/type_traits/integral_constant.hpp"
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 namespace detail {
+
+struct void_type {};
 
 ///////////////////////////////////////////////////////////////////////////////
 // (detail) class template reference_content
@@ -71,7 +71,7 @@ public: // queries
 // Wraps with reference_content if specified type is reference.
 //
 
-template <typename T = mpl::void_> struct make_reference_content;
+template <typename T = void_type> struct make_reference_content;
 
 
 template <typename T>
@@ -88,7 +88,7 @@ struct make_reference_content< T& >
 
 
 template <>
-struct make_reference_content< mpl::void_ >
+struct make_reference_content< void_type >
 {
     template <typename T>
     struct apply
@@ -96,7 +96,7 @@ struct make_reference_content< mpl::void_ >
     {
     };
 
-    typedef mpl::void_ type;
+    typedef void_type type;
 };
 
 } // namespace detail
@@ -110,7 +110,7 @@ template <typename T>
 struct has_nothrow_copy<
       ::mars_boost::detail::reference_content< T& >
     >
-    : mpl::true_
+    : mars_boost::true_type
 {
 };
 

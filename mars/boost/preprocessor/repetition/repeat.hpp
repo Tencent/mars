@@ -8,6 +8,7 @@
 #  */
 #
 # /* Revised by Paul Mensonides (2002) */
+# /* Revised by Edward Diener (2020) */
 #
 # /* See http://www.boost.org for most recent version. */
 #
@@ -47,6 +48,8 @@
 # define BOOST_PP_REPEAT_1ST BOOST_PP_REPEAT_1
 # define BOOST_PP_REPEAT_2ND BOOST_PP_REPEAT_2
 # define BOOST_PP_REPEAT_3RD BOOST_PP_REPEAT_3
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # define BOOST_PP_REPEAT_1_0(m, d)
 # define BOOST_PP_REPEAT_1_1(m, d) m(2, 0, d)
@@ -821,5 +824,24 @@
 # define BOOST_PP_REPEAT_3_254(m, d) BOOST_PP_REPEAT_3_253(m, d) m(4, 253, d)
 # define BOOST_PP_REPEAT_3_255(m, d) BOOST_PP_REPEAT_3_254(m, d) m(4, 254, d)
 # define BOOST_PP_REPEAT_3_256(m, d) BOOST_PP_REPEAT_3_255(m, d) m(4, 255, d)
+#
+# else
+#
+# include <boost/preprocessor/config/limits.hpp>
+#
+# if BOOST_PP_LIMIT_REPEAT == 256
+# include <boost/preprocessor/repetition/limits/repeat_256.hpp>
+# elif BOOST_PP_LIMIT_REPEAT == 512
+# include <boost/preprocessor/repetition/limits/repeat_256.hpp>
+# include <boost/preprocessor/repetition/limits/repeat_512.hpp>
+# elif BOOST_PP_LIMIT_REPEAT == 1024
+# include <boost/preprocessor/repetition/limits/repeat_1024.hpp>
+# include <boost/preprocessor/repetition/limits/repeat_256.hpp>
+# include <boost/preprocessor/repetition/limits/repeat_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_REPEAT limit
+# endif
+#
+# endif
 #
 # endif

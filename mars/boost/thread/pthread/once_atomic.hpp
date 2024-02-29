@@ -12,12 +12,12 @@
 
 #include <boost/thread/detail/config.hpp>
 
-#include <boost/cstdint.hpp>
-#include <boost/thread/detail/move.hpp>
-#include <boost/thread/detail/invoke.hpp>
-#include <boost/core/no_exceptions_support.hpp>
-#include <boost/bind.hpp>
 #include <boost/atomic.hpp>
+#include <boost/bind/bind.hpp>
+#include <boost/core/no_exceptions_support.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/thread/detail/invoke.hpp>
+#include <boost/thread/detail/move.hpp>
 
 #include <boost/config/abi_prefix.hpp>
 
@@ -165,8 +165,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
       BOOST_TRY
       {
-        mars_boost::forward<Function>(f)(mars_boost::forward<T1>(p1));
-        //BOOST_THREAD_INVOKE_RET_VOID(f, p1) BOOST_THREAD_INVOKE_RET_VOID_CALL;
+        BOOST_THREAD_INVOKE_RET_VOID(f, p1) BOOST_THREAD_INVOKE_RET_VOID_CALL;
       }
       BOOST_CATCH (...)
       {

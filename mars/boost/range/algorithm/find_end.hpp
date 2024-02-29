@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_FIND_END_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_FIND_END_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/detail/range_return.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -147,6 +147,6 @@ find_end(const ForwardRange1& rng1, const ForwardRange2& rng2, BinaryPredicate p
 
     } // namespace range
     using range::find_end;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

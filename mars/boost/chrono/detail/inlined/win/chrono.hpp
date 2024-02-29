@@ -12,9 +12,11 @@
 #ifndef BOOST_CHRONO_DETAIL_INLINED_WIN_CHRONO_HPP
 #define BOOST_CHRONO_DETAIL_INLINED_WIN_CHRONO_HPP
 
-#include <boost/detail/winapi/time.hpp>
-#include <boost/detail/winapi/timers.hpp>
-#include <boost/detail/winapi/GetLastError.hpp>
+#include <boost/assert.hpp>
+#include <boost/winapi/error_codes.hpp>
+#include <boost/winapi/get_last_error.hpp>
+#include <boost/winapi/time.hpp>
+#include <boost/winapi/timers.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -25,8 +27,8 @@ namespace chrono_detail
 
   BOOST_CHRONO_INLINE double get_nanosecs_per_tic() BOOST_NOEXCEPT
   {
-      mars_boost::detail::winapi::LARGE_INTEGER_ freq;
-      if ( !mars_boost::detail::winapi::QueryPerformanceFrequency( &freq ) )
+      mars_boost::winapi::LARGE_INTEGER_ freq;
+      if ( !mars_boost::winapi::QueryPerformanceFrequency( &freq ) )
           return 0.0L;
       return double(1000000000.0L / freq.QuadPart);
   }
@@ -37,14 +39,14 @@ namespace chrono_detail
   {
     double nanosecs_per_tic = chrono_detail::get_nanosecs_per_tic();
 
-    mars_boost::detail::winapi::LARGE_INTEGER_ pcount;
+    mars_boost::winapi::LARGE_INTEGER_ pcount;
     if ( nanosecs_per_tic <= 0.0L )
     {
       BOOST_ASSERT(0 && "Boost::Chrono - get_nanosecs_per_tic Internal Error");
       return steady_clock::time_point();
     }
     unsigned times=0;
-    while ( ! mars_boost::detail::winapi::QueryPerformanceCounter( &pcount ) )
+    while ( ! mars_boost::winapi::QueryPerformanceCounter( &pcount ) )
     {
       if ( ++times > 3 )
       {
@@ -63,29 +65,29 @@ namespace chrono_detail
   {
     double nanosecs_per_tic = chrono_detail::get_nanosecs_per_tic();
 
-    mars_boost::detail::winapi::LARGE_INTEGER_ pcount;
+    mars_boost::winapi::LARGE_INTEGER_ pcount;
     if ( (nanosecs_per_tic <= 0.0L)
-            || (!mars_boost::detail::winapi::QueryPerformanceCounter( &pcount )) )
+            || (!mars_boost::winapi::QueryPerformanceCounter( &pcount )) )
     {
-        mars_boost::detail::winapi::DWORD_ cause =
+        mars_boost::winapi::DWORD_ cause =
             ((nanosecs_per_tic <= 0.0L)
-                    ? ERROR_NOT_SUPPORTED
-                    : mars_boost::detail::winapi::GetLastError());
-        if (BOOST_CHRONO_IS_THROWS(ec)) {
+                    ? mars_boost::winapi::ERROR_NOT_SUPPORTED_
+                    : mars_boost::winapi::GetLastError());
+        if (::mars_boost::chrono::is_throws(ec)) {
             mars_boost::throw_exception(
                     system::system_error(
                             cause,
-                            BOOST_CHRONO_SYSTEM_CATEGORY,
+                            ::mars_boost::system::system_category(),
                             "chrono::steady_clock" ));
         }
         else
         {
-            ec.assign( cause, BOOST_CHRONO_SYSTEM_CATEGORY );
+            ec.assign( cause, ::mars_boost::system::system_category() );
             return steady_clock::time_point(duration(0));
         }
     }
 
-    if (!BOOST_CHRONO_IS_THROWS(ec))
+    if (!::mars_boost::chrono::is_throws(ec))
     {
         ec.clear();
     }
@@ -97,8 +99,8 @@ namespace chrono_detail
   BOOST_CHRONO_INLINE
   system_clock::time_point system_clock::now() BOOST_NOEXCEPT
   {
-    mars_boost::detail::winapi::FILETIME_ ft;
-    mars_boost::detail::winapi::GetSystemTimeAsFileTime( &ft );  // never fails
+    mars_boost::winapi::FILETIME_ ft;
+    mars_boost::winapi::GetSystemTimeAsFileTime( &ft );  // never fails
     return system_clock::time_point(
       system_clock::duration(
         ((static_cast<__int64>( ft.dwHighDateTime ) << 32) | ft.dwLowDateTime)
@@ -112,9 +114,9 @@ namespace chrono_detail
   BOOST_CHRONO_INLINE
   system_clock::time_point system_clock::now( system::error_code & ec )
   {
-    mars_boost::detail::winapi::FILETIME_ ft;
-    mars_boost::detail::winapi::GetSystemTimeAsFileTime( &ft );  // never fails
-    if (!BOOST_CHRONO_IS_THROWS(ec))
+    mars_boost::winapi::FILETIME_ ft;
+    mars_boost::winapi::GetSystemTimeAsFileTime( &ft );  // never fails
+    if (!::mars_boost::chrono::is_throws(ec))
     {
         ec.clear();
     }

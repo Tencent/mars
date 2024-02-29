@@ -13,6 +13,7 @@
  * accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
+ *  9 Jan 2013 - (mtc) Added constexpr
  * 14 Apr 2012 - (mtc) Added support for mars_boost::hash
  * 28 Dec 2010 - (mtc) Added cbegin and cend (and crbegin and crend) for C++Ox compatibility.
  * 10 Mar 2010 - (mtc) fill method added, matching resolution of the standard library working group.
@@ -32,23 +33,22 @@
 
 #include <boost/detail/workaround.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
-# pragma warning(push)  
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+# pragma warning(push)
 # pragma warning(disable:4996) // 'std::equal': Function call with parameters that may be unsafe
-# pragma warning(disable:4510) // mars_boost::array<T,N>' : default constructor could not be generated 
-# pragma warning(disable:4610) // warning C4610: class 'mars_boost::array<T,N>' can never be instantiated - user defined constructor required 
+# pragma warning(disable:4510) // mars_boost::array<T,N>' : default constructor could not be generated
+# pragma warning(disable:4610) // warning C4610: class 'mars_boost::array<T,N>' can never be instantiated - user defined constructor required
 #endif
 
-#include <cstddef>
-#include <stdexcept>
 #include <boost/assert.hpp>
-#include <boost/swap.hpp>
+#include <boost/core/invoke_swap.hpp>
+#include <boost/static_assert.hpp>
+#include <cstddef>
+#include <iterator>
+#include <stdexcept>
 
-// Handles broken standard libraries better than <iterator>
-#include <boost/detail/iterator.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/functional/hash_fwd.hpp>
 #include <algorithm>
+#include <boost/throw_exception.hpp>
 
 // FIXES for broken compilers
 #include <boost/config.hpp>
@@ -75,24 +75,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         iterator        begin()       { return elems; }
         const_iterator  begin() const { return elems; }
         const_iterator cbegin() const { return elems; }
-        
+
         iterator        end()       { return elems+N; }
         const_iterator  end() const { return elems+N; }
         const_iterator cend() const { return elems+N; }
 
         // reverse iterator support
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_MSVC_STD_ITERATOR) && !defined(BOOST_NO_STD_ITERATOR_TRAITS)
+#if !defined(BOOST_MSVC_STD_ITERATOR) && !defined(BOOST_NO_STD_ITERATOR_TRAITS)
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-#elif defined(_MSC_VER) && (_MSC_VER == 1300) && defined(BOOST_DINKUMWARE_STDLIB) && (BOOST_DINKUMWARE_STDLIB == 310)
-        // workaround for broken reverse_iterator in VC7
-        typedef std::reverse_iterator<std::_Ptrit<value_type, difference_type, iterator,
-                                      reference, iterator, reference> > reverse_iterator;
-        typedef std::reverse_iterator<std::_Ptrit<value_type, difference_type, const_iterator,
-                                      const_reference, iterator, reference> > const_reverse_iterator;
-#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC) 
-        typedef std::reverse_iterator<iterator, std::random_access_iterator_tag, 
-              value_type, reference, iterator, difference_type> reverse_iterator; 
+#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
+        typedef std::reverse_iterator<iterator, std::random_access_iterator_tag,
+              value_type, reference, iterator, difference_type> reverse_iterator;
         typedef std::reverse_iterator<const_iterator, std::random_access_iterator_tag,
               value_type, const_reference, const_iterator, difference_type> const_reverse_iterator;
 #else
@@ -118,53 +112,51 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         }
 
         // operator[]
-        reference operator[](size_type i) 
-        { 
-            BOOST_ASSERT_MSG( i < N, "out of range" );
-            return elems[i];
+        reference operator[](size_type i)
+        {
+            return BOOST_ASSERT_MSG( i < N, "out of range" ), elems[i];
         }
-        
-        const_reference operator[](size_type i) const 
-        {     
-            BOOST_ASSERT_MSG( i < N, "out of range" );
-            return elems[i]; 
+
+        /*BOOST_CONSTEXPR*/ const_reference operator[](size_type i) const
+        {
+            return BOOST_ASSERT_MSG( i < N, "out of range" ), elems[i];
         }
 
         // at() with range check
-        reference at(size_type i) { rangecheck(i); return elems[i]; }
-        const_reference at(size_type i) const { rangecheck(i); return elems[i]; }
-    
+        reference                           at(size_type i)       { return rangecheck(i), elems[i]; }
+        /*BOOST_CONSTEXPR*/ const_reference at(size_type i) const { return rangecheck(i), elems[i]; }
+
         // front() and back()
-        reference front() 
-        { 
-            return elems[0]; 
-        }
-        
-        const_reference front() const 
+        reference front()
         {
             return elems[0];
         }
-        
-        reference back() 
-        { 
-            return elems[N-1]; 
+
+        BOOST_CONSTEXPR const_reference front() const
+        {
+            return elems[0];
         }
-        
-        const_reference back() const 
-        { 
-            return elems[N-1]; 
+
+        reference back()
+        {
+            return elems[N-1];
+        }
+
+        BOOST_CONSTEXPR const_reference back() const
+        {
+            return elems[N-1];
         }
 
         // size is constant
-        static size_type size() { return N; }
-        static bool empty() { return false; }
-        static size_type max_size() { return N; }
+        static BOOST_CONSTEXPR size_type size() { return N; }
+        static BOOST_CONSTEXPR bool empty() { return false; }
+        static BOOST_CONSTEXPR size_type max_size() { return N; }
         enum { static_size = N };
 
         // swap (note: linear complexity)
         void swap (array<T,N>& y) {
             for (size_type i = 0; i < N; ++i)
-                mars_boost::swap(elems[i],y.elems[i]);
+                mars_boost::core::invoke_swap(elems[i],y.elems[i]);
         }
 
         // direct access to data (read-only)
@@ -189,16 +181,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         }
 
         // check range (may be private because it is static)
-        static void rangecheck (size_type i) {
-            if (i >= size()) {
-                std::out_of_range e("array<>: index out of range");
-                mars_boost::throw_exception(e);
-            }
+        static BOOST_CONSTEXPR bool rangecheck (size_type i) {
+            return i >= size() ? mars_boost::throw_exception(std::out_of_range ("array<>: index out of range")), true : true;
         }
 
     };
 
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     template< class T >
     class array< T, 0 > {
 
@@ -222,18 +210,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         const_iterator cend() const { return cbegin(); }
 
         // reverse iterator support
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_MSVC_STD_ITERATOR) && !defined(BOOST_NO_STD_ITERATOR_TRAITS)
+#if !defined(BOOST_MSVC_STD_ITERATOR) && !defined(BOOST_NO_STD_ITERATOR_TRAITS)
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-#elif defined(_MSC_VER) && (_MSC_VER == 1300) && defined(BOOST_DINKUMWARE_STDLIB) && (BOOST_DINKUMWARE_STDLIB == 310)
-        // workaround for broken reverse_iterator in VC7
-        typedef std::reverse_iterator<std::_Ptrit<value_type, difference_type, iterator,
-                                      reference, iterator, reference> > reverse_iterator;
-        typedef std::reverse_iterator<std::_Ptrit<value_type, difference_type, const_iterator,
-                                      const_reference, iterator, reference> > const_reverse_iterator;
-#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC) 
-        typedef std::reverse_iterator<iterator, std::random_access_iterator_tag, 
-              value_type, reference, iterator, difference_type> reverse_iterator; 
+#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
+        typedef std::reverse_iterator<iterator, std::random_access_iterator_tag,
+              value_type, reference, iterator, difference_type> reverse_iterator;
         typedef std::reverse_iterator<const_iterator, std::random_access_iterator_tag,
               value_type, const_reference, const_iterator, difference_type> const_reverse_iterator;
 #else
@@ -264,14 +246,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
             return failed_rangecheck();
         }
 
-        const_reference operator[](size_type /*i*/) const
+        /*BOOST_CONSTEXPR*/ const_reference operator[](size_type /*i*/) const
         {
             return failed_rangecheck();
         }
 
         // at() with range check
         reference at(size_type /*i*/)               {   return failed_rangecheck(); }
-        const_reference at(size_type /*i*/) const   {   return failed_rangecheck(); }
+        /*BOOST_CONSTEXPR*/ const_reference at(size_type /*i*/) const   { return failed_rangecheck(); }
 
         // front() and back()
         reference front()
@@ -279,7 +261,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
             return failed_rangecheck();
         }
 
-        const_reference front() const
+        BOOST_CONSTEXPR const_reference front() const
         {
             return failed_rangecheck();
         }
@@ -289,15 +271,15 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
             return failed_rangecheck();
         }
 
-        const_reference back() const
+        BOOST_CONSTEXPR const_reference back() const
         {
             return failed_rangecheck();
         }
 
         // size is constant
-        static size_type size() { return 0; }
-        static bool empty() { return true; }
-        static size_type max_size() { return 0; }
+        static BOOST_CONSTEXPR size_type size() { return 0; }
+        static BOOST_CONSTEXPR bool empty() { return true; }
+        static BOOST_CONSTEXPR size_type max_size() { return 0; }
         enum { static_size = 0 };
 
         void swap (array<T,0>& /*y*/) {
@@ -319,7 +301,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         // assign one value to all elements
         void assign (const T& value) { fill ( value ); }
         void fill   (const T& ) {}
-        
+
         // check range (may be private because it is static)
         static reference failed_rangecheck () {
                 std::out_of_range e("attempt to access element of an empty array");
@@ -335,7 +317,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 #endif
             }
     };
-#endif
 
     // comparisons
     template<class T, std::size_t N>
@@ -372,16 +353,16 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 #if defined(__SUNPRO_CC)
 //  Trac ticket #4757; the Sun Solaris compiler can't handle
 //  syntax like 'T(&get_c_array(mars_boost::array<T,N>& arg))[N]'
-//  
-//  We can't just use this for all compilers, because the 
-//      borland compilers can't handle this form. 
+//
+//  We can't just use this for all compilers, because the
+//      borland compilers can't handle this form.
     namespace detail {
        template <typename T, std::size_t N> struct c_array
        {
            typedef T type[N];
        };
     }
-    
+
    // Specific for mars_boost::array: simply returns its elems data member.
    template <typename T, std::size_t N>
    typename detail::c_array<T,N>::type& get_c_array(mars_boost::array<T,N>& arg)
@@ -391,7 +372,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
    // Specific for mars_boost::array: simply returns its elems data member.
    template <typename T, std::size_t N>
-   typename const detail::c_array<T,N>::type& get_c_array(const mars_boost::array<T,N>& arg)
+   typename detail::c_array<T,N>::type const& get_c_array(const mars_boost::array<T,N>& arg)
    {
        return arg.elems;
    }
@@ -402,7 +383,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
     {
         return arg.elems;
     }
-    
+
     // Const version.
     template <typename T, std::size_t N>
     const T(&get_c_array(const mars_boost::array<T,N>& arg))[N]
@@ -410,7 +391,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         return arg.elems;
     }
 #endif
-    
+
 #if 0
     // Overload for std::array, assuming that std::array will have
     // explicit conversion functions as discussed at the WG21 meeting
@@ -420,7 +401,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
     {
         return static_cast<T(&)[N]>(arg);
     }
-    
+
     // Const version.
     template <typename T, std::size_t N>
     const T(&get_c_array(const std::array<T,N>& arg))[N]
@@ -429,6 +410,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
     }
 #endif
 
+    template <class It> std::size_t hash_range(It, It);
 
     template<class T, std::size_t N>
     std::size_t hash_value(const array<T,N>& arr)
@@ -436,11 +418,39 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         return mars_boost::hash_range(arr.begin(), arr.end());
     }
 
+   template <size_t Idx, typename T, size_t N>
+   T &get(mars_boost::array<T,N> &arr) BOOST_NOEXCEPT {
+       BOOST_STATIC_ASSERT_MSG ( Idx < N, "mars_boost::get<>(mars_boost::array &) index out of range" );
+       return arr[Idx];
+       }
+
+   template <size_t Idx, typename T, size_t N>
+   const T &get(const mars_boost::array<T,N> &arr) BOOST_NOEXCEPT {
+       BOOST_STATIC_ASSERT_MSG ( Idx < N, "mars_boost::get<>(const mars_boost::array &) index out of range" );
+       return arr[Idx];
+       }
+
 } /* namespace mars_boost */
 
+#ifndef BOOST_NO_CXX11_HDR_ARRAY
+//  If we don't have std::array, I'm assuming that we don't have std::get
+namespace std {
+   template <size_t Idx, typename T, size_t N>
+   T &get(mars_boost::array<T,N> &arr) BOOST_NOEXCEPT {
+       BOOST_STATIC_ASSERT_MSG ( Idx < N, "std::get<>(mars_boost::array &) index out of range" );
+       return arr[Idx];
+       }
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
-# pragma warning(pop)  
-#endif 
+   template <size_t Idx, typename T, size_t N>
+   const T &get(const mars_boost::array<T,N> &arr) BOOST_NOEXCEPT {
+       BOOST_STATIC_ASSERT_MSG ( Idx < N, "std::get<>(const mars_boost::array &) index out of range" );
+       return arr[Idx];
+       }
+}
+#endif
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+# pragma warning(pop)
+#endif
 
 #endif /*BOOST_ARRAY_HPP*/

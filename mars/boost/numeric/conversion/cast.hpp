@@ -23,15 +23,15 @@
 
 #include <boost/detail/workaround.hpp>
 
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) || BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+#if BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x582))
 
 #  include<boost/numeric/conversion/detail/old_numeric_cast.hpp>
 
 #else
 
-#include <boost/type.hpp>
 #include <boost/numeric/conversion/converter.hpp>
 #include <boost/numeric/conversion/numeric_cast_traits.hpp>
+#include <boost/type.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {

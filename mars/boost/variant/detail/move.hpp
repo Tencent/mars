@@ -5,7 +5,7 @@
 //
 //  Copyright (c) 2002-2003 Eric Friedman
 //  Copyright (c) 2002 by Andrei Alexandrescu
-//  Copyright (c) 2013-2014 Antony Polukhin
+//  Copyright (c) 2013-2023 Antony Polukhin
 //
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
@@ -20,17 +20,13 @@
 #ifndef BOOST_VARIANT_DETAIL_MOVE_HPP
 #define BOOST_VARIANT_DETAIL_MOVE_HPP
 
-#include <iterator> // for iterator_traits
-#include <new> // for placement new
-
-#include "boost/config.hpp"
-#include "boost/detail/workaround.hpp"
-#include "boost/move/move.hpp"
-#include "boost/move/adl_move_swap.hpp"
+#include <boost/config.hpp>
+#include <boost/detail/workaround.hpp>
+#include <utility>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace detail { namespace variant {
 
-using mars_boost::move;
+using std::move;
 
 //////////////////////////////////////////////////////////////////////////
 // function template move_swap
@@ -42,7 +38,8 @@ using mars_boost::move;
 template <typename T>
 inline void move_swap(T& lhs, T& rhs)
 {
-    ::mars_boost::adl_move_swap(lhs, rhs);
+    using std::swap;
+    swap(lhs, rhs);
 }
 
 }}} // namespace mars_boost::detail::variant

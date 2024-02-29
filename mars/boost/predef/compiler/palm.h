@@ -8,23 +8,24 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_COMPILER_PALM_H
 #define BOOST_PREDEF_COMPILER_PALM_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_COMP_PALM`]
+/* tag::reference[]
+= `BOOST_COMP_PALM`
 
-Palm C/C++ compiler.
+Palm C/{CPP} compiler.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`_PACC_VER`] [__predef_detection__]]
+| `+_PACC_VER+` | {predef_detection}
 
-    [[`_PACC_VER`] [V.R.P]]
-    ]
- */
+| `+_PACC_VER+` | V.R.P
+|===
+*/ // end::reference[]
 
 #define BOOST_COMP_PALM BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

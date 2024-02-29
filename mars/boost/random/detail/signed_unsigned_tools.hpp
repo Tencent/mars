@@ -11,8 +11,8 @@
 #ifndef BOOST_RANDOM_DETAIL_SIGNED_UNSIGNED_TOOLS
 #define BOOST_RANDOM_DETAIL_SIGNED_UNSIGNED_TOOLS
 
-#include <boost/limits.hpp>
 #include <boost/config.hpp>
+#include <boost/limits.hpp>
 #include <boost/random/traits.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {

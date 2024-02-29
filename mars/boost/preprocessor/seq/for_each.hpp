@@ -17,9 +17,9 @@
 # include <boost/preprocessor/control/if.hpp>
 # include <boost/preprocessor/control/iif.hpp>
 # include <boost/preprocessor/repetition/for.hpp>
+# include <boost/preprocessor/seq/detail/is_empty.hpp>
 # include <boost/preprocessor/seq/seq.hpp>
 # include <boost/preprocessor/seq/size.hpp>
-# include <boost/preprocessor/seq/detail/is_empty.hpp>
 # include <boost/preprocessor/tuple/elem.hpp>
 # include <boost/preprocessor/tuple/rem.hpp>
 #
@@ -36,13 +36,13 @@
 #    define BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EMPTY(macro, data, seq)
 #
 #    define BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK(macro, data, seq) \
-		BOOST_PP_IIF \
-			( \
-			BOOST_PP_SEQ_DETAIL_IS_NOT_EMPTY(seq), \
-			BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EXEC, \
-			BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EMPTY \
-			) \
-		(macro, data, seq) \
+        BOOST_PP_IIF \
+            ( \
+            BOOST_PP_SEQ_DETAIL_IS_NOT_EMPTY(seq), \
+            BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EXEC, \
+            BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EMPTY \
+            ) \
+        (macro, data, seq) \
 /**/
 #
 # define BOOST_PP_SEQ_FOR_EACH_P(r, x) BOOST_PP_TUPLE_ELEM(4, 3, x)
@@ -54,21 +54,21 @@
 # endif
 #
 # define BOOST_PP_SEQ_FOR_EACH_O_I(macro, data, seq, sz) \
-	BOOST_PP_SEQ_FOR_EACH_O_I_DEC(macro, data, seq, BOOST_PP_DEC(sz)) \
+    BOOST_PP_SEQ_FOR_EACH_O_I_DEC(macro, data, seq, BOOST_PP_DEC(sz)) \
 /**/
 # define BOOST_PP_SEQ_FOR_EACH_O_I_DEC(macro, data, seq, sz) \
-	( \
-	macro, \
-	data, \
-	BOOST_PP_IF \
-		( \
-		sz, \
-		BOOST_PP_SEQ_FOR_EACH_O_I_TAIL, \
-		BOOST_PP_SEQ_FOR_EACH_O_I_NIL \
-		) \
-	(seq), \
-	sz \
-	) \
+    ( \
+    macro, \
+    data, \
+    BOOST_PP_IF \
+        ( \
+        sz, \
+        BOOST_PP_SEQ_FOR_EACH_O_I_TAIL, \
+        BOOST_PP_SEQ_FOR_EACH_O_I_NIL \
+        ) \
+    (seq), \
+    sz \
+    ) \
 /**/
 # define BOOST_PP_SEQ_FOR_EACH_O_I_TAIL(seq) BOOST_PP_SEQ_TAIL(seq)
 # define BOOST_PP_SEQ_FOR_EACH_O_I_NIL(seq) BOOST_PP_NIL
@@ -95,13 +95,13 @@
 #    define BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EMPTY_R(r, macro, data, seq)
 #
 #    define BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_R(r, macro, data, seq) \
-		BOOST_PP_IIF \
-			( \
-			BOOST_PP_SEQ_DETAIL_IS_NOT_EMPTY(seq), \
-			BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EXEC_R, \
-			BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EMPTY_R \
-			) \
-		(r, macro, data, seq) \
+        BOOST_PP_IIF \
+            ( \
+            BOOST_PP_SEQ_DETAIL_IS_NOT_EMPTY(seq), \
+            BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EXEC_R, \
+            BOOST_PP_SEQ_FOR_EACH_DETAIL_CHECK_EMPTY_R \
+            ) \
+        (r, macro, data, seq) \
 /**/
 #
 # endif

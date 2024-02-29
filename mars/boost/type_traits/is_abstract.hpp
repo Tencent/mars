@@ -48,8 +48,9 @@
 //              to degrade gracefully, rather than trash the compiler (John Maddock).
 //
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
+#include <cstddef> // size_t
 #ifndef BOOST_IS_ABSTRACT
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/detail/yes_no_type.hpp>

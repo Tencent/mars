@@ -1,0 +1,16 @@
+{
+    "key": "iostreams",
+    "name": "Iostreams",
+    "authors": [
+        "Jonathan Turkanis"
+    ],
+    "description": "Boost.IOStreams provides a framework for defining streams, stream buffers and i/o filters.",
+    "category": [
+        "IO",
+        "String"
+    ],
+    "maintainers": [
+        "Jonathan Turkanis <turkanis -at- coderage.com>"
+    ],
+    "cxxstd": "03"
+}

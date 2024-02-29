@@ -58,6 +58,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     template<typename T>
     struct has_range_const_iterator;
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

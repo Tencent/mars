@@ -8,22 +8,22 @@
 #ifndef BOOST_IOSTREAMS_DETAIL_RANGE_ADAPTER_HPP_INCLUDED
 #define BOOST_IOSTREAMS_DETAIL_RANGE_ADAPTER_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
-#endif              
+#endif
 
 #include <algorithm>                             // min.
 #include <boost/assert.hpp>
-#include <cstddef>                               // ptrdiff_t.
-#include <iosfwd>                                // streamsize, streamoff.
-#include <boost/detail/iterator.hpp>             // mars_boost::iterator_traits.
+#include <boost/core/enable_if.hpp>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/detail/error.hpp>
 #include <boost/iostreams/positioning.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_convertible.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <cstddef>                               // ptrdiff_t.
+#include <iosfwd>                                // streamsize, streamoff.
+#include <iterator>                              // iterator_traits.
 
 // Must come last.
 #include <boost/iostreams/detail/config/disable_warnings.hpp>  // MSVC.
@@ -44,7 +44,7 @@ template<typename Mode, typename Range>
 class range_adapter {
 private:
     typedef typename Range::iterator                  iterator;
-    typedef mars_boost::detail::iterator_traits<iterator>  iter_traits;
+    typedef std::iterator_traits<iterator>            iter_traits;
     typedef typename iter_traits::iterator_category   iter_cat;
 public:
     typedef typename Range::value_type                char_type;

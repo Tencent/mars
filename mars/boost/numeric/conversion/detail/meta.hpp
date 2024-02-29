@@ -12,20 +12,20 @@
 
 #include "boost/type_traits/remove_cv.hpp"
 
-#include "boost/mpl/if.hpp"
-#include "boost/mpl/eval_if.hpp"
-#include "boost/mpl/equal_to.hpp"
-#include "boost/mpl/not.hpp"
 #include "boost/mpl/and.hpp"
 #include "boost/mpl/bool.hpp"
+#include "boost/mpl/equal_to.hpp"
+#include "boost/mpl/eval_if.hpp"
 #include "boost/mpl/identity.hpp"
+#include "boost/mpl/if.hpp"
+#include "boost/mpl/not.hpp"
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace numeric { namespace convdetail
 {
    template< class T1, class T2>
    struct equal_to
    {
-   #if !defined(__BORLANDC__)
+   #if !defined(BOOST_BORLANDC)
    
        enum { x = ( BOOST_MPL_AUX_VALUE_WKND(T1)::value == BOOST_MPL_AUX_VALUE_WKND(T2)::value ) };
            

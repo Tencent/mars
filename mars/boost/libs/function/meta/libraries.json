@@ -1,0 +1,19 @@
+{
+    "key": "function",
+    "name": "Function",
+    "authors": [
+        "Doug Gregor"
+    ],
+    "description": "Function object wrappers for deferred calls or callbacks.",
+    "std": [
+        "tr1"
+    ],
+    "category": [
+        "Function-objects",
+        "Programming"
+    ],
+    "maintainers": [
+        "Peter Dimov <pdimov -at- gmail.com>"
+    ],
+    "cxxstd": "03"
+}

@@ -60,7 +60,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     }
 #else
     template<typename F1, typename... Fs>
-    void wait_for_all(F1& f1, Fs&... fs)
+    typename mars_boost::enable_if<is_future_type<F1>,void>::type wait_for_all(F1& f1, Fs&... fs)
     {
         bool dummy[] = { (f1.wait(), true), (fs.wait(), true)... };
 

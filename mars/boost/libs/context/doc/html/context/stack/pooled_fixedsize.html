@@ -1,0 +1,135 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Class pooled_fixedsize_stack</title>
+<link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Chapter 1. Context">
+<link rel="up" href="../stack.html" title="Stack allocation">
+<link rel="prev" href="protected_fixedsize.html" title="Class protected_fixedsize">
+<link rel="next" href="fixedsize.html" title="Class fixedsize_stack">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="protected_fixedsize.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stack.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="fixedsize.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="context.stack.pooled_fixedsize"></a><a class="link" href="pooled_fixedsize.html" title="Class pooled_fixedsize_stack">Class <span class="emphasis"><em>pooled_fixedsize_stack</em></span></a>
+</h3></div></div></div>
+<p>
+        <span class="bold"><strong>Boost.Context</strong></span> provides the class <span class="emphasis"><em>pooled_fixedsize_stack</em></span>
+        which models the <span class="emphasis"><em>stack-allocator concept</em></span>. In contrast
+        to <span class="emphasis"><em>protected_fixedsize_stack</em></span> it does not append a guard
+        page at the end of each stack. The memory is managed internally by <a href="http://www.boost.org/doc/libs/release/libs/pool/doc/html/boost/pool.html" target="_top"><code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">pool</span><span class="special">&lt;&gt;</span></code></a>.
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">context</span><span class="special">/</span><span class="identifier">pooled_fixedsize_stack</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="keyword">template</span><span class="special">&lt;</span> <span class="keyword">typename</span> <span class="identifier">traitsT</span> <span class="special">&gt;</span>
+<span class="keyword">struct</span> <span class="identifier">basic_pooled_fixedsize_stack</span> <span class="special">{</span>
+    <span class="keyword">typedef</span> <span class="identifier">traitT</span>  <span class="identifier">traits_type</span><span class="special">;</span>
+
+    <span class="identifier">basic_pooled_fixedsize_stack</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">stack_size</span> <span class="special">=</span> <span class="identifier">traits_type</span><span class="special">::</span><span class="identifier">default_size</span><span class="special">(),</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">next_size</span> <span class="special">=</span> <span class="number">32</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">max_size</span> <span class="special">=</span> <span class="number">0</span><span class="special">);</span>
+
+    <span class="identifier">stack_context</span> <span class="identifier">allocate</span><span class="special">();</span>
+
+    <span class="keyword">void</span> <span class="identifier">deallocate</span><span class="special">(</span> <span class="identifier">stack_context</span> <span class="special">&amp;);</span>
+<span class="special">}</span>
+
+<span class="keyword">typedef</span> <span class="identifier">basic_pooled_fixedsize_stack</span><span class="special">&lt;</span> <span class="identifier">stack_traits</span> <span class="special">&gt;</span> <span class="identifier">pooled_fixedsize_stack</span><span class="special">;</span>
+</pre>
+<h5>
+<a name="context.stack.pooled_fixedsize.h0"></a>
+        <span class="phrase"><a name="context.stack.pooled_fixedsize._code__phrase_role__identifier__basic_pooled_fixedsize_stack__phrase__phrase_role__special_____phrase__phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__stack_size__phrase__phrase_role__special_____phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__next_size__phrase__phrase_role__special_____phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__max_size__phrase__phrase_role__special_____phrase___code_"></a></span><a class="link" href="pooled_fixedsize.html#context.stack.pooled_fixedsize._code__phrase_role__identifier__basic_pooled_fixedsize_stack__phrase__phrase_role__special_____phrase__phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__stack_size__phrase__phrase_role__special_____phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__next_size__phrase__phrase_role__special_____phrase___phrase_role__identifier__std__phrase__phrase_role__special______phrase__phrase_role__identifier__size_t__phrase___phrase_role__identifier__max_size__phrase__phrase_role__special_____phrase___code_"><code class="computeroutput"><span class="identifier">basic_pooled_fixedsize_stack</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span>
+        <span class="identifier">stack_size</span><span class="special">,</span>
+        <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">next_size</span><span class="special">,</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">max_size</span><span class="special">)</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Preconditions:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="special">!</span> <span class="identifier">traits_type</span><span class="special">::</span><span class="identifier">is_unbounded</span><span class="special">()</span> <span class="special">&amp;&amp;</span>
+              <span class="special">(</span> <span class="identifier">traits_type</span><span class="special">::</span><span class="identifier">maximum</span><span class="special">:</span><span class="identifier">size</span><span class="special">()</span> <span class="special">&gt;=</span> <span class="identifier">stack_size</span><span class="special">)</span></code>
+              and <code class="computeroutput"><span class="number">0</span> <span class="special">&lt;</span>
+              <span class="identifier">nest_size</span></code>.
+            </p></dd>
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Allocates memory of at least <code class="computeroutput"><span class="identifier">stack_size</span></code>
+              Bytes and stores a pointer to the stack and its actual size in <code class="computeroutput"><span class="identifier">sctx</span></code>. Depending on the architecture
+              (the stack grows downwards/upwards) the stored address is the highest/lowest
+              address of the stack. Argument <code class="computeroutput"><span class="identifier">next_size</span></code>
+              determines the number of stacks to request from the system the first
+              time that <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>
+              needs to allocate system memory. The third argument <code class="computeroutput"><span class="identifier">max_size</span></code>
+              controls how many memory might be allocated for stacks - a value of
+              zero means no uper limit.
+            </p></dd>
+</dl>
+</div>
+<h5>
+<a name="context.stack.pooled_fixedsize.h1"></a>
+        <span class="phrase"><a name="context.stack.pooled_fixedsize._code__phrase_role__identifier__stack_context__phrase___phrase_role__identifier__allocate__phrase__phrase_role__special______phrase___code_"></a></span><a class="link" href="pooled_fixedsize.html#context.stack.pooled_fixedsize._code__phrase_role__identifier__stack_context__phrase___phrase_role__identifier__allocate__phrase__phrase_role__special______phrase___code_"><code class="computeroutput"><span class="identifier">stack_context</span> <span class="identifier">allocate</span><span class="special">()</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Preconditions:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="special">!</span> <span class="identifier">traits_type</span><span class="special">::</span><span class="identifier">is_unbounded</span><span class="special">()</span> <span class="special">&amp;&amp;</span>
+              <span class="special">(</span> <span class="identifier">traits_type</span><span class="special">::</span><span class="identifier">maximum</span><span class="special">:</span><span class="identifier">size</span><span class="special">()</span> <span class="special">&gt;=</span> <span class="identifier">stack_size</span><span class="special">)</span></code>.
+            </p></dd>
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Allocates memory of at least <code class="computeroutput"><span class="identifier">stack_size</span></code>
+              Bytes and stores a pointer to the stack and its actual size in <code class="computeroutput"><span class="identifier">sctx</span></code>. Depending on the architecture
+              (the stack grows downwards/upwards) the stored address is the highest/lowest
+              address of the stack.
+            </p></dd>
+</dl>
+</div>
+<h5>
+<a name="context.stack.pooled_fixedsize.h2"></a>
+        <span class="phrase"><a name="context.stack.pooled_fixedsize._code__phrase_role__keyword__void__phrase___phrase_role__identifier__deallocate__phrase__phrase_role__special_____phrase___phrase_role__identifier__stack_context__phrase___phrase_role__special___amp___phrase___phrase_role__identifier__sctx__phrase__phrase_role__special_____phrase___code_"></a></span><a class="link" href="pooled_fixedsize.html#context.stack.pooled_fixedsize._code__phrase_role__keyword__void__phrase___phrase_role__identifier__deallocate__phrase__phrase_role__special_____phrase___phrase_role__identifier__stack_context__phrase___phrase_role__special___amp___phrase___phrase_role__identifier__sctx__phrase__phrase_role__special_____phrase___code_"><code class="computeroutput"><span class="keyword">void</span> <span class="identifier">deallocate</span><span class="special">(</span> <span class="identifier">stack_context</span>
+        <span class="special">&amp;</span> <span class="identifier">sctx</span><span class="special">)</span></code></a>
+      </h5>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Preconditions:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="identifier">sctx</span><span class="special">.</span><span class="identifier">sp</span></code> is valid, <code class="computeroutput"><span class="special">!</span>
+              <span class="identifier">traits_type</span><span class="special">::</span><span class="identifier">is_unbounded</span><span class="special">()</span>
+              <span class="special">&amp;&amp;</span> <span class="special">(</span>
+              <span class="identifier">traits_type</span><span class="special">::</span><span class="identifier">maximum</span><span class="special">:</span><span class="identifier">size</span><span class="special">()</span>
+              <span class="special">&gt;=</span> <span class="identifier">sctx</span><span class="special">.</span><span class="identifier">size</span><span class="special">)</span></code>.
+            </p></dd>
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Deallocates the stack space.
+            </p></dd>
+</dl>
+</div>
+</div>
+<div class="copyright-footer">Copyright © 2014 Oliver Kowalke<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="protected_fixedsize.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../stack.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="fixedsize.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

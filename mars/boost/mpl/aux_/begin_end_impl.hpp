@@ -14,14 +14,14 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/begin_end_fwd.hpp>
-#include <boost/mpl/sequence_tag_fwd.hpp>
-#include <boost/mpl/void.hpp>
-#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/aux_/config/eti.hpp>
 #include <boost/mpl/aux_/has_begin.hpp>
 #include <boost/mpl/aux_/na.hpp>
 #include <boost/mpl/aux_/traits_lambda_spec.hpp>
-#include <boost/mpl/aux_/config/eti.hpp>
+#include <boost/mpl/begin_end_fwd.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/sequence_tag_fwd.hpp>
+#include <boost/mpl/void.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

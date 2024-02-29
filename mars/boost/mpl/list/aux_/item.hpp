@@ -14,10 +14,10 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/long.hpp>
-#include <boost/mpl/list/aux_/tag.hpp>
 #include <boost/mpl/aux_/config/msvc.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/list/aux_/tag.hpp>
+#include <boost/mpl/long.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

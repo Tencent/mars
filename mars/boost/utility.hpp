@@ -9,13 +9,16 @@
 #ifndef BOOST_UTILITY_HPP
 #define BOOST_UTILITY_HPP
 
-#include <boost/utility/addressof.hpp>
+// Use of this header is discouraged and it will be deprecated.
+// Please include one or more of the headers below instead.
+
 #include <boost/utility/base_from_member.hpp>
 #include <boost/utility/binary.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/utility/identity_type.hpp>
-#include <boost/checked_delete.hpp>
-#include <boost/next_prior.hpp>
-#include <boost/noncopyable.hpp>
+
+#include <boost/core/addressof.hpp>
+#include <boost/core/checked_delete.hpp>
+#include <boost/core/enable_if.hpp>
+#include <boost/core/noncopyable.hpp>
 
 #endif  // BOOST_UTILITY_HPP

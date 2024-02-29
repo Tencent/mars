@@ -1,0 +1,52 @@
+# Copyright René Ferdinand Rivera Morell 2014-2023
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+#|
+This B2 project provides support for using the Predef library externally as
+a standalone project. To use externally you would need a `use-project`
+declaration and to use the project as a dependency where needed:
+
+----
+use-project /boost/predef : /path/to/boost/predef/root ;
+
+exe my_thing : main.cpp : <dependency>/boost/predef ;
+----
+|#
+
+import project ;
+import modules ;
+
+path-constant PREDEF_ROOT : . ;
+
+modules.poke : BOOST_BUILD_PATH
+    : $(PREDEF_ROOT)/tools/check [ modules.peek : BOOST_BUILD_PATH ] ;
+
+project /boost/predef
+    : common-requirements
+        <include>include
+    ;
+
+if [ project.is-jamroot-module $(__name__) ]
+{
+    local attributes = [ project.attributes $(__name__) ] ;
+    $(attributes).set "build-dir" : .bin ;
+}
+
+explicit
+    [ alias boost_predef ]
+    [ alias all : boost_predef test//all tools/check ]
+    [ install install-global-headers
+        : [ glob-tree-ex include : *.h ]
+        : <install-source-root>include <location>(includedir) ]
+    [ install install-data
+        : build.jam [ glob-tree-ex tools/check : * ] [ glob-tree-ex include : *.h ]
+        : <install-source-root>. <location>(datadir)/boost_predef ]
+    [ alias install :
+        install-global-headers install-data ]
+    ;
+
+call-if
+    : boost-library predef
+    ;

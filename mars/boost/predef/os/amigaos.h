@@ -8,21 +8,22 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_OS_AMIGAOS_H
 #define BOOST_PREDEF_OS_AMIGAOS_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_OS_AMIGAOS`]
+/* tag::reference[]
+= `BOOST_OS_AMIGAOS`
 
-[@http://en.wikipedia.org/wiki/AmigaOS AmigaOS] operating system.
+http://en.wikipedia.org/wiki/AmigaOS[AmigaOS] operating system.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`AMIGA`] [__predef_detection__]]
-    [[`__amigaos__`] [__predef_detection__]]
-    ]
- */
+| `AMIGA` | {predef_detection}
+| `+__amigaos__+` | {predef_detection}
+|===
+*/ // end::reference[]
 
 #define BOOST_OS_AMIGAOS BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

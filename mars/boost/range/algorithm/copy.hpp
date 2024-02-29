@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_COPY_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_COPY_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
+#include <boost/range/end.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <algorithm>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -36,6 +36,6 @@ inline OutputIterator copy(const SinglePassRange& rng, OutputIterator out)
 
     } // namespace range
     using range::copy;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

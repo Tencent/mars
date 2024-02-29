@@ -1,0 +1,738 @@
+////
+Copyright 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#local_shared_ptr]
+# local_shared_ptr: Shared Ownership within a Single Thread
+:toc:
+:toc-title:
+:idprefix: local_shared_ptr_
+
+## Description
+
+`local_shared_ptr` is nearly identical to `shared_ptr`, with the only difference of note being that its reference count is
+updated with non-atomic operations. As such, a `local_shared_ptr` and all its copies must reside in (be local to) a single
+thread (hence the name.)
+
+`local_shared_ptr` can be converted to `shared_ptr` and vice versa. Creating a `local_shared_ptr` from a `shared_ptr` creates
+a new local reference count; this means that two `local_shared_ptr` instances, both created from the same `shared_ptr`, refer
+to the same object but don't share the same count, and as such, can safely be used by two different threads.
+
+.Two local_shared_ptr instances created from a shared_ptr
+```
+shared_ptr<X> p1( new X );
+
+local_shared_ptr<X> p2( p1 ); // p2.local_use_count() == 1
+local_shared_ptr<X> p3( p1 ); // p3.local_use_count() also 1
+```
+
+Creating the second `local_shared_ptr` from the first one, however, does lead to the two sharing the same count:
+
+.A local_shared_ptr created from another local_shared_ptr
+```
+shared_ptr<X> p1( new X );
+
+local_shared_ptr<X> p2( p1 ); // p2.local_use_count() == 1
+local_shared_ptr<X> p3( p2 ); // p3.local_use_count() == 2
+```
+
+Two `shared_ptr` instances created from the same `local_shared_ptr` do share ownership:
+
+.Two shared_ptr instances created from a local_shared_ptr
+```
+local_shared_ptr<X> p1( new X );
+
+shared_ptr<X> p2( p1 ); // p2.use_count() == 2
+shared_ptr<X> p3( p1 ); // p3.use_count() == 3
+```
+
+Here `p2.use_count()` is 2, because `p1` holds a reference, too.
+
+One can think of `local_shared_ptr<T>` as `shared_ptr<shared_ptr<T>>`, with the outer `shared_ptr` using non-atomic operations for
+its count. Converting from `local_shared_ptr` to `shared_ptr` gives you a copy of the inner `shared_ptr`; converting from `shared_ptr`
+wraps it into an outer `shared_ptr` with a non-atomic use count (conceptually speaking) and returns the result.
+
+## Synopsis
+
+`local_shared_ptr` is defined in `<boost/smart_ptr/local_shared_ptr.hpp>`.
+
+```
+namespace boost {
+
+  template<class T> class local_shared_ptr {
+  public:
+
+    typedef /*see below*/ element_type;
+
+    // constructors
+
+    constexpr local_shared_ptr() noexcept;
+    constexpr local_shared_ptr(std::nullptr_t) noexcept;
+
+    template<class Y> explicit local_shared_ptr(Y * p);
+
+    template<class Y, class D> local_shared_ptr(Y * p, D d);
+    template<class D> local_shared_ptr(std::nullptr_t p, D d);
+
+    template<class Y, class D, class A> local_shared_ptr(Y * p, D d, A a);
+    template<class D, class A> local_shared_ptr(std::nullptr_t p, D d, A a);
+
+    local_shared_ptr(local_shared_ptr const & r) noexcept;
+    template<class Y> local_shared_ptr(local_shared_ptr<Y> const & r) noexcept;
+
+    local_shared_ptr(local_shared_ptr && r) noexcept;
+    template<class Y> local_shared_ptr(local_shared_ptr<Y> && r) noexcept;
+
+    template<class Y> local_shared_ptr( shared_ptr<Y> const & r );
+    template<class Y> local_shared_ptr( shared_ptr<Y> && r );
+
+    template<class Y> local_shared_ptr(local_shared_ptr<Y> const & r, element_type * p) noexcept;
+    template<class Y> local_shared_ptr(local_shared_ptr<Y> && r, element_type * p) noexcept;
+
+    template<class Y, class D> local_shared_ptr(std::unique_ptr<Y, D> && r);
+    
+    // destructor
+
+    ~local_shared_ptr() noexcept;
+
+    // assignment
+
+    local_shared_ptr & operator=(local_shared_ptr const & r) noexcept;
+    template<class Y> local_shared_ptr & operator=(local_shared_ptr<Y> const & r) noexcept;
+
+    local_shared_ptr & operator=(local_shared_ptr const && r) noexcept;
+    template<class Y> local_shared_ptr & operator=(local_shared_ptr<Y> const && r) noexcept;
+
+    template<class Y, class D> local_shared_ptr & operator=(std::unique_ptr<Y, D> && r);
+
+    local_shared_ptr & operator=(std::nullptr_t) noexcept;
+
+    // reset
+	
+    void reset() noexcept;
+
+    template<class Y> void reset(Y * p);
+    template<class Y, class D> void reset(Y * p, D d);
+    template<class Y, class D, class A> void reset(Y * p, D d, A a);
+
+    template<class Y> void reset(local_shared_ptr<Y> const & r, element_type * p) noexcept;
+    template<class Y> void reset(local_shared_ptr<Y> && r, element_type * p) noexcept;
+
+    // accessors
+
+    T & operator*() const noexcept; // only valid when T is not an array type
+    T * operator->() const noexcept; // only valid when T is not an array type
+
+    // only valid when T is an array type
+    element_type & operator[](std::ptrdiff_t i) const noexcept;
+
+    element_type * get() const noexcept;
+
+    long local_use_count() const noexcept;
+
+    // conversions
+
+    explicit operator bool() const noexcept;
+
+    template<class Y> operator shared_ptr<Y>() const noexcept;
+    template<class Y> operator weak_ptr<Y>() const noexcept;
+
+    // swap
+
+    void swap(local_shared_ptr & b) noexcept;
+
+    // owner_before
+
+    template<class Y> bool owner_before(local_shared_ptr<Y> const & r) const noexcept;
+
+    // owner_equals
+
+    template<class Y> bool owner_equals(local_shared_ptr<Y> const & r) const noexcept;
+  };
+
+  // comparisons
+  
+  template<class T, class U>
+    bool operator==(local_shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+  template<class T, class U>
+    bool operator==(local_shared_ptr<T> const & a, shared_ptr<U> const & b) noexcept;
+  template<class T, class U>
+    bool operator==(shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+
+  template<class T, class U>
+    bool operator!=(local_shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+  template<class T, class U>
+    bool operator!=(local_shared_ptr<T> const & a, shared_ptr<U> const & b) noexcept;
+  template<class T, class U>
+    bool operator!=(shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+
+  template<class T> bool operator==(local_shared_ptr<T> const & p, std::nullptr_t) noexcept;
+  template<class T> bool operator==(std::nullptr_t, local_shared_ptr<T> const & p) noexcept;
+
+  template<class T> bool operator!=(local_shared_ptr<T> const & p, std::nullptr_t) noexcept;
+  template<class T> bool operator!=(std::nullptr_t, local_shared_ptr<T> const & p) noexcept;
+
+  template<class T, class U>
+    bool operator<(local_shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+
+  // swap
+  
+  template<class T> void swap(local_shared_ptr<T> & a, local_shared_ptr<T> & b) noexcept;
+
+  // get_pointer
+  
+  template<class T>
+    typename local_shared_ptr<T>::element_type *
+      get_pointer(local_shared_ptr<T> const & p) noexcept;
+
+  // casts
+  
+  template<class T, class U>
+    local_shared_ptr<T> static_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+
+  template<class T, class U>
+    local_shared_ptr<T> const_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+
+  template<class T, class U>
+    local_shared_ptr<T> dynamic_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+
+  template<class T, class U>
+    local_shared_ptr<T> reinterpret_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+
+  // stream I/O
+
+  template<class E, class T, class Y>
+    std::basic_ostream<E, T> &
+      operator<< (std::basic_ostream<E, T> & os, local_shared_ptr<Y> const & p);
+
+  // get_deleter
+  
+  template<class D, class T> D * get_deleter(local_shared_ptr<T> const & p) noexcept;
+}
+```
+
+## Members
+
+### element_type
+```
+typedef ... element_type;
+```
+`element_type` is `T` when `T` is not an array type, and `U` when `T` is `U[]` or `U[N]`.
+
+### default constructor
+```
+constexpr local_shared_ptr() noexcept;
+```
+```
+constexpr local_shared_ptr(std::nullptr_t) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Constructs an empty `local_shared_ptr`.
+Postconditions:: `local_use_count() == 0 && get() == 0`.
+
+### pointer constructor
+```
+template<class Y> explicit local_shared_ptr(Y * p);
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `local_shared_ptr` that owns `shared_ptr<T>( p )`.
+
+Postconditions:: `local_use_count() == 1 && get() == p`.
+
+Throws:: `std::bad_alloc`, or an implementation-defined exception when a resource other than memory could not be obtained.
+
+### constructors taking a deleter
+```
+template<class Y, class D> local_shared_ptr(Y * p, D d);
+```
+```
+template<class D> local_shared_ptr(std::nullptr_t p, D d);
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `local_shared_ptr` that owns `shared_ptr<T>( p, d )`.
+
+Postconditions:: `local_use_count() == 1 && get() == p`.
+
+Throws:: `std::bad_alloc`, or an implementation-defined exception when a resource other than memory could not be obtained.
+
+```
+template<class Y, class D, class A> local_shared_ptr(Y * p, D d, A a);
+```
+```
+template<class D, class A> local_shared_ptr(std::nullptr_t p, D d, A a);
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `local_shared_ptr` that owns `shared_ptr<T>( p, d, a )`.
+
+Postconditions:: `local_use_count() == 1 && get() == p`.
+
+Throws:: `std::bad_alloc`, or an implementation-defined exception when a resource other than memory could not be obtained.
+
+### copy and converting constructors
+```
+local_shared_ptr(local_shared_ptr const & r) noexcept;
+```
+```
+template<class Y> local_shared_ptr(local_shared_ptr<Y> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: `Y*` should be convertible to `T*`.
+
+Effects:: If `r` is empty, constructs an empty `local_shared_ptr`; otherwise, constructs a `local_shared_ptr` that shares ownership with `r`.
+
+Postconditions:: `get() == r.get() && local_use_count() == r.local_use_count()`.
+
+### move constructors
+```
+local_shared_ptr(local_shared_ptr && r) noexcept;
+```
+```
+template<class Y> local_shared_ptr(local_shared_ptr<Y> && r) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: `Y*` should be convertible to `T*`.
+
+Effects:: Move-constructs a `local_shared_ptr` from `r`.
+
+Postconditions:: `*this` contains the old value of `r`. `r` is empty and `r.get() == 0`.
+
+### shared_ptr constructor
+```
+template<class Y> local_shared_ptr( shared_ptr<Y> const & r );
+```
+```
+template<class Y> local_shared_ptr( shared_ptr<Y> && r );
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `local_shared_ptr` that owns `r`.
+
+Postconditions:: `local_use_count() == 1`. `get()` returns the old value of `r.get()`.
+
+Throws:: `std::bad_alloc`, or an implementation-defined exception when a resource other than memory could not be obtained.
+
+### aliasing constructor
+```
+template<class Y> local_shared_ptr(local_shared_ptr<Y> const & r, element_type * p) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: constructs a `local_shared_ptr` that shares ownership with `r` and stores `p`.
+
+Postconditions:: `get() == p && local_use_count() == r.local_use_count()`.
+
+### aliasing move constructor
+```
+template<class Y> local_shared_ptr(local_shared_ptr<Y> && r, element_type * p) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Move-constructs a `local_shared_ptr` from `r`, while storing `p` instead.
+
+Postconditions:: `get() == p` and `local_use_count()` equals the old count of `r`. `r` is empty and `r.get() == 0`.
+
+### unique_ptr constructor
+```
+template<class Y, class D> local_shared_ptr(std::unique_ptr<Y, D> && r);
+```
+[none]
+* {blank}
++
+Requires:: `Y*` should be convertible to `T*`.
+
+Effects::
+- When `r.get() == 0`, equivalent to `local_shared_ptr()`;
+- Otherwise, constructs a `local_shared_ptr` that owns `shared_ptr<T>( std::move(r) )`.
+
+Throws:: `std::bad_alloc`, or an implementation-defined exception when a resource other than memory could not be obtained.
+
+Exception safety:: If an exception is thrown, the constructor has no effect.
+
+### destructor
+```
+~local_shared_ptr() noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+- If `*this` is empty, or shares ownership with another `local_shared_ptr` instance (`local_use_count() > 1`), there are no side effects.
+- Otherwise, destroys the owned `shared_ptr`.
+
+### assignment
+```
+local_shared_ptr & operator=(local_shared_ptr const & r) noexcept;
+```
+```
+template<class Y> local_shared_ptr & operator=(local_shared_ptr<Y> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr(r).swap(*this)`.
+Returns:: `*this`.
+
+```
+local_shared_ptr & operator=(local_shared_ptr && r) noexcept;
+```
+```
+template<class Y> local_shared_ptr & operator=(local_shared_ptr<Y> && r) noexcept;
+```
+```
+template<class Y, class D> local_shared_ptr & operator=(std::unique_ptr<Y, D> && r);
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr(std::move(r)).swap(*this)`.
+Returns:: `*this`.
+
+```
+local_shared_ptr & operator=(std::nullptr_t) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr().swap(*this)`.
+Returns:: `*this`.
+
+### reset
+```
+void reset() noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr().swap(*this)`.
+
+```
+template<class Y> void reset(Y * p);
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr(p).swap(*this)`.
+
+```
+template<class Y, class D> void reset(Y * p, D d);
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr(p, d).swap(*this)`.
+
+```
+template<class Y, class D, class A> void reset(Y * p, D d, A a);
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr(p, d, a).swap(*this)`.
+
+```
+template<class Y> void reset(local_shared_ptr<Y> const & r, element_type * p) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Equivalent to `local_shared_ptr(r, p).swap(*this)`.
+
+```
+template<class Y> void reset(local_shared_ptr<Y> && r, element_type * p) noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Equivalent to `local_shared_ptr(std::move(r), p).swap(*this)`.
+
+### indirection
+```
+T & operator*() const noexcept;
+```
+[none]
+* {blank}
++
+Requires:: `T` should not be an array type.
+Returns:: `*get()`.
+
+```
+T * operator->() const noexcept;
+```
+[none]
+* {blank}
++
+Requires:: `T` should not be an array type.
+Returns:: `get()`.
+
+```
+element_type & operator[](std::ptrdiff_t i) const noexcept;
+```
+[none]
+* {blank}
++
+Requires:: `T` should be an array type. The stored pointer must not be 0. `i >= 0`. If `T` is `U[N]`, `i < N`.
+Returns:: `get()[i]`.
+
+### get
+
+```
+element_type * get() const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  The stored pointer.
+
+### local_use_count
+```
+long local_use_count() const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  The number of `local_shared_ptr` objects, `*this` included, that share ownership with `*this`, or 0 when `*this` is empty.
+
+### conversions
+```
+explicit operator bool() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `get() != 0`.
+
+NOTE: On C++03 compilers, the return value is of an unspecified type.
+
+```
+template<class Y> operator shared_ptr<Y>() const noexcept;
+```
+```
+template<class Y> operator weak_ptr<Y>() const noexcept;
+```
+[none]
+* {blank}
++
+Requires:: `T*` should be convertible to `Y*`.
+Returns:: a copy of the owned `shared_ptr`.
+
+### swap
+```
+void swap(local_shared_ptr & b) noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Exchanges the contents of the two smart pointers.
+
+### owner_before
+```
+template<class Y> bool owner_before(local_shared_ptr<Y> const & r) const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  See the description of `operator<`.
+
+### owner_equals
+```
+template<class Y> bool owner_equals(local_shared_ptr<Y> const & r) const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  `true` if and only if `*this` and `r` share ownership or are both empty.
+
+## Free Functions
+
+### comparison
+```
+template<class T, class U>
+  bool operator==(local_shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+```
+```
+template<class T, class U>
+  bool operator==(local_shared_ptr<T> const & a, shared_ptr<U> const & b) noexcept;
+```
+```
+template<class T, class U>
+  bool operator==(shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `a.get() == b.get()`.
+
+```
+template<class T, class U>
+  bool operator!=(local_shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+```
+```
+template<class T, class U>
+  bool operator!=(local_shared_ptr<T> const & a, shared_ptr<U> const & b) noexcept;
+```
+```
+template<class T, class U>
+  bool operator!=(shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `a.get() != b.get()`.
+
+```
+template<class T> bool operator==(local_shared_ptr<T> const & p, std::nullptr_t) noexcept;
+```
+```
+template<class T> bool operator==(std::nullptr_t, local_shared_ptr<T> const & p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `p.get() == 0`.
+
+```
+template<class T> bool operator!=(local_shared_ptr<T> const & p, std::nullptr_t) noexcept;
+```
+```
+template<class T> bool operator!=(std::nullptr_t, local_shared_ptr<T> const & p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `p.get() != 0`.
+
+```
+template<class T, class U>
+  bool operator<(local_shared_ptr<T> const & a, local_shared_ptr<U> const & b) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: An unspecified value such that
+  - `operator<` is a strict weak ordering as described in section [lib.alg.sorting] of the {cpp} standard;
+  - under the equivalence relation defined by `operator<`, `!(a < b) && !(b < a)`, two `local_shared_ptr` instances
+    are equivalent if and only if they share ownership or are both empty.
+
+NOTE: Allows `local_shared_ptr` objects to be used as keys in associative containers.
+
+NOTE: The rest of the comparison operators are omitted by design.
+
+### swap
+```
+template<class T> void swap(local_shared_ptr<T> & a, local_shared_ptr<T> & b) noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Equivalent to `a.swap(b)`.
+
+### get_pointer
+```
+template<class T>
+  typename local_shared_ptr<T>::element_type *
+    get_pointer(local_shared_ptr<T> const & p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `p.get()`.
+
+NOTE: Provided as an aid to generic programming. Used by `mem_fn`.
+
+### static_pointer_cast
+```
+template<class T, class U>
+  local_shared_ptr<T> static_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: The expression `static_cast<T*>( (U*)0 )` must be well-formed.
+Returns:: `local_shared_ptr<T>( r, static_cast<typename local_shared_ptr<T>::element_type*>(r.get()) )`.
+
+CAUTION: The seemingly equivalent expression `local_shared_ptr<T>(static_cast<T*>(r.get()))` will eventually
+result in undefined behavior, attempting to delete the same object twice.
+
+### const_pointer_cast
+```
+template<class T, class U>
+  local_shared_ptr<T> const_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: The expression `const_cast<T*>( (U*)0 )` must be well-formed.
+Returns:: `local_shared_ptr<T>( r, const_cast<typename local_shared_ptr<T>::element_type*>(r.get()) )`.
+
+### dynamic_pointer_cast
+```
+template<class T, class U>
+    local_shared_ptr<T> dynamic_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: The expression `dynamic_cast<T*>( (U*)0 )` must be well-formed.
+Returns::
+  - When `dynamic_cast<typename local_shared_ptr<T>::element_type*>(r.get())` returns a nonzero value `p`, `local_shared_ptr<T>(r, p)`;
+  - Otherwise, `local_shared_ptr<T>()`.
+
+### reinterpret_pointer_cast
+```
+template<class T, class U>
+  local_shared_ptr<T> reinterpret_pointer_cast(local_shared_ptr<U> const & r) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: The expression `reinterpret_cast<T*>( (U*)0 )` must be well-formed.
+Returns:: `local_shared_ptr<T>( r, reinterpret_cast<typename local_shared_ptr<T>::element_type*>(r.get()) )`.
+
+### operator<<
+```
+template<class E, class T, class Y>
+  std::basic_ostream<E, T> &
+    operator<< (std::basic_ostream<E, T> & os, local_shared_ptr<Y> const & p);
+```
+[none]
+* {blank}
++
+Effects:: `os << p.get();`.
+Returns:: `os`.
+
+### get_deleter
+```
+template<class D, class T>
+  D * get_deleter(local_shared_ptr<T> const & p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: If `*this` owns a `shared_ptr` instance `p`, `get_deleter<D>( p )`, otherwise 0.

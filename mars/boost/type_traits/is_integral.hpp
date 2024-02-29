@@ -14,7 +14,7 @@
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
-#if defined( __CODEGEARC__ )
+#if defined( BOOST_CODEGEARC )
    template <class T>
    struct is_integral : public integral_constant<bool, __is_integral(T)> {};
 #else
@@ -50,14 +50,14 @@ template<> struct is_integral<wchar_t> : public true_type{};
 // Same set of integral types as in boost/type_traits/integral_promotion.hpp.
 // Please, keep in sync. -- Alexander Nasonov
 #if (defined(BOOST_INTEL_CXX_VERSION) && defined(_MSC_VER) && (BOOST_INTEL_CXX_VERSION <= 600)) \
-    || (defined(__BORLANDC__) && (__BORLANDC__ == 0x600) && (_MSC_VER < 1300))
+    || (defined(BOOST_BORLANDC) && (BOOST_BORLANDC == 0x600) && (_MSC_VER < 1300))
 template<> struct is_integral<unsigned __int8> : public true_type{};
 template<> struct is_integral<unsigned __int16> : public true_type{};
 template<> struct is_integral<unsigned __int32> : public true_type{};
 template<> struct is_integral<__int8> : public true_type{};
 template<> struct is_integral<__int16> : public true_type{};
 template<> struct is_integral<__int32> : public true_type{};
-#ifdef __BORLANDC__
+#ifdef BOOST_BORLANDC
 template<> struct is_integral<unsigned __int64> : public true_type{};
 template<> struct is_integral<__int64> : public true_type{};
 #endif
@@ -80,6 +80,9 @@ template<> struct is_integral<char16_t> : public true_type{};
 #endif
 #ifndef BOOST_NO_CXX11_CHAR32_T
 template<> struct is_integral<char32_t> : public true_type{};
+#endif
+#if defined(__cpp_char8_t) && __cpp_char8_t >= 201811L
+template<> struct is_integral<char8_t> : public true_type{};
 #endif
 
 #endif  // non-CodeGear implementation

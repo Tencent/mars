@@ -5,8 +5,9 @@
 #ifndef ITERATOR_TRAITS_DWA200347_HPP
 # define ITERATOR_TRAITS_DWA200347_HPP
 
-# include <boost/detail/iterator.hpp>
 # include <boost/detail/workaround.hpp>
+
+#include <iterator>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace iterators {
@@ -19,32 +20,32 @@ namespace iterators {
 template <class Iterator>
 struct iterator_value
 {
-    typedef typename mars_boost::detail::iterator_traits<Iterator>::value_type type;
+    typedef typename std::iterator_traits<Iterator>::value_type type;
 };
 
 template <class Iterator>
 struct iterator_reference
 {
-    typedef typename mars_boost::detail::iterator_traits<Iterator>::reference type;
+    typedef typename std::iterator_traits<Iterator>::reference type;
 };
 
 
 template <class Iterator>
 struct iterator_pointer
 {
-    typedef typename mars_boost::detail::iterator_traits<Iterator>::pointer type;
+    typedef typename std::iterator_traits<Iterator>::pointer type;
 };
 
 template <class Iterator>
 struct iterator_difference
 {
-    typedef typename mars_boost::detail::iterator_traits<Iterator>::difference_type type;
+    typedef typename std::iterator_traits<Iterator>::difference_type type;
 };
 
 template <class Iterator>
 struct iterator_category
 {
-    typedef typename mars_boost::detail::iterator_traits<Iterator>::iterator_category type;
+    typedef typename std::iterator_traits<Iterator>::iterator_category type;
 };
 
 } // namespace iterators

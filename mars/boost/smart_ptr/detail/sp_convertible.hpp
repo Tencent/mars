@@ -26,7 +26,7 @@
 # define BOOST_SP_NO_SP_CONVERTIBLE
 #endif
 
-#if !defined( BOOST_SP_NO_SP_CONVERTIBLE ) && defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x630 )
+#if !defined( BOOST_SP_NO_SP_CONVERTIBLE ) && defined( BOOST_BORLANDC ) && ( BOOST_BORLANDC < 0x630 )
 # define BOOST_SP_NO_SP_CONVERTIBLE
 #endif
 
@@ -85,7 +85,7 @@ template< class Y, class T > struct sp_enable_if_convertible: public sp_enable_i
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // !defined( BOOST_SP_NO_SP_CONVERTIBLE )
 

@@ -4,7 +4,7 @@
 //-----------------------------------------------------------------------------
 //
 // Copyright (c) 2002-2003 Eric Friedman
-// Copyright (c) 2014 Antony Polukhin
+// Copyright (c) 2014-2023 Antony Polukhin
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -13,22 +13,18 @@
 #ifndef BOOST_VARIANT_DETAIL_APPLY_VISITOR_BINARY_HPP
 #define BOOST_VARIANT_DETAIL_APPLY_VISITOR_BINARY_HPP
 
-#include "boost/config.hpp"
-#include "boost/detail/workaround.hpp"
-#include "boost/variant/detail/generic_result_type.hpp"
+#include <boost/config.hpp>
 
-#include "boost/variant/detail/apply_visitor_unary.hpp"
-
-#if BOOST_WORKAROUND(__EDG__, BOOST_TESTED_AT(302))
-#include "boost/utility/enable_if.hpp"
-#include "boost/mpl/not.hpp"
-#include "boost/type_traits/is_const.hpp"
-#endif
-
+#include <boost/variant/detail/apply_visitor_unary.hpp>
 
 #if !defined(BOOST_NO_CXX14_DECLTYPE_AUTO) && !defined(BOOST_NO_CXX11_DECLTYPE_N3276)
-#   include "boost/variant/detail/has_result_type.hpp"
+#   include <boost/variant/detail/has_result_type.hpp>
 #endif
+
+#include <boost/core/enable_if.hpp>
+#include <boost/type_traits/is_lvalue_reference.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <utility>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -42,7 +38,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 namespace detail { namespace variant {
 
-template <typename Visitor, typename Value1>
+template <typename Visitor, typename Value1, bool MoveSemantics>
 class apply_visitor_binary_invoke
 {
 public: // visitor typedefs
@@ -66,17 +62,24 @@ public: // structors
 public: // visitor interfaces
 
     template <typename Value2>
-        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
-    operator()(Value2& value2)
+        typename enable_if_c<MoveSemantics && is_same<Value2, Value2>::value, result_type>::type
+    operator()(Value2&& value2)
     {
-        return visitor_(value1_, value2);
+        return visitor_(std::move(value1_), std::forward<Value2>(value2));
+    }
+
+    template <typename Value2>
+        typename disable_if_c<MoveSemantics && is_same<Value2, Value2>::value, result_type>::type
+    operator()(Value2&& value2)
+    {
+        return visitor_(value1_, std::forward<Value2>(value2));
     }
 
 private:
     apply_visitor_binary_invoke& operator=(const apply_visitor_binary_invoke&);
 };
 
-template <typename Visitor, typename Visitable2>
+template <typename Visitor, typename Visitable2, bool MoveSemantics>
 class apply_visitor_binary_unwrap
 {
 public: // visitor typedefs
@@ -100,12 +103,26 @@ public: // structors
 public: // visitor interfaces
 
     template <typename Value1>
-        BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(result_type)
-    operator()(Value1& value1)
+        typename enable_if_c<MoveSemantics && is_same<Value1, Value1>::value, result_type>::type
+    operator()(Value1&& value1)
     {
         apply_visitor_binary_invoke<
               Visitor
             , Value1
+            , ! ::mars_boost::is_lvalue_reference<Value1>::value
+            > invoker(visitor_, value1);
+
+        return mars_boost::apply_visitor(invoker, std::move(visitable2_));
+    }
+
+    template <typename Value1>
+        typename disable_if_c<MoveSemantics && is_same<Value1, Value1>::value, result_type>::type
+    operator()(Value1&& value1)
+    {
+        apply_visitor_binary_invoke<
+              Visitor
+            , Value1
+            , ! ::mars_boost::is_lvalue_reference<Value1>::value
             > invoker(visitor_, value1);
 
         return mars_boost::apply_visitor(invoker, visitable2_);
@@ -122,59 +139,31 @@ private:
 // nonconst-visitor version:
 //
 
-#if !BOOST_WORKAROUND(__EDG__, BOOST_TESTED_AT(302))
-
-#   define BOOST_VARIANT_AUX_APPLY_VISITOR_NON_CONST_RESULT_TYPE(V) \
-    BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(typename V::result_type) \
-    /**/
-
-#else // EDG-based compilers
-
-#   define BOOST_VARIANT_AUX_APPLY_VISITOR_NON_CONST_RESULT_TYPE(V) \
-    typename enable_if< \
-          mpl::not_< is_const< V > > \
-        , BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(typename V::result_type) \
-        >::type \
-    /**/
-
-#endif // EDG-based compilers workaround
-
 template <typename Visitor, typename Visitable1, typename Visitable2>
-inline
-    BOOST_VARIANT_AUX_APPLY_VISITOR_NON_CONST_RESULT_TYPE(Visitor)
-apply_visitor(
-      Visitor& visitor
-    , Visitable1& visitable1, Visitable2& visitable2
-    )
+inline typename Visitor::result_type
+apply_visitor( Visitor& visitor, Visitable1&& visitable1, Visitable2&& visitable2)
 {
     ::mars_boost::detail::variant::apply_visitor_binary_unwrap<
-          Visitor, Visitable2
+          Visitor, Visitable2, ! ::mars_boost::is_lvalue_reference<Visitable2>::value
         > unwrapper(visitor, visitable2);
 
-    return mars_boost::apply_visitor(unwrapper, visitable1);
+    return mars_boost::apply_visitor(unwrapper, std::forward<Visitable1>(visitable1));
 }
-
-#undef BOOST_VARIANT_AUX_APPLY_VISITOR_NON_CONST_RESULT_TYPE
 
 //
 // const-visitor version:
 //
 
+
 template <typename Visitor, typename Visitable1, typename Visitable2>
-inline
-    BOOST_VARIANT_AUX_GENERIC_RESULT_TYPE(
-          typename Visitor::result_type
-        )
-apply_visitor(
-      const Visitor& visitor
-    , Visitable1& visitable1, Visitable2& visitable2
-    )
+inline typename Visitor::result_type
+apply_visitor( const Visitor& visitor , Visitable1&& visitable1 , Visitable2&& visitable2)
 {
     ::mars_boost::detail::variant::apply_visitor_binary_unwrap<
-          const Visitor, Visitable2
+          const Visitor, Visitable2, ! ::mars_boost::is_lvalue_reference<Visitable2>::value
         > unwrapper(visitor, visitable2);
 
-    return mars_boost::apply_visitor(unwrapper, visitable1);
+    return mars_boost::apply_visitor(unwrapper, std::forward<Visitable1>(visitable1));
 }
 
 
@@ -188,7 +177,7 @@ apply_visitor(
 
 namespace detail { namespace variant {
 
-template <typename Visitor, typename Value1>
+template <typename Visitor, typename Value1, bool MoveSemantics>
 class apply_visitor_binary_invoke_cpp14
 {
     Visitor& visitor_;
@@ -205,16 +194,22 @@ public: // structors
 public: // visitor interfaces
 
     template <typename Value2>
-    decltype(auto) operator()(Value2& value2)
+    decltype(auto) operator()(Value2&& value2, typename enable_if_c<MoveSemantics && is_same<Value2, Value2>::value, bool>::type = true)
     {
-        return visitor_(value1_, value2);
+        return visitor_(std::move(value1_), std::forward<Value2>(value2));
+    }
+
+    template <typename Value2>
+    decltype(auto) operator()(Value2&& value2, typename disable_if_c<MoveSemantics && is_same<Value2, Value2>::value, bool>::type = true)
+    {
+        return visitor_(value1_, std::forward<Value2>(value2));
     }
 
 private:
     apply_visitor_binary_invoke_cpp14& operator=(const apply_visitor_binary_invoke_cpp14&);
 };
 
-template <typename Visitor, typename Visitable2>
+template <typename Visitor, typename Visitable2, bool MoveSemantics>
 class apply_visitor_binary_unwrap_cpp14
 {
     Visitor& visitor_;
@@ -231,11 +226,24 @@ public: // structors
 public: // visitor interfaces
 
     template <typename Value1>
-    decltype(auto) operator()(Value1& value1)
+    decltype(auto) operator()(Value1&& value1, typename enable_if_c<MoveSemantics && is_same<Value1, Value1>::value, bool>::type = true)
     {
         apply_visitor_binary_invoke_cpp14<
               Visitor
             , Value1
+            , ! ::mars_boost::is_lvalue_reference<Value1>::value
+            > invoker(visitor_, value1);
+
+        return mars_boost::apply_visitor(invoker, std::move(visitable2_));
+    }
+
+    template <typename Value1>
+    decltype(auto) operator()(Value1&& value1, typename disable_if_c<MoveSemantics && is_same<Value1, Value1>::value, bool>::type = true)
+    {
+        apply_visitor_binary_invoke_cpp14<
+              Visitor
+            , Value1
+            , ! ::mars_boost::is_lvalue_reference<Value1>::value
             > invoker(visitor_, value1);
 
         return mars_boost::apply_visitor(invoker, visitable2_);
@@ -248,30 +256,33 @@ private:
 }} // namespace detail::variant
 
 template <typename Visitor, typename Visitable1, typename Visitable2>
-inline decltype(auto) apply_visitor(Visitor& visitor, Visitable1& visitable1, Visitable2& visitable2,
+inline decltype(auto) apply_visitor(Visitor& visitor, Visitable1&& visitable1, Visitable2&& visitable2,
     typename mars_boost::disable_if<
-        mars_boost::detail::variant::has_result_type<Visitor>
-    >::type* = 0)
+        mars_boost::detail::variant::has_result_type<Visitor>,
+        bool
+    >::type = true)
 {
     ::mars_boost::detail::variant::apply_visitor_binary_unwrap_cpp14<
-          Visitor, Visitable2
+          Visitor, Visitable2, ! ::mars_boost::is_lvalue_reference<Visitable2>::value
         > unwrapper(visitor, visitable2);
 
-    return mars_boost::apply_visitor(unwrapper, visitable1);
+    return mars_boost::apply_visitor(unwrapper, std::forward<Visitable1>(visitable1));
 }
 
 template <typename Visitor, typename Visitable1, typename Visitable2>
-inline decltype(auto) apply_visitor(const Visitor& visitor, Visitable1& visitable1, Visitable2& visitable2,
+inline decltype(auto) apply_visitor(const Visitor& visitor, Visitable1&& visitable1, Visitable2&& visitable2,
     typename mars_boost::disable_if<
-        mars_boost::detail::variant::has_result_type<Visitor>
-    >::type* = 0)
+        mars_boost::detail::variant::has_result_type<Visitor>,
+        bool
+    >::type = true)
 {
     ::mars_boost::detail::variant::apply_visitor_binary_unwrap_cpp14<
-          const Visitor, Visitable2
+          const Visitor, Visitable2, ! ::mars_boost::is_lvalue_reference<Visitable2>::value
         > unwrapper(visitor, visitable2);
 
-    return mars_boost::apply_visitor(unwrapper, visitable1);
+    return mars_boost::apply_visitor(unwrapper, std::forward<Visitable1>(visitable1));
 }
+
 
 #endif // !defined(BOOST_NO_CXX14_DECLTYPE_AUTO) && !defined(BOOST_NO_CXX11_DECLTYPE_N3276)
 

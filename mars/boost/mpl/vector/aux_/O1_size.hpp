@@ -15,11 +15,11 @@
 // $Revision$
 
 #include <boost/mpl/O1_size_fwd.hpp>
-#include <boost/mpl/minus.hpp>
-#include <boost/mpl/long.hpp>
-#include <boost/mpl/vector/aux_/tag.hpp>
-#include <boost/mpl/aux_/config/typeof.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
+#include <boost/mpl/aux_/config/typeof.hpp>
+#include <boost/mpl/long.hpp>
+#include <boost/mpl/minus.hpp>
+#include <boost/mpl/vector/aux_/tag.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

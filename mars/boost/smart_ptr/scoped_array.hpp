@@ -8,15 +8,16 @@
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 //
-//  http://www.boost.org/libs/smart_ptr/scoped_array.htm
-//
+//  See http://www.boost.org/libs/smart_ptr/ for documentation.
 
-#include <boost/config.hpp>
 #include <boost/assert.hpp>
-#include <boost/checked_delete.hpp>
+#include <boost/config.hpp>
+#include <boost/core/checked_delete.hpp>
+#include <boost/smart_ptr/detail/requires_cxx11.hpp>
+#include <boost/smart_ptr/detail/sp_noexcept.hpp>
 #include <boost/smart_ptr/detail/sp_nullptr_t.hpp>
 
-#include <boost/detail/workaround.hpp>
+#include <boost/config/workaround.hpp>
 
 #include <cstddef>            // for std::ptrdiff_t
 
@@ -54,14 +55,14 @@ public:
 
     typedef T element_type;
 
-    explicit scoped_array( T * p = 0 ) BOOST_NOEXCEPT : px( p )
+    explicit scoped_array( T * p = 0 ) BOOST_SP_NOEXCEPT : px( p )
     {
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         mars_boost::sp_array_constructor_hook( px );
 #endif
     }
 
-    ~scoped_array() // never throws
+    ~scoped_array() BOOST_SP_NOEXCEPT
     {
 #if defined(BOOST_SP_ENABLE_DEBUG_HOOKS)
         mars_boost::sp_array_destructor_hook( px );
@@ -69,20 +70,20 @@ public:
         mars_boost::checked_array_delete( px );
     }
 
-    void reset(T * p = 0) // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    void reset(T * p = 0) BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( p == 0 || p != px ); // catch self-reset errors
         this_type(p).swap(*this);
     }
 
-    T & operator[](std::ptrdiff_t i) const // never throws (but has a BOOST_ASSERT in it, so not marked with BOOST_NOEXCEPT)
+    T & operator[](std::ptrdiff_t i) const BOOST_SP_NOEXCEPT_WITH_ASSERT
     {
         BOOST_ASSERT( px != 0 );
         BOOST_ASSERT( i >= 0 );
         return px[i];
     }
 
-    T * get() const BOOST_NOEXCEPT
+    T * get() const BOOST_SP_NOEXCEPT
     {
         return px;
     }
@@ -90,7 +91,7 @@ public:
 // implicit conversion to "bool"
 #include <boost/smart_ptr/detail/operator_bool.hpp>
 
-    void swap(scoped_array & b) BOOST_NOEXCEPT
+    void swap(scoped_array & b) BOOST_SP_NOEXCEPT
     {
         T * tmp = b.px;
         b.px = px;
@@ -100,33 +101,33 @@ public:
 
 #if !defined( BOOST_NO_CXX11_NULLPTR )
 
-template<class T> inline bool operator==( scoped_array<T> const & p, mars_boost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( scoped_array<T> const & p, mars_boost::detail::sp_nullptr_t ) BOOST_SP_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator==( mars_boost::detail::sp_nullptr_t, scoped_array<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator==( mars_boost::detail::sp_nullptr_t, scoped_array<T> const & p ) BOOST_SP_NOEXCEPT
 {
     return p.get() == 0;
 }
 
-template<class T> inline bool operator!=( scoped_array<T> const & p, mars_boost::detail::sp_nullptr_t ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( scoped_array<T> const & p, mars_boost::detail::sp_nullptr_t ) BOOST_SP_NOEXCEPT
 {
     return p.get() != 0;
 }
 
-template<class T> inline bool operator!=( mars_boost::detail::sp_nullptr_t, scoped_array<T> const & p ) BOOST_NOEXCEPT
+template<class T> inline bool operator!=( mars_boost::detail::sp_nullptr_t, scoped_array<T> const & p ) BOOST_SP_NOEXCEPT
 {
     return p.get() != 0;
 }
 
 #endif
 
-template<class T> inline void swap(scoped_array<T> & a, scoped_array<T> & b) BOOST_NOEXCEPT
+template<class T> inline void swap(scoped_array<T> & a, scoped_array<T> & b) BOOST_SP_NOEXCEPT
 {
     a.swap(b);
 }
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif  // #ifndef BOOST_SMART_PTR_SCOPED_ARRAY_HPP_INCLUDED

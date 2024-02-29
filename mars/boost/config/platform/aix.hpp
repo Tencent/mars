@@ -26,7 +26,7 @@
 //#define BOOST_HAS_PTHREAD_YIELD
 
 // boilerplate code:
-#include <boost/config/posix_features.hpp>
+#include <boost/config/detail/posix_features.hpp>
 
 
 

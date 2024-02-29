@@ -11,22 +11,28 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/predef/version_number.h>
 
-/*`
- Those defines represent ARM SIMD extensions versions.
+/* tag::reference[]
+= `BOOST_HW_SIMD_ARM_*_VERSION`
 
- [note You *MUST* compare them with the predef `BOOST_HW_SIMD_ARM`.]
- */
+Those defines represent ARM SIMD extensions versions.
+
+NOTE: You *MUST* compare them with the predef `BOOST_HW_SIMD_ARM`.
+*/ // end::reference[]
 
 // ---------------------------------
 
-/*`
- [heading `BOOST_HW_SIMD_ARM_NEON_VERSION`]
+/* tag::reference[]
+= `BOOST_HW_SIMD_ARM_NEON_VERSION`
 
- The [@https://en.wikipedia.org/wiki/ARM_architecture#Advanced_SIMD_.28NEON.29 NEON]
- ARM extension version number.
+The https://en.wikipedia.org/wiki/ARM_architecture#Advanced_SIMD_.28NEON.29[NEON]
+ARM extension version number.
 
- Version number is: *1.0.0*.
- */
+Version number is: *1.0.0*.
+*/ // end::reference[]
 #define BOOST_HW_SIMD_ARM_NEON_VERSION BOOST_VERSION_NUMBER(1, 0, 0)
+
+/* tag::reference[]
+
+*/ // end::reference[]
 
 #endif

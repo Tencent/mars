@@ -16,16 +16,16 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/bool.hpp>
+#include <boost/mpl/aux_/config/gcc.hpp>
+#include <boost/mpl/aux_/config/has_xxx.hpp>
+#include <boost/mpl/aux_/config/msvc.hpp>
+#include <boost/mpl/aux_/config/msvc_typename.hpp>
+#include <boost/mpl/aux_/config/static_constant.hpp>
+#include <boost/mpl/aux_/config/workaround.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/type_wrapper.hpp>
 #include <boost/mpl/aux_/yes_no.hpp>
-#include <boost/mpl/aux_/config/gcc.hpp>
-#include <boost/mpl/aux_/config/has_xxx.hpp>
-#include <boost/mpl/aux_/config/msvc_typename.hpp>
-#include <boost/mpl/aux_/config/msvc.hpp>
-#include <boost/mpl/aux_/config/static_constant.hpp>
-#include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/bool.hpp>
 
 #include <boost/preprocessor/array/elem.hpp>
 #include <boost/preprocessor/cat.hpp>
@@ -33,7 +33,7 @@
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition/enum_trailing_params.hpp>
 
-#if BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x590) )
+#if BOOST_WORKAROUND( BOOST_BORLANDC, BOOST_TESTED_AT(0x590) )
 # include <boost/type_traits/is_class.hpp>
 #endif
 
@@ -48,8 +48,8 @@
 
 // Modified dwa 8/Oct/02 to handle reference types.
 
-#   include <boost/mpl/if.hpp>
 #   include <boost/mpl/bool.hpp>
+#   include <boost/mpl/if.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl { namespace aux {
 
@@ -196,7 +196,7 @@ struct trait \
 }; \
 /**/
 
-#   elif BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x590) )
+#   elif BOOST_WORKAROUND( BOOST_BORLANDC, BOOST_TESTED_AT(0x590) )
 
 #   define BOOST_MPL_HAS_XXX_TRAIT_NAMED_BCB_DEF(trait, trait_tester, name, default_) \
 template< typename T, bool IS_CLASS > \
@@ -334,7 +334,7 @@ struct trait \
 // correct name but different number of arguments.
 #   define BOOST_MPL_HAS_MEMBER_MULTI_SUBSTITUTE(z, n, args) \
       template< \
-          template< BOOST_PP_ENUM_PARAMS(BOOST_PP_INC(n), typename V) > class V \
+          template< BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), typename V) > class V \
        > \
       struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME(args, n) { \
       }; \
@@ -503,7 +503,7 @@ struct trait \
                  z, n, args \
              ) \
         template< \
-             template< BOOST_PP_ENUM_PARAMS(BOOST_PP_INC(n), typename U) > class U \
+             template< BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(n), typename U) > class U \
         > \
         struct BOOST_MPL_HAS_MEMBER_INTROSPECTION_SUBSTITUTE_NAME_WITH_TEMPLATE_SFINAE( \
                 args, n \

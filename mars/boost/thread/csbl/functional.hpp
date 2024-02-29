@@ -9,24 +9,12 @@
 #ifndef BOOST_CSBL_FUNCTIONAL_HPP
 #define BOOST_CSBL_FUNCTIONAL_HPP
 
-#include <boost/config.hpp>
-
 #include <functional>
-
-#if defined BOOST_THREAD_USES_BOOST_FUNCTIONAL || defined BOOST_NO_CXX11_HDR_FUNCTIONAL || defined BOOST_NO_CXX11_RVALUE_REFERENCES
-#ifndef BOOST_THREAD_USES_BOOST_FUNCTIONAL
-#define BOOST_THREAD_USES_BOOST_FUNCTIONAL
-#endif
-#include <boost/function.hpp>
-#endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
   namespace csbl
   {
-#if defined BOOST_THREAD_USES_BOOST_FUNCTIONAL
-    using ::boost::function;
-#else
     // D.8.1, base (deprecated):
     // 20.9.3, reference_wrapper:
     // 20.9.4, arithmetic operations:
@@ -42,8 +30,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     // 20.9.11 polymorphic function wrappers:
     using ::std::function;
     // 20.9.12, hash function primary template:
-#endif
-
   }
 }
+
 #endif // header

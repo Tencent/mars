@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_REMOVE_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_REMOVE_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/detail/range_return.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -69,6 +69,6 @@ remove(const ForwardRange& rng, const Value& val)
 
     } // namespace range
     using range::remove;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

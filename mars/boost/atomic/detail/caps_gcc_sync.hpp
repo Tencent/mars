@@ -22,14 +22,6 @@
 #pragma once
 #endif
 
-#if defined(__i386__) && defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8)
-#define BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG8B 1
-#endif
-
-#if defined(__x86_64__) && defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
-#define BOOST_ATOMIC_DETAIL_X86_HAS_CMPXCHG16B 1
-#endif
-
 #if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1)\
     || defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2)\
     || defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)\

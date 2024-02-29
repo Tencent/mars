@@ -29,10 +29,10 @@
 
 #else
 
-#   include <boost/mpl/aux_/config/typeof.hpp>
-#   include <boost/mpl/aux_/config/ctps.hpp>
-#   include <boost/preprocessor/iterate.hpp>
 #   include <boost/config.hpp>
+#   include <boost/mpl/aux_/config/ctps.hpp>
+#   include <boost/mpl/aux_/config/typeof.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

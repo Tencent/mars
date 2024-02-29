@@ -10,9 +10,9 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <boost/thread/win32/basic_recursive_mutex.hpp>
-#include <boost/thread/exceptions.hpp>
 #include <boost/thread/detail/delete.hpp>
+#include <boost/thread/exceptions.hpp>
+#include <boost/thread/win32/basic_recursive_mutex.hpp>
 #if defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
 #include <boost/thread/lock_types.hpp>
 #endif
@@ -22,17 +22,17 @@
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
     class recursive_mutex:
-        public ::boost::detail::basic_recursive_mutex
+        public ::mars_boost::detail::basic_recursive_mutex
     {
     public:
         BOOST_THREAD_NO_COPYABLE(recursive_mutex)
         recursive_mutex()
         {
-            ::boost::detail::basic_recursive_mutex::initialize();
+            ::mars_boost::detail::basic_recursive_mutex::initialize();
         }
         ~recursive_mutex()
         {
-            ::boost::detail::basic_recursive_mutex::destroy();
+            ::mars_boost::detail::basic_recursive_mutex::destroy();
         }
 
 #if defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
@@ -44,17 +44,17 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     typedef recursive_mutex recursive_try_mutex;
 
     class recursive_timed_mutex:
-        public ::boost::detail::basic_recursive_timed_mutex
+        public ::mars_boost::detail::basic_recursive_timed_mutex
     {
     public:
         BOOST_THREAD_NO_COPYABLE(recursive_timed_mutex)
         recursive_timed_mutex()
         {
-            ::boost::detail::basic_recursive_timed_mutex::initialize();
+            ::mars_boost::detail::basic_recursive_timed_mutex::initialize();
         }
         ~recursive_timed_mutex()
         {
-            ::boost::detail::basic_recursive_timed_mutex::destroy();
+            ::mars_boost::detail::basic_recursive_timed_mutex::destroy();
         }
 
 #if defined BOOST_THREAD_PROVIDES_NESTED_LOCKS

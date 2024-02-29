@@ -19,17 +19,17 @@
 #if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
     && !defined(BOOST_MPL_PREPROCESSING_MODE)
 
-#   include <boost/mpl/bool.hpp>
-#   include <boost/mpl/aux_/nested_type_wknd.hpp>
-#   include <boost/mpl/aux_/na_spec.hpp>
-#   include <boost/mpl/aux_/lambda_support.hpp>
 #   include <boost/mpl/aux_/config/msvc.hpp>
+#   include <boost/mpl/aux_/lambda_support.hpp>
+#   include <boost/mpl/aux_/na_spec.hpp>
+#   include <boost/mpl/aux_/nested_type_wknd.hpp>
+#   include <boost/mpl/bool.hpp>
 
 // agurt, 19/may/04: workaround a conflict with <iso646.h> header's 
 // 'or' and 'and' macros, see http://tinyurl.com/3et69; 'defined(or)'
 // has to be checked in a separate condition, otherwise GCC complains 
 // about 'or' being an alternative token
-#if defined(_MSC_VER) && !defined(__clang__)
+#if defined(_MSC_VER)
 #ifndef __GCCXML__
 #if defined(or)
 #   pragma push_macro("or")

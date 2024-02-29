@@ -3,9 +3,9 @@
 //  (C) Copyright Daryle Walker 2001.
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+//  https://www.boost.org/LICENSE_1_0.txt)
 
-//  See http://www.boost.org for updates, documentation, and revision history. 
+//  See https://www.boost.org for updates, documentation, and revision history. 
 
 #ifndef BOOST_INTEGER_INTEGER_MASK_HPP
 #define BOOST_INTEGER_INTEGER_MASK_HPP
@@ -57,19 +57,27 @@ struct high_bit_mask_t
 //  Makes masks for the lowest N bits
 //  (Specializations are needed when N fills up a type.)
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable:4310)  // cast truncates constant value
+#endif
+
 template < std::size_t Bits >
 struct low_bits_mask_t
 {
     typedef typename uint_t<Bits>::least  least;
     typedef typename uint_t<Bits>::fast   fast;
 
-    BOOST_STATIC_CONSTANT( least, sig_bits = (~( ~(least( 0u )) << Bits )) );
+    BOOST_STATIC_CONSTANT( least, sig_bits = least(~(least(~(least( 0u ))) << Bits )) );
     BOOST_STATIC_CONSTANT( fast, sig_bits_fast = fast(sig_bits) );
 
     BOOST_STATIC_CONSTANT( std::size_t, bit_count = Bits );
 
 };  // mars_boost::low_bits_mask_t
 
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #define BOOST_LOW_BITS_MASK_SPECIALIZE( Type )                                  \
   template <  >  struct low_bits_mask_t< std::numeric_limits<Type>::digits >  { \

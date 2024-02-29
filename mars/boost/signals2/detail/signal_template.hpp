@@ -153,7 +153,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
         BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const combiner_type &combiner_arg,
           const group_compare_type &group_compare):
-          _shared_state(new invocation_state(connection_list_type(group_compare), combiner_arg)),
+          _shared_state(mars_boost::make_shared<invocation_state>(connection_list_type(group_compare), combiner_arg)),
           _garbage_collector_it(_shared_state->connection_bodies().end()),
           _mutex(new mutex_type())
         {}
@@ -306,7 +306,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           if(_shared_state.unique())
             _shared_state->combiner() = combiner_arg;
           else
-            _shared_state.reset(new invocation_state(*_shared_state, combiner_arg));
+            _shared_state = mars_boost::make_shared<invocation_state>(*_shared_state, combiner_arg);
         }
       private:
         typedef Mutex mutex_type;
@@ -475,7 +475,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         {
           if(_shared_state.unique() == false)
           {
-            _shared_state.reset(new invocation_state(*_shared_state, _shared_state->connection_bodies()));
+            _shared_state = mars_boost::make_shared<invocation_state>(*_shared_state, _shared_state->connection_bodies());
             nolock_cleanup_connections_from(lock, true, _shared_state->connection_bodies().begin());
           }else
           {
@@ -497,7 +497,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           }
           if(_shared_state.unique() == false)
           {
-            _shared_state.reset(new invocation_state(*_shared_state, _shared_state->connection_bodies()));
+            _shared_state = mars_boost::make_shared<invocation_state>(*_shared_state, _shared_state->connection_bodies());
           }
           nolock_cleanup_connections_from(list_lock, false, _shared_state->connection_bodies().begin());
         }
@@ -510,7 +510,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           const slot_type &slot)
         {
           nolock_force_unique_connection_list(lock);
-          return connection_body_type(new connection_body<group_key_type, slot_type, Mutex>(slot, _mutex));
+          return mars_boost::make_shared<connection_body<group_key_type, slot_type, Mutex> >(slot, _mutex);
         }
         void do_disconnect(const group_type &group, mpl::bool_<true> /* is_group */)
         {
@@ -527,7 +527,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           {
             garbage_collecting_lock<connection_body_base> lock(**it);
             if((*it)->nolock_nograb_connected() == false) continue;
-            if((*it)->slot().slot_function() == slot)
+            if((*it)->slot().slot_function().contains(slot))
             {
               (*it)->nolock_disconnect(lock);
             }else
@@ -535,7 +535,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
               // check for wrapped extended slot
               bound_extended_slot_function_type *fp;
               fp = (*it)->slot().slot_function().template target<bound_extended_slot_function_type>();
-              if(fp && *fp == slot)
+              if(fp && function_equal(*fp, slot))
               {
                 (*it)->nolock_disconnect(lock);
               }
@@ -599,7 +599,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     class BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
       BOOST_SIGNALS2_SIGNAL_TEMPLATE_SPECIALIZATION: public signal_base,
       public detail::BOOST_SIGNALS2_STD_FUNCTIONAL_BASE
-        (typename detail::result_type_wrapper<typename Combiner::result_type>::type)
     {
       typedef detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
         <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> impl_class;
@@ -659,7 +658,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(const combiner_type &combiner_arg = combiner_type(),
         const group_compare_type &group_compare = group_compare_type()):
         _pimpl(new impl_class(combiner_arg, group_compare))
-      {};
+      {}
       virtual ~BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)()
       {
       }
@@ -667,14 +666,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       //move support
 #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
       BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)(
-        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) && other)
+        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) && other) BOOST_NOEXCEPT
       {
         using std::swap;
         swap(_pimpl, other._pimpl);
-      };
+      }
       
       BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) & 
-        operator=(BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) && rhs)
+        operator=(BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) && rhs) BOOST_NOEXCEPT
       {
         if(this == &rhs)
         {
@@ -742,7 +741,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       {
         return (*_pimpl).set_combiner(combiner_arg);
       }
-      void swap(BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) & other)
+      void swap(BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) & other) BOOST_NOEXCEPT
       {
         using std::swap;
         swap(_pimpl, other._pimpl);
@@ -762,7 +761,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     template<BOOST_SIGNALS2_SIGNAL_TEMPLATE_DECL(BOOST_SIGNALS2_NUM_ARGS)>
       void swap(
         BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> &sig1,
-        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> &sig2 )
+        BOOST_SIGNALS2_SIGNAL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> &sig2 ) BOOST_NOEXCEPT
     {
       sig1.swap(sig2);
     }
@@ -794,7 +793,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           shared_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
             <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> >
             shared_pimpl(_weak_pimpl.lock());
-          if(shared_pimpl == 0) mars_boost::throw_exception(expired_slot());
           return (*shared_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
         }
         result_type operator ()(BOOST_SIGNALS2_SIGNATURE_FULL_ARGS(BOOST_SIGNALS2_NUM_ARGS)) const
@@ -802,7 +800,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           shared_ptr<detail::BOOST_SIGNALS2_SIGNAL_IMPL_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS)
             <BOOST_SIGNALS2_SIGNAL_TEMPLATE_INSTANTIATION> >
             shared_pimpl(_weak_pimpl.lock());
-          if(shared_pimpl == 0) mars_boost::throw_exception(expired_slot());
           return (*shared_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
         }
       private:

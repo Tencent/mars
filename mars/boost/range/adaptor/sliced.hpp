@@ -11,10 +11,11 @@
 #ifndef BOOST_RANGE_ADAPTOR_SLICED_HPP
 #define BOOST_RANGE_ADAPTOR_SLICED_HPP
 
+#include <boost/next_prior.hpp>
 #include <boost/range/adaptor/argument_fwd.hpp>
-#include <boost/range/size_type.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <boost/range/concepts.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/range/size_type.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -91,6 +92,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
     } // namespace adaptors
     using adaptors::sliced_range;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif

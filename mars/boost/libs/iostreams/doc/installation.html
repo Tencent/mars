@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252" http-equiv="content-type">
+    <title>Installation</title>
+    <link rel="stylesheet" href="../../../boost.css">
+    <link rel="stylesheet" href="theme/iostreams.css">
+  </head>
+  <body>
+    <!-- Begin Banner -->
+    <h1 class="title">Installation</h1>
+    <hr class="banner">
+    <!-- End Banner -->
+    <dl class="page-index">
+      <dt><a href="#overview">Overview</a> </dt>
+      <dt><a href="#ide">Building with an IDE or Makefile</a> </dt>
+      <dt><a href="#boost-build">Building with Boost.Build</a> </dt>
+    </dl>
+    <a name="overview"></a>
+    <h2>Overview</h2>
+    <p> Most of Boost.Iostreams can be used simply by including appropriate
+      headers. This is true, for instance, of all the <a href="quick_reference.html#core">core
+        components</a> — including <a href="guide/generic_streams.html#stream"><code>stream</code></a>,
+      <a href="guide/generic_streams.html#stream_buffer"><code>stream_buffer</code></a>,
+      <a href="classes/filtering_stream.html"><code>filtering_stream</code></a>
+      and <a href="classes/filtering_streambuf.html"><code>filtering_streambuf</code></a>
+      — and of about two thirds of the concrete <a href="quick_reference.html#filters">Filters</a>
+      and <a href="quick_reference.html#devices">Devices</a>. Some components,
+      however, are implemented in <code>.cpp</code> files; in addition, the <a
+        href="classes/regex_filter.html">regular expression filters</a> depend
+      on <a href="../../regex/index.html" target="_top">Boost.Regex</a>, and
+      the compressions filters rely on the third-party libraries zlib (<a class="bib_ref"
+        name="gailly" href="bibliography.html#gailly">[Gailly]</a>),
+      libbz2 (<a class="bib_ref" name="seward" href="bibliography.html#seward">[Seward]</a>),
+      libzstd (<a class="bib_ref" name="seward" href="bibliography.html#Zstandard">[Zstandard]</a>),
+      and liblzma (<a class="bib_ref" name="collin" href="bibliography.html#collin">[Collin]</a>).
+      Note that liblzma refers to the version from xz-utils which is the version available in
+      for example Linux distributions, not the liblzma from the LZMA SDK from 7zip.
+      To obatin zlib and libbz2, see the instructions <a href="classes/zlib.html#installation">here</a>
+      and <a href="classes/bzip2.html#installation">here</a>. </p>
+    <p> The components which are implemented in <code>.cpp</code> or which rely
+      on external libraries can be built in two ways: by adding the appropriate
+      <code>.cpp</code> files to your IDE project or makefile, or by using <a href="../../../tools/build/index.html"
+        target="_top">Boost.Build</a>. </p>
+    <a name="ide"></a>
+    <h2>Building with an IDE or Makefile</h2>
+    <p> The following table shows which headers contain components defined in <code>.cpp</code>
+      files. If your application includes one of these headers, you'll need to
+      add the corresponding <code>.cpp</code> files to you IDE project or
+      makefile, and to define the preprocessor symbol <code>BOOST_IOSTREAMS_NO_LIB</code>.
+      In addition, if the <code>.cpp</code> file depends on an external
+      library, you'll have to build it from the source or link to a pre-built
+      binary. </p>
+    <table border="1" cellpadding="5">
+      <tbody>
+        <tr>
+          <th>Header</th>
+          <th>Source File</th>
+          <th width="200">External Library</th>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/device/file_descriptor.hpp"><code>boost/iostreams/device/file_descriptor.hpp</code></a></td>
+          <td><a href="../../../libs/iostreams/src/file_descriptor.cpp"><code>file_descriptor.cpp</code></a></td>
+          <td style="padding-left:1.5em">-</td>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/device/mapped_file.hpp"><code>boost/iostreams/device/mapped_file.hpp</code></a></td>
+          <td><a href="../../../libs/iostreams/src/mapped_file.cpp"><code>mapped_file.cpp</code></a></td>
+          <td style="padding-left:1.5em">-</td>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/filter/bzip2.hpp"><code>boost/iostreams/filter/bzip2.hpp</code></a></td>
+          <td><a href="../../../libs/iostreams/src/bzip2.cpp"><code>bzip2.cpp</code></a></td>
+          <td style="padding-left:1.5em">libbz2</td>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/filter/gzip.hpp"><code>boost/iostreams/filter/gzip.hpp</code></a></td>
+          <td><a href="../../../libs/iostreams/src/gzip.cpp"><code>gzip.cpp</code></a>,
+            <a href="../../../libs/iostreams/src/zlib.cpp"><code>zlib.cpp</code></a></td>
+          <td style="padding-left:1.5em">zlib</td>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/filter/regex.hpp"><code>boost/iostreams/filter/regex.hpp</code></a></td>
+          <td style="padding-left:1em">-</td>
+          <td style="padding-left:1.5em"><a href="../../regex/index.html" target="_top">Boost.Regex</a></td>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/filter/zlib.hpp"><code>boost/iostreams/filter/zlib.hpp</code></a></td>
+          <td><a href="../../../libs/iostreams/src/zlib.cpp"><code>zlib.cpp</code></a></td>
+          <td style="padding-left:1.5em">zlib</td>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/filter/lzma.hpp"><code>boost/iostreams/filter/lzma.hpp</code></a></td>
+          <td><a href="../../../libs/iostreams/src/lzma.cpp"><code>lzma.cpp</code></a></td>
+          <td style="padding-left:1.5em">liblzma</td>
+        </tr>
+        <tr>
+          <td><a href="../../../boost/iostreams/filter/zstd.hpp"><code>boost/iostreams/filter/zstd.hpp</code></a></td>
+          <td><a href="../../../libs/iostreams/src/zstd.cpp"><code>zstd.cpp</code></a></td>
+          <td style="padding-left:1.5em">libzstd</td>
+        </tr>
+      </tbody>
+    </table>
+    <a name="bjam"></a>
+    <h2 id="boost-build">Building with Boost.Build</h2>
+    <p> To build with <a href="../../../tools/build/index.html" target="_top">Boost.Build</a>,
+      run <i>b2</i> from the directory <code>libs/iostreams/build</code>, or
+      from the Boost root directory. </p>
+    <p>If you want to use the compression filters when building iostreams, you
+      have two choices. You can setup the zlib, bzip2, zstd and/or LZMA toolsets in Boost
+      Build in a jamfile, preferably user-config.jam, as documented in <a target="_top"
+        href="../../../tools/build/doc/html/bbv2/reference/tools.html#bbv2.reference.tools.libraries.zlib">Boost.Build</a>.
+      Note that building from source is not supported for LZMA.
+      Alternatively you can let iostreams setup the zlib, bzip2, zstd and/or LZMA toolsets
+      for you using default values. The former is preferred, especially if your
+      zlib and/or bzip2 installations cannot be found by the iostreams setup.</p>
+    <p> On most UNIX systems, it should not be necessary to setup the zlib,
+      bzip2, zstd and/or lzma toolsets since the zlib, libbz2, libzstd and liblzma headers and binaries are
+      already installed in locations where they will be found automatically.  On
+      Windows the zlib, bzip2, zstd and/or LZMA binaries need to be in the PATH, else they
+      will not ordinarily be found by default, so it is always a good idea under
+      Windows to setup the zlib, bzip2, zstd and/or LZMA toolsets in your own jamfile.</p>
+    <p>You can turn off compression filters when building iostreams by passing
+      one of the <a target="_top" href="../../../tools/build/doc/html/bbv2/overview/invocation.html#bbv2.overview.invocation.options">Boost
+        Build variables</a> in the table below, defined to 1, using the -s
+      option:</p>
+    <table style="margin-bottom:1em" border="1" cellpadding="6" cellspacing="1">
+      <tbody>
+        <tr>
+          <th>Variable</th>
+          <th>Interpretation</th>
+        </tr>
+        <tr>
+          <td><code>NO_COMPRESSION</code></td>
+          <td> Disable support for compression filters. </td>
+        </tr>
+        <tr>
+          <td><code>NO_BZIP2</code></td>
+          <td> Disable support for the bzip2 filters. </td>
+        </tr>
+        <tr>
+          <td><code>NO_ZLIB</code></td>
+          <td> Disable support for the zlib filters. </td>
+        </tr>
+        <tr>
+          <td><code>NO_LZMA</code></td>
+          <td> Disable support for the LZMA/xz filters. </td>
+        </tr>
+        <tr>
+          <td><code>NO_ZSTD</code></td>
+          <td> Disable support for the zstd filters. </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- End Footnotes -->
+    <!-- Begin Footer -->
+    <hr>
+    <p class="copyright">© Copyright 2008 <a href="http://www.coderage.com/" target="_top">CodeRage,
+        LLC</a><br>
+      © Copyright 2004-2007 <a href="https://www.boost.org/users/people/jonathan_turkanis.html" target="_top">Jonathan
+        Turkanis</a></p>
+    <p class="copyright"> Distributed under the Boost Software License, Version
+      1.0. (See accompanying file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
+    </p>
+    <!-- End Footer -->
+  </body>
+</html>

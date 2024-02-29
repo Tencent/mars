@@ -55,8 +55,9 @@ XloggerCategory* NewXloggerInstance(const XLogConfig& _config, TLogLevel _level)
     XloggerAppender* appender = XloggerAppender::NewInstance(_config, 0);
 
     using namespace std::placeholders;
-    XloggerCategory* category = XloggerCategory::NewInstance(reinterpret_cast<uintptr_t>(appender),
-                                                             std::bind(&XloggerAppender::Write, appender, _1, _2));
+    XloggerCategory* category = XloggerCategory::NewInstance(
+        reinterpret_cast<uintptr_t>(appender),
+        std::bind(&XloggerAppender::Write, appender, std::placeholders::_1, std::placeholders::_2));
     category->SetLevel(_level);
     GetGlobalInstanceMap()[_config.nameprefix_] = category;
     return category;

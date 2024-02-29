@@ -16,8 +16,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         {
             return new T();
         }
-
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+#if defined(BOOST_THREAD_PROVIDES_VARIADIC_THREAD) && ! defined (BOOST_NO_CXX11_RVALUE_REFERENCES)
+        template<typename T,typename... Args>
+        inline T* heap_new(Args&&... args)
+        {
+            return new T(static_cast<Args&&>(args)...);
+        }
+#elif ! defined BOOST_NO_CXX11_RVALUE_REFERENCES
         template<typename T,typename A1>
         inline T* heap_new(A1&& a1)
         {
@@ -60,6 +65,31 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4)
         {
             return new T(a1,a2,a3,a4);
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5)
+        {
+            return new T(a1,a2,a3,a4,a5);
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6)
+        {
+            return new T(a1,a2,a3,a4,a5,a6);
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6,A7 a7)
+        {
+            return new T(a1,a2,a3,a4,a5,a6,a7);
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6,A7 a7,A8 a8)
+        {
+            return new T(a1,a2,a3,a4,a5,a6,a7,a8);
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8,typename A9>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6,A7 a7,A8 a8,A9 a9)
+        {
+            return new T(a1,a2,a3,a4,a5,a6,a7,a8,a9);
         }
 
         template<typename T,typename A1>

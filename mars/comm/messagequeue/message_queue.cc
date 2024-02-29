@@ -898,7 +898,7 @@ static void __ANRCheckCallback(bool _iOS_style, const mars::comm::check_content&
 #ifndef ANR_CHECK_DISABLE
 
 static void __RgisterANRCheckCallback() {
-    GetSignalCheckHit().connect(5, boost::bind(&__ANRCheckCallback, _1, _2));
+    GetSignalCheckHit().connect(5, boost::bind(&__ANRCheckCallback, boost::placeholders::_1, boost::placeholders::_2));
 }
 static void __UnregisterANRCheckCallback() {
     GetSignalCheckHit().disconnect(5);

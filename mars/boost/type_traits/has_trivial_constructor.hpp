@@ -10,8 +10,8 @@
 #define BOOST_TT_HAS_TRIVIAL_CONSTRUCTOR_HPP_INCLUDED
 
 #include <boost/type_traits/intrinsics.hpp>
-#include <boost/type_traits/is_pod.hpp>
 #include <boost/type_traits/is_default_constructible.hpp>
+#include <boost/type_traits/is_pod.hpp>
 
 #ifdef BOOST_HAS_TRIVIAL_CONSTRUCTOR
 #ifdef BOOST_HAS_SGI_TYPE_TRAITS

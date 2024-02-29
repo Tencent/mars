@@ -12,11 +12,11 @@
 #ifndef BOOST_SIGNALS2_SLOT_HPP
 #define BOOST_SIGNALS2_SLOT_HPP
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/config.hpp>
+#include <boost/core/ref.hpp>
 #include <boost/function.hpp>
 #include <boost/mpl/identity.hpp>
-#include <boost/ref.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
 #include <boost/signals2/detail/signals_common_macros.hpp>
 #include <boost/signals2/detail/tracked_objects_visitor.hpp>

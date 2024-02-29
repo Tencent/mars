@@ -13,9 +13,9 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/config/typeof.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
 #include <boost/mpl/aux_/config/preprocessor.hpp>
+#include <boost/mpl/aux_/config/typeof.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
 
 #include <boost/preprocessor/cat.hpp>

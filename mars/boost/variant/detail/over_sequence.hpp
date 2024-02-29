@@ -15,7 +15,7 @@
 #ifndef BOOST_VARIANT_DETAIL_OVER_SEQUENCE_HPP
 #define BOOST_VARIANT_DETAIL_OVER_SEQUENCE_HPP
 
-#include "boost/mpl/aux_/config/ctps.hpp"
+#include <boost/mpl/aux_/config/ctps.hpp>
 
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {

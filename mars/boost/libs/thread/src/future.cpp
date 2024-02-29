@@ -4,8 +4,8 @@
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/thread/detail/config.hpp>
-#ifndef BOOST_NO_EXCEPTIONS
 
+#ifndef BOOST_NO_EXCEPTIONS
 
 #include <boost/thread/futures/future_error_code.hpp>
 #include <string>

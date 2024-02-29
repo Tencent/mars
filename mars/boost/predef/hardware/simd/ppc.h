@@ -9,38 +9,40 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_HARDWARE_SIMD_PPC_H
 #define BOOST_PREDEF_HARDWARE_SIMD_PPC_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/hardware/simd/ppc/versions.h>
+#include <boost/predef/version_number.h>
 
-/*`
- [heading `BOOST_HW_SIMD_PPC`]
+/* tag::reference[]
+= `BOOST_HW_SIMD_PPC`
 
- The SIMD extension for PowerPC (*if detected*).
- Version number depends on the most recent detected extension.
+The SIMD extension for PowerPC (*if detected*).
+Version number depends on the most recent detected extension.
 
- [table
-     [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-     [[`__VECTOR4DOUBLE__`] [__predef_detection__]]
+| `+__VECTOR4DOUBLE__+` | {predef_detection}
 
-     [[`__ALTIVEC__`] [__predef_detection__]]
-     [[`__VEC__`] [__predef_detection__]]
+| `+__ALTIVEC__+` | {predef_detection}
+| `+__VEC__+` | {predef_detection}
 
-     [[`__VSX__`] [__predef_detection__]]
-     ]
+| `+__VSX__+` | {predef_detection}
+|===
 
- [table
-     [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-     [[`__VECTOR4DOUBLE__`] [BOOST_HW_SIMD_PPC_QPX_VERSION]]
+| `+__VECTOR4DOUBLE__+` | BOOST_HW_SIMD_PPC_QPX_VERSION
 
-     [[`__ALTIVEC__`] [BOOST_HW_SIMD_PPC_VMX_VERSION]]
-     [[`__VEC__`] [BOOST_HW_SIMD_PPC_VMX_VERSION]]
+| `+__ALTIVEC__+` | BOOST_HW_SIMD_PPC_VMX_VERSION
+| `+__VEC__+` | BOOST_HW_SIMD_PPC_VMX_VERSION
 
-     [[`__VSX__`] [BOOST_HW_SIMD_PPC_VSX_VERSION]]
-     ]
+| `+__VSX__+` | BOOST_HW_SIMD_PPC_VSX_VERSION
+|===
 
- */
+*/ // end::reference[]
 
 #define BOOST_HW_SIMD_PPC BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

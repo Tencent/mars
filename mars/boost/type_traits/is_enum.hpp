@@ -11,14 +11,14 @@
 #ifndef BOOST_TT_IS_ENUM_HPP_INCLUDED
 #define BOOST_TT_IS_ENUM_HPP_INCLUDED
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 #ifndef BOOST_IS_ENUM
 #include <boost/type_traits/add_reference.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
-#include <boost/type_traits/is_reference.hpp>
-#include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_array.hpp>
+#include <boost/type_traits/is_convertible.hpp>
+#include <boost/type_traits/is_reference.hpp>
 #ifdef __GNUC__
 #include <boost/type_traits/is_function.hpp>
 #endif
@@ -32,7 +32,7 @@
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
 #ifndef BOOST_IS_ENUM
-#if !(defined(__BORLANDC__) && (__BORLANDC__ <= 0x551))
+#if !(defined(BOOST_BORLANDC) && (BOOST_BORLANDC <= 0x551))
 
 namespace detail {
 
@@ -49,7 +49,7 @@ struct is_class_or_union
 template <typename T>
 struct is_class_or_union
 {
-# if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))// we simply can't detect it this way.
+# if BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x581))// we simply can't detect it this way.
     BOOST_STATIC_CONSTANT(bool, value = false);
 # else
     template <class U> static ::mars_boost::type_traits::yes_type is_class_or_union_tester(void(U::*)(void));
@@ -131,7 +131,7 @@ template <typename T> struct is_enum_impl
     
 #endif
 
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#if BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
     typedef ::mars_boost::detail::is_enum_helper<
           ::mars_boost::detail::is_enum_impl<T>::selector
         > se_t;
@@ -147,7 +147,7 @@ template <typename T> struct is_enum_impl
 
 template <class T> struct is_enum : public integral_constant<bool, ::mars_boost::detail::is_enum_impl<T>::value> {};
 
-#else // __BORLANDC__
+#else // BOOST_BORLANDC
 //
 // buggy is_convertible prevents working
 // implementation of is_enum:

@@ -8,16 +8,17 @@
 #ifndef BOOST_IOSTREAMS_DETAIL_ENABLE_IF_STREAM_HPP_INCLUDED
 #define BOOST_IOSTREAMS_DETAIL_ENABLE_IF_STREAM_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif              
 
 #include <boost/config.hpp>                // BOOST_NO_SFINAE.
-#include <boost/utility/enable_if.hpp>                  
+#include <boost/config/workaround.hpp>
 #include <boost/iostreams/traits_fwd.hpp>  // is_std_io.
+#include <boost/utility/enable_if.hpp>                  
 
 #if !defined(BOOST_NO_SFINAE) && \
-    !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x592))
+    !BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x592))
 # define BOOST_IOSTREAMS_ENABLE_IF_STREAM(T) \
     , typename mars_boost::enable_if< mars_boost::iostreams::is_std_io<T> >::type* = 0 \
     /**/

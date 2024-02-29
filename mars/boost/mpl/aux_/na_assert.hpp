@@ -14,9 +14,9 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/na.hpp>
 #include <boost/mpl/aux_/config/msvc.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/aux_/na.hpp>
 
 #if !BOOST_WORKAROUND(_MSC_FULL_VER, <= 140050601)    \
     && !BOOST_WORKAROUND(__EDG_VERSION__, <= 243)

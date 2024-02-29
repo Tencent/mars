@@ -15,10 +15,10 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/next_prior.hpp>
-#   include <boost/mpl/deref.hpp>
 #   include <boost/mpl/apply.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
+#   include <boost/mpl/deref.hpp>
+#   include <boost/mpl/next_prior.hpp>
 #   if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) \
     || defined(BOOST_MPL_CFG_NO_NONTYPE_TEMPLATE_PARTIAL_SPEC)
 #       include <boost/mpl/if.hpp>

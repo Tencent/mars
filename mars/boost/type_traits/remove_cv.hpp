@@ -13,7 +13,7 @@
 
 #include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
-#include <cstddef>
+#include <cstddef> // size_t
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -27,13 +27,18 @@ template <class T> struct remove_cv<T const volatile>{ typedef T type; };
 template <class T, std::size_t N> struct remove_cv<T const[N]>{ typedef T type[N]; };
 template <class T, std::size_t N> struct remove_cv<T const volatile[N]>{ typedef T type[N]; };
 template <class T, std::size_t N> struct remove_cv<T volatile[N]>{ typedef T type[N]; };
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x600) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
 template <class T> struct remove_cv<T const[]>{ typedef T type[]; };
 template <class T> struct remove_cv<T const volatile[]>{ typedef T type[]; };
 template <class T> struct remove_cv<T volatile[]>{ typedef T type[]; };
 #endif
 #endif
 
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using remove_cv_t = typename remove_cv<T>::type;
+
+#endif
 
 } // namespace mars_boost
 

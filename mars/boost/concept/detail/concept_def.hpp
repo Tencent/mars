@@ -3,10 +3,10 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_CONCEPT_DETAIL_CONCEPT_DEF_DWA200651_HPP
 # define BOOST_CONCEPT_DETAIL_CONCEPT_DEF_DWA200651_HPP
-# include <boost/preprocessor/seq/for_each_i.hpp>
-# include <boost/preprocessor/seq/enum.hpp>
-# include <boost/preprocessor/comma_if.hpp>
 # include <boost/preprocessor/cat.hpp>
+# include <boost/preprocessor/comma_if.hpp>
+# include <boost/preprocessor/seq/enum.hpp>
+# include <boost/preprocessor/seq/for_each_i.hpp>
 #endif // BOOST_CONCEPT_DETAIL_CONCEPT_DEF_DWA200651_HPP
 
 // BOOST_concept(SomeName, (p1)(p2)...(pN))

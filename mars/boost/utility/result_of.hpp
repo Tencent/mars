@@ -10,31 +10,37 @@
 #define BOOST_RESULT_OF_HPP
 
 #include <boost/config.hpp>
-#include <boost/preprocessor/cat.hpp>
-#include <boost/preprocessor/iteration/iterate.hpp>
-#include <boost/preprocessor/repetition/enum_params.hpp>
-#include <boost/preprocessor/repetition/enum_trailing_params.hpp>
-#include <boost/preprocessor/repetition/enum_binary_params.hpp>
-#include <boost/preprocessor/repetition/enum_shifted_params.hpp>
-#include <boost/preprocessor/facilities/intercept.hpp>
+#include <boost/core/enable_if.hpp>
 #include <boost/detail/workaround.hpp>
-#include <boost/mpl/has_xxx.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/identity.hpp>
-#include <boost/mpl/or.hpp>
+#include <boost/type_traits/conditional.hpp>
+#include <boost/type_traits/declval.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_class.hpp>
-#include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/is_member_function_pointer.hpp>
+#include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/remove_cv.hpp>
 #include <boost/type_traits/remove_reference.hpp>
-#include <boost/utility/declval.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/type_identity.hpp>
 
+#ifdef BOOST_NO_CXX11_VARIADIC_TEMPLATES
+#  undef BOOST_RESULT_OF_NO_VARIADIC_TEMPLATES
+#  define BOOST_RESULT_OF_NO_VARIADIC_TEMPLATES
+#endif
+#ifdef BOOST_RESULT_OF_NO_VARIADIC_TEMPLATES
+#  include <boost/preprocessor/cat.hpp>
+#  include <boost/preprocessor/facilities/intercept.hpp>
+#  include <boost/preprocessor/iteration/iterate.hpp>
+#  include <boost/preprocessor/repetition/enum_binary_params.hpp>
+#  include <boost/preprocessor/repetition/enum_params.hpp>
+#  include <boost/preprocessor/repetition/enum_shifted_params.hpp>
+#  include <boost/preprocessor/repetition/enum_trailing_params.hpp>
+#endif
+
+#ifndef BOOST_UTILITY_DOCS
 #ifndef BOOST_RESULT_OF_NUM_ARGS
 #  define BOOST_RESULT_OF_NUM_ARGS 16
 #endif
+#endif // BOOST_UTILITY_DOCS
 
 // Use the decltype-based version of result_of by default if the compiler
 // supports N3276 <http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2011/n3276.pdf>.
@@ -47,10 +53,7 @@
   BOOST_RESULT_OF_USE_TR1_WITH_DECLTYPE_FALLBACK cannot be defined at the same time.
 #endif
 
-#if defined(BOOST_RESULT_OF_USE_TR1_WITH_DECLTYPE_FALLBACK) && defined(BOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE)
-#  error Cannot fallback to decltype if BOOST_MPL_CFG_NO_HAS_XXX_TEMPLATE is not defined.
-#endif
-
+#ifndef BOOST_UTILITY_DOCS
 #ifndef BOOST_RESULT_OF_USE_TR1
 #  ifndef BOOST_RESULT_OF_USE_DECLTYPE
 #    ifndef BOOST_RESULT_OF_USE_TR1_WITH_DECLTYPE_FALLBACK
@@ -62,6 +65,7 @@
 #    endif
 #  endif
 #endif
+#endif // BOOST_UTILITY_DOCS
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -71,11 +75,40 @@ template<typename F> struct tr1_result_of; // a TR1-style implementation of resu
 #if !defined(BOOST_NO_SFINAE)
 namespace detail {
 
-BOOST_MPL_HAS_XXX_TRAIT_DEF(result_type)
+typedef char result_of_yes_type;      // sizeof(result_of_yes_type) == 1
+typedef char (&result_of_no_type)[2]; // sizeof(result_of_no_type)  == 2
+
+template<class T> struct result_of_has_type {};
+
+template<class T> struct result_of_has_result_type_impl
+{
+    template<class U> static result_of_yes_type f( result_of_has_type<typename U::result_type>* );
+    template<class U> static result_of_no_type f( ... );
+
+    typedef mars_boost::integral_constant<bool, sizeof(f<T>(0)) == sizeof(result_of_yes_type)> type;
+};
+
+template<class T> struct result_of_has_result_type: result_of_has_result_type_impl<T>::type
+{
+};
 
 // Work around a nvcc bug by only defining has_result when it's needed.
 #ifdef BOOST_RESULT_OF_USE_TR1_WITH_DECLTYPE_FALLBACK
-BOOST_MPL_HAS_XXX_TEMPLATE_DEF(result)
+
+template<template<class> class C> struct result_of_has_template {};
+
+template<class T> struct result_of_has_result_impl
+{
+    template<class U> static result_of_yes_type f( result_of_has_template<U::template result>* );
+    template<class U> static result_of_no_type f( ... );
+
+    typedef mars_boost::integral_constant<bool, sizeof(f<T>(0)) == sizeof(result_of_yes_type)> type;
+};
+
+template<class T> struct result_of_has_result: result_of_has_result_impl<T>::type
+{
+};
+
 #endif
 
 template<typename F, typename FArgs, bool HasResultType> struct tr1_result_of_impl;
@@ -86,8 +119,8 @@ template<typename F> struct cpp0x_result_of;
 
 // There doesn't seem to be any other way to turn this off such that the presence of
 // the user-defined operator,() below doesn't cause spurious warning all over the place,
-// so unconditionally turn it off.
-#if BOOST_MSVC
+// so unconditionally and globally turn it off. (https://svn.boost.org/trac10/ticket/7663)
+#ifdef BOOST_MSVC
 #  pragma warning(disable: 4913) // user defined binary operator ',' exists but no overload could convert all operands, default built-in binary operator ',' used
 #endif
 
@@ -97,19 +130,23 @@ struct result_of_weird_type {
   friend result_of_private_type operator,(result_of_private_type, result_of_weird_type);
 };
 
-typedef char result_of_yes_type;      // sizeof(result_of_yes_type) == 1
-typedef char (&result_of_no_type)[2]; // sizeof(result_of_no_type)  == 2
-
 template<typename T>
 result_of_no_type result_of_is_private_type(T const &);
 result_of_yes_type result_of_is_private_type(result_of_private_type);
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable: 4512) // assignment operator could not be generated.
+#endif
 template<typename C>
 struct result_of_callable_class : C {
     result_of_callable_class();
     typedef result_of_private_type const &(*pfn_t)(...);
     operator pfn_t() const volatile;
 };
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 
 template<typename C>
 struct result_of_wrap_callable_class {
@@ -180,10 +217,10 @@ struct tr1_result_of_impl<F, FArgs, true>
 };
 
 template<typename FArgs>
-struct is_function_with_no_args : mpl::false_ {};
+struct is_function_with_no_args : false_type {};
 
 template<typename F>
-struct is_function_with_no_args<F(void)> : mpl::true_ {};
+struct is_function_with_no_args<F(void)> : true_type {};
 
 template<typename F, typename FArgs>
 struct result_of_nested_result : F::template result<FArgs>
@@ -191,15 +228,24 @@ struct result_of_nested_result : F::template result<FArgs>
 
 template<typename F, typename FArgs>
 struct tr1_result_of_impl<F, FArgs, false>
-  : mpl::if_<is_function_with_no_args<FArgs>,
+  : conditional<is_function_with_no_args<FArgs>::value,
              result_of_void_impl<F>,
              result_of_nested_result<F, FArgs> >::type
 {};
 
 } // end namespace detail
 
-#define BOOST_PP_ITERATION_PARAMS_1 (3,(0,BOOST_RESULT_OF_NUM_ARGS,<boost/utility/detail/result_of_iterate.hpp>))
-#include BOOST_PP_ITERATE()
+#ifndef BOOST_RESULT_OF_NO_VARIADIC_TEMPLATES
+#  include <boost/utility/detail/result_of_variadic.hpp>
+#else
+#  define BOOST_PP_ITERATION_PARAMS_1 (3,(0,BOOST_RESULT_OF_NUM_ARGS,<boost/utility/detail/result_of_iterate.hpp>))
+#  include BOOST_PP_ITERATE()
+#endif
+
+#if 0
+// inform dependency trackers, as they can't see through macro includes
+#include <boost/utility/detail/result_of_iterate.hpp>
+#endif
 
 #else
 #  define BOOST_NO_RESULT_OF 1

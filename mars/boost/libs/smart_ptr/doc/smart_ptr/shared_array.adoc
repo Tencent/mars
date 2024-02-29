@@ -1,0 +1,298 @@
+////
+Copyright 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[[shared_array]]
+[appendix]
+# shared_array (deprecated)
+:toc:
+:toc-title:
+:idprefix: shared_array_
+
+NOTE: This facility is deprecated because a `shared_ptr` to `T[]` or `T[N]`
+is now available, and is superior in every regard.
+
+## Description
+
+The `shared_array` class template stores a pointer to a dynamically allocated
+array. (Dynamically allocated array are allocated with the C++ `new[]`
+expression.) The object pointed to is guaranteed to be deleted when the last
+`shared_array` pointing to it is destroyed or reset.
+
+Every `shared_array` meets the _CopyConstructible_ and _Assignable_
+requirements of the {cpp} Standard Library, and so can be used in standard
+library containers. Comparison operators are supplied so that shared_array
+works with the standard library's associative containers.
+
+Normally, a `shared_array` cannot correctly hold a pointer to an object that
+has been allocated with the non-array form of `new`. See `shared_ptr` for that
+usage.
+
+Because the implementation uses reference counting, cycles of `shared_array`
+instances will not be reclaimed. For example, if `main` holds a shared_array
+to `A`, which directly or indirectly holds a shared_array back to `A`, the use
+count of `A` will be 2. Destruction of the original `shared_array` will leave
+`A` dangling with a use count of 1.
+
+A `shared_ptr` to a `std::vector` is an alternative to a `shared_array` that
+is a bit heavier duty but far more flexible.
+
+The class template is parameterized on `T`, the type of the object pointed to.
+`shared_array` and most of its member functions place no requirements on `T`;
+it is allowed to be an incomplete type, or `void`. Member functions that do
+place additional requirements (constructors, reset) are explicitly documented
+below.
+
+## Synopsis
+
+```
+namespace boost {
+
+  template<class T> class shared_array {
+  public:
+    typedef T element_type;
+
+    explicit shared_array(T* p = 0);
+    template<class D> shared_array(T* p, D d);
+    shared_array(const shared_array& v) noexcept;
+
+    ~shared_array() noexcept;
+
+    shared_array& operator=(const shared_array& v) noexcept;
+
+    void reset(T* p = 0);
+    template<class D> void reset(T* p, D d);
+
+    T& operator[](std::ptrdiff_t n) const noexcept;
+    T* get() const noexcept;
+
+    bool unique() const noexcept;
+    long use_count() const noexcept;
+
+    explicit operator bool() const noexcept;
+
+    void swap(shared_array<T>& v) noexcept;
+  };
+
+  template<class T> bool
+    operator==(const shared_array<T>& a, const shared_array<T>& b) noexcept;
+  template<class T> bool
+    operator!=(const shared_array<T>& a, const shared_array<T>& b) noexcept;
+  template<class T> bool
+    operator<(const shared_array<T>& a, const shared_array<T>& b) noexcept;
+
+  template<class T>
+    void swap(shared_array<T>& a, shared_array<T>& b) noexcept;
+}
+```
+
+## Members
+
+### element_type
+
+```
+typedef T element_type;
+```
+Type:: Provides the type of the stored pointer.
+
+### Constructors
+
+```
+explicit shared_array(T* p = 0);
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `shared_array`, storing a copy of `p`, which must be a
+pointer to an array that was allocated via a C++ `new[]` expression or be 0.
+Afterwards, the use count is 1 (even if `p == 0`; see `~shared_array`).
+Requires:: `T` is a complete type.
+Throws:: `std::bad_alloc`. If an exception is thrown, `delete[] p` is called.
+
+```
+template<class D> shared_array(T* p, D d);
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `shared_array`, storing a copy of `p` and of `d`.
+Afterwards, the use count is 1. When the the time comes to delete the array
+pointed to by `p`, the object `d` is used in the statement `d(p)`.
+Requires::
+* `T` is a complete type.
+* The copy constructor and destructor of `D` must not throw.
+* Invoking the object `d` with parameter `p` must not throw.
+Throws:: `std::bad_alloc`. If an exception is thrown, `d(p)` is called.
+
+```
+shared_array(const shared_array& v) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Constructs a `shared_array`, as if by storing a copy of the pointer
+stored in `v`. Afterwards, the use count for all copies is 1 more than the
+initial use count.
+Requires:: `T` is a complete type.
+
+### Destructor
+
+```
+~shared_array() noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Decrements the use count. Then, if the use count is 0, deletes the
+array pointed to by the stored pointer. Note that `delete[]` on a pointer with
+a value of 0 is harmless. 
+
+### Assignment
+
+```
+shared_array& operator=(const shared_array& v) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Constructs a new `shared_array` as described above, then replaces
+this `shared_array` with the new one, destroying the replaced object.
+Requires:: `T` is a complete type.
+Returns:: `*this`.
+
+### reset
+
+```
+void reset(T* p = 0);
+```
+[none]
+* {blank}
++
+Effects:: Constructs a new `shared_array` as described above, then replaces
+this `shared_array` with the new one, destroying the replaced object.
+Requires:: `T` is a complete type.
+Throws:: `std::bad_alloc`. If an exception is thrown, `delete[] p` is called.
+
+```
+template<class D> void reset(T* p, D d);
+```
+[none]
+* {blank}
++
+Effects:: Constructs a new `shared_array` as described above, then replaces
+this `shared_array` with the new one, destroying the replaced object.
+Requires::
+* `T` is a complete type.
+* The copy constructor of `D` must not throw.
+Throws:: `std::bad_alloc`. If an exception is thrown, `d(p)` is called.
+
+### Indexing
+
+```
+T& operator[](std::ptrdiff_t n) const noexcept;
+```
+Returns:: A reference to element `n` of the array pointed to by the stored
+pointer. Behavior is undefined and almost certainly undesirable if the stored
+pointer is 0, or if `n` is less than 0 or is greater than or equal to the
+number of elements in the array.
+Requires:: `T` is a complete type.
+
+### get
+
+```
+T* get() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: The stored pointer.
+
+### unique
+
+```
+bool unique() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `true` if no other `shared_array` is sharing ownership of the
+stored pointer, `false` otherwise.
+
+### use_count
+
+```
+long use_count() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: The number of `shared_array` objects sharing ownership of the
+stored pointer.
+
+### Conversions
+
+```
+explicit operator bool() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `get() != 0`.
+Requires:: `T` is a complete type.
+
+### swap
+
+```
+void swap(shared_array<T>& b) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Exchanges the contents of the two smart pointers.
+
+## Free Functions
+
+### Comparison
+
+```
+template<class T> bool
+  operator==(const shared_array<T>& a, const shared_array<T>& b) noexcept;
+```
+```
+template<class T> bool
+  operator!=(const shared_array<T>& a, const shared_array<T>& b) noexcept;
+```
+```
+template<class T> bool
+  operator<(const shared_array<T>& a, const shared_array<T>& b) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: The result of comparing the stored pointers of the two smart
+pointers.
+
+NOTE: The `operator<` overload is provided to define an ordering so that
+`shared_array` objects can be used in associative containers such as
+`std::map`. The implementation uses `std::less<T*>` to perform the comparison.
+This ensures that the comparison is handled correctly, since the standard
+mandates that relational operations on pointers are unspecified (5.9
+[expr.rel] paragraph 2) but `std::less` on pointers is well-defined (20.3.3
+[lib.comparisons] paragraph 8).
+
+### swap
+
+```
+template<class T>
+  void swap(shared_array<T>& a, shared_array<T>& b) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `a.swap(b)`.
+Requires:: `T` is a complete type.

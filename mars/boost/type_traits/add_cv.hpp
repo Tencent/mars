@@ -36,6 +36,12 @@ template <class T> struct add_cv{ typedef T const volatile type; };
 
 template <class T> struct add_cv<T&>{ typedef T& type; };
 
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using add_cv_t = typename add_cv<T>::type;
+
+#endif
+
 } // namespace mars_boost
 
 #endif // BOOST_TT_ADD_CV_HPP_INCLUDED

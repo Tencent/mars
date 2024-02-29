@@ -19,17 +19,17 @@
 
 # include <boost/concept/assert.hpp>
 
-# include <iterator>
+# include <boost/config/workaround.hpp>
+# include <boost/static_assert.hpp>
 # include <boost/type_traits/conversion_traits.hpp>
-# include <utility>
+# include <boost/type_traits/integral_constant.hpp>
 # include <boost/type_traits/is_same.hpp>
 # include <boost/type_traits/is_void.hpp>
-# include <boost/mpl/assert.hpp>
-# include <boost/mpl/bool.hpp>
-# include <boost/detail/workaround.hpp>
+# include <iterator>
+# include <utility>
 
-# include <boost/concept/usage.hpp>
 # include <boost/concept/detail/concept_def.hpp>
+# include <boost/concept/usage.hpp>
 
 #if (defined _MSC_VER)
 # pragma warning( push )
@@ -301,14 +301,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       BOOST_CONCEPT_USAGE(Generator) { test(is_void<Return>()); }
 
    private:
-      void test(mars_boost::mpl::false_)
+      void test(mars_boost::false_type)
       {
           // Do we really want a reference here?
           const Return& r = f();
           ignore_unused_variable_warning(r);
       }
 
-      void test(mars_boost::mpl::true_)
+      void test(mars_boost::true_type)
       {
           f();
       }
@@ -321,22 +321,22 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       BOOST_CONCEPT_USAGE(UnaryFunction) { test(is_void<Return>()); }
 
    private:
-      void test(mars_boost::mpl::false_)
+      void test(mars_boost::false_type)
       {
           f(arg);               // "priming the pump" this way keeps msvc6 happy (ICE)
           Return r = f(arg);
           ignore_unused_variable_warning(r);
       }
 
-      void test(mars_boost::mpl::true_)
+      void test(mars_boost::true_type)
       {
           f(arg);
       }
 
 #if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
                       && BOOST_WORKAROUND(__GNUC__, > 3)))
-      // Declare a dummy construktor to make gcc happy.
-      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // Declare a dummy constructor to make gcc happy.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a reference type.
       // (warning: non-static reference "const double& mars_boost::UnaryFunction<YourClassHere>::arg"
       // in class without a constructor [-Wuninitialized])
       UnaryFunction();
@@ -350,14 +350,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
   {
       BOOST_CONCEPT_USAGE(BinaryFunction) { test(is_void<Return>()); }
    private:
-      void test(mars_boost::mpl::false_)
+      void test(mars_boost::false_type)
       {
-          f(first,second);
+          (void) f(first,second);
           Return r = f(first, second); // require operator()
           (void)r;
       }
 
-      void test(mars_boost::mpl::true_)
+      void test(mars_boost::true_type)
       {
           f(first,second);
       }
@@ -365,7 +365,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
                       && BOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
-      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a reference type.
       // (warning: non-static reference "const double& mars_boost::BinaryFunction<YourClassHere>::arg"
       // in class without a constructor [-Wuninitialized])
       BinaryFunction();
@@ -385,7 +385,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
                       && BOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
-      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a reference type.
       // (warning: non-static reference "const double& mars_boost::UnaryPredicate<YourClassHere>::arg"
       // in class without a constructor [-Wuninitialized])
       UnaryPredicate();
@@ -404,7 +404,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
                       && BOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
-      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a reference type.
       // (warning: non-static reference "const double& mars_boost::BinaryPredicate<YourClassHere>::arg"
       // in class without a constructor [-Wuninitialized])
       BinaryPredicate();
@@ -429,7 +429,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
                       && BOOST_WORKAROUND(__GNUC__, > 3)))
       // Declare a dummy constructor to make gcc happy.
-      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a reference type.
       // (warning: non-static reference "const double& mars_boost::Const_BinaryPredicate<YourClassHere>::arg"
       // in class without a constructor [-Wuninitialized])
       Const_BinaryPredicate();
@@ -734,8 +734,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
    private:
       void const_constraints(const C& cc)
       {
-          const_reverse_iterator i = cc.rbegin();
-          i = cc.rend();
+          const_reverse_iterator _i = cc.rbegin();
+          _i = cc.rend();
       }
       C c;
   };
@@ -966,7 +966,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       {
           typedef typename C::key_type key_type;
           typedef typename C::value_type value_type;
-          BOOST_MPL_ASSERT((mars_boost::is_same<key_type,value_type>));
+          BOOST_STATIC_ASSERT((mars_boost::is_same<key_type,value_type>::value));
       }
   };
 
@@ -979,7 +979,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef typename C::value_type value_type;
           typedef typename C::mapped_type mapped_type;
           typedef std::pair<const key_type, mapped_type> required_value_type;
-          BOOST_MPL_ASSERT((mars_boost::is_same<value_type,required_value_type>));
+          BOOST_STATIC_ASSERT((mars_boost::is_same<value_type,required_value_type>::value));
       }
   };
 

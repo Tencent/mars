@@ -16,6 +16,13 @@
 #include <atomic>
 #include <cstdint>
 
+#if defined(BOOST_SP_REPORT_IMPLEMENTATION)
+
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("Using std::atomic atomic_count")
+
+#endif
+
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
 
@@ -26,7 +33,7 @@ class atomic_count
 {
 public:
 
-    explicit atomic_count( long v ): value_( v )
+    explicit atomic_count( long v ): value_( static_cast< std::int_least32_t >( v ) )
     {
     }
 
@@ -55,6 +62,6 @@ private:
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_STD_ATOMIC_HPP_INCLUDED

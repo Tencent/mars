@@ -59,8 +59,8 @@ namespace std
       BOOST_STATIC_CONSTANT(bool, is_integer = true);
       BOOST_STATIC_CONSTANT(bool, is_exact = true);
       BOOST_STATIC_CONSTANT(int, radix = 2);
-      static BOOST_LLT epsilon() throw() { return 0; };
-      static BOOST_LLT round_error() throw() { return 0; };
+      static BOOST_LLT epsilon() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_LLT round_error() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
 
       BOOST_STATIC_CONSTANT(int, min_exponent = 0);
       BOOST_STATIC_CONSTANT(int, min_exponent10 = 0);
@@ -72,10 +72,10 @@ namespace std
       BOOST_STATIC_CONSTANT(bool, has_signaling_NaN = false);
       BOOST_STATIC_CONSTANT(bool, has_denorm = false);
       BOOST_STATIC_CONSTANT(bool, has_denorm_loss = false);
-      static BOOST_LLT infinity() throw() { return 0; };
-      static BOOST_LLT quiet_NaN() throw() { return 0; };
-      static BOOST_LLT signaling_NaN() throw() { return 0; };
-      static BOOST_LLT denorm_min() throw() { return 0; };
+      static BOOST_LLT infinity() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_LLT quiet_NaN() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_LLT signaling_NaN() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_LLT denorm_min() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
 
       BOOST_STATIC_CONSTANT(bool, is_iec559 = false);
       BOOST_STATIC_CONSTANT(bool, is_bounded = true);
@@ -112,8 +112,8 @@ namespace std
       BOOST_STATIC_CONSTANT(bool, is_integer = true);
       BOOST_STATIC_CONSTANT(bool, is_exact = true);
       BOOST_STATIC_CONSTANT(int, radix = 2);
-      static BOOST_ULLT epsilon() throw() { return 0; };
-      static BOOST_ULLT round_error() throw() { return 0; };
+      static BOOST_ULLT epsilon() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_ULLT round_error() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
 
       BOOST_STATIC_CONSTANT(int, min_exponent = 0);
       BOOST_STATIC_CONSTANT(int, min_exponent10 = 0);
@@ -125,10 +125,10 @@ namespace std
       BOOST_STATIC_CONSTANT(bool, has_signaling_NaN = false);
       BOOST_STATIC_CONSTANT(bool, has_denorm = false);
       BOOST_STATIC_CONSTANT(bool, has_denorm_loss = false);
-      static BOOST_ULLT infinity() throw() { return 0; };
-      static BOOST_ULLT quiet_NaN() throw() { return 0; };
-      static BOOST_ULLT signaling_NaN() throw() { return 0; };
-      static BOOST_ULLT denorm_min() throw() { return 0; };
+      static BOOST_ULLT infinity() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_ULLT quiet_NaN() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_ULLT signaling_NaN() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
+      static BOOST_ULLT denorm_min() BOOST_NOEXCEPT_OR_NOTHROW { return 0; };
 
       BOOST_STATIC_CONSTANT(bool, is_iec559 = false);
       BOOST_STATIC_CONSTANT(bool, is_bounded = true);

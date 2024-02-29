@@ -7,6 +7,7 @@
 #ifndef BOOST_CONTEXT_DETAIL_EXCEPTION_H
 #define BOOST_CONTEXT_DETAIL_EXCEPTION_H
 
+#include <boost/assert.hpp>
 #include <boost/config.hpp>
 
 #include <boost/context/detail/fcontext.hpp>
@@ -20,7 +21,9 @@ namespace context {
 namespace detail {
 
 struct forced_unwind {
-    fcontext_t  fctx;
+    fcontext_t  fctx{ nullptr };
+
+    forced_unwind() = default;
 
     forced_unwind( fcontext_t fctx_) :
         fctx( fctx_) {

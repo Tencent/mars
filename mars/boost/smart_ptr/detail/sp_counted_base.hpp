@@ -18,13 +18,8 @@
 //
 
 #include <boost/config.hpp>
-#include <boost/smart_ptr/detail/sp_has_sync.hpp>
-
-#if defined( __clang__ ) && defined( __has_extension )
-# if __has_extension( __c_atomic__ )
-#   define BOOST_SP_HAS_CLANG_C11_ATOMICS
-# endif
-#endif
+#include <boost/smart_ptr/detail/sp_has_gcc_intrinsics.hpp>
+#include <boost/smart_ptr/detail/sp_has_sync_intrinsics.hpp>
 
 #if defined( BOOST_SP_DISABLE_THREADS )
 # include <boost/smart_ptr/detail/sp_counted_base_nt.hpp>
@@ -41,14 +36,23 @@
 #elif defined( BOOST_DISABLE_THREADS ) && !defined( BOOST_SP_ENABLE_THREADS ) && !defined( BOOST_DISABLE_WIN32 )
 # include <boost/smart_ptr/detail/sp_counted_base_nt.hpp>
 
-#elif defined( BOOST_SP_HAS_CLANG_C11_ATOMICS )
-# include <boost/smart_ptr/detail/sp_counted_base_clang.hpp>
+#elif defined( BOOST_SP_HAS_GCC_INTRINSICS )
+# include <boost/smart_ptr/detail/sp_counted_base_gcc_atomic.hpp>
 
-#elif defined( __SNC__ )
-# include <boost/smart_ptr/detail/sp_counted_base_snc_ps3.hpp>
+#elif !defined( BOOST_NO_CXX11_HDR_ATOMIC )
+# include <boost/smart_ptr/detail/sp_counted_base_std_atomic.hpp>
+
+#elif defined( __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 )
+# include <boost/smart_ptr/detail/sp_counted_base_sync.hpp>
 
 #elif defined( __GNUC__ ) && ( defined( __i386__ ) || defined( __x86_64__ ) ) && !defined(__PATHSCALE__)
 # include <boost/smart_ptr/detail/sp_counted_base_gcc_x86.hpp>
+
+#elif defined( BOOST_SP_HAS_SYNC_INTRINSICS )
+# include <boost/smart_ptr/detail/sp_counted_base_sync.hpp>
+
+#elif defined( __SNC__ )
+# include <boost/smart_ptr/detail/sp_counted_base_snc_ps3.hpp>
 
 #elif defined(__HP_aCC) && defined(__ia64)
 # include <boost/smart_ptr/detail/sp_counted_base_acc_ia64.hpp>
@@ -65,11 +69,8 @@
 #elif defined( __GNUC__ ) && ( defined( __powerpc__ ) || defined( __ppc__ ) || defined( __ppc ) ) && !defined(__PATHSCALE__) && !defined( _AIX )
 # include <boost/smart_ptr/detail/sp_counted_base_gcc_ppc.hpp>
 
-#elif defined( __GNUC__ ) && ( defined( __mips__ ) || defined( _mips ) ) && !defined(__PATHSCALE__)
+#elif defined( __GNUC__ ) && ( defined( __mips__ ) || defined( _mips ) ) && !defined(__PATHSCALE__) && !defined( __mips16 )
 # include <boost/smart_ptr/detail/sp_counted_base_gcc_mips.hpp>
-
-#elif defined( BOOST_SP_HAS_SYNC )
-# include <boost/smart_ptr/detail/sp_counted_base_sync.hpp>
 
 #elif defined(__GNUC__) && ( defined( __sparcv9 ) || ( defined( __sparcv8 ) && ( __GNUC__ * 100 + __GNUC_MINOR__ >= 402 ) ) )
 # include <boost/smart_ptr/detail/sp_counted_base_gcc_sparc.hpp>
@@ -87,7 +88,5 @@
 # include <boost/smart_ptr/detail/sp_counted_base_spin.hpp>
 
 #endif
-
-#undef BOOST_SP_HAS_CLANG_C11_ATOMICS
 
 #endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_HPP_INCLUDED

@@ -15,10 +15,10 @@
 # pragma once
 #endif
 
+#include <boost/iterator/reverse_iterator.hpp>
 #include <boost/range/config.hpp>
 #include <boost/range/iterator.hpp>
 #include <boost/type_traits/remove_reference.hpp>
-#include <boost/iterator/reverse_iterator.hpp>
 
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
@@ -36,7 +36,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     };
     
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 
 #endif

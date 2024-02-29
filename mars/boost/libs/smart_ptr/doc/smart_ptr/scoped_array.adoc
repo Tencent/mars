@@ -1,0 +1,175 @@
+////
+Copyright 1999 Greg Colvin and Beman Dawes
+Copyright 2002 Darin Adler
+Copyright 2002-2005, 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#scoped_array]
+# scoped_array: Scoped Array Ownership
+:toc:
+:toc-title:
+:idprefix: scoped_array_
+
+## Description
+
+The `scoped_array` class template stores a pointer to a dynamically allocated array.
+(Dynamically allocated arrays are allocated with the {cpp} `new[]` expression.) The array
+pointed to is guaranteed to be deleted, either on destruction of the `scoped_array`,
+or via an explicit `reset`.
+
+The `scoped_array` template is a simple solution for simple needs. It supplies a basic
+"resource acquisition is initialization" facility, without shared-ownership or
+transfer-of-ownership semantics. Both its name and enforcement of semantics
+(by being  noncopyable) signal its intent to retain ownership solely within the current scope.
+Because it is noncopyable, it is safer than `shared_ptr<T[]>` for pointers which should not be copied.
+
+Because `scoped_array` is so simple, in its usual implementation every operation is as fast as a
+built-in array pointer and it has no more space overhead that a built-in array pointer.
+
+It cannot be used in {cpp} standard library containers. See `shared_ptr<T[]>` if `scoped_array`
+does not meet your needs.
+
+It cannot correctly hold a pointer to a single object. See `scoped_ptr` for that usage.
+
+`std::vector` is an alternative to `scoped_array` that is a bit heavier duty but far more flexible.
+`boost::array` is an alternative that does not use dynamic allocation.
+
+The class template is parameterized on `T`, the type of the object pointed to.
+
+## Synopsis
+
+`scoped_array` is defined in `<boost/smart_ptr/scoped_array.hpp>`.
+
+```
+namespace boost {
+
+  template<class T> class scoped_array {
+  private:
+
+    scoped_array(scoped_array const &);
+    scoped_array & operator=(scoped_array const &);
+
+    void operator==( scoped_array const& ) const;
+    void operator!=( scoped_array const& ) const;
+
+  public:
+
+    typedef T element_type;
+
+    explicit scoped_array(T * p = 0) noexcept;
+    ~scoped_array() noexcept;
+
+    void reset(T * p = 0) noexcept;
+
+    T & operator[](std::ptrdiff_t i) const noexcept;
+    T * get() const noexcept;
+
+    explicit operator bool () const noexcept;
+
+    void swap(scoped_array & b) noexcept;
+  };
+
+  template<class T> void swap(scoped_array<T> & a, scoped_array<T> & b) noexcept;
+
+  template<class T>
+    bool operator==( scoped_array<T> const & p, std::nullptr_t ) noexcept;
+  template<class T>
+    bool operator==( std::nullptr_t, scoped_array<T> const & p ) noexcept;
+
+  template<class T>
+    bool operator!=( scoped_array<T> const & p, std::nullptr_t ) noexcept;
+  template<class T>
+    bool operator!=( std::nullptr_t, scoped_array<T> const & p ) noexcept;
+}
+```
+
+## Members
+
+### element_type
+
+    typedef T element_type;
+
+Provides the type of the stored pointer.
+
+### constructors
+
+    explicit scoped_array(T * p = 0) noexcept;
+
+Constructs a `scoped_array`, storing a copy of `p`, which must have been
+allocated via a {cpp} `new[]` expression or be 0. `T` is not required be a complete type.
+
+### destructor
+
+    ~scoped_array() noexcept;
+
+Deletes the array pointed to by the stored pointer. Note that `delete[]` on a pointer with
+a value of 0 is harmless. `T` must be complete, and `delete[]` on the stored pointer must
+not throw exceptions.
+
+### reset
+
+    void reset(T * p = 0) noexcept;
+
+Deletes the array pointed to by the stored pointer and then stores a copy of `p`,
+which must have been allocated via a {cpp} `new[]` expression or be 0. `T` must be complete,
+and `delete[]` on the stored pointer must not throw exceptions.
+
+### subscripting
+
+    T & operator[](std::ptrdiff_t i) const noexcept;
+
+Returns a reference to element `i` of the array pointed to by the stored pointer.
+Behavior is undefined and almost certainly undesirable if the stored pointer is 0,
+or if `i` is less than 0 or is greater than or equal to the number of elements in
+the array.
+
+### get
+
+    T * get() const noexcept;
+
+Returns the stored pointer. `T` need not be a complete type.
+
+### conversions
+
+    explicit operator bool () const noexcept;
+
+Returns `get() != 0`.
+
+NOTE: On C++03 compilers, the return value is of an unspecified type.
+
+### swap
+
+    void swap(scoped_array & b) noexcept;
+
+Exchanges the contents of the two smart pointers. `T` need not be a complete type.
+
+## Free Functions
+
+### swap
+
+    template<class T> void swap(scoped_array<T> & a, scoped_array<T> & b) noexcept;
+
+Equivalent to `a.swap(b)`.
+
+### comparisons
+
+    template<class T>
+      bool operator==( scoped_array<T> const & p, std::nullptr_t ) noexcept;
+
+    template<class T>
+      bool operator==( std::nullptr_t, scoped_array<T> const & p ) noexcept;
+
+Returns `p.get() == nullptr`.
+
+    template<class T>
+      bool operator!=( scoped_array<T> const & p, std::nullptr_t ) noexcept;
+
+    template<class T>
+      bool operator!=( std::nullptr_t, scoped_array<T> const & p ) noexcept;
+
+Returns `p.get() != nullptr`.

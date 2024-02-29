@@ -10,8 +10,10 @@
  */
 
 
-#include <boost/operators.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/int_adapter.hpp>
 #include <boost/date_time/special_defs.hpp>
+#include <boost/operators.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace date_time {
@@ -19,7 +21,7 @@ namespace date_time {
 
   //! Duration type with date level resolution
   template<class duration_rep_traits>
-  class date_duration : private
+  class BOOST_SYMBOL_VISIBLE date_duration : private
               mars_boost::less_than_comparable1< date_duration< duration_rep_traits >
             , mars_boost::equality_comparable1< date_duration< duration_rep_traits >
             , mars_boost::addable1< date_duration< duration_rep_traits >
@@ -32,46 +34,44 @@ namespace date_time {
     typedef typename duration_rep_traits::impl_type duration_rep;
 
     //! Construct from a day count
-    explicit date_duration(duration_rep day_count) : days_(day_count) {}
+    BOOST_CXX14_CONSTEXPR explicit date_duration(duration_rep day_count) : days_(day_count) {}
 
     /*! construct from special_values - only works when
      * instantiated with duration_traits_adapted */
-    date_duration(special_values sv) :
+    BOOST_CXX14_CONSTEXPR date_duration(special_values sv) :
             days_(duration_rep::from_special(sv))
     {}
 
-    // copy constructor required for addable<> & subtractable<>
-    //! Construct from another date_duration (Copy Constructor)
-    date_duration(const date_duration<duration_rep_traits>& other) :
-            days_(other.days_)
-    {}
-
     //! returns days_ as it's instantiated type - used for streaming
-    duration_rep get_rep()const
+    BOOST_CXX14_CONSTEXPR duration_rep get_rep()const
     {
         return days_;
     }
-    bool is_special()const
+    BOOST_CXX14_CONSTEXPR special_values as_special() const
+    {
+        return days_.as_special();
+    }
+    BOOST_CXX14_CONSTEXPR bool is_special()const
     {
         return days_.is_special();
     }
     //! returns days as value, not object.
-    duration_rep_type days() const
+    BOOST_CXX14_CONSTEXPR duration_rep_type days() const
     {
         return duration_rep_traits::as_number(days_);
     }
     //! Returns the smallest duration -- used by to calculate 'end'
-    static date_duration unit()
+    static BOOST_CXX14_CONSTEXPR date_duration unit()
     {
         return date_duration<duration_rep_traits>(1);
     }
     //! Equality
-    bool operator==(const date_duration& rhs) const
+    BOOST_CXX14_CONSTEXPR bool operator==(const date_duration& rhs) const
     {
         return days_ == rhs.days_;
     }
     //! Less
-    bool operator<(const date_duration& rhs) const
+    BOOST_CXX14_CONSTEXPR bool operator<(const date_duration& rhs) const
     {
         return days_ < rhs.days_;
     }
@@ -82,33 +82,33 @@ namespace date_time {
      * so this will not compile */
 
     //! Subtract another duration -- result is signed
-    date_duration& operator-=(const date_duration& rhs)
+    BOOST_CXX14_CONSTEXPR date_duration& operator-=(const date_duration& rhs)
     {
         //days_ -= rhs.days_;
         days_ = days_ - rhs.days_;
         return *this;
     }
     //! Add a duration -- result is signed
-    date_duration& operator+=(const date_duration& rhs)
+    BOOST_CXX14_CONSTEXPR date_duration& operator+=(const date_duration& rhs)
     {
         days_ = days_ + rhs.days_;
         return *this;
     }
 
     //! unary- Allows for dd = -date_duration(2); -> dd == -2
-    date_duration operator-() const
+    BOOST_CXX14_CONSTEXPR date_duration operator-() const
     {
         return date_duration<duration_rep_traits>(get_rep() * (-1));
     }
     //! Division operations on a duration with an integer.
-    date_duration& operator/=(int divisor)
+    BOOST_CXX14_CONSTEXPR date_duration& operator/=(int divisor)
     {
         days_ = days_ / divisor;
         return *this;
     }
 
     //! return sign information
-    bool is_negative() const
+    BOOST_CXX14_CONSTEXPR bool is_negative() const
     {
         return days_ < 0;
     }
@@ -121,21 +121,21 @@ namespace date_time {
   /*! Struct for instantiating date_duration with <b>NO</b> special values
    * functionality. Allows for transparent implementation of either
    * date_duration<long> or date_duration<int_adapter<long> > */
-  struct duration_traits_long
+  struct BOOST_SYMBOL_VISIBLE duration_traits_long
   {
     typedef long int_type;
     typedef long impl_type;
-    static int_type as_number(impl_type i) { return i; }
+    static BOOST_CXX14_CONSTEXPR int_type as_number(impl_type i) { return i; }
   };
 
   /*! Struct for instantiating date_duration <b>WITH</b> special values
    * functionality. Allows for transparent implementation of either
    * date_duration<long> or date_duration<int_adapter<long> > */
-  struct duration_traits_adapted
+  struct BOOST_SYMBOL_VISIBLE duration_traits_adapted
   {
     typedef long int_type;
     typedef mars_boost::date_time::int_adapter<long> impl_type;
-    static int_type as_number(impl_type i) { return i.as_number(); }
+    static BOOST_CXX14_CONSTEXPR int_type as_number(impl_type i) { return i.as_number(); }
   };
 
 

@@ -52,4 +52,97 @@
    #define BOOST_MOVE_MSVC_AUTO_MOVE_RETURN_BUG
 #endif
 
+//#define BOOST_MOVE_DISABLE_FORCEINLINE
+
+#if defined(BOOST_MOVE_DISABLE_FORCEINLINE)
+   #define BOOST_MOVE_FORCEINLINE inline
+#elif defined(BOOST_MOVE_FORCEINLINE_IS_BOOST_FORCELINE)
+   #define BOOST_MOVE_FORCEINLINE BOOST_FORCEINLINE
+#elif defined(BOOST_MSVC) && (_MSC_VER < 1900 || defined(_DEBUG))
+   //"__forceinline" and MSVC seems to have some bugs in old versions and in debug mode
+   #define BOOST_MOVE_FORCEINLINE inline
+#elif defined(BOOST_GCC) && (__GNUC__ <= 5)
+   //Older GCCs have problems with forceinline
+   #define BOOST_MOVE_FORCEINLINE inline
+#else
+   #define BOOST_MOVE_FORCEINLINE BOOST_FORCEINLINE
+#endif
+
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+namespace movelib {
+
+template <typename T1>
+BOOST_FORCEINLINE BOOST_CXX14_CONSTEXPR void ignore(T1 const&)
+{}
+
+}} //namespace mars_boost::movelib {
+
+#if !(defined BOOST_NO_EXCEPTIONS)
+#    define BOOST_MOVE_TRY { try
+#    define BOOST_MOVE_CATCH(x) catch(x)
+#    define BOOST_MOVE_RETHROW throw;
+#    define BOOST_MOVE_CATCH_END }
+#else
+#    if !defined(BOOST_MSVC) || BOOST_MSVC >= 1900
+#        define BOOST_MOVE_TRY { if (true)
+#        define BOOST_MOVE_CATCH(x) else if (false)
+#    else
+// warning C4127: conditional expression is constant
+#        define BOOST_MOVE_TRY { \
+             __pragma(warning(push)) \
+             __pragma(warning(disable: 4127)) \
+             if (true) \
+             __pragma(warning(pop))
+#        define BOOST_MOVE_CATCH(x) else \
+             __pragma(warning(push)) \
+             __pragma(warning(disable: 4127)) \
+             if (false) \
+             __pragma(warning(pop))
+#    endif
+#    define BOOST_MOVE_RETHROW
+#    define BOOST_MOVE_CATCH_END }
+#endif
+
+#ifndef BOOST_NO_CXX11_STATIC_ASSERT
+#  ifndef BOOST_NO_CXX11_VARIADIC_MACROS
+#     define BOOST_MOVE_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
+#  else
+#     define BOOST_MOVE_STATIC_ASSERT( B ) static_assert(B, #B)
+#  endif
+#else
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+namespace move_detail {
+
+template<bool B>
+struct STATIC_ASSERTION_FAILURE;
+
+template<>
+struct STATIC_ASSERTION_FAILURE<true>{};
+
+template<unsigned> struct static_assert_test {};
+
+}}
+
+#define BOOST_MOVE_STATIC_ASSERT(B) \
+         typedef ::mars_boost::move_detail::static_assert_test<\
+            (unsigned)sizeof(::mars_boost::move_detail::STATIC_ASSERTION_FAILURE<bool(B)>)>\
+               BOOST_JOIN(boost_static_assert_typedef_, __LINE__) BOOST_ATTRIBUTE_UNUSED
+
+#endif
+
+#if !defined(__has_cpp_attribute) || defined(__CUDACC__)
+#define BOOST_MOVE_HAS_MSVC_ATTRIBUTE(ATTR) 0
+#else
+#define BOOST_MOVE_HAS_MSVC_ATTRIBUTE(ATTR) __has_cpp_attribute(msvc::ATTR)
+#endif
+
+// See https://devblogs.microsoft.com/cppblog/improving-the-state-of-debug-performance-in-c/
+// for details on how MSVC has improved debug experience, specifically for move/forward-like utilities
+#if BOOST_MOVE_HAS_MSVC_ATTRIBUTE(intrinsic)
+#define BOOST_MOVE_INTRINSIC_CAST [[msvc::intrinsic]]
+#else
+#define BOOST_MOVE_INTRINSIC_CAST BOOST_MOVE_FORCEINLINE
+#endif
+
 #endif   //#ifndef BOOST_MOVE_DETAIL_WORKAROUND_HPP
+

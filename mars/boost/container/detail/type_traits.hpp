@@ -28,7 +28,7 @@
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace container {
-namespace container_detail {
+namespace dtl {
 
 using ::mars_boost::move_detail::enable_if;
 using ::mars_boost::move_detail::enable_if_and;
@@ -40,6 +40,7 @@ using ::mars_boost::move_detail::add_const;
 using ::mars_boost::move_detail::add_const_reference;
 using ::mars_boost::move_detail::remove_const;
 using ::mars_boost::move_detail::remove_reference;
+using ::mars_boost::move_detail::remove_cvref;
 using ::mars_boost::move_detail::make_unsigned;
 using ::mars_boost::move_detail::is_floating_point;
 using ::mars_boost::move_detail::is_integral;
@@ -61,9 +62,13 @@ using ::mars_boost::move_detail::is_nothrow_swappable;
 using ::mars_boost::move_detail::alignment_of;
 using ::mars_boost::move_detail::aligned_storage;
 using ::mars_boost::move_detail::nat;
+using ::mars_boost::move_detail::nat2;
+using ::mars_boost::move_detail::nat3;
+using ::mars_boost::move_detail::natN;
 using ::mars_boost::move_detail::max_align_t;
+using ::mars_boost::move_detail::is_convertible;
 
-}  //namespace container_detail {
+}  //namespace dtl {
 }  //namespace container {
 }  //namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 

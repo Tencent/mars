@@ -1,0 +1,39 @@
+[/
+          Copyright Oliver Kowalke 2014.
+ Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+          http://www.boost.org/LICENSE_1_0.txt
+]
+
+[section:architectures Architectures]
+
+__boost_context__, using [link implementation ['fcontext_t]], supports following
+architectures:
+
+[table Supported architectures (<ABI|binary format>)
+    [[Architecture]  [LINUX (UNIX)]   [Windows]  [MacOS X]      [iOS]]
+    [[arm (aarch32)] [AAPCS|ELF]      [AAPCS|PE] [-]            [AAPCS|MACH-O]]
+    [[arm (aarch64)] [AAPCS|ELF]      [-]        [AAPCS|MACH-O] [AAPCS|MACH-O]]
+    [[i386]          [SYSV|ELF]       [MS|PE]    [SYSV|MACH-O]  [-]]
+    [[loongarch64]   [SYSV|ELF]       [-]        [-]            [-]]
+    [[mips]          [O32|N64|ELF]    [-]        [-]            [-]]
+    [[ppc32]         [SYSV|ELF|XCOFF] [-]        [SYSV|MACH-O]  [-]]
+    [[ppc64]         [SYSV|ELF|XCOFF] [-]        [SYSV|MACH-O]  [-]]
+    [[riscv64]       [SYSV|ELF]       [-]        [SYSV]         [-]]
+    [[s390x]         [SYSV|ELF]       [-]        [-]            [-]]
+    [[sparc]         [-]              [-]        [-]            [-]]
+    [[x86_64]        [SYSV,X32|ELF]   [MS|PE]    [SYSV|MACH-O]  [-]]
+]
+
+[note If the architecture is not supported but the platform provides
+[link implementation __ucontext__], __boost_context__ should be
+compiled with `BOOST_USE_UCONTEXT` and b2 property `context-impl=ucontext`.]
+
+[section:crosscompiling Cross compiling]
+
+Cross compiling the library requires to specify the build properties
+<architecture>, <address-model>, <binary-format> and <abi> at b2 command line.
+
+[endsect]
+
+[endsect]

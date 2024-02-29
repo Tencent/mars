@@ -14,8 +14,8 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/bool.hpp>
 #   include <boost/mpl/aux_/value_wknd.hpp>
+#   include <boost/mpl/bool.hpp>
 #endif
 
 #if !defined(AUX778076_OP_PREFIX)
@@ -24,9 +24,9 @@
 
 #define AUX778076_OP_ARITY 2
 
-#include <boost/mpl/aux_/numeric_op.hpp>
 #include <boost/mpl/aux_/config/static_constant.hpp>
 #include <boost/mpl/aux_/config/use_preprocessed.hpp>
+#include <boost/mpl/aux_/numeric_op.hpp>
 
 #if !defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
     && !defined(BOOST_MPL_PREPROCESSING_MODE)

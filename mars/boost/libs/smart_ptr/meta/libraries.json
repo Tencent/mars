@@ -1,0 +1,22 @@
+{
+    "key": "smart_ptr",
+    "name": "Smart Ptr",
+    "authors": [
+        "Greg Colvin",
+        "Beman Dawes",
+        "Peter Dimov",
+        "Darin Adler",
+        "Glen Fernandes"
+    ],
+    "description": "Smart pointer class templates.",
+    "std": [
+        "tr1"
+    ],
+    "category": [
+        "Memory"
+    ],
+    "maintainers": [
+        "Peter Dimov <pdimov -at- gmail.com>"
+    ],
+    "cxxstd": "03"
+}

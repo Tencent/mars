@@ -11,19 +11,19 @@
 #define BOOST_TT_IS_CLASS_HPP_INCLUDED
 
 #include <boost/type_traits/detail/config.hpp>
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 #ifndef BOOST_IS_CLASS
 #   include <boost/type_traits/is_union.hpp>
 
 #ifdef BOOST_TT_HAS_CONFORMING_IS_CLASS_IMPLEMENTATION
 #   include <boost/type_traits/detail/yes_no_type.hpp>
 #else
-#   include <boost/type_traits/is_scalar.hpp>
 #   include <boost/type_traits/is_array.hpp>
-#   include <boost/type_traits/is_reference.hpp>
-#   include <boost/type_traits/is_void.hpp>
 #   include <boost/type_traits/is_function.hpp>
+#   include <boost/type_traits/is_reference.hpp>
+#   include <boost/type_traits/is_scalar.hpp>
+#   include <boost/type_traits/is_void.hpp>
 #endif
 
 #endif // BOOST_IS_CLASS

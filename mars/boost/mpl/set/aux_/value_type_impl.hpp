@@ -15,8 +15,8 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/value_type_fwd.hpp>
 #include <boost/mpl/set/aux_/tag.hpp>
+#include <boost/mpl/value_type_fwd.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

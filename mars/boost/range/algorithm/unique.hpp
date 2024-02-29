@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_UNIQUE_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_UNIQUE_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/detail/range_return.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -73,7 +73,7 @@ inline BOOST_DEDUCED_TYPENAME range_return<ForwardRange, return_begin_found>::ty
 unique( ForwardRange& rng )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<ForwardRange> ));
-    return ::boost::range::unique<return_begin_found>(rng);
+    return ::mars_boost::range::unique<return_begin_found>(rng);
 }
 /// \overload
 template< class ForwardRange >
@@ -81,7 +81,7 @@ inline BOOST_DEDUCED_TYPENAME range_return<const ForwardRange, return_begin_foun
 unique( const ForwardRange& rng )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
-    return ::boost::range::unique<return_begin_found>(rng);
+    return ::mars_boost::range::unique<return_begin_found>(rng);
 }
 /// \overload
 template< class ForwardRange, class BinaryPredicate >
@@ -89,7 +89,7 @@ inline BOOST_DEDUCED_TYPENAME range_return<ForwardRange, return_begin_found>::ty
 unique( ForwardRange& rng, BinaryPredicate pred )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<ForwardRange> ));
-    return ::boost::range::unique<return_begin_found>(rng, pred);
+    return ::mars_boost::range::unique<return_begin_found>(rng, pred);
 }
 /// \overload
 template< class ForwardRange, class BinaryPredicate >
@@ -97,11 +97,11 @@ inline BOOST_DEDUCED_TYPENAME range_return<const ForwardRange, return_begin_foun
 unique( const ForwardRange& rng, BinaryPredicate pred )
 {
     BOOST_RANGE_CONCEPT_ASSERT(( ForwardRangeConcept<const ForwardRange> ));
-    return ::boost::range::unique<return_begin_found>(rng, pred);
+    return ::mars_boost::range::unique<return_begin_found>(rng, pred);
 }
 
     } // namespace range
     using range::unique;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

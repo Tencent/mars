@@ -14,12 +14,12 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/void.hpp>
-#include <boost/mpl/lambda_fwd.hpp>
-#include <boost/mpl/int_fwd.hpp>
-#include <boost/mpl/aux_/preprocessor/params.hpp>
-#include <boost/mpl/aux_/lambda_arity_param.hpp>
 #include <boost/mpl/aux_/config/lambda.hpp>
+#include <boost/mpl/aux_/lambda_arity_param.hpp>
+#include <boost/mpl/aux_/preprocessor/params.hpp>
+#include <boost/mpl/int_fwd.hpp>
+#include <boost/mpl/lambda_fwd.hpp>
+#include <boost/mpl/void.hpp>
 
 #if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
 

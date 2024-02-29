@@ -14,6 +14,13 @@
 #include <boost/assert.hpp>
 #include <pthread.h>
 
+#if defined(BOOST_SP_REPORT_IMPLEMENTATION)
+
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("Using pthread_mutex atomic_count")
+
+#endif
+
 //
 //  The generic pthread_mutex-based implementation sometimes leads to
 //    inefficiencies. Example: a class with two atomic_count members
@@ -92,6 +99,6 @@ private:
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_PTHREADS_HPP_INCLUDED

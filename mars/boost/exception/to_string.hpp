@@ -3,18 +3,24 @@
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef UUID_7E48761AD92811DC9011477D56D89593
-#define UUID_7E48761AD92811DC9011477D56D89593
-#if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
-#pragma GCC system_header
-#endif
-#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
-#pragma warning(push,1)
-#endif
+#ifndef BOOST_EXCEPTION_7E48761AD92811DC9011477D56D89593
+#define BOOST_EXCEPTION_7E48761AD92811DC9011477D56D89593
 
-#include <boost/utility/enable_if.hpp>
+#include <boost/core/enable_if.hpp>
 #include <boost/exception/detail/is_output_streamable.hpp>
 #include <sstream>
+
+#ifndef BOOST_EXCEPTION_ENABLE_WARNINGS
+#if __GNUC__*100+__GNUC_MINOR__>301
+#pragma GCC system_header
+#endif
+#ifdef __clang__
+#pragma clang system_header
+#endif
+#ifdef _MSC_VER
+#pragma warning(push,1)
+#endif
+#endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace
 mars_boost

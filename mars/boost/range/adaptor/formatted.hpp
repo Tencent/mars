@@ -11,12 +11,12 @@
 #define BOOST_RANGE_ADAPTOR_FORMATTED_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <boost/range/concepts.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/range/begin.hpp>
+#include <boost/range/concepts.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
 #include <boost/range/iterator_range_core.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/remove_extent.hpp>
 #include <ostream>
@@ -224,6 +224,6 @@ format(const SinglePassRange& rng)
     {
         using mars_boost::range_detail::formatted_range;
     } // namespace range
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

@@ -6,7 +6,7 @@
 # pragma once
 #endif
 
-//  detail/sp_counted_base_gcc_sparc.hpp - g++ on Sparc V8+
+//  detail/sp_counted_base_gcc_snc_ps3.hpp - PS3 Cell
 //
 //  Copyright (c) 2006 Piotr Wyderski
 //  Copyright (c) 2006 Tomas Puverle
@@ -19,8 +19,19 @@
 //
 //  Thanks to Michael van der Westhuizen
 
-#include <boost/detail/sp_typeinfo.hpp>
+#include <boost/config.hpp>
+#include <boost/smart_ptr/detail/sp_obsolete.hpp>
+#include <boost/smart_ptr/detail/sp_typeinfo_.hpp>
 #include <inttypes.h> // uint32_t
+
+#if defined(BOOST_SP_REPORT_IMPLEMENTATION)
+
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("Using PS3 sp_counted_base")
+
+#endif
+
+BOOST_SP_OBSOLETE()
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -82,7 +93,7 @@ inline uint32_t atomic_conditional_increment( uint32_t * pw )
     }    
 }
 
-class sp_counted_base
+class BOOST_SYMBOL_VISIBLE sp_counted_base
 {
 private:
 
@@ -114,7 +125,8 @@ public:
         delete this;
     }
 
-    virtual void * get_deleter( sp_typeinfo const & ti ) = 0;
+    virtual void * get_deleter( sp_typeinfo_ const & ti ) = 0;
+    virtual void * get_local_deleter( sp_typeinfo_ const & ti ) = 0;
     virtual void * get_untyped_deleter() = 0;
 
     void add_ref_copy()
@@ -157,6 +169,6 @@ public:
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif  // #ifndef BOOST_SMART_PTR_DETAIL_SP_COUNTED_BASE_SNC_PS3_HPP_INCLUDED

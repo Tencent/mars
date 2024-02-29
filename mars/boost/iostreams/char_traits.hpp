@@ -8,16 +8,16 @@
 #ifndef BOOST_IOSTREAMS_CHAR_TRAITS_HPP_INCLUDED
 #define BOOST_IOSTREAMS_CHAR_TRAITS_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif 
 
 #include <boost/config.hpp>
+#include <boost/iostreams/detail/char_traits.hpp>
+#include <boost/iostreams/detail/config/wide_streams.hpp>
 #include <cstddef>
 #include <cstdio>  // EOF.
 #include <string>  // std::char_traits.
-#include <boost/iostreams/detail/char_traits.hpp>
-#include <boost/iostreams/detail/config/wide_streams.hpp>
 #ifndef BOOST_IOSTREAMS_NO_WIDE_STREAMS
 # include <cwchar>
 #endif

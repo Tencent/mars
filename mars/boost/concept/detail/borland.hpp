@@ -4,8 +4,8 @@
 #ifndef BOOST_CONCEPT_DETAIL_BORLAND_DWA2006429_HPP
 # define BOOST_CONCEPT_DETAIL_BORLAND_DWA2006429_HPP
 
-# include <boost/preprocessor/cat.hpp>
 # include <boost/concept/detail/backward_compatibility.hpp>
+# include <boost/preprocessor/cat.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace concepts {
 

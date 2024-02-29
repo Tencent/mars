@@ -15,9 +15,9 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/next_prior.hpp>
 #   include <boost/mpl/apply.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
+#   include <boost/mpl/next_prior.hpp>
 #   if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
 #       include <boost/mpl/if.hpp>
 #       include <boost/type_traits/is_same.hpp>

@@ -9,11 +9,11 @@
 #ifndef BOOST_RANGE_ALGORITHM_SORT_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_SORT_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -63,6 +63,6 @@ inline const RandomAccessRange& sort(const RandomAccessRange& rng, BinaryPredica
 
     } // namespace range
     using range::sort;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

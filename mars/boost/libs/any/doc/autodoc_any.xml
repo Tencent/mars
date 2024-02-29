@@ -1,0 +1,327 @@
+<?xml version="1.0" standalone="yes"?>
+<library-reference id="reference_section_of_boost_any"><title>Reference Section of Boost.Any</title><header name="boost/any.hpp">
+<para>A class whose instances can hold instances of any type that satisfies  <link linkend="any.ValueType"> ValueType </link> requirements.  </para><namespace name="boost">
+<class name="any"><purpose>A class whose instances can hold instances of any type that satisfies  <link linkend="any.ValueType"> ValueType </link> requirements. </purpose><method-group name="public member functions">
+<method name="swap" cv="noexcept"><type><classname>any</classname> &amp;</type><parameter name="rhs"><paramtype><classname>any</classname> &amp;</paramtype></parameter><description><para>Exchange of the contents of <computeroutput>*this</computeroutput> and <computeroutput>rhs</computeroutput>.</para><para>
+
+</para></description><returns><para><computeroutput>*this</computeroutput> </para>
+</returns><throws><simpara><classname>Nothing.</classname> </simpara></throws></method>
+<method name="empty" cv="const noexcept"><type>bool</type><description><para>
+
+</para></description><returns><para><computeroutput>true</computeroutput> if instance is empty, otherwise <computeroutput>false</computeroutput>. </para>
+</returns><throws><simpara><classname>Nothing.</classname> </simpara></throws></method>
+<method name="clear" cv="noexcept"><type>void</type><description><para>
+</para></description><postconditions><para>this-&gt;empty() is true </para>
+</postconditions></method>
+<method name="type" cv="const noexcept"><type>const boost::typeindex::type_info &amp;</type><description><para>
+Useful for querying against types known either at compile time or only at runtime. </para></description><returns><para>the <computeroutput>typeid</computeroutput> of the contained value if instance is non-empty, otherwise <computeroutput>typeid(void)</computeroutput>.</para>
+</returns></method>
+</method-group>
+<constructor cv="noexcept"><description><para>
+</para></description><postconditions><para>this-&gt;empty() is true. </para>
+</postconditions></constructor>
+<constructor><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="value"><paramtype>const ValueType &amp;</paramtype></parameter><description><para>Makes a copy of <computeroutput>value</computeroutput>, so that the initial content of the new instance is equivalent in both type and value to <computeroutput>value</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the copy constructor of the contained type. </simpara></throws></constructor>
+<constructor><parameter name="other"><paramtype>const <classname>any</classname> &amp;</paramtype></parameter><description><para>Copy constructor that copies content of <computeroutput>other</computeroutput> into new instance, so that any content is equivalent in both type and value to the content of <computeroutput>other</computeroutput>, or empty if <computeroutput>other</computeroutput> is empty.</para><para>
+</para></description><throws><simpara><classname>May</classname> fail with a <computeroutput>std::bad_alloc</computeroutput> exception or any exceptions arising from the copy constructor of the contained type. </simpara></throws></constructor>
+<constructor cv="noexcept"><parameter name="other"><paramtype><classname>any</classname> &amp;&amp;</paramtype></parameter><description><para>Move constructor that moves content of <computeroutput>other</computeroutput> into new instance and leaves <computeroutput>other</computeroutput> empty.</para><para>
+
+</para></description><postconditions><para>other-&gt;empty() is true </para>
+</postconditions><throws><simpara><classname>Nothing.</classname> </simpara></throws></constructor>
+<constructor><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="value"><paramtype>ValueType &amp;&amp;</paramtype></parameter><parameter name=""><paramtype>typename std::enable_if&lt;!std::is_same&lt; <classname>any</classname> &amp;, ValueType &gt;::value &gt;::type *</paramtype><default>0</default></parameter><parameter name=""><paramtype>typename std::enable_if&lt;!std::is_const&lt; ValueType &gt;::value &gt;::type *</paramtype><default>0</default></parameter><description><para>Forwards <computeroutput>value</computeroutput>, so that the initial content of the new instance is equivalent in both type and value to <computeroutput>value</computeroutput> before the forward.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. </simpara></throws></constructor>
+<destructor><description><para>Releases any and all resources used in management of instance.</para><para>
+</para></description><throws><simpara><classname>Nothing.</classname> </simpara></throws></destructor>
+<copy-assignment><type><classname>any</classname> &amp;</type><parameter name="rhs"><paramtype>const <classname>any</classname> &amp;</paramtype></parameter><description><para>Copies content of <computeroutput>rhs</computeroutput> into current instance, discarding previous content, so that the new content is equivalent in both type and value to the content of <computeroutput>rhs</computeroutput>, or empty if <computeroutput>rhs.empty()</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the copy constructor of the contained type. Assignment satisfies the strong guarantee of exception safety. </simpara></throws></copy-assignment>
+<copy-assignment cv="noexcept"><type><classname>any</classname> &amp;</type><parameter name="rhs"><paramtype><classname>any</classname> &amp;&amp;</paramtype></parameter><description><para>Moves content of <computeroutput>rhs</computeroutput> into current instance, discarding previous content, so that the new content is equivalent in both type and value to the content of <computeroutput>rhs</computeroutput> before move, or empty if <computeroutput>rhs.empty()</computeroutput>.</para><para>
+
+</para></description><postconditions><para><computeroutput>rhs-&gt;empty()</computeroutput> is true </para>
+</postconditions><throws><simpara><classname>Nothing.</classname> </simpara></throws></copy-assignment>
+<copy-assignment><type><classname>any</classname> &amp;</type><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="rhs"><paramtype>ValueType &amp;&amp;</paramtype></parameter><description><para>Forwards <computeroutput>rhs</computeroutput>, discarding previous content, so that the new content of is equivalent in both type and value to <computeroutput>rhs</computeroutput> before forward.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. Assignment satisfies the strong guarantee of exception safety. </simpara></throws></copy-assignment>
+</class><function name="swap"><type>void</type><parameter name="lhs"><paramtype><classname>any</classname> &amp;</paramtype></parameter><parameter name="rhs"><paramtype><classname>any</classname> &amp;</paramtype></parameter><description><para>Exchange of the contents of <computeroutput>lhs</computeroutput> and <computeroutput>rhs</computeroutput>. 
+</para></description><throws><simpara><classname>Nothing.</classname> </simpara></throws></function>
+<function name="any_cast"><type>ValueType *</type><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="operand"><paramtype><classname>any</classname> *</paramtype></parameter><description><para>
+</para></description><returns><para>Pointer to a ValueType stored in <computeroutput>operand</computeroutput>, nullptr if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </para>
+</returns></function>
+<function name="any_cast"><type>const ValueType *</type><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="operand"><paramtype>const <classname>any</classname> *</paramtype></parameter><description><para>
+</para></description><returns><para>Const pointer to a ValueType stored in <computeroutput>operand</computeroutput>, nullptr if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </para>
+</returns></function>
+<function name="any_cast"><type>ValueType</type><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="operand"><paramtype><classname>any</classname> &amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para>ValueType stored in <computeroutput>operand</computeroutput> </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified ValueType. </simpara></throws></function>
+<function name="any_cast"><type>ValueType</type><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="operand"><paramtype>const <classname>any</classname> &amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para><computeroutput>ValueType</computeroutput> stored in <computeroutput>operand</computeroutput> </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </simpara></throws></function>
+<function name="any_cast"><type>ValueType</type><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="operand"><paramtype><classname>any</classname> &amp;&amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para><computeroutput>ValueType</computeroutput> stored in <computeroutput>operand</computeroutput>, leaving the <computeroutput>operand</computeroutput> empty. </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </simpara></throws></function>
+</namespace>
+</header>
+<header name="boost/any/bad_any_cast.hpp">
+<namespace name="boost">
+<class name="bad_any_cast"><inherit access="public">std::bad_cast</inherit><description><para>The exception thrown in the event of a failed boost::any_cast of an <classname alt="boost::any">boost::any</classname>, <classname alt="boost::anys::basic_any">boost::anys::basic_any</classname> or <classname alt="boost::anys::unique_any">boost::anys::unique_any</classname> value. </para></description><method-group name="public member functions">
+<method name="what" cv="const"><type>const char *</type></method>
+</method-group>
+</class>
+
+
+
+
+
+</namespace>
+</header>
+<header name="boost/any/basic_any.hpp">
+<para>A class with customizable Small Object Optimization whose instances can hold instances of any type that satisfies  <link linkend="any.ValueType"> ValueType </link> requirements. Use <classname alt="boost::any">boost::any</classname> instead if not sure.  </para><namespace name="boost">
+<namespace name="anys">
+<class name="basic_any"><template>
+      <template-nontype-parameter name="OptimizeForSize"><type>std::size_t</type></template-nontype-parameter>
+      <template-nontype-parameter name="OptimizeForAlignment"><type>std::size_t</type></template-nontype-parameter>
+    </template><purpose>A class with customizable Small Object Optimization whose instances can hold instances of any type that satisfies  <link linkend="any.ValueType"> ValueType </link> requirements. Use <classname alt="boost::any">boost::any</classname> instead if not sure. </purpose><description><para><classname alt="boost::anys::basic_any">boost::anys::basic_any</classname> is the drop-in replacement for <classname alt="boost::any">boost::any</classname> that provides control over Small Object Optimization via <computeroutput>OptimizeForSize</computeroutput> and <computeroutput>OptimizeForAlignment</computeroutput> template parameters.</para><para>There are certain applications that require <classname alt="boost::any">boost::any</classname> functionality, do know the typical/maximal size of the stored object and wish to avoid dynamic memory allocation overhead. For the convenience such applications may create a typedef for <classname alt="boost::anys::basic_any">boost::anys::basic_any</classname> with the <computeroutput>OptimizeForSize</computeroutput> and <computeroutput>OptimizeForAlignment</computeroutput> template parameters set to typical/maximal size and alignment of types respectively. Memory allocation would be avoided for storing nothrow move constructible types with size and alignment less than or equal to the <computeroutput>OptimizeForSize</computeroutput> and <computeroutput>OptimizeForAlignment</computeroutput> values.</para><para>Otherwise just use <classname alt="boost::any">boost::any</classname>. </para></description><data-member name="buffer_size" specifiers="static"><type>constexpr std::size_t</type></data-member>
+<data-member name="buffer_align" specifiers="static"><type>constexpr std::size_t</type></data-member>
+<method-group name="public member functions">
+<method name="swap" cv="noexcept"><type><classname>basic_any</classname> &amp;</type><parameter name="rhs"><paramtype><classname>basic_any</classname> &amp;</paramtype></parameter><description><para>Exchange of the contents of <computeroutput>*this</computeroutput> and <computeroutput>rhs</computeroutput>.</para><para>
+
+</para></description><returns><para><computeroutput>*this</computeroutput> </para>
+</returns><throws><simpara><classname>Nothing.</classname> </simpara></throws></method>
+<method name="empty" cv="const noexcept"><type>bool</type><description><para>
+
+</para></description><returns><para><computeroutput>true</computeroutput> if instance is empty, otherwise <computeroutput>false</computeroutput>. </para>
+</returns><throws><simpara><classname>Nothing.</classname> </simpara></throws></method>
+<method name="clear" cv="noexcept"><type>void</type><description><para>
+</para></description><postconditions><para>this-&gt;empty() is true </para>
+</postconditions></method>
+<method name="type" cv="const noexcept"><type>const boost::typeindex::type_info &amp;</type><description><para>
+Useful for querying against types known either at compile time or only at runtime. </para></description><returns><para>the <computeroutput>typeid</computeroutput> of the contained value if instance is non-empty, otherwise <computeroutput>typeid(void)</computeroutput>.</para>
+</returns></method>
+</method-group>
+<constructor cv="noexcept"><description><para>
+</para></description><postconditions><para>this-&gt;empty() is true. </para>
+</postconditions></constructor>
+<constructor><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="value"><paramtype>const ValueType &amp;</paramtype></parameter><description><para>Makes a copy of <computeroutput>value</computeroutput>, so that the initial content of the new instance is equivalent in both type and value to <computeroutput>value</computeroutput>.</para><para>Does not dynamically allocate if <computeroutput>ValueType</computeroutput> is nothrow move constructible and <computeroutput>sizeof(value) &lt;= OptimizeForSize</computeroutput> and <computeroutput>alignof(value) &lt;= OptimizeForAlignment</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the copy constructor of the contained type. </simpara></throws></constructor>
+<constructor><parameter name="other"><paramtype>const <classname>basic_any</classname> &amp;</paramtype></parameter><description><para>Copy constructor that copies content of <computeroutput>other</computeroutput> into new instance, so that any content is equivalent in both type and value to the content of <computeroutput>other</computeroutput>, or empty if <computeroutput>other</computeroutput> is empty.</para><para>
+</para></description><throws><simpara><classname>May</classname> fail with a <computeroutput>std::bad_alloc</computeroutput> exception or any exceptions arising from the copy constructor of the contained type. </simpara></throws></constructor>
+<constructor cv="noexcept"><parameter name="other"><paramtype><classname>basic_any</classname> &amp;&amp;</paramtype></parameter><description><para>Move constructor that moves content of <computeroutput>other</computeroutput> into new instance and leaves <computeroutput>other</computeroutput> empty.</para><para>
+
+</para></description><postconditions><para>other-&gt;empty() is true </para>
+</postconditions><throws><simpara><classname>Nothing.</classname> </simpara></throws></constructor>
+<constructor><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="value"><paramtype>ValueType &amp;&amp;</paramtype></parameter><parameter name=""><paramtype>typename std::enable_if&lt;!std::is_same&lt; <classname>basic_any</classname> &amp;, ValueType &gt;::value &gt;::type *</paramtype><default>0</default></parameter><parameter name=""><paramtype>typename std::enable_if&lt;!std::is_const&lt; ValueType &gt;::value &gt;::type *</paramtype><default>0</default></parameter><description><para>Forwards <computeroutput>value</computeroutput>, so that the initial content of the new instance is equivalent in both type and value to <computeroutput>value</computeroutput> before the forward.</para><para>Does not dynamically allocate if <computeroutput>ValueType</computeroutput> is nothrow move constructible and <computeroutput>sizeof(value) &lt;= OptimizeForSize</computeroutput> and <computeroutput>alignof(value) &lt;= OptimizeForAlignment</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. </simpara></throws></constructor>
+<destructor><description><para>Releases any and all resources used in management of instance.</para><para>
+</para></description><throws><simpara><classname>Nothing.</classname> </simpara></throws></destructor>
+<copy-assignment><type><classname>basic_any</classname> &amp;</type><parameter name="rhs"><paramtype>const <classname>basic_any</classname> &amp;</paramtype></parameter><description><para>Copies content of <computeroutput>rhs</computeroutput> into current instance, discarding previous content, so that the new content is equivalent in both type and value to the content of <computeroutput>rhs</computeroutput>, or empty if <computeroutput>rhs.empty()</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the copy constructor of the contained type. Assignment satisfies the strong guarantee of exception safety. </simpara></throws></copy-assignment>
+<copy-assignment cv="noexcept"><type><classname>basic_any</classname> &amp;</type><parameter name="rhs"><paramtype><classname>basic_any</classname> &amp;&amp;</paramtype></parameter><description><para>Moves content of <computeroutput>rhs</computeroutput> into current instance, discarding previous content, so that the new content is equivalent in both type and value to the content of <computeroutput>rhs</computeroutput> before move, or empty if <computeroutput>rhs.empty()</computeroutput>.</para><para>
+
+</para></description><postconditions><para><computeroutput>rhs-&gt;empty()</computeroutput> is true </para>
+</postconditions><throws><simpara><classname>Nothing.</classname> </simpara></throws></copy-assignment>
+<copy-assignment><type><classname>basic_any</classname> &amp;</type><template>
+          <template-type-parameter name="ValueType"/>
+        </template><parameter name="rhs"><paramtype>ValueType &amp;&amp;</paramtype></parameter><description><para>Forwards <computeroutput>rhs</computeroutput>, discarding previous content, so that the new content of is equivalent in both type and value to <computeroutput>rhs</computeroutput> before forward.</para><para>Does not dynamically allocate if <computeroutput>ValueType</computeroutput> is nothrow move constructible and <computeroutput>sizeof(value) &lt;= OptimizeForSize</computeroutput> and <computeroutput>alignof(value) &lt;= OptimizeForAlignment</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. Assignment satisfies the strong guarantee of exception safety. </simpara></throws></copy-assignment>
+</class>
+
+
+
+
+
+<function name="swap"><type>void</type><template>
+          <template-nontype-parameter name="OptimizeForSize"><type>std::size_t</type></template-nontype-parameter>
+          <template-nontype-parameter name="OptimizeForAlignment"><type>std::size_t</type></template-nontype-parameter>
+        </template><parameter name="lhs"><paramtype><classname>basic_any</classname>&lt; OptimizeForSize, OptimizeForAlignment &gt; &amp;</paramtype></parameter><parameter name="rhs"><paramtype><classname>basic_any</classname>&lt; OptimizeForSize, OptimizeForAlignment &gt; &amp;</paramtype></parameter><description><para>Exchange of the contents of <computeroutput>lhs</computeroutput> and <computeroutput>rhs</computeroutput>. 
+</para></description><throws><simpara><classname>Nothing.</classname> </simpara></throws></function>
+<function name="any_cast"><type>ValueType *</type><template>
+          <template-type-parameter name="ValueType"/>
+          <template-nontype-parameter name="Size"><type>std::size_t</type></template-nontype-parameter>
+          <template-nontype-parameter name="Alignment"><type>std::size_t</type></template-nontype-parameter>
+        </template><parameter name="operand"><paramtype><classname>basic_any</classname>&lt; Size, Alignment &gt; *</paramtype></parameter><description><para>
+</para></description><returns><para>Pointer to a ValueType stored in <computeroutput>operand</computeroutput>, nullptr if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </para>
+</returns></function>
+<function name="any_cast"><type>const ValueType *</type><template>
+          <template-type-parameter name="ValueType"/>
+          <template-nontype-parameter name="OptimizeForSize"><type>std::size_t</type></template-nontype-parameter>
+          <template-nontype-parameter name="OptimizeForAlignment"><type>std::size_t</type></template-nontype-parameter>
+        </template><parameter name="operand"><paramtype>const <classname>basic_any</classname>&lt; OptimizeForSize, OptimizeForAlignment &gt; *</paramtype></parameter><description><para>
+</para></description><returns><para>Const pointer to a ValueType stored in <computeroutput>operand</computeroutput>, nullptr if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </para>
+</returns></function>
+<function name="any_cast"><type>ValueType</type><template>
+          <template-type-parameter name="ValueType"/>
+          <template-nontype-parameter name="OptimizeForSize"><type>std::size_t</type></template-nontype-parameter>
+          <template-nontype-parameter name="OptimizeForAlignment"><type>std::size_t</type></template-nontype-parameter>
+        </template><parameter name="operand"><paramtype><classname>basic_any</classname>&lt; OptimizeForSize, OptimizeForAlignment &gt; &amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para>ValueType stored in <computeroutput>operand</computeroutput> </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified ValueType. </simpara></throws></function>
+<function name="any_cast"><type>ValueType</type><template>
+          <template-type-parameter name="ValueType"/>
+          <template-nontype-parameter name="OptimizeForSize"><type>std::size_t</type></template-nontype-parameter>
+          <template-nontype-parameter name="OptimizeForAlignment"><type>std::size_t</type></template-nontype-parameter>
+        </template><parameter name="operand"><paramtype>const <classname>basic_any</classname>&lt; OptimizeForSize, OptimizeForAlignment &gt; &amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para><computeroutput>ValueType</computeroutput> stored in <computeroutput>operand</computeroutput> </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </simpara></throws></function>
+<function name="any_cast"><type>ValueType</type><template>
+          <template-type-parameter name="ValueType"/>
+          <template-nontype-parameter name="OptimizeForSize"><type>std::size_t</type></template-nontype-parameter>
+          <template-nontype-parameter name="OptimizeForAlignment"><type>std::size_t</type></template-nontype-parameter>
+        </template><parameter name="operand"><paramtype><classname>basic_any</classname>&lt; OptimizeForSize, OptimizeForAlignment &gt; &amp;&amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para><computeroutput>ValueType</computeroutput> stored in <computeroutput>operand</computeroutput>, leaving the <computeroutput>operand</computeroutput> empty. </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>ValueType</computeroutput>. </simpara></throws></function>
+</namespace>
+
+
+
+
+
+
+</namespace>
+</header>
+<header name="boost/any/fwd.hpp">
+<para>Forward declarations of Boost.Any library types. </para></header>
+<header name="boost/any/unique_any.hpp">
+<para>A class whose instances can hold instances of any type (including non-copyable and non-movable types).  </para><namespace name="boost">
+<namespace name="anys">
+<struct name="in_place_type_t"><template>
+      <template-type-parameter name="T"/>
+    </template><purpose>Helper type for providing emplacement type to the constructor. </purpose></struct><class name="unique_any"><purpose>A class whose instances can hold instances of any type (including non-copyable and non-movable types). </purpose><method-group name="public member functions">
+<method name="emplace"><type>std::decay&lt; T &gt;::type &amp;</type><template>
+          <template-type-parameter name="T"/>
+          <template-nontype-parameter name="Args"><type>class...</type></template-nontype-parameter>
+        </template><parameter name="args"><paramtype>Args &amp;&amp;...</paramtype></parameter><description><para>Inplace constructs <computeroutput>T</computeroutput> from forwarded <computeroutput>args...</computeroutput>, discarding previous content, so that the content of <computeroutput>*this</computeroutput> is equivalent in type to <computeroutput>std::decay_t&lt;T&gt;</computeroutput>.</para><para>
+
+</para></description><returns><para>reference to the content of <computeroutput>*this</computeroutput>. </para>
+</returns><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. </simpara></throws></method>
+<method name="emplace"><type>std::decay&lt; T &gt;::type &amp;</type><template>
+          <template-type-parameter name="T"/>
+          <template-type-parameter name="U"/>
+          <template-nontype-parameter name="Args"><type>class...</type></template-nontype-parameter>
+        </template><parameter name="il"><paramtype>std::initializer_list&lt; U &gt;</paramtype></parameter><parameter name="args"><paramtype>Args &amp;&amp;...</paramtype></parameter><description><para>Inplace constructs <computeroutput>T</computeroutput> from <computeroutput>li</computeroutput> and forwarded <computeroutput>args...</computeroutput>, discarding previous content, so that the content of <computeroutput>*this</computeroutput> is equivalent in type to <computeroutput>std::decay_t&lt;T&gt;</computeroutput>.</para><para>
+
+</para></description><returns><para>reference to the content of <computeroutput>*this</computeroutput>. </para>
+</returns><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. </simpara></throws></method>
+<method name="reset" cv="noexcept"><type>void</type><description><para>
+</para></description><postconditions><para>this-&gt;has_value() is false. </para>
+</postconditions></method>
+<method name="swap" cv="noexcept"><type>void</type><parameter name="rhs"><paramtype><classname>unique_any</classname> &amp;</paramtype></parameter><description><para>Exchange of the contents of <computeroutput>*this</computeroutput> and <computeroutput>rhs</computeroutput>.</para><para>
+
+</para></description><returns><para><computeroutput>*this</computeroutput> </para>
+</returns><throws><simpara><classname>Nothing.</classname> </simpara></throws></method>
+<method name="has_value" cv="const noexcept"><type>bool</type><description><para>
+
+</para></description><returns><para><computeroutput>true</computeroutput> if instance is not empty, otherwise <computeroutput>false</computeroutput>. </para>
+</returns><throws><simpara><classname>Nothing.</classname> </simpara></throws></method>
+<method name="type" cv="const noexcept"><type>const boost::typeindex::type_info &amp;</type><description><para>
+Useful for querying against types known either at compile time or only at runtime. </para></description><returns><para>the <computeroutput>typeid</computeroutput> of the contained value if instance is non-empty, otherwise <computeroutput>typeid(void)</computeroutput>.</para>
+</returns></method>
+</method-group>
+<constructor><description><para>
+</para></description><postconditions><para>this-&gt;has_value() is false. </para>
+</postconditions></constructor>
+<constructor><parameter name="other"><paramtype><classname>unique_any</classname> &amp;&amp;</paramtype></parameter><description><para>Move constructor that moves content of <computeroutput>other</computeroutput> into new instance and leaves <computeroutput>other</computeroutput> empty.</para><para>
+
+</para></description><postconditions><para>other-&gt;has_value() is false. </para>
+</postconditions><throws><simpara><classname>Nothing.</classname> </simpara></throws></constructor>
+<constructor><template>
+          <template-type-parameter name="T"/>
+        </template><parameter name="value"><paramtype>T &amp;&amp;</paramtype></parameter><parameter name=""><paramtype>typename std::enable_if&lt;!std::is_same&lt; T &amp;&amp;, <classname>boost::any</classname> &amp;&amp; &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter><description><para>Forwards <computeroutput>value</computeroutput>, so that the content of the new instance has type <computeroutput>std::decay_t&lt;T&gt;</computeroutput> and value is the <computeroutput>value</computeroutput> before the forward.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. </simpara></throws></constructor>
+<constructor cv="noexcept"><template>
+          <template-type-parameter name="BoostAny"/>
+        </template><parameter name="value"><paramtype>BoostAny &amp;&amp;</paramtype></parameter><parameter name=""><paramtype>typename std::enable_if&lt; std::is_same&lt; BoostAny &amp;&amp;, <classname>boost::any</classname> &amp;&amp; &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter><description><para>Moves the content of <computeroutput><classname alt="boost::any">boost::any</classname></computeroutput> into *this.</para><para>
+
+</para></description><postconditions><para><computeroutput>value.empty()</computeroutput> is true. </para>
+</postconditions><throws><simpara><classname>Nothing.</classname> </simpara></throws></constructor>
+<constructor specifiers="explicit"><template>
+          <template-type-parameter name="T"/>
+          <template-nontype-parameter name="Args"><type>class...</type></template-nontype-parameter>
+        </template><parameter name=""><paramtype><classname>in_place_type_t</classname>&lt; T &gt;</paramtype></parameter><parameter name="args"><paramtype>Args &amp;&amp;...</paramtype></parameter><description><para>Inplace constructs <computeroutput>T</computeroutput> from forwarded <computeroutput>args...</computeroutput>, so that the content of <computeroutput>*this</computeroutput> is equivalent in type to <computeroutput>std::decay_t&lt;T&gt;</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. </simpara></throws></constructor>
+<constructor specifiers="explicit"><template>
+          <template-type-parameter name="T"/>
+          <template-type-parameter name="U"/>
+          <template-nontype-parameter name="Args"><type>class...</type></template-nontype-parameter>
+        </template><parameter name=""><paramtype><classname>in_place_type_t</classname>&lt; T &gt;</paramtype></parameter><parameter name="il"><paramtype>std::initializer_list&lt; U &gt;</paramtype></parameter><parameter name="args"><paramtype>Args &amp;&amp;...</paramtype></parameter><description><para>Inplace constructs <computeroutput>T</computeroutput> from <computeroutput>li</computeroutput> and forwarded <computeroutput>args...</computeroutput>, so that the initial content of <computeroutput>*this</computeroutput> is equivalent in type to <computeroutput>std::decay_t&lt;T&gt;</computeroutput>.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. </simpara></throws></constructor>
+<destructor><description><para>Releases any and all resources used in management of instance.</para><para>
+</para></description><throws><simpara><classname>Nothing.</classname> </simpara></throws></destructor>
+<copy-assignment><type><classname>unique_any</classname> &amp;</type><parameter name="rhs"><paramtype><classname>unique_any</classname> &amp;&amp;</paramtype></parameter><description><para>Moves content of <computeroutput>rhs</computeroutput> into current instance, discarding previous content, so that the new content is equivalent in both type and value to the content of <computeroutput>rhs</computeroutput> before move, or empty if <computeroutput>rhs.empty()</computeroutput>.</para><para>
+
+</para></description><postconditions><para><computeroutput>rhs-&gt;empty()</computeroutput> is true </para>
+</postconditions><throws><simpara><classname>Nothing.</classname> </simpara></throws></copy-assignment>
+<copy-assignment><type><classname>unique_any</classname> &amp;</type><template>
+          <template-type-parameter name="T"/>
+        </template><parameter name="rhs"><paramtype>T &amp;&amp;</paramtype></parameter><description><para>Forwards <computeroutput>rhs</computeroutput>, discarding previous content, so that the new content of is equivalent in both type and value to <computeroutput>rhs</computeroutput> before forward.</para><para>
+</para></description><throws><simpara><classname>std::bad_alloc</classname> or any exceptions arising from the move or copy constructor of the contained type. Assignment satisfies the strong guarantee of exception safety. </simpara></throws></copy-assignment>
+</class><data-member name="in_place_type"><type>constexpr <classname>in_place_type_t</classname>&lt; T &gt;</type></data-member>
+<function name="swap"><type>void</type><parameter name="lhs"><paramtype><classname>unique_any</classname> &amp;</paramtype></parameter><parameter name="rhs"><paramtype><classname>unique_any</classname> &amp;</paramtype></parameter><description><para>Exchange of the contents of <computeroutput>lhs</computeroutput> and <computeroutput>rhs</computeroutput>. 
+</para></description><throws><simpara><classname>Nothing.</classname> </simpara></throws></function>
+<function name="any_cast"><type>T *</type><template>
+          <template-type-parameter name="T"/>
+        </template><parameter name="operand"><paramtype><classname>unique_any</classname> *</paramtype></parameter><description><para>
+</para></description><returns><para>Pointer to a <computeroutput>T</computeroutput> stored in <computeroutput>operand</computeroutput>, nullptr if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>T</computeroutput>. </para>
+</returns></function>
+<function name="any_cast"><type>const T *</type><template>
+          <template-type-parameter name="T"/>
+        </template><parameter name="operand"><paramtype>const <classname>unique_any</classname> *</paramtype></parameter><description><para>
+</para></description><returns><para>Const pointer to a <computeroutput>T</computeroutput> stored in <computeroutput>operand</computeroutput>, nullptr if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>T</computeroutput>. </para>
+</returns></function>
+<function name="any_cast"><type>T</type><template>
+          <template-type-parameter name="T"/>
+        </template><parameter name="operand"><paramtype><classname>unique_any</classname> &amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para><computeroutput>T</computeroutput> stored in <computeroutput>operand</computeroutput> </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>T</computeroutput>. </simpara></throws></function>
+<function name="any_cast"><type>T</type><template>
+          <template-type-parameter name="T"/>
+        </template><parameter name="operand"><paramtype>const <classname>unique_any</classname> &amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para><computeroutput>T</computeroutput> stored in <computeroutput>operand</computeroutput> </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>T</computeroutput>. </simpara></throws></function>
+<function name="any_cast"><type>T</type><template>
+          <template-type-parameter name="T"/>
+        </template><parameter name="operand"><paramtype><classname>unique_any</classname> &amp;&amp;</paramtype></parameter><description><para>
+
+</para></description><returns><para><computeroutput>T</computeroutput> stored in <computeroutput>operand</computeroutput> </para>
+</returns><throws><simpara><classname>boost::bad_any_cast</classname> if <computeroutput>operand</computeroutput> does not contain specified <computeroutput>T</computeroutput>. </simpara></throws></function>
+
+
+
+
+
+
+</namespace>
+
+
+
+
+
+
+</namespace>
+</header>
+</library-reference>

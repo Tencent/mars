@@ -14,10 +14,10 @@
 // $Date$
 // $Revision$
 
+#include <boost/mpl/aux_/config/eti.hpp>
+#include <boost/mpl/aux_/lambda_support.hpp>
 #include <boost/mpl/aux_/msvc_eti_base.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
-#include <boost/mpl/aux_/lambda_support.hpp>
-#include <boost/mpl/aux_/config/eti.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

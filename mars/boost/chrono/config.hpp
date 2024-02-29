@@ -12,6 +12,7 @@
 #ifndef BOOST_CHRONO_CONFIG_HPP
 #define BOOST_CHRONO_CONFIG_HPP
 
+#include <boost/chrono/detail/requires_cxx11.hpp>
 #include <boost/config.hpp>
 #include <boost/predef.h>
 
@@ -212,5 +213,6 @@
 #include <boost/config/auto_link.hpp>
 #endif  // auto-linking disabled
 #endif // BOOST_CHRONO_HEADER_ONLY
+
 #endif // BOOST_CHRONO_CONFIG_HPP
 

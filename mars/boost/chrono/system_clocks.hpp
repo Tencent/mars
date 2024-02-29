@@ -58,11 +58,12 @@ TODO:
 #ifndef BOOST_CHRONO_SYSTEM_CLOCKS_HPP
 #define BOOST_CHRONO_SYSTEM_CLOCKS_HPP
 
+#include <boost/chrono/clock_string.hpp>
 #include <boost/chrono/config.hpp>
+#include <boost/chrono/detail/system.hpp>
 #include <boost/chrono/duration.hpp>
 #include <boost/chrono/time_point.hpp>
-#include <boost/chrono/detail/system.hpp>
-#include <boost/chrono/clock_string.hpp>
+#include <boost/ratio/config.hpp>
 
 #include <ctime>
 
@@ -96,9 +97,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace chrono {
 
   // Clocks
-  class BOOST_CHRONO_DECL system_clock;
+  class system_clock;
 #ifdef BOOST_CHRONO_HAS_CLOCK_STEADY
-  class BOOST_CHRONO_DECL steady_clock;
+  class steady_clock;
 #endif
 
 #ifdef BOOST_CHRONO_HAS_CLOCK_STEADY

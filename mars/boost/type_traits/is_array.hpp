@@ -15,11 +15,11 @@
 #define BOOST_TT_IS_ARRAY_HPP_INCLUDED
 
 #include <boost/type_traits/integral_constant.hpp>
-#include <cstddef>
+#include <cstddef> // size_t
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
-#if defined( __CODEGEARC__ )
+#if defined( BOOST_CODEGEARC )
    template <class T> struct is_array : public integral_constant<bool, __is_array(T)> {};
 #else
    template <class T> struct is_array : public false_type {};
@@ -28,7 +28,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
    template <class T, std::size_t N> struct is_array<T const[N]> : public true_type{};
    template <class T, std::size_t N> struct is_array<T volatile[N]> : public true_type{};
    template <class T, std::size_t N> struct is_array<T const volatile[N]> : public true_type{};
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x600) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600) && !defined(__IBMCPP__) &&  !BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x840))
    template <class T> struct is_array<T[]> : public true_type{};
    template <class T> struct is_array<T const[]> : public true_type{};
    template <class T> struct is_array<T const volatile[]> : public true_type{};

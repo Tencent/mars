@@ -10,25 +10,26 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/predef/library/std/_prefix.h>
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_LIB_STD_MSL`]
+/* tag::reference[]
+= `BOOST_LIB_STD_MSL`
 
-[@http://www.freescale.com/ Metrowerks] Standard C++ Library.
+http://www.freescale.com/[Metrowerks] Standard {CPP} Library.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__MSL_CPP__`] [__predef_detection__]]
-    [[`__MSL__`] [__predef_detection__]]
+| `+__MSL_CPP__+` | {predef_detection}
+| `+__MSL__+` | {predef_detection}
 
-    [[`__MSL_CPP__`] [V.R.P]]
-    [[`__MSL__`] [V.R.P]]
-    ]
- */
+| `+__MSL_CPP__+` | V.R.P
+| `+__MSL__+` | V.R.P
+|===
+*/ // end::reference[]
 
 #define BOOST_LIB_STD_MSL BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

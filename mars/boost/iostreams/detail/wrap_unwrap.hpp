@@ -8,7 +8,7 @@
 #ifndef BOOST_IOSTREAMS_DETAIL_WRAP_UNWRAP_HPP_INCLUDED
 #define BOOST_IOSTREAMS_DETAIL_WRAP_UNWRAP_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif              
 
@@ -17,8 +17,8 @@
 #include <boost/iostreams/detail/enable_if_stream.hpp>
 #include <boost/iostreams/traits_fwd.hpp>               // is_std_io.
 #include <boost/mpl/bool.hpp>
-#include <boost/mpl/identity.hpp>
 #include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/identity.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/ref.hpp>
 
@@ -83,8 +83,6 @@ struct unwrap_ios
 
 //------------------Definition of unwrap--------------------------------------//
 
-#if !BOOST_WORKAROUND(BOOST_MSVC, < 1310) //----------------------------------//
-
 template<typename T>
 typename unwrapped_type<T>::type& 
 unwrap(const reference_wrapper<T>& ref) { return ref.get(); }
@@ -94,33 +92,6 @@ typename unwrapped_type<T>::type& unwrap(T& t) { return t; }
 
 template<typename T>
 const typename unwrapped_type<T>::type& unwrap(const T& t) { return t; }
-
-#else // #if !BOOST_WORKAROUND(BOOST_MSVC, < 1310) //-------------------------//
-
-// Since unwrap is a potential bottleneck, we avoid runtime tag dispatch.
-template<bool IsRefWrap>
-struct unwrap_impl;
-
-template<>
-struct unwrap_impl<true> {
-    template<typename T>
-    static typename unwrapped_type<T>::type& unwrap(const T& t) 
-    { return t.get(); }
-};
-
-template<>
-struct unwrap_impl<false> {
-    template<typename T>
-    static typename unwrapped_type<T>::type& unwrap(const T& t) 
-    { return const_cast<T&>(t); }
-};
-
-template<typename T>
-typename unwrapped_type<T>::type& 
-unwrap(const T& t) 
-{ return unwrap_impl<is_reference_wrapper<T>::value>::unwrap(t); }
-
-#endif // #if !BOOST_WORKAROUND(BOOST_MSVC, < 1310) //------------------------//
 
 } } } // End namespaces detail, iostreams, boost.
 

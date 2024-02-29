@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_FILL_N_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_FILL_N_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -48,6 +48,6 @@ inline const ForwardRange& fill_n(const ForwardRange& rng, Size n, const Value& 
 
     } // namespace range
     using range::fill_n;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

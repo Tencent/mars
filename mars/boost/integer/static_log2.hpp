@@ -6,17 +6,18 @@
 //
 //     Distributed under the Boost Software License, Version 1.0.
 //        (See accompanying file LICENSE_1_0.txt or copy at
-//              http://www.boost.org/LICENSE_1_0.txt)
+//              https://www.boost.org/LICENSE_1_0.txt)
 //
 //         ---------------------------------------------------
-//       See http://www.boost.org/libs/integer for documentation.
+//       See https://www.boost.org/libs/integer for documentation.
 // ------------------------------------------------------------------------- //
 
 
 #ifndef BOOST_INTEGER_STATIC_LOG2_HPP
 #define BOOST_INTEGER_STATIC_LOG2_HPP
 
-#include "boost/integer_fwd.hpp" // for mars_boost::intmax_t
+#include <boost/config.hpp>
+#include <boost/integer_fwd.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
@@ -121,7 +122,5 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
  struct static_log2<0> { };
 
 }
-
-
 
 #endif // include guard

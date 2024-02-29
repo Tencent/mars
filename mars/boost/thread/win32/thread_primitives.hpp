@@ -10,213 +10,57 @@
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/thread/detail/config.hpp>
-#include <boost/predef/platform.h>
-#include <boost/throw_exception.hpp>
 #include <boost/assert.hpp>
-#include <boost/thread/exceptions.hpp>
 #include <boost/detail/interlocked.hpp>
-//#include <boost/detail/winapi/synchronization.hpp>
+#include <boost/predef/platform.h>
+#include <boost/thread/detail/config.hpp>
+#include <boost/thread/exceptions.hpp>
+#include <boost/throw_exception.hpp>
+
+#include <boost/winapi/access_rights.hpp>
+#include <boost/winapi/basic_types.hpp>
+#include <boost/winapi/config.hpp>
+#include <boost/winapi/event.hpp>
+#include <boost/winapi/get_current_process.hpp>
+#include <boost/winapi/get_current_process_id.hpp>
+#include <boost/winapi/get_current_thread.hpp>
+#include <boost/winapi/get_current_thread_id.hpp>
+#include <boost/winapi/handles.hpp>
+#include <boost/winapi/semaphore.hpp>
+#include <boost/winapi/system.hpp>
+#include <boost/winapi/thread.hpp>
+#include <boost/winapi/wait.hpp>
+
+//#include <boost/winapi/synchronization.hpp>
 #include <algorithm>
+#include <boost/thread/win32/interlocked_read.hpp>
 
 #if BOOST_PLAT_WINDOWS_RUNTIME
 #include <thread>
 #endif
 
-#if defined( BOOST_USE_WINDOWS_H )
-# include <windows.h>
-
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
     namespace detail
     {
         namespace win32
         {
-            typedef HANDLE handle;
-            typedef SYSTEM_INFO system_info;
-            typedef unsigned __int64 ticks_type;
-            typedef FARPROC farproc_t;
-            unsigned const infinite=INFINITE;
-            unsigned const timeout=WAIT_TIMEOUT;
-            handle const invalid_handle_value=INVALID_HANDLE_VALUE;
-            unsigned const event_modify_state=EVENT_MODIFY_STATE;
-            unsigned const synchronize=SYNCHRONIZE;
-            unsigned const wait_abandoned=WAIT_ABANDONED;
+            typedef ::mars_boost::winapi::HANDLE_ handle;
+            typedef ::mars_boost::winapi::SYSTEM_INFO_ system_info;
+            typedef ::mars_boost::winapi::ULONGLONG_ ticks_type;
+            unsigned const infinite=::mars_boost::winapi::INFINITE_;
+            unsigned const timeout=::mars_boost::winapi::WAIT_TIMEOUT_;
+            handle const invalid_handle_value=::mars_boost::winapi::INVALID_HANDLE_VALUE_;
+            unsigned const event_modify_state=::mars_boost::winapi::EVENT_MODIFY_STATE_;
+            unsigned const synchronize=::mars_boost::winapi::SYNCHRONIZE_;
+            unsigned const wait_abandoned=::mars_boost::winapi::WAIT_ABANDONED_;
             unsigned const create_event_initial_set = 0x00000002;
             unsigned const create_event_manual_reset = 0x00000001;
-            unsigned const event_all_access = EVENT_ALL_ACCESS;
-            unsigned const semaphore_all_access = SEMAPHORE_ALL_ACCESS;
-
-
-# ifdef BOOST_NO_ANSI_APIS
-# if BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA
-            using ::CreateMutexW;
-            using ::CreateEventW;
-            using ::CreateSemaphoreW;
-# else
-            using ::CreateMutexExW;
-            using ::CreateEventExW;
-            using ::CreateSemaphoreExW;
-# endif
-            using ::OpenEventW;
-            using ::GetModuleHandleW;
-# else
-            using ::CreateMutexA;
-            using ::CreateEventA;
-            using ::OpenEventA;
-            using ::CreateSemaphoreA;
-            using ::GetModuleHandleA;
-# endif
-#if BOOST_PLAT_WINDOWS_RUNTIME
-            using ::GetNativeSystemInfo;
-            using ::GetTickCount64;
-#else
-            using ::GetSystemInfo;
-            using ::GetTickCount;
-#endif
-            using ::CloseHandle;
-            using ::ReleaseMutex;
-            using ::ReleaseSemaphore;
-            using ::SetEvent;
-            using ::ResetEvent;
-            using ::WaitForMultipleObjectsEx;
-            using ::WaitForSingleObjectEx;
-            using ::GetCurrentProcessId;
-            using ::GetCurrentThreadId;
-            using ::GetCurrentThread;
-            using ::GetCurrentProcess;
-            using ::DuplicateHandle;
-#if !BOOST_PLAT_WINDOWS_RUNTIME
-            using ::SleepEx;
-            using ::Sleep;
-            using ::QueueUserAPC;
-            using ::GetProcAddress;
-#endif
+            unsigned const event_all_access = ::mars_boost::winapi::EVENT_ALL_ACCESS_;
+            unsigned const semaphore_all_access = mars_boost::winapi::SEMAPHORE_ALL_ACCESS_;
         }
     }
 }
-#elif defined( WIN32 ) || defined( _WIN32 ) || defined( __WIN32__ )
-
-# ifdef UNDER_CE
-#  ifndef WINAPI
-#   ifndef _WIN32_WCE_EMULATION
-#    define WINAPI  __cdecl     // Note this doesn't match the desktop definition
-#   else
-#    define WINAPI  __stdcall
-#   endif
-#  endif
-
-#  ifdef __cplusplus
-extern "C" {
-#  endif
-typedef int BOOL;
-typedef unsigned long DWORD;
-typedef void* HANDLE;
-#  include <kfuncs.h>
-#  ifdef __cplusplus
-}
-#  endif
-# endif
-
-# ifdef __cplusplus
-extern "C" {
-# endif
-struct _SYSTEM_INFO;
-# ifdef __cplusplus
-}
-#endif
-
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
-{
-    namespace detail
-    {
-        namespace win32
-        {
-# ifdef _WIN64
-            typedef unsigned __int64 ulong_ptr;
-# else
-            typedef unsigned long ulong_ptr;
-# endif
-            typedef void* handle;
-            typedef _SYSTEM_INFO system_info;
-            typedef unsigned __int64 ticks_type;
-            typedef int (__stdcall *farproc_t)();
-            unsigned const infinite=~0U;
-            unsigned const timeout=258U;
-            handle const invalid_handle_value=(handle)(-1);
-            unsigned const event_modify_state=2;
-            unsigned const synchronize=0x100000u;
-            unsigned const wait_abandoned=0x00000080u;
-            unsigned const create_event_initial_set = 0x00000002;
-            unsigned const create_event_manual_reset = 0x00000001;
-            unsigned const event_all_access = 0x1F0003;
-            unsigned const semaphore_all_access = 0x1F0003;
-
-            extern "C"
-            {
-                struct _SECURITY_ATTRIBUTES;
-# ifdef BOOST_NO_ANSI_APIS
-# if defined(BOOST_USE_WINAPI_VERSION) && ( BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA )
-                __declspec(dllimport) void* __stdcall CreateMutexW(_SECURITY_ATTRIBUTES*,int,wchar_t const*);
-                __declspec(dllimport) void* __stdcall CreateSemaphoreW(_SECURITY_ATTRIBUTES*,long,long,wchar_t const*);
-                __declspec(dllimport) void* __stdcall CreateEventW(_SECURITY_ATTRIBUTES*,int,int,wchar_t const*);
-# else
-                __declspec(dllimport) void* __stdcall CreateMutexExW(_SECURITY_ATTRIBUTES*,wchar_t const*,unsigned long,unsigned long);
-                __declspec(dllimport) void* __stdcall CreateEventExW(_SECURITY_ATTRIBUTES*,wchar_t const*,unsigned long,unsigned long);
-                __declspec(dllimport) void* __stdcall CreateSemaphoreExW(_SECURITY_ATTRIBUTES*,long,long,wchar_t const*,unsigned long,unsigned long);
-# endif
-                __declspec(dllimport) void* __stdcall OpenEventW(unsigned long,int,wchar_t const*);
-                __declspec(dllimport) void* __stdcall GetModuleHandleW(wchar_t const*);
-# else
-                __declspec(dllimport) void* __stdcall CreateMutexA(_SECURITY_ATTRIBUTES*,int,char const*);
-                __declspec(dllimport) void* __stdcall CreateSemaphoreA(_SECURITY_ATTRIBUTES*,long,long,char const*);
-                __declspec(dllimport) void* __stdcall CreateEventA(_SECURITY_ATTRIBUTES*,int,int,char const*);
-                __declspec(dllimport) void* __stdcall OpenEventA(unsigned long,int,char const*);
-                __declspec(dllimport) void* __stdcall GetModuleHandleA(char const*);
-# endif
-#if BOOST_PLAT_WINDOWS_RUNTIME
-                __declspec(dllimport) void __stdcall GetNativeSystemInfo(_SYSTEM_INFO*);
-                __declspec(dllimport) ticks_type __stdcall GetTickCount64();
-#else
-                __declspec(dllimport) void __stdcall GetSystemInfo(_SYSTEM_INFO*);
-                __declspec(dllimport) unsigned long __stdcall GetTickCount();
-#endif
-                __declspec(dllimport) int __stdcall CloseHandle(void*);
-                __declspec(dllimport) int __stdcall ReleaseMutex(void*);
-                __declspec(dllimport) unsigned long __stdcall WaitForSingleObjectEx(void*,unsigned long,int);
-                __declspec(dllimport) unsigned long __stdcall WaitForMultipleObjectsEx(unsigned long nCount,void* const * lpHandles,int bWaitAll,unsigned long dwMilliseconds,int bAlertable);
-                __declspec(dllimport) int __stdcall ReleaseSemaphore(void*,long,long*);
-                __declspec(dllimport) int __stdcall DuplicateHandle(void*,void*,void*,void**,unsigned long,int,unsigned long);
-#if !BOOST_PLAT_WINDOWS_RUNTIME
-                __declspec(dllimport) unsigned long __stdcall SleepEx(unsigned long,int);
-                __declspec(dllimport) void __stdcall Sleep(unsigned long);
-                typedef void (__stdcall *queue_user_apc_callback_function)(ulong_ptr);
-                __declspec(dllimport) unsigned long __stdcall QueueUserAPC(queue_user_apc_callback_function,void*,ulong_ptr);
-                __declspec(dllimport) farproc_t __stdcall GetProcAddress(void *, const char *);
-#endif
-
-# ifndef UNDER_CE
-                __declspec(dllimport) unsigned long __stdcall GetCurrentProcessId();
-                __declspec(dllimport) unsigned long __stdcall GetCurrentThreadId();
-                __declspec(dllimport) void* __stdcall GetCurrentThread();
-                __declspec(dllimport) void* __stdcall GetCurrentProcess();
-                __declspec(dllimport) int __stdcall SetEvent(void*);
-                __declspec(dllimport) int __stdcall ResetEvent(void*);
-# else
-                using ::GetCurrentProcessId;
-                using ::GetCurrentThreadId;
-                using ::GetCurrentThread;
-                using ::GetCurrentProcess;
-                using ::SetEvent;
-                using ::ResetEvent;
-# endif
-            }
-        }
-    }
-}
-#else
-# error "Win32 functions not available"
-#endif
 
 #include <boost/config/abi_prefix.hpp>
 
@@ -226,95 +70,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
         namespace win32
         {
-            namespace detail { typedef ticks_type (__stdcall *gettickcount64_t)(); }
-#if !BOOST_PLAT_WINDOWS_RUNTIME
-            extern "C"
-            {
-#ifdef _MSC_VER
-                long _InterlockedCompareExchange(long volatile *, long, long);
-#pragma intrinsic(_InterlockedCompareExchange)
-#elif defined(__MINGW64_VERSION_MAJOR)
-                long _InterlockedCompareExchange(long volatile *, long, long);
-#else
-                // Mingw doesn't provide intrinsics
-#define _InterlockedCompareExchange InterlockedCompareExchange
-#endif
-            }
-            // Borrowed from https://stackoverflow.com/questions/8211820/userland-interrupt-timer-access-such-as-via-kequeryinterrupttime-or-similar
-            inline ticks_type __stdcall GetTickCount64emulation()
-            {
-                static volatile long count = 0xFFFFFFFF;
-                unsigned long previous_count, current_tick32, previous_count_zone, current_tick32_zone;
-                ticks_type current_tick64;
-
-                previous_count = (unsigned long) _InterlockedCompareExchange(&count, 0, 0);
-                current_tick32 = GetTickCount();
-
-                if(previous_count == 0xFFFFFFFF)
-                {
-                    // count has never been written
-                    unsigned long initial_count;
-                    initial_count = current_tick32 >> 28;
-                    previous_count = (unsigned long) _InterlockedCompareExchange(&count, initial_count, 0xFFFFFFFF);
-
-                    current_tick64 = initial_count;
-                    current_tick64 <<= 28;
-                    current_tick64 += current_tick32 & 0x0FFFFFFF;
-                    return current_tick64;
-                }
-
-                previous_count_zone = previous_count & 15;
-                current_tick32_zone = current_tick32 >> 28;
-
-                if(current_tick32_zone == previous_count_zone)
-                {
-                    // The top four bits of the 32-bit tick count haven't changed since count was last written.
-                    current_tick64 = previous_count;
-                    current_tick64 <<= 28;
-                    current_tick64 += current_tick32 & 0x0FFFFFFF;
-                    return current_tick64;
-                }
-
-                if(current_tick32_zone == previous_count_zone + 1 || (current_tick32_zone == 0 && previous_count_zone == 15))
-                {
-                    // The top four bits of the 32-bit tick count have been incremented since count was last written.
-                    _InterlockedCompareExchange(&count, previous_count + 1, previous_count);
-                    current_tick64 = previous_count + 1;
-                    current_tick64 <<= 28;
-                    current_tick64 += current_tick32 & 0x0FFFFFFF;
-                    return current_tick64;
-                }
-
-                // Oops, we weren't called often enough, we're stuck
-                return 0xFFFFFFFF;
-            }
-#else
-#endif
-            inline detail::gettickcount64_t GetTickCount64_()
-            {
-                static detail::gettickcount64_t gettickcount64impl;
-                if(gettickcount64impl)
-                    return gettickcount64impl;
-
-                // GetTickCount and GetModuleHandle are not allowed in the Windows Runtime,
-                // and kernel32 isn't used in Windows Phone.
-#if BOOST_PLAT_WINDOWS_RUNTIME
-                gettickcount64impl = &GetTickCount64;
-#else
-                farproc_t addr=GetProcAddress(
-#if !defined(BOOST_NO_ANSI_APIS)
-                    GetModuleHandleA("KERNEL32.DLL"),
-#else
-                    GetModuleHandleW(L"KERNEL32.DLL"),
-#endif
-                    "GetTickCount64");
-                if(addr)
-                    gettickcount64impl=(detail::gettickcount64_t) addr;
-                else
-                    gettickcount64impl=&GetTickCount64emulation;
-#endif
-                return gettickcount64impl;
-            }
+            namespace detail { typedef ticks_type (BOOST_WINAPI_WINAPI_CC *gettickcount64_t)(); }
+            extern BOOST_THREAD_DECL mars_boost::detail::win32::detail::gettickcount64_t gettickcount64;
 
             enum event_type
             {
@@ -338,14 +95,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 initial_event_state state)
             {
 #if !defined(BOOST_NO_ANSI_APIS)
-                handle const res = win32::CreateEventA(0, type, state, mutex_name);
-#elif defined(BOOST_USE_WINAPI_VERSION) && ( BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA )
-                handle const res = win32::CreateEventW(0, type, state, mutex_name);
+                handle const res = ::mars_boost::winapi::CreateEventA(0, type, state, mutex_name);
+#elif BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA
+                handle const res = ::mars_boost::winapi::CreateEventW(0, type, state, mutex_name);
 #else
-                handle const res = win32::CreateEventExW(
+                handle const res = ::mars_boost::winapi::CreateEventExW(
                     0,
                     mutex_name,
-                    type ? create_event_manual_reset : 0 | state ? create_event_initial_set : 0,
+                    (type ? create_event_manual_reset : 0) | (state ? create_event_initial_set : 0),
                     event_all_access);
 #endif
                 return res;
@@ -364,12 +121,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             inline handle create_anonymous_semaphore_nothrow(long initial_count,long max_count)
             {
 #if !defined(BOOST_NO_ANSI_APIS)
-                handle const res=win32::CreateSemaphoreA(0,initial_count,max_count,0);
+                handle const res=::mars_boost::winapi::CreateSemaphoreA(0,initial_count,max_count,0);
 #else
-#if defined(BOOST_USE_WINAPI_VERSION) && ( BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA )
-                handle const res=win32::CreateSemaphoreEx(0,initial_count,max_count,0,0);
+#if BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA
+                handle const res=::mars_boost::winapi::CreateSemaphoreEx(0,initial_count,max_count,0,0);
 #else
-                handle const res=win32::CreateSemaphoreExW(0,initial_count,max_count,0,0,semaphore_all_access);
+                handle const res=::mars_boost::winapi::CreateSemaphoreExW(0,initial_count,max_count,0,0,semaphore_all_access);
 #endif
 #endif
                 return res;
@@ -387,10 +144,10 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
             inline handle duplicate_handle(handle source)
             {
-                handle const current_process=GetCurrentProcess();
+                handle const current_process=::mars_boost::winapi::GetCurrentProcess();
                 long const same_access_flag=2;
                 handle new_handle=0;
-                bool const success=DuplicateHandle(current_process,source,current_process,&new_handle,0,false,same_access_flag)!=0;
+                bool const success=::mars_boost::winapi::DuplicateHandle(current_process,source,current_process,&new_handle,0,false,same_access_flag)!=0;
                 if(!success)
                 {
                     mars_boost::throw_exception(thread_resource_error());
@@ -400,15 +157,15 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
             inline void release_semaphore(handle semaphore,long count)
             {
-                BOOST_VERIFY(ReleaseSemaphore(semaphore,count,0)!=0);
+                BOOST_VERIFY(::mars_boost::winapi::ReleaseSemaphore(semaphore,count,0)!=0);
             }
 
             inline void get_system_info(system_info *info)
             {
 #if BOOST_PLAT_WINDOWS_RUNTIME
-                win32::GetNativeSystemInfo(info);
+                ::mars_boost::winapi::GetNativeSystemInfo(info);
 #else
-                win32::GetSystemInfo(info);
+                ::mars_boost::winapi::GetSystemInfo(info);
 #endif
             }
 
@@ -419,15 +176,15 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #if BOOST_PLAT_WINDOWS_RUNTIME
                     std::this_thread::yield();
 #else
-                    ::boost::detail::win32::Sleep(0);
+                    ::mars_boost::winapi::Sleep(0);
 #endif
                 }
                 else
                 {
 #if BOOST_PLAT_WINDOWS_RUNTIME
-                    ::boost::detail::win32::WaitForSingleObjectEx(::boost::detail::win32::GetCurrentThread(), milliseconds, 0);
+                    ::mars_boost::winapi::WaitForSingleObjectEx(::mars_boost::winapi::GetCurrentThread(), milliseconds, 0);
 #else
-                    ::boost::detail::win32::Sleep(milliseconds);
+                    ::mars_boost::winapi::Sleep(milliseconds);
 #endif
                 }
             }
@@ -441,9 +198,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
                 ~scoped_winrt_thread()
                 {
-                    if (m_completionHandle != ::boost::detail::win32::invalid_handle_value)
+                    if (m_completionHandle != ::mars_boost::detail::win32::invalid_handle_value)
                     {
-                        CloseHandle(m_completionHandle);
+                        ::mars_boost::winapi::CloseHandle(m_completionHandle);
                     }
                 }
 
@@ -452,7 +209,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
                 handle waitable_handle() const
                 {
-                    BOOST_ASSERT(m_completionHandle != ::boost::detail::win32::invalid_handle_value);
+                    BOOST_ASSERT(m_completionHandle != ::mars_boost::detail::win32::invalid_handle_value);
                     return m_completionHandle;
                 }
 
@@ -471,7 +228,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 {
                     if(handle_to_manage && handle_to_manage!=invalid_handle_value)
                     {
-                        BOOST_VERIFY(CloseHandle(handle_to_manage));
+                        BOOST_VERIFY(::mars_boost::winapi::CloseHandle(handle_to_manage));
                     }
                 }
 

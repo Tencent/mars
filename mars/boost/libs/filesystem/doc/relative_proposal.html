@@ -1,0 +1,509 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Filesystem Relative Proposal</title>
+<link href="styles.css" rel="stylesheet">
+</head>
+
+<body>
+
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+  <tr>
+    <td width="277">
+<a href="../../../index.htm">
+<img src="../../../boost.png" alt="boost.png (6897 bytes)" align="middle" width="300" height="86" border="0"></a></td>
+    <td align="middle">
+    <font size="7">Filesystem Relative<br>
+    Draft Proposal</font>
+    </td>
+  </tr>
+</table>
+
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse"
+ bordercolor="#111111" bgcolor="#D7EEFF" width="100%">
+  <tr>
+    <td><a href="index.htm">Home</a> &nbsp;&nbsp;
+    <a href="tutorial.html">Tutorial</a> &nbsp;&nbsp;
+    <a href="reference.html">Reference</a> &nbsp;&nbsp;
+    <a href="faq.htm">FAQ</a> &nbsp;&nbsp;
+    <a href="release_history.html">Releases</a> &nbsp;&nbsp;
+    <a href="portability_guide.htm">Portability</a> &nbsp;&nbsp;
+    <a href="v4.html">V4</a> &nbsp;&nbsp;
+    <a href="v3.html">V3 Intro</a> &nbsp;&nbsp;
+    <a href="v3_design.html">V3 Design</a> &nbsp;&nbsp;
+    <a href="deprecated.html">Deprecated</a> &nbsp;&nbsp;
+    <a href="issue_reporting.html">Bug Reports </a>&nbsp;&nbsp;
+    </td>
+</table>
+
+<p><a href="#Introduction">
+      Introduction</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#Acknowledgement">Acknowledgement</a><br>
+&nbsp;&nbsp; &nbsp;<a href="#Preliminary-implementation">Preliminary implementation</a><br>
+<a href="#Requirements">Requirements</a><br>
+<a href="#Issues">Issues</a><br>
+<a href="#Design-decisions">
+      Design decisions</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#Provide-separate-relative">Provide separate lexical and
+      operational <code>relative</code> functions</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#Provide-separate-proximate">Provide
+separate lexical and operational <code>proximate</code> functions</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#Add-lexical-functions">Add lexical functions as <code>path</code> member functions</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#Provide-normal">Provide a non-member function
+<code>lexically_normal</code> returning a
+      normal form path</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#Provide-weakly">Provide a <code>weakly_canonical</code> operational function</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#just-work">Resolve issues in ways that &quot;just work&quot; for users</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#mismatch">Specify <code>lexical relative</code> in terms
+      of <code>std::mismatch</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#Specify-op-rel-weakly">Specify operational <code>relative</code> in terms of <code>
+      weakly_canonical</code></a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#Specify-op-rel-lex-rel">Specify operational <code>relative</code> in terms of
+      <code>lexically
+      relative</code></a><br>
+<a href="#Proposed-wording">Proposed wording</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#Define-normal-form">Define <i>normal form</i></a><br>
+&nbsp;&nbsp;&nbsp; <a href="#New-class-path-member-functions">New class path member functions</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Synopsis-path">Synopsis</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Specification-path">Specification</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#operational-functions">New operational functions</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Synopsis-ops">Synopsis</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Specification-ops">Specification</a></p>
+
+<h2>
+      <a name="Introduction">Introduction</a></h2>
+
+<p>There have been requests for a Filesystem library relative function for at
+      least ten years.</p>
+
+<p>
+      The requested functionality seems simple - given two paths with a common
+      prefix, return the non-common suffix portion of one of the paths such that
+      it is relative to the other path.</p>
+
+<p>
+      In terms of the Filesystem library,</p>
+
+<blockquote>
+  <pre>path p(&quot;/a/b/c&quot;);
+path base(&quot;/a/b&quot;);
+path rel = relative(p, base);  // the requested function
+cout &lt;&lt; rel &lt;&lt; endl;           // outputs &quot;c&quot;
+assert(absolute(rel, base) == p);</pre>
+</blockquote>
+<p>If that was all there was to it, the Filesystem library would have had a
+<code>relative</code> function years ago.</p>
+<blockquote>
+<p>Blocking issues: Clashing requirements, symlinks, directory placeholders (<i>dot</i>,
+<i>dot-dot</i>), user-expectations, corner cases.</p>
+</blockquote>
+<h3><a name="Acknowledgement">Acknowledgement</a></h3>
+<p>A paper by Jamie Allsop, <i>Additions to Filesystem supporting Relative Paths</i>,
+is what broke my mental logjam. Much of what follows is based directly on
+Jamie&#39;s analysis and proposal. The <code>weakly_canonical</code> function and
+aspects of the semantic specifications are my contributions. Mistakes, of
+course, are mine.</p>
+<h3><a name="Preliminary-implementation">Preliminary implementation</a></h3>
+<p>A preliminary implementation is available in the
+<a href="https://github.com/boostorg/filesystem/tree/feature/relative2">
+feature/relative2</a> branch of the Boost Filesystem Git repository. See
+<a href="https://github.com/boostorg/filesystem/tree/feature/relative2">
+github.com/boostorg/filesystem/tree/feature/relative2</a></p>
+<h2><a name="Requirements">Requirements</a></h2>
+<b><a name="Requirement-1">Requirement 1</a>:</b> Some uses require symlinks be followed; i.e. the path must be resolved in
+  the actual file system.<p><b><a name="Requirement-2">Requirement 2</a>: </b>Some uses require symlinks not be followed; i.e. the path must not be
+  resolved in the actual file system.</p>
+<b><a name="Requirement-3">Requirement 3</a>: </b>Some uses require removing redundant current directory (<i>dot</i>)
+  or parent directory (<i>dot-dot</i>) placeholders.<p><b>
+<a name="Requirement-4">Requirement 4</a>: </b>Some uses do not require removing redundant current directory (<i>dot</i>)
+  or parent directory (<i>dot-dot</i>) placeholders since the path is known to
+be
+already in normal form.</p>
+<h2><a name="Issues">Issues</a></h2>
+<p><b><a name="Issue-1">Issue 1</a>:</b> What happens if <code>p</code>
+and <code>base</code> are themselves relative?</p>
+<b><a name="Issue-2">Issue 2</a>:</b> What happens if there is no common prefix? Is this an error, the whole of
+  <code>p</code> is relative to <code>base</code>, or something else?<p><b>
+<a name="Issue-3">Issue 3</a>:</b> What happens if <code>p</code>, <code>base</code>, or both are empty?</p>
+<b><a name="Issue-4">Issue 4</a>:</b> What happens if <code>p</code> and <code>base</code> are the same?<p>
+<b><a name="Issue-5">Issue 5</a>:</b> How is the &quot;common prefix&quot; determined?</p>
+<b><a name="Issue-6">Issue 6</a>:</b> What happens if portions of <code>p</code> or <code>base</code> exist but
+  the entire path does not exist and yet symlinks need to be followed?<p><b>
+<a name="Issue-7">Issue 7</a>:</b> What happens when a symlink in the existing portion of a path is affected
+  by a directory (<i>dot-dot</i>) placeholder in a later non-existent portion of
+  the path?</p>
+<p><b><a name="Issue-8">Issue 8</a>:</b> Overly complex semantics (and thus
+specifications) in preliminary designs made reasoning about uses difficult.</p>
+<p><b><a name="Issue-9">Issue 9</a>: </b>Some uses never have redundant current directory (<i>dot</i>)
+  or parent directory (<i>dot-dot</i>) placeholders, so a removal operation
+  would be an unnecessary expense although otherwise harmless.</p>
+
+<h2>
+      <a name="Design-decisions">Design decisions</a></h2>
+
+<h4>
+      <a name="Provide-separate-relative">Provide separate</a> lexical and
+      operational <code>relative</code> functions</h4>
+
+<p align="left">
+      Resolves the conflict between <a href="#Requirement-1">requirement 1</a>
+      and <a href="#Requirement-2">requirement 2</a> and ensures both
+      requirements are met.</p>
+
+<p>
+      A purely lexical function is needed by users working with directory
+      hierarchies that do not actually exist.</p>
+
+<p>
+      An operational function that queries the current file system for existence
+      and follows symlinks is needed by users working with actual existing
+      directory hierarchies.</p>
+
+<h4>
+      <a name="Provide-separate-proximate">Provide separate</a> lexical and operational
+      <code>proximate</code> functions</h4>
+
+<p>
+      Although not the only possibility, a likely fallback when the relative
+      functions cannot find a relative path is to return the path being made relative. As
+      a convenience, the <code>proximate</code> functions do just that.</p>
+
+<h4>
+      <a name="Add-lexical-functions">Add lexical functions as
+      <code>path</code> member functions</a></h4>
+
+<p dir="ltr">
+      The Filesystem library is unusual in that it has several functions with
+      both lexical (i.e. cheap) and operational (i.e. expensive due to file
+      system access) forms with differing semantics. It is important that users
+      choose the form that meets their application&#39;s specific needs. The library
+      has always made the distinction via the convention of lexical functions
+      being members of class <code>path</code>, while operational functions are
+      non-member functions. The lexical functions proposed here also use the
+      name prefix <code>lexically_</code> to drive home the distinction.</p>
+
+<p>
+      For the contrary argument, see Sutter and Alexandrescu, <i>C++ Coding Standards</i>, 44:
+      &quot;Prefer writing nonmember nonfriend functions&quot;, and Meyers, <i>Effective C++ Third Edition</i>, 23:
+      &quot;Prefer non-member non-friend functions to member functions.&quot;</p>
+
+<h4>
+      <a name="Provide-normal">Provide</a><b> </b>a non-member function <code>
+      <a href="#normal">lexically_normal</a></code> returning a
+      <a href="#normal-form">normal form</a> path</h4>
+
+<p>
+      Enables resolution of <a href="#Requirement-3">requirement 3</a> and
+      <a href="#Requirement-4">requirement 4</a> in a way consistent with
+      <a href="#Issue-9">issue 9</a>. Is a contributor to the resolution of
+      <a href="#Issue-8">issue 8</a>.</p>
+
+<p>
+      &quot;Normalization&quot; is the process of removing redundant current directory (<i>dot</i>)
+      , parent
+      directory (<i>dot-dot</i>), and directory separator elements.</p>
+
+<p>
+      Normalization is a byproduct the current <code>canonical</code> function.
+      But for the path returned by the
+      proposed <code><a href="#weakly_canonical">weakly_canonical</a></code> function,
+      only any leading canonic portion is in canonical form. So any trailing
+      portion of the returned path has not been normalized.</p>
+
+<p>
+      Jamie Allsop has proposed adding a separate normalization function returning a
+      path, and I agree with him.</p>
+
+<p>
+      Boost.filesystem has a deprecated non-const normalization function that
+      modifies the path, but I agree with Jamie that a function returning a path
+      is a better solution.</p>
+
+<h4>
+      <a name="Provide-weakly">Provide</a><b> </b>a <code><a href="#weakly_canonical">weakly_canonical</a></code> operational function</h4>
+
+<p>
+      Resolves <a href="#Issue-6">issue 6</a>, <a href="#Issue-7">issue 7</a>,
+      <a href="#Issue-9">issue 9</a>, and is a contributor to the resolution of
+      <a href="#Issue-8">issue 8</a>.</p>
+
+<p>
+      The operational function
+      <code>weakly_canonical(p)</code> returns a path composed of <code>
+      canonical(x)/y</code>, where <code>x</code> is a path composed of the
+      longest leading sequence of elements in <code>p</code> that exist, and
+      <code>y</code> is a path composed of the remaining trailing non-existent elements of
+      <code>p</code> if any. &quot;<code>weakly</code>&quot; refers to weakened existence
+      requirements compared to the existing canonical function.</p>
+
+<ul>
+  <li>Having <code>weakly_canonical</code> as a separate function, and then
+  specifying the processing of operational <code>relative</code> arguments in
+  terms of calls to <code>weakly_canonical</code> makes it much easier to
+  specify the operational <code>relative</code> function and reason about it.
+  The difficulty of reasoning about operational <code>relative</code>
+  semantics before the invention of <code>weakly_canonical</code> was what led to its
+  initial development.</li>
+  <li>Having <code>weakly_canonical</code> as a separate function also allows
+  use in other contexts.</li>
+  <li>Specifying the return be in <a href="#normal-form">normal form</a> is an
+  engineering trade-off to resolve <a href="#Issue-7">issue 7</a> in a way that
+  just works for most use cases.</li>
+  <li>Specifying normative encouragement to not perform unneeded normalization
+  is a reasonable resolution for <a href="#Issue-9">issue 9</a>.</li>
+</ul>
+
+<h4>
+      Resolve issues in ways that &quot;<a name="just-work">just work</a>&quot; for users</h4>
+
+<p>
+      Resolves issues <a href="#Issue-1">1</a>, <a href="#Issue-2">2</a>,
+      <a href="#Issue-3">3</a>, <a href="#Issue-4">4</a>, <a href="#Issue-7">6</a>,
+      and <a href="#Issue-7">7</a>. Is a contributor to the resolution of
+      <a href="#Issue-8">issue 8</a>.</p>
+
+<p>
+      The &quot;just works&quot; approach was suggested by Jamie Allsop. It is implemented
+      by specifying a reasonable return value for all of the &quot;What happens
+      if...&quot; corner case issues, rather that treating them as hard errors
+      requiring an exception or error code.</p>
+
+<h4>
+      Specify <a href="#lex-proximate"><code>lexically relative</code></a> in terms
+      of <code>std::<a name="mismatch">mismatch</a></code></h4>
+
+<p>
+      Resolves <a href="#Issue-5">issue 5</a>. Is a contributor to the
+      resolution of <a href="#Issue-8">issue 8</a>.</p>
+
+<h4>
+      <a name="Specify-op-rel-weakly">Specify</a> <a href="#op-proximate">operational <code>relative</code></a> in terms of <code>
+      <a href="#weakly_canonical">weakly_canonical</a></code></h4>
+
+<p>
+      Is a contributor to the resolution of <a href="#Issue-8">issue 8</a>.</p>
+
+<ul>
+  <li>Covers a wide range of uses cases since a single function works for
+  existing, non-existing, and partially existing paths.</li>
+  <li>Works correctly for partially existing paths that contain symlinks.</li>
+</ul>
+
+<h4>
+      <a name="Specify-op-rel-lex-rel">Specify</a> <a href="#op-proximate">operational <code>relative</code></a> in terms of
+      <a href="#lex-proximate"><code>lexically
+      relative</code></a></h4>
+
+<p>
+      Is a contributor to the resolution of <a href="#Issue-5">issue 5</a> and
+      <a href="#Issue-8">issue 8</a>.</p>
+
+<p>
+      If would be confusing to users and difficult to specify correctly if the
+      two functions had differing semantics:</p>
+<ul>
+  <li>When either or both paths are empty.</li>
+  <li>When all elements of the two paths match exactly.</li>
+  <li>Because different matching algorithms were used.</li>
+  <li>Because although the same matching algorithm was used, it was applied in different ways.</li>
+</ul>
+
+<p>
+      These problems are avoided by specifying operational <code>relative</code>
+      in terms of lexical <code>relative</code> after preparatory
+      calls to operational functions.</p>
+
+<h2><a name="Proposed-wording">Proposed wording</a></h2>
+
+<p><span style="background-color: #DBDBDB"><i>&quot;Overview:&quot; sections below are
+non-normative experiments attempting to make the normative reference
+specifications easier to grasp.</i></span></p>
+
+<h3><a name="Define-normal-form">Define <i>normal form</i></a></h3>
+
+<p>A path is in <b><i><a name="normal-form">normal form</a></i></b> if it has no
+redundant current directory (<i>dot</i>) or parent directory (<i>dot-dot</i>)
+elements. The normal form for an empty path is an empty path. The normal form
+for a path ending in a <i>directory-separator</i> that is not the root directory
+is the same path with a current directory (<i>dot</i>) element appended.</p>
+
+<p><span style="background-color: #DBDBDB"><i>The last sentence above is not
+necessary for POSIX-like or Windows-like operating systems, but supports systems
+like OpenVMS that use different syntax for directory and regular-file names.</i></span></p>
+
+<h3><a name="New-class-path-member-functions">New class path member functions</a></h3>
+
+<h4><a name="Synopsis-path">Synopsis</a></h4>
+
+<pre>path lexically_normal() const;
+path lexically_relative(const path&amp; base) const;
+path lexically_proximate(const path&amp; base) const;</pre>
+
+<h4><a name="Specification-path">Specification</a></h4>
+
+
+<pre>path <a name="lex-normal">lexically_normal</a>() const;</pre>
+<blockquote>
+<p><i>Overview:</i> Returns <code>*this</code> with redundant current directory
+(<i>dot</i>), parent directory (<i>dot-dot</i>), and <i>directory-separator</i> elements removed.</p>
+<p><i>Returns:</i> <code>*this</code> in <a href="#normal-form">normal form</a>.</p>
+<p><i>Remarks:</i> Uses <code>operator/=</code> to compose the returned path.</p>
+<p>[<i>Example:</i></p>
+<p><code>assert(path(&quot;foo/./bar/..&quot;).lexically_normal() == &quot;foo&quot;);<br>
+assert(path(&quot;foo/.///bar/../&quot;).lexically_normal() == &quot;foo/.&quot;);</code></p>
+<p>The above assertions will succeed.<i> </i>On Windows, the
+returned path&#39;s <i>directory-separator</i> characters will be backslashes rather than slashes, but that
+does not affect <code>path</code> equality.<i> —end example</i>]</p>
+</blockquote>
+
+<pre>path <a name="lex-relative">lexically_relative</a>(const path&amp; base) const;</pre>
+  <blockquote>
+  <p><i>Overview:</i> Returns <code>*this</code> made relative to <code>base</code>.
+  Treats empty or identical paths as corner cases, not errors. Does not resolve
+  symlinks. Does not first normalize <code>*this</code> or <code>base</code>.</p>
+
+  <p><i>Remarks:</i> Uses <code>std::mismatch(begin(), end(), base.begin(), base.end())</code>, to determine the first mismatched element of
+  <code>*this</code> and <code>base</code>. Uses <code>operator==</code> to
+  determine if elements match. </p>
+
+  <p><i>Returns:</i> </p>
+
+  <ul>
+    <li>
+  <code>path()</code> if the first mismatched element of <code>*this</code> is equal to <code>
+  begin()</code> or the first mismatched element
+  of <code>base</code> is equal to <code>base.begin()</code>, or<br>&nbsp;
+    </li>
+    <li>
+  <code>path(&quot;.&quot;)</code> if the first mismatched element of <code>
+  *this</code> is equal to <code>
+  end()</code> and the first mismatched element
+  of <code>base</code> is equal to <code>base.end()</code>, or<br>&nbsp;
+    </li>
+    <li>An object of class <code>path</code> composed via application of <code>
+    operator/= path(&quot;..&quot;)</code> for each element in the half-open
+    range [first
+    mismatched element of <code>base</code>, <code>base.end()</code>), and then
+    application of <code>operator/=</code> for each element in the half-open
+    range
+    [first mismatched element of <code>*this</code>, <code>end()</code>).
+    </li>
+</ul>
+
+<p>[<i>Example:</i></p>
+<p><code>assert(path(&quot;/a/d&quot;).lexically_relative(&quot;/a/b/c&quot;) ==  &quot;../../d&quot;);<br>
+assert(path(&quot;/a/b/c&quot;).lexically_relative(&quot;/a/d&quot;) ==  &quot;../b/c&quot;);<br>
+assert(path(&quot;a/b/c&quot;).lexically_relative(&quot;a&quot;) == &quot;b/c&quot;);<br>
+assert(path(&quot;a/b/c&quot;).lexically_relative(&quot;a/b/c/x/y&quot;) ==  &quot;../..&quot;);<br>
+assert(path(&quot;a/b/c&quot;).lexically_relative(&quot;a/b/c&quot;) ==  &quot;.&quot;);<br>
+assert(path(&quot;a/b&quot;).lexically_relative(&quot;c/d&quot;) ==  &quot;&quot;);</code></p>
+<p>The above assertions will succeed.<i> </i>On Windows, the
+returned path&#39;s <i>directory-separator</i>s will be backslashes rather than
+forward slashes, but that
+does not affect <code>path</code> equality.<i> —end example</i>]</p>
+
+  <p>[<i>Note:</i> If symlink following semantics are desired, use the  operational function <code>
+  <a href="#op-proximate">relative</a></code>&nbsp; <i>—end note</i>]</p>
+
+  <p>[<i>Note:</i> If <a href="#normal">normalization</a> is needed to ensure
+  consistent matching of elements, apply <code><a href="#normal">lexically_normal()</a></code>
+  to <code>*this</code>, <code>base</code>, or both. <i>—end note</i>]</p>
+
+</blockquote>
+
+
+<pre>path <a name="lex-proximate">lexically_proximate</a>(const path&amp; base) const;</pre>
+
+  <blockquote>
+
+  <p><i>Returns:</i> If the value of <code>lexically_relative(base)</code> is
+  not an empty path, return it. Otherwise return <code>*this</code>.</p>
+
+  <p>[<i>Note:</i> If symlink following semantics are desired, use the  operational function
+  <code><a href="#op-proximate">proximate</a></code>&nbsp; <i>—end note</i>]</p>
+
+  <p>[<i>Note:</i> If <a href="#normal">normalization</a> is needed to ensure
+  consistent matching of elements, apply <code><a href="#normal">lexically_normal()</a></code>
+  to <code>*this</code>, <code>base</code>, or both. <i>—end note</i>]</p>
+
+</blockquote>
+
+
+<h3>New <a name="operational-functions">operational functions</a></h3>
+
+
+<h4><a name="Synopsis-ops">Synopsis</a></h4>
+
+
+<pre>path weakly_canonical(const path&amp; p);
+path weakly_canonical(const path&amp; p, system::error_code&amp; ec);
+path relative(const path&amp; p, system::error_code&amp; ec);
+path relative(const path&amp; p, const path&amp; base=current_path());
+path relative(const path&amp; p, const path&amp; base, system::error_code&amp; ec);
+path proximate(const path&amp; p, system::error_code&amp; ec);
+path proximate(const path&amp; p, const path&amp; base=current_path());
+path proximate(const path&amp; p, const path&amp; base, system::error_code&amp; ec);
+</pre>
+<h4><a name="Specification-ops">Specification</a></h4>
+
+<pre>path <a name="weakly_canonical">weakly_canonical</a>(const path&amp; p);
+path weakly_canonical(const path&amp; p, system::error_code&amp; ec);</pre>
+<blockquote>
+<i>Overview:</i> Returns <code>p</code> with symlinks resolved and the result
+normalized.<p>
+<i>Returns: </i>
+A path composed of the result of calling the <code>canonical</code> function on
+a path composed of the leading elements of <code>p</code> that exist, if any,
+followed by the elements of <code>p</code> that do not exist, if any.</p>
+<p><i>Postcondition:</i> The returned path is in <a href="#normal">normal form</a>.</p>
+<p><i>Remarks:</i> Uses <code>operator/=</code> to compose the returned path.
+Uses the <code>status</code> function to determine existence.</p>
+<p><i>Remarks:</i> Implementations are encouraged to avoid unnecessary
+normalization such as when <code>canonical</code> has already been called on the
+entirety of <code>p</code>.</p>
+<p><i>Throws:</i>&nbsp; As specified in Error reporting.</p>
+</blockquote>
+<pre>path <a name="op-relative">relative</a>(const path&amp; p, system::error_code&amp; ec);</pre>
+<blockquote>
+<p><i>Returns:</i> <code>relative(p, current_path(), ec)</code>.</p>
+  <p><i>Throws:</i>&nbsp; As specified in Error reporting.</p>
+
+  </blockquote>
+<pre>path relative(const path&amp; p, const path&amp; base=current_path());
+path relative(const path&amp; p, const path&amp; base, system::error_code&amp; ec);</pre>
+<blockquote>
+  <p><i>Overview:</i> Returns <code>p</code> made relative to <code>
+  base</code>. Treats empty or identical paths as corner cases, not errors.
+  Resolves symlinks and normalizes both <code>p</code> and <code>base</code>
+  before other processing.</p>
+
+<p><i>Returns:</i> <code><a href="#weakly_canonical">weakly_canonical</a>(p).l<a href="#lex-proximate">exically_relative</a>(<a href="#weakly_canonical">weakly_canonical</a>(base))</code>. The second form returns <code>path()</code> if an error occurs.</p>
+  <p><i>Throws:</i> As specified in Error reporting.</p>
+</blockquote>
+
+<pre>path <a name="op-proximate">proximate</a>(const path&amp; p, system::error_code&amp; ec);</pre>
+<blockquote>
+<p><i>Returns:</i> <code>proximate(p, current_path(), ec)</code>.</p>
+  <p><i>Throws:</i>&nbsp; As specified in Error reporting.</p>
+
+  </blockquote>
+<pre>path proximate(const path&amp; p, const path&amp; base=current_path());
+path proximate(const path&amp; p, const path&amp; base, system::error_code&amp; ec);</pre>
+<blockquote>
+
+<p><i>Returns:</i> <code><a href="#weakly_canonical">weakly_canonical</a>(p).l<a href="#lex-proximate">exically_proximate</a>(<a href="#weakly_canonical">weakly_canonical</a>(base))</code>. The second form returns <code>path()</code> if an error occurs.</p>
+  <p><i>Throws:</i> As specified in Error reporting.</p>
+</blockquote>
+
+<hr>
+<p>&copy; Copyright Beman Dawes 2015</p>
+<p>Distributed under the Boost Software License, Version 1.0. See
+<a href="http://www.boost.org/LICENSE_1_0.txt">www.boost.org/LICENSE_1_0.txt</a></p>
+
+</body>
+
+</html>

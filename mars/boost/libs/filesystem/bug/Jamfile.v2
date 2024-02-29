@@ -1,0 +1,17 @@
+# Boost Filesystem Library Bug report Jamfile
+ 
+# Copyright Beman Dawes 2014
+# Distributed under the Boost Software License, Version 1.0.
+# See www.boost.org/LICENSE_1_0.txt
+
+# Library home page: http://www.boost.org/libs/filesystem
+
+project
+    : requirements
+      <library>/boost/filesystem//mars_boost_filesystem
+    ;
+
+exe bug : bug.cpp : <link>static ;
+
+# install in ./bin; invoke via "b2", not "b2 install"
+install bin : bug ;

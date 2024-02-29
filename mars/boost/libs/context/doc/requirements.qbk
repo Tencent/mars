@@ -1,0 +1,41 @@
+[/
+          Copyright Oliver Kowalke 2014.
+ Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+          http://www.boost.org/LICENSE_1_0.txt
+]
+
+[section:requirements Requirements]
+
+If __boost_context__ uses fcontext_t (the default) as its implementation,
+it must be built for the particular compiler(s) and CPU architecture(s)
+being targeted.
+Using [link implementation ['fcontext_t]], __boost_context__ includes assembly
+code and, therefore, requires GNU as and GNU preprocessor for supported POSIX
+systems, MASM for Windows/x86 systems and ARMasm for Windows/arm systems.
+
+[note MASM64 (ml64.exe) is a part of Microsoft's Windows Driver Kit.]
+
+[important Please note that `address-model=64` must be given to bjam command
+line on 64bit Windows for 64bit build; otherwise 32bit code will be generated.]
+
+[important For cross-compiling the lib you must specify certain additional
+properties at bjam command line: `target-os`, `abi`, `binary-format`,
+`architecture` and `address-model`.]
+
+[important Windows using fcontext_t: for safe SEH the property 'asmflags=\safeseh' must be specified at
+bjam command line.]
+
+[important Windows using fcontext_t: turn off global program optimization (/GL) and change /EHsc (compiler
+assumes that functions declared as extern "C" never throw a C++ exception) to /EHs (tells
+compiler assumes that functions declared as extern "C" may throw an exception).]
+
+Because this library uses C++11 extensively, it requires a compatible compiler.
+Known minimum working versions are as follows: Microsoft Visual Studio 2015
+(msvc-14.0), GCC 4.8 (with -std=c++11), Clang 3.4 (with -std=c++11). Other
+compilers may work, if they support the following language features:  auto
+declarations, constexpr, defaulted functions, final, hdr thread, hdr tuple,
+lambdas, noexcept, nullptr, rvalue references, template aliases. thread local,
+variadic templates.
+
+[endsect]

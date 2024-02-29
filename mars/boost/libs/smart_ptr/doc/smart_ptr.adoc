@@ -1,0 +1,70 @@
+////
+Copyright 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+# Boost.SmartPtr: The Smart Pointer Library
+Greg Colvin, Beman Dawes, Peter Dimov, Glen Fernandes
+:toc: left
+:toclevels: 2
+:idprefix:
+:listing-caption: Code Example
+:docinfo: private-footer
+:source-highlighter: rouge
+:source-language: c++
+
+:leveloffset: +1
+
+include::smart_ptr/introduction.adoc[]
+include::smart_ptr/changelog.adoc[]
+include::smart_ptr/scoped_ptr.adoc[]
+include::smart_ptr/scoped_array.adoc[]
+include::smart_ptr/shared_ptr.adoc[]
+include::smart_ptr/weak_ptr.adoc[]
+include::smart_ptr/make_shared.adoc[]
+include::smart_ptr/enable_shared_from_this.adoc[]
+include::smart_ptr/enable_shared_from.adoc[]
+include::smart_ptr/make_unique.adoc[]
+include::smart_ptr/allocate_unique.adoc[]
+include::smart_ptr/intrusive_ptr.adoc[]
+include::smart_ptr/intrusive_ref_counter.adoc[]
+include::smart_ptr/local_shared_ptr.adoc[]
+include::smart_ptr/make_local_shared.adoc[]
+include::smart_ptr/pointer_cast.adoc[]
+include::smart_ptr/pointer_to_other.adoc[]
+include::smart_ptr/atomic_shared_ptr.adoc[]
+include::smart_ptr/owner_less.adoc[]
+include::smart_ptr/owner_equal_to.adoc[]
+include::smart_ptr/owner_hash.adoc[]
+
+// appendix
+include::smart_ptr/techniques.adoc[]
+
+// appendix
+include::smart_ptr/history.adoc[]
+
+// appendix, deprecated
+include::smart_ptr/shared_array.adoc[]
+
+:leveloffset: -1
+
+[[copyright]]
+[appendix]
+## Copyright and License
+
+This documentation is
+
+* Copyright 1999 Greg Colvin
+* Copyright 1999 Beman Dawes
+* Copyright 2002 Darin Adler
+* Copyright 2003-2020 Peter Dimov
+* Copyright 2005, 2006 Ion Gaztañaga
+* Copyright 2008 Frank Mori Hess
+* Copyright 2012-2017 Glen Fernandes
+* Copyright 2013 Andrey Semashev
+
+and is distributed under the http://www.boost.org/LICENSE_1_0.txt[Boost Software License, Version 1.0].

@@ -1,0 +1,39 @@
+#  Copyright Vladimir Prus 2005.
+#  Copyright Antony Polukhin, 2013-2023.
+#
+#  Use, modification and
+#  distribution is subject to the Boost Software License, Version
+#  1.0. (See accompanying file LICENSE_1_0.txt or copy at
+#  http://www.boost.org/LICENSE_1_0.txt)
+#
+# For more information, see http://www.boost.org/libs/any
+
+import ../../config/checks/config : requires ;
+
+import testing ;
+
+project
+    : source-location .
+    : requirements
+        [ requires cxx11_rvalue_references ]
+    ;
+
+test-suite unique_any :
+    [ run base.cpp : : : : unique_base ]
+    [ run base.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : no_rtti_unique_base ]
+    [ run move.cpp : : : : unique_move ]
+    [ run move.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : no_rtti_unique_move ]
+    [ run emplace.cpp : : : : unique_emplace ]
+    [ run emplace.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : no_rtti_unique_emplace ]
+    [ run from_any.cpp : : : : unique_from_any ]
+    [ run from_any.cpp : : : <rtti>off <define>BOOST_NO_RTTI <define>BOOST_NO_TYPEID : no_rtti_unique_from_any ]
+    [ compile-fail any_cast_cv_failed.cpp : : unique_any_cast_cd_failed ]
+    [ compile-fail temporary_to_ref_failed.cpp : : unique_temporary_to_ref_failed  ]
+    [ compile-fail cv_to_rv_failed.cpp : : unique_cv_to_rv_failed ]
+    [ compile-fail const_rvalue_construction_failed.cpp : : unique_const_rvalue_construction_failed ]
+
+    [ compile-fail from_any_failed.cpp : : unique_from_any_failed ]
+    [ compile-fail from_basic_any_failed.cpp : : unique_from_basic_any_failed ]
+  ;
+
+

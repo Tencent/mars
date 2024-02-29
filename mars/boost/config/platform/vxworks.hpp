@@ -1,30 +1,27 @@
 //  (C) Copyright Dustin Spicuzza 2009.
 //      Adapted to vxWorks 6.9 by Peter Brockamp 2012.
+//      Updated for VxWorks 7 by Brian Kuhl 2016
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org for most recent version.
 
-//  Since WRS does not yet properly support boost under vxWorks
-//  and this file was badly outdated, but I was keen on using it,
-//  I patched boost myself to make things work. This has been tested
-//  and adapted by me for vxWorks 6.9 *only*, as I'm lacking access
-//  to earlier 6.X versions! The only thing I know for sure is that
-//  very old versions of vxWorks (namely everything below 6.x) are
-//  absolutely unable to use boost. This is mainly due to the completely
-//  outdated libraries and ancient compiler (GCC 2.96 or worse). Do
-//  not even think of getting this to work, a miserable failure will
-//  be guaranteed!
-//  Equally, this file has been tested for RTPs (Real Time Processes)
-//  only, not for DKMs (Downloadable Kernel Modules). These two types
-//  of executables differ largely in the available functionality of
-//  the C-library, STL, and so on. A DKM uses a library similar to those
-//  of vxWorks 5.X - with all its limitations and incompatibilities
-//  with respect to ANSI C++ and STL. So probably there might be problems
-//  with the usage of boost from DKMs. WRS or any voluteers are free to
-//  prove the opposite!
-
+//  Old versions of vxWorks (namely everything below 6.x) are
+//  absolutely unable to use boost. Old STLs and compilers 
+//  like (GCC 2.96) . Do not even think of getting this to work, 
+//  a miserable failure will  be guaranteed!
+//
+//  VxWorks supports C++ linkage in the kernel with
+//  DKMs (Downloadable Kernel Modules). But, until recently 
+//  the kernel used a C89 library with no
+//  wide character support and no guarantee of ANSI C. 
+//  Regardless of the C library the same Dinkum 
+//  STL library is used in both contexts. 
+//
+//  Similarly the Dinkum abridged STL that supports the loosely specified 
+//  embedded C++ standard has not been tested and is unlikely to work 
+//  on anything but the simplest library.
 // ====================================================================
 //
 // Some important information regarding the usage of POSIX semaphores:
@@ -38,29 +35,14 @@
 // Now, VxWorks POSIX-semaphores for DKM's default to the usage of
 // priority inverting semaphores, which is fine. On the other hand,
 // for RTP's it defaults to using non priority inverting semaphores,
-// which could easily pose a serious problem for a real time process,
-// i.e. deadlocks! To overcome this two possibilities do exist:
+// which could easily pose a serious problem for a real time process.
 //
-// a) Patch every piece of boost that uses semaphores to instanciate
-//    the proper type of semaphores. This is non-intrusive with respect
-//    to the OS and could relatively easy been done by giving all
-//    semaphores attributes deviating from the default (for in-depth
-//    information see the POSIX functions pthread_mutexattr_init()
-//    and pthread_mutexattr_setprotocol()). However this breaks all
-//    too easily, as with every new version some boost library could
-//    all in a sudden start using semaphores, resurrecting the very
-//    same, hard to locate problem over and over again!
-//
-// b) We could change the default properties for POSIX-semaphores
-//    that VxWorks uses for RTP's and this is being suggested here,
-//    as it will more or less seamlessly integrate with boost. I got
-//    the following information from WRS how to do this, compare
-//    Wind River TSR# 1209768:
-//
-// Instructions for changing the default properties of POSIX-
-// semaphores for RTP's in VxWorks 6.9:
-// - Edit the file /vxworks-6.9/target/usr/src/posix/pthreadLib.c
-//   in the root of your Workbench-installation.
+// To change the default properties for POSIX-semaphores in VxWorks 7
+// enable core > CORE_USER Menu > DEFAULT_PTHREAD_PRIO_INHERIT 
+//  
+// In VxWorks 6.x so as to integrate with boost. 
+// - Edit the file 
+//   installDir/vxworks-6.x/target/usr/src/posix/pthreadLib.c
 // - Around line 917 there should be the definition of the default
 //   mutex attributes:
 //
@@ -81,30 +63,11 @@
 //   pAttr->mutexAttrType        = PTHREAD_MUTEX_DEFAULT;
 //
 //   Here again, replace PTHREAD_PRIO_NONE by PTHREAD_PRIO_INHERIT.
-// - Finally, rebuild your VSB. This will create a new VxWorks kernel
+// - Finally, rebuild your VSB. This will rebuild the libraries
 //   with the changed properties. That's it! Now, using boost should
 //   no longer cause any problems with task deadlocks!
 //
-// And here's another useful piece of information concerning VxWorks'
-// POSIX-functionality in general:
-// VxWorks is not a genuine POSIX-OS in itself, rather it is using a
-// kind of compatibility layer (sort of a wrapper) to emulate the
-// POSIX-functionality by using its own resources and functions.
-// At the time a task (thread) calls it's first POSIX-function during
-// runtime it is being transformed by the OS into a POSIX-thread.
-// This transformation does include a call to malloc() to allocate the
-// memory required for the housekeeping of POSIX-threads. In a high
-// priority RTP this malloc() call may be highly undesirable, as its
-// timing is more or less unpredictable (depending on what your actual
-// heap looks like). You can circumvent this problem by calling the
-// function thread_self() at a well defined point in the code of the
-// task, e.g. shortly after the task spawns up. Thereby you are able
-// to define the time when the task-transformation will take place and
-// you could shift it to an uncritical point where a malloc() call is
-// tolerable. So, if this could pose a problem for your code, remember
-// to call thread_self() from the affected task at an early stage.
-//
-// ====================================================================
+//  ====================================================================
 
 // Block out all versions before vxWorks 6.x, as these don't work:
 // Include header with the vxWorks version information and query them
@@ -126,30 +89,20 @@
 // --------------------------------
 #define BOOST_PLATFORM "vxWorks"
 
-// Special behaviour for DKMs:
-#ifdef _WRS_KERNEL
-  // DKMs do not have the <cwchar>-header,
-  // but apparently they do have an intrinsic wchar_t meanwhile!
-#  define BOOST_NO_CWCHAR
-
-  // Lots of wide-functions and -headers are unavailable for DKMs as well:
-#  define BOOST_NO_CWCTYPE
-#  define BOOST_NO_SWPRINTF
-#  define BOOST_NO_STD_WSTRING
-#  define BOOST_NO_STD_WSTREAMBUF
-#endif
 
 // Generally available headers:
 #define BOOST_HAS_UNISTD_H
 #define BOOST_HAS_STDINT_H
 #define BOOST_HAS_DIRENT_H
-#define BOOST_HAS_SLIST
+//#define BOOST_HAS_SLIST
 
 // vxWorks does not have installed an iconv-library by default,
 // so unfortunately no Unicode support from scratch is available!
 // Thus, instead it is suggested to switch to ICU, as this seems
 // to be the most complete and portable option...
-#define BOOST_LOCALE_WITH_ICU
+#ifndef BOOST_LOCALE_WITH_ICU
+   #define BOOST_LOCALE_WITH_ICU
+#endif
 
 // Generally available functionality:
 #define BOOST_HAS_THREADS
@@ -157,11 +110,6 @@
 #define BOOST_HAS_GETTIMEOFDAY
 #define BOOST_HAS_CLOCK_GETTIME
 #define BOOST_HAS_MACRO_USE_FACET
-
-// Generally unavailable functionality, delivered by boost's test function:
-//#define BOOST_NO_DEDUCED_TYPENAME // Commented this out, boost's test gives an errorneous result!
-#define BOOST_NO_CXX11_EXTERN_TEMPLATE
-#define BOOST_NO_CXX11_VARIADIC_MACROS
 
 // Generally available threading API's:
 #define BOOST_HAS_PTHREADS
@@ -180,7 +128,7 @@
   // Luckily, at the moment there seems to be none!
 #endif
 
-// These #defines allow posix_features to work, since vxWorks doesn't
+// These #defines allow detail/posix_features to work, since vxWorks doesn't
 // #define them itself for DKMs (for RTPs on the contrary it does):
 #ifdef _WRS_KERNEL
 #  ifndef _POSIX_TIMERS
@@ -189,54 +137,71 @@
 #  ifndef _POSIX_THREADS
 #    define _POSIX_THREADS 1
 #  endif
+// no sysconf( _SC_PAGESIZE) in kernel
+#  define BOOST_THREAD_USES_GETPAGESIZE
 #endif
 
-// vxWorks doesn't work with asio serial ports:
-#define BOOST_ASIO_DISABLE_SERIAL_PORT
-// TODO: The problem here seems to bee that vxWorks uses its own, very specific
-//       ways to handle serial ports, incompatible with POSIX or anything...
-//       Maybe a specific implementation would be possible, but until the
-//       straight need arises... This implementation would presumably consist
-//       of some vxWorks specific ioctl-calls, etc. Any voluteers?
-
+#if (_WRS_VXWORKS_MAJOR < 7) 
 // vxWorks-around: <time.h> #defines CLOCKS_PER_SEC as sysClkRateGet() but
 //                 miserably fails to #include the required <sysLib.h> to make
 //                 sysClkRateGet() available! So we manually include it here.
-#ifdef __RTP__
-#  include <time.h>
-#  include <sysLib.h>
-#endif
+#  ifdef __RTP__
+#    include <sysLib.h>
+#    include <time.h>
+#  endif
 
 // vxWorks-around: In <stdint.h> the macros INT32_C(), UINT32_C(), INT64_C() and
-//                 UINT64_C() are defined errorneously, yielding not a signed/
+//                 UINT64_C() are defined erroneously, yielding not a signed/
 //                 unsigned long/long long type, but a signed/unsigned int/long
 //                 type. Eventually this leads to compile errors in ratio_fwd.hpp,
 //                 when trying to define several constants which do not fit into a
 //                 long type! We correct them here by redefining.
-#include <cstdint>
+
+#  include <cstdint>
+
+// Special behaviour for DKMs:
 
 // Some macro-magic to do the job
-#define VX_JOIN(X, Y)     VX_DO_JOIN(X, Y)
-#define VX_DO_JOIN(X, Y)  VX_DO_JOIN2(X, Y)
-#define VX_DO_JOIN2(X, Y) X##Y
+#  define VX_JOIN(X, Y)     VX_DO_JOIN(X, Y)
+#  define VX_DO_JOIN(X, Y)  VX_DO_JOIN2(X, Y)
+#  define VX_DO_JOIN2(X, Y) X##Y
 
 // Correctly setup the macros
-#undef  INT32_C
-#undef  UINT32_C
-#undef  INT64_C
-#undef  UINT64_C
-#define INT32_C(x)  VX_JOIN(x, L)
-#define UINT32_C(x) VX_JOIN(x, UL)
-#define INT64_C(x)  VX_JOIN(x, LL)
-#define UINT64_C(x) VX_JOIN(x, ULL)
+#  undef  INT32_C
+#  undef  UINT32_C
+#  undef  INT64_C
+#  undef  UINT64_C
+#  define INT32_C(x)  VX_JOIN(x, L)
+#  define UINT32_C(x) VX_JOIN(x, UL)
+#  define INT64_C(x)  VX_JOIN(x, LL)
+#  define UINT64_C(x) VX_JOIN(x, ULL)
 
 // #include Libraries required for the following function adaption
+#  include <sys/time.h>
+#endif  // _WRS_VXWORKS_MAJOR < 7
+
 #include <ioLib.h>
 #include <tickLib.h>
-#include <sys/time.h>
+
+#if defined(_WRS_KERNEL) && (_CPPLIB_VER < 700)
+  // recent kernels use Dinkum clib v7.00+
+  // with widechar but older kernels
+  // do not have the <cwchar>-header,
+  // but apparently they do have an intrinsic wchar_t meanwhile!
+#  define BOOST_NO_CWCHAR
+
+  // Lots of wide-functions and -headers are unavailable for DKMs as well:
+#  define BOOST_NO_CWCTYPE
+#  define BOOST_NO_SWPRINTF
+#  define BOOST_NO_STD_WSTRING
+#  define BOOST_NO_STD_WSTREAMBUF
+#endif
+
 
 // Use C-linkage for the following helper functions
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 // vxWorks-around: The required functions getrlimit() and getrlimit() are missing.
 //                 But we have the similar functions getprlimit() and setprlimit(),
@@ -248,7 +213,7 @@ extern "C" {
 
 // TODO: getprlimit() and setprlimit() do exist for RTPs only, for whatever reason.
 //       Thus for DKMs there would have to be another implementation.
-#ifdef __RTP__
+#if defined ( __RTP__) &&  (_WRS_VXWORKS_MAJOR < 7)
   inline int getrlimit(int resource, struct rlimit *rlp){
     return getprlimit(0, 0, resource, rlp);
   }
@@ -273,23 +238,27 @@ inline int truncate(const char *p, off_t l){
   return close(fd);
 }
 
+#ifdef __GNUC__
+#  define ___unused __attribute__((unused))
+#else
+#  define ___unused
+#endif
+
 // Fake symlink handling by dummy functions:
-inline int symlink(const char*, const char*){
+inline int symlink(const char* path1 ___unused, const char* path2 ___unused){
   // vxWorks has no symlinks -> always return an error!
   errno = EACCES;
   return -1;
 }
 
-inline ssize_t readlink(const char*, char*, size_t){
+inline ssize_t readlink(const char* path1 ___unused, char* path2 ___unused, size_t size ___unused){
   // vxWorks has no symlinks -> always return an error!
   errno = EACCES;
   return -1;
 }
 
-// vxWorks claims to implement gettimeofday in sys/time.h
-// but nevertheless does not provide it! See
-// https://support.windriver.com/olsPortal/faces/maintenance/techtipDetail_noHeader.jspx?docId=16442&contentId=WR_TECHTIP_006256
-// We implement a surrogate version here via clock_gettime:
+#if (_WRS_VXWORKS_MAJOR < 7)
+
 inline int gettimeofday(struct timeval *tv, void * /*tzv*/) {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -297,8 +266,20 @@ inline int gettimeofday(struct timeval *tv, void * /*tzv*/) {
   tv->tv_usec = ts.tv_nsec / 1000;
   return 0;
 }
+#endif
 
-// vxWorks does provide neither struct tms nor function times()!
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+/* 
+ * moved to os/utils/unix/freind_h/times.h in VxWorks 7
+ * to avoid conflict with MPL operator times
+ */
+#if (_WRS_VXWORKS_MAJOR < 7) 
+#  ifdef __cplusplus
+
+// vxWorks provides neither struct tms nor function times()!
 // We implement an empty dummy-function, simply setting the user
 // and system time to the half of thew actual system ticks-value
 // and the child user and system time to 0.
@@ -315,7 +296,8 @@ struct tms{
   clock_t tms_cstime; // System CPU time of terminated child processes
 };
 
-inline clock_t times(struct tms *t){
+
+ inline clock_t times(struct tms *t){
   struct timespec ts;
   clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
   clock_t ticks(static_cast<clock_t>(static_cast<double>(ts.tv_sec)  * CLOCKS_PER_SEC +
@@ -327,20 +309,31 @@ inline clock_t times(struct tms *t){
   return ticks;
 }
 
-} // extern "C"
+
+namespace std {
+    using ::times;
+}
+#  endif // __cplusplus
+#endif // _WRS_VXWORKS_MAJOR < 7
+
+
+#ifdef __cplusplus
+extern "C" void   bzero     (void *, size_t);    // FD_ZERO uses bzero() but doesn't include strings.h
 
 // Put the selfmade functions into the std-namespace, just in case
 namespace std {
-# ifdef __RTP__
+#  ifdef __RTP__
     using ::getrlimit;
     using ::setrlimit;
-# endif
+#  endif
   using ::truncate;
   using ::symlink;
   using ::readlink;
-  using ::times;
-  using ::gettimeofday;
+#  if (_WRS_VXWORKS_MAJOR < 7)  
+    using ::gettimeofday;
+#  endif  
 }
+#endif // __cplusplus
 
 // Some more macro-magic:
 // vxWorks-around: Some functions are not present or broken in vxWorks
@@ -349,21 +342,81 @@ namespace std {
 // Include signal.h which might contain a typo to be corrected here
 #include <signal.h>
 
-#define getpagesize()    sysconf(_SC_PAGESIZE)         // getpagesize is deprecated anyway!
+#if (_WRS_VXWORKS_MAJOR < 7)
+#  define getpagesize()    sysconf(_SC_PAGESIZE)         // getpagesize is deprecated anyway!
+inline int lstat(p, b) { return stat(p, b); }  // lstat() == stat(), as vxWorks has no symlinks!
+#endif
+
 #ifndef S_ISSOCK
 #  define S_ISSOCK(mode) ((mode & S_IFMT) == S_IFSOCK) // Is file a socket?
 #endif
-#define lstat(p, b)      stat(p, b)                    // lstat() == stat(), as vxWorks has no symlinks!
 #ifndef FPE_FLTINV
 #  define FPE_FLTINV     (FPE_FLTSUB+1)                // vxWorks has no FPE_FLTINV, so define one as a dummy
 #endif
 #if !defined(BUS_ADRALN) && defined(BUS_ADRALNR)
 #  define BUS_ADRALN     BUS_ADRALNR                   // Correct a supposed typo in vxWorks' <signal.h>
 #endif
-//typedef int              locale_t;                     // locale_t is a POSIX-extension, currently unpresent in vxWorks!
+typedef int              locale_t;                     // locale_t is a POSIX-extension, currently not present in vxWorks!
 
 // #include boilerplate code:
-#include <boost/config/posix_features.hpp>
+#include <boost/config/detail/posix_features.hpp>
 
 // vxWorks lies about XSI conformance, there is no nl_types.h:
 #undef BOOST_HAS_NL_TYPES_H
+
+// vxWorks 7 adds C++11 support 
+// however it is optional, and does not match exactly the support determined
+// by examining the Dinkum STL version and GCC version (or ICC and DCC) 
+#if !( defined( _WRS_CONFIG_LANG_LIB_CPLUS_CPLUS_USER_2011) || defined(_WRS_CONFIG_LIBCPLUS_STD))
+#  define BOOST_NO_CXX11_ADDRESSOF      // C11 addressof operator on memory location
+#  define BOOST_NO_CXX11_ALLOCATOR
+#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
+#  define BOOST_NO_CXX11_NUMERIC_LIMITS  // max_digits10 in test/../print_helper.hpp
+#  define BOOST_NO_CXX11_SMART_PTR 
+#  define BOOST_NO_CXX11_STD_ALIGN
+
+
+#  define BOOST_NO_CXX11_HDR_ARRAY
+#  define BOOST_NO_CXX11_HDR_ATOMIC
+#  define BOOST_NO_CXX11_HDR_CHRONO
+#  define BOOST_NO_CXX11_HDR_CONDITION_VARIABLE
+#  define BOOST_NO_CXX11_HDR_FORWARD_LIST  //serialization/test/test_list.cpp
+#  define BOOST_NO_CXX11_HDR_FUNCTIONAL 
+#  define BOOST_NO_CXX11_HDR_FUTURE
+#  define BOOST_NO_CXX11_HDR_MUTEX
+#  define BOOST_NO_CXX11_HDR_RANDOM      //math/../test_data.hpp
+#  define BOOST_NO_CXX11_HDR_RATIO
+#  define BOOST_NO_CXX11_HDR_REGEX
+#  define BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#  define BOOST_NO_CXX11_HDR_SYSTEM_ERROR
+#  define BOOST_NO_CXX11_HDR_THREAD
+#  define BOOST_NO_CXX11_HDR_TYPEINDEX 
+#  define BOOST_NO_CXX11_HDR_TYPE_TRAITS
+#  define BOOST_NO_CXX11_HDR_TUPLE 
+#  define BOOST_NO_CXX11_HDR_UNORDERED_MAP
+#  define BOOST_NO_CXX11_HDR_UNORDERED_SET 
+#else
+#  ifndef  BOOST_SYSTEM_NO_DEPRECATED
+#    define BOOST_SYSTEM_NO_DEPRECATED  // workaround link error in spirit
+#  endif
+#endif
+
+
+// NONE is used in enums in lamda and other libraries
+#undef NONE
+// restrict is an iostreams class
+#undef restrict
+// affects some typeof tests
+#undef V7
+
+// use fake poll() from Unix layer in ASIO to get full functionality 
+// most libraries will use select() but this define allows 'iostream' functionality
+// which is based on poll() only
+#if (_WRS_VXWORKS_MAJOR > 6)
+#  ifndef BOOST_ASIO_HAS_POSIX_STREAM_DESCRIPTOR
+#    define BOOST_ASIO_HAS_POSIX_STREAM_DESCRIPTOR
+#  endif
+#else 
+#  define BOOST_ASIO_DISABLE_SERIAL_PORT
+#endif
+

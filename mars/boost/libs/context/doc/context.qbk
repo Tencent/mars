@@ -1,0 +1,172 @@
+[/
+          Copyright Oliver Kowalke 2014.
+ Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+          http://www.boost.org/LICENSE_1_0.txt
+]
+
+[library Context
+    [quickbook 1.5]
+    [authors [Kowalke, Oliver]]
+    [copyright 2014 Oliver Kowalke]
+    [id context]
+    [purpose C++ Library for swiching different user ctx]
+    [category text]
+    [license
+        Distributed under the Boost Software License, Version 1.0.
+        (See accompanying file LICENSE_1_0.txt or copy at
+        [@http://www.boost.org/LICENSE_1_0.txt])
+    ]
+]
+
+
+[def __boost_build__ [*Boost.Build]]
+[def __boost_context__ [*Boost.Context]]
+
+[template mdash[] '''&mdash;''']
+[template superscript[exp] '''<superscript>'''[exp]'''</superscript>''']
+
+[template class_heading[class_name]
+[hding class_[class_name]..Class [`[class_name]]]
+]
+[template class_link[class_name] [dblink class_[class_name]..[`[class_name]]]]
+
+[template template_heading[class_name]
+[hding class_[class_name]..Template [`[class_name]<>]]
+]
+[template template_link[class_name] [dblink class_[class_name]..[`[class_name]<>]]]
+
+[template member_heading[class_name method_name]
+[operator_heading [class_name]..[method_name]..[method_name]]
+]
+[template member_link[class_name method_name] [operator_link [class_name]..[method_name]..[method_name]]]
+
+[template operator_heading[class_name method_name method_text]
+[hding [class_name]_[method_name]..Member function [`[method_text]]()]
+]
+[template operator_link[class_name method_name method_text] [dblink [class_name]_[method_name]..[`[class_name]::[method_text]()]]]
+
+[template template_member_heading[class_name method_name]
+[hding [class_name]_[method_name]..Templated member function [`[method_name]]()]
+]
+[template template_member_link[class_name method_name] [member_link [class_name]..[method_name]]]
+
+[template static_member_heading[class_name method_name]
+[hding [class_name]_[method_name]..Static member function [`[method_name]]()]
+]
+[template static_member_link[class_name method_name] [member_link [class_name]..[method_name]]]
+
+[template data_member_heading[class_name member_name]
+[hding [class_name]_[member_name]..Data member [`[member_name]]]
+]
+[template data_member_link[class_name member_name] [dblink [class_name]_[member_name]..[`[class_name]::[member_name]]]]
+
+[template function_heading[function_name]
+[hding [function_name]..Non-member function [`[function_name]()]]
+]
+[template function_link[function_name] [dblink [function_name]..[`[function_name]()]]]
+
+[template ns_function_heading[namespace function_name]
+[hding [namespace]_[function_name]..Non-member function [`[namespace]::[function_name]()]]
+]
+[template ns_function_link[namespace function_name] [dblink [namespace]_[function_name]..[`[namespace]::[function_name]()]]]
+
+[template constructor_heading[class_name constructor_name]
+[hding [class_name]_[constructor_name]..Constructor]
+]
+
+[template destructor_heading[class_name destructor_name]
+[hding [class_name]_[destructor_name]..Destructor]
+]
+
+[template copy_constructor_heading[class_name copy_constructor_name]
+[hding [class_name]_[copy_constructor_name]..Copy constructor]
+]
+
+[template move_constructor_heading[class_name move_constructor_name]
+[hding [class_name]_[move_constructor_name]..Move constructor]
+]
+
+[template copy_assignment_heading[class_name copy_assignment_name]
+[hding [class_name]_[copy_assignment_name]..Copy assignment operator]
+]
+
+[template move_assignment_heading[class_name move_assignment_name]
+[hding [class_name]_[move_assignment_name]..Move assignment operator]
+]
+
+[template anchor[name] '''<anchor id="'''[name]'''"/>''']
+[template hding[name title]
+'''<bridgehead renderas="sect4" id="'''[name]_bridgehead'''">
+  <phrase id="'''[name]'''"/>
+  <link linkend="'''[name]'''">'''[title]'''</link>
+</bridgehead>'''
+]
+[template dblink[id text] '''<link linkend="'''[id]'''">'''[text]'''</link>''']
+[template `[text] '''<code>'''[text]'''</code>''']
+
+
+[def __callcc__ ['call/cc]]
+[def __context_fn__ ['context-function]]
+[def __coroutine__ ['coroutine]]
+[def __coroutines__ ['coroutines]]
+[def __coop_threads__ ['cooperative threads (userland threads)]]
+[def __fiber__ ['fiber]]
+[def __fls__ ['fiber-local storage]]
+[def __guard_page__ ['guard-page]]
+[def __not_a_context__ ['not-a-context]]
+[def __stack__ ['stack]]
+[def __thread__ ['thread]]
+[def __threads__ ['threads]]
+[def __tls__ ['thread-local storage]]
+[def __toe__ ['thread-of-execution]]
+[def __stack_allocator__ ['StackAllocator]]
+[def __stack_allocator_concept__ ['stack-allocator concept]]
+[def __stack_traits__ ['stack-traits]]
+
+[def __cc__ [link cc ['callcc()]]]
+[def __con__ [link cc ['continuation]]]
+[def __fib__ [link ff ['fiber]]]
+[def __fcontext__ ['fcontext_t]]
+[def __forced_unwind__ ['detail::forced_unwind]]
+[def __ucontext__ ['ucontext_t]]
+[def __fixedsize__ ['fixedsize_stack]]
+[def __pooled_fixedsize__ ['pooled_fixedsize_stack]]
+[def __protected_fixedsize__ ['protected_fixedsize_stack]]
+[def __resume__ ['continuation::resume()]]
+[def __resume_with__ ['continuation::resume_with()]]
+[def __segmented__ [link segmented ['segmented_stack]]]
+[def __segmented_stack__ ['segmented_stack]]
+[def __stack_context__ ['stack_context]]
+[def __winfib__ ['WinFiber]]
+
+[def __fls_alloc__ ['::FlsAlloc()]]
+[def __fls_free__ ['::FlsFree()]]
+
+[def __bad_alloc__ ['std::bad_alloc]]
+[def __ec_current__ ['execution_context::current()]]
+[def __ec_op__ ['execution_context::operator()]]
+[def __fc_base__ ['fc_base]]
+[def __fc_link__ ['fc_link]]
+[def __jump_fcontext__ ['jump_fcontext()]]
+[def __make_fcontext__ ['make_fcontext()]]
+[def __invalid_argument__ ['std::invalid_argument]]
+[def __ot_error__ ['ontop_error]]
+[def __stack_alloc__ ['allocate()]]
+[def __stack_dealloc__ ['deallocate()]]
+[def __stack_helper__ ['stack_helper]]
+[def __yield__ ['yield]]
+
+[def __context_ns__ ['boost::context]]
+
+[include overview.qbk]
+[include requirements.qbk]
+[include fiber.qbk]
+[include callcc.qbk]
+[include stack.qbk]
+[include preallocated.qbk]
+[include performance.qbk]
+[include architectures.qbk]
+[include rationale.qbk]
+[include reference.qbk]
+[include acknowledgements.qbk]

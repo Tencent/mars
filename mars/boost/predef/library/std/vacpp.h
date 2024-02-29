@@ -10,20 +10,21 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/predef/library/std/_prefix.h>
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_LIB_STD_IBM`]
+/* tag::reference[]
+= `BOOST_LIB_STD_IBM`
 
-[@http://www.ibm.com/software/awdtools/xlcpp/ IBM VACPP Standard C++] library.
+http://www.ibm.com/software/awdtools/xlcpp/[IBM VACPP Standard {CPP}] library.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__IBMCPP__`] [__predef_detection__]]
-    ]
- */
+| `+__IBMCPP__+` | {predef_detection}
+|===
+*/ // end::reference[]
 
 #define BOOST_LIB_STD_IBM BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

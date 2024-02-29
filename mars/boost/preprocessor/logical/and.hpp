@@ -15,8 +15,8 @@
 # define BOOST_PREPROCESSOR_LOGICAL_AND_HPP
 #
 # include <boost/preprocessor/config/config.hpp>
-# include <boost/preprocessor/logical/bool.hpp>
 # include <boost/preprocessor/logical/bitand.hpp>
+# include <boost/preprocessor/logical/bool.hpp>
 #
 # /* BOOST_PP_AND */
 #

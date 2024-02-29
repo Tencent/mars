@@ -8,11 +8,16 @@
 #  */
 #
 # /* Revised by Paul Mensonides (2002) */
+# /* Revised by Edward Diener (2020) */
 #
 # /* See http://www.boost.org for most recent version. */
 #
 # ifndef BOOST_PREPROCESSOR_REPETITION_DETAIL_EDG_FOR_HPP
 # define BOOST_PREPROCESSOR_REPETITION_DETAIL_EDG_FOR_HPP
+#
+# include <boost/preprocessor/config/config.hpp>
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # include <boost/preprocessor/control/if.hpp>
 # include <boost/preprocessor/tuple/eat.hpp>
@@ -530,5 +535,26 @@
 # define BOOST_PP_FOR_254_I(s, p, o, m) BOOST_PP_IF(p(255, s), m, BOOST_PP_TUPLE_EAT_2)(255, s) BOOST_PP_IF(p(255, s), BOOST_PP_FOR_255, BOOST_PP_TUPLE_EAT_4)(o(255, s), p, o, m)
 # define BOOST_PP_FOR_255_I(s, p, o, m) BOOST_PP_IF(p(256, s), m, BOOST_PP_TUPLE_EAT_2)(256, s) BOOST_PP_IF(p(256, s), BOOST_PP_FOR_256, BOOST_PP_TUPLE_EAT_4)(o(256, s), p, o, m)
 # define BOOST_PP_FOR_256_I(s, p, o, m) BOOST_PP_IF(p(257, s), m, BOOST_PP_TUPLE_EAT_2)(257, s) BOOST_PP_IF(p(257, s), BOOST_PP_FOR_257, BOOST_PP_TUPLE_EAT_4)(o(257, s), p, o, m)
+#
+# else
+#
+# include <boost/preprocessor/config/limits.hpp>
+# include <boost/preprocessor/control/if.hpp>
+# include <boost/preprocessor/tuple/eat.hpp>
+#
+# if BOOST_PP_LIMIT_FOR == 256
+# include <boost/preprocessor/repetition/detail/edg/limits/for_256.hpp>
+# elif BOOST_PP_LIMIT_FOR == 512
+# include <boost/preprocessor/repetition/detail/edg/limits/for_256.hpp>
+# include <boost/preprocessor/repetition/detail/edg/limits/for_512.hpp>
+# elif BOOST_PP_LIMIT_FOR == 1024
+# include <boost/preprocessor/repetition/detail/edg/limits/for_1024.hpp>
+# include <boost/preprocessor/repetition/detail/edg/limits/for_256.hpp>
+# include <boost/preprocessor/repetition/detail/edg/limits/for_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_FOR limit
+# endif
+#
+# endif
 #
 # endif

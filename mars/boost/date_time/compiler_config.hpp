@@ -8,22 +8,9 @@
  * $Date$
  */
 
-#include <cstdlib>
 #include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
-
-// With boost release 1.33, date_time will be using a different,
-// more flexible, IO system. This new system is not compatible with
-// old compilers. The original date_time IO system remains for those
-// compilers. They must define this macro to use the legacy IO.
-//     (defined(__BORLANDC__) && (__BORLANDC__ <= 0x0581) ) )   &&
- #if(  BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x581) ) \
-    || BOOST_WORKAROUND( __GNUC__, < 3)                         \
-    || (BOOST_WORKAROUND( _MSC_VER, <= 1300) )                  \
-    )                                                           \
-    && !defined(USE_DATE_TIME_PRE_1_33_FACET_IO)
-# define USE_DATE_TIME_PRE_1_33_FACET_IO
-#endif
+#include <cstdlib>
 
 
 // This file performs some local compiler configurations
@@ -41,12 +28,8 @@
 
 // Include extensions to date_duration - comment out to remove this feature
 #define BOOST_DATE_TIME_OPTIONAL_GREGORIAN_TYPES
-// these extensions are known to cause problems with gcc295
-#if defined(__GNUC__) && (__GNUC__ < 3)
-#undef BOOST_DATE_TIME_OPTIONAL_GREGORIAN_TYPES
-#endif
 
-#if (defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION) || BOOST_WORKAROUND( __BORLANDC__,  BOOST_TESTED_AT(0x581) ) )
+#if (defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION) || BOOST_WORKAROUND( BOOST_BORLANDC,  BOOST_TESTED_AT(0x581) ) )
 #define BOOST_DATE_TIME_NO_MEMBER_INIT
 #endif
 
@@ -60,13 +43,13 @@
 
 
 /* Workaround for Borland iterator error. Error was "Cannot convert 'istream *' to 'wistream *' in function istream_iterator<>::istream_iterator() */
-#if defined(__BORLANDC__) && defined(BOOST_BCB_WITH_RW_LIB)
+#if defined(BOOST_BORLANDC) && defined(BOOST_BCB_WITH_RW_LIB)
 #define BOOST_DATE_TIME_NO_WISTREAM_ITERATOR
 #endif
 
 
 // Borland v5.64 does not have the following in std namespace; v5.5.1 does
-#if defined(__BORLANDC__) && defined(BOOST_BCB_WITH_STLPORT)
+#if defined(BOOST_BORLANDC) && defined(BOOST_BCB_WITH_STLPORT)
 #include <locale>
 namespace std {
   using stlport::tolower;
@@ -83,7 +66,7 @@ namespace std {
 #if (((defined(__GNUC__) && (__GNUC__ < 3)) || \
       (defined(_MSC_VER) && (_MSC_VER < 1300)) ) && \
       !defined(_STLP_OWN_IOSTREAMS) ) || \
-      BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x581) )
+      BOOST_WORKAROUND( BOOST_BORLANDC, BOOST_TESTED_AT(0x581) )
 #define BOOST_DATE_TIME_INCLUDE_LIMITED_HEADERS
 #endif
 
@@ -136,26 +119,6 @@ namespace std {
 #  define BOOST_DATE_TIME_DECL
 #endif
 
-//
-// Automatically link to the correct build variant where possible. 
-// 
-#if !defined(BOOST_ALL_NO_LIB) && !defined(BOOST_DATE_TIME_NO_LIB) && !defined(BOOST_DATE_TIME_SOURCE)
-//
-// Set the name of our library, this will get undef'ed by auto_link.hpp
-// once it's done with it:
-//
-#define BOOST_LIB_NAME mars_boost_date_time
-//
-// If we're importing code from a dll, then tell auto_link.hpp about it:
-//
-#if defined(BOOST_ALL_DYN_LINK) || defined(BOOST_DATE_TIME_DYN_LINK)
-#  define BOOST_DYN_LINK
-#endif
-//
-// And include the header that does the work:
-//
-#include <boost/config/auto_link.hpp>
-#endif  // auto-linking disabled
 
 #if defined(BOOST_HAS_THREADS) 
 #  if defined(_MSC_VER) || defined(__MWERKS__) || defined(__MINGW32__) ||  defined(__BORLANDC__)
@@ -165,5 +128,10 @@ namespace std {
 #  endif
 #endif
 
+#if defined(BOOST_NO_CXX11_NULLPTR)
+#  define BOOST_DATE_TIME_NULLPTR 0
+#else
+#  define BOOST_DATE_TIME_NULLPTR nullptr
+#endif
 
 #endif

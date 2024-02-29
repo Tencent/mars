@@ -12,12 +12,12 @@
 #define BOOST_RANGE_DETAIL_SFINAE_HPP
 
 #include <boost/range/config.hpp>
-#include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/detail/yes_no_type.hpp>
+#include <boost/type_traits/is_array.hpp>
 #include <utility>
 
 
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost 
 {
     namespace range_detail
     {          

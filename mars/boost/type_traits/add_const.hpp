@@ -41,6 +41,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
       typedef T& type;
    };
 
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using add_const_t = typename add_const<T>::type;
+
+#endif
+
 } // namespace mars_boost
 
 #endif // BOOST_TT_ADD_CONST_HPP_INCLUDED

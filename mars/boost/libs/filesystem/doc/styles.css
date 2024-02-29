@@ -1,0 +1,18 @@
+body
+{
+  font-family: arial, sans-serif;
+  max-width: 90%;
+  margin: 0px auto;
+}
+ins  {background-color: #CCFFCC; text-decoration: none;}
+del  {background-color: #FFCACA; text-decoration: none;}
+pre  {background-color: #D7EEFF; font-family: "Courier New", "Courier", monospace;}
+code {font-size: 110%; font-family: "Courier New", "Courier", monospace;}
+table {font-size: 90%;}
+
+/*
+ * (c) Copyright Beman Dawes, 2014
+ * (c) Copyright Andrey Semashev, 2021
+ * Distributed under the Boost Software License, Version 1.0.
+ * See www.boost.org/LICENSE_1_0.txt
+ */

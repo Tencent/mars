@@ -4,17 +4,17 @@
 //  basic_recursive_mutex.hpp
 //
 //  (C) Copyright 2006-8 Anthony Williams
-//  (C) Copyright 2011-2012 Vicente J. Botet Escriba
+//  (C) Copyright 2011-2012,2017-2018 Vicente J. Botet Escriba
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/thread/win32/thread_primitives.hpp>
 #include <boost/thread/win32/basic_timed_mutex.hpp>
+#include <boost/thread/win32/thread_primitives.hpp>
 #ifdef BOOST_THREAD_USES_CHRONO
-#include <boost/chrono/system_clocks.hpp>
 #include <boost/chrono/ceil.hpp>
+#include <boost/chrono/system_clocks.hpp>
 #endif
 
 #include <boost/config/abi_prefix.hpp>
@@ -44,13 +44,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
             bool try_lock() BOOST_NOEXCEPT
             {
-                long const current_thread_id=win32::GetCurrentThreadId();
+                long const current_thread_id=mars_boost::winapi::GetCurrentThreadId();
                 return try_recursive_lock(current_thread_id) || try_basic_lock(current_thread_id);
             }
 
             void lock()
             {
-                long const current_thread_id=win32::GetCurrentThreadId();
+                long const current_thread_id=mars_boost::winapi::GetCurrentThreadId();
                 if(!try_recursive_lock(current_thread_id))
                 {
                     mutex.lock();
@@ -59,31 +59,32 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 }
             }
 #if defined BOOST_THREAD_USES_DATETIME
-            bool timed_lock(::boost::system_time const& target)
+            bool timed_lock(::mars_boost::system_time const& target)
             {
-                long const current_thread_id=win32::GetCurrentThreadId();
+                long const current_thread_id=mars_boost::winapi::GetCurrentThreadId();
                 return try_recursive_lock(current_thread_id) || try_timed_lock(current_thread_id,target);
             }
             template<typename Duration>
-            bool timed_lock(Duration const& timeout)
+            bool timed_lock(Duration const& target)
             {
-                return timed_lock(get_system_time()+timeout);
+                long const current_thread_id=mars_boost::winapi::GetCurrentThreadId();
+                return try_recursive_lock(current_thread_id) || try_timed_lock(current_thread_id,target);
             }
 #endif
 
 #ifdef BOOST_THREAD_USES_CHRONO
-        template <class Rep, class Period>
-        bool try_lock_for(const chrono::duration<Rep, Period>& rel_time)
-        {
-                long const current_thread_id=win32::GetCurrentThreadId();
+            template <class Rep, class Period>
+            bool try_lock_for(const chrono::duration<Rep, Period>& rel_time)
+            {
+                long const current_thread_id=mars_boost::winapi::GetCurrentThreadId();
                 return try_recursive_lock(current_thread_id) || try_timed_lock_for(current_thread_id,rel_time);
-        }
-        template <class Clock, class Duration>
-        bool try_lock_until(const chrono::time_point<Clock, Duration>& t)
-        {
-                long const current_thread_id=win32::GetCurrentThreadId();
+            }
+            template <class Clock, class Duration>
+            bool try_lock_until(const chrono::time_point<Clock, Duration>& t)
+            {
+                long const current_thread_id=mars_boost::winapi::GetCurrentThreadId();
                 return try_recursive_lock(current_thread_id) || try_timed_lock_until(current_thread_id,t);
-        }
+            }
 #endif
             void unlock()
             {
@@ -97,7 +98,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         private:
             bool try_recursive_lock(long current_thread_id) BOOST_NOEXCEPT
             {
-                if(::boost::detail::interlocked_read_acquire(&locking_thread_id)==current_thread_id)
+                if(::mars_boost::detail::interlocked_read_acquire(&locking_thread_id)==current_thread_id)
                 {
                     ++recursion_count;
                     return true;
@@ -117,7 +118,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             }
 
 #if defined BOOST_THREAD_USES_DATETIME
-            bool try_timed_lock(long current_thread_id,::boost::system_time const& target)
+            bool try_timed_lock(long current_thread_id,::mars_boost::system_time const& target)
+            {
+                if(mutex.timed_lock(target))
+                {
+                    BOOST_INTERLOCKED_EXCHANGE(&locking_thread_id,current_thread_id);
+                    recursion_count=1;
+                    return true;
+                }
+                return false;
+            }
+            template<typename Duration>
+            bool try_timed_lock(long current_thread_id,Duration const& target)
             {
                 if(mutex.timed_lock(target))
                 {

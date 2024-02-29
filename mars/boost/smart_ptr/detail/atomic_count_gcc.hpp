@@ -9,7 +9,7 @@
 //  http://gcc.gnu.org/onlinedocs/porting/Thread-safety.html
 //
 //  Copyright (c) 2001, 2002 Peter Dimov and Multi Media Ltd.
-//  Copyright (c) 2002 Lars Gullik Bj�nnes <larsbj@lyx.org>
+//  Copyright (c) 2002 Lars Gullik Bjønnes <larsbj@lyx.org>
 //  Copyright 2003-2005 Peter Dimov
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
@@ -21,6 +21,13 @@
 # include <ext/atomicity.h> 
 #else 
 # include <bits/atomicity.h>
+#endif
+
+#if defined(BOOST_SP_REPORT_IMPLEMENTATION)
+
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("Using libstdc++ atomic_count")
+
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
@@ -67,6 +74,6 @@ private:
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_GCC_HPP_INCLUDED

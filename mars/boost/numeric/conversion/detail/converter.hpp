@@ -12,9 +12,9 @@
 
 #include <functional>
 
-#include "boost/numeric/conversion/detail/meta.hpp"
-#include "boost/numeric/conversion/detail/conversion_traits.hpp"
 #include "boost/numeric/conversion/bounds.hpp"
+#include "boost/numeric/conversion/detail/conversion_traits.hpp"
+#include "boost/numeric/conversion/detail/meta.hpp"
 
 #include "boost/type_traits/is_same.hpp"
 
@@ -450,13 +450,10 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
   // Trivial Converter : used when (cv-unqualified) T == (cv-unqualified)  S
   //
   template<class Traits>
-  struct trivial_converter_impl : public std::unary_function<  BOOST_DEDUCED_TYPENAME Traits::argument_type
-                                                              ,BOOST_DEDUCED_TYPENAME Traits::result_type
-                                                            >
-                                 ,public dummy_range_checker<Traits>
+  struct trivial_converter_impl : public dummy_range_checker<Traits>
   {
     typedef Traits traits ;
-
+    
     typedef typename Traits::source_type   source_type   ;
     typedef typename Traits::argument_type argument_type ;
     typedef typename Traits::result_type   result_type   ;
@@ -471,10 +468,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
   // Rounding Converter : used for float to integral conversions.
   //
   template<class Traits,class RangeChecker,class RawConverter,class Float2IntRounder>
-  struct rounding_converter : public std::unary_function<  BOOST_DEDUCED_TYPENAME Traits::argument_type
-                                                          ,BOOST_DEDUCED_TYPENAME Traits::result_type
-                                                        >
-                             ,public RangeChecker
+  struct rounding_converter : public RangeChecker
                              ,public Float2IntRounder
                              ,public RawConverter
   {
@@ -501,10 +495,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
   // Non-Rounding Converter : used for all other conversions.
   //
   template<class Traits,class RangeChecker,class RawConverter>
-  struct non_rounding_converter : public std::unary_function< BOOST_DEDUCED_TYPENAME Traits::argument_type
-                                                             ,BOOST_DEDUCED_TYPENAME Traits::result_type
-                                                           >
-                                 ,public RangeChecker
+  struct non_rounding_converter : public RangeChecker
                                  ,public RawConverter
   {
     typedef RangeChecker RangeCheckerBase ;
@@ -570,7 +561,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
           >
   struct get_converter_impl
   {
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT( 0x0561 ) )
+#if BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT( 0x0561 ) )
     // bcc55 prefers sometimes template parameters to be explicit local types.
     // (notice that is is illegal to reuse the names like this)
     typedef Traits           Traits ;

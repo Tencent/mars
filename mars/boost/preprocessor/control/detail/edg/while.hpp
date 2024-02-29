@@ -8,11 +8,16 @@
 #  */
 #
 # /* Revised by Paul Mensonides (2002) */
+# /* Revised by Edward Diener (2020) */
 #
 # /* See http://www.boost.org for most recent version. */
 #
 # ifndef BOOST_PREPROCESSOR_CONTROL_DETAIL_EDG_WHILE_HPP
 # define BOOST_PREPROCESSOR_CONTROL_DETAIL_EDG_WHILE_HPP
+#
+# include <boost/preprocessor/config/config.hpp>
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # include <boost/preprocessor/control/if.hpp>
 # include <boost/preprocessor/tuple/eat.hpp>
@@ -530,5 +535,27 @@
 # define BOOST_PP_WHILE_254_I(p, o, s) BOOST_PP_IF(p(255, s), BOOST_PP_WHILE_255, s BOOST_PP_TUPLE_EAT_3)(p, o, o(255, s))
 # define BOOST_PP_WHILE_255_I(p, o, s) BOOST_PP_IF(p(256, s), BOOST_PP_WHILE_256, s BOOST_PP_TUPLE_EAT_3)(p, o, o(256, s))
 # define BOOST_PP_WHILE_256_I(p, o, s) BOOST_PP_IF(p(257, s), BOOST_PP_WHILE_257, s BOOST_PP_TUPLE_EAT_3)(p, o, o(257, s))
+#
+# else
+#
+# include <boost/preprocessor/control/if.hpp>
+# include <boost/preprocessor/tuple/eat.hpp>
+#
+# include <boost/preprocessor/config/limits.hpp>
+#
+# if BOOST_PP_LIMIT_WHILE == 256
+# include <boost/preprocessor/control/detail/edg/limits/while_256.hpp>
+# elif BOOST_PP_LIMIT_WHILE == 512
+# include <boost/preprocessor/control/detail/edg/limits/while_256.hpp>
+# include <boost/preprocessor/control/detail/edg/limits/while_512.hpp>
+# elif BOOST_PP_LIMIT_WHILE == 1024
+# include <boost/preprocessor/control/detail/edg/limits/while_1024.hpp>
+# include <boost/preprocessor/control/detail/edg/limits/while_256.hpp>
+# include <boost/preprocessor/control/detail/edg/limits/while_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_WHILE limit
+# endif
+#
+# endif
 #
 # endif

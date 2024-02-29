@@ -25,12 +25,12 @@
 
 #include <boost/config.hpp>
 
-#include <boost/utility/result_of.hpp>
-#include <boost/thread/detail/move.hpp>
+#include <boost/thread/csbl/tuple.hpp>
 #include <boost/thread/detail/invoke.hpp>
 #include <boost/thread/detail/make_tuple_indices.hpp>
-#include <boost/thread/csbl/tuple.hpp>
+#include <boost/thread/detail/move.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/utility/result_of.hpp>
 
 #include <boost/thread/detail/variadic_header.hpp>
 
@@ -269,7 +269,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       T6 v6_;
       T7 v7_;
       T8 v8_;
-      //::boost::tuple<Fp, T0, T1, T2, T3, T4, T5, T6, T7, T8> f_;
+      //::mars_boost::tuple<Fp, T0, T1, T2, T3, T4, T5, T6, T7, T8> f_;
 
     public:
       BOOST_THREAD_COPYABLE_AND_MOVABLE(invoker)

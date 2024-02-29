@@ -35,7 +35,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
     template<BOOST_SIGNALS2_SLOT_TEMPLATE_SPECIALIZATION_DECL(BOOST_SIGNALS2_NUM_ARGS)>
       class BOOST_SIGNALS2_SLOT_CLASS_NAME(BOOST_SIGNALS2_NUM_ARGS) BOOST_SIGNALS2_SLOT_TEMPLATE_SPECIALIZATION
-      : public slot_base, public detail::BOOST_SIGNALS2_STD_FUNCTIONAL_BASE(R)
+      : public slot_base, public detail::BOOST_SIGNALS2_STD_FUNCTIONAL_BASE
 
     {
     public:

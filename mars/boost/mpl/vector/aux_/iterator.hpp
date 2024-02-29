@@ -14,18 +14,18 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/vector/aux_/at.hpp>
-#include <boost/mpl/iterator_tags.hpp>
-#include <boost/mpl/plus.hpp>
-#include <boost/mpl/minus.hpp>
 #include <boost/mpl/advance_fwd.hpp>
-#include <boost/mpl/distance_fwd.hpp>
-#include <boost/mpl/next.hpp>
-#include <boost/mpl/prior.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
-#include <boost/mpl/aux_/value_wknd.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/aux_/nttp_decl.hpp>
+#include <boost/mpl/aux_/value_wknd.hpp>
+#include <boost/mpl/distance_fwd.hpp>
+#include <boost/mpl/iterator_tags.hpp>
+#include <boost/mpl/minus.hpp>
+#include <boost/mpl/next.hpp>
+#include <boost/mpl/plus.hpp>
+#include <boost/mpl/prior.hpp>
+#include <boost/mpl/vector/aux_/at.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

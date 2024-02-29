@@ -8,6 +8,7 @@
 #define BOOST_THREAD_EXECUTORS_GENERIC_EXECUTOR_REF_HPP
 
 #include <boost/thread/detail/config.hpp>
+#if defined BOOST_THREAD_PROVIDES_FUTURE_CONTINUATION && defined BOOST_THREAD_PROVIDES_EXECUTORS && defined BOOST_THREAD_USES_MOVE
 
 #include <boost/thread/detail/delete.hpp>
 #include <boost/thread/detail/move.hpp>
@@ -32,7 +33,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
     /// executor is not copyable.
     BOOST_THREAD_NO_COPYABLE(executor_ref)
-    executor_ref(Executor& ex) : ex(ex) {}
+    executor_ref(Executor& ex_) : ex(ex_) {}
 
     /**
      * \par Effects
@@ -41,7 +42,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
      * \par Synchronization
      * The completion of all the closures happen before the completion of the executor destructor.
      */
-    ~executor_ref() {};
+    ~executor_ref() {}
 
     /**
      * \par Effects
@@ -98,9 +99,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     typedef executors::work work;
 
     template<typename Executor>
-    generic_executor_ref(Executor& ex)
-    //: ex(make_shared<executor_ref<Executor> >(ex)) // todo check why this doesn't works with C++03
-    : ex( new executor_ref<Executor>(ex) )
+    generic_executor_ref(Executor& ex_)
+    //: ex(make_shared<executor_ref<Executor> >(ex_)) // todo check why this doesn't works with C++03
+    : ex( new executor_ref<Executor>(ex_) )
     {
     }
 
@@ -210,4 +211,5 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
 #include <boost/config/abi_suffix.hpp>
 
+#endif
 #endif

@@ -12,17 +12,17 @@
 #include <boost/thread/detail/config.hpp>
 #include <boost/thread/detail/delete.hpp>
 
-#include <boost/throw_exception.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_types.hpp>
+#include <boost/core/enable_if.hpp>
 #include <boost/thread/condition_variable.hpp>
-#include <string>
-#include <stdexcept>
 #include <boost/thread/detail/nullary_function.hpp>
+#include <boost/thread/lock_types.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_void.hpp>
-#include <boost/core/enable_if.hpp>
 #include <boost/utility/result_of.hpp>
+#include <stdexcept>
+#include <string>
 
 #include <boost/config/abi_prefix.hpp>
 
@@ -145,7 +145,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         unsigned int count,
         BOOST_THREAD_RV_REF(F) funct,
         typename enable_if<
-        typename is_void<typename result_of<F>::type>::type, dummy*
+        typename is_void<typename result_of<F()>::type>::type, dummy*
         >::type=0
     )
     : m_count(check_counter(count)),
@@ -160,7 +160,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         unsigned int count,
         F &funct,
         typename enable_if<
-        typename is_void<typename result_of<F>::type>::type, dummy*
+        typename is_void<typename result_of<F()>::type>::type, dummy*
         >::type=0
     )
     : m_count(check_counter(count)),
@@ -176,7 +176,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         unsigned int count,
         BOOST_THREAD_RV_REF(F) funct,
         typename enable_if<
-        typename is_same<typename result_of<F>::type, unsigned int>::type, dummy*
+        typename is_same<typename result_of<F()>::type, unsigned int>::type, dummy*
         >::type=0
     )
     : m_count(check_counter(count)),
@@ -189,7 +189,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         unsigned int count,
         F& funct,
         typename enable_if<
-        typename is_same<typename result_of<F>::type, unsigned int>::type, dummy*
+        typename is_same<typename result_of<F()>::type, unsigned int>::type, dummy*
         >::type=0
     )
     : m_count(check_counter(count)),
@@ -225,6 +225,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         m_generation++;
         m_count = static_cast<unsigned int>(fct_());
         BOOST_ASSERT(m_count != 0);
+        lock.unlock();
         m_cond.notify_all();
         return true;
       }
@@ -247,7 +248,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     thread_detail::size_completion_function fct_;
   };
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #include <boost/config/abi_suffix.hpp>
 

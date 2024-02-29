@@ -14,11 +14,11 @@
 // $Date$
 // $Revision$
 
+#include <boost/mpl/aux_/insert_impl.hpp>
+#include <boost/mpl/aux_/lambda_support.hpp>
+#include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/insert_fwd.hpp>
 #include <boost/mpl/sequence_tag.hpp>
-#include <boost/mpl/aux_/insert_impl.hpp>
-#include <boost/mpl/aux_/na_spec.hpp>
-#include <boost/mpl/aux_/lambda_support.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

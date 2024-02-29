@@ -9,24 +9,22 @@
 #include <boost/concept_check.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
-// Use mars_boost::detail::iterator_traits to work around some MSVC/Dinkumware problems.
-#include <boost/detail/iterator.hpp>
-
-#include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_same.hpp>
 
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/if.hpp>
-#include <boost/mpl/and.hpp>
 #include <boost/mpl/or.hpp>
 
 #include <boost/static_assert.hpp>
 
 // Use boost/limits to work around missing limits headers on some compilers
-#include <boost/limits.hpp>
 #include <boost/config.hpp>
+#include <boost/limits.hpp>
 
 #include <algorithm>
+#include <iterator>
 
 #include <boost/concept/detail/concept_def.hpp>
 
@@ -44,8 +42,8 @@ namespace mars_boost_concepts
     , mars_boost::CopyConstructible<Iterator>
 
   {
-      typedef BOOST_DEDUCED_TYPENAME mars_boost::detail::iterator_traits<Iterator>::value_type value_type;
-      typedef BOOST_DEDUCED_TYPENAME mars_boost::detail::iterator_traits<Iterator>::reference reference;
+      typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::value_type value_type;
+      typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::reference reference;
 
       BOOST_CONCEPT_USAGE(ReadableIterator)
       {
@@ -59,7 +57,7 @@ namespace mars_boost_concepts
 
   template <
       typename Iterator
-    , typename ValueType = BOOST_DEDUCED_TYPENAME mars_boost::detail::iterator_traits<Iterator>::value_type
+    , typename ValueType = BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::value_type
   >
   struct WritableIterator
     : mars_boost::CopyConstructible<Iterator>
@@ -75,7 +73,7 @@ namespace mars_boost_concepts
 
   template <
       typename Iterator
-    , typename ValueType = BOOST_DEDUCED_TYPENAME mars_boost::detail::iterator_traits<Iterator>::value_type
+    , typename ValueType = BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::value_type
   >
   struct WritableIteratorConcept : WritableIterator<Iterator,ValueType> {};
 
@@ -92,7 +90,7 @@ namespace mars_boost_concepts
 
   BOOST_concept(LvalueIterator,(Iterator))
   {
-      typedef typename mars_boost::detail::iterator_traits<Iterator>::value_type value_type;
+      typedef typename std::iterator_traits<Iterator>::value_type value_type;
 
       BOOST_CONCEPT_USAGE(LvalueIterator)
       {
@@ -144,10 +142,10 @@ namespace mars_boost_concepts
     : SinglePassIterator<Iterator>
     , mars_boost::DefaultConstructible<Iterator>
   {
-      typedef typename mars_boost::detail::iterator_traits<Iterator>::difference_type difference_type;
+      typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
-      BOOST_MPL_ASSERT((mars_boost::is_integral<difference_type>));
-      BOOST_MPL_ASSERT_RELATION(std::numeric_limits<difference_type>::is_signed, ==, true);
+      BOOST_STATIC_ASSERT(mars_boost::is_integral<difference_type>::value);
+      BOOST_STATIC_ASSERT(std::numeric_limits<difference_type>::is_signed);
 
       BOOST_CONCEPT_ASSERT((
           mars_boost::Convertible<
@@ -221,7 +219,7 @@ namespace mars_boost_concepts
         mars_boost::random_access_traversal_tag, mars_boost::random_access_traversal_tag)
     {
         bool b;
-        typename mars_boost::detail::iterator_traits<Iterator2>::difference_type n;
+        typename std::iterator_traits<Iterator2>::difference_type n;
         b = i1 <  i2;
         b = i1 <= i2;
         b = i1 >  i2;

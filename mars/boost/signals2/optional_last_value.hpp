@@ -11,6 +11,7 @@
 #ifndef BOOST_SIGNALS2_OPTIONAL_LAST_VALUE_HPP
 #define BOOST_SIGNALS2_OPTIONAL_LAST_VALUE_HPP
 
+#include <boost/core/no_exceptions_support.hpp>
 #include <boost/optional.hpp>
 #include <boost/signals2/expired_slot.hpp>
 
@@ -59,7 +60,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
           BOOST_CATCH_END
           ++first;
         }
-        
         return;
       }
     };

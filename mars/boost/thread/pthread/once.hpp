@@ -11,20 +11,21 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/thread/detail/config.hpp>
-#include <boost/thread/detail/move.hpp>
 #include <boost/thread/detail/invoke.hpp>
+#include <boost/thread/detail/move.hpp>
 
-#include <boost/thread/pthread/pthread_mutex_scoped_lock.hpp>
-#include <boost/thread/detail/delete.hpp>
 #include <boost/core/no_exceptions_support.hpp>
+#include <boost/thread/detail/delete.hpp>
+#include <boost/thread/pthread/pthread_helpers.hpp>
+#include <boost/thread/pthread/pthread_mutex_scoped_lock.hpp>
 
-#include <boost/bind.hpp>
 #include <boost/assert.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/config/abi_prefix.hpp>
 
 #include <boost/cstdint.hpp>
-#include <pthread.h>
 #include <csignal>
+#include <pthread.h>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -149,18 +150,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -194,18 +195,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -238,18 +239,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -281,18 +282,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -325,18 +326,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -369,18 +370,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -416,18 +417,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -463,18 +464,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }
@@ -512,18 +513,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 BOOST_CATCH (...)
                 {
                     flag.epoch=uninitialized_flag;
-                    BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                    BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
                     BOOST_RETHROW
                 }
                 BOOST_CATCH_END
                 flag.epoch=--thread_detail::once_global_epoch;
-                BOOST_VERIFY(!pthread_cond_broadcast(&thread_detail::once_epoch_cv));
+                BOOST_VERIFY(!posix::pthread_cond_broadcast(&thread_detail::once_epoch_cv));
             }
             else
             {
                 while(flag.epoch==being_initialized)
                 {
-                    BOOST_VERIFY(!pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
+                    BOOST_VERIFY(!posix::pthread_cond_wait(&thread_detail::once_epoch_cv,&thread_detail::once_epoch_mutex));
                 }
             }
         }

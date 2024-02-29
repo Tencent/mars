@@ -11,18 +11,18 @@
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-#include <cstring>
-#include <cstddef>
 #include <boost/assert.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/detail/interlocked.hpp>
-#include <boost/thread/win32/thread_primitives.hpp>
-#include <boost/thread/win32/interlocked_read.hpp>
 #include <boost/core/no_exceptions_support.hpp>
-#include <boost/thread/detail/move.hpp>
+#include <boost/detail/interlocked.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/thread/detail/invoke.hpp>
+#include <boost/thread/detail/move.hpp>
+#include <boost/thread/win32/interlocked_read.hpp>
+#include <boost/thread/win32/thread_primitives.hpp>
+#include <cstddef>
+#include <cstring>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include <boost/config/abi_prefix.hpp>
 
@@ -124,7 +124,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             std::memcpy(mutex_name,fixed_mutex_name,sizeof(fixed_mutex_name));
             detail::int_to_string(reinterpret_cast<std::ptrdiff_t>(flag_address),
                                   mutex_name + once_mutex_name_fixed_length);
-            detail::int_to_string(win32::GetCurrentProcessId(),
+            detail::int_to_string(winapi::GetCurrentProcessId(),
                                   mutex_name + once_mutex_name_fixed_length + sizeof(void*)*2);
         }
 
@@ -136,12 +136,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             }
 
 #ifdef BOOST_NO_ANSI_APIS
-            return ::boost::detail::win32::OpenEventW(
+            return ::mars_boost::winapi::OpenEventW(
 #else
-            return ::boost::detail::win32::OpenEventA(
+            return ::mars_boost::winapi::OpenEventA(
 #endif
-                ::boost::detail::win32::synchronize |
-                ::boost::detail::win32::event_modify_state,
+                ::mars_boost::detail::win32::synchronize |
+                ::mars_boost::detail::win32::event_modify_state,
                 false,
                 mutex_name);
         }
@@ -153,10 +153,10 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 name_once_mutex(mutex_name,flag_address);
             }
             
-            return ::boost::detail::win32::create_event(
+            return ::mars_boost::detail::win32::create_event(
                 mutex_name, 
-                ::boost::detail::win32::manual_reset_event,
-                ::boost::detail::win32::event_initially_reset);
+                ::mars_boost::detail::win32::manual_reset_event,
+                ::mars_boost::detail::win32::event_initially_reset);
         }
 
         struct once_context {
@@ -186,7 +186,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             }
             if(ctx.event_handle)
             {
-                ::boost::detail::win32::ResetEvent(ctx.event_handle);
+                ::mars_boost::winapi::ResetEvent(ctx.event_handle);
             }
             return true;
           }
@@ -201,13 +201,13 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           }
           BOOST_INTERLOCKED_EXCHANGE(&flag.status,ctx.function_complete_flag_value);
           if(!ctx.event_handle &&
-             (::boost::detail::interlocked_read_acquire(&flag.count)>1))
+             (::mars_boost::detail::interlocked_read_acquire(&flag.count)>1))
           {
               ctx.event_handle=detail::create_once_event(ctx.mutex_name,&flag);
           }
           if(ctx.event_handle)
           {
-              ::boost::detail::win32::SetEvent(ctx.event_handle);
+              ::mars_boost::winapi::SetEvent(ctx.event_handle);
           }
         }
         inline void rollback_once_region(once_flag& flag, once_context& ctx) BOOST_NOEXCEPT
@@ -219,19 +219,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           }
           if(ctx.event_handle)
           {
-              ::boost::detail::win32::SetEvent(ctx.event_handle);
+              ::mars_boost::winapi::SetEvent(ctx.event_handle);
           }
         }
     }
 
 #if !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) && !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
-//#if defined(BOOST_THREAD_RVALUE_REFERENCES_DONT_MATCH_FUNTION_PTR)
+//#if defined(BOOST_THREAD_RVALUE_REFERENCES_DONT_MATCH_FUNCTION_PTR)
     inline void call_once(once_flag& flag, void (*f)())
     {
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -253,7 +253,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -264,8 +264,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite, 0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite, 0));
         }
     }
 //#endif
@@ -275,7 +275,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -297,7 +297,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -308,8 +308,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, class A, class ...ArgTypes>
@@ -318,7 +318,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -344,7 +344,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -355,8 +355,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
 #else
@@ -367,7 +367,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -389,7 +389,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -400,8 +400,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1>
@@ -410,7 +410,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -432,7 +432,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -443,8 +443,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1, typename T2>
@@ -453,7 +453,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -475,7 +475,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -486,8 +486,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1, typename T2, typename T3>
@@ -496,7 +496,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -518,7 +518,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -529,8 +529,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
 #elif defined BOOST_NO_CXX11_RVALUE_REFERENCES
@@ -541,7 +541,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -563,7 +563,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -574,8 +574,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1>
@@ -584,7 +584,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -606,7 +606,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -617,8 +617,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1, typename T2>
@@ -627,7 +627,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -649,7 +649,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -660,8 +660,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1, typename T2, typename T3>
@@ -670,7 +670,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -692,7 +692,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -703,19 +703,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
 #endif
 #if 1
-#if defined(BOOST_THREAD_RVALUE_REFERENCES_DONT_MATCH_FUNTION_PTR)
+#if defined(BOOST_THREAD_RVALUE_REFERENCES_DONT_MATCH_FUNCTION_PTR)
         inline void call_once(once_flag& flag, void (*f)())
         {
             // Try for a quick win: if the procedure has already been called
             // just skip through:
             detail::once_context ctx;
-            while(::boost::detail::interlocked_read_acquire(&flag.status)
+            while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
                   !=ctx.function_complete_flag_value)
             {
                 if(detail::enter_once_region(flag, ctx))
@@ -737,7 +737,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 {
                     BOOST_INTERLOCKED_INCREMENT(&flag.count);
                     ctx.counted=true;
-                    long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                    long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                     if(status==ctx.function_complete_flag_value)
                     {
                         break;
@@ -748,8 +748,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                         continue;
                     }
                 }
-                BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                                 ctx.event_handle,::boost::detail::win32::infinite,0));
+                BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                                 ctx.event_handle,::mars_boost::detail::win32::infinite,0));
             }
         }
         template<typename T1>
@@ -758,7 +758,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             // Try for a quick win: if the procedure has already been called
             // just skip through:
             detail::once_context ctx;
-            while(::boost::detail::interlocked_read_acquire(&flag.status)
+            while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
                   !=ctx.function_complete_flag_value)
             {
                 if(detail::enter_once_region(flag, ctx))
@@ -782,7 +782,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 {
                     BOOST_INTERLOCKED_INCREMENT(&flag.count);
                     ctx.counted=true;
-                    long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                    long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                     if(status==ctx.function_complete_flag_value)
                     {
                         break;
@@ -793,8 +793,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                         continue;
                     }
                 }
-                BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                                 ctx.event_handle,::boost::detail::win32::infinite,0));
+                BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                                 ctx.event_handle,::mars_boost::detail::win32::infinite,0));
             }
         }
         template<typename Function, typename T1, typename T2>
@@ -803,7 +803,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             // Try for a quick win: if the procedure has already been called
             // just skip through:
             detail::once_context ctx;
-            while(::boost::detail::interlocked_read_acquire(&flag.status)
+            while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
                   !=ctx.function_complete_flag_value)
             {
                 if(detail::enter_once_region(flag, ctx))
@@ -828,7 +828,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 {
                     BOOST_INTERLOCKED_INCREMENT(&flag.count);
                     ctx.counted=true;
-                    long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                    long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                     if(status==ctx.function_complete_flag_value)
                     {
                         break;
@@ -839,8 +839,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                         continue;
                     }
                 }
-                BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                                 ctx.event_handle,::boost::detail::win32::infinite,0));
+                BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                                 ctx.event_handle,::mars_boost::detail::win32::infinite,0));
             }
         }
         template<typename Function, typename T1, typename T2, typename T3>
@@ -849,7 +849,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             // Try for a quick win: if the procedure has already been called
             // just skip through:
             detail::once_context ctx;
-            while(::boost::detail::interlocked_read_acquire(&flag.status)
+            while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
                   !=ctx.function_complete_flag_value)
             {
                 if(detail::enter_once_region(flag, ctx))
@@ -875,7 +875,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 {
                     BOOST_INTERLOCKED_INCREMENT(&flag.count);
                     ctx.counted=true;
-                    long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                    long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                     if(status==ctx.function_complete_flag_value)
                     {
                         break;
@@ -886,8 +886,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                         continue;
                     }
                 }
-                BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                                 ctx.event_handle,::boost::detail::win32::infinite,0));
+                BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                                 ctx.event_handle,::mars_boost::detail::win32::infinite,0));
             }
         }
 #endif
@@ -897,7 +897,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -919,7 +919,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -930,8 +930,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
 
@@ -941,7 +941,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -966,7 +966,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -977,8 +977,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1, typename T2>
@@ -987,7 +987,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -1013,7 +1013,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -1024,8 +1024,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
     template<typename Function, typename T1, typename T2, typename T3>
@@ -1034,7 +1034,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         // Try for a quick win: if the procedure has already been called
         // just skip through:
         detail::once_context ctx;
-        while(::boost::detail::interlocked_read_acquire(&flag.status)
+        while(::mars_boost::detail::interlocked_read_acquire(&flag.status)
               !=ctx.function_complete_flag_value)
         {
             if(detail::enter_once_region(flag, ctx))
@@ -1062,7 +1062,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
                 BOOST_INTERLOCKED_INCREMENT(&flag.count);
                 ctx.counted=true;
-                long status=::boost::detail::interlocked_read_acquire(&flag.status);
+                long status=::mars_boost::detail::interlocked_read_acquire(&flag.status);
                 if(status==ctx.function_complete_flag_value)
                 {
                     break;
@@ -1073,8 +1073,8 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     continue;
                 }
             }
-            BOOST_VERIFY(!::boost::detail::win32::WaitForSingleObjectEx(
-                             ctx.event_handle,::boost::detail::win32::infinite,0));
+            BOOST_VERIFY(!::mars_boost::winapi::WaitForSingleObjectEx(
+                             ctx.event_handle,::mars_boost::detail::win32::infinite,0));
         }
     }
 

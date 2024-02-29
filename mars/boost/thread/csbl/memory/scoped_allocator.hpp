@@ -12,17 +12,7 @@
 #include <boost/thread/csbl/memory/config.hpp>
 
 // 20.7.7, uses_allocator
-#if defined BOOST_NO_CXX11_ALLOCATOR
-#include <boost/container/scoped_allocator.hpp>
 
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
-{
-  namespace csbl
-  {
-    using ::boost::container::uses_allocator;
-  }
-}
-#else
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
   namespace csbl
@@ -30,6 +20,5 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     using ::std::uses_allocator;
   }
 }
-#endif // BOOST_NO_CXX11_POINTER_TRAITS
 
 #endif // header

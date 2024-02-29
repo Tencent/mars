@@ -6,8 +6,8 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/thread/win32/basic_timed_mutex.hpp>
 #include <boost/thread/exceptions.hpp>
+#include <boost/thread/win32/basic_timed_mutex.hpp>
 #if defined BOOST_THREAD_PROVIDES_NESTED_LOCKS
 #include <boost/thread/lock_types.hpp>
 #endif
@@ -19,11 +19,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
     namespace detail
     {
-        typedef ::boost::detail::basic_timed_mutex underlying_mutex;
+        typedef ::mars_boost::detail::basic_timed_mutex underlying_mutex;
     }
 
     class mutex:
-        public ::boost::detail::underlying_mutex
+        public ::mars_boost::detail::underlying_mutex
     {
     public:
         BOOST_THREAD_NO_COPYABLE(mutex)
@@ -45,7 +45,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     typedef mutex try_mutex;
 
     class timed_mutex:
-        public ::boost::detail::basic_timed_mutex
+        public ::mars_boost::detail::basic_timed_mutex
     {
     public:
         BOOST_THREAD_NO_COPYABLE(timed_mutex)

@@ -8,7 +8,7 @@
 #ifndef BOOST_IOSTREAMS_PIPABLE_HPP_INCLUDED
 #define BOOST_IOSTREAMS_PIPABLE_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -20,9 +20,6 @@
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/static_assert.hpp>
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-# include <boost/type_traits/is_base_and_derived.hpp>
-#endif
 
 #define BOOST_IOSTREAMS_PIPABLE(filter, arity) \
     template< BOOST_PP_ENUM_PARAMS(arity, typename T) \
@@ -50,15 +47,7 @@ struct pipeline;
     
 namespace detail {
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) 
-    struct pipeline_base { };
-
-    template<typename T>
-    struct is_pipeline 
-        : is_base_and_derived<pipeline_base, T>
-        { };
-#endif 
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#if BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
     template<typename T>
     struct is_pipeline : mpl::false_ { };
 
@@ -68,9 +57,6 @@ namespace detail {
 
 template<typename Component>
 class pipeline_segment 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-    : pipeline_base 
-#endif 
 {
 public:
     pipeline_segment(const Component& component) 

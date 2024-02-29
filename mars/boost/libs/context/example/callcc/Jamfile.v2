@@ -1,0 +1,79 @@
+# Boost.Context Library Examples Jamfile
+
+#          Copyright Oliver Kowalke 2014.
+# Distributed under the Boost Software License, Version 1.0.
+#    (See accompanying file LICENSE_1_0.txt or copy at
+#          http://www.boost.org/LICENSE_1_0.txt)
+
+# For more information, see http://www.boost.org/
+
+import common ;
+import feature ;
+import indirect ;
+import modules ;
+import os ;
+import toolset ;
+import architecture ;
+
+project boost/context/example/callcc
+    : requirements
+      <library>/boost/context//mars_boost_context
+      <target-os>linux,<toolset>gcc,<segmented-stacks>on:<cxxflags>-fsplit-stack
+      <target-os>linux,<toolset>gcc,<segmented-stacks>on:<cxxflags>-DBOOST_USE_SEGMENTED_STACKS
+      <toolset>clang,<segmented-stacks>on:<cxxflags>-fsplit-stack
+      <toolset>clang,<segmented-stacks>on:<cxxflags>-DBOOST_USE_SEGMENTED_STACKS
+      <link>static
+      <threading>multi
+    ;
+
+exe stack
+    : stack.cpp
+    ;
+
+exe jump_void
+    : jump_void.cpp
+    ;
+
+exe jump
+    : jump.cpp
+    ;
+
+exe jump_mov
+    : jump_mov.cpp
+    ;
+
+exe ontop_void
+    : ontop_void.cpp
+    ;
+
+exe throw
+    : throw.cpp
+    ;
+
+exe fibonacci
+    : fibonacci.cpp
+    ;
+
+exe parser
+    : parser.cpp
+    ;
+
+exe ontop
+    : ontop.cpp
+    ;
+
+exe endless_loop
+    : endless_loop.cpp
+    ;
+
+exe segmented
+    : segmented.cpp
+    ;
+
+#exe backtrace
+#    : backtrace.cpp
+#    ;
+
+#exe echosse
+#    : echosse.cpp
+#    ;

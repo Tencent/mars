@@ -10,14 +10,14 @@
 #ifndef BOOST_TT_IS_SIGNED_HPP_INCLUDED
 #define BOOST_TT_IS_SIGNED_HPP_INCLUDED
 
+#include <boost/type_traits/is_enum.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/remove_cv.hpp>
-#include <boost/type_traits/is_enum.hpp>
 #include <climits>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
-#if !defined( __CODEGEARC__ )
+#if !defined( BOOST_CODEGEARC )
 
 #if !(defined(BOOST_MSVC) && BOOST_MSVC <= 1310) && \
     !(defined(__EDG_VERSION__) && __EDG_VERSION__ <= 238) &&\
@@ -84,7 +84,7 @@ template <class T> struct is_signed : public false_type{};
 
 #endif
 
-#else //defined( __CODEGEARC__ )
+#else //defined( BOOST_CODEGEARC )
    template <class T> struct is_signed : public integral_constant<bool, __is_signed(T)>{};
 #endif
 

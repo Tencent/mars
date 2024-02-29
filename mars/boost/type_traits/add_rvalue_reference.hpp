@@ -12,8 +12,8 @@
 
 //----------------------------------------------------------------------------//
 
-#include <boost/type_traits/is_void.hpp>
 #include <boost/type_traits/is_reference.hpp>
+#include <boost/type_traits/is_void.hpp>
 
 //----------------------------------------------------------------------------//
 //                                                                            //
@@ -57,6 +57,12 @@ template <class T> struct add_rvalue_reference
 {
    typedef typename mars_boost::type_traits_detail::add_rvalue_reference_imp<T>::type type;
 };
+
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using add_rvalue_reference_t = typename add_rvalue_reference<T>::type;
+
+#endif
 
 }  // namespace mars_boost
 

@@ -1,0 +1,237 @@
+////
+Copyright 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#pointer_cast]
+# Generic Pointer Casts
+:toc:
+:toc-title:
+:idprefix: pointer_cast_
+
+## Description
+
+The pointer cast function templates (`static_pointer_cast`,
+`dynamic_pointer_cast`, `const_pointer_cast`, and `reinterpret_pointer_cast`)
+provide a way to write generic pointer castings for raw pointers,
+`std::shared_ptr` and `std::unique_ptr`.
+
+There is test and example code in
+link:../../test/pointer_cast_test.cpp[pointer_cast_test.cpp]
+
+## Rationale
+
+Boost smart pointers usually overload those functions to provide a mechanism
+to emulate pointers casts. For example, `shared_ptr<T>` implements a static
+pointer cast this way:
+
+```
+template<class T, class U>
+  shared_ptr<T> static_pointer_cast(const shared_ptr<U>& p);
+```
+
+Pointer cast functions templates are overloads of `static_pointer_cast`,
+`dynamic_pointer_cast`, `const_pointer_cast`, and `reinterpret_pointer_cast`
+for raw pointers, `std::shared_ptr` and `std::unique_ptr`. This way when
+developing pointer type independent classes, for example, memory managers or
+shared memory compatible classes, the same code can be used for raw and smart
+pointers.
+
+## Synopsis
+
+The generic pointer casts are defined in `<boost/pointer_cast.hpp>`.
+
+```
+namespace boost {
+  template<class T, class U> T* static_pointer_cast(U* p) noexcept;
+  template<class T, class U> T* dynamic_pointer_cast(U* p) noexcept;
+  template<class T, class U> T* const_pointer_cast(U* p) noexcept;
+  template<class T, class U> T* reinterpret_pointer_cast(U* p) noexcept;
+
+  template<class T, class U> std::shared_ptr<T>
+    static_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+  template<class T, class U> std::shared_ptr<T>
+    dynamic_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+  template<class T, class U> std::shared_ptr<T>
+    const_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+  template<class T, class U> std::shared_ptr<T>
+    reinterpret_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+
+  template<class T, class U> std::unique_ptr<T>
+    static_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+  template<class T, class U> std::unique_ptr<T>
+    dynamic_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+  template<class T, class U> std::unique_ptr<T>
+    const_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+  template<class T, class U> std::unique_ptr<T>
+    reinterpret_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+}
+```
+
+## Free Functions
+
+### static_pointer_cast
+```
+template<class T, class U> T* static_pointer_cast(U* p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `static_cast<T*>(p)`
+
+```
+template<class T, class U> std::shared_ptr<T>
+  static_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `std::static_pointer_cast<T>(p)`
+
+```
+template<class T, class U> std::unique_ptr<T>
+  static_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: The expression `static_cast<T*>((U*)0)` must be well-formed.
+Returns:: `std::unique_ptr<T>(static_cast<typename
+std::unique_ptr<T>::element_type*>(p.release()))`.
+
+CAUTION: The seemingly equivalent expression
+`std::unique_ptr<T>(static_cast<T*>(p.get()))` will eventually result in
+undefined behavior, attempting to delete the same object twice.
+
+### dynamic_pointer_cast
+
+```
+template<class T, class U> T* dynamic_pointer_cast(U* p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `dynamic_cast<T*>(p)`
+
+```
+template<class T, class U> std::shared_ptr<T>
+  dynamic_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `std::dynamic_pointer_cast<T>(p)`
+
+```
+template<class T, class U> std::unique_ptr<T>
+  dynamic_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+```
+[none]
+* {blank}
++
+Requires::
+* The expression `static_cast<T*>((U*)0)` must be well-formed.
+* `T` must have a virtual destructor.
+Returns::
+* When `dynamic_cast<typename std::unique_ptr<T>::element_type*>(p.get())`
+returns a non-zero value, `std::unique_ptr<T>(dynamic_cast<typename
+std::unique_ptr<T>::element_type*>(p.release()));`.
+* Otherwise, `std::unique_ptr<T>()`.
+
+### const_pointer_cast
+
+```
+template<class T, class U> T* const_pointer_cast(U* p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `const_cast<T*>(p)`
+
+```
+template<class T, class U> std::shared_ptr<T>
+  const_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `std::const_pointer_cast<T>(p)`
+
+```
+template<class T, class U> std::unique_ptr<T>
+  const_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: The expression `const_cast<T*>((U*)0)` must be well-formed.
+Returns:: `std::unique_ptr<T>(const_cast<typename
+std::unique_ptr<T>::element_type*>(p.release()))`.
+
+### reinterpret_pointer_cast
+
+```
+template<class T, class U> T* reinterpret_pointer_cast(U* p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `reinterpret_cast<T*>(p)`
+
+```
+template<class T, class U> std::shared_ptr<T>
+  reinterpret_pointer_cast(const std::shared_ptr<U>& p) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `std::reinterpret_pointer_cast<T>(p)`
+
+```
+template<class T, class U> std::unique_ptr<T>
+  reinterpret_pointer_cast(std::unique_ptr<U>&& p) noexcept;
+```
+[none]
+* {blank}
++
+Requires:: The expression `reinterpret_cast<T*>((U*)0)` must be well-formed.
+Returns:: `std::unique_ptr<T>(reinterpret_cast<typename
+std::unique_ptr<T>::element_type*>(p.release()))`.
+
+## Example
+
+The following example demonstrates how the generic pointer casts help us
+create pointer independent code.
+
+```
+#include <boost/pointer_cast.hpp>
+#include <boost/shared_ptr.hpp>
+
+class base {
+public:
+  virtual ~base() { }
+};
+
+class derived : public base { };
+
+template<class Ptr>
+void check_if_it_is_derived(const Ptr& ptr)
+{
+  assert(boost::dynamic_pointer_cast<derived>(ptr) != 0);
+}
+
+int main()
+{
+  base* ptr = new derived;
+  boost::shared_ptr<base> sptr(new derived);
+
+  check_if_it_is_derived(ptr);
+  check_if_it_is_derived(sptr);
+
+  delete ptr;
+}
+```

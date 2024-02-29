@@ -10,12 +10,12 @@
 #ifndef BOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
 #define BOOST_NUMERIC_CONVERSION_CONVERTER_POLICIES_FLC_12NOV2002_HPP
 
+#include <functional>
 #include <typeinfo> // for std::bad_cast
 
+#include <boost/config.hpp>
 #include <boost/config/no_tr1/cmath.hpp> // for std::floor and std::ceil
 #include <boost/throw_exception.hpp>
-
-#include <functional>
 
 #include "boost/type_traits/is_arithmetic.hpp"
 
@@ -136,7 +136,7 @@ class bad_numeric_cast : public std::bad_cast
 {
   public:
 
-    virtual const char * what() const throw()
+    const char * what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
       {  return "bad numeric conversion: overflow"; }
 };
 
@@ -144,14 +144,14 @@ class negative_overflow : public bad_numeric_cast
 {
   public:
 
-    virtual const char * what() const throw()
+    const char * what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
       {  return "bad numeric conversion: negative overflow"; }
 };
 class positive_overflow : public bad_numeric_cast
 {
   public:
 
-    virtual const char * what() const throw()
+    const char * what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
       { return "bad numeric conversion: positive overflow"; }
 };
 

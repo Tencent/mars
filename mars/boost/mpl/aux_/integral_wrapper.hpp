@@ -13,11 +13,11 @@
 
 // NO INCLUDE GUARDS, THE HEADER IS INTENDED FOR MULTIPLE INCLUSION!
 
-#include <boost/mpl/integral_c_tag.hpp>
-#include <boost/mpl/aux_/static_cast.hpp>
-#include <boost/mpl/aux_/nttp_decl.hpp>
 #include <boost/mpl/aux_/config/static_constant.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/aux_/nttp_decl.hpp>
+#include <boost/mpl/aux_/static_cast.hpp>
+#include <boost/mpl/integral_c_tag.hpp>
 
 #include <boost/preprocessor/cat.hpp>
 
@@ -63,7 +63,7 @@ struct AUX_WRAPPER_NAME
  public:
     typedef AUX_WRAPPER_INST(next_value) next;
     typedef AUX_WRAPPER_INST(prior_value) prior;
-#elif BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x561)) \
+#elif BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x561)) \
     || BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(502)) \
     || (BOOST_WORKAROUND(__HP_aCC, <= 53800) && (BOOST_WORKAROUND(__hpxstd98, != 1)))
     typedef AUX_WRAPPER_INST( BOOST_MPL_AUX_STATIC_CAST(AUX_WRAPPER_VALUE_TYPE, (N + 1)) ) next;

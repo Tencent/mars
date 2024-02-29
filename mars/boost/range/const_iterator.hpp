@@ -17,8 +17,8 @@
 
 #include <boost/range/config.hpp>
 
-#include <boost/range/range_fwd.hpp>
 #include <boost/range/detail/extract_optional_type.hpp>
+#include <boost/range/range_fwd.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <cstddef>
@@ -70,7 +70,7 @@ struct range_const_iterator
 {
 };
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 
 #endif

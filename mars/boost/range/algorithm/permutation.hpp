@@ -9,11 +9,11 @@
 #ifndef BOOST_RANGE_ALGORITHM_PERMUTATION_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_PERMUTATION_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -103,6 +103,6 @@ inline bool prev_permutation(const BidirectionalRange& rng,
     } // namespace range
     using range::next_permutation;
     using range::prev_permutation;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

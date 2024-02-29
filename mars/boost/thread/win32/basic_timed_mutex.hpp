@@ -11,24 +11,26 @@
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/assert.hpp>
-#include <boost/thread/win32/thread_primitives.hpp>
-#include <boost/thread/win32/interlocked_read.hpp>
 #include <boost/thread/thread_time.hpp>
+#include <boost/thread/win32/interlocked_read.hpp>
+#include <boost/thread/win32/thread_primitives.hpp>
 #if defined BOOST_THREAD_USES_DATETIME
 #include <boost/thread/xtime.hpp>
 #endif
 #include <boost/detail/interlocked.hpp>
 #ifdef BOOST_THREAD_USES_CHRONO
-#include <boost/chrono/system_clocks.hpp>
 #include <boost/chrono/ceil.hpp>
+#include <boost/chrono/system_clocks.hpp>
 #endif
+#include <boost/thread/detail/platform_time.hpp>
+
 #include <boost/config/abi_prefix.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
     namespace detail
     {
-        struct basic_timed_mutex
+        struct BOOST_THREAD_CAPABILITY("mutex") basic_timed_mutex
         {
             BOOST_STATIC_CONSTANT(unsigned char,lock_flag_bit=31);
             BOOST_STATIC_CONSTANT(unsigned char,event_set_flag_bit=30);
@@ -55,17 +57,17 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #endif
                 if(old_event)
                 {
-                    win32::CloseHandle(old_event);
+                    winapi::CloseHandle(old_event);
                 }
             }
 
-
-            bool try_lock() BOOST_NOEXCEPT
+            // Take the lock flag if it's available
+            bool try_lock() BOOST_NOEXCEPT BOOST_THREAD_TRY_ACQUIRE(true)
             {
                 return !win32::interlocked_bit_test_and_set(&active_count,lock_flag_bit);
             }
 
-            void lock()
+            void lock() BOOST_THREAD_ACQUIRE()
             {
                 if(try_lock())
                 {
@@ -76,22 +78,22 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
                 if(old_count&lock_flag_value)
                 {
-                    bool lock_acquired=false;
                     void* const sem=get_event();
 
                     do
                     {
-                        unsigned const retval(win32::WaitForSingleObjectEx(sem, ::boost::detail::win32::infinite,0));
-                        BOOST_VERIFY(0 == retval || ::boost::detail::win32::wait_abandoned == retval);
-//                        BOOST_VERIFY(win32::WaitForSingleObject(
-//                                         sem,::boost::detail::win32::infinite)==0);
-                        clear_waiting_and_try_lock(old_count);
-                        lock_acquired=!(old_count&lock_flag_value);
+                        if(winapi::WaitForSingleObjectEx(sem,::mars_boost::detail::win32::infinite,0)==0)
+                        {
+                            clear_waiting_and_try_lock(old_count);
+                        }
                     }
-                    while(!lock_acquired);
+                    while(old_count&lock_flag_value);
                 }
             }
-            void mark_waiting_and_try_lock(long& old_count)
+
+            // Loop until the number of waiters has been incremented or we've taken the lock flag
+            // The loop is necessary since this function may be called by multiple threads simultaneously
+            void mark_waiting_and_try_lock(long& old_count) BOOST_THREAD_TRY_ACQUIRE(true)
             {
                 for(;;)
                 {
@@ -102,13 +104,20 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     {
                         if(was_locked)
                             old_count=new_count;
+                        // else we've taken the lock flag
+                            // don't update old_count so that the calling function can see that
+                            // the old lock flag was 0 and know that we've taken the lock flag
                         break;
                     }
                     old_count=current;
                 }
             }
 
-            void clear_waiting_and_try_lock(long& old_count)
+            // Loop until someone else has taken the lock flag and cleared the event set flag or
+            // until we've taken the lock flag and cleared the event set flag and decremented the
+            // number of waiters
+            // The loop is necessary since this function may be called by multiple threads simultaneously
+            void clear_waiting_and_try_lock(long& old_count) BOOST_THREAD_TRY_ACQUIRE(true)
             {
                 old_count&=~lock_flag_value;
                 old_count|=event_set_flag_value;
@@ -118,129 +127,138 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                     long const current=BOOST_INTERLOCKED_COMPARE_EXCHANGE(&active_count,new_count,old_count);
                     if(current==old_count)
                     {
+                        // if someone else has taken the lock flag
+                            // no need to update old_count since old_count == new_count (ignoring
+                            // event_set_flag_value which the calling function doesn't care about)
+                        // else we've taken the lock flag
+                            // don't update old_count so that the calling function can see that
+                            // the old lock flag was 0 and know that we've taken the lock flag
                         break;
                     }
                     old_count=current;
                 }
             }
 
+        private:
+            unsigned long getMs(detail::platform_duration const& d)
+            {
+                return static_cast<unsigned long>(d.getMs());
+            }
 
-#if defined BOOST_THREAD_USES_DATETIME
-            bool timed_lock(::boost::system_time const& wait_until)
+            template <typename Duration>
+            unsigned long getMs(Duration const& d)
+            {
+                return static_cast<unsigned long>(chrono::ceil<chrono::milliseconds>(d).count());
+            }
+
+            template <typename Clock, typename Timepoint, typename Duration>
+            bool do_lock_until(Timepoint const& t, Duration const& max) BOOST_THREAD_TRY_ACQUIRE(true)
             {
                 if(try_lock())
                 {
                     return true;
                 }
+
                 long old_count=active_count;
                 mark_waiting_and_try_lock(old_count);
 
                 if(old_count&lock_flag_value)
                 {
-                    bool lock_acquired=false;
                     void* const sem=get_event();
 
+                    // If the clock is the system clock, it may jump while this function
+                    // is waiting. To compensate for this and time out near the correct
+                    // time, we call WaitForSingleObjectEx() in a loop with a short
+                    // timeout and recheck the time remaining each time through the loop.
                     do
                     {
-                        if(win32::WaitForSingleObjectEx(sem,::boost::detail::get_milliseconds_until(wait_until),0)!=0)
+                        Duration d(t - Clock::now());
+                        if(d <= Duration::zero()) // timeout occurred
                         {
                             BOOST_INTERLOCKED_DECREMENT(&active_count);
                             return false;
                         }
-                        clear_waiting_and_try_lock(old_count);
-                        lock_acquired=!(old_count&lock_flag_value);
+                        if(max != Duration::zero())
+                        {
+                            d = (std::min)(d, max);
+                        }
+                        if(winapi::WaitForSingleObjectEx(sem,getMs(d),0)==0)
+                        {
+                            clear_waiting_and_try_lock(old_count);
+                        }
                     }
-                    while(!lock_acquired);
+                    while(old_count&lock_flag_value);
                 }
                 return true;
+            }
+        public:
+
+#if defined BOOST_THREAD_USES_DATETIME
+            bool timed_lock(::mars_boost::system_time const& wait_until)
+            {
+                const detail::real_platform_timepoint t(wait_until);
+                return do_lock_until<detail::real_platform_clock>(t, detail::platform_milliseconds(BOOST_THREAD_POLL_INTERVAL_MILLISECONDS));
             }
 
             template<typename Duration>
             bool timed_lock(Duration const& timeout)
             {
-                return timed_lock(get_system_time()+timeout);
+                const detail::mono_platform_timepoint t(detail::mono_platform_clock::now() + detail::platform_duration(timeout));
+                // The reference clock is steady and so no need to poll periodically, thus 0 ms max (i.e. no max)
+                return do_lock_until<detail::mono_platform_clock>(t, detail::platform_duration::zero());
             }
 
             bool timed_lock(mars_boost::xtime const& timeout)
             {
-                return timed_lock(system_time(timeout));
+                return timed_lock(mars_boost::system_time(timeout));
             }
 #endif
 #ifdef BOOST_THREAD_USES_CHRONO
             template <class Rep, class Period>
             bool try_lock_for(const chrono::duration<Rep, Period>& rel_time)
             {
-              return try_lock_until(chrono::steady_clock::now() + rel_time);
+                const chrono::steady_clock::time_point t(chrono::steady_clock::now() + rel_time);
+                typedef typename chrono::duration<Rep, Period> Duration;
+                typedef typename common_type<Duration, typename chrono::steady_clock::duration>::type common_duration;
+                // The reference clock is steady and so no need to poll periodically, thus 0 ms max (i.e. no max)
+                return do_lock_until<chrono::steady_clock>(t, common_duration::zero());
+            }
+            template <class Duration>
+            bool try_lock_until(const chrono::time_point<chrono::steady_clock, Duration>& t)
+            {
+                typedef typename common_type<Duration, typename chrono::steady_clock::duration>::type common_duration;
+                // The reference clock is steady and so no need to poll periodically, thus 0 ms max (i.e. no max)
+                return do_lock_until<chrono::steady_clock>(t, common_duration::zero());
             }
             template <class Clock, class Duration>
             bool try_lock_until(const chrono::time_point<Clock, Duration>& t)
             {
-              using namespace chrono;
-              system_clock::time_point     s_now = system_clock::now();
-              typename Clock::time_point  c_now = Clock::now();
-              return try_lock_until(s_now + ceil<system_clock::duration>(t - c_now));
-            }
-            template <class Duration>
-            bool try_lock_until(const chrono::time_point<chrono::system_clock, Duration>& t)
-            {
-              using namespace chrono;
-              typedef time_point<chrono::system_clock, chrono::system_clock::duration> sys_tmpt;
-              return try_lock_until(sys_tmpt(chrono::ceil<chrono::system_clock::duration>(t.time_since_epoch())));
-            }
-            bool try_lock_until(const chrono::time_point<chrono::system_clock, chrono::system_clock::duration>& tp)
-            {
-              if(try_lock())
-              {
-                  return true;
-              }
-              long old_count=active_count;
-              mark_waiting_and_try_lock(old_count);
-
-              if(old_count&lock_flag_value)
-              {
-                  bool lock_acquired=false;
-                  void* const sem=get_event();
-
-                  do
-                  {
-                      chrono::time_point<chrono::system_clock, chrono::system_clock::duration> now = chrono::system_clock::now();
-                      if (tp<=now) {
-                        BOOST_INTERLOCKED_DECREMENT(&active_count);
-                        return false;
-                      }
-                      chrono::milliseconds rel_time= chrono::ceil<chrono::milliseconds>(tp-now);
-
-                      if(win32::WaitForSingleObjectEx(sem,static_cast<unsigned long>(rel_time.count()),0)!=0)
-                      {
-                          BOOST_INTERLOCKED_DECREMENT(&active_count);
-                          return false;
-                      }
-                      clear_waiting_and_try_lock(old_count);
-                      lock_acquired=!(old_count&lock_flag_value);
-                  }
-                  while(!lock_acquired);
-              }
-              return true;
+                typedef typename common_type<Duration, typename Clock::duration>::type common_duration;
+                return do_lock_until<Clock>(t, common_duration(chrono::milliseconds(BOOST_THREAD_POLL_INTERVAL_MILLISECONDS)));
             }
 #endif
 
-            void unlock()
+            void unlock() BOOST_THREAD_RELEASE()
             {
-                long const offset=lock_flag_value;
+                // Clear the lock flag using atomic addition (works since long is always 32 bits on Windows)
                 long const old_count=BOOST_INTERLOCKED_EXCHANGE_ADD(&active_count,lock_flag_value);
-                if(!(old_count&event_set_flag_value) && (old_count>offset))
+                // If someone is waiting to take the lock, set the event set flag and, if
+                // the event set flag hadn't already been set, send an event.
+                if(!(old_count&event_set_flag_value) && (old_count>lock_flag_value))
                 {
                     if(!win32::interlocked_bit_test_and_set(&active_count,event_set_flag_bit))
                     {
-                        win32::SetEvent(get_event());
+                        winapi::SetEvent(get_event());
                     }
                 }
             }
 
         private:
+            // Create an event in a thread-safe way
+            // The first thread to create the event wins and all other thread will use that event
             void* get_event()
             {
-                void* current_event=::boost::detail::interlocked_read_acquire(&event);
+                void* current_event=::mars_boost::detail::interlocked_read_acquire(&event);
 
                 if(!current_event)
                 {
@@ -256,7 +274,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #endif
                     if(old_event!=0)
                     {
-                        win32::CloseHandle(new_event);
+                        winapi::CloseHandle(new_event);
                         return old_event;
                     }
                     else

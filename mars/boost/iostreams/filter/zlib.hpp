@@ -11,14 +11,10 @@
 #ifndef BOOST_IOSTREAMS_ZLIB_HPP_INCLUDED
 #define BOOST_IOSTREAMS_ZLIB_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif              
 
-#include <cassert>                            
-#include <iosfwd>            // streamsize.                 
-#include <memory>            // allocator, bad_alloc.
-#include <new>          
 #include <boost/config.hpp>  // MSVC, STATIC_CONSTANT, DEDUCED_TYPENAME, DINKUM.
 #include <boost/cstdint.hpp> // uint*_t
 #include <boost/detail/workaround.hpp>
@@ -31,11 +27,15 @@
 #include <boost/iostreams/filter/symmetric.hpp>                
 #include <boost/iostreams/pipeline.hpp>                
 #include <boost/type_traits/is_same.hpp>
+#include <cassert>                            
+#include <iosfwd>            // streamsize.                 
+#include <memory>            // allocator, bad_alloc.
+#include <new>          
 
 // Must come last.
 #ifdef BOOST_MSVC
 # pragma warning(push)
-# pragma warning(disable:4251 4231 4660)         // Dependencies not exported.
+# pragma warning(disable:4251 4275 4231 4660)         // Dependencies not exported.
 #endif
 #include <boost/config/abi_prefix.hpp>           
 
@@ -110,16 +110,16 @@ const bool default_noheader                  = false;
 struct zlib_params {
 
     // Non-explicit constructor.
-    zlib_params( int level           = zlib::default_compression,
-                 int method          = zlib::deflated,
-                 int window_bits     = zlib::default_window_bits, 
-                 int mem_level       = zlib::default_mem_level, 
-                 int strategy        = zlib::default_strategy,
-                 bool noheader       = zlib::default_noheader,
-                 bool calculate_crc  = zlib::default_crc )
-        : level(level), method(method), window_bits(window_bits),
-          mem_level(mem_level), strategy(strategy),  
-          noheader(noheader), calculate_crc(calculate_crc)
+    zlib_params( int level_          = zlib::default_compression,
+                 int method_         = zlib::deflated,
+                 int window_bits_    = zlib::default_window_bits, 
+                 int mem_level_      = zlib::default_mem_level, 
+                 int strategy_       = zlib::default_strategy,
+                 bool noheader_      = zlib::default_noheader,
+                 bool calculate_crc_ = zlib::default_crc )
+        : level(level_), method(method_), window_bits(window_bits_),
+          mem_level(mem_level_), strategy(strategy_),  
+          noheader(noheader_), calculate_crc(calculate_crc_)
         { }
     int level;
     int method;
@@ -149,7 +149,11 @@ namespace detail {
 template<typename Alloc>
 struct zlib_allocator_traits {
 #ifndef BOOST_NO_STD_ALLOCATOR
+#if defined(BOOST_NO_CXX11_ALLOCATOR)
     typedef typename Alloc::template rebind<char>::other type;
+#else
+    typedef typename std::allocator_traits<Alloc>::template rebind_alloc<char> type;
+#endif
 #else
     typedef std::allocator<char> type;
 #endif
@@ -160,7 +164,11 @@ template< typename Alloc,
               BOOST_DEDUCED_TYPENAME zlib_allocator_traits<Alloc>::type >
 struct zlib_allocator : private Base {
 private:
+#if defined(BOOST_NO_CXX11_ALLOCATOR) || defined(BOOST_NO_STD_ALLOCATOR)
     typedef typename Base::size_type size_type;
+#else
+    typedef typename std::allocator_traits<Base>::size_type size_type;
+#endif
 public:
     BOOST_STATIC_CONSTANT(bool, custom = 
         (!is_same<std::allocator<char>, Base>::value));
@@ -183,10 +191,8 @@ protected:
         {
             bool custom = zlib_allocator<Alloc>::custom;
             do_init( p, compress,
-                     #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-                         custom ? zlib_allocator<Alloc>::allocate : 0,
-                         custom ? zlib_allocator<Alloc>::deallocate : 0,
-                     #endif
+                     custom ? zlib_allocator<Alloc>::allocate : 0,
+                     custom ? zlib_allocator<Alloc>::deallocate : 0,
                      &zalloc );
         }
     void before( const char*& src_begin, const char* src_end,
@@ -202,10 +208,8 @@ public:
     int total_out() const { return total_out_; }
 private:
     void do_init( const zlib_params& p, bool compress, 
-                  #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
-                      zlib::xalloc_func, 
-                      zlib::xfree_func, 
-                  #endif
+                  zlib::xalloc_func,
+                  zlib::xfree_func, 
                   void* derived );
     void*        stream_;         // Actual type: z_stream*.
     bool         calculate_crc_;
@@ -267,7 +271,7 @@ public:
     typedef typename base_type::char_type               char_type;
     typedef typename base_type::category                category;
     basic_zlib_compressor( const zlib_params& = zlib::default_compression, 
-                           int buffer_size = default_device_buffer_size );
+                           std::streamsize buffer_size = default_device_buffer_size );
     zlib::ulong crc() { return this->filter().crc(); }
     int total_in() {  return this->filter().total_in(); }
 };
@@ -291,9 +295,9 @@ public:
     typedef typename base_type::char_type               char_type;
     typedef typename base_type::category                category;
     basic_zlib_decompressor( int window_bits = zlib::default_window_bits,
-                             int buffer_size = default_device_buffer_size );
+                             std::streamsize buffer_size = default_device_buffer_size );
     basic_zlib_decompressor( const zlib_params& p,
-                             int buffer_size = default_device_buffer_size );
+                             std::streamsize buffer_size = default_device_buffer_size );
     zlib::ulong crc() { return this->filter().crc(); }
     int total_out() {  return this->filter().total_out(); }
     bool eof() { return this->filter().eof(); }
@@ -351,7 +355,7 @@ bool zlib_compressor_impl<Alloc>::filter
     int result = xdeflate(flush ? zlib::finish : zlib::no_flush);
     after(src_begin, dest_begin, true);
     zlib_error::check BOOST_PREVENT_MACRO_SUBSTITUTION(result);
-    return result != zlib::stream_end; 
+    return result != zlib::stream_end;
 }
 
 template<typename Alloc>
@@ -385,7 +389,8 @@ bool zlib_decompressor_impl<Alloc>::filter
     int result = xinflate(zlib::sync_flush);
     after(src_begin, dest_begin, false);
     zlib_error::check BOOST_PREVENT_MACRO_SUBSTITUTION(result);
-    return !(eof_ = result == zlib::stream_end);
+    eof_ = result == zlib::stream_end;
+    return !eof_;
 }
 
 template<typename Alloc>
@@ -400,19 +405,19 @@ void zlib_decompressor_impl<Alloc>::close() {
 
 template<typename Alloc>
 basic_zlib_compressor<Alloc>::basic_zlib_compressor
-    (const zlib_params& p, int buffer_size) 
+    (const zlib_params& p, std::streamsize buffer_size) 
     : base_type(buffer_size, p) { }
 
 //------------------Implementation of zlib_decompressor-----------------------//
 
 template<typename Alloc>
 basic_zlib_decompressor<Alloc>::basic_zlib_decompressor
-    (int window_bits, int buffer_size) 
+    (int window_bits, std::streamsize buffer_size) 
     : base_type(buffer_size, window_bits) { }
 
 template<typename Alloc>
 basic_zlib_decompressor<Alloc>::basic_zlib_decompressor
-    (const zlib_params& p, int buffer_size) 
+    (const zlib_params& p, std::streamsize buffer_size) 
     : base_type(buffer_size, p) { }
 
 //----------------------------------------------------------------------------//

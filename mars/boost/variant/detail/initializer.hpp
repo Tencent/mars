@@ -15,26 +15,26 @@
 
 #include <new> // for placement new
 
-#include "boost/config.hpp"
+#include <boost/config.hpp>
 
-#include "boost/call_traits.hpp"
-#include "boost/detail/reference_content.hpp"
-#include "boost/variant/recursive_wrapper_fwd.hpp"
-#include "boost/variant/detail/move.hpp"
+#include <boost/call_traits.hpp>
+#include <boost/detail/reference_content.hpp>
+#include <boost/variant/detail/move.hpp>
+#include <boost/variant/recursive_wrapper_fwd.hpp>
 
 #if !defined(BOOST_NO_USING_DECLARATION_OVERLOADS_FROM_TYPENAME_BASE)
-#   include "boost/mpl/aux_/value_wknd.hpp"
-#   include "boost/mpl/int.hpp"
-#   include "boost/mpl/iter_fold.hpp"
-#   include "boost/mpl/next.hpp"
-#   include "boost/mpl/deref.hpp"
-#   include "boost/mpl/pair.hpp"
-#   include "boost/mpl/protect.hpp"
+#   include <boost/mpl/aux_/value_wknd.hpp>
+#   include <boost/mpl/deref.hpp>
+#   include <boost/mpl/int.hpp>
+#   include <boost/mpl/iter_fold.hpp>
+#   include <boost/mpl/next.hpp>
+#   include <boost/mpl/pair.hpp>
+#   include <boost/mpl/protect.hpp>
 #else
-#   include "boost/variant/variant_fwd.hpp"
-#   include "boost/preprocessor/cat.hpp"
-#   include "boost/preprocessor/enum.hpp"
-#   include "boost/preprocessor/repeat.hpp"
+#   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/enum.hpp>
+#   include <boost/preprocessor/repeat.hpp>
+#   include <boost/variant/variant_fwd.hpp>
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
@@ -111,7 +111,7 @@ struct make_initializer_node
                 return BOOST_MPL_AUX_VALUE_WKND(index)::value; // which
             }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES            
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
             static int initialize(void* dest, param2_T operand)
             {
                 // This assert must newer trigger, because all the reference contents are

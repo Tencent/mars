@@ -21,11 +21,11 @@
 #include <boost/config.hpp>
 
 #include <boost/smart_ptr/detail/lightweight_mutex.hpp>
-#include <boost/type_traits/type_with_alignment.hpp>
 #include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/type_with_alignment.hpp>
 
-#include <new>              // ::operator new, ::operator delete
 #include <cstddef>          // std::size_t
+#include <new>              // ::operator new, ::operator delete
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -194,6 +194,6 @@ struct quick_allocator: public allocator_impl< sizeof(T), mars_boost::alignment_
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif  // #ifndef BOOST_SMART_PTR_DETAIL_QUICK_ALLOCATOR_HPP_INCLUDED

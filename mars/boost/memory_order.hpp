@@ -1,22 +1,22 @@
-#ifndef BOOST_MEMORY_ORDER_HPP_INCLUDED
-#define BOOST_MEMORY_ORDER_HPP_INCLUDED
-
-// MS compatible compilers support #pragma once
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-# pragma once
-#endif
-
 //  boost/memory_order.hpp
 //
 //  Defines enum mars_boost::memory_order per the C++0x working draft
 //
 //  Copyright (c) 2008, 2009 Peter Dimov
+//  Copyright (c) 2018 Andrey Semashev
 //
 //  Distributed under the Boost Software License, Version 1.0.
 //  See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef BOOST_MEMORY_ORDER_HPP_INCLUDED
+#define BOOST_MEMORY_ORDER_HPP_INCLUDED
+
+#include <boost/config.hpp>
+
+#if defined(BOOST_HAS_PRAGMA_ONCE)
+# pragma once
+#endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -42,6 +42,29 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 // efficiently in compare_exchange methods.
 //
 
+#if !defined(BOOST_NO_CXX11_SCOPED_ENUMS)
+
+enum class memory_order : unsigned int
+{
+    relaxed = 0,
+    consume = 1,
+    acquire = 2,
+    release = 4,
+    acq_rel = 6, // acquire | release
+    seq_cst = 14 // acq_rel | 8
+};
+
+BOOST_INLINE_VARIABLE BOOST_CONSTEXPR_OR_CONST memory_order memory_order_relaxed = memory_order::relaxed;
+BOOST_INLINE_VARIABLE BOOST_CONSTEXPR_OR_CONST memory_order memory_order_consume = memory_order::consume;
+BOOST_INLINE_VARIABLE BOOST_CONSTEXPR_OR_CONST memory_order memory_order_acquire = memory_order::acquire;
+BOOST_INLINE_VARIABLE BOOST_CONSTEXPR_OR_CONST memory_order memory_order_release = memory_order::release;
+BOOST_INLINE_VARIABLE BOOST_CONSTEXPR_OR_CONST memory_order memory_order_acq_rel = memory_order::acq_rel;
+BOOST_INLINE_VARIABLE BOOST_CONSTEXPR_OR_CONST memory_order memory_order_seq_cst = memory_order::seq_cst;
+
+#undef BOOST_MEMORY_ORDER_INLINE_VARIABLE
+
+#else // !defined(BOOST_NO_CXX11_SCOPED_ENUMS)
+
 enum memory_order
 {
     memory_order_relaxed = 0,
@@ -51,6 +74,8 @@ enum memory_order
     memory_order_acq_rel = 6, // acquire | release
     memory_order_seq_cst = 14 // acq_rel | 8
 };
+
+#endif // !defined(BOOST_NO_CXX11_SCOPED_ENUMS)
 
 } // namespace mars_boost
 

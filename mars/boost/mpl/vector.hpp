@@ -15,12 +15,12 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/limits/vector.hpp>
-#   include <boost/mpl/aux_/na.hpp>
 #   include <boost/mpl/aux_/config/preprocessor.hpp>
+#   include <boost/mpl/aux_/na.hpp>
+#   include <boost/mpl/limits/vector.hpp>
 
-#   include <boost/preprocessor/inc.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/inc.hpp>
 #   include <boost/preprocessor/stringize.hpp>
 
 #if !defined(BOOST_NEEDS_TOKEN_PASTING_OP_FOR_TOKENS_JUXTAPOSING)

@@ -1,0 +1,50 @@
+////
+Copyright 2020 Peter Dimov
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#owner_less]
+# owner_less
+:toc:
+:toc-title:
+:idprefix: owner_less_
+
+## Description
+
+`owner_less<T>` is a helper function object that compares two smart
+pointer objects using `owner_before`. It is only provided for compatibility
+with {cpp}11 and corresponds to the standard component of the same name.
+
+When using Boost smart pointers, the use of `owner_less` is unnecessary, as
+the supplied `operator<` overloads (and, correspondingly, `std::less`) return
+the same result.
+
+## Synopsis
+
+`owner_less` is defined in `<boost/smart_ptr/owner_less.hpp>`.
+
+```
+namespace boost {
+
+  template<class T = void> struct owner_less
+  {
+    typedef bool result_type;
+    typedef T first_argument_type;
+    typedef T second_argument_type;
+
+    template<class U, class V> bool operator()( U const & u, V const & v ) const noexcept;
+  };
+}
+```
+
+## Members
+
+```
+template<class U, class V> bool operator()( U const & u, V const & v ) const noexcept;
+```
+[none]
+* {blank}
++
+Returns::
+  `u.owner_before( v )`.

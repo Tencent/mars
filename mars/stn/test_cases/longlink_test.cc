@@ -291,9 +291,14 @@ void test(TestCaseInfo& _info) {
     ActiveLogic activelogic;
     MMLongLink2 longlink(longlinkobs, &netsource, activelogic);
 
-    longlink.SignalConnection.connect(boost::bind(&OnLongLinkStatuChanged, _1));
+    longlink.SignalConnection.connect(boost::bind(&OnLongLinkStatuChanged, boost::placeholders::_1));
 
-    longlink.FuncNetworkReport = boost::bind(&__OnLongLinkNetworkError, _1, _2, _3, _4, _5);
+    longlink.FuncNetworkReport = boost::bind(&__OnLongLinkNetworkError,
+                                             boost::placeholders::_1,
+                                             boost::placeholders::_2,
+                                             boost::placeholders::_3,
+                                             boost::placeholders::_4,
+                                             boost::placeholders::_5);
     ;
     longlink.MakeSureConnected();
 

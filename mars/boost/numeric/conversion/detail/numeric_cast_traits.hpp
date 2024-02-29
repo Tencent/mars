@@ -18,9 +18,9 @@
 #else
 #if !BOOST_PP_IS_ITERATING
 
+    #include <boost/preprocessor/iteration/iterate.hpp>
     #include <boost/preprocessor/seq/elem.hpp>
     #include <boost/preprocessor/seq/size.hpp>
-    #include <boost/preprocessor/iteration/iterate.hpp>
     
     #if defined(__WAVE__) && defined(BOOST_NUMERIC_CONVERSION_CREATE_PREPROCESSED_FILES)
         #pragma wave option(preserve: 2, line: 0, output: "preprocessed/numeric_cast_traits_common.hpp")

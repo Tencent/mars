@@ -4,53 +4,15 @@
 // (C) Copyright 2007 Anthony Williams
 #ifndef THREAD_HEAP_ALLOC_HPP
 #define THREAD_HEAP_ALLOC_HPP
-#include <new>
+#include <boost/assert.hpp>
+#include <boost/core/no_exceptions_support.hpp>
 #include <boost/thread/detail/config.hpp>
 #include <boost/thread/win32/thread_primitives.hpp>
-#include <stdexcept>
-#include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
-#include <boost/core/no_exceptions_support.hpp>
+#include <new>
+#include <stdexcept>
 
-#if defined( BOOST_USE_WINDOWS_H )
-# include <windows.h>
-
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
-{
-    namespace detail
-    {
-        namespace win32
-        {
-            using ::GetProcessHeap;
-            using ::HeapAlloc;
-            using ::HeapFree;
-        }
-    }
-}
-
-#else
-
-# ifdef HeapAlloc
-# undef HeapAlloc
-# endif
-
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
-{
-    namespace detail
-    {
-        namespace win32
-        {
-            extern "C"
-            {
-                __declspec(dllimport) handle __stdcall GetProcessHeap();
-                __declspec(dllimport) void* __stdcall HeapAlloc(handle,unsigned long,ulong_ptr);
-                __declspec(dllimport) int __stdcall HeapFree(handle,unsigned long,void*);
-            }
-        }
-    }
-}
-
-#endif
+#include <boost/winapi/heap_memory.hpp>
 
 #include <boost/config/abi_prefix.hpp>
 
@@ -60,7 +22,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
         inline void* allocate_raw_heap_memory(unsigned size)
         {
-            void* const heap_memory=detail::win32::HeapAlloc(detail::win32::GetProcessHeap(),0,size);
+            void* const heap_memory=winapi::HeapAlloc(winapi::GetProcessHeap(),0,size);
             if(!heap_memory)
             {
                 mars_boost::throw_exception(std::bad_alloc());
@@ -70,9 +32,26 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
         inline void free_raw_heap_memory(void* heap_memory)
         {
-            BOOST_VERIFY(detail::win32::HeapFree(detail::win32::GetProcessHeap(),0,heap_memory)!=0);
+            BOOST_VERIFY(winapi::HeapFree(winapi::GetProcessHeap(),0,heap_memory)!=0);
         }
-
+#if defined(BOOST_THREAD_PROVIDES_VARIADIC_THREAD) && ! defined (BOOST_NO_CXX11_RVALUE_REFERENCES)
+        template<typename T,typename... Args>
+        inline T* heap_new(Args&&... args)
+        {
+          void* const heap_memory=allocate_raw_heap_memory(sizeof(T));
+          BOOST_TRY
+          {
+              T* const data=new (heap_memory) T(static_cast<Args&&>(args)...);
+              return data;
+          }
+          BOOST_CATCH(...)
+          {
+              free_raw_heap_memory(heap_memory);
+              BOOST_RETHROW
+          }
+          BOOST_CATCH_END
+        }
+#else
         template<typename T>
         inline T* heap_new()
         {
@@ -216,6 +195,86 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             BOOST_TRY
             {
                 T* const data=new (heap_memory) T(a1,a2,a3,a4);
+                return data;
+            }
+            BOOST_CATCH(...)
+            {
+                free_raw_heap_memory(heap_memory);
+                BOOST_RETHROW
+            }
+            BOOST_CATCH_END
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5)
+        {
+            void* const heap_memory=allocate_raw_heap_memory(sizeof(T));
+            BOOST_TRY
+            {
+                T* const data=new (heap_memory) T(a1,a2,a3,a4,a5);
+                return data;
+            }
+            BOOST_CATCH(...)
+            {
+                free_raw_heap_memory(heap_memory);
+                BOOST_RETHROW
+            }
+            BOOST_CATCH_END
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6)
+        {
+            void* const heap_memory=allocate_raw_heap_memory(sizeof(T));
+            BOOST_TRY
+            {
+                T* const data=new (heap_memory) T(a1,a2,a3,a4,a5,a6);
+                return data;
+            }
+            BOOST_CATCH(...)
+            {
+                free_raw_heap_memory(heap_memory);
+                BOOST_RETHROW
+            }
+            BOOST_CATCH_END
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6,A7 a7)
+        {
+            void* const heap_memory=allocate_raw_heap_memory(sizeof(T));
+            BOOST_TRY
+            {
+                T* const data=new (heap_memory) T(a1,a2,a3,a4,a5,a6,a7);
+                return data;
+            }
+            BOOST_CATCH(...)
+            {
+                free_raw_heap_memory(heap_memory);
+                BOOST_RETHROW
+            }
+            BOOST_CATCH_END
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6,A7 a7,A8 a8)
+        {
+            void* const heap_memory=allocate_raw_heap_memory(sizeof(T));
+            BOOST_TRY
+            {
+                T* const data=new (heap_memory) T(a1,a2,a3,a4,a5,a6,a7,a8);
+                return data;
+            }
+            BOOST_CATCH(...)
+            {
+                free_raw_heap_memory(heap_memory);
+                BOOST_RETHROW
+            }
+            BOOST_CATCH_END
+        }
+        template<typename T,typename A1,typename A2,typename A3,typename A4,typename A5,typename A6,typename A7,typename A8,typename A9>
+        inline T* heap_new_impl(A1 a1,A2 a2,A3 a3,A4 a4,A5 a5,A6 a6,A7 a7,A8 a8,A9 a9)
+        {
+            void* const heap_memory=allocate_raw_heap_memory(sizeof(T));
+            BOOST_TRY
+            {
+                T* const data=new (heap_memory) T(a1,a2,a3,a4,a5,a6,a7,a8,a9);
                 return data;
             }
             BOOST_CATCH(...)
@@ -384,6 +443,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             return heap_new_impl<T,A1&,A2&,A3&,A4&>(a1,a2,a3,a4);
         }
 
+#endif
 #endif
         template<typename T>
         inline void heap_delete(T* data)

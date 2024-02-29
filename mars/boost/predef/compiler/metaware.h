@@ -8,20 +8,21 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_COMPILER_METAWARE_H
 #define BOOST_PREDEF_COMPILER_METAWARE_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_COMP_HIGHC`]
+/* tag::reference[]
+= `BOOST_COMP_HIGHC`
 
-MetaWare High C/C++ compiler.
+MetaWare High C/{CPP} compiler.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__HIGHC__`] [__predef_detection__]]
-    ]
- */
+| `+__HIGHC__+` | {predef_detection}
+|===
+*/ // end::reference[]
 
 #define BOOST_COMP_HIGHC BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

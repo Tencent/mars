@@ -11,8 +11,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_CONTROL_DETAIL_WHILE_HPP
-# define BOOST_PREPROCESSOR_CONTROL_DETAIL_WHILE_HPP
+# ifndef BOOST_PREPROCESSOR_CONTROL_DETAIL_DMC_WHILE_HPP
+# define BOOST_PREPROCESSOR_CONTROL_DETAIL_DMC_WHILE_HPP
 #
 # include <boost/preprocessor/control/iif.hpp>
 # include <boost/preprocessor/logical/bool.hpp>
@@ -531,6 +531,5 @@
 # define BOOST_PP_WHILE_254_C(c, p, o, s) BOOST_PP_IIF(c, BOOST_PP_WHILE_255, BOOST_PP_TUPLE_ELEM_3_2)(p, o, BOOST_PP_IIF(c, o, BOOST_PP_TUPLE_ELEM_2_1)(255, s))
 # define BOOST_PP_WHILE_255_C(c, p, o, s) BOOST_PP_IIF(c, BOOST_PP_WHILE_256, BOOST_PP_TUPLE_ELEM_3_2)(p, o, BOOST_PP_IIF(c, o, BOOST_PP_TUPLE_ELEM_2_1)(256, s))
 # define BOOST_PP_WHILE_256_C(c, p, o, s) BOOST_PP_IIF(c, BOOST_PP_WHILE_257, BOOST_PP_TUPLE_ELEM_3_2)(p, o, BOOST_PP_IIF(c, o, BOOST_PP_TUPLE_ELEM_2_1)(257, s))
-#
 #
 # endif

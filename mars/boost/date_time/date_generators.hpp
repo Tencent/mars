@@ -13,11 +13,11 @@
   Definition and implementation of date algorithm templates
 */
 
-#include <stdexcept>
-#include <sstream>
-#include <boost/throw_exception.hpp>
-#include <boost/date_time/date.hpp>
 #include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/date.hpp>
+#include <boost/throw_exception.hpp>
+#include <sstream>
+#include <stdexcept>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace date_time {
@@ -25,7 +25,7 @@ namespace date_time {
   //! Base class for all generators that take a year and produce a date.
   /*! This class is a base class for polymorphic function objects that take
     a year and produce a concrete date.
-    @param date_type The type representing a date.  This type must
+    @tparam date_type The type representing a date.  This type must
     export a calender_type which defines a year_type.
   */
   template<class date_type>
@@ -38,7 +38,7 @@ namespace date_time {
     virtual ~year_based_generator() {}
     virtual date_type get_date(year_type y) const = 0;
     //! Returns a string for use in a POSIX time_zone string
-    virtual std::string to_string() const =0;
+    virtual std::string to_string() const = 0;
   };
 
   //! Generates a date by applying the year to the given month and day.
@@ -98,7 +98,7 @@ namespace date_time {
     * pg.get_date(2000); // returns 2000-2-29
     * @endcode
          */
-   date_type get_date(year_type y) const
+   date_type get_date(year_type y) const BOOST_OVERRIDE
    {
      if((day_ == 29) && (month_ == 2) && !(calendar_type::is_leap_year(y))) {
        std::ostringstream ss;
@@ -139,7 +139,7 @@ namespace date_time {
     * Jan-01 == "0"
     * Feb-29 == "58"
     * Dec-31 == "365" */
-   virtual std::string to_string() const
+   std::string to_string() const BOOST_OVERRIDE
    {
      std::ostringstream ss;
      date_type d(2004, month_, day_);
@@ -153,9 +153,18 @@ namespace date_time {
    month_type month_;
  };
 
-
   //! Returns nth arg as string. 1 -> "first", 2 -> "second", max is 5.
-  BOOST_DATE_TIME_DECL const char* nth_as_str(int n);
+  inline const char* nth_as_str(int ele)
+  {
+    static const char* const _nth_as_str[] = {"out of range", "first", "second",
+                                              "third", "fourth", "fifth"};
+    if(ele >= 1 && ele <= 5) {
+      return _nth_as_str[ele];
+    }
+    else {
+      return _nth_as_str[0];
+    }
+  }
 
   //! Useful generator functor for finding holidays
   /*! Based on the idea in Cal. Calc. for finding holidays that are
@@ -167,7 +176,7 @@ namespace date_time {
    *  The algorithm here basically guesses for the first
    *  day of the month.  Then finds the first day of the correct
    *  type.  That is, if the first of the month is a Tuesday
-   *  and it needs Wenesday then we simply increment by a day
+   *  and it needs Wednesday then we simply increment by a day
    *  and then we can add the length of a week until we get
    *  to the 'nth kday'.  There are probably more efficient
    *  algorithms based on using a mod 7, but this one works
@@ -192,7 +201,7 @@ namespace date_time {
       dow_(dow)
     {}
     //! Return a concrete date when provided with a year specific year.
-    date_type get_date(year_type y) const
+    date_type get_date(year_type y) const BOOST_OVERRIDE
     {
       date_type d(y, month_, 1); //first day of month
       duration_type one_day(1);
@@ -230,7 +239,7 @@ namespace date_time {
     }
     //! Returns string suitable for use in POSIX time zone string
     /*! Returns a string formatted as "M4.3.0" ==> 3rd Sunday in April. */
-    virtual std::string to_string() const
+    std::string to_string() const BOOST_OVERRIDE
     {
      std::ostringstream ss;
      ss << 'M'
@@ -267,7 +276,7 @@ namespace date_time {
       dow_(dow)
     {}
     //! Return a concrete date when provided with a year specific year.
-    date_type get_date(year_type year) const
+    date_type get_date(year_type year) const BOOST_OVERRIDE
     {
       date_type d(year, month_,1);
       duration_type one_day(1);
@@ -287,7 +296,7 @@ namespace date_time {
     }
     //! Returns string suitable for use in POSIX time zone string
     /*! Returns a string formatted as "M4.1.0" ==> 1st Sunday in April. */
-    virtual std::string to_string() const
+    std::string to_string() const BOOST_OVERRIDE
     {
      std::ostringstream ss;
      ss << 'M'
@@ -307,7 +316,7 @@ namespace date_time {
   /*! Useful generator functor for finding holidays and daylight savings
    *  Get the last day of the month and then calculate the difference
    *  to the last previous day.
-   *  @param date_type A date class that exports day_of_week, month_type, etc.
+   *  @tparam date_type A date class that exports day_of_week, month_type, etc.
    *  \ingroup date_alg
    */
   template<class date_type>
@@ -328,7 +337,7 @@ namespace date_time {
       dow_(dow)
     {}
     //! Return a concrete date when provided with a year specific year.
-    date_type get_date(year_type year) const
+    date_type get_date(year_type year) const BOOST_OVERRIDE
     {
       date_type d(year, month_, calendar_type::end_of_month_day(year,month_));
       duration_type one_day(1);
@@ -348,7 +357,7 @@ namespace date_time {
     }
     //! Returns string suitable for use in POSIX time zone string
     /*! Returns a string formatted as "M4.5.0" ==> last Sunday in April. */
-    virtual std::string to_string() const
+    std::string to_string() const BOOST_OVERRIDE
     {
       std::ostringstream ss;
       ss << 'M'
@@ -502,8 +511,4 @@ namespace date_time {
 
 } } //namespace date_time
 
-
-
-
 #endif
-

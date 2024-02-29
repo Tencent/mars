@@ -28,7 +28,7 @@
 #define SURE_WEAK_SPAN (5 * 1000)
 #define WEAK_TASK_SPAN (5 * 1000)
 #define WEAK_LEAST_SPAN (8 * 1000)
-//#define LAST_CONNECTINFO_VALID_SPAN (10*1000)
+// #define LAST_CONNECTINFO_VALID_SPAN (10*1000)
 
 using namespace mars::comm;
 
@@ -74,11 +74,13 @@ WeakNetworkLogic::WeakNetworkLogic()
 , last_connect_fail_tick_(false)
 , last_connect_suc_tick_(false)
 , cgi_fail_num_(0) {
-    ActiveLogic::Instance()->SignalForeground.connect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+    ActiveLogic::Instance()->SignalForeground.connect(
+        boost::bind(&WeakNetworkLogic::__SignalForeground, this, boost::placeholders::_1));
 }
 
 WeakNetworkLogic::~WeakNetworkLogic() {
-    ActiveLogic::Instance()->SignalForeground.disconnect(boost::bind(&WeakNetworkLogic::__SignalForeground, this, _1));
+    ActiveLogic::Instance()->SignalForeground.disconnect(
+        boost::bind(&WeakNetworkLogic::__SignalForeground, this, boost::placeholders::_1));
 }
 
 void WeakNetworkLogic::__SignalForeground(bool _is_foreground) {

@@ -1,0 +1,504 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Class fiber</title>
+<link rel="stylesheet" href="../../../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.79.1">
+<link rel="home" href="../../index.html" title="Chapter 1. Context">
+<link rel="up" href="../ff.html" title="Context switching with fibers">
+<link rel="prev" href="implementations__fcontext_t__ucontext_t_and_winfiber.html" title="Implementations: fcontext_t, ucontext_t and WinFiber">
+<link rel="next" href="../cc.html" title="Context switching with call/cc">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="implementations__fcontext_t__ucontext_t_and_winfiber.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../ff.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../cc.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="context.ff.class__fiber_"></a><a class="link" href="class__fiber_.html" title="Class fiber">Class <code class="computeroutput"><span class="identifier">fiber</span></code></a>
+</h3></div></div></div>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">context</span><span class="special">/</span><span class="identifier">fiber</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+
+<span class="keyword">class</span> <span class="identifier">fiber</span> <span class="special">{</span>
+<span class="keyword">public</span><span class="special">:</span>
+    <span class="identifier">fiber</span><span class="special">()</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Fn</span><span class="special">&gt;</span>
+    <span class="identifier">fiber</span><span class="special">(</span><span class="identifier">Fn</span> <span class="special">&amp;&amp;</span> <span class="identifier">fn</span><span class="special">);</span>
+
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">StackAlloc</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Fn</span><span class="special">&gt;</span>
+    <span class="identifier">fiber</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator_arg_t</span><span class="special">,</span> <span class="identifier">StackAlloc</span> <span class="special">&amp;&amp;</span> <span class="identifier">salloc</span><span class="special">,</span> <span class="identifier">Fn</span> <span class="special">&amp;&amp;</span> <span class="identifier">fn</span><span class="special">);</span>
+
+    <span class="special">~</span><span class="identifier">fiber</span><span class="special">();</span>
+
+    <span class="identifier">fiber</span><span class="special">(</span><span class="identifier">fiber</span> <span class="special">&amp;&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="identifier">fiber</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">fiber</span> <span class="special">&amp;&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="identifier">fiber</span><span class="special">(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">noexcept</span> <span class="special">=</span> <span class="keyword">delete</span><span class="special">;</span>
+    <span class="identifier">fiber</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">noexcept</span> <span class="special">=</span> <span class="keyword">delete</span><span class="special">;</span>
+
+    <span class="identifier">fiber</span> <span class="identifier">resume</span><span class="special">()</span> <span class="special">&amp;&amp;;</span>
+
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Fn</span><span class="special">&gt;</span>
+    <span class="identifier">fiber</span> <span class="identifier">resume_with</span><span class="special">(</span><span class="identifier">Fn</span> <span class="special">&amp;&amp;</span> <span class="identifier">fn</span><span class="special">)</span> <span class="special">&amp;&amp;;</span>
+
+    <span class="keyword">explicit</span> <span class="keyword">operator</span> <span class="keyword">bool</span><span class="special">()</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">!()</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">==(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">!=(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&lt;(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&gt;(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&lt;=(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&gt;=(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+
+    <span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">charT</span><span class="special">,</span><span class="keyword">class</span> <span class="identifier">traitsT</span><span class="special">&gt;</span>
+    <span class="keyword">friend</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">basic_ostream</span><span class="special">&lt;</span><span class="identifier">charT</span><span class="special">,</span><span class="identifier">traitsT</span><span class="special">&gt;</span> <span class="special">&amp;</span>
+    <span class="keyword">operator</span><span class="special">&lt;&lt;(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">basic_ostream</span><span class="special">&lt;</span><span class="identifier">charT</span><span class="special">,</span><span class="identifier">traitsT</span><span class="special">&gt;</span> <span class="special">&amp;</span> <span class="identifier">os</span><span class="special">,</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="special">{</span>
+
+    <span class="keyword">void</span> <span class="identifier">swap</span><span class="special">(</span><span class="identifier">fiber</span> <span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">noexcept</span><span class="special">;</span>
+<span class="special">};</span>
+</pre>
+<p>
+        </p>
+<h5>
+<a name="ff_constructor1_bridgehead"></a>
+  <span class="phrase"><a name="ff_constructor1"></a></span>
+  <a class="link" href="class__fiber_.html#ff_constructor1">Constructor</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="identifier">fiber</span><span class="special">()</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Creates a invalid fiber.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_constructor2_bridgehead"></a>
+  <span class="phrase"><a name="ff_constructor2"></a></span>
+  <a class="link" href="class__fiber_.html#ff_constructor2">Constructor</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Fn</span><span class="special">&gt;</span>
+<span class="identifier">fiber</span><span class="special">(</span><span class="identifier">Fn</span> <span class="special">&amp;&amp;</span> <span class="identifier">fn</span><span class="special">);</span>
+
+<span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">StackAlloc</span><span class="special">,</span> <span class="keyword">typename</span> <span class="identifier">Fn</span><span class="special">&gt;</span>
+<span class="identifier">fiber</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">allocator_arg_t</span><span class="special">,</span> <span class="identifier">StackAlloc</span> <span class="special">&amp;&amp;</span> <span class="identifier">salloc</span><span class="special">,</span> <span class="identifier">Fn</span> <span class="special">&amp;&amp;</span> <span class="identifier">fn</span><span class="special">);</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Creates a new fiber and prepares the context to execute <code class="computeroutput"><span class="identifier">fn</span></code>. <code class="computeroutput"><span class="identifier">fixedsize_stack</span></code>
+              is used as default stack allocator (stack size == fixedsize_stack::traits::default_size()).
+              The constructor with argument type <code class="computeroutput"><span class="identifier">preallocated</span></code>,
+              is used to create a user defined data <a class="link" href="../ff.html#ff_prealloc">(for
+              instance additional control structures)</a> on top of the stack.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_destructor%20destructor_bridgehead"></a>
+  <span class="phrase"><a name="ff_destructor%20destructor"></a></span>
+  <a class="link" href="class__fiber_.html#ff_destructor%20destructor">Destructor</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="special">~</span><span class="identifier">fiber</span><span class="special">();</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Destructs the associated stack if <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code> is a valid fiber, e.g. <span class="emphasis"><em>fiber::operator
+              bool()</em></span> returns <code class="computeroutput"><span class="keyword">true</span></code>.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_move%20constructor_bridgehead"></a>
+  <span class="phrase"><a name="ff_move%20constructor"></a></span>
+  <a class="link" href="class__fiber_.html#ff_move%20constructor">Move
+        constructor</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="identifier">fiber</span><span class="special">(</span><span class="identifier">fiber</span> <span class="special">&amp;&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Moves underlying capture fiber to <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_move%20assignment_bridgehead"></a>
+  <span class="phrase"><a name="ff_move%20assignment"></a></span>
+  <a class="link" href="class__fiber_.html#ff_move%20assignment">Move assignment
+        operator</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="identifier">fiber</span> <span class="special">&amp;</span> <span class="keyword">operator</span><span class="special">=(</span><span class="identifier">fiber</span> <span class="special">&amp;&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Moves the state of <code class="computeroutput"><span class="identifier">other</span></code>
+              to <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>
+              using move semantics.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_call_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_call"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_call">Member function
+        <code class="computeroutput">operator()</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="identifier">fiber</span> <span class="identifier">resume</span><span class="special">()</span> <span class="special">&amp;&amp;;</span>
+
+<span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">Fn</span><span class="special">&gt;</span>
+<span class="identifier">fiber</span> <span class="identifier">resume_with</span><span class="special">(</span><span class="identifier">Fn</span> <span class="special">&amp;&amp;</span> <span class="identifier">fn</span><span class="special">)</span> <span class="special">&amp;&amp;;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Captures current fiber and resumes <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>. The function <code class="computeroutput"><span class="identifier">resume_with</span></code>,
+              is used to execute function <code class="computeroutput"><span class="identifier">fn</span></code>
+              in the execution context of <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code> (e.g. the stack frame of <code class="computeroutput"><span class="identifier">fn</span></code> is allocated on stack of <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>).
+            </p></dd>
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              The fiber representing the fiber that has been suspended.
+            </p></dd>
+<dt><span class="term">Note:</span></dt>
+<dd><p>
+              Because <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>
+              gets invalidated, <code class="computeroutput"><span class="identifier">resume</span><span class="special">()</span></code> and <code class="computeroutput"><span class="identifier">resume_with</span><span class="special">()</span></code> are rvalue-ref qualified and bind
+              only to rvalues.
+            </p></dd>
+<dt><span class="term">Note:</span></dt>
+<dd><p>
+              Function <code class="computeroutput"><span class="identifier">fn</span></code> needs to
+              return <code class="computeroutput"><span class="identifier">fiber</span></code>.
+            </p></dd>
+<dt><span class="term">Note:</span></dt>
+<dd><p>
+              The returned fiber indicates if the suspended fiber has terminated
+              (return from context-function) via <code class="computeroutput"><span class="keyword">bool</span>
+              <span class="keyword">operator</span><span class="special">()</span></code>.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_bool_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_bool"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_bool">Member function
+        <code class="computeroutput">operator bool</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">explicit</span> <span class="keyword">operator</span> <span class="keyword">bool</span><span class="special">()</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="keyword">true</span></code> if <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>
+              points to a captured fiber.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_not_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_not"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_not">Member function <code class="computeroutput">operator!</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">!()</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="keyword">true</span></code> if <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>
+              does not point to a captured fiber.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_equal_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_equal"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_equal">Member function
+        <code class="computeroutput">operator==</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">==(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="keyword">true</span></code> if <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>
+              and <code class="computeroutput"><span class="identifier">other</span></code> represent
+              the same fiber, <code class="computeroutput"><span class="keyword">false</span></code>
+              otherwise.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_notequal_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_notequal"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_notequal">Member
+        function <code class="computeroutput">operator!=</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">!=(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput">! (other == * this)</code>
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_less_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_less"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_less">Member function
+        <code class="computeroutput">operator&lt;</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&lt;(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="keyword">true</span></code> if <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span> <span class="special">!=</span> <span class="identifier">other</span></code>
+              is true and the implementation-defined total order of <code class="computeroutput"><span class="identifier">fiber</span></code> values places <code class="computeroutput"><span class="special">*</span><span class="keyword">this</span></code>
+              before <code class="computeroutput"><span class="identifier">other</span></code>, false
+              otherwise.
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_greater_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_greater"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_greater">Member
+        function <code class="computeroutput">operator&gt;</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&gt;(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="identifier">other</span> <span class="special">&lt;</span>
+              <span class="special">*</span> <span class="keyword">this</span></code>
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_lesseq_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_lesseq"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_lesseq">Member function
+        <code class="computeroutput">operator&lt;=</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&lt;=(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="special">!</span> <span class="special">(</span><span class="identifier">other</span> <span class="special">&lt;</span>
+              <span class="special">*</span> <span class="keyword">this</span><span class="special">)</span></code>
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff_operator_greatereq_bridgehead"></a>
+  <span class="phrase"><a name="ff_operator_greatereq"></a></span>
+  <a class="link" href="class__fiber_.html#ff_operator_greatereq">Member
+        function <code class="computeroutput">operator&gt;=</code>()</a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">bool</span> <span class="keyword">operator</span><span class="special">&gt;=(</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">)</span> <span class="keyword">const</span> <span class="keyword">noexcept</span><span class="special">;</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="special">!</span> <span class="special">(*</span>
+              <span class="keyword">this</span> <span class="special">&lt;</span>
+              <span class="identifier">other</span><span class="special">)</span></code>
+            </p></dd>
+<dt><span class="term">Throws:</span></dt>
+<dd><p>
+              Nothing.
+            </p></dd>
+</dl>
+</div>
+<p>
+        </p>
+<h5>
+<a name="ff__bridgehead"></a>
+  <span class="phrase"><a name="ff_"></a></span>
+  <a class="link" href="class__fiber_.html#ff_">Non-member function <code class="computeroutput">operator&lt;&lt;()</code></a>
+</h5>
+<p>
+      </p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">charT</span><span class="special">,</span><span class="keyword">class</span> <span class="identifier">traitsT</span><span class="special">&gt;</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">basic_ostream</span><span class="special">&lt;</span><span class="identifier">charT</span><span class="special">,</span><span class="identifier">traitsT</span><span class="special">&gt;</span> <span class="special">&amp;</span>
+<span class="keyword">operator</span><span class="special">&lt;&lt;(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">basic_ostream</span><span class="special">&lt;</span><span class="identifier">charT</span><span class="special">,</span><span class="identifier">traitsT</span><span class="special">&gt;</span> <span class="special">&amp;</span> <span class="identifier">os</span><span class="special">,</span><span class="identifier">fiber</span> <span class="keyword">const</span><span class="special">&amp;</span> <span class="identifier">other</span><span class="special">);</span>
+</pre>
+<div class="variablelist">
+<p class="title"><b></b></p>
+<dl class="variablelist">
+<dt><span class="term">Effects:</span></dt>
+<dd><p>
+              Writes the representation of <code class="computeroutput"><span class="identifier">other</span></code>
+              to stream <code class="computeroutput"><span class="identifier">os</span></code>.
+            </p></dd>
+<dt><span class="term">Returns:</span></dt>
+<dd><p>
+              <code class="computeroutput"><span class="identifier">os</span></code>
+            </p></dd>
+</dl>
+</div>
+</div>
+<div class="copyright-footer">Copyright © 2014 Oliver Kowalke<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="implementations__fcontext_t__ucontext_t_and_winfiber.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../ff.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../cc.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

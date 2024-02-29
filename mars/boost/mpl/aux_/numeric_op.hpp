@@ -18,18 +18,18 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/numeric_cast.hpp>
 #   include <boost/mpl/apply_wrap.hpp>
-#   include <boost/mpl/if.hpp>
-#   include <boost/mpl/tag.hpp>
-#   include <boost/mpl/aux_/numeric_cast_utils.hpp>
-#   include <boost/mpl/aux_/na.hpp>
-#   include <boost/mpl/aux_/na_spec.hpp>
+#   include <boost/mpl/aux_/config/eti.hpp>
 #   include <boost/mpl/aux_/lambda_support.hpp>
 #   include <boost/mpl/aux_/msvc_eti_base.hpp>
-#   include <boost/mpl/aux_/value_wknd.hpp>
-#   include <boost/mpl/aux_/config/eti.hpp>
+#   include <boost/mpl/aux_/na.hpp>
+#   include <boost/mpl/aux_/na_spec.hpp>
 #   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/aux_/numeric_cast_utils.hpp>
+#   include <boost/mpl/aux_/value_wknd.hpp>
+#   include <boost/mpl/if.hpp>
+#   include <boost/mpl/numeric_cast.hpp>
+#   include <boost/mpl/tag.hpp>
 #endif
 
 #include <boost/mpl/aux_/config/static_constant.hpp>
@@ -37,24 +37,24 @@
 #if defined(BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS) \
     || defined(BOOST_MPL_PREPROCESSING_MODE)
 
-#   include <boost/mpl/limits/arity.hpp>
-#   include <boost/mpl/aux_/preprocessor/partial_spec_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
-#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
-#   include <boost/mpl/aux_/preprocessor/ext_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/preprocessor/enum.hpp>
-#   include <boost/mpl/aux_/preprocessor/add.hpp>
-#   include <boost/mpl/aux_/preprocessor/sub.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/config/eti.hpp>
 #   include <boost/mpl/aux_/config/msvc.hpp>
 #   include <boost/mpl/aux_/config/workaround.hpp>
+#   include <boost/mpl/aux_/preprocessor/add.hpp>
+#   include <boost/mpl/aux_/preprocessor/def_params_tail.hpp>
+#   include <boost/mpl/aux_/preprocessor/enum.hpp>
+#   include <boost/mpl/aux_/preprocessor/ext_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/params.hpp>
+#   include <boost/mpl/aux_/preprocessor/partial_spec_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
+#   include <boost/mpl/aux_/preprocessor/sub.hpp>
+#   include <boost/mpl/limits/arity.hpp>
 
+#   include <boost/preprocessor/cat.hpp>
 #   include <boost/preprocessor/dec.hpp>
 #   include <boost/preprocessor/inc.hpp>
 #   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/cat.hpp>
 
 
 #if !defined(AUX778076_OP_ARITY)

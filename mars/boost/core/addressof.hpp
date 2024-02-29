@@ -1,162 +1,274 @@
-// Copyright (C) 2002 Brad King (brad.king@kitware.com)
-//                    Douglas Gregor (gregod@cs.rpi.edu)
-//
-// Copyright (C) 2002, 2008, 2013 Peter Dimov
-//
-// Distributed under the Boost Software License, Version 1.0. (See
-// accompanying file LICENSE_1_0.txt or copy at
-// http://www.boost.org/LICENSE_1_0.txt)
+/*
+Copyright (C) 2002 Brad King (brad.king@kitware.com)
+                   Douglas Gregor (gregod@cs.rpi.edu)
 
-// For more information, see http://www.boost.org
+Copyright (C) 2002, 2008, 2013 Peter Dimov
+
+Copyright (C) 2017 Glen Joseph Fernandes (glenjofe@gmail.com)
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt)
+*/
 
 #ifndef BOOST_CORE_ADDRESSOF_HPP
 #define BOOST_CORE_ADDRESSOF_HPP
 
-# include <boost/config.hpp>
-# include <boost/detail/workaround.hpp>
-# include <cstddef>
+#include <boost/config.hpp>
 
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+#if defined(BOOST_MSVC_FULL_VER) && BOOST_MSVC_FULL_VER >= 190024215
+#define BOOST_CORE_HAS_BUILTIN_ADDRESSOF
+#elif defined(BOOST_GCC) && BOOST_GCC >= 70000
+#define BOOST_CORE_HAS_BUILTIN_ADDRESSOF
+#elif defined(__has_builtin)
+#if __has_builtin(__builtin_addressof)
+#define BOOST_CORE_HAS_BUILTIN_ADDRESSOF
+#endif
+#endif
+
+#if defined(BOOST_CORE_HAS_BUILTIN_ADDRESSOF)
+#if defined(BOOST_NO_CXX11_CONSTEXPR)
+#define BOOST_CORE_NO_CONSTEXPR_ADDRESSOF
+#endif
+
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+
+template<class T>
+BOOST_CONSTEXPR inline T*
+addressof(T& o) BOOST_NOEXCEPT
 {
+    return __builtin_addressof(o);
+}
 
-namespace detail
-{
-
-template<class T> struct addr_impl_ref
-{
-    T & v_;
-
-    BOOST_FORCEINLINE addr_impl_ref( T & v ): v_( v ) {}
-    BOOST_FORCEINLINE operator T& () const { return v_; }
-
-private:
-    addr_impl_ref & operator=(const addr_impl_ref &);
-};
-
-template<class T> struct addressof_impl
-{
-    static BOOST_FORCEINLINE T * f( T & v, long )
-    {
-        return reinterpret_cast<T*>(
-            &const_cast<char&>(reinterpret_cast<const volatile char &>(v)));
-    }
-
-    static BOOST_FORCEINLINE T * f( T * v, int )
-    {
-        return v;
-    }
-};
-
-#if !defined( BOOST_NO_CXX11_NULLPTR )
-
-#if !defined( BOOST_NO_CXX11_DECLTYPE ) && ( ( defined( __clang__ ) && !defined( _LIBCPP_VERSION ) ) || defined( __INTEL_COMPILER ) )
-
-    typedef decltype(nullptr) addr_nullptr_t;
-
+} /* boost */
 #else
+#include <boost/config/workaround.hpp>
+#include <cstddef>
 
-    typedef std::nullptr_t addr_nullptr_t;
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+namespace detail {
 
+template<class T>
+class addrof_ref {
+public:
+    BOOST_FORCEINLINE addrof_ref(T& o) BOOST_NOEXCEPT
+        : o_(o) { }
+    BOOST_FORCEINLINE operator T&() const BOOST_NOEXCEPT {
+        return o_;
+    }
+private:
+    addrof_ref& operator=(const addrof_ref&);
+    T& o_;
+};
+
+template<class T>
+struct addrof {
+    static BOOST_FORCEINLINE T* get(T& o, long) BOOST_NOEXCEPT {
+        return reinterpret_cast<T*>(&
+            const_cast<char&>(reinterpret_cast<const volatile char&>(o)));
+    }
+    static BOOST_FORCEINLINE T* get(T* p, int) BOOST_NOEXCEPT {
+        return p;
+    }
+};
+
+#if !defined(BOOST_NO_CXX11_NULLPTR)
+#if !defined(BOOST_NO_CXX11_DECLTYPE) && \
+    (defined(__INTEL_COMPILER) || \
+        (defined(__clang__) && !defined(_LIBCPP_VERSION)))
+typedef decltype(nullptr) addrof_null_t;
+#else
+typedef std::nullptr_t addrof_null_t;
 #endif
 
-template<> struct addressof_impl< addr_nullptr_t >
-{
-    typedef addr_nullptr_t T;
-
-    static BOOST_FORCEINLINE T * f( T & v, int )
-    {
-        return &v;
+template<>
+struct addrof<addrof_null_t> {
+    typedef addrof_null_t type;
+    static BOOST_FORCEINLINE type* get(type& o, int) BOOST_NOEXCEPT {
+        return &o;
     }
 };
 
-template<> struct addressof_impl< addr_nullptr_t const >
-{
-    typedef addr_nullptr_t const T;
-
-    static BOOST_FORCEINLINE T * f( T & v, int )
-    {
-        return &v;
+template<>
+struct addrof<const addrof_null_t> {
+    typedef const addrof_null_t type;
+    static BOOST_FORCEINLINE type* get(type& o, int) BOOST_NOEXCEPT {
+        return &o;
     }
 };
 
-template<> struct addressof_impl< addr_nullptr_t volatile >
-{
-    typedef addr_nullptr_t volatile T;
-
-    static BOOST_FORCEINLINE T * f( T & v, int )
-    {
-        return &v;
+template<>
+struct addrof<volatile addrof_null_t> {
+    typedef volatile addrof_null_t type;
+    static BOOST_FORCEINLINE type* get(type& o, int) BOOST_NOEXCEPT {
+        return &o;
     }
 };
 
-template<> struct addressof_impl< addr_nullptr_t const volatile >
-{
-    typedef addr_nullptr_t const volatile T;
-
-    static BOOST_FORCEINLINE T * f( T & v, int )
-    {
-        return &v;
+template<>
+struct addrof<const volatile addrof_null_t> {
+    typedef const volatile addrof_null_t type;
+    static BOOST_FORCEINLINE type* get(type& o, int) BOOST_NOEXCEPT {
+        return &o;
     }
 };
-
 #endif
 
-} // namespace detail
+} /* detail */
+
+#if defined(BOOST_NO_CXX11_SFINAE_EXPR) || \
+    defined(BOOST_NO_CXX11_CONSTEXPR) || \
+    defined(BOOST_NO_CXX11_DECLTYPE)
+#define BOOST_CORE_NO_CONSTEXPR_ADDRESSOF
+
+template<class T>
+BOOST_FORCEINLINE T*
+addressof(T& o) BOOST_NOEXCEPT
+{
+#if BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x610)) || \
+    BOOST_WORKAROUND(__SUNPRO_CC, <= 0x5120)
+    return mars_boost::detail::addrof<T>::get(o, 0);
+#else
+    return mars_boost::detail::addrof<T>::get(mars_boost::detail::addrof_ref<T>(o), 0);
+#endif
+}
+
+#if BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x590))
+namespace detail {
+
+template<class T>
+struct addrof_result {
+    typedef T* type;
+};
+
+} /* detail */
+
+template<class T, std::size_t N>
+BOOST_FORCEINLINE typename mars_boost::detail::addrof_result<T[N]>::type
+addressof(T (&o)[N]) BOOST_NOEXCEPT
+{
+    return &o;
+}
+#endif
+
+#if BOOST_WORKAROUND(BOOST_BORLANDC, BOOST_TESTED_AT(0x564))
+template<class T, std::size_t N>
+BOOST_FORCEINLINE
+T (*addressof(T (&o)[N]) BOOST_NOEXCEPT)[N]
+{
+   return reinterpret_cast<T(*)[N]>(&o);
+}
+
+template<class T, std::size_t N>
+BOOST_FORCEINLINE
+const T (*addressof(const T (&o)[N]) BOOST_NOEXCEPT)[N]
+{
+   return reinterpret_cast<const T(*)[N]>(&o);
+}
+#endif
+#else
+namespace detail {
+
+template<class T>
+T addrof_declval() BOOST_NOEXCEPT;
+
+template<class>
+struct addrof_void {
+    typedef void type;
+};
+
+template<class T, class E = void>
+struct addrof_member_operator {
+    static constexpr bool value = false;
+};
+
+template<class T>
+struct addrof_member_operator<T, typename
+    addrof_void<decltype(addrof_declval<T&>().operator&())>::type> {
+    static constexpr bool value = true;
+};
+
+#if BOOST_WORKAROUND(BOOST_INTEL, < 1600)
+struct addrof_addressable { };
+
+addrof_addressable*
+operator&(addrof_addressable&) BOOST_NOEXCEPT;
+#endif
+
+template<class T, class E = void>
+struct addrof_non_member_operator {
+    static constexpr bool value = false;
+};
+
+template<class T>
+struct addrof_non_member_operator<T, typename
+    addrof_void<decltype(operator&(addrof_declval<T&>()))>::type> {
+    static constexpr bool value = true;
+};
+
+template<class T, class E = void>
+struct addrof_expression {
+    static constexpr bool value = false;
+};
+
+template<class T>
+struct addrof_expression<T,
+    typename addrof_void<decltype(&addrof_declval<T&>())>::type> {
+    static constexpr bool value = true;
+};
+
+template<class T>
+struct addrof_is_constexpr {
+    static constexpr bool value = addrof_expression<T>::value &&
+        !addrof_member_operator<T>::value &&
+        !addrof_non_member_operator<T>::value;
+};
+
+template<bool E, class T>
+struct addrof_if { };
+
+template<class T>
+struct addrof_if<true, T> {
+    typedef T* type;
+};
 
 template<class T>
 BOOST_FORCEINLINE
-T * addressof( T & v )
+typename addrof_if<!addrof_is_constexpr<T>::value, T>::type
+addressof(T& o) BOOST_NOEXCEPT
 {
-#if (defined( __BORLANDC__ ) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT( 0x610 ) ) ) || (defined(__SUNPRO_CC) && BOOST_WORKAROUND(__SUNPRO_CC, <= 0x5120))
-
-    return mars_boost::detail::addressof_impl<T>::f( v, 0 );
-
-#else
-
-    return mars_boost::detail::addressof_impl<T>::f( mars_boost::detail::addr_impl_ref<T>( v ), 0 );
-
-#endif
+    return addrof<T>::get(addrof_ref<T>(o), 0);
 }
 
-#if defined( __SUNPRO_CC ) && BOOST_WORKAROUND( __SUNPRO_CC, BOOST_TESTED_AT( 0x590 ) )
-
-namespace detail
+template<class T>
+constexpr BOOST_FORCEINLINE
+typename addrof_if<addrof_is_constexpr<T>::value, T>::type
+addressof(T& o) BOOST_NOEXCEPT
 {
-
-template<class T> struct addressof_addp
-{
-    typedef T * type;
-};
-
-} // namespace detail
-
-template< class T, std::size_t N >
-BOOST_FORCEINLINE
-typename detail::addressof_addp< T[N] >::type addressof( T (&t)[N] )
-{
-    return &t;
+    return &o;
 }
 
-#endif
+} /* detail */
 
-// Borland doesn't like casting an array reference to a char reference
-// but these overloads work around the problem.
-#if defined( __BORLANDC__ ) && BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-template<typename T,std::size_t N>
-BOOST_FORCEINLINE
-T (*addressof(T (&t)[N]))[N]
+template<class T>
+constexpr BOOST_FORCEINLINE T*
+addressof(T& o) BOOST_NOEXCEPT
 {
-   return reinterpret_cast<T(*)[N]>(&t);
-}
-
-template<typename T,std::size_t N>
-BOOST_FORCEINLINE
-const T (*addressof(const T (&t)[N]))[N]
-{
-   return reinterpret_cast<const T(*)[N]>(&t);
+    return mars_boost::detail::addressof(o);
 }
 #endif
 
-} // namespace mars_boost
+} /* boost */
+#endif
 
-#endif // BOOST_CORE_ADDRESSOF_HPP
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && \
+    !defined(BOOST_NO_CXX11_DELETED_FUNCTIONS)
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+
+template<class T>
+const T* addressof(const T&&) = delete;
+
+} /* boost */
+#endif
+
+#endif

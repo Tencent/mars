@@ -54,8 +54,12 @@ LongLinkMetaData::LongLinkMetaData(boot::Context* _context,
                                                                  _config.is_keep_alive);
 
     signal_keeper_ = std::make_shared<SignallingKeeper>(*(longlink_.get()), _message_id);
-    signal_keeper_->fun_send_signalling_buffer_ =
-        boost::bind(&LongLink::SendWhenNoData, longlink_.get(), _1, _2, _3, Task::kSignallingKeeperTaskID);
+    signal_keeper_->fun_send_signalling_buffer_ = boost::bind(&LongLink::SendWhenNoData,
+                                                              longlink_.get(),
+                                                              boost::placeholders::_1,
+                                                              boost::placeholders::_2,
+                                                              boost::placeholders::_3,
+                                                              Task::kSignallingKeeperTaskID);
 }
 
 LongLinkMetaData::~LongLinkMetaData() {

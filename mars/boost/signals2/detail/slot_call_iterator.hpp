@@ -13,16 +13,17 @@
 #define BOOST_SIGNALS2_SLOT_CALL_ITERATOR_HPP
 
 #include <boost/assert.hpp>
-#include <boost/aligned_storage.hpp>
+#include <boost/core/no_exceptions_support.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/optional.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/signals2/connection.hpp>
-#include <boost/signals2/slot_base.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/signals2/detail/unique_lock.hpp>
+#include <boost/signals2/slot_base.hpp>
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/aligned_storage.hpp>
 #include <boost/weak_ptr.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
@@ -38,7 +39,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
           disconnected_slot_count(0),
           m_active_slot(0)
         {}
-        
+
         ~slot_call_iterator_cache()
         {
           if(m_active_slot)
@@ -47,9 +48,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
             m_active_slot->dec_slot_refcount(lock);
           }
         }
-        
+
         template<typename M>
-        void set_active_slot(garbage_collecting_lock<M> &lock, 
+        void set_active_slot(garbage_collecting_lock<M> &lock,
           connection_body_base *active_slot)
         {
           if(m_active_slot)
@@ -58,7 +59,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
           if(m_active_slot)
             m_active_slot->inc_slot_refcount(lock);
         }
-        
+
         optional<ResultType> result;
         typedef auto_buffer<void_shared_ptr_variant, store_n_objects<10> > tracked_ptrs_type;
         tracked_ptrs_type tracked_ptrs;
@@ -77,12 +78,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
         : public mars_boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
         typename Function::result_type,
         mars_boost::single_pass_traversal_tag,
-        typename mars_boost::add_const<typename mars_boost::add_reference<typename Function::result_type>::type>::type >
+        typename mars_boost::add_reference<typename mars_boost::add_const<typename Function::result_type>::type>::type >
       {
         typedef mars_boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
           typename Function::result_type,
           mars_boost::single_pass_traversal_tag,
-          typename mars_boost::add_const<typename mars_boost::add_reference<typename Function::result_type>::type>::type >
+          typename mars_boost::add_reference<typename mars_boost::add_const<typename Function::result_type>::type>::type >
         inherited;
 
         typedef typename Function::result_type result_type;
@@ -111,8 +112,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
             BOOST_CATCH(expired_slot &)
             {
               (*iter)->disconnect();
-              BOOST_RETHROW;
-            } BOOST_CATCH_END
+              BOOST_RETHROW
+            }
+            BOOST_CATCH_END
           }
           return cache->result.get();
         }
@@ -140,28 +142,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
           else
             cache->set_active_slot(lock, (*callable_iter).get());
         }
-        
+
         void lock_next_callable() const
         {
           if(iter == callable_iter)
           {
             return;
           }
-          if(iter == end)
-          {
-            if(callable_iter != end)
-            {
-              lock_type lock(**callable_iter);
-              set_callable_iter(lock, end);
-              return;
-            }
-          }
-          // we're only locking the first connection body,
-          // but it doesn't matter they all use the same mutex
-          lock_type lock(**iter);
+  
           for(;iter != end; ++iter)
           {
             cache->tracked_ptrs.clear();
+            lock_type lock(**iter);
             (*iter)->nolock_grab_tracked_objects(lock, std::back_inserter(cache->tracked_ptrs));
             if((*iter)->nolock_nograb_connected())
             {
@@ -176,9 +168,14 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
               break;
             }
           }
+          
           if(iter == end)
           {
-            set_callable_iter(lock, end);
+            if(callable_iter != end)
+            {
+              lock_type lock(**callable_iter);
+              set_callable_iter(lock, end);
+            }
           }
         }
 

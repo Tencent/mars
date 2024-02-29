@@ -8,23 +8,24 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_COMPILER_CLANG_H
 #define BOOST_PREDEF_COMPILER_CLANG_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_COMP_CLANG`]
+/* tag::reference[]
+= `BOOST_COMP_CLANG`
 
-[@http://en.wikipedia.org/wiki/Clang Clang] compiler.
+http://en.wikipedia.org/wiki/Clang[Clang] compiler.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__clang__`] [__predef_detection__]]
+| `+__clang__+` | {predef_detection}
 
-    [[`__clang_major__`, `__clang_minor__`, `__clang_patchlevel__`] [V.R.P]]
-    ]
- */
+| `+__clang_major__+`, `+__clang_minor__+`, `+__clang_patchlevel__+` | V.R.P
+|===
+*/ // end::reference[]
 
 #define BOOST_COMP_CLANG BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

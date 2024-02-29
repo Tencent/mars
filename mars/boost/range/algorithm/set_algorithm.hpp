@@ -9,11 +9,11 @@
 #ifndef BOOST_RANGE_ALGORITHM_SET_ALGORITHM_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_SET_ALGORITHM_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -193,6 +193,6 @@ set_symmetric_difference(const SinglePassRange1& rng1,
     using range::set_intersection;
     using range::set_difference;
     using range::set_symmetric_difference;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

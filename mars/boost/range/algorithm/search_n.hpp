@@ -9,14 +9,14 @@
 #ifndef BOOST_RANGE_ALGORITHM_SEARCH_N_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_SEARCH_N_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/detail/range_return.hpp>
+#include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
 #include <iterator>
-#include <algorithm>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -355,6 +355,6 @@ search_n(const ForwardRange& rng, Integer count, const Value& value,
 
     } // namespace range
     using range::search_n;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

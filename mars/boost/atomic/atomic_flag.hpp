@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2011 Helge Bahmann
  * Copyright (c) 2013 Tim Blechmann
- * Copyright (c) 2014 Andrey Semashev
+ * Copyright (c) 2014, 2020 Andrey Semashev
  */
 /*!
  * \file   atomic/atomic_flag.hpp
@@ -17,17 +17,26 @@
 #define BOOST_ATOMIC_ATOMIC_FLAG_HPP_INCLUDED_
 
 #include <boost/atomic/capabilities.hpp>
-#include <boost/atomic/detail/operations.hpp>
-#include <boost/atomic/detail/atomic_flag.hpp>
+#include <boost/atomic/detail/atomic_flag_impl.hpp>
+#include <boost/atomic/detail/config.hpp>
+#include <boost/atomic/detail/header.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
+namespace atomics {
+
+//! Atomic flag
+typedef atomics::detail::atomic_flag_impl< false > atomic_flag;
+
+} // namespace atomics
 
 using atomics::atomic_flag;
 
 } // namespace mars_boost
+
+#include <boost/atomic/detail/footer.hpp>
 
 #endif // BOOST_ATOMIC_ATOMIC_FLAG_HPP_INCLUDED_

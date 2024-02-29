@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_STABLE_PARTITION_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_STABLE_PARTITION_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/detail/range_return.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -68,6 +68,6 @@ stable_partition(const BidirectionalRange& rng, UnaryPredicate pred)
 
     } // namespace range
     using range::stable_partition;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

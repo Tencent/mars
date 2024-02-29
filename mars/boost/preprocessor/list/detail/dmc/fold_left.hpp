@@ -8,11 +8,12 @@
 #  */
 #
 # /* Revised by Paul Mensonides (2002) */
+# /* Revised by Edward Diener (2020) */
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_LIST_DETAIL_FOLD_LEFT_HPP
-# define BOOST_PREPROCESSOR_LIST_DETAIL_FOLD_LEFT_HPP
+# ifndef BOOST_PREPROCESSOR_LIST_DETAIL_DMC_FOLD_LEFT_HPP
+# define BOOST_PREPROCESSOR_LIST_DETAIL_DMC_FOLD_LEFT_HPP
 #
 # include <boost/preprocessor/control/expr_iif.hpp>
 # include <boost/preprocessor/control/iif.hpp>

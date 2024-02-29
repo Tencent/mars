@@ -8,34 +8,35 @@
 #define BOOST_ITERATOR_FACADE_23022003THW_HPP
 
 #include <boost/config.hpp>
-#include <boost/iterator.hpp>
 #include <boost/iterator/interoperable.hpp>
-#include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/iterator_categories.hpp>
+#include <boost/iterator/iterator_traits.hpp>
 
-#include <boost/iterator/detail/facade_iterator_category.hpp>
 #include <boost/iterator/detail/enable_if.hpp>
+#include <boost/iterator/detail/facade_iterator_category.hpp>
 
+#include <boost/core/addressof.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/utility/addressof.hpp>
 
-#include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/add_const.hpp>
-#include <boost/type_traits/add_pointer.hpp>
 #include <boost/type_traits/add_lvalue_reference.hpp>
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/remove_reference.hpp>
+#include <boost/type_traits/add_pointer.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/or.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/not.hpp>
 #include <boost/mpl/always.hpp>
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/apply.hpp>
+#include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/not.hpp>
+#include <boost/mpl/or.hpp>
+
+#include <cstddef>
 
 #include <boost/iterator/detail/config_def.hpp> // this goes last
 
@@ -153,68 +154,21 @@ namespace iterators {
     class postfix_increment_proxy
     {
         typedef typename iterator_value<Iterator>::type value_type;
+
      public:
         explicit postfix_increment_proxy(Iterator const& x)
-          : stored_value(*x)
+          : stored_iterator(x)
+          , stored_value(*x)
         {}
 
         // Returning a mutable reference allows nonsense like
         // (*r++).mutate(), but it imposes fewer assumptions about the
         // behavior of the value_type.  In particular, recall that
         // (*r).mutate() is legal if operator* returns by value.
-        value_type&
-        operator*() const
-        {
-            return this->stored_value;
-        }
-     private:
-        mutable value_type stored_value;
-    };
-
-    //
-    // In general, we can't determine that such an iterator isn't
-    // writable -- we also need to store a copy of the old iterator so
-    // that it can be written into.
-    template <class Iterator>
-    class writable_postfix_increment_proxy
-    {
-        typedef typename iterator_value<Iterator>::type value_type;
-     public:
-        explicit writable_postfix_increment_proxy(Iterator const& x)
-          : stored_value(*x)
-          , stored_iterator(x)
-        {}
-
-        // Dereferencing must return a proxy so that both *r++ = o and
-        // value_type(*r++) can work.  In this case, *r is the same as
-        // *r++, and the conversion operator below is used to ensure
-        // readability.
-        writable_postfix_increment_proxy const&
-        operator*() const
-        {
-            return *this;
-        }
-
         // Provides readability of *r++
-        operator value_type&() const
+        value_type& operator*() const
         {
             return stored_value;
-        }
-
-        // Provides writability of *r++
-        template <class T>
-        T const& operator=(T const& x) const
-        {
-            *this->stored_iterator = x;
-            return x;
-        }
-
-        // This overload just in case only non-const objects are writable
-        template <class T>
-        T& operator=(T& x) const
-        {
-            *this->stored_iterator = x;
-            return x;
         }
 
         // Provides X(r++)
@@ -223,9 +177,137 @@ namespace iterators {
             return stored_iterator;
         }
 
+        // Provides (r++)->foo()
+        value_type* operator->() const
+        {
+            return mars_boost::addressof(stored_value);
+        }
+
      private:
-        mutable value_type stored_value;
         Iterator stored_iterator;
+        mutable value_type stored_value;
+    };
+
+
+    template <class Iterator>
+    class writable_postfix_increment_dereference_proxy;
+
+    template <class T>
+    struct is_not_writable_postfix_increment_dereference_proxy :
+        public mars_boost::true_type
+    {};
+
+    template <class Iterator>
+    struct is_not_writable_postfix_increment_dereference_proxy<
+        writable_postfix_increment_dereference_proxy<Iterator>
+    > :
+        public mars_boost::false_type
+    {};
+
+    template <class Iterator>
+    class writable_postfix_increment_proxy;
+
+    //
+    // In general, we can't determine that such an iterator isn't
+    // writable -- we also need to store a copy of the old iterator so
+    // that it can be written into.
+    template <class Iterator>
+    class writable_postfix_increment_dereference_proxy
+    {
+        friend class writable_postfix_increment_proxy<Iterator>;
+
+        typedef typename iterator_value<Iterator>::type value_type;
+
+     public:
+        explicit writable_postfix_increment_dereference_proxy(Iterator const& x)
+          : stored_iterator(x)
+          , stored_value(*x)
+        {}
+
+        // Provides readability of *r++
+        operator value_type&() const
+        {
+            return this->stored_value;
+        }
+
+        template <class OtherIterator>
+        writable_postfix_increment_dereference_proxy const&
+        operator=(writable_postfix_increment_dereference_proxy<OtherIterator> const& x) const
+        {
+            typedef typename iterator_value<OtherIterator>::type other_value_type;
+            *this->stored_iterator = static_cast<other_value_type&>(x);
+            return *this;
+        }
+
+        // Provides writability of *r++
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+        template <class T>
+        typename iterators::enable_if<
+            is_not_writable_postfix_increment_dereference_proxy< T >,
+            writable_postfix_increment_dereference_proxy const&
+        >::type operator=(T&& x) const
+        {
+            *this->stored_iterator = static_cast< T&& >(x);
+            return *this;
+        }
+#else
+        template <class T>
+        typename iterators::enable_if<
+            is_not_writable_postfix_increment_dereference_proxy< T >,
+            writable_postfix_increment_dereference_proxy const&
+        >::type operator=(T const& x) const
+        {
+            *this->stored_iterator = x;
+            return *this;
+        }
+
+        // This overload just in case only non-const objects are writable
+        template <class T>
+        typename iterators::enable_if<
+            is_not_writable_postfix_increment_dereference_proxy< T >,
+            writable_postfix_increment_dereference_proxy const&
+        >::type operator=(T& x) const
+        {
+            *this->stored_iterator = x;
+            return *this;
+        }
+#endif
+
+     private:
+        Iterator stored_iterator;
+        mutable value_type stored_value;
+    };
+
+    template <class Iterator>
+    class writable_postfix_increment_proxy
+    {
+        typedef typename iterator_value<Iterator>::type value_type;
+
+     public:
+        explicit writable_postfix_increment_proxy(Iterator const& x)
+          : dereference_proxy(x)
+        {}
+
+        writable_postfix_increment_dereference_proxy<Iterator> const&
+        operator*() const
+        {
+            return dereference_proxy;
+        }
+
+        // Provides X(r++)
+        operator Iterator const&() const
+        {
+            return dereference_proxy.stored_iterator;
+        }
+
+        // Provides (r++)->foo()
+        value_type* operator->() const
+        {
+            return mars_boost::addressof(dereference_proxy.stored_value);
+        }
+
+     private:
+        writable_postfix_increment_dereference_proxy<Iterator> dereference_proxy;
     };
 
 # ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION

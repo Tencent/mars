@@ -12,11 +12,11 @@
 #define BOOST_SIGNALS2_FOREIGN_PTR_HPP
 
 #include <algorithm>
-#include <boost/config.hpp>
 #include <boost/assert.hpp>
+#include <boost/config.hpp>
+#include <boost/core/invoke_swap.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/smart_ptr/bad_weak_ptr.hpp>
-#include <boost/utility/swap.hpp>
 
 #ifndef BOOST_NO_CXX11_SMART_PTR
 #include <memory>
@@ -61,7 +61,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       struct foreign_shared_ptr_impl_base
       {
         virtual ~foreign_shared_ptr_impl_base() {}
-        virtual void* get() const = 0;
         virtual foreign_shared_ptr_impl_base * clone() const = 0;
       };
 
@@ -71,10 +70,6 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
       public:
         foreign_shared_ptr_impl(const FSP &p): _p(p)
         {}
-        virtual void * get() const
-        {
-          return _p.get();
-        }
         virtual foreign_shared_ptr_impl * clone() const
         {
           return new foreign_shared_ptr_impl(*this);
@@ -108,7 +103,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         }
         void swap(foreign_void_shared_ptr &other)
         {
-          mars_boost::swap(_p, other._p);
+          mars_boost::core::invoke_swap(_p, other._p);
         }
       private:
         foreign_shared_ptr_impl_base *_p;
@@ -164,7 +159,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         }
         void swap(foreign_void_weak_ptr &other)
         {
-          mars_boost::swap(_p, other._p);
+          mars_boost::core::invoke_swap(_p, other._p);
         }
         foreign_void_shared_ptr lock() const
         {

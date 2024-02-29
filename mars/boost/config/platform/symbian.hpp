@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #endif// boilerplate code:
 #  define BOOST_HAS_UNISTD_H
-#  include <boost/config/posix_features.hpp>
+#  include <boost/config/detail/posix_features.hpp>
 // S60 SDK defines _POSIX_VERSION as POSIX.1
 #  ifndef BOOST_HAS_STDINT_H
 #    define BOOST_HAS_STDINT_H

@@ -12,11 +12,11 @@
 //  http://www.boost.org/LICENSE_1_0.txt
 //
 
+#include <boost/assert.hpp>
 #include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-#include <boost/assert.hpp>
-#include <boost/detail/workaround.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -104,7 +104,7 @@ private:
     }
 
     // Note: invoked automatically by shared_ptr; do not call
-    template<class X, class Y> void _internal_accept_owner( shared_ptr<X> * ppx, Y * py ) const
+    template<class X, class Y> void _internal_accept_owner( shared_ptr<X> * ppx, Y * ) const
     {
         BOOST_ASSERT( ppx != 0 );
 
@@ -134,18 +134,17 @@ private:
 };
 
 template<typename T>
-boost::shared_ptr<T> shared_from_raw(T *p)
+mars_boost::shared_ptr<T> shared_from_raw(T *p)
 {
     BOOST_ASSERT(p != 0);
     return mars_boost::shared_ptr<T>(p->enable_shared_from_raw::shared_from_this(), p);
 }
 
 template<typename T>
-boost::weak_ptr<T> weak_from_raw(T *p)
+mars_boost::weak_ptr<T> weak_from_raw(T *p)
 {
     BOOST_ASSERT(p != 0);
-    mars_boost::weak_ptr<T> result;
-    result._internal_aliasing_assign(p->enable_shared_from_raw::weak_from_this(), p);
+    mars_boost::weak_ptr<T> result(p->enable_shared_from_raw::weak_from_this(), p);
     return result;
 }
 
@@ -160,6 +159,6 @@ namespace detail
     }
 } // namepsace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif  // #ifndef BOOST_ENABLE_SHARED_FROM_RAW_HPP_INCLUDED

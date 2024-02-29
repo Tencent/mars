@@ -1,8 +1,8 @@
 //  boost/config/user.hpp  ---------------------------------------------------//
 
 //  (C) Copyright John Maddock 2001. 
-//  Use, modification and distribution are subject to the 
-//  Boost Software License, Version 1.0. (See accompanying file 
+//  Use, modification and distribution are subject to the
+//  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  Do not check in modified versions of this file,
@@ -85,8 +85,7 @@
 // (this macro is used to turn on __declspec(dllimport) modifiers, so that 
 // the compiler knows which symbols to look for in a dll rather than in a 
 // static library).  Note that there may be some libraries that can only 
-// be statically linked (Boost.Test for example) and others which may only 
-// be dynamically linked (Boost.Threads for example), in these cases this 
+// be linked in one way (statically or dynamically), in these cases this 
 // macro has no effect.
 // #define BOOST_ALL_DYN_LINK
  
@@ -97,9 +96,9 @@
 // BOOST_REGEX_DYN_LINK etc (this macro is used to turn on __declspec(dllimport) 
 // modifiers, so that the compiler knows which symbols to look for in a dll 
 // rather than in a static library).  
-// Note that there may be some libraries that can only be statically linked 
-// (Boost.Test for example) and others which may only be dynamically linked 
-// (Boost.Threads for example), in these cases this macro is unsupported.
+// Note that there may be some libraries that can only 
+// be linked in one way (statically or dynamically), 
+// in these cases this macro is unsupported.
 // #define BOOST_WHATEVER_DYN_LINK
  
 // BOOST_ALL_NO_LIB: Tells the config system not to automatically select 
@@ -129,9 +128,9 @@
 #define BOOST_NO_EXCEPTIONS 1
 #define BOOST_EXCEPTION_DISABLE 1
 
-#define BOOST_NO_CXX11_NULLPTR
-#define BOOST_NO_CXX11_VARIADIC_TEMPLATES
-#define BOOST_NO_CXX11_RVALUE_REFERENCES
+// #define BOOST_NO_CXX11_NULLPTR
+// #define BOOST_NO_CXX11_VARIADIC_TEMPLATES
+// #define BOOST_NO_CXX11_RVALUE_REFERENCES
 
 #ifdef WIN32
 #define BOOST_THREAD_DONT_PROVIDE_INTERRUPTIONS 1
@@ -139,9 +138,6 @@
 #endif
 #ifndef BOOST_SYSTEM_NO_DEPRECATED
 #define BOOST_SYSTEM_NO_DEPRECATED 1
-#endif
-#ifdef ANDROID //only for android stlport
-#include "boost/boost_stdexcept"
 #endif
 
 #ifdef WIN32

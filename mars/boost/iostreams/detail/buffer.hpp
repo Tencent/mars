@@ -8,20 +8,20 @@
 #ifndef BOOST_IOSTREAMS_DETAIL_BUFFERS_HPP_INCLUDED
 #define BOOST_IOSTREAMS_DETAIL_BUFFERS_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif              
 
 #include <algorithm>                           // swap.
-#include <memory>                              // allocator.
 #include <boost/config.hpp>                    // member templates.
 #include <boost/iostreams/char_traits.hpp>
+#include <boost/iostreams/checked_operations.hpp>
 #include <boost/iostreams/detail/ios.hpp>      // streamsize.
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/traits.hpp>          // int_type_of.
-#include <boost/iostreams/checked_operations.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <memory>                              // allocator.
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace iostreams { namespace detail {
 
@@ -39,15 +39,21 @@ template< typename Ch,
 class basic_buffer {
 private:
 #ifndef BOOST_NO_STD_ALLOCATOR
+#if defined(BOOST_NO_CXX11_ALLOCATOR)
     typedef typename Alloc::template rebind<Ch>::other allocator_type;
+#else
+    typedef typename std::allocator_traits<Alloc>::template rebind_alloc<Ch> allocator_type;
+    typedef std::allocator_traits<allocator_type> allocator_traits;
+#endif
 #else
     typedef std::allocator<Ch> allocator_type;
 #endif
+    static Ch* allocate(std::streamsize buffer_size);
 public:
     basic_buffer();
-    basic_buffer(int buffer_size);
+    basic_buffer(std::streamsize buffer_size);
     ~basic_buffer();
-    void resize(int buffer_size);
+    void resize(std::streamsize buffer_size);
     Ch* begin() const { return buf_; }
     Ch* end() const { return buf_ + size_; }
     Ch* data() const { return buf_; }
@@ -83,7 +89,7 @@ public:
     using base::data; 
     using base::size;
     typedef Ch* const const_pointer;
-    buffer(int buffer_size);
+    buffer(std::streamsize buffer_size);
     Ch* & ptr() { return ptr_; }
     const_pointer& ptr() const { return ptr_; }
     Ch* & eptr() { return eptr_; }
@@ -98,7 +104,11 @@ public:
         using namespace std;
         std::streamsize keep;
         if ((keep = static_cast<std::streamsize>(eptr_ - ptr_)) > 0)
-            traits_type::move(this->data(), ptr_, keep);
+            traits_type::move(
+                this->data(),
+                ptr_, 
+                static_cast<size_t>(keep)
+            );
         set(0, keep);
         std::streamsize result = 
             iostreams::read(src, this->data() + keep, this->size() - keep);
@@ -121,8 +131,8 @@ public:
         std::streamsize result = iostreams::write_if(dest, ptr_, amt);
         if (result < amt) {
             traits_type::move( this->data(), 
-                               ptr_ + result, 
-                               amt - result );
+                               ptr_ + static_cast<size_t>(result), 
+                               static_cast<size_t>(amt - result) );
         }
         this->set(0, amt - result);
         return result != 0;
@@ -141,8 +151,21 @@ template<typename Ch, typename Alloc>
 basic_buffer<Ch, Alloc>::basic_buffer() : buf_(0), size_(0) { }
 
 template<typename Ch, typename Alloc>
-basic_buffer<Ch, Alloc>::basic_buffer(int buffer_size)
-    : buf_(static_cast<Ch*>(allocator_type().allocate(buffer_size, 0))), 
+inline Ch* basic_buffer<Ch, Alloc>::allocate(std::streamsize buffer_size)
+{
+#if defined(BOOST_NO_CXX11_ALLOCATOR) || defined(BOOST_NO_STD_ALLOCATOR)
+    return static_cast<Ch*>(allocator_type().allocate(
+           static_cast<BOOST_DEDUCED_TYPENAME Alloc::size_type>(buffer_size), 0));
+#else
+    allocator_type alloc;
+    return static_cast<Ch*>(allocator_traits::allocate(alloc,
+           static_cast<BOOST_DEDUCED_TYPENAME allocator_traits::size_type>(buffer_size)));
+#endif
+}
+
+template<typename Ch, typename Alloc>
+basic_buffer<Ch, Alloc>::basic_buffer(std::streamsize buffer_size)
+    : buf_(allocate(buffer_size)),
       size_(buffer_size) // Cast for SunPro 5.3.
     { }
 
@@ -150,13 +173,19 @@ template<typename Ch, typename Alloc>
 inline basic_buffer<Ch, Alloc>::~basic_buffer()
 {
     if (buf_) {
+#if defined(BOOST_NO_CXX11_ALLOCATOR) || defined(BOOST_NO_STD_ALLOCATOR)
         allocator_type().deallocate(buf_,
             static_cast<BOOST_DEDUCED_TYPENAME Alloc::size_type>(size_));
+#else
+        allocator_type alloc;
+        allocator_traits::deallocate(alloc, buf_,
+            static_cast<BOOST_DEDUCED_TYPENAME allocator_traits::size_type>(size_));
+#endif
     }
 }
 
 template<typename Ch, typename Alloc>
-inline void basic_buffer<Ch, Alloc>::resize(int buffer_size)
+inline void basic_buffer<Ch, Alloc>::resize(std::streamsize buffer_size)
 {
     if (size_ != buffer_size) {
         basic_buffer<Ch, Alloc> temp(buffer_size);
@@ -175,8 +204,8 @@ void basic_buffer<Ch, Alloc>::swap(basic_buffer& rhs)
 //--------------Implementation of buffer--------------------------------------//
 
 template<typename Ch, typename Alloc>
-buffer<Ch, Alloc>::buffer(int buffer_size)
-    : basic_buffer<Ch, Alloc>(buffer_size) { }
+buffer<Ch, Alloc>::buffer(std::streamsize buffer_size)
+    : basic_buffer<Ch, Alloc>(buffer_size), ptr_(data()), eptr_(data() + buffer_size) { }
 
 template<typename Ch, typename Alloc>
 inline void buffer<Ch, Alloc>::set(std::streamsize ptr, std::streamsize end)

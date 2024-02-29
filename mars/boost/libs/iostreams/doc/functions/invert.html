@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252" http-equiv="content-type">
+    <title>Class Template chain</title>
+    <link rel="stylesheet" href="../../../../boost.css">
+    <link rel="stylesheet" href="../theme/iostreams.css">
+  </head>
+  <body>
+    <!-- Begin Banner -->
+    <h1 class="title">Function Template <code>invert</code></h1>
+    <hr class="banner">
+    <!-- End Banner -->
+    <dl class="page-index">
+      <dt><a href="#description">Description</a></dt>
+      <dt><a href="#headers">Headers</a></dt>
+      <dt><a href="#reference">Reference</a></dt>
+    </dl>
+    <hr>
+    <a name="description"></a>
+    <h2>Description</h2>
+    <p> The class template <code>inverse</code> is an adapter which transforms
+      an <a href="../concepts/input_filter.html">InputFilter</a> into an <a href="../concepts/output_filter.html">OutputFilter</a>
+      or <i>vice versa</i>. The function template <code>invert</code> is an <a
+        href="http://www.boost.org/more/generic_programming.html#object_generator"
+        target="_top">object generator</a> which when passed a Filter returns a
+      instance of an appropriate specialization of <code>inverse</code>.
+    </p>
+    <p>Given an <a href="../concepts/input_filter.html">InputFilter</a> <code>f</code>,
+      the inverse of <code>f</code> is <a href="../concepts/multi_character.html">Multi-Character</a>
+      <a href="../concepts/output_filter.html">OutputFilter</a> whose member
+      function <code>write</code> is implemented as follows. Given a <a href="../concepts/sink.html">Sink</a>
+      <code>snk</code> and a character type buffer <code>s</code> of length <code>n</code>,
+      we
+    </p>
+    <ul>
+      <li>construct a <a href="../concepts/source.html">Source</a> based on the
+        buffer <code>s</code> and <a href="compose.html"><code>compose</code></a>
+        it with <code>f</code> to form a Source, then </li>
+      <li>repeatedly read sequences of character types from the composite Source
+        and write them to <code>snk</code> until the buffer <code>s</code> is
+        exhausted.
+      </li>
+    </ul>
+    <p>Similarly, given an <a href="../concepts/output_filter.html">OutputFilter</a>
+      <code>f</code>, the inverse of <code>f</code> is <a href="../concepts/multi_character.html">Multi-Character</a>
+      <a href="../concepts/input_filter.html">InputFilter</a> whose member
+      function <code>read</code> is implemented as follows. Given a <a href="../concepts/source.html">Source</a>
+      <code>src</code> and a character type buffer <code>s</code> of length <code>n</code>,
+      we
+    </p>
+    <ul>
+      <li>construct a <a href="../concepts/sink.html">Sink</a> based on the
+        buffer <code>s</code> and <a href="compose.html"><code>compose</code></a>
+        it with <code>f</code> to form a Sink, then </li>
+      <li>repeatedly read sequences of character types from <code>src</code>
+        and write them to the composite Sink until the buffer <code>s</code> is
+        full.
+      </li>
+    </ul>
+    <p> The <a href="../guide/modes.html">mode</a> of a specialization of <code>inverse</code>
+      is equal to <a href="../guide/modes.html#output">output</a> if the mode
+      of the underlying filter refines input, and to <a href="../guide/modes.html#input">input</a>
+      otherwise.
+    </p>
+    <a name="headers"></a>
+    <h2>Headers</h2>
+    <dl class="page-index">
+      <dt><a class="header" href="../../../../boost/iostreams/invert.hpp"><code>&lt;boost/iostreams/invert.hpp&gt;</code></a></dt>
+    </dl>
+    <a name="reference"></a>
+    <h2>Reference</h2>
+    <a name="synopsis"></a>
+    <h4>Synopsis</h4>
+    <pre class="broken_ie"><span class="keyword">namespace</span> boost { <span
+class="keyword">namespace</span> iostreams {
+
+<span class="keyword">template</span>&lt;<span class="keyword">typename</span> <a
+class="documented" href="#inverse_template_params">Filter</a>&gt;
+<span class="keyword">class</span> <a class="documented" href="#inverse">inverse</a> {
+<span class="keyword">public:</span>
+    <span class="keyword">typedef</span> <span class="keyword">typename</span> <a
+class="documented" href="../guide/traits.html#char_type_of_ref">char_type_of</a>&lt;Filter&gt;::type  char_type;
+    <span class="keyword">typedef</span> <span class="omitted">see above</span>                            mode;
+
+    <a class="documented" href="#inverse_ctor">inverse</a>(<span class="keyword">const</span> Filter&amp; filter);
+
+    <span class="comment">// Filter member functions</span>
+};
+
+<span class="keyword">template</span>&lt;<span class="keyword">typename</span> <a
+class="documented" href="#invert_template_params">Filter</a>&gt;
+<a class="documented" href="#inverse">inverse</a>&lt;Filter&gt; <a class="documented"
+href="#invert">invert</a>(<span class="keyword">const</span> Filter&amp; filter);
+
+} } // End namespace boost::io</pre>
+    <a name="inverse"></a>
+    <h2>Class Template <code>inverse</code></h2>
+    <a name="inverse_template_params"></a>
+    <h4>Template parameters</h4>
+    <table style="margin-left:2em" border="0" cellpadding="2">
+      <tbody>
+        <tr>
+        </tr>
+        <tr>
+          <td valign="top"><i>Filter</i></td>
+          <td valign="top" width="2em">-</td>
+          <td>A model of <a href="../concepts/filter.html">Filter</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <a name="inverse_ctor"></a>
+    <h4><code>inverse::inverse</code></h4>
+    <pre class="broken_ie">    inverse(<span class="keyword">const</span> Filter&amp; filter);</pre>
+    <p> Constructs an instance of <code>inverse</code> based on the given
+      filter.
+    </p>
+    <a name="invert"></a>
+    <h2>Function Template <code>invert</code></h2>
+    <pre class="broken_ie"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Filter&gt;
+inverse&lt;Filter&gt; invert(<span class="keyword">const</span> Filter&amp; filter);</pre>
+    <a name="invert_template_params"></a>
+    <h4>Template parameters</h4>
+    <table style="margin-left:2em" border="0" cellpadding="2">
+      <tbody>
+        <tr>
+        </tr>
+        <tr>
+          <td valign="top"><i>Filter</i></td>
+          <td valign="top" width="2em">-</td>
+          <td>A model of <a href="../concepts/filter.html">Filter</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <p> Constructs an instance of an appropriate specialization of <code>inverse</code>
+      based on the given filter.
+    </p>
+    <!-- Begin Footer -->
+    <hr>
+    <p class="copyright">© Copyright 2008 <a href="http://www.coderage.com/" target="_top">CodeRage,
+        LLC</a><br>
+      © Copyright 2004-2007 <a href="https://www.boost.org/users/people/jonathan_turkanis.html" target="_top">Jonathan
+        Turkanis</a></p>
+    <p class="copyright"> Distributed under the Boost Software License, Version
+      1.0. (See accompanying file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
+    </p>
+    <!-- End Footer -->
+  </body>
+</html>

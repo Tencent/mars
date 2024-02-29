@@ -19,10 +19,10 @@
 #ifndef BOOST_RANDOM_TRAITS_HPP
 #define BOOST_RANDOM_TRAITS_HPP
 
-#include <boost/type_traits/is_signed.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_signed.hpp>
 #include <boost/type_traits/make_unsigned.hpp>
-#include <boost/mpl/bool.hpp>
 #include <limits>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
@@ -92,12 +92,12 @@ namespace traits {
    */
    template <class T>
    struct is_integral
-      : public mpl::bool_<mars_boost::is_integral<T>::value || (std::numeric_limits<T>::is_integer)>
+      : public integral_constant<bool, mars_boost::is_integral<T>::value || (std::numeric_limits<T>::is_integer)>
    {};
    /** \brief Traits class that indicates whether type T is a signed integer
    */
    template <class T> struct is_signed
-      : public mpl::bool_ < mars_boost::is_signed<T>::value || (std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer && std::numeric_limits<T>::is_signed)>
+      : public integral_constant<bool, mars_boost::is_signed<T>::value || (std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer && std::numeric_limits<T>::is_signed)>
    {};
 
 }

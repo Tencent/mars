@@ -10,9 +10,10 @@
 #define BOOST_TT_IS_POD_HPP_INCLUDED
 
 #include <boost/type_traits/detail/config.hpp>
-#include <boost/type_traits/is_void.hpp>
-#include <boost/type_traits/is_scalar.hpp>
 #include <boost/type_traits/intrinsics.hpp>
+#include <boost/type_traits/is_scalar.hpp>
+#include <boost/type_traits/is_void.hpp>
+#include <cstddef> // size_t
 
 #ifdef __SUNPRO_CC
 #include <boost/type_traits/is_function.hpp>

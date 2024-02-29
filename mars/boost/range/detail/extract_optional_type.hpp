@@ -15,8 +15,8 @@
 #endif
 
 #include <boost/config.hpp>
-#include <boost/preprocessor/cat.hpp>
 #include <boost/mpl/has_xxx.hpp>
+#include <boost/preprocessor/cat.hpp>
 
 #if !defined(BOOST_MPL_CFG_NO_HAS_XXX)
 

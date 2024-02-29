@@ -21,8 +21,9 @@
 //  See http://www.boost.org/libs/bind/bind.html for documentation.
 //
 
-#include <boost/config.hpp>
 #include <boost/bind/arg.hpp>
+#include <boost/bind/detail/requires_cxx11.hpp>
+#include <boost/config.hpp>
 
 #ifdef BOOST_MSVC
 # pragma warning(push)
@@ -49,7 +50,7 @@ template<class A1> struct storage1
     A1 a1_;
 };
 
-#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( __BORLANDC__ )
+#if !defined( BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION ) && !defined( BOOST_BORLANDC )
 
 template<int I> struct storage1< mars_boost::arg<I> >
 {

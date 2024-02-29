@@ -21,17 +21,6 @@
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
 
-#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
-
-template< class C >
-inline BOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
-rbegin( C& c )
-{
-    return BOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type( mars_boost::end( c ) );
-}
-
-#else
-
 template< class C >
 inline BOOST_DEDUCED_TYPENAME range_reverse_iterator<C>::type
 rbegin( C& c )
@@ -49,8 +38,6 @@ rbegin( const C& c )
         iter_type;
     return iter_type( mars_boost::end( c ) );
 }
-
-#endif // BOOST_NO_FUNCTION_TEMPLATE_ORDERING
 
 template< class T >
 inline BOOST_DEDUCED_TYPENAME range_reverse_iterator<const T>::type

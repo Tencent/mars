@@ -8,8 +8,8 @@
 #ifndef BOOST_TT_IS_POLYMORPHIC_HPP
 #define BOOST_TT_IS_POLYMORPHIC_HPP
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 #ifndef BOOST_IS_POLYMORPHIC
 #include <boost/type_traits/is_class.hpp>
 #endif

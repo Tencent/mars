@@ -13,8 +13,8 @@
 #ifndef BOOST_VARIANT_APPLY_VISITOR_HPP
 #define BOOST_VARIANT_APPLY_VISITOR_HPP
 
-#include "boost/variant/detail/apply_visitor_unary.hpp"
-#include "boost/variant/detail/apply_visitor_binary.hpp"
-#include "boost/variant/detail/apply_visitor_delayed.hpp"
+#include <boost/variant/detail/apply_visitor_binary.hpp>
+#include <boost/variant/detail/apply_visitor_delayed.hpp>
+#include <boost/variant/detail/apply_visitor_unary.hpp>
 
 #endif // BOOST_VARIANT_APPLY_VISITOR_HPP

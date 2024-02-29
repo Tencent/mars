@@ -14,18 +14,18 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/long.hpp>
 #include <boost/mpl/aux_/na.hpp>
-#include <boost/mpl/list/aux_/push_front.hpp>
+#include <boost/mpl/list/aux_/O1_size.hpp>
+#include <boost/mpl/list/aux_/begin_end.hpp>
+#include <boost/mpl/list/aux_/clear.hpp>
+#include <boost/mpl/list/aux_/empty.hpp>
+#include <boost/mpl/list/aux_/front.hpp>
+#include <boost/mpl/list/aux_/item.hpp>
 #include <boost/mpl/list/aux_/pop_front.hpp>
 #include <boost/mpl/list/aux_/push_back.hpp>
-#include <boost/mpl/list/aux_/front.hpp>
-#include <boost/mpl/list/aux_/clear.hpp>
-#include <boost/mpl/list/aux_/O1_size.hpp>
+#include <boost/mpl/list/aux_/push_front.hpp>
 #include <boost/mpl/list/aux_/size.hpp>
-#include <boost/mpl/list/aux_/empty.hpp>
-#include <boost/mpl/list/aux_/begin_end.hpp>
-#include <boost/mpl/list/aux_/item.hpp>
+#include <boost/mpl/long.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

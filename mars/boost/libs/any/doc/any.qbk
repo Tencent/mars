@@ -1,0 +1,244 @@
+[/
+    Copyright Antony Polukhin, 2013-2023.
+
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
+    file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
+]
+
+[library Boost.Any
+    [quickbook 1.7]
+    [version 1.2]
+    [id any]
+    [copyright 2001 Kevlin Henney]
+    [copyright 2013-2023 Antony Polukhin]
+    [category Language Features Emulation]
+    [license
+        Distributed under the Boost Software License, Version 1.0.
+        (See accompanying file LICENSE_1_0.txt or copy at
+        [@http://www.boost.org/LICENSE_1_0.txt])
+    ]
+]
+
+[section Introduction]
+
+There are times when a generic (in the sense of ['general] as opposed to
+['template-based programming]) type is needed:
+variables that are truly variable, accommodating values of many
+other more specific types rather than C++'s normal strict and
+static types. We can distinguish three basic kinds of generic
+type:
+
+* Converting types that can hold one of a number of
+  possible value types, e.g. `int` and
+  `string`, and freely convert between them, for
+  instance interpreting `5` as `"5"` or
+  vice-versa.  Such types are common in scripting and other
+  interpreted
+  languages.
+  `boost::lexical_cast` supports such conversion functionality.
+* Discriminated types that contain values of different types but
+  do not attempt conversion between them, i.e. `5` is
+  held strictly as an `int` and is not implicitly
+  convertible either to `"5"` or to
+  `5.0`. Their indifference to interpretation but
+  awareness of type effectively makes them safe, generic
+  containers of single values, with no scope for surprises from
+  ambiguous conversions.
+* Indiscriminate types that can refer to anything but are
+  oblivious to the actual underlying type, entrusting all forms
+  of access and interpretation to the programmer. This niche is
+  dominated by `void *`, which offers plenty of scope
+  for surprising, undefined behavior.
+
+The [classref boost::any] class
+(based on the class of the same name described in
+[@http://www.two-sdg.demon.co.uk/curbralan/papers/ValuedConversions.pdf Valued Conversions]
+by Kevlin Henney, ['C++ Report] 12(7), July/August 2000) is a variant value type
+based on the second category. It supports copying of any value
+type and safe checked extraction of that value strictly against
+its type. A similar design, offering more appropriate operators,
+can be used for a generalized function adaptor,
+`any_function`, a generalized iterator adaptor,
+`any_iterator`, and other object types that need
+uniform runtime treatment but support only compile-time template
+parameter conformance.
+
+The [classref boost::anys::unique_any] class
+(based on the [@https://userver.tech/d3/d49/classutils_1_1AnyMovable.html utils::AnyMovable]
+class from the [@https://userver.tech/ 🐙 userver framework]) is a variant value type
+based on the second category. It supports safe checked extraction of that value
+strictly against its type and passing ownership of the value. Think of
+[classref boost::anys::unique_any] as of an alternative to [classref boost::any]
+(or to `std::any`) that does not require copy or move construction from the held type.
+
+[endsect]
+
+[section Examples]
+
+The following code demonstrates the syntax for using implicit conversions to
+and copying of any objects:
+
+```
+#include <list>
+#include <boost/any.hpp>
+
+using boost::any_cast;
+typedef std::list<boost::any> many;
+
+void append_int(many & values, int value)
+{
+    boost::any to_append = value;
+    values.push_back(to_append);
+}
+
+void append_string(many & values, const std::string & value)
+{
+    values.push_back(value);
+}
+
+void append_char_ptr(many & values, const char * value)
+{
+    values.push_back(value);
+}
+
+void append_any(many & values, const boost::any & value)
+{
+    values.push_back(value);
+}
+
+void append_nothing(many & values)
+{
+    values.push_back(boost::any());
+}
+```
+
+The following predicates follow on from the previous
+definitions and demonstrate the use of queries on any
+objects:
+
+```
+bool is_empty(const boost::any & operand)
+{
+    return operand.empty();
+}
+
+bool is_int(const boost::any & operand)
+{
+    return operand.type() == typeid(int);
+}
+
+bool is_char_ptr(const boost::any & operand)
+{
+    try
+    {
+        any_cast<const char *>(operand);
+        return true;
+    }
+    catch(const boost::bad_any_cast &)
+    {
+        return false;
+    }
+}
+
+bool is_string(const boost::any & operand)
+{
+    return any_cast<std::string>(&operand);
+}
+
+void count_all(many & values, std::ostream & out)
+{
+    out << "#empty == "
+        << std::count_if(values.begin(), values.end(), is_empty) << std::endl;
+    out << "#int == "
+        << std::count_if(values.begin(), values.end(), is_int) << std::endl;
+    out << "#const char * == "
+        << std::count_if(values.begin(), values.end(), is_char_ptr) << std::endl;
+    out << "#string == "
+        << std::count_if(values.begin(), values.end(), is_string) << std::endl;
+}
+```
+
+The following type, patterned after the OMG's Property Service, defines name-value pairs for arbitrary value types:
+```
+struct property
+{
+    property();
+    property(const std::string &, const boost::any &);
+
+    std::string name;
+    boost::any value;
+};
+
+typedef std::list<property> properties;
+```
+
+The following base class demonstrates one approach to
+runtime polymorphism based callbacks that also require arbitrary
+argument types. The absence of virtual member templates requires
+that different solutions have different trade-offs in terms of
+efficiency, safety, and generality. Using a checked variant type
+offers one approach:
+
+```
+class consumer
+{
+public:
+    virtual void notify(const any &) = 0;
+    ...
+};
+```
+
+The following code demonstrates [classref boost::anys::unique_any] usage for
+implementing HTTP processing with passing of optional user data from the
+authorizer to the HTTP body processing:
+
+```
+void HttpServer::ProcessRequest() const {
+    const auto path = this->ReceiveHttpStartingLine();
+    auto headers = this->ReceiveHeaders();
+
+    boost::anys::unique_any user_data;
+    const auto& user_authorizer = immutable_authorizers_.at(path);
+    if (!user_authorizer(headers, user_data)) {
+        throw Unauthorized();
+    }
+
+    const auto body = this->ReceiveBody();
+    const auto& user_handler = immutable_handlers_.at(this->ReceiveHttpStartingLine());
+    user_handler(body, user_data);
+}
+```
+[endsect]
+
+[section:ValueType ['ValueType] requirements]
+
+Values are strongly informational objects for which
+identity is not significant, i.e. the focus is principally on
+their state content and any behavior organized around
+that. Another distinguishing feature of values is their
+granularity: normally fine-grained objects representing simple
+concepts in the system such as quantities.
+
+As the emphasis of a value lies in its state not its
+identity, values can be copied and typically assigned one to
+another, requiring the explicit or implicit definition of a
+public copy constructor and public assignment operator. Values
+typically live within other scopes, i.e. within objects or
+blocks, rather than on the heap. Values are therefore normally
+passed around and manipulated directly as variables or through
+references, but not as pointers that emphasize identity and
+indirection.
+
+The specific requirements on value types to be used in an
+[classref boost::any] and [classref boost::anys::basic_any] are:
+
+* A ['ValueType] is ['CopyConstructible].
+* The destructor for a ['ValueType] upholds the no-throw exception-safety guarantee.
+
+[endsect]
+
+[xinclude autodoc_any.xml]
+
+[section Acknowledgements]
+Doug Gregor ported the documentation to the BoostBook format.
+[endsect]

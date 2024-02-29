@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_MISMATCH_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_MISMATCH_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/difference_type.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -77,9 +77,9 @@ mismatch(SinglePassRange1& rng1, const SinglePassRange2 & rng2)
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2));
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2));
 }
 
 /// \overload
@@ -92,9 +92,9 @@ mismatch(const SinglePassRange1& rng1, const SinglePassRange2& rng2)
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2));
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2));
 }
 
 /// \overload
@@ -107,9 +107,9 @@ mismatch(SinglePassRange1& rng1, SinglePassRange2 & rng2)
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2));
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2));
 }
 
 /// \overload
@@ -122,9 +122,9 @@ mismatch(const SinglePassRange1& rng1, SinglePassRange2& rng2)
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2));
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2));
 }
 
 
@@ -138,9 +138,9 @@ mismatch(SinglePassRange1& rng1, const SinglePassRange2& rng2, BinaryPredicate p
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2), pred);
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2), pred);
 }
 
 /// \overload
@@ -153,9 +153,9 @@ mismatch(const SinglePassRange1& rng1, const SinglePassRange2& rng2, BinaryPredi
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2), pred);
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2), pred);
 }
 
 /// \overload
@@ -168,9 +168,9 @@ mismatch(SinglePassRange1& rng1, SinglePassRange2& rng2, BinaryPredicate pred)
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2), pred);
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2), pred);
 }
 
 /// \overload
@@ -183,13 +183,13 @@ mismatch(const SinglePassRange1& rng1, SinglePassRange2& rng2, BinaryPredicate p
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
     BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<SinglePassRange2> ));
 
-    return ::boost::range_detail::mismatch_impl(
-        ::boost::begin(rng1), ::boost::end(rng1),
-        ::boost::begin(rng2), ::boost::end(rng2), pred);
+    return ::mars_boost::range_detail::mismatch_impl(
+        ::mars_boost::begin(rng1), ::mars_boost::end(rng1),
+        ::mars_boost::begin(rng2), ::mars_boost::end(rng2), pred);
 }
 
     } // namespace range
     using range::mismatch;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

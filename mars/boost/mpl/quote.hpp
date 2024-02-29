@@ -19,8 +19,8 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/void.hpp>
 #   include <boost/mpl/aux_/has_type.hpp>
+#   include <boost/mpl/void.hpp>
 #endif
 
 #include <boost/mpl/aux_/config/bcc.hpp>
@@ -46,13 +46,13 @@
 
 #else
 
-#   include <boost/mpl/limits/arity.hpp>
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
 #   include <boost/mpl/aux_/config/ctps.hpp>
 #   include <boost/mpl/aux_/config/workaround.hpp>
+#   include <boost/mpl/aux_/preprocessor/params.hpp>
+#   include <boost/mpl/limits/arity.hpp>
 
-#   include <boost/preprocessor/iterate.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 #if !defined(BOOST_MPL_CFG_NO_QUOTE_TEMPLATE)
 

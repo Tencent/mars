@@ -1,0 +1,42 @@
+////
+Copyright 2019, 2020 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#changelog]
+# Revision History
+:toc:
+:toc-title:
+:idprefix: changelog_
+
+## Changes in 1.79.0
+
+* Added `get_allocator_pointer`
+
+## Changes in 1.74.0
+
+* Added `owner_equals` to `shared_ptr`, `weak_ptr`, `local_shared_ptr`
+* Added `owner_hash_value` to `shared_ptr`, `weak_ptr`
+* Added `owner_equal_to`, `owner_hash`
+* Added `std::hash` specializations for `shared_ptr`, `local_shared_ptr`
+* Added `boost::hash` support to, and `std::hash`, `std::equal_to`
+  specializations for, `weak_ptr`
+
+## Changes in 1.72.0
+
+* Added `allocate_unique`
+
+## Changes in 1.71.0
+
+* Added aliasing constructors to `weak_ptr`
+* Added `weak_ptr<T>::empty()`
+* Added `enable_shared_from`, `shared_from`, and `weak_from`
+
+## Changes in 1.65.0
+
+* Added `atomic_shared_ptr`
+* Added `local_shared_ptr`, `make_local_shared`

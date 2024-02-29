@@ -1,7 +1,7 @@
 #ifndef POSIX_TIME_CONFIG_HPP___
 #define POSIX_TIME_CONFIG_HPP___
 
-/* Copyright (c) 2002,2003,2005 CrystalClear Software, Inc.
+/* Copyright (c) 2002,2003,2005,2020 CrystalClear Software, Inc.
  * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
@@ -9,44 +9,31 @@
  * $Date$
  */
 
-#include <cstdlib> //for MCW 7.2 std::abs(long long)
-#include <boost/limits.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/config/no_tr1/cmath.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/time_duration.hpp>
 #include <boost/date_time/time_resolution_traits.hpp>
-#include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/wrapping_int.hpp>
-#include <boost/date_time/compiler_config.hpp>
+#include <boost/limits.hpp>
+#include <cstdlib> //for MCW 7.2 std::abs(long long)
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace posix_time {
 
-//Remove the following line if you want 64 bit millisecond resolution time
-//#define BOOST_GDTL_POSIX_TIME_STD_CONFIG
 
 #ifdef BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
   // set up conditional test compilations
-#define BOOST_DATE_TIME_HAS_MILLISECONDS
-#define BOOST_DATE_TIME_HAS_MICROSECONDS
 #define BOOST_DATE_TIME_HAS_NANOSECONDS
   typedef date_time::time_resolution_traits<mars_boost::date_time::time_resolution_traits_adapted64_impl, mars_boost::date_time::nano,
     1000000000, 9 > time_res_traits;
 #else
   // set up conditional test compilations
-#define BOOST_DATE_TIME_HAS_MILLISECONDS
-#define BOOST_DATE_TIME_HAS_MICROSECONDS
 #undef  BOOST_DATE_TIME_HAS_NANOSECONDS
   typedef date_time::time_resolution_traits<
     mars_boost::date_time::time_resolution_traits_adapted64_impl, mars_boost::date_time::micro,
                                             1000000, 6 > time_res_traits;
-
-
-// #undef BOOST_DATE_TIME_HAS_MILLISECONDS
-// #undef BOOST_DATE_TIME_HAS_MICROSECONDS
-// #undef BOOST_DATE_TIME_HAS_NANOSECONDS
-//   typedef date_time::time_resolution_traits<mars_boost::int64_t, mars_boost::date_time::tenth,
-//                                              10, 0 > time_res_traits;
 
 #endif
 
@@ -54,7 +41,7 @@ namespace posix_time {
   //! Base time duration type
   /*! \ingroup time_basics
    */
-  class time_duration :
+  class BOOST_SYMBOL_VISIBLE time_duration :
     public date_time::time_duration<time_duration, time_res_traits>
   {
   public:
@@ -66,23 +53,23 @@ namespace posix_time {
     typedef time_res_traits::fractional_seconds_type fractional_seconds_type;
     typedef time_res_traits::tick_type tick_type;
     typedef time_res_traits::impl_type impl_type;
-    time_duration(hour_type hour,
-                  min_type min,
-                  sec_type sec,
-                  fractional_seconds_type fs=0) :
+    BOOST_CXX14_CONSTEXPR time_duration(hour_type hour,
+                                        min_type min,
+                                        sec_type sec,
+                                        fractional_seconds_type fs=0) :
       date_time::time_duration<time_duration, time_res_traits>(hour,min,sec,fs)
     {}
-    time_duration() :
+   BOOST_CXX14_CONSTEXPR time_duration() :
       date_time::time_duration<time_duration, time_res_traits>(0,0,0)
     {}
     //! Construct from special_values
-    time_duration(mars_boost::date_time::special_values sv) :
+    BOOST_CXX14_CONSTEXPR time_duration(mars_boost::date_time::special_values sv) :
       date_time::time_duration<time_duration, time_res_traits>(sv)
     {}
     //Give duration access to ticks constructor -- hide from users
     friend class date_time::time_duration<time_duration, time_res_traits>;
   protected:
-    explicit time_duration(impl_type tick_count) :
+    BOOST_CXX14_CONSTEXPR explicit time_duration(impl_type tick_count) :
       date_time::time_duration<time_duration, time_res_traits>(tick_count)
     {}
   };
@@ -94,7 +81,7 @@ namespace posix_time {
   {
     typedef gregorian::date      date_type;
     typedef time_duration        time_duration_type;
-    simple_time_rep(date_type d, time_duration_type tod) :
+    BOOST_CXX14_CONSTEXPR simple_time_rep(date_type d, time_duration_type tod) :
       day(d),
       time_of_day(tod)
     {
@@ -116,25 +103,25 @@ namespace posix_time {
     }
     date_type day;
     time_duration_type time_of_day;
-    bool is_special()const
+    BOOST_CXX14_CONSTEXPR bool is_special()const
     {
       return(is_pos_infinity() || is_neg_infinity() || is_not_a_date_time());
     }
-    bool is_pos_infinity()const
+    BOOST_CXX14_CONSTEXPR bool is_pos_infinity()const
     {
       return(day.is_pos_infinity() || time_of_day.is_pos_infinity());
     }
-    bool is_neg_infinity()const
+    BOOST_CXX14_CONSTEXPR bool is_neg_infinity()const
     {
       return(day.is_neg_infinity() || time_of_day.is_neg_infinity());
     }
-    bool is_not_a_date_time()const
+    BOOST_CXX14_CONSTEXPR bool is_not_a_date_time()const
     {
       return(day.is_not_a_date() || time_of_day.is_not_a_date_time());
     }
   };
 
-  class posix_time_system_config
+  class BOOST_SYMBOL_VISIBLE posix_time_system_config
   {
    public:
     typedef simple_time_rep time_rep_type;

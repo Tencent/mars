@@ -16,13 +16,13 @@
 #
 # /* BOOST_PP_TUPLE_IS_SINGLE_RETURN */
 #
-# if BOOST_PP_VARIADICS && BOOST_PP_VARIADICS_MSVC
+# if BOOST_PP_VARIADICS_MSVC
 # include <boost/preprocessor/control/iif.hpp>
 # include <boost/preprocessor/facilities/is_1.hpp>
 # include <boost/preprocessor/tuple/size.hpp>
-# define BOOST_PP_TUPLE_IS_SINGLE_RETURN(sr,nsr,tuple)	\
-	BOOST_PP_IIF(BOOST_PP_IS_1(BOOST_PP_TUPLE_SIZE(tuple)),sr,nsr) \
-	/**/
-# endif /* BOOST_PP_VARIADICS && BOOST_PP_VARIADICS_MSVC */
+# define BOOST_PP_TUPLE_IS_SINGLE_RETURN(sr,nsr,tuple)  \
+    BOOST_PP_IIF(BOOST_PP_IS_1(BOOST_PP_TUPLE_SIZE(tuple)),sr,nsr) \
+    /**/
+# endif /* BOOST_PP_VARIADICS_MSVC */
 #
 # endif /* BOOST_PREPROCESSOR_TUPLE_DETAIL_IS_SINGLE_RETURN_HPP */

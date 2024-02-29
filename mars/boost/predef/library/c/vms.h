@@ -10,23 +10,24 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/predef/library/c/_prefix.h>
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_LIB_C_VMS`]
+/* tag::reference[]
+= `BOOST_LIB_C_VMS`
 
 VMS libc Standard C library.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__CRTL_VER`] [__predef_detection__]]
+| `+__CRTL_VER+` | {predef_detection}
 
-    [[`__CRTL_VER`] [V.R.P]]
-    ]
- */
+| `+__CRTL_VER+` | V.R.P
+|===
+*/ // end::reference[]
 
 #define BOOST_LIB_C_VMS BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

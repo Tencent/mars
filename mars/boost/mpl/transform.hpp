@@ -15,17 +15,17 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/fold.hpp>
-#include <boost/mpl/reverse_fold.hpp>
-#include <boost/mpl/pair_view.hpp>
-#include <boost/mpl/is_sequence.hpp>
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/lambda.hpp>
-#include <boost/mpl/bind.hpp>
-#include <boost/mpl/or.hpp>
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/aux_/na.hpp>
 #include <boost/mpl/aux_/inserter_algorithm.hpp>
+#include <boost/mpl/aux_/na.hpp>
+#include <boost/mpl/bind.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/fold.hpp>
+#include <boost/mpl/is_sequence.hpp>
+#include <boost/mpl/lambda.hpp>
+#include <boost/mpl/not.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/mpl/pair_view.hpp>
+#include <boost/mpl/reverse_fold.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

@@ -8,20 +8,21 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_OS_OS400_H
 #define BOOST_PREDEF_OS_OS400_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_OS_OS400`]
+/* tag::reference[]
+= `BOOST_OS_OS400`
 
-[@http://en.wikipedia.org/wiki/IBM_i IBM OS/400] operating system.
+http://en.wikipedia.org/wiki/IBM_i[IBM OS/400] operating system.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__OS400__`] [__predef_detection__]]
-    ]
- */
+| `+__OS400__+` | {predef_detection}
+|===
+*/ // end::reference[]
 
 #define BOOST_OS_OS400 BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

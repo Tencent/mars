@@ -10,8 +10,8 @@
 #ifndef BOOST_NUMERIC_CONVERSION_BOUNDS_DETAIL_FLC_12NOV2002_HPP
 #define BOOST_NUMERIC_CONVERSION_BOUNDS_DETAIL_FLC_12NOV2002_HPP
 
-#include "boost/limits.hpp"
 #include "boost/config.hpp"
+#include "boost/limits.hpp"
 #include "boost/mpl/if.hpp"
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace numeric { namespace boundsdetail

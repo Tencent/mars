@@ -27,6 +27,9 @@
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace move_detail {
 
+template<typename T>
+struct voider { typedef void type; };
+
 //////////////////////////////////////
 //             if_c
 //////////////////////////////////////
@@ -52,7 +55,9 @@ struct if_ : if_c<0 != T1::value, T2, T3>
 //////////////////////////////////////
 //          enable_if_c
 //////////////////////////////////////
-template <bool B, class T = void>
+struct enable_if_nat{};
+
+template <bool B, class T = enable_if_nat>
 struct enable_if_c
 {
    typedef T type;
@@ -64,13 +69,13 @@ struct enable_if_c<false, T> {};
 //////////////////////////////////////
 //           enable_if
 //////////////////////////////////////
-template <class Cond, class T = void>
+template <class Cond, class T = enable_if_nat>
 struct enable_if : enable_if_c<Cond::value, T> {};
 
 //////////////////////////////////////
 //          disable_if_c
 //////////////////////////////////////
-template <bool B, class T = void>
+template <bool B, class T = enable_if_nat>
 struct disable_if_c
    : enable_if_c<!B, T>
 {};
@@ -78,7 +83,7 @@ struct disable_if_c
 //////////////////////////////////////
 //          disable_if
 //////////////////////////////////////
-template <class Cond, class T = void>
+template <class Cond, class T = enable_if_nat>
 struct disable_if : enable_if_c<!Cond::value, T> {};
 
 //////////////////////////////////////
@@ -113,6 +118,18 @@ struct is_same<T, T>
 {
    static const bool value = true;
 };
+
+//////////////////////////////////////
+//        enable_if_same
+//////////////////////////////////////
+template <class T, class U, class R = enable_if_nat>
+struct enable_if_same : enable_if<is_same<T, U>, R> {};
+
+//////////////////////////////////////
+//        disable_if_same
+//////////////////////////////////////
+template <class T, class U, class R = enable_if_nat>
+struct disable_if_same : disable_if<is_same<T, U>, R> {};
 
 }  //namespace move_detail {
 }  //namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {

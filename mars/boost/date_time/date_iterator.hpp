@@ -53,14 +53,14 @@ namespace date_time {
     }
     virtual duration_type get_offset(const date_type& current) const=0;
     virtual duration_type get_neg_offset(const date_type& current) const=0;
-    date_type operator*() {return current_;}
-    date_type* operator->() {return &current_;}
-    bool operator<  (const date_type& d) {return current_ < d;}
-    bool operator<= (const date_type& d) {return current_ <= d;}
-    bool operator>  (const date_type& d) {return current_ > d;}
-    bool operator>= (const date_type& d) {return current_ >= d;}
-    bool operator== (const date_type& d) {return current_ == d;}
-    bool operator!= (const date_type& d) {return current_ != d;}
+    const date_type& operator*() const {return current_;}
+    const date_type* operator->() const {return &current_;}
+    bool operator<  (const date_type& d) const {return current_ < d;}
+    bool operator<= (const date_type& d) const {return current_ <= d;}
+    bool operator>  (const date_type& d) const {return current_ > d;}
+    bool operator>= (const date_type& d) const {return current_ >= d;}
+    bool operator== (const date_type& d) const {return current_ == d;}
+    bool operator!= (const date_type& d) const {return current_ != d;}
   private:
     date_type current_;
   };

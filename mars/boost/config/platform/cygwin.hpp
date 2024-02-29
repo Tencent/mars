@@ -23,7 +23,7 @@
 #  define BOOST_HAS_SCHED_YIELD
 #  define BOOST_HAS_GETTIMEOFDAY
 #  define BOOST_HAS_PTHREAD_MUTEXATTR_SETTYPE
-#  define BOOST_HAS_SIGACTION
+//#  define BOOST_HAS_SIGACTION
 #else
 #  if !defined(BOOST_HAS_WINTHREADS)
 #     define BOOST_HAS_WINTHREADS
@@ -38,12 +38,26 @@
 #ifdef _STDINT_H
 #define BOOST_HAS_STDINT_H
 #endif
+#if __GNUC__ > 5 && !defined(BOOST_HAS_STDINT_H)
+#   define BOOST_HAS_STDINT_H
+#endif
 
+#include <cygwin/version.h>
+#if (CYGWIN_VERSION_API_MAJOR == 0 && CYGWIN_VERSION_API_MINOR < 231)
 /// Cygwin has no fenv.h
 #define BOOST_NO_FENV_H
+#endif
+
+// Cygwin has it's own <pthread.h> which breaks <shared_mutex> unless the correct compiler flags are used:
+#ifndef BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#include <pthread.h>
+#if !(__XSI_VISIBLE >= 500 || __POSIX_VISIBLE >= 200112)
+#  define BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#endif
+#endif
 
 // boilerplate code:
-#include <boost/config/posix_features.hpp>
+#include <boost/config/detail/posix_features.hpp>
 
 //
 // Cygwin lies about XSI conformance, there is no nl_types.h:
@@ -51,7 +65,6 @@
 #ifdef BOOST_HAS_NL_TYPES_H
 #  undef BOOST_HAS_NL_TYPES_H
 #endif
- 
 
 
 

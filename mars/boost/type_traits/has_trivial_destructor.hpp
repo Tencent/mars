@@ -9,8 +9,8 @@
 #ifndef BOOST_TT_HAS_TRIVIAL_DESTRUCTOR_HPP_INCLUDED
 #define BOOST_TT_HAS_TRIVIAL_DESTRUCTOR_HPP_INCLUDED
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 
 #ifdef BOOST_HAS_TRIVIAL_DESTRUCTOR
 
@@ -21,7 +21,7 @@
 #include <boost/type_traits/is_same.hpp>
 #endif
 
-#if defined(__GNUC__) || defined(__clang) || defined(__SUNPRO_CC)
+#if defined(__GNUC__) || defined(__clang__) || defined(__SUNPRO_CC)
 #include <boost/type_traits/is_destructible.hpp>
 #endif
 

@@ -1,0 +1,114 @@
+////
+Copyright 2005, 2006 Ion Gaztañaga
+Copyright 2005, 2006, 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#pointer_to_other]
+# pointer_to_other
+:toc:
+:toc-title:
+:idprefix: pointer_to_other_
+
+## Description
+
+The `pointer_to_other` utility provides a way, given a source pointer type, to obtain a pointer of the same type
+to another pointee type.
+
+There is test/example code in link:../../test/pointer_to_other_test.cpp[pointer_to_other_test.cpp].
+
+## Rationale
+
+When building pointer independent classes, like memory managers, allocators, or containers, there is often a need to
+define pointers generically, so that if a template parameter represents a pointer (for example, a raw or smart pointer
+to an `int`), we can define another pointer of the same type to another pointee (a raw or smart pointer to a `float`.)
+
+```
+template <class IntPtr> class FloatPointerHolder
+{
+    // Let's define a pointer to a float
+
+    typedef typename boost::pointer_to_other
+        <IntPtr, float>::type float_ptr_t;
+
+    float_ptr_t float_ptr;
+};
+```
+
+## Synopsis
+
+`pointer_to_other` is defined in `<boost/smart_ptr/pointer_to_other.hpp>`.
+
+```
+namespace boost {
+
+  template<class T, class U> struct pointer_to_other;
+
+  template<class T, class U,
+    template <class> class Sp>
+      struct pointer_to_other< Sp<T>, U >
+  {
+    typedef Sp<U> type;
+  };
+
+  template<class T, class T2, class U,
+    template <class, class> class Sp>
+      struct pointer_to_other< Sp<T, T2>, U >
+  {
+    typedef Sp<U, T2> type;
+  };
+
+  template<class T, class T2, class T3, class U,
+    template <class, class, class> class Sp>
+      struct pointer_to_other< Sp<T, T2, T3>, U >
+  {
+    typedef Sp<U, T2, T3> type;
+  };
+
+  template<class T, class U>
+    struct pointer_to_other< T*, U > 
+  {
+    typedef U* type;
+  };
+}
+```
+
+If these definitions are not correct for a specific smart pointer, we can define a specialization of `pointer_to_other`.
+
+## Example
+
+```
+// Let's define a memory allocator that can
+// work with raw and smart pointers
+
+#include <boost/pointer_to_other.hpp>
+
+template <class VoidPtr>
+class memory_allocator
+{
+    // Predefine a memory_block
+
+    struct block;
+
+    // Define a pointer to a memory_block from a void pointer
+    // If VoidPtr is void *, block_ptr_t is block*
+    // If VoidPtr is smart_ptr<void>, block_ptr_t is smart_ptr<block>
+
+    typedef typename boost::pointer_to_other
+        <VoidPtr, block>::type block_ptr_t;
+
+    struct block
+    {
+        std::size_t size;
+        block_ptr_t next_block;
+    };
+
+    block_ptr_t free_blocks;
+};
+```
+
+As we can see, using `pointer_to_other` we can create pointer independent code.

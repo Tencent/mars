@@ -19,18 +19,18 @@
 #ifndef BOOST_RANGE_ADAPTOR_INDEXED_HPP_INCLUDED
 #define BOOST_RANGE_ADAPTOR_INDEXED_HPP_INCLUDED
 
-#include <boost/range/config.hpp>
-#include <boost/range/adaptor/argument_fwd.hpp>
-#include <boost/range/iterator_range.hpp>
-#include <boost/range/traversal.hpp>
-#include <boost/range/size.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/range/adaptor/argument_fwd.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/config.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/traversal.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
-#include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/iterator_traits.hpp>
 
 #include <boost/tuple/tuple.hpp>
 
@@ -120,7 +120,7 @@ namespace range_detail
 template<typename Iter>
 struct indexed_iterator_value_type
 {
-    typedef ::boost::range::index_value<
+    typedef ::mars_boost::range::index_value<
         typename iterator_reference<Iter>::type,
         typename iterator_difference<Iter>::type
     > type;
@@ -365,6 +365,31 @@ index(
 }
 
     } // namespace adaptors
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
+
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE)
+
+namespace std {
+
+#if defined(BOOST_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-tags"
+#endif
+
+template<size_t N, class T, class Indexable>
+struct tuple_element<N, mars_boost::range::index_value<T, Indexable>>:
+    mars_boost::tuples::element<N, mars_boost::range::index_value<T, Indexable>> {};
+
+template<class T, class Indexable>
+struct tuple_size<mars_boost::range::index_value<T, Indexable>>:
+    std::integral_constant<std::size_t, 2> {};
+
+#if defined(BOOST_CLANG)
+#pragma clang diagnostic pop
+#endif
+
+} // namespace std
+
+#endif // !defined(BOOST_NO_CXX11_HDR_TUPLE)
 
 #endif // include guard

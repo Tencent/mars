@@ -323,7 +323,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //重试间隔
+        // 重试间隔
         if (first->retry_time_interval > curtime - first->retry_start_time) {
             xdebug2(TSF "retry interval, taskid:%0, task retry late task, wait:%1",
                     first->task.taskid,
@@ -362,8 +362,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
@@ -453,7 +456,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //雪崩检测
+        // 雪崩检测
         xassert2(fun_anti_avalanche_check_);
 
         if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
@@ -523,13 +526,32 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->func_host_filter = get_real_host_strict_match_;
         worker->func_add_weak_net_info =
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
-        worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
-        worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
-        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7),
+        worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, boost::placeholders::_1),
+                           worker,
+                           AYNC_HANDLER);
+        worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv,
+                                       this,
+                                       boost::placeholders::_1,
+                                       boost::placeholders::_2,
+                                       boost::placeholders::_3),
+                           worker,
+                           AYNC_HANDLER);
+        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse,
+                                           this,
+                                           boost::placeholders::_1,
+                                           boost::placeholders::_2,
+                                           boost::placeholders::_3,
+                                           boost::placeholders::_4,
+                                           boost::placeholders::_5,
+                                           boost::placeholders::_6,
+                                           boost::placeholders::_7),
                                worker,
                                AYNC_HANDLER);
-        worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
-        worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+        worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, boost::placeholders::_1);
+        worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted,
+                                                   this,
+                                                   boost::placeholders::_1,
+                                                   boost::placeholders::_2);
 
         if (!debug_host_.empty()) {
             worker->SetDebugHost(debug_host_);
@@ -751,15 +773,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                     handle_type,
                     it->task.taskid,
                     it->task.user_id);
-            //#ifdef __APPLE__
-            //            //.test only.
-            //            const char* pbuffer = (const char*)_body.Ptr();
-            //            for (size_t off = 0; off < _body.Length();){
-            //                size_t len = std::min((size_t)512, _body.Length() - off);
-            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-            //                off += len;
-            //            }
-            //#endif
+            // #ifdef __APPLE__
+            //             //.test only.
+            //             const char* pbuffer = (const char*)_body.Ptr();
+            //             for (size_t off = 0; off < _body.Length();){
+            //                 size_t len = std::min((size_t)512, _body.Length() - off);
+            //                 xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                 off += len;
+            //             }
+            // #endif
             __SingleRespHandle(it,
                                kEctEnDecode,
                                err_code,

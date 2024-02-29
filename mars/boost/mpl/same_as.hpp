@@ -14,9 +14,9 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/not.hpp>
-#include <boost/mpl/aux_/lambda_spec.hpp>
 #include <boost/mpl/aux_/config/forwarding.hpp>
+#include <boost/mpl/aux_/lambda_spec.hpp>
+#include <boost/mpl/not.hpp>
 
 #include <boost/type_traits/is_same.hpp>
 

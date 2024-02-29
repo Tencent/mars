@@ -17,13 +17,13 @@
 #pragma warning( disable : 4355 )
 #endif
 
-#include <boost/range/adaptor/argument_fwd.hpp>
-#include <boost/range/iterator_range.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/concepts.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/next_prior.hpp>
+#include <boost/range/adaptor/argument_fwd.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/concepts.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/iterator_range.hpp>
 
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
@@ -181,7 +181,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         }
 
         template< class ForwardRng, class BinPredicate >
-        inline adjacent_filtered_range<BinPredicate, ForwardRng, false>
+        inline adjacent_filtered_range<BinPredicate, const ForwardRng, false>
         operator|( const ForwardRng& r,
                    const adjacent_excl_holder<BinPredicate>& f )
         {

@@ -1,0 +1,661 @@
+[/
+          Copyright Oliver Kowalke 2016.
+ Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+          http://www.boost.org/LICENSE_1_0.txt
+]
+
+[#cc]
+[section:cc Context switching with call/cc]
+
+[note __callcc__ is the reference implementation of C++ proposal
+[@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0534r3.pdf P0534R3:
+call/cc (call-with-current-continuation): A low-level API for stackful context
+switching].]
+
+__callcc__ (call with current continuation) is a universal control operator
+(well-known from the programming language Scheme) that captures the current
+continuation as a first-class object and pass it as an argument to another
+continuation.
+
+A continuation (abstract concept of functional programming languages)
+represents the state of the control flow of a program at a given point in time.
+Continuations can be suspended and resumed later in order to change the control
+flow of a program.
+
+Modern micro-processors are registers machines; the content of processor
+registers represent a continuation of the executed program at a given point in
+time.
+Operating systems simulate parallel execution of programs on a single processor
+by switching between programs (context switch) by preserving and restoring the
+continuation, e.g. the content of all registers.
+
+
+[heading __cc__]
+
+__cc__ is the C++ equivalent to Scheme's __callcc__ operator. It captures the
+current continuation (the rest of the computation; code after __cc__) and
+triggers a context switch. The context switch is achieved by preserving certain
+registers (including instruction and stack pointer), defined by the calling
+convention of the ABI, of the current continuation and restoring those
+registers of the resumed continuation. The control flow of the resumed
+continuation continues.
+The current continuation is suspended and passed as argument to the resumed
+continuation.
+
+__cc__ expects a __context_fn__ with signature
+`'continuation(continuation && c)'`. The parameter `c` represents the current
+continuation from which this continuation was resumed (e.g. that has called
+__cc__).
+
+On return the __context_fn__ of the current continuation has to specify an
+__con__ to which the execution control is transferred after termination
+of the current continuation.
+
+If an instance with valid state goes out of scope and the __context_fn__ has
+not yet returned, the stack is traversed in order to access the control
+structure (address stored at the first stack frame) and continuation's stack is
+deallocated via the __stack_allocator__.
+
+[note [link segmented ['Segmented stacks]] are supported by __cc__ using
+[link implementation ['ucontext_t]].]
+
+
+[heading __con__]
+
+__con__ represents a continuation; it contains the content of preserved
+registers and manages the associated stack (allocation/deallocation).
+__con__ is a one-shot continuation - it can be used only once, after calling
+__resume__ or __resume_with__ it is invalidated.
+
+__con__ is  only move-constructible and move-assignable.
+
+As a first-class object __con__ can be applied to and returned from a function,
+assigned to a variable or stored in a container.
+
+A continuation is continued by calling `resume()`/`resume_with()`.
+
+
+[heading Usage]
+
+        namespace ctx=boost::context;
+        int a;
+        ctx::continuation source=ctx::callcc(
+            [&a](ctx::continuation && sink){
+                a=0;
+                int b=1;
+                for(;;){
+                    sink=sink.resume();
+                    int next=a+b;
+                    a=b;
+                    b=next;
+                }
+                return std::move(sink);
+            });
+        for (int j=0;j<10;++j) {
+            std::cout << a << " ";
+            source=source.resume();
+        }
+
+        output:
+            0 1 1 2 3 5 8 13 21 34
+
+This simple example demonstrates the basic usage of __callcc__ as a ['generator].
+The continuation `sink` represents the ['main]-continuation (function `main()`).
+`sink` is captured (current-continuation) by invoking __cc__ and passed as
+parameter to the lambda.
+
+Because the state is invalidated (one-shot continuation) by each call of
+__resume__, the new state of the __con__, returned by __resume__, needs to be
+assigned to `sink` after each call.
+
+The lambda that calculates the Fibonacci numbers is executed inside the
+continuation represented by `source`. Calculated Fibonacci numbers are
+transferred between the two continuations via variable `a` (lambda capture
+reference).
+
+The locale variables `b` and ` next` remain their values during each context
+switch. This is possible due `source` has its own stack and the stack is
+exchanged by each context switch.
+
+
+[heading Parameter passing]
+
+Data can be transferred between two continuations via global pointers,
+calling wrappers (like `std::bind`) or lambda captures.
+
+    namespace ctx=boost::context;
+    int i=1;
+    ctx::continuation c1=callcc([&i](ctx::continuation && c2){
+                std::printf("inside c1,i==%d\n",i);
+                i+=1;
+                return c2.resume();
+            });
+    std::printf("i==%d\n",i);
+
+    output:
+        inside c1,i==1
+        i==2
+
+`callcc(<lambda>)` enters the lambda in continuation represented by `c1` with
+lambda capture reference `i=1`.
+The expression `c2.resume()` resumes the continuation `c2`.
+On return of `callcc(<lambda>)`, the variable `i` has the value of `i+1`.
+
+
+[heading Exception handling]
+
+If the function executed inside a __context_fn__ emits an exception, the
+application is terminated by calling `std::terminate()`. `std::exception_ptr`
+can be used to transfer exceptions between different continuations.
+
+[important Do not jump from inside a catch block.]
+
+
+[#cc_ontop]
+[heading Executing function on top of a continuation]
+
+Sometimes it is useful to execute a new function on top of a resumed
+continuation. For this purpose __resume_with__ has to be used.
+The function passed as argument must accept a rvalue reference to __con__ and
+return __con__.
+
+    namespace ctx=boost::context;
+    int data=0;
+    ctx::continuation c=ctx::callcc([&data](ctx::continuation && c) {
+                        std::cout << "f1: entered first time: " << data << std::endl;
+                        data+=1;
+                        c=c.resume();
+                        std::cout << "f1: entered second time: " << data << std::endl;
+                        data+=1;
+                        c=c.resume();
+                        std::cout << "f1: entered third time: " << data << std::endl;
+                        return std::move(c);
+                    });
+    std::cout << "f1: returned first time: " << data << std::endl;
+    data+=1;
+    c=c.resume();
+    std::cout << "f1: returned second time: " << data << std::endl;
+    data+=1;
+    c=c.resume_with([&data](ctx::continuation && c){
+                        std::cout << "f2: entered: " << data << std::endl;
+                        data=-1;
+                        return std::move( c);
+                    });
+    std::cout << "f1: returned third time" << std::endl;
+
+    output:
+        f1: entered first time: 0
+        f1: returned first time: 1
+        f1: entered second time: 2
+        f1: returned second time: 3
+        f2: entered: 4
+        f1: entered third time: -1
+        f1: returned third time
+
+
+The expression `c.resume_with(...)` executes a lambda on top of continuation
+`c`, e.g. an additional stack frame is allocated on top of the stack.
+This lambda assigns `-1` to `data` and returns to the second invocation of
+`c.resume()`.
+
+Another option is to execute a function on top of the continuation that throws
+an exception.
+
+    namespace ctx=boost::context;
+    struct my_exception : public std::runtime_error {
+        ctx::continuation    c;
+        my_exception(ctx::continuation && c_,std::string const& what) :
+            std::runtime_error{ what },
+            c{ std::move( c_) } {
+        }
+    };
+
+    ctx::continuation c=ctx::callcc([](ctx::continuation && c) {
+        for (;;) {
+            try {
+                std::cout << "entered" << std::endl;
+                c=c.resume();
+            } catch (my_exception & ex) {
+                std::cerr << "my_exception: " << ex.what() << std::endl;
+                return std::move(ex.c);
+            }
+        }
+        return std::move(c);
+    });
+    c = c.resume_with(
+           [](ctx::continuation && c){
+               throw my_exception(std::move(c),"abc");
+               return std::move( c);
+           });
+
+    output:
+        entered
+        my_exception: abc
+
+In this exception `my_exception` is throw from a function invoked on-top of
+continuation `c` and catched inside the `for`-loop.
+
+[heading Stack unwinding]
+On construction of __con__ a stack is allocated.
+If the __context_fn__ returns the stack will be destructed.
+If the __context_fn__ has not yet returned and the destructor of an valid
+__con__ instance (e.g. ['continuation::operator bool()] returns
+`true`) is called, the stack will be destructed too.
+
+[important Code executed by __context_fn__ must not prevent the propagation ofs
+the __forced_unwind__ exception.  Absorbing that exception will cause stack
+unwinding to fail.  Thus, any code that catches all exceptions must re-throw any
+pending __forced_unwind__ exception.]
+
+
+[#cc_prealloc]
+[heading Allocating control structures on top of stack]
+Allocating control structures on top of the stack requires to allocated the
+__stack_context__ and create the control structure with placement new before
+__con__ is created.
+[note The user is responsible for destructing the control structure at the top
+of the stack.]
+
+    namespace ctx=boost::context;
+    // stack-allocator used for (de-)allocating stack
+    fixedsize_stack salloc(4048);
+    // allocate stack space
+    stack_context sctx(salloc.allocate());
+    // reserve space for control structure on top of the stack
+    void * sp=static_cast<char*>(sctx.sp)-sizeof(my_control_structure);
+    std::size_t size=sctx.size-sizeof(my_control_structure);
+    // placement new creates control structure on reserved space
+    my_control_structure * cs=new(sp)my_control_structure(sp,size,sctx,salloc);
+    ...
+    // destructing the control structure
+    cs->~my_control_structure();
+    ...
+    struct my_control_structure  {
+        // captured continuation
+        ctx::continuation   c;
+
+        template< typename StackAllocator >
+        my_control_structure(void * sp,std::size_t size,stack_context sctx,StackAllocator salloc) :
+            // create captured continuation
+            c{} {
+            c=ctx::callcc(std::allocator_arg,preallocated(sp,size,sctx),salloc,entry_func);
+        }
+        ...
+    };
+
+
+[heading Inverting the control flow]
+
+    namespace ctx=boost::context;
+    /*
+     * grammar:
+     *   P ---> E '\0'
+     *   E ---> T {('+'|'-') T}
+     *   T ---> S {('*'|'/') S}
+     *   S ---> digit | '(' E ')'
+     */
+    class Parser{
+       char next;
+       std::istream& is;
+       std::function<void(char)> cb;
+
+       char pull(){
+            return std::char_traits<char>::to_char_type(is.get());
+       }
+
+       void scan(){
+           do{
+               next=pull();
+           }
+           while(isspace(next));
+       }
+
+    public:
+       Parser(std::istream& is_,std::function<void(char)> cb_) :
+          next(), is(is_), cb(cb_)
+        {}
+
+       void run() {
+          scan();
+          E();
+       }
+
+    private:
+       void E(){
+          T();
+          while (next=='+'||next=='-'){
+             cb(next);
+             scan();
+             T();
+          }
+       }
+
+       void T(){
+          S();
+          while (next=='*'||next=='/'){
+             cb(next);
+             scan();
+             S();
+          }
+       }
+
+       void S(){
+          if (isdigit(next)){
+             cb(next);
+             scan();
+          }
+          else if(next=='('){
+             cb(next);
+             scan();
+             E();
+             if (next==')'){
+                 cb(next);
+                 scan();
+             }else{
+                 throw std::runtime_error("parsing failed");
+             }
+          }
+          else{
+             throw std::runtime_error("parsing failed");
+          }
+       }
+    };
+
+    std::istringstream is("1+1");
+    // execute parser in new continuation
+    ctx::continuation source;
+    // user-code pulls parsed data from parser
+    // invert control flow
+    char c;
+    bool done=false;
+    source=ctx::callcc(
+            [&is,&c,&done](ctx::continuation && sink){
+            // create parser with callback function
+            Parser p(is,
+                     [&sink,&c](char c_){
+                        // resume main continuation
+                        c=c_;
+                        sink=sink.resume();
+                     });
+                // start recursive parsing
+                p.run();
+                // signal termination
+                done=true;
+                // resume main continuation
+                return std::move(sink);
+            });
+    while(!done){
+        printf("Parsed: %c\n",c);
+        source=source.resume();
+    }
+
+    output:
+        Parsed: 1
+        Parsed: +
+        Parsed: 1
+
+In this example a recursive descent parser uses a callback to emit a newly
+passed symbol. Using __callcc__ the control flow can be inverted, e.g. the
+user-code pulls parsed symbols from the parser - instead to get pushed from the
+parser (via callback).
+
+The data (character) is transferred between the two continuations.
+
+
+[#implementation]
+[section Implementations: fcontext_t, ucontext_t and WinFiber]
+
+[heading fcontext_t]
+The implementation uses __fcontext__ per default. fcontext_t is based on
+assembler and not available for all platforms. It provides a much better
+performance than __ucontext__
+(the context switch takes two magnitudes of order less CPU cycles; see section
+[link performance ['performance]]) and __winfib__.
+
+[note Because the TIB (thread information block on Windows) is not fully
+described in the MSDN, it might be possible that not all required TIB-parts are
+swapped. Using WinFiber implementation migh be an alternative.]
+
+
+[heading ucontext_t]
+As an alternative, [@https://en.wikipedia.org/wiki/Setcontext __ucontext__]
+can be used by compiling with `BOOST_USE_UCONTEXT` and b2 property
+`context-impl=ucontext`.
+__ucontext__ might be available on a broader range of POSIX-platforms but has
+some [link ucontext ['disadvantages]] (for instance deprecated since
+POSIX.1-2003, not C99 conform).
+
+[note __cc__ supports [link segmented ['Segmented stacks]] only with
+__ucontext__ as its implementation.]
+
+
+[heading WinFiber]
+With `BOOST_USE_WINFIB` and b2 property `context-impl=winfib` Win32-Fibers are
+used as implementation for __cc__.
+
+[note The first call of __cc__ converts the thread into a Windows fiber by
+invoking `ConvertThreadToFiber()`. If desired, `ConvertFiberToThread()` has
+to be called by the user explicitly in order to release resources allocated
+by `ConvertThreadToFiber()` (e.g. after using boost.context). ]
+
+[endsect]
+
+
+[section Class `continuation`]
+
+    #include <boost/context/continuation.hpp>
+
+    class continuation {
+    public:
+        continuation() noexcept = default;
+
+        ~continuation();
+
+        continuation(continuation && other) noexcept;
+
+        continuation & operator=(continuation && other) noexcept;
+
+        continuation(continuation const& other) noexcept = delete;
+        continuation & operator=(continuation const& other) noexcept = delete;
+
+        continuation resume();
+
+        template<typename Fn>
+        continuation resume_with(Fn && fn);
+
+        explicit operator bool() const noexcept;
+
+        bool operator!() const noexcept;
+
+        bool operator==(continuation const& other) const noexcept;
+
+        bool operator!=(continuation const& other) const noexcept;
+
+        bool operator<(continuation const& other) const noexcept;
+
+        bool operator>(continuation const& other) const noexcept;
+
+        bool operator<=(continuation const& other) const noexcept;
+
+        bool operator>=(continuation const& other) const noexcept;
+
+        template<typename charT,class traitsT>
+        friend std::basic_ostream<charT,traitsT> &
+        operator<<(std::basic_ostream<charT,traitsT> & os,continuation const& other) {
+
+        void swap(continuation & other) noexcept;
+    };
+
+[constructor_heading cc..constructor]
+
+    continuation() noexcept;
+
+[variablelist
+[[Effects:] [Creates a invalid continuation.]]
+[[Throws:] [Nothing.]]
+]
+
+[destructor_heading cc..destructor destructor]
+
+    ~continuation();
+
+[variablelist
+[[Effects:] [Destructs the associated stack if `*this` is a valid continuation,
+e.g. ['continuation::operator bool()] returns `true`.]]
+[[Throws:] [Nothing.]]
+]
+
+[move_constructor_heading cc..move constructor]
+
+    continuation(continuation && other) noexcept;
+
+[variablelist
+[[Effects:] [Moves underlying capture continuation to `*this`.]]
+[[Throws:] [Nothing.]]
+]
+
+[move_assignment_heading cc..move assignment]
+
+    continuation & operator=(continuation && other) noexcept;
+
+[variablelist
+[[Effects:] [Moves the state of `other` to `*this` using move semantics.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_call..operator()]
+
+        continuation resume();
+
+        template<typename Fn>
+        continuation resume_with(Fn && fn);
+
+[variablelist
+[[Effects:] [Captures current continuation and resumes `*this`.
+The function `resume_with`, is used to execute function `fn` in the execution context of
+`*this` (e.g. the stack frame of `fn` is allocated on stack of `*this`).]]
+[[Returns:] [The continuation representing the continuation that has been
+suspended.]]
+[[Note:] [Function `fn` needs to return `continuation`.]]
+[[Note:] [The returned continuation indicates if the suspended continuation has
+terminated (return from context-function) via `bool operator()`.]]
+]
+
+[operator_heading cc..operator_bool..operator bool]
+
+    explicit operator bool() const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this` points to a captured continuation.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_not..operator!]
+
+    bool operator!() const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this` does not point to a captured continuation.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_equal..operator==]
+
+        bool operator==(continuation const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this` and `other` represent the same continuation,
+`false` otherwise.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_notequal..operator!=]
+
+        bool operator!=(continuation const& other) const noexcept;
+
+[variablelist
+[[Returns:] [[`! (other == * this)]]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_less..operator<]
+
+        bool operator<(continuation const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`true` if `*this != other` is true and the
+implementation-defined total order of `continuation` values places `*this`
+before `other`, false otherwise.]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_greater..operator>]
+
+        bool operator>(continuation const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`other < * this`]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_lesseq..operator<=]
+
+        bool operator<=(continuation const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`! (other < * this)`]]
+[[Throws:] [Nothing.]]
+]
+
+[operator_heading cc..operator_greatereq..operator>=]
+
+        bool operator>=(continuation const& other) const noexcept;
+
+[variablelist
+[[Returns:] [`! (* this < other)`]]
+[[Throws:] [Nothing.]]
+]
+
+[hding cc_..Non-member function [`operator<<()]]
+
+        template<typename charT,class traitsT>
+        std::basic_ostream<charT,traitsT> &
+        operator<<(std::basic_ostream<charT,traitsT> & os,continuation const& other);
+
+[variablelist
+[[Effects:] [Writes the representation of `other` to stream `os`.]]
+[[Returns:] [`os`]]
+]
+
+
+[heading Call with current continuation]
+
+    #include <boost/context/continuation.hpp>
+
+    template<typename Fn>
+    continuation callcc(Fn && fn);
+
+    template<typename StackAlloc,typename Fn>
+    continuation callcc(std::allocator_arg_t,StackAlloc salloc,Fn && fn);
+
+    template<typename StackAlloc,typename Fn>
+    continuation callcc(std::allocator_arg_t,preallocated palloc,StackAlloc salloc,Fn && fn);
+
+[variablelist
+[[Effects:] [Captures current continuation and creates a new continuation
+prepared to execute `fn`. `fixedsize_stack` is used as default stack allocator
+(stack size == fixedsize_stack::traits::default_size()).
+The function with argument type `preallocated`, is used to create a user
+defined data [link cc_prealloc (for instance additional control structures)] on
+top of the stack.]]
+[[Returns:] [The continuation representing the contexcontinuation that has been
+suspended.]]
+[[Note:] [The returned continuation indicates if the suspended continuation has
+terminated (return from context-function) via `bool operator()`.]]
+]
+
+[endsect]
+
+
+[endsect]

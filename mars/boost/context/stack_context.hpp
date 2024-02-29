@@ -21,7 +21,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace context {
 
 #if ! defined(BOOST_CONTEXT_NO_CXX11)
-struct stack_context {
+struct BOOST_CONTEXT_DECL stack_context {
 # if defined(BOOST_USE_SEGMENTED_STACKS)
     typedef void *  segments_context[BOOST_CONTEXT_SEGMENTS];
 # endif
@@ -36,7 +36,7 @@ struct stack_context {
 # endif
 };
 #else
-struct stack_context {
+struct BOOST_CONTEXT_DECL stack_context {
 # if defined(BOOST_USE_SEGMENTED_STACKS)
     typedef void *  segments_context[BOOST_CONTEXT_SEGMENTS];
 # endif

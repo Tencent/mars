@@ -1,0 +1,148 @@
+////
+Copyright 2002, 2003, 2015, 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#enable_shared_from_this]
+# enable_shared_from_this
+:toc:
+:toc-title:
+:idprefix: enable_shared_from_this_
+
+## Description
+
+The class template `enable_shared_from_this` is used as a base class that allows
+a `shared_ptr` or a `weak_ptr` to the current object to be obtained from within a
+member function.
+
+`enable_shared_from_this<T>` defines two member functions called `shared_from_this`
+that return a `shared_ptr<T>` and `shared_ptr<T const>`, depending on constness, to
+`this`. It also defines two member functions called `weak_from_this` that return a
+corresponding `weak_ptr`.
+
+## Example
+
+```
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
+#include <cassert>
+
+class Y: public boost::enable_shared_from_this<Y>
+{
+public:
+
+    boost::shared_ptr<Y> f()
+    {
+        return shared_from_this();
+    }
+};
+
+int main()
+{
+    boost::shared_ptr<Y> p(new Y);
+    boost::shared_ptr<Y> q = p->f();
+    assert(p == q);
+    assert(!(p < q || q < p)); // p and q must share ownership
+}
+```
+
+## Synopsis
+
+`enable_shared_from_this` is defined in `<boost/smart_ptr/enable_shared_from_this.hpp>`.
+
+```
+namespace boost {
+
+  template<class T> class enable_shared_from_this {
+  private:
+
+    // exposition only
+    weak_ptr<T> weak_this_;
+
+  protected:
+
+    enable_shared_from_this() = default;
+    ~enable_shared_from_this() = default;
+
+    enable_shared_from_this(const enable_shared_from_this&) noexcept;
+    enable_shared_from_this& operator=(const enable_shared_from_this&) noexcept;
+
+  public:
+
+    shared_ptr<T> shared_from_this();
+    shared_ptr<T const> shared_from_this() const;
+
+    weak_ptr<T> weak_from_this() noexcept;
+    weak_ptr<T const> weak_from_this() const noexcept;
+  }
+}
+```
+
+## Members
+
+```
+enable_shared_from_this(enable_shared_from_this const &) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Default-constructs `weak_this_`.
+
+NOTE: `weak_this_` is _not_ copied from the argument.
+
+```
+enable_shared_from_this& operator=(enable_shared_from_this const &) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `*this`.
+
+NOTE: `weak_this_` is unchanged.
+
+```
+template<class T> shared_ptr<T> shared_from_this();
+```
+```
+template<class T> shared_ptr<T const> shared_from_this() const;
+```
+[none]
+* {blank}
++
+Returns:: `shared_ptr<T>(weak_this_)`.
+
+NOTE: These members throw `bad_weak_ptr` when `*this` is not owned by a `shared_ptr`.
+
+[NOTE]
+====
+`weak_this_` is initialized by `shared_ptr` to a copy of itself when it's constructed by a pointer to `*this`.
+For example, in the following code:
+```
+class Y: public boost::enable_shared_from_this<Y> {};
+
+int main()
+{
+    boost::shared_ptr<Y> p(new Y);
+}
+```
+the construction of `p` will automatically initialize `p\->weak_this_` to `p`.
+====
+
+```
+template<class T> weak_ptr<T> weak_from_this() noexcept;
+```
+```
+template<class T> weak_ptr<T const> weak_from_this() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `weak_this_`.
+
+NOTE: Unlike `shared_from_this()`, `weak_from_this()` is valid in a destructor
+      and returns a `weak_ptr` that is `expired()` but still shares ownership
+      with other `weak_ptr` instances (if any) that refer to the object.

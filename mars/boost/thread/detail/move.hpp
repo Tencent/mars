@@ -10,23 +10,21 @@
 #include <boost/thread/detail/config.hpp>
 #ifndef BOOST_NO_SFINAE
 #include <boost/core/enable_if.hpp>
-#include <boost/type_traits/is_convertible.hpp>
-#include <boost/type_traits/remove_reference.hpp>
-#include <boost/type_traits/remove_cv.hpp>
-#include <boost/type_traits/decay.hpp>
+#include <boost/type_traits/add_pointer.hpp>
 #include <boost/type_traits/conditional.hpp>
-#include <boost/type_traits/remove_extent.hpp>
+#include <boost/type_traits/decay.hpp>
 #include <boost/type_traits/is_array.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/remove_cv.hpp>
-#include <boost/type_traits/add_pointer.hpp>
-#include <boost/type_traits/decay.hpp>
+#include <boost/type_traits/remove_extent.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #endif
 
-#include <boost/thread/detail/delete.hpp>
-#include <boost/move/utility.hpp>
-#include <boost/move/traits.hpp>
 #include <boost/config/abi_prefix.hpp>
+#include <boost/move/traits.hpp>
+#include <boost/move/utility.hpp>
+#include <boost/thread/detail/delete.hpp>
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
 #include <type_traits>
 #endif
@@ -63,7 +61,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
 #ifndef BOOST_NO_SFINAE
     template<typename T>
-    typename enable_if<boost::is_convertible<T&,mars_boost::detail::thread_move_t<T> >, mars_boost::detail::thread_move_t<T> >::type move(T& t)
+    typename enable_if<mars_boost::is_convertible<T&,mars_boost::detail::thread_move_t<T> >, mars_boost::detail::thread_move_t<T> >::type move(T& t)
     {
         return mars_boost::detail::thread_move_t<T>(t);
     }
@@ -192,22 +190,22 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 namespace detail
 {
   template <typename T>
-  BOOST_THREAD_RV_REF(typename ::boost::remove_cv<typename ::boost::remove_reference<T>::type>::type)
+  BOOST_THREAD_RV_REF(typename ::mars_boost::remove_cv<typename ::mars_boost::remove_reference<T>::type>::type)
   make_rv_ref(T v)  BOOST_NOEXCEPT
   {
-    return (BOOST_THREAD_RV_REF(typename ::boost::remove_cv<typename ::boost::remove_reference<T>::type>::type))(v);
+    return (BOOST_THREAD_RV_REF(typename ::mars_boost::remove_cv<typename ::mars_boost::remove_reference<T>::type>::type))(v);
   }
 //  template <typename T>
-//  BOOST_THREAD_RV_REF(typename ::boost::remove_cv<typename ::boost::remove_reference<T>::type>::type)
+//  BOOST_THREAD_RV_REF(typename ::mars_boost::remove_cv<typename ::mars_boost::remove_reference<T>::type>::type)
 //  make_rv_ref(T &v)  BOOST_NOEXCEPT
 //  {
-//    return (BOOST_THREAD_RV_REF(typename ::boost::remove_cv<typename ::boost::remove_reference<T>::type>::type))(v);
+//    return (BOOST_THREAD_RV_REF(typename ::mars_boost::remove_cv<typename ::mars_boost::remove_reference<T>::type>::type))(v);
 //  }
 //  template <typename T>
-//  const BOOST_THREAD_RV_REF(typename ::boost::remove_cv<typename ::boost::remove_reference<T>::type>::type)
+//  const BOOST_THREAD_RV_REF(typename ::mars_boost::remove_cv<typename ::mars_boost::remove_reference<T>::type>::type)
 //  make_rv_ref(T const&v)  BOOST_NOEXCEPT
 //  {
-//    return (const BOOST_THREAD_RV_REF(typename ::boost::remove_cv<typename ::boost::remove_reference<T>::type>::type))(v);
+//    return (const BOOST_THREAD_RV_REF(typename ::mars_boost::remove_cv<typename ::mars_boost::remove_reference<T>::type>::type))(v);
 //  }
 }
 }
@@ -228,38 +226,38 @@ namespace detail
 #if defined BOOST_THREAD_USES_MOVE
 
 #define BOOST_THREAD_MOVABLE(TYPE) \
-    ::boost::rv<TYPE>& move()  BOOST_NOEXCEPT \
+    ::mars_boost::rv<TYPE>& move()  BOOST_NOEXCEPT \
     { \
-      return *static_cast< ::boost::rv<TYPE>* >(this); \
+      return *static_cast< ::mars_boost::rv<TYPE>* >(this); \
     } \
-    const ::boost::rv<TYPE>& move() const BOOST_NOEXCEPT \
+    const ::mars_boost::rv<TYPE>& move() const BOOST_NOEXCEPT \
     { \
-      return *static_cast<const ::boost::rv<TYPE>* >(this); \
+      return *static_cast<const ::mars_boost::rv<TYPE>* >(this); \
     } \
-    operator ::boost::rv<TYPE>&() \
+    operator ::mars_boost::rv<TYPE>&() \
     { \
-      return *static_cast< ::boost::rv<TYPE>* >(this); \
+      return *static_cast< ::mars_boost::rv<TYPE>* >(this); \
     } \
-    operator const ::boost::rv<TYPE>&() const \
+    operator const ::mars_boost::rv<TYPE>&() const \
     { \
-      return *static_cast<const ::boost::rv<TYPE>* >(this); \
+      return *static_cast<const ::mars_boost::rv<TYPE>* >(this); \
     }\
 
 #define BOOST_THREAD_COPYABLE(TYPE) \
   TYPE& operator=(TYPE &t)\
-  {  this->operator=(static_cast<const ::boost::rv<TYPE> &>(const_cast<const TYPE &>(t))); return *this;}
+  {  this->operator=(static_cast<const ::mars_boost::rv<TYPE> &>(const_cast<const TYPE &>(t))); return *this;}
 
 
 #else
 
 #define BOOST_THREAD_MOVABLE(TYPE) \
-    operator ::boost::detail::thread_move_t<TYPE>() BOOST_NOEXCEPT \
+    operator ::mars_boost::detail::thread_move_t<TYPE>() BOOST_NOEXCEPT \
     { \
         return move(); \
     } \
-    ::boost::detail::thread_move_t<TYPE> move() BOOST_NOEXCEPT \
+    ::mars_boost::detail::thread_move_t<TYPE> move() BOOST_NOEXCEPT \
     { \
-      ::boost::detail::thread_move_t<TYPE> x(*this); \
+      ::mars_boost::detail::thread_move_t<TYPE> x(*this); \
         return x; \
     } \
 
@@ -289,23 +287,23 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #elif defined BOOST_THREAD_USES_MOVE
     template <class T>
     struct is_rv
-       : ::boost::move_detail::is_rv<T>
+       : ::mars_boost::move_detail::is_rv<T>
     {};
 
 #else
     template <class T>
     struct is_rv
-       : ::boost::integral_constant<bool, false>
+       : ::mars_boost::integral_constant<bool, false>
     {};
 
     template <class T>
-    struct is_rv< ::boost::detail::thread_move_t<T> >
-       : ::boost::integral_constant<bool, true>
+    struct is_rv< ::mars_boost::detail::thread_move_t<T> >
+       : ::mars_boost::integral_constant<bool, true>
     {};
 
     template <class T>
-    struct is_rv< const ::boost::detail::thread_move_t<T> >
-       : ::boost::integral_constant<bool, true>
+    struct is_rv< const ::mars_boost::detail::thread_move_t<T> >
+       : ::mars_boost::integral_constant<bool, true>
     {};
 #endif
 
@@ -352,12 +350,19 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 #endif
 
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-      template <class T>
-      typename decay<T>::type
-      decay_copy(T&& t)
-      {
-          return mars_boost::forward<T>(t);
-      }
+  template <class T>
+  typename decay<T>::type
+  decay_copy(T&& t)
+  {
+      return mars_boost::forward<T>(t);
+  }
+  typedef void (*void_fct_ptr)();
+
+//  inline void_fct_ptr
+//  decay_copy(void (&t)())
+//  {
+//      return &t;
+//  }
 #else
   template <class T>
   typename decay<T>::type

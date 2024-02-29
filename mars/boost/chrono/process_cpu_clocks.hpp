@@ -16,13 +16,13 @@
 
 #if defined(BOOST_CHRONO_HAS_PROCESS_CLOCKS)
 
+#include <boost/chrono/clock_string.hpp>
+#include <boost/chrono/detail/system.hpp>
 #include <boost/chrono/duration.hpp>
 #include <boost/chrono/time_point.hpp>
 #include <boost/operators.hpp>
-#include <boost/chrono/detail/system.hpp>
-#include <iostream>
 #include <boost/type_traits/common_type.hpp>
-#include <boost/chrono/clock_string.hpp>
+#include <iosfwd>
 
 #ifndef BOOST_CHRONO_HEADER_ONLY
 #include <boost/config/abi_prefix.hpp> // must be the last #include
@@ -193,7 +193,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
                 typedef std::istreambuf_iterator<CharT, Traits> in_iterator;
                 in_iterator i(is);
                 in_iterator e;
-                if (i == e || *i != '{')  // mandatory '{'
+                if (i == e || *i++ != '{')  // mandatory '{'
                 {
                     is.setstate(is.failbit | is.eofbit);
                     return;
@@ -244,7 +244,8 @@ namespace chrono
         const duration<process_times<Rep2>, Period2>& rhs)
   {
       return mars_boost::chrono::detail::duration_eq<
-          duration<process_times<Rep1>, Period1>, duration<process_times<Rep2>, Period2> >()(lhs, rhs);
+          duration<Rep1, Period1>, duration<Rep2, Period2>
+        >()(duration<Rep1, Period1>(lhs.count().real), duration<Rep2, Period2>(rhs.count().real));
   }
 
   template <class Rep1, class Period1, class Rep2, class Period2>
@@ -285,7 +286,8 @@ namespace chrono
   operator< (const duration<Rep1, Period1>& lhs,
         const duration<process_times<Rep2>, Period2>& rhs)
   {
-    return rhs < lhs;
+      return mars_boost::chrono::detail::duration_lt<
+        duration<Rep1, Period1>, duration<Rep2, Period2> >()(lhs, duration<Rep2, Period2>(rhs.count().real));
   }
 
   template <class Rep1, class Period1, class Rep2, class Period2>
@@ -295,7 +297,8 @@ namespace chrono
         const duration<process_times<Rep2>, Period2>& rhs)
   {
     return mars_boost::chrono::detail::duration_lt<
-      duration<Rep1, Period1>, duration<Rep2, Period2> >()(lhs, rhs);
+        duration<Rep1, Period1>, duration<Rep2, Period2>
+      >()(duration<Rep1, Period1>(lhs.count().real), duration<Rep2, Period2>(rhs.count().real));
   }
 
 
@@ -412,7 +415,7 @@ namespace chrono
       {
         static const CharT
             u[] =
-                { 'p', 'r', 'o', 'c', 'e', 's', 's', '_', 's', 'y', 's', 't', 't', 'e', 'm', '_', 'c', 'l', 'o', 'c', 'k' };
+                { 'p', 'r', 'o', 'c', 'e', 's', 's', '_', 's', 'y', 's', 't', 'e', 'm', '_', 'c', 'l', 'o', 'c', 'k' };
         static const std::basic_string<CharT> str(u, u + sizeof(u)
             / sizeof(u[0]));
         return str;
@@ -473,7 +476,7 @@ namespace std {
                       (std::numeric_limits<Rep>::max)(),
                       (std::numeric_limits<Rep>::max)());
         }
-        static Res lowest() throw()
+        static Res lowest() BOOST_NOEXCEPT_OR_NOTHROW
         {
             return (min)();
         }

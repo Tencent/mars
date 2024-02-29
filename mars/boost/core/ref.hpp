@@ -1,15 +1,14 @@
 #ifndef BOOST_CORE_REF_HPP
 #define BOOST_CORE_REF_HPP
 
-// MS compatible compilers support #pragma once
+#include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
+#include <boost/core/addressof.hpp>
+#include <boost/core/enable_if.hpp>
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(BOOST_HAS_PRAGMA_ONCE)
 # pragma once
 #endif
-
-#include <boost/config.hpp>
-#include <boost/utility/addressof.hpp>
-#include <boost/detail/workaround.hpp>
 
 //
 //  ref.hpp - ref/cref, useful helper functions
@@ -19,7 +18,8 @@
 //  Copyright (C) 2002 David Abrahams
 //
 //  Copyright (C) 2014 Glen Joseph Fernandes
-//  glenfe at live dot com
+//  (glenjofe@gmail.com)
+//
 //  Copyright (C) 2014 Agustin Berge
 //
 // Distributed under the Boost Software License, Version 1.0. (See
@@ -44,6 +44,28 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     struct ref_workaround_tag {};
 
 #endif
+
+namespace detail
+{
+
+template< class Y, class T > struct ref_convertible
+{
+    typedef char (&yes) [1];
+    typedef char (&no)  [2];
+
+    static yes f( T* );
+    static no  f( ... );
+
+    enum _vt { value = sizeof( (f)( static_cast<Y*>(0) ) ) == sizeof(yes) };
+};
+
+#if defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS)
+struct ref_empty
+{
+};
+#endif
+
+} // namespace detail
 
 // reference_wrapper
 
@@ -70,11 +92,11 @@ public:
 
      @remark Does not throw.
     */
-    BOOST_FORCEINLINE explicit reference_wrapper(T& t): t_(mars_boost::addressof(t)) {}
+    BOOST_FORCEINLINE explicit reference_wrapper(T& t) BOOST_NOEXCEPT : t_(mars_boost::addressof(t)) {}
 
 #if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, == 1600 )
 
-    BOOST_FORCEINLINE explicit reference_wrapper( T & t, ref_workaround_tag ): t_( mars_boost::addressof( t ) ) {}
+    BOOST_FORCEINLINE explicit reference_wrapper( T & t, ref_workaround_tag ) BOOST_NOEXCEPT : t_( mars_boost::addressof( t ) ) {}
 
 #endif
 
@@ -86,24 +108,46 @@ public:
 public:
 #endif
 
+    template<class Y> friend class reference_wrapper;
+
     /**
-     @return The stored reference.
+     Constructs a `reference_wrapper` object that stores the
+     reference stored in the compatible `reference_wrapper` `r`.
+
+     @remark Only enabled when `Y*` is convertible to `T*`.
      @remark Does not throw.
     */
-    BOOST_FORCEINLINE operator T& () const { return *t_; }
+#if !defined(BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS)
+    template<class Y, class = typename enable_if_c<mars_boost::detail::ref_convertible<Y, T>::value>::type>
+    reference_wrapper( reference_wrapper<Y> r ) BOOST_NOEXCEPT : t_( r.t_ )
+    {
+    }
+#else
+    template<class Y> reference_wrapper( reference_wrapper<Y> r,
+        typename enable_if_c<mars_boost::detail::ref_convertible<Y, T>::value,
+            mars_boost::detail::ref_empty>::type = mars_boost::detail::ref_empty() ) BOOST_NOEXCEPT : t_( r.t_ )
+    {
+    }
+#endif
 
     /**
      @return The stored reference.
      @remark Does not throw.
     */
-    BOOST_FORCEINLINE T& get() const { return *t_; }
+    BOOST_FORCEINLINE operator T& () const BOOST_NOEXCEPT { return *t_; }
+
+    /**
+     @return The stored reference.
+     @remark Does not throw.
+    */
+    BOOST_FORCEINLINE T& get() const BOOST_NOEXCEPT { return *t_; }
 
     /**
      @return A pointer to the object referenced by the stored
        reference.
      @remark Does not throw.
     */
-    BOOST_FORCEINLINE T* get_pointer() const { return t_; }
+    BOOST_FORCEINLINE T* get_pointer() const BOOST_NOEXCEPT { return t_; }
 
 private:
 
@@ -115,7 +159,7 @@ private:
 /**
  @cond
 */
-#if defined( __BORLANDC__ ) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x581) )
+#if defined( BOOST_BORLANDC ) && BOOST_WORKAROUND( BOOST_BORLANDC, BOOST_TESTED_AT(0x581) )
 #  define BOOST_REF_CONST
 #else
 #  define BOOST_REF_CONST const
@@ -128,7 +172,7 @@ private:
  @return `reference_wrapper<T>(t)`
  @remark Does not throw.
 */
-template<class T> BOOST_FORCEINLINE reference_wrapper<T> BOOST_REF_CONST ref( T & t )
+template<class T> BOOST_FORCEINLINE reference_wrapper<T> BOOST_REF_CONST ref( T & t ) BOOST_NOEXCEPT
 {
 #if defined( BOOST_MSVC ) && BOOST_WORKAROUND( BOOST_MSVC, == 1600 )
 
@@ -147,7 +191,7 @@ template<class T> BOOST_FORCEINLINE reference_wrapper<T> BOOST_REF_CONST ref( T 
  @return `reference_wrapper<T const>(t)`
  @remark Does not throw.
 */
-template<class T> BOOST_FORCEINLINE reference_wrapper<T const> BOOST_REF_CONST cref( T const & t )
+template<class T> BOOST_FORCEINLINE reference_wrapper<T const> BOOST_REF_CONST cref( T const & t ) BOOST_NOEXCEPT
 {
     return reference_wrapper<T const>(t);
 }
@@ -278,7 +322,7 @@ template<typename T> struct unwrap_reference< reference_wrapper<T> const volatil
  @return `unwrap_reference<T>::type&(t)`
  @remark Does not throw.
 */
-template<class T> BOOST_FORCEINLINE typename unwrap_reference<T>::type& unwrap_ref( T & t )
+template<class T> BOOST_FORCEINLINE typename unwrap_reference<T>::type& unwrap_ref( T & t ) BOOST_NOEXCEPT
 {
     return t;
 }
@@ -288,7 +332,7 @@ template<class T> BOOST_FORCEINLINE typename unwrap_reference<T>::type& unwrap_r
 /**
  @cond
 */
-template<class T> BOOST_FORCEINLINE T* get_pointer( reference_wrapper<T> const & r )
+template<class T> BOOST_FORCEINLINE T* get_pointer( reference_wrapper<T> const & r ) BOOST_NOEXCEPT
 {
     return r.get_pointer();
 }

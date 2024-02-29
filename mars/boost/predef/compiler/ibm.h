@@ -8,28 +8,29 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_PREDEF_COMPILER_IBM_H
 #define BOOST_PREDEF_COMPILER_IBM_H
 
-#include <boost/predef/version_number.h>
 #include <boost/predef/make.h>
+#include <boost/predef/version_number.h>
 
-/*`
-[heading `BOOST_COMP_IBM`]
+/* tag::reference[]
+= `BOOST_COMP_IBM`
 
-[@http://en.wikipedia.org/wiki/VisualAge IBM XL C/C++] compiler.
+http://en.wikipedia.org/wiki/VisualAge[IBM XL C/{CPP}] compiler.
 Version number available as major, minor, and patch.
 
-[table
-    [[__predef_symbol__] [__predef_version__]]
+[options="header"]
+|===
+| {predef_symbol} | {predef_version}
 
-    [[`__IBMCPP__`] [__predef_detection__]]
-    [[`__xlC__`] [__predef_detection__]]
-    [[`__xlc__`] [__predef_detection__]]
+| `+__IBMCPP__+` | {predef_detection}
+| `+__xlC__+` | {predef_detection}
+| `+__xlc__+` | {predef_detection}
 
-    [[`__COMPILER_VER__`] [V.R.P]]
-    [[`__xlC__`] [V.R.P]]
-    [[`__xlc__`] [V.R.P]]
-    [[`__IBMCPP__`] [V.R.P]]
-    ]
- */
+| `+__COMPILER_VER__+` | V.R.P
+| `+__xlC__+` | V.R.P
+| `+__xlc__+` | V.R.P
+| `+__IBMCPP__+` | V.R.P
+|===
+*/ // end::reference[]
 
 #define BOOST_COMP_IBM BOOST_VERSION_NUMBER_NOT_AVAILABLE
 

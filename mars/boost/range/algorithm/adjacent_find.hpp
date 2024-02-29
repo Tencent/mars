@@ -9,13 +9,13 @@
 #ifndef BOOST_RANGE_ALGORITHM_ADJACENT_FIND_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_ADJACENT_FIND_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
-#include <boost/range/value_type.hpp>
 #include <boost/range/detail/range_return.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
+#include <boost/range/value_type.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -120,6 +120,6 @@ adjacent_find(const ForwardRange& rng, BinaryPredicate pred)
 
     } // namespace range
     using range::adjacent_find;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

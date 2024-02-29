@@ -8,7 +8,7 @@
 #ifndef BOOST_IOSTREAMS_WRITE_HPP_INCLUDED
 #define BOOST_IOSTREAMS_WRITE_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif
 
@@ -26,10 +26,6 @@
 
 // Must come last.
 #include <boost/iostreams/detail/config/disable_warnings.hpp>
-
-#if BOOST_WORKAROUND(BOOST_MSVC, < 1300) //-----------------------------------//
-# include <boost/iostreams/detail/vc6/write.hpp>
-#else // #if BOOST_WORKAROUND(BOOST_MSVC, < 1300) //--------------------------//
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace iostreams {
 
@@ -163,8 +159,6 @@ struct write_filter_impl<any_tag> {
 } // End namespace detail.
 
 } } // End namespaces iostreams, boost.
-
-#endif // #if BOOST_WORKAROUND(BOOST_MSVC, < 1300) //-------------------------//
 
 #include <boost/iostreams/detail/config/enable_warnings.hpp>
 

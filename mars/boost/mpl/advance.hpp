@@ -15,17 +15,17 @@
 // $Revision$
 
 #include <boost/mpl/advance_fwd.hpp>
-#include <boost/mpl/less.hpp>
-#include <boost/mpl/negate.hpp>
-#include <boost/mpl/long.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/tag.hpp>
 #include <boost/mpl/apply_wrap.hpp>
-#include <boost/mpl/aux_/advance_forward.hpp>
 #include <boost/mpl/aux_/advance_backward.hpp>
-#include <boost/mpl/aux_/value_wknd.hpp>
+#include <boost/mpl/aux_/advance_forward.hpp>
 #include <boost/mpl/aux_/na_spec.hpp>
 #include <boost/mpl/aux_/nttp_decl.hpp>
+#include <boost/mpl/aux_/value_wknd.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/less.hpp>
+#include <boost/mpl/long.hpp>
+#include <boost/mpl/negate.hpp>
+#include <boost/mpl/tag.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

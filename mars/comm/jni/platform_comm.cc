@@ -24,13 +24,11 @@
 #include <sys/types.h>
 #endif
 
-#include "../xlogger/xlogger.h"
 #include "mars/boost/bind.hpp"
 #include "mars/boost/ref.hpp"
-#include "mars/comm/coroutine/coro_async.h"
-#include "mars/comm/coroutine/coroutine.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/time_utils.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "util/comm_function.h"
 #include "util/scope_jenv.h"
 #include "util/scoped_jstring.h"
@@ -130,9 +128,6 @@ bool startAlarm(int type, int64_t id, int after) {
     CALL_NATIVE_CALLBACK_RETURN_FUN(startAlarm(type, id, after), false);
 #endif
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&startAlarm, type, id, after));
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
@@ -152,9 +147,6 @@ bool stopAlarm(int64_t id) {
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(stopAlarm(id), false);
 #endif
-
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&stopAlarm, id));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -178,9 +170,6 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(getProxyInfo(port, strProxy, _host), false);
 #endif
-
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getProxyInfo, boost::ref(port), boost::ref(strProxy), _host));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -243,9 +232,6 @@ int getNetInfo(bool realtime /*=false*/) {
     if (!realtime && g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
         return g_NetInfo;
     }
-
-    // if (coroutine::isCoroutine())
-    //     return coroutine::MessageInvoke(&getNetInfo);
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -358,9 +344,6 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
         return true;
     }
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurWifiInfo, boost::ref(wifiInfo), _force_refresh));
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
@@ -409,9 +392,6 @@ bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
         simInfo = g_sim_info;
         return true;
     }
-
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getCurSIMInfo, boost::ref(simInfo), realtime));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -475,9 +455,6 @@ bool getAPNInfo(APNInfo& info) {
         return true;
     }
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getAPNInfo, boost::ref(info)));
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
@@ -528,9 +505,6 @@ unsigned int getSignal(bool isWifi) {
     CALL_NATIVE_CALLBACK_RETURN_FUN(getSignal(isWifi), 0);
 #endif
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&getSignal, isWifi));
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
 
@@ -550,9 +524,6 @@ bool isNetworkConnected() {
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(isNetworkConnected(), false);
 #endif
-
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(&isNetworkConnected);
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -581,9 +552,6 @@ void* wakeupLock_new() {
     CALL_NATIVE_CALLBACK_RETURN_FUN(wakeupLock_new(), nullptr);
 #endif
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(&wakeupLock_new);
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
@@ -610,9 +578,6 @@ void wakeupLock_delete(void* _object) {
     if (NULL == _object)
         return;
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_delete, _object));
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
@@ -626,9 +591,6 @@ void wakeupLock_Lock(void* _object) {
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_Lock(_object));
 #endif
-
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_Lock, _object));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
@@ -645,9 +607,6 @@ void wakeupLock_Lock_Timeout(void* _object, int64_t _timeout) {
     CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_Lock_Timeout(_object, _timeout));
 #endif
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_Lock_Timeout, _object, _timeout));
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
@@ -662,9 +621,6 @@ void wakeupLock_Unlock(void* _object) {
     CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_Unlock(_object));
 #endif
 
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_Unlock, _object));
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
@@ -677,9 +633,6 @@ bool wakeupLock_IsLocking(void* _object) {
 #ifdef NATIVE_CALLBACK
     CALL_NATIVE_CALLBACK_RETURN_FUN(wakeupLock_IsLocking(_object), false);
 #endif
-
-    if (coroutine::isCoroutine())
-        return coroutine::MessageInvoke(boost::bind(&wakeupLock_IsLocking, _object));
 
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());

@@ -14,13 +14,13 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/value_wknd.hpp>
-#include <boost/mpl/aux_/static_cast.hpp>
-#include <boost/mpl/aux_/na_spec.hpp>
-#include <boost/mpl/aux_/lambda_support.hpp>
-#include <boost/mpl/aux_/config/integral.hpp>
 #include <boost/mpl/aux_/config/ctps.hpp>
+#include <boost/mpl/aux_/config/integral.hpp>
 #include <boost/mpl/aux_/config/workaround.hpp>
+#include <boost/mpl/aux_/lambda_support.hpp>
+#include <boost/mpl/aux_/na_spec.hpp>
+#include <boost/mpl/aux_/static_cast.hpp>
+#include <boost/mpl/aux_/value_wknd.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 
@@ -46,7 +46,7 @@ struct if_c<false,T1,T2>
 };
 
 // agurt, 05/sep/04: nondescriptive parameter names for the sake of DigitalMars
-// (and possibly MWCW < 8.0); see http://article.gmane.org/gmane.comp.lib.boost.devel/108959
+// (and possibly MWCW < 8.0); see https://lists.boost.org/Archives/boost/2004/09/71383.php
 template<
       typename BOOST_MPL_AUX_NA_PARAM(T1)
     , typename BOOST_MPL_AUX_NA_PARAM(T2)

@@ -17,7 +17,8 @@
 
 */
 
-#include "boost/operators.hpp"
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/operators.hpp>
 
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
@@ -48,7 +49,7 @@ namespace date_time {
 
    */
   template<class point_rep, class duration_rep>
-  class period : private
+  class BOOST_SYMBOL_VISIBLE period : private
       mars_boost::less_than_comparable<period<point_rep, duration_rep> 
     , mars_boost::equality_comparable< period<point_rep, duration_rep> 
     > >
@@ -57,26 +58,26 @@ namespace date_time {
     typedef point_rep point_type;
     typedef duration_rep duration_type;
 
-    period(point_rep first_point, point_rep end_point);
-    period(point_rep first_point, duration_rep len);
-    point_rep begin() const;
-    point_rep end() const;
-    point_rep last() const;
-    duration_rep length() const;
-    bool is_null() const;
-    bool operator==(const period& rhs) const;
-    bool operator<(const period& rhs) const;
-    void shift(const duration_rep& d);
-    void expand(const duration_rep& d);
-    bool contains(const point_rep& point) const;
-    bool contains(const period& other) const;
-    bool intersects(const period& other) const;
-    bool is_adjacent(const period& other) const;
-    bool is_before(const point_rep& point) const;
-    bool is_after(const point_rep& point) const;
-    period intersection(const period& other) const;
-    period merge(const period& other) const;
-    period span(const period& other) const;
+    BOOST_CXX14_CONSTEXPR period(point_rep first_point, point_rep end_point);
+    BOOST_CXX14_CONSTEXPR period(point_rep first_point, duration_rep len);
+    BOOST_CXX14_CONSTEXPR point_rep begin() const;
+    BOOST_CXX14_CONSTEXPR point_rep end() const;
+    BOOST_CXX14_CONSTEXPR point_rep last() const;
+    BOOST_CXX14_CONSTEXPR duration_rep length() const;
+    BOOST_CXX14_CONSTEXPR bool is_null() const;
+    BOOST_CXX14_CONSTEXPR bool operator==(const period& rhs) const;
+    BOOST_CXX14_CONSTEXPR bool operator<(const period& rhs) const;
+    BOOST_CXX14_CONSTEXPR void shift(const duration_rep& d);
+    BOOST_CXX14_CONSTEXPR void expand(const duration_rep& d);
+    BOOST_CXX14_CONSTEXPR bool contains(const point_rep& point) const;
+    BOOST_CXX14_CONSTEXPR bool contains(const period& other) const;
+    BOOST_CXX14_CONSTEXPR bool intersects(const period& other) const;
+    BOOST_CXX14_CONSTEXPR bool is_adjacent(const period& other) const;
+    BOOST_CXX14_CONSTEXPR bool is_before(const point_rep& point) const;
+    BOOST_CXX14_CONSTEXPR bool is_after(const point_rep& point) const;
+    BOOST_CXX14_CONSTEXPR period intersection(const period& other) const;
+    BOOST_CXX14_CONSTEXPR period merge(const period& other) const;
+    BOOST_CXX14_CONSTEXPR period span(const period& other) const;
   private:
     point_rep begin_;
     point_rep last_;
@@ -86,7 +87,7 @@ namespace date_time {
   /*! If end <= begin then the period will be invalid
    */
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   period<point_rep,duration_rep>::period(point_rep first_point, 
                                          point_rep end_point) : 
     begin_(first_point), 
@@ -97,7 +98,7 @@ namespace date_time {
   /*! If len is <= 0 then the period will be invalid
    */
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   period<point_rep,duration_rep>::period(point_rep first_point, duration_rep len) :
     begin_(first_point), 
     last_(first_point + len-duration_rep::unit())
@@ -106,7 +107,7 @@ namespace date_time {
 
   //! Return the first element in the period
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   point_rep period<point_rep,duration_rep>::begin() const 
   {
     return begin_;
@@ -114,7 +115,7 @@ namespace date_time {
 
   //! Return one past the last element 
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   point_rep period<point_rep,duration_rep>::end() const 
   {
     return last_ + duration_rep::unit();
@@ -122,7 +123,7 @@ namespace date_time {
 
   //! Return the last item in the period
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   point_rep period<point_rep,duration_rep>::last() const 
   {
     return last_;
@@ -130,7 +131,7 @@ namespace date_time {
 
   //! True if period is ill formed (length is zero or less)
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   bool period<point_rep,duration_rep>::is_null() const 
   {
     return end() <= begin_;
@@ -138,7 +139,7 @@ namespace date_time {
 
   //! Return the length of the period
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   duration_rep period<point_rep,duration_rep>::length() const
   {
     if(last_ < begin_){ // invalid period
@@ -151,7 +152,7 @@ namespace date_time {
 
   //! Equality operator
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   bool period<point_rep,duration_rep>::operator==(const period& rhs) const 
   {
     return  ((begin_ == rhs.begin_) && 
@@ -160,7 +161,7 @@ namespace date_time {
 
   //! Strict as defined by rhs.last <= lhs.last
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   bool period<point_rep,duration_rep>::operator<(const period& rhs) const 
   {
     return (last_ < rhs.begin_);
@@ -169,7 +170,7 @@ namespace date_time {
 
   //! Shift the start and end by the specified amount
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   void period<point_rep,duration_rep>::shift(const duration_rep& d)
   {
     begin_ = begin_ + d;
@@ -196,7 +197,7 @@ namespace date_time {
    *@endcode
    */
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   void period<point_rep,duration_rep>::expand(const duration_rep& d)
   {
     begin_ = begin_ - d;
@@ -205,7 +206,7 @@ namespace date_time {
 
   //! True if the point is inside the period, zero length periods contain no points
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   bool period<point_rep,duration_rep>::contains(const point_rep& point) const 
   {
     return ((point >= begin_) &&
@@ -215,7 +216,7 @@ namespace date_time {
 
   //! True if this period fully contains (or equals) the other period
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   bool period<point_rep,duration_rep>::contains(const period<point_rep,duration_rep>& other) const
   {
     return ((begin_ <= other.begin_) && (last_ >= other.last_));
@@ -232,9 +233,8 @@ namespace date_time {
    *@endcode
    */
   template<class point_rep, class duration_rep>
-  inline
-  bool 
-  period<point_rep,duration_rep>::is_adjacent(const period<point_rep,duration_rep>& other) const 
+  inline BOOST_CXX14_CONSTEXPR
+  bool period<point_rep,duration_rep>::is_adjacent(const period<point_rep,duration_rep>& other) const
   {
     return (other.begin() == end() ||
             begin_ == other.end());
@@ -251,9 +251,8 @@ namespace date_time {
    *@endcode
    */
   template<class point_rep, class duration_rep>
-  inline
-  bool 
-  period<point_rep,duration_rep>::is_after(const point_rep& t) const 
+  inline BOOST_CXX14_CONSTEXPR
+  bool period<point_rep,duration_rep>::is_after(const point_rep& t) const
   { 
     if (is_null()) 
     {
@@ -273,9 +272,8 @@ namespace date_time {
    *@endcode
    */
   template<class point_rep, class duration_rep>
-  inline
-  bool 
-  period<point_rep,duration_rep>::is_before(const point_rep& t) const 
+  inline BOOST_CXX14_CONSTEXPR
+  bool period<point_rep,duration_rep>::is_before(const point_rep& t) const
   { 
     if (is_null()) 
     {
@@ -298,8 +296,8 @@ namespace date_time {
    *@endcode
    */
   template<class point_rep, class duration_rep>
-  inline
-  bool period<point_rep,duration_rep>::intersects(const period<point_rep,duration_rep>& other) const 
+  inline BOOST_CXX14_CONSTEXPR
+  bool period<point_rep,duration_rep>::intersects(const period<point_rep,duration_rep>& other) const
   { 
     return ( contains(other.begin_) ||
              other.contains(begin_) ||
@@ -308,7 +306,7 @@ namespace date_time {
 
   //! Returns the period of intersection or invalid range no intersection
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   period<point_rep,duration_rep>
   period<point_rep,duration_rep>::intersection(const period<point_rep,duration_rep>& other) const 
   {
@@ -333,7 +331,7 @@ namespace date_time {
   /*! 
    */
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   period<point_rep,duration_rep>
   period<point_rep,duration_rep>::merge(const period<point_rep,duration_rep>& other) const 
   {
@@ -360,7 +358,7 @@ namespace date_time {
    *@endcode
    */
   template<class point_rep, class duration_rep>
-  inline
+  inline BOOST_CXX14_CONSTEXPR
   period<point_rep,duration_rep>
   period<point_rep,duration_rep>::span(const period<point_rep,duration_rep>& other) const 
   {

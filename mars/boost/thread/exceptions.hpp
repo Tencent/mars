@@ -17,10 +17,10 @@
 //       given the include guards, but regardless it makes sense to
 //       seperate this out any way.
 
-#include <string>
-#include <stdexcept>
-#include <boost/system/system_error.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/system/system_error.hpp>
+#include <stdexcept>
+#include <string>
 
 
 #include <boost/config/abi_prefix.hpp>
@@ -40,23 +40,23 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef system::system_error base_type;
     public:
         thread_exception()
-          : base_type(0,system::system_category())
+          : base_type(0,system::generic_category())
         {}
 
         thread_exception(int sys_error_code)
-          : base_type(sys_error_code, system::system_category())
+          : base_type(sys_error_code, system::generic_category())
         {}
 
         thread_exception( int ev, const char * what_arg )
-        : base_type(system::error_code(ev, system::system_category()), what_arg)
+        : base_type(system::error_code(ev, system::generic_category()), what_arg)
         {
         }
         thread_exception( int ev, const std::string & what_arg )
-        : base_type(system::error_code(ev, system::system_category()), what_arg)
+        : base_type(system::error_code(ev, system::generic_category()), what_arg)
         {
         }
 
-        ~thread_exception() throw()
+        ~thread_exception() BOOST_NOEXCEPT_OR_NOTHROW
         {}
 
 
@@ -74,18 +74,18 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef system::system_error base_type;
     public:
           condition_error()
-          : base_type(system::error_code(0, system::system_category()), "Condition error")
+          : base_type(system::error_code(0, system::generic_category()), "Condition error")
           {}
           condition_error( int ev )
-          : base_type(system::error_code(ev, system::system_category()), "Condition error")
+          : base_type(system::error_code(ev, system::generic_category()), "Condition error")
           {
           }
           condition_error( int ev, const char * what_arg )
-          : base_type(system::error_code(ev, system::system_category()), what_arg)
+          : base_type(system::error_code(ev, system::generic_category()), what_arg)
           {
           }
           condition_error( int ev, const std::string & what_arg )
-          : base_type(system::error_code(ev, system::system_category()), what_arg)
+          : base_type(system::error_code(ev, system::generic_category()), what_arg)
           {
           }
     };
@@ -97,11 +97,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef thread_exception base_type;
     public:
         lock_error()
-        : base_type(0, "boost::lock_error")
+        : base_type(0, "mars_boost::lock_error")
         {}
 
         lock_error( int ev )
-        : base_type(ev, "boost::lock_error")
+        : base_type(ev, "mars_boost::lock_error")
         {
         }
         lock_error( int ev, const char * what_arg )
@@ -113,7 +113,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         {
         }
 
-        ~lock_error() throw()
+        ~lock_error() BOOST_NOEXCEPT_OR_NOTHROW
         {}
 
     };
@@ -124,11 +124,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef thread_exception base_type;
     public:
           thread_resource_error()
-          : base_type(static_cast<int>(system::errc::resource_unavailable_try_again), "boost::thread_resource_error")
+          : base_type(static_cast<int>(system::errc::resource_unavailable_try_again), "mars_boost::thread_resource_error")
           {}
 
           thread_resource_error( int ev )
-          : base_type(ev, "boost::thread_resource_error")
+          : base_type(ev, "mars_boost::thread_resource_error")
           {
           }
           thread_resource_error( int ev, const char * what_arg )
@@ -141,7 +141,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           }
 
 
-        ~thread_resource_error() throw()
+        ~thread_resource_error() BOOST_NOEXCEPT_OR_NOTHROW
         {}
 
     };
@@ -152,11 +152,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef thread_exception base_type;
     public:
           unsupported_thread_option()
-          : base_type(static_cast<int>(system::errc::invalid_argument), "boost::unsupported_thread_option")
+          : base_type(static_cast<int>(system::errc::invalid_argument), "mars_boost::unsupported_thread_option")
           {}
 
           unsupported_thread_option( int ev )
-          : base_type(ev, "boost::unsupported_thread_option")
+          : base_type(ev, "mars_boost::unsupported_thread_option")
           {
           }
           unsupported_thread_option( int ev, const char * what_arg )
@@ -176,11 +176,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef thread_exception base_type;
     public:
         invalid_thread_argument()
-        : base_type(static_cast<int>(system::errc::invalid_argument), "boost::invalid_thread_argument")
+        : base_type(static_cast<int>(system::errc::invalid_argument), "mars_boost::invalid_thread_argument")
         {}
 
         invalid_thread_argument( int ev )
-        : base_type(ev, "boost::invalid_thread_argument")
+        : base_type(ev, "mars_boost::invalid_thread_argument")
         {
         }
         invalid_thread_argument( int ev, const char * what_arg )
@@ -200,11 +200,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
           typedef thread_exception base_type;
     public:
           thread_permission_error()
-          : base_type(static_cast<int>(system::errc::permission_denied), "boost::thread_permission_error")
+          : base_type(static_cast<int>(system::errc::permission_denied), "mars_boost::thread_permission_error")
           {}
 
           thread_permission_error( int ev )
-          : base_type(ev, "boost::thread_permission_error")
+          : base_type(ev, "mars_boost::thread_permission_error")
           {
           }
           thread_permission_error( int ev, const char * what_arg )
@@ -218,7 +218,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
     };
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #include <boost/config/abi_suffix.hpp>
 

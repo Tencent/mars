@@ -1,0 +1,222 @@
+<html>
+
+<head>
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Filesystem issue reporting</title>
+<link href="styles.css" rel="stylesheet">
+</head>
+
+<body>
+
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+  <tr>
+    <td width="277">
+<a href="../../../index.htm">
+<img src="../../../boost.png" alt="boost.png (6897 bytes)" align="middle" width="300" height="86" border="0"></a></td>
+    <td align="middle">
+    <font size="7">Filesystem Bug Reporting</font>
+    </td>
+  </tr>
+</table>
+
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse"
+ bordercolor="#111111" bgcolor="#D7EEFF" width="100%">
+  <tr>
+    <td><a href="index.htm">Home</a> &nbsp;&nbsp;
+    <a href="tutorial.html">Tutorial</a> &nbsp;&nbsp;
+    <a href="reference.html">Reference</a> &nbsp;&nbsp;
+    <a href="faq.htm">FAQ</a> &nbsp;&nbsp;
+    <a href="release_history.html">Releases</a> &nbsp;&nbsp;
+    <a href="portability_guide.htm">Portability</a> &nbsp;&nbsp;
+    <a href="v4.html">V4</a> &nbsp;&nbsp;
+    <a href="v3.html">V3 Intro</a> &nbsp;&nbsp;
+    <a href="v3_design.html">V3 Design</a> &nbsp;&nbsp;
+    <a href="deprecated.html">Deprecated</a> &nbsp;&nbsp;
+    <a href="issue_reporting.html">Bug Reports </a>&nbsp;&nbsp;
+    </td>
+</table>
+
+<p>Boost.Filesystem issues such as bug reports or feature requests should be
+reported via a <a href="https://github.com/boostorg/filesystem/issues/new">GitHub ticket</a>.</p>
+<p><a href="https://github.com/boostorg/filesystem/pulls">GitHub pull requests</a>
+are encouraged, too, although anything beyond really trivial fixes needs a
+ticket.</p>
+<h3>Bug reports</h3>
+<p>A timely response to your bug report is much more likely if <b>the problem can
+be immediately reproduced without guesswork and regression tests can be easily
+created</b>. </p>
+<p>You need to provide the following:</p>
+<ol>
+  <li>A simple test program
+that:<ul>
+    <li>Illustrates the problem, and</li>
+    <li>Automatically yields an unambiguous pass or fail result - returning zero
+    for pass and non-zero for fail is preferred, and </li>
+    <li>Can be used as the basis for adding tests to Boost.Filesystem&#39;s
+    regression test suite.</li>
+  </ul>
+  </li>
+  <li>The compiler, standard library, platform, and Boost version you
+  used to build and run your test program.</li>
+  <li>A description of how to build and run the test program.
+  </li>
+  <li>A copy of the output from the test
+  program, if any.</li>
+  <li>An email address for follow-up questions.</li>
+</ol>
+<p>See <a href="#Rationale">Rationale</a> to find out why the above is needed.</p>
+<p>For a mostly automatic framework to provide the above, read on!</p>
+<h3>Bug reporting framework</h3>
+<p>The directory <code>&lt;boost-root&gt;/libs/filesystem/bug&gt;</code> provides a bug test program (<code><a href="#bug-cpp">bug.cpp</a></code>)
+and a build file (<code>Jamfile.v2</code>). Here is what you need to do:</p>
+<ol>
+  <li>Add one or more test cases to <code><a href="#bug-cpp">bug.cpp</a></code>
+  using any text or program editor.</li>
+  <li><a href="#Build-and-test">Build and test</a>.</li>
+  <li>Attach copies of the <a href="#Test-output">Test output</a> and test
+  program to the <a href="https://svn.boost.org/trac/boost/newticket">Trac
+  ticket</a>.</li>
+</ol>
+<p>That&#39;s it! When you complete those steps, you will be done!</p>
+<p>The test output supplies all of the basic information about the compiler, std
+library, platform, Boost version, and command line, and the test cases you have
+added should make it easy for the library maintainer to reproduce the problem. </p>
+<h3>Using the framework</h3>
+<h4><a name="bug-cpp"><code>bug.cpp</code></a></h4>
+<p>Here is <code>bug.cpp</code> as supplied. To report a real bug, use
+<code>BOOST_TEST</code> and <code>BOOST_TEST_EQ</code> macros to build your own
+test cases. You can delete the three tests already in <code>bug.cpp</code>:</p>
+<blockquote>
+  <pre>#include &lt;boost/detail/lightweight_test_report.hpp&gt;
+#include &lt;boost/filesystem.hpp&gt;
+
+namespace fs = boost::filesystem;
+
+int test_main(int, char*[])     // note name
+{
+  BOOST_TEST(2 + 2 == 5);       // one convertible-to-bool argument; this one fails!
+  BOOST_TEST_EQ(4 + 4, 9);      // two EqualityComparible arguments; this one fails!
+  BOOST_TEST(fs::exists("."));  // should pass, so nothing should be reported
+
+  return ::boost::report_errors();   // required
+}
+</pre>
+</blockquote>
+<h4><a name="Build-and-test">Build and test</a></h4>
+
+
+<p>POSIX-like systems:</p>
+
+
+<blockquote>
+  <pre>cd &lt;boost-root&gt;/libs/filesystem/bug
+../../../b2 -a
+bin/bug</pre>
+</blockquote>
+<p>Windows:</p>
+<blockquote>
+  <pre>cd &lt;boost-root&gt;\libs\filesystem\bug
+..\..\..\b2 -a
+bin\bug</pre>
+</blockquote>
+<h4><a name="Test-output">Test output</a></h4>
+
+
+<p>Running the test on Windows produced this test output:</p>
+
+
+<blockquote>
+
+
+<pre>Microsoft Visual C++ version 14.0
+Dinkumware standard library version 610
+Win32
+Boost version 1.58.0
+Command line: bin\bug
+bug.cpp(10): test '2 + 2 == 5' failed in function
+  'int __cdecl test_main(int,char *[])'
+bug.cpp(11): test '4 + 4 == 9' failed in function
+  'int __cdecl test_main(int,char *[])': '8' != '9'
+2 errors detected.</pre>
+</blockquote>
+<p>The test framework runs <code>test_main()</code> from a <code>try</code>
+block with a <code>catch</code> block that reports exceptions via <code>
+std::exception what()</code>. So the output will differ if an exception is
+thrown.</p>
+<h2>Background information</h2>
+<p>You should now have enough information to file an easy-to-reproduce bug
+report. So you can skip reading the rest of this page unless you need to do
+something a bit out of the ordinary.</p>
+<h3><a name="b2-command-line-options"><code>b2</code> command line</a></h3>
+<p><code>b2</code> (formerly <code>bjam</code>) usage:&nbsp; <code>b2
+[options] [properties] [target]</code></p>
+<p>Boost.Build b2 has many options, properties, and targets, but you will not
+need most of them for bug reporting. Here are a few you might find helpful:</p>
+<p><b>Options</b></p>
+<blockquote>
+  <p><code>-a</code>&nbsp;&nbsp;&nbsp; Rebuild everything rather than
+  just out-of-date targets. Used in the example build above to ensure libraries
+  are built with the same setup as the test program.</p>
+</blockquote>
+<p><b>Properties</b></p>
+<blockquote>
+  <p><code>address-model=<i>n&nbsp; n</i></code> is 32 or 64.
+  Explicitly request either 32-bit or 64-bit code generation. This typically
+  requires that your compiler is appropriately configured.</p>
+  <p><code>variant=</code><i>string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string </i>is
+  <code>debug</code> or <code>release</code>.</p>
+  <p><code>toolset=</code><i>string</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The C++
+  compiler to use. For example, <code>gcc-4.9</code>, <code>clang-3.3</code>,
+  <code>or msvc-14.0</code>.</p>
+  <p><code>include=</code><i>string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </i>
+  Additional include paths for C and C++ compilers.</p>
+  <p><code>cxxflags=</code><i>string&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </i>
+  Custom options to pass to the C++ compiler.</p>
+  <p><code>define=</code><i>string</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  Additional macro definitions for C and C++ compilers. <i>string</i> should be
+  either <code class="computeroutput">SYMBOL</code> or
+  <code class="computeroutput">SYMBOL=VALUE</code></p>
+</blockquote>
+<h3><a name="Rationale">Rationale</a></h3>
+<p>Here is the request list again, with rationale added:</p>
+<ol>
+  <li>A simple test program
+that:<ul>
+    <li dir="ltr">
+    <p dir="ltr">Illustrates the problem <b>[Code communicates more clearly than
+    prose. If it looks like it will it will take some time to figure out exactly what the
+    problem is, or worse yet, might result in a wild-goose chase, the bug report
+    gets set aside to be worked on later and then is often forgotten.] </b>and</li>
+    <li>Automatically yields an unambiguous pass or fail result - returning zero
+    for pass and non-zero for fail is preferred <b>[Prevents
+    miscommunications and allows use in automatic regression tests.]</b>, and </li>
+    <li>Can be used as the basis for adding tests to Boost.Filesystem&#39;s
+    regression test suite <b>[With good test cases fixes come easier and
+    regressions become less likely]</b>.</li>
+  </ul>
+  </li>
+  <li>The compiler, standard library, platform, and Boost version you
+  used to build and run your test program. <b>[The implementation includes much
+  platform dependent code, and also depends on the other factors mentioned. Know
+  these things upfront brings the bug report into focus without having to ask
+  for more information. ]</b></li>
+  <li>A description of how to build and run the test program. <b>[If b2
+  (formerly known as bjam) is used as the build engine, this is not a concern,
+  but otherwise much more information is needed.]</b></li>
+  <li>A copy of the output from the test
+  program, if any. <b>[Avoids misinterpreting results.]</b></li>
+  <li>An email address for follow-up questions.<b> [Trac comments are the
+  primary means of response, but it is disheartening when a trac question is not
+  answered and there is no email address attached for followup.]</b></li>
+</ol>
+<hr>
+<p>&copy; Copyright Beman Dawes, 2014</p>
+<p>&copy; Copyright Andrey Semashev, 2019, 2021</p>
+<p> Distributed under the Boost Software
+License, Version 1.0. See <a href="http://www.boost.org/LICENSE_1_0.txt">
+www.boost.org/LICENSE_1_0.txt</a></p>
+
+</body>
+</html>

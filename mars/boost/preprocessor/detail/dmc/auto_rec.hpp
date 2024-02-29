@@ -9,8 +9,8 @@
 #
 # /* See http://www.boost.org for most recent version. */
 #
-# ifndef BOOST_PREPROCESSOR_DETAIL_AUTO_REC_HPP
-# define BOOST_PREPROCESSOR_DETAIL_AUTO_REC_HPP
+# ifndef BOOST_PREPROCESSOR_DETAIL_DMC_AUTO_REC_HPP
+# define BOOST_PREPROCESSOR_DETAIL_DMC_AUTO_REC_HPP
 #
 # include <boost/preprocessor/control/iif.hpp>
 #

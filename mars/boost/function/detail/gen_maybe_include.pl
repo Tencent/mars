@@ -27,6 +27,8 @@ for($on_arg = 0; $on_arg <= $max_args; ++$on_arg) {
 	print OUT "#elif";
     }
     print OUT " BOOST_FUNCTION_NUM_ARGS == $on_arg\n";
+    print OUT "#  undef BOOST_FUNCTION_MAX_ARGS_DEFINED\n";
+    print OUT "#  define BOOST_FUNCTION_MAX_ARGS_DEFINED $on_arg\n";
     print OUT "#  ifndef BOOST_FUNCTION_$on_arg\n";
     print OUT "#    define BOOST_FUNCTION_$on_arg\n";
     print OUT "#    include <boost/function/function_template.hpp>\n";

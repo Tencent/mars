@@ -1,6 +1,6 @@
 // Copyright Kevlin Henney, 2000-2005.
 // Copyright Alexander Nasonov, 2006-2010.
-// Copyright Antony Polukhin, 2011-2014.
+// Copyright Antony Polukhin, 2011-2023.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -23,15 +23,14 @@
 #   pragma once
 #endif
 
+#include <boost/detail/workaround.hpp>
+#include <boost/limits.hpp>
+#include <boost/type_traits/conditional.hpp>
 #include <climits>
 #include <cstddef>
-#include <string>
-#include <cstring>
 #include <cstdio>
-#include <boost/limits.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/detail/workaround.hpp>
+#include <cstring>
+#include <string>
 
 
 #ifndef BOOST_NO_STD_LOCALE
@@ -47,21 +46,21 @@
 #   endif
 #endif
 
+#include <boost/core/noncopyable.hpp>
 #include <boost/lexical_cast/detail/lcast_char_constants.hpp>
-#include <boost/type_traits/make_unsigned.hpp>
 #include <boost/type_traits/is_signed.hpp>
-#include <boost/noncopyable.hpp>
+#include <boost/type_traits/make_unsigned.hpp>
 
-namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost 
+namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
     namespace detail // lcast_to_unsigned
     {
         template<class T>
         inline
-        BOOST_DEDUCED_TYPENAME mars_boost::make_unsigned<T>::type lcast_to_unsigned(const T value) BOOST_NOEXCEPT {
-            typedef BOOST_DEDUCED_TYPENAME mars_boost::make_unsigned<T>::type result_type;
-            return value < 0 
-                ? static_cast<result_type>(0u - static_cast<result_type>(value)) 
+        typename mars_boost::make_unsigned<T>::type lcast_to_unsigned(const T value) noexcept {
+            typedef typename mars_boost::make_unsigned<T>::type result_type;
+            return value < 0
+                ? static_cast<result_type>(0u - static_cast<result_type>(value))
                 : static_cast<result_type>(value);
         }
     }
@@ -70,10 +69,10 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
     {
         template <class Traits, class T, class CharT>
         class lcast_put_unsigned: mars_boost::noncopyable {
-            typedef BOOST_DEDUCED_TYPENAME Traits::int_type int_type;
-            BOOST_DEDUCED_TYPENAME mars_boost::mpl::if_c<
-                    (sizeof(int_type) > sizeof(T))
-                    , int_type
+            typedef typename Traits::int_type int_type;
+            typename mars_boost::conditional<
+                    (sizeof(unsigned) > sizeof(T))
+                    , unsigned
                     , T
             >::type         m_value;
             CharT*          m_finish;
@@ -81,12 +80,12 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             int_type const  m_zero;
 
         public:
-            lcast_put_unsigned(const T n_param, CharT* finish) BOOST_NOEXCEPT 
+            lcast_put_unsigned(const T n_param, CharT* finish) noexcept
                 : m_value(n_param), m_finish(finish)
                 , m_czero(lcast_char_constants<CharT>::zero), m_zero(Traits::to_int_type(m_czero))
             {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-                BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
+                static_assert(!std::numeric_limits<T>::is_signed, "");
 #endif
             }
 
@@ -108,7 +107,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
                 // Check that ulimited group is unreachable:
-                BOOST_STATIC_ASSERT(std::numeric_limits<T>::digits10 < CHAR_MAX);
+                static_assert(std::numeric_limits<T>::digits10 < CHAR_MAX, "");
 #endif
                 CharT const thousands_sep = np.thousands_sep();
                 std::string::size_type group = 0; // current group number
@@ -138,7 +137,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             }
 
         private:
-            inline bool main_convert_iteration() BOOST_NOEXCEPT {
+            inline bool main_convert_iteration() noexcept {
                 --m_finish;
                 int_type const digit = static_cast<int_type>(m_value % 10U);
                 Traits::assign(*m_finish, Traits::to_char_type(m_zero + digit));
@@ -146,7 +145,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 return !!m_value; // suppressing warnings
             }
 
-            inline CharT* main_convert_loop() BOOST_NOEXCEPT {
+            inline CharT* main_convert_loop() noexcept {
                 while (main_convert_iteration());
                 return m_finish;
             }
@@ -162,20 +161,20 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             T& m_value;
             const CharT* const m_begin;
             const CharT* m_end;
-    
+
         public:
-            lcast_ret_unsigned(T& value, const CharT* const begin, const CharT* end) BOOST_NOEXCEPT
+            lcast_ret_unsigned(T& value, const CharT* const begin, const CharT* end) noexcept
                 : m_multiplier_overflowed(false), m_multiplier(1), m_value(value), m_begin(begin), m_end(end)
             {
 #ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-                BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
+                static_assert(!std::numeric_limits<T>::is_signed, "");
 
                 // GCC when used with flag -std=c++0x may not have std::numeric_limits
                 // specializations for __int128 and unsigned __int128 types.
                 // Try compilation with -std=gnu++0x or -std=gnu++11.
                 //
                 // http://gcc.gnu.org/bugzilla/show_bug.cgi?id=40856
-                BOOST_STATIC_ASSERT_MSG(std::numeric_limits<T>::is_specialized,
+                static_assert(std::numeric_limits<T>::is_specialized,
                     "std::numeric_limits are not specialized for integral type passed to mars_boost::lexical_cast"
                 );
 #endif
@@ -250,9 +249,9 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             }
 
         private:
-            // Iteration that does not care about grouping/separators and assumes that all 
+            // Iteration that does not care about grouping/separators and assumes that all
             // input characters are digits
-            inline bool main_convert_iteration() BOOST_NOEXCEPT {
+            inline bool main_convert_iteration() noexcept {
                 CharT const czero = lcast_char_constants<CharT>::zero;
                 T const maxv = (std::numeric_limits<T>::max)();
 
@@ -265,7 +264,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 // We must correctly handle situations like `000000000000000000000000000001`.
                 // So we take care of overflow only if `dig_value` is not '0'.
                 if (*m_end < czero || *m_end >= czero + 10  // checking for correct digit
-                    || (dig_value && (                      // checking for overflow of ... 
+                    || (dig_value && (                      // checking for overflow of ...
                         m_multiplier_overflowed                             // ... multiplier
                         || static_cast<T>(maxv / dig_value) < m_multiplier  // ... subvalue
                         || static_cast<T>(maxv - new_sub_value) < m_value   // ... whole expression
@@ -273,17 +272,17 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
                 ) return false;
 
                 m_value = static_cast<T>(m_value + new_sub_value);
-                
+
                 return true;
             }
 
-            bool main_convert_loop() BOOST_NOEXCEPT {
+            bool main_convert_loop() noexcept {
                 for ( ; m_end >= m_begin; --m_end) {
                     if (!main_convert_iteration()) {
                         return false;
                     }
                 }
-            
+
                 return true;
             }
         };

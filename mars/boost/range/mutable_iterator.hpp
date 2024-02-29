@@ -17,10 +17,10 @@
 
 #include <boost/range/config.hpp>
 
-#include <boost/range/range_fwd.hpp>
-#include <boost/range/detail/extract_optional_type.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 #include <boost/iterator/iterator_traits.hpp>
+#include <boost/range/detail/extract_optional_type.hpp>
+#include <boost/range/range_fwd.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <cstddef>
 #include <utility>
 
@@ -72,7 +72,7 @@ struct range_mutable_iterator
 {
 };
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #include <boost/range/detail/msvc_has_iterator_workaround.hpp>
 

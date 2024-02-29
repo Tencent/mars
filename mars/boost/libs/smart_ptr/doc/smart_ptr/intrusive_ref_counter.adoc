@@ -1,0 +1,155 @@
+////
+Copyright 2017 Peter Dimov
+Copyright 2013 Andrey Semashev
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#intrusive_ref_counter]
+# intrusive_ref_counter
+:toc:
+:toc-title:
+:idprefix: intrusive_ref_counter_
+
+## Description
+
+The `intrusive_ref_counter` class template implements a reference counter for
+a derived user's class that is intended to be used with `intrusive_ptr`. The
+base class has associated `intrusive_ptr_add_ref` and `intrusive_ptr_release`
+functions which modify the reference counter as needed and destroy the user's
+object when the counter drops to zero.
+
+The class template is parameterized on `Derived` and `CounterPolicy`
+parameters. The first parameter is the user's class that derives from
+`intrusive_ref_counter`. This type is needed in order to destroy the object
+correctly when there are no references to it left.
+
+The second parameter is a policy that defines the nature of the reference
+counter. The library provides two such policies: `thread_unsafe_counter` and
+`thread_safe_counter`. The former instructs the `intrusive_ref_counter` base
+class to use a counter only suitable for a single-threaded use. Pointers to a
+single object that uses this kind of reference counter must not be used in
+different threads. The latter policy makes the reference counter thread-safe,
+unless the target platform doesn't support threading. Since in modern systems
+support for threading is common, the default counter policy is
+`thread_safe_counter`.
+
+## Synopsis
+
+`intrusive_ref_counter` is defined in
+`<boost/smart_ptr/intrusive_ref_counter.hpp>`.
+
+```
+namespace boost {
+  struct thread_unsafe_counter;
+  struct thread_safe_counter;
+
+  template<class Derived, class CounterPolicy = thread_safe_counter>
+  class intrusive_ref_counter {
+  public:
+    intrusive_ref_counter() noexcept;
+    intrusive_ref_counter(const intrusive_ref_counter& v) noexcept;
+
+    intrusive_ref_counter& operator=(const intrusive_ref_counter& v) noexcept;
+
+    unsigned int use_count() const noexcept;
+
+  protected:
+    ~intrusive_ref_counter() = default;
+  };
+
+  template<class Derived, class CounterPolicy>
+    void intrusive_ptr_add_ref(
+      const intrusive_ref_counter<Derived, CounterPolicy>* p) noexcept;
+
+  template<class Derived, class CounterPolicy>
+    void intrusive_ptr_release(
+      const intrusive_ref_counter<Derived, CounterPolicy>* p) noexcept;
+}
+```
+
+## Members
+
+### Constructors
+
+```
+intrusive_ref_counter() noexcept;
+```
+```
+intrusive_ref_counter(const intrusive_ref_counter&) noexcept;
+```
+[none]
+* {blank}
++
+Postconditions:: `use_count() == 0`.
+
+NOTE: The pointer to the constructed object is expected to be passed to
+`intrusive_ptr` constructor, assignment operator or `reset` method, which
+would increment the reference counter.
+
+### Destructor
+
+```
+~intrusive_ref_counter();
+```
+[none]
+* {blank}
++
+Effects:: Destroys the counter object.
+
+NOTE: The destructor is protected so that the object can only be destroyed
+through the `Derived` class.
+
+### Assignment
+
+```
+intrusive_ref_counter& operator=(const intrusive_ref_counter& v) noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Does nothing, reference counter is not modified.
+
+### use_count
+
+```
+unsigned int use_count() const noexcept;
+```
+[none]
+* {blank}
++
+Returns:: The current value of the reference counter.
+
+NOTE: The returned value may not be actual in multi-threaded applications.
+
+## Free Functions
+
+### intrusive_ptr_add_ref
+
+```
+template<class Derived, class CounterPolicy>
+  void intrusive_ptr_add_ref(
+    const intrusive_ref_counter<Derived, CounterPolicy>* p) noexcept;
+```
+[none]
+* {blank}
++
+Effects::
+  Increments the reference counter.
+
+### intrusive_ptr_release
+
+```
+template<class Derived, class CounterPolicy>
+  void intrusive_ptr_release(
+    const intrusive_ref_counter<Derived, CounterPolicy>* p) noexcept;
+```
+[none]
+* {blank}
++
+Effects:: Decrements the reference counter. If the reference counter reaches
+0, calls `delete static_cast<const Derived*>(p)`.

@@ -19,8 +19,8 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <boost/predef/compiler/dignus.h>
 #include <boost/predef/compiler/edg.h>
 #include <boost/predef/compiler/ekopath.h>
-#include <boost/predef/compiler/gcc_xml.h>
 #include <boost/predef/compiler/gcc.h>
+#include <boost/predef/compiler/gcc_xml.h>
 #include <boost/predef/compiler/greenhills.h>
 #include <boost/predef/compiler/hp_acc.h>
 #include <boost/predef/compiler/iar.h>
@@ -32,6 +32,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <boost/predef/compiler/metrowerks.h>
 #include <boost/predef/compiler/microtec.h>
 #include <boost/predef/compiler/mpw.h>
+#include <boost/predef/compiler/nvcc.h>
 #include <boost/predef/compiler/palm.h>
 #include <boost/predef/compiler/pgi.h>
 #include <boost/predef/compiler/sgi_mipspro.h>

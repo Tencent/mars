@@ -21,16 +21,19 @@
 //  See http://www.boost.org/libs/bind/bind.html for documentation.
 //
 
-#include <boost/config.hpp>
-#include <boost/ref.hpp>
-#include <boost/mem_fn.hpp>
-#include <boost/type.hpp>
-#include <boost/is_placeholder.hpp>
 #include <boost/bind/arg.hpp>
-#include <boost/detail/workaround.hpp>
-#include <boost/visit_each.hpp>
+#include <boost/bind/detail/is_same.hpp>
+#include <boost/bind/detail/requires_cxx11.hpp>
+#include <boost/bind/detail/result_traits.hpp>
+#include <boost/bind/mem_fn.hpp>
+#include <boost/bind/std_placeholders.hpp>
+#include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 #include <boost/core/enable_if.hpp>
-#include <boost/core/is_same.hpp>
+#include <boost/core/ref.hpp>
+#include <boost/is_placeholder.hpp>
+#include <boost/type.hpp>
+#include <boost/visit_each.hpp>
 
 #if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
 #include <utility> // std::forward
@@ -38,7 +41,7 @@
 
 // Borland-specific bug, visit_each() silently fails to produce code
 
-#if defined(__BORLANDC__)
+#if defined(BOOST_BORLANDC)
 #  define BOOST_BIND_VISIT_EACH mars_boost::visit_each
 #else
 #  define BOOST_BIND_VISIT_EACH visit_each
@@ -58,29 +61,6 @@ template<class T> class weak_ptr;
 
 namespace _bi // implementation details
 {
-
-// result_traits
-
-template<class R, class F> struct result_traits
-{
-    typedef R type;
-};
-
-#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING)
-
-struct unspecified {};
-
-template<class F> struct result_traits<unspecified, F>
-{
-    typedef typename F::result_type type;
-};
-
-template<class F> struct result_traits< unspecified, reference_wrapper<F> >
-{
-    typedef typename F::result_type type;
-};
-
-#endif
 
 // ref_compare
 
@@ -865,7 +845,7 @@ public:
 
 // bind_t
 
-#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && !(defined(BOOST_GCC) && BOOST_GCC < 40600)
 
 template< class A1 > class rrlist1
 {
@@ -887,9 +867,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist1<A1&> a( a1_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist1<A1&> a( a1_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2 > class rrlist2
@@ -915,9 +903,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist2<A1&, A2&> a( a1_, a2_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist2<A1&, A2&> a( a1_, a2_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2, class A3 > class rrlist3
@@ -946,9 +942,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist3<A1&, A2&, A3&> a( a1_, a2_, a3_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist3<A1&, A2&, A3&> a( a1_, a2_, a3_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2, class A3, class A4 > class rrlist4
@@ -980,9 +984,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist4<A1&, A2&, A3&, A4&> a( a1_, a2_, a3_, a4_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist4<A1&, A2&, A3&, A4&> a( a1_, a2_, a3_, a4_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2, class A3, class A4, class A5 > class rrlist5
@@ -1017,9 +1029,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist5<A1&, A2&, A3&, A4&, A5&> a( a1_, a2_, a3_, a4_, a5_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist5<A1&, A2&, A3&, A4&, A5&> a( a1_, a2_, a3_, a4_, a5_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2, class A3, class A4, class A5, class A6 > class rrlist6
@@ -1057,9 +1077,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist6<A1&, A2&, A3&, A4&, A5&, A6&> a( a1_, a2_, a3_, a4_, a5_, a6_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist6<A1&, A2&, A3&, A4&, A5&, A6&> a( a1_, a2_, a3_, a4_, a5_, a6_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2, class A3, class A4, class A5, class A6, class A7 > class rrlist7
@@ -1100,9 +1128,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist7<A1&, A2&, A3&, A4&, A5&, A6&, A7&> a( a1_, a2_, a3_, a4_, a5_, a6_, a7_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist7<A1&, A2&, A3&, A4&, A5&, A6&, A7&> a( a1_, a2_, a3_, a4_, a5_, a6_, a7_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8 > class rrlist8
@@ -1146,9 +1182,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist8<A1&, A2&, A3&, A4&, A5&, A6&, A7&, A8&> a( a1_, a2_, a3_, a4_, a5_, a6_, a7_, a8_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist8<A1&, A2&, A3&, A4&, A5&, A6&, A7&, A8&> a( a1_, a2_, a3_, a4_, a5_, a6_, a7_, a8_ );
+        return b.eval( a );
+    }
 };
 
 template< class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9 > class rrlist9
@@ -1195,9 +1239,17 @@ public:
 
     template<class T> T & operator[] (reference_wrapper<T> const & v) const { return v.get(); }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> & b) const
+    {
+        rrlist9<A1&, A2&, A3&, A4&, A5&, A6&, A7&, A8&, A9&> a( a1_, a2_, a3_, a4_, a5_, a6_, a7_, a8_, a9_ );
+        return b.eval( a );
+    }
 
-    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const { return b.eval(*this); }
+    template<class R, class F, class L> typename result_traits<R, F>::type operator[] (bind_t<R, F, L> const & b) const
+    {
+        rrlist9<A1&, A2&, A3&, A4&, A5&, A6&, A7&, A8&, A9&> a( a1_, a2_, a3_, a4_, a5_, a6_, a7_, a8_, a9_ );
+        return b.eval( a );
+    }
 };
 
 template<class R, class F, class L> class bind_t
@@ -1350,7 +1402,7 @@ public:
 
     template<class V> void accept( V & v ) const
     {
-#if !defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( __BORLANDC__ )
+#if !defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( BOOST_BORLANDC )
         using mars_boost::visit_each;
 #endif
 
@@ -1487,7 +1539,7 @@ namespace _bi
 
 #if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) || (__SUNPRO_CC >= 0x530)
 
-#if defined( __BORLANDC__ ) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT(0x582) )
+#if defined( BOOST_BORLANDC ) && BOOST_WORKAROUND( BOOST_BORLANDC, BOOST_TESTED_AT(0x582) )
 
 template<class T> struct add_value
 {
@@ -1739,7 +1791,7 @@ BOOST_BIND_OPERATOR( >=, greater_equal )
 
 // visit_each, ADL
 
-#if !defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( __BORLANDC__ ) \
+#if !defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) && !defined( BOOST_BORLANDC ) \
    && !(defined(__GNUC__) && __GNUC__ == 3 && __GNUC_MINOR__ <= 3)
 
 template<class V, class T> void visit_each( V & v, value<T> const & t, int )
@@ -1759,7 +1811,7 @@ template<class V, class R, class F, class L> void visit_each( V & v, bind_t<R, F
 
 // visit_each, no ADL
 
-#if defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) || defined( __BORLANDC__ ) \
+#if defined( BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP ) || defined( BOOST_BORLANDC ) \
   || (defined(__GNUC__) && __GNUC__ == 3 && __GNUC_MINOR__ <= 3)
 
 template<class V, class T> void visit_each( V & v, _bi::value<T> const & t, int )
@@ -2050,33 +2102,45 @@ template<class F, class A1, class A2, class A3, class A4, class A5, class A6, cl
 
 #define BOOST_BIND_CC
 #define BOOST_BIND_ST
+#define BOOST_BIND_NOEXCEPT
 
 #include <boost/bind/bind_cc.hpp>
 
+# if defined( __cpp_noexcept_function_type ) || defined( _NOEXCEPT_TYPES_SUPPORTED )
+#   undef BOOST_BIND_NOEXCEPT
+#   define BOOST_BIND_NOEXCEPT noexcept
+#   include <boost/bind/bind_cc.hpp>
+# endif
+
 #undef BOOST_BIND_CC
 #undef BOOST_BIND_ST
+#undef BOOST_BIND_NOEXCEPT
 
-#ifdef BOOST_BIND_ENABLE_STDCALL
+#if defined(BOOST_BIND_ENABLE_STDCALL) && !defined(_M_X64)
 
 #define BOOST_BIND_CC __stdcall
 #define BOOST_BIND_ST
+#define BOOST_BIND_NOEXCEPT
 
 #include <boost/bind/bind_cc.hpp>
 
 #undef BOOST_BIND_CC
 #undef BOOST_BIND_ST
+#undef BOOST_BIND_NOEXCEPT
 
 #endif
 
-#ifdef BOOST_BIND_ENABLE_FASTCALL
+#if defined(BOOST_BIND_ENABLE_FASTCALL) && !defined(_M_X64)
 
 #define BOOST_BIND_CC __fastcall
 #define BOOST_BIND_ST
+#define BOOST_BIND_NOEXCEPT
 
 #include <boost/bind/bind_cc.hpp>
 
 #undef BOOST_BIND_CC
 #undef BOOST_BIND_ST
+#undef BOOST_BIND_NOEXCEPT
 
 #endif
 
@@ -2084,11 +2148,13 @@ template<class F, class A1, class A2, class A3, class A4, class A5, class A6, cl
 
 #define BOOST_BIND_ST pascal
 #define BOOST_BIND_CC
+#define BOOST_BIND_NOEXCEPT
 
 #include <boost/bind/bind_cc.hpp>
 
 #undef BOOST_BIND_ST
 #undef BOOST_BIND_CC
+#undef BOOST_BIND_NOEXCEPT
 
 #endif
 
@@ -2096,56 +2162,71 @@ template<class F, class A1, class A2, class A3, class A4, class A5, class A6, cl
 
 #define BOOST_BIND_MF_NAME(X) X
 #define BOOST_BIND_MF_CC
+#define BOOST_BIND_MF_NOEXCEPT
 
-#include <boost/bind/bind_mf_cc.hpp>
 #include <boost/bind/bind_mf2_cc.hpp>
+#include <boost/bind/bind_mf_cc.hpp>
+
+# if defined( __cpp_noexcept_function_type ) || defined( _NOEXCEPT_TYPES_SUPPORTED )
+#   undef BOOST_BIND_MF_NOEXCEPT
+#   define BOOST_BIND_MF_NOEXCEPT noexcept
+#   include <boost/bind/bind_mf2_cc.hpp>
+#   include <boost/bind/bind_mf_cc.hpp>
+# endif
 
 #undef BOOST_BIND_MF_NAME
 #undef BOOST_BIND_MF_CC
+#undef BOOST_BIND_MF_NOEXCEPT
 
-#ifdef BOOST_MEM_FN_ENABLE_CDECL
+#if defined(BOOST_MEM_FN_ENABLE_CDECL) && !defined(_M_X64)
 
 #define BOOST_BIND_MF_NAME(X) X##_cdecl
 #define BOOST_BIND_MF_CC __cdecl
+#define BOOST_BIND_MF_NOEXCEPT
 
-#include <boost/bind/bind_mf_cc.hpp>
 #include <boost/bind/bind_mf2_cc.hpp>
+#include <boost/bind/bind_mf_cc.hpp>
 
 #undef BOOST_BIND_MF_NAME
 #undef BOOST_BIND_MF_CC
+#undef BOOST_BIND_MF_NOEXCEPT
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_STDCALL
+#if defined(BOOST_MEM_FN_ENABLE_STDCALL) && !defined(_M_X64)
 
 #define BOOST_BIND_MF_NAME(X) X##_stdcall
 #define BOOST_BIND_MF_CC __stdcall
+#define BOOST_BIND_MF_NOEXCEPT
 
-#include <boost/bind/bind_mf_cc.hpp>
 #include <boost/bind/bind_mf2_cc.hpp>
+#include <boost/bind/bind_mf_cc.hpp>
 
 #undef BOOST_BIND_MF_NAME
 #undef BOOST_BIND_MF_CC
+#undef BOOST_BIND_MF_NOEXCEPT
 
 #endif
 
-#ifdef BOOST_MEM_FN_ENABLE_FASTCALL
+#if defined(BOOST_MEM_FN_ENABLE_FASTCALL) && !defined(_M_X64)
 
 #define BOOST_BIND_MF_NAME(X) X##_fastcall
 #define BOOST_BIND_MF_CC __fastcall
+#define BOOST_BIND_MF_NOEXCEPT
 
-#include <boost/bind/bind_mf_cc.hpp>
 #include <boost/bind/bind_mf2_cc.hpp>
+#include <boost/bind/bind_mf_cc.hpp>
 
 #undef BOOST_BIND_MF_NAME
 #undef BOOST_BIND_MF_CC
+#undef BOOST_BIND_MF_NOEXCEPT
 
 #endif
 
 // data member pointers
 
 #if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) || defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING) \
-    || ( defined(__BORLANDC__) && BOOST_WORKAROUND( __BORLANDC__, BOOST_TESTED_AT( 0x620 ) ) )
+    || ( defined(BOOST_BORLANDC) && BOOST_WORKAROUND( BOOST_BORLANDC, BOOST_TESTED_AT( 0x620 ) ) )
 
 template<class R, class T, class A1>
 _bi::bind_t< R, _mfi::dm<R, T>, typename _bi::list_av_1<A1>::type >
@@ -2191,6 +2272,15 @@ template< class R, class T > struct add_cref< R (T::*) () const, 1 >
 {
     typedef void type;
 };
+
+#if defined( __cpp_noexcept_function_type ) || defined( _NOEXCEPT_TYPES_SUPPORTED )
+
+template< class R, class T > struct add_cref< R (T::*) () const noexcept, 1 >
+{
+    typedef void type;
+};
+
+#endif // __cpp_noexcept_function_type
 
 #endif // __IBMCPP__
 

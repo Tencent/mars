@@ -5,13 +5,14 @@
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //#define __STDC_CONSTANT_MACROS
-#include <boost/thread/detail/config.hpp>
-#include <boost/thread/once.hpp>
-#include <boost/thread/pthread/pthread_mutex_scoped_lock.hpp>
 #include <boost/assert.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/atomic.hpp>
 #include <boost/memory_order.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/thread/detail/config.hpp>
+#include <boost/thread/once.hpp>
+#include <boost/thread/pthread/pthread_helpers.hpp>
+#include <boost/thread/pthread/pthread_mutex_scoped_lock.hpp>
 #include <pthread.h>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
@@ -40,7 +41,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         pthread::pthread_mutex_scoped_lock lk(&once_mutex);
         if (f.load(memory_order_acquire) != initialized)
         {
-          while (true)
+          for (;;)
           {
             atomic_int_type expected = uninitialized;
             if (f.compare_exchange_strong(expected, in_progress, memory_order_acq_rel, memory_order_acquire))
@@ -57,7 +58,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
             {
               // Wait until the initialization is complete
               //pthread::pthread_mutex_scoped_lock lk(&once_mutex);
-              BOOST_VERIFY(!pthread_cond_wait(&once_cv, &once_mutex));
+              BOOST_VERIFY(!posix::pthread_cond_wait(&once_cv, &once_mutex));
             }
           }
         }
@@ -72,7 +73,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         pthread::pthread_mutex_scoped_lock lk(&once_mutex);
         f.store(initialized, memory_order_release);
       }
-      BOOST_VERIFY(!pthread_cond_broadcast(&once_cv));
+      BOOST_VERIFY(!posix::pthread_cond_broadcast(&once_cv));
     }
 
     BOOST_THREAD_DECL void rollback_once_region(once_flag& flag) BOOST_NOEXCEPT
@@ -82,7 +83,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         pthread::pthread_mutex_scoped_lock lk(&once_mutex);
         f.store(uninitialized, memory_order_release);
       }
-      BOOST_VERIFY(!pthread_cond_broadcast(&once_cv));
+      BOOST_VERIFY(!posix::pthread_cond_broadcast(&once_cv));
     }
 
   } // namespace thread_detail

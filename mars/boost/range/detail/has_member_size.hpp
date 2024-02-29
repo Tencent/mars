@@ -11,11 +11,11 @@
 #ifndef BOOST_RANGE_DETAIL_HAS_MEMBER_SIZE_HPP
 #define BOOST_RANGE_DETAIL_HAS_MEMBER_SIZE_HPP
 
-#include <boost/type_traits/is_class.hpp>
-#include <boost/type_traits/is_member_function_pointer.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/cstdint.hpp>
+#include <boost/type_traits/is_class.hpp>
+#include <boost/type_traits/is_member_function_pointer.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -61,6 +61,6 @@ struct has_member_size
 };
 
     } // namespace range_detail
-}// namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+}// namespace mars_boost
  
 #endif // include guard

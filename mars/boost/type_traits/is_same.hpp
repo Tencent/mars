@@ -28,7 +28,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
    template <class T, class U> struct is_same : public false_type {};
    template <class T> struct is_same<T,T> : public true_type {};
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#if BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
 // without this, Borland's compiler gives the wrong answer for
 // references to arrays:
    template <class T> struct is_same<T&, T&> : public true_type{};

@@ -32,6 +32,9 @@ class allocator;
 template<class T>
 struct less;
 
+template<class T>
+struct equal_to;
+
 template<class T1, class T2>
 struct pair;
 
@@ -49,6 +52,9 @@ class insert_iterator;
 struct allocator_arg_t;
 
 struct piecewise_construct_t;
+
+template <class Ptr>
+struct pointer_traits;
 
 BOOST_MOVE_STD_NS_END
 #include <boost/move/detail/std_ns_end.hpp>

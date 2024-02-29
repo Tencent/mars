@@ -15,6 +15,13 @@
 //  http://www.boost.org/LICENSE_1_0.txt
 //
 
+#if defined(BOOST_SP_REPORT_IMPLEMENTATION)
+
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("Using single-threaded, non-atomic atomic_count")
+
+#endif
+
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
 
@@ -54,6 +61,6 @@ private:
 
 } // namespace detail
 
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // #ifndef BOOST_SMART_PTR_DETAIL_ATOMIC_COUNT_NT_HPP_INCLUDED

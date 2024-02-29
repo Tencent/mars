@@ -12,14 +12,14 @@
 #include <boost/config.hpp>
 #include <cstddef>
 
-#include <boost/type_traits/intrinsics.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/intrinsics.hpp>
 
 #ifdef BOOST_MSVC
 #   pragma warning(push)
 #   pragma warning(disable: 4121 4512) // alignment is sensitive to packing
 #endif
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x600)
+#if defined(BOOST_BORLANDC) && (BOOST_BORLANDC < 0x600)
 #pragma option push -Vx- -Ve-
 #endif
 
@@ -91,7 +91,7 @@ template <class T> struct alignment_of : public integral_constant<std::size_t, :
 // that a reference is just a special pointer:
 template <typename T> struct alignment_of<T&> : public alignment_of<T*>{};
 
-#ifdef __BORLANDC__
+#ifdef BOOST_BORLANDC
 // long double gives an incorrect value of 10 (!)
 // unless we do this...
 struct long_double_wrapper{ long double ld; };
@@ -108,7 +108,7 @@ template<> struct alignment_of<void volatile> : integral_constant<std::size_t, 0
 
 } // namespace mars_boost
 
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x600)
+#if defined(BOOST_BORLANDC) && (BOOST_BORLANDC < 0x600)
 #pragma option pop
 #endif
 #ifdef BOOST_MSVC

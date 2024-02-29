@@ -9,12 +9,12 @@
 #ifndef BOOST_RANGE_ALGORITHM_COUNT_IF_HPP_INCLUDED
 #define BOOST_RANGE_ALGORITHM_COUNT_IF_HPP_INCLUDED
 
+#include <algorithm>
 #include <boost/concept_check.hpp>
 #include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/range/concepts.hpp>
 #include <boost/range/difference_type.hpp>
-#include <algorithm>
+#include <boost/range/end.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {
@@ -46,6 +46,6 @@ count_if(const SinglePassRange& rng, UnaryPredicate pred)
 
     } // namespace range
     using range::count_if;
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 #endif // include guard

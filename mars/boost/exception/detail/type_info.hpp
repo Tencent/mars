@@ -3,20 +3,27 @@
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef UUID_C3E1741C754311DDB2834CCA55D89593
-#define UUID_C3E1741C754311DDB2834CCA55D89593
-#if (__GNUC__*100+__GNUC_MINOR__>301) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#ifndef BOOST_EXCEPTION_C3E1741C754311DDB2834CCA55D89593
+#define BOOST_EXCEPTION_C3E1741C754311DDB2834CCA55D89593
+
+#include <boost/config.hpp>
+#include <boost/core/demangle.hpp>
+#include <boost/core/typeinfo.hpp>
+#include <boost/current_function.hpp>
+#include <string.h>
+#include <string>
+
+#ifndef BOOST_EXCEPTION_ENABLE_WARNINGS
+#if __GNUC__*100+__GNUC_MINOR__>301
 #pragma GCC system_header
 #endif
-#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#ifdef __clang__
+#pragma clang system_header
+#endif
+#ifdef _MSC_VER
 #pragma warning(push,1)
 #endif
-
-#include <boost/core/typeinfo.hpp>
-#include <boost/core/demangle.hpp>
-#include <boost/current_function.hpp>
-#include <boost/config.hpp>
-#include <string>
+#endif
 
 namespace mars_boost {} namespace boost = mars_boost; namespace
 mars_boost
@@ -63,7 +70,7 @@ mars_boost
             bool
             operator<( type_info_ const & a, type_info_ const & b )
                 {
-                return 0!=(a.type_->before(*b.type_));
+                return a.type_!=b.type_ && strcmp(a.type_->name(), b.type_->name()) < 0;
                 }
             };
         }

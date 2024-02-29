@@ -8,9 +8,9 @@
 #ifndef BOOST_THREAD_FUTURES_FUTURE_ERROR_CODE_HPP
 #define BOOST_THREAD_FUTURES_FUTURE_ERROR_CODE_HPP
 
-#include <boost/thread/detail/config.hpp>
 #include <boost/core/scoped_enum.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/thread/detail/config.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
@@ -29,11 +29,11 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
   namespace system
   {
     template <>
-    struct BOOST_SYMBOL_VISIBLE is_error_code_enum< ::boost::future_errc> : public true_type {};
+    struct BOOST_SYMBOL_VISIBLE is_error_code_enum< ::mars_boost::future_errc> : public true_type {};
 
     #ifdef BOOST_NO_CXX11_SCOPED_ENUMS
     template <>
-    struct BOOST_SYMBOL_VISIBLE is_error_code_enum< ::boost::future_errc::enum_type> : public true_type { };
+    struct BOOST_SYMBOL_VISIBLE is_error_code_enum< ::mars_boost::future_errc::enum_type> : public true_type { };
     #endif
   } // system
 

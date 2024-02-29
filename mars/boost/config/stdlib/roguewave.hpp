@@ -59,7 +59,7 @@
 //
 // Borland version of numeric_limits lacks __int64 specialisation:
 //
-#ifdef __BORLANDC__
+#ifdef BOOST_BORLANDC
 #  define BOOST_NO_MS_INT64_NUMERIC_LIMITS
 #endif
 
@@ -180,12 +180,14 @@
 #  define BOOST_NO_CXX11_HDR_UNORDERED_SET
 #  define BOOST_NO_CXX11_NUMERIC_LIMITS
 #  define BOOST_NO_CXX11_ALLOCATOR
+#  define BOOST_NO_CXX11_POINTER_TRAITS
 #  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
 #  define BOOST_NO_CXX11_SMART_PTR
 #  define BOOST_NO_CXX11_HDR_FUNCTIONAL
 #  define BOOST_NO_CXX11_HDR_ATOMIC
 #  define BOOST_NO_CXX11_STD_ALIGN
 #  define BOOST_NO_CXX11_ADDRESSOF
+#  define BOOST_NO_CXX11_HDR_EXCEPTION
 
 #if defined(__has_include)
 #if !__has_include(<shared_mutex>)
@@ -196,3 +198,11 @@
 #else
 #  define BOOST_NO_CXX14_HDR_SHARED_MUTEX
 #endif
+
+// C++14 features
+#  define BOOST_NO_CXX14_STD_EXCHANGE
+
+// C++17 features
+#  define BOOST_NO_CXX17_STD_APPLY
+#  define BOOST_NO_CXX17_STD_INVOKE
+#  define BOOST_NO_CXX17_ITERATOR_TRAITS

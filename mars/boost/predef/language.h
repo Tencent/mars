@@ -10,8 +10,9 @@ http://www.boost.org/LICENSE_1_0.txt)
 #define BOOST_PREDEF_LANGUAGE_H
 #endif
 
+#include <boost/predef/language/cuda.h>
+#include <boost/predef/language/objc.h>
 #include <boost/predef/language/stdc.h>
 #include <boost/predef/language/stdcpp.h>
-#include <boost/predef/language/objc.h>
 
 #endif

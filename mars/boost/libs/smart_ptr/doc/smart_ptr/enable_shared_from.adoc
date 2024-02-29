@@ -1,0 +1,89 @@
+////
+Copyright 2002, 2003, 2015, 2017, 2019 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#enable_shared_from]
+# enable_shared_from
+:toc:
+:toc-title:
+:idprefix: enable_shared_from_
+
+## Description
+
+`enable_shared_from` is used as a base class that allows a `shared_ptr` or a
+`weak_ptr` to be obtained given a raw pointer to the object, by using the
+functions `shared_from` and `weak_from`.
+
+`enable_shared_from` differs from `enable_shared_from_this<T>` by the fact
+that it's not a template, and is its recommended replacement for new code.
+
+## Example
+
+```
+#include <boost/smart_ptr/enable_shared_from.hpp>
+#include <boost/shared_ptr.hpp>
+#include <cassert>
+
+class Y: public boost::enable_shared_from
+{
+public:
+
+    boost::shared_ptr<Y> f()
+    {
+        return boost::shared_from( this );
+    }
+};
+
+int main()
+{
+    boost::shared_ptr<Y> p(new Y);
+    boost::shared_ptr<Y> q = p->f();
+    assert(p == q);
+    assert(!(p < q || q < p)); // p and q must share ownership
+}
+```
+
+## Synopsis
+
+`enable_shared_from` is defined in `<boost/smart_ptr/enable_shared_from.hpp>`.
+
+```
+namespace boost {
+
+  class enable_shared_from: public enable_shared_from_this<enable_shared_from>
+  {
+  };
+
+  template<class T> shared_ptr<T> shared_from( T * p );
+  template<class T> weak_ptr<T> weak_from( T * p ) noexcept;
+}
+```
+
+## Functions
+
+```
+template<class T> shared_ptr<T> shared_from( T * p );
+```
+[none]
+* {blank}
++
+Returns:: `shared_ptr<T>( p\->enable_shared_from::shared_from_this(), p )`.
+
+NOTE: Throws `bad_weak_ptr` when `p` is not owned by a `shared_ptr`.
+
+```
+template<class T> weak_ptr<T> weak_from( T * p ) noexcept;
+```
+[none]
+* {blank}
++
+Returns:: `weak_ptr<T>( p\->enable_shared_from::weak_from_this(), p )`.
+
+NOTE: Unlike `shared_from(this)`, `weak_from(this)` is valid in a destructor
+      and returns a `weak_ptr` that is `expired()` but still shares ownership
+      with other `weak_ptr` instances (if any) that refer to the object.

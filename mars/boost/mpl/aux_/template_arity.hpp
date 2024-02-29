@@ -18,8 +18,8 @@
 // $Date$
 // $Revision$
 
-#include <boost/mpl/aux_/config/ttp.hpp>
 #include <boost/mpl/aux_/config/lambda.hpp>
+#include <boost/mpl/aux_/config/ttp.hpp>
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/aux_/template_arity_fwd.hpp>
@@ -47,17 +47,17 @@
 #   if !defined(BOOST_MPL_CFG_NO_FULL_LAMBDA_SUPPORT)
 #   if defined(BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING)
 
-#   include <boost/mpl/limits/arity.hpp>
+#   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/aux_/preprocessor/params.hpp>
 #   include <boost/mpl/aux_/preprocessor/range.hpp>
 #   include <boost/mpl/aux_/preprocessor/repeat.hpp>
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/limits/arity.hpp>
 
-#   include <boost/preprocessor/seq/fold_left.hpp>
-#   include <boost/preprocessor/comma_if.hpp>
-#   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/inc.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/comma_if.hpp>
+#   include <boost/preprocessor/inc.hpp>
+#   include <boost/preprocessor/iterate.hpp>
+#   include <boost/preprocessor/seq/fold_left.hpp>
 
 #   define AUX778076_ARITY BOOST_PP_INC(BOOST_MPL_LIMIT_METAFUNCTION_ARITY)
 
@@ -65,7 +65,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { nam
 
 template< BOOST_MPL_AUX_NTTP_DECL(int, N) > struct arity_tag
 {
-    typedef char (&type)[N + 1];
+    typedef char (&type)[(unsigned)N + 1];
 };
 
 #   define AUX778076_MAX_ARITY_OP(unused, state, i_) \

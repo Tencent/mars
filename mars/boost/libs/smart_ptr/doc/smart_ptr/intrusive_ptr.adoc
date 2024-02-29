@@ -1,0 +1,487 @@
+////
+Copyright 2003-2005, 2013, 2017 Peter Dimov
+
+Distributed under the Boost Software License, Version 1.0.
+
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+////
+
+[#intrusive_ptr]
+# intrusive_ptr: Managing Objects with Embedded Counts
+:toc:
+:toc-title:
+:idprefix: intrusive_ptr_
+
+## Description
+
+The `intrusive_ptr` class template stores a pointer to an object with an embedded reference count.
+Every new `intrusive_ptr` instance increments the reference count by using an unqualified call to the
+function `intrusive_ptr_add_ref`, passing it the pointer as an argument. Similarly, when an `intrusive_ptr`
+is destroyed, it calls `intrusive_ptr_release`; this function is responsible for destroying the object when
+its reference count drops to zero. The user is expected to provide suitable definitions of these two functions.
+On compilers that support argument-dependent lookup, `intrusive_ptr_add_ref` and `intrusive_ptr_release` should
+be defined in the namespace that corresponds to their parameter; otherwise, the definitions need to go in namespace
+`boost`. The library provides a helper base class template `<<intrusive_ref_counter,intrusive_ref_counter>>` which
+may help adding support for `intrusive_ptr` to user types.
+
+The class template is parameterized on `T`, the type of the object pointed to. `intrusive_ptr<T>` can be implicitly
+converted to `intrusive_ptr<U>` whenever `T*` can be implicitly converted to `U*`.
+
+The main reasons to use `intrusive_ptr` are:
+
+* Some existing frameworks or OSes provide objects with embedded reference counts;
+* The memory footprint of `intrusive_ptr` is the same as the corresponding raw pointer;
+* `intrusive_ptr<T>` can be constructed from an arbitrary raw pointer of type `T*`.
+
+As a general rule, if it isn't obvious whether `intrusive_ptr` better fits your needs than `shared_ptr`, try a `shared_ptr`-based design first.
+
+## Synopsis
+
+`intrusive_ptr` is defined in `<boost/smart_ptr/intrusive_ptr.hpp>`.
+
+```
+namespace boost {
+
+  template<class T> class intrusive_ptr {
+  public:
+
+    typedef T element_type;
+
+    intrusive_ptr() noexcept;
+    intrusive_ptr(T * p, bool add_ref = true);
+
+    intrusive_ptr(intrusive_ptr const & r);
+    template<class Y> intrusive_ptr(intrusive_ptr<Y> const & r);
+
+    intrusive_ptr(intrusive_ptr && r);
+    template<class Y> intrusive_ptr(intrusive_ptr<Y> && r);
+
+    ~intrusive_ptr();
+
+    intrusive_ptr & operator=(intrusive_ptr const & r);
+    template<class Y> intrusive_ptr & operator=(intrusive_ptr<Y> const & r);
+    intrusive_ptr & operator=(T * r);
+
+    intrusive_ptr & operator=(intrusive_ptr && r);
+    template<class Y> intrusive_ptr & operator=(intrusive_ptr<Y> && r);
+
+    void reset();
+    void reset(T * r);
+    void reset(T * r, bool add_ref);
+
+    T & operator*() const noexcept;
+    T * operator->() const noexcept;
+    T * get() const noexcept;
+    T * detach() noexcept;
+
+    explicit operator bool () const noexcept;
+
+    void swap(intrusive_ptr & b) noexcept;
+  };
+
+  template<class T, class U>
+    bool operator==(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) noexcept;
+
+  template<class T, class U>
+    bool operator!=(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) noexcept;
+
+  template<class T, class U>
+    bool operator==(intrusive_ptr<T> const & a, U * b) noexcept;
+
+  template<class T, class U>
+    bool operator!=(intrusive_ptr<T> const & a, U * b) noexcept;
+
+  template<class T, class U>
+    bool operator==(T * a, intrusive_ptr<U> const & b) noexcept;
+
+  template<class T, class U>
+    bool operator!=(T * a, intrusive_ptr<U> const & b) noexcept;
+
+  template<class T>
+    bool operator<(intrusive_ptr<T> const & a, intrusive_ptr<T> const & b) noexcept;
+
+  template<class T> void swap(intrusive_ptr<T> & a, intrusive_ptr<T> & b) noexcept;
+
+  template<class T> T * get_pointer(intrusive_ptr<T> const & p) noexcept;
+
+  template<class T, class U>
+    intrusive_ptr<T> static_pointer_cast(intrusive_ptr<U> const & r) noexcept;
+
+  template<class T, class U>
+    intrusive_ptr<T> const_pointer_cast(intrusive_ptr<U> const & r) noexcept;
+
+  template<class T, class U>
+    intrusive_ptr<T> dynamic_pointer_cast(intrusive_ptr<U> const & r) noexcept;
+
+  template<class E, class T, class Y>
+    std::basic_ostream<E, T> & operator<< (std::basic_ostream<E, T> & os,
+      intrusive_ptr<Y> const & p);
+}
+```
+
+## Members
+
+### element_type
+
+```
+typedef T element_type;
+```
+
+Provides the type of the template parameter T.
+
+### constructors
+
+```
+intrusive_ptr() noexcept;
+```
+
+[none]
+* {blank}
++
+Postconditions:: `get() == 0`.
+
+```
+intrusive_ptr(T * p, bool add_ref = true);
+```
+
+[none]
+* {blank}
++
+Effects:: `if(p != 0 && add_ref) intrusive_ptr_add_ref(p);`.
+Postconditions:: `get() == p`.
+
+```
+intrusive_ptr(intrusive_ptr const & r);
+```
+```
+template<class Y> intrusive_ptr(intrusive_ptr<Y> const & r);
+```
+
+[none]
+* {blank}
++
+Effects:: `T * p = r.get(); if(p != 0) intrusive_ptr_add_ref(p);`.
+Postconditions:: `get() == r.get()`.
+
+```
+intrusive_ptr(intrusive_ptr && r);
+```
+```
+template<class Y> intrusive_ptr(intrusive_ptr<Y> && r);
+```
+
+[none]
+* {blank}
++
+Postconditions::
+  `get()` equals the old value of `r.get()`. `r.get() == 0`.
+
+### destructor
+
+```
+~intrusive_ptr();
+```
+
+[none]
+* {blank}
++
+Effects::
+  `if(get() != 0) intrusive_ptr_release(get());`.
+
+### assignment
+
+```
+intrusive_ptr & operator=(intrusive_ptr const & r);
+```
+```
+template<class Y> intrusive_ptr & operator=(intrusive_ptr<Y> const & r);
+```
+```
+intrusive_ptr & operator=(T * r);
+```
+
+[none]
+* {blank}
++
+Effects:: Equivalent to `intrusive_ptr(r).swap(*this)`.
+Returns:: `*this`.
+
+```
+intrusive_ptr & operator=(intrusive_ptr && r);
+```
+```
+template<class Y> intrusive_ptr & operator=(intrusive_ptr<Y> && r);
+```
+
+[none]
+* {blank}
++
+Effects:: Equivalent to `intrusive_ptr(std::move(r)).swap(*this)`.
+Returns:: `*this`.
+
+### reset
+
+```
+void reset();
+```
+
+[none]
+* {blank}
++
+Effects:: Equivalent to `intrusive_ptr().swap(*this)`.
+
+```
+void reset(T * r);
+```
+
+[none]
+* {blank}
++
+Effects:: Equivalent to `intrusive_ptr(r).swap(*this)`.
+
+```
+void reset(T * r, bool add_ref);
+```
+
+[none]
+* {blank}
++
+Effects::
+  Equivalent to `intrusive_ptr(r, add_ref).swap(*this)`.
+
+### indirection
+
+```
+T & operator*() const noexcept;
+```
+
+[none]
+* {blank}
++
+Requirements:: `get() != 0`.
+Returns:: `*get()`.
+
+```
+T * operator->() const noexcept;
+```
+
+[none]
+* {blank}
++
+Requirements:: `get() != 0`.
+Returns:: `get()`.
+
+### get
+
+```
+T * get() const noexcept;
+```
+
+[none]
+* {blank}
++
+Returns::
+  the stored pointer.
+
+### detach
+
+```
+T * detach() noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: the stored pointer.
+Postconditions:: `get() == 0`.
+
+NOTE: The returned pointer has an elevated reference count. This allows conversion of an `intrusive_ptr`
+back to a raw pointer, without the performance overhead of acquiring and dropping an extra reference.
+It can be viewed as the complement of the non-reference-incrementing constructor.
+
+CAUTION: Using `detach` escapes the safety of automatic reference counting provided by `intrusive_ptr`.
+It should by used only where strictly necessary (such as when interfacing to an existing API), and when
+the implications are thoroughly understood.
+
+### conversions
+
+```
+explicit operator bool () const noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `get() != 0`.
+
+NOTE: This conversion operator allows `intrusive_ptr` objects to be used in boolean contexts,
+like `if (p && p\->valid()) {}`.
+
+NOTE: On C++03 compilers, the return value is of an unspecified type.
+
+### swap
+
+```
+void swap(intrusive_ptr & b) noexcept;
+```
+
+[none]
+* {blank}
++
+Effects::
+  Exchanges the contents of the two smart pointers.
+
+## Free Functions
+
+### comparison
+
+```
+template<class T, class U>
+  bool operator==(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `a.get() == b.get()`.
+
+```
+template<class T, class U>
+  bool operator!=(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `a.get() != b.get()`.
+
+```
+template<class T, class U>
+  bool operator==(intrusive_ptr<T> const & a, U * b) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `a.get() == b`.
+
+```
+template<class T, class U>
+  bool operator!=(intrusive_ptr<T> const & a, U * b) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `a.get() != b`.
+
+```
+template<class T, class U>
+  bool operator==(T * a, intrusive_ptr<U> const & b) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `a == b.get()`.
+
+```
+template<class T, class U>
+  bool operator!=(T * a, intrusive_ptr<U> const & b) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `a != b.get()`.
+
+```
+template<class T>
+  bool operator<(intrusive_ptr<T> const & a, intrusive_ptr<T> const & b) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `std::less<T *>()(a.get(), b.get())`.
+
+NOTE: Allows `intrusive_ptr` objects to be used as keys in associative containers.
+
+### swap
+
+```
+template<class T> void swap(intrusive_ptr<T> & a, intrusive_ptr<T> & b) noexcept;
+```
+
+[none]
+* {blank}
++
+Effects::
+  Equivalent to `a.swap(b)`.
+
+### get_pointer
+
+```
+template<class T> T * get_pointer(intrusive_ptr<T> const & p) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns:: `p.get()`.
+
+NOTE: Provided as an aid to generic programming. Used by `mem_fn`.
+
+### static_pointer_cast
+
+```
+template<class T, class U>
+  intrusive_ptr<T> static_pointer_cast(intrusive_ptr<U> const & r) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns::
+  `intrusive_ptr<T>(static_cast<T*>(r.get()))`.
+
+### const_pointer_cast
+
+```
+template<class T, class U>
+  intrusive_ptr<T> const_pointer_cast(intrusive_ptr<U> const & r) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns::
+  `intrusive_ptr<T>(const_cast<T*>(r.get()))`.
+
+### dynamic_pointer_cast
+
+```
+template<class T, class U>
+  intrusive_ptr<T> dynamic_pointer_cast(intrusive_ptr<U> const & r) noexcept;
+```
+
+[none]
+* {blank}
++
+Returns::
+  `intrusive_ptr<T>(dynamic_cast<T*>(r.get()))`.
+
+### operator<<
+
+```
+template<class E, class T, class Y>
+  std::basic_ostream<E, T> & operator<< (std::basic_ostream<E, T> & os,
+    intrusive_ptr<Y> const & p);
+```
+
+[none]
+* {blank}
++
+Effects:: `os << p.get();`.
+Returns:: `os`.

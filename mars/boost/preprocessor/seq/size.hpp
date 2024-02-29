@@ -7,6 +7,8 @@
 #  *                                                                          *
 #  ************************************************************************** */
 #
+# /* Revised by Edward Diener (2020) */
+#
 # /* See http://www.boost.org for most recent version. */
 #
 # ifndef BOOST_PREPROCESSOR_SEQ_SIZE_HPP
@@ -27,6 +29,8 @@
 # else
 #    define BOOST_PP_SEQ_SIZE(seq) BOOST_PP_CAT(BOOST_PP_SEQ_SIZE_, BOOST_PP_SEQ_SIZE_0 seq)
 # endif
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # define BOOST_PP_SEQ_SIZE_0(_) BOOST_PP_SEQ_SIZE_1
 # define BOOST_PP_SEQ_SIZE_1(_) BOOST_PP_SEQ_SIZE_2
@@ -544,5 +548,24 @@
 # define BOOST_PP_SEQ_SIZE_BOOST_PP_SEQ_SIZE_255 255
 # define BOOST_PP_SEQ_SIZE_BOOST_PP_SEQ_SIZE_256 256
 # define BOOST_PP_SEQ_SIZE_BOOST_PP_SEQ_SIZE_257 257
+#
+# else
+#
+# include <boost/preprocessor/config/limits.hpp>
+#
+# if BOOST_PP_LIMIT_SEQ == 256
+# include <boost/preprocessor/seq/limits/size_256.hpp>
+# elif BOOST_PP_LIMIT_SEQ == 512
+# include <boost/preprocessor/seq/limits/size_256.hpp>
+# include <boost/preprocessor/seq/limits/size_512.hpp>
+# elif BOOST_PP_LIMIT_SEQ == 1024
+# include <boost/preprocessor/seq/limits/size_1024.hpp>
+# include <boost/preprocessor/seq/limits/size_256.hpp>
+# include <boost/preprocessor/seq/limits/size_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_SEQ limit
+# endif
+#
+# endif
 #
 # endif

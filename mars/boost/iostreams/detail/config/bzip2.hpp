@@ -11,15 +11,17 @@
 #ifndef BOOST_IOSTREAMS_DETAIL_CONFIG_BZIP2_HPP_INCLUDED
 #define BOOST_IOSTREAMS_DETAIL_CONFIG_BZIP2_HPP_INCLUDED
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma once
 #endif              
 
+#include <boost/config.hpp> // BOOST_STRINGIZE.
+
 #if defined(BOOST_BZIP2_BINARY)
 # if defined(BOOST_MSVC) || \
-     defined(__BORLANDC__) || \
+     defined(BOOST_BORLANDC) || \
      (defined(__MWERKS__) && defined(_WIN32) && (__MWERKS__ >= 0x3000)) || \
-     (defined(__ICL) && defined(_MSC_EXTENSIONS) && (_MSC_VER >= 1200)) \
+     (defined(__ICL) && defined(_MSC_EXTENSIONS)) \
      /**/
 
 // Specify the name of the .lib file.

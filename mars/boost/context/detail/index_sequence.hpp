@@ -13,6 +13,10 @@
 
 #include <boost/context/detail/config.hpp>
 
+#if defined(BOOST_CONTEXT_NO_CXX14_INTEGER_SEQUENCE)
+#include <boost/mp11/integer_sequence.hpp>
+#endif
+
 #ifdef BOOST_HAS_ABI_HEADERS
 # include BOOST_ABI_PREFIX
 #endif
@@ -29,38 +33,12 @@ using make_index_sequence = std::make_index_sequence< I >;
 template< typename ... T >
 using index_sequence_for = std::index_sequence_for< T ... >;
 #else
-//http://stackoverflow.com/questions/17424477/implementation-c14-make-integer-sequence
-
 template< std::size_t ... I >
-struct index_sequence {
-    using type = index_sequence;
-    using value_type = std::size_t;
-    static constexpr std::size_t size() {
-        return sizeof ... (I);
-    }
-};
-
-template< typename Seq1, typename Seq2 >
-struct concat_sequence;
-
-template< std::size_t ... I1, std::size_t ... I2 >
-struct concat_sequence< index_sequence< I1 ... >, index_sequence< I2 ... > > : public index_sequence< I1 ..., (sizeof ... (I1)+I2) ... > {
-};
-
+using index_sequence = mp11::index_sequence< I ... >;
 template< std::size_t I >
-struct make_index_sequence : public concat_sequence< typename make_index_sequence< I/2 >::type,
-                                                     typename make_index_sequence< I-I/2 >::type > {
-};
-
-template<>
-struct make_index_sequence< 0 > : public index_sequence<> {
-};
-template<>
-struct make_index_sequence< 1 > : public index_sequence< 0 > {
-};
-
+using make_index_sequence = mp11::make_index_sequence< I >;
 template< typename ... T >
-using index_sequence_for = make_index_sequence< sizeof ... (T) >;
+using index_sequence_for = mp11::index_sequence_for< T ... >;
 #endif
 
 }}}

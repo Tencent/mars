@@ -1,0 +1,25 @@
+#  Boost.Iostreams Library example Jamfile
+#
+#  Copyright (c) 2008 James E. King III
+#
+#  Distributed under the Boost Software License, Version 1.0. (See accompany-
+#  ing file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+import testing ;
+
+project
+    :   requirements
+        <library>/boost/iostreams//mars_boost_iostreams
+        <define>BOOST_ALL_NO_LIB=1
+      # <toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS
+    ;
+
+test-suite "iostreams-examples"
+   :    [ run boost_back_inserter_example.cpp ]
+        [ run container_sink_example.cpp ]
+        [ run container_source_example.cpp ]
+        [ run iterator_range_example.cpp ]
+        [ run std_back_inserter_example.cpp ]
+        [ run container_device_example.cpp ]
+   ;
+

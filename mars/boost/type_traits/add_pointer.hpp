@@ -13,7 +13,7 @@
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x5A0)
+#if defined(BOOST_BORLANDC) && (BOOST_BORLANDC < 0x5A0)
 //
 // For some reason this implementation stops Borlands compiler
 // from dropping cv-qualifiers, it still fails with references
@@ -53,6 +53,12 @@ struct add_pointer
     typedef typename remove_reference<T>::type no_ref_type;
     typedef no_ref_type* type;
 };
+
+#endif
+
+#if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+
+   template <class T> using add_pointer_t = typename add_pointer<T>::type;
 
 #endif
 

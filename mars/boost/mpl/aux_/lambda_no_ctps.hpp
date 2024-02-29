@@ -19,17 +19,17 @@
 // $Revision$
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
-#   include <boost/mpl/lambda_fwd.hpp>
-#   include <boost/mpl/bind_fwd.hpp>
-#   include <boost/mpl/protect.hpp>
-#   include <boost/mpl/is_placeholder.hpp>
-#   include <boost/mpl/if.hpp>
-#   include <boost/mpl/identity.hpp>
-#   include <boost/mpl/bool.hpp>
-#   include <boost/mpl/aux_/na_spec.hpp>
 #   include <boost/mpl/aux_/lambda_support.hpp>
+#   include <boost/mpl/aux_/na_spec.hpp>
 #   include <boost/mpl/aux_/template_arity.hpp>
 #   include <boost/mpl/aux_/value_wknd.hpp>
+#   include <boost/mpl/bind_fwd.hpp>
+#   include <boost/mpl/bool.hpp>
+#   include <boost/mpl/identity.hpp>
+#   include <boost/mpl/if.hpp>
+#   include <boost/mpl/is_placeholder.hpp>
+#   include <boost/mpl/lambda_fwd.hpp>
+#   include <boost/mpl/protect.hpp>
 #endif
 
 #include <boost/mpl/aux_/config/use_preprocessed.hpp>
@@ -42,18 +42,18 @@
 
 #else
 
-#   include <boost/mpl/limits/arity.hpp>
-#   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
-#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
-#   include <boost/mpl/aux_/preprocessor/enum.hpp>
 #   include <boost/mpl/aux_/config/msvc.hpp>
 #   include <boost/mpl/aux_/config/workaround.hpp>
+#   include <boost/mpl/aux_/preprocessor/default_params.hpp>
+#   include <boost/mpl/aux_/preprocessor/enum.hpp>
+#   include <boost/mpl/aux_/preprocessor/params.hpp>
+#   include <boost/mpl/aux_/preprocessor/repeat.hpp>
+#   include <boost/mpl/limits/arity.hpp>
 
-#   include <boost/preprocessor/comma_if.hpp>
-#   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/inc.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/comma_if.hpp>
+#   include <boost/preprocessor/inc.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost { namespace mpl {
 

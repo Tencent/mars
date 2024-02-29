@@ -11,8 +11,8 @@
 #ifndef BOOST_CONTAINER_USES_ALLOCATOR_HPP
 #define BOOST_CONTAINER_USES_ALLOCATOR_HPP
 
-#include <boost/container/uses_allocator_fwd.hpp>
 #include <boost/container/detail/type_traits.hpp>
+#include <boost/container/uses_allocator_fwd.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost {
 namespace container {
@@ -112,7 +112,7 @@ struct constructible_with_allocator_prefix
 
 #ifndef BOOST_CONTAINER_DOXYGEN_INVOKED
 
-namespace container_detail {
+namespace dtl {
 
 template<typename T, typename Allocator>
 struct uses_allocator_imp
@@ -130,8 +130,8 @@ struct uses_allocator_imp
 
    // Match this function if T::allocator_type exists and it's type is `erased_type`.
    template <class U, class V>
-   static typename container_detail::enable_if
-      < container_detail::is_same<typename U::allocator_type, erased_type>
+   static typename dtl::enable_if
+      < dtl::is_same<typename U::allocator_type, erased_type>
       , yes_type
       >::type  test(const V&);
 
@@ -145,7 +145,7 @@ struct uses_allocator_imp
    static const bool value = sizeof(test<T>(alloc)) == sizeof(yes_type);
 };
 
-}  //namespace container_detail {
+}  //namespace dtl {
 
 #endif   //#ifndef BOOST_CONTAINER_DOXYGEN_INVOKED
 
@@ -161,7 +161,7 @@ struct uses_allocator_imp
 //! is an alias `erased_type`. False otherwise.
 template <typename T, typename Allocator>
 struct uses_allocator
-   : container_detail::uses_allocator_imp<T, Allocator>
+   : dtl::uses_allocator_imp<T, Allocator>
 {};
 
 }} //namespace mars_boost::container

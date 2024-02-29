@@ -23,8 +23,8 @@
 #endif
 
 #include <boost/container/detail/config_begin.hpp>
-#include <boost/container/detail/workaround.hpp>
 #include <boost/container/detail/std_fwd.hpp>
+#include <boost/container/detail/workaround.hpp>
 #include <boost/container/uses_allocator_fwd.hpp>
 
 #if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)

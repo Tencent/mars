@@ -12,15 +12,15 @@
 #ifndef BOOST_SIGNALS2_TRACKED_OBJECTS_VISITOR_HPP
 #define BOOST_SIGNALS2_TRACKED_OBJECTS_VISITOR_HPP
 
+#include <boost/core/addressof.hpp>
+#include <boost/core/ref.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/ref.hpp>
 #include <boost/signals2/detail/signals_common.hpp>
 #include <boost/signals2/slot_base.hpp>
 #include <boost/signals2/trackable.hpp>
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
-#include <boost/utility/addressof.hpp>
 
 namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
 {

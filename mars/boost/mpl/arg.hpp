@@ -21,10 +21,10 @@
 
 #if !defined(BOOST_MPL_PREPROCESSING_MODE)
 #   include <boost/mpl/arg_fwd.hpp>
+#   include <boost/mpl/aux_/arg_typedef.hpp>
+#   include <boost/mpl/aux_/arity_spec.hpp>
 #   include <boost/mpl/aux_/na.hpp>
 #   include <boost/mpl/aux_/na_assert.hpp>
-#   include <boost/mpl/aux_/arity_spec.hpp>
-#   include <boost/mpl/aux_/arg_typedef.hpp>
 #endif
 
 #include <boost/mpl/aux_/config/static_constant.hpp>
@@ -38,16 +38,16 @@
 
 #else
 
-#   include <boost/mpl/limits/arity.hpp>
+#   include <boost/mpl/aux_/config/dtp.hpp>
+#   include <boost/mpl/aux_/config/lambda.hpp>
+#   include <boost/mpl/aux_/nttp_decl.hpp>
 #   include <boost/mpl/aux_/preprocessor/default_params.hpp>
 #   include <boost/mpl/aux_/preprocessor/params.hpp>
-#   include <boost/mpl/aux_/config/lambda.hpp>
-#   include <boost/mpl/aux_/config/dtp.hpp>
-#   include <boost/mpl/aux_/nttp_decl.hpp>
+#   include <boost/mpl/limits/arity.hpp>
 
-#   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/inc.hpp>
 #   include <boost/preprocessor/cat.hpp>
+#   include <boost/preprocessor/inc.hpp>
+#   include <boost/preprocessor/iterate.hpp>
 
 BOOST_MPL_AUX_ADL_BARRIER_NAMESPACE_OPEN
 

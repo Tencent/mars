@@ -15,14 +15,14 @@
 # pragma once
 #endif
 
+#include <boost/range/concepts.hpp>
 #include <boost/range/config.hpp>
 #include <boost/range/difference_type.hpp>
-#include <boost/range/concepts.hpp>
 #include <boost/range/has_range_iterator.hpp>
 
-#include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/make_unsigned.hpp>
 #include <boost/type_traits/remove_const.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <cstddef>
 #include <utility>
 
@@ -62,7 +62,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         template<typename C>
         struct range_size_<
             C,
-            BOOST_DEDUCED_TYPENAME ::boost::enable_if<has_size_type<C>, void>::type
+            BOOST_DEDUCED_TYPENAME ::mars_boost::enable_if<has_size_type<C>, void>::type
         >
         {
             typedef BOOST_DEDUCED_TYPENAME C::size_type type;
@@ -83,12 +83,7 @@ namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
         detail::range_size<T>
     { };
 
-    template< class T >
-    struct range_size<const T > :
-        detail::range_size<T>
-    { };
-
-} // namespace mars_boost {} namespace boost = mars_boost; namespace mars_boost
+} // namespace mars_boost
 
 
 

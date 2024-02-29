@@ -7,10 +7,16 @@
 #  *                                                                          *
 #  ************************************************************************** */
 #
+# /* Revised by Edward Diener (2020) */
+#
 # /* See http://www.boost.org for most recent version. */
 #
 # ifndef BOOST_PREPROCESSOR_FACILITIES_INTERCEPT_HPP
 # define BOOST_PREPROCESSOR_FACILITIES_INTERCEPT_HPP
+#
+# include <boost/preprocessor/config/config.hpp>
+#
+# if ~BOOST_PP_CONFIG_FLAGS() & BOOST_PP_CONFIG_STRICT()
 #
 # /* BOOST_PP_INTERCEPT */
 #
@@ -273,5 +279,28 @@
 # define BOOST_PP_INTERCEPT_254
 # define BOOST_PP_INTERCEPT_255
 # define BOOST_PP_INTERCEPT_256
+#
+# else
+#
+# /* BOOST_PP_INTERCEPT */
+#
+# define BOOST_PP_INTERCEPT BOOST_PP_INTERCEPT_
+#
+# include <boost/preprocessor/config/limits.hpp>
+#
+# if BOOST_PP_LIMIT_MAG == 256
+# include <boost/preprocessor/facilities/limits/intercept_256.hpp>
+# elif BOOST_PP_LIMIT_MAG == 512
+# include <boost/preprocessor/facilities/limits/intercept_256.hpp>
+# include <boost/preprocessor/facilities/limits/intercept_512.hpp>
+# elif BOOST_PP_LIMIT_MAG == 1024
+# include <boost/preprocessor/facilities/limits/intercept_1024.hpp>
+# include <boost/preprocessor/facilities/limits/intercept_256.hpp>
+# include <boost/preprocessor/facilities/limits/intercept_512.hpp>
+# else
+# error Incorrect value for the BOOST_PP_LIMIT_MAG limit
+# endif
+#
+# endif
 #
 # endif

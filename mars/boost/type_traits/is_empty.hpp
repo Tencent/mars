@@ -9,13 +9,13 @@
 #ifndef BOOST_TT_IS_EMPTY_HPP_INCLUDED
 #define BOOST_TT_IS_EMPTY_HPP_INCLUDED
 
-#include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/detail/config.hpp>
 #include <boost/type_traits/intrinsics.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 
-#include <boost/type_traits/remove_cv.hpp>
-#include <boost/type_traits/is_class.hpp>
 #include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/is_class.hpp>
+#include <boost/type_traits/remove_cv.hpp>
 
 #ifndef BOOST_INTERNAL_IS_EMPTY
 #define BOOST_INTERNAL_IS_EMPTY(T) false
@@ -50,7 +50,7 @@ private:
 
 struct empty_helper_t2 { int i[256]; };
 
-#if !BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#if !BOOST_WORKAROUND(BOOST_BORLANDC, < 0x600)
 
 template <typename T, bool is_a_class = false>
 struct empty_helper
@@ -75,7 +75,7 @@ struct is_empty_impl
         value = ( ::mars_boost::detail::empty_helper<cvt,::mars_boost::is_class<T>::value>::value || BOOST_INTERNAL_IS_EMPTY(cvt)));
 };
 
-#else // __BORLANDC__
+#else // BOOST_BORLANDC
 
 template <typename T, bool is_a_class, bool convertible_to_int>
 struct empty_helper
@@ -103,10 +103,10 @@ struct is_empty_impl
                   cvt
                 , ::mars_boost::is_class<T>::value
                 , ::mars_boost::is_convertible< r_type,int>::value
-              >::value || BOOST_INTERNAL_IS_EMPTY(cvt));
+              >::value || BOOST_INTERNAL_IS_EMPTY(cvt)));
 };
 
-#endif // __BORLANDC__
+#endif // BOOST_BORLANDC
 
 } // namespace detail
 
