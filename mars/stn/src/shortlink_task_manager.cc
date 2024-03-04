@@ -151,7 +151,7 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
             __DeleteShortLink(first->running_id);
             lst_cmd_.erase(first);
             */
-            __OnDeleteOwlJob(first->owl_req_job);
+            __OnDeleteOwlJob(first->owl_req_job, first->owl_resp_job);
             first->owl_req_job = 0;
             // Task task = first->task;
             // task.need_erase = true;
@@ -199,7 +199,7 @@ void ShortLinkTaskManager::ClearTasks() {
 
     for (std::list<TaskProfile>::iterator it = lst_cmd_.begin(); it != lst_cmd_.end(); ++it) {
         //__DeleteShortLink(it->running_id);
-        __OnDeleteOwlJob(it->owl_req_job);
+        __OnDeleteOwlJob(it->owl_req_job, it->owl_resp_job);
         it->owl_req_job = 0;
         // Task task = it->task;
         // task.need_erase = true;
@@ -708,7 +708,20 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
     move_wrapper<AutoBuffer> _body(__body);
     move_wrapper<AutoBuffer> _extension(__extension);
     owl::co_options options = owl::co_options::with_priority(owl::kCoPriorityDefault);
-    owl_scope_->co_launch([this, _worker, _err_type, _status, _body, _extension, _cancel_retry, _conn_profile] {
+    
+    std::list<TaskProfile>::iterator it =
+        __LocateBySeq((intptr_t)_worker);
+    
+    // must used iter pWorker, not used aSelf. aSelf may be destroy already
+
+  if (lst_cmd_.end() == it) {
+      xerror2(TSF "task no found: status:%_, worker:%_", _status, _worker);
+      // it->owl_resp_job = 0;//set resp job to 0 when finish.
+      return;
+  }
+    
+    auto owl_resp_job =
+    owl_scope_->co_launch([this, it, _worker, _err_type, _status, _body, _extension, _cancel_retry, _conn_profile] {
         xdebug2(TSF "worker=%0, _err_type=%1, _status=%2, _body.lenght=%3, _cancel_retry=%4",
                 _worker,
                 _err_type,
@@ -718,14 +731,6 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
 
         fun_shortlink_response_(_status);
 
-        std::list<TaskProfile>::iterator it =
-            __LocateBySeq((intptr_t)_worker);  // must used iter pWorker, not used aSelf. aSelf may be destroy already
-
-        if (lst_cmd_.end() == it) {
-            xerror2(TSF "task no found: status:%_, worker:%_", _status, _worker);
-            // it->owl_resp_job = 0;//set resp job to 0 when finish.
-            return;
-        }
 
         if (_worker->IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
             if (_err_type != kEctOK) {
@@ -775,7 +780,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                 it->remain_retry_count++;
             }
             __SingleRespHandle(it, _err_type, _status, kTaskFailHandleDefault, _body->Length(), _conn_profile);
-            // it->owl_resp_job = 0;//set resp job to 0 when finish.
+             it->owl_resp_job = 0;//set resp job to 0 when finish.
             return;
         }
 
@@ -904,8 +909,10 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
             }
         }
         //    });
-        // it->owl_resp_job = 0;//set resp job to 0 when finish.
+         it->owl_resp_job = 0;//set resp job to 0 when finish.
     });  // co_launch job
+    it->owl_resp_job = (intptr_t)owl_resp_job.get();
+    xinfo2(TSF"OWL resp job %_", it->owl_resp_job);
 }
 
 void ShortLinkTaskManager::__OnSend(ShortLinkInterface* _worker) {
@@ -966,7 +973,7 @@ void ShortLinkTaskManager::RedoTasks() {
 
         if (first->running_id) {
             xinfo2(TSF "task redo, taskid:%_", first->task.taskid);
-            __OnDeleteOwlJob(first->owl_req_job);
+            __OnDeleteOwlJob(first->owl_req_job, first->owl_resp_job);
             first->owl_req_job = 0;
             __SingleRespHandle(first,
                                kEctLocal,
@@ -1049,7 +1056,7 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
             first->remain_retry_count++;
             //__DeleteShortLink(first->running_id);
 
-            __OnDeleteOwlJob(first->owl_req_job);
+            __OnDeleteOwlJob(first->owl_req_job, first->owl_resp_job);
             first->owl_req_job = 0;
             // Task task = first->task;
             // task.need_erase = false;
@@ -1465,13 +1472,22 @@ void ShortLinkTaskManager::__OnOwlReceive() {
     });
 }
 
-void ShortLinkTaskManager::__OnDeleteOwlJob(intptr_t& _owl_job) {
-    if (!_owl_job)
-        return;
-    xinfo2(TSF "OWL __OnDeleteOwlJob owl job %_", _owl_job);
-    owl::co_job_base* job = (owl::co_job_base*)_owl_job;
-    if (job != nullptr && !job->is_completed() && !job->is_cancelled()) {
-        job->cancel();
-        job->join();
+void ShortLinkTaskManager::__OnDeleteOwlJob(intptr_t& _req_job, intptr_t& _resp_job) {
+    if (_req_job){
+        xinfo2(TSF "OWL __OnDeleteOwlJob owl req job %_", _req_job);
+        owl::co_job_base* job = (owl::co_job_base*)_req_job;
+        if (job != nullptr && !job->is_completed() && !job->is_cancelled()) {
+            job->cancel();
+            job->join();
+        }
+    }
+    
+    if (_resp_job){
+        xinfo2(TSF "OWL __OnDeleteOwlJob owl resp job %_", _resp_job);
+        owl::co_job_base* job = (owl::co_job_base*)_resp_job;
+        if (job != nullptr && !job->is_completed() && !job->is_cancelled()) {
+            job->cancel();
+            job->join();
+        }
     }
 }

@@ -157,7 +157,7 @@ class ShortLinkTaskManager {
     void __OnOwlInit();
     void __OnOwlUnInit();
     void __OnOwlReceive();
-    void __OnDeleteOwlJob(intptr_t& _owl_job);
+    void __OnDeleteOwlJob(intptr_t& _req_job, intptr_t& _resp_job);
 
  private:
     boot::Context* context_;
