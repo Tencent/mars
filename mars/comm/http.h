@@ -385,4 +385,15 @@ class Parser {
 // void testChunk();
 
 } /* namespace http */
+
+class StringBody : public http::BodyReceiver {
+ public:
+    explicit StringBody(std::string& buf) : databuf_(buf) {
+    }
+    void AppendData(const void* _body, size_t _length) override;
+
+ private:
+    std::string& databuf_;
+};
+
 #endif /* HTTPREQUEST_H_ */
