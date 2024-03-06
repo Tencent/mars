@@ -1265,3 +1265,8 @@ void URLFactory::AddKeyValue(const std::string& key, const std::string& value) {
     }
     kvs_[key] = strutil::to_string(value);
 }
+
+void StringBody::AppendData(const void* _body, size_t _length) {
+    databuf_.append(reinterpret_cast<const char*>(_body), _length);
+    BodyReceiver::AppendData(_body, _length);
+}

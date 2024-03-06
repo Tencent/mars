@@ -385,6 +385,7 @@ class Parser {
 // void testChunk();
 
 } /* namespace http */
+
 class URLFactory {
  public:
     explicit URLFactory(std::string cgi) : cgi_(std::move(cgi)) {
@@ -408,6 +409,16 @@ class URLFactory {
     }
     std::string cgi_;
     std::map<std::string, std::string> kvs_;
+};
+
+class StringBody : public http::BodyReceiver {
+ public:
+    explicit StringBody(std::string& buf) : databuf_(buf) {
+    }
+    void AppendData(const void* _body, size_t _length) override;
+
+ private:
+    std::string& databuf_;
 };
 
 #endif /* HTTPREQUEST_H_ */
