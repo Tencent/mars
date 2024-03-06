@@ -1279,3 +1279,8 @@ class TestBodyReceiver : public BodyReceiver {
 };
 
 }  // namespace http
+
+void StringBody::AppendData(const void* _body, size_t _length) {
+    databuf_.append(reinterpret_cast<const char*>(_body), _length);
+    BodyReceiver::AppendData(_body, _length);
+}
