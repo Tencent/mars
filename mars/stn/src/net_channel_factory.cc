@@ -34,14 +34,16 @@ ShortLinkInterface* (*Create)(boot::Context* _context,
                               const mq::MessageQueue_t& _messagequeueid,
                               std::shared_ptr<NetSource> _netsource,
                               const Task& _task,
+                              const PrepareProfile& _prepare_profile,
                               const ShortlinkConfig& _config) =
     [](boot::Context* _context,
        const mq::MessageQueue_t& _messagequeueid,
        std::shared_ptr<NetSource> _netsource,
        const Task& _task,
+       const PrepareProfile& _prepare_profile,
        const ShortlinkConfig& _config) -> ShortLinkInterface* {
     xdebug2(TSF "use weak func Create");
-    return new ShortLink(_context, _messagequeueid, _netsource, _task, _config.use_proxy);
+    return new ShortLink(_context, _messagequeueid, _netsource, _task, _prepare_profile, _config.use_proxy);
 };
 
 void (*Destory)(ShortLinkInterface* _short_link_channel) = [](ShortLinkInterface* _short_link_channel) {

@@ -28,6 +28,7 @@
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/proto/longlink_packer.h"
 #include "mars/stn/stn.h"
+#include "mars/stn/task_profile.h"
 
 namespace mars {
 namespace stn {
@@ -43,6 +44,7 @@ extern ShortLinkInterface* (*Create)(boot::Context* _context,
                                      const comm::mq::MessageQueue_t& _messagequeueid,
                                      std::shared_ptr<NetSource> _netsource,
                                      const Task& _task,
+                                     const PrepareProfile& _prepare_profile,
                                      const ShortlinkConfig& _config);
 
 extern void (*Destory)(ShortLinkInterface* _short_link_channel);

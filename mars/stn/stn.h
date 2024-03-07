@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/event/event_center.h"
 #include "mars/comm/projdef.h"
 
 namespace mars {
@@ -45,6 +46,15 @@ class LongLinkEncoder;
 static const uint32_t kReservedTaskIDStart = 0xFFFFFFF0;
 
 static const unsigned short kReservedSequenceIdStart = 0xFFFF;
+
+static const std::string kEventStopTask = "StopTaskEvent";
+static const std::string kEventHasTasks = "HasTaskEvents";
+static const std::string kEventHasTask = "HasTaskEvent";
+static const std::string kEventClearTasks = "ClearTasksEvent";
+static const std::string kEventOnTimout = "OnTimeoutEvent";
+static const std::string kEventOnStartTask = "OnStartTaskEvnet";
+static const std::string kEventRedoTasks = "RedoTasksEvent";
+static const std::string kEventBatchErrorRespTasks = "BatchErrorRespTasksEvent";
 
 enum PackerEncoderVersion {
     kOld = 1,
@@ -382,55 +392,55 @@ struct IPPortItem {
 
 /* mars2
 
-extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
+ extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id);
 
-//流量统计
-extern void TrafficData(ssize_t _send, ssize_t _recv);
+ //流量统计
+ extern void TrafficData(ssize_t _send, ssize_t _recv);
 
-//底层询问上层该host对应的ip列表
-extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
-//网络层收到push消息回调
-extern void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const
-AutoBuffer& _extend);
-//底层获取task要发送的数据
-extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer,
-AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
-//底层回包返回给上层解析
-extern int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer,
-const AutoBuffer& extend, int& error_code, const int channel_select);
-//任务执行结束
-extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int
-error_code, const ConnectProfile& _profile);
+ //底层询问上层该host对应的ip列表
+ extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
+ //网络层收到push消息回调
+ extern void OnPush(const std::string& _channel_id, uint32_t _cmdid, uint32_t _taskid, const AutoBuffer& _body, const
+ AutoBuffer& _extend);
+ //底层获取task要发送的数据
+ extern bool Req2Buf(uint32_t taskid, void* const user_context, const std::string& _user_id, AutoBuffer& outbuffer,
+ AutoBuffer& extend, int& error_code, const int channel_select, const std::string& host);
+ //底层回包返回给上层解析
+ extern int Buf2Resp(uint32_t taskid, void* const user_context, const std::string& _user_id, const AutoBuffer& inbuffer,
+ const AutoBuffer& extend, int& error_code, const int channel_select);
+ //任务执行结束
+ extern int  OnTaskEnd(uint32_t taskid, void* const user_context, const std::string& _user_id, int error_type, int
+ error_code, const ConnectProfile& _profile);
 
-//上报网络连接状态
-extern void ReportConnectStatus(int status, int longlink_status);
+ //上报网络连接状态
+ extern void ReportConnectStatus(int status, int longlink_status);
 
-extern void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
-extern void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string&
-_host, uint16_t _port);
+ extern void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
+ extern void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string&
+ _host, uint16_t _port);
 
-extern void OnLongLinkStatusChange(int _status);
-//长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
-extern int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer&
-buffer_hash, int32_t& cmdid);
-//长连信令校验回包
-extern bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const
-AutoBuffer& identify_buffer_hash);
+ extern void OnLongLinkStatusChange(int _status);
+ //长连信令校验 ECHECK_NOW = 0, ECHECK_NEVER = 1, ECHECK_NEXT = 2
+ extern int  GetLonglinkIdentifyCheckBuffer(const std::string& _channel_id, AutoBuffer& identify_buffer, AutoBuffer&
+ buffer_hash, int32_t& cmdid);
+ //长连信令校验回包
+ extern bool OnLonglinkIdentifyResponse(const std::string& _channel_id, const AutoBuffer& response_buffer, const
+ AutoBuffer& identify_buffer_hash);
 
-extern void RequestSync();
-//验证是否已登录
+ extern void RequestSync();
+ //验证是否已登录
 
-//底层询问上层http网络检查的域名列表
-extern void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
-//底层向上层上报cgi执行结果
-extern void ReportTaskProfile(const TaskProfile& _task_profile);
-//底层通知上层cgi命中限制
-extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
-//底层上报域名dns结果
-extern void ReportDnsProfile(const DnsProfile& _dns_profile);
-//.生成taskid.
-extern uint32_t GenTaskID();
-*/
+ //底层询问上层http网络检查的域名列表
+ extern void RequestNetCheckShortLinkHosts(std::vector<std::string>& _hostlist);
+ //底层向上层上报cgi执行结果
+ extern void ReportTaskProfile(const TaskProfile& _task_profile);
+ //底层通知上层cgi命中限制
+ extern void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param);
+ //底层上报域名dns结果
+ extern void ReportDnsProfile(const DnsProfile& _dns_profile);
+ //.生成taskid.
+ extern uint32_t GenTaskID();
+ */
 
 // mars2
 class Callback {
@@ -506,6 +516,78 @@ class Callback {
     virtual void ReportTaskProfile(const TaskProfile& _task_profile) = 0;
     virtual void ReportTaskLimited(int _check_type, const Task& _task, unsigned int& _param) = 0;
     virtual void ReportDnsProfile(const DnsProfile& _dns_profile) = 0;
+};
+
+class EventStopTask : public mars::event::IEvent {
+ public:
+    EventStopTask(uint32_t _taskid) : mars::event::IEvent(kEventStopTask), taskid_(_taskid) {
+    }
+
+ public:
+    uint32_t taskid_;
+};
+
+class EventHasTasks : public mars::event::IEvent {
+ public:
+    EventHasTasks() : mars::event::IEvent(kEventHasTasks) {
+    }
+};
+
+class EventHasTask : public mars::event::IEvent {
+ public:
+    EventHasTask(uint32_t _taskid) : mars::event::IEvent(kEventHasTask), taskid_(_taskid) {
+    }
+
+ public:
+    uint32_t taskid_;
+};
+
+class EventClearTasks : public mars::event::IEvent {
+ public:
+    EventClearTasks() : mars::event::IEvent(kEventClearTasks) {
+    }
+};
+
+class EventOnStartTask : public mars::event::IEvent {
+ public:
+    EventOnStartTask() : mars::event::IEvent(kEventOnStartTask) {
+    }
+};
+
+class EventOnTimeout : public mars::event::IEvent {
+ public:
+    EventOnTimeout() : mars::event::IEvent(kEventOnTimout) {
+    }
+};
+
+class EventRedoTasks : public mars::event::IEvent {
+ public:
+    EventRedoTasks() : mars::event::IEvent(kEventOnTimout) {
+    }
+};
+
+/** BatchErrorTasks RetryTasks */
+class EventBatchErrorRespTasks : public mars::event::IEvent {
+ public:
+    EventBatchErrorRespTasks(ErrCmdType _err_type,
+                             int _err_code,
+                             int _fail_handle,
+                             uint32_t _src_taskid,
+                             bool _callback_runing_task_only)
+    : mars::event::IEvent(kEventBatchErrorRespTasks)
+    , errt_type_(_err_type)
+    , err_code_(_err_code)
+    , fail_handle_(_fail_handle)
+    , src_taskid_(_src_taskid)
+    , callback_runing_task_only_(_callback_runing_task_only) {
+    }
+
+ public:
+    ErrCmdType errt_type_;
+    int err_code_;
+    int fail_handle_;
+    uint32_t src_taskid_;
+    bool callback_runing_task_only_;
 };
 
 }  // namespace stn

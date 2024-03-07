@@ -28,6 +28,7 @@
 
 #include "boost/function.hpp"
 #include "mars/boot/context.h"
+#include "mars/comm/event/event_center.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
@@ -88,6 +89,7 @@ class ShortLinkTaskManager {
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
+    bool NewStartTask(const Task& _task, const PrepareProfile& _prepare_profile);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -137,6 +139,14 @@ class ShortLinkTaskManager {
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
+    bool __GetInterceptTaskInfo(const std::string& _name, std::string& _last_data);
+    int __OnGetStatus();
+    void __OnSocketPoolReport(bool _is_reused, bool _has_received, bool _is_decode_ok);
+    bool __OnSocketPoolAddCache(CacheSocketItem& item);
+    void __OnCgiTaskStatistic(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time);
+    void __OnAddInterceptTask(const std::string& _name, const std::string& _data);
+    void __OnRemoveLst(intptr_t& _worker);
+
  private:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
@@ -154,6 +164,8 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+
+    std::list<intptr_t> lst_shortlink_;
 };
 
 }  // namespace stn

@@ -29,6 +29,7 @@
 #include "boost/signals2.hpp"
 #include "mars/boot/context.h"
 #include "mars/comm/autobuffer.h"
+#include "mars/comm/event/event_center.h"
 #include "mars/comm/http.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/socket/socket_address.h"
@@ -45,12 +46,13 @@ namespace stn {
 
 class shortlink_tracker;
 
-class ShortLink : public ShortLinkInterface {
+class ShortLink : public ShortLinkInterface, public mars::event::IListener {
  public:
     ShortLink(boot::Context* _context,
               comm::MessageQueue::MessageQueue_t _messagequeueid,
               std::shared_ptr<NetSource> _netsource,
               const Task& _task,
+              const PrepareProfile& _prepare_profile,
               bool _use_proxy,
               std::unique_ptr<SocketOperator> _operator = nullptr);
     virtual ~ShortLink();
@@ -62,6 +64,7 @@ class ShortLink : public ShortLinkInterface {
     void SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms);
 
  protected:
+    virtual void Send();
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
     virtual bool IsKeepAlive() const {
         return is_keep_alive_;
@@ -85,13 +88,50 @@ class ShortLink : public ShortLinkInterface {
  private:
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);
 
+ public:
+    void __OnResponseImp(ErrCmdType _err_type,
+                         int _status,
+                         AutoBuffer& _body,
+                         AutoBuffer& _extension,
+                         bool _cancel_retry,
+                         ConnectProfile& _conn_profile);
+    void __OnSend();
+    void __OnRecv(unsigned int _cached_size, unsigned int _total_size);
+
+    void __BatchErrorRespHandle(ErrCmdType _err_type,
+                                int _err_code,
+                                int _fail_handle,
+                                uint32_t _src_taskid,
+                                bool _callback_runing_task_only);
+    bool __SingleRespHandle(ErrCmdType _err_type,
+                            int _err_code,
+                            int _fail_handle,
+                            size_t _resp_length,
+                            const ConnectProfile& _connect_profile);
+    void __OnRequestTimeout(int _errorcode);
+    void __SetLastFailedStatus();
+    void RedoTasks();
+    void ClearTasks();
+    void StartTask();
+    bool HasTask(uint32_t _taskid);
+    bool StopTask(uint32_t _taskid);
+    void __RunOnStartTask();
+    void __RunOnStartTaskImp();
+    void __RunOnTimeout();
+    void __DeleteShortLink();
+
+ private:
+    virtual void handleEvent(mars::event::IEvent& event) override;
+
  protected:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::shared_ptr<NetSource> net_source_;
     std::unique_ptr<SocketOperator> socketOperator_;
     Task task_;
-    comm::Thread thread_;
+    PrepareProfile prepare_profile_;
+    TaskProfile task_profile_;
+    comm::Thread* thread_;
 
     ConnectProfile conn_profile_;
     NetSource::DnsUtil dns_util_;
@@ -105,6 +145,10 @@ class ShortLink : public ShortLinkInterface {
 
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
+    bool is_send_buffer;
+    int sent_count;
+    bool need_new_thread_;
+    std::mutex mutex;
 };
 
 }  // namespace stn

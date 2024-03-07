@@ -22,6 +22,7 @@
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/messagequeue/callback.h"
+#include "mars/stn/src/socket_pool.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/task_profile.h"
 
@@ -32,7 +33,9 @@ class ShortLinkInterface {
  public:
     virtual ~ShortLinkInterface(){};
 
+    virtual void Send() = 0;
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _buffer_extend) = 0;
+
     virtual ConnectProfile Profile() const {
         return ConnectProfile();
     }
@@ -72,6 +75,38 @@ class ShortLinkInterface {
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func_host_filter;
     std::function<void(bool _connect_timeout, struct tcp_info& _info)> func_add_weak_net_info;
     std::function<void(bool _timeout, struct tcp_info& _info)> func_weak_net_report;
+
+    // cpan cgi profile
+    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
+    boost::function<
+        int(ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)>
+        fun_callback_;
+    std::function<void(const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)>
+        get_real_host_;
+    std::function<bool(const std::vector<std::string> _host_list)> can_use_tls_;
+    boost::function<bool(const Task& _task, const void* _buffer, int _len)> fun_anti_avalanche_check_;
+    boost::function<void(int _line,
+                         ErrCmdType _err_type,
+                         int _err_code,
+                         const std::string& _ip,
+                         const std::string& _host,
+                         uint16_t _port)>
+        fun_notify_network_err_;
+    boost::function<void(int _status_code)> fun_shortlink_response_;
+    std::function<bool(int _error_code)> should_intercept_result_;
+    boost::function<
+        void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)>
+        fun_notify_retry_all_tasks;
+    std::function<int(TaskProfile& _profile)> choose_protocol_;
+
+    std::function<bool(const std::string& _name, std::string& _last_data)> OnGetInterceptTaskInfo;
+    std::function<int()> OnGetStatus;
+    std::function<void(bool _is_reused, bool _has_received, bool _is_decode_ok)> OnSocketPoolReport;
+    std::function<bool(CacheSocketItem& item)> OnSocketPoolAddCache;
+    std::function<void(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time)> OnCgiTaskStatistic;
+    std::function<void(const std::string& _name, const std::string& _data)> OnAddInterceptTask;
+    CallBack<boost::function<void(intptr_t _worker)> > OnRemoveLst;
 };
 
 }  // namespace stn
