@@ -49,15 +49,6 @@ using namespace mars::app;
 #define AYNC_HANDLER asyncreg_.Get()
 #define RETURN_SHORTLINK_SYNC2ASYNC_FUNC_TITLE(func, title) RETURN_SYNC2ASYNC_FUNC_TITLE(func, title, )
 
-// boost::function<size_t (const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)>
-// ShortLinkTaskManager::get_real_host_; boost::function<void (const int _error_type, const int _error_code, const int
-// _use_ip_index)> ShortLinkTaskManager::task_connection_detail_; boost::function<int (TaskProfile& _profile)>
-// ShortLinkTaskManager::choose_protocol_; boost::function<void (const TaskProfile& _profile)>
-// ShortLinkTaskManager::on_timeout_or_remote_shutdown_; boost::function<void (uint32_t _version,
-// mars::stn::TlsHandshakeFrom _from)> ShortLinkTaskManager::on_handshake_ready_; boost::function<bool (const
-// std::vector<std::string> _host_list)> ShortLinkTaskManager::can_use_tls_; boost::function<bool (int _error_code)>
-// ShortLinkTaskManager::should_intercept_result_;
-
 ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
                                            std::shared_ptr<NetSource> _netsource,
                                            DynamicTimeout& _dynamictimeout,
@@ -127,6 +118,7 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
             xinfo2(TSF "find the task, taskid:%0", _taskid);
 
             __DeleteShortLink(first->running_id);
+            
             lst_cmd_.erase(first);
             return true;
         }
@@ -160,6 +152,7 @@ void ShortLinkTaskManager::ClearTasks() {
 
     for (std::list<TaskProfile>::iterator it = lst_cmd_.begin(); it != lst_cmd_.end(); ++it) {
         __DeleteShortLink(it->running_id);
+        
     }
 
     lst_cmd_.clear();
@@ -441,6 +434,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         config.use_tls = use_tls;
 
+        /* move to shortlink
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
         int error_code = 0;
@@ -533,6 +527,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
         }
         first->transfer_profile.send_data_size = bufreq.Length();
+        */
 
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(context_,
                                                                      MessageQueue::Handler2Queue(asyncreg_.Get()),
@@ -544,9 +539,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
-        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7),
-                               worker,
-                               AYNC_HANDLER);
+        //        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6,
+        //        _7),
+        //                               worker,
+        //                               AYNC_HANDLER);
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
 
@@ -570,7 +566,84 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         if (choose_protocol_) {
             worker->SetUseProtocol(choose_protocol_(*first));
         }
-        worker->SendRequest(bufreq, buffer_extension);
+        worker->SetSentCount(sent_count);
+
+        worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
+        // worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+        worker->on_handshake_ready_ = on_handshake_ready_;
+        worker->fun_anti_avalanche_check_ = fun_anti_avalanche_check_;
+        worker->OnGetInterceptTaskInfo = std::bind(&ShortLinkTaskManager::__GetInterceptTaskInfo,
+                                                   this,
+                                                   std::placeholders::_1,
+                                                   std::placeholders::_2);
+        worker->OnGetStatus = std::bind(&ShortLinkTaskManager::__OnGetStatus, this);
+        worker->fun_shortlink_response_ = fun_shortlink_response_;
+        worker->fun_notify_retry_all_tasks = fun_notify_retry_all_tasks;
+        worker->fun_notify_network_err_ = fun_notify_network_err_;
+        worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2));
+        worker->should_intercept_result_ = should_intercept_result_;
+        worker->OnAddInterceptTask =
+            std::bind(&ShortLinkTaskManager::__OnAddInterceptTask, this, std::placeholders::_1, std::placeholders::_2);
+        worker->OnSocketPoolReport = std::bind(&ShortLinkTaskManager::__OnSocketPoolReport,
+                                               this,
+                                               std::placeholders::_1,
+                                               std::placeholders::_2,
+                                               std::placeholders::_3);
+        worker->OnSocketPoolTryAddCache =
+            std::bind(&ShortLinkTaskManager::__OnSocketPoolTryAdd, this, std::placeholders::_1, std::placeholders::_2);
+        if (!debug_host_.empty()) {
+            worker->SetDebugHost(debug_host_);
+        }
+
+        worker->task_connection_detail_ = task_connection_detail_;
+        worker->fun_callback_ = fun_callback_;
+        worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
+
+        worker->on_set_use_proxy_ = std::bind(&ShortLinkTaskManager::__OnSetUserProxy, this, std::placeholders::_1);
+        worker->on_reset_fail_count_ = std::bind(&ShortLinkTaskManager::__OnResetFailCount, this);
+        worker->on_increase_fail_count_ = std::bind(&ShortLinkTaskManager::__OnInCreaseFailCount, this);
+        // worker->on_get_send_count_ = std::bind(&ShortLinkTaskManager::__OnGetSendCount, this);
+
+        worker->OnSingleRespHandle.set(
+            boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker, this, _1, _2, _3, _4, _5, _6),
+            worker,
+            AYNC_HANDLER);
+        worker->OnReq2BufTime.set(boost::bind(&ShortLinkTaskManager::__OnReq2BufTime, this, _1, _2, _3),
+                                  worker,
+                                  AYNC_HANDLER);
+        worker->OnBuf2RespTime.set(boost::bind(&ShortLinkTaskManager::__OnBuf2RespTime, this, _1, _2, _3),
+                                   worker,
+                                   AYNC_HANDLER);
+        worker->OnRecvDataTime.set(boost::bind(&ShortLinkTaskManager::__OnRecvDataTime, this, _1, _2, _3),
+                                   worker,
+                                   AYNC_HANDLER);
+        worker->OnUpdateTimeout.set(boost::bind(&ShortLinkTaskManager::__OnUpdateTimeout, this, _1, _2, _3, _4, _5, _6),
+                                    worker,
+                                    AYNC_HANDLER);
+
+        worker->OnClientSequenceId.set(boost::bind(&ShortLinkTaskManager::__OnClientSequenceId, this, _1, _2),
+                                       worker,
+                                       AYNC_HANDLER);
+
+        worker->OnServerSequenceId.set(boost::bind(&ShortLinkTaskManager::__OnServerSequenceId, this, _1, _2),
+                                       worker,
+                                       AYNC_HANDLER);
+
+        worker->OnSetForceNoRetry.set(boost::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, _1, _2),
+                                      worker,
+                                      AYNC_HANDLER);
+        worker->OnSetForceNoRetry.set(boost::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, _1, _2),
+                                      worker,
+                                      AYNC_HANDLER);
+        worker->OnIncreateRemainRetryCount.set(
+            boost::bind(&ShortLinkTaskManager::__OnIncreateRemainRetryCount, this, _1, _2),
+            worker,
+            AYNC_HANDLER);
+        worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
+                                          worker,
+                                          AYNC_HANDLER);
+
+        worker->SendRequest();
 
         xinfo2_if(first->task.priority >= 0,
                   TSF
@@ -619,8 +692,8 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
 
     fun_shortlink_response_(_status);
 
-    std::list<TaskProfile>::iterator it =
-        __LocateBySeq((intptr_t)_worker);  // must used iter pWorker, not used aSelf. aSelf may be destroy already
+    // must used iter pWorker, not used aSelf. aSelf may be destroy already
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
 
     if (lst_cmd_.end() == it) {
         xerror2(TSF "task no found: status:%_, worker:%_", _status, _worker);
@@ -916,6 +989,8 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
             first->allow_sessiontimeout_retry = false;
             first->remain_retry_count++;
             __DeleteShortLink(first->running_id);
+            
+
             first->PushHistory();
             first->InitSendParam();
             first = next;
@@ -940,6 +1015,21 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
                 first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
 
         first = next;
+    }
+}
+
+bool ShortLinkTaskManager::__SingleRespHandleByWorker(ShortLinkInterface* _worker,
+                                                      ErrCmdType _err_type,
+                                                      int _err_code,
+                                                      int _fail_handle,
+                                                      size_t _resp_length,
+                                                      const ConnectProfile& _connect_profile) {
+    WAIT_SYNC2ASYNC_FUNC(boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker, this, _worker, _err_type, _err_code, _fail_handle, _resp_length, _connect_profile));
+    
+    xverbose_function();
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        __SingleRespHandle(it, _err_type, _err_code, _fail_handle, _resp_length, _connect_profile);
     }
 }
 
@@ -1050,6 +1140,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
         __DeleteShortLink(_it->running_id);
+        
 
         lst_cmd_.erase(_it);
 
@@ -1090,6 +1181,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->err_type = _err_type;
     _it->err_code = _err_code;
     __DeleteShortLink(_it->running_id);
+    
     _it->PushHistory();
     if (on_timeout_or_remote_shutdown_) {
         on_timeout_or_remote_shutdown_(*_it);
@@ -1125,11 +1217,11 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
 }
 
 void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
-    if (!_running_id)
+    if (!_running_id){
+        xinfo2(TSF"_running_id is empty.");
         return;
+    }
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
-    // p_shortlink->func_add_weak_net_info = NULL;
-    // p_shortlink->func_weak_net_report = NULL;
     ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;
@@ -1176,5 +1268,158 @@ void ShortLinkTaskManager::__OnAddWeakNetInfo(bool _connect_timeout, struct tcp_
     }
     if (add_weaknet_info_) {
         add_weaknet_info_(_connect_timeout, _info);
+    }
+}
+
+bool ShortLinkTaskManager::__GetInterceptTaskInfo(const std::string& _name, std::string& _last_data) {
+    return task_intercept_.GetInterceptTaskInfo(_name, _last_data);
+}
+
+int ShortLinkTaskManager::__OnGetStatus() {
+    return dynamic_timeout_.GetStatus();
+}
+
+// void ShortLinkTaskManager::__OnCgiTaskStatistic(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time)
+// {
+//    dynamic_timeout_.CgiTaskStatistic(_cgi_uri, _total_size, _cost_time);
+//}
+void ShortLinkTaskManager::__OnCgiTaskStatistic(ShortLinkInterface* _worker, unsigned int body_length) {
+    //    task_.cgi,
+    //    (unsigned int)it->transfer_profile.send_data_size + (unsigned int)_body.Length(),
+    //    ::gettickcount() - it->transfer_profile.start_send_time);
+
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        dynamic_timeout_.CgiTaskStatistic(it->task.cgi,
+                                          (unsigned int)it->transfer_profile.send_data_size + body_length,
+                                          ::gettickcount() - it->transfer_profile.start_send_time);
+    }
+}
+
+void ShortLinkTaskManager::__OnAddInterceptTask(const std::string& _name, const std::string& _data) {
+    task_intercept_.AddInterceptTask(_name, _data);
+}
+
+void ShortLinkTaskManager::__OnSocketPoolReport(bool _is_reused, bool _has_received, bool _is_decode_ok) {
+    socket_pool_.Report(_is_reused, _has_received, _is_decode_ok);
+}
+
+void ShortLinkTaskManager::__OnSocketPoolTryAdd(IPPortItem item, ConnectProfile& _conn_profile) {
+    CacheSocketItem cache_item(item,
+                               _conn_profile.socket_fd,
+                               _conn_profile.keepalive_timeout,
+                               _conn_profile.closefunc,
+                               _conn_profile.createstream_func,
+                               _conn_profile.issubstream_func);
+    if (!socket_pool_.AddCache(cache_item)) {
+        _conn_profile.closefunc(cache_item.socket_fd);
+    }
+}
+
+void ShortLinkTaskManager::__OnSetUserProxy(bool _user_proxy) {
+    default_use_proxy_ = _user_proxy;
+}
+
+void ShortLinkTaskManager::__OnResetFailCount() {
+    tasks_continuous_fail_count_ = 0;
+}
+
+void ShortLinkTaskManager::__OnInCreaseFailCount() {
+    ++tasks_continuous_fail_count_;
+}
+
+void ShortLinkTaskManager::__OnReq2BufTime(ShortLinkInterface* _worker,
+                                           uint64_t begin_req2buf_time,
+                                           uint64_t end_req2buf_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_req2buf_time = begin_req2buf_time;
+        it->transfer_profile.end_req2buf_time = end_req2buf_time;
+    }
+}
+
+void ShortLinkTaskManager::__OnBuf2RespTime(ShortLinkInterface* _worker,
+                                            uint64_t begin_buf2resp_time,
+                                            uint64_t end_buf2resp_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_buf2resp_time = begin_buf2resp_time;
+        it->transfer_profile.end_buf2resp_time = end_buf2resp_time;
+    }
+}
+
+void ShortLinkTaskManager::__OnClientSequenceId(ShortLinkInterface* _worker, int client_sequence_id) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->task.client_sequence_id = (unsigned int)client_sequence_id;
+    }
+}
+
+void ShortLinkTaskManager::__OnServerSequenceId(ShortLinkInterface* _worker, int server_sequence_id) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->task.server_sequence_id = (unsigned int)server_sequence_id;
+    }
+}
+
+void ShortLinkTaskManager::__OnRecvDataTime(ShortLinkInterface* _worker,
+                                            size_t receive_data_size,
+                                            uint64_t last_receive_pkg_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.received_size = receive_data_size;
+        it->transfer_profile.receive_data_size = receive_data_size;
+        it->transfer_profile.last_receive_pkg_time = last_receive_pkg_time;
+    }
+}
+
+void ShortLinkTaskManager::__OnUpdateTimeout(ShortLinkInterface* _worker,
+                                             uint64_t loop_start_task_time,
+                                             uint64_t first_pkg_timeout,
+                                             uint64_t read_write_timeout,
+                                             size_t send_data_size,
+                                             int current_dyntime_status) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.loop_start_task_time = loop_start_task_time;
+        it->transfer_profile.first_pkg_timeout = first_pkg_timeout;
+        it->transfer_profile.read_write_timeout = read_write_timeout;
+        it->transfer_profile.send_data_size = send_data_size;
+        it->current_dyntime_status = current_dyntime_status;
+    }
+}
+
+void ShortLinkTaskManager::__OnSetForceNoRetry(ShortLinkInterface* _worker, bool force_no_retry) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->force_no_retry = force_no_retry;
+    }
+}
+
+void ShortLinkTaskManager::__OnIncreateRemainRetryCount(ShortLinkInterface* _worker, bool before) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        if (before) {
+            //.increment retry count when first quic failed.
+            if (it->history_transfer_profiles.empty()) {
+                ++it->remain_retry_count;
+            }
+        } else {
+            it->remain_retry_count++;
+        }
+    }
+}
+
+void ShortLinkTaskManager::__OnSetLastFailedStatus(ShortLinkInterface* _worker) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        __SetLastFailedStatus(it);
+    }
+}
+
+void ShortLinkTaskManager::__OnUpdateConnectProfile(ShortLinkInterface* _worker, ConnectProfile& _connect_profile) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.connect_profile = _connect_profile;
     }
 }
