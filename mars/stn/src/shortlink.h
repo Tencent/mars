@@ -62,6 +62,8 @@ class ShortLink : public ShortLinkInterface {
     void SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms);
 
  protected:
+    virtual void SendRequest();
+    virtual void SetSentCount(int count);
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
     virtual bool IsKeepAlive() const {
         return is_keep_alive_;
@@ -86,6 +88,9 @@ class ShortLink : public ShortLinkInterface {
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);
 
  protected:
+    bool __Req2Buf();
+
+ protected:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::shared_ptr<NetSource> net_source_;
@@ -105,6 +110,8 @@ class ShortLink : public ShortLinkInterface {
 
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
+    bool is_req_with_buff;
+    int sent_count;
 };
 
 }  // namespace stn
