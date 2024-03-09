@@ -118,7 +118,7 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
             xinfo2(TSF "find the task, taskid:%0", _taskid);
 
             __DeleteShortLink(first->running_id);
-            
+
             lst_cmd_.erase(first);
             return true;
         }
@@ -152,7 +152,6 @@ void ShortLinkTaskManager::ClearTasks() {
 
     for (std::list<TaskProfile>::iterator it = lst_cmd_.begin(); it != lst_cmd_.end(); ++it) {
         __DeleteShortLink(it->running_id);
-        
     }
 
     lst_cmd_.clear();
@@ -989,7 +988,6 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
             first->allow_sessiontimeout_retry = false;
             first->remain_retry_count++;
             __DeleteShortLink(first->running_id);
-            
 
             first->PushHistory();
             first->InitSendParam();
@@ -1024,13 +1022,21 @@ bool ShortLinkTaskManager::__SingleRespHandleByWorker(ShortLinkInterface* _worke
                                                       int _fail_handle,
                                                       size_t _resp_length,
                                                       const ConnectProfile& _connect_profile) {
-    WAIT_SYNC2ASYNC_FUNC(boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker, this, _worker, _err_type, _err_code, _fail_handle, _resp_length, _connect_profile));
-    
+    WAIT_SYNC2ASYNC_FUNC(boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker,
+                                     this,
+                                     _worker,
+                                     _err_type,
+                                     _err_code,
+                                     _fail_handle,
+                                     _resp_length,
+                                     _connect_profile));
+
     xverbose_function();
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
-        __SingleRespHandle(it, _err_type, _err_code, _fail_handle, _resp_length, _connect_profile);
+        return __SingleRespHandle(it, _err_type, _err_code, _fail_handle, _resp_length, _connect_profile);
     }
+    return false;
 }
 
 bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _it,
@@ -1140,7 +1146,6 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
         __DeleteShortLink(_it->running_id);
-        
 
         lst_cmd_.erase(_it);
 
@@ -1181,7 +1186,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->err_type = _err_type;
     _it->err_code = _err_code;
     __DeleteShortLink(_it->running_id);
-    
+
     _it->PushHistory();
     if (on_timeout_or_remote_shutdown_) {
         on_timeout_or_remote_shutdown_(*_it);
@@ -1217,8 +1222,8 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
 }
 
 void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
-    if (!_running_id){
-        xinfo2(TSF"_running_id is empty.");
+    if (!_running_id) {
+        xinfo2(TSF "_running_id is empty.");
         return;
     }
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
