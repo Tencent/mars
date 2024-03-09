@@ -117,7 +117,7 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
         if (_taskid == first->task.taskid) {
             xinfo2(TSF "find the task, taskid:%0", _taskid);
 
-            __DeleteShortLink(first->running_id);
+            __DeleteShortLink(first);
 
             lst_cmd_.erase(first);
             return true;
@@ -151,7 +151,7 @@ void ShortLinkTaskManager::ClearTasks() {
     xinfo2(TSF "cmd size:%0", lst_cmd_.size());
 
     for (std::list<TaskProfile>::iterator it = lst_cmd_.begin(); it != lst_cmd_.end(); ++it) {
-        __DeleteShortLink(it->running_id);
+        __DeleteShortLink(it);
     }
 
     lst_cmd_.clear();
@@ -987,8 +987,7 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
             xinfo2(TSF "axauth to timeout queue %_, cgi %_ ", first->task.taskid, first->task.cgi);
             first->allow_sessiontimeout_retry = false;
             first->remain_retry_count++;
-            __DeleteShortLink(first->running_id);
-
+            __DeleteShortLink(first);
             first->PushHistory();
             first->InitSendParam();
             first = next;
@@ -1145,7 +1144,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
         // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
-        __DeleteShortLink(_it->running_id);
+        __DeleteShortLink(_it);
 
         lst_cmd_.erase(_it);
 
@@ -1185,7 +1184,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->transfer_profile.error_code = _err_code;
     _it->err_type = _err_type;
     _it->err_code = _err_code;
-    __DeleteShortLink(_it->running_id);
+    __DeleteShortLink(_it);
 
     _it->PushHistory();
     if (on_timeout_or_remote_shutdown_) {
@@ -1221,12 +1220,16 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
     return it;
 }
 
-void ShortLinkTaskManager::__DeleteShortLink(intptr_t& _running_id) {
-    if (!_running_id) {
+void ShortLinkTaskManager::__DeleteShortLink(std::list<TaskProfile>::iterator _it) {
+    intptr_t running_id = _it->running_id;
+    _it->running_id = 0;
+    xinfo2(TSF "running id:%_ profile running id:%_", running_id, _it->running_id);
+
+    if (!running_id) {
         xinfo2(TSF "_running_id is empty.");
         return;
     }
-    ShortLinkInterface* p_shortlink = (ShortLinkInterface*)_running_id;
+    ShortLinkInterface* p_shortlink = (ShortLinkInterface*)running_id;
     ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;

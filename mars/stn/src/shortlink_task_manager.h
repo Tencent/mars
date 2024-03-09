@@ -137,7 +137,7 @@ class ShortLinkTaskManager {
 
     std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
 
-    void __DeleteShortLink(intptr_t& _running_id);
+    void __DeleteShortLink(std::list<TaskProfile>::iterator _it);
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
