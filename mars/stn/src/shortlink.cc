@@ -166,7 +166,17 @@ ShortLink::ShortLink(boot::Context* _context,
 }
 
 ShortLink::~ShortLink() {
-    xinfo2("delete %p", this);
+    //    xinfo_function(TSF "delete %_", this);
+    //    if (task_.priority >= 0) {
+    //        xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
+    //    }
+    //    __CancelAndWaitWorkerThread();
+    //    asyncreg_.CancelAndWait();
+    //    dns_util_.Cancel();
+}
+
+void ShortLink::ReleaseWorker() {
+    xinfo_function(TSF "delete %_", this);
     if (task_.priority >= 0) {
         xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }
@@ -196,7 +206,7 @@ void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
 void ShortLink::__Run() {
     xmessage2_define(message, TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     xinfo_function(TSF "%_, net:%_, realtime:%_", message.String(), getNetInfo(), task_.need_realtime_netinfo);
-    
+
     if (!is_req_with_buff) {
         __Req2Buf();
     }
@@ -844,7 +854,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 }
 
 void ShortLink::__UpdateProfile(const ConnectProfile _conn_profile) {
-    //    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
+    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
     ConnectProfile profile = conn_profile_;
     conn_profile_ = _conn_profile;
     conn_profile_.tls_handshake_successful_time = profile.tls_handshake_successful_time;
@@ -950,13 +960,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
                                                                        err_code,
                                                                        Task::kChannelShort,
                                                                        server_sequence_id);
-       
-        
-        if (socketOperator_->Breaker().IsBreak()) {
-            xwarn2(TSF "OnResponse Is break");
-            return;
-        }
-        
+
         xinfo2_if(task_.priority >= 0, TSF "err_code %_ ", err_code);
         xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
         uint64_t end_buf2resp_time = gettickcount();
@@ -973,7 +977,6 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
             case kTaskFailHandleNoError: {
                 OnCgiTaskStatistic(this, (unsigned int)_body.Length());
 
-                OnSingleRespHandle(this, kEctOK, err_code, handle_type, (unsigned int)receive_data_size, _conn_profile);
                 xassert2(fun_notify_network_err_);
                 fun_notify_network_err_(__LINE__,
                                         kEctOK,
@@ -981,6 +984,7 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
                                         _conn_profile.ip,
                                         _conn_profile.host,
                                         _conn_profile.port);
+                OnSingleRespHandle(this, kEctOK, err_code, handle_type, (unsigned int)receive_data_size, _conn_profile);
             } break;
             case kTaskFailHandleSessionTimeout: {
                 xassert2(fun_notify_retry_all_tasks);
@@ -1013,12 +1017,6 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
                         (void*)this,
                         task_.taskid,
                         xlogger_memory_dump(_body.Ptr(), _body.Length()));
-                OnSingleRespHandle(this,
-                                   kEctEnDecode,
-                                   err_code,
-                                   handle_type,
-                                   (unsigned int)receive_data_size,
-                                   _conn_profile);
                 xassert2(fun_notify_network_err_);
                 fun_notify_network_err_(__LINE__,
                                         kEctEnDecode,
@@ -1026,6 +1024,12 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
                                         _conn_profile.ip,
                                         _conn_profile.host,
                                         _conn_profile.port);
+                OnSingleRespHandle(this,
+                                   kEctEnDecode,
+                                   err_code,
+                                   handle_type,
+                                   (unsigned int)receive_data_size,
+                                   _conn_profile);
             } break;
             default: {
                 xerror2(TSF "task decode error fail_handle:%_, taskid:%_, context id:%_",
@@ -1041,12 +1045,6 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
                 //                off += len;
                 //            }
                 //#endif
-                OnSingleRespHandle(this,
-                                   kEctEnDecode,
-                                   err_code,
-                                   handle_type,
-                                   (unsigned int)receive_data_size,
-                                   _conn_profile);
                 xassert2(fun_notify_network_err_);
                 fun_notify_network_err_(__LINE__,
                                         kEctEnDecode,
@@ -1054,6 +1052,12 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
                                         _conn_profile.ip,
                                         _conn_profile.host,
                                         _conn_profile.port);
+                OnSingleRespHandle(this,
+                                   kEctEnDecode,
+                                   err_code,
+                                   handle_type,
+                                   (unsigned int)receive_data_size,
+                                   _conn_profile);
                 break;
             }
         }
@@ -1069,10 +1073,12 @@ void ShortLink::SetConnectParams(const std::vector<IPPortItem>& _out_addr,
 }
 
 void ShortLink::__CancelAndWaitWorkerThread() {
-    xdebug_function();
+    xdebug_function(TSF "%_", this);
 
-    if (!thread_.isruning())
+    if (!thread_.isruning()) {
+        xinfo2(TSF "thread is no running.");
         return;
+    }
 
     if (!socketOperator_->Breaker().Break()) {
         xassert2(false, "breaker fail");
@@ -1081,14 +1087,14 @@ void ShortLink::__CancelAndWaitWorkerThread() {
 }
 
 bool ShortLink::__Req2Buf() {
-    xinfo_function();
+    xinfo_function(TSF "%_", this);
     AutoBuffer bufreq;
     AutoBuffer buffer_extend;
     int error_code = 0;
 
     // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
     unsigned short client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
-    xinfo2(TSF "client_sequence_id:%_", task_.client_sequence_id);
+    xinfo2(TSF "client_sequence_id:%_", client_sequence_id);
 
     uint64_t begin_req2buf_time = gettickcount();
     if (!context_->GetManager<StnManager>()->Req2Buf(task_.taskid,
@@ -1137,8 +1143,8 @@ bool ShortLink::__Req2Buf() {
                                                                        Task::kChannelShort,
                                                                        server_sequence_id);
         xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
-        task_.server_sequence_id = server_sequence_id;
         OnRecvDataTime(this, received_size, last_receive_pkg_time);
+        OnServerSequenceId(this, (int)server_sequence_id);
         OnSingleRespHandle(this, kEctEnDecode, err_code, handle_type, (unsigned long)receive_data_size, conn_profile_);
         return false;
     }

@@ -549,18 +549,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             worker->SetDebugHost(debug_host_);
         }
 
-        first->running_id = (intptr_t)worker;
-
-        xassert2(worker && first->running_id);
-        if (!first->running_id) {
-            xwarn2(TSF "task add into shortlink readwrite fail cgi:%_, cmdid:%_, taskid:%_",
-                   first->task.cgi,
-                   first->task.cmdid,
-                   first->task.taskid);
-            first = next;
-            continue;
-        }
-
         worker->func_network_report.set(fun_notify_network_err_);
         if (choose_protocol_) {
             worker->SetUseProtocol(choose_protocol_(*first));
@@ -641,6 +629,71 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
                                           worker,
                                           AYNC_HANDLER);
+
+        //        worker->OnSingleRespHandle = std::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker,
+        //                                               this,
+        //                                               std::placeholders::_1,
+        //                                               std::placeholders::_2,
+        //                                               std::placeholders::_3,
+        //                                               std::placeholders::_4,
+        //                                               std::placeholders::_5,
+        //                                               std::placeholders::_6);
+        //        worker->OnReq2BufTime = std::bind(&ShortLinkTaskManager::__OnReq2BufTime,
+        //                                          this,
+        //                                          std::placeholders::_1,
+        //                                          std::placeholders::_2,
+        //                                          std::placeholders::_3);
+        //        worker->OnBuf2RespTime = std::bind(&ShortLinkTaskManager::__OnBuf2RespTime,
+        //                                           this,
+        //                                           std::placeholders::_1,
+        //                                           std::placeholders::_2,
+        //                                           std::placeholders::_3);
+        //        worker->OnRecvDataTime = std::bind(&ShortLinkTaskManager::__OnRecvDataTime,
+        //                                           this,
+        //                                           std::placeholders::_1,
+        //                                           std::placeholders::_2,
+        //                                           std::placeholders::_3);
+        //        worker->OnUpdateTimeout = std::bind(&ShortLinkTaskManager::__OnUpdateTimeout,
+        //                                            this,
+        //                                            std::placeholders::_1,
+        //                                            std::placeholders::_2,
+        //                                            std::placeholders::_3,
+        //                                            std::placeholders::_4,
+        //                                            std::placeholders::_5,
+        //                                            std::placeholders::_6);
+        //
+        //        worker->OnClientSequenceId =
+        //            std::bind(&ShortLinkTaskManager::__OnClientSequenceId, this, std::placeholders::_1,
+        //            std::placeholders::_2);
+        //
+        //        worker->OnServerSequenceId =
+        //            std::bind(&ShortLinkTaskManager::__OnServerSequenceId, this, std::placeholders::_1,
+        //            std::placeholders::_2);
+        //
+        //        worker->OnSetForceNoRetry =
+        //            std::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, std::placeholders::_1,
+        //            std::placeholders::_2);
+        //        worker->OnSetForceNoRetry =
+        //            std::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, std::placeholders::_1,
+        //            std::placeholders::_2);
+        //        worker->OnIncreateRemainRetryCount = std::bind(&ShortLinkTaskManager::__OnIncreateRemainRetryCount,
+        //                                                       this,
+        //                                                       std::placeholders::_1,
+        //                                                       std::placeholders::_2);
+        //        worker->OnSetLastFailedStatus =
+        //            std::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, std::placeholders::_1);
+
+        first->running_id = (intptr_t)worker;
+
+        xassert2(worker && first->running_id);
+        if (!first->running_id) {
+            xwarn2(TSF "task add into shortlink readwrite fail cgi:%_, cmdid:%_, taskid:%_",
+                   first->task.cgi,
+                   first->task.cmdid,
+                   first->task.taskid);
+            first = next;
+            continue;
+        }
 
         worker->SendRequest();
 
@@ -1021,19 +1074,15 @@ bool ShortLinkTaskManager::__SingleRespHandleByWorker(ShortLinkInterface* _worke
                                                       int _fail_handle,
                                                       size_t _resp_length,
                                                       const ConnectProfile& _connect_profile) {
-    WAIT_SYNC2ASYNC_FUNC(boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker,
-                                     this,
-                                     _worker,
-                                     _err_type,
-                                     _err_code,
-                                     _fail_handle,
-                                     _resp_length,
-                                     _connect_profile));
-
     xverbose_function();
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
-        return __SingleRespHandle(it, _err_type, _err_code, _fail_handle, _resp_length, _connect_profile);
+        if (it->running_id) {
+            return __SingleRespHandle(it, _err_type, _err_code, _fail_handle, _resp_length, _connect_profile);
+        } else {
+            xinfo2(TSF "running_id is empty, task had remove.");
+            return false;
+        }
     }
     return false;
 }
@@ -1050,6 +1099,11 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
 
     if (_it == lst_cmd_.end())
         return false;
+
+    if (!_it->running_id) {
+        xwarn2(TSF "running id is empty, may be task had delete.");
+        return false;
+    }
 
     if (kEctOK == _err_type) {
         tasks_continuous_fail_count_ = 0;
@@ -1184,7 +1238,11 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     _it->transfer_profile.error_code = _err_code;
     _it->err_type = _err_type;
     _it->err_code = _err_code;
-    __DeleteShortLink(_it);
+
+    if (!__DeleteShortLink(_it)) {
+        xwarn2(TSF "delete fail. taskid %_", _it->task.taskid);
+        return false;
+    }
 
     _it->PushHistory();
     if (on_timeout_or_remote_shutdown_) {
@@ -1203,7 +1261,6 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         _it->retry_start_time = 0;
     }
 
-    // TODO cpan 重试间隔
     _it->retry_time_interval = DEF_TASK_RETRY_INTERNAL;
 
     return false;
@@ -1220,19 +1277,20 @@ std::list<TaskProfile>::iterator ShortLinkTaskManager::__LocateBySeq(intptr_t _r
     return it;
 }
 
-void ShortLinkTaskManager::__DeleteShortLink(std::list<TaskProfile>::iterator _it) {
+bool ShortLinkTaskManager::__DeleteShortLink(std::list<TaskProfile>::iterator _it) {
     intptr_t running_id = _it->running_id;
     _it->running_id = 0;
     xinfo2(TSF "running id:%_ profile running id:%_", running_id, _it->running_id);
 
     if (!running_id) {
-        xinfo2(TSF "_running_id is empty.");
-        return;
+        xinfo2(TSF "running id is empty. ignore.");
+        return false;
     }
     ShortLinkInterface* p_shortlink = (ShortLinkInterface*)running_id;
     ShortLinkChannelFactory::Destory(p_shortlink);
     MessageQueue::CancelMessage(asyncreg_.Get(), p_shortlink);
     p_shortlink = NULL;
+    return true;
 }
 
 ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const {
