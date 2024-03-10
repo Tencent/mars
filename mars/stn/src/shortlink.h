@@ -62,6 +62,7 @@ class ShortLink : public ShortLinkInterface {
     void SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms);
 
  protected:
+    virtual void ReleaseWorker();
     virtual void SendRequest();
     virtual void SetSentCount(int count);
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
