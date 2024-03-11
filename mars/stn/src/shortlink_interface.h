@@ -31,7 +31,6 @@ namespace stn {
 class ShortLinkInterface {
  public:
     virtual ~ShortLinkInterface(){};
-    virtual void ReleaseWorker() = 0;
     virtual void SendRequest() = 0;
     virtual void SetSentCount(int sent_count) = 0;
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _buffer_extend) = 0;
@@ -83,6 +82,10 @@ class ShortLinkInterface {
     boost::function<
         void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)>
         fun_notify_retry_all_tasks;
+    //不用使用callback, retry会delete shortlink, 但callback会锁住mutex
+    //    CallBack<boost::function<void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid,
+    //    std::string _user_id)>> fun_notify_retry_all_tasks;
+
     boost::function<void(int _line,
                          ErrCmdType _err_type,
                          int _err_code,

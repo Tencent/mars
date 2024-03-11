@@ -566,6 +566,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->OnGetStatus = std::bind(&ShortLinkTaskManager::__OnGetStatus, this);
         worker->fun_shortlink_response_ = fun_shortlink_response_;
         worker->fun_notify_retry_all_tasks = fun_notify_retry_all_tasks;
+        //        worker->fun_notify_retry_all_tasks.set(fun_notify_retry_all_tasks);
         worker->fun_notify_network_err_ = fun_notify_network_err_;
         worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2));
         worker->should_intercept_result_ = should_intercept_result_;
