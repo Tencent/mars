@@ -166,16 +166,6 @@ ShortLink::ShortLink(boot::Context* _context,
 }
 
 ShortLink::~ShortLink() {
-    //    xinfo_function(TSF "delete %_", this);
-    //    if (task_.priority >= 0) {
-    //        xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
-    //    }
-    //    __CancelAndWaitWorkerThread();
-    //    asyncreg_.CancelAndWait();
-    //    dns_util_.Cancel();
-}
-
-void ShortLink::ReleaseWorker() {
     xinfo_function(TSF "delete %_", this);
     if (task_.priority >= 0) {
         xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
@@ -854,7 +844,7 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
 }
 
 void ShortLink::__UpdateProfile(const ConnectProfile _conn_profile) {
-    STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
+    // STATIC_RETURN_SYNC2ASYNC_FUNC(boost::bind(&ShortLink::__UpdateProfile, this, _conn_profile));
     ConnectProfile profile = conn_profile_;
     conn_profile_ = _conn_profile;
     conn_profile_.tls_handshake_successful_time = profile.tls_handshake_successful_time;
@@ -894,172 +884,180 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
         move_wrapper<AutoBuffer> extension(_extension);
         OnResponse(this, _errType, _status, body, extension, false, _conn_profile);
     } else {
-        xwarn2(TSF "OnResponse NULL.");
-        xdebug2(TSF "_err_type=%_, _status=%_, _body.lenght=%_, _cancel_retry=%_",
-                _errType,
-                _status,
-                _body.Length(),
-                false);
-        bool cancel_retry = false;
-        fun_shortlink_response_(_status);
+        __OnResponseImp(_errType, _status, _body, _extension, _conn_profile);
+    }
+}
 
-        if (IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
-            if (_errType != kEctOK) {
-                _conn_profile.closefunc(_conn_profile.socket_fd);
-                if (_status != kEctSocketShutdown) {  // ignore server close error
-                    OnSocketPoolReport(_conn_profile.is_reused_fd, false, false);
-                }
-            } else if (_conn_profile.ip_index >= 0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
-                IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
-                OnSocketPoolTryAddCache(item, _conn_profile);
-            } else {
-                xassert2(false, "not match");
-            }
-        }
+void ShortLink::__OnResponseImp(ErrCmdType _errType,
+                                int _status,
+                                AutoBuffer& _body,
+                                AutoBuffer& _extension,
+                                ConnectProfile& _conn_profile) {
+    xwarn2(TSF "OnResponse NULL.");
+    xdebug2(TSF "_err_type=%_, _status=%_, _body.lenght=%_, _cancel_retry=%_",
+            _errType,
+            _status,
+            _body.Length(),
+            false);
+    bool cancel_retry = false;
+    fun_shortlink_response_(_status);
 
+    if (IsKeepAlive() && _conn_profile.socket_fd != INVALID_SOCKET) {
         if (_errType != kEctOK) {
-            if (_errType == kEctSocket && _status == kEctSocketMakeSocketPrepared) {
-                OnCgiTaskStatistic(this, kDynTimeTaskFailedPkgLen);
-                OnSetLastFailedStatus(this);
+            _conn_profile.closefunc(_conn_profile.socket_fd);
+            if (_status != kEctSocketShutdown) {  // ignore server close error
+                OnSocketPoolReport(_conn_profile.is_reused_fd, false, false);
             }
+        } else if (_conn_profile.ip_index >= 0 && _conn_profile.ip_index < (int)_conn_profile.ip_items.size()) {
+            IPPortItem item = _conn_profile.ip_items[_conn_profile.ip_index];
+            OnSocketPoolTryAddCache(item, _conn_profile);
+        } else {
+            xassert2(false, "not match");
+        }
+    }
 
-            if (_errType != kEctLocal && _errType != kEctCanceld) {
-                if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC) {
-                    // quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
-                    xwarn2(TSF "disable quic. err %_:%_", _errType, _status);
-                    net_source_->DisableQUIC();
-
-                    //.increment retry count when first quic failed.
-                    OnIncreateRemainRetryCount(this, true);
-                }
-            }
-
-            if (_errType == kEctSocket) {
-                OnSetForceNoRetry(this, cancel_retry);
-            }
-            if (_status == kEctHandshakeMisunderstand) {
-                OnIncreateRemainRetryCount(this, false);
-            }
-            OnSingleRespHandle(this, _errType, _status, kTaskFailHandleDefault, _body.Length(), _conn_profile);
-            return;
+    if (_errType != kEctOK) {
+        if (_errType == kEctSocket && _status == kEctSocketMakeSocketPrepared) {
+            OnCgiTaskStatistic(this, kDynTimeTaskFailedPkgLen);
+            OnSetLastFailedStatus(this);
         }
 
-        size_t received_size = _body.Length();
-        size_t receive_data_size = _body.Length();
-        uint64_t last_receive_pkg_time = ::gettickcount();
-        OnRecvDataTime(this, receive_data_size, last_receive_pkg_time);
+        if (_errType != kEctLocal && _errType != kEctCanceld) {
+            if (_conn_profile.transport_protocol == Task::kTransportProtocolQUIC) {
+                // quic失败,临时屏蔽20分钟，直到下一次网络切换或者20分钟后再尝试.
+                xwarn2(TSF "disable quic. err %_:%_", _errType, _status);
+                net_source_->DisableQUIC();
 
-        int err_code = 0;
-        unsigned short server_sequence_id = 0;
-        uint64_t begin_buf2resp_time = gettickcount();
-        int handle_type = context_->GetManager<StnManager>()->Buf2Resp(task_.taskid,
-                                                                       task_.user_context,
-                                                                       task_.user_id,
-                                                                       _body,
-                                                                       _extension,
-                                                                       err_code,
-                                                                       Task::kChannelShort,
-                                                                       server_sequence_id);
-
-        xinfo2_if(task_.priority >= 0, TSF "err_code %_ ", err_code);
-        xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
-        uint64_t end_buf2resp_time = gettickcount();
-        OnBuf2RespTime(this, begin_buf2resp_time, end_buf2resp_time);
-
-        OnServerSequenceId(this, (int)server_sequence_id);
-
-        OnSocketPoolReport(_conn_profile.is_reused_fd, true, handle_type == kTaskFailHandleNoError);
-        if (should_intercept_result_ && should_intercept_result_(err_code)) {
-            OnAddInterceptTask(task_.cgi, std::string((const char*)_body.Ptr(), _body.Length()));
+                //.increment retry count when first quic failed.
+                OnIncreateRemainRetryCount(this, true);
+            }
         }
 
-        switch (handle_type) {
-            case kTaskFailHandleNoError: {
-                OnCgiTaskStatistic(this, (unsigned int)_body.Length());
+        if (_errType == kEctSocket) {
+            OnSetForceNoRetry(this, cancel_retry);
+        }
+        if (_status == kEctHandshakeMisunderstand) {
+            OnIncreateRemainRetryCount(this, false);
+        }
+        OnSingleRespHandle(this, _errType, _status, kTaskFailHandleDefault, _body.Length(), _conn_profile);
+        return;
+    }
 
-                xassert2(fun_notify_network_err_);
-                fun_notify_network_err_(__LINE__,
-                                        kEctOK,
-                                        err_code,
-                                        _conn_profile.ip,
-                                        _conn_profile.host,
-                                        _conn_profile.port);
-                OnSingleRespHandle(this, kEctOK, err_code, handle_type, (unsigned int)receive_data_size, _conn_profile);
-            } break;
-            case kTaskFailHandleSessionTimeout: {
-                xassert2(fun_notify_retry_all_tasks);
-                xwarn2(TSF "task decode error session timeout taskid:%_, cmdid:%_, cgi:%_",
-                       task_.taskid,
-                       task_.cmdid,
-                       task_.cgi);
-                fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, task_.taskid, task_.user_id);
-            } break;
-            case kTaskFailHandleRetryAllTasks: {
-                xassert2(fun_notify_retry_all_tasks);
-                xwarn2(TSF "task decode error retry all task taskid:%_, cmdid:%_, cgi:%_",
-                       task_.taskid,
-                       task_.cmdid,
-                       task_.cgi);
-                fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, task_.taskid, task_.user_id);
-            } break;
-            case kTaskFailHandleTaskEnd: {
-                OnSingleRespHandle(this,
-                                   kEctEnDecode,
-                                   err_code,
-                                   handle_type,
-                                   (unsigned int)receive_data_size,
-                                   _conn_profile);
-            } break;
-            case kTaskFailHandleDefault: {
-                xerror2(TSF "task decode error handle_type:%_, err_code:%_, pWorker:%_, taskid:%_ body dump:%_",
-                        handle_type,
-                        err_code,
-                        (void*)this,
-                        task_.taskid,
-                        xlogger_memory_dump(_body.Ptr(), _body.Length()));
-                xassert2(fun_notify_network_err_);
-                fun_notify_network_err_(__LINE__,
-                                        kEctEnDecode,
-                                        handle_type,
-                                        _conn_profile.ip,
-                                        _conn_profile.host,
-                                        _conn_profile.port);
-                OnSingleRespHandle(this,
-                                   kEctEnDecode,
-                                   err_code,
-                                   handle_type,
-                                   (unsigned int)receive_data_size,
-                                   _conn_profile);
-            } break;
-            default: {
-                xerror2(TSF "task decode error fail_handle:%_, taskid:%_, context id:%_",
-                        handle_type,
-                        task_.taskid,
-                        task_.user_id);
-                //#ifdef __APPLE__
-                //            //.test only.
-                //            const char* pbuffer = (const char*)_body.Ptr();
-                //            for (size_t off = 0; off < _body.Length();){
-                //                size_t len = std::min((size_t)512, _body.Length() - off);
-                //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-                //                off += len;
-                //            }
-                //#endif
-                xassert2(fun_notify_network_err_);
-                fun_notify_network_err_(__LINE__,
-                                        kEctEnDecode,
-                                        handle_type,
-                                        _conn_profile.ip,
-                                        _conn_profile.host,
-                                        _conn_profile.port);
-                OnSingleRespHandle(this,
-                                   kEctEnDecode,
-                                   err_code,
-                                   handle_type,
-                                   (unsigned int)receive_data_size,
-                                   _conn_profile);
-                break;
-            }
+    size_t received_size = _body.Length();
+    size_t receive_data_size = _body.Length();
+    uint64_t last_receive_pkg_time = ::gettickcount();
+    OnRecvDataTime(this, receive_data_size, last_receive_pkg_time);
+
+    int err_code = 0;
+    unsigned short server_sequence_id = 0;
+    uint64_t begin_buf2resp_time = gettickcount();
+    int handle_type = context_->GetManager<StnManager>()->Buf2Resp(task_.taskid,
+                                                                   task_.user_context,
+                                                                   task_.user_id,
+                                                                   _body,
+                                                                   _extension,
+                                                                   err_code,
+                                                                   Task::kChannelShort,
+                                                                   server_sequence_id);
+
+    xinfo2_if(task_.priority >= 0, TSF "err_code %_ ", err_code);
+    xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+    uint64_t end_buf2resp_time = gettickcount();
+    OnBuf2RespTime(this, begin_buf2resp_time, end_buf2resp_time);
+
+    OnServerSequenceId(this, (int)server_sequence_id);
+
+    OnSocketPoolReport(_conn_profile.is_reused_fd, true, handle_type == kTaskFailHandleNoError);
+    if (should_intercept_result_ && should_intercept_result_(err_code)) {
+        OnAddInterceptTask(task_.cgi, std::string((const char*)_body.Ptr(), _body.Length()));
+    }
+
+    switch (handle_type) {
+        case kTaskFailHandleNoError: {
+            OnCgiTaskStatistic(this, (unsigned int)_body.Length());
+
+            xassert2(fun_notify_network_err_);
+            fun_notify_network_err_(__LINE__,
+                                    kEctOK,
+                                    err_code,
+                                    _conn_profile.ip,
+                                    _conn_profile.host,
+                                    _conn_profile.port);
+            OnSingleRespHandle(this, kEctOK, err_code, handle_type, (unsigned int)receive_data_size, _conn_profile);
+        } break;
+        case kTaskFailHandleSessionTimeout: {
+            xassert2(fun_notify_retry_all_tasks);
+            xwarn2(TSF "task decode error session timeout taskid:%_, cmdid:%_, cgi:%_",
+                   task_.taskid,
+                   task_.cmdid,
+                   task_.cgi);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, task_.taskid, task_.user_id);
+        } break;
+        case kTaskFailHandleRetryAllTasks: {
+            xassert2(fun_notify_retry_all_tasks);
+            xwarn2(TSF "task decode error retry all task taskid:%_, cmdid:%_, cgi:%_",
+                   task_.taskid,
+                   task_.cmdid,
+                   task_.cgi);
+            fun_notify_retry_all_tasks(kEctEnDecode, err_code, handle_type, task_.taskid, task_.user_id);
+        } break;
+        case kTaskFailHandleTaskEnd: {
+            OnSingleRespHandle(this,
+                               kEctEnDecode,
+                               err_code,
+                               handle_type,
+                               (unsigned int)receive_data_size,
+                               _conn_profile);
+        } break;
+        case kTaskFailHandleDefault: {
+            xerror2(TSF "task decode error handle_type:%_, err_code:%_, pWorker:%_, taskid:%_ body dump:%_",
+                    handle_type,
+                    err_code,
+                    (void*)this,
+                    task_.taskid,
+                    xlogger_memory_dump(_body.Ptr(), _body.Length()));
+            xassert2(fun_notify_network_err_);
+            fun_notify_network_err_(__LINE__,
+                                    kEctEnDecode,
+                                    handle_type,
+                                    _conn_profile.ip,
+                                    _conn_profile.host,
+                                    _conn_profile.port);
+            OnSingleRespHandle(this,
+                               kEctEnDecode,
+                               err_code,
+                               handle_type,
+                               (unsigned int)receive_data_size,
+                               _conn_profile);
+        } break;
+        default: {
+            xerror2(TSF "task decode error fail_handle:%_, taskid:%_, context id:%_",
+                    handle_type,
+                    task_.taskid,
+                    task_.user_id);
+            //#ifdef __APPLE__
+            //            //.test only.
+            //            const char* pbuffer = (const char*)_body.Ptr();
+            //            for (size_t off = 0; off < _body.Length();){
+            //                size_t len = std::min((size_t)512, _body.Length() - off);
+            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                off += len;
+            //            }
+            //#endif
+            xassert2(fun_notify_network_err_);
+            fun_notify_network_err_(__LINE__,
+                                    kEctEnDecode,
+                                    handle_type,
+                                    _conn_profile.ip,
+                                    _conn_profile.host,
+                                    _conn_profile.port);
+            OnSingleRespHandle(this,
+                               kEctEnDecode,
+                               err_code,
+                               handle_type,
+                               (unsigned int)receive_data_size,
+                               _conn_profile);
+            break;
         }
     }
 }
@@ -1083,7 +1081,8 @@ void ShortLink::__CancelAndWaitWorkerThread() {
     if (!socketOperator_->Breaker().Break()) {
         xassert2(false, "breaker fail");
     }
-    thread_.join();
+    int ret = thread_.join();
+    xdebug2(TSF "thread_ join %_ ret %_", this, ret);
 }
 
 bool ShortLink::__Req2Buf() {
