@@ -311,7 +311,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
     std::list<TaskProfile>::iterator last = lst_cmd_.end();
 
     uint64_t curtime = ::gettickcount();
-    int sent_count = 0;
+    unsigned int sent_count = 0;
 
     while (first != last) {
         std::list<TaskProfile>::iterator next = first;
