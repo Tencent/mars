@@ -138,33 +138,6 @@ class ShortLinkInterface {
     CallBack<boost::function<void(ShortLinkInterface* _worker, bool before)>> OnIncreateRemainRetryCount;
     CallBack<boost::function<void(ShortLinkInterface* _worker)>> OnSetLastFailedStatus;
     CallBack<boost::function<void(ShortLinkInterface* worker, ConnectProfile connect_profile)>> OnUpdateConnectProfile;
-
-    //    std::function<bool(ShortLinkInterface* _worker,
-    //                       ErrCmdType _err_type,
-    //                       int _err_code,
-    //                       int _fail_handle,
-    //                       size_t _resp_length,
-    //                       const ConnectProfile& _connect_profile)>
-    //        OnSingleRespHandle;
-    //    std::function<void(ShortLinkInterface* _worker, uint64_t begin_req2buf_time, uint64_t end_req2buf_time)>
-    //        OnReq2BufTime;
-    //    std::function<void(ShortLinkInterface* _worker, uint64_t begin_buf2resp_time, uint64_t end_buf2resp_time)>
-    //        OnBuf2RespTime;
-    //    std::function<void(ShortLinkInterface* _worker, int client_sequence_id)> OnClientSequenceId;
-    //    std::function<void(ShortLinkInterface* _worker, int server_sequence_id)> OnServerSequenceId;
-    //    std::function<void(ShortLinkInterface* _worker, size_t receive_data_size, uint64_t last_receive_pkg_time)>
-    //        OnRecvDataTime;
-    //    std::function<void(ShortLinkInterface* _worker,
-    //                       uint64_t loop_start_task_time,
-    //                       uint64_t first_pkg_timeout,
-    //                       uint64_t read_write_timeout,
-    //                       size_t send_data_size,
-    //                       int current_dyntime_status)>
-    //        OnUpdateTimeout;
-    //    std::function<void(ShortLinkInterface* _worker, bool force_no_retry)> OnSetForceNoRetry;
-    //    std::function<void(ShortLinkInterface* _worker, bool before)> OnIncreateRemainRetryCount;
-    //    std::function<void(ShortLinkInterface* _worker)> OnSetLastFailedStatus;
-    //    std::function<void(ShortLinkInterface* worker, ConnectProfile connect_profile)> OnUpdateConnectProfile;
 };
 
 }  // namespace stn

@@ -191,6 +191,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    uint64_t last_run_on_time_out_time_;
 };
 
 }  // namespace stn
