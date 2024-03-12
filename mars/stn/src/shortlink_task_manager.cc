@@ -683,7 +683,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 struct find_seq {
  public:
     bool operator()(const TaskProfile& _value) {
-        if (_value.running_id) {
+        if (_value && _value.running_id) {
             return p_worker == (ShortLinkInterface*)_value.running_id;
         } else {
             xinfo2(TSF "find seq task profile running id is empty.");
