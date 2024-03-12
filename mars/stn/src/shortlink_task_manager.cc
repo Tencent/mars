@@ -315,6 +315,13 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
+        if (sent_count > kDefaultMaxRunningTaskCount) {
+            xinfo2(TSF "too many sent count .");
+            return;
+        }
+
+        xinfo2(TSF "sent count %_", sent_count);
+
         // retry time interval is 1 second, but when last connect is quic, retry now
         if (first->retry_time_interval > curtime - first->retry_start_time) {
             if (first->history_transfer_profiles.empty()
@@ -722,7 +729,12 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 struct find_seq {
  public:
     bool operator()(const TaskProfile& _value) {
-        return p_worker == (ShortLinkInterface*)_value.running_id;
+        if (_value.running_id) {
+            return p_worker == (ShortLinkInterface*)_value.running_id;
+        } else {
+            xinfo2(TSF "find seq task profile running id is empty.");
+            return false;
+        }
     }
 
  public:
