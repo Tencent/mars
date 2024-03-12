@@ -44,6 +44,9 @@
     (3)  // We think it's time to test after NetStableCount times heartbeat using
          // MinHeartInterval
 
+// default max running count about shortlink manager running loop
+const static unsigned int kDefaultMaxRunningTaskCount = 20;
+
 // signalling transmits timeout related constants
 const static unsigned int kBaseFirstPackageWifiTimeout = 12 * 1000;
 const static unsigned int kBaseFirstPackageGPRSTimeout = 15 * 1000;
