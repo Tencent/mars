@@ -62,7 +62,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
-{
+, last_run_on_time_out_time_(0) {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_",
                    asyncreg_.Get().queue,
@@ -210,6 +210,14 @@ void ShortLinkTaskManager::__RunLoop() {
 
 void ShortLinkTaskManager::__RunOnTimeout() {
     xverbose2(TSF "lst_cmd_ size=%0", lst_cmd_.size());
+
+    uint64_t cur = gettickcount();
+    if (cur - last_run_on_time_out_time_ < DEF_TASK_RUN_LOOP_TIMING / 2) {
+        xinfo2(TSF "last run on time out is less than 0.5 second.");
+        return;
+    }
+    last_run_on_time_out_time_ = cur;
+
     socket_pool_.CleanTimeout();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
@@ -597,7 +605,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->on_set_use_proxy_ = std::bind(&ShortLinkTaskManager::__OnSetUserProxy, this, std::placeholders::_1);
         worker->on_reset_fail_count_ = std::bind(&ShortLinkTaskManager::__OnResetFailCount, this);
         worker->on_increase_fail_count_ = std::bind(&ShortLinkTaskManager::__OnInCreaseFailCount, this);
-        // worker->on_get_send_count_ = std::bind(&ShortLinkTaskManager::__OnGetSendCount, this);
 
         worker->OnSingleRespHandle.set(
             boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker, this, _1, _2, _3, _4, _5, _6),
@@ -637,59 +644,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
                                           worker,
                                           AYNC_HANDLER);
-
-        //        worker->OnSingleRespHandle = std::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker,
-        //                                               this,
-        //                                               std::placeholders::_1,
-        //                                               std::placeholders::_2,
-        //                                               std::placeholders::_3,
-        //                                               std::placeholders::_4,
-        //                                               std::placeholders::_5,
-        //                                               std::placeholders::_6);
-        //        worker->OnReq2BufTime = std::bind(&ShortLinkTaskManager::__OnReq2BufTime,
-        //                                          this,
-        //                                          std::placeholders::_1,
-        //                                          std::placeholders::_2,
-        //                                          std::placeholders::_3);
-        //        worker->OnBuf2RespTime = std::bind(&ShortLinkTaskManager::__OnBuf2RespTime,
-        //                                           this,
-        //                                           std::placeholders::_1,
-        //                                           std::placeholders::_2,
-        //                                           std::placeholders::_3);
-        //        worker->OnRecvDataTime = std::bind(&ShortLinkTaskManager::__OnRecvDataTime,
-        //                                           this,
-        //                                           std::placeholders::_1,
-        //                                           std::placeholders::_2,
-        //                                           std::placeholders::_3);
-        //        worker->OnUpdateTimeout = std::bind(&ShortLinkTaskManager::__OnUpdateTimeout,
-        //                                            this,
-        //                                            std::placeholders::_1,
-        //                                            std::placeholders::_2,
-        //                                            std::placeholders::_3,
-        //                                            std::placeholders::_4,
-        //                                            std::placeholders::_5,
-        //                                            std::placeholders::_6);
-        //
-        //        worker->OnClientSequenceId =
-        //            std::bind(&ShortLinkTaskManager::__OnClientSequenceId, this, std::placeholders::_1,
-        //            std::placeholders::_2);
-        //
-        //        worker->OnServerSequenceId =
-        //            std::bind(&ShortLinkTaskManager::__OnServerSequenceId, this, std::placeholders::_1,
-        //            std::placeholders::_2);
-        //
-        //        worker->OnSetForceNoRetry =
-        //            std::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, std::placeholders::_1,
-        //            std::placeholders::_2);
-        //        worker->OnSetForceNoRetry =
-        //            std::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, std::placeholders::_1,
-        //            std::placeholders::_2);
-        //        worker->OnIncreateRemainRetryCount = std::bind(&ShortLinkTaskManager::__OnIncreateRemainRetryCount,
-        //                                                       this,
-        //                                                       std::placeholders::_1,
-        //                                                       std::placeholders::_2);
-        //        worker->OnSetLastFailedStatus =
-        //            std::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, std::placeholders::_1);
 
         first->running_id = (intptr_t)worker;
 
