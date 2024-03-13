@@ -147,6 +147,13 @@ struct ConnectProfile {
         end_connect_timestamp_ms = 0;
 
         task_id = 0;
+
+        start_get_network_lab_time = 0;
+        end_get_network_lab_time = 0;
+
+        is_pack_mmtls = false;
+        start_pack_mmtls_time = 0;
+        end_pack_mmtls_time = 0;
     }
 
     std::string net_type;
@@ -237,6 +244,13 @@ struct ConnectProfile {
     uint64_t end_connect_timestamp_ms;
 
     uint32_t task_id;
+
+    uint64_t start_get_network_lab_time;
+    uint64_t end_get_network_lab_time;
+
+    bool is_pack_mmtls;
+    uint64_t start_pack_mmtls_time;
+    uint64_t end_pack_mmtls_time;
 };
 
 struct TransferProfile {
