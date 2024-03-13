@@ -39,7 +39,7 @@ unsigned int getSignal(bool isWifi) {
 }
 
 bool isNetworkConnected() {
-    return false;
+    return true;
 }
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
