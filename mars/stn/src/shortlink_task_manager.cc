@@ -62,7 +62,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
-, last_run_on_time_out_time_(0) {
+{
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_",
                    asyncreg_.Get().queue,
@@ -210,14 +210,6 @@ void ShortLinkTaskManager::__RunLoop() {
 
 void ShortLinkTaskManager::__RunOnTimeout() {
     xverbose2(TSF "lst_cmd_ size=%0", lst_cmd_.size());
-
-    uint64_t cur = gettickcount();
-    if (cur - last_run_on_time_out_time_ < DEF_TASK_RUN_LOOP_TIMING / 2) {
-        xinfo2(TSF "last run on time out is less than 0.5 second.");
-        return;
-    }
-    last_run_on_time_out_time_ = cur;
-
     socket_pool_.CleanTimeout();
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
@@ -584,9 +576,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->fun_notify_retry_all_tasks = fun_notify_retry_all_tasks;
         //        worker->fun_notify_retry_all_tasks.set(fun_notify_retry_all_tasks);
         worker->fun_notify_network_err_ = fun_notify_network_err_;
-        // worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2));
-        worker->OnCgiTaskStatistic =
-            std::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, std::placeholders::_1, std::placeholders::_2);
+        worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2));
+        //        worker->OnCgiTaskStatistic =
+        //            std::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, std::placeholders::_1,
+        //            std::placeholders::_2);
         worker->should_intercept_result_ = should_intercept_result_;
         worker->OnAddInterceptTask =
             std::bind(&ShortLinkTaskManager::__OnAddInterceptTask, this, std::placeholders::_1, std::placeholders::_2);
@@ -685,7 +678,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
 struct find_seq {
  public:
-    bool operator()(const TaskProfile& _value) {
+    bool operator()(const TaskProfile _value) {
         if (_value.running_id) {
             return p_worker == (ShortLinkInterface*)_value.running_id;
         } else {
@@ -1319,11 +1312,8 @@ int ShortLinkTaskManager::__OnGetStatus() {
 // {
 //    dynamic_timeout_.CgiTaskStatistic(_cgi_uri, _total_size, _cost_time);
 //}
-void ShortLinkTaskManager::__OnCgiTaskStatistic(ShortLinkInterface* _worker, unsigned int body_length) {
-    //    task_.cgi,
-    //    (unsigned int)it->transfer_profile.send_data_size + (unsigned int)_body.Length(),
-    //    ::gettickcount() - it->transfer_profile.start_send_time);
 
+void ShortLinkTaskManager::__OnCgiTaskStatistic(ShortLinkInterface* _worker, unsigned int body_length) {
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
         dynamic_timeout_.CgiTaskStatistic(it->task.cgi,
