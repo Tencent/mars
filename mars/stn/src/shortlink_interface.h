@@ -93,8 +93,9 @@ class ShortLinkInterface {
                          const std::string& _host,
                          uint16_t _port)>
         fun_notify_network_err_;
-    // std::function<void(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time)> OnCgiTaskStatistic;
-    CallBack<boost::function<void(ShortLinkInterface* _worker, unsigned int body_length)>> OnCgiTaskStatistic;
+    //     std::function<void(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time)> OnCgiTaskStatistic;
+    //    CallBack<boost::function<void(ShortLinkInterface* _worker, unsigned int body_length)>> OnCgiTaskStatistic;
+    std::function<void(ShortLinkInterface* _worker, unsigned int body_length)> OnCgiTaskStatistic;
     std::function<bool(int _error_code)> should_intercept_result_;
     std::function<void(const std::string& _name, const std::string& _data)> OnAddInterceptTask;
     std::function<void(bool _is_reused, bool _has_received, bool _is_decode_ok)> OnSocketPoolReport;
