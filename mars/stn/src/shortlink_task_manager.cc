@@ -576,7 +576,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->fun_notify_retry_all_tasks = fun_notify_retry_all_tasks;
         //        worker->fun_notify_retry_all_tasks.set(fun_notify_retry_all_tasks);
         worker->fun_notify_network_err_ = fun_notify_network_err_;
-        worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2));
+        worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2),
+                                       worker,
+                                       AYNC_HANDLER);
         //        worker->OnCgiTaskStatistic =
         //            std::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, std::placeholders::_1,
         //            std::placeholders::_2);
@@ -678,11 +680,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
 struct find_seq {
  public:
-    bool operator()(const TaskProfile _value) {
+    bool operator()(const TaskProfile& _value) {
         if (_value.running_id) {
             return p_worker == (ShortLinkInterface*)_value.running_id;
         } else {
-            xinfo2(TSF "find seq task profile running id is empty.");
+            xinfo2(TSF "find seq task profile running id is empty. taskid %_", _value.task.taskid);
             return false;
         }
     }
