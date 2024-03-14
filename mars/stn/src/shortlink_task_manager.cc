@@ -441,100 +441,101 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         config.use_tls = use_tls;
 
-        /* move to shortlink
         AutoBuffer bufreq;
         AutoBuffer buffer_extension;
-        int error_code = 0;
+        if (!is_handle_buff_in_thread_) {
+            int error_code = 0;
 
-        // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
-        first->task.client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
-        xinfo2(TSF "client_sequence_id:%_", first->task.client_sequence_id);
+            // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
+            first->task.client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
+            xinfo2(TSF "client_sequence_id:%_", first->task.client_sequence_id);
 
-        first->transfer_profile.begin_req2buf_time = gettickcount();
-        if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid,
-                                                         first->task.user_context,
-                                                         first->task.user_id,
-                                                         bufreq,
-                                                         buffer_extension,
-                                                         error_code,
-                                                         Task::kChannelShort,
-                                                         host,
-                                                         first->task.client_sequence_id)) {
+            first->transfer_profile.begin_req2buf_time = gettickcount();
+            if (!context_->GetManager<StnManager>()->Req2Buf(first->task.taskid,
+                                                             first->task.user_context,
+                                                             first->task.user_id,
+                                                             bufreq,
+                                                             buffer_extension,
+                                                             error_code,
+                                                             Task::kChannelShort,
+                                                             host,
+                                                             first->task.client_sequence_id)) {
+                first->transfer_profile.end_req2buf_time = gettickcount();
+                __SingleRespHandle(
+                    first,
+                    kEctEnDecode,
+                    error_code,
+                    kTaskFailHandleTaskEnd,
+                    0,
+                    first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
+                first = next;
+                continue;
+            }
             first->transfer_profile.end_req2buf_time = gettickcount();
-            __SingleRespHandle(
-                first,
-                kEctEnDecode,
-                error_code,
-                kTaskFailHandleTaskEnd,
-                0,
-                first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
-            first = next;
-            continue;
-        }
-        first->transfer_profile.end_req2buf_time = gettickcount();
 
-        //雪崩检测
-        xassert2(fun_anti_avalanche_check_);
+            //雪崩检测
+            xassert2(fun_anti_avalanche_check_);
 
-        if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
-            __SingleRespHandle(
-                first,
-                kEctLocal,
-                kEctLocalAntiAvalanche,
-                kTaskFailHandleTaskEnd,
-                0,
-                first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
-            first = next;
-            continue;
-        }
+            if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
+                __SingleRespHandle(
+                    first,
+                    kEctLocal,
+                    kEctLocalAntiAvalanche,
+                    kTaskFailHandleTaskEnd,
+                    0,
+                    first->running_id ? ((ShortLinkInterface*)first->running_id)->Profile() : ConnectProfile());
+                first = next;
+                continue;
+            }
 
-        std::string intercept_data;
-        if (task_intercept_.GetInterceptTaskInfo(first->task.cgi, intercept_data)) {
-            xwarn2(TSF "task has been intercepted");
-            AutoBuffer body;
-            AutoBuffer extension;
-            int err_code = 0;
-            unsigned short server_sequence_id = 0;
-            body.Write(intercept_data.data(), intercept_data.length());
-            first->transfer_profile.received_size = body.Length();
-            first->transfer_profile.receive_data_size = body.Length();
-            first->transfer_profile.last_receive_pkg_time = ::gettickcount();
-            int handle_type = context_->GetManager<StnManager>()->Buf2Resp(first->task.taskid,
-                                                                           first->task.user_context,
-                                                                           first->task.user_id,
-                                                                           body,
-                                                                           extension,
-                                                                           err_code,
-                                                                           Task::kChannelShort,
-                                                                           server_sequence_id);
-            xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
-            first->task.server_sequence_id = server_sequence_id;
-            ConnectProfile profile;
-            __SingleRespHandle(first,
-                               kEctEnDecode,
-                               err_code,
-                               handle_type,
-                               (unsigned int)first->transfer_profile.receive_data_size,
-                               profile);
-            first = next;
-            continue;
-        }
+            std::string intercept_data;
+            if (task_intercept_.GetInterceptTaskInfo(first->task.cgi, intercept_data)) {
+                xwarn2(TSF "task has been intercepted");
+                AutoBuffer body;
+                AutoBuffer extension;
+                int err_code = 0;
+                unsigned short server_sequence_id = 0;
+                body.Write(intercept_data.data(), intercept_data.length());
+                first->transfer_profile.received_size = body.Length();
+                first->transfer_profile.receive_data_size = body.Length();
+                first->transfer_profile.last_receive_pkg_time = ::gettickcount();
+                int handle_type = context_->GetManager<StnManager>()->Buf2Resp(first->task.taskid,
+                                                                               first->task.user_context,
+                                                                               first->task.user_id,
+                                                                               body,
+                                                                               extension,
+                                                                               err_code,
+                                                                               Task::kChannelShort,
+                                                                               server_sequence_id);
+                xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
+                first->task.server_sequence_id = server_sequence_id;
+                ConnectProfile profile;
+                __SingleRespHandle(first,
+                                   kEctEnDecode,
+                                   err_code,
+                                   handle_type,
+                                   (unsigned int)first->transfer_profile.receive_data_size,
+                                   profile);
+                first = next;
+                continue;
+            }
 
-        first->transfer_profile.loop_start_task_time = ::gettickcount();
-        first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost,
-                                                                      bufreq.Length(),
-                                                                      sent_count,
-                                                                      dynamic_timeout_.GetStatus());
-        first->current_dyntime_status =
-            (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
-        if (first->transfer_profile.task.long_polling) {
-            first->transfer_profile.read_write_timeout =
-                __ReadWriteTimeout(first->transfer_profile.task.long_polling_timeout);
-        } else {
-            first->transfer_profile.read_write_timeout = __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
+            first->transfer_profile.loop_start_task_time = ::gettickcount();
+            first->transfer_profile.first_pkg_timeout = __FirstPkgTimeout(first->task.server_process_cost,
+                                                                          bufreq.Length(),
+                                                                          sent_count,
+                                                                          dynamic_timeout_.GetStatus());
+            first->current_dyntime_status =
+                (first->task.server_process_cost <= 0) ? dynamic_timeout_.GetStatus() : kEValuating;
+            if (first->transfer_profile.task.long_polling) {
+                first->transfer_profile.read_write_timeout =
+                    __ReadWriteTimeout(first->transfer_profile.task.long_polling_timeout);
+            } else {
+                first->transfer_profile.read_write_timeout =
+                    __ReadWriteTimeout(first->transfer_profile.first_pkg_timeout);
+            }
+            first->transfer_profile.send_data_size = bufreq.Length();
         }
-        first->transfer_profile.send_data_size = bufreq.Length();
-        */
 
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(context_,
                                                                      MessageQueue::Handler2Queue(asyncreg_.Get()),
@@ -546,10 +547,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
         worker->OnRecv.set(boost::bind(&ShortLinkTaskManager::__OnRecv, this, _1, _2, _3), worker, AYNC_HANDLER);
-        //        worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6,
-        //        _7),
-        //                               worker,
-        //                               AYNC_HANDLER);
+        if (!is_handle_buff_in_thread_) {
+            worker->OnResponse.set(boost::bind(&ShortLinkTaskManager::__OnResponse, this, _1, _2, _3, _4, _5, _6, _7),
+                                   worker,
+                                   AYNC_HANDLER);
+        }
         worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
         worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
 
@@ -561,88 +563,95 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         if (choose_protocol_) {
             worker->SetUseProtocol(choose_protocol_(*first));
         }
-        worker->SetSentCount(sent_count);
-
-        worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
-        // worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
-        worker->on_handshake_ready_ = on_handshake_ready_;
-        worker->fun_anti_avalanche_check_ = fun_anti_avalanche_check_;
-        worker->OnGetInterceptTaskInfo = std::bind(&ShortLinkTaskManager::__GetInterceptTaskInfo,
-                                                   this,
-                                                   std::placeholders::_1,
-                                                   std::placeholders::_2);
-        worker->OnGetStatus = std::bind(&ShortLinkTaskManager::__OnGetStatus, this);
-        worker->fun_shortlink_response_ = fun_shortlink_response_;
-        worker->fun_notify_retry_all_tasks = fun_notify_retry_all_tasks;
-        //        worker->fun_notify_retry_all_tasks.set(fun_notify_retry_all_tasks);
-        worker->fun_notify_network_err_ = fun_notify_network_err_;
-        worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2),
-                                       worker,
-                                       AYNC_HANDLER);
-        //        worker->OnCgiTaskStatistic =
-        //            std::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, std::placeholders::_1,
-        //            std::placeholders::_2);
-        worker->should_intercept_result_ = should_intercept_result_;
-        worker->OnAddInterceptTask =
-            std::bind(&ShortLinkTaskManager::__OnAddInterceptTask, this, std::placeholders::_1, std::placeholders::_2);
-        worker->OnSocketPoolReport = std::bind(&ShortLinkTaskManager::__OnSocketPoolReport,
-                                               this,
-                                               std::placeholders::_1,
-                                               std::placeholders::_2,
-                                               std::placeholders::_3);
-        worker->OnSocketPoolTryAddCache =
-            std::bind(&ShortLinkTaskManager::__OnSocketPoolTryAdd, this, std::placeholders::_1, std::placeholders::_2);
         if (!debug_host_.empty()) {
             worker->SetDebugHost(debug_host_);
         }
 
-        worker->task_connection_detail_ = task_connection_detail_;
-        worker->fun_callback_ = fun_callback_;
-        worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
+        if (is_handle_buff_in_thread_) {
+            worker->SetSentCount(sent_count);
 
-        worker->on_set_use_proxy_ = std::bind(&ShortLinkTaskManager::__OnSetUserProxy, this, std::placeholders::_1);
-        worker->on_reset_fail_count_ = std::bind(&ShortLinkTaskManager::__OnResetFailCount, this);
-        worker->on_increase_fail_count_ = std::bind(&ShortLinkTaskManager::__OnInCreaseFailCount, this);
+            worker->GetCacheSocket = boost::bind(&ShortLinkTaskManager::__OnGetCacheSocket, this, _1);
+            // worker->OnHandshakeCompleted = boost::bind(&ShortLinkTaskManager::__OnHandshakeCompleted, this, _1, _2);
+            worker->on_handshake_ready_ = on_handshake_ready_;
+            worker->fun_anti_avalanche_check_ = fun_anti_avalanche_check_;
+            worker->OnGetInterceptTaskInfo = std::bind(&ShortLinkTaskManager::__GetInterceptTaskInfo,
+                                                       this,
+                                                       std::placeholders::_1,
+                                                       std::placeholders::_2);
+            worker->OnGetStatus = std::bind(&ShortLinkTaskManager::__OnGetStatus, this);
+            worker->fun_shortlink_response_ = fun_shortlink_response_;
+            worker->fun_notify_retry_all_tasks = fun_notify_retry_all_tasks;
+            //        worker->fun_notify_retry_all_tasks.set(fun_notify_retry_all_tasks);
+            worker->fun_notify_network_err_ = fun_notify_network_err_;
+            worker->OnCgiTaskStatistic.set(boost::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, _1, _2),
+                                           worker,
+                                           AYNC_HANDLER);
+            //        worker->OnCgiTaskStatistic =
+            //            std::bind(&ShortLinkTaskManager::__OnCgiTaskStatistic, this, std::placeholders::_1,
+            //            std::placeholders::_2);
+            worker->should_intercept_result_ = should_intercept_result_;
+            worker->OnAddInterceptTask = std::bind(&ShortLinkTaskManager::__OnAddInterceptTask,
+                                                   this,
+                                                   std::placeholders::_1,
+                                                   std::placeholders::_2);
+            worker->OnSocketPoolReport = std::bind(&ShortLinkTaskManager::__OnSocketPoolReport,
+                                                   this,
+                                                   std::placeholders::_1,
+                                                   std::placeholders::_2,
+                                                   std::placeholders::_3);
+            worker->OnSocketPoolTryAddCache = std::bind(&ShortLinkTaskManager::__OnSocketPoolTryAdd,
+                                                        this,
+                                                        std::placeholders::_1,
+                                                        std::placeholders::_2);
 
-        worker->OnSingleRespHandle.set(
-            boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker, this, _1, _2, _3, _4, _5, _6),
-            worker,
-            AYNC_HANDLER);
-        worker->OnReq2BufTime.set(boost::bind(&ShortLinkTaskManager::__OnReq2BufTime, this, _1, _2, _3),
-                                  worker,
-                                  AYNC_HANDLER);
-        worker->OnBuf2RespTime.set(boost::bind(&ShortLinkTaskManager::__OnBuf2RespTime, this, _1, _2, _3),
-                                   worker,
-                                   AYNC_HANDLER);
-        worker->OnRecvDataTime.set(boost::bind(&ShortLinkTaskManager::__OnRecvDataTime, this, _1, _2, _3),
-                                   worker,
-                                   AYNC_HANDLER);
-        worker->OnUpdateTimeout.set(boost::bind(&ShortLinkTaskManager::__OnUpdateTimeout, this, _1, _2, _3, _4, _5, _6),
-                                    worker,
-                                    AYNC_HANDLER);
+            worker->task_connection_detail_ = task_connection_detail_;
+            worker->fun_callback_ = fun_callback_;
+            worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
 
-        worker->OnClientSequenceId.set(boost::bind(&ShortLinkTaskManager::__OnClientSequenceId, this, _1, _2),
-                                       worker,
-                                       AYNC_HANDLER);
+            worker->on_set_use_proxy_ = std::bind(&ShortLinkTaskManager::__OnSetUserProxy, this, std::placeholders::_1);
+            worker->on_reset_fail_count_ = std::bind(&ShortLinkTaskManager::__OnResetFailCount, this);
+            worker->on_increase_fail_count_ = std::bind(&ShortLinkTaskManager::__OnInCreaseFailCount, this);
 
-        worker->OnServerSequenceId.set(boost::bind(&ShortLinkTaskManager::__OnServerSequenceId, this, _1, _2),
-                                       worker,
-                                       AYNC_HANDLER);
-
-        worker->OnSetForceNoRetry.set(boost::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, _1, _2),
+            worker->OnSingleRespHandle.set(
+                boost::bind(&ShortLinkTaskManager::__SingleRespHandleByWorker, this, _1, _2, _3, _4, _5, _6),
+                worker,
+                AYNC_HANDLER);
+            worker->OnReq2BufTime.set(boost::bind(&ShortLinkTaskManager::__OnReq2BufTime, this, _1, _2, _3),
                                       worker,
                                       AYNC_HANDLER);
-        worker->OnSetForceNoRetry.set(boost::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, _1, _2),
-                                      worker,
-                                      AYNC_HANDLER);
-        worker->OnIncreateRemainRetryCount.set(
-            boost::bind(&ShortLinkTaskManager::__OnIncreateRemainRetryCount, this, _1, _2),
-            worker,
-            AYNC_HANDLER);
-        worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
+            worker->OnBuf2RespTime.set(boost::bind(&ShortLinkTaskManager::__OnBuf2RespTime, this, _1, _2, _3),
+                                       worker,
+                                       AYNC_HANDLER);
+            worker->OnRecvDataTime.set(boost::bind(&ShortLinkTaskManager::__OnRecvDataTime, this, _1, _2, _3),
+                                       worker,
+                                       AYNC_HANDLER);
+            worker->OnUpdateTimeout.set(
+                boost::bind(&ShortLinkTaskManager::__OnUpdateTimeout, this, _1, _2, _3, _4, _5, _6),
+                worker,
+                AYNC_HANDLER);
+
+            worker->OnClientSequenceId.set(boost::bind(&ShortLinkTaskManager::__OnClientSequenceId, this, _1, _2),
+                                           worker,
+                                           AYNC_HANDLER);
+
+            worker->OnServerSequenceId.set(boost::bind(&ShortLinkTaskManager::__OnServerSequenceId, this, _1, _2),
+                                           worker,
+                                           AYNC_HANDLER);
+
+            worker->OnSetForceNoRetry.set(boost::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, _1, _2),
                                           worker,
                                           AYNC_HANDLER);
-
+            worker->OnSetForceNoRetry.set(boost::bind(&ShortLinkTaskManager::__OnSetForceNoRetry, this, _1, _2),
+                                          worker,
+                                          AYNC_HANDLER);
+            worker->OnIncreateRemainRetryCount.set(
+                boost::bind(&ShortLinkTaskManager::__OnIncreateRemainRetryCount, this, _1, _2),
+                worker,
+                AYNC_HANDLER);
+            worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
+                                              worker,
+                                              AYNC_HANDLER);
+        }
         first->running_id = (intptr_t)worker;
 
         xassert2(worker && first->running_id);
@@ -655,7 +664,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        worker->SendRequest();
+        if (is_handle_buff_in_thread_) {
+            worker->SendRequest();
+        } else {
+            worker->SendRequest(bufreq, buffer_extension);
+        }
 
         xinfo2_if(first->task.priority >= 0,
                   TSF
@@ -935,6 +948,9 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 
 void ShortLinkTaskManager::RedoTasks() {
     xinfo_function();
+
+    is_handle_buff_in_thread_ = context_->GetManager<AppManager>()->GetConfig<bool>(kKeyHandleBuffInThread, true);
+    xinfo2(TSF "is_handle_buff_in_thread_ %_", is_handle_buff_in_thread_);
 
     std::list<TaskProfile>::iterator first = lst_cmd_.begin();
     std::list<TaskProfile>::iterator last = lst_cmd_.end();

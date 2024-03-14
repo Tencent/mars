@@ -355,6 +355,7 @@ void NetCore::StartTask(const Task& _task) {
         task_process_hook_(task);
     }
     _profile.end_process_hosts_time = gettickcount();
+    xdebug2(TSF "task process hook time %_", (_profile.end_process_hosts_time - _profile.begin_process_hosts_time));
 
     if (0 == task.channel_select) {
         xerror2(TSF "error channelType (%_, %_), ", kEctLocal, kEctLocalChannelSelect) >> group;

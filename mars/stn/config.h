@@ -142,4 +142,7 @@ const static char* const kKeyLongLinkWakeupLockNoopReq = "LongLinkNoopReq";
 const static unsigned int kLongLinkWakeupLockNoopReq = 8 * 1000;
 #endif
 
+// shortlink_task_manager
+const static char* const kKeyHandleBuffInThread = "HandlerBuffInThread";
+
 #endif /* stn_config_h */

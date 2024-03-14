@@ -191,6 +191,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    bool is_handle_buff_in_thread_ = true;  // do req2buf and buf2resp on worker thread
 };
 
 }  // namespace stn
