@@ -31,7 +31,11 @@
 #define ASSERT2(e, fmt, ...) ((e) ? (void)0 : __ASSERT2(__FILE__, __LINE__, __func__, #e, fmt, ##__VA_ARGS__))
 #define ASSERTV2(e, fmt, valist) ((e) ? (void)0 : __ASSERTV2(__FILE__, __LINE__, __func__, #e, fmt, valist))
 
+#ifdef OHOS
+__BEGIN_EXTERN_C
+#else
 __BEGIN_DECLS
+#endif
 void ENABLE_ASSERT();
 void DISABLE_ASSERT();
 int IS_ASSERT_ENABLE();
@@ -49,6 +53,9 @@ __attribute__((__nonnull__(1, 3, 4, 5))) __attribute__((__format__(printf, 5, 0)
                                                                                                    const char*,
                                                                                                    const char*,
                                                                                                    va_list);
+#ifdef OHOS
+__END_EXTERN_C
+#else
 __END_DECLS
-
+#endif
 #endif /* COMM_COMM_ASSERT_H_ */

@@ -7,7 +7,10 @@ project (comm)
 
 include(CMakeUtils.txt)
 include(CMakeExtraFlags.txt)
-
+if(OHOS)
+    message("common ohos...")
+    add_definitions(-DOHOS)
+endif()
 include_directories(.)
 include_directories(..)
 include_directories(../..)

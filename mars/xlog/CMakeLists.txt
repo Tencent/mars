@@ -11,7 +11,9 @@ set(SELF_LIBS_OUT ${CMAKE_SYSTEM_NAME}.out)
 
 include(../comm/CMakeUtils.txt)
 include(../comm/CMakeExtraFlags.txt)
-
+if(OHOS)
+    add_definitions(-DOHOS)
+endif()
 include_directories(.)
 include_directories(src)
 include_directories(..)
@@ -59,7 +61,13 @@ elseif(ANDROID)
 
     get_filename_component(EXPORT_EXP_FILE jni/export.exp ABSOLUTE)
     set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--version-script=${EXPORT_EXP_FILE}")
-
+elseif(OHOS)
+    include_directories(../comm/ohos)
+    file(GLOB SELF_OHOS_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR}
+    ../comm/xlogger/xloggerbase.c
+    ../comm/xlogger/xlogger.cc
+    ohos/*.cc)
+    list(APPEND SELF_SRC_FILES ${SELF_OHOS_SRC_FILES})
 endif()
 
 # add_library(${PROJECT_NAME} STATIC ${SELF_SRC_FILES})

@@ -84,4 +84,31 @@ if(ANDROID)
                         libzstd_static
                         ${SSL_LIB}
                         ${CRYPT_LIB})
+
+elseif(OHOS)
+message("start build ohos")
+add_definitions(-DOHOS)
+if(NATIVE_CALLBACK)
+    message("common native callback")
+    add_definitions(-DNATIVE_CALLBACK)
+endif()
+
+link_directories(app baseevent xlog sdt stn comm boost zstd)
+
+# marsxlog
+set(SELF_LIB_NAME marsxlog)
+file(GLOB SELF_SRC_FILES ohoslibraries/mars_xlog_sdk/import.cc)
+add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
+install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
+get_filename_component(EXPORT_XLOG_EXP_FILE ohoslibraries/export.exp ABSOLUTE)
+set(SELF_XLOG_LINKER_FLAG "-Wl,--gc-sections -Wl,--version-script='${EXPORT_XLOG_EXP_FILE}'") 
+target_link_libraries(${SELF_LIB_NAME} "-Wl,--gc-sections"
+                        xlog
+                        mars-boost
+                        comm
+                        libzstd_static
+                        libace_napi.z.so
+                        libhilog_ndk.z.so
+                        libz.so
+                        )
 endif()
