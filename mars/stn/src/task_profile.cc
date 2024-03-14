@@ -45,7 +45,7 @@ uint64_t __FirstPkgTimeout(int64_t _init_first_pkg_timeout,
                            int _send_count,
                            int _dynamictimeout_status) {
     xassert2(3600 * 1000 >= _init_first_pkg_timeout, TSF "server_cost:%_ ", _init_first_pkg_timeout);
-    int sent_count = std::min(_send_count, 3);
+    int sent_count = std::min(_send_count, 5);
 
     uint64_t ret = 0;
     uint64_t task_delay = (kMobile != getNetInfo()) ? kWifiTaskDelay : kGPRSTaskDelay;
