@@ -879,12 +879,12 @@ void ShortLink::__OnResponse(ErrCmdType _errType,
             func_network_report(__LINE__, _errType, _status, _conn_profile.ip, _conn_profile.host, _conn_profile.port);
     }
 
+    move_wrapper<AutoBuffer> body(_body);
+    move_wrapper<AutoBuffer> extension(_extension);
     if (OnResponse) {
-        move_wrapper<AutoBuffer> body(_body);
-        move_wrapper<AutoBuffer> extension(_extension);
         OnResponse(this, _errType, _status, body, extension, false, _conn_profile);
     } else {
-        __OnResponseImp(_errType, _status, _body, _extension, _conn_profile);
+        __OnResponseImp(_errType, _status, body, extension, _conn_profile);
     }
 }
 

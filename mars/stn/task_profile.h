@@ -331,7 +331,7 @@ struct PrepareProfile {
     }
 
     void Reset() {
-        start_task_call_time = 0;
+        start_task_call_time = gettickcount();
         begin_process_hosts_time = 0;
         end_process_hosts_time = 0;
     }
@@ -409,6 +409,7 @@ struct TaskProfile {
 
     void InitSendParam() {
         // prepare_profile.Reset();//need not reset
+        prepare_profile.Reset();
         transfer_profile.Reset();
         running_id = 0;
     }
