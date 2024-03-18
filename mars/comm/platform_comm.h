@@ -215,6 +215,9 @@ struct RadioAccessNetworkInfo {
     bool IsNR() const {
         return radio_access_network == NR || radio_access_network == NRNSA;
     }
+    bool IsWiFi() const {
+        return radio_access_network == WIFI;
+    }
 };
 
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo);
