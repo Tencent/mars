@@ -10,17 +10,8 @@
 #include <openssl/opensslconf-apple.h>
 #elif defined(__ANDROID__)
 #include <openssl/opensslconf-android.h>
-#elif defined(WIN32)
-// see https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-160
-#if defined(_WIN64)
-#include <openssl/opensslconf_windows-x86_64.h>
+#elif defined(_WIN32)
+#include <openssl/opensslconf-windows.h>
 #else
-#include <openssl/opensslconf_windows-x86.h>
-#endif
-
-#elif defined(__linux__)
-#include <openssl/opensslconf_linux_x86_64.h>
-
-#else
-#error unsupported platform
+#include <openssl/opensslconf_default.h>
 #endif
