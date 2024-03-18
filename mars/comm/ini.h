@@ -284,7 +284,6 @@ class INI {
         if (currentsection.empty()) {
             return;
         }
-        INI::sectionsit_t iter = sections.begin();
         auto sec = sections.find(currentsection);
         if (sec != sections.end()) {
             sections.erase(sec);
