@@ -76,17 +76,18 @@ class ProxyInfo {
 };
 
 //
-enum class BizType{CGI = 0, CDN, COUNT};
-enum class ProtoType{TCP = 0, QUIC, COUNT};
+enum class BizType { CGI = 0, CDN, COUNT };
+enum class ProtoType { TCP = 0, QUIC, COUNT };
 
-struct ConnRecord{
+struct ConnRecord {
     BizType biz = BizType::CGI;
     ProtoType proto = ProtoType::TCP;
-    bool succeed = false;       //.是否连接成功.
+    bool succeed = false;  //.是否连接成功.
     uint64_t begin_timestamp_ms = 0;
     unsigned cost_ms = 0;
+    int nettype = 0;  // see NEW_NETTYPE_UNKNOW
 };
-inline bool operator<(const ConnRecord& lhs, const ConnRecord& rhs){
+inline bool operator<(const ConnRecord& lhs, const ConnRecord& rhs) {
     return lhs.begin_timestamp_ms < rhs.begin_timestamp_ms;
 }
 
