@@ -187,7 +187,7 @@ void ShortLink::SetSentCount(int _sent_count) {
 
 void ShortLink::SendRequest(AutoBuffer& _buf_req, AutoBuffer& _buffer_extend) {
     xverbose_function();
-    xdebug2(XTHIS)(TSF "bufReq.size:%_", _buf_req.Length());
+    xdebug2(XTHIS)(TSF "taskid:%_, cgi:%_ bufReq.size:%_", task_.taskid, task_.cgi, _buf_req.Length());
     send_body_.Attach(_buf_req);
     send_extend_.Attach(_buffer_extend);
     thread_.start();
@@ -893,8 +893,9 @@ void ShortLink::__OnResponseImp(ErrCmdType _errType,
                                 AutoBuffer& _body,
                                 AutoBuffer& _extension,
                                 ConnectProfile& _conn_profile) {
-    xwarn2(TSF "OnResponse NULL.");
-    xdebug2(TSF "_err_type=%_, _status=%_, _body.lenght=%_, _cancel_retry=%_",
+    xdebug2(TSF "taskid:%_, cgi:%_ _err_type=%_, _status=%_, _body.lenght=%_, _cancel_retry=%_",
+            task_.taskid,
+            task_.cgi,
             _errType,
             _status,
             _body.Length(),
@@ -1071,7 +1072,7 @@ void ShortLink::SetConnectParams(const std::vector<IPPortItem>& _out_addr,
 }
 
 void ShortLink::__CancelAndWaitWorkerThread() {
-    xdebug_function(TSF "%_", this);
+    xdebug_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
 
     if (!thread_.isruning()) {
         xinfo2(TSF "thread is no running.");
@@ -1086,7 +1087,7 @@ void ShortLink::__CancelAndWaitWorkerThread() {
 }
 
 bool ShortLink::__Req2Buf() {
-    xinfo_function(TSF "%_", this);
+    xinfo_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
     AutoBuffer bufreq;
     AutoBuffer buffer_extend;
     int error_code = 0;
