@@ -1009,11 +1009,10 @@ void ShortLinkTaskManager::__BatchErrorRespHandle(ErrCmdType _err_type,
             continue;
         }
 
-        /* this case no __Delete or no SingleRespHandel, so the shortlink worker when run utill timeout
         if (_fail_handle == kTaskFailHandleSessionTimeout && !first->task.need_authed) {
             first = next;
             continue;
-        }*/
+        }
 
         xinfo2(TSF "axauth sessiontime id %_, cgi %_ taskid %_", _src_taskid, first->task.cgi, first->task.taskid);
         if (_fail_handle == kTaskFailHandleSessionTimeout && _src_taskid != 0 && first->task.taskid == _src_taskid
