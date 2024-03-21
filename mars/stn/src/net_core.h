@@ -147,7 +147,8 @@ class NetCore {
     NetCore(boot::Context* _context,
             int _packer_encoder_version,
             std::string _packer_encoder_name = "",
-            bool _use_long_link = true);
+            bool _use_long_link = true,
+            LongLinkEncoder* longlink_encoder = nullptr);
     virtual ~NetCore();
     static void __Release(std::shared_ptr<NetCore> _instance);
     void ReleaseNet();
@@ -252,6 +253,7 @@ class NetCore {
     bool shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
+    LongLinkEncoder* default_longlink_encoder = nullptr;
 };
 
 }  // namespace stn

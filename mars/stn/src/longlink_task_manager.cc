@@ -60,7 +60,8 @@ LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context,
                                          std::shared_ptr<NetSource> _netsource,
                                          ActiveLogic& _activelogic,
                                          DynamicTimeout& _dynamictimeout,
-                                         MessageQueue::MessageQueue_t _messagequeue_id)
+                                         MessageQueue::MessageQueue_t _messagequeue_id,
+                                         LongLinkEncoder* longlink_encoder)
 : context_(_context)
 , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeue_id))
 , lastbatcherrortime_(0)
@@ -77,6 +78,7 @@ LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context,
 #ifndef _WIN32
 , meta_mutex_(true)
 #endif
+, default_longlink_encoder(longlink_encoder)
 {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
@@ -1175,7 +1177,11 @@ bool LongLinkTaskManager::AddMinorLink(const std::vector<std::string>& _hosts) {
     defaultConfig.is_keep_alive = true;
     defaultConfig.host_list = _hosts;
     defaultConfig.link_type = Task::kChannelMinorLong;
-    defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    if (default_longlink_encoder) {
+        defaultConfig.longlink_encoder = default_longlink_encoder;
+    } else {
+        defaultConfig.longlink_encoder = &gDefaultLongLinkEncoder;
+    }
 
     return AddLongLink(defaultConfig);
 }

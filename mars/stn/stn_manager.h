@@ -50,6 +50,7 @@ class StnManager : public mars::boot::BaseManager {
     void SetCallback(Callback* const callback);
     void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
     StnCallbackBridge* GetStnCallbackBridge();
+    void SetDefaultLongLinkEncoder(LongLinkEncoder* longlink_encoder);
 
  public:
     // #################### stn.h Callback ####################
@@ -246,6 +247,7 @@ class StnManager : public mars::boot::BaseManager {
     int packer_encoder_version_;
     std::string packer_encoder_name_;
     std::vector<std::string> empty_longlink_hosts;
+    LongLinkEncoder* default_longlink_encoder = nullptr;
 };  // StnManager
 
 }  // namespace stn

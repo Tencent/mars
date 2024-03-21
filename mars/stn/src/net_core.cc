@@ -68,7 +68,8 @@ static const int kShortlinkErrTime = 3;
 NetCore::NetCore(boot::Context* _context,
                  int _packer_encoder_version,
                  std::string _packer_encoder_name,
-                 bool _use_long_link)
+                 bool _use_long_link,
+                 LongLinkEncoder* longlink_encoder)
 : packer_encoder_version_(_packer_encoder_version)
 , packer_encoder_name_(_packer_encoder_name)
 , need_use_longlink_(_use_long_link)
@@ -82,7 +83,8 @@ NetCore::NetCore(boot::Context* _context,
 , shortlink_task_manager_(
       new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
 , shortlink_error_count_(0)
-, shortlink_try_flag_(false) {
+, shortlink_try_flag_(false) 
+, default_longlink_encoder(longlink_encoder) {
     NetCoreCreateBegin()();
     xdebug_function(TSF "mars2");
     xwarn2(TSF "public component version: %0 %1", __DATE__, __TIME__);
@@ -202,11 +204,13 @@ void NetCore::__InitLongLink() {
                                                      net_source_,
                                                      *ActiveLogic::Instance(),
                                                      *dynamic_timeout_,
-                                                     GetMessageQueueId());
+                                                     GetMessageQueueId(),
+                                                     default_longlink_encoder);
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
     defaultConfig.packer_encoder_name = packer_encoder_name_;
+    defaultConfig.longlink_encoder = default_longlink_encoder;
     CreateLongLink(defaultConfig);
 
     // async

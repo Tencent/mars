@@ -81,8 +81,8 @@ void StnManager::OnCreate() {
     xinfo_function(TSF "mars2");
     ActiveLogic::Instance();
     if (!net_core_) {
-        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
-        NetCore::NetCoreCreate()(net_core_);
+        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true, default_longlink_encoder);
+//        NetCore::NetCoreCreate()(net_core_);
     }
 }
 
@@ -95,7 +95,7 @@ void StnManager::OnDestroy() {
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
-    NetCore::NetCoreRelease()();
+//    NetCore::NetCoreRelease()();
     callback_bridge_->SetCallback(nullptr);
     tmp_net_core.reset();
     callback_ = nullptr;
@@ -153,6 +153,10 @@ StnCallbackBridge* StnManager::GetStnCallbackBridge() {
         callback_bridge_->SetCallback(callback_);
     }
     return callback_bridge_;
+}
+
+void StnManager::SetDefaultLongLinkEncoder(LongLinkEncoder* longlink_encoder) {
+    default_longlink_encoder = longlink_encoder;
 }
 
 std::shared_ptr<LongLink> StnManager::DefaultLongLink() {
@@ -512,10 +516,10 @@ void StnManager::Reset() {
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
-    NetCore::NetCoreRelease()();
+//    NetCore::NetCoreRelease()();
     tmp_net_core.reset();
     net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
-    NetCore::NetCoreCreate()(net_core_);
+//    NetCore::NetCoreCreate()(net_core_);
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::string _encoder_name) {
@@ -525,10 +529,10 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::st
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
-    NetCore::NetCoreRelease()();
+//    NetCore::NetCoreRelease()();
     tmp_net_core.reset();
     net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
-    NetCore::NetCoreCreate()(net_core_);
+//    NetCore::NetCoreCreate()(net_core_);
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {
