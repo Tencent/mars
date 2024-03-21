@@ -119,7 +119,7 @@ static int _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
     sin6_test.sin6_scope_id = 0;
     bzero(sin6_test.sin6_addr.s6_addr, sizeof(sin6_test.sin6_addr.s6_addr));
     sin6_test.sin6_addr.s6_addr[0] = 0x20;
-    sockaddr_union addr = {in6 : sin6_test};
+    sockaddr_union addr = {.in6 = sin6_test};
 #endif
     return _test_connect(PF_INET6, &addr.generic, sizeof(addr.in6), local_addr, local_addr_len);
 }
@@ -135,11 +135,11 @@ static int _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
     sockaddr_union addr = {.in = sin_test};
 #else
     static struct sockaddr_in sin_test = {
-        sin_family : AF_INET,
-        sin_port : 80,
+        .sin_family = AF_INET,
+        .sin_port = 80,
     };
     sin_test.sin_addr.s_addr = htonl(0x08080808L);  // 8.8.8.8
-    sockaddr_union addr = {in : sin_test};
+    sockaddr_union addr = {.in = sin_test};
 #endif
     return _test_connect(PF_INET, &addr.generic, sizeof(addr.in), local_addr, local_addr_len);
 }
@@ -161,36 +161,33 @@ bool two_addrs_on_one_interface(sockaddr* first_addr, sockaddr* second_addr) {
 
     std::vector<ifaddrinfo_ip_t> v4_addrs, v6_addrs;
     if (getifaddrs_ipv4_filter(v4_addrs, 0)) {
-        for (size_t i = 0; i < v4_addrs.size(); ++i) {
+        for (const auto & v4_addr : v4_addrs) {
             if (!ip1_ifname.empty() && !ip2_ifname.empty())
                 break;
-            if (0 == strncmp(ip1, v4_addrs[i].ip, sizeof(ip1))) {
-                ip1_ifname = v4_addrs[i].ifa_name;
+            if (0 == strncmp(ip1, v4_addr.ip, sizeof(ip1))) {
+                ip1_ifname = v4_addr.ifa_name;
             }
-            if (0 == strncmp(ip2, v4_addrs[i].ip, sizeof(ip2))) {
-                ip2_ifname = v4_addrs[i].ifa_name;
+            if (0 == strncmp(ip2, v4_addr.ip, sizeof(ip2))) {
+                ip2_ifname = v4_addr.ifa_name;
             }
         }
     }
     if (getifaddrs_ipv6_filter(v6_addrs, 0)) {
-        for (size_t i = 0; i < v6_addrs.size(); ++i) {
+        for (const auto & v6_addr : v6_addrs) {
             if (!ip1_ifname.empty() && !ip2_ifname.empty())
                 break;
-            if (0 == strncmp(ip1, v6_addrs[i].ip, sizeof(ip1))) {
-                ip1_ifname = v6_addrs[i].ifa_name;
+            if (0 == strncmp(ip1, v6_addr.ip, sizeof(ip1))) {
+                ip1_ifname = v6_addr.ifa_name;
             }
-            if (0 == strncmp(ip2, v6_addrs[i].ip, sizeof(ip2))) {
-                ip2_ifname = v6_addrs[i].ifa_name;
+            if (0 == strncmp(ip2, v6_addr.ip, sizeof(ip2))) {
+                ip2_ifname = v6_addr.ifa_name;
             }
         }
     }
-    if (!ip1_ifname.empty() && !ip2_ifname.empty() && 0 == ip1_ifname.compare(ip2_ifname))
-        return true;
-
-    return false;
+    return !ip1_ifname.empty() && !ip2_ifname.empty() && ip2_ifname == ip1_ifname;
 }
 
-TLocalIPStack __local_ipstack_detect(std::string& _log) {
+TLocalIPStack __local_ipstack_detect(std::string&  /*_log*/) {
     XMessage detail;
     detail("local_ipstack_detect ");
 #if 0  // defined(__APPLE__) && (TARGET_OS_IPHONE)
