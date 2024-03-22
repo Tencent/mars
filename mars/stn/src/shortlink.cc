@@ -24,6 +24,7 @@
 #include <tuple>
 
 #include "boost/bind.hpp"
+#include "connect_params.h"
 #include "mars/app/app.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/crypt/ibase64.h"
@@ -146,7 +147,8 @@ ShortLink::ShortLink(boot::Context* _context,
 , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 , net_source_(_netsource)
 , socketOperator_(_operator == nullptr
-                      ? std::make_unique<TcpSocketOperator>(std::make_shared<ShortLinkConnectObserver>(*this))
+                      ? std::make_unique<TcpSocketOperator>(std::make_shared<ShortLinkConnectObserver>(*this),
+                                                            _netsource->GetConnectCtrl(TCP_SHORTLINK))
                       : std::move(_operator))
 , task_(_task)
 , thread_(boost::bind(&ShortLink::__Run, this), internal::threadName(_task.cgi).c_str())
@@ -584,8 +586,8 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         memset(dstbuf, 0, dstlen);
 
         int retsize = mars::comm::EncodeBase64((unsigned char*)account_info.c_str(),
-                                         (unsigned char*)dstbuf,
-                                         (int)account_info.length());
+                                               (unsigned char*)dstbuf,
+                                               (int)account_info.length());
         dstbuf[retsize] = '\0';
 
         char auth_info[1024] = {0};

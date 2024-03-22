@@ -7,12 +7,14 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "comm/autobuffer.h"
 #include "comm/comm_data.h"
 #include "comm/socket/socket_address.h"
 #include "comm/socket/unix_socket.h"
+#include "stn/stn.h"
 
 namespace mars {
 namespace stn {
@@ -29,21 +31,21 @@ struct SocketProfile {
 
 class OPBreaker {
  public:
-    virtual ~OPBreaker() {
-    }
+    virtual ~OPBreaker() = default;
     virtual bool IsBreak() = 0;
     virtual bool Break() = 0;
 };
 
 class SocketOperator {
  public:
-    SocketOperator() {
+    SocketOperator() = default;
+    SocketOperator(const ConnectCtrl& ctrl) : conn_ctrl_(ctrl) {
     }
-    virtual ~SocketOperator() {
-    }
+    virtual ~SocketOperator() = default;
+
     virtual SOCKET Connect(const std::vector<socket_address>& _vecaddr,
                            mars::comm::ProxyType _proxy_type = mars::comm::kProxyNone,
-                           const socket_address* _proxy_addr = NULL,
+                           const socket_address* _proxy_addr = nullptr,
                            const std::string& _proxy_username = "",
                            const std::string& _proxy_pwd = "") = 0;
     virtual int Send(SOCKET _sock, const void* _buffer, size_t _len, int& _errcode, int _timeout = -1) = 0;
@@ -62,7 +64,7 @@ class SocketOperator {
         return profile_;
     }
     virtual OPBreaker& Breaker() {
-        return *breaker_.get();
+        return *breaker_;
     }
     virtual std::string Identify(SOCKET _sock) const = 0;
     virtual int Protocol() const = 0;  // return Task::kTransportProtocol xxx
@@ -71,6 +73,7 @@ class SocketOperator {
     }
 
  protected:
+    ConnectCtrl conn_ctrl_;
     SocketProfile profile_;
     std::unique_ptr<OPBreaker> breaker_;
 };
