@@ -2318,4 +2318,9 @@ inline int RUN_ALL_TESTS() { return ::testing::UnitTest::GetInstance()->Run(); }
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 
+// EXPORT FUNCTIONS IN STATIC LIB
+#define EXPORT_GTEST_SYMBOLS(func)  \
+  void func(){}
+
+
 #endif  // GOOGLETEST_INCLUDE_GTEST_GTEST_H_
