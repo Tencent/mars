@@ -1207,7 +1207,9 @@ bool LongLinkTaskManager::IsMinorAvailable(const Task& _task) {
 }
 
 std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::DefaultLongLink() {
+    if (already_release_manager_) return nullptr;
     MetaScopedLock lock(meta_mutex_);
+    if (already_release_manager_) return nullptr;
     for (auto& item : longlink_metas_) {
         if (item.second->Config().IsMain()) {
             return item.second;

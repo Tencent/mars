@@ -96,10 +96,10 @@ void StnManager::OnDestroy() {
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
 //    NetCore::NetCoreRelease()();
-    callback_bridge_->SetCallback(nullptr);
+//    callback_bridge_->SetCallback(nullptr); //线程还在跑，callback bridge还会触发callback，这个时候置空会有时序问题导致crash
     tmp_net_core.reset();
-    callback_ = nullptr;
     delete callback_bridge_;
+    callback_ = nullptr;//callback 的复位要放最后，不然会有时序问题
 }
 void StnManager::OnSingalCrash(int _sig) {
     mars::xlog::appender_close();
