@@ -235,16 +235,17 @@ const std::vector<std::string>& NetSource::GetLongLinkHosts() {
     return sg_longlink_hosts;
 }
 
-void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
+unsigned NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
     auto ports = sp_connect_params_->CurrentStrategy().ports[TCP_LONGLINK];
-    if (!ports.ports.empty() && (ports.from == FROM_SERVER || ports.from == FROM_PREVIOUS_STATE)) {
-        xinfo2(TSF "use port [%_] from %_", strutil::join_to_string(ports.ports), LabelConfigFrom[ports.from]);
+    if (!ports.ports.empty() && ports.from_source != FROM_DEFAULT) {
+        xinfo2(TSF "use port [%_] from %_", strutil::join_to_string(ports.ports), LabelConfigFrom[ports.from_source]);
         _ports = std::move(ports.ports);
-        return;
+        return ports.from_source;
     }
 
     ScopedLock lock(sg_ip_mutex);
     _ports = sg_longlink_ports;
+    return FROM_DEFAULT;
 }
 
 bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config,
@@ -340,15 +341,24 @@ void NetSource::RemoveLongBanIP(const std::string& _ip) {
  * shortlink functions
  *
  */
-uint16_t NetSource::GetShortLinkPort() {
+unsigned NetSource::GetShortLinkPorts(std::vector<uint16_t>& _ports) {
     auto ports = sp_connect_params_->CurrentStrategy().ports[TCP_SHORTLINK];
-    if (!ports.ports.empty() && (ports.from == FROM_SERVER || ports.from == FROM_PREVIOUS_STATE)) {
-        xinfo2(TSF "use port %_ from %_", ports.ports.front(), LabelConfigFrom[ports.from]);
-        return ports.ports.front();
+    if (!ports.ports.empty() && ports.from_source != FROM_DEFAULT) {
+        xinfo2(TSF "use port %_ from %_", ports.ports.front(), LabelConfigFrom[ports.from_source]);
+        _ports = ports.ports;
+        return ports.from_source;
     }
 
     ScopedLock lock(sg_ip_mutex);
-    return sg_shortlink_port;
+    _ports.emplace_back(sg_shortlink_port);
+    return FROM_DEFAULT;
+}
+
+uint16_t NetSource::GetShortLinkPort() {
+    std::vector<uint16_t> ports;
+    GetShortLinkPorts(ports);
+    xassert2(!ports.empty());
+    return ports.front();
 }
 
 bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist) {
@@ -479,6 +489,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
     IPSourceType ist = kIPSourceNULL;
     std::vector<std::string> iplist;
     std::vector<uint16_t> ports;
+    unsigned ports_source = FROM_DEFAULT;
 
     if (!_isbackup) {
         DnsProfile dns_profile;
@@ -519,9 +530,9 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
         }
 
         if (_islonglink) {
-            NetSource::GetLonglinkPorts(ports);
+            ports_source = NetSource::GetLonglinkPorts(ports);
         } else {
-            ports.push_back(NetSource::GetShortLinkPort());
+            ports_source = NetSource::GetShortLinkPorts(ports);
         }
     } else {
         NetSource::GetBackupIPs(_host, iplist);
@@ -534,12 +545,12 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
 
         if (_islonglink) {
             if (sg_lowpriority_longlink_ports.empty()) {
-                NetSource::GetLonglinkPorts(ports);
+                ports_source = NetSource::GetLonglinkPorts(ports);
             } else {
                 ports = sg_lowpriority_longlink_ports;
             }
         } else {
-            ports.push_back(NetSource::GetShortLinkPort());
+            ports_source = NetSource::GetShortLinkPorts(ports);
         }
         ist = kIPSourceBackup;
         if (!iplist.empty() && !ports.empty()) {
@@ -577,6 +588,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
             item.source_type = ist;
             item.str_host = _host;
             item.port = *port_iter;
+            item.from_source = ports_source;
             temp_items.push_back(item);
         }
     }

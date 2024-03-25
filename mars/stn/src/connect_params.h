@@ -12,10 +12,10 @@ namespace mars {
 namespace stn {
 
 enum {
-    DEFAULT = 0,
-    FROM_CLIENT = 1,
-    FROM_SERVER = 2,
-    FROM_PREVIOUS_STATE = 3,
+    FROM_DEFAULT = 0,
+    FROM_SERVER = 1,
+    FROM_PREVIOUS_STATE = 2,  //.来源于上一次svr配置.
+    FROM_PART_SERVER = 3,     // .部份来源于svr.
     FROM_MAX_COUNT,
 };
 extern const char* LabelConfigFrom[FROM_MAX_COUNT];

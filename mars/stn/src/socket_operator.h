@@ -27,6 +27,7 @@ struct SocketProfile {
     int errorCode = 0;
     uint32_t totalCost = 0;
     int is0rtt = 0;
+    unsigned strategy_source = 0;  // default
 };
 
 class OPBreaker {

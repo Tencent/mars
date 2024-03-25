@@ -15,7 +15,7 @@
 namespace mars {
 namespace stn {
 
-const char* LabelConfigFrom[] = {"DEFAULT", "FROM_CLIENT", "FROM_SERVER", "FROM_PREVIOUS_STATE"};
+const char* LabelConfigFrom[] = {"DEFAULT", "FROM_SERVER", "FROM_PREVIOUS_STATE", "FROM_PART_SERVER"};
 const char* LabelLinkType[] = {"TCP_LONGLINK", "TCP_SHORTLINK", "QUIC_LONGLINK", "QUIC_SHORTLINK"};
 
 namespace {
@@ -57,7 +57,7 @@ bool parse_connect_port_xml(tinyxml2::XMLElement* elem, ConnectStrategy& strateg
         }
 
         ConnectPorts conncfg;
-        conncfg.from = FROM_SERVER;
+        conncfg.from_source = FROM_PART_SERVER;
 
         auto* portelem = portlist->FirstChildElement("port");
         while (portelem) {
@@ -67,6 +67,11 @@ bool parse_connect_port_xml(tinyxml2::XMLElement* elem, ConnectStrategy& strateg
             }
             portelem = portelem->NextSiblingElement("port");
         }
+
+        if (!conncfg.ports.empty()) {
+            conncfg.from_source = FROM_SERVER;
+        }
+
         // done.
         strategy.ports[link_type] = conncfg;
 
@@ -89,7 +94,7 @@ bool parse_connect_timeout_xml(tinyxml2::XMLElement* elem, ConnectStrategy& stra
         }
 
         ConnectCtrl ctrl;
-        ctrl.from = FROM_SERVER;
+        ctrl.from_source = FROM_PART_SERVER;
 
         unsigned interval = 0;
         if (ctrlelem->QueryUnsignedAttribute("interval", &interval) == tinyxml2::XML_SUCCESS && interval > 0) {
@@ -129,16 +134,20 @@ bool parse_connect_timeout_xml(tinyxml2::XMLElement* elem, ConnectStrategy& stra
         // 0rtt check timeout
         subelem = ctrlelem->FirstChildElement("zerortttimeout");
         while (subelem) {
-            if (subelem->QueryUnsignedText(&timeout_ms) == tinyxml2::XML_SUCCESS && timeout_ms > 0) {
+            if (subelem->QueryUnsignedText(&zerortt_ms) == tinyxml2::XML_SUCCESS && zerortt_ms > 0) {
                 if (subelem->Attribute("property", "ipv4")) {
-                    ctrl.ipv4_zerortt_check_ms = timeout_ms;
+                    ctrl.ipv4_zerortt_check_ms = zerortt_ms;
                 } else if (subelem->Attribute("property", "ipv6")) {
-                    ctrl.ipv6_zerortt_check_ms = timeout_ms;
+                    ctrl.ipv6_zerortt_check_ms = zerortt_ms;
                 } else {
                     // not v4 nor v6
                 }
             }
             subelem = subelem->NextSiblingElement("zerortttimeout");
+        }
+
+        if (interval > 0 && timeout_ms > 0 && maxconnnum > 0 && (link_type != QUIC_SHORTLINK || zerortt_ms > 0)) {
+            ctrl.from_source = FROM_SERVER;
         }
 
         // done.
@@ -173,7 +182,7 @@ bool set_ports_from_ini_keyvalue(INI& ini, const char* key, ConnectPorts& conn) 
 
     xinfo2(TSF "get ini.port %_ ports %_", key, strutil::join_to_string(conn.ports));
 
-    conn.from = FROM_PREVIOUS_STATE;
+    conn.from_source = FROM_PREVIOUS_STATE;
     return true;
 }
 
@@ -210,7 +219,7 @@ bool set_ctrl_from_ini_keyvalue(INI& ini, const char* key, ConnectCtrl& ctrl) {
         && parse_ini_unsigned_value(ini, skey + ".maxconn", ctrl.maxconn)
         && parse_ini_unsigned_value(ini, skey + ".ipv4.0rtt", ctrl.ipv4_zerortt_check_ms)
         && parse_ini_unsigned_value(ini, skey + ".ipv6.0rtt", ctrl.ipv6_zerortt_check_ms)) {
-        ctrl.from = FROM_PREVIOUS_STATE;
+        ctrl.from_source = FROM_PREVIOUS_STATE;
 
         xinfo2(TSF "get ini.ctrl %_ interval %_ ipv4 %_ ipv6 %_ maxconn %_ 0rttv4 %_ 0rttv6 %_",
                key,
@@ -375,28 +384,28 @@ ConnectStrategy ConnectParams::CurrentStrategy() const {
 
 void ConnectParams::_InitDefaultStrategy() {
     xinfo_function();
-    strategy_.ports[TCP_LONGLINK].from = DEFAULT;
+    strategy_.ports[TCP_LONGLINK].from_source = FROM_DEFAULT;
     strategy_.ports[TCP_LONGLINK].ports = {80, 443, 8080, 5000};
-    strategy_.ports[TCP_SHORTLINK].from = DEFAULT;
+    strategy_.ports[TCP_SHORTLINK].from_source = FROM_DEFAULT;
     strategy_.ports[TCP_SHORTLINK].ports = {80};
-    strategy_.ports[QUIC_LONGLINK].from = DEFAULT;
+    strategy_.ports[QUIC_LONGLINK].from_source = FROM_DEFAULT;
     strategy_.ports[QUIC_LONGLINK].ports = {80};
-    strategy_.ports[QUIC_SHORTLINK].from = DEFAULT;
+    strategy_.ports[QUIC_SHORTLINK].from_source = FROM_DEFAULT;
     strategy_.ports[QUIC_SHORTLINK].ports = {80};
 
-    strategy_.ctrls[TCP_LONGLINK].from = DEFAULT;
+    strategy_.ctrls[TCP_LONGLINK].from_source = FROM_DEFAULT;
     strategy_.ctrls[TCP_LONGLINK].interval_ms = kLonglinkConnInteral;
     strategy_.ctrls[TCP_LONGLINK].ipv4_timeout_ms = kLonglinkConnTimeout;
     strategy_.ctrls[TCP_LONGLINK].ipv6_timeout_ms = kLonglinkConnTimeout;
     strategy_.ctrls[TCP_LONGLINK].maxconn = kLonglinkConnMax;
 
-    strategy_.ctrls[TCP_SHORTLINK].from = DEFAULT;
+    strategy_.ctrls[TCP_SHORTLINK].from_source = FROM_DEFAULT;
     strategy_.ctrls[TCP_SHORTLINK].interval_ms = kShortlinkConnInterval;
     strategy_.ctrls[TCP_SHORTLINK].ipv4_timeout_ms = kShortlinkConnTimeout;
     strategy_.ctrls[TCP_SHORTLINK].ipv6_timeout_ms = kShortlinkConnTimeout;
     strategy_.ctrls[TCP_SHORTLINK].maxconn = kLonglinkConnMax;
 
-    strategy_.ctrls[QUIC_LONGLINK].from = DEFAULT;
+    strategy_.ctrls[QUIC_LONGLINK].from_source = FROM_DEFAULT;
     strategy_.ctrls[QUIC_LONGLINK].interval_ms = 250;
     strategy_.ctrls[QUIC_LONGLINK].ipv4_timeout_ms = 1000;
     strategy_.ctrls[QUIC_LONGLINK].ipv6_timeout_ms = 1000;
@@ -404,7 +413,7 @@ void ConnectParams::_InitDefaultStrategy() {
     strategy_.ctrls[QUIC_LONGLINK].ipv6_zerortt_check_ms = 400;
     strategy_.ctrls[QUIC_LONGLINK].maxconn = 4;
 
-    strategy_.ctrls[QUIC_LONGLINK].from = DEFAULT;
+    strategy_.ctrls[QUIC_LONGLINK].from_source = FROM_DEFAULT;
     strategy_.ctrls[QUIC_SHORTLINK].interval_ms = 250;
     strategy_.ctrls[QUIC_SHORTLINK].ipv4_timeout_ms = 1000;
     strategy_.ctrls[QUIC_SHORTLINK].ipv6_timeout_ms = 1000;

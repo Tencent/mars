@@ -159,7 +159,7 @@ struct CgiProfile {
 };
 
 struct ConnectCtrl {
-    int from = 0;  // DEFAULT;
+    int from_source = 0;  // DEFAULT;
     unsigned interval_ms = 2500;
     unsigned ipv4_timeout_ms = 10 * 1000;
     unsigned ipv6_timeout_ms = 10 * 1000;
@@ -168,7 +168,7 @@ struct ConnectCtrl {
     unsigned ipv6_zerortt_check_ms = 400;
 };
 struct ConnectPorts {
-    int from = 0;  // DEFAULT;
+    int from_source = 0;  // DEFAULT;
     std::vector<uint16_t> ports;
 };
 
@@ -392,6 +392,7 @@ struct IPPortItem {
     IPSourceType source_type;
     std::string str_host;
     int transport_protocol = Task::kTransportProtocolTCP;  // tcp or quic?
+    unsigned from_source = 0;                              // default
 };
 
 /* mars2

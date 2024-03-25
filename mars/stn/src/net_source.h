@@ -94,8 +94,9 @@ class NetSource {
 
     void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 
-    void GetLonglinkPorts(std::vector<uint16_t>& _ports);
+    unsigned GetLonglinkPorts(std::vector<uint16_t>& _ports);
     const std::vector<std::string>& GetLongLinkHosts();
+    unsigned GetShortLinkPorts(std::vector<uint16_t>& _ports);
     uint16_t GetShortLinkPort();
 
     void GetBackupIPs(std::string _host, std::vector<std::string>& _iplist);

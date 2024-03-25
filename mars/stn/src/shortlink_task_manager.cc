@@ -965,12 +965,17 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
                             _connect_profile.ip,
                             _connect_profile.port,
                             IPSourceTypeString[_connect_profile.ip_type],
-                            _connect_profile.host)(TSF "cli(%_, %_, %_, n:%_, sig:%_), ",
-                                                   _it->transfer_profile.external_ip,
-                                                   _connect_profile.local_ip,
-                                                   _connect_profile.connection_identify,
-                                                   _connect_profile.net_type,
-                                                   _connect_profile.disconn_signal)(
+                            _connect_profile.host)(
+            TSF "cli(%_, %_, %_, n:%_, sig:%_), source(port %_:%_, strategy %_:%_), ",
+            _it->transfer_profile.external_ip,
+            _connect_profile.local_ip,
+            _connect_profile.connection_identify,
+            _connect_profile.net_type,
+            _connect_profile.disconn_signal,
+            _connect_profile.used_connect_port_source,
+            LabelConfigFrom[_connect_profile.used_connect_port_source],
+            _connect_profile.used_connect_strategy_source,
+            LabelConfigFrom[_connect_profile.used_connect_strategy_source])(
             TSF "cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ",
             _it->transfer_profile.send_data_size,
             0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size,

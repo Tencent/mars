@@ -60,12 +60,12 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address>& _vecaddr,
                                   const std::string& _proxy_username,
                                   const std::string& _proxy_pwd) {
     ConnectCtrl used_ctrl;
-    if (conn_ctrl_.from == FROM_SERVER || conn_ctrl_.from == FROM_PREVIOUS_STATE) {
+    if (conn_ctrl_.from_source != FROM_DEFAULT) {
         used_ctrl = conn_ctrl_;
         v4_timeout_ = conn_ctrl_.ipv4_timeout_ms;
         v6_timeout_ = conn_ctrl_.ipv6_timeout_ms;
         xinfo2(TSF "use connect ctrl from %_ v4 %_ v6 %_ interval %_ maxconn %_",
-               LabelConfigFrom[conn_ctrl_.from],
+               LabelConfigFrom[conn_ctrl_.from_source],
                conn_ctrl_.ipv4_timeout_ms,
                conn_ctrl_.ipv6_timeout_ms,
                conn_ctrl_.interval_ms,
@@ -99,6 +99,7 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address>& _vecaddr,
     profile_.rtt = conn->IndexRtt();
     profile_.errorCode = conn->ErrorCode();
     profile_.totalCost = conn->TotalCost();
+    profile_.strategy_source = used_ctrl.from_source;
     return sock;
 }
 

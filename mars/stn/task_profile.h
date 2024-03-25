@@ -146,6 +146,9 @@ struct ConnectProfile {
         begin_connect_timestamp_ms = 0;
         end_connect_timestamp_ms = 0;
 
+        used_connect_port_source = 0;
+        used_connect_strategy_source = 0;
+
         task_id = 0;
     }
 
@@ -235,6 +238,9 @@ struct ConnectProfile {
     //
     uint64_t begin_connect_timestamp_ms;
     uint64_t end_connect_timestamp_ms;
+
+    unsigned used_connect_port_source = 0;      // default
+    unsigned used_connect_strategy_source = 0;  // default
 
     uint32_t task_id;
 };
