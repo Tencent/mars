@@ -23,6 +23,7 @@
 #include <cstdint>
 
 #include "boost/bind.hpp"
+#include "connect_params.h"
 #include "mars/app/app.h"
 #include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseprjevent.h"
@@ -670,8 +671,18 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     // set the first ip info to the profiler, after connect, the ip info will be overwrriten by the real one
 
     LongLinkConnectObserver connect_observer(*this, ip_items);
-    ComplexConnect com_connect(kLonglinkConnTimeout, kLonglinkConnInteral, kLonglinkConnInteral, kLonglinkConnMax);
 
+    auto conn_ctrl = netsource_->GetConnectCtrl(TCP_LONGLINK);
+    xinfo2(TSF "longlink ctrl %_ timeout %_ interval %_ maxconn %_",
+           LabelConfigFrom[conn_ctrl.from_source],
+           conn_ctrl.ipv4_timeout_ms,
+           conn_ctrl.interval_ms,
+           conn_ctrl.maxconn);
+
+    ComplexConnect com_connect(conn_ctrl.ipv4_timeout_ms,
+                               conn_ctrl.interval_ms,
+                               conn_ctrl.interval_ms,
+                               conn_ctrl.maxconn);
     SOCKET sock = com_connect.ConnectImpatient(vecaddr,
                                                connectbreak_,
                                                &connect_observer,
@@ -719,6 +730,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.ip = ip_items[com_connect.Index()].str_ip;
     _conn_profile.port = ip_items[com_connect.Index()].port;
     _conn_profile.used_connect_port_source = ip_items[com_connect.Index()].from_source;
+    _conn_profile.used_connect_strategy_source = conn_ctrl.from_source;
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();
 
@@ -737,9 +749,15 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
         }
     }
 
+    xmessage2_define(sourcemsg)(TSF "source(port %_:%_, strategy %_:%_)",
+                                _conn_profile.used_connect_port_source,
+                                LabelConfigFrom[_conn_profile.used_connect_port_source],
+                                _conn_profile.used_connect_strategy_source,
+                                LabelConfigFrom[_conn_profile.used_connect_strategy_source]);
+
     xinfo2(TSF
            "task socket connect suc sock:%_, host:%_, ip:%_, port:%_, local_ip:%_, local_port:%_, iptype:%_,"
-           "linktype:%_, costtime:%_, rtt:%_, totalcost:%_, index:%_, net:%_",
+           "linktype:%_, costtime:%_, rtt:%_, totalcost:%_, index:%_, net:%_, %_",
            sock,
            _conn_profile.host,
            _conn_profile.ip,
@@ -752,7 +770,8 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
            com_connect.IndexRtt(),
            com_connect.IndexTotalCost(),
            com_connect.Index(),
-           ::getNetInfo());
+           ::getNetInfo(),
+           sourcemsg.Message());
     __ConnectStatus(kConnected);
     __UpdateProfile(_conn_profile);
 
