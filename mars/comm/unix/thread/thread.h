@@ -372,6 +372,7 @@ class Thread {
         ASSERT2(false, "In Android, use SIGUSR2(handler call pthread_exit) to pthread_cancel");
         return kill(SIGUSR2);
 #elif defined(OHOS)
+        ASSERT2(false, "harmony os no pthread_cancel function");
         return 0;
 #else
         return pthread_cancel(tid());
