@@ -6,14 +6,11 @@
  * See also https://github.com/x2on/OpenSSL-for-iPhone/issues/126 and referenced pull requests
  */
 
-#ifdef __APPLE__
-#include <openssl/opensslconf-apple.h>
-#elif defined(__ANDROID__)
-#include <openssl/opensslconf-android.h>
-#elif defined(__WIN32__)
-#include <openssl/opensslconf-windows.h>
-#elif defined(__OHOS__)
-#include <openssl/opensslconf-harmony.h>
+
+#if defined(__aarch64__)
+#include <openssl/opensslconf_harmony-arm64.h>
+#elif defined(__x86_64__)
+#include <openssl/opensslconf_harmony-x86_64.h>
 #else
-#error unsupported platform
-#endif
+# error Unable to determine arch not included in OpenSSL build
+#endif 
