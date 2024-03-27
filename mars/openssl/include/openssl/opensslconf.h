@@ -5,14 +5,13 @@
 
  * See also https://github.com/x2on/OpenSSL-for-iPhone/issues/126 and referenced pull requests
  */
-#include <openssl/opensslconf-android.h>
 
-//#ifdef __APPLE__
-//#include <openssl/opensslconf-apple.h>
-//#elif defined(__ANDROID__)
-//#include <openssl/opensslconf-android.h>
-//#elif defined(__WIN32__)
-//#include <openssl/opensslconf-windows.h>
-//#else
-//#error unsupported platform
-//#endif
+#ifdef __APPLE__
+#include <openssl/opensslconf-apple.h>
+#elif defined(__ANDROID__)
+#include <openssl/opensslconf-android.h>
+#elif defined(__WIN32__)
+#include <openssl/opensslconf-windows.h>
+#else
+#error unsupported platform
+#endif
