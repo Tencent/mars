@@ -449,6 +449,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     gettimeofday(&now, nullptr);
     _conn_profile.end_connect_timestamp_ms = now.tv_sec * 1000 + now.tv_usec / 1000;
     _conn_profile.connect_successful_time = ::gettickcount();
+    _conn_profile.app_nettype = mars::comm::getAppNetType();
+
     delete proxy_addr;
     bool contain_v6 = __ContainIPv6(vecaddr);
 
@@ -584,8 +586,8 @@ void ShortLink::__RunReadWrite(SOCKET _socket, int& _err_type, int& _err_code, C
         memset(dstbuf, 0, dstlen);
 
         int retsize = mars::comm::EncodeBase64((unsigned char*)account_info.c_str(),
-                                         (unsigned char*)dstbuf,
-                                         (int)account_info.length());
+                                               (unsigned char*)dstbuf,
+                                               (int)account_info.length());
         dstbuf[retsize] = '\0';
 
         char auth_info[1024] = {0};
