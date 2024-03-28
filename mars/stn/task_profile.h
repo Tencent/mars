@@ -142,6 +142,7 @@ struct ConnectProfile {
         tls_handshake_success = false;
         channel_type = 0;
         rtt_by_socket = 0;
+        app_nettype = 0;
 
         begin_connect_timestamp_ms = 0;
         end_connect_timestamp_ms = 0;
@@ -231,6 +232,7 @@ struct ConnectProfile {
     int channel_type;
     int rtt_by_socket;
     std::string netlabel;
+    int app_nettype;
 
     //
     uint64_t begin_connect_timestamp_ms;
