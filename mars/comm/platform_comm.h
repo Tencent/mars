@@ -370,6 +370,31 @@ extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCall
 std::string GetCurrentProcessName();
 #endif
 
+enum EResolveHostPriority {
+    PRIORITY_NEWDNS_FIRST = 1,  // newdns 优先.
+    PRIORITY_SIMPLEDNS_FIRST,   // simpledns优先
+};
+
+enum EResolveHostFlag {
+    FLAG_TRY_NEWDNS = 1,
+    FLAG_TRY_SIMPLEDNS = 1 << 1,
+    FLAG_TRY_LOCALDNS = 1 << 2,
+
+    FLAGS_NEWDNS_DEFAULT = FLAG_TRY_NEWDNS | FLAG_TRY_LOCALDNS,
+    FLAGS_SIMPLEDNS_DEFAULT = FLAG_TRY_SIMPLEDNS | FLAG_TRY_LOCALDNS,
+    FLAGS_ALLINONE = FLAG_TRY_NEWDNS | FLAG_TRY_SIMPLEDNS | FLAG_TRY_LOCALDNS,
+    FLAGS_ALL_WITHOUT_FALLBACK = FLAG_TRY_NEWDNS | FLAG_TRY_SIMPLEDNS,
+};
+
+enum EHostType {
+    kHostNone = 0,
+    kHostFromNewDNS = 1,
+    kHostFromSysDNS = 2,
+    kHostFromDebugIP = 3,
+    kHostFromSimpleDNS = 4,
+    kHostFromLiteral = 5,
+};
+
 }  // namespace comm
 }  // namespace mars
 
