@@ -40,7 +40,7 @@ void OnPlatformNetworkChange();
 
 int getNetInfo(bool realtime = false);
 
-enum class NetTypeForStatistics {
+enum NetTypeForStatistics {
     NETTYPE_NON = -1,
     NETTYPE_NOT_WIFI = 0,
     NETTYPE_WIFI = 1,
@@ -51,7 +51,32 @@ enum class NetTypeForStatistics {
     NETTYPE_UNKNOWN = 6,  // ignore, DO NOT reuse
     NETTYPE_5G = 7,
 };
+
 int getNetTypeForStatistics();
+enum {
+    NEW_NETTYPE_UNKNOW = 0,
+    NEW_NETTYPE_WIFI = 1,
+    NEW_NETTYPE_2G = 2,
+    NEW_NETTYPE_3G = 3,
+    NEW_NETTYPE_4G = 4,
+    NEW_NETTYPE_5G = 5,
+};
+inline int getAppNetType() {
+    int type = getNetTypeForStatistics();
+    switch (type) {
+        case NetTypeForStatistics::NETTYPE_WIFI:
+            return NEW_NETTYPE_WIFI;
+        case NetTypeForStatistics::NETTYPE_2G:
+            return NEW_NETTYPE_2G;
+        case NetTypeForStatistics::NETTYPE_3G:
+            return NEW_NETTYPE_3G;
+        case NetTypeForStatistics::NETTYPE_4G:
+            return NEW_NETTYPE_4G;
+        case NetTypeForStatistics::NETTYPE_5G:
+            return NEW_NETTYPE_5G;
+    }
+    return NEW_NETTYPE_UNKNOW;
+}
 
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
 
@@ -344,6 +369,31 @@ extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCall
 #ifdef ANDROID
 std::string GetCurrentProcessName();
 #endif
+
+enum EResolveHostPriority {
+    PRIORITY_NEWDNS_FIRST = 1,  // newdns 优先.
+    PRIORITY_SIMPLEDNS_FIRST,   // simpledns优先
+};
+
+enum EResolveHostFlag {
+    FLAG_TRY_NEWDNS = 1,
+    FLAG_TRY_SIMPLEDNS = 1 << 1,
+    FLAG_TRY_LOCALDNS = 1 << 2,
+
+    FLAGS_NEWDNS_DEFAULT = FLAG_TRY_NEWDNS | FLAG_TRY_LOCALDNS,
+    FLAGS_SIMPLEDNS_DEFAULT = FLAG_TRY_SIMPLEDNS | FLAG_TRY_LOCALDNS,
+    FLAGS_ALLINONE = FLAG_TRY_NEWDNS | FLAG_TRY_SIMPLEDNS | FLAG_TRY_LOCALDNS,
+    FLAGS_ALL_WITHOUT_FALLBACK = FLAG_TRY_NEWDNS | FLAG_TRY_SIMPLEDNS,
+};
+
+enum EHostType {
+    kHostNone = 0,
+    kHostFromNewDNS = 1,
+    kHostFromSysDNS = 2,
+    kHostFromDebugIP = 3,
+    kHostFromSimpleDNS = 4,
+    kHostFromLiteral = 5,
+};
 
 }  // namespace comm
 }  // namespace mars
