@@ -16,20 +16,20 @@
 #define MEM_H_MODULE
 
 /*-****************************************
-*  Dependencies
-******************************************/
+ *  Dependencies
+ ******************************************/
 #include <asm/unaligned.h>
 #include <linux/string.h> /* memcpy */
 #include <linux/types.h>  /* size_t, ptrdiff_t */
 
 /*-****************************************
-*  Compiler specifics
-******************************************/
+ *  Compiler specifics
+ ******************************************/
 #define ZSTD_STATIC static __inline __attribute__((unused))
 
 /*-**************************************************************
-*  Basic Types
-*****************************************************************/
+ *  Basic Types
+ *****************************************************************/
 typedef uint8_t BYTE;
 typedef uint16_t U16;
 typedef int16_t S16;
@@ -41,8 +41,8 @@ typedef ptrdiff_t iPtrDiff;
 typedef uintptr_t uPtrDiff;
 
 /*-**************************************************************
-*  Memory I/O
-*****************************************************************/
+ *  Memory I/O
+ *****************************************************************/
 ZSTD_STATIC unsigned ZSTD_32bits(void) { return sizeof(size_t) == 4; }
 ZSTD_STATIC unsigned ZSTD_64bits(void) { return sizeof(size_t) == 8; }
 

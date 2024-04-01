@@ -10,7 +10,7 @@
 #include <openssl/opensslconf-apple.h>
 #elif defined(__ANDROID__)
 #include <openssl/opensslconf-android.h>
-#elif defined(WIN32)
+#elif defined(__WIN32__)
 #include <openssl/opensslconf-windows.h>
 #else
 #error unsupported platform

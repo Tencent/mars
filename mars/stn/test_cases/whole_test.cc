@@ -1,39 +1,34 @@
 /*
-* Created on:2015-04-10
-*	  Author:闫国跃
-*
-*/
+ * Created on:2015-04-10
+ *	  Author:闫国跃
+ *
+ */
 #if 0
 #include <stdlib.h>
+
 #include "UtilFunc.h"
 
 #define WHOLE_TEST
 #ifdef WHOLE_TEST
-#include "gtest/gtest.h"
-
-#include "TestUtils.h"
-#include "GtestEx.h"
-
 #include "../../../comm/singleton.h"
+#include "../../../comm/xlogger/xloggerbase.h"
+#include "../../../log/appender.h"
+#include "../../../mmcomm/ActiveLogic.h"
+#include "../../../mmcomm/MMNewGetDns.h"
+#include "../../../network/MMHostInfoLogic.h"
+#include "../../../network/MMLongLinkTaskManager.h"
+#include "../../../network/MMNetCore.h"
+#include "../../../network/MMNetSourceTimerCheck.h"
 #include "../../test/include/hook.h"
 #include "../../test/include/mock_spy.h"
-
-#include "../../../network/MMNetCore.h"
-#include "../../../network/MMLongLinkTaskManager.h"
-#include "../../../network/MMNetSourceTimerCheck.h"
-#include "../../../network/MMHostInfoLogic.h"
-#include "../../../mmcomm/MMNewGetDns.h"
-#include "../../../mmcomm/ActiveLogic.h"
-
 #include "../MmNetComm.h"
-
-#include "../../../log/appender.h"
-#include "../../../comm/xlogger/xloggerbase.h"
-
+#include "GtestEx.h"
 #include "MockServerControlUtils.h"
+#include "TestUtils.h"
+#include "gtest/gtest.h"
 
-#define NEWDNS_SERVER_IP	"127.0.0.89"
-#define NEWDNS_SERVER_PORT	8182
+#define NEWDNS_SERVER_IP "127.0.0.89"
+#define NEWDNS_SERVER_PORT 8182
 
 #define SOCKET int
 #define TLongLinkStatus MMLongLink2::TLongLinkStatus
@@ -630,7 +625,6 @@ static std::string get_chinese_wording_from_ini(const char* _key)
 {
 	return UtilFunc::get_wording_from_ini(_key,CHINESE_WORDING_SECTION, INI_FILE);
 }
-
 
 #define USE_CHINESE_WORDING
 #ifdef USE_CHINESE_WORDING

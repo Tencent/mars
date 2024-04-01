@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * scop_jenv.cpp
@@ -19,24 +18,26 @@
  */
 
 #include "scope_jenv.h"
+
+#include <pthread.h>
 #include <stddef.h>
 #include <unistd.h>
-#include <pthread.h>
+
 #include <cstdio>
+
 #include "assert/__assert.h"
 #include "mars/comm/jni/util/var_cache.h"
 
-
-ScopeJEnv::ScopeJEnv(JavaVM* jvm, jint _capacity)
-    : env_(NULL), status_(0) {
+ScopeJEnv::ScopeJEnv(JavaVM* jvm, jint _capacity) : env_(NULL), status_(0) {
     if (nullptr == jvm) {
         jvm = VarCache::Singleton()->GetJvm();
     }
     ASSERT(jvm);
     do {
-        status_ = jvm->GetEnv((void**) &env_, JNI_VERSION_1_6);
+        status_ = jvm->GetEnv((void**)&env_, JNI_VERSION_1_6);
 
         if (JNI_OK == status_) {
+            ASSERT2(env_ != NULL, "env_ %p", env_);
             break;
         }
 
@@ -62,7 +63,7 @@ ScopeJEnv::ScopeJEnv(JavaVM* jvm, jint _capacity)
             return;
         }
     } while (false);
-    
+
     jint ret = env_->PushLocalFrame(_capacity);
     ASSERT2(0 == ret, "ret:%d", ret);
 }

@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,8 +10,6 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 #ifndef THREAD_H_
 #define THREAD_H_
 
@@ -19,13 +17,12 @@
 #include <stdlib.h>
 #include <xtimec.h>
 
-
 #include "assert/__assert.h"
 #include "condition.h"
-#include "thread/runnable.h"
 #include "mars/openssl/include/openssl/crypto.h"
+#include "thread/runnable.h"
 
-typedef HANDLE  thread_handler;
+typedef HANDLE thread_handler;
 #define thrd_success (0)
 
 namespace mars {
@@ -33,10 +30,10 @@ namespace comm {
 
 typedef DWORD thread_tid;
 
-typedef void* (*THREAD_START_PROC)(void*  arg);
+typedef void* (*THREAD_START_PROC)(void* arg);
 
 class ThreadUtil {
-  public:
+ public:
     static void yield() {
         ::SwitchToThread();
     }
@@ -58,13 +55,15 @@ class ThreadUtil {
             return true;
 
         HANDLE handle = OpenThread(THREAD_ALL_ACCESS, FALSE, _id);
-        if (handle == NULL) return false;
+        if (handle == NULL)
+            return false;
         return ::WaitForSingleObject(handle, 0) == WAIT_OBJECT_0;
     }
 
     static int createThread(thread_handler& pth, THREAD_START_PROC proc, void* args) {
         HANDLE handle = ::CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)proc, args, 0, nullptr);
-        if (handle == nullptr)  return -1;
+        if (handle == nullptr)
+            return -1;
 
         pth = handle;
         return thrd_success;
@@ -80,7 +79,7 @@ class ThreadUtil {
         ::WaitForSingleObject(pth, INFINITE);
     }
 
-	static void join (thread_tid _tid) {
+    static void join(thread_tid _tid) {
         ASSERT(_tid != currentthreadid());
         if (_tid == currentthreadid())
             return;
@@ -90,11 +89,11 @@ class ThreadUtil {
             return;
         }
         ::WaitForSingleObject(handler, INFINITE);
-	}
+    }
 
     static void detach(thread_handler& pth) {
         if (pth == NULL)
-            return ;
+            return;
         ::CloseHandle(pth);
         pth = NULL;
     }
@@ -108,13 +107,19 @@ class ThreadUtil {
 };
 
 class Thread {
-  private:
+ private:
     class RunnableReference {
-      public:
+     public:
         RunnableReference(Runnable* _target)
-            : target(_target), count(0), isjoined(false), isended(true) ,
-              aftertime(UINT_MAX), periodictime(UINT_MAX), iscanceldelaystart(false)
-            , isinthread(false), killsig(0) {
+        : target(_target)
+        , count(0)
+        , isjoined(false)
+        , isended(true)
+        , aftertime(UINT_MAX)
+        , periodictime(UINT_MAX)
+        , iscanceldelaystart(false)
+        , isinthread(false)
+        , killsig(0) {
             // tid._Hnd = 0;
             // tid._Id = 0;
             m_th = NULL;
@@ -132,7 +137,9 @@ class Thread {
             }
         }
 
-        void AddRef() { count++;}
+        void AddRef() {
+            count++;
+        }
         void RemoveRef(ScopedSpinLock& _lock) {
             ASSERT(0 < count);
             ASSERT(_lock.islocked());
@@ -140,18 +147,20 @@ class Thread {
             bool willdel = false;
             count--;
 
-            if (0 == count) willdel = true;
+            if (0 == count)
+                willdel = true;
 
             _lock.unlock();
 
-            if (willdel) delete this;
+            if (willdel)
+                delete this;
         }
 
-      private:
+     private:
         RunnableReference(const RunnableReference&);
         RunnableReference& operator=(const RunnableReference&);
 
-      public:
+     public:
         Runnable* target;
         int count;
         // thrd_t tid;
@@ -163,21 +172,21 @@ class Thread {
         bool iscanceldelaystart;
         Condition condtime;
         SpinLock splock;
-        bool isinthread; 
+        bool isinthread;
         int killsig;
     };
 
-  public:
-    template<class T>
+ public:
+    template <class T>
     explicit Thread(const T& op, const char* _thread_name = NULL, bool _outside_join = false)
-        : m_runableref(NULL), outside_join_(_outside_join) {
+    : m_runableref(NULL), outside_join_(_outside_join) {
         m_runableref = new RunnableReference(detail::transform(op));
         ScopedSpinLock lock(m_runableref->splock);
         m_runableref->AddRef();
     }
 
     Thread(const char* _thread_name = NULL, bool _outside_join = false)
-        : m_runableref(NULL), outside_join_(_outside_join) {
+    : m_runableref(NULL), outside_join_(_outside_join) {
         m_runableref = new RunnableReference(NULL);
         ScopedSpinLock lock(m_runableref->splock);
         m_runableref->AddRef();
@@ -191,19 +200,22 @@ class Thread {
     int start(bool* _newone = NULL) {
         ScopedSpinLock lock(m_runableref->splock);
 
-        if (_newone) *_newone = false;
+        if (_newone)
+            *_newone = false;
 
-        if (isruning())return 0;
+        if (isruning())
+            return 0;
 
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
+        m_runableref->isjoined = outside_join_;
         m_runableref->AddRef();
 
         // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine, (void*)m_runableref);
         int ret = ThreadUtil::createThread(m_runableref->m_th, &start_routine, (void*)m_runableref);
         ASSERT(thrd_success == ret);
 
-        if (_newone) *_newone = true;
+        if (_newone)
+            *_newone = true;
 
         if (thrd_success != ret) {
             m_runableref->isended = true;
@@ -217,22 +229,25 @@ class Thread {
     int start(const T& op, bool* _newone = NULL) {
         ScopedSpinLock lock(m_runableref->splock);
 
-        if (_newone) *_newone = false;
+        if (_newone)
+            *_newone = false;
 
-        if (isruning())return 0;
+        if (isruning())
+            return 0;
 
         delete m_runableref->target;
         m_runableref->target = detail::transform(op);
 
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
+        m_runableref->isjoined = outside_join_;
         m_runableref->AddRef();
 
         // int ret = thrd_create(&m_runableref->tid, (thrd_start_t)&start_routine, (void*)m_runableref);
         int ret = ThreadUtil::createThread(m_runableref->m_th, &start_routine, (void*)m_runableref);
         ASSERT(thrd_success == ret);
 
-        if (_newone) *_newone = true;
+        if (_newone)
+            *_newone = true;
 
         if (thrd_success != ret) {
             m_runableref->isended = true;
@@ -245,12 +260,13 @@ class Thread {
     int start_after(unsigned int after) {
         ScopedSpinLock lock(m_runableref->splock);
 
-        if (isruning())return 0;
+        if (isruning())
+            return 0;
 
         m_runableref->condtime.cancelAnyWayNotify();
         m_runableref->iscanceldelaystart = false;
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
+        m_runableref->isjoined = outside_join_;
         m_runableref->aftertime = after;
         m_runableref->AddRef();
 
@@ -270,21 +286,23 @@ class Thread {
     void cancel_after() {
         ScopedSpinLock lock(m_runableref->splock);
 
-        if (!isruning()) return;
+        if (!isruning())
+            return;
 
         m_runableref->iscanceldelaystart = true;
         m_runableref->condtime.notifyAll(true);
     }
 
-    int start_periodic(unsigned int after, unsigned int periodic) { // ms
+    int start_periodic(unsigned int after, unsigned int periodic) {  // ms
         ScopedSpinLock lock(m_runableref->splock);
 
-        if (isruning()) return 0;
+        if (isruning())
+            return 0;
 
         m_runableref->condtime.cancelAnyWayNotify();
         m_runableref->iscanceldelaystart = false;
         m_runableref->isended = false;
-		m_runableref->isjoined = outside_join_;
+        m_runableref->isjoined = outside_join_;
         m_runableref->aftertime = after;
         m_runableref->periodictime = periodic;
         m_runableref->AddRef();
@@ -306,7 +324,8 @@ class Thread {
     void cancel_periodic() {
         ScopedSpinLock lock(m_runableref->splock);
 
-        if (!isruning()) return;
+        if (!isruning())
+            return;
 
         m_runableref->iscanceldelaystart = true;
         m_runableref->condtime.notifyAll(true);
@@ -338,7 +357,7 @@ class Thread {
         return !m_runableref->isended;
     }
 
-  private:
+ private:
     static void init(void* arg) {
         volatile RunnableReference* runableref = static_cast<RunnableReference*>(arg);
         ScopedSpinLock lock((const_cast<RunnableReference*>(runableref))->splock);
@@ -419,21 +438,22 @@ class Thread {
         cleanup(arg);
         return 0;
     }
-  private:
+
+ private:
     Thread(const Thread&);
     Thread& operator=(const Thread&);
-  private:
-    RunnableReference*  m_runableref;
-	bool outside_join_;
+
+ private:
+    RunnableReference* m_runableref;
+    bool outside_join_;
 };
 
-}
-}
+}  // namespace comm
+}  // namespace mars
 
 // inline bool operator==(const thread_t& lhs, const thread_t& rhs)
 //{
 //    return lhs== rhs;
 //}
-
 
 #endif /* THREAD_H_ */

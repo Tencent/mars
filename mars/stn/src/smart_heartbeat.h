@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * smart_heartbeat.h
@@ -23,41 +22,36 @@
 
 #include <string>
 
+#include "mars/boot/context.h"
 #include "mars/comm/singleton.h"
 #include "mars/comm/tickcount.h"
 #include "mars/stn/config.h"
-
 #include "special_ini.h"
 
 enum HeartbeatReportType {
-    kReportTypeCompute            = 1,        // report info of compute smart heartbeat
-    kReportTypeSuccRate           = 2,    // report succuss rate when smart heartbeat is stabled
+    kReportTypeCompute = 1,   // report info of compute smart heartbeat
+    kReportTypeSuccRate = 2,  // report succuss rate when smart heartbeat is stabled
 };
 enum TSmartHeartBeatType {
-	kNoSmartHeartBeat = 0,
-	kSmartHeartBeat,
-	kDozeModeHeart,
+    kNoSmartHeartBeat = 0,
+    kSmartHeartBeat,
+    kDozeModeHeart,
 };
 
-enum TSmartHeartBeatAction {
-    kActionCalcEnd = 0,
-    kActionReCalc = 1,
-    kActionDisconnect = 2,
-    kActionBadNetwork = 3
-};
+enum TSmartHeartBeatAction { kActionCalcEnd = 0, kActionReCalc = 1, kActionDisconnect = 2, kActionBadNetwork = 3 };
 
 class SmartHeartbeat;
 
 class NetHeartbeatInfo {
-  public:
+ public:
     NetHeartbeatInfo();
     void Clear();
 
-  public:
-//    NetHeartbeatInfo(const NetHeartbeatInfo&);
-//    NetHeartbeatInfo& operator=(const NetHeartbeatInfo&);
-    
-  public:
+ public:
+    //    NetHeartbeatInfo(const NetHeartbeatInfo&);
+    //    NetHeartbeatInfo& operator=(const NetHeartbeatInfo&);
+
+ public:
     std::string net_detail_;
     int net_type_;
 
@@ -74,22 +68,29 @@ class NetHeartbeatInfo {
 };
 
 class SmartHeartbeat {
-  public:
-    boost::function<void (TSmartHeartBeatAction _action, const NetHeartbeatInfo& _heart_info, bool _fail_timeout)> report_smart_heart_;
-    
-	SmartHeartbeat();
-	~SmartHeartbeat();
+ public:
+    boost::function<void(mars::boot::Context* _context,
+                         TSmartHeartBeatAction _action,
+                         const NetHeartbeatInfo& _heart_info,
+                         bool _fail_timeout)>
+        report_smart_heart_;
+
+    SmartHeartbeat(mars::boot::Context* _context);
+    ~SmartHeartbeat();
     void OnHeartbeatStart();
 
     void OnLongLinkEstablished();
     void OnLongLinkDisconnect();
     void OnHeartResult(bool _sucess, bool _fail_of_timeout);
-    unsigned int GetNextHeartbeatInterval();   // bIsUseSmartBeat is add by andrewu for stat
+    unsigned int GetNextHeartbeatInterval();  // bIsUseSmartBeat is add by andrewu for stat
 
     // MIUI align alarm response at Times of five minutes, We should  handle this case specailly.
     void JudgeDozeStyle();
+    static void SetHeartBeat(unsigned  int _heart) {
+        outer_setted_heart_ = _heart;
+    }
 
-  private:
+ private:
     void __DumpHeartInfo();
 
     bool __IsDozeStyle();
@@ -98,21 +99,24 @@ class SmartHeartbeat {
     void __LoadINI();
     void __SaveINI();
 
-  private:
+ private:
+    mars::boot::Context* context_;
     bool is_wait_heart_response_;
-    
-    unsigned int success_heart_count_;  // the total success heartbeat based on single alive TCP, And heartbeat interval can be different.
+
+    unsigned int success_heart_count_;  // the total success heartbeat based on single alive TCP, And heartbeat interval
+                                        // can be different.
     unsigned int last_heart_;
     unsigned int pre_heart_;
     unsigned int cur_heart_;
     NetHeartbeatInfo current_net_heart_info_;
 
     SpecialINI ini_;
-    
+
     int doze_mode_count_;
     int normal_mode_count_;
     tickcount_t noop_start_tick_;
-    
+
+    static int outer_setted_heart_;
 };
 
-#endif // STN_SRC_SMART_HEARTBEAT_H_
+#endif  // STN_SRC_SMART_HEARTBEAT_H_

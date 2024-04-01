@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * httpquery.cc
@@ -22,29 +21,29 @@
 
 #include <cstddef>
 
-#include "mars/sdt/sdt_logic.h"
-
-#include "mars/comm/socket/unix_socket.h"
-#include "mars/comm/http.h"
-#include "mars/comm/autobuffer.h"
-#include "mars/comm/time_utils.h"
-#include "mars/comm/xlogger/xlogger.h"
-#include "mars/comm/socket/socket_address.h"
-#include "mars/sdt/constants.h"
-
 #include "dnsquery.h"
 #include "http_url_parser.h"
+#include "mars/comm/autobuffer.h"
+#include "mars/comm/http.h"
+#include "mars/comm/socket/socket_address.h"
+#include "mars/comm/socket/unix_socket.h"
+#include "mars/comm/time_utils.h"
+#include "mars/comm/xlogger/xlogger.h"
+#include "mars/sdt/constants.h"
+#include "mars/sdt/sdt_logic.h"
 #include "tcpquery.h"
 
 using namespace mars::sdt;
 
 static char* string_strnstr(const char* _src, const char* _sfind, int _pos) {
-    if (_src == NULL || _sfind == NULL) return NULL;
+    if (_src == NULL || _sfind == NULL)
+        return NULL;
 
     int l1, l2;
     l2 = (int)strlen(_sfind);
 
-    if (!l2) return (char*)_src;
+    if (!l2)
+        return (char*)_src;
 
     l1 = (int)strlen(_src);
     _pos = (_pos > l1) ? l1 : _pos;
@@ -75,11 +74,10 @@ static int SplitHttpHeadAndBody(const AutoBuffer& buf, std::string& strHead) {
     return (int)headLength + 2;
 }
 
-
 int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errmsg, int _timeout) {
-    xinfo2(TSF"httpQuery:_url=%_", _url);
+    xinfo2(TSF "httpQuery:_url=%_", _url);
     if (!strutil::StartsWith(_url, "http://")) {
-    	xerror2(TSF"url is not start with http://");
+        xerror2(TSF "url is not start with http://");
         _errmsg.append("url is not start with http://");
         return -2;
     }
@@ -90,7 +88,7 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
     }
     HttpUrlParser http_url_parser(_url);
     std::string host = http_url_parser.Host();
-    xdebug2(TSF"host=%0", host);
+    xdebug2(TSF "host=%0", host);
 
     std::string str_req("");
     http::RequestLine reqLine(http::RequestLine::kGet, http_url_parser.Path(), http::kVersion_1_1);
@@ -109,7 +107,7 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
     str_req.append(header.ToString());
     str_req.append("\r\n\r\n");  // important
 
-    xdebug2(TSF"str_req=%_", str_req);
+    xdebug2(TSF "str_req=%_", str_req);
 
     unsigned int port = http_url_parser.Port();
 
@@ -124,7 +122,7 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
             unsigned long long timespan1 = gettickspan(timebegin);
 
             if ((unsigned int)_timeout <= timespan1) {
-                xwarn2(TSF"check http timeout.");
+                xwarn2(TSF "check http timeout.");
                 _errmsg.append("check http timeout.");
                 ret = -1;
                 break;
@@ -133,19 +131,19 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
             if (0 == socket_gethostbyname(host.c_str(), &ipinfo, (int)(_timeout - timespan1), NULL)) {
                 strncpy(ip, socket_address(ipinfo.ip[0]).ip(), sizeof(ip));
             } else {
-                xerror2(TSF"check http get DNS error.");
+                xerror2(TSF "check http get DNS error.");
                 _errmsg.append("check http get DNS error.");
                 ret = -1;
                 break;
             }
         } else {
-            strcpy(ip,  host.c_str());
+            strcpy(ip, host.c_str());
         }
 
         unsigned long long timespan2 = gettickspan(timebegin);
 
         if ((unsigned int)_timeout <= timespan2) {
-            xwarn2(TSF"check http timeout.");
+            xwarn2(TSF "check http timeout.");
             _errmsg.append("check http timeout.");
             ret = -1;
             break;
@@ -155,14 +153,17 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
         unsigned long long timeSpan3 = gettickspan(timebegin);
 
         if ((unsigned int)_timeout <= timeSpan3) {
-            xwarn2(TSF"check http timeout.");
+            xwarn2(TSF "check http timeout.");
             _errmsg.append("check http timeout.");
             ret = -1;
             break;
         }
 
-        if ((ret = tcpquery.tcp_send((unsigned char const*)str_req.c_str(), (unsigned int)str_req.length(), (int)(_timeout - timeSpan3))) < 0) {
-            xerror2(TSF"tcp send data error, ret: %0", ret);
+        if ((ret = tcpquery.tcp_send((unsigned char const*)str_req.c_str(),
+                                     (unsigned int)str_req.length(),
+                                     (int)(_timeout - timeSpan3)))
+            < 0) {
+            xerror2(TSF "tcp send data error, ret: %0", ret);
             _errmsg.append("send http data error.");
             break;
         }
@@ -171,26 +172,27 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
         unsigned long long timeSpan4 = gettickspan(timebegin);
 
         if ((unsigned int)_timeout <= timeSpan4) {
-            xwarn2(TSF"check http timeout.");
+            xwarn2(TSF "check http timeout.");
             _errmsg.append("check http timeout.");
             ret = -1;
             break;
         }
 
-        if ((ret = tcpquery.tcp_receive(recv_autobuf, 1024/*HTTP_DUMMY_RECV_DATA_SIZE*/, (int)(_timeout - timeSpan4))) < 0) {
-            xerror2(TSF"tcp receive data error, ret: %0", ret);
+        if ((ret = tcpquery.tcp_receive(recv_autobuf, 1024 /*HTTP_DUMMY_RECV_DATA_SIZE*/, (int)(_timeout - timeSpan4)))
+            < 0) {
+            xerror2(TSF "tcp receive data error, ret: %0", ret);
             _errmsg.append("receive http data error.");
             break;
         }
 
         // fix SplitHttpHeadAndBody crash
         if (0 == recv_autobuf.Length()) {
-            xwarn2(TSF"recv buff len is 0");
+            xwarn2(TSF "recv buff len is 0");
             ret = kSelectErr;
             break;
         }
 
-        xdebug2(TSF"recvAutoBuf=%0", (char*)recv_autobuf.Ptr());
+        xdebug2(TSF "recvAutoBuf=%0", (char*)recv_autobuf.Ptr());
         std::string str_statusline;
         SplitHttpHeadAndBody(recv_autobuf, str_statusline);
         http::StatusLine statusLine;
@@ -198,7 +200,6 @@ int SendHttpQuery(const std::string& _url, int& _status_code, std::string& _errm
         _status_code = statusLine.StatusCode();
     } while (false);
 
-    xdebug2(TSF"ret=%0", ret);
+    xdebug2(TSF "ret=%0", ret);
     return ret;
 }
-

@@ -37,7 +37,7 @@ public:
 	virtual void OnResponse(GetConvListCGITask* task, const com::tencent::mars::sample::proto::ConversationListResponse& response);
 
 	void SetHostWnd(CMainDlg* _host);
-	std::wstring GetUserName();
+	std::wstring GetAppUserName();
 protected:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);

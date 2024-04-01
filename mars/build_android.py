@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 import glob
@@ -166,7 +166,7 @@ if __name__ == '__main__':
             break
         else:
             archs = {'armeabi-v7a', 'arm64-v8a'}
-            num = raw_input('Enter menu:\n1. Clean && build mars.\n2. Build incrementally mars.\n3. Clean && build xlog.\n4. Exit\n')
+            num = input('Enter menu:\n1. Clean && build mars.\n2. Build incrementally mars.\n3. Clean && build xlog.\n4. Exit\n')
             if num == '1':
                 main(False, archs)
                 break

@@ -53,7 +53,7 @@ unsigned HUF_isError(size_t code); /**< tells if a return value is an error code
 /* ***   Advanced function   *** */
 
 /** HUF_compress4X_wksp() :
-*   Same as HUF_compress2(), but uses externally allocated `workSpace`, which must be a table of >= 1024 unsigned */
+ *   Same as HUF_compress2(), but uses externally allocated `workSpace`, which must be a table of >= 1024 unsigned */
 size_t HUF_compress4X_wksp(void *dst, size_t dstSize, const void *src, size_t srcSize, unsigned maxSymbolValue, unsigned tableLog, void *workSpace,
 			   size_t wkspSize); /**< `workSpace` must be a table of at least HUF_COMPRESS_WORKSPACE_SIZE_U32 unsigned */
 
@@ -61,7 +61,7 @@ size_t HUF_compress4X_wksp(void *dst, size_t dstSize, const void *src, size_t sr
 #include "mem.h" /* U32 */
 
 /* *** Constants *** */
-#define HUF_TABLELOG_MAX 12     /* max configured tableLog (for static allocation); can be modified up to HUF_ABSOLUTEMAX_TABLELOG */
+#define HUF_TABLELOG_MAX 12	/* max configured tableLog (for static allocation); can be modified up to HUF_ABSOLUTEMAX_TABLELOG */
 #define HUF_TABLELOG_DEFAULT 11 /* tableLog by default, when not specified */
 #define HUF_SYMBOLVALUE_MAX 255
 
@@ -71,8 +71,8 @@ size_t HUF_compress4X_wksp(void *dst, size_t dstSize, const void *src, size_t sr
 #endif
 
 /* ****************************************
-*  Static allocation
-******************************************/
+ *  Static allocation
+ ******************************************/
 /* HUF buffer bounds */
 #define HUF_CTABLEBOUND 129
 #define HUF_BLOCKBOUND(size) (size + (size >> 8) + 8)			 /* only true if incompressible pre-filtered with fast heuristic */
@@ -99,19 +99,20 @@ typedef U32 HUF_DTable;
 #define HUF_DECOMPRESS_WORKSPACE_SIZE_U32 (HUF_DECOMPRESS_WORKSPACE_SIZE / sizeof(U32))
 
 /* ****************************************
-*  Advanced decompression functions
-******************************************/
-size_t HUF_decompress4X_DCtx_wksp(HUF_DTable *dctx, void *dst, size_t dstSize, const void *cSrc, size_t cSrcSize, void *workspace, size_t workspaceSize); /**< decodes RLE and uncompressed */
+ *  Advanced decompression functions
+ ******************************************/
+size_t HUF_decompress4X_DCtx_wksp(HUF_DTable *dctx, void *dst, size_t dstSize, const void *cSrc, size_t cSrcSize, void *workspace,
+				  size_t workspaceSize); /**< decodes RLE and uncompressed */
 size_t HUF_decompress4X_hufOnly_wksp(HUF_DTable *dctx, void *dst, size_t dstSize, const void *cSrc, size_t cSrcSize, void *workspace,
-				size_t workspaceSize);							       /**< considers RLE and uncompressed as errors */
+				     size_t workspaceSize); /**< considers RLE and uncompressed as errors */
 size_t HUF_decompress4X2_DCtx_wksp(HUF_DTable *dctx, void *dst, size_t dstSize, const void *cSrc, size_t cSrcSize, void *workspace,
 				   size_t workspaceSize); /**< single-symbol decoder */
 size_t HUF_decompress4X4_DCtx_wksp(HUF_DTable *dctx, void *dst, size_t dstSize, const void *cSrc, size_t cSrcSize, void *workspace,
 				   size_t workspaceSize); /**< double-symbols decoder */
 
 /* ****************************************
-*  HUF detailed API
-******************************************/
+ *  HUF detailed API
+ ******************************************/
 /*!
 HUF_compress() does the following:
 1. count symbol occurrence from source[] into table count[] using FSE_count()
@@ -127,7 +128,8 @@ or to save and regenerate 'CTable' using external methods.
 /* FSE_count() : find it within "fse.h" */
 unsigned HUF_optimalTableLog(unsigned maxTableLog, size_t srcSize, unsigned maxSymbolValue);
 typedef struct HUF_CElt_s HUF_CElt; /* incomplete type */
-size_t HUF_writeCTable_wksp(void *dst, size_t maxDstSize, const HUF_CElt *CTable, unsigned maxSymbolValue, unsigned huffLog, void *workspace, size_t workspaceSize);
+size_t HUF_writeCTable_wksp(void *dst, size_t maxDstSize, const HUF_CElt *CTable, unsigned maxSymbolValue, unsigned huffLog, void *workspace,
+			    size_t workspaceSize);
 size_t HUF_compress4X_usingCTable(void *dst, size_t dstSize, const void *src, size_t srcSize, const HUF_CElt *CTable);
 
 typedef enum {
@@ -137,10 +139,10 @@ typedef enum {
 	HUF_repeat_valid  /**< Can use the previous table and it is assumed to be valid */
 } HUF_repeat;
 /** HUF_compress4X_repeat() :
-*   Same as HUF_compress4X_wksp(), but considers using hufTable if *repeat != HUF_repeat_none.
-*   If it uses hufTable it does not modify hufTable or repeat.
-*   If it doesn't, it sets *repeat = HUF_repeat_none, and it sets hufTable to the table used.
-*   If preferRepeat then the old table will always be used if valid. */
+ *   Same as HUF_compress4X_wksp(), but considers using hufTable if *repeat != HUF_repeat_none.
+ *   If it uses hufTable it does not modify hufTable or repeat.
+ *   If it doesn't, it sets *repeat = HUF_repeat_none, and it sets hufTable to the table used.
+ *   If preferRepeat then the old table will always be used if valid. */
 size_t HUF_compress4X_repeat(void *dst, size_t dstSize, const void *src, size_t srcSize, unsigned maxSymbolValue, unsigned tableLog, void *workSpace,
 			     size_t wkspSize, HUF_CElt *hufTable, HUF_repeat *repeat,
 			     int preferRepeat); /**< `workSpace` must be a table of at least HUF_COMPRESS_WORKSPACE_SIZE_U32 unsigned */
@@ -160,7 +162,7 @@ size_t HUF_readStats_wksp(BYTE *huffWeight, size_t hwSize, U32 *rankStats, U32 *
 			  void *workspace, size_t workspaceSize);
 
 /** HUF_readCTable() :
-*   Loading a CTable saved with HUF_writeCTable() */
+ *   Loading a CTable saved with HUF_writeCTable() */
 size_t HUF_readCTable_wksp(HUF_CElt *CTable, unsigned maxSymbolValue, const void *src, size_t srcSize, void *workspace, size_t workspaceSize);
 
 /*
@@ -171,10 +173,10 @@ HUF_decompress() does the following:
 */
 
 /** HUF_selectDecoder() :
-*   Tells which decoder is likely to decode faster,
-*   based on a set of pre-determined metrics.
-*   @return : 0==HUF_decompress4X2, 1==HUF_decompress4X4 .
-*   Assumption : 0 < cSrcSize < dstSize <= 128 KB */
+ *   Tells which decoder is likely to decode faster,
+ *   based on a set of pre-determined metrics.
+ *   @return : 0==HUF_decompress4X2, 1==HUF_decompress4X4 .
+ *   Assumption : 0 < cSrcSize < dstSize <= 128 KB */
 U32 HUF_selectDecoder(size_t dstSize, size_t cSrcSize);
 
 size_t HUF_readDTableX2_wksp(HUF_DTable *DTable, const void *src, size_t srcSize, void *workspace, size_t workspaceSize);
@@ -190,10 +192,10 @@ size_t HUF_compress1X_wksp(void *dst, size_t dstSize, const void *src, size_t sr
 			   size_t wkspSize); /**< `workSpace` must be a table of at least HUF_COMPRESS_WORKSPACE_SIZE_U32 unsigned */
 size_t HUF_compress1X_usingCTable(void *dst, size_t dstSize, const void *src, size_t srcSize, const HUF_CElt *CTable);
 /** HUF_compress1X_repeat() :
-*   Same as HUF_compress1X_wksp(), but considers using hufTable if *repeat != HUF_repeat_none.
-*   If it uses hufTable it does not modify hufTable or repeat.
-*   If it doesn't, it sets *repeat = HUF_repeat_none, and it sets hufTable to the table used.
-*   If preferRepeat then the old table will always be used if valid. */
+ *   Same as HUF_compress1X_wksp(), but considers using hufTable if *repeat != HUF_repeat_none.
+ *   If it uses hufTable it does not modify hufTable or repeat.
+ *   If it doesn't, it sets *repeat = HUF_repeat_none, and it sets hufTable to the table used.
+ *   If preferRepeat then the old table will always be used if valid. */
 size_t HUF_compress1X_repeat(void *dst, size_t dstSize, const void *src, size_t srcSize, unsigned maxSymbolValue, unsigned tableLog, void *workSpace,
 			     size_t wkspSize, HUF_CElt *hufTable, HUF_repeat *repeat,
 			     int preferRepeat); /**< `workSpace` must be a table of at least HUF_COMPRESS_WORKSPACE_SIZE_U32 unsigned */

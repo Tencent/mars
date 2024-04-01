@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -18,30 +18,28 @@
 //
 
 #include "comm/comm_frequency_limit.h"
-#include "comm/xlogger/xlogger.h"
+
 #include "comm/time_utils.h"
+#include "comm/xlogger/xlogger.h"
 
-
-CommFrequencyLimit::CommFrequencyLimit(size_t _count, uint64_t _time_span)
-    : count_(_count)
-    , time_span_(_time_span) {
+CommFrequencyLimit::CommFrequencyLimit(size_t _count, uint64_t _time_span) : count_(_count), time_span_(_time_span) {
     xassert2(count_ > 0);
     xassert2(time_span_ > 0);
 }
 
-CommFrequencyLimit::~CommFrequencyLimit()
-{}
+CommFrequencyLimit::~CommFrequencyLimit() {
+}
 
 // true pass, false limit
 bool CommFrequencyLimit::Check() {
     uint64_t now = ::gettickcount();
-    if (!touch_times_.empty() && (now<touch_times_.front()) ) { //if user modify the time, amend it
-    	xwarn2(TSF"Must be modified time.now=%_", now);
-    	size_t size = touch_times_.size();
-    	touch_times_.clear();
-    	for (size_t i=0; i<size; ++i) {
-    		touch_times_.push_back(now-1);
-    	}
+    if (!touch_times_.empty() && (now < touch_times_.front())) {  // if user modify the time, amend it
+        xwarn2(TSF "Must be modified time.now=%_", now);
+        size_t size = touch_times_.size();
+        touch_times_.clear();
+        for (size_t i = 0; i < size; ++i) {
+            touch_times_.push_back(now - 1);
+        }
     }
 
     if (touch_times_.size() <= count_) {
@@ -52,7 +50,7 @@ bool CommFrequencyLimit::Check() {
     xassert2(now > touch_times_.front());
 
     if ((now - touch_times_.front()) <= time_span_) {
-        xwarn2(TSF"Freq Limit, count:%0 in %1 milsec", count_, time_span_);
+        xwarn2(TSF "Freq Limit, count:%0 in %1 milsec", count_, time_span_);
         return false;
     }
 
@@ -71,7 +69,3 @@ void CommFrequencyLimit::__DelOlderTouchTime(uint64_t _time) {
         break;
     }
 }
-
-
-
-

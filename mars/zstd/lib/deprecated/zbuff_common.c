@@ -9,18 +9,22 @@
  */
 
 /*-*************************************
-*  Dependencies
-***************************************/
+ *  Dependencies
+ ***************************************/
 #include "error_private.h"
 #include "zbuff.h"
 
 /*-****************************************
-*  ZBUFF Error Management  (deprecated)
-******************************************/
+ *  ZBUFF Error Management  (deprecated)
+ ******************************************/
 
 /*! ZBUFF_isError() :
-*   tells if a return value is an error code */
-unsigned ZBUFF_isError(size_t errorCode) { return ERR_isError(errorCode); }
+ *   tells if a return value is an error code */
+unsigned ZBUFF_isError(size_t errorCode) {
+    return ERR_isError(errorCode);
+}
 /*! ZBUFF_getErrorName() :
-*   provides error code string from function result (useful for debugging) */
-const char* ZBUFF_getErrorName(size_t errorCode) { return ERR_getErrorName(errorCode); }
+ *   provides error code string from function result (useful for debugging) */
+const char* ZBUFF_getErrorName(size_t errorCode) {
+    return ERR_getErrorName(errorCode);
+}

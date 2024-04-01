@@ -9,7 +9,7 @@
 (中文版本请参看[这里](#mars_cn))
 
 Mars is a cross-platform infrastructure component developed by WeChat Mobile Team.
-It is proved to be effective by billions of WeChat users.
+It has been proved to be effective by billions of WeChat users.
 
 1. Cross platform, easy to deploy if you are developing multi-platform or multi-business application.
 2. Suitable for small amount data transmission
@@ -29,11 +29,13 @@ Start with sample usage [here](https://github.com/Tencent/mars/wiki/Mars-sample-
 
 ## Getting started
 
+python scripts only support python3.10 or higher
+
 Choose [Android](#android) or [iOS/OS X](#apple) or [Windows](#windows).
 
 ### <a name="android">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
 
-You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just wanna build a sample or demo, while mars-core is preferred to be used in your APP.
+You can use either [mars-wrapper](#wrapper) or [mars-core](#core). We recommend you to use mars-wrapper when you just want to build a sample or demo, while mars-core is preferred to be used in your APP.
 
 #### <a name="wrapper">mars-wrapper</a>
 
@@ -425,6 +427,7 @@ sample 的使用请参考[这里](https://github.com/Tencent/mars/wiki/Mars-samp
 
 ## Getting started
 
+python >= 3,10
 接入 [Android](#android_cn) 或者 [iOS/OS X](#apple_cn) 或者 [Windows](#windows_cn) 。
 
 ### <a name="android_cn">[Android](https://github.com/Tencent/mars/wiki/Mars-Android-%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)</a>
@@ -799,3 +802,11 @@ mars::baseevent::OnDestroy();
 
 ## License
 Mars 使用的 MIT 协议，详细请参考 [LICENSE](https://github.com/Tencent/mars/blob/master/LICENSE)。
+
+## 信息公示
+* SDK名称：Mars
+* 版本号：0.2.0
+* 开发者：深圳市腾讯计算机系统有限公司
+* 主要功能：Mars 是微信官方的跨平台跨业务的终端基础组件。支持iOS、macOS 和Android。Mars 针对移动网络的特点进行了优化，最终提供了高性能的网络功能。
+* [Mars 使用说明](https://github.com/Tencent/mars)
+* [Mars 个人信息保护规则](https://support.weixin.qq.com/cgi-bin/mmsupportacctnodeweb-bin/pages/L60iIjTc9G2A383f)

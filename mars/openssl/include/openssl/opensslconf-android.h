@@ -12,9 +12,9 @@
 #elif defined(__aarch64__)
 #include <openssl/opensslconf_android-arm64.h>
 #elif defined(__i386__)
-#include <openssl/opensslconf_android-x86_64.h>
+#include <openssl/opensslconf_android-x86.h>
 #elif defined(__x86_64__)
-#include <openssl/opensslconf_android64-x86_64.h>
+#include <openssl/opensslconf_android-x86_64.h>
 #else
 # error Unable to determine arch not included in OpenSSL build
 #endif 

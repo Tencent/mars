@@ -1,4 +1,4 @@
-// PingServerDlg.cpp : 实现文件
+// PingServerDlg.cpp : 实锟斤拷锟侥硷拷
 //
 
 #include "stdafx.h"
@@ -28,7 +28,7 @@ LRESULT CPingServerDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
 }
 LRESULT CPingServerDlg::OnBnClickedTestmars(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	std::wstring strName = GetUserName();
+	std::wstring strName = GetAppUserName();
 	MarsWrapper::Instance().pingServer((char*)(_bstr_t)strName.c_str(), "Hello World", shared_from_this());
 	std::wstring info = L"Start Send Message: User=" + strName + L", Message=Hello World !\r\n";
 	m_editInfo.AppendText(info.c_str());
@@ -81,7 +81,7 @@ LRESULT CPingServerDlg::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 	return 0;
 }
 
-std::wstring CPingServerDlg::GetUserName()
+std::wstring CPingServerDlg::GetAppUserName()
 {
 	wchar_t name[1024] = L"\0";
 	GetDlgItemText(IDC_EDITNAME, name, sizeof(name) / sizeof(name[0]));

@@ -46,8 +46,8 @@ public:
 	void setChatMsgObserver(ChatMsgObserver* _observer);
 	void sendChatMsg(const ChatMsg& _chat_msg);
 	void start();
-	void pingServer(const std::string& _name, const std::string& _text, boost::weak_ptr<HelloCGICallback> _callback);
-	void getConversationList(boost::weak_ptr<GetConvListCGICallback> _callback);
+	void pingServer(const std::string& _name, const std::string& _text, std::weak_ptr<HelloCGICallback> _callback);
+	void getConversationList(std::weak_ptr<GetConvListCGICallback> _callback);
 protected:
 	MarsWrapper();
 	ChatMsgObserver* chat_msg_observer_;

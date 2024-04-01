@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * dns.h
@@ -29,11 +28,14 @@
 namespace mars {
 namespace comm {
 
+struct dnsinfo;
+
 struct DNSBreaker {
-	DNSBreaker(): isbreak(false), dnsstatus(NULL) {}
-	bool isbreak;
-	int* dnsstatus;
-    
+    DNSBreaker() : isbreak(false), dnsstatus(NULL) {
+    }
+    bool isbreak;
+    int* dnsstatus;
+
     void Clear() {
         isbreak = false;
         dnsstatus = NULL;
@@ -41,31 +43,41 @@ struct DNSBreaker {
 };
 
 class DNS {
-  public:
-   typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
+ public:
+    //    typedef std::vector<std::string> (*DNSFunc)(const std::string& _host, bool _longlink_host);
 
-  public:
-    DNS(DNSFunc _dnsfunc=NULL);
+ public:
+    DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc = NULL);
     ~DNS();
-    
-  public:
-    bool GetHostByName(const std::string& _host_name, std::vector<std::string>& ips, long millsec = 2000, DNSBreaker* _breaker = NULL, bool _longlink_host = false);
+
+ public:
+    bool GetHostByName(const std::string& _host_name,
+                       std::vector<std::string>& ips,
+                       long millsec = 2000,
+                       DNSBreaker* _breaker = NULL,
+                       bool _longlink_host = false);
     void Cancel(const std::string& _host_name = std::string());
     void Cancel(DNSBreaker& _breaker);
-    
-    void SetMonitorFunc(const boost::function<void (int _key)>& _monitor_func) {
-    	monitor_func_ = _monitor_func;
+
+    void SetMonitorFunc(const boost::function<void(int _key)>& _monitor_func) {
+        monitor_func_ = _monitor_func;
     }
 
-    void SetDnsFunc(DNSFunc _dnsfunc) {
-      dnsfunc_ = _dnsfunc;
+    void SetDnsFunc(
+        const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc) {
+        dnsfunc_ = _dnsfunc;
     }
-  private:
-    DNSFunc dnsfunc_;
-    boost::function<void (int _key)> monitor_func_;
+
+ private:
+    void __GetIP();
+
+ private:
+    //    DNSFunc dnsfunc_;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
+    boost::function<void(int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
 };
-}
-}
+}  // namespace comm
+}  // namespace mars
 
 #endif /* COMM_COMM_DNS_H_ */

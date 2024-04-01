@@ -62,6 +62,6 @@ protected:
 	void DestoryAllChatTab();
 private:
 	CTabView m_tabView;
-	boost::shared_ptr<CPingServerDlg> m_pingServerDlg;
+	std::shared_ptr<CPingServerDlg> m_pingServerDlg;
 	std::map<std::string, CChatDlg*> m_chatDlgList;
 };

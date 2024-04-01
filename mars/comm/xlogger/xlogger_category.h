@@ -2,20 +2,22 @@
 #ifndef MARS_COMM_XLOGGER_CATEGORY_H_
 #define MARS_COMM_XLOGGER_CATEGORY_H_
 
-#include "xloggerbase.h"
-
 #include <functional>
+
+#include "xloggerbase.h"
 
 namespace mars {
 namespace comm {
 
 class XloggerCategory {
  public:
-    static XloggerCategory* NewInstance(uintptr_t _appender, std::function<void (const XLoggerInfo* _info, const char* _log)> _appender_func);
+    static XloggerCategory* NewInstance(uintptr_t _appender,
+                                        std::function<void(const XLoggerInfo* _info, const char* _log)> _appender_func);
     static void DelayRelease(XloggerCategory* _category);
 
  private:
-    XloggerCategory(uintptr_t _appender, std::function<void (const XLoggerInfo* _info, const char* _log)> _appender_func);
+    XloggerCategory(uintptr_t _appender,
+                    std::function<void(const XLoggerInfo* _info, const char* _log)> _appender_func);
     static void __Release(XloggerCategory* _category);
 
  public:
@@ -30,13 +32,13 @@ class XloggerCategory {
  private:
     void __WriteImpl(const XLoggerInfo* _info, const char* _log);
 
-  private:
+ private:
     TLogLevel level_ = kLevelNone;
     uintptr_t appender_ = 0;
-    std::function<void (const XLoggerInfo* _info, const char* _log)> appender_func_ = nullptr;
+    std::function<void(const XLoggerInfo* _info, const char* _log)> appender_func_ = nullptr;
 };
 
-}
-}
+}  // namespace comm
+}  // namespace mars
 
 #endif  // MARS_COMM_XLOGGER_CATEGORY_H_

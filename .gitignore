@@ -6,7 +6,7 @@
 build/
 /mars/captures
 obj/
-
+.vscode/
 *.swp
 *.pyc
 xcuserdata
@@ -55,7 +55,7 @@ xcshareddata
 /mars/log/win32proj/Debug/*.pdb
 /mars/log/win32proj/Debug/log.tlog/*.tlog
 /mars/log/win32proj/Debug/log.tlog/*.lastbuildstate
-/mars/log/win32proj/Debug/log.tlog/*
+/mars/xlog/win32proj/Debug/log.tlog/*
 /samples/win32test/Debug/*.obj
 /samples/win32test/Debug/*.idb
 /samples/win32test/Debug/*.pdb
@@ -92,7 +92,7 @@ xcshareddata
 *.pdb
 mars/win32proj/Debug/mars.lastbuildstate
 mars/win32proj/Debug/mars.unsuccessfulbuild
-
+mars/comm/verinfo.h
 
 # cmake
 CMakeCache.txt
@@ -115,3 +115,4 @@ Debug-iphonesimulator
 cmake_build
 *.settings
 mars/cmake-build-debug
+mars/openssl/include/openssl/*

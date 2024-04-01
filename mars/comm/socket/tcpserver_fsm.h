@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -9,7 +9,6 @@
 // distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 
 /*
  * TcpServerFSM.h
@@ -22,10 +21,11 @@
 #define TcpServerFSM_H_
 
 #include "comm/autobuffer.h"
+#include "comm/socket/socket_address.h"
 #include "comm/socket/unix_socket.h"
-#include "comm/xlogger/xlogger.h"
-#include "comm/thread/mutex.h"
 #include "comm/thread/lock.h"
+#include "comm/thread/mutex.h"
+#include "comm/xlogger/xlogger.h"
 
 class XLogger;
 
@@ -35,14 +35,14 @@ namespace comm {
 class SocketSelect;
 
 class TcpServerFSM {
-  public:
+ public:
     enum TSocketStatus {
         kAccept,
         kReadWrite,
         kEnd,
     };
 
-  public:
+ public:
     TcpServerFSM(SOCKET _socket);
     TcpServerFSM(SOCKET _socket, const sockaddr_in& _addr);
     virtual ~TcpServerFSM();
@@ -52,32 +52,33 @@ class TcpServerFSM {
     bool IsEndStatus() const;
 
     SOCKET Socket() const;
-    const sockaddr_in& Address() const;
+    const socket_address& Address() const;
     const char* IP() const;
     uint16_t Port() const;
-    size_t SendBufLen() {return send_buf_.Length();}
+    size_t SendBufLen() {
+        return send_buf_.Length();
+    }
     void Close(bool _notify = true);
 
-    bool WriteFDSet()
-    {
-    	ScopedLock lock (write_fd_set_mutex_);
-    	return is_write_fd_set_;
+    bool WriteFDSet() {
+        ScopedLock lock(write_fd_set_mutex_);
+        return is_write_fd_set_;
     }
     void WriteFDSet(bool _is_set) {
-    	xverbose_function(TSF"_is_set:%_, is_write_fd_set_:%_", _is_set, is_write_fd_set_);
-    	ScopedLock lock (write_fd_set_mutex_);
-    	is_write_fd_set_  = _is_set;
+        xverbose_function(TSF "_is_set:%_, is_write_fd_set_:%_", _is_set, is_write_fd_set_);
+        ScopedLock lock(write_fd_set_mutex_);
+        is_write_fd_set_ = _is_set;
     }
 
     virtual TSocketStatus PreSelect(SocketSelect& _sel, XLogger& _log);
     virtual TSocketStatus AfterSelect(SocketSelect& _sel, XLogger& _log);
     virtual int Timeout() const;
 
-  private:
+ private:
     TcpServerFSM(const TcpServerFSM&);
     TcpServerFSM& operator=(const TcpServerFSM&);
 
-  protected:
+ protected:
     virtual TSocketStatus PreReadWriteSelect(SocketSelect& _sel, XLogger& _log);
     virtual TSocketStatus AfterReadWriteSelect(const SocketSelect& _sel, XLogger& _log);
 
@@ -89,12 +90,11 @@ class TcpServerFSM {
     virtual void _OnSend(AutoBuffer& _send_buff, ssize_t _send_len) = 0;
     virtual void _OnClose(TSocketStatus _status, int _error, bool _remoteclose) = 0;
 
-
-  protected:
+ protected:
     TSocketStatus status_;
     SOCKET sock_;
-    sockaddr_in addr_;
-    char ip_[16];
+    socket_address addr_;
+    char ip_[96];
 
     AutoBuffer send_buf_;
     AutoBuffer recv_buf_;
@@ -102,7 +102,7 @@ class TcpServerFSM {
     bool is_write_fd_set_;
     Mutex write_fd_set_mutex_;
 };
-}
-}
+}  // namespace comm
+}  // namespace mars
 
 #endif /* TcpServerFSM_H_ */

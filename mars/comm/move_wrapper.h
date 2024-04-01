@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,37 +22,47 @@
 
 template <class S>
 class copy_wrapper_helper {
-  public:
-    static void copy_constructor(S& _lhs, S& _rhs)
-    { _lhs = _rhs; }
+ public:
+    static void copy_constructor(S& _lhs, S& _rhs) {
+        _lhs = _rhs;
+    }
 
-    static void copy_constructor(S& _lhs, const S& _rhs)
-    { _lhs = _rhs; }
+    static void copy_constructor(S& _lhs, const S& _rhs) {
+        _lhs = _rhs;
+    }
 
-    static void destructor(S& _delobj) {}
+    static void destructor(S& _delobj) {
+    }
 };
 
 template <class S, class D>
 class copy_wrapper_helper_ref {
-  public:
-    static const D& ref(const S& _ref) { return _ref; }
-    static D& ref(S& _ref) { return _ref; }
+ public:
+    static const D& ref(const S& _ref) {
+        return _ref;
+    }
+    static D& ref(S& _ref) {
+        return _ref;
+    }
 };
 
-template<class S, class D = S>
+template <class S, class D = S>
 class move_wrapper {
-  public:
+ public:
     typedef S SRC;
     typedef D DST;
 
-    move_wrapper(S& t)
-    { copy_wrapper_helper<S>::copy_constructor(m_t, t); }
+    move_wrapper(S& t) {
+        copy_wrapper_helper<S>::copy_constructor(m_t, t);
+    }
 
-    move_wrapper(const S& t)
-    { copy_wrapper_helper<S>::copy_constructor(m_t, t); }
+    move_wrapper(const S& t) {
+        copy_wrapper_helper<S>::copy_constructor(m_t, t);
+    }
 
-    ~move_wrapper()
-    { copy_wrapper_helper<S>::destructor(m_t);}
+    ~move_wrapper() {
+        copy_wrapper_helper<S>::destructor(m_t);
+    }
 
     move_wrapper& operator=(move_wrapper& _ref) {
         copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t);
@@ -64,27 +74,44 @@ class move_wrapper {
         return *this;
     }
 
-    move_wrapper(move_wrapper& _ref)
-    { copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t); }
+    move_wrapper(move_wrapper& _ref) {
+        copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t);
+    }
 
-    move_wrapper(const move_wrapper& _ref)
-    { copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t); }
+    move_wrapper(const move_wrapper& _ref) {
+        copy_wrapper_helper<S>::copy_constructor(m_t, _ref.m_t);
+    }
 
-    operator D& () { return copy_wrapper_helper_ref<S, D>::ref(m_t); }
-    operator const D& () const { return copy_wrapper_helper_ref<S, D>::ref(m_t); }
+    operator D&() {
+        return copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
+    operator const D&() const {
+        return copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
 
-    D* operator->() { return &copy_wrapper_helper_ref<S, D>::ref(m_t); }
-    const D* operator->() const { return &copy_wrapper_helper_ref<S, D>::ref(m_t); }
+    D* operator->() {
+        return &copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
+    const D* operator->() const {
+        return &copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
 
-    D& get() { return copy_wrapper_helper_ref<S, D>::ref(m_t); }
-    const D& get() const { return copy_wrapper_helper_ref<S, D>::ref(m_t); }
+    D& get() {
+        return copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
+    const D& get() const {
+        return copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
 
-    D* get_pointer() { return &copy_wrapper_helper_ref<S, D>::ref(m_t); }
-    const D* get_pointer() const { return &copy_wrapper_helper_ref<S, D>::ref(m_t); }
+    D* get_pointer() {
+        return &copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
+    const D* get_pointer() const {
+        return &copy_wrapper_helper_ref<S, D>::ref(m_t);
+    }
 
-  private:
+ private:
     S m_t;
 };
 
-
-#endif	// COMM_COPY_WRAPPER_H_
+#endif  // COMM_COPY_WRAPPER_H_

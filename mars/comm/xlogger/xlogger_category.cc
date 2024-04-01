@@ -8,7 +8,9 @@
 namespace mars {
 namespace comm {
 
-XloggerCategory* XloggerCategory::NewInstance(uintptr_t _appender, std::function<void (const XLoggerInfo* _info, const char* _log)> _appender_func) {
+XloggerCategory* XloggerCategory::NewInstance(
+    uintptr_t _appender,
+    std::function<void(const XLoggerInfo* _info, const char* _log)> _appender_func) {
     return new XloggerCategory(_appender, _appender_func);
 }
 void XloggerCategory::DelayRelease(XloggerCategory* _category) {
@@ -19,7 +21,8 @@ void XloggerCategory::__Release(XloggerCategory* _category) {
     delete _category;
 }
 
-XloggerCategory::XloggerCategory(uintptr_t _appender, std::function<void (const XLoggerInfo* _info, const char* _log)> _appender_func)
+XloggerCategory::XloggerCategory(uintptr_t _appender,
+                                 std::function<void(const XLoggerInfo* _info, const char* _log)> _appender_func)
 : appender_(_appender), appender_func_(_appender_func) {
 }
 
@@ -52,10 +55,10 @@ void XloggerCategory::VPrint(const XLoggerInfo* _info, const char* _format, va_l
 }
 
 void XloggerCategory::Print(const XLoggerInfo* _info, const char* _format, ...) {
-	va_list valist;
-	va_start(valist, _format);
+    va_list valist;
+    va_start(valist, _format);
     VPrint(_info, _format, valist);
-	va_end(valist);
+    va_end(valist);
 }
 
 void XloggerCategory::Write(const XLoggerInfo* _info, const char* _log) {
@@ -67,13 +70,13 @@ void XloggerCategory::__WriteImpl(const XLoggerInfo* _info, const char* _log) {
         return;
     }
 
-    if (_info && -1==_info->pid && -1==_info->tid && -1==_info->maintid) {
+    if (_info && -1 == _info->pid && -1 == _info->tid && -1 == _info->maintid) {
         XLoggerInfo* info = (XLoggerInfo*)_info;
         info->pid = xlogger_pid();
         info->tid = xlogger_tid();
         info->maintid = xlogger_maintid();
     }
-    
+
     if (NULL == _log) {
         if (_info) {
             XLoggerInfo* info = (XLoggerInfo*)_info;
@@ -85,5 +88,5 @@ void XloggerCategory::__WriteImpl(const XLoggerInfo* _info, const char* _log) {
     }
 }
 
-}
-}
+}  // namespace comm
+}  // namespace mars

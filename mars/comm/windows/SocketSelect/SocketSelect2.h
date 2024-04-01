@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,53 +10,22 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 #ifndef _SOCKSTSELECT_
 #define _SOCKSTSELECT_
 
 #include <map>
 #include <vector>
-#include "thread/lock.h"
+
 #include "socket/unix_socket.h"
+#include "thread/lock.h"
+#include "mars/comm/xlogger/xlogger.h"
+#include "socketbreaker.h"
 
 namespace mars {
 namespace comm {
 
-class SocketSelect;
-class SocketBreaker {
-    friend SocketSelect;
-  public:
-	  SocketBreaker();
-    ~SocketBreaker();
-
-    bool IsCreateSuc() const;
-    bool ReCreate();
-
-    bool IsBreak() const;
-
-    bool Break();
-    bool Break(int reason);
-    bool Clear();
-    void Close();
-
-    WSAEVENT BreakerFD() const;
-    int BreakReason() const;
-  private:
-	  SocketBreaker(const SocketBreaker&);
-	  SocketBreaker& operator=(const SocketBreaker&);
-
-  private:
-    Mutex m_mutex;
-    WSAEVENT m_event;
-    bool m_create_success;
-    bool m_broken;
-    int m_exception;
-    int m_reason;
-};
-
 class SocketSelect {
-  public:
+ public:
     SocketSelect(SocketBreaker& _breaker, bool _autoclear = false);
     ~SocketSelect();
 
@@ -79,15 +48,15 @@ class SocketSelect {
     bool IsBreak() const;
     bool IsException() const;
 
-	SocketBreaker& Breaker();
+    SocketBreaker& Breaker();
 
-  private:
+ private:
     SocketSelect(const SocketSelect&);
     SocketSelect& operator=(const SocketSelect&);
 
-  private:
+ private:
     const bool autoclear_;
-	SocketBreaker& breaker_;
+    SocketBreaker& breaker_;
     bool m_broken;
 
     std::map<SOCKET, int> m_filter_map;
@@ -98,6 +67,6 @@ class SocketSelect {
     fd_set readfd_;
     fd_set exceptionfd_;
 };
-}
-}
+}  // namespace comm
+}  // namespace mars
 #endif

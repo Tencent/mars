@@ -1,40 +1,37 @@
 /*
-* Created on��2015-05-11
-*	  Author: elviswu
-*
-*/
+ * Created on��2015-05-11
+ *	  Author: elviswu
+ *
+ */
 #if 0
 #include <stdlib.h>
+
 #include "UtilFunc.h"
 
-#define  SHORTLINK_IPSWITCH_TEST
+#define SHORTLINK_IPSWITCH_TEST
 #ifdef SHORTLINK_IPSWITCH_TEST
 
-#include "gtest/gtest.h"
-
-#include "TestUtils.h"
-#include "GtestEx.h"
 #include "../../../comm/singleton.h"
-#include "../../test/include/hook.h"
-#include "../../test/include/mock_spy.h"
+#include "../../../comm/xlogger/xloggerbase.h"
+#include "../../../log/appender.h"
+#include "../../../mmcomm/ActiveLogic.h"
+#include "../../../mmcomm/MMNewGetDns.h"
+#include "../../../network/MMHostInfoLogic.h"
 #include "../../../network/MMNetCore.h"
-
 #include "../../../network/MMShortLink.h"
 #include "../../../network/MMShortLinkTaskManager.h"
-#include "../../../network/MMHostInfoLogic.h"
-#include "../../../mmcomm/MMNewGetDns.h"
-#include "../../../mmcomm/ActiveLogic.h"
-
+#include "../../test/include/hook.h"
+#include "../../test/include/mock_spy.h"
 #include "../MmNetComm.h"
-
-#include "../../../log/appender.h"
-#include "../../../comm/xlogger/xloggerbase.h"
-#include "MockServerControlUtils.h"
+#include "GtestEx.h"
 #include "HookUtil.h"
+#include "MockServerControlUtils.h"
+#include "TestUtils.h"
+#include "gtest/gtest.h"
 
 #define DEF_TASK_RETRY_COUNT (2)
-#define NEWDNS_SERVER_IP	"127.0.0.89"
-#define NEWDNS_SERVER_PORT	8181
+#define NEWDNS_SERVER_IP "127.0.0.89"
+#define NEWDNS_SERVER_PORT 8181
 
 
 struct STCmdShortLinkTask
@@ -605,14 +602,6 @@ PUBC_TEST(MMShortLinkIpSwitchTest, test1)
 	shortIpSwitchTest(m_testCaseInfo, param);
 
 }
-
-
-
-
-
-
-
-
 
 #endif
 

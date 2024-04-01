@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -22,25 +22,27 @@
 #ifndef STN_SRC_ZOMBIE_TASK_MANAGER_H_
 #define STN_SRC_ZOMBIE_TASK_MANAGER_H_
 
-#include <list>
 #include <stdint.h>
 
-#include "boost/function.hpp"
+#include <list>
 
+#include "boost/function.hpp"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
 
 struct ZombieTask;
 
 namespace mars {
-    namespace stn {
+namespace stn {
 
 class ZombieTaskManager {
-  public:
-    boost::function<void (const Task& _task)> fun_start_task_;
-    boost::function<int (ErrCmdType _errtype, int _errcode, int _fail_handle, const Task& _task, unsigned int _taskcosttime)> fun_callback_;
+ public:
+    boost::function<void(const Task& _task)> fun_start_task_;
+    boost::function<
+        int(ErrCmdType _errtype, int _errcode, int _fail_handle, const Task& _task, unsigned int _taskcosttime)>
+        fun_callback_;
 
-  public:
+ public:
     ZombieTaskManager(comm::MessageQueue::MessageQueue_t _messagequeueid);
     ~ZombieTaskManager();
 
@@ -51,21 +53,21 @@ class ZombieTaskManager {
     void RedoTasks();
     void OnNetCoreStartTask();
 
-  private:
+ private:
     ZombieTaskManager(const ZombieTaskManager&);
     ZombieTaskManager& operator=(const ZombieTaskManager&);
 
-  private:
+ private:
     void __StartTask();
     void __TimerChecker();
 
-  private:
+ private:
     comm::MessageQueue::ScopeRegister asyncreg_;
     std::list<ZombieTask> lsttask_;
     uint64_t net_core_last_start_task_time_;
 };
-        
-    }
-}
 
-#endif // STN_SRC_ZOMBIE_TASK_MANAGER_H_
+}  // namespace stn
+}  // namespace mars
+
+#endif  // STN_SRC_ZOMBIE_TASK_MANAGER_H_

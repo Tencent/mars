@@ -4,7 +4,7 @@
 #include "mars/comm/xlogger/xlogger.h"
 
 void TaskIntercept::AddInterceptTask(const std::string& _name, const std::string& _data) {
-    xinfo2(TSF"save task name %_", _name);
+    xinfo2(TSF "save task name %_", _name);
     if (_name.empty()) {
         return;
     }
@@ -21,9 +21,12 @@ bool TaskIntercept::GetInterceptTaskInfo(const std::string& _name, std::string& 
         return false;
     }
     auto current_time = ::gettickcount();
-    xinfo2(TSF"find intercepted task: %_, time: %_, current: %_, data size %_", _name, info->second.intercept_time, 
-                current_time, info->second.data.size());
-    xdebug2(TSF"intercepted last delte: %_", (current_time - info->second.intercept_time));
+    xinfo2(TSF "find intercepted task: %_, time: %_, current: %_, data size %_",
+           _name,
+           info->second.intercept_time,
+           current_time,
+           info->second.data.size());
+    xdebug2(TSF "intercepted last delte: %_", (current_time - info->second.intercept_time));
     if (current_time - info->second.intercept_time > 60 * 1000) {
         intercept_tasks_.erase(info);
         return false;

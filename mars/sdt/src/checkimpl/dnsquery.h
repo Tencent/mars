@@ -1,7 +1,7 @@
 // Tencent is pleased to support the open source community by making Mars available.
 // Copyright (C) 2016 THL A29 Limited, a Tencent company. All rights reserved.
 
-// Licensed under the MIT License (the "License"); you may not use this file except in 
+// Licensed under the MIT License (the "License"); you may not use this file except in
 // compliance with the License. You may obtain a copy of the License at
 // http://opensource.org/licenses/MIT
 
@@ -10,16 +10,13 @@
 // either express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-
 #ifndef SDT_SRC_CHECKIMPL_DNSQUERY_H_
 #define SDT_SRC_CHECKIMPL_DNSQUERY_H_
 
 #include "mars/comm/socket/unix_socket.h"
 
-
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 /**
  *函数名:    socket_gethostbyname
@@ -33,26 +30,28 @@ extern "C"{
  */
 #define SOCKET_MAX_IP_COUNT (20)
 
-struct socket_ipinfo_t
-{
-    int  size;
-//    int  cost;
-//    struct  in_addr dns;
-    struct  in_addr ip[SOCKET_MAX_IP_COUNT];
+struct socket_ipinfo_t {
+    int size;
+    //    int  cost;
+    //    struct  in_addr dns;
+    struct in_addr ip[SOCKET_MAX_IP_COUNT];
 };
 
-int socket_gethostbyname(const char* _host, struct socket_ipinfo_t* _ipinfo, int _timeout /*ms*/, const char* _dnsserver);
-
+int socket_gethostbyname(const char* _host,
+                         struct socket_ipinfo_t* _ipinfo,
+                         int _timeout /*ms*/,
+                         const char* _dnsserver);
 
 #ifdef __cplusplus
 }
 
-
 ////////
 class NetCheckTrafficMonitor;
-int socket_gethostbyname(const char* _host, struct socket_ipinfo_t* _ipinfo, int _timeout /*ms*/, const char* _dnsserver, NetCheckTrafficMonitor* _traffic_monitor);
+int socket_gethostbyname(const char* _host,
+                         struct socket_ipinfo_t* _ipinfo,
+                         int _timeout /*ms*/,
+                         const char* _dnsserver,
+                         NetCheckTrafficMonitor* _traffic_monitor);
 #endif
 
-#endif //SDT_SRC_CHECKIMPL_DNSQUERY_H_
-
-
+#endif  // SDT_SRC_CHECKIMPL_DNSQUERY_H_
