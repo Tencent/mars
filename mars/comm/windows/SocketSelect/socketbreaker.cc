@@ -32,7 +32,7 @@ bool SocketBreaker::IsBreak() const {
 bool SocketBreaker::Break() {
     ScopedLock lock(m_mutex);
     bool ret = WSASetEvent(m_event);
-    ASSERT2(ret, "%d, %s", WSAGetLastError(), gai_strerror(WSAGetLastError()));
+    xerror2_if(!ret, TSF "%_, %_", WSAGetLastError(), gai_strerror(WSAGetLastError()));
     m_broken = ret;
 
     if (!ret)
