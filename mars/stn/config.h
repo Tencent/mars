@@ -28,6 +28,7 @@
 #define DEF_TASK_TIME_OUT (40 * 1000)
 #define DEF_TASK_RETRY_COUNT (1)
 #define DEF_TASK_RETRY_INTERNAL (1 * 1000)
+#define DEF_TASK_RUN_LOOP_TIMING (1 * 1000)
 
 // Heartbeart Range
 #define MinHeartInterval (3 * 60 * 1000 + 30 * 1000)  // 3.5 minute

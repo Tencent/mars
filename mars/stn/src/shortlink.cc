@@ -256,7 +256,6 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     auto get_proxy_end = std::chrono::high_resolution_clock::now();
     auto get_proxy_cost = std::chrono::duration_cast<std::chrono::microseconds>(get_proxy_end - check_addr_end).count();
-    //
     if (outter_vec_addr_.empty()) {
         net_source_->GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi);
     } else {
