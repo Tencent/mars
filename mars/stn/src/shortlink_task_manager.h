@@ -87,7 +87,7 @@ class ShortLinkTaskManager {
                          comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
