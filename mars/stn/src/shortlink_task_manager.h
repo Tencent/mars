@@ -87,7 +87,7 @@ class ShortLinkTaskManager {
                          comm::MessageQueue::MessageQueue_t _messagequeueid);
     virtual ~ShortLinkTaskManager();
 
-    bool StartTask(const Task& _task);
+    bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
     bool StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
     void ClearTasks();
@@ -128,14 +128,51 @@ class ShortLinkTaskManager {
                             int _fail_handle,
                             size_t _resp_length,
                             const ConnectProfile& _connect_profile);
+    bool __SingleRespHandleByWorker(ShortLinkInterface* _worker,
+                                    ErrCmdType _err_type,
+                                    int _err_code,
+                                    int _fail_handle,
+                                    size_t _resp_length,
+                                    const ConnectProfile& _connect_profile);
 
     std::list<TaskProfile>::iterator __LocateBySeq(intptr_t _running_id);
 
-    void __DeleteShortLink(intptr_t& _running_id);
+    bool __DeleteShortLink(std::list<TaskProfile>::iterator _it);
     SOCKET __OnGetCacheSocket(const IPPortItem& _address);
     void __OnHandshakeCompleted(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
+
+ private:
+    bool __GetInterceptTaskInfo(const std::string& _name, std::string& _last_data);
+    int __OnGetStatus();
+    // void __OnCgiTaskStatistic(std::string _cgi_uri, unsigned int _total_size, uint64_t _cost_time);
+    void __OnCgiTaskStatistic(ShortLinkInterface* _worker, unsigned int body_length);
+    void __OnAddInterceptTask(const std::string& _name, const std::string& _data);
+    void __OnSocketPoolReport(bool _is_reused, bool _has_received, bool _is_decode_ok);
+    void __OnSocketPoolTryAdd(IPPortItem item, ConnectProfile& _conn_profile);
+
+    void __OnSetUserProxy(bool _user_proxy);
+    void __OnResetFailCount();
+    void __OnInCreaseFailCount();
+    void __OnReq2BufTime(ShortLinkInterface* _worker, uint64_t begin_req2buf_time, uint64_t end_req2buf_time);
+    void __OnBuf2RespTime(ShortLinkInterface* _worker, uint64_t begin_buf2resp_time, uint64_t end_buf2resp_time);
+
+    void __OnClientSequenceId(ShortLinkInterface* _worker, int client_sequence_id);
+    void __OnServerSequenceId(ShortLinkInterface* _worker, int server_sequence_id);
+
+    void __OnRecvDataTime(ShortLinkInterface* _worker, size_t receive_data_size, uint64_t last_receive_pkg_time);
+    void __OnUpdateTimeout(ShortLinkInterface* _worker,
+                           uint64_t loop_start_task_time,
+                           uint64_t first_pkg_timeout,
+                           uint64_t read_write_timeout,
+                           size_t send_data_size,
+                           int current_dyntime_status);
+    void __OnSetForceNoRetry(ShortLinkInterface* _worker, bool force_no_retry);
+    void __OnIncreateRemainRetryCount(ShortLinkInterface* _worker, bool before);
+    void __OnSetLastFailedStatus(ShortLinkInterface* _worker);
+    void __OnUpdateConnectProfile(ShortLinkInterface* worker, ConnectProfile& connect_profile);
+    // int __OnGetSendCount();
 
  private:
     boot::Context* context_;
@@ -154,6 +191,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    bool is_handle_buff_in_thread_ = true;  // do req2buf and buf2resp on worker thread
 };
 
 }  // namespace stn
