@@ -197,8 +197,9 @@ void ShortLink::__Run() {
     xmessage2_define(message, TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     xinfo_function(TSF "%_, net:%_, realtime:%_", message.String(), getNetInfo(), task_.need_realtime_netinfo);
 
+    std::future<bool> buf2req_future;
     if (!is_req_with_buff) {
-        __Req2Buf();
+        buf2req_future = std::async(std::launch::async, &ShortLink::__Req2Buf, this);
     }
 
     ConnectProfile conn_profile;
@@ -216,6 +217,10 @@ void ShortLink::__Run() {
     __UpdateProfile(conn_profile);
 
     SOCKET fd_socket = __RunConnect(conn_profile);
+
+    if (!is_req_with_buff) {
+        buf2req_future.get();
+    }
 
     if (INVALID_SOCKET == fd_socket)
         return;

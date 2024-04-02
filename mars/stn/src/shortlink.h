@@ -20,6 +20,7 @@
 #ifndef STN_SRC_SHORTLINK_H_
 #define STN_SRC_SHORTLINK_H_
 
+#include <future>
 #include <map>
 #include <memory>
 #include <string>
@@ -92,7 +93,7 @@ class ShortLink : public ShortLinkInterface {
  private:
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);
 
- protected:
+ public:
     bool __Req2Buf();
 
  protected:
@@ -117,6 +118,7 @@ class ShortLink : public ShortLinkInterface {
     bool is_keep_alive_;
     bool is_req_with_buff;
     int sent_count;
+    std::future<bool> buf2req_future;
 };
 
 }  // namespace stn
