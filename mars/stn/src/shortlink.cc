@@ -163,6 +163,8 @@ ShortLink::ShortLink(boot::Context* _context,
            asyncreg_.Get().queue,
            asyncreg_.Get().seq,
            _task.long_polling);
+    req2buf_thread_ = new comm::Thread(boost::bind(&ShortLink::__Req2Buf, this),
+                                       internal::threadName(task_.cgi + ".Req2Buf").c_str());
 }
 
 ShortLink::~ShortLink() {
@@ -199,7 +201,8 @@ void ShortLink::__Run() {
 
     std::future<bool> buf2req_future;
     if (!is_req_with_buff) {
-        buf2req_future = std::async(std::launch::async, &ShortLink::__Req2Buf, this);
+        // buf2req_future = std::async(std::launch::async, &ShortLink::__Req2Buf, this);
+        req2buf_thread_->start();
     }
 
     ConnectProfile conn_profile;
@@ -219,7 +222,8 @@ void ShortLink::__Run() {
     SOCKET fd_socket = __RunConnect(conn_profile);
 
     if (!is_req_with_buff) {
-        buf2req_future.get();
+        // buf2req_future.get();
+        req2buf_thread_->join();
     }
 
     if (INVALID_SOCKET == fd_socket)
@@ -246,6 +250,7 @@ void ShortLink::__Run() {
 
 SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xmessage2_define(message)(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
+    xinfo_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
     _conn_profile.dns_time = ::gettickcount();
     __UpdateProfile(_conn_profile);

@@ -103,6 +103,7 @@ class ShortLink : public ShortLinkInterface {
     std::unique_ptr<SocketOperator> socketOperator_;
     Task task_;
     comm::Thread thread_;
+    comm::Thread* req2buf_thread_;
 
     ConnectProfile conn_profile_;
     NetSource::DnsUtil dns_util_;
