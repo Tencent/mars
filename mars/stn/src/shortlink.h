@@ -74,6 +74,7 @@ class ShortLink : public ShortLinkInterface {
     virtual SOCKET __RunConnect(ConnectProfile& _conn_profile);
     virtual void __RunReadWrite(SOCKET _sock, int& _errtype, int& _errcode, ConnectProfile& _conn_profile);
     void __CancelAndWaitWorkerThread();
+    void __CancelAndWaitReq2BufThread();
 
     void __UpdateProfile(const ConnectProfile _conn_profile);
 

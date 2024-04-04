@@ -172,6 +172,7 @@ ShortLink::~ShortLink() {
     if (task_.priority >= 0) {
         xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }
+    __CancelAndWaitReq2BufThread();
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
     dns_util_.Cancel();
@@ -1096,6 +1097,17 @@ void ShortLink::__CancelAndWaitWorkerThread() {
     }
     int ret = thread_.join();
     xdebug2(TSF "thread_ join %_ ret %_", this, ret);
+}
+
+void ShortLink::__CancelAndWaitReq2BufThread() {
+    xdebug_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
+    if (!req2buf_thread_->isruning()) {
+        xinfo2(TSF "thread is no running.");
+        return;
+    }
+
+    int ret = req2buf_thread_->join();
+    xdebug2(TSF "req2buf_thread_ join %_ ret %_", this, ret);
 }
 
 bool ShortLink::__Req2Buf() {
