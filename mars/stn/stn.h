@@ -215,17 +215,17 @@ enum TaskFailHandleType {
 
 // error type
 enum ErrCmdType {
-    kEctOK = 0,
-    kEctFalse = 1,
-    kEctDial = 2,
-    kEctDns = 3,
-    kEctSocket = 4,
-    kEctHttp = 5,
-    kEctNetMsgXP = 6,
-    kEctEnDecode = 7,
-    kEctServer = 8,
-    kEctLocal = 9,
-    kEctCanceld = 10,
+    kEctOK = 0,        // 成功
+    kEctFalse = 1,     // MMTLS 相关错误
+    kEctDial = 2,      // 未使用
+    kEctDns = 3,       // 域名解析失败，无ip可用
+    kEctSocket = 4,    // 网络连接、读写错误
+    kEctHttp = 5,      // 短连接协议解包失败
+    kEctNetMsgXP = 6,  // 长连接协议打包/解包失败
+    kEctEnDecode = 7,  // 业务层打包/解包失败
+    kEctServer = 8,    // 长连接 MMTLS 相关错误
+    kEctLocal = 9,     // 任务超时/重试次数超过限制
+    kEctCanceld = 10,  // 任务被取消，一般是帐号切换或者进程退出
 };
 
 // error code
