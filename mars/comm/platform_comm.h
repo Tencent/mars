@@ -40,7 +40,7 @@ void OnPlatformNetworkChange();
 
 int getNetInfo(bool realtime = false);
 
-enum class NetTypeForStatistics {
+enum NetTypeForStatistics {
     NETTYPE_NON = -1,
     NETTYPE_NOT_WIFI = 0,
     NETTYPE_WIFI = 1,
@@ -51,7 +51,32 @@ enum class NetTypeForStatistics {
     NETTYPE_UNKNOWN = 6,  // ignore, DO NOT reuse
     NETTYPE_5G = 7,
 };
+
 int getNetTypeForStatistics();
+enum {
+    NEW_NETTYPE_UNKNOW = 0,
+    NEW_NETTYPE_WIFI = 1,
+    NEW_NETTYPE_2G = 2,
+    NEW_NETTYPE_3G = 3,
+    NEW_NETTYPE_4G = 4,
+    NEW_NETTYPE_5G = 5,
+};
+inline int getAppNetType() {
+    int type = getNetTypeForStatistics();
+    switch (type) {
+        case NetTypeForStatistics::NETTYPE_WIFI:
+            return NEW_NETTYPE_WIFI;
+        case NetTypeForStatistics::NETTYPE_2G:
+            return NEW_NETTYPE_2G;
+        case NetTypeForStatistics::NETTYPE_3G:
+            return NEW_NETTYPE_3G;
+        case NetTypeForStatistics::NETTYPE_4G:
+            return NEW_NETTYPE_4G;
+        case NetTypeForStatistics::NETTYPE_5G:
+            return NEW_NETTYPE_5G;
+    }
+    return NEW_NETTYPE_UNKNOW;
+}
 
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
 
