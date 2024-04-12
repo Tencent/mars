@@ -206,9 +206,12 @@ void TcpServer::__ListenThread() {
 
     xinfo2(TSF "listen end sock:(%_, %_:%_), ", listen_sock_, bind_addr_->ip(), bind_addr_->port()) << break_group;
 
-    if (INVALID_SOCKET != listen_sock_) {
-        socket_close(listen_sock_);
-        listen_sock_ = INVALID_SOCKET;
+    {
+        ScopedLock lock(mutex_);
+        if (INVALID_SOCKET != listen_sock_) {
+            socket_close(listen_sock_);
+            listen_sock_ = INVALID_SOCKET;
+        }
     }
 
     observer_.OnError(this, socket_errno);
