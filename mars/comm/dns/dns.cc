@@ -178,12 +178,13 @@ void DNS::__GetIP() {
 
             freeaddrinfo(result);
             iter->status = kGetIPSuc;
-            xinfo2(TSF "cost time: %_", (::gettickcount() - start_time)) >> ip_group;
+            xinfo2(TSF "cost time dns: %_", (::gettickcount() - start_time)) >> ip_group;
             sg_condition.notifyAll();
         }
     } else {
+        auto start_time = ::gettickcount();
         std::vector<std::string> ips;
-        if (status != kGetIPCancel) { // 此时iter可能已经失效了
+        if (status != kGetIPCancel) {  // 此时iter可能已经失效了
             ips = dnsfunc(host_name, longlink_host);
         }
 
@@ -200,6 +201,8 @@ void DNS::__GetIP() {
             iter->status = ips.empty() ? kGetIPFail : kGetIPSuc;
             iter->result = ips;
         }
+
+        xinfo2(TSF "cost time newdns: %_ host:%_", (::gettickcount() - start_time), host_name);
         sg_condition.notifyAll();
     }
 }

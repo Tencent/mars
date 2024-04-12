@@ -510,10 +510,11 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
         NetSource::GetBackupIPs(_host, iplist);
         xdebug2(TSF "link host:%_, backup ips size:%_", _host, iplist.size());
 
-        if (iplist.empty() && _dns_util.GetNewDNS().GetHostByName(_host, iplist)) {
+        /* 这里本来就是backip，newdns的在上面已经取过了
+         if (iplist.empty() && _dns_util.GetNewDNS().GetHostByName(_host, iplist)) {
             ScopedLock lock(sg_ip_mutex);
             sg_host_backupips_mapping[_host] = iplist;
-        }
+        }*/
 
         if (iplist.empty() && _dns_util.GetDNS().GetHostByName(_host, iplist)) {
             ScopedLock lock(sg_ip_mutex);
