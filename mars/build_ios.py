@@ -2,6 +2,8 @@
 import os
 import sys
 import glob
+import re
+import shutil
 
 from mars_utils import *
 
@@ -11,115 +13,124 @@ SCRIPT_PATH = os.path.split(os.path.realpath(__file__))[0]
 BUILD_OUT_PATH = 'cmake_build/iOS'
 INSTALL_PATH = BUILD_OUT_PATH + '/iOS.out'
 
-IOS_BUILD_SIMULATOR_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=SIMULATOR -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install'
-IOS_BUILD_OS_CMD = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=OS -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install'
-
 GEN_IOS_OS_PROJ = 'cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=OS -DIOS_ARCH="arm64" -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1'
-OPEN_SSL_ARCHS = ['x86_64', 'arm64']
 
+def generate_lib(platform, deps = None, filter = None):
+    clean(BUILD_OUT_PATH)
+    os.chdir(BUILD_OUT_PATH)
+
+    command = 'cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../../ios.toolchain.cmake -DPLATFORM=%s -DENABLE_ARC=0 -DENABLE_BITCODE=0 -DENABLE_VISIBILITY=1 && make -j8 && make install' % platform
+    ret = os.system(command)
+    os.chdir(SCRIPT_PATH)
+    if ret != 0:
+        print('!!!!!!!!!!!build %s fail!!!!!!!!!!!!!!!' % platform)
+        return None
+
+    libs = glob.glob(INSTALL_PATH + '/*.a')
+    libs.append(BUILD_OUT_PATH + '/zstd/libzstd.a')
+    if filter:
+        pattern = re.compile(filter)
+        libs = [lib for lib in libs if pattern.search(lib)]
+    if deps:
+        libs.extend(deps)
+    dest_lib = '%s/mars-%s' % (INSTALL_PATH, platform)
+    if not libtool_libs(libs, dest_lib):
+        return None
+    return dest_lib
+
+def make_mars_framework(src_libs, platform, header_files):
+    lib = INSTALL_PATH + '/mars'
+    if not libtool_libs(src_libs, lib):
+        return None
+
+    path = '%s/%s/mars.framework' % (INSTALL_PATH, platform)
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    os.makedirs(path)
+    make_static_framework(lib, path, header_files, '../')
+    return path
+
+def make_mars_xcframework(frameworks):
+    path = INSTALL_PATH + '/mars.xcframework'
+    option = ' '.join(['-framework %s' % framework for framework in frameworks])
+    command = 'xcodebuild -create-xcframework %s -output %s' % (option, path)
+    ret = os.system(command)
+    if ret != 0:
+        print('!!!!!!!!!!!make xcframework fail!!!!!!!!!!!!!!!')
+        return None
+    return path
+
+def extract_arch(lib, arch):
+    dst_lib = lib.replace('.a', '-%s.a' % arch)
+    command = 'lipo %s -extract %s -o %s' % (lib, arch, dst_lib)
+    ret = os.system(command)
+    if ret != 0:
+        print('!!!!!!!!!!!extract %s fail!!!!!!!!!!!!!!!' % arch)
+        return None
+    return dst_lib
 
 def build_ios(tag=''):
     gen_mars_revision_file('comm', tag)
-    
-    clean(BUILD_OUT_PATH)
-    os.chdir(BUILD_OUT_PATH)
-    
-    ret = os.system(IOS_BUILD_OS_CMD)
-    os.chdir(SCRIPT_PATH)
-    if ret != 0:
-        print('!!!!!!!!!!!build os fail!!!!!!!!!!!!!!!')
+
+    deps = ['openssl/openssl_lib_iOS/libssl.a', 'openssl/openssl_lib_iOS/libcrypto.a']
+
+    os_deps = [extract_arch(dep, 'arm64') for dep in deps]
+    os_lib = generate_lib('OS64', deps=os_deps)
+    for dep in os_deps:
+        os.remove(dep)
+    if not os_lib:
+        return False
+    os_framework = make_mars_framework([os_lib], 'OS', COMM_COPY_HEADER_FILES)
+    if not os_framework:
         return False
 
-    libtool_os_dst_lib = INSTALL_PATH + '/os'
-    libtool_src_lib = glob.glob(INSTALL_PATH + '/*.a')
-    libtool_src_lib.append(BUILD_OUT_PATH + '/zstd/libzstd.a')
-
-    if not libtool_libs(libtool_src_lib, libtool_os_dst_lib):
+    simulator_deps = [extract_arch(dep, 'x86_64') for dep in deps]
+    simulator_lib = generate_lib('SIMULATOR64', deps=simulator_deps)
+    for dep in simulator_deps:
+        os.remove(dep)
+    if not simulator_lib:
+        return False
+    simulator_framework = make_mars_framework([simulator_lib], 'SIMULATOR', COMM_COPY_HEADER_FILES)
+    if not simulator_framework:
         return False
 
-    clean(BUILD_OUT_PATH)
-    os.chdir(BUILD_OUT_PATH)
-    ret = os.system(IOS_BUILD_SIMULATOR_CMD)
-    os.chdir(SCRIPT_PATH)
-    if ret != 0:
-        print('!!!!!!!!!!!build simulator fail!!!!!!!!!!!!!!!')
+    xcframework_path = make_mars_xcframework([os_framework, simulator_framework])
+    if not xcframework_path:
         return False
-    
-    libtool_simulator_dst_lib = INSTALL_PATH + '/simulator'
-    if not libtool_libs(libtool_src_lib, libtool_simulator_dst_lib):
-        return False
-
-    lipo_src_libs = []
-    lipo_src_libs.append(libtool_os_dst_lib)
-    lipo_src_libs.append(libtool_simulator_dst_lib)
-    ssl_lib = INSTALL_PATH + '/ssl'
-    if not lipo_thin_libs('openssl/openssl_lib_iOS/libssl.a', ssl_lib, OPEN_SSL_ARCHS):
-        return False
-
-    crypto_lib = INSTALL_PATH + '/crypto'
-    if not lipo_thin_libs('openssl/openssl_lib_iOS/libcrypto.a', crypto_lib, OPEN_SSL_ARCHS):
-        return False
-
-    lipo_src_libs.append(ssl_lib)
-    lipo_src_libs.append(crypto_lib)
-
-    lipo_dst_lib = INSTALL_PATH + '/mars'
-
-    if not libtool_libs(lipo_src_libs, lipo_dst_lib):
-        return False
-
-    dst_framework_path = INSTALL_PATH + '/mars.framework'
-    make_static_framework(lipo_dst_lib, dst_framework_path, COMM_COPY_HEADER_FILES, '../')
 
     print('==================Output========================')
-    print(dst_framework_path)
+    print(xcframework_path)
     return True
 
 def build_ios_xlog(tag=''):
     gen_mars_revision_file('comm', tag)
-    
-    clean(BUILD_OUT_PATH)
-    os.chdir(BUILD_OUT_PATH)
-    
-    ret = os.system(IOS_BUILD_OS_CMD)
-    os.chdir(SCRIPT_PATH)
-    if ret != 0:
-        print('!!!!!!!!!!!build os fail!!!!!!!!!!!!!!!')
+
+    filter = '(libcomm.a|libmars-boost.a|libxlog.a|libzstd.a)'
+
+    os_lib = generate_lib('OS64', filter=filter)
+    if not os_lib:
+        return False
+    os_framework = make_mars_framework([os_lib], 'OS', XLOG_COPY_HEADER_FILES)
+    if not os_framework:
         return False
 
-    libtool_os_dst_lib = INSTALL_PATH + '/os'
-    libtool_src_libs = [INSTALL_PATH + '/libcomm.a',
-                        INSTALL_PATH + '/libmars-boost.a',
-                        INSTALL_PATH + '/libxlog.a',
-                        BUILD_OUT_PATH + '/zstd/libzstd.a']
-    if not libtool_libs(libtool_src_libs, libtool_os_dst_lib):
+    simulator64_lib = generate_lib('SIMULATOR64', filter=filter)
+    if not simulator64_lib:
+        return False
+    simulatorarm64_lib = generate_lib('SIMULATORARM64', filter=filter)
+    if not simulatorarm64_lib:
+        return False
+    simulator_framework = make_mars_framework([simulator64_lib, simulatorarm64_lib], 'SIMULATOR', XLOG_COPY_HEADER_FILES)
+    if not simulator_framework:
         return False
 
-    clean(BUILD_OUT_PATH)
-    os.chdir(BUILD_OUT_PATH)
-    ret = os.system(IOS_BUILD_SIMULATOR_CMD)
-    os.chdir(SCRIPT_PATH)
-    if ret != 0:
-        print('!!!!!!!!!!!build simulator fail!!!!!!!!!!!!!!!')
+    xcframework_path = make_mars_xcframework([os_framework, simulator_framework])
+    if not xcframework_path:
         return False
-    
-    libtool_simulator_dst_lib = INSTALL_PATH + '/simulator'
-    if not libtool_libs(libtool_src_libs, libtool_simulator_dst_lib):
-        return False
-
-    lipo_src_libs = []
-    lipo_src_libs.append(libtool_os_dst_lib)
-    lipo_src_libs.append(libtool_simulator_dst_lib)
-    lipo_dst_lib = INSTALL_PATH + '/mars'
-
-    if not lipo_libs(lipo_src_libs, lipo_dst_lib):
-        return False
-
-    dst_framework_path = INSTALL_PATH + '/mars.framework'
-    make_static_framework(lipo_dst_lib, dst_framework_path, XLOG_COPY_HEADER_FILES, '../')
 
     print('==================Output========================')
-    print(dst_framework_path)
+    print(xcframework_path)
+    return True
 
 
 
@@ -137,7 +148,7 @@ def gen_ios_project():
 
     print('==================Output========================')
     print('project file: %s/%s' %(SCRIPT_PATH, BUILD_OUT_PATH))
-    
+
     return True
 
 def main():
