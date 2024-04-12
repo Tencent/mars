@@ -16,6 +16,7 @@
 #include "comm/xlogger/xlogger.h"
 #include "getaddrinfo_with_timeout.h"
 #include "mars/comm/macro.h"
+#include "socket/local_ipstack.h"
 namespace mars {
 namespace comm {
 
@@ -94,7 +95,13 @@ static void __WorkerFunc() {
     }
     lock.unlock();
 
-    int error = getaddrinfo(worker_node.c_str(), worker_service.c_str(), &worker_hints, &worker_res0);
+    int error = 0;
+    TLocalIPStack ipstack = local_ipstack_detect();
+    if (ELocalIPStack_IPv4 == ipstack) {
+        error = getaddrinfo(worker_node.c_str(), worker_service.c_str(), &worker_hints, &worker_res0);
+    } else {
+        error = getaddrinfo(worker_node.c_str(), worker_service.c_str(), NULL, &worker_res0);
+    }
     xinfo2(TSF "sys getaddrinfo error:%_, node:%_, service:%_", error, worker_node, worker_service);
 
     lock.lock();
