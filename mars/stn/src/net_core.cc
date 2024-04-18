@@ -78,7 +78,11 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
 , shortlink_task_manager_(
       new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
 , shortlink_error_count_(0)
-, shortlink_try_flag_(false) {
+, shortlink_try_flag_(false)
+#ifdef ANDROID
+, wakeup_lock_(new WakeUpLock())
+#endif
+{
     NetCoreCreateBegin()();
     xdebug_function(TSF "mars2");
     xwarn2(TSF "public component version: %0 %1", __DATE__, __TIME__);
@@ -142,6 +146,9 @@ NetCore::~NetCore() {
     }
     // MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
     MessageQueue::MessageQueueCreater::ReleaseNewMessageCreator(messagequeue_creater_);
+#ifdef ANDROID
+    delete wakeup_lock_;
+#endif
 }
 
 void NetCore::ReleaseNet() {
@@ -350,6 +357,18 @@ void NetCore::StartTask(const Task& _task) {
             ->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalTaskParam, profile);
         return;
     }
+
+#ifdef ANDROID
+    /*cancel the last wakeuplock*/
+    if (context_->GetManager<AppManager>() != nullptr) {
+        wakeup_lock_->Lock(context_->GetManager<AppManager>()->GetConfig<int>(kKeyShortLinkWakeupLockBefroeCMD,
+                                                                              kShortLinkWakeupLockBefroeCMD));
+    } else {
+        xinfo2(TSF "appmanager no exist.");
+        wakeup_lock_->Lock(kShortLinkWakeupLockBefroeCMD);
+    }
+#endif
+
     _profile.begin_process_hosts_time = gettickcount();
     if (task_process_hook_) {
         task_process_hook_(task);

@@ -140,6 +140,13 @@ const static unsigned int kLongLinkWakeupLockNoopResp = 500;
 
 const static char* const kKeyLongLinkWakeupLockNoopReq = "LongLinkNoopReq";
 const static unsigned int kLongLinkWakeupLockNoopReq = 8 * 1000;
+
+const static char* const kKeyShortLinkWakeupLockBefroeCMD = "ShortLinkBefroeCMD";
+const static unsigned int kShortLinkWakeupLockBefroeCMD = 500;
+
+const static char* const kKeyShortLinkWakeupLockNewDns = "ShortLinkNewDns";
+const static unsigned int kShortLinkWakeupLockNewDns = 500;
+
 #endif
 
 // shortlink_task_manager
