@@ -410,6 +410,7 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                                  const std::vector<std::string>& _hostlist,
                                  DnsUtil& _dns_util,
                                  bool _islonglink) {
+    xinfo_function();  // for debug by cpan
     if (active_logic_.IsActive()) {
         unsigned int merge_type_count = 0;
         unsigned int makelist_count = kNumMakeCount;
@@ -458,6 +459,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
                                 DnsUtil& _dns_util,
                                 bool _isbackup,
                                 bool _islonglink) {
+    xinfo_function();  // for debug by cpan
     IPSourceType ist = kIPSourceNULL;
     std::vector<std::string> iplist;
     std::vector<uint16_t> ports;

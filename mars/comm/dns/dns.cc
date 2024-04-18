@@ -70,6 +70,7 @@ NO_DESTROY static Condition sg_condition;
 NO_DESTROY static Mutex sg_mutex;
 void DNS::__GetIP() {
     xverbose_function();
+    xinfo_function();  // for debug by cpan
 
     auto start_time = ::gettickcount();
 
@@ -227,6 +228,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
                         long millsec,
                         DNSBreaker* _breaker,
                         bool _longlink_host) {
+    xinfo_function();  // for debug by cpan
     xverbose_function("host: %s, longlink: %d", _host_name.c_str(), _longlink_host);
 
     xassert2(!_host_name.empty());
