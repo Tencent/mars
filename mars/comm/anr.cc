@@ -36,6 +36,9 @@
 #ifdef ANDROID
 #include "android/fatal_assert.h"
 #endif
+#include "comm/bootrun.h"
+#include "mars/baseevent/baseevent.h"
+#include "mars/baseevent/baseprjevent.h"
 
 #ifndef ANR_CHECK_DISABLE
 
@@ -174,8 +177,22 @@ static class startup {
 
         sg_thread.join();
     }
-} __startup;
+};  //__startup;
 }  // namespace
+
+static void onCreate() {
+    static startup __startup;
+}
+
+static void onDestroy() {
+}
+
+static void __initbind_baseprjevent() {
+    GetSignalOnCreate().connect(&onCreate);
+    GetSignalOnDestroy().connect(1, &onDestroy);
+}
+
+BOOT_RUN_STARTUP(__initbind_baseprjevent);
 
 #endif
 
