@@ -362,8 +362,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
@@ -950,8 +953,25 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
              _err_type,
              _fail_handle);
 
+    bool no_retry_pkg_fail = false;
+    if (context_->GetManager<AppManager>()->GetConfig(kKeyNoRetryPkgFail, false)) {
+        if (kTaskFailHandleDefault == _fail_handle) {
+            xinfo2(TSF "no retry cgi when pkg retrun -1.");
+            no_retry_pkg_fail = true;
+        }
+    }
+
+    bool no_retry_server_fail = false;
+    if (context_->GetManager<AppManager>()->GetConfig(kKeyNoRetryServerFail, false)) {
+        if (kTaskFailServerFailHaveNotice == _fail_handle || kTaskFailServerFailNoNotice == _fail_handle) {
+            xinfo2(TSF "no retry cgi when server fail %_", _fail_handle);
+            no_retry_server_fail = true;
+        }
+    }
+
     if (_it->force_no_retry || 0 >= _it->remain_retry_count || kEctOK == _err_type
-        || kTaskFailHandleTaskEnd == _fail_handle || kTaskFailHandleTaskTimeout == _fail_handle) {
+        || kTaskFailHandleTaskEnd == _fail_handle || kTaskFailHandleTaskTimeout == _fail_handle || no_retry_pkg_fail
+        || no_retry_server_fail) {
         xlog2(kEctOK == _err_type ? kLevelInfo : kLevelWarn,
               TSF "task end callback short cmdid:%_, err(%_, %_, %_), ",
               _it->task.cmdid,
