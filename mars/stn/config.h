@@ -138,4 +138,7 @@ const static char* const kKeyLongLinkWakeupLockNoopReq = "LongLinkNoopReq";
 const static unsigned int kLongLinkWakeupLockNoopReq = 8 * 1000;
 #endif
 
+const static char* const kKeyNoRetryPkgFail = "NoRetryPkgFail";
+const static char* const kKeyNoRetryServerFail = "NoRetryServerFail";
+
 #endif /* stn_config_h */
