@@ -370,6 +370,10 @@ extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCall
 std::string GetCurrentProcessName();
 #endif
 
+//[dual-channel]
+bool IsCellularNetworkActive();
+bool ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips);
+bool BindSocketToCellularNetwork(int socket_fd);
 }  // namespace comm
 }  // namespace mars
 

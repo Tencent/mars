@@ -6,9 +6,9 @@
 #define MMNET_APP_MANAGER_H
 
 #include <memory>
+#include <thread>
 #include <typeindex>
 #include <unordered_map>
-#include <thread>
 
 #include "mars/app/app.h"
 //#include "mars/boost/any.hpp"
@@ -22,6 +22,8 @@
 #endif
 namespace mars {
 namespace app {
+
+class AppConfig;
 
 class AppManager : public mars::boot::BaseManager {
  public:
@@ -37,7 +39,7 @@ class AppManager : public mars::boot::BaseManager {
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
     std::string GetAppFilePath();
     AccountInfo GetAccountInfo();
-    std::string GetAppUserName();   // WinBase.h里面定义了GetUserName这个宏
+    std::string GetAppUserName();  // WinBase.h里面定义了GetUserName这个宏
     std::string GetRecentUserName();
     unsigned int GetClientVersion();
     DeviceInfo GetDeviceInfo();
@@ -86,6 +88,10 @@ class AppManager : public mars::boot::BaseManager {
 #endif
     }
 
+ public:
+    void UpdateAppConfig(Config _app_config);
+    AppConfig* GetAppConfig();
+
  private:
     Callback* callback_;
     mars::comm::ProxyInfo proxy_info_;
@@ -99,6 +105,7 @@ class AppManager : public mars::boot::BaseManager {
     // std::unordered_map<std::string, boost::any> config_;
     std::unordered_map<std::string, void*> config_;
     std::unordered_map<std::string, std::string> types_;
+    AppConfig* app_config_;
 };
 
 }  // namespace app

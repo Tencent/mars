@@ -77,7 +77,7 @@ LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context,
 #ifndef _WIN32
 , meta_mutex_(true)
 #endif
-{
+, cellular_network_manager_(new CellularNetworkManager(context_)) {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -757,6 +757,7 @@ bool LongLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _i
         context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
         // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         netsource_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
+        cellular_network_manager_->OnTaskEvent(*_it);
 
         lst_cmd_.erase(_it);
         return true;

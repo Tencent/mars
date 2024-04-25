@@ -211,6 +211,12 @@ class LongLink {
     void __NotifySmartHeartbeatHeartResult(bool _succes, bool _fail_of_timeout, ConnectProfile& _profile);
     void __NotifySmartHeartbeatJudgeDozeStyle();
 
+ public:
+    bool IsBindCellularNetwork() const;
+
+ private:
+    void __SetBindCellularNetwork(bool _flag);
+
  protected:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;
@@ -241,6 +247,8 @@ class LongLink {
     unsigned long long lastheartbeat_;
     std::string longlink_disconnect_reason_text_;
     bool svr_trig_off_ = false;  // with minor longlink, if server close the socket, do not auto rebuild until task
+
+    bool is_bind_cellular_network_ = false;
 };
 
 }  // namespace stn

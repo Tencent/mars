@@ -27,6 +27,7 @@
 #include <map>
 
 #include "boost/function.hpp"
+#include "cellular_network_manager.h"
 #include "mars/boot/context.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
@@ -34,7 +35,6 @@
 #include "shortlink.h"
 #include "socket_pool.h"
 #include "task_intercept.h"
-
 class AutoBuffer;
 
 namespace mars {
@@ -154,6 +154,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    CellularNetworkManager* cellular_network_manager_;
 };
 
 }  // namespace stn
