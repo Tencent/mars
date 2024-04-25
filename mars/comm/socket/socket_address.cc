@@ -160,10 +160,23 @@ bool socket_address::fix_current_nat64_addr() {
     xdebug2(TSF "is_update =%_, ret=%_", is_update, ret);
     return ret;
 }
+
+// Windows下，getaddrinfo("ipv4only.arpa")在某些网络环境中会必现失败，错误码11001，耗时500-1000ms。
+// 由于复合连接会同时尝试多个IP，每次连接耗时都会有好几秒。因此当多次失败后，不进行fix_current_nat64_addr操作。
+static std::atomic<int32_t> s_nat64_fail_cnt(0);
+static const int MAX_NAT64_FAIL_CNT = 5;
+void socket_address::on_network_change() {
+    xdebug_function();
+    s_nat64_fail_cnt = 0;
+}
+
 const sockaddr& socket_address::address_fix() {
-    if (AF_INET6 == addr_.ss_family) {
+    if (AF_INET6 == addr_.ss_family && s_nat64_fail_cnt < MAX_NAT64_FAIL_CNT) {
         xdebug2(TSF "before fix current ipv6 = %_", ipv6());
-        fix_current_nat64_addr();
+        bool ret = fix_current_nat64_addr();
+        if (!ret) {
+            s_nat64_fail_cnt++;
+        }
         xdebug2(TSF "after fix current ipv6 = %_", ipv6());
     }
     return (sockaddr&)addr_;

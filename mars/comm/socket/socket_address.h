@@ -20,7 +20,7 @@
 #ifndef SOCKET_ADDRESS_H_
 #define SOCKET_ADDRESS_H_
 
-#include <string.h>
+#include <cstring>
 
 #include "comm/socket/local_ipstack.h"
 #include "unix_socket.h"
@@ -68,6 +68,7 @@ class socket_address {
  public:
     static socket_address getsockname(SOCKET _sock);
     static socket_address getpeername(SOCKET _sock);
+    static void on_network_change();
 
  private:
     //    socket_address(const socket_address&);

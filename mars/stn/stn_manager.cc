@@ -6,15 +6,13 @@
 
 #include <stdlib.h>
 
-#include <iostream>
 #include <map>
 #include <random>
 
 #include "mars/baseevent/active_logic.h"
 #include "mars/baseevent/baseevent.h"
 #include "mars/boost/config.hpp"
-#include "mars/comm/alarm.h"
-#include "mars/comm/messagequeue/message_queue.h"
+#include "mars/comm/socket/socket_address.h"
 #include "mars/comm/thread/atomic_oper.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
@@ -24,14 +22,6 @@
 #include "stn/src/proxy_test.h"
 #include "stn/src/signalling_keeper.h"
 
-#ifdef WIN32
-#include <locale>
-
-#include "boost/filesystem/detail/utf8_codecvt_facet.hpp"
-#include "boost/filesystem/path.hpp"
-#endif
-
-#include "mars/comm/alarm.h"
 #include "mars/comm/thread/mutex.h"
 
 using namespace mars::comm;
@@ -102,6 +92,7 @@ void StnManager::OnExceptionCrash() {
 }
 
 void StnManager::OnNetworkChange(void (*pre_change)()) {
+    socket_address::on_network_change();
     if (net_core_ && !net_core_->IsAlreadyRelease()) {
         pre_change();
         net_core_->OnNetworkChange();
