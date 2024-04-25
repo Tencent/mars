@@ -188,6 +188,7 @@ namespace stn{
 
     //上报网络连接状态
     extern void ReportConnectStatus(int status, int longlink_status);
+    extern void ReportConnectNetType(ConnNetType conn_type);
 
     extern void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     extern void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port);

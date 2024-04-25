@@ -645,6 +645,14 @@ void ReportConnectStatus(int status, int longlink_status) {
     }
 }
 
+void ReportConnectNetType(ConnNetType conn_type) {
+    StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
+    xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
+    if (stn_manager) {
+        stn_manager->ReportConnectNetType(conn_type);
+    }
+}
+
 void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");

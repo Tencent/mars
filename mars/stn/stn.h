@@ -343,6 +343,14 @@ enum TDisconnectInternalCode {
 };
 //move form longlink
 
+/**网络连接的类型*/
+enum ConnNetType {
+    kConnNetUnknown = 0,   //unknown
+    kConnNetWifi    = 1,   //wifi
+    kConnNetCellular= 2,   // cellular network
+    kConnNetBindCellular = 3,  //bind cellular network when wifi no conn or weak singel
+};
+
 const char* const IPSourceTypeString[] = {
     "NullIP",
     "DebugIP",
@@ -369,6 +377,7 @@ struct IPPortItem {
     IPSourceType 	source_type;
     std::string 	str_host;
     int transport_protocol = Task::kTransportProtocolTCP; // tcp or quic?
+    bool is_bind_cellular_network;
 };
 
 /* mars2
@@ -440,6 +449,8 @@ class Callback
 
     //上报网络连接状态
     virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
+    virtual void ReportConnectNetType(ConnNetType conn_type) = 0;
+
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {}
     virtual void OnShortLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, const std::string& _host, uint16_t _port) {}
 

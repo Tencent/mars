@@ -30,6 +30,8 @@ class AutoBuffer;
 namespace mars {
 namespace app {
 
+class AppConfig;
+
     /* mars2
     class Callback {
     public:
@@ -63,6 +65,9 @@ namespace app {
     void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
 #endif
     //end app.h
+    
+    void UpdateAppConfig(Config app_config);
+    AppConfig* GetAppConfig();
 
 }}
 

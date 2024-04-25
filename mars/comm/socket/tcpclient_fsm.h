@@ -42,7 +42,7 @@ class TcpClientFSM {
     };
 
   public:
-    TcpClientFSM(const sockaddr& _addr);
+    TcpClientFSM(const sockaddr& _addr, bool _bind_cellular);
     virtual ~TcpClientFSM();
 
     void RequestSend();

@@ -275,13 +275,13 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     std::vector<socket_address> vecaddr;
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
-        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(local_stack));
+        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port, _conn_profile.is_bind_cellular_network).v4tov6_address(local_stack));
     } else {
         for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
             if (!use_proxy || mars::comm::kProxyNone == _conn_profile.proxy_info.type) {
-                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port).v4tov6_address(local_stack));
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port, _conn_profile.is_bind_cellular_network).v4tov6_address(local_stack));
             } else {
-                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port));
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port, _conn_profile.is_bind_cellular_network));
             }
         }
     }
@@ -342,7 +342,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.socket_fd = fd;
                 _conn_profile.is_reused_fd = true;
                 _conn_profile.connection_identify = socketOperator_->Identify(fd) + "@REUSE";
-                
+
+                //[dual-channel]
+                _conn_profile.is_bind_cellular_network = _conn_profile.ip_items[i].is_bind_cellular_network;
+
                 __UpdateProfile(_conn_profile);
                 xinfo2(TSF"reused socket:%_", fd);
                 return fd;

@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <set>
+#include <random>
 
 #include "boost/bind.hpp"
 
@@ -41,7 +42,11 @@
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/config.h"
 #include "mars/stn/stn_manager.h"
+#include "mars/app/app_manager.h"
+#include "mars/app/src/app_config.h"
 
+
+using namespace mars::app;
 using namespace mars::stn;
 using namespace mars::comm;
 
@@ -553,6 +558,48 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items, const std::s
 		mars::comm::random_shuffle(_ip_items.begin() + len, _ip_items.end());
 		_ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
 	}
+    
+    xinfo2(TSF "[dual-channel] enable:%_", context_->GetManager<AppManager>()->GetAppConfig()->IsCellularNetworkEnable());
+    if (context_->GetManager<AppManager>()->GetAppConfig()->IsCellularNetworkEnable() && IsCellularNetworkActive()) {
+        xinfo2(TSF "[dual-channel]cellular network active.");
+        std::vector<std::string> ips;
+        bool ret = ResolveHostByCellularNetwork(_host, ips);
+        if (ret) {
+            xinfo2(TSF "[dual-channel]reslover host by cellular network success. ");
+            if (!ips.empty()) {
+                IPPortItem item;
+                item.str_ip = ips.at(0);
+                item.source_type = kIPSourceDNS;
+                item.str_host = _host;
+                item.is_bind_cellular_network = true;
+                
+                std::random_device rd;
+                std::mt19937 mt_seed(rd());
+                std::uniform_int_distribution<int> dist(0, ports.size() - 1);
+                
+                int index = dist(mt_seed);
+                item.port = ports[index];
+                xdebug2(TSF "[dual-channel]str ip:%_ port:%_ index:%_", item.str_ip, item.port, index);
+                int item_index = context_->GetManager<AppManager>()->GetAppConfig()->CellularNetworkConnIndex();
+                if(item_index >= (int)_ip_items.size()){
+                    xdebug2(TSF "[dual-channel]index:%_ ip item size:%_", index, _ip_items.size());
+                    item_index = (int)_ip_items.size();
+                }
+                _ip_items.insert(_ip_items.begin() + item_index, item);
+                
+                
+                if(_ip_items.size()>0){
+                    xdebug2(TSF"[dual-channel] __MakeIPPorts start");
+                    for (std::vector<IPPortItem>::iterator ip = _ip_items.begin(); ip != _ip_items.end(); ++ip) {
+                        xdebug2(TSF "[dual-channel]ip:%_ port:%_ isCellular:%_", ip->str_ip, ip->port, ip->is_bind_cellular_network);
+                    }
+                    xdebug2(TSF"[dual-channel] __MakeIPPorts end");
+                } else {
+                    xdebug2(TSF"[dual-channel] ip item is empty");
+                }
+            }
+        }
+    }
 
 	return _ip_items.size();
 }

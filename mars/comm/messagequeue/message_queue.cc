@@ -1001,7 +1001,9 @@ namespace MessageQueue {
         messagequeue_id_ = KInvalidQueueID;
         lock.unlock();
         if(ThreadUtil::currentthreadid() != thread_.tid()) {
-            thread_.join();
+            if(thread_.isruning()){
+                thread_.join();
+            }
         }
     }
 

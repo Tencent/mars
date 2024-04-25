@@ -33,10 +33,10 @@
 class socket_address {
 
   public:
-    explicit socket_address(const char* _ip, uint16_t _port);
+    explicit socket_address(const char* _ip, uint16_t _port, bool _bind_cellular = false);
     explicit socket_address(const sockaddr_in& _addr);
     explicit socket_address(const sockaddr_in6& _addr);
-    explicit socket_address(const sockaddr* _addr);
+    explicit socket_address(const sockaddr* _addr, bool _bind_cellular = false);
     explicit socket_address(const struct in_addr& _in_addr);
     explicit socket_address(const struct in6_addr& _in6_addr);
 
@@ -75,15 +75,19 @@ class socket_address {
   private:
     //    socket_address(const socket_address&);
     //    const socket_address& operator=(const socket_address&);
-    void  __init(const sockaddr*  _addr);
+    void  __init(const sockaddr*  _addr, bool _bind_cellular = false);
     
     const sockaddr_in* _asv4() const;
     const sockaddr_in6* _asv6() const;
-
+    
+  public:
+    bool is_bind_cellular_network() const;
+    
   private:
     struct sockaddr_storage addr_;
     char   ip_[96];
     char   url_[128];
+    bool   is_bind_cellular_network_;
 };
 
 bool operator==(const socket_address& lhs, const socket_address& rhs);

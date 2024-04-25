@@ -282,6 +282,23 @@ NO_DESTROY static Thread sg_slproxyThread;
 
 #endif
 
+    void UpdateAppConfig(Config _app_config) {
+        AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+        xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+        if (app_manager) {
+            app_manager->UpdateAppConfig(_app_config);
+        }
+    }
+
+    AppConfig* GetAppConfig() {
+        AppManager* app_manager = Context::CreateContext("default")->GetManager<AppManager>();
+        xassert2(NULL != app_manager, "mars2 app_manager is empty.");
+        if (app_manager) {
+            return app_manager->GetAppConfig();
+        }
+        return NULL;
+    }
+
 }
 }
 

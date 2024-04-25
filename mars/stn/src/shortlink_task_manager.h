@@ -36,7 +36,7 @@
 #include "socket_pool.h"
 #include "task_intercept.h"
 #include "mars/boot/context.h"
-
+#include "cellular_network_manager.h"
 class AutoBuffer;
 
 
@@ -124,6 +124,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept                   task_intercept_;
     bool already_release_manager_ = false;
+    CellularNetworkManager* cellular_network_manager_;
 };
         
 }

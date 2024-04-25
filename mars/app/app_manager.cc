@@ -13,6 +13,7 @@
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/xlogger/xlogger.h"
+#include "mars/app/src/app_config.h"
 
 using namespace mars::comm;
 using namespace mars::boot;
@@ -20,7 +21,7 @@ using namespace mars::boot;
 namespace mars {
 namespace app {
 
-AppManager::AppManager(Context* context) : context_(context) {
+AppManager::AppManager(Context* context) : context_(context), app_config_(new AppConfig()) {
     xverbose_function(TSF "mars2 context id %_", context_->GetContextId());
 }
 
@@ -166,6 +167,14 @@ void AppManager::ClearProxyInfo() {
     proxy_info_.type = mars::comm::kProxyNone;
 }
 // #endif
+
+void AppManager::UpdateAppConfig(Config _app_config) {
+    app_config_->UpdateConfig(_app_config);
+}
+
+AppConfig* AppManager::GetAppConfig() {
+    return app_config_;
+}
 
 }  // namespace app
 }  // namespace mars

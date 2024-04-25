@@ -456,6 +456,7 @@ void LongLink::__Run() {
 
     ScopedLock lock(mutex_);
     __ConnectStatus(kDisConnected);
+    __SetBindCellularNetwork(conn_profile.is_bind_cellular_network);
     xinfo2(TSF"longlink lifetime:%_", (gettickcount() - conn_profile.conn_time));
     __UpdateProfile(conn_profile);
 
@@ -472,6 +473,7 @@ void LongLink::__Run() {
 SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     __ConnectStatus(kConnecting);
+    __SetBindCellularNetwork(_conn_profile.is_bind_cellular_network);
     _conn_profile.dns_time = ::gettickcount();
      __UpdateProfile(_conn_profile);
     
@@ -497,9 +499,9 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     
     for (unsigned int i = 0; i < ip_items.size(); ++i) {
         if (use_proxy) {
-            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port));
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port, ip_items[i].is_bind_cellular_network));
         } else {
-            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port).v4tov6_address(localstack));
+            vecaddr.push_back(socket_address(ip_items[i].str_ip.c_str(), ip_items[i].port, ip_items[i].is_bind_cellular_network).v4tov6_address(localstack));
         }
     }
     
@@ -586,6 +588,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.port = ip_items[com_connect.Index()].port;
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();
+    _conn_profile.is_bind_cellular_network = ip_items[com_connect.Index()].is_bind_cellular_network;
 
     if (_conn_profile.ip_index > 0){
         for (int i = 0; i < com_connect.Index(); i++){
@@ -608,6 +611,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
            _conn_profile.local_port, IPSourceTypeString[_conn_profile.ip_type], ChannelTypeString[_conn_profile.link_type],
            com_connect.TotalCost(), com_connect.IndexRtt(), com_connect.IndexTotalCost(), com_connect.Index(), ::getNetInfo());
     __ConnectStatus(kConnected);
+    __SetBindCellularNetwork(conn_profile_.is_bind_cellular_network);
     __UpdateProfile(_conn_profile);
     
     xerror2_if(0 != socket_disable_nagle(sock, 1), TSF"socket_disable_nagle sock:%0, %1(%2)", sock, socket_errno, socket_strerror(socket_errno));
@@ -1016,3 +1020,10 @@ unsigned int LongLink::__GetNextHeartbeatInterval() {
     return smartheartbeat_->GetNextHeartbeatInterval();
 }
 
+bool LongLink::IsBindCellularNetwork() const {
+    return is_bind_cellular_network_;
+}
+
+void LongLink::__SetBindCellularNetwork(bool _flag) {
+    is_bind_cellular_network_ = _flag;
+}

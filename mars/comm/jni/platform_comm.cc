@@ -696,6 +696,61 @@ std::string GetCurrentProcessName(){
     close(fd);
     return cmdline;
 }
+
+
+//[dual-channel]
+//public static boolean isCellularNetworkActive();
+//descriptor: ()Z
+DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_isCellularNetworkActive, KPlatformCommC2Java, "isCellularNetworkActive", "()Z")
+bool IsCellularNetworkActive() {
+    xverbose_function();
+    VarCache* cacheInstance = VarCache::Singleton();
+    ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
+    JNIEnv* env = scopeJEnv.GetEnv();
+    jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_isCellularNetworkActive).z;
+    xdebug2(TSF"IsCellularNetworkActive ret= %0", (bool)ret);
+    return (bool)ret;
+}
+
+//public static int resolveHostByCellularNetwork(java.lang.String, java.util.ArrayList<java.lang.String>);
+//descriptor:  (Ljava/lang/String;)Ljava/lang/String;
+DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_resolveHostByCellularNetwork, KPlatformCommC2Java, "resolveHostByCellularNetwork", "(Ljava/lang/String;)Ljava/lang/String;")
+bool ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips) {
+    xverbose_function();
+    VarCache* cacheInstance = VarCache::Singleton();
+    ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
+    JNIEnv* env = scopeJEnv.GetEnv();
+
+    ScopedJstring host_jstr(env, host.c_str());
+
+    jstring ip_jstr = (jstring)JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_resolveHostByCellularNetwork, host_jstr.GetJstr()).l;
+
+    if (nullptr == ip_jstr) {
+        xwarn2("nullptr == ip_jstr");
+        return false;
+    }
+    std::string ip(ScopedJstring(env, ip_jstr).GetChar());
+    if (ip.empty()) {
+        return false;
+    }
+    ips.emplace_back(ip);
+    env->DeleteLocalRef(ip_jstr);
+    return true;
+}
+
+//public static int bindSocketToCellularNetwork(int);
+//descriptor: (I)Z
+DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_bindSocketToCellularNetwork, KPlatformCommC2Java, "bindSocketToCellularNetwork", "(I)Z")
+bool BindSocketToCellularNetwork(int socket_fd) {
+    xverbose_function();
+    VarCache* cacheInstance = VarCache::Singleton();
+    ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
+    JNIEnv* env = scopeJEnv.GetEnv();
+    jboolean ret = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_bindSocketToCellularNetwork, (jint)socket_fd).z;
+    xverbose2(TSF"ret: %0", ret);
+    return ret;
+}
+
 #endif
 
 }

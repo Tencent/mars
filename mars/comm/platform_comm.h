@@ -318,6 +318,10 @@ bool  wakeupLock_IsLocking(void* _object);
     std::string GetCurrentProcessName();
 #endif
 
+    //[dual-channel]
+    bool IsCellularNetworkActive();
+    bool ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips);
+    bool BindSocketToCellularNetwork(int socket_fd);
 }}
 
 #endif /* COMM_PLATFORM_COMM_H_ */

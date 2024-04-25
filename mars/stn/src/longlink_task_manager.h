@@ -33,7 +33,7 @@
 #include "longlink_metadata.h"
 #include "task_intercept.h"
 #include "mars/boot/context.h"
-
+#include "cellular_network_manager.h"
 class AutoBuffer;
 
 struct STChannelResp;
@@ -153,6 +153,7 @@ class LongLinkTaskManager {
     /*NO_DESTROY static */std::set<std::string>    forbid_tls_host_;
     TaskIntercept                   task_intercept_;
     bool already_release_manager_ = false;
+    CellularNetworkManager* cellular_network_manager_;
 };
     }
 }

@@ -16,8 +16,11 @@
 #include "mars/comm/thread/thread.h"
 #include "mars/comm/time_utils.h"
 
+
 namespace mars {
 namespace app {
+
+class AppConfig;
 
 class AppManager : public mars::boot::BaseManager {
  public:
@@ -44,6 +47,10 @@ class AppManager : public mars::boot::BaseManager {
     void ClearProxyInfo();
     //    #endif
 
+ public:
+    void UpdateAppConfig(Config _app_config);
+    AppConfig* GetAppConfig();
+
  private:
     Callback* callback_;
     mars::comm::ProxyInfo proxy_info_;
@@ -52,6 +59,7 @@ class AppManager : public mars::boot::BaseManager {
     mars::comm::Thread slproxythread_;
     uint64_t slproxytimetick_ = gettickcount();
     int slproxycount_ = 0;
+    AppConfig* app_config_;
 };
 
 }  // namespace app

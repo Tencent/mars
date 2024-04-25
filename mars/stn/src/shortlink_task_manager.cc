@@ -67,6 +67,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context, std::shared_
 #ifdef ANDROID
     , wakeup_lock_(new WakeUpLock())
 #endif
+    , cellular_network_manager_(new CellularNetworkManager(context_))
 {
     xdebug_function(TSF"mars2");
     xinfo_function(TSF"handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_", asyncreg_.Get().queue, asyncreg_.Get().seq, MessageQueue::Handler2Queue(asyncreg_.Get()));
@@ -742,6 +743,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
         //WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
+        cellular_network_manager_->OnTaskEvent(*_it);
+
         __DeleteShortLink(_it->running_id);
 
         lst_cmd_.erase(_it);

@@ -41,6 +41,25 @@ struct DeviceInfo {
 	std::string devicetype;
 };
 
+struct Config {
+    bool    cellular_network_enable         = false;   //是否支持在连wifi的情况下用手机网络
+    int     cellular_network_conn_index     = 0;       //在复合连接的第几个连手机网络
+    int     cellular_network_traffic_limit_mb  = 0;       //流量限制
+
+    std::string dump() const {
+        char szbuf[1024] = {0};
+
+        snprintf(szbuf,
+                 sizeof(szbuf) - 1,
+                 "cellular_network_enable:%d, cellular_network_conn_index:%d, cellular_network_traffic_limit_mb:%d \n",
+                 cellular_network_enable,
+                 cellular_network_conn_index,
+                 cellular_network_traffic_limit_mb);
+
+        return std::string(szbuf);
+    }
+};
+
 /* mars2
 extern mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 extern std::string GetAppFilePath();
