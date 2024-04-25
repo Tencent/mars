@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <atomic>
 
 #include "comm/socket/ipv6_address_utils.h"
 #include "comm/socket/nat64_prefix_util.h"
