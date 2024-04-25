@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <atomic>
 
 #include "comm/socket/ipv6_address_utils.h"
 #include "comm/socket/nat64_prefix_util.h"
@@ -116,49 +117,46 @@ void socket_address::__init(const sockaddr* _addr) {
 }
 
 bool socket_address::fix_current_nat64_addr() {
-    xinfo_function();  //打印耗时
+    xinfo_function();  // 打印耗时
     bool ret = false;
     bool is_update = false;
-    if (AF_INET6 == addr_.ss_family && 0 != strncasecmp("::FFFF:", ip_, 7)) {
-        //更新addr_, ip_, url_
-        //		if (is_update) {
-        in6_addr nat64_v6_addr;
+    if (AF_INET6 != addr_.ss_family || 0 == strncasecmp("::FFFF:", ip_, 7)) {
+        xdebug2("is ipv4");
+        return false;
+    }
+    in6_addr nat64_v6_addr;
 #ifdef WIN32
-        ret = ConvertV4toNat64V6(*(struct in_addr*)(&(_asv6()->sin6_addr.u.Byte[12])), nat64_v6_addr);
+    ret = ConvertV4toNat64V6(*(struct in_addr*)(&(_asv6()->sin6_addr.u.Byte[12])), nat64_v6_addr);
 #else
-        ret = ConvertV4toNat64V6(*(struct in_addr*)(&(_asv6()->sin6_addr.s6_addr32[3])), nat64_v6_addr);
+    ret = ConvertV4toNat64V6(*(struct in_addr*)(&(_asv6()->sin6_addr.s6_addr32[3])), nat64_v6_addr);
 #endif
 
-        xdebug2(TSF "ret =%_, ip_=%_, nat64_v6_addr = %_",
-                ret,
-                ip_,
-                strutil::Hex2Str((char*)&(nat64_v6_addr.s6_addr16), 16));
-        if (ret) {
-            memcpy((char*)&(_asv6()->sin6_addr.s6_addr16), (char*)&(nat64_v6_addr.s6_addr16), 16);
-            socket_inet_ntop(AF_INET6, &(_asv6()->sin6_addr), ip_, sizeof(ip_));
-            //-----把ip_转为更易读的v6 ip形式---//
-            if (0 == strncasecmp(kWellKnownNat64Prefix, ip_, 9)) {
-                sockaddr_in addr_v4 = {0};
-                addr_v4.sin_family = AF_INET;
-#ifdef WIN32
-                addr_v4.sin_addr.s_addr = *((in_addr_t*)&(_asv6()->sin6_addr.u.Byte[12]));
-#else
-                addr_v4.sin_addr.s_addr = _asv6()->sin6_addr.s6_addr32[3];
-#endif
-                socket_inet_ntop(addr_v4.sin_family, &(addr_v4.sin_addr), ip_ + 9, sizeof(ip_) - 9);
-            }
-            //-----------------------------//
-            snprintf(url_, sizeof(url_), "[%s]:%u", ip_, port());
-            xdebug2(TSF "after fix url_=%_", url_);
-        } else {
-            xerror2(TSF "ConvertV4toNat64V6() ret=%_, ipstack=%_", ret, TLocalIPStackStr[local_ipstack_detect()]);
-        }
-        //		} else {
-        //			xdebug2(TSF"no update nat64_prefix");
-        //		}
+    xdebug2(TSF "ret =%_, ip_=%_, nat64_v6_addr = %_",
+            ret,
+            ip_,
+            strutil::Hex2Str((char*)&(nat64_v6_addr.s6_addr16), 16));
+    if (!ret) {
+        xerror2(TSF "ConvertV4toNat64V6() ret=%_, ipstack=%_", ret, TLocalIPStackStr[local_ipstack_detect()]);
+        return false;
     }
+    memcpy((char*)&(_asv6()->sin6_addr.s6_addr16), (char*)&(nat64_v6_addr.s6_addr16), 16);
+    socket_inet_ntop(AF_INET6, &(_asv6()->sin6_addr), ip_, sizeof(ip_));
+    //-----把ip_转为更易读的v6 ip形式---//
+    if (0 == strncasecmp(kWellKnownNat64Prefix, ip_, 9)) {
+        sockaddr_in addr_v4 = {0};
+        addr_v4.sin_family = AF_INET;
+#ifdef WIN32
+        addr_v4.sin_addr.s_addr = *((in_addr_t*)&(_asv6()->sin6_addr.u.Byte[12]));
+#else
+        addr_v4.sin_addr.s_addr = _asv6()->sin6_addr.s6_addr32[3];
+#endif
+        socket_inet_ntop(addr_v4.sin_family, &(addr_v4.sin_addr), ip_ + 9, sizeof(ip_) - 9);
+    }
+    //-----------------------------//
+    snprintf(url_, sizeof(url_), "[%s]:%u", ip_, port());
+    xdebug2(TSF "after fix url_=%_", url_);
     xdebug2(TSF "is_update =%_, ret=%_", is_update, ret);
-    return ret;
+    return true;
 }
 
 // Windows下，getaddrinfo("ipv4only.arpa")在某些网络环境中会必现失败，错误码11001，耗时500-1000ms。
