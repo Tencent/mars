@@ -45,7 +45,7 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
     struct __res_state stat = {0};
     res_ninit(&stat);
     union res_sockaddr_union addrs[MAXNS] = {0};
-    int count = res_getservers(const_cast<res_state>(&stat), addrs, MAXNS);
+    int count = res_getservers(&stat, addrs, MAXNS);
     for (int i = 0; i < count; ++i) {
         if (AF_INET == addrs[i].sin.sin_family) {
             _dnssvraddrs.push_back(socket_address(addrs[i].sin));
@@ -68,27 +68,27 @@ void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
 #pragma comment(lib, "Iphlpapi.lib")
 
 void getdnssvraddrs(std::vector<socket_address>& _dnssvraddrs) {
-    FIXED_INFO *pFixedInfo = (FIXED_INFO *)malloc(sizeof(FIXED_INFO));
-    if (!pFixedInfo){
+    FIXED_INFO* pFixedInfo = (FIXED_INFO*)malloc(sizeof(FIXED_INFO));
+    if (!pFixedInfo) {
         return;
     }
     ULONG ulOutBufLen = 0;
-    
+
     if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
         free(pFixedInfo);
-        pFixedInfo = (FIXED_INFO *)malloc(ulOutBufLen);
-        if (!pFixedInfo){
+        pFixedInfo = (FIXED_INFO*)malloc(ulOutBufLen);
+        if (!pFixedInfo) {
             return;
         }
     }
-    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == NO_ERROR){
+    if (GetNetworkParams(pFixedInfo, &ulOutBufLen) == NO_ERROR) {
         IP_ADDR_STRING* pIPAddr = pFixedInfo->DnsServerList.Next;
         while (pIPAddr != NULL) {
-    		_dnssvraddrs.push_back(socket_address(pIPAddr->IpAddress.String, 53) );
+            _dnssvraddrs.push_back(socket_address(pIPAddr->IpAddress.String, 53));
             pIPAddr = pIPAddr->Next;
         }
     }
-    
+
     free(pFixedInfo);
     return;
 }

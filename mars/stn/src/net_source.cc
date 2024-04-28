@@ -410,6 +410,7 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                                  const std::vector<std::string>& _hostlist,
                                  DnsUtil& _dns_util,
                                  bool _islonglink) {
+    xinfo_function();  // for debug by cpan
     if (active_logic_.IsActive()) {
         unsigned int merge_type_count = 0;
         unsigned int makelist_count = kNumMakeCount;
@@ -458,6 +459,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
                                 DnsUtil& _dns_util,
                                 bool _isbackup,
                                 bool _islonglink) {
+    xinfo_function();  // for debug by cpan
     IPSourceType ist = kIPSourceNULL;
     std::vector<std::string> iplist;
     std::vector<uint16_t> ports;
@@ -466,6 +468,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
         DnsProfile dns_profile;
         dns_profile.host = _host;
 
+        // TODO cpan 这里的2秒是不是可以调
         bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist, 2 * 1000, NULL, _islonglink);
 
         dns_profile.end_time = gettickcount();
@@ -508,6 +511,12 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
     } else {
         NetSource::GetBackupIPs(_host, iplist);
         xdebug2(TSF "link host:%_, backup ips size:%_", _host, iplist.size());
+
+        /* 这里本来就是backip，newdns的在上面已经取过了
+         if (iplist.empty() && _dns_util.GetNewDNS().GetHostByName(_host, iplist)) {
+            ScopedLock lock(sg_ip_mutex);
+            sg_host_backupips_mapping[_host] = iplist;
+        }*/
 
         if (iplist.empty() && _dns_util.GetDNS().GetHostByName(_host, iplist)) {
             ScopedLock lock(sg_ip_mutex);
@@ -623,15 +632,15 @@ bool NetSource::CanUseQUIC() {
     return sg_quic_enabled;
 }
 
-void NetSource::DisableIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	xwarn2_if(sg_ipv6_enabled, TSF"ipv6 disabled.");
-	sg_ipv6_enabled = false;
+void NetSource::DisableIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    xwarn2_if(sg_ipv6_enabled, TSF "ipv6 disabled.");
+    sg_ipv6_enabled = false;
 }
 
-bool NetSource::CanUseIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	return sg_ipv6_enabled;
+bool NetSource::CanUseIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    return sg_ipv6_enabled;
 }
 
 unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {
