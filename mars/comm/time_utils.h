@@ -20,8 +20,14 @@
 #ifndef COMM_UTILS_H_
 #define COMM_UTILS_H_
 
-#include <stdint.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#ifdef WIN32
+#include "mars/comm/windows/sys/time.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,6 +37,16 @@ int64_t gettickspan(uint64_t _old_tick);  // ms
 uint64_t timeMs();
 
 uint64_t clock_app_monotonic();  // ms
+
+inline uint64_t time_diff_abs_us(const struct timeval& tv1, const struct timeval& tv2) {
+    return std::abs((tv1.tv_sec - tv2.tv_sec) * 1000000 + tv1.tv_usec - tv2.tv_usec);
+}
+
+inline struct timeval get_timeval() {
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    return tv;
+}
 
 #ifdef __cplusplus
 }
