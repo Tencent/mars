@@ -145,7 +145,7 @@ const static char* const kKeyShortLinkWakeupLockBefroeCMD = "ShortLinkBefroeCMD"
 const static unsigned int kShortLinkWakeupLockBefroeCMD = 500;
 
 const static char* const kKeyShortLinkWakeupLockNewDns = "ShortLinkNewDns";
-const static unsigned int kShortLinkWakeupLockNewDns = 500;
+const static unsigned int kShortLinkWakeupLockNewDns = 5 * 1000;
 
 #endif
 

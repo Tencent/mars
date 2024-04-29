@@ -99,6 +99,7 @@ void DNS::__GetIP() {
         //
         xgroup2_define(log_group);
         std::vector<socket_address> dnssvraddrs;
+
         mars::comm::getdnssvraddrs(dnssvraddrs);
         xinfo2("dns server:") >> log_group;
         for (std::vector<socket_address>::iterator iter = dnssvraddrs.begin(); iter != dnssvraddrs.end(); ++iter) {
@@ -119,10 +120,10 @@ void DNS::__GetIP() {
         bool is_timeout = false;
         if (ELocalIPStack_IPv4 == ipstack) {
             // error = getaddrinfo(host_name.c_str(), NULL, &hints, &result);
-            error = getaddrinfo_with_timeout(host_name.c_str(), NULL, &hints, &result, is_timeout, 2000);
+            error = getaddrinfo_with_timeout(host_name.c_str(), NULL, &hints, &result, is_timeout, 1000);
         } else {
             // error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/ NULL, &result);
-            error = getaddrinfo_with_timeout(host_name.c_str(), NULL, NULL, &result, is_timeout, 2000);
+            error = getaddrinfo_with_timeout(host_name.c_str(), NULL, NULL, &result, is_timeout, 1000);
         }
 
         lock.lock();

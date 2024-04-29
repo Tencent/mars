@@ -254,7 +254,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xinfo_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
     _conn_profile.dns_time = ::gettickcount();
-    __UpdateProfile(_conn_profile);
+    //__UpdateProfile(_conn_profile);
 
     if (!task_.shortlink_host_list.empty()) {
         _conn_profile.host = task_.shortlink_host_list.front();
