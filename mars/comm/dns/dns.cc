@@ -81,6 +81,7 @@ void DNS::__GetIP() {
     int status = kGetIPDoing;
 
     ScopedLock lock(sg_mutex);
+    xinfo2(TSF " lock sg_mutex");
     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
 
     for (; iter != sg_dnsinfo_vec.end(); ++iter) {
@@ -147,10 +148,12 @@ void DNS::__GetIP() {
                 iter->status = kGetIPFail;
 
             sg_condition.notifyAll();
+            xinfo2(TSF " unlock sg_mutex");
             return;
         } else {
             if (iter == sg_dnsinfo_vec.end()) {
                 freeaddrinfo(result);
+                xinfo2(TSF " unlock sg_mutex");
                 return;
             }
 
@@ -213,6 +216,7 @@ void DNS::__GetIP() {
         xinfo2(TSF "cost time newdns: %_ host:%_", (::gettickcount() - start_time), host_name);
         sg_condition.notifyAll();
     }
+    xinfo2(TSF " unlock sg_mutex");
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -239,15 +243,18 @@ bool DNS::GetHostByName(const std::string& _host_name,
     }
 
     ScopedLock lock(sg_mutex);
+    xinfo2(TSF " lock sg_mutex");
 
-    if (_breaker && _breaker->isbreak)
+    if (_breaker && _breaker->isbreak) {
+        xinfo2(TSF " unlock sg_mutex");
         return false;
-
+    }
     Thread thread(std::bind(&DNS::__GetIP, this), _host_name.c_str());
     int startRet = thread.start();
 
     if (startRet != 0) {
         xerror2(TSF "start the thread fail");
+        xinfo2(TSF " unlock sg_mutex");
         return false;
     }
 
@@ -297,6 +304,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
                         _breaker->dnsstatus = NULL;
 
                     sg_dnsinfo_vec.erase(it);
+                    xinfo2(TSF " unlock sg_mutex");
                     return true;
                 } else {
                     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
@@ -307,6 +315,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
                     if (monitor_func_)
                         monitor_func_(kDNSThreadIDError);
                     xassert2(false, TSF "_host_name:%_, it->host_name:%_", _host_name, it->host_name);
+                    xinfo2(TSF " unlock sg_mutex");
                     return false;
                 }
             }
@@ -318,6 +327,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
                 // xinfo2(TSF "dns get ip status:%_ host:%_, func:%_", it->status, it->host_name, it->dns_func);
                 xinfo2(TSF "dns get ip status:%_ host:%_", it->status, it->host_name);
                 sg_dnsinfo_vec.erase(it);
+                xinfo2(TSF " unlock sg_mutex");
                 return false;
             }
 
@@ -328,16 +338,18 @@ bool DNS::GetHostByName(const std::string& _host_name,
 
             sg_dnsinfo_vec.erase(it);
         }
+        xinfo2(TSF " unlock sg_mutex");
         return false;
     }
 
+    xinfo2(TSF " unlock sg_mutex");
     return false;
 }
 
 void DNS::Cancel(const std::string& _host_name) {
     xverbose_function();
     ScopedLock lock(sg_mutex);
-
+    xinfo2(TSF " lock sg_mutex");
     for (unsigned int i = 0; i < sg_dnsinfo_vec.size(); ++i) {
         dnsinfo& info = sg_dnsinfo_vec.at(i);
 
@@ -353,16 +365,19 @@ void DNS::Cancel(const std::string& _host_name) {
     }
 
     sg_condition.notifyAll();
+    xinfo2(TSF " unlock sg_mutex");
 }
 
 void DNS::Cancel(DNSBreaker& _breaker) {
     ScopedLock lock(sg_mutex);
+    xinfo2(TSF " lock sg_mutex");
     _breaker.isbreak = true;
 
     if (_breaker.dnsstatus)
         *(_breaker.dnsstatus) = kGetIPCancel;
 
     sg_condition.notifyAll();
+    xinfo2(TSF " unlock sg_mutex");
 }
 
 }  // namespace comm
