@@ -232,7 +232,7 @@ struct ConnectProfile {
     int channel_type;
     int rtt_by_socket;
     std::string netlabel;
-    int app_nettype;
+    unsigned app_nettype;  // see NEW_NETTYPE_XXXX
 
     //
     uint64_t begin_connect_timestamp_ms;

@@ -121,6 +121,7 @@ int C2Java_OnTaskEnd(uint32_t _taskid,
     jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt", "J");
     jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType", "I");
     jfieldID fid_protocolType = env->GetFieldID(cgiProfileCls, "protocolType", "I");
+    jfieldID fid_appNetType = env->GetFieldID(cgiProfileCls, "appNetType", "I");
 
     uint64_t tls_start_time = _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
     env->SetLongField(jobj_cgiItem, fid_taskStartTime, _profile.start_time);
@@ -134,6 +135,7 @@ int C2Java_OnTaskEnd(uint32_t _taskid,
     env->SetLongField(jobj_cgiItem, fid_rtt, _profile.rtt_by_socket);
     env->SetIntField(jobj_cgiItem, fid_channelType, _profile.channel_type);
     env->SetIntField(jobj_cgiItem, fid_protocolType, _profile.transport_protocol);
+    env->SetIntField(jobj_cgiItem, fid_appNetType, static_cast<int>(_profile.app_nettype));
 
     int ret = (int)JNU_CallStaticMethodByMethodInfo(env,
                                                     KC2Java_onTaskEnd,
@@ -248,9 +250,16 @@ bool C2Java_Req2Buf(uint32_t _taskid,
     xverbose_function();
 
 #ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(
-        Req2Buf(_taskid, _user_context, _user_id, _outbuffer, _extend, _error_code, _channel_select, _host, client_sequence_id),
-        false);
+    CALL_NATIVE_CALLBACK_RETURN_FUN(Req2Buf(_taskid,
+                                            _user_context,
+                                            _user_id,
+                                            _outbuffer,
+                                            _extend,
+                                            _error_code,
+                                            _channel_select,
+                                            _host,
+                                            client_sequence_id),
+                                    false);
 #endif
 
     VarCache* cache_instance = VarCache::Singleton();
