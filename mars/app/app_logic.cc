@@ -40,12 +40,12 @@
 #include "app_manager.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/boot/context.h"
+#include "mars/comm/anr.h"
 #include "mars/comm/bootrun.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/macro.h"
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
-
 using namespace mars::boot;
 using namespace mars::comm;
 
@@ -143,7 +143,12 @@ static void __ClearProxyInfo() {
     }
 }
 
+static void onCreate() {
+    static startup __startup;
+}
+
 static void __InitbindBaseprjevent() {
+    GetSignalOnCreate().connect(&onCreate);
     GetSignalOnNetworkChange().connect(&__ClearProxyInfo);
 }
 BOOT_RUN_STARTUP(__InitbindBaseprjevent);
