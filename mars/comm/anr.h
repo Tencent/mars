@@ -75,6 +75,7 @@ class scope_anr {
 };
 
 extern boost::signals2::signal<void(bool _iOS_style, const mars::comm::check_content& _content)>& GetSignalCheckHit();
+extern void startup_anr();
 
 #define SCOPE_ANR_AUTO(timeout, id, extra_info)                                               \
     scope_anr __anr__var__anonymous_variable__(__FILE__, __func__, __LINE__, id, extra_info); \
