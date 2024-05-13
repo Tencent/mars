@@ -171,6 +171,7 @@ std::string BufferMD5(const void* buffer, size_t size);
 std::string MD5DigestToBase16(const uint8_t digest[16]);
 std::string DigestToBase16(const uint8_t* digest, size_t length);
 
+#if __cplusplus > 201103L // macos用的还是cpp11
 template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
 std::string to_string(const T& v) {
     return std::to_string(v);
@@ -218,6 +219,7 @@ std::string join_to_string(const T &stl,
     }
     return rtn.append(postfix);
 }
+#endif // __cplusplus > 201103L
 
 }  // namespace strutil
 
