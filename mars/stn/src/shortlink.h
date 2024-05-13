@@ -62,6 +62,8 @@ class ShortLink : public ShortLinkInterface {
     void SetConnectParams(const std::vector<IPPortItem>& _out_addr, uint32_t v4timeout_ms, uint32_t v6timeout_ms);
 
  protected:
+    virtual void SendRequest();
+    virtual void SetSentCount(int count);
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _task_extend);
     virtual bool IsKeepAlive() const {
         return is_keep_alive_;
@@ -71,6 +73,7 @@ class ShortLink : public ShortLinkInterface {
     virtual SOCKET __RunConnect(ConnectProfile& _conn_profile);
     virtual void __RunReadWrite(SOCKET _sock, int& _errtype, int& _errcode, ConnectProfile& _conn_profile);
     void __CancelAndWaitWorkerThread();
+    void __CancelAndWaitReq2BufThread();
 
     void __UpdateProfile(const ConnectProfile _conn_profile);
 
@@ -81,9 +84,17 @@ class ShortLink : public ShortLinkInterface {
                       AutoBuffer& _extension,
                       ConnectProfile& _conn_profile,
                       bool _report = true);
+    void __OnResponseImp(ErrCmdType _errType,
+                         int _status,
+                         AutoBuffer& _body,
+                         AutoBuffer& _extension,
+                         ConnectProfile& _conn_profile);
 
  private:
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);
+
+ public:
+    bool __Req2Buf();
 
  protected:
     boot::Context* context_;
@@ -92,6 +103,7 @@ class ShortLink : public ShortLinkInterface {
     std::unique_ptr<SocketOperator> socketOperator_;
     Task task_;
     comm::Thread thread_;
+    comm::Thread* req2buf_thread_;
 
     ConnectProfile conn_profile_;
     NetSource::DnsUtil dns_util_;
@@ -105,6 +117,8 @@ class ShortLink : public ShortLinkInterface {
 
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
+    bool is_start_req2buf_thread;
+    int sent_count;
 };
 
 }  // namespace stn
