@@ -264,6 +264,7 @@ extern const char* kMarsDefaultNetLabel;
 
 int getCurrNetLabel(std::string& netInfo);
 int getNetworkIDLabel(std::string& netInfo);
+int getRealtimeNetLabel(std::string& netInfo);
 
 #ifdef __APPLE__
 void FlushReachability();

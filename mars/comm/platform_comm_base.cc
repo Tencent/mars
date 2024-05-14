@@ -57,6 +57,10 @@ int getCurrNetLabel(std::string& netInfo) {
     return getCurrNetLabelImpl(netInfo, false);
 }
 
+int getRealtimeNetLabel(std::string& netInfo) {
+    return getCurrNetLabelImpl(netInfo, true);
+}
+
 int getNetworkIDLabel(std::string& netInfo) {
     netInfo = mars::comm::kMarsDefaultNetLabel;
     int nettype = getNetInfo(false);
