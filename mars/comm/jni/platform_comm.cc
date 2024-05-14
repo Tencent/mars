@@ -39,18 +39,6 @@
 namespace mars {
 namespace comm {
 
-static std::function<bool(std::string&)> g_new_wifi_id_cb;
-static mars::comm::Mutex wifi_id_mutex;
-
-void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
-    mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = _cb;
-}
-void ResetWiFiIdCallBack() {
-    mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = NULL;
-}
-
 #ifdef ANDROID
 int g_NetInfo = 0;  // global cache netinfo for android
 uint64_t g_last_networkchange_tick = gettickcount();

@@ -85,18 +85,6 @@ NO_DESTROY static mars::comm::Mutex sg_wifiinfo_mutex;
 namespace mars {
 namespace comm {
 
-NO_DESTROY static std::function<bool(std::string&)> g_new_wifi_id_cb;
-NO_DESTROY static mars::comm::Mutex wifi_id_mutex;
-
-void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
-    mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = _cb;
-}
-void ResetWiFiIdCallBack() {
-    mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = NULL;
-}
-
 void FlushReachability() {
 #if !TARGET_OS_WATCH
     [MarsReachability getCacheReachabilityStatus:YES];
@@ -274,37 +262,37 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
     wifiInfo.ssid = SIMULATOR_NET_INFO;
     wifiInfo.bssid = SIMULATOR_NET_INFO;
     return true;
-//#elif !TARGET_OS_IPHONE
+// #elif !TARGET_OS_IPHONE
 //
-//    NO_DESTROY static mars::comm::Mutex mutex;
-//    mars::comm::ScopedLock lock(mutex);
+//     NO_DESTROY static mars::comm::Mutex mutex;
+//     mars::comm::ScopedLock lock(mutex);
 //
-//    static float version = 0.0;
+//     static float version = 0.0;
 //
-//    CWInterface* info = nil;
+//     CWInterface* info = nil;
 //
-//    if (version < 0.1) {
-//        version = __GetSystemVersion();
-//    }
+//     if (version < 0.1) {
+//         version = __GetSystemVersion();
+//     }
 //
-//    if (version < 10.10) {
-//        static CWInterface* s_info = [[CWInterface interface] retain];
-//        info = s_info;
-//    } else {
-//        CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
-//        if (nil != wificlient) info = [wificlient interface];
-//    }
+//     if (version < 10.10) {
+//         static CWInterface* s_info = [[CWInterface interface] retain];
+//         info = s_info;
+//     } else {
+//         CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
+//         if (nil != wificlient) info = [wificlient interface];
+//     }
 //
-//    if (nil == info) return false;
-//    if (info.ssid != nil) {
-//        const char* ssid = [info.ssid UTF8String];
-//        if (NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
-//        // wifiInfo.bssid = [info.bssid UTF8String];
-//    } else {
-//        wifiInfo.ssid = USE_WIRED;
-//        wifiInfo.bssid = USE_WIRED;
-//    }
-//    return true;
+//     if (nil == info) return false;
+//     if (info.ssid != nil) {
+//         const char* ssid = [info.ssid UTF8String];
+//         if (NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
+//         // wifiInfo.bssid = [info.bssid UTF8String];
+//     } else {
+//         wifiInfo.ssid = USE_WIRED;
+//         wifiInfo.bssid = USE_WIRED;
+//     }
+//     return true;
 //
 #elif TARGET_OS_WATCH
     wifiInfo.ssid = IWATCH_NET_INFO;
