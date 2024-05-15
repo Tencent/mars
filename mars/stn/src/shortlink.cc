@@ -128,16 +128,6 @@ class ShortLinkConnectObserver : public MComplexConnect {
 }  // namespace stn
 }  // namespace mars
 
-namespace internal {
-std::string threadName(const std::string& fullcgi) {
-    auto pos = fullcgi.find_last_of("/");
-    if (pos != std::string::npos) {
-        return fullcgi.substr(pos + 1, 32) + "@shortlink";
-    }
-    return fullcgi + "@shortlink";
-}
-};  // namespace internal
-
 ///////////////////////////////////////////////////////////////////////////////////////
 ShortLink::ShortLink(boot::Context* _context,
                      MessageQueue::MessageQueue_t _messagequeueid,

@@ -40,6 +40,16 @@
 #include "shortlink_interface.h"
 #include "socket_operator.h"
 
+namespace internal {
+std::string threadName(const std::string& fullcgi) {
+    auto pos = fullcgi.find_last_of("/");
+    if (pos != std::string::npos) {
+        return fullcgi.substr(pos + 1, 32) + "@shortlink";
+    }
+    return fullcgi + "@shortlink";
+}
+};  // namespace internal
+
 namespace mars {
 namespace stn {
 
