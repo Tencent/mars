@@ -51,7 +51,7 @@ Mutex g_net_mutex;
 // 把 platform 编译到相应 so 中时这个函数一定要被调用。不然缓存信息清除不了
 // 参看 stn_logic.cc
 void OnPlatformNetworkChange() {
-    xdebug_function();
+    xinfo_function();
 #ifdef ANDROID
     ScopedLock lock(g_net_mutex);
     g_NetInfo = 0;
@@ -242,7 +242,7 @@ int getNetInfo(bool realtime /*=false*/) {
     jint netType = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getNetInfo).i;
     g_NetInfo = netType;
 
-    xverbose2(TSF "netInfo= %0", netType);
+    xinfo2(TSF "getNetInfo from JAVA %_", netType);
     return (int)netType;
 }
 
