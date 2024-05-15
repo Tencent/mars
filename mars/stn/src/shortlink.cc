@@ -163,8 +163,8 @@ ShortLink::ShortLink(boot::Context* _context,
            asyncreg_.Get().queue,
            asyncreg_.Get().seq,
            _task.long_polling);
-    req2buf_thread_ = new comm::Thread(boost::bind(&ShortLink::__Req2Buf, this),
-                                       internal::threadName(task_.cgi + ".Req2Buf").c_str());
+    req2buf_thread_ = std::make_shared<comm::Thread>(boost::bind(&ShortLink::__Req2Buf, this),
+                                                     internal::threadName(task_.cgi + ".Req2Buf").c_str());
 }
 
 ShortLink::~ShortLink() {
@@ -1107,6 +1107,7 @@ void ShortLink::__CancelAndWaitReq2BufThread() {
     }
 
     int ret = req2buf_thread_->join();
+    req2buf_thread_.reset();
     xdebug2(TSF "req2buf_thread_ join %_ ret %_", this, ret);
 }
 
