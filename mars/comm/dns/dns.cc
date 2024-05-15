@@ -20,6 +20,7 @@
 #include "dns/dns.h"
 
 #include "mars/comm/macro.h"
+#include "mars/comm/network/getaddrinfo_with_timeout.h"
 #include "network/getdnssvraddrs.h"
 #include "socket/local_ipstack.h"
 #include "socket/socket_address.h"
@@ -113,10 +114,14 @@ void DNS::__GetIP() {
         //    hints.ai_flags = AI_V4MAPPED|AI_ADDRCONFIG;
         int error = 0;
         TLocalIPStack ipstack = local_ipstack_detect();
+        // when getaddrinfo fail will cost most than 30s
+        bool is_timeout = false;
         if (ELocalIPStack_IPv4 == ipstack) {
-            error = getaddrinfo(host_name.c_str(), NULL, &hints, &result);
+            // error = getaddrinfo(host_name.c_str(), NULL, &hints, &result);
+            error = getaddrinfo_with_timeout(host_name.c_str(), NULL, &hints, &result, is_timeout, 1000);
         } else {
-            error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/ NULL, &result);
+            // error = getaddrinfo(host_name.c_str(), NULL, /*&hints*/ NULL, &result);
+            error = getaddrinfo_with_timeout(host_name.c_str(), NULL, NULL, &result, is_timeout, 1000);
         }
 
         lock.lock();
@@ -129,11 +134,12 @@ void DNS::__GetIP() {
         }
 
         if (error != 0) {
-            xwarn2(TSF "error, error:%_/%_, hostname:%_, ipstack:%_",
+            xwarn2(TSF "error, error:%_/%_, hostname:%_, ipstack:%_ is_timeout:%_",
                    error,
                    strerror(error),
                    host_name.c_str(),
-                   ipstack);
+                   ipstack,
+                   is_timeout);
 
             if (iter != sg_dnsinfo_vec.end())
                 iter->status = kGetIPFail;
@@ -178,12 +184,13 @@ void DNS::__GetIP() {
 
             freeaddrinfo(result);
             iter->status = kGetIPSuc;
-            xinfo2(TSF "cost time: %_", (::gettickcount() - start_time)) >> ip_group;
+            xinfo2(TSF "cost time dns: %_", (::gettickcount() - start_time)) >> ip_group;
             sg_condition.notifyAll();
         }
     } else {
+        auto start_time = ::gettickcount();
         std::vector<std::string> ips;
-        if (status != kGetIPCancel) { // 此时iter可能已经失效了
+        if (status != kGetIPCancel) {  // 此时iter可能已经失效了
             ips = dnsfunc(host_name, longlink_host);
         }
 
@@ -200,6 +207,8 @@ void DNS::__GetIP() {
             iter->status = ips.empty() ? kGetIPFail : kGetIPSuc;
             iter->result = ips;
         }
+
+        xinfo2(TSF "cost time newdns: %_ host:%_", (::gettickcount() - start_time), host_name);
         sg_condition.notifyAll();
     }
 }
