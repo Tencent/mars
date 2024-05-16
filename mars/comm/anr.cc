@@ -163,7 +163,7 @@ static void __anr_checker_thread() {
 }
 
 static Thread              sg_thread(&__anr_checker_thread);
-static class startup {
+class startup {
   public:
     startup() {
         sg_thread.start();
