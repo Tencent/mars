@@ -26,12 +26,12 @@
 #include <set>
 
 #include "boost/function.hpp"
+#include "cellular_network_manager.h"
 #include "longlink_metadata.h"
 #include "mars/boot/context.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/stn/stn.h"
 #include "task_intercept.h"
-
 class AutoBuffer;
 
 struct STChannelResp;
@@ -192,6 +192,7 @@ class LongLinkTaskManager {
     /*NO_DESTROY static */ std::set<std::string> forbid_tls_host_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    CellularNetworkManager* cellular_network_manager_;
 };
 }  // namespace stn
 }  // namespace mars

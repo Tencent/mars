@@ -29,6 +29,7 @@ class AutoBuffer;
 
 namespace mars {
 namespace app {
+class AppConfig;
 
 /* mars2
 class Callback {
@@ -53,7 +54,7 @@ void SetCallback(Callback* const callback);
 mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
 std::string GetAppFilePath();
 AccountInfo GetAccountInfo();
-std::string GetAppUserName();   // WinBase.h里面定义了GetUserName这个宏
+std::string GetAppUserName();  // WinBase.h里面定义了GetUserName这个宏
 std::string GetRecentUserName();
 unsigned int GetClientVersion();
 DeviceInfo GetDeviceInfo();
@@ -63,6 +64,9 @@ double GetOsVersion();
 void SetAppLogicNativeCallback(std::shared_ptr<AppLogicNativeCallback> _cb);
 #endif
 // end app.h
+
+void UpdateAppConfig(Config app_config);
+AppConfig* GetAppConfig();
 
 }  // namespace app
 }  // namespace mars

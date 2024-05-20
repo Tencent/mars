@@ -71,7 +71,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
-{
+, cellular_network_manager_(new CellularNetworkManager(context_)) {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_",
                    asyncreg_.Get().queue,
@@ -362,8 +362,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
@@ -1028,6 +1031,8 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
         // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
         net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
+        cellular_network_manager_->OnTaskEvent(*_it);
+
         __DeleteShortLink(_it->running_id);
 
         lst_cmd_.erase(_it);

@@ -352,6 +352,14 @@ class LongLinkErrCode {
 };
 // move form longlink
 
+/**网络连接的类型*/
+enum ConnNetType {
+    kConnNetUnknown = 0,       // unknown
+    kConnNetWifi = 1,          // wifi
+    kConnNetCellular = 2,      // cellular network
+    kConnNetBindCellular = 3,  // bind cellular network when wifi no conn or weak singel
+};
+
 const char* const IPSourceTypeString[] = {
     "NullIP",
     "DebugIP",
@@ -378,6 +386,7 @@ struct IPPortItem {
     IPSourceType source_type;
     std::string str_host;
     int transport_protocol = Task::kTransportProtocolTCP;  // tcp or quic?
+    bool is_bind_cellular_network;
 };
 
 /* mars2
@@ -487,6 +496,7 @@ class Callback {
                                          const std::string& _host,
                                          uint16_t _port) {
     }
+    virtual void ReportConnectNetType(ConnNetType conn_type) = 0;
 
     virtual void OnLongLinkStatusChange(int _status) {
     }

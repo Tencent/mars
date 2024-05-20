@@ -20,10 +20,10 @@
 #ifndef STN_SRC_NET_CORE_H_
 #define STN_SRC_NET_CORE_H_
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/singleton.h"
@@ -247,6 +247,7 @@ class NetCore {
     bool shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
+    ConnNetType conn_net_type_ = kConnNetUnknown;
 };
 
 }  // namespace stn

@@ -48,6 +48,8 @@ COMM_COPY_HEADER_FILES = {
     "mars/app/app.h": "app",
     "mars/app/app_logic.h": "app",
     "mars/app/app_manager.h": "app",
+    "mars/app/src/app_config.h": "app",
+
 
     "mars/sdt/sdt.h": "sdt",
     "mars/sdt/sdt_logic.h": "sdt",

@@ -11,6 +11,7 @@
 #include "mars/app/jni/app_manager_callback_wrapper.h"
 #include "mars/boot/context.h"
 #include "mars/comm/jni/util/scoped_jstring.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 using namespace mars::boot;
 
@@ -67,6 +68,24 @@ class JniAppManager {
         std::string value = (NULL == jvalue ? "" : ScopedJstring(env, jvalue).GetChar());
         app_manager_cpp->SetConfig(key, value);
     }
+
+    static void JniUpdateAppConfig(JNIEnv* env, jobject instance, jobject jconfig) {
+        auto app_manager_cpp = jnicat::JniObjectWrapper<AppManager>::object(env, instance);
+        jclass configClass = env->GetObjectClass(jconfig);
+        if (configClass != NULL) {
+            jfieldID enableField = env->GetFieldID(configClass, "cellularNetworkEnable", "Z");
+            jfieldID connIndexField = env->GetFieldID(configClass, "cellularNetworkConnIndex", "I");
+            jfieldID trafficLimitField = env->GetFieldID(configClass, "cellularNetworkTrafficLimitMB", "I");
+
+            Config config;
+            config.cellular_network_enable = env->GetBooleanField(jconfig, enableField);
+            config.cellular_network_conn_index = env->GetIntField(jconfig, connIndexField);
+            config.cellular_network_traffic_limit_mb = env->GetIntField(jconfig, trafficLimitField);
+            app_manager_cpp->UpdateAppConfig(config);
+        } else {
+            xerror2(TSF "jconfig is null.");
+        }
+    }
 };
 
 static const JNINativeMethod kAppManagerJniMethods[] = {
@@ -83,7 +102,7 @@ static const JNINativeMethod kAppManagerJniMethods[] = {
     {"OnJniSetConfigStringValue",
      "(Ljava/lang/String;Ljava/lang/String;)V",
      (void*)&mars::app::JniAppManager::JniSetConfigStringValue},
-};
+    {"OnJniUpdateAppConfig", "(Ljava/lang/Object;)V", (void*)&mars::app::JniAppManager::JniUpdateAppConfig}};
 
 static const size_t kAppManagerJniMethodsCount = sizeof(kAppManagerJniMethods) / sizeof(JNINativeMethod);
 JNICAT_DEFINE_JNI_METHOD(kAppManagerInterface,
