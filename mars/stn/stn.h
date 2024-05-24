@@ -193,12 +193,14 @@ struct QuicParameters {
 };
 struct ShortlinkConfig {
  public:
-    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls) {
+    ShortlinkConfig(bool _use_proxy, bool _use_tls, std::string _tls_group) : use_proxy(_use_proxy),
+        use_tls(_use_tls), tls_group(_tls_group) {
     }
     bool use_proxy = false;
     bool use_tls = true;
     bool use_quic = false;
     QuicParameters quic;
+    std::string tls_group;
 };
 
 enum TaskFailHandleType {

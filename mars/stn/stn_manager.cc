@@ -81,7 +81,8 @@ void StnManager::OnCreate() {
     xinfo_function(TSF "mars2");
     ActiveLogic::Instance();
     if (!net_core_) {
-        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true, default_longlink_encoder);
+        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true,
+                                              default_longlink_encoder, default_tls_group_name);
 //        NetCore::NetCoreCreate()(net_core_);
     }
 }
@@ -157,6 +158,10 @@ StnCallbackBridge* StnManager::GetStnCallbackBridge() {
 
 void StnManager::SetDefaultLongLinkEncoder(LongLinkEncoder* longlink_encoder) {
     default_longlink_encoder = longlink_encoder;
+}
+
+void StnManager::SetDefaultShortLinkTlsGroup(const std::string& group_name) {
+    default_tls_group_name = group_name;
 }
 
 std::shared_ptr<LongLink> StnManager::DefaultLongLink() {
@@ -531,7 +536,8 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::st
     NetCore::__Release(tmp_net_core);
 //    NetCore::NetCoreRelease()();
     tmp_net_core.reset();
-    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
+    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true,
+                                          default_longlink_encoder, default_tls_group_name);
 //    NetCore::NetCoreCreate()(net_core_);
 }
 

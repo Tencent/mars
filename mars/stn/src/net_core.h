@@ -148,7 +148,8 @@ class NetCore {
             int _packer_encoder_version,
             std::string _packer_encoder_name = "",
             bool _use_long_link = true,
-            LongLinkEncoder* longlink_encoder = nullptr);
+            LongLinkEncoder* longlink_encoder = nullptr,
+            std::string tls_group_name = "default");
     virtual ~NetCore();
     static void __Release(std::shared_ptr<NetCore> _instance);
     void ReleaseNet();

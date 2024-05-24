@@ -69,7 +69,8 @@ NetCore::NetCore(boot::Context* _context,
                  int _packer_encoder_version,
                  std::string _packer_encoder_name,
                  bool _use_long_link,
-                 LongLinkEncoder* longlink_encoder)
+                 LongLinkEncoder* longlink_encoder,
+                 std::string tls_group_name)
 : packer_encoder_version_(_packer_encoder_version)
 , packer_encoder_name_(_packer_encoder_name)
 , need_use_longlink_(_use_long_link)
@@ -81,7 +82,8 @@ NetCore::NetCore(boot::Context* _context,
 , anti_avalanche_(new AntiAvalanche(context_, ActiveLogic::Instance()->IsActive()))
 , dynamic_timeout_(new DynamicTimeout)
 , shortlink_task_manager_(
-      new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
+      new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue(),
+                               tls_group_name))
 , shortlink_error_count_(0)
 , shortlink_try_flag_(false) 
 , default_longlink_encoder(longlink_encoder) {

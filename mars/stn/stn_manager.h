@@ -51,6 +51,7 @@ class StnManager : public mars::boot::BaseManager {
     void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
     StnCallbackBridge* GetStnCallbackBridge();
     void SetDefaultLongLinkEncoder(LongLinkEncoder* longlink_encoder);
+    void SetDefaultShortLinkTlsGroup(const std::string& group_name);
 
  public:
     // #################### stn.h Callback ####################
@@ -248,6 +249,7 @@ class StnManager : public mars::boot::BaseManager {
     std::string packer_encoder_name_;
     std::vector<std::string> empty_longlink_hosts;
     LongLinkEncoder* default_longlink_encoder = nullptr;
+    std::string default_tls_group_name = "default";
 };  // StnManager
 
 }  // namespace stn
