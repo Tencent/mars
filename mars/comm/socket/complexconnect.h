@@ -87,7 +87,8 @@ class ComplexConnect {
                    unsigned int _interval /*ms*/,
                    unsigned int _error_interval /*ms*/,
                    unsigned int _v4_timeout,
-                   unsigned int _v6_timeout);
+                   unsigned int _v6_timeout,
+                   unsigned int _max_connect);
     ~ComplexConnect();
 
     SOCKET ConnectImpatient(const std::vector<socket_address>& _vecaddr,

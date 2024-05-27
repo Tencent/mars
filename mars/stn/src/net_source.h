@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "boost/function.hpp"
+#include "connect_params.h"
 #include "mars/baseevent/active_logic.h"
 #include "mars/boot/context.h"
 #include "mars/comm/dns/dns.h"
@@ -93,8 +94,9 @@ class NetSource {
 
     void SetLowPriorityLonglinkPorts(const std::vector<uint16_t>& _lowpriority_longlink_ports);
 
-    void GetLonglinkPorts(std::vector<uint16_t>& _ports);
+    unsigned GetLonglinkPorts(std::vector<uint16_t>& _ports);
     const std::vector<std::string>& GetLongLinkHosts();
+    unsigned GetShortLinkPorts(std::vector<uint16_t>& _ports);
     uint16_t GetShortLinkPort();
 
     void GetBackupIPs(std::string _host, std::vector<std::string>& _iplist);
@@ -116,7 +118,12 @@ class NetSource {
 
     void DisableIPv6();
     bool CanUseIPv6();
-    
+
+    void OnNetworkChange();
+
+    ConnectPorts GetConnectPorts(unsigned linktype);
+    ConnectCtrl GetConnectCtrl(unsigned linktype);
+
  public:
     NetSource(comm::ActiveLogic& _active_logic, boot::Context* _context);
     ~NetSource();
@@ -149,6 +156,9 @@ class NetSource {
     std::tuple<uint32_t, uint32_t> GetIpConnectTimeout() {
         return std::make_tuple(v4_timeout_, v6_timeout_);
     }
+
+    void SetConnectStrategyDefaultINIPath(const std::string& inifile);
+    void UpdateConnectStrategyFromXML(tinyxml2::XMLElement* node, SpecialINI& ini);
 
  public:
     WeakNetworkLogic* GetWeakNetworkLogic();
@@ -203,7 +213,6 @@ class NetSource {
     tickcount_t sg_quic_reopen_tick = tickcount_t(true);
     bool sg_quic_enabled = true;
 
-    
     TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
     unsigned sg_quic_default_rw_timeoutms = 5000;
     std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
@@ -215,6 +224,7 @@ class NetSource {
 
     // ipv6
     bool sg_ipv6_enabled = true;
+    std::shared_ptr<ConnectParams> sp_connect_params_;
 
     comm::Mutex sg_ip_mutex;
 };

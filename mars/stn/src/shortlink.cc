@@ -24,6 +24,7 @@
 #include <tuple>
 
 #include "boost/bind.hpp"
+#include "connect_params.h"
 #include "mars/app/app.h"
 #include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/crypt/ibase64.h"
@@ -146,7 +147,8 @@ ShortLink::ShortLink(boot::Context* _context,
 , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 , net_source_(_netsource)
 , socketOperator_(_operator == nullptr
-                      ? std::make_unique<TcpSocketOperator>(std::make_shared<ShortLinkConnectObserver>(*this))
+                      ? std::make_unique<TcpSocketOperator>(std::make_shared<ShortLinkConnectObserver>(*this),
+                                                            _netsource->GetConnectCtrl(TCP_SHORTLINK))
                       : std::move(_operator))
 , task_(_task)
 , thread_(boost::bind(&ShortLink::__Run, this), internal::threadName(_task.cgi).c_str())
@@ -265,10 +267,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip = _conn_profile.proxy_info.ip;
         _conn_profile.port = _conn_profile.proxy_info.port;
         _conn_profile.ip_type = kIPSourceProxy;
-        IPPortItem item = {_conn_profile.ip,
-                           net_source_->GetShortLinkPort(),
-                           _conn_profile.ip_type,
-                           _conn_profile.host};
+        std::vector<uint16_t> ports;
+        net_source_->GetShortLinkPorts(ports);
+        xassert2(!ports.empty());
+        IPPortItem item = {_conn_profile.ip, ports.front(), _conn_profile.ip_type, _conn_profile.host};
         //.如果是http代理，则把代理地址插到最前面.
         _conn_profile.ip_items.insert(_conn_profile.ip_items.begin(), item);
         __UpdateProfile(_conn_profile);
@@ -284,6 +286,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         _conn_profile.ip_type = _conn_profile.ip_items.front().source_type;
         _conn_profile.ip = _conn_profile.ip_items.front().str_ip;
         _conn_profile.port = _conn_profile.ip_items.front().port;
+        _conn_profile.used_connect_port_source = _conn_profile.ip_items.front().from_source;
         __UpdateProfile(_conn_profile);
     }
 
@@ -377,6 +380,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.ip_type = _conn_profile.ip_items[0].source_type;
     _conn_profile.ip = _conn_profile.ip_items[0].str_ip;
     _conn_profile.port = _conn_profile.ip_items[0].port;
+    _conn_profile.used_connect_port_source = _conn_profile.ip_items[0].from_source;
     _conn_profile.nat64 = isnat64;
     _conn_profile.dns_endtime = ::gettickcount();
     _conn_profile.transport_protocol = socketOperator_->Protocol();
@@ -409,6 +413,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
                 _conn_profile.ip = _conn_profile.ip_items[i].str_ip;
                 _conn_profile.port = _conn_profile.ip_items[i].port;
                 _conn_profile.transport_protocol = _conn_profile.ip_items[i].transport_protocol;
+                _conn_profile.used_connect_port_source = _conn_profile.ip_items[i].from_source;
                 _conn_profile.conn_time = gettickcount();
                 _conn_profile.start_connect_time = _conn_profile.conn_time;
                 _conn_profile.connect_successful_time = _conn_profile.conn_time;
@@ -459,6 +464,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.ip_index = profile.index;
     _conn_profile.conn_cost = profile.totalCost;
     _conn_profile.is0rtt = profile.is0rtt;
+    _conn_profile.used_connect_strategy_source = profile.strategy_source;
 
     __UpdateProfile(_conn_profile);
 
@@ -494,6 +500,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.host = _conn_profile.ip_items[profile.index].str_host;
     _conn_profile.ip_type = _conn_profile.ip_items[profile.index].source_type;
     _conn_profile.ip = _conn_profile.ip_items[profile.index].str_ip;
+    _conn_profile.used_connect_port_source = _conn_profile.ip_items[profile.index].from_source;
     _conn_profile.conn_time = gettickcount();
     _conn_profile.local_ip = socket_address::getsockname(sock).ip();
     _conn_profile.local_port = socket_address::getsockname(sock).port();

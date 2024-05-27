@@ -8,9 +8,12 @@
 #include <comm/xlogger/xlogger.h>
 
 #include <memory>
+#include <utility>
 
+#include "connect_params.h"
 #include "mars/comm/socket/unix_socket.h"  // for socket_close
 #include "mars/stn/config.h"
+#include "stn.h"
 
 using namespace mars::comm;
 
@@ -33,12 +36,12 @@ bool ContainIPv6(const std::vector<socket_address>& _vecaddr) {
 
 class TcpBreaker : public OPBreaker {
  public:
-    TcpBreaker(SocketBreaker& _breaker) : breaker_(_breaker) {
+    explicit TcpBreaker(SocketBreaker& _breaker) : breaker_(_breaker) {
     }
-    bool IsBreak() {
+    bool IsBreak() override {
         return breaker_.IsBreak();
     }
-    bool Break() {
+    bool Break() override {
         return breaker_.Break();
     }
 
@@ -46,8 +49,8 @@ class TcpBreaker : public OPBreaker {
     SocketBreaker& breaker_;
 };
 
-TcpSocketOperator::TcpSocketOperator(std::shared_ptr<MComplexConnect> _observer)
-: SocketOperator(), observer_(_observer) {
+TcpSocketOperator::TcpSocketOperator(std::shared_ptr<MComplexConnect> _observer, const ConnectCtrl& ctrl)
+: SocketOperator(ctrl), observer_(std::move(_observer)) {
     breaker_ = std::make_unique<TcpBreaker>(sBreaker_);
 }
 
@@ -56,16 +59,34 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address>& _vecaddr,
                                   const socket_address* _proxy_addr,
                                   const std::string& _proxy_username,
                                   const std::string& _proxy_pwd) {
+    ConnectCtrl used_ctrl;
+    if (conn_ctrl_.from_source != FROM_DEFAULT) {
+        used_ctrl = conn_ctrl_;
+        v4_timeout_ = conn_ctrl_.ipv4_timeout_ms;
+        v6_timeout_ = conn_ctrl_.ipv6_timeout_ms;
+        xinfo2(TSF "use connect ctrl from %_ v4 %_ v6 %_ interval %_ maxconn %_",
+               LabelConfigFrom[conn_ctrl_.from_source],
+               conn_ctrl_.ipv4_timeout_ms,
+               conn_ctrl_.ipv6_timeout_ms,
+               conn_ctrl_.interval_ms,
+               conn_ctrl_.maxconn);
+    }
+
     std::shared_ptr<ComplexConnect> conn;
     if (ContainIPv6(_vecaddr) && v4_timeout_ > 0 && v6_timeout_ > 0) {
-        conn = std::make_shared<ComplexConnect>(kShortlinkConnTimeout,
-                                                kShortlinkConnInterval,
-                                                kShortlinkConnInterval,
+        conn = std::make_shared<ComplexConnect>(std::max(used_ctrl.ipv4_timeout_ms, used_ctrl.ipv6_timeout_ms),
+                                                used_ctrl.interval_ms,
+                                                used_ctrl.interval_ms,
                                                 v4_timeout_,
-                                                v6_timeout_);
+                                                v6_timeout_,
+                                                used_ctrl.maxconn);
     } else {
-        conn = std::make_shared<ComplexConnect>(kShortlinkConnTimeout, kShortlinkConnInterval);
+        conn = std::make_shared<ComplexConnect>(used_ctrl.ipv4_timeout_ms,
+                                                used_ctrl.interval_ms,
+                                                used_ctrl.interval_ms,
+                                                used_ctrl.maxconn);
     }
+
     SOCKET sock = conn->ConnectImpatient(_vecaddr,
                                          sBreaker_,
                                          observer_.get(),
@@ -78,6 +99,7 @@ SOCKET TcpSocketOperator::Connect(const std::vector<socket_address>& _vecaddr,
     profile_.rtt = conn->IndexRtt();
     profile_.errorCode = conn->ErrorCode();
     profile_.totalCost = conn->TotalCost();
+    profile_.strategy_source = used_ctrl.from_source;
     return sock;
 }
 
@@ -85,7 +107,7 @@ void TcpSocketOperator::Close(SOCKET _sock) {
     socket_close(_sock);
 }
 
-int TcpSocketOperator::Send(SOCKET _sock, const void* _buffer, size_t _len, int& _errcode, int _timeout) {
+int TcpSocketOperator::Send(SOCKET _sock, const void* _buffer, size_t _len, int& _errcode, int /*_timeout*/) {
     return block_socket_send(_sock, _buffer, _len, sBreaker_, _errcode);
 }
 
@@ -94,7 +116,7 @@ int TcpSocketOperator::Recv(SOCKET _sock,
                             size_t _max_size,
                             int& _errcode,
                             int _timeout,
-                            bool _wait_full_size) {
+                            bool /*_wait_full_size*/) {
     return block_socket_recv(_sock, _buffer, _max_size, sBreaker_, _errcode, _timeout);
 }
 
@@ -106,7 +128,7 @@ std::string TcpSocketOperator::Identify(SOCKET _sock) const {
     char szmsg[64];
     snprintf(szmsg, sizeof(szmsg), "%d@TCP", _sock);
 
-    return std::string(szmsg);
+    return {szmsg};
 }
 
 }  // namespace stn

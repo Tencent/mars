@@ -23,6 +23,7 @@
 #include <set>
 
 #include "boost/bind.hpp"
+#include "connect_params.h"
 #include "mars/app/app.h"
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/move_wrapper.h"
@@ -323,7 +324,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //重试间隔
+        // 重试间隔
         if (first->retry_time_interval > curtime - first->retry_start_time) {
             xdebug2(TSF "retry interval, taskid:%0, task retry late task, wait:%1",
                     first->task.taskid,
@@ -362,8 +363,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
@@ -453,7 +457,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             continue;
         }
 
-        //雪崩检测
+        // 雪崩检测
         xassert2(fun_anti_avalanche_check_);
 
         if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
@@ -751,15 +755,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                     handle_type,
                     it->task.taskid,
                     it->task.user_id);
-            //#ifdef __APPLE__
-            //            //.test only.
-            //            const char* pbuffer = (const char*)_body.Ptr();
-            //            for (size_t off = 0; off < _body.Length();){
-            //                size_t len = std::min((size_t)512, _body.Length() - off);
-            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-            //                off += len;
-            //            }
-            //#endif
+            // #ifdef __APPLE__
+            //             //.test only.
+            //             const char* pbuffer = (const char*)_body.Ptr();
+            //             for (size_t off = 0; off < _body.Length();){
+            //                 size_t len = std::min((size_t)512, _body.Length() - off);
+            //                 xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                 off += len;
+            //             }
+            // #endif
             __SingleRespHandle(it,
                                kEctEnDecode,
                                err_code,
@@ -961,12 +965,17 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
                             _connect_profile.ip,
                             _connect_profile.port,
                             IPSourceTypeString[_connect_profile.ip_type],
-                            _connect_profile.host)(TSF "cli(%_, %_, %_, n:%_, sig:%_), ",
-                                                   _it->transfer_profile.external_ip,
-                                                   _connect_profile.local_ip,
-                                                   _connect_profile.connection_identify,
-                                                   _connect_profile.net_type,
-                                                   _connect_profile.disconn_signal)(
+                            _connect_profile.host)(
+            TSF "cli(%_, %_, %_, n:%_, sig:%_), source(port %_:%_, strategy %_:%_), ",
+            _it->transfer_profile.external_ip,
+            _connect_profile.local_ip,
+            _connect_profile.connection_identify,
+            _connect_profile.net_type,
+            _connect_profile.disconn_signal,
+            _connect_profile.used_connect_port_source,
+            LabelConfigFrom[_connect_profile.used_connect_port_source],
+            _connect_profile.used_connect_strategy_source,
+            LabelConfigFrom[_connect_profile.used_connect_strategy_source])(
             TSF "cost(s:%_, r:%_%_%_, c:%_, rw:%_), all:%_, retry:%_, ",
             _it->transfer_profile.send_data_size,
             0 != _resp_length ? _resp_length : _it->transfer_profile.receive_data_size,

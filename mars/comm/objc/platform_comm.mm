@@ -81,6 +81,7 @@ static MarsNetworkStatus __GetNetworkStatus(BOOL realtime = NO) {
 
 NO_DESTROY static mars::comm::WifiInfo sg_wifiinfo;
 NO_DESTROY static mars::comm::Mutex sg_wifiinfo_mutex;
+NO_DESTROY static std::function<bool(std::string&)> g_new_wifi_id_cb;
 
 namespace mars {
 namespace comm {
@@ -302,7 +303,7 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
     wifiInfo.ssid = "WiFi";
     wifiInfo.bssid = "WiFi";
 
-    mars::comm::ScopedLock wifi_id_lock(wifi_id_mutex);
+    mars::comm::ScopedLock wifi_id_lock(sg_wifiinfo_mutex);
     if (!g_new_wifi_id_cb) {
         xwarn2("g_new_wifi_id_cb is null");
     }

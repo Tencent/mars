@@ -17,13 +17,12 @@ namespace stn {
 
 class TcpSocketOperator : public SocketOperator {
  public:
-    TcpSocketOperator(std::shared_ptr<comm::MComplexConnect> _observer);
-    virtual ~TcpSocketOperator() override {
-    }
+    TcpSocketOperator(std::shared_ptr<comm::MComplexConnect> _observer, const ConnectCtrl& ctrl);
+    ~TcpSocketOperator() override = default;
 
     virtual SOCKET Connect(const std::vector<socket_address>& _vecaddr,
                            mars::comm::ProxyType _proxy_type = mars::comm::kProxyNone,
-                           const socket_address* _proxy_addr = NULL,
+                           const socket_address* _proxy_addr = nullptr,
                            const std::string& _proxy_username = "",
                            const std::string& _proxy_pwd = "") override;
 

@@ -89,14 +89,14 @@ ComplexConnect::ComplexConnect(unsigned int _timeout /*ms*/,
 
 ComplexConnect::ComplexConnect(unsigned int _timeout /*ms*/,
                                unsigned int _interval /*ms*/,
-                               unsigned int _error_interval /*ms*/
-                               ,
+                               unsigned int _error_interval /*ms*/,
                                unsigned int _v4_timeout,
-                               unsigned int _v6_timeout)
+                               unsigned int _v6_timeout,
+                               unsigned int _max_connect)
 : timeout_(_timeout)
 , interval_(_interval)
 , error_interval_(_error_interval)
-, max_connect_(3)
+, max_connect_(_max_connect)
 , trycount_(0)
 , index_(-1)
 , errcode_(0)
@@ -336,8 +336,8 @@ class ConnectHttpTunelCheckFSM : public ConnectCheckFSM {
                 memset(dstbuf, 0, dstlen);
 
                 int retsize = mars::comm::EncodeBase64((unsigned char*)account_info.c_str(),
-                                                 (unsigned char*)dstbuf,
-                                                 (int)account_info.length());
+                                                       (unsigned char*)dstbuf,
+                                                       (int)account_info.length());
                 dstbuf[retsize] = '\0';
 
                 char auth_info[1024] = {0};

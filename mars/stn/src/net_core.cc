@@ -140,7 +140,7 @@ NetCore::~NetCore() {
     if (!already_release_net_) {
         ReleaseNet();
     }
-    //MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    // MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
     MessageQueue::MessageQueueCreater::ReleaseNewMessageCreator(messagequeue_creater_);
 }
 
@@ -306,7 +306,7 @@ int NetCore::__ChooseChannel(const Task& _task,
 void NetCore::StartTask(const Task& _task) {
     ASYNC_BLOCK_START
     if (already_release_net_) {
-        xinfo2(TSF"net core had release. ignore.");
+        xinfo2(TSF "net core had release. ignore.");
         return;
     }
     xgroup2_define(group);
@@ -371,14 +371,16 @@ void NetCore::StartTask(const Task& _task) {
     }
 
     //.下列逻辑是为了notify而做的，目前notify ack不需要在已有长连上进行，因此这个判断条件不需要了.
-    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink || !longlink->IsConnected())){
+    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink
+    // || !longlink->IsConnected())){
     //     //.必须长链或副长链，但指定连接不存在，则回调失败.
     //     xerror2(TSF"err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
     //     /* mars2
-    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
+    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable,
+    //     ConnectProfile());
     //     */
-    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
-    //     return;
+    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal,
+    //     kEctLocalLongLinkUnAvailable, ConnectProfile()); return;
     // }
 
     std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
@@ -587,6 +589,7 @@ void NetCore::OnNetworkChange() {
     }
 
     net_source_->ClearCache();
+    net_source_->OnNetworkChange();
     dynamic_timeout_->ResetStatus();
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
@@ -635,13 +638,13 @@ void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLinkErrCode::TDis
     }
 }
 
-//#ifdef __APPLE__
-// void NetCore::__ResetLongLink() {
-//    SYNC2ASYNC_FUNC(boost::bind(&NetCore::__ResetLongLink, this));
-//    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->LongLinkChannel().Disconnect(LongLink::kNetworkChange);
-//    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->RedoTasks();
-//}
-//#endif
+// #ifdef __APPLE__
+//  void NetCore::__ResetLongLink() {
+//     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__ResetLongLink, this));
+//     longlink_task_managers_[DEFAULT_LONGLINK_NAME]->LongLinkChannel().Disconnect(LongLink::kNetworkChange);
+//     longlink_task_managers_[DEFAULT_LONGLINK_NAME]->RedoTasks();
+// }
+// #endif
 #endif
 
 void NetCore::RedoTasks() {

@@ -23,9 +23,11 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <memory>
 #include <set>
 
 #include "boost/bind.hpp"
+#include "connect_params.h"
 #include "mars/comm/marcotoolkit.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/shuffle.h"
@@ -39,6 +41,8 @@
 #include "mars/stn/dns_profile.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/stn_manager.h"
+#include "special_ini.h"
+#include "xlogger/xloggerbase.h"
 
 using namespace mars::stn;
 using namespace mars::comm;
@@ -125,6 +129,7 @@ NetSource::NetSource(ActiveLogic& _active_logic, boot::Context* _context)
 , sg_shortlink_port(0) {
     xverbose_function(TSF "mars2");
     xinfo_function();
+    sp_connect_params_ = std::make_shared<ConnectParams>();
 }
 
 NetSource::~NetSource() {
@@ -230,9 +235,17 @@ const std::vector<std::string>& NetSource::GetLongLinkHosts() {
     return sg_longlink_hosts;
 }
 
-void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
+unsigned NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
+    auto ports = sp_connect_params_->CurrentStrategy().ports[TCP_LONGLINK];
+    if (!ports.ports.empty() && ports.from_source != FROM_DEFAULT) {
+        xinfo2(TSF "use port [%_] from %_", strutil::join_to_string(ports.ports), LabelConfigFrom[ports.from_source]);
+        _ports = std::move(ports.ports);
+        return ports.from_source;
+    }
+
     ScopedLock lock(sg_ip_mutex);
     _ports = sg_longlink_ports;
+    return FROM_DEFAULT;
 }
 
 bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config,
@@ -328,9 +341,24 @@ void NetSource::RemoveLongBanIP(const std::string& _ip) {
  * shortlink functions
  *
  */
-uint16_t NetSource::GetShortLinkPort() {
+unsigned NetSource::GetShortLinkPorts(std::vector<uint16_t>& _ports) {
+    auto ports = sp_connect_params_->CurrentStrategy().ports[TCP_SHORTLINK];
+    if (!ports.ports.empty() && ports.from_source != FROM_DEFAULT) {
+        xinfo2(TSF "use port %_ from %_", ports.ports.front(), LabelConfigFrom[ports.from_source]);
+        _ports = ports.ports;
+        return ports.from_source;
+    }
+
     ScopedLock lock(sg_ip_mutex);
-    return sg_shortlink_port;
+    _ports.emplace_back(sg_shortlink_port);
+    return FROM_DEFAULT;
+}
+
+uint16_t NetSource::GetShortLinkPort() {
+    std::vector<uint16_t> ports;
+    GetShortLinkPorts(ports);
+    xassert2(!ports.empty());
+    return ports.front();
 }
 
 bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist) {
@@ -461,6 +489,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
     IPSourceType ist = kIPSourceNULL;
     std::vector<std::string> iplist;
     std::vector<uint16_t> ports;
+    unsigned ports_source = FROM_DEFAULT;
 
     if (!_isbackup) {
         DnsProfile dns_profile;
@@ -501,9 +530,9 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
         }
 
         if (_islonglink) {
-            NetSource::GetLonglinkPorts(ports);
+            ports_source = NetSource::GetLonglinkPorts(ports);
         } else {
-            ports.push_back(NetSource::GetShortLinkPort());
+            ports_source = NetSource::GetShortLinkPorts(ports);
         }
     } else {
         NetSource::GetBackupIPs(_host, iplist);
@@ -516,12 +545,12 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
 
         if (_islonglink) {
             if (sg_lowpriority_longlink_ports.empty()) {
-                NetSource::GetLonglinkPorts(ports);
+                ports_source = NetSource::GetLonglinkPorts(ports);
             } else {
                 ports = sg_lowpriority_longlink_ports;
             }
         } else {
-            ports.push_back(NetSource::GetShortLinkPort());
+            ports_source = NetSource::GetShortLinkPorts(ports);
         }
         ist = kIPSourceBackup;
         if (!iplist.empty() && !ports.empty()) {
@@ -559,6 +588,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
             item.source_type = ist;
             item.str_host = _host;
             item.port = *port_iter;
+            item.from_source = ports_source;
             temp_items.push_back(item);
         }
     }
@@ -623,15 +653,15 @@ bool NetSource::CanUseQUIC() {
     return sg_quic_enabled;
 }
 
-void NetSource::DisableIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	xwarn2_if(sg_ipv6_enabled, TSF"ipv6 disabled.");
-	sg_ipv6_enabled = false;
+void NetSource::DisableIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    xwarn2_if(sg_ipv6_enabled, TSF "ipv6 disabled.");
+    sg_ipv6_enabled = false;
 }
 
-bool NetSource::CanUseIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	return sg_ipv6_enabled;
+bool NetSource::CanUseIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    return sg_ipv6_enabled;
 }
 
 unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {
@@ -735,4 +765,34 @@ void NetSource::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) 
 
 WeakNetworkLogic* NetSource::GetWeakNetworkLogic() {
     return weak_network_logic_;
+}
+
+void NetSource::OnNetworkChange() {
+    std::string netinfo;
+    ::getCurrNetLabel(netinfo);
+    bool loadsucc = sp_connect_params_->LoadFromINIFile(netinfo);
+    xlog2(loadsucc ? kLevelInfo : kLevelWarn, TSF "load connect strategy for network %_ ret %_", netinfo, loadsucc);
+}
+
+void NetSource::SetConnectStrategyDefaultINIPath(const std::string& inifile) {
+    sp_connect_params_->SetIniFilePath(inifile);
+}
+
+void NetSource::UpdateConnectStrategyFromXML(tinyxml2::XMLElement* node, SpecialINI& ini) {
+    sp_connect_params_->UpdateFromXML(node, ini);
+}
+
+ConnectPorts NetSource::GetConnectPorts(unsigned linktype) {
+    xassert2(linktype < MAX_LINK_TYPES);
+    if (linktype >= MAX_LINK_TYPES) {
+        return {};
+    }
+    return sp_connect_params_->CurrentStrategy().ports[linktype];
+}
+ConnectCtrl NetSource::GetConnectCtrl(unsigned linktype) {
+    xassert2(linktype < MAX_LINK_TYPES);
+    if (linktype >= MAX_LINK_TYPES) {
+        return {};
+    }
+    return sp_connect_params_->CurrentStrategy().ctrls[linktype];
 }
