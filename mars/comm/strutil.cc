@@ -30,7 +30,6 @@
 #include <locale>
 
 #include "comm/xlogger/xlogger.h"
-#include "mars/openssl/include/openssl/md5.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -237,7 +236,7 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
         return "";
     }
     char outbuffer[512 + 1];
-    
+
     unsigned int outoffset = 0;
     const char* ptr = _str;
     unsigned int length = _len / 2;
@@ -260,11 +259,11 @@ std::string Str2Hex(const char* _str, unsigned int _len) {
     return ret;
 }
 
-std::string Hex2Str(const std::string &hex) {
+std::string Hex2Str(const std::string& hex) {
     return Hex2Str(hex.data(), hex.size());
 }
 
-std::string Str2Hex(const std::string &str) {
+std::string Str2Hex(const std::string& str) {
     return Str2Hex(str.data(), str.size());
 }
 
@@ -340,6 +339,18 @@ std::string DigestToBase16(const uint8_t* digest, size_t length) {
         ret[j + 1] = zEncode[a & 0xf];
     }
     return ret;
+}
+
+void to_lower(std::string& str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+}
+
+void to_upper(std::string& str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
+        return std::toupper(c);
+    });
 }
 
 }  // namespace strutil

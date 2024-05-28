@@ -136,6 +136,7 @@ class HeaderFields {
     static std::pair<const std::string, std::string> MakeAcceptEncodingGzip();
     static std::pair<const std::string, std::string> MakeCacheControlNoCache();
     static std::pair<const std::string, std::string> MakeContentTypeOctetStream();
+    static std::pair<const std::string, std::string> MakeUserAgentMicroMessage();
 
     static const char* const KStringHost;
     static const char* const KStringAccept;
@@ -385,4 +386,28 @@ class Parser {
 // void testChunk();
 
 } /* namespace http */
+class URLFactory {
+ public:
+    explicit URLFactory(std::string cgi) : cgi_(std::move(cgi)) {
+    }
+    template <class T>
+    void AddKeyValue(std::string key, T value) {
+        kvs_.emplace_back(std::make_pair(std::move(key), std::move(strutil::to_string(value))));
+    }
+    std::string GetUrl() {
+        if (kvs_.empty()) {
+            return cgi_;
+        }
+        cgi_ += '?';
+        for (std::pair<std::string, std::string>& kv : kvs_) {
+            cgi_.append(kv.first).append("=").append(kv.second).append("&");
+        }
+        cgi_.resize(cgi_.size() - 1);
+        return cgi_;
+    }
+    std::string cgi_;
+    std::vector<std::pair<std::string, std::string>> kvs_;
+};
+
+
 #endif /* HTTPREQUEST_H_ */
