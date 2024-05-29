@@ -559,7 +559,9 @@ int OSVerifyCertificate(const std::string& hostname, const std::vector<std::stri
         CFDataRef dataref =
             CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, (const uint8_t*)certschain[i].data(),
                                         certschain[i].size(), kCFAllocatorNull);
-        CFArrayAppendValue(certlist, SecCertificateCreateWithData(nullptr, dataref));
+        SecCertificateRef certref = SecCertificateCreateWithData(nullptr, dataref);
+        CFRelease(dataref);
+        CFArrayAppendValue(certlist, certref);
     }
 
     CFStringRef label = CFStringCreateWithCString(NULL, hostname.c_str(), kCFStringEncodingUTF8);
