@@ -88,13 +88,19 @@ namespace comm {
 NO_DESTROY static std::function<bool(std::string&)> g_new_wifi_id_cb;
 NO_DESTROY static mars::comm::Mutex wifi_id_mutex;
 
-void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
+std::function<bool(std::string&)> SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
     mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = _cb;
+    std::function<bool(std::string&)> old = g_new_wifi_id_cb;
+    g_new_wifi_id_cb = std::move(_cb);
+    return old;
 }
 void ResetWiFiIdCallBack() {
     mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = NULL;
+    g_new_wifi_id_cb = nullptr;
+}
+bool IsWiFiIdCallBackExists() {
+    mars::comm::ScopedLock lock(wifi_id_mutex);
+    return g_new_wifi_id_cb != nullptr;
 }
 
 void FlushReachability() {
@@ -250,6 +256,20 @@ bool isNetworkConnected() {
     }
 }
 
+int getNetworkIDLabel(std::string& netInfo) {
+    netInfo = mars::comm::kMarsDefaultNetLabel;
+    int nettype = getNetInfo(false);
+    {
+        mars::comm::ScopedLock lock(wifi_id_mutex);
+        if (g_new_wifi_id_cb && g_new_wifi_id_cb(netInfo) && !netInfo.empty()) {
+            return nettype;
+        }
+    }
+
+    // fallback
+    return getCurrNetLabel(netInfo);
+}
+
 #define SIMULATOR_NET_INFO "SIMULATOR"
 #define IWATCH_NET_INFO "IWATCH"
 #define USE_WIRED "wired"
@@ -274,37 +294,37 @@ bool getCurWifiInfo(mars::comm::WifiInfo& wifiInfo, bool _force_refresh) {
     wifiInfo.ssid = SIMULATOR_NET_INFO;
     wifiInfo.bssid = SIMULATOR_NET_INFO;
     return true;
-//#elif !TARGET_OS_IPHONE
+// #elif !TARGET_OS_IPHONE
 //
-//    NO_DESTROY static mars::comm::Mutex mutex;
-//    mars::comm::ScopedLock lock(mutex);
+//     NO_DESTROY static mars::comm::Mutex mutex;
+//     mars::comm::ScopedLock lock(mutex);
 //
-//    static float version = 0.0;
+//     static float version = 0.0;
 //
-//    CWInterface* info = nil;
+//     CWInterface* info = nil;
 //
-//    if (version < 0.1) {
-//        version = __GetSystemVersion();
-//    }
+//     if (version < 0.1) {
+//         version = __GetSystemVersion();
+//     }
 //
-//    if (version < 10.10) {
-//        static CWInterface* s_info = [[CWInterface interface] retain];
-//        info = s_info;
-//    } else {
-//        CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
-//        if (nil != wificlient) info = [wificlient interface];
-//    }
+//     if (version < 10.10) {
+//         static CWInterface* s_info = [[CWInterface interface] retain];
+//         info = s_info;
+//     } else {
+//         CWWiFiClient* wificlient = [CWWiFiClient sharedWiFiClient];
+//         if (nil != wificlient) info = [wificlient interface];
+//     }
 //
-//    if (nil == info) return false;
-//    if (info.ssid != nil) {
-//        const char* ssid = [info.ssid UTF8String];
-//        if (NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
-//        // wifiInfo.bssid = [info.bssid UTF8String];
-//    } else {
-//        wifiInfo.ssid = USE_WIRED;
-//        wifiInfo.bssid = USE_WIRED;
-//    }
-//    return true;
+//     if (nil == info) return false;
+//     if (info.ssid != nil) {
+//         const char* ssid = [info.ssid UTF8String];
+//         if (NULL != ssid) wifiInfo.ssid.assign(ssid, strnlen(ssid, 32));
+//         // wifiInfo.bssid = [info.bssid UTF8String];
+//     } else {
+//         wifiInfo.ssid = USE_WIRED;
+//         wifiInfo.bssid = USE_WIRED;
+//     }
+//     return true;
 //
 #elif TARGET_OS_WATCH
     wifiInfo.ssid = IWATCH_NET_INFO;

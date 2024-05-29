@@ -201,9 +201,10 @@ static void __anr_checker_thread() {
 }
 
 static Thread sg_thread(&__anr_checker_thread);
-static class startup {
+class startup {
  public:
     startup() {
+        xinfo2(TSF "startup anr check thread.");
         sg_thread.start();
     }
 
@@ -215,7 +216,13 @@ static class startup {
 
         sg_thread.join();
     }
-} __startup;
+};  //__startup;  // ios move to app_logic.cc
+
+// iOS platform want start anr check thread after main thread, so startup by app_logic onCreate event
+#if !TARGET_OS_IPHONE
+static startup __startup;
+#endif
+
 }  // namespace
 
 #endif
@@ -233,5 +240,11 @@ scope_anr::~scope_anr() {
 void scope_anr::anr(int _timeout) {
 #ifndef ANR_CHECK_DISABLE
     __register_anr(reinterpret_cast<uintptr_t>(this), file_, func_, line_, _timeout, call_id_, extra_info_);
+#endif
+}
+
+void startup_anr() {
+#ifndef ANR_CHECK_DISABLE
+    static startup __startup;
 #endif
 }
