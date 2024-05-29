@@ -39,18 +39,6 @@
 namespace mars {
 namespace comm {
 
-static std::function<bool(std::string&)> g_new_wifi_id_cb;
-static mars::comm::Mutex wifi_id_mutex;
-
-void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
-    mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = _cb;
-}
-void ResetWiFiIdCallBack() {
-    mars::comm::ScopedLock lock(wifi_id_mutex);
-    g_new_wifi_id_cb = NULL;
-}
-
 #ifdef ANDROID
 int g_NetInfo = 0;  // global cache netinfo for android
 uint64_t g_last_networkchange_tick = gettickcount();
@@ -63,7 +51,7 @@ Mutex g_net_mutex;
 // 把 platform 编译到相应 so 中时这个函数一定要被调用。不然缓存信息清除不了
 // 参看 stn_logic.cc
 void OnPlatformNetworkChange() {
-    xdebug_function();
+    xinfo_function();
 #ifdef ANDROID
     ScopedLock lock(g_net_mutex);
     g_NetInfo = 0;
@@ -254,7 +242,7 @@ int getNetInfo(bool realtime /*=false*/) {
     jint netType = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getNetInfo).i;
     g_NetInfo = netType;
 
-    xverbose2(TSF "netInfo= %0", netType);
+    xinfo2(TSF "getNetInfo from JAVA %_", netType);
     return (int)netType;
 }
 
