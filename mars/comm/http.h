@@ -24,7 +24,8 @@
 #include <map>
 #include <string>
 
-#include "autobuffer.h"
+#include "mars/comm/autobuffer.h"
+#include "mars/comm/strutil.h"
 
 namespace http {
 
@@ -187,8 +188,7 @@ class HeaderFields {
 
 class IBlockBodyProvider {
  public:
-    virtual ~IBlockBodyProvider() {
-    }
+    virtual ~IBlockBodyProvider() = default;
 
     virtual bool Data(AutoBuffer& _body) = 0;
     virtual bool FillData(AutoBuffer& _body) = 0;
@@ -197,23 +197,25 @@ class IBlockBodyProvider {
 
 class BufferBodyProvider : public IBlockBodyProvider {
  public:
-    bool Data(AutoBuffer& _body) {
-        if (!_body.Ptr())
+    bool Data(AutoBuffer& _body) override {
+        if (!_body.Ptr()) {
             return false;
+        }
 
         buffer_.Write(_body.Ptr(), _body.Length());
         _body.Reset();
         return true;
     }
-    bool FillData(AutoBuffer& _body) {
-        if (!buffer_.Ptr())
+    bool FillData(AutoBuffer& _body) override {
+        if (!buffer_.Ptr()) {
             return false;
+        }
 
         _body.Write(buffer_.Ptr(), buffer_.Length());
         buffer_.Reset();
         return true;
     }
-    size_t Length() const {
+    size_t Length() const override {
         return buffer_.Length();
     }
     AutoBuffer& Buffer() {
@@ -226,8 +228,7 @@ class BufferBodyProvider : public IBlockBodyProvider {
 
 class IStreamBodyProvider {
  public:
-    virtual ~IStreamBodyProvider() {
-    }
+    virtual ~IStreamBodyProvider() = default;
 
     virtual bool HaveData() const = 0;
     virtual bool Data(AutoBuffer& _body) = 0;
@@ -242,7 +243,7 @@ class IStreamBodyProvider {
 
 class Builder {
  public:
-    Builder(TCsMode _csmode);
+    explicit Builder(TCsMode _csmode);
     ~Builder();
 
  private:
@@ -283,12 +284,10 @@ class Builder {
 
 class BodyReceiver {
  public:
-    BodyReceiver() : total_length_(0) {
-    }
-    virtual ~BodyReceiver() {
-    }
+    BodyReceiver() = default;
+    virtual ~BodyReceiver() = default;
 
-    virtual void AppendData(const void* _body, size_t _length) {
+    virtual void AppendData(const void* /*_body*/, size_t _length) {
         total_length_ += _length;
     }
     virtual void EndData() {
@@ -298,18 +297,18 @@ class BodyReceiver {
     }
 
  private:
-    size_t total_length_;
+    size_t total_length_ = 0;
 };
 
 class MemoryBodyReceiver : public BodyReceiver {
  public:
-    MemoryBodyReceiver(AutoBuffer& _buf) : body_(_buf) {
+    explicit MemoryBodyReceiver(AutoBuffer& _buf) : body_(_buf) {
     }
-    virtual void AppendData(const void* _body, size_t _length) {
+    void AppendData(const void* _body, size_t _length) override {
         BodyReceiver::AppendData(_body, _length);
         body_.Write(_body, _length);
     }
-    virtual void EndData() {
+    void EndData() override {
     }
 
  private:
@@ -330,7 +329,7 @@ class Parser {
     };
 
  public:
-    Parser(BodyReceiver* _body = new BodyReceiver(), bool _manage = true);
+    explicit Parser(BodyReceiver* _body = new BodyReceiver(), bool _manage = true);
     ~Parser();
 
  private:
@@ -408,6 +407,5 @@ class URLFactory {
     std::string cgi_;
     std::vector<std::pair<std::string, std::string>> kvs_;
 };
-
 
 #endif /* HTTPREQUEST_H_ */
