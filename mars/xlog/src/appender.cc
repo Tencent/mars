@@ -186,26 +186,27 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
     if (recursion_count > 10)
         return;
 
-    if (recursion_str.empty()) {
-        
+    if (recursion_count > 2 && recursion_str.empty()) {
         XLoggerInfo info = XLOGGER_INFO_INITIALIZER;
-        if (_info != nullptr){
+        if (_info != nullptr) {
             info = *_info;
         }
         info.level = kLevelFatal;
-        
+
         recursion_str.resize(kMaxDumpLength);
-        int length = snprintf(&recursion_str[0],kMaxDumpLength,
-                 "ERROR!!! xlogger_appender Recursive calls!!!, count:%u",
-                 recursion_count);
-        if (length > 0){
+        int length = snprintf(&recursion_str[0],
+                              kMaxDumpLength,
+                              "ERROR!!! xlogger_appender Recursive calls!!!, count:%u",
+                              recursion_count);
+        if (length > 0) {
             recursion_str.resize(length);
             ConsoleLog(&info, recursion_str.c_str());
         }
     } else {
         if (!recursion_str.empty()) {
-            WriteTips2File(recursion_str.c_str());
+            std::string dump = recursion_str;
             recursion_str.clear();
+            WriteTips2File(dump.c_str());
         }
 
         if (kAppenderSync == config_.mode_)
@@ -260,7 +261,8 @@ void XloggerAppender::Close() {
     thread_moveold_ = nullptr;
     thread_timeout_log_ = nullptr;
 
-    if (log_close_) return;
+    if (log_close_)
+        return;
 
     char mark_info[512] = {0};
     __GetMarkInfo(mark_info, sizeof(mark_info));
@@ -283,7 +285,7 @@ void XloggerAppender::Close() {
         CloseMmapFile(mmap_file_);
     } else {
         if (nullptr != log_buff_) {
-            delete[](char*)((log_buff_->GetData()).Ptr());
+            delete[] (char*)((log_buff_->GetData()).Ptr());
         }
     }
 
@@ -1223,7 +1225,7 @@ void XloggerAppender::TreatMappingAsFileAndFlush(TFileIOAction* _result) {
     } else {
         log_buff_ = new LogZlibBuffer(data.release(), kBufferBlockLength, true, config_.pub_key_.c_str());
     }
-	
+
     log_close_ = false;
 
     // try write mapping to logfile
