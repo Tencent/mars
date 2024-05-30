@@ -24,6 +24,7 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/objc/ThreadOperationQueue.h": "comm",
     "mars/comm/socket/unix_socket.h": "comm/socket",
     "mars/comm/tinyxml2.h": "comm",
+    "mars/comm/network/netinfo_util.h": "comm/network",
 
     "mars/comm/xlogger/preprocessor.h": "xlog",
     "mars/comm/xlogger/xloggerbase.h": "xlog",

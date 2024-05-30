@@ -127,6 +127,7 @@ class NetCore {
 
     std::shared_ptr<NetSource> GetNetSource();
     int GetPackerEncoderVersion();
+    std::string GetPackerEncoderName();
 
  public:
 #ifdef USE_LONG_LINK
@@ -143,7 +144,12 @@ class NetCore {
 #endif
 
  public:
-    NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link = true);
+    NetCore(boot::Context* _context,
+            int _packer_encoder_version,
+            std::string _packer_encoder_name = "",
+            bool _use_long_link = true,
+            LongLinkEncoder* longlink_encoder = nullptr,
+            std::string tls_group_name = "default");
     virtual ~NetCore();
     static void __Release(std::shared_ptr<NetCore> _instance);
     void ReleaseNet();
@@ -224,6 +230,7 @@ class NetCore {
 
  private:
     int packer_encoder_version_;
+    std::string packer_encoder_name_;
     bool need_use_longlink_;
     bool already_release_net_ = false;
     comm::MessageQueue::MessageQueueCreater messagequeue_creater_;
@@ -247,6 +254,7 @@ class NetCore {
     bool shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
+    LongLinkEncoder* default_longlink_encoder = nullptr;
 };
 
 }  // namespace stn

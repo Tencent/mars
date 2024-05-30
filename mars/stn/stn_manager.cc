@@ -66,6 +66,14 @@ void StnManager::OnInitConfigBeforeOnCreate(const int _packer_encoder_version) {
     packer_encoder_version_ = _packer_encoder_version;
 }
 
+void StnManager::OnInitConfigBeforeOnCreateV2(const int _packer_encoder_version, std::string _packer_encoder_name) {
+    xdebug2(TSF "mars2 OnInitConfigBeforeOnCreate _packer_encoder_version:%_ _packer_encoder_name:%_",
+            _packer_encoder_version,
+            _packer_encoder_name);
+    packer_encoder_version_ = _packer_encoder_version;
+    packer_encoder_name_ = _packer_encoder_name;
+}
+
 void StnManager::OnCreate() {
 #if !UWP && !defined(WIN32)
     signal(SIGPIPE, SIG_IGN);
@@ -73,8 +81,9 @@ void StnManager::OnCreate() {
     xinfo_function(TSF "mars2");
     ActiveLogic::Instance();
     if (!net_core_) {
-        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
-        NetCore::NetCoreCreate()(net_core_);
+        net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true,
+                                              default_longlink_encoder, default_tls_group_name);
+//        NetCore::NetCoreCreate()(net_core_);
     }
 }
 
@@ -87,11 +96,11 @@ void StnManager::OnDestroy() {
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
-    NetCore::NetCoreRelease()();
-    callback_bridge_->SetCallback(nullptr);
+//    NetCore::NetCoreRelease()();
+//    callback_bridge_->SetCallback(nullptr); //线程还在跑，callback bridge还会触发callback，这个时候置空会有时序问题导致crash
     tmp_net_core.reset();
-    callback_ = nullptr;
     delete callback_bridge_;
+    callback_ = nullptr;//callback 的复位要放最后，不然会有时序问题
 }
 void StnManager::OnSingalCrash(int _sig) {
     mars::xlog::appender_close();
@@ -145,6 +154,14 @@ StnCallbackBridge* StnManager::GetStnCallbackBridge() {
         callback_bridge_->SetCallback(callback_);
     }
     return callback_bridge_;
+}
+
+void StnManager::SetDefaultLongLinkEncoder(LongLinkEncoder* longlink_encoder) {
+    default_longlink_encoder = longlink_encoder;
+}
+
+void StnManager::SetDefaultShortLinkTlsGroup(const std::string& group_name) {
+    default_tls_group_name = group_name;
 }
 
 std::shared_ptr<LongLink> StnManager::DefaultLongLink() {
@@ -504,22 +521,24 @@ void StnManager::Reset() {
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
-    NetCore::NetCoreRelease()();
+//    NetCore::NetCoreRelease()();
     tmp_net_core.reset();
-    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
-    NetCore::NetCoreCreate()(net_core_);
+    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
+//    NetCore::NetCoreCreate()(net_core_);
 }
 
-void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version) {
+void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::string _encoder_name) {
     xinfo_function(TSF "mars2 packer_encoder_version:%_", _packer_encoder_version);
     packer_encoder_version_ = _packer_encoder_version;
+    packer_encoder_name_ = _encoder_name;
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
-    NetCore::NetCoreRelease()();
+//    NetCore::NetCoreRelease()();
     tmp_net_core.reset();
-    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, true);
-    NetCore::NetCoreCreate()(net_core_);
+    net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true,
+                                          default_longlink_encoder, default_tls_group_name);
+//    NetCore::NetCoreCreate()(net_core_);
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {

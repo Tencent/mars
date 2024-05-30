@@ -61,7 +61,8 @@ using namespace mars::app;
 ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
                                            std::shared_ptr<NetSource> _netsource,
                                            DynamicTimeout& _dynamictimeout,
-                                           MessageQueue::MessageQueue_t _messagequeueid)
+                                           MessageQueue::MessageQueue_t _messagequeueid,
+                                           std::string tls_group_name)
 : context_(_context)
 , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 , net_source_(_netsource)
@@ -71,6 +72,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
+, m_tls_group_name_(tls_group_name)
 {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_",
@@ -350,7 +352,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         Task task = first->task;
         std::vector<std::string> hosts = task.shortlink_host_list;
-        ShortlinkConfig config(first->use_proxy, /*use_tls=*/true);
+        ShortlinkConfig config(first->use_proxy, /*use_tls=*/true, m_tls_group_name_);
 #ifndef DISABLE_QUIC_PROTOCOL
         if (!task.quic_host_list.empty() && (task.transport_protocol & Task::kTransportProtocolQUIC)
             && 0 == first->err_code) {
@@ -383,7 +385,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         if (realhost_cnt == 0 && config.use_quic) {
             xwarn2(TSF "taskid:%_ no quic hosts.", first->task.taskid);
             //.使用quic但拿到的host为空（一般是svr部署问题），则回退到tcp.
-            config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true);
+            config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true, m_tls_group_name_);
             hosts = task.shortlink_host_list;
             realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
         }
