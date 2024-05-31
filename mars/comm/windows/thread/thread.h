@@ -331,7 +331,7 @@ class Thread {
         m_runableref->condtime.notifyAll(true);
     }
 
-    void join() const {
+    int join() const {
         ScopedSpinLock lock(m_runableref->splock);
         ASSERT(!m_runableref->isjoined);
 
@@ -341,6 +341,7 @@ class Thread {
             ThreadUtil::join(m_runableref->m_th);
             // thrd_join(m_runableref->tid, 0);
         }
+        return 0;
     }
 
     int kill(int /*sig*/) const;

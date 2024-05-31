@@ -399,7 +399,9 @@ def parse_as_git(path):
 def gen_mars_revision_file(version_file_path, tag=''):
     revision, path, url = parse_as_git(version_file_path)
 
-    build_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+    timestamp = int(time.time())
+    build_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
+
     contents = '''
 #ifndef Mars_verinfo_h
 #define Mars_verinfo_h
@@ -409,9 +411,10 @@ def gen_mars_revision_file(version_file_path, tag=''):
 #define MARS_URL "%s"
 #define MARS_BUILD_TIME "%s"
 #define MARS_TAG "%s"
+#define MARS_BUILD_TIMESTAMP %u
 
 #endif
-''' % (revision, path, url, build_time, tag)
+''' % (revision, path, url, build_time, tag, timestamp)
 
     with open('%s/verinfo.h' % version_file_path, 'wb') as f:
         f.write(contents.encode())

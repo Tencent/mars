@@ -20,10 +20,10 @@
 #ifndef STN_SRC_NET_CORE_H_
 #define STN_SRC_NET_CORE_H_
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/singleton.h"
@@ -255,6 +255,10 @@ class NetCore {
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
     LongLinkEncoder* default_longlink_encoder = nullptr;
+
+#ifdef ANDROID
+    comm::WakeUpLock* wakeup_lock_;
+#endif
 };
 
 }  // namespace stn

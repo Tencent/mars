@@ -40,7 +40,7 @@ void OnPlatformNetworkChange();
 
 int getNetInfo(bool realtime = false);
 
-enum class NetTypeForStatistics {
+enum NetTypeForStatistics {
     NETTYPE_NON = -1,
     NETTYPE_NOT_WIFI = 0,
     NETTYPE_WIFI = 1,
@@ -53,6 +53,30 @@ enum class NetTypeForStatistics {
 };
 
 int getNetTypeForStatistics();
+enum {
+    NEW_NETTYPE_UNKNOW = 0,
+    NEW_NETTYPE_WIFI = 1,
+    NEW_NETTYPE_2G = 2,
+    NEW_NETTYPE_3G = 3,
+    NEW_NETTYPE_4G = 4,
+    NEW_NETTYPE_5G = 5,
+};
+inline int getAppNetType() {
+    int type = getNetTypeForStatistics();
+    switch (type) {
+        case NetTypeForStatistics::NETTYPE_WIFI:
+            return NEW_NETTYPE_WIFI;
+        case NetTypeForStatistics::NETTYPE_2G:
+            return NEW_NETTYPE_2G;
+        case NetTypeForStatistics::NETTYPE_3G:
+            return NEW_NETTYPE_3G;
+        case NetTypeForStatistics::NETTYPE_4G:
+            return NEW_NETTYPE_4G;
+        case NetTypeForStatistics::NETTYPE_5G:
+            return NEW_NETTYPE_5G;
+    }
+    return NEW_NETTYPE_UNKNOW;
+}
 
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info);
 
@@ -231,38 +255,19 @@ bool isNetworkConnected();
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip);
 
-void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
-
+std::function<bool(std::string&)> SetWiFiIdCallBack(std::function<bool(std::string&)> _cb);
 void ResetWiFiIdCallBack();
+bool IsWiFiIdCallBackExists();
 
-inline int getCurrNetLabelImpl(std::string& netInfo, bool realtime) {
-    netInfo = "defalut";
-    int nettype = getNetInfo(realtime);
-    switch (nettype) {
-        case kWifi: {
-            WifiInfo info;
-            getCurWifiInfo(info, realtime);
-            netInfo = "wifi_" + info.ssid;
-        } break;
+extern const char* kMarsDefaultNetworkIDNetLabel;
+extern const char* kMarsNetworkIDNetLabelPrefix;
+extern const char* kMarsWifiNetLabelPrefix;
+extern const char* kMarsMobileNetLabelPrefix;
+extern const char* kMarsDefaultNetLabel;
 
-        case kMobile: {
-            SIMInfo info;
-            getCurSIMInfo(info, realtime);
-            netInfo = "mobile_" + info.isp_code;
-        } break;
-        default:
-            break;
-    }
-    return nettype;
-}
-
-inline int getCurrNetLabel(std::string& netInfo) {
-    return getCurrNetLabelImpl(netInfo, false);
-}
-
-inline int getRealtimeNetLabel(std::string& netInfo) {
-    return getCurrNetLabelImpl(netInfo, true);
-}
+int getCurrNetLabel(std::string& netInfo);
+int getNetworkIDLabel(std::string& netInfo);
+int getRealtimeNetLabel(std::string& netInfo);
 
 #ifdef __APPLE__
 void FlushReachability();
