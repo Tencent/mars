@@ -91,7 +91,9 @@ NetCore::NetCore(boot::Context* _context,
 , wakeup_lock_(new WakeUpLock())
 #endif
 {
-    NetCoreCreateBegin()();
+    if (context_->GetContextId() == "default") {
+        NetCoreCreateBegin()();
+    }
     xdebug_function(TSF "mars2");
     xwarn2(TSF "public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID,
