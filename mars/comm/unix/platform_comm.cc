@@ -1,13 +1,18 @@
 #include "platform_comm.h"
 
+#include "comm/thread/lock.h"
+#include "comm/thread/mutex.h"
+#include "mars/comm/macro.h"
 #include "xlogger/loginfo_extract.h"
 #include "xlogger/xlogger.h"
 
 namespace mars {
 namespace comm {
 
-void OnPlatformNetworkChange() {
+NO_DESTROY static std::function<bool(std::string&)> g_new_wifi_id_cb;
+NO_DESTROY static mars::comm::Mutex wifi_id_mutex;
 
+void OnPlatformNetworkChange() {
 }
 
 int getNetInfo(bool) {
@@ -46,11 +51,17 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
     return false;
 }
 
-void SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {}
+std::function<bool(std::string&)> SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
+    mars::comm::ScopedLock lock(wifi_id_mutex);
+    std::function<bool(std::string&)> old = g_new_wifi_id_cb;
+    g_new_wifi_id_cb = std::move(_cb);
+    return old;
+}
 
-void ResetWiFiIdCallBack() {}
+void ResetWiFiIdCallBack() {
+}
 
-} // namespace comm
+}  // namespace comm
 
 namespace xlog {
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
@@ -80,7 +91,6 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
     printf("%s", log);
 }
 
-}
+}  // namespace xlog
 
-} // namespace mars
-
+}  // namespace mars
