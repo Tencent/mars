@@ -1,16 +1,10 @@
 #include "platform_comm.h"
 
-#include "comm/thread/lock.h"
-#include "comm/thread/mutex.h"
-#include "mars/comm/macro.h"
 #include "xlogger/loginfo_extract.h"
 #include "xlogger/xlogger.h"
 
 namespace mars {
 namespace comm {
-
-NO_DESTROY static std::function<bool(std::string&)> g_new_wifi_id_cb;
-NO_DESTROY static mars::comm::Mutex wifi_id_mutex;
 
 void OnPlatformNetworkChange() {
 }
@@ -49,16 +43,6 @@ bool isNetworkConnected() {
 
 bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
     return false;
-}
-
-std::function<bool(std::string&)> SetWiFiIdCallBack(std::function<bool(std::string&)> _cb) {
-    mars::comm::ScopedLock lock(wifi_id_mutex);
-    std::function<bool(std::string&)> old = g_new_wifi_id_cb;
-    g_new_wifi_id_cb = std::move(_cb);
-    return old;
-}
-
-void ResetWiFiIdCallBack() {
 }
 
 }  // namespace comm
