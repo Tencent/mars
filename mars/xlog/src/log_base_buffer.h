@@ -39,7 +39,7 @@ class LogBaseBuffer {
     virtual ~LogBaseBuffer();
 
  public:
-    static bool GetPeriodLogs(const char* _log_path,
+    static bool GetPeriodLogs(const std::string& _log_path,
                               int _begin_hour,
                               int _end_hour,
                               uint64_t& _begin_pos,

@@ -39,7 +39,7 @@
 namespace mars {
 namespace xlog {
 
-bool LogBaseBuffer::GetPeriodLogs(const char* _log_path,
+bool LogBaseBuffer::GetPeriodLogs(const std::string& _log_path,
                                   int _begin_hour,
                                   int _end_hour,
                                   uint64_t& _begin_pos,
@@ -48,13 +48,13 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path,
     char msg[1024] = {0};
     char magic_end = LogMagicNum::kMagicEnd;
 
-    if (NULL == _log_path || _end_hour <= _begin_hour) {
+    if (_log_path.empty() || _end_hour <= _begin_hour) {
         snprintf(msg, sizeof(msg), "NULL == _logPath || _endHour <= _beginHour, %d, %d", _begin_hour, _end_hour);
         _err_msg += msg;
         return false;
     }
 
-    FILE* file = fopen(_log_path, "rb");
+    FILE* file = fopen(_log_path.c_str(), "rb");
     if (NULL == file) {
         snprintf(msg, sizeof(msg), "open file fail:%s", strerror(errno));
         _err_msg += msg;
@@ -204,7 +204,7 @@ bool LogBaseBuffer::GetPeriodLogs(const char* _log_path,
     if (!ret) {
         _err_msg += msg;
         memset(msg, 0, sizeof(msg));
-        snprintf(msg, sizeof(msg), "begintpos:%lu, endpos:%lu, filesize:%ld.", _begin_pos, _end_pos, file_size);
+        snprintf(msg, sizeof(msg), "begintpos:%llu, endpos:%llu, filesize:%ld.", _begin_pos, _end_pos, file_size);
         _err_msg += msg;
     }
 
@@ -314,7 +314,7 @@ void LogBaseBuffer::__Clear() {
 
 void LogBaseBuffer::__Fix() {
     uint32_t raw_log_len = 0;
-    if (log_crypt_->Fix((char*) buff_.Ptr(), buff_.Length(), raw_log_len)) {
+    if (log_crypt_->Fix((char*)buff_.Ptr(), buff_.Length(), raw_log_len)) {
         if (raw_log_len + log_crypt_->GetHeaderLen() >= buff_.MaxLength()) {
             raw_log_len = buff_.MaxLength() - log_crypt_->GetHeaderLen() - log_crypt_->GetTailerLen();
         }
