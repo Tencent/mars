@@ -181,7 +181,7 @@ class HeaderFields {
     bool ContentRange(uint64_t* start, uint64_t* end, uint64_t* total) const;
     static bool ContentRange(const std::string& line, uint64_t* start, uint64_t* end, uint64_t* total);
 
-    const std::string ToString() const;
+    std::string ToString() const;
 
  private:
     std::map<const std::string, std::string, less> headers_;

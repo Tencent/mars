@@ -341,6 +341,13 @@ std::string DigestToBase16(const uint8_t* digest, size_t length) {
     return ret;
 }
 
+std::string CStr2STLStringSafe(const char* a) {
+    if (a == nullptr) {
+        return {};
+    }
+    return a;
+}
+
 void to_lower(std::string& str) {
     std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {
         return std::tolower(c);

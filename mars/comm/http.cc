@@ -373,49 +373,34 @@ void HeaderFields::Manipulate(const std::pair<const std::string, std::string>& _
     }
 }
 
-// void HeaderFields::HeaderFiled(const http::HeaderFields& _headerfields) {
-//    headers_.insert(_headerfields.headers_.begin(), _headerfields.headers_.end());
-//}
-
 const char* HeaderFields::HeaderField(const char* _key) const {
-    std::map<const std::string, std::string, less>::const_iterator iter = headers_.find(_key);
-
+    auto iter = headers_.find(_key);
     if (iter != headers_.end()) {
         return iter->second.c_str();
     }
-
-    return NULL;
+    return nullptr;
 }
 
 bool HeaderFields::IsTransferEncodingChunked() const {
     const char* transferEncoding = HeaderField(HeaderFields::KStringTransferEncoding);
-
-    if (transferEncoding && 0 == strcasecmp(transferEncoding, KStringChunked))
-        return true;
-
-    return false;
+    return (transferEncoding != nullptr) && 0 == strcasecmp(transferEncoding, KStringChunked);
 }
+
 bool HeaderFields::IsConnectionClose() const {
     const char* conn = HeaderField(HeaderFields::KStringConnection);
-    if (conn && 0 == strcasecmp(conn, KStringClose))
-        return true;
-
-    return false;
+    return (conn != nullptr) && 0 == strcasecmp(conn, KStringClose);
 }
 
 bool HeaderFields::IsConnectionKeepAlive() const {
     const char* conn = HeaderField(HeaderFields::KStringConnection);
-    if (conn && 0 == strcasecmp(conn, KStringKeepalive))
-        return true;
-
-    return false;
+    return (conn != nullptr) && 0 == strcasecmp(conn, KStringKeepalive);
 }
 
 uint32_t HeaderFields::KeepAliveTimeout() const {
-    if (NULL == HeaderField(HeaderFields::KStringConnection))
+    if (NULL == HeaderField(HeaderFields::KStringConnection)) {
         return KDefaultKeepAliveTimeout;
-    std::string aliveConfig =
-        (NULL == HeaderField(HeaderFields::KStringKeepalive) ? "" : HeaderField(HeaderFields::KStringKeepalive));
+    }
+    std::string aliveConfig = strutil::CStr2STLStringSafe(HeaderField(HeaderFields::KStringKeepalive));
     if (aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
         return KDefaultKeepAliveTimeout;
     }
@@ -461,7 +446,7 @@ bool HeaderFields::Range(long& _start, long& _end) const {
     std::string bytes = range.substr(6);
     strutil::Trim(bytes);
 
-    size_t range_start = bytes.find("-");
+    size_t range_start = bytes.find('-');
     if (std::string::npos == range_start) {
         return false;
     }
@@ -492,13 +477,13 @@ bool HeaderFields::ContentRange(const std::string& line, uint64_t* start, uint64
         std::string bytes = range.substr(6);
         strutil::Trim(bytes);
 
-        size_t range_start = bytes.find("-");
+        size_t range_start = bytes.find('-');
 
         if (std::string::npos != range_start) {
             std::string startstr = bytes.substr(0, range_start);
             *start = strtoull(startstr.c_str(), NULL, 10);
 
-            size_t range_end = bytes.find("/", range_start + 1);
+            size_t range_end = bytes.find('/', range_start + 1);
 
             if (range_end != std::string::npos) {
                 std::string endstr = bytes.substr(range_start + 1, range_end - range_start - 1);
@@ -527,27 +512,19 @@ bool HeaderFields::ContentRange(uint64_t* start, uint64_t* end, uint64_t* total)
     return ContentRange(pline, start, end, total);
 }
 
-const std::string HeaderFields::ToString() const {
-    if (headers_.empty())
-        return "";
-
+std::string HeaderFields::ToString() const {
     std::string str;
-
-    for (std::map<const std::string, std::string, less>::const_iterator iter = headers_.begin(); iter != headers_.end();
-         ++iter) {
-        str += iter->first + KStringColon + KStringSpace + iter->second + KStringCRLF;
+    for (const auto& header : headers_) {
+        str += header.first + KStringColon + KStringSpace + header.second + KStringCRLF;
     }
-
     return str;
 }
 
 std::list<std::pair<const std::string, const std::string>> HeaderFields::GetAsList() const {
     std::list<std::pair<const std::string, const std::string>> result;
-
-    for (auto entry : headers_) {
-        result.push_back({entry.first, entry.second});
+    for (const auto& entry : headers_) {
+        result.emplace_back(entry.first, entry.second);
     }
-
     return result;
 }
 
@@ -1264,10 +1241,8 @@ class TestChunkProvider : public IStreamBodyProvider {
 
 class TestBodyReceiver : public BodyReceiver {
  public:
-    TestBodyReceiver() {
-    }
-    ~TestBodyReceiver() {
-    }
+    TestBodyReceiver() = default;
+    ~TestBodyReceiver() = default;
 
     void AppendData(const void* _body, size_t _length) {
         BodyReceiver::AppendData(_body, _length);
