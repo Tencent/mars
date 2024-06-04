@@ -172,7 +172,10 @@ std::string BufferMD5(const void* buffer, size_t size);
 std::string MD5DigestToBase16(const uint8_t digest[16]);
 std::string DigestToBase16(const uint8_t* digest, size_t length);
 
-std::string CStr2STLStringSafe(const char* a);
+std::string CStr2StringSafe(const char* a);
+bool CStrNullOrEmpty(const char* a);
+bool CStrCmpSafe(const char* a, const char* b);
+int32_t CStr2Int32Safe(const char* a, int32_t default_num);
 
 void to_lower(std::string& str);
 void to_upper(std::string& str);

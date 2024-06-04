@@ -400,7 +400,7 @@ uint32_t HeaderFields::KeepAliveTimeout() const {
     if (NULL == HeaderField(HeaderFields::KStringConnection)) {
         return KDefaultKeepAliveTimeout;
     }
-    std::string aliveConfig = strutil::CStr2STLStringSafe(HeaderField(HeaderFields::KStringKeepalive));
+    std::string aliveConfig = strutil::CStr2StringSafe(HeaderField(HeaderFields::KStringKeepalive));
     if (aliveConfig.length() <= 0 || aliveConfig.find(KStringKeepAliveTimeout) == std::string::npos) {
         return KDefaultKeepAliveTimeout;
     }

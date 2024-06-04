@@ -341,11 +341,26 @@ std::string DigestToBase16(const uint8_t* digest, size_t length) {
     return ret;
 }
 
-std::string CStr2STLStringSafe(const char* a) {
+std::string CStr2StringSafe(const char* a) {
     if (a == nullptr) {
         return {};
     }
     return a;
+}
+bool CStrNullOrEmpty(const char* a) {
+    return a == nullptr || std::string(a).empty();
+}
+bool CStrCmpSafe(const char* a, const char* b) {
+    if (a == nullptr || b == nullptr) {
+        return false;
+    }
+    return strcmp(a, b) == 0;
+}
+int32_t CStr2Int32Safe(const char* a, int32_t default_num) {
+    if (a == nullptr) {
+        return default_num;
+    }
+    return atoi(a);
 }
 
 void to_lower(std::string& str) {
