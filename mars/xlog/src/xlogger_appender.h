@@ -25,8 +25,8 @@ class XloggerAppender {
     void WriteTips2File(const char* _tips_format, ...);
     const char* Dump(const void* _dumpbuffer, size_t _len);
 
-    bool GetCurrentLogPath(char* _log_path, unsigned int _len);
-    bool GetCurrentLogCachePath(char* _logPath, unsigned int _len);
+    bool GetCurrentLogPath(std::string& _log_path) const;
+    bool GetCurrentLogCachePath(std::string& _log_path) const;
     void SetConsoleLog(bool _is_open);
     void SetMaxFileSize(uint64_t _max_byte_size);
     void SetMaxAliveDuration(long _max_time);

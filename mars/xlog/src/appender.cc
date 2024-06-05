@@ -285,7 +285,7 @@ void XloggerAppender::Close() {
         CloseMmapFile(mmap_file_);
     } else {
         if (nullptr != log_buff_) {
-            delete[] (char*)((log_buff_->GetData()).Ptr());
+            delete[](char*)((log_buff_->GetData()).Ptr());
         }
     }
 
@@ -1091,25 +1091,18 @@ static int calc_dump_required_length(int srcbytes) {
     return srcbytes * 6 + 1;
 }
 
-bool XloggerAppender::GetCurrentLogPath(char* _log_path, unsigned int _len) {
-    if (nullptr == _log_path || 0 == _len)
+bool XloggerAppender::GetCurrentLogPath(std::string& _log_path) const {
+    if (config_.logdir_.empty()) {
         return false;
-
-    if (config_.logdir_.empty())
-        return false;
-    strncpy(_log_path, config_.logdir_.c_str(), _len - 1);
-    _log_path[_len - 1] = '\0';
+    }
+    _log_path = config_.logdir_;
     return true;
 }
 
-bool XloggerAppender::GetCurrentLogCachePath(char* _logPath, unsigned int _len) {
-    if (nullptr == _logPath || 0 == _len)
-        return false;
-
+bool XloggerAppender::GetCurrentLogCachePath(std::string& _log_path) const {
     if (config_.cachedir_.empty())
         return false;
-    strncpy(_logPath, config_.cachedir_.c_str(), _len - 1);
-    _logPath[_len - 1] = '\0';
+    _log_path = config_.cachedir_;
     return true;
 }
 
@@ -1333,18 +1326,18 @@ void appender_setmode(TAppenderMode _mode) {
     sg_default_appender->SetMode(_mode);
 }
 
-bool appender_get_current_log_path(char* _log_path, unsigned int _len) {
+bool appender_get_current_log_path(std::string& _log_path) {
     if (sg_release_guard) {
         return false;
     }
-    return sg_default_appender->GetCurrentLogPath(_log_path, _len);
+    return sg_default_appender->GetCurrentLogPath(_log_path);
 }
 
-bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len) {
+bool appender_get_current_log_cache_path(std::string& _log_path) {
     if (sg_release_guard) {
         return false;
     }
-    return sg_default_appender->GetCurrentLogCachePath(_logPath, _len);
+    return sg_default_appender->GetCurrentLogCachePath(_log_path);
 }
 
 void appender_set_console_log(bool _is_open) {

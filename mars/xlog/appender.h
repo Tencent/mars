@@ -76,8 +76,8 @@ void appender_close();
 void appender_setmode(TAppenderMode _mode);
 bool appender_getfilepath_from_timespan(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
 bool appender_make_logfile_name(int _timespan, const char* _prefix, std::vector<std::string>& _filepath_vec);
-bool appender_get_current_log_path(char* _log_path, unsigned int _len);
-bool appender_get_current_log_cache_path(char* _logPath, unsigned int _len);
+bool appender_get_current_log_path(std::string& _log_path);
+bool appender_get_current_log_cache_path(std::string& _log_path);
 void appender_set_console_log(bool _is_open);
 
 #ifdef __APPLE__
