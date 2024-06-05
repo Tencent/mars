@@ -318,7 +318,7 @@ void XloggerAppender::Open(const XLogConfig& _config) {
                                                                      config_.cachedir_,
                                                                      config_.logdir_,
                                                                      config_.nameprefix_));
-        thread_timeout_cache_->start_after(3 * 60 * 1000);
+        thread_moveold_->start_after(3 * 60 * 1000);
 #ifdef __APPLE__
         setAttrProtectionNone(config_.cachedir_.c_str());
 #endif
