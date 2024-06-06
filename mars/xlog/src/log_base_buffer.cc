@@ -203,9 +203,9 @@ bool LogBaseBuffer::GetPeriodLogs(const std::string& _log_path,
 
     if (!ret) {
         _err_msg += msg;
-        memset(msg, 0, sizeof(msg));
-        snprintf(msg, sizeof(msg), "begintpos:%llu, endpos:%llu, filesize:%ld.", _begin_pos, _end_pos, file_size);
-        _err_msg += msg;
+        _err_msg += "begin_pos:" + std::to_string(_begin_pos) +  //
+                    ", end_pos:" + std::to_string(_end_pos) +    //
+                    ", file_size:" + std::to_string(file_size);
     }
 
     return ret;
