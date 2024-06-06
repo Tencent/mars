@@ -14,4 +14,4 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../)
 
 
 add_executable(decode_log_file decode_log_file.c micro-ecc-master/uECC.c)
-target_link_libraries(decode_log_file libzstd_static)
+target_link_libraries(decode_log_file libzstd_static z)
