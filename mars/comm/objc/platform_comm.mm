@@ -193,7 +193,7 @@ int getNetInfo(bool realtime /*=false*/) {
     xverbose_function();
     SCOPE_POOL();
 
-#if TARGET_IPHONE_SIMULATOR || TARGET_OS_WATCH
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_WATCH || UNITTEST
     return mars::comm::kWifi;
 #endif
 

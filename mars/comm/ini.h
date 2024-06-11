@@ -122,6 +122,14 @@ class INI {
         return sectionsit->second;
     }
 
+    const std::string& CurrentSection() const {
+        return currentsection;
+    }
+
+    std::string FileName() const {
+        return filename;
+    }
+
     template <class V>
     bool Set(const std::string& key, const V& value) {
         return Set(currentsection, key, value);
@@ -152,6 +160,10 @@ class INI {
 
     const std::string& Get(const std::string& key, const std::string& def) {
         return Get(currentsection, key, def);
+    }
+
+    std::string Get(const std::string& key) {
+        return Get(key, "");
     }
 
     const std::string& Get(const std::string& section, const std::string& key, const std::string& def) {
