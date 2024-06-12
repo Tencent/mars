@@ -100,6 +100,7 @@ class LongLinkConnectMonitor {
     int current_interval_index_;
     bool rebuild_longlink_;
     std::shared_ptr<NetSource> net_source_;
+    bool is_released_;
 };
 
 }  // namespace stn
