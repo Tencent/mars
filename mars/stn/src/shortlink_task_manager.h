@@ -84,7 +84,8 @@ class ShortLinkTaskManager {
     ShortLinkTaskManager(boot::Context* _context,
                          std::shared_ptr<NetSource> _netsource,
                          DynamicTimeout& _dynamictimeout,
-                         comm::MessageQueue::MessageQueue_t _messagequeueid);
+                         comm::MessageQueue::MessageQueue_t _messagequeueid,
+                         std::string tls_group_name = "default");
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
@@ -191,6 +192,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    std::string m_tls_group_name_ = "default";
     bool is_handle_reqresp_buff_in_worker_ = false;  // do req2buf and buf2resp on worker thread
 };
 

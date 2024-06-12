@@ -19,10 +19,13 @@
 
 #include "comm/alarm.h"
 
+#include "alarm/alarm_manager.h"
 #include "comm/assert/__assert.h"
 #include "comm/platform_comm.h"
 #include "comm/thread/lock.h"
 #include "comm/time_utils.h"
+
+using namespace mars::alarm;
 
 namespace mars {
 namespace comm {
@@ -58,7 +61,14 @@ bool Alarm::Start(int _after, bool _needWake) {
 
 #ifdef ANDROID
 
-    if (_needWake && !startAlarm(type_, (int64_t)seq, _after)) {
+    bool ret = false;
+    if (context_ && context_->GetManager<AlarmManager>()
+        && context_->GetManager<AlarmManager>()->IsAlarmCallbackSet()) {
+        ret = context_->GetManager<AlarmManager>()->StartAlarm(type_, (int64_t)seq, _after);
+    } else {
+        ret = startAlarm(type_, (int64_t)seq, _after);
+    }
+    if (_needWake && !ret) {
         xerror2(TSF "startAlarm error, id:%0, after:%1, seq:%2", (uintptr_t)this, _after, seq);
         MessageQueue::CancelMessage(broadcast_msg_id_);
         broadcast_msg_id_ = MessageQueue::KNullPost;
@@ -96,7 +106,15 @@ bool Alarm::Cancel() {
 
 #ifdef ANDROID
 
-    if (!stopAlarm((int64_t)seq_)) {
+    bool ret = false;
+    if (context_ && context_->GetManager<AlarmManager>()
+        && context_->GetManager<AlarmManager>()->IsAlarmCallbackSet()) {
+        ret = context_->GetManager<AlarmManager>()->StopAlarm((int64_t)seq_);
+    } else {
+        ret = stopAlarm((int64_t)seq_);
+    }
+
+    if (!ret) {
         xwarn2(TSF "stopAlarm error, id:%0, seq:%1", (uintptr_t)this, seq_);
         status_ = kCancel;
         endtime_ = gettickcount();
@@ -186,10 +204,20 @@ void Alarm::OnAlarm(const MessageQueue::MessagePost_t& _id, MessageQueue::Messag
             return;
         }
 
-        stopAlarm(seq_);
-
+        // stopAlarm(seq_);
         if (startAlarm(type_, (int64_t)seq_, missTime))
             return;
+
+        if (context_ && context_->GetManager<AlarmManager>()
+            && context_->GetManager<AlarmManager>()->IsAlarmCallbackSet()) {
+            context_->GetManager<AlarmManager>()->StopAlarm(seq_);
+            if (context_->GetManager<AlarmManager>()->StartAlarm(type_, (int64_t)seq_, missTime))
+                return;
+        } else {
+            stopAlarm(seq_);
+            if (startAlarm(type_, (int64_t)seq_, missTime))
+                return;
+        }
 
         xerror2(TSF "startAlarm err, continue") >> group;
     }

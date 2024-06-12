@@ -84,7 +84,8 @@ class LongLinkTaskManager {
                         std::shared_ptr<NetSource> _netsource,
                         comm::ActiveLogic& _activelogic,
                         DynamicTimeout& _dynamictimeout,
-                        comm::MessageQueue::MessageQueue_t _messagequeueid);
+                        comm::MessageQueue::MessageQueue_t _messagequeueid,
+                        LongLinkEncoder* longlink_encoder);
     virtual ~LongLinkTaskManager();
 
     bool StartTask(const Task& _task, int _channel);
@@ -192,6 +193,7 @@ class LongLinkTaskManager {
     /*NO_DESTROY static */ std::set<std::string> forbid_tls_host_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    LongLinkEncoder* default_longlink_encoder = nullptr;
 };
 }  // namespace stn
 }  // namespace mars

@@ -22,6 +22,7 @@
 
 #include <boost/bind.hpp>
 
+#include "boot/context.h"
 #include "comm/xlogger/xlogger.h"
 #include "messagequeue/message_queue.h"
 
@@ -52,8 +53,9 @@ class Alarm {
 
  public:
     template <class T>
-    explicit Alarm(const T& _op, bool _inthread = true)
-    : target_(detail::transform(_op))
+    explicit Alarm(const T& _op, bool _inthread = true, mars::boot::Context* _context = nullptr)
+    : context_(_context)
+    , target_(detail::transform(_op))
     , reg_async_(MessageQueue::InstallAsyncHandler(MessageQueue::GetDefMessageQueue()))
     , broadcast_msg_id_(MessageQueue::KNullPost)
     , runthread_(boost::bind(&Alarm::__Run, this), "alarm")
@@ -73,8 +75,9 @@ class Alarm {
     }
 
     template <class T>
-    explicit Alarm(const T& _op, const MessageQueue::MessageQueue_t& _id)
-    : target_(detail::transform(_op))
+    explicit Alarm(const T& _op, const MessageQueue::MessageQueue_t& _id, mars::boot::Context* _context = nullptr)
+    : context_(_context)
+    , target_(detail::transform(_op))
     , reg_async_(MessageQueue::InstallAsyncHandler(_id))
     , broadcast_msg_id_(MessageQueue::KNullPost)
     , runthread_(boost::bind(&Alarm::__Run, this), "alarm")
@@ -132,6 +135,7 @@ class Alarm {
     virtual void __Run();
 
  private:
+    mars::boot::Context* context_;
     Runnable* target_;
     MessageQueue::ScopeRegister reg_async_;
     MessageQueue::MessagePost_t broadcast_msg_id_;

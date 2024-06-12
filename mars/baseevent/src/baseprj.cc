@@ -37,6 +37,10 @@ void OnInitBeforeOnCreate(int _encoder_status) {
     GetSignalOnInitBeforeOnCreate()(_encoder_status);
 }
 
+void OnInitBeforeOnCreateV2(int _encoder_status, std::string _encoder_name) {
+    GetSignalOnInitBeforeOnCreateV2()(_encoder_status, _encoder_name);
+}
+
 void OnDestroy() {
     GetSignalOnDestroy()();
 }

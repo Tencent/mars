@@ -34,6 +34,7 @@ class StnManager : public mars::boot::BaseManager {
 
  public:
     void OnInitConfigBeforeOnCreate(const int _packer_encoder_version);
+    void OnInitConfigBeforeOnCreateV2(const int _packer_encoder_version, std::string _packer_encoder_name);
     void OnCreate();
     void OnDestroy();
     void OnSingalCrash(int _sig);
@@ -49,6 +50,8 @@ class StnManager : public mars::boot::BaseManager {
     void SetCallback(Callback* const callback);
     void SetStnCallbackBridge(StnCallbackBridge* _callback_bridge);
     StnCallbackBridge* GetStnCallbackBridge();
+    void SetDefaultLongLinkEncoder(LongLinkEncoder* longlink_encoder);
+    void SetDefaultShortLinkTlsGroup(const std::string& group_name);
 
  public:
     // #################### stn.h Callback ####################
@@ -183,7 +186,7 @@ class StnManager : public mars::boot::BaseManager {
     // the same as ClearTasks(), but also reinitialize network.
     void Reset();
 
-    void ResetAndInitEncoderVersion(int _encoder_version);
+    void ResetAndInitEncoderVersion(int _encoder_version, std::string _encoder_name);
 
     // setting signalling's parameters.
     // if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
@@ -243,7 +246,10 @@ class StnManager : public mars::boot::BaseManager {
     StnCallbackBridge* callback_bridge_ = NULL;
     std::shared_ptr<NetCore> net_core_ = NULL;
     int packer_encoder_version_;
+    std::string packer_encoder_name_;
     std::vector<std::string> empty_longlink_hosts;
+    LongLinkEncoder* default_longlink_encoder = nullptr;
+    std::string default_tls_group_name = "default";
 };  // StnManager
 
 }  // namespace stn

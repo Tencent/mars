@@ -75,11 +75,13 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_reset(JNIEnv* _env, jc
  * Method:    resetAndInitEncoderVersion
  * Signature: (I)V
  */
-DEFINE_FIND_STATIC_METHOD(KJava2C_resetAndInitEncoderVersion, KNetJava2C, "resetAndInitEncoderVersion", "(I)V")
+DEFINE_FIND_STATIC_METHOD(KJava2C_resetAndInitEncoderVersion, KNetJava2C, "resetAndInitEncoderVersion", "(ILjava/lang/String;)V")
 JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_resetAndInitEncoderVersion(JNIEnv* _env,
                                                                                      jclass clz,
-                                                                                     jint _packer_encoder_version) {
-    ResetAndInitEncoderVersion(_packer_encoder_version);
+                                                                                     jint _packer_encoder_version,
+                                                                                     jstring _packer_encoder_name) {
+    std::string packer_encoder_name = (NULL == _packer_encoder_name ? "" : ScopedJstring(_env, _packer_encoder_name).GetChar());
+    ResetAndInitEncoderVersion(_packer_encoder_version, packer_encoder_name);
 }
 
 /*
