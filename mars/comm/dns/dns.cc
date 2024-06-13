@@ -19,6 +19,8 @@
 
 #include "dns/dns.h"
 
+#include <chrono>
+
 #include "mars/comm/macro.h"
 #include "network/getdnssvraddrs.h"
 #include "socket/local_ipstack.h"
