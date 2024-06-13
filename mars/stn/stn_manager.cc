@@ -202,11 +202,11 @@ void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
 // 底层询问上层该host对应的ip列表
-std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host) {
+std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
     std::vector<std::string> ips;
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
-        return callback_bridge_->OnNewDns(_host, _longlink_host);
+        return callback_bridge_->OnNewDns(_host, _longlink_host, _extra_info);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
         return std::vector<std::string>();
@@ -262,7 +262,8 @@ int StnManager::Buf2Resp(uint32_t taskid,
                          const AutoBuffer& extend,
                          int& error_code,
                          int channel_select,
-                         unsigned short& server_sequence_id) {
+                         unsigned short& server_sequence_id,
+                         const std::map<std::string, std::string>& _extra_info) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
         return callback_bridge_->Buf2Resp(taskid,
@@ -272,7 +273,8 @@ int StnManager::Buf2Resp(uint32_t taskid,
                                           extend,
                                           error_code,
                                           channel_select,
-                                          server_sequence_id);
+                                          server_sequence_id,
+                                          _extra_info);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
         return 0;

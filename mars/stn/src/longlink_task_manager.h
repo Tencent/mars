@@ -74,8 +74,9 @@ class LongLinkTaskManager {
                          const AutoBuffer& _extend)>
         fun_on_push_;
 
-    boost::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)>
+    boost::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
         get_real_host_;
+
     boost::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
     boost::function<bool(int _error_code)> should_intercept_result_;
 
@@ -116,7 +117,7 @@ class LongLinkTaskManager {
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
-
+    
  private:
     // from ILongLinkObserver
     void __OnResponse(const std::string& _name,
