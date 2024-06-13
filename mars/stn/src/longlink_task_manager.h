@@ -96,6 +96,7 @@ class LongLinkTaskManager {
     void RedoTasks();
     void TouchTasks();
     void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id);
+    const Task& GetTask(uint32_t _taskid) const;
 
     // LongLink& LongLinkChannel(const std::string& _name) { return *longlink_; }
     // LongLinkConnectMonitor& getLongLinkConnectMonitor(const std::) { return *longlinkconnectmon_; }
@@ -117,7 +118,7 @@ class LongLinkTaskManager {
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
-
+    
  private:
     // from ILongLinkObserver
     void __OnResponse(const std::string& _name,

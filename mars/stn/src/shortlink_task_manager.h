@@ -99,6 +99,7 @@ class ShortLinkTaskManager {
     void RedoTasks();
     void TouchTasks();
     void RetryTasks(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid);
+    const Task& GetTask(uint32_t _taskid) const;
     void SetDebugHost(const std::string& _host) {
         debug_host_ = _host;
     }

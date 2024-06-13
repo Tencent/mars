@@ -87,6 +87,23 @@ bool ZombieTaskManager::StopTask(uint32_t _taskid) {
     return false;
 }
 
+// TODO(roysun): 改成智能指针
+const Task& ZombieTaskManager::GetTask(uint32_t _taskid) const {
+    xverbose_function();
+
+    std::list<ZombieTask>::const_iterator first = lsttask_.begin();
+    std::list<ZombieTask>::const_iterator last = lsttask_.end();
+
+    while (first != last) {
+        if (_taskid == first->task.taskid) {
+            return first->task;
+        }
+        ++first;
+    }
+
+    return Task();
+}
+
 bool ZombieTaskManager::HasTask(uint32_t _taskid) const {
     xverbose_function();
 
