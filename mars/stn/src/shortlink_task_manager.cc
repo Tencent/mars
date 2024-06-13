@@ -130,6 +130,23 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
     return false;
 }
 
+// TODO(roysun): 改成智能指针
+const Task& ShortLinkTaskManager::GetTask(uint32_t _taskid) const {
+    xverbose_function();
+
+    std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
+    std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
+
+    while (first != last) {
+        if (_taskid == first->task.taskid) {
+            return first->task;
+        }
+        ++first;
+    }
+
+    return Task();
+}
+
 bool ShortLinkTaskManager::HasTask(uint32_t _taskid) const {
     xverbose_function();
 
