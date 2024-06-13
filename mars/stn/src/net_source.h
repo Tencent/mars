@@ -61,7 +61,7 @@ class NetSource {
         DnsUtil& operator=(const DnsUtil&);
 
      private:
-        std::vector<std::string> __OnNewDns(const std::string& _host, bool _longlink_host);
+        std::vector<std::string> __OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _host_extra_info);
 
      private:
         boot::Context* context_;
@@ -125,13 +125,15 @@ class NetSource {
     // for long link
     bool GetLongLinkItems(const struct LonglinkConfig& _config,
                           DnsUtil& _dns_util,
-                          std::vector<IPPortItem>& _ipport_items);
+                          std::vector<IPPortItem>& _ipport_items,
+                          const std::map<std::string, std::string>& _host_extra_info);
 
     // for short link
     bool GetShortLinkItems(const std::vector<std::string>& _hostlist,
                            std::vector<IPPortItem>& _ipport_items,
                            DnsUtil& _dns_util,
-                           const std::string& _cgi);
+                           const std::string& _cgi,
+                           const std::map<std::string, std::string>& _host_extra_info);
 
     void AddServerBan(const std::string& _ip);
 
@@ -164,13 +166,15 @@ class NetSource {
     void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                           const std::vector<std::string>& _hostlist,
                           DnsUtil& _dns_util,
-                          bool _islonglink);
+                          bool _islonglink,
+                          const std::map<std::string, std::string>& _host_extra_info);
     size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items,
                          const std::string& _host,
                          size_t _count,
                          DnsUtil& _dns_util,
                          bool _isbackup,
-                         bool _islonglink);
+                         bool _islonglink,
+                         const std::map<std::string, std::string>& _host_extra_info);
 
  private:
     boot::Context* context_;

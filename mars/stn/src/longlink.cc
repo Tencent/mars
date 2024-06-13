@@ -582,8 +582,7 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     std::vector<IPPortItem> ip_items;
     std::vector<socket_address> vecaddr;
-
-    netsource_->GetLongLinkItems(config_, dns_util_, ip_items);
+    netsource_->GetLongLinkItems(config_, dns_util_, ip_items, {});
     mars::comm::ProxyInfo proxy_info = context_->GetManager<AppManager>()->GetProxyInfo("");
     bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type
                      && mars::comm::kProxyHttp != proxy_info.type && netsource_->GetLongLinkDebugIP().empty();
