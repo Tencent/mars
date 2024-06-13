@@ -372,7 +372,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
             first->transfer_profile.begin_first_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic, task.extra_info);
             first->transfer_profile.end_first_get_host_time = gettickcount();
 
         } else {
@@ -385,7 +385,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true);
             hosts = task.shortlink_host_list;
             first->transfer_profile.begin_retry_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
+            if (get_real_host_) {
+                realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false, task.extra_info);
+            }
             first->transfer_profile.end_retry_get_host_time = gettickcount();
         }
 
@@ -494,7 +496,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                                extension,
                                                                                err_code,
                                                                                Task::kChannelShort,
-                                                                               server_sequence_id);
+                                                                               server_sequence_id,
+                                                                               first->task.extra_info);
                 xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
                 first->task.server_sequence_id = server_sequence_id;
                 ConnectProfile profile;
@@ -530,7 +533,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                      net_source_,
                                                                      first->task,
                                                                      config);
-        worker->func_host_filter = get_real_host_strict_match_;
+        if (get_real_host_strict_match_) {
+            worker->func_host_filter = get_real_host_strict_match_;
+        }
         worker->func_add_weak_net_info =
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
@@ -591,8 +596,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                         this,
                                                         std::placeholders::_1,
                                                         std::placeholders::_2);
-
-            worker->task_connection_detail_ = task_connection_detail_;
+            
+            if (task_connection_detail_) {
+                worker->task_connection_detail_ = task_connection_detail_;
+            }
             worker->fun_callback_ = fun_callback_;
             worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
 
@@ -783,7 +790,8 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                                                    _extension,
                                                                    err_code,
                                                                    Task::kChannelShort,
-                                                                   server_sequence_id);
+                                                                   server_sequence_id,
+                                                                   it->task.extra_info);
     xinfo2_if(it->task.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
     it->transfer_profile.end_buf2resp_time = gettickcount();
@@ -1126,7 +1134,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         }
 
         if (task_connection_detail_) {
-            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);
+            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index, _it->task.extra_info);
         }
 
         int cgi_retcode = fun_callback_(_err_type,
