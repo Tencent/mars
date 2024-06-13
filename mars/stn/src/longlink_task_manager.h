@@ -76,6 +76,8 @@ class LongLinkTaskManager {
 
     boost::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)>
         get_real_host_;
+    boost::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
+        get_real_host_with_extra_info_;
     boost::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
     boost::function<bool(int _error_code)> should_intercept_result_;
 

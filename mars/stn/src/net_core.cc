@@ -1324,6 +1324,13 @@ void NetCore::SetGetRealHostFunc(
     }
 }
 
+void NetCore::SetGetRealHostFuncWithExtraInfo(
+    const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, const std::map<std::string, std::string>& extra_info)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->get_real_host_strict_match_with_extra_info_ = func;
+    }
+}
+
 void NetCore::SetAddWeakNetInfo(const std::function<void(bool _connect_timeout, struct tcp_info& _info)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->add_weaknet_info_ = func;
@@ -1334,6 +1341,13 @@ void NetCore::SetLongLinkGetRealHostFunc(
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func) {
     if (longlink_task_manager_) {
         longlink_task_manager_->get_real_host_ = func;
+    }
+}
+
+void NetCore::SetLongLinkGetRealHostFuncWithExtraInfo(
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)> func) {
+    if (longlink_task_manager_) {
+        longlink_task_manager_->get_real_host_with_extra_info_ = func;
     }
 }
 
@@ -1360,10 +1374,24 @@ void NetCore::SetShortLinkGetRealHostFunc(
     }
 }
 
+void NetCore::SetShortLinkGetRealHostFuncWithExtraInfo(
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->get_real_host_with_extra_info_ = func;
+    }
+}
+
 void NetCore::SetShortLinkTaskConnectionDetail(
     std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->task_connection_detail_ = func;
+    }
+}
+
+void NetCore::SetShortLinkTaskConnectionDetailWithExtraInfo(
+    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index, const std::map<std::string, std::string>& extra_info)> func) {
+    if (shortlink_task_manager_) {
+        shortlink_task_manager_->task_connection_detail_with_extra_info_ = func;
     }
 }
 
