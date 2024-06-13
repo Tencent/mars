@@ -176,11 +176,11 @@ void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
 // 底层询问上层该host对应的ip列表
-std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host) {
+std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _host_extra_info) {
     std::vector<std::string> ips;
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
-        return callback_bridge_->OnNewDns(_host, _longlink_host);
+        return callback_bridge_->OnNewDns(_host, _longlink_host, _host_extra_info);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
         return std::vector<std::string>();

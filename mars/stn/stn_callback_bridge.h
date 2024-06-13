@@ -33,7 +33,7 @@ class StnCallbackBridge {
 
     virtual void TrafficData(ssize_t _send, ssize_t _recv);
 
-    virtual std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
+    virtual std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _host_extra_info);
     virtual void OnPush(const std::string& _channel_id,
                         uint32_t _cmdid,
                         uint32_t _taskid,

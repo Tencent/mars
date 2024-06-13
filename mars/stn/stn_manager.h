@@ -58,7 +58,7 @@ class StnManager : public mars::boot::BaseManager {
     void TrafficData(ssize_t _send, ssize_t _recv);
 
     // 底层询问上层该host对应的ip列表
-    std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
+    std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _host_extra_info);
     // 网络层收到push消息回调
     void OnPush(const std::string& _channel_id,
                 uint32_t _cmdid,
