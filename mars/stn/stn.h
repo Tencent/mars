@@ -141,6 +141,9 @@ struct Task {
     unsigned short client_sequence_id;  // 用于与后台上报对应的sequence id.
     unsigned short server_sequence_id;
     bool need_realtime_netinfo;  // need realtime net info. for network-cross checking
+    
+    // 解析host时透传回给使用方
+    std::map<std::string, std::string> host_extra_info;
 };
 
 struct CgiProfile {
