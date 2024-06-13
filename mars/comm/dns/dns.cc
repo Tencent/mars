@@ -68,10 +68,9 @@ NO_DESTROY static std::vector<dnsinfo> sg_dnsinfo_vec;
 NO_DESTROY static Condition sg_condition;
 NO_DESTROY static Mutex sg_mutex;
 void DNS::__GetIP() {
-    xverbose_function();
-
+    xinfo_function();
     auto start_time = ::gettickcount();
-
+    auto dns_getip_start = std::chrono::high_resolution_clock::now();
     std::string host_name;
     // DNS::DNSFunc dnsfunc = NULL;
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc;
@@ -90,7 +89,7 @@ void DNS::__GetIP() {
             break;
         }
     }
-
+    xinfo2(TSF "start __GetIP for host: %_", host_name);
     lock.unlock();
     xdebug2(TSF "dnsfunc is null: %_, %_", host_name, (dnsfunc == NULL));
     if (NULL == dnsfunc) {
@@ -178,12 +177,15 @@ void DNS::__GetIP() {
 
             freeaddrinfo(result);
             iter->status = kGetIPSuc;
-            xinfo2(TSF "cost time: %_", (::gettickcount() - start_time)) >> ip_group;
+            auto dns_getip_end = std::chrono::high_resolution_clock::now();
+            auto dns_getip_cost =
+                std::chrono::duration_cast<std::chrono::microseconds>(dns_getip_end - dns_getip_start).count();
+            xinfo2(TSF "dnsTime debug: local dns cost time: %_ us", dns_getip_cost) >> ip_group;
             sg_condition.notifyAll();
         }
     } else {
         std::vector<std::string> ips;
-        if (status != kGetIPCancel) { // 此时iter可能已经失效了
+        if (status != kGetIPCancel) {  // 此时iter可能已经失效了
             ips = dnsfunc(host_name, longlink_host);
         }
 
@@ -200,6 +202,10 @@ void DNS::__GetIP() {
             iter->status = ips.empty() ? kGetIPFail : kGetIPSuc;
             iter->result = ips;
         }
+        auto dns_getip_end = std::chrono::high_resolution_clock::now();
+        auto dns_getip_cost =
+            std::chrono::duration_cast<std::chrono::microseconds>(dns_getip_end - dns_getip_start).count();
+        xinfo2(TSF "dnsTime debug: newdns cost time: %_ us", dns_getip_cost);
         sg_condition.notifyAll();
     }
 }
@@ -218,8 +224,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
                         long millsec,
                         DNSBreaker* _breaker,
                         bool _longlink_host) {
-    xverbose_function("host: %s, longlink: %d", _host_name.c_str(), _longlink_host);
-
+    xinfo_function("host: %s, longlink: %d", _host_name.c_str(), _longlink_host);
     xassert2(!_host_name.empty());
 
     if (_host_name.empty()) {
@@ -247,6 +252,10 @@ bool DNS::GetHostByName(const std::string& _host_name,
     info.status = kGetIPDoing;
     info.longlink_host = _longlink_host;
     sg_dnsinfo_vec.push_back(info);
+    //    if (dnsfunc_ == nullptr && _host_name == "extshort.weixin.qq.com" /*|| _host_name ==
+    //    "minorshort.weixin.qq.com"*/) {
+    //        xinfo2(TSF "using local dns here, pls check");
+    //    }
 
     if (_breaker)
         _breaker->dnsstatus = &(sg_dnsinfo_vec.back().status);

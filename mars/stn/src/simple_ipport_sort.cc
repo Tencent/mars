@@ -558,6 +558,7 @@ void SimpleIPPortSort::__PickIpItemRandom(std::vector<IPPortItem>& _items,
 
 void SimpleIPPortSort::SortandFilter(std::vector<IPPortItem>& _items, int _needcount, bool _use_IPv6) const {
     //    xinfo2(TSF"needcount %_, use ipv6 %_ ", _needcount, _use_IPv6);
+    xinfo_function(TSF "dnsTime debug");
     ScopedLock lock(mutex_);
     __FilterbyBanned(_items);
     for (size_t i = 0; i < _items.size(); i++) {

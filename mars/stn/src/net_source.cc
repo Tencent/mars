@@ -353,15 +353,25 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist,
                                   const std::string& _cgi) {
     ScopedLock lock(sg_ip_mutex);
 
+    auto get_debug_ip_start = std::chrono::high_resolution_clock::now();
     if (__GetShortlinkDebugIPPort(_hostlist, _ipport_items, _cgi)) {
+        xinfo2(TSF "dnsTime debug: __GetShortlinkDebugIPPort return true");
         return true;
     }
-
+    auto get_debug_ip_end = std::chrono::high_resolution_clock::now();
+    auto get_debug_ip_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(get_debug_ip_end - get_debug_ip_start).count();
     lock.unlock();
 
     if (_hostlist.empty())
         return false;
     __GetIPPortItems(_ipport_items, _hostlist, _dns_util, false);
+    auto get_ip_port_end = std::chrono::high_resolution_clock::now();
+    auto get_ip_port_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(get_ip_port_end - get_debug_ip_end).count();
+    xinfo2(TSF "dnsTime debug: __GetShortlinkDebugIPPort: %_ us, __GetIPPortItems: %_ us",
+           get_debug_ip_cost,
+           get_ip_port_cost);
 
     return !_ipport_items.empty();
 }
@@ -410,6 +420,7 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                                  const std::vector<std::string>& _hostlist,
                                  DnsUtil& _dns_util,
                                  bool _islonglink) {
+    xinfo_function(TSF "");
     if (active_logic_.IsActive()) {
         unsigned int merge_type_count = 0;
         unsigned int makelist_count = kNumMakeCount;
@@ -463,12 +474,20 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
     std::vector<uint16_t> ports;
 
     if (!_isbackup) {
+        xinfo2(TSF "start newdns GetHostByName");
         DnsProfile dns_profile;
         dns_profile.host = _host;
 
+        auto newdns_gethost_start = std::chrono::high_resolution_clock::now();
+
         bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist, 2 * 1000, NULL, _islonglink);
 
+        auto newdns_gethost_end = std::chrono::high_resolution_clock::now();
+        auto newdns_gethost_cost =
+            std::chrono::duration_cast<std::chrono::microseconds>(newdns_gethost_end - newdns_gethost_start).count();
         dns_profile.end_time = gettickcount();
+        auto profile_cost = dns_profile.end_time - dns_profile.start_time;
+        xinfo2(TSF "dnsTime debug: shortlink newdns cost: cpp: %_ us, profile: %_ us", newdns_gethost_cost, profile_cost);
         if (!ret)
             dns_profile.OnFailed();
         if (context_->GetManager<StnManager>()->ReportDnsProfileFunc) {
@@ -551,7 +570,8 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
 
     size_t len = _ip_items.size();
 
-    std::vector<IPPortItem> temp_items;
+    std::vector<IPPortItem> temp_items;  // TODO(torenchen) 先reserve
+    auto make_temp_item_start = std::chrono::high_resolution_clock::now();
     for (std::vector<std::string>::iterator ip_iter = iplist.begin(); ip_iter != iplist.end(); ++ip_iter) {
         for (std::vector<uint16_t>::iterator port_iter = ports.begin(); port_iter != ports.end(); ++port_iter) {
             IPPortItem item;
@@ -562,6 +582,9 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
             temp_items.push_back(item);
         }
     }
+    auto make_temp_item_end = std::chrono::high_resolution_clock::now();
+    auto make_temp_item_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(make_temp_item_end - make_temp_item_start).count();
 
     if (!_isbackup) {
         ipportstrategy_.SortandFilter(temp_items, (int)(_count - len), true);
@@ -571,6 +594,13 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
         mars::comm::random_shuffle(_ip_items.begin() + len, _ip_items.end());
         _ip_items.resize(std::min(_ip_items.size(), (size_t)_count));
     }
+
+    auto sort_filter_end = std::chrono::high_resolution_clock::now();
+    auto sort_filter_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(sort_filter_end - make_temp_item_end).count();
+    xinfo2(TSF "dnsTime debug: make temp ip port items: %_ us, sort and filter: %_ us",
+           make_temp_item_cost,
+           sort_filter_cost);
 
     return _ip_items.size();
 }
@@ -623,15 +653,15 @@ bool NetSource::CanUseQUIC() {
     return sg_quic_enabled;
 }
 
-void NetSource::DisableIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	xwarn2_if(sg_ipv6_enabled, TSF"ipv6 disabled.");
-	sg_ipv6_enabled = false;
+void NetSource::DisableIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    xwarn2_if(sg_ipv6_enabled, TSF "ipv6 disabled.");
+    sg_ipv6_enabled = false;
 }
 
-bool NetSource::CanUseIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	return sg_ipv6_enabled;
+bool NetSource::CanUseIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    return sg_ipv6_enabled;
 }
 
 unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {

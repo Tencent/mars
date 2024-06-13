@@ -225,21 +225,37 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     xmessage2_define(message)(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
 
     _conn_profile.dns_time = ::gettickcount();
+    auto start = std::chrono::high_resolution_clock::now();
     __UpdateProfile(_conn_profile);
 
     if (!task_.shortlink_host_list.empty()) {
         _conn_profile.host = task_.shortlink_host_list.front();
     }
 
+    auto update_profile_end = std::chrono::high_resolution_clock::now();
+    auto update_profile_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(update_profile_end - start).count();
+
     if (use_proxy_) {
         _conn_profile.proxy_info = context_->GetManager<AppManager>()->GetProxyInfo(_conn_profile.host);
     }
 
+    auto get_proxy_info_end = std::chrono::high_resolution_clock::now();
+    auto get_proxy_info_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(get_proxy_info_end - update_profile_end).count();
+
     bool use_proxy = _conn_profile.proxy_info.IsAddressValid();
     TLocalIPStack local_stack = local_ipstack_detect();
+
+    auto check_addr_end = std::chrono::high_resolution_clock::now();
+    auto check_addr_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(check_addr_end - get_proxy_info_end).count();
+
     bool isnat64 = local_stack == ELocalIPStack_IPv6;
     _conn_profile.local_net_stack = local_stack;
 
+    auto get_proxy_end = std::chrono::high_resolution_clock::now();
+    auto get_proxy_cost = std::chrono::duration_cast<std::chrono::microseconds>(get_proxy_end - check_addr_end).count();
     //
     if (outter_vec_addr_.empty()) {
         net_source_->GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi);
@@ -247,6 +263,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         //.如果有外部ip则直接使用，比如newdns.
         _conn_profile.ip_items = outter_vec_addr_;
     }
+
+    auto get_short_link_end = std::chrono::high_resolution_clock::now();
+    auto get_short_link_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(get_short_link_end - get_proxy_end).count();
 
     if (_conn_profile.ip_items.empty()) {
         xerror2(TSF "task socket connect fail %_ ipitems empty", message.String());
@@ -259,6 +279,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         xwarn2(TSF "forbid proxy when debugip present.");
         use_proxy = false;
     }
+
+    auto preprocess_end = std::chrono::high_resolution_clock::now();
+    auto preprocess_cost = std::chrono::duration_cast<std::chrono::microseconds>(preprocess_end - start).count();
 
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type
         && net_source_->GetShortLinkDebugIP().empty()) {
@@ -287,6 +310,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         __UpdateProfile(_conn_profile);
     }
 
+    auto proxy0_end = std::chrono::high_resolution_clock::now();
+    auto proxy0_cost = std::chrono::duration_cast<std::chrono::microseconds>(proxy0_end - preprocess_end).count();
+
     std::string proxy_ip;
     if (use_proxy && mars::comm::kProxyNone != _conn_profile.proxy_info.type) {
         std::vector<std::string> proxy_ips;
@@ -300,6 +326,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             proxy_ip = _conn_profile.proxy_info.ip;
         }
     }
+    auto proxy1_end = std::chrono::high_resolution_clock::now();
+    auto proxy1_cost = std::chrono::duration_cast<std::chrono::microseconds>(proxy1_end - proxy0_end).count();
 
     std::vector<socket_address> vecaddr;
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
@@ -316,6 +344,8 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
             }
         }
     }
+    auto proxy_http_end = std::chrono::high_resolution_clock::now();
+    auto proxy_http_cost = std::chrono::duration_cast<std::chrono::microseconds>(proxy_http_end - proxy1_end).count();
 
     socket_address* proxy_addr = NULL;
     if (use_proxy
@@ -340,6 +370,9 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         delete proxy_addr;
         return INVALID_SOCKET;
     }
+
+    auto tunnel_s5_end = std::chrono::high_resolution_clock::now();
+    auto tunnel_s5_cost = std::chrono::duration_cast<std::chrono::microseconds>(tunnel_s5_end - proxy_http_end).count();
 
 #ifdef _WIN32
     //.need remove ipv6 address?.
@@ -379,6 +412,23 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.port = _conn_profile.ip_items[0].port;
     _conn_profile.nat64 = isnat64;
     _conn_profile.dns_endtime = ::gettickcount();
+    auto total_us = std::chrono::duration_cast<std::chrono::microseconds>(tunnel_s5_end - start).count();
+    xinfo2(TSF
+           "dnsTime debug: %_, us: %_, host: %_ update: %_, app proxy info: %_, check addr: %_, get proxy: %_, get "
+           "short link: %_, pre: %_, proxy0: %_, proxy1: %_, proxy_http: %_, tunnel_s5: %_",
+           _conn_profile.dns_endtime - _conn_profile.dns_time,
+           total_us,
+           _conn_profile.host,
+           update_profile_cost,
+           get_proxy_info_cost,
+           check_addr_cost,
+           get_proxy_cost,
+           get_short_link_cost,
+           preprocess_cost,
+           proxy0_cost,
+           proxy1_cost,
+           proxy_http_cost,
+           tunnel_s5_cost);
     _conn_profile.transport_protocol = socketOperator_->Protocol();
     _conn_profile.closefunc = socketOperator_->GetCloseFunction();
     _conn_profile.createstream_func = socketOperator_->GetCreateStreamFunc();
