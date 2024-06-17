@@ -211,6 +211,7 @@ bool StnManager::Req2Buf(uint32_t taskid,
                          int channel_select,
                          const std::string& host,
                          const unsigned short client_sequence_id) {
+    xinfo_function(TSF "taskid:%_, host: %_", taskid, host);
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
         return callback_bridge_->Req2Buf(taskid,

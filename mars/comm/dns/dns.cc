@@ -78,8 +78,9 @@ void DNS::__GetIP() {
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc;
     bool longlink_host = false;
     int status = kGetIPDoing;
-
+    xinfo2(TSF "In thread wait sg_mutex");
     ScopedLock lock(sg_mutex);
+    xinfo2(TSF "In thread get sg_mutex");
     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
 
     for (; iter != sg_dnsinfo_vec.end(); ++iter) {
@@ -91,7 +92,7 @@ void DNS::__GetIP() {
             break;
         }
     }
-    xinfo2(TSF "start __GetIP for host: %_", host_name);
+    xinfo2(TSF "In thread start __GetIP for host: %_", host_name);
     lock.unlock();
     xdebug2(TSF "dnsfunc is null: %_, %_", host_name, (dnsfunc == NULL));
     if (NULL == dnsfunc) {
@@ -232,12 +233,13 @@ bool DNS::GetHostByName(const std::string& _host_name,
     if (_host_name.empty()) {
         return false;
     }
-
+    xinfo2(TSF "GetHostByName wait sg_mutex");
     ScopedLock lock(sg_mutex);
+    xinfo2(TSF "GetHostByName get sg_mutex");
 
     if (_breaker && _breaker->isbreak)
         return false;
-
+    xinfo2(TSF "start thread GetIP, Host: %_", _host_name);
     Thread thread(std::bind(&DNS::__GetIP, this), _host_name.c_str());
     int startRet = thread.start();
 
@@ -267,9 +269,9 @@ bool DNS::GetHostByName(const std::string& _host_name,
     while (true) {
         uint64_t time_cur = gettickcount();
         uint64_t time_wait = time_end > time_cur ? time_end - time_cur : 0;
-
+        xinfo2(TSF "wait for GetIP return, Host: %_", _host_name);
         int wait_ret = sg_condition.wait(lock, (long)time_wait);
-
+        xinfo2(TSF "GetIP return: %_, Host: %_", wait_ret, _host_name);
         std::vector<dnsinfo>::iterator it = sg_dnsinfo_vec.begin();
 
         for (; it != sg_dnsinfo_vec.end(); ++it) {
