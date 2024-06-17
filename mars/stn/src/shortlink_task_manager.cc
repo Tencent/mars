@@ -91,7 +91,7 @@ ShortLinkTaskManager::~ShortLinkTaskManager() {
 }
 
 bool ShortLinkTaskManager::StartTask(const Task& _task, PrepareProfile _prepare_profile) {
-    xverbose_function();
+    xinfo_function();
 
     if (_task.send_only) {
         xassert2(false);

@@ -351,10 +351,23 @@ void NetCore::StartTask(const Task& _task) {
         return;
     }
     _profile.begin_process_hosts_time = gettickcount();
+    auto start_host_redirect = std::chrono::steady_clock::now();
     if (task_process_hook_) {
         task_process_hook_(task);
     }
+    auto host_redirect_cost =
+        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start_host_redirect)
+            .count();
     _profile.end_process_hosts_time = gettickcount();
+    xinfo2(
+        TSF
+        "host_redirect cost, steady_clock: %_ us, tick_count: %_ ms, start_tick: %_, end_tick: %_, taskid:%_, cgi: %_",
+        host_redirect_cost,
+        _profile.end_process_hosts_time - _profile.begin_process_hosts_time,
+        _profile.begin_process_hosts_time,
+        _profile.end_process_hosts_time,
+        task.taskid,
+        task.cgi);
 
     if (0 == task.channel_select) {
         xerror2(TSF "error channelType (%_, %_), ", kEctLocal, kEctLocalChannelSelect) >> group;
@@ -639,13 +652,13 @@ void NetCore::DisconnectLongLinkByTaskId(uint32_t _taskid, LongLinkErrCode::TDis
     }
 }
 
-//#ifdef __APPLE__
-// void NetCore::__ResetLongLink() {
-//    SYNC2ASYNC_FUNC(boost::bind(&NetCore::__ResetLongLink, this));
-//    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->LongLinkChannel().Disconnect(LongLink::kNetworkChange);
-//    longlink_task_managers_[DEFAULT_LONGLINK_NAME]->RedoTasks();
-//}
-//#endif
+// #ifdef __APPLE__
+//  void NetCore::__ResetLongLink() {
+//     SYNC2ASYNC_FUNC(boost::bind(&NetCore::__ResetLongLink, this));
+//     longlink_task_managers_[DEFAULT_LONGLINK_NAME]->LongLinkChannel().Disconnect(LongLink::kNetworkChange);
+//     longlink_task_managers_[DEFAULT_LONGLINK_NAME]->RedoTasks();
+// }
+// #endif
 #endif
 
 void NetCore::RedoTasks() {
