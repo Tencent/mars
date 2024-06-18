@@ -255,8 +255,8 @@ bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config,
         xerror2("longlink host empty.");
         return false;
     }
-
-    __GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true);
+    xinfo2(TSF "LongLink , host: %_, size: %_, backup: true", longlink_hosts.front(), longlink_hosts.size());
+    __GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true, true);
     return !_ipport_items.empty();
 }
 
@@ -350,7 +350,8 @@ bool NetSource::__HasShortLinkDebugIP(const std::vector<std::string>& _hostlist)
 bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist,
                                   std::vector<IPPortItem>& _ipport_items,
                                   DnsUtil& _dns_util,
-                                  const std::string& _cgi) {
+                                  const std::string& _cgi,
+                                  bool use_backup) {
     ScopedLock lock(sg_ip_mutex);
 
     auto get_debug_ip_start = std::chrono::high_resolution_clock::now();
@@ -365,7 +366,8 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist,
 
     if (_hostlist.empty())
         return false;
-    __GetIPPortItems(_ipport_items, _hostlist, _dns_util, false);
+    xinfo2(TSF "ShortLink , host: %_, size: %_, backup: %_", _hostlist.front(), _hostlist.size(), use_backup);
+    __GetIPPortItems(_ipport_items, _hostlist, _dns_util, false, use_backup);
     auto get_ip_port_end = std::chrono::high_resolution_clock::now();
     auto get_ip_port_cost =
         std::chrono::duration_cast<std::chrono::microseconds>(get_ip_port_end - get_debug_ip_end).count();
@@ -419,7 +421,8 @@ bool NetSource::__GetShortlinkDebugIPPort(const std::vector<std::string>& _hostl
 void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                                  const std::vector<std::string>& _hostlist,
                                  DnsUtil& _dns_util,
-                                 bool _islonglink) {
+                                 bool _islonglink,
+                                 bool use_backup) {
     xinfo_function(TSF "");
     if (active_logic_.IsActive()) {
         unsigned int merge_type_count = 0;
@@ -433,12 +436,14 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                 merge_type_count++;
         }
 
-        for (std::vector<std::string>::const_iterator iter = _hostlist.begin(); iter != _hostlist.end(); ++iter) {
-            if (merge_type_count == 1 && _ipport_items.size() == kNumMakeCount)
-                makelist_count = kNumMakeCount + 1;
-
-            if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/true, _islonglink))
-                merge_type_count++;
+        if (use_backup) {
+            for (std::vector<std::string>::const_iterator iter = _hostlist.begin(); iter != _hostlist.end(); ++iter) {
+                if (merge_type_count == 1 && _ipport_items.size() == kNumMakeCount)
+                    makelist_count = kNumMakeCount + 1;
+                xinfo2(TSF "active_logic_ IsActive, host: %_, backup: true", *iter);
+                if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/true, _islonglink))
+                    merge_type_count++;
+            }
         }
     } else {
         size_t host_count = _hostlist.size();
@@ -455,10 +460,13 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
             i++;
         }
 
-        for (std::vector<std::string>::const_iterator host_iter = _hostlist.begin();
-             host_iter != _hostlist.end() && count < kNumMakeCount;
-             ++host_iter) {
-            __MakeIPPorts(_ipport_items, *host_iter, kNumMakeCount, _dns_util, /*_isbackup=*/true, _islonglink);
+        if (use_backup) {
+            for (std::vector<std::string>::const_iterator host_iter = _hostlist.begin();
+                 host_iter != _hostlist.end() && count < kNumMakeCount;
+                 ++host_iter) {
+                xinfo2(TSF "active_logic_ not Active, host: %_, backup: true", *host_iter);
+                __MakeIPPorts(_ipport_items, *host_iter, kNumMakeCount, _dns_util, /*_isbackup=*/true, _islonglink);
+            }
         }
     }
 }
@@ -469,6 +477,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
                                 DnsUtil& _dns_util,
                                 bool _isbackup,
                                 bool _islonglink) {
+    xinfo_function(TSF "");
     IPSourceType ist = kIPSourceNULL;
     std::vector<std::string> iplist;
     std::vector<uint16_t> ports;
@@ -653,15 +662,15 @@ bool NetSource::CanUseQUIC() {
     return sg_quic_enabled;
 }
 
-void NetSource::DisableIPv6() {
-    ScopedLock lock(sg_ip_mutex);
-    xwarn2_if(sg_ipv6_enabled, TSF "ipv6 disabled.");
-    sg_ipv6_enabled = false;
+void NetSource::DisableIPv6(){
+	ScopedLock lock(sg_ip_mutex);
+	xwarn2_if(sg_ipv6_enabled, TSF"ipv6 disabled.");
+	sg_ipv6_enabled = false;
 }
 
-bool NetSource::CanUseIPv6() {
-    ScopedLock lock(sg_ip_mutex);
-    return sg_ipv6_enabled;
+bool NetSource::CanUseIPv6(){
+	ScopedLock lock(sg_ip_mutex);
+	return sg_ipv6_enabled;
 }
 
 unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {

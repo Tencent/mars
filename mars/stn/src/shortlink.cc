@@ -257,7 +257,16 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     auto get_proxy_end = std::chrono::high_resolution_clock::now();
     auto get_proxy_cost = std::chrono::duration_cast<std::chrono::microseconds>(get_proxy_end - check_addr_end).count();
     if (outter_vec_addr_.empty()) {
-        net_source_->GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi);
+        xinfo2(TSF "ShortLink __GetIPPortItems, host: %_, size: %_, retry_count %_, is_retry backup: %_",
+               task_.shortlink_host_list.front(),
+               task_.shortlink_host_list.size(),
+               task_.retry_count,
+               task_.is_retry);
+        net_source_->GetShortLinkItems(task_.shortlink_host_list,
+                                       _conn_profile.ip_items,
+                                       dns_util_,
+                                       _conn_profile.cgi,
+                                       task_.is_retry);
     } else {
         //.如果有外部ip则直接使用，比如newdns.
         _conn_profile.ip_items = outter_vec_addr_;

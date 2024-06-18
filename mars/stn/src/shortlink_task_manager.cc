@@ -534,6 +534,15 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->transfer_profile.send_data_size = bufreq.Length();
 
+        first->task.is_retry = (!first->history_transfer_profiles.empty()) || first->remain_retry_count <= 0;
+        xinfo2(TSF
+               "create shortlink obj, TaskProfile remain_retry_count: %_, retry_start_time: %_, "
+               "history_transfer_profiles size: %_, last_failed_dyntime_status: %_, is_retry_flag: %_",
+               first->remain_retry_count,
+               first->retry_start_time,
+               first->history_transfer_profiles.size(),
+               first->last_failed_dyntime_status,
+               first->task.is_retry);
         ShortLinkInterface* worker = ShortLinkChannelFactory::Create(context_,
                                                                      MessageQueue::Handler2Queue(asyncreg_.Get()),
                                                                      net_source_,

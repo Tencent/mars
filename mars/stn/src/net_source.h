@@ -116,7 +116,7 @@ class NetSource {
 
     void DisableIPv6();
     bool CanUseIPv6();
-    
+
  public:
     NetSource(comm::ActiveLogic& _active_logic, boot::Context* _context);
     ~NetSource();
@@ -131,7 +131,8 @@ class NetSource {
     bool GetShortLinkItems(const std::vector<std::string>& _hostlist,
                            std::vector<IPPortItem>& _ipport_items,
                            DnsUtil& _dns_util,
-                           const std::string& _cgi);
+                           const std::string& _cgi,
+                           bool use_backup);
 
     void AddServerBan(const std::string& _ip);
 
@@ -164,7 +165,8 @@ class NetSource {
     void __GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                           const std::vector<std::string>& _hostlist,
                           DnsUtil& _dns_util,
-                          bool _islonglink);
+                          bool _islonglink,
+                          bool use_backup);
     size_t __MakeIPPorts(std::vector<IPPortItem>& _ip_items,
                          const std::string& _host,
                          size_t _count,
@@ -203,7 +205,6 @@ class NetSource {
     tickcount_t sg_quic_reopen_tick = tickcount_t(true);
     bool sg_quic_enabled = true;
 
-    
     TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
     unsigned sg_quic_default_rw_timeoutms = 5000;
     std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
