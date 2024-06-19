@@ -281,8 +281,13 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid,
     jfieldID fid_startHandshakeTime = env->GetFieldID(cgiProfileCls, "startHandshakeTime", "J");
     jfieldID fid_handshakeSuccessfulTime = env->GetFieldID(cgiProfileCls, "handshakeSuccessfulTime", "J");
     jfieldID fid_startSendPacketTime = env->GetFieldID(cgiProfileCls, "startSendPacketTime", "J");
+    jfieldID fid_sendPacketFinishedTime = env->GetFieldID(cgiProfileCls, "sendPacketFinishedTime", "J");
     jfieldID fid_startReadPacketTime = env->GetFieldID(cgiProfileCls, "startReadPacketTime", "J");
     jfieldID fid_readPacketFinishedTime = env->GetFieldID(cgiProfileCls, "readPacketFinishedTime", "J");
+    jfieldID fid_startEncodePacketTime = env->GetFieldID(cgiProfileCls, "startEncodePacketTime", "J");
+    jfieldID fid_encodePacketFinishedTime = env->GetFieldID(cgiProfileCls, "encodePacketFinishedTime", "J");
+    jfieldID fid_startDecodePacketTime = env->GetFieldID(cgiProfileCls, "startDecodePacketTime", "J");
+    jfieldID fid_decodePacketFinishedTime = env->GetFieldID(cgiProfileCls, "decodePacketFinishedTime", "J");
     jfieldID fid_rtt = env->GetFieldID(cgiProfileCls, "rtt", "J");
     jfieldID fid_channelType = env->GetFieldID(cgiProfileCls, "channelType", "I");
     jfieldID fid_protocolType = env->GetFieldID(cgiProfileCls, "protocolType", "I");
@@ -295,8 +300,13 @@ int StnManagerJniCallback::OnTaskEnd(uint32_t _taskid,
     env->SetLongField(jobj_cgiItem, fid_startHandshakeTime, tls_start_time);
     env->SetLongField(jobj_cgiItem, fid_handshakeSuccessfulTime, _profile.tls_handshake_successful_time);
     env->SetLongField(jobj_cgiItem, fid_startSendPacketTime, _profile.start_send_packet_time);
+    env->SetLongField(jobj_cgiItem, fid_sendPacketFinishedTime, _profile.send_packet_finished_time);
     env->SetLongField(jobj_cgiItem, fid_startReadPacketTime, _profile.start_read_packet_time);
     env->SetLongField(jobj_cgiItem, fid_readPacketFinishedTime, _profile.read_packet_finished_time);
+    env->SetLongField(jobj_cgiItem, fid_startEncodePacketTime, _profile.start_encode_packet_time);
+    env->SetLongField(jobj_cgiItem, fid_encodePacketFinishedTime, _profile.encode_packet_finished_time);
+    env->SetLongField(jobj_cgiItem, fid_startDecodePacketTime, _profile.start_decode_packet_time);
+    env->SetLongField(jobj_cgiItem, fid_decodePacketFinishedTime, _profile.decode_packet_finished_time);
     env->SetLongField(jobj_cgiItem, fid_rtt, _profile.rtt);
     env->SetIntField(jobj_cgiItem, fid_channelType, _profile.channel_type);
     env->SetIntField(jobj_cgiItem, fid_protocolType, _profile.transport_protocol);
