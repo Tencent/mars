@@ -461,7 +461,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             }
             first->transfer_profile.end_req2buf_time = gettickcount();
 
-            //雪崩检测
+            // 雪崩检测
             xassert2(fun_anti_avalanche_check_);
 
             if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
@@ -863,15 +863,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                     handle_type,
                     it->task.taskid,
                     it->task.user_id);
-            //#ifdef __APPLE__
-            //            //.test only.
-            //            const char* pbuffer = (const char*)_body.Ptr();
-            //            for (size_t off = 0; off < _body.Length();){
-            //                size_t len = std::min((size_t)512, _body.Length() - off);
-            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-            //                off += len;
-            //            }
-            //#endif
+            // #ifdef __APPLE__
+            //             //.test only.
+            //             const char* pbuffer = (const char*)_body.Ptr();
+            //             for (size_t off = 0; off < _body.Length();){
+            //                 size_t len = std::min((size_t)512, _body.Length() - off);
+            //                 xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                 off += len;
+            //             }
+            // #endif
             __SingleRespHandle(it,
                                kEctEnDecode,
                                err_code,
@@ -1268,7 +1268,12 @@ ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const {
 
     while (first != last) {
         if ((first->running_id) && _taskid == first->task.taskid) {
-            return ((ShortLinkInterface*)(first->running_id))->Profile();
+            auto profile = ((ShortLinkInterface*)(first->running_id))->Profile();
+            profile.start_encode_packet_time = first->transfer_profile.begin_req2buf_time;
+            profile.encode_packet_finished_time = first->transfer_profile.end_req2buf_time;
+            profile.start_decode_packet_time = first->transfer_profile.begin_buf2resp_time;
+            profile.decode_packet_finished_time = first->transfer_profile.end_buf2resp_time;
+            return profile;
         }
         ++first;
     }
