@@ -582,7 +582,6 @@ SOCKET LongLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     std::vector<IPPortItem> ip_items;
     std::vector<socket_address> vecaddr;
-    // TODO(austinjiang): 长链没有Task的概念吗？host_extra_info暂时传空值
     netsource_->GetLongLinkItems(config_, dns_util_, ip_items, {});
     mars::comm::ProxyInfo proxy_info = context_->GetManager<AppManager>()->GetProxyInfo("");
     bool use_proxy = proxy_info.IsValid() && mars::comm::kProxyNone != proxy_info.type
