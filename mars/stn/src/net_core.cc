@@ -546,20 +546,20 @@ void NetCore::StopTask(uint32_t _taskid) {
     ASYNC_BLOCK_END
 }
 
-const Task& NetCore::GetTask(uint32_t _taskid) const {
+bool NetCore::GetTask(const uint32_t _taskid, Task &task) const {
 #ifdef USE_LONG_LINK
     if (need_use_longlink_) {
         if (longlink_task_manager_->HasTask(_taskid))
-            return longlink_task_manager_->GetTask(_taskid);
+            return longlink_task_manager_->GetTask(_taskid, task);
 
         if (zombie_task_manager_->HasTask(_taskid))
-            return zombie_task_manager_->GetTask(_taskid);
+            return zombie_task_manager_->GetTask(_taskid, task);
     }
 #endif
     if (shortlink_task_manager_->HasTask(_taskid))
-        return shortlink_task_manager_->GetTask(_taskid);
+        return shortlink_task_manager_->GetTask(_taskid, task);
     
-    return Task();
+    return false;
 }
 
 bool NetCore::HasTask(uint32_t _taskid) const {
