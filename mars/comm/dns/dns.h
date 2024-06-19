@@ -20,6 +20,7 @@
 #ifndef COMM_COMM_DNS_H_
 #define COMM_COMM_DNS_H_
 
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -67,6 +68,8 @@ class DNS {
         const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc) {
         dnsfunc_ = _dnsfunc;
     }
+    bool IsUseCellularNetwork();
+    bool SetUseCellularNetwork(bool flag);
 
  private:
     void __GetIP();
@@ -76,6 +79,8 @@ class DNS {
     std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc_;
     boost::function<void(int _key)> monitor_func_;
     static const int kDNSThreadIDError = 0;
+    bool is_use_cellular_network_ = false;
+    std::mutex mutex_;
 };
 }  // namespace comm
 }  // namespace mars

@@ -26,6 +26,7 @@
 #include <set>
 
 #include "boost/bind.hpp"
+#include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/marcotoolkit.h"
 #include "mars/comm/platform_comm.h"
 #include "mars/comm/shuffle.h"
@@ -623,15 +624,15 @@ bool NetSource::CanUseQUIC() {
     return sg_quic_enabled;
 }
 
-void NetSource::DisableIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	xwarn2_if(sg_ipv6_enabled, TSF"ipv6 disabled.");
-	sg_ipv6_enabled = false;
+void NetSource::DisableIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    xwarn2_if(sg_ipv6_enabled, TSF "ipv6 disabled.");
+    sg_ipv6_enabled = false;
 }
 
-bool NetSource::CanUseIPv6(){
-	ScopedLock lock(sg_ip_mutex);
-	return sg_ipv6_enabled;
+bool NetSource::CanUseIPv6() {
+    ScopedLock lock(sg_ip_mutex);
+    return sg_ipv6_enabled;
 }
 
 unsigned NetSource::GetQUICRWTimeoutMs(const std::string& _cgi, TimeoutSource* outsource) {
@@ -735,4 +736,44 @@ void NetSource::SetIpConnectTimeout(uint32_t _v4_timeout, uint32_t _v6_timeout) 
 
 WeakNetworkLogic* NetSource::GetWeakNetworkLogic() {
     return weak_network_logic_;
+}
+
+void NetSource::OnConnectEvent(bool _is_suc, int _rtt, int _index) {
+    xverbose2(TSF "[dual-channel] suc:%_ rtt:%_ index:%_", _is_suc, _rtt, _index);
+    weak_network_logic_->OnConnectEvent(_is_suc, _rtt, _index);
+    if (on_connect_event_fun && !IsUseCellularNetwork()) {
+        on_connect_event_fun(_is_suc, _rtt, _index);
+    }
+}
+
+void NetSource::OnPkgEvent(bool _is_firstpkg, int _span) {
+    xverbose2(TSF "[dual-channel] firstpkg:%_ span:%_", _is_firstpkg, _span);
+    weak_network_logic_->OnPkgEvent(_is_firstpkg, _span);
+    if (on_pkg_event_fun && !IsUseCellularNetwork()) {
+        on_pkg_event_fun(_is_firstpkg, _span);
+    }
+}
+
+void NetSource::OnTaskEvent(const TaskProfile& _task_profile) {
+    xverbose2(TSF "[dual-channel] cgi:%_ err_code:%_ err_type:%_",
+              _task_profile.task.cmdid,
+              _task_profile.err_code,
+              _task_profile.err_type);
+    weak_network_logic_->OnTaskEvent(_task_profile);
+    if (on_task_event_fun && !IsUseCellularNetwork()) {
+        on_task_event_fun(_task_profile);
+    }
+}
+
+bool NetSource::IsUseCellularNetwork() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return is_use_cellular_network_;
+}
+
+void NetSource::SetUseCellularNetwork(bool flag) {
+    xdebug2(TSF "[dual-channel] use cellular %_", flag);
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (is_use_cellular_network_ != flag) {
+        is_use_cellular_network_ = flag;
+    }
 }

@@ -148,6 +148,7 @@ struct ConnectProfile {
         end_connect_timestamp_ms = 0;
 
         task_id = 0;
+        is_bind_cellular_network = false;
     }
 
     std::string net_type;
@@ -239,6 +240,7 @@ struct ConnectProfile {
     uint64_t end_connect_timestamp_ms;
 
     uint32_t task_id;
+    bool is_bind_cellular_network;
 };
 
 struct TransferProfile {

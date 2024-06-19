@@ -55,6 +55,28 @@
 #include "comm/thread/lock.h"
 #include "comm/thread/mutex.h"
 
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#import <net/if.h>
+#include <poll.h>
+
+constexpr char kDefaultMobileNetworkName[] = "pdp_ip0";
+constexpr int dns_timeout_ms = 2000;
+
+enum kCellularResult {
+    kCellularResultSuccess,
+    kCellularResultNoCellularNetwork,
+    kCellularResultDnsFail,
+    kCellularResultBindFail,
+    kCellularResultCanNotCallJava,
+    kCellularResultNoCallbackFail,
+};
+
+struct DnsResult {
+    char host_ip_cstr[INET_ADDRSTRLEN] = {'\0'};
+    kCellularResult result_code = kCellularResultDnsFail;
+};
+
 #if !TARGET_OS_IPHONE
 static float __GetSystemVersion() {
     //	float system_version = [UIDevice currentDevice].systemVersion.floatValue;
@@ -589,6 +611,189 @@ int OSVerifyCertificate(const std::string& hostname, const std::vector<std::stri
         rv = (kSecTrustResultUnspecified == result || kSecTrustResultProceed == result) ? 0 : -3;
     }
     return rv;
+}
+
+static void ipv4_handler(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                         DNSServiceErrorType errorCode, const char* fullname, uint16_t rrtype,
+                         uint16_t rrclass, uint16_t rdlen, const void* rdata, uint32_t ttl,
+                         void* context) {
+    DnsResult* dns_result = (DnsResult*)context;
+    struct in_addr A;
+    if (rdlen > sizeof(A)) {
+        // CommonNetError(@"rdlen > sizeof(A), rdlen:%d", rdlen);
+        dns_result->result_code = kCellularResultDnsFail;
+        return;
+    }
+    if (errorCode != kDNSServiceErr_NoError) {
+        // CommonNetError(@"errorCode != kDNSServiceErr_NoError, error code:%d", errorCode);
+        dns_result->result_code = kCellularResultDnsFail;
+        return;
+    }
+    memcpy(&A, rdata, sizeof(A));
+    const char* rtn = inet_ntop(AF_INET, &A, dns_result->host_ip_cstr, INET_ADDRSTRLEN);
+    if (rtn == nullptr) {
+        dns_result->result_code = kCellularResultDnsFail;
+    } else {
+        dns_result->result_code = kCellularResultSuccess;
+    }
+}
+
+static void ipv6_handler(DNSServiceRef sdRef, DNSServiceFlags flags, uint32_t interfaceIndex,
+                         DNSServiceErrorType errorCode, const char* fullname, uint16_t rrtype,
+                         uint16_t rrclass, uint16_t rdlen, const void* rdata, uint32_t ttl,
+                         void* context) {
+    DnsResult* dns_result = (DnsResult*)context;
+    struct in6_addr A;
+    if (rdlen > sizeof(A)) {
+        // CommonNetError(@"rdlen > sizeof(A), rdlen:%d", rdlen);
+        dns_result->result_code = kCellularResultDnsFail;
+        return;
+    }
+    if (errorCode != kDNSServiceErr_NoError) {
+        // CommonNetError(@"errorCode != kDNSServiceErr_NoError, error code:%d", errorCode);
+        dns_result->result_code = kCellularResultDnsFail;
+        return;
+    }
+    memcpy(&A, rdata, sizeof(A));
+    const char* rtn = inet_ntop(AF_INET6, &A, dns_result->host_ip_cstr, INET_ADDRSTRLEN);
+    if (rtn == nullptr) {
+        dns_result->result_code = kCellularResultDnsFail;
+    } else {
+        dns_result->result_code = kCellularResultSuccess;
+    }
+}
+
+static void wait_for_callback(DNSServiceRef& sdRef) {
+    int dns_sd_fd = DNSServiceRefSockFD(sdRef);
+    struct pollfd poll_fd;
+    poll_fd.fd = dns_sd_fd;
+    poll_fd.events = POLLIN;
+    int result = poll(&poll_fd, 1, dns_timeout_ms);
+    if (result > 0) {
+        DNSServiceProcessResult(sdRef);
+    }
+    DNSServiceRefDeallocate(sdRef);
+}
+
+static struct sockaddr* get_cellular_ip_addr() {
+    struct ifaddrs* interfaces = nullptr;
+    int success = getifaddrs(&interfaces);
+    if (success != 0) {
+        xerror2(TSF "[dual-channel] can no get ifaddres.");
+        freeifaddrs(interfaces);
+        return nullptr;
+    }
+
+    struct sockaddr* rtn = nullptr;
+    char ip_cstr[INET_ADDRSTRLEN];
+
+    for (struct ifaddrs* temp_addr = interfaces; temp_addr != nullptr;
+         temp_addr = temp_addr->ifa_next) {
+        if (strcmp(temp_addr->ifa_name, kDefaultMobileNetworkName) != 0) {
+            continue;
+        }
+
+        if (temp_addr->ifa_addr->sa_family == AF_INET) {
+            struct in_addr addr = ((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr;
+            inet_ntop(AF_INET, &addr, ip_cstr, sizeof(ip_cstr));
+            std::string ip_str(ip_cstr);
+            if (ip_str.find("0.0") == std::string::npos) {
+                rtn = temp_addr->ifa_addr;
+                break;
+            }
+        } else if (temp_addr->ifa_addr->sa_family == AF_INET6) {
+            struct in6_addr addr = ((struct sockaddr_in6*)temp_addr->ifa_addr)->sin6_addr;
+            uint32_t* ptr = addr.__u6_addr.__u6_addr32;
+            if (ptr[0] != 0 || ptr[1] != 0 || ptr[2] != 0 || ptr[3] != 0) {
+                inet_ntop(AF_INET6, &addr, ip_cstr, sizeof(ip_cstr));
+                rtn = temp_addr->ifa_addr;
+                break;
+            }
+        }
+    }
+    if (rtn != nullptr) {
+        xinfo2(TSF "[dual-channel] cellular ip: %_", ip_cstr);
+    } else {
+        xerror2(TSF "[dual-channel] can no find cellular ip.");
+    }
+    freeifaddrs(interfaces);
+    return rtn;
+}
+
+static bool resolve_host_by_cellular_network(const std::string& host_domain, std::string& ip) {
+    struct sockaddr* cellular_addr = get_cellular_ip_addr();
+    if (cellular_addr == nullptr) {
+        xerror2(TSF "[dual-channel] no cellular network.");
+        return false;
+    }
+
+    uint32_t cellular_id = if_nametoindex(kDefaultMobileNetworkName);
+    const char* fullname = host_domain.c_str();
+
+    DNSServiceRef sdRef = NULL;
+    DnsResult dns_result_ipv4;
+    const DNSServiceErrorType ipv4_dns_result =
+        DNSServiceQueryRecord(&sdRef, 0, cellular_id, fullname, kDNSServiceType_A,
+                              kDNSServiceClass_IN, ipv4_handler, &dns_result_ipv4);
+    if (ipv4_dns_result == kDNSServiceErr_NoError) {
+        wait_for_callback(sdRef);
+    }
+    if (dns_result_ipv4.result_code == kCellularResultSuccess) {
+        ip = std::string(dns_result_ipv4.host_ip_cstr);
+        xinfo2(TSF "[dual-channel] dns ipv4 by cellular. host:%_, ip:%_", host_domain,
+               dns_result_ipv4.host_ip_cstr);
+        return true;
+    }
+
+    sdRef = NULL;
+    DnsResult dns_result_ipv6;
+    const DNSServiceErrorType ipv6_dns_result =
+        DNSServiceQueryRecord(&sdRef, 0, cellular_id, fullname, kDNSServiceType_AAAA,
+                              kDNSServiceClass_IN, ipv6_handler, &dns_result_ipv6);
+    if (ipv6_dns_result == kDNSServiceErr_NoError) {
+        wait_for_callback(sdRef);
+    }
+    if (dns_result_ipv6.result_code == kCellularResultSuccess) {
+        ip = std::string(dns_result_ipv6.host_ip_cstr);
+        xinfo2(TSF "[dual-channel] dns ipv6 by cellular. host:%_, ip:%_", host_domain,
+               dns_result_ipv6.host_ip_cstr);
+        return kCellularResultSuccess;
+    }
+    xwarn2(TSF "[dual-channel] dns by cellular fail.");
+    return false;
+}
+
+bool IsCellularNetworkActive() {
+    struct sockaddr* cellular_addr = get_cellular_ip_addr();
+    if (cellular_addr == nullptr) {
+        xerror2(TSF "[dual-channel] no cellular network");
+        return false;
+    }
+    return true;
+}
+
+bool BindSocket2CellularNetwork(int socket_fd) {
+    struct sockaddr* cellular_addr = get_cellular_ip_addr();
+    if (cellular_addr == nullptr) {
+        xerror2(TSF "[dual-channel] no cellular network");
+        return false;
+    }
+    int rtn = ::bind(socket_fd, cellular_addr, cellular_addr->sa_len);
+    if (rtn != 0) {
+        xerror2(TSF "[dual-channel] bind fail, errno:%_", errno);
+        return false;
+    }
+    return true;
+}
+
+bool ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips) {
+    std::string ip;
+    resolve_host_by_cellular_network(host, ip);
+    if (ip.size() > 0) {
+        ips.emplace_back(ip);
+        return true;
+    }
+    return false;
 }
 
 }  // namespace comm

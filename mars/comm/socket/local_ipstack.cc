@@ -50,10 +50,21 @@ static int _test_connect(int pf,
                          struct sockaddr* addr,
                          size_t addrlen,
                          struct sockaddr* local_addr,
-                         socklen_t local_addr_len) {
+                         socklen_t local_addr_len,
+                         bool force_use_cellular_network) {
     int s = socket(pf, SOCK_DGRAM, IPPROTO_UDP);
+
     if (s < 0)
         return 0;
+
+    if (force_use_cellular_network) {
+        bool result = mars::comm::BindSocket2CellularNetwork(s);
+        xdebug2(TSF "[dual-channel] bind socket result :%_", result);
+        if (!result) {
+            return 0;
+        }
+    }
+
     int ret;
     unsigned int loop_count = 0;
     do {
@@ -86,7 +97,7 @@ static int _test_connect(int pf,
  * on the local system". However, bionic doesn't currently support getifaddrs,
  * so checking for connectivity is the next best thing.
  */
-static int _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
+static int _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len, bool force_use_cellular_network) {
 #ifdef __APPLE__
     static const struct sockaddr_in6 sin6_test = {.sin6_len = sizeof(sockaddr_in6),
                                                   .sin6_family = AF_INET6,
@@ -121,10 +132,15 @@ static int _have_ipv6(struct sockaddr* local_addr, socklen_t local_addr_len) {
     sin6_test.sin6_addr.s6_addr[0] = 0x20;
     sockaddr_union addr = {in6 : sin6_test};
 #endif
-    return _test_connect(PF_INET6, &addr.generic, sizeof(addr.in6), local_addr, local_addr_len);
+    return _test_connect(PF_INET6,
+                         &addr.generic,
+                         sizeof(addr.in6),
+                         local_addr,
+                         local_addr_len,
+                         force_use_cellular_network);
 }
 
-static int _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
+static int _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len, bool force_use_cellular_network) {
 #ifdef __APPLE__
     static const struct sockaddr_in sin_test = {
         .sin_len = sizeof(sockaddr_in),
@@ -141,7 +157,12 @@ static int _have_ipv4(struct sockaddr* local_addr, socklen_t local_addr_len) {
     sin_test.sin_addr.s_addr = htonl(0x08080808L);  // 8.8.8.8
     sockaddr_union addr = {in : sin_test};
 #endif
-    return _test_connect(PF_INET, &addr.generic, sizeof(addr.in), local_addr, local_addr_len);
+    return _test_connect(PF_INET,
+                         &addr.generic,
+                         sizeof(addr.in),
+                         local_addr,
+                         local_addr_len,
+                         force_use_cellular_network);
 }
 
 bool two_addrs_on_one_interface(sockaddr* first_addr, sockaddr* second_addr) {
@@ -190,7 +211,7 @@ bool two_addrs_on_one_interface(sockaddr* first_addr, sockaddr* second_addr) {
     return false;
 }
 
-TLocalIPStack __local_ipstack_detect(std::string& _log) {
+TLocalIPStack __local_ipstack_detect(std::string& _log, bool force_use_cellular_network) {
     XMessage detail;
     detail("local_ipstack_detect ");
 #if 0  // defined(__APPLE__) && (TARGET_OS_IPHONE)
@@ -217,8 +238,8 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
 #endif
     sockaddr_storage v4_addr = {0};
     sockaddr_storage v6_addr = {0};
-    int have_ipv4 = _have_ipv4((sockaddr*)&v4_addr, sizeof(v4_addr));
-    int have_ipv6 = _have_ipv6((sockaddr*)&v6_addr, sizeof(v6_addr));
+    int have_ipv4 = _have_ipv4((sockaddr*)&v4_addr, sizeof(v4_addr), force_use_cellular_network);
+    int have_ipv6 = _have_ipv6((sockaddr*)&v6_addr, sizeof(v6_addr), force_use_cellular_network);
     int local_stack = 0;
     if (have_ipv4) {
         local_stack |= ELocalIPStack_IPv4;
@@ -227,7 +248,10 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
         local_stack |= ELocalIPStack_IPv6;
     }
 
-    detail("have_ipv4:%d have_ipv6:%d \n", have_ipv4, have_ipv6);
+    detail("have_ipv4:%d have_ipv6:%d force_use_cellular_network:%d\n",
+           have_ipv4,
+           have_ipv6,
+           force_use_cellular_network);
 
 #if 0  // defined(__APPLE__) && (TARGET_OS_IPHONE)
     if (ELocalIPStack_Dual != local_stack) {
@@ -259,24 +283,24 @@ TLocalIPStack __local_ipstack_detect(std::string& _log) {
 #endif
 }
 
-TLocalIPStack local_ipstack_detect() {
+TLocalIPStack local_ipstack_detect(bool force_use_cellular_network) {
     std::string log;
-    return __local_ipstack_detect(log);
+    return __local_ipstack_detect(log, force_use_cellular_network);
 }
 
-static void __local_info(std::string& _log);
+static void __local_info(std::string& _log, bool force_use_cellular_network);
 
-TLocalIPStack local_ipstack_detect_log(std::string& _log) {
-    __local_info(_log);
+TLocalIPStack local_ipstack_detect_log(std::string& _log, bool force_use_cellular_network) {
+    __local_info(_log, force_use_cellular_network);
     _log += get_local_route_table();
-    return __local_ipstack_detect(_log);
+    return __local_ipstack_detect(_log, force_use_cellular_network);
 }
 
 #include "network/getdnssvraddrs.h"
 #include "network/getgateway.h"
 #include "network/getifaddrs.h"
 
-static void __local_info(std::string& _log) {
+static void __local_info(std::string& _log, bool force_use_cellular_network) {
     XMessage detail_net_info;
     in6_addr addr6_gateway;
     memset(&addr6_gateway, 0, sizeof(addr6_gateway));
@@ -331,9 +355,12 @@ static void __local_info(std::string& _log) {
 
     sockaddr_storage v4_addr = {0};
     sockaddr_storage v6_addr = {0};
-    int have_ipv4 = _have_ipv4((sockaddr*)&v4_addr, sizeof(v4_addr));
-    int have_ipv6 = _have_ipv6((sockaddr*)&v6_addr, sizeof(v6_addr));
-    detail_net_info("have_ipv4:%d have_ipv6:%d", have_ipv4, have_ipv6);
+    int have_ipv4 = _have_ipv4((sockaddr*)&v4_addr, sizeof(v4_addr), force_use_cellular_network);
+    int have_ipv6 = _have_ipv6((sockaddr*)&v6_addr, sizeof(v6_addr), force_use_cellular_network);
+    detail_net_info("have_ipv4:%d have_ipv6:%d force_use_cellular_network:%d",
+                    have_ipv4,
+                    have_ipv6,
+                    force_use_cellular_network);
 
     _log += detail_net_info.Message();
 }
@@ -351,7 +378,7 @@ static void __local_info(std::string& _log) {
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 
-DWORD GetAdaptersAddressesWrapper(const ULONG Family, 
+DWORD GetAdaptersAddressesWrapper(const ULONG Family,
                                   const ULONG Flags,
                                   const PVOID Reserved,
                                   _Out_ PIP_ADAPTER_ADDRESSES& pAdapterAddresses) {
@@ -363,7 +390,7 @@ DWORD GetAdaptersAddressesWrapper(const ULONG Family,
         xassert2(pAdapterAddresses == nullptr);
         pAdapterAddresses = (IP_ADAPTER_ADDRESSES*)malloc(AdapterAddressesLen);
         if (pAdapterAddresses == nullptr) {
-            xerror2(TSF"can not malloc %_ bytes", AdapterAddressesLen);
+            xerror2(TSF "can not malloc %_ bytes", AdapterAddressesLen);
             return ERROR_OUTOFMEMORY;
         }
 
@@ -381,11 +408,15 @@ DWORD GetAdaptersAddressesWrapper(const ULONG Family,
 
     if (dwRetVal != NO_ERROR) {
         xerror2(TSF "Family:%_, Flags:%_, AdapterAddressesLen:%_, dwRetVal:%_, iter:%_",
-            Family, Flags, AdapterAddressesLen, dwRetVal, iter);
-	if (pAdapterAddresses) {
+                Family,
+                Flags,
+                AdapterAddressesLen,
+                dwRetVal,
+                iter);
+        if (pAdapterAddresses) {
             free(pAdapterAddresses);
             pAdapterAddresses = nullptr;
-	}
+        }
     }
 
     return dwRetVal;
@@ -397,8 +428,7 @@ static bool GetWinV4GateWay() {
     bool result = false;
 
     PIP_ADAPTER_ADDRESSES pAdapterAddresses = nullptr;
-    DWORD dwRetVal =
-        GetAdaptersAddressesWrapper(AF_INET, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAdapterAddresses);
+    DWORD dwRetVal = GetAdaptersAddressesWrapper(AF_INET, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAdapterAddresses);
 
     if (dwRetVal != NO_ERROR) {
         xinfo2("ipv4 stack detect GetAdaptersAddresses failed.");
@@ -432,8 +462,7 @@ static bool GetWinV6GateWay() {
     char buff[BUFF_LEN] = {'\0'};
     bool result = false;
     PIP_ADAPTER_ADDRESSES pAdapterAddresses = nullptr;
-    DWORD dwRetVal =
-        GetAdaptersAddressesWrapper(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAdapterAddresses);
+    DWORD dwRetVal = GetAdaptersAddressesWrapper(AF_INET6, GAA_FLAG_INCLUDE_GATEWAYS, NULL, pAdapterAddresses);
 
     if (dwRetVal != NO_ERROR) {
         xinfo2("ipv6 stack detect GetAdaptersAddresses failed.");

@@ -265,6 +265,7 @@ extern const char* kMarsDefaultNetLabel;
 int getCurrNetLabel(std::string& netInfo);
 int getNetworkIDLabel(std::string& netInfo);
 int getRealtimeNetLabel(std::string& netInfo);
+int getCellularNetLabel(std::string& netInfo);
 
 #ifdef __APPLE__
 void FlushReachability();
@@ -351,6 +352,11 @@ extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCall
 #ifdef ANDROID
 std::string GetCurrentProcessName();
 #endif
+
+//[dual-channel]
+bool IsCellularNetworkActive();
+bool BindSocket2CellularNetwork(int socket_fd);
+bool ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips);
 
 }  // namespace comm
 }  // namespace mars

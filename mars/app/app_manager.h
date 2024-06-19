@@ -6,12 +6,11 @@
 #define MMNET_APP_MANAGER_H
 
 #include <memory>
+#include <thread>
 #include <typeindex>
 #include <unordered_map>
-#include <thread>
 
 #include "mars/app/app.h"
-//#include "mars/boost/any.hpp"
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
 #include "mars/comm/comm_data.h"
@@ -22,6 +21,13 @@
 #endif
 namespace mars {
 namespace app {
+
+class IAppConfigObserver {
+ public:
+    virtual ~IAppConfigObserver() {
+    }
+    virtual void OnAppConfigUpdate(const std::string& key) = 0;
+};
 
 class AppManager : public mars::boot::BaseManager {
  public:
@@ -37,7 +43,7 @@ class AppManager : public mars::boot::BaseManager {
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
     std::string GetAppFilePath();
     AccountInfo GetAccountInfo();
-    std::string GetAppUserName();   // WinBase.h里面定义了GetUserName这个宏
+    std::string GetAppUserName();  // WinBase.h里面定义了GetUserName这个宏
     std::string GetRecentUserName();
     unsigned int GetClientVersion();
     DeviceInfo GetDeviceInfo();
@@ -51,7 +57,7 @@ class AppManager : public mars::boot::BaseManager {
     template <typename T>
     T GetConfig(const std::string& key, T default_value) {
         xinfo2(TSF "AppConfig GetConfig key:%_, default value:%_", key, default_value);
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::lock_guard <std::mutex> lock(mutex_);
         auto it = config_.find(key);
         auto type_it = types_.find(key);
         if (it == config_.end() || type_it == types_.end() || types_.at(key).empty()
@@ -59,7 +65,6 @@ class AppManager : public mars::boot::BaseManager {
             xwarn2(TSF "AppConfig GetConfig return default value. ");
             return default_value;
         }
-        // return boost::any_cast<T>(it->second);
         return *static_cast<T*>(it->second);
     }
 
@@ -71,8 +76,32 @@ class AppManager : public mars::boot::BaseManager {
         types_[key] = std::type_index(typeid(T)).name();
         lock.unlock();
         __CheckCommSetting(key);
+        __NotifyObservers(key);
     }
 
+    void addAppConfigObserver(const std::string& key, IAppConfigObserver* observer) {
+        xdebug2(TSF "add observer key:%_", key);
+        std::lock_guard<std::mutex> lock(observer_mutex_);
+        std::vector<IAppConfigObserver*> observers;
+        if (observers_.find(key) != observers_.end()) {
+            observers = observers_[key];
+        }
+        observers.push_back(observer);
+        observers_[key] = observers;
+    }
+
+    void removeAppConfigObserver(const std::string& key, IAppConfigObserver* observer) {
+        xdebug2(TSF "remove observer key:%_", key);
+        std::lock_guard<std::mutex> lock(observer_mutex_);
+        if (observers_.find(key) != observers_.end()) {
+            std::vector<IAppConfigObserver*> observers = observers_[key];
+            observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
+        } else {
+            xwarn2(TSF "remove observer key fail. key:%_", key);
+        }
+    }
+
+ private:
     void __CheckCommSetting(const std::string& key) {
 #ifdef ANDROID
         xinfo2(TSF "AppConfig CheckCommSetting key:%_", key);
@@ -86,6 +115,16 @@ class AppManager : public mars::boot::BaseManager {
 #endif
     }
 
+    void __NotifyObservers(const std::string& key) {
+        xdebug2(TSF "notfiy config update key:%_", key);
+        std::lock_guard<std::mutex> lock(observer_mutex_);
+        if (observers_.find(key) != observers_.end()) {
+            for (IAppConfigObserver* observer : observers_[key]) {
+                observer->OnAppConfigUpdate(key);
+            }
+        }
+    }
+
  private:
     Callback* callback_;
     mars::comm::ProxyInfo proxy_info_;
@@ -96,9 +135,10 @@ class AppManager : public mars::boot::BaseManager {
     int slproxycount_ = 0;
 
     std::mutex mutex_;
-    // std::unordered_map<std::string, boost::any> config_;
     std::unordered_map<std::string, void*> config_;
     std::unordered_map<std::string, std::string> types_;
+    std::mutex observer_mutex_;
+    std::unordered_map<std::string, std::vector<IAppConfigObserver*>> observers_;
 };
 
 }  // namespace app

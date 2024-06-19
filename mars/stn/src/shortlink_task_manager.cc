@@ -362,8 +362,11 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 config.quic.enable_0rtt = true;
                 TimeoutSource source;
                 config.quic.conn_timeout_ms = net_source_->GetQUICConnectTimeoutMs(task.cgi, &source);
-                xinfo2_if(source != TimeoutSource::kClientDefault, TSF"taskid:%_ qctimeout %_ source %_", task.taskid,
-                    config.quic.conn_timeout_ms, source);
+                xinfo2_if(source != TimeoutSource::kClientDefault,
+                          TSF "taskid:%_ qctimeout %_ source %_",
+                          task.taskid,
+                          config.quic.conn_timeout_ms,
+                          source);
                 hosts = task.quic_host_list;
 
                 first->transfer_profile.connect_profile.quic_conn_timeout_ms = config.quic.conn_timeout_ms;
@@ -798,17 +801,9 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 
     if (lst_cmd_.end() != it) {
         if (it->transfer_profile.last_receive_pkg_time == 0)
-            // WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() -
-            // it->transfer_profile.start_send_time));
-            net_source_->GetWeakNetworkLogic()->OnPkgEvent(
-                true,
-                (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            net_source_->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
         else
-            // WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() -
-            // it->transfer_profile.last_receive_pkg_time));
-            net_source_->GetWeakNetworkLogic()->OnPkgEvent(
-                false,
-                (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            net_source_->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();
         it->transfer_profile.received_size = _cached_size;
         it->transfer_profile.receive_data_size = _total_size;
@@ -1026,8 +1021,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         ReportTaskProfile(*_it);
         */
         context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
-        // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
-        net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
+        net_source_->OnTaskEvent(*_it);
         __DeleteShortLink(_it->running_id);
 
         lst_cmd_.erase(_it);
