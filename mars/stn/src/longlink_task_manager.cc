@@ -147,8 +147,7 @@ bool LongLinkTaskManager::StopTask(uint32_t _taskid) {
     return false;
 }
 
-// TODO(roysun): 改成智能指针
-const Task& LongLinkTaskManager::GetTask(uint32_t _taskid) const {
+bool LongLinkTaskManager::GetTask(const uint32_t _taskid, Task &task) const {
     xverbose_function();
 
     std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
@@ -156,12 +155,13 @@ const Task& LongLinkTaskManager::GetTask(uint32_t _taskid) const {
 
     while (first != last) {
         if (_taskid == first->task.taskid) {
-            return first->task;
+            task = first->task;
+            return true;
         }
         ++first;
     }
 
-    return Task();
+    return false;
 }
 
 bool LongLinkTaskManager::HasTask(uint32_t _taskid) const {
