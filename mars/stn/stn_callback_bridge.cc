@@ -158,8 +158,14 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
         _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
     cgiprofile.tls_handshake_successful_time = _profile.tls_handshake_successful_time;
     cgiprofile.start_send_packet_time = _profile.start_send_packet_time;
+    cgiprofile.send_packet_finished_time = _profile.start_send_packet_time + _profile.send_request_cost;
     cgiprofile.start_read_packet_time = _profile.start_read_packet_time;
     cgiprofile.read_packet_finished_time = _profile.read_packet_finished_time;
+    cgiprofile.start_encode_packet_time = _profile.start_encode_packet_time;
+    cgiprofile.encode_packet_finished_time = _profile.encode_packet_finished_time;
+    cgiprofile.start_decode_packet_time = _profile.start_decode_packet_time;
+    cgiprofile.decode_packet_finished_time = _profile.decode_packet_finished_time;
+
     cgiprofile.channel_type = _profile.channel_type;
     cgiprofile.transport_protocol = _profile.transport_protocol;
     cgiprofile.rtt = _profile.rtt_by_socket;

@@ -144,14 +144,21 @@ struct Task {
 };
 
 struct CgiProfile {
+    //.所有time字段均为tickcount.
     uint64_t start_time = 0;
     uint64_t start_connect_time = 0;
     uint64_t connect_successful_time = 0;
     uint64_t start_tls_handshake_time = 0;
     uint64_t tls_handshake_successful_time = 0;
-    uint64_t start_send_packet_time = 0;
-    uint64_t start_read_packet_time = 0;
-    uint64_t read_packet_finished_time = 0;
+    uint64_t start_send_packet_time = 0;       // 首次发送请求(send)
+    uint64_t send_packet_finished_time = 0;    // 发送请求完成(send)
+    uint64_t start_read_packet_time = 0;       // 首次接收数据(recv)
+    uint64_t read_packet_finished_time = 0;    // 接收数据(recv)完成
+    uint64_t start_encode_packet_time = 0;     // 开始(req2buf)打包
+    uint64_t encode_packet_finished_time = 0;  // 打包(req2buf)完成
+    uint64_t start_decode_packet_time = 0;     // 开始(buf2resp)解包
+    uint64_t decode_packet_finished_time = 0;  // 解包(buf2resp)完成
+
     int channel_type = 0;
     int transport_protocol = 0;
     int rtt = 0;

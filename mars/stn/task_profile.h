@@ -239,6 +239,11 @@ struct ConnectProfile {
     uint64_t start_read_packet_time;
     uint64_t read_packet_finished_time;
     uint64_t retrans_byte_count;
+    uint64_t start_encode_packet_time = 0;     // 开始(req2buf)打包
+    uint64_t encode_packet_finished_time = 0;  // 打包(req2buf)完成
+    uint64_t start_decode_packet_time = 0;     // 开始(buf2resp)解包
+    uint64_t decode_packet_finished_time = 0;  // 解包(buf2resp)完成
+
     int channel_type;
     int rtt_by_socket;
     std::string netlabel;
