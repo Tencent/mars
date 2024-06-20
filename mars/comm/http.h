@@ -24,7 +24,9 @@
 #include <map>
 #include <string>
 
-#include "autobuffer.h"
+#include "mars/comm/autobuffer.h"
+#include "mars/comm/strutil.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 namespace http {
 
@@ -384,4 +386,31 @@ class Parser {
 // void testChunk();
 
 } /* namespace http */
+class URLFactory {
+ public:
+    explicit URLFactory(std::string cgi) : cgi_(std::move(cgi)) {
+    }
+    template <class T>
+    void AddKeyValue(const std::string& key, const T& value) {
+        if (kvs_.find(key) != kvs_.end()) {
+            xwarn2(TSF "key:%_, prev val:%_, next val:%_", key, kvs_[key], strutil::to_string(value));
+        }
+        kvs_[key] = strutil::to_string(value);
+    }
+    std::string GetUrl() const {
+        if (kvs_.empty()) {
+            return cgi_;
+        }
+        std::string url = cgi_;
+        url += '?';
+        for (const auto& kv : kvs_) {
+            url.append(kv.first).append("=").append(kv.second).append("&");
+        }
+        url.resize(url.size() - 1);
+        return url;
+    }
+    std::string cgi_;
+    std::map<std::string, std::string> kvs_;
+};
+
 #endif /* HTTPREQUEST_H_ */
