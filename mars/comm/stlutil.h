@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <map>
 #include <unordered_map>
+#include <list>
 
 namespace stlutil {
 template <typename C, typename T>
@@ -37,6 +38,24 @@ bool Exist(const std::unordered_map<K, V>& c, const K& v) {
     return c.find(v) != c.end();
 }
 
+template <typename C, typename T>
+void Erase(C& c, const T& v) {
+    c.erase(std::find(std::begin(c), std::end(c), v));
+}
+template <typename C, typename F>
+void RemoveIfAndErase(C& c, const F& f) {
+    c.erase(std::remove_if(std::begin(c), std::end(c), f), c.end());
+}
+template <typename C, typename F>
+bool AnyOf(C& c, const F& f) {
+    return std::any_of(c.begin(), c.end(), f);
+}
+template <typename T>
+T GetAndPopFront(std::list<T>& list) {
+    T t = list.front();
+    list.pop_front();
+    return t;
+}
 }  // namespace stlutil
 
 #endif  // MARS_STLUTIL_H
