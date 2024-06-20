@@ -18,13 +18,19 @@
 #define MARS_STLUTIL_H
 
 #include <algorithm>
+#include <map>
+#include <unordered_map>
+#include <set>
+#include <unordered_set>
+#include <vector>
+#include <list>
 
 namespace stlutil {
 template <typename C, typename T>
 bool Exist(const C& c, const T& v) {
-    return std::find(std::begin(c), std::end(c), v) != std::end(c);
+    // std::map、std::unordered_map不支持std::find(std::begin(c), std::end(c), v)
+    return c.find(v) != c.end();
 }
-}
-
+}  // namespace stlutil
 
 #endif  // MARS_STLUTIL_H
