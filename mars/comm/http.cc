@@ -341,6 +341,10 @@ std::pair<const std::string, std::string> HeaderFields::MakeContentTypeOctetStre
     return std::make_pair(KStringContentType, KStringOctetType);
 }
 
+std::pair<const std::string, std::string> HeaderFields::MakeUserAgentMicroMessage() {
+    return std::make_pair(KStringUserAgent, KStringMicroMessenger);
+}
+
 void HeaderFields::CopyFrom(const HeaderFields& rhs) {
     headers_.clear();
     headers_.insert(rhs.headers_.begin(), rhs.headers_.end());

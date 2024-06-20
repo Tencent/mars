@@ -35,7 +35,7 @@ void (*shortlink_pack)(const std::string& _url, const std::map<std::string, std:
 	req_builder.Request().Version(kVersion_1_1);
 
 	req_builder.Fields().HeaderFiled(HeaderFields::MakeAcceptAll());
-	req_builder.Fields().HeaderFiled(HeaderFields::KStringUserAgent, HeaderFields::KStringMicroMessenger);
+	req_builder.Fields().HeaderFiled(HeaderFields::MakeUserAgentMicroMessage());
 	req_builder.Fields().HeaderFiled(HeaderFields::MakeCacheControlNoCache());
 	req_builder.Fields().HeaderFiled(HeaderFields::MakeContentTypeOctetStream());
 	req_builder.Fields().HeaderFiled(HeaderFields::MakeConnectionClose());

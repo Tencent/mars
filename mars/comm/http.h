@@ -136,6 +136,7 @@ class HeaderFields {
     static std::pair<const std::string, std::string> MakeAcceptEncodingGzip();
     static std::pair<const std::string, std::string> MakeCacheControlNoCache();
     static std::pair<const std::string, std::string> MakeContentTypeOctetStream();
+    static std::pair<const std::string, std::string> MakeUserAgentMicroMessage();
 
     static const char* const KStringHost;
     static const char* const KStringAccept;
