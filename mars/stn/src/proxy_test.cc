@@ -182,7 +182,7 @@ int ProxyTest::__ReadWrite(SOCKET _sock, const mars::comm::ProxyInfo& _proxy_inf
     req_builder.Request().Version(kVersion_1_1);
 
     req_builder.Fields().HeaderFiled(HeaderFields::MakeAcceptAll());
-    req_builder.Fields().HeaderFiled(HeaderFields::KStringUserAgent, HeaderFields::KStringMicroMessenger);
+    req_builder.Fields().HeaderFiled(HeaderFields::MakeUserAgentMicroMessage());
     req_builder.Fields().HeaderFiled(HeaderFields::MakeCacheControlNoCache());
     req_builder.Fields().HeaderFiled(HeaderFields::MakeConnectionClose());
     req_builder.Fields().HeaderFiled(HeaderFields::KStringHost, _host.c_str());

@@ -10,7 +10,6 @@
 #include "mars/comm/objc/data_protect_attr.h"
 #endif
 
-#include "mars/baseevent/baseprjevent.h"
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/xlogger/xlogger.h"
 
@@ -51,7 +50,7 @@ mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
     }
 
     if (!slproxymutex_.try_lock_for(std::chrono::milliseconds(500))) {
-        return mars::comm::ProxyInfo();
+        return {};
     }
 
     if (slproxycount_ < 3 || 5 * 1000 > gettickspan(slproxytimetick_)) {
@@ -65,7 +64,7 @@ mars::comm::ProxyInfo AppManager::GetProxyInfo(const std::string& _host) {
         return proxy_info_;
     }
 
-    return mars::comm::ProxyInfo();
+    return {};
 }
 
 std::string AppManager::GetAppFilePath() {
