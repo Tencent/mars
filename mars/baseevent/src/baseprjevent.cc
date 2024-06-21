@@ -63,3 +63,8 @@ boost::signals2::signal<void(int64_t _id)>& GetSignalOnAlarm() {
     static boost::signals2::signal<void(int64_t _id)> SignalOnAlarm;
     return SignalOnAlarm;
 }
+
+boost::signals2::signal<void(bool _is_bind_cellular)>& GetSignalOnBindCellularNetwork() {
+    static boost::signals2::signal<void(bool _is_bind_cellular)> SignalOnBindCellularNetwork;
+    return SignalOnBindCellularNetwork;
+}

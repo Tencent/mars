@@ -31,7 +31,7 @@
 namespace mars {
 namespace comm {
 
-TcpClientFSM::TcpClientFSM(const sockaddr& _addr) : addr_(&_addr) {
+TcpClientFSM::TcpClientFSM(const sockaddr& _addr, bool _bind_cellular) : addr_(&_addr, _bind_cellular) {
     status_ = EStart;
     last_status_ = EStart;
     error_ = 0;
@@ -171,6 +171,20 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
     xinfo2(TSF "addr:(%_:%_), ", addr_.ip(), addr_.port()) >> _log;
 
     sock_ = socket(addr_.address().sa_family, SOCK_STREAM, IPPROTO_TCP);
+
+    if (addr_.is_bind_cellular_network()) {
+        xinfo2(TSF "[dual-channel] try to bind cellular network.");
+        bool ret = BindSocket2CellularNetwork(sock_);
+        if (!ret) {
+            error_ = socket_errno;
+            status_ = EEnd;
+            _OnClose(last_status_, error_, false);
+            xerror2(TSF "[dual-channel] bind cellular fail.");
+            return;
+        } else {
+            xinfo2(TSF "[dual-channel] bind cellular success.");
+        }
+    }
 
     if (sock_ == INVALID_SOCKET) {
         error_ = socket_errno;

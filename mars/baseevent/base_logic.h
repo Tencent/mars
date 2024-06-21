@@ -33,6 +33,7 @@ void OnForeground(bool _isforeground);
 void OnNetworkChange();
 void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv);
 void OnAlarm(int64_t _id);
+void OnBindCellularNetwork(bool _is_bind_cellular);
 }  // namespace baseevent
 }  // namespace mars
 

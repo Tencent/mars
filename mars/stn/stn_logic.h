@@ -24,9 +24,9 @@
 #include <stdint.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
@@ -223,6 +223,7 @@ extern int OnTaskEnd(uint32_t taskid,
 
 //上报网络连接状态
 extern void ReportConnectStatus(int status, int longlink_status);
+extern void ReportBindCellularNetworkStatus(bool status, bool request);
 
 extern void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
 extern void OnShortLinkNetworkError(ErrCmdType _err_type,

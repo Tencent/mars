@@ -338,6 +338,10 @@ void StnManagerJniCallback::ReportConnectStatus(int _status, int _longlink_statu
     xdebug2(TSF "all_connstatus = %0, longlink_connstatus = %_", _status, _longlink_status);
 }
 
+// TODO cpan [dual-channel]
+void StnManagerJniCallback::ReportBindCellularNetworkStatus(bool status, bool request) {
+}
+
 DEFINE_FIND_CLASS(StnErrCmdType, "com/tencent/mars/stn/ErrCmdType")
 DEFINE_FIND_METHOD(KC2Java_OnLongLinkNetworkError,
                    KC2Java,

@@ -72,6 +72,9 @@ class NetSource {
 
  public:
     boost::function<bool()> fun_need_use_IPv6_;
+    std::function<void(bool _is_suc, int _rtt, int _index)> on_connect_event_fun;
+    std::function<void(bool _is_firstpkg, int _span)> on_pkg_event_fun;
+    std::function<void(const TaskProfile& _task_profile)> on_task_event_fun;
 
  public:
     // set longlink host and ports
@@ -116,7 +119,7 @@ class NetSource {
 
     void DisableIPv6();
     bool CanUseIPv6();
-    
+
  public:
     NetSource(comm::ActiveLogic& _active_logic, boot::Context* _context);
     ~NetSource();
@@ -152,6 +155,13 @@ class NetSource {
 
  public:
     WeakNetworkLogic* GetWeakNetworkLogic();
+
+ public:
+    void OnConnectEvent(bool _is_suc, int _rtt, int _index);
+    void OnPkgEvent(bool _is_firstpkg, int _span);
+    void OnTaskEvent(const TaskProfile& _task_profile);
+    bool IsUseCellularNetwork();
+    void SetUseCellularNetwork(bool flag);
 
  private:
     bool __HasShortLinkDebugIP(const std::vector<std::string>& _hostlist);
@@ -203,7 +213,6 @@ class NetSource {
     tickcount_t sg_quic_reopen_tick = tickcount_t(true);
     bool sg_quic_enabled = true;
 
-    
     TimeoutSource sg_quic_default_timeout_source = TimeoutSource::kClientDefault;
     unsigned sg_quic_default_rw_timeoutms = 5000;
     std::map<std::string, unsigned> sg_cgi_quic_rw_timeoutms_mapping;
@@ -217,6 +226,9 @@ class NetSource {
     bool sg_ipv6_enabled = true;
 
     comm::Mutex sg_ip_mutex;
+
+    std::mutex mutex_;
+    bool is_use_cellular_network_ = false;
 };
 
 }  // namespace stn
