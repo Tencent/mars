@@ -208,6 +208,9 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask(JNIEnv* _env
 
     jboolean needRealtimeNetInfo = JNU_GetField(_env, _task, "needRealtimeNetInfo", "Z").z;
 
+    jobject oHostExtraInfo = JNU_GetField(_env, _task, "hostExtraInfo", "Ljava/util/Map;").l;
+    std::map<std::string, std::string> host_extra_info = JNU_JObject2Map(_env, oHostExtraInfo);
+
     // init struct Task
     struct Task task(taskid);
     task.cmdid = cmdid;
@@ -262,6 +265,7 @@ JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_startTask(JNIEnv* _env
     }
     task.client_sequence_id = client_sequence_id;
     task.need_realtime_netinfo = (needRealtimeNetInfo == JNI_TRUE);
+    task.host_extra_info = host_extra_info;
 
     StartTask(task);
 }
