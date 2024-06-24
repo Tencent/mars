@@ -772,7 +772,7 @@ bool NetSource::IsUseCellularNetwork() {
 }
 
 void NetSource::SetUseCellularNetwork(bool flag) {
-    xdebug2(TSF "[dual-channel] use cellular %_", flag);
+    xinfo2(TSF "[dual-channel] use cellular %_", flag);
     std::lock_guard<std::mutex> lock(mutex_);
     if (is_use_cellular_network_ != flag) {
         is_use_cellular_network_ = flag;
