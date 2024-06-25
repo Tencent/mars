@@ -560,6 +560,12 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     }
 #endif
 
+    xdebug2(TSF "RunConnect success, conn_profile host: %_, ip: %_, port: %_, cgi: %_",
+            _conn_profile.host,
+            _conn_profile.ip,
+            _conn_profile.port,
+            _conn_profile.cgi);
+
     return sock;
 }
 
