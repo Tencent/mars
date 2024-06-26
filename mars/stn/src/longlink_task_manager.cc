@@ -149,23 +149,6 @@ bool LongLinkTaskManager::StopTask(uint32_t _taskid) {
     return false;
 }
 
-bool LongLinkTaskManager::GetTask(const uint32_t _taskid, Task &task) const {
-    xverbose_function();
-
-    std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
-    std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
-
-    while (first != last) {
-        if (_taskid == first->task.taskid) {
-            task = first->task;
-            return true;
-        }
-        ++first;
-    }
-
-    return false;
-}
-
 bool LongLinkTaskManager::HasTask(uint32_t _taskid) const {
     xverbose_function();
 
@@ -477,9 +460,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
 
         Task task = first->task;
         if (get_real_host_) {
-            get_real_host_(task.user_id, task.longlink_host_list, /*_strict_match=*/false);
-        } else if (get_real_host_with_extra_info_) {
-            get_real_host_with_extra_info_(task.user_id, task.longlink_host_list, /*_strict_match=*/false, task.host_extra_info);
+            get_real_host_(task.user_id, task.longlink_host_list, /*_strict_match=*/false, task.extra_info);
         }
         std::string host = "";
         if (!task.longlink_host_list.empty()) {
@@ -1181,9 +1162,7 @@ std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::GetLongLinkNoLock(const s
 
 void LongLinkTaskManager::FixMinorRealhost(Task& _task) {
     if (get_real_host_) {
-        get_real_host_(_task.user_id, _task.minorlong_host_list, /*_strict_match=*/false);
-    } else if (get_real_host_with_extra_info_) {
-        get_real_host_with_extra_info_(_task.user_id, _task.minorlong_host_list, /*_strict_match=*/false, _task.host_extra_info);
+        get_real_host_(_task.user_id, _task.minorlong_host_list, /*_strict_match=*/false, _task.extra_info);
     }
 }
 

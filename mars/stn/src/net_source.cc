@@ -100,14 +100,14 @@ void NetSource::DnsUtil::Cancel(const std::string& host) {
     }
 }
 
-std::vector<std::string> NetSource::DnsUtil::__OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _host_extra_info) {
+std::vector<std::string> NetSource::DnsUtil::__OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
     xverbose2(TSF "mars2 dns __OnNewDns");
     if (already_release_) {
         xinfo2(TSF "DnsUtil has delete.");
         return std::vector<std::string>();
     }
     if (context_ && context_->GetManager<StnManager>()) {
-        return context_->GetManager<StnManager>()->OnNewDns(_host, _longlink_host, _host_extra_info);
+        return context_->GetManager<StnManager>()->OnNewDns(_host, _longlink_host, _extra_info);
     } else {
         xwarn2(TSF "mars2 stn_manager is empty.");
         return std::vector<std::string>();
@@ -238,7 +238,7 @@ void NetSource::GetLonglinkPorts(std::vector<uint16_t>& _ports) {
 bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config,
                                  DnsUtil& _dns_util,
                                  std::vector<IPPortItem>& _ipport_items,
-                                 const std::map<std::string, std::string>& _host_extra_info) {
+                                 const std::map<std::string, std::string>& _extra_info) {
     xinfo_function();
     ScopedLock lock(sg_ip_mutex);
 
@@ -257,7 +257,7 @@ bool NetSource::GetLongLinkItems(const struct LonglinkConfig& _config,
         return false;
     }
 
-    __GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true, _host_extra_info);
+    __GetIPPortItems(_ipport_items, longlink_hosts, _dns_util, true, _extra_info);
     return !_ipport_items.empty();
 }
 
@@ -352,7 +352,7 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist,
                                   std::vector<IPPortItem>& _ipport_items,
                                   DnsUtil& _dns_util,
                                   const std::string& _cgi,
-                                  const std::map<std::string, std::string>& _host_extra_info) {
+                                  const std::map<std::string, std::string>& _extra_info) {
     ScopedLock lock(sg_ip_mutex);
 
     if (__GetShortlinkDebugIPPort(_hostlist, _ipport_items, _cgi)) {
@@ -363,7 +363,7 @@ bool NetSource::GetShortLinkItems(const std::vector<std::string>& _hostlist,
 
     if (_hostlist.empty())
         return false;
-    __GetIPPortItems(_ipport_items, _hostlist, _dns_util, false, _host_extra_info);
+    __GetIPPortItems(_ipport_items, _hostlist, _dns_util, false, _extra_info);
 
     return !_ipport_items.empty();
 }
@@ -412,7 +412,7 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
                                  const std::vector<std::string>& _hostlist,
                                  DnsUtil& _dns_util,
                                  bool _islonglink,
-                                 const std::map<std::string, std::string>& _host_extra_info) {
+                                 const std::map<std::string, std::string>& _extra_info) {
     if (active_logic_.IsActive()) {
         unsigned int merge_type_count = 0;
         unsigned int makelist_count = kNumMakeCount;
@@ -421,7 +421,7 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
             if (merge_type_count == 1 && _ipport_items.size() == kNumMakeCount)
                 makelist_count = kNumMakeCount + 1;
 
-            if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/false, _islonglink, _host_extra_info))
+            if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/false, _islonglink, _extra_info))
                 merge_type_count++;
         }
 
@@ -429,7 +429,7 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
             if (merge_type_count == 1 && _ipport_items.size() == kNumMakeCount)
                 makelist_count = kNumMakeCount + 1;
 
-            if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/true, _islonglink, _host_extra_info))
+            if (0 < __MakeIPPorts(_ipport_items, *iter, makelist_count, _dns_util, /*_isbackup=*/true, _islonglink, _extra_info))
                 merge_type_count++;
         }
     } else {
@@ -443,14 +443,14 @@ void NetSource::__GetIPPortItems(std::vector<IPPortItem>& _ipport_items,
              host_iter != _hostlist.end() && count < kNumMakeCount - 1;
              ++host_iter) {
             count += i < ret2 ? ret + 1 : ret;
-            __MakeIPPorts(_ipport_items, *host_iter, count, _dns_util, /*_isbackup=*/false, _islonglink, _host_extra_info);
+            __MakeIPPorts(_ipport_items, *host_iter, count, _dns_util, /*_isbackup=*/false, _islonglink, _extra_info);
             i++;
         }
 
         for (std::vector<std::string>::const_iterator host_iter = _hostlist.begin();
              host_iter != _hostlist.end() && count < kNumMakeCount;
              ++host_iter) {
-            __MakeIPPorts(_ipport_items, *host_iter, kNumMakeCount, _dns_util, /*_isbackup=*/true, _islonglink, _host_extra_info);
+            __MakeIPPorts(_ipport_items, *host_iter, kNumMakeCount, _dns_util, /*_isbackup=*/true, _islonglink, _extra_info);
         }
     }
 }
@@ -461,7 +461,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
                                 DnsUtil& _dns_util,
                                 bool _isbackup,
                                 bool _islonglink,
-                                const std::map<std::string, std::string>& _host_extra_info) {
+                                const std::map<std::string, std::string>& _extra_info) {
     IPSourceType ist = kIPSourceNULL;
     std::vector<std::string> iplist;
     std::vector<uint16_t> ports;
@@ -471,7 +471,7 @@ size_t NetSource::__MakeIPPorts(std::vector<IPPortItem>& _ip_items,
         dns_profile.host = _host;
 
         // TODO cpan 这里的2秒是不是可以调
-        bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist, 2 * 1000, NULL, _islonglink, _host_extra_info);
+        bool ret = _dns_util.GetNewDNS().GetHostByName(_host, iplist, 2 * 1000, NULL, _islonglink, _extra_info);
 
         dns_profile.end_time = gettickcount();
         if (!ret)

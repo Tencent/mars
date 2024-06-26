@@ -87,23 +87,6 @@ bool ZombieTaskManager::StopTask(uint32_t _taskid) {
     return false;
 }
 
-bool ZombieTaskManager::GetTask(const uint32_t _taskid, Task &task) const {
-    xverbose_function();
-
-    std::list<ZombieTask>::const_iterator first = lsttask_.begin();
-    std::list<ZombieTask>::const_iterator last = lsttask_.end();
-
-    while (first != last) {
-        if (_taskid == first->task.taskid) {
-            task = first->task;
-            return true;
-        }
-        ++first;
-    }
-
-    return false;
-}
-
 bool ZombieTaskManager::HasTask(uint32_t _taskid) const {
     xverbose_function();
 

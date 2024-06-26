@@ -52,7 +52,6 @@ class ZombieTaskManager {
     void ClearTasks();
     void RedoTasks();
     void OnNetCoreStartTask();
-    bool GetTask(const uint32_t _taskid, Task &task) const;
     
  private:
     ZombieTaskManager(const ZombieTaskManager&);

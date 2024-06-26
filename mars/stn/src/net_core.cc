@@ -546,22 +546,6 @@ void NetCore::StopTask(uint32_t _taskid) {
     ASYNC_BLOCK_END
 }
 
-bool NetCore::GetTask(const uint32_t _taskid, Task &task) const {
-#ifdef USE_LONG_LINK
-    if (need_use_longlink_) {
-        if (longlink_task_manager_->HasTask(_taskid))
-            return longlink_task_manager_->GetTask(_taskid, task);
-
-        if (zombie_task_manager_->HasTask(_taskid))
-            return zombie_task_manager_->GetTask(_taskid, task);
-    }
-#endif
-    if (shortlink_task_manager_->HasTask(_taskid))
-        return shortlink_task_manager_->GetTask(_taskid, task);
-    
-    return false;
-}
-
 bool NetCore::HasTask(uint32_t _taskid) const {
     WAIT_SYNC2ASYNC_FUNC(boost::bind(&NetCore::HasTask, this, _taskid));
 
@@ -1334,16 +1318,9 @@ void NetCore::SetNeedUseLongLink(bool flag) {
 }
 
 void NetCore::SetGetRealHostFunc(
-    const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func) {
-    if (shortlink_task_manager_) {
-        shortlink_task_manager_->get_real_host_strict_match_ = func;
-    }
-}
-
-void NetCore::SetGetRealHostFuncWithExtraInfo(
     const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, const std::map<std::string, std::string>& extra_info)> func) {
     if (shortlink_task_manager_) {
-        shortlink_task_manager_->get_real_host_strict_match_with_extra_info_ = func;
+        shortlink_task_manager_->get_real_host_strict_match_ = func;
     }
 }
 
@@ -1354,16 +1331,9 @@ void NetCore::SetAddWeakNetInfo(const std::function<void(bool _connect_timeout, 
 }
 
 void NetCore::SetLongLinkGetRealHostFunc(
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func) {
-    if (longlink_task_manager_) {
-        longlink_task_manager_->get_real_host_ = func;
-    }
-}
-
-void NetCore::SetLongLinkGetRealHostFuncWithExtraInfo(
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)> func) {
     if (longlink_task_manager_) {
-        longlink_task_manager_->get_real_host_with_extra_info_ = func;
+        longlink_task_manager_->get_real_host_ = func;
     }
 }
 
@@ -1384,30 +1354,16 @@ void NetCore::SetLongLinkShouldInterceptResult(std::function<bool(int _error_cod
 }
 
 void NetCore::SetShortLinkGetRealHostFunc(
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func) {
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->get_real_host_ = func;
     }
 }
 
-void NetCore::SetShortLinkGetRealHostFuncWithExtraInfo(
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)> func) {
-    if (shortlink_task_manager_) {
-        shortlink_task_manager_->get_real_host_with_extra_info_ = func;
-    }
-}
-
 void NetCore::SetShortLinkTaskConnectionDetail(
-    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> func) {
-    if (shortlink_task_manager_) {
-        shortlink_task_manager_->task_connection_detail_ = func;
-    }
-}
-
-void NetCore::SetShortLinkTaskConnectionDetailWithExtraInfo(
     std::function<void(const int _error_type, const int _error_code, const int _use_ip_index, const std::map<std::string, std::string>& extra_info)> func) {
     if (shortlink_task_manager_) {
-        shortlink_task_manager_->task_connection_detail_with_extra_info_ = func;
+        shortlink_task_manager_->task_connection_detail_ = func;
     }
 }
 
