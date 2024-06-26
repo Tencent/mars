@@ -163,7 +163,7 @@ class LongLink {
         return encoder_;
     }
     void SetDnsFunc(
-        const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _host_extra_info)>& _dns_func) {
+        const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info)>& _dns_func) {
         dns_util_.GetNewDNS().SetDnsFunc(_dns_func);
     }
     std::string ChannelId() {

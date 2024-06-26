@@ -72,7 +72,7 @@ void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
     // #endif
 }
 
-std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _host_extra_info) {
+std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     return sg_callback->OnNewDns(_host, _longlink_host);
@@ -127,7 +127,7 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 int& _error_code,
                                 const int _channel_select,
                                 unsigned short& server_sequence_id,
-                                const std::map<std::string, std::string>& _task_extra_info) {
+                                const std::map<std::string, std::string>& _extra_info) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     return sg_callback->Buf2Resp(_taskid,

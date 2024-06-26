@@ -372,7 +372,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
             first->transfer_profile.begin_first_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic, task.host_extra_info);
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic, task.extra_info);
             first->transfer_profile.end_first_get_host_time = gettickcount();
 
         } else {
@@ -386,7 +386,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             hosts = task.shortlink_host_list;
             first->transfer_profile.begin_retry_get_host_time = gettickcount();
             if (get_real_host_) {
-                realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false, task.host_extra_info);
+                realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false, task.extra_info);
             }
             first->transfer_profile.end_retry_get_host_time = gettickcount();
         }
@@ -497,7 +497,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                                err_code,
                                                                                Task::kChannelShort,
                                                                                server_sequence_id,
-                                                                               first->task.host_extra_info);
+                                                                               first->task.extra_info);
                 xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
                 first->task.server_sequence_id = server_sequence_id;
                 ConnectProfile profile;
@@ -791,7 +791,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                                                    err_code,
                                                                    Task::kChannelShort,
                                                                    server_sequence_id,
-                                                                   it->task.host_extra_info);
+                                                                   it->task.extra_info);
     xinfo2_if(it->task.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
     it->transfer_profile.end_buf2resp_time = gettickcount();
@@ -1134,7 +1134,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         }
 
         if (task_connection_detail_) {
-            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index, _it->task.host_extra_info);
+            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index, _it->task.extra_info);
         }
 
         int cgi_retcode = fun_callback_(_err_type,
