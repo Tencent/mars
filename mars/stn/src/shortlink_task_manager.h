@@ -67,18 +67,16 @@ class ShortLinkTaskManager {
         void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)>
         fun_notify_retry_all_tasks;
 
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list)>
-        get_real_host_strict_match_;
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, const std::map<std::string, std::string>& extra_info)>
-        get_real_host_strict_match_with_extra_info_;
+        get_real_host_strict_match_;
+
     std::function<void(bool _connect_timeout, struct tcp_info& _info)> add_weaknet_info_;
 
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)>
-        get_real_host_;
     std::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
-        get_real_host_with_extra_info_;
-    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
-    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index, const std::map<std::string, std::string>& extra_info)> task_connection_detail_with_extra_info_;
+        get_real_host_;
+
+    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index, const std::map<std::string, std::string>& extra_info)> task_connection_detail_;
+
     std::function<int(TaskProfile& _profile)> choose_protocol_;
     std::function<void(const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
     std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;

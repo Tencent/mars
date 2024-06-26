@@ -372,13 +372,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
             first->transfer_profile.begin_first_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic, task.host_extra_info);
             first->transfer_profile.end_first_get_host_time = gettickcount();
 
-        } else if (get_real_host_with_extra_info_) {
-            first->transfer_profile.begin_first_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_with_extra_info_(task.user_id, hosts, /*_strict_match=*/config.use_quic, task.host_extra_info);
-            first->transfer_profile.end_first_get_host_time = gettickcount();
         } else {
             xwarn2(TSF "mars2 get_real_host_ is null.");
         }
@@ -390,9 +386,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             hosts = task.shortlink_host_list;
             first->transfer_profile.begin_retry_get_host_time = gettickcount();
             if (get_real_host_) {
-                realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
-            } else if (get_real_host_with_extra_info_) {
-                realhost_cnt = get_real_host_with_extra_info_(task.user_id, hosts, /*_strict_match=*/false, task.host_extra_info);
+                realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false, task.host_extra_info);
             }
             first->transfer_profile.end_retry_get_host_time = gettickcount();
         }
@@ -541,8 +535,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                      config);
         if (get_real_host_strict_match_) {
             worker->func_host_filter = get_real_host_strict_match_;
-        } else if (get_real_host_strict_match_with_extra_info_) {
-            worker->func_host_filter_with_extra_info = get_real_host_strict_match_with_extra_info_;
         }
         worker->func_add_weak_net_info =
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
@@ -607,8 +599,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             
             if (task_connection_detail_) {
                 worker->task_connection_detail_ = task_connection_detail_;
-            } else if (task_connection_detail_with_extra_info_) {
-                worker->task_connection_detail_with_extra_info_ = task_connection_detail_with_extra_info_;
             }
             worker->fun_callback_ = fun_callback_;
             worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
@@ -1144,9 +1134,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         }
 
         if (task_connection_detail_) {
-            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);
-        } else if (task_connection_detail_with_extra_info_) {
-            task_connection_detail_with_extra_info_(_err_type, _err_code, _connect_profile.ip_index, _it->task.host_extra_info);
+            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index, _it->task.host_extra_info);
         }
 
         int cgi_retcode = fun_callback_(_err_type,
