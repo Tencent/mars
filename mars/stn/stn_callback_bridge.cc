@@ -126,7 +126,8 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 const AutoBuffer& _extend,
                                 int& _error_code,
                                 const int _channel_select,
-                                unsigned short& server_sequence_id) {
+                                unsigned short& server_sequence_id,
+                                const std::map<std::string, std::string>& _task_extra_info) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     return sg_callback->Buf2Resp(_taskid,

@@ -236,7 +236,8 @@ int StnManager::Buf2Resp(uint32_t taskid,
                          const AutoBuffer& extend,
                          int& error_code,
                          int channel_select,
-                         unsigned short& server_sequence_id) {
+                         unsigned short& server_sequence_id,
+                         const std::map<std::string, std::string>& _task_extra_info) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
         return callback_bridge_->Buf2Resp(taskid,
@@ -246,7 +247,8 @@ int StnManager::Buf2Resp(uint32_t taskid,
                                           extend,
                                           error_code,
                                           channel_select,
-                                          server_sequence_id);
+                                          server_sequence_id,
+                                          _task_extra_info);
     } else {
         xwarn2(TSF "mars2 callback_bridget is null.");
         return 0;

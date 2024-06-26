@@ -129,23 +129,6 @@ bool ShortLinkTaskManager::StopTask(uint32_t _taskid) {
     return false;
 }
 
-bool ShortLinkTaskManager::GetTask(const uint32_t _taskid, Task &task) const {
-    xverbose_function();
-
-    std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
-    std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
-
-    while (first != last) {
-        if (_taskid == first->task.taskid) {
-            task = first->task;
-            return true;
-        }
-        ++first;
-    }
-
-    return false;
-}
-
 bool ShortLinkTaskManager::HasTask(uint32_t _taskid) const {
     xverbose_function();
 
@@ -519,7 +502,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                                extension,
                                                                                err_code,
                                                                                Task::kChannelShort,
-                                                                               server_sequence_id);
+                                                                               server_sequence_id,
+                                                                               first->task.host_extra_info);
                 xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
                 first->task.server_sequence_id = server_sequence_id;
                 ConnectProfile profile;
@@ -816,7 +800,8 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                                                    _extension,
                                                                    err_code,
                                                                    Task::kChannelShort,
-                                                                   server_sequence_id);
+                                                                   server_sequence_id,
+                                                                   it->task.host_extra_info);
     xinfo2_if(it->task.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
     it->transfer_profile.end_buf2resp_time = gettickcount();

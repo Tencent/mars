@@ -147,23 +147,6 @@ bool LongLinkTaskManager::StopTask(uint32_t _taskid) {
     return false;
 }
 
-bool LongLinkTaskManager::GetTask(const uint32_t _taskid, Task &task) const {
-    xverbose_function();
-
-    std::list<TaskProfile>::const_iterator first = lst_cmd_.begin();
-    std::list<TaskProfile>::const_iterator last = lst_cmd_.end();
-
-    while (first != last) {
-        if (_taskid == first->task.taskid) {
-            task = first->task;
-            return true;
-        }
-        ++first;
-    }
-
-    return false;
-}
-
 bool LongLinkTaskManager::HasTask(uint32_t _taskid) const {
     xverbose_function();
 

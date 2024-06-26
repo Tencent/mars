@@ -973,7 +973,8 @@ void ShortLink::__OnResponseImp(ErrCmdType _errType,
                                                                    _extension,
                                                                    err_code,
                                                                    Task::kChannelShort,
-                                                                   server_sequence_id);
+                                                                   server_sequence_id,
+                                                                   task_.host_extra_info);
 
     xinfo2_if(task_.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
@@ -1171,7 +1172,8 @@ bool ShortLink::__Req2Buf() {
                                                                        extension,
                                                                        err_code,
                                                                        Task::kChannelShort,
-                                                                       server_sequence_id);
+                                                                       server_sequence_id,
+                                                                       task_.host_extra_info);
         xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
         OnRecvDataTime(this, received_size, last_receive_pkg_time);
         OnServerSequenceId(this, (int)server_sequence_id);
