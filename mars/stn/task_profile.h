@@ -390,6 +390,10 @@ struct TaskProfile {
 
         end_task_time = 0;
         retry_start_time = 0;
+        get_auth_time = 0;
+
+        debug_report = false;
+        debug_str = "";
 
         last_failed_dyntime_status = 0;
         current_dyntime_status = 0;
@@ -448,6 +452,10 @@ struct TaskProfile {
     const uint64_t start_task_time;  // ms
     uint64_t end_task_time;          // ms
     uint64_t retry_start_time;
+    uint64_t get_auth_time;
+
+    bool debug_report;
+    std::string debug_str;
 
     int remain_retry_count;
     bool force_no_retry;

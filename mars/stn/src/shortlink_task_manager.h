@@ -137,6 +137,11 @@ class ShortLinkTaskManager {
     void __OnRequestTimeout(ShortLinkInterface* _worker, int _errorcode);
     void __OnAddWeakNetInfo(bool _connect_timeout, struct tcp_info& _info);
 
+    void __ReportDebugKV(uint64_t run_timeout_cost,
+                         uint64_t run_start_task_cost,
+                         uint64_t run_loop_cost,
+                         uint64_t task_count);
+
  private:
     boot::Context* context_;
     comm::MessageQueue::ScopeRegister asyncreg_;

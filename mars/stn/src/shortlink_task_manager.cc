@@ -30,6 +30,11 @@
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/time_utils.h"
 #include "mars/comm/xlogger/xlogger.h"
+#include "mars/rapidjson/document.h"
+#include "mars/rapidjson/prettywriter.h"
+#include "mars/rapidjson/stringbuffer.h"
+#include "mars/rapidjson/writer.h"
+
 #ifdef ANDROID
 #include "mars/comm/android/wakeuplock.h"
 #endif
@@ -169,7 +174,48 @@ unsigned int ShortLinkTaskManager::GetTasksContinuousFailCount() {
     return tasks_continuous_fail_count_;
 }
 
+using namespace rapidjson;
+template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+void setkey(Writer<StringBuffer>& writer, const char* key, const T& v) {
+    writer.Key(key);
+    writer.Uint64(v);
+}
+
+static unsigned int __SafeSubTime(uint64_t _end, uint64_t _start) {
+    if (_end < _start)
+        return 0;
+
+    if (_end > _start + 1000 * 1000)
+        return 0;
+
+    return (unsigned int)(_end - _start);
+}
+
+void ShortLinkTaskManager::__ReportDebugKV(uint64_t run_timeout_cost,
+                                           uint64_t run_start_task_cost,
+                                           uint64_t run_loop_cost,
+                                           uint64_t task_count) {
+    StringBuffer jsonstr;
+    Writer<StringBuffer> writer(jsonstr);
+
+    writer.StartObject();
+    setkey(writer, "RunOnTimeoutTime", run_timeout_cost);
+    setkey(writer, "RunOnStartTaskTime", run_start_task_cost);
+    setkey(writer, "RunLoopTime", run_loop_cost);
+    setkey(writer, "TaskListLength", task_count);
+    setkey(writer, "Timestamp", ::gettickcount());
+    writer.EndObject();
+    xinfo2(TSF "%_", jsonstr.GetString());
+    Task tmp_task;
+    PrepareProfile tmp_profile;
+    TaskProfile task_profile(tmp_task, tmp_profile);
+    task_profile.debug_report = true;
+    task_profile.debug_str = std::string(jsonstr.GetString());
+    context_->GetManager<StnManager>()->ReportTaskProfile(task_profile);
+}
+
 void ShortLinkTaskManager::__RunLoop() {
+    uint64_t start_run_loop = ::gettickcount();
     if (lst_cmd_.empty()) {
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
@@ -183,9 +229,15 @@ void ShortLinkTaskManager::__RunLoop() {
 #endif
         return;
     }
-
+    auto task_count = lst_cmd_.size();
+    auto start_run_timeout = std::chrono::steady_clock::now();
     __RunOnTimeout();
+    auto end_run_timeout = std::chrono::steady_clock::now();
     __RunOnStartTask();
+    auto end_run_start_task = std::chrono::steady_clock::now();
+
+    auto run_timeout_duration = end_run_timeout - start_run_timeout;
+    auto run_start_task_duration = end_run_start_task - end_run_timeout;
 
     if (!lst_cmd_.empty()) {
 #ifdef ANDROID
@@ -214,6 +266,16 @@ void ShortLinkTaskManager::__RunLoop() {
         }
 #endif
     }
+    uint64_t end_run_loop = ::gettickcount();
+
+    __ReportDebugKV(std::chrono::duration_cast<std::chrono::milliseconds>(run_timeout_duration).count(),
+                    std::chrono::duration_cast<std::chrono::milliseconds>(run_start_task_duration).count(),
+                    __SafeSubTime(end_run_loop, start_run_loop),
+                    task_count);
+    xinfo2(TSF "__RunOnTimeout cost: %_ us, __RunOnStartTask cost: %_ us, __RunLoop total_cost: %_ ms",
+           std::chrono::duration_cast<std::chrono::microseconds>(run_timeout_duration).count(),
+           std::chrono::duration_cast<std::chrono::microseconds>(run_start_task_duration).count(),
+           __SafeSubTime(end_run_loop, start_run_loop));
 }
 
 void ShortLinkTaskManager::__RunOnTimeout() {
@@ -434,6 +496,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             }
         }
 
+        first->get_auth_time = ::gettickcount();
+
         bool use_tls = true;
         if (can_use_tls_) {
             use_tls = !can_use_tls_(hosts);
@@ -472,7 +536,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         }
         first->transfer_profile.end_req2buf_time = gettickcount();
 
-        //雪崩检测
+        // 雪崩检测
         xassert2(fun_anti_avalanche_check_);
 
         if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
@@ -772,15 +836,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                     handle_type,
                     it->task.taskid,
                     it->task.user_id);
-            //#ifdef __APPLE__
-            //            //.test only.
-            //            const char* pbuffer = (const char*)_body.Ptr();
-            //            for (size_t off = 0; off < _body.Length();){
-            //                size_t len = std::min((size_t)512, _body.Length() - off);
-            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-            //                off += len;
-            //            }
-            //#endif
+            // #ifdef __APPLE__
+            //             //.test only.
+            //             const char* pbuffer = (const char*)_body.Ptr();
+            //             for (size_t off = 0; off < _body.Length();){
+            //                 size_t len = std::min((size_t)512, _body.Length() - off);
+            //                 xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                 off += len;
+            //             }
+            // #endif
             __SingleRespHandle(it,
                                kEctEnDecode,
                                err_code,
