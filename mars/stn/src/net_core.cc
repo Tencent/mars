@@ -78,7 +78,11 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
 , shortlink_task_manager_(
       new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
 , shortlink_error_count_(0)
-, shortlink_try_flag_(false) {
+, shortlink_try_flag_(false)
+#ifdef ANDROID
+, wakeup_lock_(new WakeUpLock())
+#endif
+{
     NetCoreCreateBegin()();
     xdebug_function(TSF "mars2");
     xwarn2(TSF "public component version: %0 %1", __DATE__, __TIME__);
@@ -140,8 +144,11 @@ NetCore::~NetCore() {
     if (!already_release_net_) {
         ReleaseNet();
     }
-    //MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
+    // MessageQueue::MessageQueueCreater::ReleaseNewMessageQueue(MessageQueue::Handler2Queue(asyncreg_.Get()));
     MessageQueue::MessageQueueCreater::ReleaseNewMessageCreator(messagequeue_creater_);
+#ifdef ANDROID
+    delete wakeup_lock_;
+#endif
 }
 
 void NetCore::ReleaseNet() {
@@ -306,7 +313,7 @@ int NetCore::__ChooseChannel(const Task& _task,
 void NetCore::StartTask(const Task& _task) {
     ASYNC_BLOCK_START
     if (already_release_net_) {
-        xinfo2(TSF"net core had release. ignore.");
+        xinfo2(TSF "net core had release. ignore.");
         return;
     }
     xgroup2_define(group);
@@ -338,7 +345,8 @@ void NetCore::StartTask(const Task& _task) {
            _task.priority,
            _task.report_arg)
         >> group;
-
+    PrepareProfile _profile;
+    _profile.start_task_call_time = gettickcount();
     Task task = _task;
     if (!__ValidAndInitDefault(task, group)) {
         ConnectProfile profile;
@@ -350,10 +358,26 @@ void NetCore::StartTask(const Task& _task) {
         return;
     }
 
+#ifdef ANDROID
+    /*cancel the last wakeuplock*/
+    if (context_->GetManager<AppManager>() != nullptr) {
+        wakeup_lock_->Lock(context_->GetManager<AppManager>()->GetConfig<int>(kKeyShortLinkWakeupLockBefroeCMD,
+                                                                              kShortLinkWakeupLockBefroeCMD));
+    } else {
+        xinfo2(TSF "appmanager no exist.");
+        wakeup_lock_->Lock(kShortLinkWakeupLockBefroeCMD);
+    }
+#endif
+
+    _profile.begin_process_hosts_time = gettickcount();
     if (task_process_hook_) {
         task_process_hook_(task);
     }
-
+    _profile.end_process_hosts_time = gettickcount();
+    xdebug2(TSF "task process hook time %_", (_profile.end_process_hosts_time - _profile.begin_process_hosts_time));
+#ifdef ANDROID
+    wakeup_lock_->Unlock();
+#endif
     if (0 == task.channel_select) {
         xerror2(TSF "error channelType (%_, %_), ", kEctLocal, kEctLocalChannelSelect) >> group;
         ConnectProfile profile;
@@ -371,14 +395,16 @@ void NetCore::StartTask(const Task& _task) {
     }
 
     //.下列逻辑是为了notify而做的，目前notify ack不需要在已有长连上进行，因此这个判断条件不需要了.
-    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink || !longlink->IsConnected())){
+    // if ((task.channel_select == Task::kChannelLong || task.channel_select == Task::kChannelMinorLong) && (!longlink
+    // || !longlink->IsConnected())){
     //     //.必须长链或副长链，但指定连接不存在，则回调失败.
     //     xerror2(TSF"err no longlink (%_, %_), ", kEctLocal, kEctLocalLongLinkUnAvailable) >> group;
     //     /* mars2
-    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
+    //     OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable,
+    //     ConnectProfile());
     //     */
-    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal, kEctLocalLongLinkUnAvailable, ConnectProfile());
-    //     return;
+    //     context_->GetManager<StnManager>()->OnTaskEnd(task.taskid, task.user_context, task.user_id, kEctLocal,
+    //     kEctLocalLongLinkUnAvailable, ConnectProfile()); return;
     // }
 
     std::shared_ptr<LongLinkMetaData> minorlonglink = nullptr;
@@ -445,7 +471,7 @@ void NetCore::StartTask(const Task& _task) {
 
     xgroup2() << group;
     if (!need_use_longlink_) {
-        start_ok = shortlink_task_manager_->StartTask(task);
+        start_ok = shortlink_task_manager_->StartTask(task, _profile);
     } else {
         int channel = __ChooseChannel(task, longlink, minorlonglink);
         switch (channel) {
@@ -458,7 +484,7 @@ void NetCore::StartTask(const Task& _task) {
 
             case Task::kChannelShort:
                 task.shortlink_fallback_hostlist = task.shortlink_host_list;
-                start_ok = shortlink_task_manager_->StartTask(task);
+                start_ok = shortlink_task_manager_->StartTask(task, _profile);
                 break;
 
             default:
@@ -677,6 +703,7 @@ void NetCore::RetryTasks(ErrCmdType _err_type,
                          int _fail_handle,
                          uint32_t _src_taskid,
                          std::string _user_id) {
+    ASYNC_BLOCK_START
     xinfo2(TSF "shortlink_task_manager retry task id %_", _src_taskid);
     shortlink_task_manager_->RetryTasks(_err_type, _err_code, _fail_handle, _src_taskid);
 #ifdef USE_LONG_LINK
@@ -684,6 +711,7 @@ void NetCore::RetryTasks(ErrCmdType _err_type,
         longlink_task_manager_->RetryTasks(_err_type, _err_code, _fail_handle, _src_taskid, _user_id);
     }
 #endif
+    ASYNC_BLOCK_END
 }
 
 void NetCore::MakeSureLongLinkConnect() {
