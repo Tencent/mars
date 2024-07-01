@@ -29,6 +29,7 @@
 #include "comm/socket/socket_address.h"
 #include "comm/socket/unix_socket.h"
 #include "comm/xlogger/xlogger.h"
+#include "mars/comm/network/getaddrinfo_with_timeout.h"
 
 using namespace mars::comm;
 
@@ -164,4 +165,52 @@ std::string GetDetailNetInfo(bool _need_wifi_ssid) {
                         << "\n";
     }
     return detail_net_info.Message();
+}
+
+int get_local_ip(std::vector<std::string>& ips) {
+    // 获取主机名
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) == -1) {
+        xerror2(TSF "gethostname failed");
+        return -1;
+    }
+    struct addrinfo hints, *single, *res;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;  // 允许IPv4和IPv6
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    bool is_timeout = false;
+    if (getaddrinfo_with_timeout(hostname, NULL, &hints, &res, is_timeout, 2000) != 0) {
+        xerror2(TSF "getaddrinfo failed");
+        return -1;
+    }
+
+    for (single = res; single; single = single->ai_next) {
+        // In Indonesia, if there is no ipv6's ip, operators return 0.0.0.0.
+        if (PF_INET == single->ai_family) {
+            sockaddr_in* addr_in = (sockaddr_in*)single->ai_addr;
+            //                    struct in_addr convertAddr;
+            /*need no filter
+             if (INADDR_ANY == addr_in->sin_addr.s_addr || INADDR_NONE == addr_in->sin_addr.s_addr) {
+                xwarn2(TSF "hehe, addr_in->sin_addr.s_addr:%0", addr_in->sin_addr.s_addr);
+                continue;
+            }*/
+        }
+
+        socket_address sock_addr(single->ai_addr);
+        const char* ip = sock_addr.ip();
+
+        /*need no filter
+        if (!socket_address(ip, 0).valid_server_address(false, true)) {
+            xerror2(TSF "ip is invalid, ip:%0", ip);
+            continue;
+        }
+        */
+
+        ips.push_back(ip);
+    }
+
+    freeaddrinfo(res);
+    return -1;
 }
