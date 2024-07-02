@@ -1068,12 +1068,6 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
 
     if (_it == lst_cmd_.end())
         return false;
-
-    if (!_it->running_id) {
-        xwarn2(TSF "running id is empty, may be task had delete.");
-        return false;
-    }
-
     if (kEctOK == _err_type) {
         tasks_continuous_fail_count_ = 0;
         default_use_proxy_ = _it->use_proxy;
