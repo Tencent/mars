@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <set>
+#include <sstream>
 
 #include "boost/bind.hpp"
 #include "mars/app/app.h"
@@ -195,22 +196,18 @@ void ShortLinkTaskManager::__ReportDebugKV(uint64_t run_timeout_cost,
                                            uint64_t run_start_task_cost,
                                            uint64_t run_loop_cost,
                                            uint64_t task_count) {
-    StringBuffer jsonstr;
-    Writer<StringBuffer> writer(jsonstr);
+    std::stringstream ss;
+    ss << "TaskManagerReport,"
+       << "{\"RunOnTimeoutTime\":" << run_timeout_cost << ";\"RunOnStartTaskTime\":" << run_start_task_cost
+       << ";\"RunLoopTime\":" << run_loop_cost << ";\"TaskListLength\":" << task_count
+       << ";\"Timestamp\":" << ::gettickcount() << "}";
 
-    writer.StartObject();
-    setkey(writer, "RunOnTimeoutTime", run_timeout_cost);
-    setkey(writer, "RunOnStartTaskTime", run_start_task_cost);
-    setkey(writer, "RunLoopTime", run_loop_cost);
-    setkey(writer, "TaskListLength", task_count);
-    setkey(writer, "Timestamp", ::gettickcount());
-    writer.EndObject();
-    xinfo2(TSF "%_", jsonstr.GetString());
     Task tmp_task;
     PrepareProfile tmp_profile;
     TaskProfile task_profile(tmp_task, tmp_profile);
     task_profile.debug_report = true;
-    task_profile.debug_str = std::string(jsonstr.GetString());
+    task_profile.debug_str = ss.str();
+    xinfo2(TSF "%_", task_profile.debug_str);
     context_->GetManager<StnManager>()->ReportTaskProfile(task_profile);
 }
 
