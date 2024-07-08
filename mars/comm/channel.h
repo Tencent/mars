@@ -8,7 +8,6 @@
 #include <cinttypes>
 #include <condition_variable>
 #include <list>
-#include "boost/optional.hpp"
 
 namespace mars {
 namespace comm {
@@ -30,20 +29,20 @@ class Channel {
         RecvWithTimeoutMs(t, INT64_MAX);
         return t;
     }
-    boost::optional<T> RecvWithTimeoutMs(uint64_t timeout_ms) {
+    bool RecvWithTimeoutMs(T& t, uint64_t timeout_ms) {
         std::unique_lock<std::mutex> lock(mtx_);
         if (!list_.empty()) {
-            T t = std::move(list_.front());
+            t = std::move(list_.front());
             list_.pop_front();
-            return t;
+            return true;
         }
         auto timeout_time = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout_ms);
         if (cv_.wait_until(lock, timeout_time) == std::cv_status::timeout) {
-            return {};
+            return false;
         }
-        T t = std::move(list_.front());
+        t = std::move(list_.front());
         list_.pop_front();
-        return t;
+        return true;
     }
 
  private:
