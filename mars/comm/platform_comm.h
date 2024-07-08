@@ -284,6 +284,13 @@ inline int getRealtimeNetLabel(std::string& netInfo) {
     return getCurrNetLabelImpl(netInfo, true);
 }
 
+inline int getCellularNetLabel(std::string& netInfo) {
+    SIMInfo info;
+    getCurSIMInfo(info, true);
+    netInfo = "mobile_" + info.isp_code;
+    return 2;
+}
+
 #ifdef __APPLE__
 void FlushReachability();
 float publiccomponent_GetSystemVersion();
@@ -369,6 +376,11 @@ extern void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCall
 #ifdef ANDROID
 std::string GetCurrentProcessName();
 #endif
+
+//[dual-channel]
+bool IsCellularNetworkActive();
+bool BindSocket2CellularNetwork(int socket_fd);
+bool ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips);
 
 }  // namespace comm
 }  // namespace mars

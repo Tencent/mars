@@ -328,6 +328,16 @@ void StnManagerJniCallback::ReportConnectStatus(int _status, int _longlink_statu
     xdebug2(TSF "all_connstatus = %0, longlink_connstatus = %_", _status, _longlink_status);
 }
 
+DEFINE_FIND_METHOD(KC2Java_reportBindCellularNetworkStatus, KC2Java, "reportBindCellularNetworkStatus", "(ZZ)V")
+void StnManagerJniCallback::ReportBindCellularNetworkStatus(bool status, bool request) {
+    xverbose_function(TSF "mars2");
+    VarCache* cache_instance = VarCache::Singleton();
+    ScopeJEnv scope_jenv(cache_instance->GetJvm());
+    JNIEnv* env = scope_jenv.GetEnv();
+    JNU_CallMethodByMethodInfo(env, callback_inst_, KC2Java_reportBindCellularNetworkStatus, status, request);
+    xdebug2(TSF "status = %_, request = %_", status, request);
+}
+
 DEFINE_FIND_CLASS(StnErrCmdType, "com/tencent/mars/stn/ErrCmdType")
 DEFINE_FIND_METHOD(KC2Java_OnLongLinkNetworkError,
                    KC2Java,

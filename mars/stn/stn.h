@@ -479,6 +479,8 @@ class Callback {
 
     // 上报网络连接状态
     virtual void ReportConnectStatus(int _status, int _longlink_status) = 0;
+    virtual void ReportBindCellularNetworkStatus(bool status, bool request) = 0;
+
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     }
     virtual void OnShortLinkNetworkError(ErrCmdType _err_type,
