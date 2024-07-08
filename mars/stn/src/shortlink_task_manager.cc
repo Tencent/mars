@@ -195,12 +195,19 @@ static unsigned int __SafeSubTime(uint64_t _end, uint64_t _start) {
 void ShortLinkTaskManager::__ReportDebugKV(uint64_t run_timeout_cost,
                                            uint64_t run_start_task_cost,
                                            uint64_t run_loop_cost,
-                                           uint64_t task_count) {
+                                           uint64_t first_lock_cost,
+                                           uint64_t second_lock_cost,
+                                           uint64_t mq_cost,
+                                           uint32_t lock_type_flag,
+                                           uint64_t task_count_before_timeout,
+                                           uint64_t task_count_after_timeout) {
     std::stringstream ss;
-    ss << "TaskManagerReport,"
-       << "{\"RunOnTimeoutTime\":" << run_timeout_cost << ";\"RunOnStartTaskTime\":" << run_start_task_cost
-       << ";\"RunLoopTime\":" << run_loop_cost << ";\"TaskListLength\":" << task_count
-       << ";\"Timestamp\":" << ::gettickcount() << "}";
+    ss << "TaskManagerReport," << "{\"RunOnTimeoutTime\":" << run_timeout_cost
+       << ";\"RunOnStartTaskTime\":" << run_start_task_cost << ";\"RunLoopTime\":" << run_loop_cost
+       << ";\"TaskCountBeforeTimeout\":" << task_count_before_timeout
+       << ";\"TaskCountAfterTimeout\":" << task_count_after_timeout << ";\"FirstLockCost\":" << first_lock_cost
+       << ";\"SecondLockCost\":" << second_lock_cost << ";\"mq_cost\":" << mq_cost
+       << ";\"lock_type\":" << lock_type_flag << ";\"Timestamp\":" << ::gettickcount() << "}";
 
     Task tmp_task;
     PrepareProfile tmp_profile;
@@ -226,9 +233,12 @@ void ShortLinkTaskManager::__RunLoop() {
 #endif
         return;
     }
-    auto task_count = lst_cmd_.size();
+    uint64_t first_wakeup_lock_end = ::gettickcount();
+    auto task_count_before_timeout = lst_cmd_.size();
+
     auto start_run_timeout = std::chrono::steady_clock::now();
     __RunOnTimeout();
+    auto task_count_after_timeout = lst_cmd_.size();
     auto end_run_timeout = std::chrono::steady_clock::now();
     __RunOnStartTask();
     auto end_run_start_task = std::chrono::steady_clock::now();
@@ -236,6 +246,11 @@ void ShortLinkTaskManager::__RunLoop() {
     auto run_timeout_duration = end_run_timeout - start_run_timeout;
     auto run_start_task_duration = end_run_start_task - end_run_timeout;
 
+    uint64_t mq_start{0UL};
+    uint64_t mq_end{0UL};
+    uint32_t lock_type_flag{0U};  // 0 : list not empty, RunCMD; 1 : list empty, EmptyCMD
+
+    uint64_t second_wakeup_lock_start = ::gettickcount();
     if (!lst_cmd_.empty()) {
 #ifdef ANDROID
         if (context_->GetManager<AppManager>() != nullptr) {
@@ -246,12 +261,16 @@ void ShortLinkTaskManager::__RunLoop() {
             wakeup_lock_->Lock(kShortLinkWakeupLockRunCMD);
         }
 #endif
+        lock_type_flag = 0U;
+        mq_start = ::gettickcount();
         MessageQueue::FasterMessage(asyncreg_.Get(),
                                     MessageQueue::Message((MessageQueue::MessageTitle_t)this,
                                                           boost::bind(&ShortLinkTaskManager::__RunLoop, this),
                                                           "ShortLinkTaskManager::__RunLoop"),
                                     MessageQueue::MessageTiming(DEF_TASK_RUN_LOOP_TIMING));
+        mq_end = ::gettickcount();
     } else {
+        lock_type_flag = 1U;
 #ifdef ANDROID
         /*cancel the last wakeuplock*/
         if (context_->GetManager<AppManager>() != nullptr) {
@@ -268,7 +287,12 @@ void ShortLinkTaskManager::__RunLoop() {
     __ReportDebugKV(std::chrono::duration_cast<std::chrono::milliseconds>(run_timeout_duration).count(),
                     std::chrono::duration_cast<std::chrono::milliseconds>(run_start_task_duration).count(),
                     __SafeSubTime(end_run_loop, start_run_loop),
-                    task_count);
+                    __SafeSubTime(first_wakeup_lock_end, start_run_loop),
+                    __SafeSubTime(end_run_loop, second_wakeup_lock_start),
+                    __SafeSubTime(mq_end, mq_start),
+                    lock_type_flag,
+                    task_count_before_timeout,
+                    task_count_after_timeout);
     xinfo2(TSF "__RunOnTimeout cost: %_ us, __RunOnStartTask cost: %_ us, __RunLoop total_cost: %_ ms",
            std::chrono::duration_cast<std::chrono::microseconds>(run_timeout_duration).count(),
            std::chrono::duration_cast<std::chrono::microseconds>(run_start_task_duration).count(),

@@ -140,7 +140,12 @@ class ShortLinkTaskManager {
     void __ReportDebugKV(uint64_t run_timeout_cost,
                          uint64_t run_start_task_cost,
                          uint64_t run_loop_cost,
-                         uint64_t task_count);
+                         uint64_t first_lock_cost,
+                         uint64_t second_lock_cost,
+                         uint64_t mq_cost,
+                         uint32_t lock_type_flag,
+                         uint64_t task_count_before_timeout,
+                         uint64_t task_count_after_timeout);
 
  private:
     boot::Context* context_;
