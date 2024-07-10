@@ -16,14 +16,18 @@ template <typename T>
 class CacheWithTimeout {
  public:
     explicit CacheWithTimeout(uint64_t timeout_ms) {
+        xinfo2(TSF "timeout_ms:%_", timeout_ms);
         timeout_ms_ = timeout_ms;
     }
     void DeleteTimeOut() {
         uint64_t now_time = gettickcount();
         std::lock_guard<std::mutex> lock(mtx_);
         stlutil::RemoveIfAndErase(cache_, [&](const TWithTime& f) {
-            xinfo2(TSF "current:%_, cache time:%_", now_time, f.second);
-            return now_time - f.second >= timeout_ms_;
+            bool timeout = now_time - f.second >= timeout_ms_;
+            if (timeout) {
+                xinfo2(TSF "cache time:%_", f.second);
+            }
+            return timeout;
         });
     }
     void Update(const T& fragment) {
