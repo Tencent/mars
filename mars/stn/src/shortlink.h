@@ -20,8 +20,10 @@
 #ifndef STN_SRC_SHORTLINK_H_
 #define STN_SRC_SHORTLINK_H_
 
+#include <condition_variable>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -89,6 +91,9 @@ class ShortLink : public ShortLinkInterface {
                          AutoBuffer& _body,
                          AutoBuffer& _extension,
                          ConnectProfile& _conn_profile);
+
+    bool __CheckAuth();
+    void __CancelCheckAuth();
 
  private:
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);

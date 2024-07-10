@@ -139,6 +139,11 @@ class ShortLinkInterface {
     CallBack<boost::function<void(ShortLinkInterface* _worker, bool before)>> OnIncreateRemainRetryCount;
     CallBack<boost::function<void(ShortLinkInterface* _worker)>> OnSetLastFailedStatus;
     CallBack<boost::function<void(ShortLinkInterface* worker, ConnectProfile connect_profile)>> OnUpdateConnectProfile;
+
+    std::mutex auth_mtx;
+    std::condition_variable auth_cv;
+    std::atomic<bool> is_authed{false};
+    std::atomic<bool> on_destroy{false};
 };
 
 }  // namespace stn

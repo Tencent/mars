@@ -310,6 +310,32 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         ++next;
 
         if (first->running_id) {
+            if (first->task.need_authed) {
+                ShortLinkInterface* worker_ = reinterpret_cast<ShortLinkInterface*>(first->running_id);
+                if (worker_->is_authed.load()) {
+                    xinfo2(TSF "TaskManager RunLoop already async_auth, notify auth_cv");
+                    worker_->auth_cv.notify_one();
+                } else {
+                    std::string host = first->task.shortlink_host_list.front();
+                    first->transfer_profile.begin_make_sure_auth_time = gettickcount();
+                    bool ismakesureauthsuccess =
+                        context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
+                    first->transfer_profile.end_make_sure_auth_time = gettickcount();
+                    xinfo2(TSF "TaskManager RunLoop Check async_auth, auth result %_ host %_",
+                           ismakesureauthsuccess,
+                           host);
+                    if (ismakesureauthsuccess) {
+                        {
+                            std::lock_guard<std::mutex> auth_lock(worker_->auth_mtx);
+                            // lock on write is_authed
+                            worker_->is_authed.store(ismakesureauthsuccess);
+                        }
+                        xinfo2(TSF "TaskManager RunLoop async_auth, notify auth_cv");
+                        worker_->auth_cv.notify_one();
+                    }
+                }
+            }
+
             ++sent_count;
             first = next;
             continue;
@@ -405,22 +431,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   first->task.cgi,
                   host,
                   first->task.need_authed);
-        // make sure login
-        if (first->task.need_authed) {
-            first->transfer_profile.begin_make_sure_auth_time = gettickcount();
-            bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
-            first->transfer_profile.end_make_sure_auth_time = gettickcount();
-            xinfo2_if(!first->task.long_polling && first->task.priority >= 0,
-                      TSF "auth result %_ host %_",
-                      ismakesureauthsuccess,
-                      host);
-
-            if (!ismakesureauthsuccess) {
-                xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
-                first = next;
-                continue;
-            }
-        }
 
         bool use_tls = true;
         if (can_use_tls_) {
