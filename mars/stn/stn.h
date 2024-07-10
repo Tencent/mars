@@ -201,6 +201,7 @@ struct LonglinkConfig {
     bool isMain;
     int link_type = Task::kChannelLong;
     int packer_encoder_version = PackerEncoderVersion::kOld;
+    std::string packer_encoder_name = "";
     std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
     bool need_tls;
 };
@@ -213,12 +214,14 @@ struct QuicParameters {
 };
 struct ShortlinkConfig {
  public:
-    ShortlinkConfig(bool _use_proxy, bool _use_tls) : use_proxy(_use_proxy), use_tls(_use_tls) {
+    ShortlinkConfig(bool _use_proxy, bool _use_tls, std::string _tls_group) : use_proxy(_use_proxy),
+        use_tls(_use_tls), tls_group(_tls_group) {
     }
     bool use_proxy = false;
     bool use_tls = true;
     bool use_quic = false;
     QuicParameters quic;
+    std::string tls_group;
 };
 
 enum TaskFailHandleType {

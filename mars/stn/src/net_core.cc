@@ -65,8 +65,14 @@ static const int kShortlinkErrTime = 3;
 
 // bool NetCore::need_use_longlink_ = true;
 
-NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link)
+NetCore::NetCore(boot::Context* _context,
+                 int _packer_encoder_version,
+                 std::string _packer_encoder_name,
+                 bool _use_long_link,
+                 LongLinkEncoder* longlink_encoder,
+                 std::string tls_group_name)
 : packer_encoder_version_(_packer_encoder_version)
+, packer_encoder_name_(_packer_encoder_name)
 , need_use_longlink_(_use_long_link)
 , messagequeue_creater_(true, XLOGGER_TAG)
 , asyncreg_(MessageQueue::InstallAsyncHandler(messagequeue_creater_.CreateMessageQueue()))
@@ -76,14 +82,18 @@ NetCore::NetCore(boot::Context* _context, int _packer_encoder_version, bool _use
 , anti_avalanche_(new AntiAvalanche(context_, ActiveLogic::Instance()->IsActive()))
 , dynamic_timeout_(new DynamicTimeout)
 , shortlink_task_manager_(
-      new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue()))
+      new ShortLinkTaskManager(context_, net_source_, *dynamic_timeout_, messagequeue_creater_.GetMessageQueue(),
+                               tls_group_name))
 , shortlink_error_count_(0)
 , shortlink_try_flag_(false)
+, default_longlink_encoder(longlink_encoder)
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
 {
-    NetCoreCreateBegin()();
+    if (context_->GetContextId() == "default") {
+        NetCoreCreateBegin()();
+    }
     xdebug_function(TSF "mars2");
     xwarn2(TSF "public component version: %0 %1", __DATE__, __TIME__);
     xassert2(messagequeue_creater_.GetMessageQueue() != MessageQueue::KInvalidQueueID,
@@ -205,10 +215,13 @@ void NetCore::__InitLongLink() {
                                                      net_source_,
                                                      *ActiveLogic::Instance(),
                                                      *dynamic_timeout_,
-                                                     GetMessageQueueId());
+                                                     GetMessageQueueId(),
+                                                     default_longlink_encoder);
 
     LonglinkConfig defaultConfig(DEFAULT_LONGLINK_NAME, DEFAULT_LONGLINK_GROUP, true);
     defaultConfig.is_keep_alive = true;
+    defaultConfig.packer_encoder_name = packer_encoder_name_;
+    defaultConfig.longlink_encoder = default_longlink_encoder;
     CreateLongLink(defaultConfig);
 
     // async
@@ -1294,6 +1307,10 @@ std::shared_ptr<NetSource> NetCore::GetNetSource() {
 
 int NetCore::GetPackerEncoderVersion() {
     return packer_encoder_version_;
+}
+
+std::string NetCore::GetPackerEncoderName() {
+    return packer_encoder_name_;
 }
 
 void NetCore::SetNeedUseLongLink(bool flag) {
