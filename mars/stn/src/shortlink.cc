@@ -170,6 +170,7 @@ ShortLink::~ShortLink() {
     if (task_.priority >= 0) {
         xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }
+    __CancelCheckAuth();
     __CancelAndWaitReq2BufThread();
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
@@ -226,6 +227,14 @@ void ShortLink::__Run() {
 
     if (INVALID_SOCKET == fd_socket)
         return;
+
+    // make sure login, this func may block the thread_
+    if (!__CheckAuth()) {
+        // auth timeout, return
+        socketOperator_->Close(fd_socket);
+        return;
+    }
+
     if (OnSend) {
         OnSend(this);
     } else {
@@ -1140,8 +1149,8 @@ bool ShortLink::__Req2Buf() {
     OnReq2BufTime(this, begin_req2buf_time, end_req2buf_time);
     OnClientSequenceId(this, (int)client_sequence_id);
 
-    //雪崩检测
-    // xassert2(fun_anti_avalanche_check_);
+    // 雪崩检测
+    //  xassert2(fun_anti_avalanche_check_);
 
     if (fun_anti_avalanche_check_.empty() || !fun_anti_avalanche_check_(task_, bufreq.Ptr(), (int)bufreq.Length())) {
         OnSingleRespHandle(this, kEctLocal, kEctLocalAntiAvalanche, kTaskFailHandleTaskEnd, 0, conn_profile_);
@@ -1199,4 +1208,43 @@ bool ShortLink::__Req2Buf() {
 
 std::string ShortLink::__GetTheadName(const std::string& fullcgi) {
     return internal::threadName(fullcgi);
+}
+
+bool ShortLink::__CheckAuth() {
+    if (!task_.need_authed || (task_.need_authed && is_authed.load())) {
+        // 无需auth 或已经auth，直接返回
+        return true;
+    }
+    uint64_t auth_start = ::gettickcount();
+    std::string host = task_.shortlink_host_list.front();
+    bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, task_.user_id);
+    xinfo2(TSF "async_auth result %_ host %_", ismakesureauthsuccess, host);
+    std::unique_lock<std::mutex> auth_lock(auth_mtx);
+    is_authed.store(ismakesureauthsuccess);
+    if (!is_authed.load()) {
+        xinfo2(TSF "waiting async_auth");
+        auth_cv.wait(auth_lock, [this] {
+            return this->is_authed.load() || this->on_destroy.load();
+        });
+        xinfo2(TSF "get async_auth from taskmanager, is_authed: %_", is_authed.load());
+        if (!is_authed.load() || on_destroy.load()) {
+            // auth fail, notify on MMDestroy
+            uint64_t auth_end = ::gettickcount();
+            xinfo2(TSF "async_auth on destroy, timeout %_ ms", auth_end - auth_start);
+            return false;
+        }
+    } else {
+        xinfo2(TSF "get sync_auth");
+    }
+    return true;
+}
+
+void ShortLink::__CancelCheckAuth() {
+    {
+        std::lock_guard<std::mutex> auth_lock(auth_mtx);
+        on_destroy.store(true);
+    }
+    xinfo2(TSF "async_auth MMDestroy notify");
+    auth_cv.notify_one();
+    return;
 }
