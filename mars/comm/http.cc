@@ -1258,3 +1258,10 @@ class TestBodyReceiver : public BodyReceiver {
 };
 
 }  // namespace http
+
+void URLFactory::AddKeyValue(const std::string& key, const std::string& value) {
+    if (kvs_.find(key) != kvs_.end()) {
+        xwarn2(TSF "key:%_, prev val:%_, next val:%_", key, kvs_[key], strutil::to_string(value));
+    }
+    kvs_[key] = strutil::to_string(value);
+}

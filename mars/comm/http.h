@@ -26,7 +26,6 @@
 
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/strutil.h"
-#include "mars/comm/xlogger/xlogger.h"
 
 namespace http {
 
@@ -392,11 +391,9 @@ class URLFactory {
     }
     template <class T>
     void AddKeyValue(const std::string& key, const T& value) {
-        if (kvs_.find(key) != kvs_.end()) {
-            xwarn2(TSF "key:%_, prev val:%_, next val:%_", key, kvs_[key], strutil::to_string(value));
-        }
-        kvs_[key] = strutil::to_string(value);
+        AddKeyValue(key, strutil::to_string(value));
     }
+    void AddKeyValue(const std::string& key, const std::string& value);
     std::string GetUrl() const {
         if (kvs_.empty()) {
             return cgi_;
