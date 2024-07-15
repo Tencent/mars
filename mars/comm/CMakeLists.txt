@@ -5,7 +5,7 @@ message(STATUS "CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 
 project (comm)
 
-include(CMakeUtils.txt)
+include(utils.cmake)
 include(CMakeExtraFlags.txt)
 
 include_directories(.)

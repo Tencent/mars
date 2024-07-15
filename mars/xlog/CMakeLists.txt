@@ -9,7 +9,7 @@ project (xlog)
 set(SELF_LIBS_OUT ${CMAKE_SYSTEM_NAME}.out)
 
 
-include(../comm/CMakeUtils.txt)
+include(../comm/utils.cmake)
 include(../comm/CMakeExtraFlags.txt)
 
 include_directories(.)
