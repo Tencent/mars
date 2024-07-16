@@ -64,6 +64,8 @@ class StnCallbackBridge {
                           const ConnectProfile& _profile);
 
     virtual void ReportConnectStatus(int _status, int _longlink_status);
+    virtual void ReportBindCellularNetworkStatus(bool status);
+    virtual void RequestBindCellularNetworkPermission(bool show);
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port);
     virtual void OnShortLinkNetworkError(ErrCmdType _err_type,
                                          int _err_code,

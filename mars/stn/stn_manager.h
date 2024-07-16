@@ -94,6 +94,9 @@ class StnManager : public mars::boot::BaseManager {
 
     // 上报网络连接状态
     void ReportConnectStatus(int status, int longlink_status);
+    void ReportBindCellularNetworkStatus(bool status);
+    void RequestBindCellularNetworkPermission(bool show);
+
     void OnLongLinkNetworkError(::mars::stn::ErrCmdType _err_type,
                                 int _err_code,
                                 const std::string& _ip,

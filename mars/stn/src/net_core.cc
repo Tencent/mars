@@ -1385,4 +1385,16 @@ bool NetCore::IsAlreadyRelease() {
     return already_release_net_;
 }
 
+void NetCore::BindCellularNetwork() {
+    xinfo_function();
+    net_source_->SetUseCellularNetwork(true);
+    RedoTasks();
+}
+
+void NetCore::UnBindCellularNetwork() {
+    xinfo_function();
+    net_source_->SetUseCellularNetwork(false);
+    RedoTasks();
+}
+
 #endif
