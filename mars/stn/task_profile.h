@@ -148,6 +148,7 @@ struct ConnectProfile {
         end_connect_timestamp_ms = 0;
 
         task_id = 0;
+        is_bind_cellular_network = false;
 
         start_get_network_lab_time = 0;
         end_get_network_lab_time = 0;
@@ -246,6 +247,7 @@ struct ConnectProfile {
     uint64_t end_connect_timestamp_ms;
 
     uint32_t task_id;
+    bool is_bind_cellular_network;
 
     uint64_t start_get_network_lab_time;
     uint64_t end_get_network_lab_time;

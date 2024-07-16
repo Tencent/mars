@@ -222,6 +222,10 @@ class NetCore {
  public:
     bool IsAlreadyRelease();
 
+ public:
+    void BindCellularNetwork();
+    void UnBindCellularNetwork();
+
  private:
     int packer_encoder_version_;
     bool need_use_longlink_;

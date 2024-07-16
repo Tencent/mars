@@ -148,7 +148,7 @@ class ConnectCheckFSM : public TcpClientFSM {
                     unsigned int _connect_timeout,
                     unsigned int _index,
                     MComplexConnect* _observer)
-    : TcpClientFSM(_addr.address())
+    : TcpClientFSM(_addr.address(), _addr.is_bind_cellular_network())
     , connect_timeout_(_connect_timeout)
     , index_(_index)
     , observer_(_observer)
@@ -336,8 +336,8 @@ class ConnectHttpTunelCheckFSM : public ConnectCheckFSM {
                 memset(dstbuf, 0, dstlen);
 
                 int retsize = mars::comm::EncodeBase64((unsigned char*)account_info.c_str(),
-                                                 (unsigned char*)dstbuf,
-                                                 (int)account_info.length());
+                                                       (unsigned char*)dstbuf,
+                                                       (int)account_info.length());
                 dstbuf[retsize] = '\0';
 
                 char auth_info[1024] = {0};

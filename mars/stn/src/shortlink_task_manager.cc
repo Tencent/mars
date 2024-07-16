@@ -910,17 +910,9 @@ void ShortLinkTaskManager::__OnRecv(ShortLinkInterface* _worker, unsigned int _c
 
     if (lst_cmd_.end() != it) {
         if (it->transfer_profile.last_receive_pkg_time == 0)
-            // WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(true, (int)(::gettickcount() -
-            // it->transfer_profile.start_send_time));
-            net_source_->GetWeakNetworkLogic()->OnPkgEvent(
-                true,
-                (int)(::gettickcount() - it->transfer_profile.start_send_time));
+            net_source_->OnPkgEvent(true, (int)(::gettickcount() - it->transfer_profile.start_send_time));
         else
-            // WeakNetworkLogic::Singleton::Instance()->OnPkgEvent(false, (int)(::gettickcount() -
-            // it->transfer_profile.last_receive_pkg_time));
-            net_source_->GetWeakNetworkLogic()->OnPkgEvent(
-                false,
-                (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
+            net_source_->OnPkgEvent(false, (int)(::gettickcount() - it->transfer_profile.last_receive_pkg_time));
         it->transfer_profile.last_receive_pkg_time = ::gettickcount();
         it->transfer_profile.received_size = _cached_size;
         it->transfer_profile.receive_data_size = _total_size;
@@ -1159,8 +1151,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         ReportTaskProfile(*_it);
         */
         context_->GetManager<StnManager>()->ReportTaskProfile(*_it);
-        // WeakNetworkLogic::Singleton::Instance()->OnTaskEvent(*_it);
-        net_source_->GetWeakNetworkLogic()->OnTaskEvent(*_it);
+        net_source_->OnTaskEvent(*_it);
         __DeleteShortLink(_it);
 
         lst_cmd_.erase(_it);

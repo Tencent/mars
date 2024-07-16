@@ -261,11 +261,13 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     }
 
     bool use_proxy = _conn_profile.proxy_info.IsAddressValid();
-    TLocalIPStack local_stack = local_ipstack_detect();
+    TLocalIPStack local_stack = local_ipstack_detect(net_source_->IsUseCellularNetwork());
     bool isnat64 = local_stack == ELocalIPStack_IPv6;
     _conn_profile.local_net_stack = local_stack;
+    _conn_profile.is_bind_cellular_network = net_source_->IsUseCellularNetwork();
 
     if (outter_vec_addr_.empty()) {
+        dns_util_.GetDNS().SetUseCellularNetwork(net_source_->IsUseCellularNetwork());
         net_source_->GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi);
     } else {
         //.如果有外部ip则直接使用，比如newdns.
@@ -327,16 +329,20 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     std::vector<socket_address> vecaddr;
     if (use_proxy && mars::comm::kProxyHttp == _conn_profile.proxy_info.type) {
-        vecaddr.push_back(socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port).v4tov6_address(local_stack));
+        vecaddr.push_back(
+            socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port, _conn_profile.is_bind_cellular_network)
+                .v4tov6_address(local_stack));
     } else {
         for (size_t i = 0; i < _conn_profile.ip_items.size(); ++i) {
             if (!use_proxy || mars::comm::kProxyNone == _conn_profile.proxy_info.type) {
-                vecaddr.push_back(
-                    socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port)
-                        .v4tov6_address(local_stack));
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(),
+                                                 _conn_profile.ip_items[i].port,
+                                                 _conn_profile.is_bind_cellular_network)
+                                      .v4tov6_address(local_stack));
             } else {
-                vecaddr.push_back(
-                    socket_address(_conn_profile.ip_items[i].str_ip.c_str(), _conn_profile.ip_items[i].port));
+                vecaddr.push_back(socket_address(_conn_profile.ip_items[i].str_ip.c_str(),
+                                                 _conn_profile.ip_items[i].port,
+                                                 _conn_profile.is_bind_cellular_network));
             }
         }
     }
@@ -345,8 +351,10 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     if (use_proxy
         && (mars::comm::kProxyHttpTunel == _conn_profile.proxy_info.type
             || mars::comm::kProxySocks5 == _conn_profile.proxy_info.type)) {
-        proxy_addr =
-            &((new socket_address(proxy_ip.c_str(), _conn_profile.proxy_info.port))->v4tov6_address(local_stack));
+        proxy_addr = &((new socket_address(proxy_ip.c_str(),
+                                           _conn_profile.proxy_info.port,
+                                           conn_profile_.is_bind_cellular_network))
+                           ->v4tov6_address(local_stack));
         _conn_profile.ip_type = kIPSourceProxy;
     }
 
@@ -486,8 +494,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
 
     __UpdateProfile(_conn_profile);
 
-    // WeakNetworkLogic::Singleton::Instance()->OnConnectEvent(sock!=INVALID_SOCKET, profile.rtt, profile.index);
-    net_source_->GetWeakNetworkLogic()->OnConnectEvent(sock != INVALID_SOCKET, profile.rtt, profile.index);
+    net_source_->OnConnectEvent((sock != INVALID_SOCKET), profile.rtt, profile.index);
 
     if (INVALID_SOCKET == sock) {
         xwarn2(TSF "task socket connect fail sock %_, net:%_", message.String(), getNetInfo());

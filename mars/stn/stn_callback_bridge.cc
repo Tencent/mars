@@ -179,6 +179,16 @@ void StnCallbackBridge::ReportConnectStatus(int _status, int _longlink_status) {
     // #endif
 }
 
+void StnCallbackBridge::ReportBindCellularNetworkStatus(bool status) {
+    xassert2(sg_callback != NULL);
+    sg_callback->ReportBindCellularNetworkStatus(status);
+}
+
+void StnCallbackBridge::RequestBindCellularNetworkPermission(bool show) {
+    xassert2(sg_callback != NULL);
+    sg_callback->RequestBindCellularNetworkPermission(show);
+}
+
 void StnCallbackBridge::OnLongLinkNetworkError(ErrCmdType _err_type,
                                                int _err_code,
                                                const std::string& _ip,
