@@ -116,7 +116,7 @@ class AppManager : public mars::boot::BaseManager {
     }
 
     void __NotifyObservers(const std::string& key) {
-        xdebug2(TSF "notfiy config update key:%_", key);
+        xdebug2(TSF "notify config update key:%_", key);
         std::lock_guard<std::mutex> lock(observer_mutex_);
         if (observers_.find(key) != observers_.end()) {
             for (IAppConfigObserver* observer : observers_[key]) {
