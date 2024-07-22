@@ -53,6 +53,8 @@ class StnManagerJniCallback : public Callback {
                           int _error_code,
                           const CgiProfile& _profile) override;
     virtual void ReportConnectStatus(int _status, int _longlink_status) override;
+    virtual void ReportBindCellularNetworkStatus(bool status) override;
+    virtual void RequestBindCellularNetworkPermission(bool show) override;
     virtual void OnLongLinkNetworkError(ErrCmdType _err_type,
                                         int _err_code,
                                         const std::string& _ip,

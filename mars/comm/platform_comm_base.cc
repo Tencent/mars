@@ -63,6 +63,13 @@ int getRealtimeNetLabel(std::string& netInfo) {
     return getCurrNetLabelImpl(netInfo, true);
 }
 
+int getCellularNetLabel(std::string& netInfo) {
+    SIMInfo info;
+    getCurSIMInfo(info, true);
+    netInfo = kMarsMobileNetLabelPrefix + info.isp_code;
+    return kMobile;
+}
+
 #ifndef __APPLE__
 int getNetworkIDLabel(std::string& netInfo) {
     netInfo = mars::comm::kMarsDefaultNetLabel;

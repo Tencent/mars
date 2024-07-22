@@ -38,13 +38,13 @@ const char* const TLocalIPStackStr[] = {
     "ELocalIPStack_Dual",
 };
 
-TLocalIPStack local_ipstack_detect();
+TLocalIPStack local_ipstack_detect(bool force_use_cellular_network = false);
 
 #ifdef __cplusplus
 }
 #endif
 
 #include <string>
-TLocalIPStack local_ipstack_detect_log(std::string& _log);
+TLocalIPStack local_ipstack_detect_log(std::string& _log, bool force_use_cellular_network = false);
 
 #endif /* __ip_type__ */

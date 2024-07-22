@@ -74,5 +74,10 @@ void OnAlarm(int64_t _id) {
     GetSignalOnAlarm()(_id);
 }
 #endif
+
+void OnBindCellularNetwork(bool _is_bind_cellular) {
+    GetSignalOnBindCellularNetwork()(_is_bind_cellular);
+}
+
 }  // namespace baseevent
 }  // namespace mars
