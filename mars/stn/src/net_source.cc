@@ -761,7 +761,7 @@ void NetSource::OnTaskEvent(const TaskProfile& _task_profile) {
               _task_profile.err_code,
               _task_profile.err_type);
     weak_network_logic_->OnTaskEvent(_task_profile);
-    if (on_task_event_fun && !IsUseCellularNetwork()) {
+    if (on_task_event_fun /*&& !IsUseCellularNetwork()*/) {
         on_task_event_fun(_task_profile);
     }
 }
