@@ -305,6 +305,24 @@ void StnManager::ReportConnectStatus(int status, int longlink_status) {
     }
 }
 
+void StnManager::ReportBindCellularNetworkStatus(bool status) {
+    xassert2(callback_bridge_ != NULL);
+    if (callback_bridge_) {
+        callback_bridge_->ReportBindCellularNetworkStatus(status);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
+}
+
+void StnManager::RequestBindCellularNetworkPermission(bool show) {
+    xassert2(callback_bridge_ != NULL);
+    if (callback_bridge_) {
+        callback_bridge_->RequestBindCellularNetworkPermission(show);
+    } else {
+        xwarn2(TSF "mars2 callback_bridget is null.");
+    }
+}
+
 void StnManager::OnLongLinkNetworkError(ErrCmdType _err_type, int _err_code, const std::string& _ip, uint16_t _port) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {

@@ -35,4 +35,5 @@ extern boost::signals2::signal<void()>& GetSignalOnNetworkChange();
 extern boost::signals2::signal<void(const char* _tag, ssize_t _send, ssize_t _recv)>& GetSignalOnNetworkDataChange();
 extern boost::signals2::signal<void(int64_t _id)>& GetSignalOnAlarm();
 
+extern boost::signals2::signal<void(bool _is_bind_cellular)>& GetSignalOnBindCellularNetwork();
 #endif /* BASEPRJEVENT_H_ */

@@ -228,6 +228,10 @@ class NetCore {
  public:
     bool IsAlreadyRelease();
 
+ public:
+    void BindCellularNetwork();
+    void UnBindCellularNetwork();
+
  private:
     int packer_encoder_version_;
     std::string packer_encoder_name_;
