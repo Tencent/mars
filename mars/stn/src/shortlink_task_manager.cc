@@ -63,8 +63,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
-, m_tls_group_name_(tls_group_name)
-{
+, m_tls_group_name_(tls_group_name) {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_",
                    asyncreg_.Get().queue,
@@ -552,9 +551,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->func_network_report.set(fun_notify_network_err_);
         if (choose_protocol_) {
             worker->SetUseProtocol(choose_protocol_(*first));
-        }
-        if (!debug_host_.empty()) {
-            worker->SetDebugHost(debug_host_);
         }
 
         if (is_handle_reqresp_buff_in_worker_) {
