@@ -268,6 +268,7 @@ enum {
     kEctLocalChannelID = -14,
     kEctLocalLongLinkReleased = -15,
     kEctLocalLongLinkUnAvailable = -16,
+    kEctLocalCheckAuthTimeout = -17,
 };
 
 // -600 ~ -500
