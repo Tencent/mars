@@ -406,6 +406,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   host,
                   first->task.need_authed);
         // make sure login
+        if (first->transfer_profile.begin_check_auth_time == 0) {
+            first->transfer_profile.begin_check_auth_time = ::gettickcount();
+        }
         if (first->task.need_authed) {
             first->transfer_profile.begin_make_sure_auth_time = gettickcount();
             bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
@@ -421,6 +424,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 continue;
             }
         }
+        first->transfer_profile.end_check_auth_time = ::gettickcount();
 
         bool use_tls = true;
         if (can_use_tls_) {
