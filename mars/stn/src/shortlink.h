@@ -92,8 +92,8 @@ class ShortLink : public ShortLinkInterface {
                          AutoBuffer& _extension,
                          ConnectProfile& _conn_profile);
 
-    bool __CheckAuth();
-    void __CancelCheckAuth();
+    bool __AsyncCheckAuth();
+    void __CancelAsyncCheckAuth();
 
  private:
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);

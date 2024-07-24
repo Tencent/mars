@@ -173,6 +173,10 @@ class ShortLinkTaskManager {
     void __OnSetLastFailedStatus(ShortLinkInterface* _worker);
     void __OnUpdateConnectProfile(ShortLinkInterface* worker, ConnectProfile& connect_profile);
     // int __OnGetSendCount();
+    void __OnTotalCheckAuthTime(ShortLinkInterface* _worker,
+                                uint64_t begin_check_auth_time,
+                                uint64_t end_check_auth_time);
+    void __CheckAuthAndNotify(std::list<TaskProfile>::iterator _it);
 
  private:
     boot::Context* context_;

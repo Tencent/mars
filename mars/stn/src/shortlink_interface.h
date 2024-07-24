@@ -139,6 +139,9 @@ class ShortLinkInterface {
     CallBack<boost::function<void(ShortLinkInterface* _worker, bool before)>> OnIncreateRemainRetryCount;
     CallBack<boost::function<void(ShortLinkInterface* _worker)>> OnSetLastFailedStatus;
     CallBack<boost::function<void(ShortLinkInterface* worker, ConnectProfile connect_profile)>> OnUpdateConnectProfile;
+    CallBack<boost::function<
+        void(ShortLinkInterface* _worker, uint64_t begin_check_auth_time, uint64_t end_check_auth_time)>>
+        OnTotalCheckAuthTime;
 
     std::mutex auth_mtx;
     std::condition_variable auth_cv;
