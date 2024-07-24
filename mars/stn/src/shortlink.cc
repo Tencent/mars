@@ -1122,7 +1122,7 @@ bool ShortLink::__Req2Buf() {
     if (!__AsyncCheckAuth()) {
         // auth timeout, return
         // socketOperator_->Close(fd_socket);
-        error_code = kEctLocalStartTaskFail;
+        error_code = kEctLocalCheckAuthTimeout;
         OnSingleRespHandle(this, kEctFalse, error_code, kTaskFailHandleTaskEnd, 0, conn_profile_);
         return false;
     }
@@ -1222,7 +1222,9 @@ bool ShortLink::__AsyncCheckAuth() {
     std::string host = task_.shortlink_host_list.front();
 
     std::unique_lock<std::mutex> auth_lock(auth_mtx);
+    uint64_t begin_make_sure_auth_time = ::gettickcount();
     is_authed.store(context_->GetManager<StnManager>()->MakesureAuthed(host, task_.user_id));
+    OnMakeSureAuthTime(this, begin_make_sure_auth_time, ::gettickcount());
     xinfo2(TSF "task first async_auth check, result %_ host %_", is_authed.load(), host);
     if (!is_authed.load()) {
         xinfo2(TSF "waiting async_auth");
@@ -1250,6 +1252,6 @@ void ShortLink::__CancelAsyncCheckAuth() {
         on_destroy.store(true);
     }
     xinfo2(TSF "async_auth MMDestroy notify");
-    auth_cv.notify_all();
+    auth_cv.notify_one();
     return;
 }

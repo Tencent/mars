@@ -82,9 +82,9 @@ class ShortLinkInterface {
     boost::function<
         void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)>
         fun_notify_retry_all_tasks;
-    //不用使用callback, retry会delete shortlink, 但callback会锁住mutex
-    //    CallBack<boost::function<void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid,
-    //    std::string _user_id)>> fun_notify_retry_all_tasks;
+    // 不用使用callback, retry会delete shortlink, 但callback会锁住mutex
+    //     CallBack<boost::function<void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid,
+    //     std::string _user_id)>> fun_notify_retry_all_tasks;
 
     boost::function<void(int _line,
                          ErrCmdType _err_type,
@@ -142,6 +142,9 @@ class ShortLinkInterface {
     CallBack<boost::function<
         void(ShortLinkInterface* _worker, uint64_t begin_check_auth_time, uint64_t end_check_auth_time)>>
         OnTotalCheckAuthTime;
+    CallBack<boost::function<
+        void(ShortLinkInterface* _worker, uint64_t begin_make_sure_auth_time, uint64_t end_make_sure_auth_time)>>
+        OnMakeSureAuthTime;
 
     std::mutex auth_mtx;
     std::condition_variable auth_cv;
