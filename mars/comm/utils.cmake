@@ -130,3 +130,23 @@ macro(BuildWithUnitTest projname sourcefiles)
         endif()
     endif()
 endmacro()
+
+macro(BuildSharedLib name src exp_file_path libs 3rd_libs link_flags)
+    message("\n")
+    message("name:              ${name}")
+    message("src:               ${src}")
+    message("exp_file_path:     ${exp_file_path}")
+    message("libs:              ${libs}")
+    message("3rd_libs:          ${3rd_libs}")
+    message("link_flags:        ${link_flags}")
+    add_library(${name} SHARED ${src})
+    get_filename_component(EXPORT_FILE ${exp_file_path} ABSOLUTE)
+    target_link_libraries(${name} PRIVATE
+            ${link_flags}
+            -Wl,--version-script=${EXPORT_FILE}
+            -Wl,--start-group
+            ${libs}
+            ${3rd_libs}
+            -Wl,--end-group
+            )
+endmacro()
