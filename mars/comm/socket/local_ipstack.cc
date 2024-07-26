@@ -58,7 +58,7 @@ static int _test_connect(int pf,
         return 0;
 
     if (force_use_cellular_network) {
-        bool result = mars::comm::BindSocket2CellularNetwork(s);
+        bool result = mars::comm::BindSocket2CellularNetwork(s, true);
         xdebug2(TSF "[dual-channel] bind socket result :%_", result);
         if (!result) {
             return 0;

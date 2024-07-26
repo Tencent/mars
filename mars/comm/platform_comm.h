@@ -360,7 +360,7 @@ std::string GetCurrentProcessName();
 
 //[dual-channel]
 bool IsCellularNetworkActive();
-bool BindSocket2CellularNetwork(int socket_fd);
+bool BindSocket2CellularNetwork(int socket_fd, bool is_conn_test = false);
 bool ResolveHostByCellularNetwork(const std::string& host, std::vector<std::string>& ips);
 
 }  // namespace comm

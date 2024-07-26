@@ -173,7 +173,7 @@ void TcpClientFSM::PreConnectSelect(SocketSelect& _sel, XLogger& _log) {
     sock_ = socket(addr_.address().sa_family, SOCK_STREAM, IPPROTO_TCP);
 
     if (addr_.is_bind_cellular_network()) {
-        xinfo2(TSF "[dual-channel] try to bind cellular network.");
+        xinfo2(TSF "[dual-channel] try to bind cellular network. socket:%_ ip:%_", sock_, addr_.ip());
         bool ret = BindSocket2CellularNetwork(sock_);
         if (!ret) {
             error_ = socket_errno;

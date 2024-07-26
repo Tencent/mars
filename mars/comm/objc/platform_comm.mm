@@ -774,7 +774,7 @@ bool IsCellularNetworkActive() {
     return true;
 }
 
-bool BindSocket2CellularNetwork(int socket_fd) {
+bool BindSocket2CellularNetwork(int socket_fd, bool is_conn_test) {
     struct sockaddr* cellular_addr = get_cellular_ip_addr();
     if (cellular_addr == nullptr) {
         xerror2(TSF "[dual-channel] no cellular network");
@@ -782,7 +782,8 @@ bool BindSocket2CellularNetwork(int socket_fd) {
     }
     int rtn = ::bind(socket_fd, cellular_addr, cellular_addr->sa_len);
     if (rtn != 0) {
-        xerror2(TSF "[dual-channel] bind fail, errno:%_", errno);
+        xerror2(TSF "[dual-channel] bind fail, socket:%_ errno:%_ is connection test:%_", socket_fd,
+                errno, is_conn_test);
         return false;
     }
     return true;
