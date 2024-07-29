@@ -94,6 +94,7 @@ class ShortLink : public ShortLinkInterface {
 
     bool __AsyncCheckAuth();
     void __CancelAsyncCheckAuth();
+    bool __WaitAsyncReq2buf();
 
  private:
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);
@@ -110,6 +111,9 @@ class ShortLink : public ShortLinkInterface {
     Task task_;
     comm::Thread thread_;
     std::shared_ptr<comm::Thread> req2buf_thread_;
+    std::mutex req2buf_ready_mtx;
+    std::condition_variable req2buf_ready_cv;
+    std::atomic<bool> is_req2buf_ready{false};
 
     ConnectProfile conn_profile_;
     NetSource::DnsUtil dns_util_;

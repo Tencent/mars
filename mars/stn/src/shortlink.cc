@@ -220,7 +220,9 @@ void ShortLink::__Run() {
     SOCKET fd_socket = __RunConnect(conn_profile);
 
     if (is_start_req2buf_thread) {
-        req2buf_thread_->join();
+        if (!__WaitAsyncReq2buf()) {
+            return;
+        }
     }
 
     if (INVALID_SOCKET == fd_socket)
@@ -1097,16 +1099,24 @@ void ShortLink::__CancelAndWaitWorkerThread() {
 
 void ShortLink::__CancelAndWaitReq2BufThread() {
     xdebug_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
+    __CancelAsyncCheckAuth();
+    req2buf_ready_cv.notify_one();
+
     if (!is_start_req2buf_thread) {
         xinfo2(TSF "thread is no start.");
         return;
     }
+
+    if (req2buf_thread_ == nullptr) {
+        xinfo2(TSF "thread is null.");
+        return;
+    }
+
     if (!req2buf_thread_->isruning()) {
         xinfo2(TSF "thread is no running.");
         return;
     }
 
-    __CancelAsyncCheckAuth();
     int ret = req2buf_thread_->join();
     req2buf_thread_.reset();
     xdebug2(TSF "req2buf_thread_ join %_ ret %_", this, ret);
@@ -1120,10 +1130,9 @@ bool ShortLink::__Req2Buf() {
 
     // make sure login, this func may block this thread
     if (!__AsyncCheckAuth()) {
-        // auth timeout, return
-        // socketOperator_->Close(fd_socket);
-        error_code = kEctLocalCheckAuthTimeout;
-        OnSingleRespHandle(this, kEctFalse, error_code, kTaskFailHandleTaskEnd, 0, conn_profile_);
+        // auth timeout, return, req2buf 退出前notify req2buf_ready_cv
+        req2buf_ready_cv.notify_one();
+        xinfo2("async_auth on exit");
         return false;
     }
 
@@ -1204,7 +1213,11 @@ bool ShortLink::__Req2Buf() {
 
     send_body_.Attach(bufreq);
     send_extend_.Attach(buffer_extend);
-
+    {
+        std::lock_guard<std::mutex> lock(req2buf_ready_mtx);
+        is_req2buf_ready.store(true);
+    }
+    req2buf_ready_cv.notify_one();
     return true;
 }
 
@@ -1212,10 +1225,33 @@ std::string ShortLink::__GetTheadName(const std::string& fullcgi) {
     return internal::threadName(fullcgi);
 }
 
+bool ShortLink::__WaitAsyncReq2buf() {
+    if (is_req2buf_ready.load()) {
+        xinfo2(TSF "req2buf already ready");
+        return true;
+    }
+
+    // 此时 req2buf_thread_ 还没跑完，阻塞worker线程等待。on_destroy读取不用加锁
+    {
+        std::unique_lock<std::mutex> lock(req2buf_ready_mtx);
+        xinfo2(TSF "waiting req2buf_ready_cv");
+        req2buf_ready_cv.wait(lock, [this] {
+            return this->is_req2buf_ready.load() || this->on_destroy.load();
+        });
+    }
+    if (on_destroy.load() || !is_req2buf_ready.load()) {
+        // 如果析构了，直接返回
+        return false;
+    }
+    xinfo2(TSF "req2buf ready notify success");
+    return true;
+}
+
 bool ShortLink::__AsyncCheckAuth() {
     uint64_t auth_start = ::gettickcount();
     if (!task_.need_authed || (task_.need_authed && is_authed.load())) {
         // 无需auth 或已经auth，直接返回
+        xinfo2(TSF "task already async_auth");
         OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
         return true;
     }
@@ -1232,7 +1268,7 @@ bool ShortLink::__AsyncCheckAuth() {
             return this->is_authed.load() || this->on_destroy.load();
         });
         xinfo2(TSF "get async_auth from taskmanager, is_authed: %_", is_authed.load());
-        if (!is_authed.load() || on_destroy.load()) {
+        if (on_destroy.load() || !is_authed.load()) {
             // auth fail, notify on MMDestroy
             uint64_t auth_end = ::gettickcount();
             OnTotalCheckAuthTime(this, auth_start, auth_end);
