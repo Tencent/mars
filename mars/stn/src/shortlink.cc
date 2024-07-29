@@ -170,7 +170,6 @@ ShortLink::~ShortLink() {
     if (task_.priority >= 0) {
         xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }
-    __CancelAndWaitReq2BufThread();
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
     dns_util_.Cancel();
@@ -1082,6 +1081,7 @@ void ShortLink::SetConnectParams(const std::vector<IPPortItem>& _out_addr,
 
 void ShortLink::__CancelAndWaitWorkerThread() {
     xdebug_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
+    __CancelAndWaitReq2BufThread();
 
     if (!thread_.isruning()) {
         xinfo2(TSF "thread is no running.");
@@ -1247,6 +1247,7 @@ bool ShortLink::__AsyncCheckAuth() {
 }
 
 void ShortLink::__CancelAsyncCheckAuth() {
+    xdebug_function(TSF "taskid:%_, cgi:%_ %_, auth status: %_", task_.taskid, task_.cgi, this, is_authed.load());
     {
         std::lock_guard<std::mutex> auth_lock(auth_mtx);
         on_destroy.store(true);
