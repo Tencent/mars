@@ -409,6 +409,22 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   first->task.cgi,
                   host,
                   first->task.need_authed);
+        // make sure login
+        if (!is_handle_reqresp_buff_in_worker_ && first->task.need_authed) {
+            first->transfer_profile.begin_make_sure_auth_time = gettickcount();
+            bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
+            first->transfer_profile.end_make_sure_auth_time = gettickcount();
+            xinfo2_if(!first->task.long_polling && first->task.priority >= 0,
+                      TSF "auth result %_ host %_",
+                      ismakesureauthsuccess,
+                      host);
+
+            if (!ismakesureauthsuccess) {
+                xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
+                first = next;
+                continue;
+            }
+        }
 
         bool use_tls = true;
         if (can_use_tls_) {

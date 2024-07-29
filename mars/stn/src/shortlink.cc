@@ -1083,6 +1083,7 @@ void ShortLink::SetConnectParams(const std::vector<IPPortItem>& _out_addr,
 
 void ShortLink::__CancelAndWaitWorkerThread() {
     xdebug_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
+    // 先join req2buf, worker线程被req2buf阻塞
     __CancelAndWaitReq2BufThread();
 
     if (!thread_.isruning()) {
@@ -1231,7 +1232,7 @@ bool ShortLink::__WaitAsyncReq2buf() {
         return true;
     }
 
-    // 此时 req2buf_thread_ 还没跑完，阻塞worker线程等待。on_destroy读取不用加锁
+    // 此时 req2buf_thread_ 还没跑完，阻塞worker线程等待。析构时确保on_destroy为true
     {
         std::unique_lock<std::mutex> lock(req2buf_ready_mtx);
         xinfo2(TSF "waiting req2buf_ready_cv");
