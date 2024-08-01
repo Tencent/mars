@@ -10,6 +10,7 @@
 #include "mars/boot/base_manager.h"
 #include "mars/boot/context.h"
 #include "mars/stn/stn.h"
+#include "mars-wechat/mmtls/mmtls_ctrl_info.h"
 
 namespace mars {
 
@@ -234,6 +235,18 @@ class StnManager : public mars::boot::BaseManager {
                      const std::vector<uint16_t>& _ports,
                      const std::string& _debugip);
     void SetShortlink(const uint16_t _port, const std::string& _debugip);
+
+    /* start mmtls */
+    void DispatchMmtlsCtrlInfo(bool _use_mmtls);
+    void ForbidMMtlsHost(const std::vector<std::string>& _host);
+    void ClearMMtlsForbidenHost();
+    void ClearMMtlsAllPsk();
+    void ClearMMTlsRegion();
+    void SetMMTlsRegion(int _region);
+    uint32_t GetMMTlsRegion();
+    mars::stn::TlsHandshakeFrom GetMMTlsHandshakeFrom();
+    bool IsMMTLSEnabled();
+    /* end mmtls */
 
     // Add for Android
     //   ConnectProfile GetConnectProfile(uint32_t _taskid, int _channel_select) ;

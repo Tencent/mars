@@ -62,6 +62,13 @@ using namespace mars::comm;
 #define AYNC_HANDLER asyncreg_.Get()
 
 static const int kShortlinkErrTime = 3;
+static const char* const kFolderName = "host";
+static const char* const kMMtlsRegionFileName = "tlsregion.ini";
+static const uint32_t kMMtlsRegionInternal = 1;
+static const uint32_t kMMtlsRegionUseless = 10000;
+
+static const char* const kMMtlsRegionSection = "mmtlsregion";
+static const char* const kMMtlsRegionKey = "mmtlsregionkey";
 
 // bool NetCore::need_use_longlink_ = true;
 
@@ -87,6 +94,8 @@ NetCore::NetCore(boot::Context* _context,
 , shortlink_error_count_(0)
 , shortlink_try_flag_(false)
 , default_longlink_encoder(longlink_encoder)
+, mmtls_ctrl_info_(context_, true, context_->GetManager<AppManager>()->GetAppFilePath() + "/" + kFolderName)
+, mmtls_region_ini_(context_->GetManager<AppManager>()->GetAppFilePath() + "/" + kMMtlsRegionFileName)
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
@@ -103,6 +112,9 @@ NetCore::NetCore(boot::Context* _context,
            asyncreg_.Get().queue,
            asyncreg_.Get().seq);
 
+    mmtls_region_ini_.Parse();
+    SetLongLinkOnHandShakeReady(std::bind(&NetCore::__OnReceiveMMtlsVersion, this, std::placeholders::_1, std::placeholders::_2));
+    SetShortLinkOnHandShakeReady(std::bind(&NetCore::__OnReceiveMMtlsVersion, this, std::placeholders::_1, std::placeholders::_2));
     std::string printinfo;
 
     SIMInfo info;
@@ -1401,5 +1413,82 @@ void NetCore::SetShortLinkShouldInterceptResult(std::function<bool(int _error_co
 bool NetCore::IsAlreadyRelease() {
     return already_release_net_;
 }
+
+void NetCore::ClearMMtlsAllPsk() {
+    mmtls_ctrl_info_.ClearAllMMtlsPsk();
+}
+
+void NetCore::ForbidMMtlsHost(const std::vector<std::string>& _host) {
+    ScopedLock lock(mutex_);
+    if (_host.empty()) {
+        return;
+    }
+    std::string host_str = "";
+    for (size_t i = 0; i < _host.size(); i++) {
+        host_str += _host[i];
+        host_str += ",";
+        forbid_mmtls_host_.insert(_host[i]);
+    }
+    ForbidLonglinkTlsHost(_host);
+    xinfo2(TSF "forbid hosts: %_", host_str);
+}
+
+void NetCore::DispatchMmtlsCtrlInfo(bool _use_mmtls) {
+    std::shared_ptr<NetSource> netsource = GetNetSource();
+    if (netsource) {
+        netsource->ForbidQUIC(!_use_mmtls);
+    }
+
+    ScopedLock lock(mutex_);
+    if (_use_mmtls == mmtls_ctrl_info_.IsMMTLSEnabled()) {
+        xinfo2(TSF "use_mmtls:%_, enable:%_, return", _use_mmtls, mmtls_ctrl_info_.IsMMTLSEnabled());
+        return;
+    }
+    mmtls_ctrl_info_.Save(_use_mmtls);
+    OnNetworkChange();
+}
+
+bool NetCore::IsMMTLSEnabled() {
+    ScopedLock lock(mutex_);
+    return mmtls_ctrl_info_.IsMMTLSEnabled();
+}
+
+void NetCore::__OnReceiveMMtlsVersion(uint32_t _version, mars::stn::TlsHandshakeFrom _from) {
+    ScopedLock lock(mutex_);
+    xinfo2(TSF "receive tls version: %_, %_", _version, _from);
+    mmtls_handshake_from_ = _from;
+    bool ret = mmtls_region_ini_.Select(kMMtlsRegionSection);
+    if (!ret)
+        mmtls_region_ini_.Create(kMMtlsRegionSection);
+    mmtls_region_ini_.Set(kMMtlsRegionKey, _version);
+    mmtls_region_ini_.Save();
+}
+
+uint32_t NetCore::GetMMTlsRegion() {
+    ScopedLock lock(mutex_);
+    std::string region_str;
+    if (mmtls_region_ini_.Select(kMMtlsRegionSection)) {
+        region_str = mmtls_region_ini_.Get(kMMtlsRegionKey, "");
+    }
+    uint32_t tls_region = kMMtlsRegionInternal;
+    if (!region_str.empty()) {
+        tls_region = std::stoi(region_str);
+        if (tls_region == kMMtlsRegionUseless) {
+            xinfo2(TSF "current version is invalid: %_", tls_region);
+            tls_region = kMMtlsRegionInternal;
+        }
+    }
+    return tls_region;
+}
+
+void NetCore::ClearMMTlsRegion() {
+    __OnReceiveMMtlsVersion(kMMtlsRegionUseless, mars::stn::TlsHandshakeFrom::kNoHandshaking);
+}
+
+void NetCore::SetMMTlsRegion(int _region) {
+    xinfo2(TSF "region; %_", _region);
+    __OnReceiveMMtlsVersion(_region, mars::stn::TlsHandshakeFrom::kFromSetting);
+}
+
 
 #endif

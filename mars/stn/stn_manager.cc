@@ -688,5 +688,75 @@ void StnManager::SetShortlink(const uint16_t _port, const std::string& _debugip)
     }
 }
 
+void StnManager::DispatchMmtlsCtrlInfo(bool _use_mmtls) {
+    xdebug_function();
+    if (net_core_) {
+        net_core_->DispatchMmtlsCtrlInfo(_use_mmtls);
+    }
+}
+
+void StnManager::ForbidMMtlsHost(const std::vector<std::string>& _host) {
+    xdebug_function();
+    if (net_core_) {
+        net_core_->ForbidMMtlsHost(_host);
+    }
+}
+
+void StnManager::ClearMMtlsForbidenHost() {
+    xdebug_function();
+    if (net_core_) {
+        net_core_->ClearAllForbidenMMtlsHost();
+    }
+}
+
+void StnManager::ClearMMtlsAllPsk() {
+    xdebug_function();
+    if (net_core_) {
+        net_core_->ClearMMtlsAllPsk();
+    }
+}
+
+void StnManager::ClearMMTlsRegion() {
+    xdebug_function();
+    if (net_core_) {
+        net_core_->ClearMMTlsRegion();
+    }
+}
+
+void StnManager::SetMMTlsRegion(int _region) {
+    if (net_core_) {
+        net_core_->SetMMTlsRegion(_region);
+    }
+}
+
+uint32_t StnManager::GetMMTlsRegion() {
+    xdebug_function();
+    uint32_t ret = 1;
+    if (net_core_) {
+        return net_core_->GetMMTlsRegion();
+    } else {
+        return ret;
+    }
+}
+
+mars::stn::TlsHandshakeFrom StnManager::GetMMTlsHandshakeFrom() {
+    xdebug_function();
+    mars::stn::TlsHandshakeFrom from = mars::stn::TlsHandshakeFrom::kNoHandshaking;
+    if (net_core_) {
+        from = net_core_->GetMMTlsHandshakeFrom();
+    }
+    return from;
+}
+
+bool StnManager::IsMMTLSEnabled() {
+    xdebug_function();
+    if (net_core_) {
+        return net_core_->IsMMTLSEnabled();
+    } else {
+        return true;
+    }
+}
+
+
 }  // namespace stn
 }  // namespace mars

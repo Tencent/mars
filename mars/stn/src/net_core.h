@@ -24,6 +24,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/singleton.h"
@@ -38,6 +39,8 @@
 #include "mars/boost/signals2.hpp"
 #include "mars/boot/context.h"
 #include "mars/comm/socket/getsocktcpinfo.h"
+#include "mars-wechat/mmtls/mmtls_ctrl_info.h"
+#include "mars/stn/src/special_ini.h"
 
 namespace mars {
 
@@ -197,6 +200,7 @@ class NetCore {
     int __ChooseChannel(const Task& _task,
                         std::shared_ptr<LongLinkMetaData> _longlink,
                         std::shared_ptr<LongLinkMetaData> _minorLong);
+    void __OnReceiveMMtlsVersion(uint32_t _version, mars::stn::TlsHandshakeFrom _from);
 
  private:
     NetCore(const NetCore&);
@@ -224,6 +228,22 @@ class NetCore {
     void SetShortLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);
     void SetShortLinkCanUseTls(std::function<bool(const std::vector<std::string>& _host_list)> func);
     void SetShortLinkShouldInterceptResult(std::function<bool(int _error_code)> func);
+
+ public:
+    // mmtls
+    bool IsMMTLSEnabled();
+    void DispatchMmtlsCtrlInfo(bool _use_mmtls);
+    void ForbidMMtlsHost(const std::vector<std::string>& _host);
+    void ClearMMtlsAllPsk();
+    void ClearAllForbidenMMtlsHost() {
+        forbid_mmtls_host_.clear();
+    }
+    uint32_t GetMMTlsRegion();
+    void ClearMMTlsRegion();
+    void SetMMTlsRegion(int _region);
+    mars::stn::TlsHandshakeFrom GetMMTlsHandshakeFrom() {
+        return mmtls_handshake_from_;
+    }
 
  public:
     bool IsAlreadyRelease();
@@ -256,6 +276,12 @@ class NetCore {
     int longlink_connect_status_ = 0;
     LongLinkEncoder* default_longlink_encoder = nullptr;
 
+    // mmtls
+    MMTLSCtrlInfo mmtls_ctrl_info_;
+    comm::Mutex mutex_;
+    std::set<std::string> forbid_mmtls_host_;
+    mars::stn::TlsHandshakeFrom mmtls_handshake_from_;
+    SpecialINI mmtls_region_ini_;
 #ifdef ANDROID
     comm::WakeUpLock* wakeup_lock_;
 #endif

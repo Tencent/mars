@@ -269,6 +269,36 @@ class JniStnManager {
         auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
         return stn_manager_cpp->GenSequenceId();
     }
+
+    static void JniSetMmtlsCtrlInfo(JNIEnv* env, jobject instance, jboolean j_use_mmtls) {
+        xinfo2(TSF "j_use_mmtls=%_", j_use_mmtls);
+        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
+        stn_manager_cpp->DispatchMmtlsCtrlInfo(j_use_mmtls);
+    }
+
+    static jint JniGetMMtlsRegion(JNIEnv* env, jobject instance) {
+        xverbose_function();
+        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
+        uint32_t g = stn_manager_cpp->GetMMTlsRegion();
+        xinfo2(TSF "GetMMTlsRegion=%_", g);
+        return g;
+    }
+
+    static void JniSetMMtlsRegion(JNIEnv* env, jobject instance, jint region) {
+        xverbose_function();
+        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
+        int r = region;
+        xinfo2(TSF "setMMtlsRegion=%_", r);
+        stn_manager_cpp->SetMMTlsRegion(r);
+    }
+
+    static void JniClearMMtlsForbidenHostAndPsk(JNIEnv* env, jobject instance) {
+        xverbose_function();
+        auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
+        stn_manager_cpp->ClearMMtlsForbidenHost();
+        stn_manager_cpp->ClearMMtlsAllPsk();
+        stn_manager_cpp->ClearMMTlsRegion();
+    }
 };
 
 static const JNINativeMethod kStnManagerJniMethods[] = {
@@ -302,6 +332,10 @@ static const JNINativeMethod kStnManagerJniMethods[] = {
     {"OnJniStopSignalling", "()V", (void*)&mars::stn::JniStnManager::JniStopSignalling},
     {"OnJniGenTaskID", "()I", (void*)&mars::stn::JniStnManager::JniGenTaskID},
     {"OnJniGenSequenceId", "()I", (void*)&mars::stn::JniStnManager::JniGenSequenceId},
+    {"OnJniGetMMtlsRegion", "()I", (void*)&mars::stn::JniStnManager::JniGetMMtlsRegion},
+    {"OnJniSetMMtlsRegion", "(I)V", (void*)&mars::stn::JniStnManager::JniSetMMtlsRegion},
+    {"OnJniClearMMtlsForbidenHostAndPsk", "()V", (void*)&mars::stn::JniStnManager::JniClearMMtlsForbidenHostAndPsk},
+    {"OnJniSetMmtlsCtrlInfo", "(Z)V", (void*)&mars::stn::JniStnManager::JniSetMmtlsCtrlInfo},
 };
 
 static const size_t kStnManagerJniMethodsCount = sizeof(kStnManagerJniMethods) / sizeof(JNINativeMethod);

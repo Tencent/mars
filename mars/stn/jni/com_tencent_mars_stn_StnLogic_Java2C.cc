@@ -378,6 +378,30 @@ JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_genSequenceId(JNIEnv* 
 }
 }
 
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setMmtlsCtrlInfo(JNIEnv*, jclass, jboolean j_use_mmtls) {
+    xinfo2(TSF "j_use_mmtls=%_", j_use_mmtls);
+    DispatchMmtlsCtrlInfo(j_use_mmtls);
+}
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_clearMMtlsForbidenHostAndPsk(JNIEnv*, jclass) {
+    xinfo2("clearMMtlsForbidenHostAndPsk");
+    ClearMMtlsForbidenHost();
+    ClearMMtlsAllPsk();
+    ClearMMTlsRegion();
+}
+
+JNIEXPORT jint JNICALL Java_com_tencent_mars_stn_StnLogic_getMMtlsRegion(JNIEnv* env, jclass) {
+    uint32_t g = GetMMTlsRegion();
+    xinfo2(TSF "GetMMTlsRegion=%_", g);
+    return g;
+}
+
+JNIEXPORT void JNICALL Java_com_tencent_mars_stn_StnLogic_setMMtlsRegion(JNIEnv* env, jclass, jint region) {
+    int r = region;
+    xinfo2(TSF "setMMtlsRegion=%_", r);
+    SetMMTlsRegion(r);
+}
+
 void ExportSTN() {
 }
 

@@ -16,6 +16,10 @@ include_directories(../..)
 include_directories(../comm)
 include_directories(../../..)
 include_directories(../openssl/include)
+include_directories(../mars-wechat/mmtls)
+include_directories(../mars-wechat/mmtls/mmtls_lib)
+include_directories(../mars-wechat/mmtls/mmtls_lib/client)
+include_directories(../mars-wechat/mmtls/mmtls_lib/comm)
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} src/*.cc src/*.h)
 source_group(src FILES ${SELF_TEMP_SRC_FILES})
@@ -24,7 +28,21 @@ list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} *.cc *.h)
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
-        
+file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} ../mars-wechat/*.cc ../mars-wechat/*.h)
+source_group(src FILES ${SELF_TEMP_SRC_FILES})
+list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
+
+file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} ../mars-wechat/mmtls/*.cc ../mars-wechat/mmtls/*.h)
+source_group(src FILES ${SELF_TEMP_SRC_FILES})
+list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
+
+file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} ../mars-wechat/mmtls/client/*.cc ../mars-wechat/mmtls/client/*.h)
+source_group(src FILES ${SELF_TEMP_SRC_FILES})
+list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
+
+file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} ../mars-wechat/mmtls/comm/*.cc ../mars-wechat/mmtls/comm/*.h)
+source_group(src FILES ${SELF_TEMP_SRC_FILES})
+list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
 
 if(MSVC)
     add_definitions(/FI"../../comm/projdef.h")

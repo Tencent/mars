@@ -257,6 +257,16 @@ extern void ReportDnsProfile(const DnsProfile& _dns_profile);
 extern uint32_t GenTaskID();
 extern unsigned short GenSequenceId();
 // end callback
+
+/* start mmtls */
+extern void DispatchMmtlsCtrlInfo(bool _use_mmtls);
+extern void ClearMMtlsForbidenHost();
+extern void ClearMMtlsAllPsk();
+extern void ClearMMTlsRegion();
+extern void SetMMTlsRegion(int _region);
+extern uint32_t GetMMTlsRegion();
+/* end mmtls */
+
 }  // namespace stn
 }  // namespace mars
 
