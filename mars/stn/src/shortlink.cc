@@ -224,6 +224,11 @@ void ShortLink::__Run() {
         req2buf_thread_->join();
     }
 
+    if (send_body_.Length() <= 0) {
+        xinfo2(TSF "send body is empty. req2buf fail.");
+        return;
+    }
+
     if (INVALID_SOCKET == fd_socket)
         return;
     if (OnSend) {
@@ -1193,7 +1198,6 @@ bool ShortLink::__Req2Buf() {
 
     send_body_.Attach(bufreq);
     send_extend_.Attach(buffer_extend);
-
     return true;
 }
 
