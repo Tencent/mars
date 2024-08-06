@@ -1013,9 +1013,7 @@ void RunLoop::Run() {
         for (std::list<HandlerWrapper>::iterator it = fit_handler.begin(); it != fit_handler.end(); ++it) {
             SCOPE_ANR_AUTO((int)anr_timeout, kMQCallANRId, &(*it).reg);
             uint64_t timestart = ::clock_app_monotonic();
-            xinfo2(TSF "before run %_", messagewrapper->message.msg_name);
             (*it).handler(messagewrapper->postid, messagewrapper->message);
-            xinfo2(TSF "after run %_", messagewrapper->message.msg_name);
             uint64_t timeend = ::clock_app_monotonic();
 #if defined(DEBUG) && defined(__APPLE__)
 
