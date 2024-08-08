@@ -266,7 +266,7 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.local_net_stack = local_stack;
 
     if (outter_vec_addr_.empty()) {
-        net_source_->GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi);
+        net_source_->GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi, task_.extra_info);
     } else {
         //.如果有外部ip则直接使用，比如newdns.
         _conn_profile.ip_items = outter_vec_addr_;
@@ -559,6 +559,12 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
         net_source_->DisableIPv6();
     }
 #endif
+
+    xdebug2(TSF "RunConnect success, conn_profile host: %_, ip: %_, port: %_, cgi: %_",
+            _conn_profile.host,
+            _conn_profile.ip,
+            _conn_profile.port,
+            _conn_profile.cgi);
 
     return sock;
 }
@@ -967,7 +973,8 @@ void ShortLink::__OnResponseImp(ErrCmdType _errType,
                                                                    _extension,
                                                                    err_code,
                                                                    Task::kChannelShort,
-                                                                   server_sequence_id);
+                                                                   server_sequence_id,
+                                                                   task_.extra_info);
 
     xinfo2_if(task_.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
@@ -1165,7 +1172,8 @@ bool ShortLink::__Req2Buf() {
                                                                        extension,
                                                                        err_code,
                                                                        Task::kChannelShort,
-                                                                       server_sequence_id);
+                                                                       server_sequence_id,
+                                                                       task_.extra_info);
         xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
         OnRecvDataTime(this, received_size, last_receive_pkg_time);
         OnServerSequenceId(this, (int)server_sequence_id);

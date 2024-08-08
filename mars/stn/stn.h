@@ -141,6 +141,9 @@ struct Task {
     unsigned short client_sequence_id;  // 用于与后台上报对应的sequence id.
     unsigned short server_sequence_id;
     bool need_realtime_netinfo;  // need realtime net info. for network-cross checking
+    
+    // 解析host时透传回给使用方
+    std::map<std::string, std::string> extra_info;
 };
 
 struct CgiProfile {
@@ -202,7 +205,7 @@ struct LonglinkConfig {
     int link_type = Task::kChannelLong;
     int packer_encoder_version = PackerEncoderVersion::kOld;
     std::string packer_encoder_name = "";
-    std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host);
+    std::vector<std::string> (*dns_func)(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info);
     bool need_tls;
 };
 

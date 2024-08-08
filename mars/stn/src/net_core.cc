@@ -1318,7 +1318,7 @@ void NetCore::SetNeedUseLongLink(bool flag) {
 }
 
 void NetCore::SetGetRealHostFunc(
-    const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func) {
+    const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, const std::map<std::string, std::string>& extra_info)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->get_real_host_strict_match_ = func;
     }
@@ -1331,7 +1331,7 @@ void NetCore::SetAddWeakNetInfo(const std::function<void(bool _connect_timeout, 
 }
 
 void NetCore::SetLongLinkGetRealHostFunc(
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func) {
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)> func) {
     if (longlink_task_manager_) {
         longlink_task_manager_->get_real_host_ = func;
     }
@@ -1354,14 +1354,14 @@ void NetCore::SetLongLinkShouldInterceptResult(std::function<bool(int _error_cod
 }
 
 void NetCore::SetShortLinkGetRealHostFunc(
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)> func) {
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->get_real_host_ = func;
     }
 }
 
 void NetCore::SetShortLinkTaskConnectionDetail(
-    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> func) {
+    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index, const std::map<std::string, std::string>& extra_info)> func) {
     if (shortlink_task_manager_) {
         shortlink_task_manager_->task_connection_detail_ = func;
     }
