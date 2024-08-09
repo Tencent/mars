@@ -115,6 +115,7 @@ enum EHostType {
     kHostFromDebugIP = 3,
     kHostFromSimpleDNS = 4,
     kHostFromLiteral = 5,
+    kHostFromCdnRoute = 6,  //.从cdn路由表中获取到ip.
 };
 
 }  // namespace comm
