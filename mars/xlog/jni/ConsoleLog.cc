@@ -26,7 +26,7 @@
 namespace mars {
 namespace xlog {
 
-//这里不能加日志，会导致循环调用
+// 这里不能加日志，会导致循环调用
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
     char result_log[16 * 1024] = {0};
     if (_info) {
