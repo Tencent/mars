@@ -1,7 +1,7 @@
-#include "platform_comm.h"
+#include "mars/comm/platform_comm.h"
 
-#include "xlogger/loginfo_extract.h"
-#include "xlogger/xlogger.h"
+#include "mars/comm/xlogger/loginfo_extract.h"
+#include "mars/comm/xlogger/xlogger.h"
 
 namespace mars {
 namespace comm {
@@ -47,6 +47,7 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
 
 }  // namespace comm
 
+#ifndef OHOS
 namespace xlog {
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
     if (NULL == _info || NULL == _log)
@@ -74,6 +75,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
              _log);
     printf("%s", log);
 }
+#endif  // ifndef OHOS
 
 }  // namespace xlog
 
