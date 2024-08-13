@@ -311,6 +311,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         ++next;
 
         if (first->running_id) {
+            if (first->task.need_authed && is_handle_reqresp_buff_in_worker_) {
+                __CheckAuthAndNotify(first);
+            }
+
             ++sent_count;
             first = next;
             continue;
@@ -409,7 +413,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   host,
                   first->task.need_authed);
         // make sure login
-        if (first->task.need_authed) {
+        if (!is_handle_reqresp_buff_in_worker_ && first->task.need_authed) {
             first->transfer_profile.begin_make_sure_auth_time = gettickcount();
             bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
             first->transfer_profile.end_make_sure_auth_time = gettickcount();
@@ -594,7 +598,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                         this,
                                                         std::placeholders::_1,
                                                         std::placeholders::_2);
-            
+
             if (task_connection_detail_) {
                 worker->task_connection_detail_ = task_connection_detail_;
             }
@@ -644,6 +648,13 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
                                               worker,
                                               AYNC_HANDLER);
+            worker->OnTotalCheckAuthTime.set(
+                boost::bind(&ShortLinkTaskManager::__OnTotalCheckAuthTime, this, _1, _2, _3),
+                worker,
+                AYNC_HANDLER);
+            worker->OnMakeSureAuthTime.set(boost::bind(&ShortLinkTaskManager::__OnMakeSureAuthTime, this, _1, _2, _3),
+                                           worker,
+                                           AYNC_HANDLER);
         }
         first->running_id = (intptr_t)worker;
 
@@ -1458,5 +1469,48 @@ void ShortLinkTaskManager::__OnUpdateConnectProfile(ShortLinkInterface* _worker,
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
         it->transfer_profile.connect_profile = _connect_profile;
+    }
+}
+
+void ShortLinkTaskManager::__OnTotalCheckAuthTime(ShortLinkInterface* _worker,
+                                                  uint64_t begin_check_auth_time,
+                                                  uint64_t end_check_auth_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_check_auth_time = begin_check_auth_time;
+        it->transfer_profile.end_check_auth_time = end_check_auth_time;
+    }
+}
+
+void ShortLinkTaskManager::__OnMakeSureAuthTime(ShortLinkInterface* _worker,
+                                                uint64_t begin_make_sure_auth_time,
+                                                uint64_t end_make_sure_auth_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_make_sure_auth_time = begin_make_sure_auth_time;
+        it->transfer_profile.end_make_sure_auth_time = end_make_sure_auth_time;
+    }
+}
+
+void ShortLinkTaskManager::__CheckAuthAndNotify(std::list<TaskProfile>::iterator _it) {
+    ShortLinkInterface* worker_ = reinterpret_cast<ShortLinkInterface*>(_it->running_id);
+    if (worker_->is_authed.load()) {
+        xinfo2(TSF "TaskManager RunLoop already async_auth");
+        // worker_->auth_cv.notify_one();
+    } else {
+        std::string host = _it->task.shortlink_host_list.front();
+        _it->transfer_profile.begin_make_sure_auth_time = gettickcount();
+        bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, _it->task.user_id);
+        _it->transfer_profile.end_make_sure_auth_time = gettickcount();
+        xinfo2(TSF "TaskManager RunLoop Check async_auth, auth result %_ host %_", ismakesureauthsuccess, host);
+        if (ismakesureauthsuccess) {
+            {
+                std::lock_guard<std::mutex> auth_lock(worker_->auth_mtx);
+                // lock on write is_authed
+                worker_->is_authed.store(ismakesureauthsuccess);
+            }
+            xinfo2(TSF "TaskManager RunLoop async_auth, notify auth_cv");
+            worker_->auth_cv.notify_one();
+        }
     }
 }

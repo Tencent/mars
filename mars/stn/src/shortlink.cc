@@ -170,7 +170,6 @@ ShortLink::~ShortLink() {
     if (task_.priority >= 0) {
         xdebug_function(TSF "taskid:%_, cgi:%_, @%_", task_.taskid, task_.cgi, this);
     }
-    __CancelAndWaitReq2BufThread();
     __CancelAndWaitWorkerThread();
     asyncreg_.CancelAndWait();
     dns_util_.Cancel();
@@ -221,11 +220,15 @@ void ShortLink::__Run() {
     SOCKET fd_socket = __RunConnect(conn_profile);
 
     if (is_start_req2buf_thread) {
-        req2buf_thread_->join();
+        if (!__WaitAsyncReq2buf()) {
+            // 这里只有析构时候才会走，所以不用OnSingleRespHandle
+            return;
+        }
     }
 
     if (INVALID_SOCKET == fd_socket)
         return;
+
     if (OnSend) {
         OnSend(this);
     } else {
@@ -266,7 +269,11 @@ SOCKET ShortLink::__RunConnect(ConnectProfile& _conn_profile) {
     _conn_profile.local_net_stack = local_stack;
 
     if (outter_vec_addr_.empty()) {
-        net_source_->GetShortLinkItems(task_.shortlink_host_list, _conn_profile.ip_items, dns_util_, _conn_profile.cgi, task_.extra_info);
+        net_source_->GetShortLinkItems(task_.shortlink_host_list,
+                                       _conn_profile.ip_items,
+                                       dns_util_,
+                                       _conn_profile.cgi,
+                                       task_.extra_info);
     } else {
         //.如果有外部ip则直接使用，比如newdns.
         _conn_profile.ip_items = outter_vec_addr_;
@@ -1088,6 +1095,8 @@ void ShortLink::SetConnectParams(const std::vector<IPPortItem>& _out_addr,
 
 void ShortLink::__CancelAndWaitWorkerThread() {
     xdebug_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
+    // 先join req2buf, worker线程被req2buf阻塞
+    __CancelAndWaitReq2BufThread();
 
     if (!thread_.isruning()) {
         xinfo2(TSF "thread is no running.");
@@ -1103,10 +1112,19 @@ void ShortLink::__CancelAndWaitWorkerThread() {
 
 void ShortLink::__CancelAndWaitReq2BufThread() {
     xdebug_function(TSF "taskid:%_, cgi:%_ %_", task_.taskid, task_.cgi, this);
+    __CancelAsyncCheckAuth();
+    req2buf_ready_cv.notify_one();
+
     if (!is_start_req2buf_thread) {
         xinfo2(TSF "thread is no start.");
         return;
     }
+
+    if (req2buf_thread_ == nullptr) {
+        xinfo2(TSF "thread is null.");
+        return;
+    }
+
     if (!req2buf_thread_->isruning()) {
         xinfo2(TSF "thread is no running.");
         return;
@@ -1122,6 +1140,14 @@ bool ShortLink::__Req2Buf() {
     AutoBuffer bufreq;
     AutoBuffer buffer_extend;
     int error_code = 0;
+
+    // make sure login, this func may block this thread
+    if (!__AsyncCheckAuth()) {
+        // auth timeout, return, req2buf 退出前notify req2buf_ready_cv
+        req2buf_ready_cv.notify_one();
+        xinfo2("async_auth on exit");
+        return false;
+    }
 
     // client_sequence_id 在buf2resp这里生成,防止重试sequence_id一样
     unsigned short client_sequence_id = context_->GetManager<StnManager>()->GenSequenceId();
@@ -1147,8 +1173,8 @@ bool ShortLink::__Req2Buf() {
     OnReq2BufTime(this, begin_req2buf_time, end_req2buf_time);
     OnClientSequenceId(this, (int)client_sequence_id);
 
-    //雪崩检测
-    // xassert2(fun_anti_avalanche_check_);
+    // 雪崩检测
+    //  xassert2(fun_anti_avalanche_check_);
 
     if (fun_anti_avalanche_check_.empty() || !fun_anti_avalanche_check_(task_, bufreq.Ptr(), (int)bufreq.Length())) {
         OnSingleRespHandle(this, kEctLocal, kEctLocalAntiAvalanche, kTaskFailHandleTaskEnd, 0, conn_profile_);
@@ -1201,10 +1227,82 @@ bool ShortLink::__Req2Buf() {
 
     send_body_.Attach(bufreq);
     send_extend_.Attach(buffer_extend);
-
+    {
+        std::lock_guard<std::mutex> lock(req2buf_ready_mtx);
+        is_req2buf_ready.store(true);
+    }
+    req2buf_ready_cv.notify_one();
     return true;
 }
 
 std::string ShortLink::__GetTheadName(const std::string& fullcgi) {
     return internal::threadName(fullcgi);
+}
+
+bool ShortLink::__WaitAsyncReq2buf() {
+    if (is_req2buf_ready.load()) {
+        xinfo2(TSF "req2buf already ready");
+        return true;
+    }
+
+    // 此时 req2buf_thread_ 还没跑完，阻塞worker线程等待。析构时确保on_destroy为true
+    {
+        std::unique_lock<std::mutex> lock(req2buf_ready_mtx);
+        xinfo2(TSF "waiting req2buf_ready_cv");
+        req2buf_ready_cv.wait(lock, [this] {
+            return this->is_req2buf_ready.load() || this->on_destroy.load();
+        });
+    }
+    if (on_destroy.load() || !is_req2buf_ready.load()) {
+        // 如果析构了，直接返回
+        return false;
+    }
+    xinfo2(TSF "req2buf ready notify success");
+    return true;
+}
+
+bool ShortLink::__AsyncCheckAuth() {
+    uint64_t auth_start = ::gettickcount();
+    if (!task_.need_authed || (task_.need_authed && is_authed.load())) {
+        // 无需auth 或已经auth，直接返回
+        xinfo2(TSF "task already async_auth");
+        OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
+        return true;
+    }
+    std::string host = task_.shortlink_host_list.front();
+
+    std::unique_lock<std::mutex> auth_lock(auth_mtx);
+    uint64_t begin_make_sure_auth_time = ::gettickcount();
+    is_authed.store(context_->GetManager<StnManager>()->MakesureAuthed(host, task_.user_id));
+    OnMakeSureAuthTime(this, begin_make_sure_auth_time, ::gettickcount());
+    xinfo2(TSF "task first async_auth check, result %_ host %_", is_authed.load(), host);
+    if (!is_authed.load()) {
+        xinfo2(TSF "waiting async_auth");
+        auth_cv.wait(auth_lock, [this] {
+            return this->is_authed.load() || this->on_destroy.load();
+        });
+        xinfo2(TSF "get async_auth from taskmanager, is_authed: %_", is_authed.load());
+        if (on_destroy.load() || !is_authed.load()) {
+            // auth fail, notify on MMDestroy
+            uint64_t auth_end = ::gettickcount();
+            OnTotalCheckAuthTime(this, auth_start, auth_end);
+            xinfo2(TSF "async_auth on destroy, timeout %_ ms", auth_end - auth_start);
+            return false;
+        }
+    } else {
+        xinfo2(TSF "get sync_auth on first check");
+    }
+    OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
+    return true;
+}
+
+void ShortLink::__CancelAsyncCheckAuth() {
+    xdebug_function(TSF "taskid:%_, cgi:%_ %_, auth status: %_", task_.taskid, task_.cgi, this, is_authed.load());
+    {
+        std::lock_guard<std::mutex> auth_lock(auth_mtx);
+        on_destroy.store(true);
+    }
+    xinfo2(TSF "async_auth MMDestroy notify");
+    auth_cv.notify_one();
+    return;
 }
