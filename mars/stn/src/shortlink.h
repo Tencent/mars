@@ -119,6 +119,7 @@ class ShortLink : public ShortLinkInterface {
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
     bool is_start_req2buf_thread;
+    bool is_req2buf_result = false;
     int sent_count;
 };
 
