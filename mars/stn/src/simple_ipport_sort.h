@@ -29,8 +29,8 @@
 #include "mars/boot/context.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/tickcount.h"
-#include "mars/comm/tinyxml2.h"
 #include "mars/stn/stn.h"
+#include "tinyxml2/tinyxml2.h"
 
 namespace mars {
 namespace stn {
