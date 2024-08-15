@@ -157,7 +157,8 @@ ShortLink::ShortLink(boot::Context* _context,
 , use_proxy_(_use_proxy)
 , tracker_(shortlink_tracker::Create())
 , is_keep_alive_(CheckKeepAlive(_task))
-, is_start_req2buf_thread(false) {
+, is_start_req2buf_thread(false)
+, is_req2buf_result(false) {
     xinfo2(TSF "%_, handler:(%_,%_), long polling: %_ ",
            this,
            asyncreg_.Get().queue,
@@ -224,8 +225,8 @@ void ShortLink::__Run() {
         req2buf_thread_->join();
     }
 
-    if (send_body_.Length() <= 0) {
-        xinfo2(TSF "send body is empty. req2buf fail.");
+    if (is_start_req2buf_thread && !is_req2buf_result) {
+        xinfo2(TSF "req2buf result fail.");
         return;
     }
 
@@ -1198,6 +1199,7 @@ bool ShortLink::__Req2Buf() {
 
     send_body_.Attach(bufreq);
     send_extend_.Attach(buffer_extend);
+    is_req2buf_result = true;
     return true;
 }
 
