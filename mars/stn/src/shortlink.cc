@@ -157,7 +157,8 @@ ShortLink::ShortLink(boot::Context* _context,
 , use_proxy_(_use_proxy)
 , tracker_(shortlink_tracker::Create())
 , is_keep_alive_(CheckKeepAlive(_task))
-, is_start_req2buf_thread(false) {
+, is_start_req2buf_thread(false)
+, is_req2buf_result(false) {
     xinfo2(TSF "%_, handler:(%_,%_), long polling: %_ ",
            this,
            asyncreg_.Get().queue,
@@ -224,6 +225,11 @@ void ShortLink::__Run() {
             // 这里只有析构时候才会走，所以不用OnSingleRespHandle
             return;
         }
+    }
+
+    if (is_start_req2buf_thread && !is_req2buf_result) {
+        xinfo2(TSF "req2buf result fail.");
+        return;
     }
 
     if (INVALID_SOCKET == fd_socket)
@@ -1232,6 +1238,7 @@ bool ShortLink::__Req2Buf() {
         is_req2buf_ready.store(true);
     }
     req2buf_ready_cv.notify_one();
+    is_req2buf_result = true;
     return true;
 }
 
