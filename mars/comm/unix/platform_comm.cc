@@ -75,8 +75,7 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
              _log);
     printf("%s", log);
 }
-#endif  // ifndef OHOS
-
 }  // namespace xlog
+#endif  // ifndef OHOS
 
 }  // namespace mars
