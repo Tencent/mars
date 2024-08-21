@@ -31,6 +31,7 @@
 
 #include "xlog/crypt/log_crypt.h"
 #include "xlog/crypt/log_magic_num.h"
+#include "zlib/zlib.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
