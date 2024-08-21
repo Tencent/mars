@@ -21,7 +21,11 @@
 #define LOGZLIBBUFFER_H_
 
 #include <stdint.h>
-#include <zlib/zlib.h>
+#ifdef _WIN32
+#include <zlib/zlib.h> // mars/mars/comm/windows/zlib/zlib.h
+#else
+#include <zlib.h>
+#endif
 
 #include <string>
 
