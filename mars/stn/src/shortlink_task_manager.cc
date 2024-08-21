@@ -406,7 +406,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   host,
                   first->task.need_authed);
         // make sure login
-        if (first->transfer_profile.begin_check_auth_time == 0) {
+        if (first->transfer_profile.is_first_check_auth) {
             first->transfer_profile.begin_check_auth_time = ::gettickcount();
         }
         if (first->task.need_authed) {
@@ -418,14 +418,27 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                       ismakesureauthsuccess,
                       host);
 
+            if (first->transfer_profile.is_first_check_auth) {
+                if (ismakesureauthsuccess) {
+                    first->transfer_profile.first_auth_flag = 1UL;
+                } else {
+                    first->transfer_profile.first_auth_flag = 0UL;
+                }
+                first->transfer_profile.is_first_check_auth = false;
+            }
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
                 first = next;
                 continue;
             }
+        } else {
+            first->transfer_profile.first_auth_flag = 2UL;
         }
         first->transfer_profile.end_check_auth_time = ::gettickcount();
-
+        first->transfer_profile.is_first_check_auth = false;
+        xinfo2(TSF "taskid: %_, first_auth_flag: %_", first->task.taskid, first->transfer_profile.first_auth_flag);
+        xinfo2(TSF "AuthTime debug: %_",
+               first->transfer_profile.end_check_auth_time - first->transfer_profile.begin_make_sure_auth_time);
         bool use_tls = true;
         if (can_use_tls_) {
             use_tls = !can_use_tls_(hosts);
@@ -1232,6 +1245,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     // reset checkauth timestamp
     _it->transfer_profile.begin_check_auth_time = 0;
     _it->transfer_profile.end_check_auth_time = 0;
+    _it->transfer_profile.is_first_check_auth = true;
     return false;
 }
 
