@@ -23,15 +23,10 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
-#include <time.h>
-
 #include <algorithm>
-#include <cstdio>
 
 #include "xlog/crypt/log_crypt.h"
 #include "xlog/crypt/log_magic_num.h"
-#include "zlib/zlib.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -261,7 +256,7 @@ bool LogBaseBuffer::Write(const void* _data, size_t _length) {
     size_t write_len = _length;
 
     if (is_compress_) {
-        uInt avail_out = (uInt)(buff_.MaxLength() - buff_.Length() - log_crypt_->GetTailerLen());
+        auto avail_out = buff_.MaxLength() - buff_.Length() - log_crypt_->GetTailerLen();
         write_len = Compress(_data, _length, buff_.PosPtr(), avail_out);
         if (write_len == (size_t)-1) {
             return false;
