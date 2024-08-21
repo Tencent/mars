@@ -1252,7 +1252,8 @@ bool ShortLink::__AsyncCheckAuth() {
     uint64_t auth_start = ::gettickcount();
     if (!task_.need_authed || (task_.need_authed && is_authed.load())) {
         // 无需auth 或已经auth，直接返回
-        xinfo2(TSF "task already async_auth");
+        xinfo2(TSF "task already async_auth, need_auth: %_", task_.need_authed);
+        OnSetFirstAuthFlag(this, 2UL);  // 2 表示无需auth
         OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
         return true;
     }
@@ -1264,6 +1265,7 @@ bool ShortLink::__AsyncCheckAuth() {
     OnMakeSureAuthTime(this, begin_make_sure_auth_time, ::gettickcount());
     xinfo2(TSF "task first async_auth check, result %_ host %_", is_authed.load(), host);
     if (!is_authed.load()) {
+        OnSetFirstAuthFlag(this, 0UL);  // 0 表示需要等auth
         xinfo2(TSF "waiting async_auth");
         auth_cv.wait(auth_lock, [this] {
             return this->is_authed.load() || this->on_destroy.load();
@@ -1277,6 +1279,7 @@ bool ShortLink::__AsyncCheckAuth() {
             return false;
         }
     } else {
+        OnSetFirstAuthFlag(this, 1UL);  // 1 表示第一次auth就成功了
         xinfo2(TSF "get sync_auth on first check");
     }
     OnTotalCheckAuthTime(this, auth_start, ::gettickcount());

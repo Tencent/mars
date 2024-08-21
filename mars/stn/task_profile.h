@@ -291,6 +291,7 @@ struct TransferProfile {
         end_buf2resp_time = 0;
         begin_check_auth_time = 0;
         end_check_auth_time = 0;
+        first_auth_flag = 0;
     }
 
     const Task task;  // change "const Task& task" to "const Task task". fix a memory reuse bug.
@@ -325,6 +326,7 @@ struct TransferProfile {
     uint64_t end_buf2resp_time;
     uint64_t begin_check_auth_time;
     uint64_t end_check_auth_time;
+    uint64_t first_auth_flag;
 };
 
 struct PrepareProfile {

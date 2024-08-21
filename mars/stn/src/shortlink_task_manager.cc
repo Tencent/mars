@@ -650,6 +650,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             worker->OnMakeSureAuthTime.set(boost::bind(&ShortLinkTaskManager::__OnMakeSureAuthTime, this, _1, _2, _3),
                                            worker,
                                            AYNC_HANDLER);
+            worker->OnSetFirstAuthFlag.set(boost::bind(&ShortLinkTaskManager::__OnSetFirstAuthFlag, this, _1, _2),
+                                           worker,
+                                           AYNC_HANDLER);
         }
         first->running_id = (intptr_t)worker;
 
@@ -874,15 +877,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                     handle_type,
                     it->task.taskid,
                     it->task.user_id);
-            //#ifdef __APPLE__
-            //            //.test only.
-            //            const char* pbuffer = (const char*)_body.Ptr();
-            //            for (size_t off = 0; off < _body.Length();){
-            //                size_t len = std::min((size_t)512, _body.Length() - off);
-            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-            //                off += len;
-            //            }
-            //#endif
+            // #ifdef __APPLE__
+            //             //.test only.
+            //             const char* pbuffer = (const char*)_body.Ptr();
+            //             for (size_t off = 0; off < _body.Length();){
+            //                 size_t len = std::min((size_t)512, _body.Length() - off);
+            //                 xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                 off += len;
+            //             }
+            // #endif
             __SingleRespHandle(it,
                                kEctEnDecode,
                                err_code,
@@ -1468,6 +1471,13 @@ void ShortLinkTaskManager::__OnTotalCheckAuthTime(ShortLinkInterface* _worker,
     if (lst_cmd_.end() != it) {
         it->transfer_profile.begin_check_auth_time = begin_check_auth_time;
         it->transfer_profile.end_check_auth_time = end_check_auth_time;
+    }
+}
+
+void ShortLinkTaskManager::__OnSetFirstAuthFlag(ShortLinkInterface* _worker, uint64_t first_auth_flag) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.first_auth_flag = first_auth_flag;
     }
 }
 

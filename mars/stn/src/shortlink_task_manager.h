@@ -180,6 +180,7 @@ class ShortLinkTaskManager {
                               uint64_t begin_make_sure_auth_time,
                               uint64_t end_make_sure_auth_time);
     void __CheckAuthAndNotify(std::list<TaskProfile>::iterator _it);
+    void __OnSetFirstAuthFlag(ShortLinkInterface* _worker, uint64_t first_auth_flag);
 
  private:
     boot::Context* context_;
