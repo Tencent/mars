@@ -21,7 +21,6 @@
 #define LOGBASEBUFFER_H_
 
 #include <stdint.h>
-#include <zlib.h>
 
 #include <string>
 

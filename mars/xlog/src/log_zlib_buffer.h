@@ -21,7 +21,7 @@
 #define LOGZLIBBUFFER_H_
 
 #include <stdint.h>
-#include <zlib.h>
+#include <zlib/zlib.h>
 
 #include <string>
 
