@@ -56,6 +56,8 @@ COMM_COPY_HEADER_FILES = {
     "mars/sdt/sdt_manager.h": "sdt",
     "mars/sdt/constants.h": "sdt",
     "mars/sdt/netchecker_profile.h": "sdt",
+
+    "mars/mars/zstd/lib/zstd.h": "zstd",
 }
 
 WIN_COPY_EXT_FILES = {
