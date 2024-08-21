@@ -1229,7 +1229,9 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     }
 
     _it->retry_time_interval = DEF_TASK_RETRY_INTERNAL;
-
+    // reset checkauth timestamp
+    _it->transfer_profile.begin_check_auth_time = 0;
+    _it->transfer_profile.end_check_auth_time = 0;
     return false;
 }
 
