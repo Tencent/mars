@@ -28,6 +28,7 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/xlogger/preprocessor.h": "xlog",
     "mars/comm/xlogger/xloggerbase.h": "xlog",
     "mars/comm/xlogger/xlogger.h": "xlog",
+    "mars/comm/xlogger/xlog_c_api.h": "xlog",
 
     "mars/boot/context.h": "boot",
     "mars/boot/base_manager.h": "boot",

@@ -16,6 +16,7 @@
 #include "mars/comm/alarm.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/thread/atomic_oper.h"
+#include "mars/comm/xlogger/xlog_c_api.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/stn_callback_bridge.h"
@@ -112,11 +113,11 @@ void StnManager::OnDestroy() {
     callback_ = nullptr;  // callback 的复位要放最后，不然会有时序问题
 }
 void StnManager::OnSingalCrash(int _sig) {
-    mars::xlog::appender_close();
+    CXlogAppenderClose();
 }
 
 void StnManager::OnExceptionCrash() {
-    mars::xlog::appender_close();
+    CXlogAppenderClose();
 }
 
 void StnManager::OnNetworkChange(void (*pre_change)()) {
@@ -202,7 +203,9 @@ void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
 // 底层询问上层该host对应的ip列表
-std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
+std::vector<std::string> StnManager::OnNewDns(const std::string& _host,
+                                              bool _longlink_host,
+                                              const std::map<std::string, std::string>& _extra_info) {
     std::vector<std::string> ips;
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
