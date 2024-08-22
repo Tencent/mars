@@ -16,6 +16,7 @@
 #include "mars/comm/alarm.h"
 #include "mars/comm/messagequeue/message_queue.h"
 #include "mars/comm/thread/atomic_oper.h"
+#include "mars/comm/xlogger/xlog_c_api.h"
 #include "mars/comm/xlogger/xlogger.h"
 #include "mars/stn/stn.h"
 #include "mars/stn/stn_callback_bridge.h"
@@ -94,11 +95,11 @@ void StnManager::OnDestroy() {
     delete callback_bridge_;
 }
 void StnManager::OnSingalCrash(int _sig) {
-    mars::xlog::appender_close();
+    CXlogAppenderClose();
 }
 
 void StnManager::OnExceptionCrash() {
-    mars::xlog::appender_close();
+    CXlogAppenderClose();
 }
 
 void StnManager::OnNetworkChange(void (*pre_change)()) {
