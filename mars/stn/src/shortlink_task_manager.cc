@@ -1471,6 +1471,7 @@ void ShortLinkTaskManager::__OnTotalCheckAuthTime(ShortLinkInterface* _worker,
     if (lst_cmd_.end() != it) {
         it->transfer_profile.begin_check_auth_time = begin_check_auth_time;
         it->transfer_profile.end_check_auth_time = end_check_auth_time;
+        xdebug2(TSF "taskid: %_, total AuthTime: %_", it->task.taskid, end_check_auth_time - begin_check_auth_time);
     }
 }
 
@@ -1478,6 +1479,7 @@ void ShortLinkTaskManager::__OnSetFirstAuthFlag(ShortLinkInterface* _worker, uin
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
         it->transfer_profile.first_auth_flag = first_auth_flag;
+        xdebug2(TSF "taskid: %_, first_auth_flag: %_", it->task.taskid, first_auth_flag);
     }
 }
 
@@ -1493,8 +1495,8 @@ void ShortLinkTaskManager::__OnMakeSureAuthTime(ShortLinkInterface* _worker,
 
 void ShortLinkTaskManager::__CheckAuthAndNotify(std::list<TaskProfile>::iterator _it) {
     ShortLinkInterface* worker_ = reinterpret_cast<ShortLinkInterface*>(_it->running_id);
-    if (worker_->is_authed.load()) {
-        xinfo2(TSF "TaskManager RunLoop already async_auth");
+    if (worker_->is_authed.load(std::memory_order_acquire)) {
+        xinfo2(TSF "Worker Thread already async_auth");
         // worker_->auth_cv.notify_one();
     } else {
         std::string host = _it->task.shortlink_host_list.front();
@@ -1506,7 +1508,7 @@ void ShortLinkTaskManager::__CheckAuthAndNotify(std::list<TaskProfile>::iterator
             {
                 std::lock_guard<std::mutex> auth_lock(worker_->auth_mtx);
                 // lock on write is_authed
-                worker_->is_authed.store(ismakesureauthsuccess);
+                worker_->is_authed.store(ismakesureauthsuccess, std::memory_order_release);
             }
             xinfo2(TSF "TaskManager RunLoop async_auth, notify auth_cv");
             worker_->auth_cv.notify_one();
