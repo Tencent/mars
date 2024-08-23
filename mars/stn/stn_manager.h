@@ -36,6 +36,7 @@ class StnManager : public mars::boot::BaseManager {
     void OnInitConfigBeforeOnCreate(const int _packer_encoder_version);
     void OnInitConfigBeforeOnCreateV2(const int _packer_encoder_version, std::string _packer_encoder_name);
     void OnCreate();
+    void OnCreate(boot::SetupConfig _config);
     void OnDestroy();
     void OnSingalCrash(int _sig);
     void OnExceptionCrash();
@@ -61,7 +62,9 @@ class StnManager : public mars::boot::BaseManager {
     void TrafficData(ssize_t _send, ssize_t _recv);
 
     // 底层询问上层该host对应的ip列表
-    std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info);
+    std::vector<std::string> OnNewDns(const std::string& _host,
+                                      bool _longlink_host,
+                                      const std::map<std::string, std::string>& _extra_info);
     // 网络层收到push消息回调
     void OnPush(const std::string& _channel_id,
                 uint32_t _cmdid,
@@ -249,6 +252,8 @@ class StnManager : public mars::boot::BaseManager {
     int packer_encoder_version_;
     std::string packer_encoder_name_;
     std::vector<std::string> empty_longlink_hosts;
+
+ protected:
     LongLinkEncoder* default_longlink_encoder = nullptr;
     std::string default_tls_group_name = "default";
 };  // StnManager

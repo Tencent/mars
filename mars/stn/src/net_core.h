@@ -69,6 +69,7 @@ class NetCore {
  public:
     //    SINGLETON_INTRUSIVE(NetCore, new NetCore, __Release);
 
+    /*
     static boost::signals2::signal<void()>& NetCoreCreateBegin() {
         static boost::signals2::signal<void()> s_signal;
         return s_signal;
@@ -83,6 +84,7 @@ class NetCore {
         static boost::signals2::signal<void()> s_signal;
         return s_signal;
     }
+    */
 
  public:
     boost::function<void(Task& _task)> task_process_hook_;
@@ -100,6 +102,7 @@ class NetCore {
         messagequeue_creater_.CancelAndWait();
     }
 
+ public:
     void StartTask(const Task& _task);
     void StopTask(uint32_t _taskid);
     bool HasTask(uint32_t _taskid) const;
@@ -198,27 +201,33 @@ class NetCore {
                         std::shared_ptr<LongLinkMetaData> _longlink,
                         std::shared_ptr<LongLinkMetaData> _minorLong);
 
- private:
+ public:
     NetCore(const NetCore&);
     NetCore& operator=(const NetCore&);
 
  public:
     void SetNeedUseLongLink(bool flag);
-    void SetGetRealHostFunc(
-        const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, const std::map<std::string, std::string>& extra_info)> func);
+    void SetGetRealHostFunc(const std::function<size_t(const std::string& _user_id,
+                                                       std::vector<std::string>& _hostlist,
+                                                       const std::map<std::string, std::string>& extra_info)> func);
     void SetAddWeakNetInfo(const std::function<void(bool _connect_timeout, struct tcp_info& _info)> func);
 
-    void SetLongLinkGetRealHostFunc(
-        std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
-            func);
+    void SetLongLinkGetRealHostFunc(std::function<size_t(const std::string& _user_id,
+                                                         std::vector<std::string>& _hostlist,
+                                                         bool _strict_match,
+                                                         const std::map<std::string, std::string>& extra_info)> func);
     void SetLongLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);
     void SetLongLinkShouldInterceptResult(std::function<bool(int _error_code)> func);
 
-    void SetShortLinkGetRealHostFunc(
-        std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
-            func);
+    void SetShortLinkGetRealHostFunc(std::function<size_t(const std::string& _user_id,
+                                                          std::vector<std::string>& _hostlist,
+                                                          bool _strict_match,
+                                                          const std::map<std::string, std::string>& extra_info)> func);
     void SetShortLinkTaskConnectionDetail(
-        std::function<void(const int _error_type, const int _error_code, const int _use_ip_index, const std::map<std::string, std::string>& extra_info)> func);
+        std::function<void(const int _error_type,
+                           const int _error_code,
+                           const int _use_ip_index,
+                           const std::map<std::string, std::string>& extra_info)> func);
     void SetShortLinkChooseProtocol(std::function<int(TaskProfile& _profile)> func);
     void SetShortLinkOnTimeoutOrRemoteShutdown(std::function<void(const TaskProfile& _profile)> func);
     void SetShortLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);

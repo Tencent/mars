@@ -6,9 +6,9 @@
 #define MMNET_APP_MANAGER_H
 
 #include <memory>
+#include <thread>
 #include <typeindex>
 #include <unordered_map>
-#include <thread>
 
 #include "mars/app/app.h"
 //#include "mars/boost/any.hpp"
@@ -29,15 +29,12 @@ class AppManager : public mars::boot::BaseManager {
     ~AppManager() override;
     std::string GetName() override;
 
- private:
-    mars::boot::Context* context_;
-
  public:
     void SetCallback(Callback* callback);
     mars::comm::ProxyInfo GetProxyInfo(const std::string& _host);
     std::string GetAppFilePath();
     AccountInfo GetAccountInfo();
-    std::string GetAppUserName();   // WinBase.h里面定义了GetUserName这个宏
+    std::string GetAppUserName();  // WinBase.h里面定义了GetUserName这个宏
     std::string GetRecentUserName();
     unsigned int GetClientVersion();
     DeviceInfo GetDeviceInfo();
@@ -87,6 +84,7 @@ class AppManager : public mars::boot::BaseManager {
     }
 
  private:
+    mars::boot::Context* context_;
     Callback* callback_;
     mars::comm::ProxyInfo proxy_info_;
     bool got_proxy_ = false;

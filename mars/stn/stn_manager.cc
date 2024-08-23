@@ -87,9 +87,29 @@ void StnManager::OnCreate() {
                                               true,
                                               default_longlink_encoder,
                                               default_tls_group_name);
+        /*
         if (context_->GetContextId() == "default") {
             NetCore::NetCoreCreate()(net_core_);
         }
+        */
+    }
+}
+
+void StnManager::OnCreate(boot::SetupConfig _config) {
+#if !UWP && !defined(WIN32)
+    signal(SIGPIPE, SIG_IGN);
+#endif
+    xinfo_function(TSF "mars2");
+    ActiveLogic::Instance();
+    packer_encoder_version_ = _config.encoder_version;
+    packer_encoder_name_ = _config.encoder_name;
+    if (!net_core_) {
+        net_core_ = std::make_shared<NetCore>(context_,
+                                              packer_encoder_version_,
+                                              packer_encoder_name_,
+                                              true,
+                                              default_longlink_encoder,
+                                              default_tls_group_name);
     }
 }
 
@@ -102,9 +122,12 @@ void StnManager::OnDestroy() {
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
+    /*
     if (context_->GetContextId() == "default") {
         NetCore::NetCoreRelease()();
     }
+     */
+
     //    callback_bridge_->SetCallback(nullptr); //线程还在跑，callback
     //    bridge还会触发callback，这个时候置空会有时序问题导致crash
     tmp_net_core.reset();
@@ -202,7 +225,9 @@ void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
 // 底层询问上层该host对应的ip列表
-std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
+std::vector<std::string> StnManager::OnNewDns(const std::string& _host,
+                                              bool _longlink_host,
+                                              const std::map<std::string, std::string>& _extra_info) {
     std::vector<std::string> ips;
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
@@ -532,14 +557,17 @@ void StnManager::Reset() {
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
+    /*
     if (context_->GetContextId() == "default") {
         NetCore::NetCoreRelease()();
     }
+
     tmp_net_core.reset();
     net_core_ = std::make_shared<NetCore>(context_, packer_encoder_version_, packer_encoder_name_, true);
     if (context_->GetContextId() == "default") {
         NetCore::NetCoreCreate()(net_core_);
     }
+    */
 }
 
 void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::string _encoder_name) {
@@ -549,6 +577,7 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::st
     auto tmp_net_core = net_core_;
     net_core_ = nullptr;
     NetCore::__Release(tmp_net_core);
+    /*
     if (context_->GetContextId() == "default") {
         NetCore::NetCoreRelease()();
     }
@@ -562,6 +591,7 @@ void StnManager::ResetAndInitEncoderVersion(int _packer_encoder_version, std::st
     if (context_->GetContextId() == "default") {
         NetCore::NetCoreCreate()(net_core_);
     }
+    */
 }
 
 void StnManager::SetSignallingStrategy(long _period, long _keepTime) {

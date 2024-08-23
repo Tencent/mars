@@ -18,7 +18,7 @@
 namespace mars {
 namespace boot {
 
-class Context {
+class Context : public BaseEvent {
  public:
     Context();
     ~Context();
@@ -32,6 +32,18 @@ class Context {
  public:
     static Context* CreateContext(const std::string& context_id);
     static void DestroyContext(Context* context);
+
+ public:
+    void OnCreate(SetupConfig _config) override;
+    void OnDestroy() override;
+    void OnSignalCrash(int _sig) override;
+    void OnExceptionCrash() override;
+    void OnForeground(bool _foreground) override;
+    void OnNetworkChange() override;
+    void OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv) override;
+#ifdef ANDROID
+    void OnAlarm(int64_t _id) override;
+#endif
 
  public:
     template <typename T, typename std::enable_if<std::is_base_of<BaseManager, T>::value>::type* = nullptr>

@@ -10,10 +10,12 @@
 #include <string>
 #include <vector>
 
+#include "base_event.h"
+
 namespace mars {
 namespace boot {
 
-class BaseManager {
+class BaseManager : public BaseEvent {
  public:
     virtual ~BaseManager() {
     }

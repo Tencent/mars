@@ -79,6 +79,56 @@ const std::string& Context::GetContextId() {
     return context_id_;
 }
 
+void Context::OnCreate(SetupConfig _config) {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnCreate(_config);
+    }
+}
+
+void Context::OnDestroy() {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnDestroy();
+    }
+}
+
+void Context::OnSignalCrash(int _signal) {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnSignalCrash(_signal);
+    }
+}
+
+void Context::OnExceptionCrash() {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnExceptionCrash();
+    }
+}
+
+void Context::OnForeground(bool _foreground) {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnForeground(_foreground);
+    }
+}
+
+void Context::OnNetworkChange() {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnNetworkChange();
+    }
+}
+
+void Context::OnNetworkDataChange(const char* _tag, int32_t _send, int32_t _recv) {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnNetworkDataChange(_tag, _send, _recv);
+    }
+}
+
+#ifdef ANDROID
+void Context::OnAlarm(int64_t _id) {
+    for (auto& manager : manager_map_) {
+        ((BaseManager*)manager.second)->OnAlarm(_id);
+    }
+}
+#endif
+
 }  // namespace boot
 }  // namespace mars
 
