@@ -101,7 +101,9 @@ class XMessage {
 #endif
     XMessage&
     WriteNoFormat(const char* _log) {
-        m_message += _log;
+        if (_log) {
+            m_message += _log;
+        }
         return *this;
     }
 #ifdef __GNUC__
@@ -109,7 +111,9 @@ class XMessage {
 #endif
     XMessage&
     WriteNoFormat(const TypeSafeFormat&, const char* _log) {
-        m_message += _log;
+        if (_log) {
+            m_message += _log;
+        }
         return *this;
     }
 
@@ -197,7 +201,9 @@ class XLogger {
 #endif
     XLogger&
     WriteNoFormat(const char* _log) {
-        m_message += _log;
+        if (_log) {
+            m_message += _log;
+        }
         return *this;
     }
 #ifdef __GNUC__
@@ -205,7 +211,9 @@ class XLogger {
 #endif
     XLogger&
     WriteNoFormat(const TypeSafeFormat&, const char* _log) {
-        m_message += _log;
+        if (_log) {
+            m_message += _log;
+        }
         return *this;
     }
 
