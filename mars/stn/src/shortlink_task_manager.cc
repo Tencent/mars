@@ -406,7 +406,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   host,
                   first->task.need_authed);
         // make sure login
-        if (first->transfer_profile.is_first_check_auth) {
+        if (first->transfer_profile.begin_check_auth_time == 0) {
+            // transfer profile will reset on RedoTask
             first->transfer_profile.begin_check_auth_time = ::gettickcount();
         }
         if (first->task.need_authed) {
@@ -417,14 +418,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                       TSF "auth result %_ host %_",
                       ismakesureauthsuccess,
                       host);
-
-            if (first->transfer_profile.is_first_check_auth) {
-                if (ismakesureauthsuccess) {
-                    first->transfer_profile.first_auth_flag = 1UL;
-                } else {
-                    first->transfer_profile.first_auth_flag = 0UL;
-                }
-                first->transfer_profile.is_first_check_auth = false;
+            if (first->is_first_check_auth) {  // 0: 初始状态, 1: 第一次就auth成功, 2: 无须auth, 3: 等待auth
+                // 0 表示需要等auth 1 表示第一次auth就成功了
+                first->first_auth_flag = ismakesureauthsuccess ? FirstAuthFlag::kAlreadyAuth : FirstAuthFlag::kWaitAuth;
+                first->is_first_check_auth = false;
             }
             if (!ismakesureauthsuccess) {
                 xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
@@ -432,13 +429,16 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 continue;
             }
         } else {
-            first->transfer_profile.first_auth_flag = 2UL;
+            first->first_auth_flag = FirstAuthFlag::kNoNeedAuth;
+            first->is_first_check_auth = false;
         }
         first->transfer_profile.end_check_auth_time = ::gettickcount();
-        first->transfer_profile.is_first_check_auth = false;
-        xinfo2(TSF "taskid: %_, first_auth_flag: %_", first->task.taskid, first->transfer_profile.first_auth_flag);
-        xinfo2(TSF "AuthTime debug: %_",
-               first->transfer_profile.end_check_auth_time - first->transfer_profile.begin_make_sure_auth_time);
+        first->is_first_check_auth = false;
+        xdebug2(TSF "taskid: %_, first_auth_flag: %_, total AuthTime: %_, taskstart2checkauth: %_",
+                first->task.taskid,
+                static_cast<uint64_t>(first->first_auth_flag),
+                first->transfer_profile.end_check_auth_time - first->transfer_profile.begin_check_auth_time,
+                first->transfer_profile.end_check_auth_time - first->start_task_time);
         bool use_tls = true;
         if (can_use_tls_) {
             use_tls = !can_use_tls_(hosts);
@@ -478,7 +478,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             }
             first->transfer_profile.end_req2buf_time = gettickcount();
 
-            //雪崩检测
+            // 雪崩检测
             xassert2(fun_anti_avalanche_check_);
 
             if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
@@ -1242,10 +1242,6 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
     }
 
     _it->retry_time_interval = DEF_TASK_RETRY_INTERNAL;
-    // reset checkauth timestamp
-    _it->transfer_profile.begin_check_auth_time = 0;
-    _it->transfer_profile.end_check_auth_time = 0;
-    _it->transfer_profile.is_first_check_auth = true;
     return false;
 }
 
