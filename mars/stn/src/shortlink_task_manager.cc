@@ -409,21 +409,43 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   first->task.cgi,
                   host,
                   first->task.need_authed);
-        // make sure login
-        if (!is_handle_reqresp_buff_in_worker_ && first->task.need_authed) {
-            first->transfer_profile.begin_make_sure_auth_time = gettickcount();
-            bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
-            first->transfer_profile.end_make_sure_auth_time = gettickcount();
-            xinfo2_if(!first->task.long_polling && first->task.priority >= 0,
-                      TSF "auth result %_ host %_",
-                      ismakesureauthsuccess,
-                      host);
 
-            if (!ismakesureauthsuccess) {
-                xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
-                first = next;
-                continue;
+        if (!is_handle_reqresp_buff_in_worker_) {
+            if (first->transfer_profile.begin_check_auth_time == 0) {
+                // transfer profile will reset on RedoTask
+                first->transfer_profile.begin_check_auth_time = ::gettickcount();
             }
+            // make sure login
+            if (first->task.need_authed) {
+                first->transfer_profile.begin_make_sure_auth_time = gettickcount();
+                bool ismakesureauthsuccess =
+                    context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
+                first->transfer_profile.end_make_sure_auth_time = gettickcount();
+                xinfo2_if(!first->task.long_polling && first->task.priority >= 0,
+                          TSF "auth result %_ host %_",
+                          ismakesureauthsuccess,
+                          host);
+                if (first->is_first_check_auth) {  // 0: 初始状态, 1: 第一次就auth成功, 2: 无须auth, 3: 等待auth
+                    // 0 表示需要等auth 1 表示第一次auth就成功了
+                    first->first_auth_flag =
+                        ismakesureauthsuccess ? FirstAuthFlag::kAlreadyAuth : FirstAuthFlag::kWaitAuth;
+                    first->is_first_check_auth = false;
+                }
+                if (!ismakesureauthsuccess) {
+                    xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
+                    first = next;
+                    continue;
+                }
+            } else {
+                first->first_auth_flag = FirstAuthFlag::kNoNeedAuth;
+                first->is_first_check_auth = false;
+            }
+            first->transfer_profile.end_check_auth_time = ::gettickcount();
+            xdebug2(TSF "taskid: %_, first_auth_flag: %_, total AuthTime: %_, taskstart2checkauth: %_",
+                    first->task.taskid,
+                    static_cast<uint64_t>(first->first_auth_flag),
+                    first->transfer_profile.end_check_auth_time - first->transfer_profile.begin_check_auth_time,
+                    first->transfer_profile.end_check_auth_time - first->start_task_time);
         }
 
         bool use_tls = true;
@@ -1471,15 +1493,22 @@ void ShortLinkTaskManager::__OnTotalCheckAuthTime(ShortLinkInterface* _worker,
     if (lst_cmd_.end() != it) {
         it->transfer_profile.begin_check_auth_time = begin_check_auth_time;
         it->transfer_profile.end_check_auth_time = end_check_auth_time;
-        xdebug2(TSF "taskid: %_, total AuthTime: %_", it->task.taskid, end_check_auth_time - begin_check_auth_time);
+        xdebug2(TSF "taskid: %_, first_auth_flag: %_, total AuthTime: %_, taskstart2checkauth: %_",
+                it->task.taskid,
+                static_cast<uint64_t>(it->first_auth_flag),
+                end_check_auth_time - begin_check_auth_time,
+                end_check_auth_time - it->start_task_time);
     }
 }
 
-void ShortLinkTaskManager::__OnSetFirstAuthFlag(ShortLinkInterface* _worker, uint64_t first_auth_flag) {
+void ShortLinkTaskManager::__OnSetFirstAuthFlag(ShortLinkInterface* _worker, FirstAuthFlag first_auth_flag) {
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
-        it->transfer_profile.first_auth_flag = first_auth_flag;
-        xdebug2(TSF "taskid: %_, first_auth_flag: %_", it->task.taskid, first_auth_flag);
+        if (it->is_first_check_auth) {
+            // only set once
+            it->first_auth_flag = first_auth_flag;
+            it->is_first_check_auth = false;
+        }
     }
 }
 

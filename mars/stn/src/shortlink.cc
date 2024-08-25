@@ -1254,7 +1254,7 @@ bool ShortLink::__AsyncCheckAuth() {
     if (!task_.need_authed || (task_.need_authed && is_authed.load(std::memory_order_relaxed))) {
         // 无需auth 或已经auth，直接返回
         xinfo2(TSF "task already async_auth, need_auth: %_", task_.need_authed);
-        OnSetFirstAuthFlag(this, 2UL);  // 2 表示无需auth
+        OnSetFirstAuthFlag(this, FirstAuthFlag::kNoNeedAuth);
         OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
         return true;
     }
@@ -1265,7 +1265,7 @@ bool ShortLink::__AsyncCheckAuth() {
     is_authed.store(context_->GetManager<StnManager>()->MakesureAuthed(host, task_.user_id), std::memory_order_release);
     OnMakeSureAuthTime(this, begin_make_sure_auth_time, ::gettickcount());
     if (!is_authed.load(std::memory_order_acquire)) {
-        OnSetFirstAuthFlag(this, 0UL);  // 0 表示需要等auth
+        OnSetFirstAuthFlag(this, FirstAuthFlag::kWaitAuth);
         xinfo2(TSF "waiting async_auth");
         auth_cv.wait(auth_lock, [this] {
             return this->is_authed.load(std::memory_order_acquire) || this->on_destroy.load(std::memory_order_acquire);
@@ -1279,7 +1279,7 @@ bool ShortLink::__AsyncCheckAuth() {
             return false;
         }
     } else {
-        OnSetFirstAuthFlag(this, 1UL);  // 1 表示第一次auth就成功了
+        OnSetFirstAuthFlag(this, FirstAuthFlag::kAlreadyAuth);
         xinfo2(TSF "get sync_auth on first check");
     }
     OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
