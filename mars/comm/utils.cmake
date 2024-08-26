@@ -20,6 +20,7 @@ if(DISABLE_PCDN_PROTOCOL)
     message("PCDN disabled by option DISABLE_PCDN_PROTOCOL")
     add_definitions(-DDISABLE_PCDN_PROTOCOL)
 endif()
+add_definitions(-DBOOST_NO_AUTO_PTR)
 
 if(MSVC)
     # add DEBUG macro .. release has NDEBUG defaultly
@@ -66,7 +67,8 @@ if(ANDROID)
     if(NATIVE_CALLBACK)
         add_definitions(-DNATIVE_CALLBACK)
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++14 -Wno-deprecated-register")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++17 -Wno-deprecated-register")
+    set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
     if(DEF_USE_CPP_CALLBACK)
         add_definitions(-DUSE_CPP_CALLBACK=1)
@@ -75,11 +77,11 @@ if(ANDROID)
 elseif(APPLE)
 
     # for gen xcode project file
-    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "gnu++14")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "gnu++17")
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
     # for build
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14 -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -stdlib=libc++")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -g -gline-tables-only -Os")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -gline-tables-only -Os")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
@@ -108,7 +110,7 @@ elseif(APPLE)
     endif()
 
 elseif(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14 -fPIC -ffunction-sections -fdata-sections -Os")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -fPIC -ffunction-sections -fdata-sections -Os")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -ffunction-sections -fdata-sections -Os")
 endif()
  

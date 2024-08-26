@@ -15,11 +15,6 @@ add_definitions(-DBOOST_NO_EXCEPTIONS)
 
 set(SELF_SRC_FILES
         libs/atomic/src/lockpool.cpp
-        libs/date_time/src/gregorian/date_generators.cpp
-        libs/date_time/src/gregorian/gregorian_types.cpp
-        libs/date_time/src/gregorian/greg_month.cpp
-        libs/date_time/src/gregorian/greg_weekday.cpp
-        libs/date_time/src/posix_time/posix_time_types.cpp
         libs/exception/src/clone_current_exception_non_intrusive.cpp
         libs/filesystem/src/codecvt_error_category.cpp
         libs/filesystem/src/operations.cpp
