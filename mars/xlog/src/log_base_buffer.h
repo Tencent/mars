@@ -42,8 +42,8 @@ class LogBaseBuffer {
     static bool GetPeriodLogs(const char* _log_path,
                               int _begin_hour,
                               int _end_hour,
-                              unsigned long& _begin_pos,
-                              unsigned long& _end_pos,
+                              uint64_t& _begin_pos,
+                              uint64_t& _end_pos,
                               std::string& _err_msg);
 
  public:
