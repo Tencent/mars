@@ -67,6 +67,7 @@ if(ANDROID)
     if(NATIVE_CALLBACK)
         add_definitions(-DNATIVE_CALLBACK)
     endif()
+    # https://github.com/boostorg/signals2/issues/49升级cpp20需要将boost升级至1.75
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic -std=gnu++17 -Wno-deprecated-register")
     set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdata-sections")
