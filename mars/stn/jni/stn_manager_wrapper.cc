@@ -118,9 +118,6 @@ class JniStnManager {
         std::map<std::string, std::string> headers = JNU_JObject2Map(env, oHeaders);
         jint client_sequence_id = JNU_GetField(env, _task, "clientSequenceId", "I").i;
 
-        jobject extraInfo = JNU_GetField(env, _task, "extraInfo", "Ljava/util/Map;").l;
-        std::map<std::string, std::string> extra_info = JNU_JObject2Map(env, extraInfo);
-
         // init struct Task
         struct Task task(taskid);
         task.cmdid = cmdid;
@@ -174,7 +171,6 @@ class JniStnManager {
             env->DeleteLocalRef(_user_context);
         }
         task.client_sequence_id = client_sequence_id;
-        task.extra_info = extra_info;
         stn_manager_cpp->StartTask(task);
     }
 

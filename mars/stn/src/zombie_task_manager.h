@@ -52,7 +52,7 @@ class ZombieTaskManager {
     void ClearTasks();
     void RedoTasks();
     void OnNetCoreStartTask();
-    
+
  private:
     ZombieTaskManager(const ZombieTaskManager&);
     ZombieTaskManager& operator=(const ZombieTaskManager&);

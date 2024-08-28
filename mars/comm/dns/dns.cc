@@ -46,12 +46,11 @@ struct dnsinfo {
     thread_tid threadid;
     DNS* dns;
     // DNS::DNSFunc    dns_func;
-    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info)> dns_func;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dns_func;
     std::string host_name;
     std::vector<std::string> result;
     int status;
     bool longlink_host = false;
-    std::map<std::string, std::string> extra_info;
 };
 /*
  */
@@ -76,10 +75,9 @@ void DNS::__GetIP() {
 
     std::string host_name;
     // DNS::DNSFunc dnsfunc = NULL;
-    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info)> dnsfunc;
+    std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)> dnsfunc;
     bool longlink_host = false;
     int status = kGetIPDoing;
-    std::map<std::string, std::string> extra_info;
 
     ScopedLock lock(sg_mutex);
     std::vector<dnsinfo>::iterator iter = sg_dnsinfo_vec.begin();
@@ -90,7 +88,6 @@ void DNS::__GetIP() {
             dnsfunc = iter->dns_func;
             longlink_host = iter->longlink_host;
             status = iter->status;
-            extra_info = iter->extra_info;
             break;
         }
     }
@@ -194,7 +191,7 @@ void DNS::__GetIP() {
         auto start_time = ::gettickcount();
         std::vector<std::string> ips;
         if (status != kGetIPCancel) {  // 此时iter可能已经失效了
-            ips = dnsfunc(host_name, longlink_host, extra_info);
+            ips = dnsfunc(host_name, longlink_host);
         }
 
         lock.lock();
@@ -217,7 +214,7 @@ void DNS::__GetIP() {
 }
 
 ///////////////////////////////////////////////////////////////////
-DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info)>& _dnsfunc)
+DNS::DNS(const std::function<std::vector<std::string>(const std::string& _host, bool _longlink_host)>& _dnsfunc)
 : dnsfunc_(_dnsfunc) {
 }
 
@@ -229,8 +226,7 @@ bool DNS::GetHostByName(const std::string& _host_name,
                         std::vector<std::string>& ips,
                         long millsec,
                         DNSBreaker* _breaker,
-                        bool _longlink_host,
-                        const std::map<std::string, std::string>& _extra_info) {
+                        bool _longlink_host) {
     xverbose_function("host: %s, longlink: %d", _host_name.c_str(), _longlink_host);
 
     xassert2(!_host_name.empty());
@@ -259,7 +255,6 @@ bool DNS::GetHostByName(const std::string& _host_name,
     info.dns = this;
     info.status = kGetIPDoing;
     info.longlink_host = _longlink_host;
-    info.extra_info = _extra_info;
     sg_dnsinfo_vec.push_back(info);
 
     if (_breaker)

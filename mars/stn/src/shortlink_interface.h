@@ -70,10 +70,7 @@ class ShortLinkInterface {
     boost::function<void(uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET(const IPPortItem& _address)> GetCacheSocket;
 
-    std::function<size_t(const std::string& _user_id,
-                         std::vector<std::string>& _hostlist,
-                         const std::map<std::string, std::string>& extra_info)>
-        func_host_filter;
+    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func_host_filter;
     std::function<void(bool _connect_timeout, struct tcp_info& _info)> func_add_weak_net_info;
     std::function<void(bool _timeout, struct tcp_info& _info)> func_weak_net_report;
 
@@ -104,11 +101,7 @@ class ShortLinkInterface {
     std::function<void(bool _is_reused, bool _has_received, bool _is_decode_ok)> OnSocketPoolReport;
     std::function<void(IPPortItem item, ConnectProfile& _conn_profile)> OnSocketPoolTryAddCache;
 
-    std::function<void(const int _error_type,
-                       const int _error_code,
-                       const int _use_ip_index,
-                       const std::map<std::string, std::string>& extra_info)>
-        task_connection_detail_;
+    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
     boost::function<
         int(ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)>
         fun_callback_;

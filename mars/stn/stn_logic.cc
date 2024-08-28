@@ -587,13 +587,11 @@ void TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
 //底层询问上层该host对应的ip列表
-std::vector<std::string> OnNewDns(const std::string& _host,
-                                  bool _longlink_host,
-                                  const std::map<std::string, std::string>& _extra_info) {
+std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host) {
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
-        return stn_manager->OnNewDns(_host, _longlink_host, _extra_info);
+        return stn_manager->OnNewDns(_host, _longlink_host);
     }
     return std::vector<std::string>();
 }
