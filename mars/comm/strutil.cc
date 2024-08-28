@@ -30,6 +30,7 @@
 #include <locale>
 
 #include "comm/xlogger/xlogger.h"
+#include "openssl/md5.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -320,6 +321,12 @@ size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos
         return it - str.begin();
     else
         return std::string::npos;  // not found
+}
+
+std::string BufferMD5(const void* buffer, size_t size) {
+    uint8_t md5[MD5_DIGEST_LENGTH] = {0};
+    MD5(static_cast<const unsigned char*>(buffer), static_cast<unsigned int>(size), md5);
+    return strutil::MD5DigestToBase16(md5);
 }
 
 std::string MD5DigestToBase16(const uint8_t digest[16]) {
