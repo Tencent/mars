@@ -249,6 +249,11 @@ std::string to_string(T* v) {
     return ss.str();
 }
 
+template <typename T, std::enable_if_t<std::is_member_function_pointer<decltype(&T::to_string)>::value, bool> = true>
+std::string to_string(const T& v) {
+    return v.to_string();
+}
+
 template <class T>
 std::string join_to_string(const T& stl,
                            const std::string& seperator = ",",
