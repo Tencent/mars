@@ -24,7 +24,7 @@
 #include <list>
 #include <string>
 
-#include "comm/thread/spinlock.h"
+#include "mars/comm/thread/spinlock.h"
 
 struct method_struct;
 struct field_struct;

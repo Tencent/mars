@@ -13,7 +13,7 @@
 
 
 #include <jni.h>
-#include "comm/bootregister.h"
+#include "mars/comm/bootregister.h"
 
 typedef jint JNICALL(*JniOnLoadFunc)(JavaVM*, void*);
 struct JniOnload_t {
