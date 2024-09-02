@@ -1151,7 +1151,7 @@ bool ShortLink::__Req2Buf() {
     if (!__AsyncCheckAuth()) {
         // auth timeout, return, req2buf 退出前notify req2buf_ready_cv
         req2buf_ready_cv.notify_one();
-        xinfo2("async_auth on exit");
+        xinfo2(TSF "taskid: %_, async_auth on exit", task_.taskid);
         return false;
     }
 
@@ -1272,39 +1272,41 @@ bool ShortLink::__AsyncCheckAuth() {
     uint64_t auth_start = ::gettickcount();
     if (!task_.need_authed || (task_.need_authed && is_authed.load())) {
         // 无需auth 或已经auth，直接返回
-        xinfo2(TSF "task already async_auth");
+        xinfo2(TSF "taskid: %_, already async_auth, need_auth: %_", task_.taskid, task_.need_authed);
+        OnSetFirstAuthFlag(this, FirstAuthFlag::kNoNeedAuth);
         OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
         return true;
     }
     std::string host = task_.shortlink_host_list.front();
-
+    // 此处是第一次查询
     std::unique_lock<std::mutex> auth_lock(auth_mtx);
     uint64_t begin_make_sure_auth_time = ::gettickcount();
     is_authed.store(context_->GetManager<StnManager>()->MakesureAuthed(host, task_.user_id));
     OnMakeSureAuthTime(this, begin_make_sure_auth_time, ::gettickcount());
-    xinfo2(TSF "task first async_auth check, result %_ host %_", is_authed.load(), host);
     if (!is_authed.load()) {
-        xinfo2(TSF "waiting async_auth");
+        OnSetFirstAuthFlag(this, FirstAuthFlag::kWaitAuth);
+        xinfo2(TSF "taskid: %_, waiting async_auth", task_.taskid);
         auth_cv.wait(auth_lock, [this] {
             return this->is_authed.load() || this->on_destroy.load();
         });
-        xinfo2(TSF "get async_auth from taskmanager, is_authed: %_", is_authed.load());
+        xinfo2(TSF "taskid: %_, get async_auth from taskmanager, is_authed: %_", task_.taskid, is_authed.load());
         if (on_destroy.load() || !is_authed.load()) {
             // auth fail, notify on MMDestroy
             uint64_t auth_end = ::gettickcount();
             OnTotalCheckAuthTime(this, auth_start, auth_end);
-            xinfo2(TSF "async_auth on destroy, timeout %_ ms", auth_end - auth_start);
+            xinfo2(TSF "taskid: %_, async_auth on destroy, timeout %_ ms", task_.taskid, auth_end - auth_start);
             return false;
         }
     } else {
-        xinfo2(TSF "get sync_auth on first check");
+        OnSetFirstAuthFlag(this, FirstAuthFlag::kAlreadyAuth);
+        xinfo2(TSF "taskid: %_, get sync_auth on first check", task_.taskid);
     }
     OnTotalCheckAuthTime(this, auth_start, ::gettickcount());
     return true;
 }
 
 void ShortLink::__CancelAsyncCheckAuth() {
-    xdebug_function(TSF "taskid:%_, cgi:%_ %_, auth status: %_", task_.taskid, task_.cgi, this, is_authed.load());
+    xdebug_function(TSF "taskid:%_, cgi:%_, auth status: %_", task_.taskid, task_.cgi, this, is_authed.load());
     {
         std::lock_guard<std::mutex> auth_lock(auth_mtx);
         on_destroy.store(true);
