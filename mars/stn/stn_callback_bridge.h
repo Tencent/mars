@@ -54,6 +54,7 @@ class StnCallbackBridge {
                          const AutoBuffer& _inbuffer,
                          const AutoBuffer& _extend,
                          int& _error_code,
+                         uint64_t& _flags,
                          const int _channel_select,
                          unsigned short& server_sequence_id);
     virtual int OnTaskEnd(uint32_t _taskid,

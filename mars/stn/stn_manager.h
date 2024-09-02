@@ -82,6 +82,7 @@ class StnManager : public mars::boot::BaseManager {
                  const AutoBuffer& inbuffer,
                  const AutoBuffer& extend,
                  int& error_code,
+                 uint64_t& flags,
                  int channel_select,
                  unsigned short& server_sequence_id);
     // 任务执行结束

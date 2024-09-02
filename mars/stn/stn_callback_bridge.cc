@@ -125,6 +125,7 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 const AutoBuffer& _inbuffer,
                                 const AutoBuffer& _extend,
                                 int& _error_code,
+                                uint64_t& _flags,
                                 const int _channel_select,
                                 unsigned short& server_sequence_id) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
@@ -135,6 +136,7 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                  _inbuffer,
                                  _extend,
                                  _error_code,
+                                 _flags,
                                  _channel_select,
                                  server_sequence_id);
     // #else

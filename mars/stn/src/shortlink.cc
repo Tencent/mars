@@ -964,6 +964,7 @@ void ShortLink::__OnResponseImp(ErrCmdType _errType,
     OnRecvDataTime(this, receive_data_size, last_receive_pkg_time);
 
     int err_code = 0;
+    uint64_t flags = 0;
     unsigned short server_sequence_id = 0;
     uint64_t begin_buf2resp_time = gettickcount();
     int handle_type = context_->GetManager<StnManager>()->Buf2Resp(task_.taskid,
@@ -972,6 +973,7 @@ void ShortLink::__OnResponseImp(ErrCmdType _errType,
                                                                    _body,
                                                                    _extension,
                                                                    err_code,
+                                                                   flags,
                                                                    Task::kChannelShort,
                                                                    server_sequence_id);
 
@@ -1159,6 +1161,7 @@ bool ShortLink::__Req2Buf() {
         AutoBuffer body;
         AutoBuffer extension;
         int err_code = 0;
+        uint64_t flags = 0;
         unsigned short server_sequence_id = 0;
         body.Write(intercept_data.data(), intercept_data.length());
         size_t received_size = body.Length();
@@ -1170,6 +1173,7 @@ bool ShortLink::__Req2Buf() {
                                                                        body,
                                                                        extension,
                                                                        err_code,
+                                                                       flags,
                                                                        Task::kChannelShort,
                                                                        server_sequence_id);
         xinfo2(TSF "server_sequence_id:%_", server_sequence_id);

@@ -235,6 +235,7 @@ int StnManager::Buf2Resp(uint32_t taskid,
                          const AutoBuffer& inbuffer,
                          const AutoBuffer& extend,
                          int& error_code,
+                         uint64_t& flags,
                          int channel_select,
                          unsigned short& server_sequence_id) {
     xassert2(callback_bridge_ != NULL);
@@ -245,6 +246,7 @@ int StnManager::Buf2Resp(uint32_t taskid,
                                           inbuffer,
                                           extend,
                                           error_code,
+                                          flags,
                                           channel_select,
                                           server_sequence_id);
     } else {

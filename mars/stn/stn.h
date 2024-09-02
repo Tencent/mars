@@ -467,6 +467,7 @@ class Callback {
                          const AutoBuffer& _inbuffer,
                          const AutoBuffer& _extend,
                          int& _error_code,
+                         uint64_t& _flags,
                          const int _channel_select,
                          unsigned short& server_sequence_id) = 0;
     // 任务执行结束

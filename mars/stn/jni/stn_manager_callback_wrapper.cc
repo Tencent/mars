@@ -190,13 +190,14 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid,
     return ret;
 }
 
-DEFINE_FIND_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[II[I)I")
+DEFINE_FIND_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[I[II[I)I")
 int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
                                     void* const _user_context,
                                     const std::string& _user_id,
                                     const AutoBuffer& _inbuffer,
                                     const AutoBuffer& _extend,
                                     int& _error_code,
+                                    uint64_t& _flags,
                                     const int _channel_select,
                                     unsigned short& server_sequence_id) {
     VarCache* cache_instance = VarCache::Singleton();
@@ -210,6 +211,7 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
         xdebug2(TSF "the decodeBuffer.Lenght() <= 0");
     }
     jintArray errcode_array = env->NewIntArray(1);
+    jintArray flags_array = env->NewIntArray(1);
     jintArray sequence_array = env->NewIntArray(1);
     jint ret = JNU_CallMethodByMethodInfo(env,
                                           callback_inst_,
@@ -219,6 +221,7 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
                                           ScopedJstring(env, _user_id.c_str()).GetJstr(),
                                           resp_buf_jba,
                                           errcode_array,
+                                          flags_array,
                                           _channel_select,
                                           sequence_array)
                    .i;
@@ -229,6 +232,12 @@ int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
     _error_code = errcode[0];
     env->ReleaseIntArrayElements(errcode_array, errcode, 0);
     env->DeleteLocalRef(errcode_array);
+
+    jint* flags_ptr = env->GetIntArrayElements(flags_array, NULL);
+    _flags = flags_ptr[0];
+    env->ReleaseIntArrayElements(flags_array, flags_ptr, 0);
+    env->DeleteLocalRef(flags_array);
+
     jint* sequence = env->GetIntArrayElements(sequence_array, NULL);
     server_sequence_id = sequence[0];
     env->ReleaseIntArrayElements(sequence_array, sequence, 0);

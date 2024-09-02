@@ -24,9 +24,9 @@
 #include <stdint.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
@@ -211,6 +211,7 @@ extern int Buf2Resp(uint32_t taskid,
                     const AutoBuffer& inbuffer,
                     const AutoBuffer& extend,
                     int& error_code,
+                    uint64_t& flags,
                     const int channel_select,
                     unsigned short& server_sequence_id);
 //任务执行结束
