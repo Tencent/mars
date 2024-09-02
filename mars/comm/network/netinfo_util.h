@@ -33,5 +33,5 @@ typedef enum {
 
 NetworkType GetNetworkType();
 std::string GetDetailNetInfo(bool _need_wifi_ssid = true);
-
+int get_local_ip(std::vector<std::string>& ips);
 #endif /* SRC_NETINFO_UTIL_H_ */

@@ -67,13 +67,25 @@ class ShortLinkTaskManager {
         void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)>
         fun_notify_retry_all_tasks;
 
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list)>
+    std::function<size_t(const std::string& _user_id,
+                         std::vector<std::string>& _host_list,
+                         const std::map<std::string, std::string>& extra_info)>
         get_real_host_strict_match_;
+
     std::function<void(bool _connect_timeout, struct tcp_info& _info)> add_weaknet_info_;
 
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)>
+    std::function<size_t(const std::string& _user_id,
+                         std::vector<std::string>& _host_list,
+                         bool _strict_match,
+                         const std::map<std::string, std::string>& extra_info)>
         get_real_host_;
-    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
+
+    std::function<void(const int _error_type,
+                       const int _error_code,
+                       const int _use_ip_index,
+                       const std::map<std::string, std::string>& extra_info)>
+        task_connection_detail_;
+
     std::function<int(TaskProfile& _profile)> choose_protocol_;
     std::function<void(const TaskProfile& _profile)> on_timeout_or_remote_shutdown_;
     std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
@@ -84,7 +96,8 @@ class ShortLinkTaskManager {
     ShortLinkTaskManager(boot::Context* _context,
                          std::shared_ptr<NetSource> _netsource,
                          DynamicTimeout& _dynamictimeout,
-                         comm::MessageQueue::MessageQueue_t _messagequeueid);
+                         comm::MessageQueue::MessageQueue_t _messagequeueid,
+                         std::string tls_group_name = "default");
     virtual ~ShortLinkTaskManager();
 
     bool StartTask(const Task& _task, PrepareProfile _prepare_profile);
@@ -173,6 +186,13 @@ class ShortLinkTaskManager {
     void __OnSetLastFailedStatus(ShortLinkInterface* _worker);
     void __OnUpdateConnectProfile(ShortLinkInterface* worker, ConnectProfile& connect_profile);
     // int __OnGetSendCount();
+    void __OnTotalCheckAuthTime(ShortLinkInterface* _worker,
+                                uint64_t begin_check_auth_time,
+                                uint64_t end_check_auth_time);
+    void __OnMakeSureAuthTime(ShortLinkInterface* _worker,
+                              uint64_t begin_make_sure_auth_time,
+                              uint64_t end_make_sure_auth_time);
+    void __CheckAuthAndNotify(std::list<TaskProfile>::iterator _it);
 
  private:
     boot::Context* context_;
@@ -191,6 +211,7 @@ class ShortLinkTaskManager {
     SocketPool socket_pool_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    std::string m_tls_group_name_ = "default";
     bool is_handle_reqresp_buff_in_worker_ = false;  // do req2buf and buf2resp on worker thread
 };
 

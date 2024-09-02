@@ -52,7 +52,8 @@ using namespace mars::app;
 ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
                                            std::shared_ptr<NetSource> _netsource,
                                            DynamicTimeout& _dynamictimeout,
-                                           MessageQueue::MessageQueue_t _messagequeueid)
+                                           MessageQueue::MessageQueue_t _messagequeueid,
+                                           std::string tls_group_name)
 : context_(_context)
 , asyncreg_(MessageQueue::InstallAsyncHandler(_messagequeueid))
 , net_source_(_netsource)
@@ -62,7 +63,7 @@ ShortLinkTaskManager::ShortLinkTaskManager(boot::Context* _context,
 #ifdef ANDROID
 , wakeup_lock_(new WakeUpLock())
 #endif
-{
+, m_tls_group_name_(tls_group_name) {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_), ShortLinkTaskManager messagequeue_id=%_",
                    asyncreg_.Get().queue,
@@ -310,6 +311,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         ++next;
 
         if (first->running_id) {
+            if (first->task.need_authed && is_handle_reqresp_buff_in_worker_) {
+                __CheckAuthAndNotify(first);
+            }
+
             ++sent_count;
             first = next;
             continue;
@@ -343,7 +348,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
 
         Task task = first->task;
         std::vector<std::string> hosts = task.shortlink_host_list;
-        ShortlinkConfig config(first->use_proxy, /*use_tls=*/true);
+        ShortlinkConfig config(first->use_proxy, /*use_tls=*/true, m_tls_group_name_);
 #ifndef DISABLE_QUIC_PROTOCOL
         if (!task.quic_host_list.empty() && (task.transport_protocol & Task::kTransportProtocolQUIC)
             && 0 == first->err_code) {
@@ -372,7 +377,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
             first->transfer_profile.begin_first_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic, task.extra_info);
             first->transfer_profile.end_first_get_host_time = gettickcount();
 
         } else {
@@ -382,10 +387,12 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         if (realhost_cnt == 0 && config.use_quic) {
             xwarn2(TSF "taskid:%_ no quic hosts.", first->task.taskid);
             //.使用quic但拿到的host为空（一般是svr部署问题），则回退到tcp.
-            config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true);
+            config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true, m_tls_group_name_);
             hosts = task.shortlink_host_list;
             first->transfer_profile.begin_retry_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
+            if (get_real_host_) {
+                realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false, task.extra_info);
+            }
             first->transfer_profile.end_retry_get_host_time = gettickcount();
         }
 
@@ -406,7 +413,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   host,
                   first->task.need_authed);
         // make sure login
-        if (first->task.need_authed) {
+        if (!is_handle_reqresp_buff_in_worker_ && first->task.need_authed) {
             first->transfer_profile.begin_make_sure_auth_time = gettickcount();
             bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
             first->transfer_profile.end_make_sure_auth_time = gettickcount();
@@ -461,7 +468,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             }
             first->transfer_profile.end_req2buf_time = gettickcount();
 
-            //雪崩检测
+            // 雪崩检测
             xassert2(fun_anti_avalanche_check_);
 
             if (!fun_anti_avalanche_check_(first->task, bufreq.Ptr(), (int)bufreq.Length())) {
@@ -494,7 +501,8 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                                extension,
                                                                                err_code,
                                                                                Task::kChannelShort,
-                                                                               server_sequence_id);
+                                                                               server_sequence_id,
+                                                                               first->task.extra_info);
                 xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
                 first->task.server_sequence_id = server_sequence_id;
                 ConnectProfile profile;
@@ -530,7 +538,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                      net_source_,
                                                                      first->task,
                                                                      config);
-        worker->func_host_filter = get_real_host_strict_match_;
+        if (get_real_host_strict_match_) {
+            worker->func_host_filter = get_real_host_strict_match_;
+        }
         worker->func_add_weak_net_info =
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
@@ -550,9 +560,6 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         worker->func_network_report.set(fun_notify_network_err_);
         if (choose_protocol_) {
             worker->SetUseProtocol(choose_protocol_(*first));
-        }
-        if (!debug_host_.empty()) {
-            worker->SetDebugHost(debug_host_);
         }
 
         if (is_handle_reqresp_buff_in_worker_) {
@@ -592,7 +599,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                         std::placeholders::_1,
                                                         std::placeholders::_2);
 
-            worker->task_connection_detail_ = task_connection_detail_;
+            if (task_connection_detail_) {
+                worker->task_connection_detail_ = task_connection_detail_;
+            }
             worker->fun_callback_ = fun_callback_;
             worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
 
@@ -639,6 +648,13 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
                                               worker,
                                               AYNC_HANDLER);
+            worker->OnTotalCheckAuthTime.set(
+                boost::bind(&ShortLinkTaskManager::__OnTotalCheckAuthTime, this, _1, _2, _3),
+                worker,
+                AYNC_HANDLER);
+            worker->OnMakeSureAuthTime.set(boost::bind(&ShortLinkTaskManager::__OnMakeSureAuthTime, this, _1, _2, _3),
+                                           worker,
+                                           AYNC_HANDLER);
         }
         first->running_id = (intptr_t)worker;
 
@@ -783,7 +799,8 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                                                    _extension,
                                                                    err_code,
                                                                    Task::kChannelShort,
-                                                                   server_sequence_id);
+                                                                   server_sequence_id,
+                                                                   it->task.extra_info);
     xinfo2_if(it->task.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
     it->transfer_profile.end_buf2resp_time = gettickcount();
@@ -863,15 +880,15 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                     handle_type,
                     it->task.taskid,
                     it->task.user_id);
-            //#ifdef __APPLE__
-            //            //.test only.
-            //            const char* pbuffer = (const char*)_body.Ptr();
-            //            for (size_t off = 0; off < _body.Length();){
-            //                size_t len = std::min((size_t)512, _body.Length() - off);
-            //                xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
-            //                off += len;
-            //            }
-            //#endif
+            // #ifdef __APPLE__
+            //             //.test only.
+            //             const char* pbuffer = (const char*)_body.Ptr();
+            //             for (size_t off = 0; off < _body.Length();){
+            //                 size_t len = std::min((size_t)512, _body.Length() - off);
+            //                 xerror2(TSF"[%_-%_] %_", off, off + len, xlogger_memory_dump(pbuffer + off, len));
+            //                 off += len;
+            //             }
+            // #endif
             __SingleRespHandle(it,
                                kEctEnDecode,
                                err_code,
@@ -1126,7 +1143,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         }
 
         if (task_connection_detail_) {
-            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);
+            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index, _it->task.extra_info);
         }
 
         int cgi_retcode = fun_callback_(_err_type,
@@ -1262,7 +1279,12 @@ ConnectProfile ShortLinkTaskManager::GetConnectProfile(uint32_t _taskid) const {
 
     while (first != last) {
         if ((first->running_id) && _taskid == first->task.taskid) {
-            return ((ShortLinkInterface*)(first->running_id))->Profile();
+            auto profile = ((ShortLinkInterface*)(first->running_id))->Profile();
+            profile.start_encode_packet_time = first->transfer_profile.begin_req2buf_time;
+            profile.encode_packet_finished_time = first->transfer_profile.end_req2buf_time;
+            profile.start_decode_packet_time = first->transfer_profile.begin_buf2resp_time;
+            profile.decode_packet_finished_time = first->transfer_profile.end_buf2resp_time;
+            return profile;
         }
         ++first;
     }
@@ -1447,5 +1469,48 @@ void ShortLinkTaskManager::__OnUpdateConnectProfile(ShortLinkInterface* _worker,
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
         it->transfer_profile.connect_profile = _connect_profile;
+    }
+}
+
+void ShortLinkTaskManager::__OnTotalCheckAuthTime(ShortLinkInterface* _worker,
+                                                  uint64_t begin_check_auth_time,
+                                                  uint64_t end_check_auth_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_check_auth_time = begin_check_auth_time;
+        it->transfer_profile.end_check_auth_time = end_check_auth_time;
+    }
+}
+
+void ShortLinkTaskManager::__OnMakeSureAuthTime(ShortLinkInterface* _worker,
+                                                uint64_t begin_make_sure_auth_time,
+                                                uint64_t end_make_sure_auth_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_make_sure_auth_time = begin_make_sure_auth_time;
+        it->transfer_profile.end_make_sure_auth_time = end_make_sure_auth_time;
+    }
+}
+
+void ShortLinkTaskManager::__CheckAuthAndNotify(std::list<TaskProfile>::iterator _it) {
+    ShortLinkInterface* worker_ = reinterpret_cast<ShortLinkInterface*>(_it->running_id);
+    if (worker_->is_authed.load()) {
+        xinfo2(TSF "TaskManager RunLoop already async_auth");
+        // worker_->auth_cv.notify_one();
+    } else {
+        std::string host = _it->task.shortlink_host_list.front();
+        _it->transfer_profile.begin_make_sure_auth_time = gettickcount();
+        bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, _it->task.user_id);
+        _it->transfer_profile.end_make_sure_auth_time = gettickcount();
+        xinfo2(TSF "TaskManager RunLoop Check async_auth, auth result %_ host %_", ismakesureauthsuccess, host);
+        if (ismakesureauthsuccess) {
+            {
+                std::lock_guard<std::mutex> auth_lock(worker_->auth_mtx);
+                // lock on write is_authed
+                worker_->is_authed.store(ismakesureauthsuccess);
+            }
+            xinfo2(TSF "TaskManager RunLoop async_auth, notify auth_cv");
+            worker_->auth_cv.notify_one();
+        }
     }
 }

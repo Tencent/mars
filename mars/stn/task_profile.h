@@ -147,6 +147,9 @@ struct ConnectProfile {
         begin_connect_timestamp_ms = 0;
         end_connect_timestamp_ms = 0;
 
+        used_connect_port_source = 0;
+        used_connect_strategy_source = 0;
+
         task_id = 0;
 
         start_get_network_lab_time = 0;
@@ -236,6 +239,11 @@ struct ConnectProfile {
     uint64_t start_read_packet_time;
     uint64_t read_packet_finished_time;
     uint64_t retrans_byte_count;
+    uint64_t start_encode_packet_time = 0;     // 开始(req2buf)打包
+    uint64_t encode_packet_finished_time = 0;  // 打包(req2buf)完成
+    uint64_t start_decode_packet_time = 0;     // 开始(buf2resp)解包
+    uint64_t decode_packet_finished_time = 0;  // 解包(buf2resp)完成
+
     int channel_type;
     int rtt_by_socket;
     std::string netlabel;
@@ -244,6 +252,9 @@ struct ConnectProfile {
     //
     uint64_t begin_connect_timestamp_ms;
     uint64_t end_connect_timestamp_ms;
+
+    unsigned used_connect_port_source = 0;      // default
+    unsigned used_connect_strategy_source = 0;  // default
 
     uint32_t task_id;
 
@@ -289,6 +300,8 @@ struct TransferProfile {
         end_req2buf_time = 0;
         begin_buf2resp_time = 0;
         end_buf2resp_time = 0;
+        begin_check_auth_time = 0;
+        end_check_auth_time = 0;
     }
 
     const Task task;  // change "const Task& task" to "const Task task". fix a memory reuse bug.
@@ -321,6 +334,8 @@ struct TransferProfile {
     uint64_t end_req2buf_time;
     uint64_t begin_buf2resp_time;
     uint64_t end_buf2resp_time;
+    uint64_t begin_check_auth_time;
+    uint64_t end_check_auth_time;
 };
 
 struct PrepareProfile {

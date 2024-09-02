@@ -135,7 +135,7 @@ extern void (*ClearTasks)();
 // the same as ClearTasks(), but also reinitialize network.
 extern void (*Reset)();
 
-extern void (*ResetAndInitEncoderVersion)(int _encoder_version);
+extern void (*ResetAndInitEncoderVersion)(int _encoder_version, std::string _encoder_name);
 
 // setting signalling's parameters.
 // if you did not call this function, stn will use default value: period:  5s, keeptime: 20s
@@ -187,7 +187,7 @@ extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id
 extern void TrafficData(ssize_t _send, ssize_t _recv);
 
 //底层询问上层该host对应的ip列表
-extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
+extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info);
 //网络层收到push消息回调
 extern void OnPush(const std::string& _channel_id,
                    uint32_t _cmdid,
