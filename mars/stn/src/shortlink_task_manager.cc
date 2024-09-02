@@ -1536,7 +1536,6 @@ void ShortLinkTaskManager::__CheckAuthAndNotify(std::list<TaskProfile>::iterator
     ShortLinkInterface* worker_ = reinterpret_cast<ShortLinkInterface*>(_it->running_id);
     if (worker_->is_authed.load()) {
         xdebug2(TSF "taskid: %_, Worker Thread already async_auth", _it->task.taskid);
-        // worker_->auth_cv.notify_one();
     } else {
         std::string host = _it->task.shortlink_host_list.front();
         _it->transfer_profile.begin_make_sure_auth_time = gettickcount();
@@ -1552,7 +1551,7 @@ void ShortLinkTaskManager::__CheckAuthAndNotify(std::list<TaskProfile>::iterator
                 // lock on write is_authed
                 worker_->is_authed.store(ismakesureauthsuccess);
             }
-            xinfo2(TSF "taskid: %_, TaskManager RunLoop async_auth, notify auth_cv");
+            xinfo2(TSF "taskid: %_, TaskManager RunLoop async_auth, notify auth_cv", _it->task.taskid);
             worker_->auth_cv.notify_one();
         }
     }
