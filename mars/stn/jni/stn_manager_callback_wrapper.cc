@@ -190,13 +190,14 @@ bool StnManagerJniCallback::Req2Buf(uint32_t _taskid,
     return ret;
 }
 
-DEFINE_FIND_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[II[I)I")
+DEFINE_FIND_METHOD(KC2Java_buf2Resp, KC2Java, "buf2Resp", "(ILjava/lang/Object;Ljava/lang/String;[B[I[II[I)I")
 int StnManagerJniCallback::Buf2Resp(uint32_t _taskid,
                                     void* const _user_context,
                                     const std::string& _user_id,
                                     const AutoBuffer& _inbuffer,
                                     const AutoBuffer& _extend,
                                     int& _error_code,
+                                    int& flags,
                                     const int _channel_select,
                                     unsigned short& server_sequence_id) {
     VarCache* cache_instance = VarCache::Singleton();

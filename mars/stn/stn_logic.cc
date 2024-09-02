@@ -615,8 +615,15 @@ bool Req2Buf(uint32_t taskid,
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
-        return stn_manager
-            ->Req2Buf(taskid, user_context, _user_id, outbuffer, extend, error_code, channel_select, host, client_sequence_id);
+        return stn_manager->Req2Buf(taskid,
+                                    user_context,
+                                    _user_id,
+                                    outbuffer,
+                                    extend,
+                                    error_code,
+                                    channel_select,
+                                    host,
+                                    client_sequence_id);
     }
     return false;
 }
@@ -627,14 +634,22 @@ int Buf2Resp(uint32_t taskid,
              const AutoBuffer& inbuffer,
              const AutoBuffer& extend,
              int& error_code,
+             int& flags,
              const int channel_select,
-             unsigned short& server_sequence_id
-             ) {
+             unsigned short& server_sequence_id) {
     xdebug2(TSF "mars2 Buf2Resp");
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {
-        return stn_manager->Buf2Resp(taskid, user_context, _user_id, inbuffer, extend, error_code, channel_select, server_sequence_id);
+        return stn_manager->Buf2Resp(taskid,
+                                     user_context,
+                                     _user_id,
+                                     inbuffer,
+                                     extend,
+                                     error_code,
+                                     flags,
+                                     channel_select,
+                                     server_sequence_id);
     }
     return 0;
 }

@@ -232,7 +232,7 @@ std::vector<std::string> C2Java_OnNewDns(const std::string& _host) {
 DEFINE_FIND_STATIC_METHOD(KC2Java_req2Buf,
                           KC2Java,
                           "req2Buf",
-                          "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[IILjava/lang/String;I)Z")
+                          "(ILjava/lang/Object;Ljava/io/ByteArrayOutputStream;[I[IILjava/lang/String;I)Z")
 #else
 DEFINE_FIND_EMPTY_STATIC_METHOD(KC2Java_req2Buf)
 #endif
@@ -242,15 +242,23 @@ bool C2Java_Req2Buf(uint32_t _taskid,
                     AutoBuffer& _outbuffer,
                     AutoBuffer& _extend,
                     int& _error_code,
+                    int& _flags,
                     const int _channel_select,
                     const std::string& _host,
                     const unsigned client_sequence_id) {
     xverbose_function();
 
 #ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(
-        Req2Buf(_taskid, _user_context, _user_id, _outbuffer, _extend, _error_code, _channel_select, _host, client_sequence_id),
-        false);
+    CALL_NATIVE_CALLBACK_RETURN_FUN(Req2Buf(_taskid,
+                                            _user_context,
+                                            _user_id,
+                                            _outbuffer,
+                                            _extend,
+                                            _error_code,
+                                            _channel_select,
+                                            _host,
+                                            client_sequence_id),
+                                    false);
 #endif
 
     VarCache* cache_instance = VarCache::Singleton();
@@ -268,12 +276,15 @@ bool C2Java_Req2Buf(uint32_t _taskid,
 
     jintArray errcode_array = env->NewIntArray(2);
 
+    jintArray flags_array = env->NewIntArray(2);
+
     jboolean ret = JNU_CallStaticMethodByMethodInfo(env,
                                                     KC2Java_req2Buf,
                                                     (jint)_taskid,
                                                     _user_context,
                                                     byte_array_output_stream_obj,
                                                     errcode_array,
+                                                    flags_array,
                                                     _channel_select,
                                                     ScopedJstring(env, _host.c_str()).GetJstr(),
                                                     (jint)client_sequence_id)
@@ -298,6 +309,11 @@ bool C2Java_Req2Buf(uint32_t _taskid,
     _error_code = errcode[0];
     env->ReleaseIntArrayElements(errcode_array, errcode, 0);
     env->DeleteLocalRef(errcode_array);
+
+    jint* flags = env->GetIntArrayElements(flags_array, NULL);
+    _flags = flags[0];
+    env->ReleaseIntArrayElements(flags_array, flags, 0);
+    env->DeleteLocalRef(flags_array);
 
     return ret;
 };

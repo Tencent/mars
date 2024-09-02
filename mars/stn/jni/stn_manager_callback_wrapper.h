@@ -44,6 +44,7 @@ class StnManagerJniCallback : public Callback {
                          const AutoBuffer& _inbuffer,
                          const AutoBuffer& _extend,
                          int& _error_code,
+                         int& flags,
                          const int _channel_select,
                          unsigned short& server_sequence_id) override;
     virtual int OnTaskEnd(uint32_t _taskid,
