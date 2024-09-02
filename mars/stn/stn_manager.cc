@@ -202,7 +202,9 @@ void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
 }
 
 // 底层询问上层该host对应的ip列表
-std::vector<std::string> StnManager::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
+std::vector<std::string> StnManager::OnNewDns(const std::string& _host,
+                                              bool _longlink_host,
+                                              const std::map<std::string, std::string>& _extra_info) {
     std::vector<std::string> ips;
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
@@ -261,6 +263,7 @@ int StnManager::Buf2Resp(uint32_t taskid,
                          const AutoBuffer& inbuffer,
                          const AutoBuffer& extend,
                          int& error_code,
+                         uint64_t& flags,
                          int channel_select,
                          unsigned short& server_sequence_id,
                          const std::map<std::string, std::string>& _extra_info) {
@@ -272,6 +275,7 @@ int StnManager::Buf2Resp(uint32_t taskid,
                                           inbuffer,
                                           extend,
                                           error_code,
+                                          flags,
                                           channel_select,
                                           server_sequence_id,
                                           _extra_info);
