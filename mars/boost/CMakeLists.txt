@@ -6,7 +6,7 @@ add_compile_options(-w) # 屏蔽所有编译警告
 
 project (mars-boost)
 
-include(../comm/CMakeUtils.txt)
+include(../comm/utils.cmake)
 
 include_directories(.)
 include_directories(..)

@@ -5,11 +5,12 @@
 #ifndef MMNET_BASE_CONTEXT_H
 #define MMNET_BASE_CONTEXT_H
 
+#include <atomic>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
-#include <atomic>
 
 #include "base_manager.h"
 
@@ -96,6 +97,11 @@ class Context {
     static std::recursive_mutex s_mutex_;
     static std::atomic<int> s_context_index;
 };
+
+template <class... Args>
+std::shared_ptr<Context> make_context_ptr(Args&&... args) {
+    return std::shared_ptr<Context>(Context::CreateContext(std::forward<Args>(args)...), Context::DestroyContext);
+}
 
 }  // namespace boot
 }  // namespace mars

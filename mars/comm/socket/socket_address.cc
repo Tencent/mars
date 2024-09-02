@@ -116,11 +116,11 @@ void socket_address::__init(const sockaddr* _addr) {
 }
 
 bool socket_address::fix_current_nat64_addr() {
-    xinfo_function();  //打印耗时
+    xinfo_function();  // 打印耗时
     bool ret = false;
     bool is_update = false;
     if (AF_INET6 == addr_.ss_family && 0 != strncasecmp("::FFFF:", ip_, 7)) {
-        //更新addr_, ip_, url_
+        // 更新addr_, ip_, url_
         //		if (is_update) {
         in6_addr nat64_v6_addr;
 #ifdef WIN32
@@ -296,6 +296,10 @@ socket_address& socket_address::v4tov4mapped_address() {
 }
 
 socket_address& socket_address::v4tonat64_address() {
+    if (isv6()) {
+        return *this;
+    }
+
     if (AF_INET == addr_.ss_family) {
         sockaddr_in6 sock_addr6 = {0};
         sockaddr_in sock_addr4 = *_asv4();

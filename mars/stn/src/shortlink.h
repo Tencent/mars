@@ -20,8 +20,10 @@
 #ifndef STN_SRC_SHORTLINK_H_
 #define STN_SRC_SHORTLINK_H_
 
+#include <condition_variable>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -90,6 +92,10 @@ class ShortLink : public ShortLinkInterface {
                          AutoBuffer& _extension,
                          ConnectProfile& _conn_profile);
 
+    bool __AsyncCheckAuth();
+    void __CancelAsyncCheckAuth();
+    bool __WaitAsyncReq2buf();
+
  private:
     bool __ContainIPv6(const std::vector<socket_address>& _vecaddr);
 
@@ -105,6 +111,9 @@ class ShortLink : public ShortLinkInterface {
     Task task_;
     comm::Thread thread_;
     std::shared_ptr<comm::Thread> req2buf_thread_;
+    std::mutex req2buf_ready_mtx;
+    std::condition_variable req2buf_ready_cv;
+    std::atomic<bool> is_req2buf_ready{false};
 
     ConnectProfile conn_profile_;
     NetSource::DnsUtil dns_util_;
@@ -119,6 +128,7 @@ class ShortLink : public ShortLinkInterface {
     boost::scoped_ptr<shortlink_tracker> tracker_;
     bool is_keep_alive_;
     bool is_start_req2buf_thread;
+    bool is_req2buf_result = false;
     int sent_count;
 };
 

@@ -193,7 +193,7 @@ int getNetInfo(bool realtime /*=false*/) {
     xverbose_function();
     SCOPE_POOL();
 
-#if TARGET_IPHONE_SIMULATOR || TARGET_OS_WATCH
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_WATCH || UNITTEST
     return mars::comm::kWifi;
 #endif
 
@@ -559,7 +559,9 @@ int OSVerifyCertificate(const std::string& hostname, const std::vector<std::stri
         CFDataRef dataref =
             CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, (const uint8_t*)certschain[i].data(),
                                         certschain[i].size(), kCFAllocatorNull);
-        CFArrayAppendValue(certlist, SecCertificateCreateWithData(nullptr, dataref));
+        SecCertificateRef certref = SecCertificateCreateWithData(nullptr, dataref);
+        CFRelease(dataref);
+        CFArrayAppendValue(certlist, certref);
     }
 
     CFStringRef label = CFStringCreateWithCString(NULL, hostname.c_str(), kCFStringEncodingUTF8);

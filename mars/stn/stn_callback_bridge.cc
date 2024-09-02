@@ -72,7 +72,7 @@ void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
     // #endif
 }
 
-std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host, bool _longlink_host) {
+std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     return sg_callback->OnNewDns(_host, _longlink_host);
@@ -126,7 +126,8 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 const AutoBuffer& _extend,
                                 int& _error_code,
                                 const int _channel_select,
-                                unsigned short& server_sequence_id) {
+                                unsigned short& server_sequence_id,
+                                const std::map<std::string, std::string>& _extra_info) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     return sg_callback->Buf2Resp(_taskid,
@@ -158,8 +159,14 @@ int StnCallbackBridge::OnTaskEnd(uint32_t _taskid,
         _profile.tls_handshake_successful_time == 0 ? 0 : _profile.start_tls_handshake_time;
     cgiprofile.tls_handshake_successful_time = _profile.tls_handshake_successful_time;
     cgiprofile.start_send_packet_time = _profile.start_send_packet_time;
+    cgiprofile.send_packet_finished_time = _profile.start_send_packet_time + _profile.send_request_cost;
     cgiprofile.start_read_packet_time = _profile.start_read_packet_time;
     cgiprofile.read_packet_finished_time = _profile.read_packet_finished_time;
+    cgiprofile.start_encode_packet_time = _profile.start_encode_packet_time;
+    cgiprofile.encode_packet_finished_time = _profile.encode_packet_finished_time;
+    cgiprofile.start_decode_packet_time = _profile.start_decode_packet_time;
+    cgiprofile.decode_packet_finished_time = _profile.decode_packet_finished_time;
+
     cgiprofile.channel_type = _profile.channel_type;
     cgiprofile.transport_protocol = _profile.transport_protocol;
     cgiprofile.rtt = _profile.rtt_by_socket;

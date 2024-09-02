@@ -127,6 +127,7 @@ class NetCore {
 
     std::shared_ptr<NetSource> GetNetSource();
     int GetPackerEncoderVersion();
+    std::string GetPackerEncoderName();
 
  public:
 #ifdef USE_LONG_LINK
@@ -143,7 +144,12 @@ class NetCore {
 #endif
 
  public:
-    NetCore(boot::Context* _context, int _packer_encoder_version, bool _use_long_link = true);
+    NetCore(boot::Context* _context,
+            int _packer_encoder_version,
+            std::string _packer_encoder_name = "",
+            bool _use_long_link = true,
+            LongLinkEncoder* longlink_encoder = nullptr,
+            std::string tls_group_name = "default");
     virtual ~NetCore();
     static void __Release(std::shared_ptr<NetCore> _instance);
     void ReleaseNet();
@@ -199,20 +205,20 @@ class NetCore {
  public:
     void SetNeedUseLongLink(bool flag);
     void SetGetRealHostFunc(
-        const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func);
+        const std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, const std::map<std::string, std::string>& extra_info)> func);
     void SetAddWeakNetInfo(const std::function<void(bool _connect_timeout, struct tcp_info& _info)> func);
 
     void SetLongLinkGetRealHostFunc(
-        std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)>
+        std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
             func);
     void SetLongLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);
     void SetLongLinkShouldInterceptResult(std::function<bool(int _error_code)> func);
 
     void SetShortLinkGetRealHostFunc(
-        std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match)>
+        std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
             func);
     void SetShortLinkTaskConnectionDetail(
-        std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> func);
+        std::function<void(const int _error_type, const int _error_code, const int _use_ip_index, const std::map<std::string, std::string>& extra_info)> func);
     void SetShortLinkChooseProtocol(std::function<int(TaskProfile& _profile)> func);
     void SetShortLinkOnTimeoutOrRemoteShutdown(std::function<void(const TaskProfile& _profile)> func);
     void SetShortLinkOnHandShakeReady(std::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> func);
@@ -224,6 +230,7 @@ class NetCore {
 
  private:
     int packer_encoder_version_;
+    std::string packer_encoder_name_;
     bool need_use_longlink_;
     bool already_release_net_ = false;
     comm::MessageQueue::MessageQueueCreater messagequeue_creater_;
@@ -247,6 +254,7 @@ class NetCore {
     bool shortlink_try_flag_;
     int all_connect_status_ = 0;
     int longlink_connect_status_ = 0;
+    LongLinkEncoder* default_longlink_encoder = nullptr;
 
 #ifdef ANDROID
     comm::WakeUpLock* wakeup_lock_;

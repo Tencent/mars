@@ -74,8 +74,9 @@ class LongLinkTaskManager {
                          const AutoBuffer& _extend)>
         fun_on_push_;
 
-    boost::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match)>
+    boost::function<size_t(const std::string& _user_id, std::vector<std::string>& _host_list, bool _strict_match, const std::map<std::string, std::string>& extra_info)>
         get_real_host_;
+
     boost::function<void(uint32_t _version, mars::stn::TlsHandshakeFrom _from)> on_handshake_ready_;
     boost::function<bool(int _error_code)> should_intercept_result_;
 
@@ -84,7 +85,8 @@ class LongLinkTaskManager {
                         std::shared_ptr<NetSource> _netsource,
                         comm::ActiveLogic& _activelogic,
                         DynamicTimeout& _dynamictimeout,
-                        comm::MessageQueue::MessageQueue_t _messagequeueid);
+                        comm::MessageQueue::MessageQueue_t _messagequeueid,
+                        LongLinkEncoder* longlink_encoder);
     virtual ~LongLinkTaskManager();
 
     bool StartTask(const Task& _task, int _channel);
@@ -115,7 +117,7 @@ class LongLinkTaskManager {
     void ReleaseLongLink(std::shared_ptr<LongLinkMetaData> _linkmeta);
     bool DisconnectByTaskId(uint32_t _taskid, LongLinkErrCode::TDisconnectInternalCode _code);
     void AddForbidTlsHost(const std::vector<std::string>& _host);
-
+    
  private:
     // from ILongLinkObserver
     void __OnResponse(const std::string& _name,
@@ -192,6 +194,7 @@ class LongLinkTaskManager {
     /*NO_DESTROY static */ std::set<std::string> forbid_tls_host_;
     TaskIntercept task_intercept_;
     bool already_release_manager_ = false;
+    LongLinkEncoder* default_longlink_encoder = nullptr;
 };
 }  // namespace stn
 }  // namespace mars

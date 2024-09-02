@@ -21,6 +21,7 @@
 #ifndef COMM_STRUTIL_H_
 #define COMM_STRUTIL_H_
 
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -158,8 +159,8 @@ bool MergeToken(const T1& begin, const T1& end, const T2& delimiter, T2& result)
 
 std::string Hex2Str(const char* _str, unsigned int _len);
 std::string Str2Hex(const char* _str, unsigned int _len);
-std::string Hex2Str(const std::string &hex);
-std::string Str2Hex(const std::string &str);
+std::string Hex2Str(const std::string& hex);
+std::string Str2Hex(const std::string& str);
 
 std::string ReplaceChar(const char* const input_str, char be_replaced = '@', char replace_with = '.');
 
@@ -170,6 +171,43 @@ size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos
 std::string BufferMD5(const void* buffer, size_t size);
 std::string MD5DigestToBase16(const uint8_t digest[16]);
 std::string DigestToBase16(const uint8_t* digest, size_t length);
+
+std::string CStr2StringSafe(const char* a);
+bool CStrNullOrEmpty(const char* a);
+bool CStrCmpSafe(const char* a, const char* b);
+int32_t CStr2Int32Safe(const char* a, int32_t default_num);
+
+void to_lower(std::string& str);
+void to_upper(std::string& str);
+
+#if __cplusplus > 201103L
+template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+std::string to_hex_string(const T& v) {
+    std::stringstream hex_stream;
+    hex_stream << std::hex << v;
+    return hex_stream.str();
+}
+
+template <typename T, std::enable_if_t<std::is_enum<T>::value, bool> = true>
+std::string to_hex_string(const T& v) {
+    std::stringstream hex_stream;
+    hex_stream << std::hex << static_cast<int>(v);
+    return hex_stream.str();
+}
+
+template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+std::string to_oct_string(const T& v) {
+    std::stringstream hex_stream;
+    hex_stream << std::oct << v;
+    return hex_stream.str();
+}
+
+template <typename T, std::enable_if_t<std::is_enum<T>::value, bool> = true>
+std::string to_oct_string(const T& v) {
+    std::stringstream hex_stream;
+    hex_stream << std::oct << static_cast<int>(v);
+    return hex_stream.str();
+}
 
 template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
 std::string to_string(const T& v) {
@@ -200,25 +238,32 @@ std::string to_string(T const (&v)[N]) {
 }
 
 template <typename T1, typename T2>
-std::string to_string(const std::pair<T1, T2> & v) {
-    return "{" + to_string(v.first) + ":" + to_string(v.second) + "}";
+std::string to_string(const std::pair<T1, T2>& v) {
+    return "(" + to_string(v.first) + ":" + to_string(v.second) + ")";
+}
+
+template <typename T>
+std::string to_string(T* v) {
+    std::stringstream ss;
+    ss << std::hex << std::uppercase << (uint64_t)(v);
+    return ss.str();
 }
 
 template <class T>
-std::string join_to_string(const T &stl,
-                         const std::string &seperator = ",",
-                         const std::string &prefix = "",
-                         const std::string &postfix = "") {
+std::string join_to_string(const T& stl,
+                           const std::string& seperator = ",",
+                           const std::string& prefix = "{",
+                           const std::string& postfix = "}") {
     if (stl.empty()) {
         return {};
     }
     std::string rtn = prefix;
-    for (const auto &it : stl) {
+    for (const auto& it : stl) {
         rtn.append(strutil::to_string(it)).append(seperator);
     }
     return rtn.append(postfix);
 }
-
+#endif
 }  // namespace strutil
 
 #endif  // COMM_STRUTIL_H_

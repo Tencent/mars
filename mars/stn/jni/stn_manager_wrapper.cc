@@ -118,6 +118,9 @@ class JniStnManager {
         std::map<std::string, std::string> headers = JNU_JObject2Map(env, oHeaders);
         jint client_sequence_id = JNU_GetField(env, _task, "clientSequenceId", "I").i;
 
+        jobject extraInfo = JNU_GetField(env, _task, "extraInfo", "Ljava/util/Map;").l;
+        std::map<std::string, std::string> extra_info = JNU_JObject2Map(env, extraInfo);
+
         // init struct Task
         struct Task task(taskid);
         task.cmdid = cmdid;
@@ -171,6 +174,7 @@ class JniStnManager {
             env->DeleteLocalRef(_user_context);
         }
         task.client_sequence_id = client_sequence_id;
+        task.extra_info = extra_info;
         stn_manager_cpp->StartTask(task);
     }
 
@@ -210,10 +214,11 @@ class JniStnManager {
         stn_manager_cpp->Reset();
     }
 
-    static void JniResetAndInitEncoderVersion(JNIEnv* env, jobject instance, jint _packer_encoder_version) {
+    static void JniResetAndInitEncoderVersion(JNIEnv* env, jobject instance, jint _packer_encoder_version, jstring _packer_encoder_name) {
         xverbose_function();
         auto stn_manager_cpp = jnicat::JniObjectWrapper<StnManager>::object(env, instance);
-        stn_manager_cpp->ResetAndInitEncoderVersion(_packer_encoder_version);
+        std::string packer_encoder_name = (NULL == _packer_encoder_name ? "" : ScopedJstring(env, _packer_encoder_name).GetChar());
+        stn_manager_cpp->ResetAndInitEncoderVersion(_packer_encoder_version, packer_encoder_name);
     }
 
     static void JniSetBackupIPs(JNIEnv* env, jobject instance, jstring _host, jobjectArray _objarray) {
@@ -291,7 +296,7 @@ static const JNINativeMethod kStnManagerJniMethods[] = {
     {"OnJniTouchTasks", "()V", (void*)&mars::stn::JniStnManager::JniTouchTasks},
     {"OnJniClearTask", "()V", (void*)&mars::stn::JniStnManager::JniClearTask},
     {"OnJniReset", "()V", (void*)&mars::stn::JniStnManager::JniReset},
-    {"OnJniResetAndInitEncoderVersion", "(I)V", (void*)&mars::stn::JniStnManager::JniResetAndInitEncoderVersion},
+    {"OnJniResetAndInitEncoderVersion", "(ILjava/lang/String;)V", (void*)&mars::stn::JniStnManager::JniResetAndInitEncoderVersion},
     {"OnJniSetBackupIPs",
      "(Ljava/lang/String;[Ljava/lang/String;)V",
      (void*)&mars::stn::JniStnManager::JniSetBackupIPs},

@@ -69,6 +69,9 @@ void XloggerCategory::__WriteImpl(const XLoggerInfo* _info, const char* _log) {
     if (!appender_func_) {
         return;
     }
+    if (_info->level < level_) {
+        return;
+    }
 
     if (_info && -1 == _info->pid && -1 == _info->tid && -1 == _info->maintid) {
         XLoggerInfo* info = (XLoggerInfo*)_info;

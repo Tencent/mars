@@ -248,9 +248,16 @@ bool C2Java_Req2Buf(uint32_t _taskid,
     xverbose_function();
 
 #ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(
-        Req2Buf(_taskid, _user_context, _user_id, _outbuffer, _extend, _error_code, _channel_select, _host, client_sequence_id),
-        false);
+    CALL_NATIVE_CALLBACK_RETURN_FUN(Req2Buf(_taskid,
+                                            _user_context,
+                                            _user_id,
+                                            _outbuffer,
+                                            _extend,
+                                            _error_code,
+                                            _channel_select,
+                                            _host,
+                                            client_sequence_id),
+                                    false);
 #endif
 
     VarCache* cache_instance = VarCache::Singleton();

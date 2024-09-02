@@ -10,7 +10,7 @@
 project(libzstd)
 
 if (WX_ZSTD_USE_STATIC_RUNTIME)
-    include(../../../../comm/CMakeUtils.txt)
+    include(../../../../comm/utils.cmake)
     include(../../../../comm/CMakeExtraFlags.txt)
 endif()
 
