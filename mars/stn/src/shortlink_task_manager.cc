@@ -510,6 +510,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 AutoBuffer body;
                 AutoBuffer extension;
                 int err_code = 0;
+                uint64_t flags = 0;
                 unsigned short server_sequence_id = 0;
                 body.Write(intercept_data.data(), intercept_data.length());
                 first->transfer_profile.received_size = body.Length();
@@ -521,6 +522,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                                body,
                                                                                extension,
                                                                                err_code,
+                                                                               flags,
                                                                                Task::kChannelShort,
                                                                                server_sequence_id,
                                                                                first->task.extra_info);
@@ -814,6 +816,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
+    uint64_t flags = 0;
     unsigned short server_sequence_id = 0;
     it->transfer_profile.begin_buf2resp_time = gettickcount();
     int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid,
@@ -822,6 +825,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                                                    _body,
                                                                    _extension,
                                                                    err_code,
+                                                                   flags,
                                                                    Task::kChannelShort,
                                                                    server_sequence_id,
                                                                    it->task.extra_info);
