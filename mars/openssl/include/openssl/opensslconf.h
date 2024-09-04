@@ -12,8 +12,6 @@
 #include <openssl/opensslconf-android.h>
 #elif defined(__WIN32__)
 #include <openssl/opensslconf-windows.h>
-#elif defined(__OHOS__)
-#include <openssl/opensslconf-harmony.h>
 #else
 #error unsupported platform
 #endif

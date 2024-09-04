@@ -152,6 +152,7 @@ class ShortLinkInterface {
     CallBack<boost::function<
         void(ShortLinkInterface* _worker, uint64_t begin_make_sure_auth_time, uint64_t end_make_sure_auth_time)>>
         OnMakeSureAuthTime;
+    CallBack<boost::function<void(ShortLinkInterface* _worker, FirstAuthFlag first_auth_flag)>> OnSetFirstAuthFlag;
 
     std::mutex auth_mtx;
     std::condition_variable auth_cv;
