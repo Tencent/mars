@@ -78,8 +78,7 @@ LongLinkTaskManager::LongLinkTaskManager(mars::boot::Context* _context,
 #ifndef _WIN32
 , meta_mutex_(true)
 #endif
-, default_longlink_encoder(longlink_encoder)
-{
+, default_longlink_encoder(longlink_encoder) {
     xdebug_function(TSF "mars2");
     xinfo_function(TSF "handler:(%_,%_)", asyncreg_.Get().queue, asyncreg_.Get().seq);
 }
@@ -593,6 +592,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
             AutoBuffer body;
             AutoBuffer extension;
             int err_code = 0;
+            uint64_t flags = 0;
             unsigned short server_sequence_id = 0;
             body.Write(intercept_data.data(), intercept_data.length());
             first->transfer_profile.received_size = body.Length();
@@ -604,6 +604,7 @@ void LongLinkTaskManager::__RunOnStartTask() {
                                                                            body,
                                                                            extension,
                                                                            err_code,
+                                                                           flags,
                                                                            longlink->Config().link_type,
                                                                            server_sequence_id);
             xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
@@ -1002,6 +1003,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name,
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
+    uint64_t flags = 0;
     unsigned short server_sequence_id = 0;
 
     int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid,
@@ -1010,6 +1012,7 @@ void LongLinkTaskManager::__OnResponse(const std::string& _name,
                                                                    body,
                                                                    extension,
                                                                    err_code,
+                                                                   flags,
                                                                    longlink_meta->Config().link_type,
                                                                    server_sequence_id);
     if (should_intercept_result_ && should_intercept_result_(err_code)) {
@@ -1207,9 +1210,11 @@ bool LongLinkTaskManager::IsMinorAvailable(const Task& _task) {
 }
 
 std::shared_ptr<LongLinkMetaData> LongLinkTaskManager::DefaultLongLink() {
-    if (already_release_manager_) return nullptr;
+    if (already_release_manager_)
+        return nullptr;
     MetaScopedLock lock(meta_mutex_);
-    if (already_release_manager_) return nullptr;
+    if (already_release_manager_)
+        return nullptr;
     for (auto& item : longlink_metas_) {
         if (item.second->Config().IsMain()) {
             return item.second;

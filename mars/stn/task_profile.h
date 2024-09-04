@@ -367,6 +367,13 @@ enum TaskFailStep {
     kStepServer,
 };
 
+enum class FirstAuthFlag : uint64_t {
+    kInitAuthFlag = 0UL,  // 0: 初始状态
+    kAlreadyAuth = 1UL,   // 1: 第一次就auth成功
+    kNoNeedAuth = 2UL,    // 2: 无须auth
+    kWaitAuth = 3UL       // 3: 等待auth
+};
+
 struct TaskProfile {
     static uint64_t ComputeTaskTimeout(const Task& _task) {
         uint64_t readwritetimeout = 15 * 1000;
@@ -422,6 +429,9 @@ struct TaskProfile {
         // mars2
         is_weak_network = false;
         is_last_valid_connect_fail = false;
+        // auth flag
+        first_auth_flag = FirstAuthFlag::kInitAuthFlag;
+        is_first_check_auth = true;
     }
 
     void InitSendParam() {
@@ -486,6 +496,9 @@ struct TaskProfile {
     // mars2
     bool is_weak_network;
     bool is_last_valid_connect_fail;
+
+    FirstAuthFlag first_auth_flag;
+    bool is_first_check_auth;
 };
 
 void __SetLastFailedStatus(std::list<TaskProfile>::iterator _it);
