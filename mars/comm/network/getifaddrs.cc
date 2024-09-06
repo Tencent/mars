@@ -19,6 +19,8 @@
 
 #include "comm/network/getifaddrs.h"
 
+#include "mars/comm/xlogger/xlogger.h"
+
 #if (!UWP && !WIN32)
 #include <arpa/inet.h>
 #include <net/if.h>
@@ -33,7 +35,11 @@
 bool getifaddrs_ipv4(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
     struct ifaddrs *ifap, *ifa;
 
-    getifaddrs(&ifap);
+    int rv = getifaddrs(&ifap);
+    if (rv != 0) {
+        xerror2("getifaddrs return:%_, errno:%_", rv, errno);
+        return false;
+    }
 
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in* sa = (struct sockaddr_in*)ifa->ifa_addr;
@@ -58,7 +64,11 @@ bool getifaddrs_ipv4(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
 bool getifaddrs_ipv4(ifaddrinfo_ipv4_t& _addr) {
     struct ifaddrs *ifap, *ifa;
 
-    getifaddrs(&ifap);
+    int rv = getifaddrs(&ifap);
+    if (rv != 0) {
+        xerror2("getifaddrs return:%_, errno:%_", rv, errno);
+        return false;
+    }
 
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in* sa = (struct sockaddr_in*)ifa->ifa_addr;
@@ -83,7 +93,11 @@ bool getifaddrs_ipv4(ifaddrinfo_ipv4_t& _addr) {
 bool getifaddrs_ipv4_lan(ifaddrinfo_ipv4_t& _addr) {
     struct ifaddrs *ifap, *ifa;
 
-    getifaddrs(&ifap);
+    int rv = getifaddrs(&ifap);
+    if (rv != 0) {
+        xerror2("getifaddrs return:%_, errno:%_", rv, errno);
+        return false;
+    }
 
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in* sa = (struct sockaddr_in*)ifa->ifa_addr;
@@ -113,7 +127,11 @@ bool getifaddrs_ipv4_lan(ifaddrinfo_ipv4_t& _addr) {
 bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
     struct ifaddrs *ifap, *ifa;
 
-    getifaddrs(&ifap);
+    int rv = getifaddrs(&ifap);
+    if (rv != 0) {
+        xerror2("getifaddrs return:%_, errno:%_", rv, errno);
+        return false;
+    }
 
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in* sa = (struct sockaddr_in*)ifa->ifa_addr;
@@ -150,7 +168,11 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
 bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs) {
     struct ifaddrs *ifap, *ifa;
 
-    getifaddrs(&ifap);
+    int rv = getifaddrs(&ifap);
+    if (rv != 0) {
+        xerror2("getifaddrs return:%_, errno:%_", rv, errno);
+        return false;
+    }
 
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in* sa = (struct sockaddr_in*)ifa->ifa_addr;
@@ -222,7 +244,11 @@ bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs) {
 bool getifaddrs_ipv4_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
     struct ifaddrs *ifap, *ifa;
 
-    getifaddrs(&ifap);
+    int rv = getifaddrs(&ifap);
+    if (rv != 0) {
+        xerror2("getifaddrs return:%_, errno:%_", rv, errno);
+        return false;
+    }
 
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in* sa = (struct sockaddr_in*)ifa->ifa_addr;
@@ -250,7 +276,11 @@ bool getifaddrs_ipv4_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _
 bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
     struct ifaddrs *ifap, *ifa;
 
-    getifaddrs(&ifap);
+    int rv = getifaddrs(&ifap);
+    if (rv != 0) {
+        xerror2("getifaddrs return:%_, errno:%_", rv, errno);
+        return false;
+    }
 
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
         sockaddr_in6* sa = (struct sockaddr_in6*)ifa->ifa_addr;
@@ -274,10 +304,10 @@ bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _
     freeifaddrs(ifap);
     return !_addrs.empty();
 }
-#else // #if (!UWP && !WIN32)
+#else  // #if (!UWP && !WIN32)
 #ifdef WIN32
-#include <ws2tcpip.h>
 #include <iphlpapi.h>
+#include <ws2tcpip.h>
 
 #include "../socket/unix_socket.h"
 #pragma comment(lib, "wsock32.lib")
@@ -299,7 +329,7 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
     ULONG outBufLen = 0;
     GetAdaptersAddresses(AF_INET, 0, NULL, NULL, &outBufLen);
 
-	PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
+    PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES*)malloc(outBufLen);
     if (pAddresses == NULL) {
         return false;
     }
@@ -345,16 +375,16 @@ bool getifaddrs_ipv4_lan(std::vector<ifaddrinfo_ipv4_t>& _addrs) {
 }
 
 bool getifaddrs_ipv4_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
-    //TODO
-	return false;
+    // TODO
+    return false;
 }
 
 bool getifaddrs_ipv6_filter(std::vector<ifaddrinfo_ip_t>& _addrs, unsigned int _flags_filter) {
-    //TODO
-	return false;
-}
-bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs){
-    //TODO
+    // TODO
     return false;
 }
-#endif // #if (!UWP && !WIN32) else 
+bool getifaddrs_ip_lan(std::vector<ifaddrinfo_ip_t>& _addrs) {
+    // TODO
+    return false;
+}
+#endif  // #if (!UWP && !WIN32) else
