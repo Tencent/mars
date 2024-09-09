@@ -382,4 +382,16 @@ void to_upper(std::string& str) {
     });
 }
 
+std::string cast_lower(const std::string& str) {
+    std::string s = str;
+    to_lower(s);
+    return s;
+}
+
+std::string cast_upper(const std::string& str) {
+    std::string s = str;
+    to_upper(s);
+    return s;
+}
+
 }  // namespace strutil
