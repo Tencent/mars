@@ -17,9 +17,7 @@
 #include "mars/comm/comm_data.h"
 #include "mars/comm/time_utils.h"
 #include "mars/xlog/xlogger.h"
-#ifdef ANDROID
-#include "mars/comm/alarm.h"
-#endif
+
 namespace mars {
 namespace app {
 
@@ -73,18 +71,7 @@ class AppManager : public mars::boot::BaseManager {
         __CheckCommSetting(key);
     }
 
-    void __CheckCommSetting(const std::string& key) {
-#ifdef ANDROID
-        xinfo2(TSF "AppConfig CheckCommSetting key:%_", key);
-        if (key == kKeyAlarmStartWakeupLook) {
-            int wakeup = GetConfig<int>(kKeyAlarmStartWakeupLook, kAlarmStartWakeupLook);
-            comm::Alarm::SetStartAlarmWakeLock(wakeup);
-        } else if (key == kKeyAlarmOnWakeupLook) {
-            int wakeup = GetConfig<int>(kKeyAlarmOnWakeupLook, kAlarmOnWakeupLook);
-            comm::Alarm::SetOnAlarmWakeLock(wakeup);
-        }
-#endif
-    }
+    void __CheckCommSetting(const std::string& key);
 
  private:
     Callback* callback_;

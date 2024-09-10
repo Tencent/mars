@@ -12,6 +12,9 @@
 
 #include "mars/comm/dns/dns.h"
 #include "mars/comm/xlogger/xlogger.h"
+#ifdef ANDROID
+#include "mars/comm/alarm.h"
+#endif
 
 using namespace mars::comm;
 using namespace mars::boot;
@@ -169,6 +172,19 @@ void AppManager::GetProxyInfo(const std::string& _host, uint64_t _timetick) {
         proxy_info_.ip = ips.front();
         got_proxy_ = true;
     }
+}
+
+void AppManager::__CheckCommSetting(const std::string& key) {
+#ifdef ANDROID
+    xinfo2(TSF "AppConfig CheckCommSetting key:%_", key);
+    if (key == kKeyAlarmStartWakeupLook) {
+        int wakeup = GetConfig<int>(kKeyAlarmStartWakeupLook, kAlarmStartWakeupLook);
+        comm::Alarm::SetStartAlarmWakeLock(wakeup);
+    } else if (key == kKeyAlarmOnWakeupLook) {
+        int wakeup = GetConfig<int>(kKeyAlarmOnWakeupLook, kAlarmOnWakeupLook);
+        comm::Alarm::SetOnAlarmWakeLock(wakeup);
+    }
+#endif
 }
 
 // #if TARGET_OS_IPHONE
