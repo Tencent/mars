@@ -60,7 +60,7 @@ public class Log {
 
         void setConsoleLogOpen(long logInstancePtr, boolean isOpen);
 
-        void setMaxFileSize(long logInstancePtr, long aliveSeconds);
+        void setMaxFileSize(long logInstancePtr, long sizeInBytes);
 
         void setMaxAliveTime(long logInstancePtr, long aliveSeconds);
 
@@ -542,6 +542,11 @@ public class Log {
             }
         }
 
+        public void setMaxFileSize(long sizeInBytes) {
+            if (null != logImp && mLogInstancePtr != -1) {
+                logImp.setMaxFileSize(mLogInstancePtr, sizeInBytes);
+            }
+        }
 
     }
 }
