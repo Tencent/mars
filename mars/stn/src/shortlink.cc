@@ -1186,6 +1186,7 @@ bool ShortLink::__Req2Buf() {
 
     if (fun_anti_avalanche_check_.empty() || !fun_anti_avalanche_check_(task_, bufreq.Ptr(), (int)bufreq.Length())) {
         OnSingleRespHandle(this, kEctLocal, kEctLocalAntiAvalanche, kTaskFailHandleTaskEnd, 0, conn_profile_);
+        return false;
     }
 
     std::string intercept_data;
