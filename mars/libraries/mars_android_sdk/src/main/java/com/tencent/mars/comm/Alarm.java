@@ -82,7 +82,7 @@ public class Alarm extends BroadcastReceiver {
 
             if (null == bc_alarm) {
                 bc_alarm = new Alarm();
-                context.registerReceiver(bc_alarm, new IntentFilter("ALARM_ACTION(" + String.valueOf(Process.myPid()) + ")"));
+                context.registerReceiver(bc_alarm, new IntentFilter("ALARM_ACTION(" + String.valueOf(Process.myPid()) + ")"), null, null);
             }
 
             Iterator<Object[]> it = alarm_waiting_set.iterator();
