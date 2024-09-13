@@ -18,9 +18,9 @@
 #define MARS_STLUTIL_H
 
 #include <algorithm>
+#include <list>
 #include <map>
 #include <unordered_map>
-#include <list>
 
 namespace stlutil {
 template <typename C, typename T>
@@ -55,6 +55,13 @@ T GetAndPopFront(std::list<T>& list) {
     T t = list.front();
     list.pop_front();
     return t;
+}
+template <typename T>
+T DereferenceSafe(const T* ptr) {
+    if (ptr) {
+        return *ptr;
+    }
+    return {};
 }
 }  // namespace stlutil
 

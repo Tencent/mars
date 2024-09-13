@@ -150,3 +150,27 @@ macro(BuildSharedLib name src exp_file_path libs 3rd_libs link_flags)
             -Wl,--end-group
             )
 endmacro()
+
+function(read_version_file version_file_path output_version)
+  # 读取version文件
+  file(STRINGS "${version_file_path}" version_file_content)
+
+  # 提取各个字段的值
+  foreach (line IN LISTS version_file_content)
+    if (line MATCHES "MAJOR=(.*)")
+      set(MAJOR_VERSION "${CMAKE_MATCH_1}")
+    elseif (line MATCHES "MINOR=(.*)")
+      set(MINOR_VERSION "${CMAKE_MATCH_1}")
+    elseif (line MATCHES "BUILD=(.*)")
+      set(BUILD_VERSION "${CMAKE_MATCH_1}")
+    elseif (line MATCHES "PATCH=(.*)")
+      set(PATCH_VERSION "${CMAKE_MATCH_1}")
+    endif()
+  endforeach()
+
+  # 拼接字符串
+  set(version_string "${MAJOR_VERSION}.${MINOR_VERSION}.${BUILD_VERSION}.${PATCH_VERSION}")
+
+  # 设置输出变量
+  set(${output_version} ${version_string} PARENT_SCOPE)
+endfunction()

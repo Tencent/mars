@@ -179,6 +179,8 @@ int32_t CStr2Int32Safe(const char* a, int32_t default_num);
 
 void to_lower(std::string& str);
 void to_upper(std::string& str);
+std::string cast_lower(const std::string& str);
+std::string cast_upper(const std::string& str);
 
 #if __cplusplus > 201103L
 template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
@@ -247,6 +249,11 @@ std::string to_string(T* v) {
     std::stringstream ss;
     ss << std::hex << std::uppercase << (uint64_t)(v);
     return ss.str();
+}
+
+template <typename T, std::enable_if_t<std::is_member_function_pointer<decltype(&T::to_string)>::value, bool> = true>
+std::string to_string(const T& v) {
+    return v.to_string();
 }
 
 template <class T>
