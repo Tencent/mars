@@ -81,7 +81,7 @@ bool FrequencyLimit::Check(const mars::stn::Task& _task, const void* _buffer, in
                     iarr_record_[find_index].hash_,
                     iarr_record_[find_index].count_,
                     iarr_record_[find_index].time_last_update_);
-            xassert2(false);
+            // xassert2(false);
 
             return false;
         }
