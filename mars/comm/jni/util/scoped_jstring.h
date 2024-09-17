@@ -22,9 +22,12 @@
 
 #include <jni.h>
 
+#include <string>
+
 class ScopedJstring {
  public:
     ScopedJstring(JNIEnv* _env, jstring _jstr);
+    ScopedJstring(JNIEnv* _env, const std::string& _string);
     ScopedJstring(JNIEnv* _env, const char* _char);
 
     ~ScopedJstring();

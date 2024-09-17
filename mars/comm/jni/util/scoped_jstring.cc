@@ -38,6 +38,31 @@ ScopedJstring::ScopedJstring(JNIEnv* _env, jstring _jstr)
     char_ = env_->GetStringUTFChars(jstr_, NULL);
 }
 
+ScopedJstring::ScopedJstring(JNIEnv* _env, const std::string& _string)
+: env_(_env), jstr_(NULL), char_(_string.c_str()), jstr2char_(false) {
+    ASSERT(env_);
+    if (NULL == env_ || NULL == _string.c_str()) {
+        return;
+    }
+
+    if (env_->ExceptionOccurred()) {
+        return;
+    }
+
+    jclass strClass = env_->FindClass("java/lang/String");
+    jmethodID ctorID = env_->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
+
+    jbyteArray bytes = env_->NewByteArray((jsize)strlen(char_));
+    env_->SetByteArrayRegion(bytes, 0, (jsize)strlen(char_), (jbyte*)char_);
+    jstring encoding = env_->NewStringUTF("utf-8");
+
+    jstr_ = (jstring)env_->NewObject(strClass, ctorID, bytes, encoding);
+
+    env_->DeleteLocalRef(bytes);
+    env_->DeleteLocalRef(encoding);
+    env_->DeleteLocalRef(strClass);
+}
+
 ScopedJstring::ScopedJstring(JNIEnv* _env, const char* _char)
 : env_(_env), jstr_(NULL), char_(_char), jstr2char_(false) {
     ASSERT(env_);
