@@ -489,7 +489,7 @@ class Callback {
                          int& error_code,
                          const int channel_select,
                          const std::string& host,
-                         const unsigned short client_sequence_id) = 0;
+                         const uint16_t client_sequence_id) = 0;
     // 底层回包返回给上层解析
     virtual int Buf2Resp(uint32_t _taskid,
                          void* const _user_context,
@@ -499,7 +499,7 @@ class Callback {
                          int& _error_code,
                          uint64_t& _flags,
                          const int _channel_select,
-                         unsigned short& server_sequence_id) = 0;
+                         uint16_t& server_sequence_id) = 0;
     // 任务执行结束
     virtual int OnTaskEnd(uint32_t _taskid,
                           void* const _user_context,
