@@ -20,6 +20,8 @@
 #ifndef SRC_SHORTLINK_INTERFACE_H_
 #define SRC_SHORTLINK_INTERFACE_H_
 
+#include <condition_variable>
+
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/messagequeue/callback.h"
 #include "mars/stn/stn.h"
@@ -70,7 +72,10 @@ class ShortLinkInterface {
     boost::function<void(uint32_t _tls_version, mars::stn::TlsHandshakeFrom _from)> OnHandshakeCompleted;
     boost::function<SOCKET(const IPPortItem& _address)> GetCacheSocket;
 
-    std::function<size_t(const std::string& _user_id, std::vector<std::string>& _hostlist)> func_host_filter;
+    std::function<size_t(const std::string& _user_id,
+                         std::vector<std::string>& _hostlist,
+                         const std::map<std::string, std::string>& extra_info)>
+        func_host_filter;
     std::function<void(bool _connect_timeout, struct tcp_info& _info)> func_add_weak_net_info;
     std::function<void(bool _timeout, struct tcp_info& _info)> func_weak_net_report;
 
@@ -82,9 +87,9 @@ class ShortLinkInterface {
     boost::function<
         void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid, std::string _user_id)>
         fun_notify_retry_all_tasks;
-    //不用使用callback, retry会delete shortlink, 但callback会锁住mutex
-    //    CallBack<boost::function<void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid,
-    //    std::string _user_id)>> fun_notify_retry_all_tasks;
+    // 不用使用callback, retry会delete shortlink, 但callback会锁住mutex
+    //     CallBack<boost::function<void(ErrCmdType _err_type, int _err_code, int _fail_handle, uint32_t _src_taskid,
+    //     std::string _user_id)>> fun_notify_retry_all_tasks;
 
     boost::function<void(int _line,
                          ErrCmdType _err_type,
@@ -101,7 +106,11 @@ class ShortLinkInterface {
     std::function<void(bool _is_reused, bool _has_received, bool _is_decode_ok)> OnSocketPoolReport;
     std::function<void(IPPortItem item, ConnectProfile& _conn_profile)> OnSocketPoolTryAddCache;
 
-    std::function<void(const int _error_type, const int _error_code, const int _use_ip_index)> task_connection_detail_;
+    std::function<void(const int _error_type,
+                       const int _error_code,
+                       const int _use_ip_index,
+                       const std::map<std::string, std::string>& extra_info)>
+        task_connection_detail_;
     boost::function<
         int(ErrCmdType _err_type, int _err_code, int _fail_handle, const Task& _task, unsigned int _taskcosttime)>
         fun_callback_;
@@ -139,6 +148,18 @@ class ShortLinkInterface {
     CallBack<boost::function<void(ShortLinkInterface* _worker, bool before)>> OnIncreateRemainRetryCount;
     CallBack<boost::function<void(ShortLinkInterface* _worker)>> OnSetLastFailedStatus;
     CallBack<boost::function<void(ShortLinkInterface* worker, ConnectProfile connect_profile)>> OnUpdateConnectProfile;
+    CallBack<boost::function<
+        void(ShortLinkInterface* _worker, uint64_t begin_check_auth_time, uint64_t end_check_auth_time)>>
+        OnTotalCheckAuthTime;
+    CallBack<boost::function<
+        void(ShortLinkInterface* _worker, uint64_t begin_make_sure_auth_time, uint64_t end_make_sure_auth_time)>>
+        OnMakeSureAuthTime;
+    CallBack<boost::function<void(ShortLinkInterface* _worker, FirstAuthFlag first_auth_flag)>> OnSetFirstAuthFlag;
+
+    std::mutex auth_mtx;
+    std::condition_variable auth_cv;
+    std::atomic<bool> is_authed{false};
+    std::atomic<bool> on_destroy{false};
 };
 
 }  // namespace stn

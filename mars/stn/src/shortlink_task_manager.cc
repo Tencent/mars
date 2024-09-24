@@ -311,6 +311,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         ++next;
 
         if (first->running_id) {
+            if (first->task.need_authed && is_handle_reqresp_buff_in_worker_) {
+                __CheckAuthAndNotify(first);
+            }
+
             ++sent_count;
             first = next;
             continue;
@@ -373,7 +377,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
         size_t realhost_cnt = hosts.size();
         if (get_real_host_) {
             first->transfer_profile.begin_first_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic);
+            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/config.use_quic, task.extra_info);
             first->transfer_profile.end_first_get_host_time = gettickcount();
 
         } else {
@@ -386,7 +390,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             config = ShortlinkConfig(first->use_proxy, /*use_tls=*/true, m_tls_group_name_);
             hosts = task.shortlink_host_list;
             first->transfer_profile.begin_retry_get_host_time = gettickcount();
-            realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false);
+            if (get_real_host_) {
+                realhost_cnt = get_real_host_(task.user_id, hosts, /*_strict_match=*/false, task.extra_info);
+            }
             first->transfer_profile.end_retry_get_host_time = gettickcount();
         }
 
@@ -406,21 +412,42 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                   first->task.cgi,
                   host,
                   first->task.need_authed);
-        // make sure login
-        if (first->task.need_authed) {
-            first->transfer_profile.begin_make_sure_auth_time = gettickcount();
-            bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
-            first->transfer_profile.end_make_sure_auth_time = gettickcount();
-            xinfo2_if(!first->task.long_polling && first->task.priority >= 0,
-                      TSF "auth result %_ host %_",
-                      ismakesureauthsuccess,
-                      host);
 
-            if (!ismakesureauthsuccess) {
-                xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
-                first = next;
-                continue;
+        if (!is_handle_reqresp_buff_in_worker_) {
+            if (first->transfer_profile.begin_check_auth_time == 0) {
+                // transfer profile will reset on RedoTask
+                first->transfer_profile.begin_check_auth_time = ::gettickcount();
             }
+            // make sure login
+            if (first->task.need_authed) {
+                first->transfer_profile.begin_make_sure_auth_time = gettickcount();
+                bool ismakesureauthsuccess =
+                    context_->GetManager<StnManager>()->MakesureAuthed(host, first->task.user_id);
+                first->transfer_profile.end_make_sure_auth_time = gettickcount();
+                xinfo2_if(!first->task.long_polling && first->task.priority >= 0,
+                          TSF "auth result %_ host %_",
+                          ismakesureauthsuccess,
+                          host);
+                if (first->is_first_check_auth) {
+                    first->first_auth_flag =
+                        ismakesureauthsuccess ? FirstAuthFlag::kAlreadyAuth : FirstAuthFlag::kWaitAuth;
+                    first->is_first_check_auth = false;
+                }
+                if (!ismakesureauthsuccess) {
+                    xinfo2_if(curtime % 3 == 1, TSF "makeSureAuth retsult=%0", ismakesureauthsuccess);
+                    first = next;
+                    continue;
+                }
+            } else {
+                first->first_auth_flag = FirstAuthFlag::kNoNeedAuth;
+                first->is_first_check_auth = false;
+            }
+            first->transfer_profile.end_check_auth_time = ::gettickcount();
+            xdebug2(TSF "taskid: %_, first_auth_flag: %_, total AuthTime: %_, taskstart2checkauth: %_",
+                    first->task.taskid,
+                    static_cast<uint64_t>(first->first_auth_flag),
+                    first->transfer_profile.end_check_auth_time - first->transfer_profile.begin_check_auth_time,
+                    first->transfer_profile.end_check_auth_time - first->start_task_time);
         }
 
         bool use_tls = true;
@@ -483,6 +510,7 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                 AutoBuffer body;
                 AutoBuffer extension;
                 int err_code = 0;
+                uint64_t flags = 0;
                 unsigned short server_sequence_id = 0;
                 body.Write(intercept_data.data(), intercept_data.length());
                 first->transfer_profile.received_size = body.Length();
@@ -494,8 +522,10 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                                body,
                                                                                extension,
                                                                                err_code,
+                                                                               flags,
                                                                                Task::kChannelShort,
-                                                                               server_sequence_id);
+                                                                               server_sequence_id,
+                                                                               first->task.extra_info);
                 xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
                 first->task.server_sequence_id = server_sequence_id;
                 ConnectProfile profile;
@@ -531,7 +561,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                                      net_source_,
                                                                      first->task,
                                                                      config);
-        worker->func_host_filter = get_real_host_strict_match_;
+        if (get_real_host_strict_match_) {
+            worker->func_host_filter = get_real_host_strict_match_;
+        }
         worker->func_add_weak_net_info =
             std::bind(&ShortLinkTaskManager::__OnAddWeakNetInfo, this, std::placeholders::_1, std::placeholders::_2);
         worker->OnSend.set(boost::bind(&ShortLinkTaskManager::__OnSend, this, _1), worker, AYNC_HANDLER);
@@ -590,7 +622,9 @@ void ShortLinkTaskManager::__RunOnStartTask() {
                                                         std::placeholders::_1,
                                                         std::placeholders::_2);
 
-            worker->task_connection_detail_ = task_connection_detail_;
+            if (task_connection_detail_) {
+                worker->task_connection_detail_ = task_connection_detail_;
+            }
             worker->fun_callback_ = fun_callback_;
             worker->on_timeout_or_remote_shutdown_ = on_timeout_or_remote_shutdown_;
 
@@ -637,6 +671,16 @@ void ShortLinkTaskManager::__RunOnStartTask() {
             worker->OnSetLastFailedStatus.set(boost::bind(&ShortLinkTaskManager::__OnSetLastFailedStatus, this, _1),
                                               worker,
                                               AYNC_HANDLER);
+            worker->OnTotalCheckAuthTime.set(
+                boost::bind(&ShortLinkTaskManager::__OnTotalCheckAuthTime, this, _1, _2, _3),
+                worker,
+                AYNC_HANDLER);
+            worker->OnMakeSureAuthTime.set(boost::bind(&ShortLinkTaskManager::__OnMakeSureAuthTime, this, _1, _2, _3),
+                                           worker,
+                                           AYNC_HANDLER);
+            worker->OnSetFirstAuthFlag.set(boost::bind(&ShortLinkTaskManager::__OnSetFirstAuthFlag, this, _1, _2),
+                                           worker,
+                                           AYNC_HANDLER);
         }
         first->running_id = (intptr_t)worker;
 
@@ -772,6 +816,7 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
     it->transfer_profile.last_receive_pkg_time = ::gettickcount();
 
     int err_code = 0;
+    uint64_t flags = 0;
     unsigned short server_sequence_id = 0;
     it->transfer_profile.begin_buf2resp_time = gettickcount();
     int handle_type = context_->GetManager<StnManager>()->Buf2Resp(it->task.taskid,
@@ -780,8 +825,10 @@ void ShortLinkTaskManager::__OnResponse(ShortLinkInterface* _worker,
                                                                    _body,
                                                                    _extension,
                                                                    err_code,
+                                                                   flags,
                                                                    Task::kChannelShort,
-                                                                   server_sequence_id);
+                                                                   server_sequence_id,
+                                                                   it->task.extra_info);
     xinfo2_if(it->task.priority >= 0, TSF "err_code %_ ", err_code);
     xinfo2(TSF "server_sequence_id:%_", server_sequence_id);
     it->transfer_profile.end_buf2resp_time = gettickcount();
@@ -1124,7 +1171,7 @@ bool ShortLinkTaskManager::__SingleRespHandle(std::list<TaskProfile>::iterator _
         }
 
         if (task_connection_detail_) {
-            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index);
+            task_connection_detail_(_err_type, _err_code, _connect_profile.ip_index, _it->task.extra_info);
         }
 
         int cgi_retcode = fun_callback_(_err_type,
@@ -1450,5 +1497,66 @@ void ShortLinkTaskManager::__OnUpdateConnectProfile(ShortLinkInterface* _worker,
     std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
     if (lst_cmd_.end() != it) {
         it->transfer_profile.connect_profile = _connect_profile;
+    }
+}
+
+void ShortLinkTaskManager::__OnTotalCheckAuthTime(ShortLinkInterface* _worker,
+                                                  uint64_t begin_check_auth_time,
+                                                  uint64_t end_check_auth_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_check_auth_time = begin_check_auth_time;
+        it->transfer_profile.end_check_auth_time = end_check_auth_time;
+        xdebug2(TSF "taskid: %_, first_auth_flag: %_, total AuthTime: %_, taskstart2checkauth: %_",
+                it->task.taskid,
+                static_cast<uint64_t>(it->first_auth_flag),
+                end_check_auth_time - begin_check_auth_time,
+                end_check_auth_time - it->start_task_time);
+    }
+}
+
+void ShortLinkTaskManager::__OnSetFirstAuthFlag(ShortLinkInterface* _worker, FirstAuthFlag first_auth_flag) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        if (it->is_first_check_auth) {
+            // only set once
+            it->first_auth_flag = first_auth_flag;
+            it->is_first_check_auth = false;
+        }
+    }
+}
+
+void ShortLinkTaskManager::__OnMakeSureAuthTime(ShortLinkInterface* _worker,
+                                                uint64_t begin_make_sure_auth_time,
+                                                uint64_t end_make_sure_auth_time) {
+    std::list<TaskProfile>::iterator it = __LocateBySeq((intptr_t)_worker);
+    if (lst_cmd_.end() != it) {
+        it->transfer_profile.begin_make_sure_auth_time = begin_make_sure_auth_time;
+        it->transfer_profile.end_make_sure_auth_time = end_make_sure_auth_time;
+    }
+}
+
+void ShortLinkTaskManager::__CheckAuthAndNotify(std::list<TaskProfile>::iterator _it) {
+    ShortLinkInterface* worker_ = reinterpret_cast<ShortLinkInterface*>(_it->running_id);
+    if (worker_->is_authed.load()) {
+        xdebug2(TSF "taskid: %_, Worker Thread already async_auth", _it->task.taskid);
+    } else {
+        std::string host = _it->task.shortlink_host_list.front();
+        _it->transfer_profile.begin_make_sure_auth_time = gettickcount();
+        bool ismakesureauthsuccess = context_->GetManager<StnManager>()->MakesureAuthed(host, _it->task.user_id);
+        _it->transfer_profile.end_make_sure_auth_time = gettickcount();
+        xdebug2(TSF "taskid: %_, TaskManager RunLoop Check async_auth, auth result %_ host %_",
+                _it->task.taskid,
+                ismakesureauthsuccess,
+                host);
+        if (ismakesureauthsuccess) {
+            {
+                std::lock_guard<std::mutex> auth_lock(worker_->auth_mtx);
+                // lock on write is_authed
+                worker_->is_authed.store(ismakesureauthsuccess);
+            }
+            xinfo2(TSF "taskid: %_, TaskManager RunLoop async_auth, notify auth_cv", _it->task.taskid);
+            worker_->auth_cv.notify_one();
+        }
     }
 }

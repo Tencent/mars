@@ -24,9 +24,9 @@
 #include <stdint.h>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "mars/comm/autobuffer.h"
 #include "mars/stn/stn.h"
@@ -187,7 +187,9 @@ extern bool MakesureAuthed(const std::string& _host, const std::string& _user_id
 extern void TrafficData(ssize_t _send, ssize_t _recv);
 
 //底层询问上层该host对应的ip列表
-extern std::vector<std::string> OnNewDns(const std::string& _host, bool _longlink_host);
+extern std::vector<std::string> OnNewDns(const std::string& _host,
+                                         bool _longlink_host,
+                                         const std::map<std::string, std::string>& _extra_info);
 //网络层收到push消息回调
 extern void OnPush(const std::string& _channel_id,
                    uint32_t _cmdid,
@@ -211,6 +213,7 @@ extern int Buf2Resp(uint32_t taskid,
                     const AutoBuffer& inbuffer,
                     const AutoBuffer& extend,
                     int& error_code,
+                    uint64_t& flags,
                     const int channel_select,
                     unsigned short& server_sequence_id);
 //任务执行结束

@@ -300,6 +300,8 @@ struct TransferProfile {
         end_req2buf_time = 0;
         begin_buf2resp_time = 0;
         end_buf2resp_time = 0;
+        begin_check_auth_time = 0;
+        end_check_auth_time = 0;
     }
 
     const Task task;  // change "const Task& task" to "const Task task". fix a memory reuse bug.
@@ -332,6 +334,8 @@ struct TransferProfile {
     uint64_t end_req2buf_time;
     uint64_t begin_buf2resp_time;
     uint64_t end_buf2resp_time;
+    uint64_t begin_check_auth_time;
+    uint64_t end_check_auth_time;
 };
 
 struct PrepareProfile {
@@ -361,6 +365,13 @@ enum TaskFailStep {
     kStepOther,
     kStepTimeout,
     kStepServer,
+};
+
+enum class FirstAuthFlag : uint64_t {
+    kInitAuthFlag = 0UL,  // 0: 初始状态
+    kAlreadyAuth = 1UL,   // 1: 第一次就auth成功
+    kNoNeedAuth = 2UL,    // 2: 无须auth
+    kWaitAuth = 3UL       // 3: 等待auth
 };
 
 struct TaskProfile {
@@ -418,6 +429,9 @@ struct TaskProfile {
         // mars2
         is_weak_network = false;
         is_last_valid_connect_fail = false;
+        // auth flag
+        first_auth_flag = FirstAuthFlag::kInitAuthFlag;
+        is_first_check_auth = true;
     }
 
     void InitSendParam() {
@@ -482,6 +496,9 @@ struct TaskProfile {
     // mars2
     bool is_weak_network;
     bool is_last_valid_connect_fail;
+
+    FirstAuthFlag first_auth_flag;
+    bool is_first_check_auth;
 };
 
 void __SetLastFailedStatus(std::list<TaskProfile>::iterator _it);

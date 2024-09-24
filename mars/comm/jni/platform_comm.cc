@@ -242,7 +242,7 @@ int getNetInfo(bool realtime /*=false*/) {
     jint netType = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getNetInfo).i;
     g_NetInfo = netType;
 
-    xinfo2(TSF "getNetInfo from JAVA %_", netType);
+    xdebug2(TSF "getNetInfo from JAVA %_", netType);
     return (int)netType;
 }
 

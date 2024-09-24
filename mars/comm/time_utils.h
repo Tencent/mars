@@ -35,6 +35,11 @@
 extern "C" {
 #endif
 
+#define MINUTE2SEC (60)
+#define HOUR2SEC (MINUTE2SEC * 60)
+#define DAY2SEC (HOUR2SEC * 24)
+#define WEEK2SEC (DAY2SEC * 7)
+
 uint64_t gettickcount();                  // ms
 int64_t gettickspan(uint64_t _old_tick);  // ms
 uint64_t timeMs();

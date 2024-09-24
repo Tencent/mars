@@ -28,6 +28,7 @@
 #endif  // WIN32
 #include "comm/strutil.h"
 #include "comm/xlogger/xlogger.h"
+#include "comm/xlogger/xloggerbase.h"
 
 namespace http {
 
@@ -703,6 +704,15 @@ Parser::~Parser() {
     }
 }
 
+namespace {
+const char* dump_last_4k(const void* buffer, size_t length) {
+    size_t parambuf_dumplen = std::min<size_t>(length, 4096);
+    const auto* parambuf_ptr = reinterpret_cast<const unsigned char*>(buffer);
+    const unsigned char* parambuf_dumpptr = parambuf_ptr + (length - parambuf_dumplen);
+    return xlogger_memory_dump(parambuf_dumpptr, parambuf_dumplen);
+}
+};  // namespace
+
 Parser::TRecvStatus Parser::Recv(const void* _buffer,
                                  size_t _length,
                                  size_t* consumed_bytes,
@@ -902,10 +912,12 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                         } else if (int64_t(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
                             appendlen = int64_t(recvbuf_.Length());
                         else {
-                            xwarn2(TSF "recv len bigger than contentlen, (%_, %_, %_)",
+                            xwarn2(TSF "recv len bigger than contentlen, (%_, %_, %_), recvbuf\n%_ parambuf\n%_",
                                    recvbuf_.Length(),
                                    bodyreceiver_->Length(),
-                                   contentLength);
+                                   contentLength,
+                                   dump_last_4k(recvbuf_.Ptr(), recvbuf_.Length()),
+                                   dump_last_4k(_buffer, _length));
                             appendlen = contentLength - int64_t(bodyreceiver_->Length());
                         }
 
@@ -1264,4 +1276,9 @@ void URLFactory::AddKeyValue(const std::string& key, const std::string& value) {
         xwarn2(TSF "key:%_, prev val:%_, next val:%_", key, kvs_[key], value);
     }
     kvs_[key] = value;
+}
+
+void StringBody::AppendData(const void* _body, size_t _length) {
+    databuf_.append(reinterpret_cast<const char*>(_body), _length);
+    BodyReceiver::AppendData(_body, _length);
 }
