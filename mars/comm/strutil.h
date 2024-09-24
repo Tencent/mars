@@ -180,7 +180,6 @@ int32_t CStr2Int32Safe(const char* a, int32_t default_num);
 void to_lower(std::string& str);
 void to_upper(std::string& str);
 
-#if __cplusplus > 201103L
 template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
 std::string to_hex_string(const T& v) {
     std::stringstream hex_stream;
@@ -263,7 +262,6 @@ std::string join_to_string(const T& stl,
     }
     return rtn.append(postfix);
 }
-#endif
 }  // namespace strutil
 
 #endif  // COMM_STRUTIL_H_
