@@ -32,7 +32,7 @@ void __assert_rtn(const char*, const char*, int, const char*) __dead2;
 #define IS_ASSERT_ENABLE() 0
 #endif
 
-EXPORT_FUNC void __ASSERT(const char* _pfile, int _line, const char* _pfunc, const char* _pexpression) {
+void __ASSERT(const char* _pfile, int _line, const char* _pfunc, const char* _pexpression) {
     XLoggerInfo info = XLOGGER_INFO_INITIALIZER;
     char assertlog[4096] = {'\0'};
     snprintf(assertlog, sizeof(assertlog), "[ASSERT(%s)]", _pexpression);
