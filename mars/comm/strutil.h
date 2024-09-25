@@ -29,6 +29,7 @@
 namespace strutil {
 /////////////////////// string /////////////////////////////
 std::string& URLEncode(const std::string& url, std::string& encodeUrl);
+std::string URLEncode(const std::string& _url);
 
 std::string& TrimLeft(std::string& str);
 std::string& TrimRight(std::string& str);
