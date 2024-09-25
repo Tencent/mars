@@ -88,7 +88,7 @@ class AppManager : public mars::boot::BaseManager {
     std::unordered_map<std::string, std::string> types_;
 };
 
-std::string GetDefaultAppFilePath();
+AppManager* GetDefaultAppManager();
 }  // namespace app
 }  // namespace mars
 
