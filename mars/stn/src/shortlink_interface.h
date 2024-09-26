@@ -20,8 +20,6 @@
 #ifndef SRC_SHORTLINK_INTERFACE_H_
 #define SRC_SHORTLINK_INTERFACE_H_
 
-#include <condition_variable>
-
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/messagequeue/callback.h"
 #include "mars/stn/stn.h"

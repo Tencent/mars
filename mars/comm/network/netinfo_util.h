@@ -21,7 +21,6 @@
 #define SRC_NETINFO_UTIL_H_
 
 #include <string>
-#include <vector>
 
 typedef enum {
     kNetworkTypeUnknown,
