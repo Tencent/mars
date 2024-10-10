@@ -273,8 +273,6 @@ int getRealtimeNetLabel(std::string& netInfo);
 void FlushReachability();
 
 float publiccomponent_GetSystemVersion();
-
-int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain);
 #endif
 
 #ifdef ANDROID
