@@ -45,6 +45,11 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
     return false;
 }
 
+int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain) {
+    // todo tiemuhuaguo
+    return 0;
+}
+
 }  // namespace comm
 
 #ifndef OHOS

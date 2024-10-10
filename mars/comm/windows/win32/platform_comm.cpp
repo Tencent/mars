@@ -78,6 +78,12 @@ int getNetTypeForStatistics() {
 
 void OnPlatformNetworkChange() {
 }
+
+int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain) {
+    // todo tiemuhuaguo
+    return 0;
+}
+
 }  // namespace comm
 
 namespace xlog {
