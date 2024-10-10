@@ -22,8 +22,6 @@
 
 #include <jni.h>
 
-#include <string>
-
 class ScopedJstring {
  public:
     ScopedJstring(JNIEnv* _env, jstring _jstr);
