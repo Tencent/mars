@@ -47,7 +47,6 @@ Mutex g_net_mutex;
 // 参看 stn_logic.cc
 void OnPlatformNetworkChange() {
     xinfo_function();
-#ifdef ANDROID
     ScopedLock lock(g_net_mutex);
     g_NetInfo = kNoNet;
     g_last_networkchange_tick = gettickcount();
@@ -59,12 +58,11 @@ void OnPlatformNetworkChange() {
     g_apn_info.sub_nettype = 0;
     g_apn_info.extra_info.clear();
     lock.unlock();
-#endif
 }
 
 DEFINE_FIND_CLASS(KPlatformCommC2Java, "com/tencent/mars/comm/PlatformComm$C2Java")
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_startAlarm, KPlatformCommC2Java, "startAlarm", "(III)Z")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, startAlarm, "(III)Z")
 bool startAlarm(int type, int64_t id, int after) {
     xverbose_function();
     if (coroutine::isCoroutine())
@@ -79,7 +77,7 @@ bool startAlarm(int type, int64_t id, int after) {
     return (bool)ret;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_stopAlarm, KPlatformCommC2Java, "stopAlarm", "(I)Z")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, stopAlarm, "(I)Z")
 bool stopAlarm(int64_t id) {
     xverbose_function();
     if (coroutine::isCoroutine())
@@ -92,10 +90,7 @@ bool stopAlarm(int64_t id) {
     return (bool)ret;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getProxyInfo,
-                          KPlatformCommC2Java,
-                          "getProxyInfo",
-                          "(Ljava/lang/StringBuffer;)I")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getProxyInfo, "(Ljava/lang/StringBuffer;)I")
 bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     xverbose_function();
     if (coroutine::isCoroutine())
@@ -147,7 +142,7 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     return !strProxy.empty();
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getNetInfo, KPlatformCommC2Java, "getNetInfo", "()I")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getNetInfo, "()I")
 NetType getNetInfo(bool realtime /*=false*/) {
     xverbose_function();
     // 防止获取的信息不准确，切换网络后延迟 1min 再使用缓存信息，1min 这个值没什么讲究主要是做个延迟。
@@ -169,7 +164,7 @@ NetType getNetInfo(bool realtime /*=false*/) {
     return g_NetInfo;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getStatisticsNetType, KPlatformCommC2Java, "getStatisticsNetType", "()I")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getStatisticsNetType, "()I")
 NetTypeForStatistics getNetTypeForStatistics() {
     xverbose_function();
     VarCache* cacheInstance = VarCache::Singleton();
@@ -179,10 +174,7 @@ NetTypeForStatistics getNetTypeForStatistics() {
     return (NetTypeForStatistics)JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getStatisticsNetType).i;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo,
-                          KPlatformCommC2Java,
-                          "getCurRadioAccessNetworkInfo",
-                          "()I")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getCurRadioAccessNetworkInfo, "()I")
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     xverbose_function();
     // change interface calling to "getNetTypeForStatistics"
@@ -220,10 +212,7 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     return !_raninfo.radio_access_network.empty();
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo,
-                          KPlatformCommC2Java,
-                          "getCurWifiInfo",
-                          "()Lcom/tencent/mars/comm/PlatformComm$WifiInfo;")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getCurWifiInfo, "()Lcom/tencent/mars/comm/PlatformComm$WifiInfo;")
 bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     xverbose_function();
 
@@ -264,11 +253,7 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
 
     return true;
 }
-
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo,
-                          KPlatformCommC2Java,
-                          "getCurSIMInfo",
-                          "()Lcom/tencent/mars/comm/PlatformComm$SIMInfo;")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getCurSIMInfo, "()Lcom/tencent/mars/comm/PlatformComm$SIMInfo;")
 bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
     xverbose_function();
 
@@ -323,10 +308,7 @@ bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
     return true;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo,
-                          KPlatformCommC2Java,
-                          "getAPNInfo",
-                          "()Lcom/tencent/mars/comm/PlatformComm$APNInfo;")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getAPNInfo, "()Lcom/tencent/mars/comm/PlatformComm$APNInfo;")
 bool getAPNInfo(APNInfo& info) {
     xverbose_function();
 
@@ -376,7 +358,7 @@ bool getAPNInfo(APNInfo& info) {
     return true;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getSignal, KPlatformCommC2Java, "getSignal", "(Z)J")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, getSignal, "(Z)J")
 uint32_t getSignal(bool isWifi) {
     xverbose_function();
     if (coroutine::isCoroutine())
@@ -391,7 +373,7 @@ uint32_t getSignal(bool isWifi) {
     return (unsigned int)signal;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_isNetworkConnected, KPlatformCommC2Java, "isNetworkConnected", "()Z")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, isNetworkConnected, "()Z")
 bool isNetworkConnected() {
     xverbose_function();
     if (coroutine::isCoroutine())
@@ -409,10 +391,7 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
     return false;
 }
 
-DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new,
-                          KPlatformCommC2Java,
-                          "wakeupLock_new",
-                          "()Lcom/tencent/mars/comm/WakerLock;")
+DEFINE_FIND_STATIC_METHOD2(KPlatformCommC2Java, wakeupLock_new, "()Lcom/tencent/mars/comm/WakerLock;")
 void* wakeupLock_new() {
     xverbose_function();
 
