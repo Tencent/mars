@@ -9,12 +9,12 @@ namespace comm {
 void OnPlatformNetworkChange() {
 }
 
-int getNetInfo(bool) {
+NetType getNetInfo(bool) {
     return kWifi;
 }
 
-int getNetTypeForStatistics() {
-    return (int)NetTypeForStatistics::NETTYPE_UNKNOWN;
+NetTypeForStatistics getNetTypeForStatistics() {
+    return NetTypeForStatistics::NETTYPE_UNKNOWN;
 }
 
 bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& _info) {

@@ -15,22 +15,18 @@
  * author : yanguoyue
  */
 
-#include "../platform_comm.h"
+#include "mars/comm/platform_comm.h"
 
-#include <jni.h>
-#ifdef ANDROID
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
+#include <jni.h>
 
-#include "../xlogger/xlogger.h"
 #include "mars/boost/bind.hpp"
 #include "mars/boost/ref.hpp"
 #include "mars/comm/coroutine/coro_async.h"
 #include "mars/comm/coroutine/coroutine.h"
 #include "mars/comm/thread/lock.h"
 #include "mars/comm/time_utils.h"
+#include "mars/comm/xlogger/xlogger.h"
 #include "util/comm_function.h"
 #include "util/scope_jenv.h"
 #include "util/scoped_jstring.h"
@@ -38,23 +34,22 @@
 
 namespace mars {
 namespace comm {
-
-#ifdef ANDROID
-int g_NetInfo = 0;  // global cache netinfo for android
+#ifndef NATIVE_CALLBACK
+namespace {
+NetType g_NetInfo = kNoNet;  // global cache netinfo for android
 uint64_t g_last_networkchange_tick = gettickcount();
 WifiInfo g_wifi_info;
 SIMInfo g_sim_info;
 APNInfo g_apn_info;
 Mutex g_net_mutex;
-#endif
-
+}  // namespace
 // 把 platform 编译到相应 so 中时这个函数一定要被调用。不然缓存信息清除不了
 // 参看 stn_logic.cc
 void OnPlatformNetworkChange() {
     xinfo_function();
 #ifdef ANDROID
     ScopedLock lock(g_net_mutex);
-    g_NetInfo = 0;
+    g_NetInfo = kNoNet;
     g_last_networkchange_tick = gettickcount();
     g_wifi_info.ssid.clear();
     g_wifi_info.bssid.clear();
@@ -67,57 +62,11 @@ void OnPlatformNetworkChange() {
 #endif
 }
 
-#ifdef NATIVE_CALLBACK
-static std::weak_ptr<PlatformNativeCallback> platform_native_callback_instance;
-
-void SetPlatformNativeCallbackInstance(std::shared_ptr<PlatformNativeCallback> _cb) {
-    platform_native_callback_instance = _cb;
-}
-
-#define CALL_NATIVE_CALLBACK_RETURN_FUN(fun, default_value) \
-    {                                                       \
-        auto cb = platform_native_callback_instance.lock(); \
-        if (cb) {                                           \
-            return (cb->fun);                               \
-        }                                                   \
-        xwarn2("platform native callback is null");         \
-        return (default_value);                             \
-    }
-
-#define CALL_NATIVE_CALLBACK_VOID_FUN(fun)                  \
-    {                                                       \
-        auto cb = platform_native_callback_instance.lock(); \
-        if (cb) {                                           \
-            (cb->fun);                                      \
-            return;                                         \
-        }                                                   \
-        xwarn2("platform native callback is null");         \
-        return;                                             \
-    }
-
-#define DEFINE_FIND_EMPTY_STATIC_METHOD(methodid) const static JniMethodInfo methodid = JniMethodInfo("", "", "");
-
-#endif  // NATIVE_CALLBACK
-
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_CLASS(KPlatformCommC2Java, "com/tencent/mars/comm/PlatformComm$C2Java")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java)
-#endif
 
-#ifdef ANDROID
-
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_startAlarm, KPlatformCommC2Java, "startAlarm", "(III)Z")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_startAlarm)
-#endif
 bool startAlarm(int type, int64_t id, int after) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(startAlarm(type, id, after), false);
-#endif
-
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&startAlarm, type, id, after));
 
@@ -130,17 +79,9 @@ bool startAlarm(int type, int64_t id, int after) {
     return (bool)ret;
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_stopAlarm, KPlatformCommC2Java, "stopAlarm", "(I)Z")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_stopAlarm)
-#endif
 bool stopAlarm(int64_t id) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(stopAlarm(id), false);
-#endif
-
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&stopAlarm, id));
 
@@ -150,23 +91,13 @@ bool stopAlarm(int64_t id) {
     xdebug2(TSF "id= %0, ret= %1", id, (bool)ret);
     return (bool)ret;
 }
-#endif
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getProxyInfo,
                           KPlatformCommC2Java,
                           "getProxyInfo",
                           "(Ljava/lang/StringBuffer;)I")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getProxyInfo)
-#endif
 bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     xverbose_function();
-
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getProxyInfo(port, strProxy, _host), false);
-#endif
-
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&getProxyInfo, boost::ref(port), boost::ref(strProxy), _host));
 
@@ -216,17 +147,9 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
     return !strProxy.empty();
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getNetInfo, KPlatformCommC2Java, "getNetInfo", "()I")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getNetInfo)
-#endif
-int getNetInfo(bool realtime /*=false*/) {
+NetType getNetInfo(bool realtime /*=false*/) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getNetInfo(), -1);
-#endif
-
     // 防止获取的信息不准确，切换网络后延迟 1min 再使用缓存信息，1min 这个值没什么讲究主要是做个延迟。
     if (!realtime && g_NetInfo != 0 && gettickcount() >= g_last_networkchange_tick + 60 * 1000) {
         return g_NetInfo;
@@ -240,43 +163,28 @@ int getNetInfo(bool realtime /*=false*/) {
     JNIEnv* env = scopeJEnv.GetEnv();
 
     jint netType = JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getNetInfo).i;
-    g_NetInfo = netType;
+    g_NetInfo = (NetType)netType;
 
     xdebug2(TSF "getNetInfo from JAVA %_", netType);
-    return (int)netType;
+    return g_NetInfo;
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getStatisticsNetType, KPlatformCommC2Java, "getStatisticsNetType", "()I")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getStatisticsNetType)
-#endif
-int getNetTypeForStatistics() {
+NetTypeForStatistics getNetTypeForStatistics() {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getNetTypeForStatistics(), -1);
-#endif
-
     VarCache* cacheInstance = VarCache::Singleton();
     ScopeJEnv scopeJEnv(cacheInstance->GetJvm());
     JNIEnv* env = scopeJEnv.GetEnv();
 
-    return (int)JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getStatisticsNetType).i;
+    return (NetTypeForStatistics)JNU_CallStaticMethodByMethodInfo(env, KPlatformCommC2Java_getStatisticsNetType).i;
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo,
                           KPlatformCommC2Java,
                           "getCurRadioAccessNetworkInfo",
                           "()I")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo)
-#endif
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getCurRadioAccessNetworkInfo(_raninfo), false);
-#endif
     int netType = getNetTypeForStatistics();  // change interface calling to "getNetTypeForStatistics", because of
                                               // Android's network info method calling restrictions
 
@@ -327,19 +235,12 @@ bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     return !_raninfo.radio_access_network.empty();
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo,
                           KPlatformCommC2Java,
                           "getCurWifiInfo",
                           "()Lcom/tencent/mars/comm/PlatformComm$WifiInfo;")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurWifiInfo)
-#endif
 bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getCurWifiInfo(wifiInfo, _force_refresh), false);
-#endif
 
     if (!_force_refresh && !g_wifi_info.ssid.empty()) {
         wifiInfo = g_wifi_info;
@@ -379,19 +280,12 @@ bool getCurWifiInfo(WifiInfo& wifiInfo, bool _force_refresh) {
     return true;
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo,
                           KPlatformCommC2Java,
                           "getCurSIMInfo",
                           "()Lcom/tencent/mars/comm/PlatformComm$SIMInfo;")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getCurSIMInfo)
-#endif
 bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getCurSIMInfo(simInfo), false);
-#endif
 
     if (!realtime && !g_sim_info.isp_code.empty()) {
         simInfo = g_sim_info;
@@ -444,19 +338,12 @@ bool getCurSIMInfo(SIMInfo& simInfo, bool realtime /*=false*/) {
     return true;
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo,
                           KPlatformCommC2Java,
                           "getAPNInfo",
                           "()Lcom/tencent/mars/comm/PlatformComm$APNInfo;")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getAPNInfo)
-#endif
 bool getAPNInfo(APNInfo& info) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getAPNInfo(info), false);
-#endif
 
     if (g_apn_info.nettype >= kNoNet) {
         info = g_apn_info;
@@ -504,18 +391,9 @@ bool getAPNInfo(APNInfo& info) {
     return true;
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getSignal, KPlatformCommC2Java, "getSignal", "(Z)J")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_getSignal)
-#endif
-
-unsigned int getSignal(bool isWifi) {
+uint32_t getSignal(bool isWifi) {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(getSignal(isWifi), 0);
-#endif
-
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&getSignal, isWifi));
 
@@ -528,17 +406,9 @@ unsigned int getSignal(bool isWifi) {
     return (unsigned int)signal;
 }
 
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_isNetworkConnected, KPlatformCommC2Java, "isNetworkConnected", "()Z")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_isNetworkConnected)
-#endif
 bool isNetworkConnected() {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(isNetworkConnected(), false);
-#endif
-
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(&isNetworkConnected);
 
@@ -554,20 +424,12 @@ bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ip) {
     return false;
 }
 
-#ifdef ANDROID
-#ifndef NATIVE_CALLBACK
 DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new,
                           KPlatformCommC2Java,
                           "wakeupLock_new",
                           "()Lcom/tencent/mars/comm/WakerLock;")
-#else
-DEFINE_FIND_EMPTY_STATIC_METHOD(KPlatformCommC2Java_wakeupLock_new)
-#endif
 void* wakeupLock_new() {
     xverbose_function();
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(wakeupLock_new(), nullptr);
-#endif
 
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(&wakeupLock_new);
@@ -591,10 +453,6 @@ void* wakeupLock_new() {
 void wakeupLock_delete(void* _object) {
     xverbose_function();
     xdebug2(TSF "_object= %0", _object);
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_delete(_object));
-#endif
-
     if (NULL == _object)
         return;
 
@@ -611,9 +469,6 @@ void wakeupLock_Lock(void* _object) {
     xverbose_function();
     xassert2(_object);
     xdebug2(TSF "_object= %0", _object);
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_Lock(_object));
-#endif
 
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&wakeupLock_Lock, _object));
@@ -629,9 +484,6 @@ void wakeupLock_Lock_Timeout(void* _object, int64_t _timeout) {
     xassert2(_object);
     xassert2(0 < _timeout);
     xverbose2(TSF "_object= %0, _timeout= %1", _object, _timeout);
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_Lock_Timeout(_object, _timeout));
-#endif
 
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&wakeupLock_Lock_Timeout, _object, _timeout));
@@ -646,9 +498,6 @@ void wakeupLock_Unlock(void* _object) {
     xverbose_function();
     xassert2(_object);
     xdebug2(TSF "_object= %0", _object);
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_VOID_FUN(wakeupLock_Unlock(_object));
-#endif
 
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&wakeupLock_Unlock, _object));
@@ -662,9 +511,6 @@ void wakeupLock_Unlock(void* _object) {
 bool wakeupLock_IsLocking(void* _object) {
     xverbose_function();
     xassert2(_object);
-#ifdef NATIVE_CALLBACK
-    CALL_NATIVE_CALLBACK_RETURN_FUN(wakeupLock_IsLocking(_object), false);
-#endif
 
     if (coroutine::isCoroutine())
         return coroutine::MessageInvoke(boost::bind(&wakeupLock_IsLocking, _object));
@@ -677,7 +523,111 @@ bool wakeupLock_IsLocking(void* _object) {
     return (bool)ret;
 }
 
-#ifdef ANDROID
+#else   // #ifndef NATIVE_CALLBACK
+
+namespace {
+std::shared_ptr<NetworkInfoCallback> s_default_network_cb = std::make_shared<NetworkInfoCallback>();
+std::shared_ptr<AlarmCallback> s_default_alarm_cb = std::make_shared<AlarmCallback>();
+std::shared_ptr<WakeUpLockCallback> s_default_wakeup_lock_cb = std::make_shared<WakeUpLockCallback>();
+
+std::weak_ptr<NetworkInfoCallback> s_network_cb;
+std::weak_ptr<AlarmCallback> s_alarm_cb;
+std::weak_ptr<WakeUpLockCallback> s_wakeup_lock_cb;
+
+std::shared_ptr<NetworkInfoCallback> getNetworkInfoCallback() {
+    auto cb = s_network_cb.lock();
+    if (cb) {
+        return cb;
+    }
+    xerror2("no network info callback");
+    return s_default_network_cb;
+}
+std::shared_ptr<AlarmCallback> getAlarmCallback() {
+    auto cb = s_alarm_cb.lock();
+    if (cb) {
+        return cb;
+    }
+    xerror2("no alarm callback");
+    return s_default_alarm_cb;
+}
+std::shared_ptr<WakeUpLockCallback> getWakeUpLockCallback() {
+    auto cb = s_wakeup_lock_cb.lock();
+    if (cb) {
+        return cb;
+    }
+    xerror2("no wakeup lock callback");
+    return s_default_wakeup_lock_cb;
+}
+}  // namespace
+
+void SetNetworkInfoCallback(const std::shared_ptr<NetworkInfoCallback>& _cb) {
+    s_network_cb = _cb;
+}
+void SetAlarmCallback(const std::shared_ptr<AlarmCallback>& _cb) {
+    s_alarm_cb = _cb;
+}
+void SetWakeUpLockCallback(const std::shared_ptr<WakeUpLockCallback>& _cb) {
+    s_wakeup_lock_cb = _cb;
+}
+
+bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
+    return getNetworkInfoCallback()->getProxyInfo(port, strProxy, _host);
+}
+bool getAPNInfo(APNInfo& info) {
+    return getNetworkInfoCallback()->getAPNInfo(info);
+}
+NetType getNetInfo(bool realtime) {
+    return getNetworkInfoCallback()->getNetInfo(realtime);
+}
+NetTypeForStatistics getNetTypeForStatistics() {
+    return getNetworkInfoCallback()->getNetTypeForStatistics();
+}
+bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _info) {
+    return getNetworkInfoCallback()->getCurRadioAccessNetworkInfo(_info);
+}
+bool getCurWifiInfo(WifiInfo& _wifi_info, bool _force_refresh) {
+    return getNetworkInfoCallback()->getCurWifiInfo(_wifi_info, _force_refresh);
+}
+bool getCurSIMInfo(SIMInfo& _sim_info, bool realtime) {
+    return getNetworkInfoCallback()->getCurSIMInfo(_sim_info, realtime);
+}
+uint32_t getSignal(bool isWifi) {
+    return getNetworkInfoCallback()->getSignal(isWifi);
+}
+bool isNetworkConnected() {
+    return getNetworkInfoCallback()->isNetworkConnected();
+}
+bool getifaddrs_ipv4_hotspot(std::string& _ifname, std::string& _ifip) {
+    return getNetworkInfoCallback()->getIfAddrsIpv4HotSpot(_ifname, _ifip);
+}
+
+bool startAlarm(int type, int64_t id, int after) {
+    return getAlarmCallback()->startAlarm(type, id, after);
+}
+bool stopAlarm(int64_t id) {
+    return getAlarmCallback()->stopAlarm(id);
+}
+
+void* wakeupLock_new() {
+    return getWakeUpLockCallback()->wakeupLock_new();
+}
+void wakeupLock_delete(void* _object) {
+    getWakeUpLockCallback()->wakeupLock_delete(_object);
+}
+void wakeupLock_Lock(void* _object) {
+    getWakeUpLockCallback()->wakeupLock_Lock(_object);
+}
+void wakeupLock_Lock_Timeout(void* _object, int64_t _timeout) {
+    getWakeUpLockCallback()->wakeupLock_Lock_Timeout(_object, _timeout);
+}
+void wakeupLock_Unlock(void* _object) {
+    getWakeUpLockCallback()->wakeupLock_Unlock(_object);
+}
+bool wakeupLock_IsLocking(void* _object) {
+    return getWakeUpLockCallback()->wakeupLock_IsLocking(_object);
+}
+#endif  // #ifndef NATIVE_CALLBACK
+
 std::string GetCurrentProcessName() {
     static std::string cmdline;
     if (!cmdline.empty())
@@ -695,7 +645,6 @@ std::string GetCurrentProcessName() {
     close(fd);
     return cmdline;
 }
-#endif
-}
-}
-#endif
+
+}  // namespace comm
+}  // namespace mars
