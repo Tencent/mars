@@ -185,45 +185,30 @@ DEFINE_FIND_STATIC_METHOD(KPlatformCommC2Java_getCurRadioAccessNetworkInfo,
                           "()I")
 bool getCurRadioAccessNetworkInfo(RadioAccessNetworkInfo& _raninfo) {
     xverbose_function();
-    int netType = getNetTypeForStatistics();  // change interface calling to "getNetTypeForStatistics", because of
-                                              // Android's network info method calling restrictions
-
-    /**
-        NETTYPE_NOT_WIFI = 0;
-        NETTYPE_WIFI = 1;
-        NETTYPE_WAP = 2;
-        NETTYPE_2G = 3;
-        NETTYPE_3G = 4;
-        NETTYPE_4G = 5;
-        NETTYPE_UNKNOWN = 6;
-        NETTYPE_5G = 7;
-        NETTYPE_NON = -1;
-    **/
+    // change interface calling to "getNetTypeForStatistics"
+    // because of Android's network info method calling restrictions
+    NetTypeForStatistics netType = getNetTypeForStatistics();
 
     switch (netType) {
-        case -1:
-        case 0:
-        case 6:
+        case NETTYPE_NON:
+        case NETTYPE_NOT_WIFI:
+        case NETTYPE_UNKNOWN:
             break;
-        case 1:
+        case NETTYPE_WIFI:
             _raninfo.radio_access_network = WIFI;
             break;
 
-        case 2:
-        case 3:
+        case NETTYPE_WAP:
+        case NETTYPE_2G:
             _raninfo.radio_access_network = GPRS;
             break;
 
-        case 4:
+        case NETTYPE_3G:
             _raninfo.radio_access_network = WCDMA;
             break;
 
-        case 5:
-            _raninfo.radio_access_network = LTE;
-            break;
-
-        case 7:
-            // _raninfo.radio_access_network = G5;  // consider it to "4G" though it may be real "5G".
+        case NETTYPE_4G:
+        case NETTYPE_5G:
             _raninfo.radio_access_network = LTE;
             break;
 
