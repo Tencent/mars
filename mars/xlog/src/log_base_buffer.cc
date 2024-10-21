@@ -64,6 +64,7 @@ bool LogBaseBuffer::GetPeriodLogsWithTimeoutMs(const std::string& _log_path,
     Result result;
     bool recv_succ = chan->RecvWithTimeoutMs(result, _timeout_ms);
     if (!recv_succ || !result.succ) {
+        _err_msg + "recv_succ:" + std::to_string(recv_succ) + ", result.succ:" + std::to_string(result.succ);
         return false;
     }
     _begin_pos = result.begin_pos;
