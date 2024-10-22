@@ -27,6 +27,9 @@ include_directories(owl)
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} *.cc *.c *.h)
 list(APPEND SELF_SRC_FILES ${SELF_TEMP_SRC_FILES})
+if (USE_EXTERNAL_TINYXML2)
+    list(REMOVE_ITEM SELF_SRC_FILES "tinyxml2.cc")
+endif()
 
 file(GLOB SELF_TEMP_SRC_FILES RELATIVE ${PROJECT_SOURCE_DIR} alarm/*.cc alarm/*.h)
 source_group(assert FILES ${SELF_TEMP_SRC_FILES})
