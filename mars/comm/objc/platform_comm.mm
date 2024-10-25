@@ -210,7 +210,7 @@ NetType getNetInfo(bool realtime /*=false*/) {
 }
 
 NetTypeForStatistics getNetTypeForStatistics() {
-    int type = getNetInfo(false);
+    NetType type = getNetInfo(false);
     if (mars::comm::kWifi == type) {
         return mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
     }
