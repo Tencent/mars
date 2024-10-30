@@ -58,7 +58,7 @@ bool LogBaseBuffer::GetPeriodLogsWithTimeoutMs(const std::string& _log_path,
     auto chan = std::make_shared<mars::comm::Channel<Result>>(1);
     std::thread([=]() {
         Result res;
-        GetPeriodLogs(_log_path.c_str(), _begin_hour, _end_hour, res.begin_pos, res.end_pos, res.err_msg);
+        res.succ = GetPeriodLogs(_log_path.c_str(), _begin_hour, _end_hour, res.begin_pos, res.end_pos, res.err_msg);
         chan->Send(res);
     }).detach();
     Result result;
