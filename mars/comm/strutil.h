@@ -276,7 +276,6 @@ template <class T>
 std::string join_to_string_for_log(const T& stl) {
     return join_to_string(stl, ",", "{", "}");
 }
-#endif
 }  // namespace strutil
 
 #endif  // COMM_STRUTIL_H_
