@@ -20,6 +20,11 @@
 #ifndef SRC_SHORTLINK_INTERFACE_H_
 #define SRC_SHORTLINK_INTERFACE_H_
 
+#include <condition_variable>
+#include <mutex>
+#include <atomic>
+#include <functional>
+#include <mars/boost/function.hpp>
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/messagequeue/callback.h"
 #include "mars/stn/stn.h"
@@ -30,7 +35,7 @@ namespace stn {
 
 class ShortLinkInterface {
  public:
-    virtual ~ShortLinkInterface(){};
+    virtual ~ShortLinkInterface()= default;;
     virtual void SendRequest() = 0;
     virtual void SetSentCount(int sent_count) = 0;
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _buffer_extend) = 0;
