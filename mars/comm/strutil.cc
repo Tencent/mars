@@ -59,6 +59,12 @@ std::string& URLEncode(const std::string& _url, std::string& _encode_url) {
     return _encode_url;
 }
 
+std::string URLEncode(const std::string& _url) {
+    std::string encode_url;
+    URLEncode(_url, encode_url);
+    return encode_url;
+}
+
 #define TRIMLEFT(T)                              \
     T& TrimLeft(T& str) {                        \
         T& t = str;                              \
@@ -321,6 +327,10 @@ size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos
         return it - str.begin();
     else
         return std::string::npos;  // not found
+}
+
+std::string BufferMD5(const std::string &buf) {
+    return BufferMD5(buf.data(), buf.size());
 }
 
 std::string BufferMD5(const void* buffer, size_t size) {

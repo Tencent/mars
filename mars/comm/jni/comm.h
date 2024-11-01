@@ -6,6 +6,9 @@
 #define MMNET_COMM_H
 #include <jni.h>
 
+#include <cstdlib>
+#include <cstring>
+
 class ByteArrayFromJava {
  private:
     unsigned char* ptr;

@@ -24,7 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <algorithm>
+#include <cstdio>
+#include <thread>
 
+#include "mars/comm/channel.h"
 #include "xlog/crypt/log_crypt.h"
 #include "xlog/crypt/log_magic_num.h"
 
@@ -34,6 +37,38 @@
 
 namespace mars {
 namespace xlog {
+
+// GetPeriodLogs在 iOS 上可能卡死，原因未知，可能是死锁
+bool LogBaseBuffer::GetPeriodLogsWithTimeoutMs(const std::string& _log_path,
+                                               int _begin_hour,
+                                               int _end_hour,
+                                               unsigned long& _begin_pos,
+                                               unsigned long& _end_pos,
+                                               std::string& _err_msg,
+                                               const uint32_t _timeout_ms) {
+    struct Result {
+        bool succ = false;
+        unsigned long begin_pos = 0;
+        unsigned long end_pos = 0;
+        std::string err_msg;
+    };
+    auto chan = std::make_shared<mars::comm::Channel<Result>>(1);
+    std::thread([=]() {
+        Result res;
+        res.succ = GetPeriodLogs(_log_path.c_str(), _begin_hour, _end_hour, res.begin_pos, res.end_pos, res.err_msg);
+        chan->Send(res);
+    }).detach();
+    Result result;
+    bool recv_succ = chan->RecvWithTimeoutMs(result, _timeout_ms);
+    if (!recv_succ || !result.succ) {
+        _err_msg + "recv_succ:" + std::to_string(recv_succ) + ", result.succ:" + std::to_string(result.succ);
+        return false;
+    }
+    _begin_pos = result.begin_pos;
+    _end_pos = result.end_pos;
+    _err_msg = result.err_msg;
+    return true;
+}
 
 bool LogBaseBuffer::GetPeriodLogs(const char* _log_path,
                                   int _begin_hour,
@@ -310,7 +345,7 @@ void LogBaseBuffer::__Clear() {
 
 void LogBaseBuffer::__Fix() {
     uint32_t raw_log_len = 0;
-    if (log_crypt_->Fix((char*) buff_.Ptr(), buff_.Length(), raw_log_len)) {
+    if (log_crypt_->Fix((char*)buff_.Ptr(), buff_.Length(), raw_log_len)) {
         if (raw_log_len + log_crypt_->GetHeaderLen() >= buff_.MaxLength()) {
             raw_log_len = buff_.MaxLength() - log_crypt_->GetHeaderLen() - log_crypt_->GetTailerLen();
         }

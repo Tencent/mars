@@ -24,12 +24,8 @@ class Channel {
         list_.push_back(std::move(t));
         cv_.notify_one();
     }
-    T Recv() {
-        T t;
-        RecvWithTimeoutMs(t, INT64_MAX);
-        return t;
-    }
-    bool RecvWithTimeoutMs(T& t, uint64_t timeout_ms) {
+    // timeout_ms是INT64_MAX的话会溢出
+    bool RecvWithTimeoutMs(T& t, uint32_t timeout_ms) {
         std::unique_lock<std::mutex> lock(mtx_);
         if (!list_.empty()) {
             t = std::move(list_.front());

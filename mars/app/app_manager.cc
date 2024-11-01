@@ -196,10 +196,11 @@ void AppManager::ClearProxyInfo() {
     proxy_info_.type = mars::comm::kProxyNone;
 }
 // #endif
-std::string GetDefaultAppFilePath() {
+
+AppManager* GetDefaultAppManager() {
     auto* context = mars::boot::Context::CreateContext("default");
     auto* manager = context->GetManager<mars::app::AppManager>();
-    return manager->GetAppFilePath();
+    return manager;
 }
 
 }  // namespace app

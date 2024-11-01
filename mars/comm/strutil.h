@@ -29,6 +29,7 @@
 namespace strutil {
 /////////////////////// string /////////////////////////////
 std::string& URLEncode(const std::string& url, std::string& encodeUrl);
+std::string URLEncode(const std::string& _url);
 
 std::string& TrimLeft(std::string& str);
 std::string& TrimRight(std::string& str);
@@ -169,6 +170,7 @@ std::string GetFileNameFromPath(const char* _path);
 // find substring (case insensitive)
 size_t ci_find_substr(const std::string& str, const std::string& sub, size_t pos);
 std::string BufferMD5(const void* buffer, size_t size);
+std::string BufferMD5(const std::string& buf);
 std::string MD5DigestToBase16(const uint8_t digest[16]);
 std::string DigestToBase16(const uint8_t* digest, size_t length);
 
@@ -257,9 +259,9 @@ std::string to_string(const T& v) {
 
 template <class T>
 std::string join_to_string(const T& stl,
-                           const std::string& seperator = ",",
-                           const std::string& prefix = "{",
-                           const std::string& postfix = "}") {
+                           const std::string& seperator,
+                           const std::string& prefix,
+                           const std::string& postfix) {
     if (stl.empty()) {
         return {};
     }
@@ -269,6 +271,12 @@ std::string join_to_string(const T& stl,
     }
     return rtn.append(postfix);
 }
+
+template <class T>
+std::string join_to_string_for_log(const T& stl) {
+    return join_to_string(stl, ",", "{", "}");
+}
+#endif
 }  // namespace strutil
 
 #endif  // COMM_STRUTIL_H_

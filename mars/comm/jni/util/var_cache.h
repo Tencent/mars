@@ -125,4 +125,16 @@ bool AddMethod(const char* const _classname, const char* const _methodname, cons
     VARIABLE_IS_NOT_USED static bool b_##methodid = AddMethod(classname, methodname, methodsig); \
     VARIABLE_IS_NOT_USED const static JniMethodInfo methodid = JniMethodInfo(classname, methodname, methodsig);
 
+// 展开后和DEFINE_FIND_STATIC_METHOD完全一样，不需要调用方通过classname和 methodname拼出methodid
+#define DEFINE_FIND_STATIC_METHOD2(classname, methodname, methodsig)           \
+    VARIABLE_IS_NOT_USED static bool b_static_##classname##_##methodname =     \
+        AddStaticMethod(classname, #methodname, methodsig);                    \
+    VARIABLE_IS_NOT_USED const static JniMethodInfo classname##_##methodname = \
+        JniMethodInfo(classname, #methodname, methodsig);
+
+#define DEFINE_FIND_METHOD2(classname, methodname, methodsig)                                                     \
+    VARIABLE_IS_NOT_USED static bool b_##classname##_##methodname = AddMethod(classname, #methodname, methodsig); \
+    VARIABLE_IS_NOT_USED const static JniMethodInfo classname##_##methodname =                                    \
+        JniMethodInfo(classname, #methodname, methodsig);
+
 #endif
