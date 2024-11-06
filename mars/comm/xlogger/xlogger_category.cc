@@ -69,7 +69,7 @@ void XloggerCategory::__WriteImpl(const XLoggerInfo* _info, const char* _log) {
     if (!appender_func_) {
         return;
     }
-    if (_info->level < level_) {
+    if (_info && _info->level < level_) {
         return;
     }
 
