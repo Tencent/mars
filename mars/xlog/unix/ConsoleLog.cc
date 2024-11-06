@@ -5,6 +5,7 @@
 #include "mars/comm/xlogger/loginfo_extract.h"
 #include "mars/comm/xlogger/xlogger.h"
 
+namespace mars {
 namespace xlog {
 void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
     if (NULL == _info || NULL == _log)
@@ -33,3 +34,4 @@ void ConsoleLog(const XLoggerInfo* _info, const char* _log) {
     printf("%s", log);
 }
 }  // namespace xlog
+}  // namespace mars
