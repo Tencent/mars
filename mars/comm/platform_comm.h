@@ -364,4 +364,64 @@ std::string GetCurrentProcessName();
 }  // namespace comm
 }  // namespace mars
 
+inline bool IsApple() {
+#if defined(__APPLE__)
+    return true;
+#else
+    return false;
+#endif
+}
+inline bool IsOSX() {
+#if !defined(__APPLE__)
+    return false;
+#else
+#include "TargetConditionals.h"
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+    return false;
+#else
+    return true;
+#endif
+#endif
+}
+inline bool IsIOS() {
+#if defined(__APPLE__)
+#include "TargetConditionals.h"
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+    return true;
+#else
+    return false;
+#endif
+#else
+    return false;
+#endif
+}
+inline bool IsWindows() {
+#if defined(_WIN32)
+    return true;
+#else
+    return false;
+#endif
+}
+inline bool IsAndroid() {
+#if defined(__ANDROID__)
+    return true;
+#else
+    return false;
+#endif
+}
+inline bool IsOHOS() {
+#if defined(OHOS)
+    return true;
+#else
+    return false;
+#endif
+}
+inline bool IsLinux() {
+#if defined(LINUX) && !defined(__ANDROID__) && !defined(OHOS) && !defined(__APPLE__)
+    return true;
+#else
+    return false;
+#endif
+}
+
 #endif /* COMM_PLATFORM_COMM_H_ */
