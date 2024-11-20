@@ -15,7 +15,6 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/strutil.h": "comm",
     "mars/comm/string_cast.h": "comm",
     "mars/comm/comm_data.h": "comm",
-    "mars/comm/projdef.h": "comm",
     "mars/comm/platform_comm.h": "comm",
     "mars/comm/socket/local_ipstack.h": "comm",
     "mars/comm/socket/nat64_prefix_util.h": "comm",
@@ -65,7 +64,6 @@ COMM_COPY_HEADER_FILES = {
 
 WIN_COPY_EXT_FILES = {
     "mars/comm/platform_comm.h": "comm",
-    "mars/comm/windows/projdef.h": "comm/windows",
     "mars/comm/windows/sys/cdefs.h": "comm/windows/sys",
     "mars/comm/windows/sys/time.h": "comm/windows/sys",
     "mars/comm/windows/zlib/zlib.h": "comm/windows/zlib",
@@ -85,7 +83,6 @@ XLOG_COPY_HEADER_FILES = {
     "mars/comm/strutil.h": "comm",
     "mars/comm/string_cast.h": "comm",
     "mars/comm/comm_data.h": "comm",
-    "mars/comm/projdef.h": "comm",
     "mars/comm/socket/local_ipstack.h": "comm",
     "mars/comm/socket/nat64_prefix_util.h": "comm",
     "mars/comm/has_member.h": "comm",

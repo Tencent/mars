@@ -26,7 +26,7 @@
 #define __STDC_FORMAT_MACROS
 #include <strings.h>
 #else
-#include "projdef.h"
+
 #endif
 #include <inttypes.h>
 #include <string.h>
@@ -373,6 +373,18 @@ class number_cast<const char*> {
     bool vaild_;
 };
 
+namespace mars {
+namespace comm {
+inline int StrCaseCmp(const char* ch1, const char* ch2) {
+#ifdef _WIN32
+    return _stricmp(ch1, ch2);
+#else
+    return strcasecmp(ch1, ch2);
+#endif  // _WIN32
+}
+}
+}
+
 template <>
 class number_cast<bool> {
  public:
@@ -386,11 +398,11 @@ class number_cast<bool> {
         if (vec_split.empty()) {
             return;
         }
-        if (vec_split[0] == "1" || 0 == strcasecmp("true", vec_split[0].c_str())) {
+        if (vec_split[0] == "1" || 0 == mars::comm::StrCaseCmp("true", vec_split[0].c_str())) {
             vaild_ = true;
             value_ = true;
         }
-        if (vec_split[0] == "0" || 0 == strcasecmp("false", vec_split[0].c_str())) {
+        if (vec_split[0] == "0" || 0 == mars::comm::StrCaseCmp("false", vec_split[0].c_str())) {
             vaild_ = true;
             value_ = false;
         }
