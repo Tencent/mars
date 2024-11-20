@@ -59,7 +59,7 @@ boost::signals2::signal<void()>& GetSignalOnNetworkChange() {
     return SignalOnNetworkChange;
 }
 
-boost::signals2::signal<void(const char* _tag, ssize_t _send, ssize_t _recv)>& GetSignalOnNetworkDataChange() {
+boost::signals2::signal<void(const char* _tag, int64_t _send, int64_t _recv)>& GetSignalOnNetworkDataChange() {
     static boost::signals2::signal<void(const char* _tag, ssize_t _send, ssize_t _recv)> SignalOnNetworkDataChange;
     return SignalOnNetworkDataChange;
 }
