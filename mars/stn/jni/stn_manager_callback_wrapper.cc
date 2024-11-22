@@ -50,7 +50,7 @@ bool StnManagerJniCallback::MakesureAuthed(const std::string& _host, const std::
 }
 
 DEFINE_FIND_METHOD(KC2Java_trafficData, KC2Java, "trafficData", "(II)V")
-void StnManagerJniCallback::TrafficData(ssize_t _send, ssize_t _recv) {
+void StnManagerJniCallback::TrafficData(int64_t _send, int64_t _recv) {
     VarCache* cache_instance = VarCache::Singleton();
     ScopeJEnv scope_jenv(cache_instance->GetJvm());
     JNIEnv* env = scope_jenv.GetEnv();

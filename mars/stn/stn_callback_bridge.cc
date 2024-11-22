@@ -63,7 +63,7 @@ bool StnCallbackBridge::MakesureAuthed(const std::string& _host, const std::stri
     // #endif
 }
 
-void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
+void StnCallbackBridge::TrafficData(int64_t _send, int64_t _recv) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     sg_callback->TrafficData(_send, _recv);
@@ -290,7 +290,7 @@ bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
 };
 
 // 流量统计
-void TrafficData(ssize_t _send, ssize_t _recv) {
+void TrafficData(int64_t _send, int64_t _recv) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->TrafficData(_send, _recv);
 };

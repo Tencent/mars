@@ -22,7 +22,7 @@ class StnManagerJniCallback : public Callback {
 
  public:
     virtual bool MakesureAuthed(const std::string& _host, const std::string& _user_id) override;
-    virtual void TrafficData(ssize_t _send, ssize_t _recv) override;
+    virtual void TrafficData(int64_t _send, int64_t _recv) override;
     virtual std::vector<std::string> OnNewDns(const std::string& host, bool _longlink_host) override;
     virtual void OnPush(const std::string& _channel_id,
                         uint32_t _cmdid,

@@ -133,7 +133,7 @@ class StnNativeCallback {
                                             const AutoBuffer& _identify_buffer_hash) {
         return false;
     }
-    virtual void TrafficData(ssize_t _send, ssize_t _recv) {
+    virtual void TrafficData(int64_t _send, int64_t _recv) {
     }
     virtual void ReportConnectStatus(int _all_connstatus, int _longlink_connstatus) {
     }

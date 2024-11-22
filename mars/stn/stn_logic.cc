@@ -178,7 +178,7 @@ static void onNetworkChange(void (*pre_change)()) {
     }
 }
 
-static void OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {
+static void OnNetworkDataChange(const char* _tag, int64_t _send, int64_t _recv) {
     /* mars2
     if (NULL == _tag || strnlen(_tag, 1024) == 0) {
         xassert2(false);
@@ -583,7 +583,7 @@ bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
 }
 
 //流量统计
-void TrafficData(ssize_t _send, ssize_t _recv) {
+void TrafficData(int64_t _send, int64_t _recv) {
     StnManager* stn_manager = Context::CreateContext("default")->GetManager<StnManager>();
     xassert2(NULL != stn_manager, "mars2 stn_manager is empty.");
     if (stn_manager) {

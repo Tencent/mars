@@ -125,7 +125,7 @@ void StnManager::OnNetworkChange(void (*pre_change)()) {
         net_core_->OnNetworkChange();
     }
 }
-void StnManager::OnNetworkDataChange(const char* _tag, ssize_t _send, ssize_t _recv) {
+void StnManager::OnNetworkDataChange(const char* _tag, int64_t _send, int64_t _recv) {
     if (NULL == _tag || strnlen(_tag, 1024) == 0) {
         xassert2(false);
         return;
@@ -192,7 +192,7 @@ bool StnManager::MakesureAuthed(const std::string& _host, const std::string& _us
 }
 
 // 流量统计
-void StnManager::TrafficData(ssize_t _send, ssize_t _recv) {
+void StnManager::TrafficData(int64_t _send, int64_t _recv) {
     xassert2(callback_bridge_ != NULL);
     if (callback_bridge_) {
         callback_bridge_->TrafficData(_send, _recv);
