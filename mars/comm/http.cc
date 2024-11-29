@@ -419,10 +419,11 @@ uint32_t HeaderFields::KeepAliveTimeout() const {
     std::vector<std::string> tokens;
     strutil::SplitToken(aliveConfig, ",", tokens);
     auto iter = tokens.begin();
+    size_t timeout_token_len = strlen(KStringKeepAliveTimeout);
     while (iter != tokens.end()) {
         size_t pos = iter->find(KStringKeepAliveTimeout);
         if (pos != std::string::npos) {
-            const char* value = iter->c_str() + sizeof(KStringKeepAliveTimeout);
+            const char* value = iter->c_str() + timeout_token_len;
             int timeout = (int)strtol(value, NULL, 10);
             if (timeout > 0 && timeout < 60)
                 return (uint32_t)timeout;
