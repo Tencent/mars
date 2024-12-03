@@ -201,7 +201,7 @@ void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
         PtrBuffer tmp((void*)recursion_str.data(), 0, kMaxDumpLength);
         log_formater(&info, recursive_log, tmp);
 
-        if (recursion_str.capacity() >= strnlen(_log, kMaxDumpLength)) {
+        if (_log && recursion_str.capacity() >= strnlen(_log, kMaxDumpLength)) {
             recursion_str += _log;
         }
 
