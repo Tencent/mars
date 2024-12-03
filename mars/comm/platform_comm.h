@@ -417,7 +417,9 @@ inline bool IsOHOS() {
 #endif
 }
 inline bool IsLinux() {
-#if defined(LINUX) && !defined(__ANDROID__) && !defined(OHOS) && !defined(__APPLE__)
+#if defined(__ANDROID__) || defined(OHOS) || defined(__APPLE__)
+    return false;
+#elif defined(LINUX) || defined(__linux) || defined(__linux__) || defined(__LINUX) || defined(__LINUX__)
     return true;
 #else
     return false;

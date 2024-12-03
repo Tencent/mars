@@ -197,7 +197,7 @@ NetType getNetInfo(bool realtime /*=false*/) {
     return mars::comm::kWifi;
 #endif
 
-    switch (__GetNetworkStatus(realtime ? YES : NO)) {
+    switch (__GetNetworkStatus(realtime)) {
         case NotReachable:
             return mars::comm::kNoNet;
         case ReachableViaWiFi:
