@@ -50,10 +50,14 @@ namespace internal {
 int OpenFile(const std::string& file, int flag, int mode) {
 #ifdef WIN32
     std::wstring wpath = string2wstring(file);
-    return _wopen(wpath.c_str(), flag, mode);
+    int fd = _wopen(wpath.c_str(), flag, mode);
 #else
-    return open(file.c_str(), flag, mode);
+    int fd = open(file.c_str(), flag, mode);
 #endif
+    if (fd == -1) {
+        xerror2(TSF "path:%_, flag:%_, mode:%_, err:%_", file, flag, mode, errno);
+    }
+    return fd;
 }
 
 #ifdef WIN32

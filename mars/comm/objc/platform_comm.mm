@@ -189,7 +189,7 @@ bool getProxyInfo(int& port, std::string& strProxy, const std::string& _host) {
 
 void OnPlatformNetworkChange() {}
 
-int getNetInfo(bool realtime /*=false*/) {
+NetType getNetInfo(bool realtime /*=false*/) {
     xverbose_function();
     SCOPE_POOL();
 
@@ -197,7 +197,7 @@ int getNetInfo(bool realtime /*=false*/) {
     return mars::comm::kWifi;
 #endif
 
-    switch (__GetNetworkStatus(realtime ? YES : NO)) {
+    switch (__GetNetworkStatus(realtime)) {
         case NotReachable:
             return mars::comm::kNoNet;
         case ReachableViaWiFi:
@@ -209,31 +209,31 @@ int getNetInfo(bool realtime /*=false*/) {
     }
 }
 
-int getNetTypeForStatistics() {
-    int type = getNetInfo(false);
+NetTypeForStatistics getNetTypeForStatistics() {
+    NetType type = getNetInfo(false);
     if (mars::comm::kWifi == type) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
+        return mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
     }
     if (mars::comm::kNoNet == type) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
+        return mars::comm::NetTypeForStatistics::NETTYPE_NON;
     }
 
     mars::comm::RadioAccessNetworkInfo rani;
     if (!getCurRadioAccessNetworkInfo(rani)) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
+        return mars::comm::NetTypeForStatistics::NETTYPE_NON;
     }
 
     if (rani.Is2G()) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_2G;
+        return mars::comm::NetTypeForStatistics::NETTYPE_2G;
     } else if (rani.Is3G()) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_3G;
+        return mars::comm::NetTypeForStatistics::NETTYPE_3G;
     } else if (rani.Is4G()) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_4G;
+        return mars::comm::NetTypeForStatistics::NETTYPE_4G;
     } else if (rani.IsNR()) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_5G;
+        return mars::comm::NetTypeForStatistics::NETTYPE_5G;
     }
 
-    return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
+    return mars::comm::NetTypeForStatistics::NETTYPE_NON;
 }
 
 unsigned int getSignal(bool isWifi) {

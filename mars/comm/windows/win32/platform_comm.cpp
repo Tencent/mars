@@ -33,7 +33,7 @@ bool getCurRadioAccessNetworkInfo(struct RadioAccessNetworkInfo& info) {
     return false;
 }
 
-int getNetInfo(bool realtime /* = false*/) {
+NetType getNetInfo(bool realtime /* = false*/) {
     xverbose_function();
 
     return isNetworkConnected() ? kWifi : kNoNet;
@@ -67,17 +67,23 @@ bool getAPNInfo(APNInfo& info) {
     return false;
 }
 
-int getNetTypeForStatistics() {
-    int type = getNetInfo();
+NetTypeForStatistics getNetTypeForStatistics() {
+    NetType type = getNetInfo();
     if (mars::comm::kWifi == type) {
-        return (int)mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
+        return mars::comm::NetTypeForStatistics::NETTYPE_WIFI;
     }
 
-    return (int)mars::comm::NetTypeForStatistics::NETTYPE_NON;
+    return mars::comm::NetTypeForStatistics::NETTYPE_NON;
 }
 
 void OnPlatformNetworkChange() {
 }
+
+int OSVerifyCertificate(const std::string& hostname, const std::vector<std::string>& certschain) {
+    // todo tiemuhuaguo
+    return 0;
+}
+
 }  // namespace comm
 
 namespace xlog {

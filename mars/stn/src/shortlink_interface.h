@@ -21,7 +21,10 @@
 #define SRC_SHORTLINK_INTERFACE_H_
 
 #include <condition_variable>
-
+#include <mutex>
+#include <atomic>
+#include <functional>
+#include <mars/boost/function.hpp>
 #include "mars/comm/autobuffer.h"
 #include "mars/comm/messagequeue/callback.h"
 #include "mars/stn/stn.h"
@@ -32,7 +35,7 @@ namespace stn {
 
 class ShortLinkInterface {
  public:
-    virtual ~ShortLinkInterface(){};
+    virtual ~ShortLinkInterface()= default;;
     virtual void SendRequest() = 0;
     virtual void SetSentCount(int sent_count) = 0;
     virtual void SendRequest(AutoBuffer& _buffer_req, AutoBuffer& _buffer_extend) = 0;
@@ -154,6 +157,7 @@ class ShortLinkInterface {
     CallBack<boost::function<
         void(ShortLinkInterface* _worker, uint64_t begin_make_sure_auth_time, uint64_t end_make_sure_auth_time)>>
         OnMakeSureAuthTime;
+    CallBack<boost::function<void(ShortLinkInterface* _worker, FirstAuthFlag first_auth_flag)>> OnSetFirstAuthFlag;
 
     std::mutex auth_mtx;
     std::condition_variable auth_cv;

@@ -704,15 +704,6 @@ Parser::~Parser() {
     }
 }
 
-namespace {
-const char* dump_last_4k(const void* buffer, size_t length) {
-    size_t parambuf_dumplen = std::min<size_t>(length, 4096);
-    const auto* parambuf_ptr = reinterpret_cast<const unsigned char*>(buffer);
-    const unsigned char* parambuf_dumpptr = parambuf_ptr + (length - parambuf_dumplen);
-    return xlogger_memory_dump(parambuf_dumpptr, parambuf_dumplen);
-}
-};  // namespace
-
 Parser::TRecvStatus Parser::Recv(const void* _buffer,
                                  size_t _length,
                                  size_t* consumed_bytes,
@@ -912,12 +903,10 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                         } else if (int64_t(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
                             appendlen = int64_t(recvbuf_.Length());
                         else {
-                            xwarn2(TSF "recv len bigger than contentlen, (%_, %_, %_), recvbuf\n%_ parambuf\n%_",
+                            xwarn2(TSF "recv len bigger than contentlen, (%_, %_, %_)",
                                    recvbuf_.Length(),
                                    bodyreceiver_->Length(),
-                                   contentLength,
-                                   dump_last_4k(recvbuf_.Ptr(), recvbuf_.Length()),
-                                   dump_last_4k(_buffer, _length));
+                                   contentLength);
                             appendlen = contentLength - int64_t(bodyreceiver_->Length());
                         }
 
@@ -1273,9 +1262,9 @@ class TestBodyReceiver : public BodyReceiver {
 
 void URLFactory::AddKeyValue(const std::string& key, const std::string& value) {
     if (kvs_.find(key) != kvs_.end()) {
-        xwarn2(TSF "key:%_, prev val:%_, next val:%_", key, kvs_[key], strutil::to_string(value));
+        xwarn2(TSF "key:%_, prev val:%_, next val:%_", key, kvs_[key], value);
     }
-    kvs_[key] = strutil::to_string(value);
+    kvs_[key] = value;
 }
 
 void StringBody::AppendData(const void* _body, size_t _length) {

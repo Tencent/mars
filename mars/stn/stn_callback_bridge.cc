@@ -63,7 +63,7 @@ bool StnCallbackBridge::MakesureAuthed(const std::string& _host, const std::stri
     // #endif
 }
 
-void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
+void StnCallbackBridge::TrafficData(int64_t _send, int64_t _recv) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     sg_callback->TrafficData(_send, _recv);
@@ -72,7 +72,9 @@ void StnCallbackBridge::TrafficData(ssize_t _send, ssize_t _recv) {
     // #endif
 }
 
-std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host, bool _longlink_host, const std::map<std::string, std::string>& _extra_info) {
+std::vector<std::string> StnCallbackBridge::OnNewDns(const std::string& _host,
+                                                     bool _longlink_host,
+                                                     const std::map<std::string, std::string>& _extra_info) {
     // #if !defined(ANDROID) || defined(CPP_CALL_BACK)
     xassert2(sg_callback != NULL);
     return sg_callback->OnNewDns(_host, _longlink_host);
@@ -125,6 +127,7 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                 const AutoBuffer& _inbuffer,
                                 const AutoBuffer& _extend,
                                 int& _error_code,
+                                uint64_t& _flags,
                                 const int _channel_select,
                                 unsigned short& server_sequence_id,
                                 const std::map<std::string, std::string>& _extra_info) {
@@ -136,6 +139,7 @@ int StnCallbackBridge::Buf2Resp(uint32_t _taskid,
                                  _inbuffer,
                                  _extend,
                                  _error_code,
+                                 _flags,
                                  _channel_select,
                                  server_sequence_id);
     // #else
@@ -286,7 +290,7 @@ bool MakesureAuthed(const std::string& _host, const std::string& _user_id) {
 };
 
 // 流量统计
-void TrafficData(ssize_t _send, ssize_t _recv) {
+void TrafficData(int64_t _send, int64_t _recv) {
     xassert2(sg_callback_bridge != NULL);
     return sg_callback_bridge->TrafficData(_send, _recv);
 };

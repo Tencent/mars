@@ -20,6 +20,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+// 编译时在最上方引用本文件，可强制保证WinSock2.h在Windows.h之前被引用。
+#include <WinSock2.h>
+#include <Windows.h>
 
 #ifdef __cplusplus
 extern "C" {

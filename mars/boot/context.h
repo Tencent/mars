@@ -7,10 +7,10 @@
 
 #include <atomic>
 #include <map>
-#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "base_manager.h"
 

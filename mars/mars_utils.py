@@ -15,19 +15,24 @@ COMM_COPY_HEADER_FILES = {
     "mars/comm/strutil.h": "comm",
     "mars/comm/string_cast.h": "comm",
     "mars/comm/comm_data.h": "comm",
-    "mars/comm/projdef.h": "comm",
     "mars/comm/platform_comm.h": "comm",
     "mars/comm/socket/local_ipstack.h": "comm",
     "mars/comm/socket/nat64_prefix_util.h": "comm",
     "mars/comm/has_member.h": "comm",
     "mars/comm/objc/scope_autoreleasepool.h": "comm",
     "mars/comm/objc/ThreadOperationQueue.h": "comm",
+
+    "mars/comm/jni/util/JNI_OnLoad.h": "comm/jni/util",
+    "mars/comm/jni/util/scope_jenv.h": "comm/jni/util",
+    "mars/comm/jni/util/var_cache.h": "comm/jni/util",
+
     "mars/comm/socket/unix_socket.h": "comm/socket",
     "mars/comm/network/netinfo_util.h": "comm/network",
 
     "mars/comm/xlogger/preprocessor.h": "xlog",
     "mars/comm/xlogger/xloggerbase.h": "xlog",
     "mars/comm/xlogger/xlogger.h": "xlog",
+    "mars/comm/xlogger/loginfo_extract.h": "xlog",
 
     "mars/boot/context.h": "boot",
     "mars/boot/base_manager.h": "boot",
@@ -38,8 +43,6 @@ COMM_COPY_HEADER_FILES = {
     "mars/stn/stn_manager.h": "stn",
     "mars/stn/task_profile.h": "stn",
     "mars/stn/proto/stnproto_logic.h": "stn",
-    "mars/stn/proto/shortlink_packer.h": "stn/proto",
-    "mars/stn/proto/longlink_packer.h": "stn/proto",
 
     "mars/baseevent/base_logic.h": "baseevent",
 
@@ -55,11 +58,12 @@ COMM_COPY_HEADER_FILES = {
     "mars/sdt/sdt_manager.h": "sdt",
     "mars/sdt/constants.h": "sdt",
     "mars/sdt/netchecker_profile.h": "sdt",
+
+    "mars/zstd/lib/zstd.h": "",
 }
 
 WIN_COPY_EXT_FILES = {
     "mars/comm/platform_comm.h": "comm",
-    "mars/comm/windows/projdef.h": "comm/windows",
     "mars/comm/windows/sys/cdefs.h": "comm/windows/sys",
     "mars/comm/windows/sys/time.h": "comm/windows/sys",
     "mars/comm/windows/zlib/zlib.h": "comm/windows/zlib",
@@ -79,7 +83,6 @@ XLOG_COPY_HEADER_FILES = {
     "mars/comm/strutil.h": "comm",
     "mars/comm/string_cast.h": "comm",
     "mars/comm/comm_data.h": "comm",
-    "mars/comm/projdef.h": "comm",
     "mars/comm/socket/local_ipstack.h": "comm",
     "mars/comm/socket/nat64_prefix_util.h": "comm",
     "mars/comm/has_member.h": "comm",

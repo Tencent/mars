@@ -21,7 +21,6 @@
 #define LOGBASEBUFFER_H_
 
 #include <stdint.h>
-#include <zlib.h>
 
 #include <string>
 
@@ -45,6 +44,14 @@ class LogBaseBuffer {
                               unsigned long& _begin_pos,
                               unsigned long& _end_pos,
                               std::string& _err_msg);
+
+    static bool GetPeriodLogsWithTimeoutMs(const std::string& _log_path,
+                                           int _begin_hour,
+                                           int _end_hour,
+                                           unsigned long& _begin_pos,
+                                           unsigned long& _end_pos,
+                                           std::string& _err_msg,
+                                           const uint32_t _timeout_ms);
 
  public:
     PtrBuffer& GetData();
