@@ -15,6 +15,8 @@
 #include <openssl/opensslconf_android-x86.h>
 #elif defined(__x86_64__)
 #include <openssl/opensslconf_android-x86_64.h>
+#elif defined(__riscv)
+#include <openssl/opensslconf_android-riscv64.h>
 #else
 # error Unable to determine arch not included in OpenSSL build
 #endif 
