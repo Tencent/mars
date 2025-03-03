@@ -72,6 +72,10 @@ if(ANDROID)
         list(APPEND SELF_SRC_FILES
                 libs/context/src/asm/jump_x86_64_sysv_elf_gas.S
                 libs/context/src/asm/make_x86_64_sysv_elf_gas.S)
+    elseif(ANDROID_ABI STREQUAL riscv64)
+        list(APPEND SELF_SRC_FILES
+                libs/context/src/asm/jump_riscv64_sysv_elf_gas.S
+                libs/context/src/asm/make_riscv64_sysv_elf_gas.S)
     endif()
 
 endif()
