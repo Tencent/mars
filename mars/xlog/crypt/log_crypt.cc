@@ -41,6 +41,7 @@ namespace xlog {
 
 const static int TEA_BLOCK_LEN = 8;
 
+#ifndef XLOG_NO_CRYPT
 static void __TeaEncrypt(uint32_t* v, uint32_t* k) {
     uint32_t v0 = v[0], v1 = v[1], sum = 0, i;
     const static uint32_t delta = 0x9e3779b9;
@@ -53,6 +54,7 @@ static void __TeaEncrypt(uint32_t* v, uint32_t* k) {
     v[0] = v0;
     v[1] = v1;
 }
+#endif
 
 static uint16_t __GetSeq(bool _is_async) {
     if (!_is_async) {
