@@ -18,6 +18,8 @@
 # include <openssl/opensslconf_watchos_arm64_32.h>
 #elif TARGET_OS_WATCH && TARGET_OS_SIMULATOR && TARGET_CPU_X86
 # include <openssl/opensslconf_watchos_sim_i386.h>
+#elif TARGET_OS_WATCH && TARGET_OS_SIMULATOR && TARGET_CPU_X86_64
+# include <openssl/opensslconf_watchos_sim_x86_64.h>
 #elif TARGET_OS_OSX && TARGET_CPU_X86_64
 # include <openssl/opensslconf_macos_x86_64.h>
 #elif TARGET_OS_OSX && TARGET_CPU_ARM64
