@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include <cstddef>
+#include <cstdint>
 #ifdef WIN32
 #include <algorithm>
 #endif  // WIN32
@@ -35,6 +36,8 @@ namespace http {
 static const char* const KStringSpace = " ";
 static const char* const KStringCRLF = "\r\n";
 static const char* const KStringColon = ":";
+static const uint64_t kMaxContentLength = 4 * 1024 * 1024 * 1024ULL;  // 4g
+static const uint64_t kMaxChunkLength = 4 * 1024 * 1024 * 1024ULL;    // 4g
 
 bool less::operator()(const std::string& __x, const std::string& __y) const {
     return 0 > strcasecmp(__x.c_str(), __y.c_str());
@@ -852,12 +855,16 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                         std::string strChunkSize = std::string(chunkSizeBegin, chunkSizeEnd);
                         strutil::Trim(strChunkSize);
 
-                        int64_t chunkSize = strtol(strChunkSize.c_str(), NULL, 16);
+                        uint64_t chunkSize = strtoull(strChunkSize.c_str(), NULL, 16);
+                        if (chunkSize > kMaxChunkLength) {
+                            recvstatus_ = kBodyError;
+                            return recvstatus_;
+                        }
 
                         ptrdiff_t sizeLen = chunkSizeEnd - chunkSizeBegin;
 
                         if (0 != chunkSize) {
-                            if ((ptrdiff_t)recvbuf_.Length() < chunkSize + sizeLen + 4)
+                            if (recvbuf_.Length() < chunkSize + sizeLen + 4)
                                 return recvstatus_;
 
                             char* chunkBegin = chunkSizeEnd + 2;
@@ -896,28 +903,38 @@ Parser::TRecvStatus Parser::Recv(const void* _buffer,
                             }
                         }
                     } else {  // no chunk
-                        int64_t contentLength = headfields_.ContentLength();
-                        int64_t appendlen = 0;
+                        uint64_t contentLength = headfields_.ContentLength();
+                        if (contentLength > kMaxContentLength) {
+                            recvstatus_ = kBodyError;
+                            return recvstatus_;
+                        }
+
+                        uint64_t appendlen = 0;
                         if (Fields().IsConnectionClose() && 0 == contentLength) {
-                            appendlen = int64_t(recvbuf_.Length());
-                        } else if (int64_t(recvbuf_.Length() + bodyreceiver_->Length()) <= contentLength)
-                            appendlen = int64_t(recvbuf_.Length());
-                        else {
+                            appendlen = recvbuf_.Length();
+                        } else if (recvbuf_.Length() + bodyreceiver_->Length() <= contentLength) {
+                            appendlen = recvbuf_.Length();
+                        } else {
                             xwarn2(TSF "recv len bigger than contentlen, (%_, %_, %_)",
                                    recvbuf_.Length(),
                                    bodyreceiver_->Length(),
                                    contentLength);
-                            appendlen = contentLength - int64_t(bodyreceiver_->Length());
+                            appendlen = contentLength - bodyreceiver_->Length();
                         }
 
-                        bodyreceiver_->AppendData(recvbuf_.Ptr(), (size_t)appendlen);
-                        recvbuf_.Move(-appendlen);
+                        if (appendlen > kMaxContentLength) {
+                            recvstatus_ = kBodyError;
+                            return recvstatus_;
+                        }
+
+                        bodyreceiver_->AppendData(recvbuf_.Ptr(), appendlen);
+                        recvbuf_.Move(-static_cast<off_t>(appendlen));
 
                         if (consumed_bytes) {
                             *consumed_bytes = origin_size - recvbuf_.Length();
                         }
 
-                        if ((int64_t)bodyreceiver_->Length() == contentLength) {
+                        if (bodyreceiver_->Length() == contentLength) {
                             recvstatus_ = kEnd;
                             bodyreceiver_->EndData();
                             return recvstatus_;
@@ -1054,12 +1071,16 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
                         std::string strChunkSize = std::string(chunkSizeBegin, chunkSizeEnd);
                         strutil::Trim(strChunkSize);
 
-                        int64_t chunkSize = strtol(strChunkSize.c_str(), NULL, 16);
+                        uint64_t chunkSize = strtoull(strChunkSize.c_str(), NULL, 16);
+                        if (chunkSize > kMaxChunkLength) {
+                            recvstatus_ = kBodyError;
+                            return recvstatus_;
+                        }
 
                         ptrdiff_t sizeLen = chunkSizeEnd - chunkSizeBegin;
 
                         if (0 != chunkSize) {
-                            if ((ptrdiff_t)_recv_buffer.Length() < chunkSize + sizeLen + 4)
+                            if (_recv_buffer.Length() < chunkSize + sizeLen + 4)
                                 return recvstatus_;
 
                             char* chunkBegin = chunkSizeEnd + 2;
@@ -1090,23 +1111,33 @@ Parser::TRecvStatus Parser::Recv(AutoBuffer& _recv_buffer) {
                             _recv_buffer.Move(-(trailerEnd - chunkSizeBegin + 2));
                         }
                     } else {  // no chunk
-                        int64_t contentLength = headfields_.ContentLength();
-                        int64_t appendlen = 0;
+                        uint64_t contentLength = headfields_.ContentLength();
+                        if (contentLength > kMaxContentLength) {
+                            recvstatus_ = kBodyError;
+                            return recvstatus_;
+                        }
 
-                        if (int64_t(_recv_buffer.Length() + bodyreceiver_->Length()) <= contentLength)
-                            appendlen = int64_t(_recv_buffer.Length());
+                        uint64_t appendlen = 0;
+
+                        if (_recv_buffer.Length() + bodyreceiver_->Length() <= contentLength)
+                            appendlen = _recv_buffer.Length();
                         else {
                             xwarn2(TSF "contentLength:%_, body.len:%_, recv len:%_",
                                    contentLength,
-                                   int64_t(bodyreceiver_->Length()),
+                                   bodyreceiver_->Length(),
                                    _recv_buffer.Length());
-                            appendlen = contentLength - int64_t(bodyreceiver_->Length());
+                            appendlen = contentLength - bodyreceiver_->Length();
                         }
 
-                        bodyreceiver_->AppendData(_recv_buffer.Ptr(), (size_t)appendlen);
-                        _recv_buffer.Move(-appendlen);
+                        if (appendlen > kMaxContentLength) {
+                            recvstatus_ = kBodyError;
+                            return recvstatus_;
+                        }
 
-                        if ((int64_t)bodyreceiver_->Length() == contentLength) {
+                        bodyreceiver_->AppendData(_recv_buffer.Ptr(), appendlen);
+                        _recv_buffer.Move(-static_cast<off_t>(appendlen));
+
+                        if (bodyreceiver_->Length() == contentLength) {
                             recvstatus_ = kEnd;
                             bodyreceiver_->EndData();
                             return recvstatus_;
