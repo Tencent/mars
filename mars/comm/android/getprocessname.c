@@ -20,7 +20,7 @@ const char* getprocessname() {
     if (x)
         return x;
 
-    sprintf(data, "/proc/%d/cmdline", getpid());
+    snprintf(data, sizeof(data), "/proc/%d/cmdline", getpid());
     fp = fopen(data, "r");
     if (fp) {
         x = fgets(data, 1024, fp);
