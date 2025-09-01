@@ -1164,6 +1164,7 @@ static int uECC_sign_with_k(const uint8_t* private_key,
     uECC_word_t tmp[uECC_MAX_WORDS];
     uECC_word_t s[uECC_MAX_WORDS];
     uECC_word_t* k2[2] = {tmp, s};
+    uECC_word_t *initial_Z = 0;
 #if uECC_VLI_NATIVE_LITTLE_ENDIAN
     uECC_word_t* p = (uECC_word_t*)signature;
 #else
@@ -1180,7 +1181,15 @@ static int uECC_sign_with_k(const uint8_t* private_key,
     }
 
     carry = regularize_k(k, tmp, s, curve);
-    EccPoint_mult(p, curve->G, k2[!carry], 0, num_n_bits + 1, curve);
+    /* If an RNG function was specified, try to get a random initial Z value to improve
+       protection against side-channel attacks. */
+    if (g_rng_function) {
+        if (!uECC_generate_random_int(k2[carry], curve->p, num_words)) {
+            return 0;
+        }
+        initial_Z = k2[carry];
+    }
+    EccPoint_mult(p, curve->G, k2[!carry], initial_Z, num_n_bits + 1, curve);
     if (uECC_vli_isZero(p, num_words)) {
         return 0;
     }
