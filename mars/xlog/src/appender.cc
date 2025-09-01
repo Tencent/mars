@@ -274,7 +274,7 @@ void XloggerAppender::Close() {
 
     log_close_ = true;
 
-    cond_buffer_async_.notifyAll();
+    cond_buffer_async_.notifyAll(true);
 
     if (thread_async_.isruning())
         thread_async_.join();
