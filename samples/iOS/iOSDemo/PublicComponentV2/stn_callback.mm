@@ -84,7 +84,7 @@ int StnCallBack::Buf2Resp(uint32_t _taskid, void* const _user_context, const std
     return handle_type;
 }
 
-int StnCallBack::OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code) {
+int StnCallBack::OnTaskEnd(uint32_t _taskid, void* const _user_context, const std::string& _user_id, int _error_type, int _error_code,  const CgiProfile& _profile) {
     
     return (int)[[NetworkService sharedInstance] OnTaskEndWithTaskID:_taskid userContext:_user_context errType:_error_type errCode:_error_code];
 

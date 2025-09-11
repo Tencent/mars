@@ -87,6 +87,9 @@ static int __unpack_test(const void* _packed, size_t _packed_len, uint32_t& _cmd
     return LONGLINK_UNPACK_OK;
 }
 
+int LongLinkEncoder::packer_encoder_version = PackerEncoderVersion::kOld;
+void LongLinkEncoder::SetEncoderVersion(int _version) {packer_encoder_version = _version;}
+
 LongLinkEncoder::LongLinkEncoder() {
 longlink_pack = [](uint32_t _cmdid,
      uint32_t _seq,
