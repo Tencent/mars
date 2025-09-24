@@ -85,7 +85,7 @@ class XloggerAppender {
 #else
     bool consolelog_open_ = false;
 #endif
-    bool log_close_ = true;
+    std::atomic<bool> log_close_ {true};
     comm::Condition cond_buffer_async_;
     uint64_t max_file_size_ = 0;               // 0, will not split log file.
     long max_alive_time_ = 10 * 24 * 60 * 60;  // 10 days in second

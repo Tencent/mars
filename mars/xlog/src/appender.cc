@@ -141,7 +141,7 @@ XloggerAppender* XloggerAppender::NewInstance(const XLogConfig& _config, uint64_
 }
 
 void XloggerAppender::DelayRelease(XloggerAppender* _appender) {
-    if (_appender->log_close_) {
+    if (_appender->log_close_.load(std::memory_order_consume)) {
         return;
     }
     _appender->Close();
@@ -165,7 +165,7 @@ XloggerAppender::XloggerAppender(const XLogConfig& _config, uint64_t _max_byte_s
 }
 
 void XloggerAppender::Write(const XLoggerInfo* _info, const char* _log) {
-    if (log_close_)
+    if (log_close_.load(std::memory_order_consume))
         return;
 
     SCOPE_ERRNO();
@@ -264,7 +264,7 @@ void XloggerAppender::Close() {
     thread_moveold_ = nullptr;
     thread_timeout_log_ = nullptr;
 
-    if (log_close_) return;
+    if (log_close_.load(std::memory_order_consume)) return;
 
     char mark_info[512] = {0};
     __GetMarkInfo(mark_info, sizeof(mark_info));
@@ -272,7 +272,7 @@ void XloggerAppender::Close() {
     snprintf(appender_info, sizeof(appender_info), "$$$$$$$$$$" __DATE__ "$$$" __TIME__ "$$$$$$$$$$%s\n", mark_info);
     Write(nullptr, appender_info);
 
-    log_close_ = true;
+    log_close_.store(true, std::memory_order_release);
 
     cond_buffer_async_.notifyAll();
 
@@ -375,7 +375,7 @@ void XloggerAppender::Open(const XLogConfig& _config) {
     log_buff_->Flush(buffer);
 
     ScopedLock lock(mutex_log_file_);
-    log_close_ = false;
+    log_close_.store(false, std::memory_order_release);
     SetMode(config_.mode_);
     lock.unlock();
 
@@ -949,7 +949,7 @@ void XloggerAppender::__AsyncLogThread() {
         if (nullptr != tmp.Ptr())
             __Log2File(tmp.Ptr(), tmp.Length(), true);
 
-        if (log_close_)
+        if (log_close_.load(std::memory_order_acquire))
             break;
 
         cond_buffer_async_.wait(15 * 60 * 1000);
@@ -1228,7 +1228,7 @@ void XloggerAppender::TreatMappingAsFileAndFlush(TFileIOAction* _result) {
         log_buff_ = new LogZlibBuffer(data.release(), kBufferBlockLength, true, config_.pub_key_.c_str());
     }
 	
-    log_close_ = false;
+    log_close_.store(false, std::memory_order_release);
 
     // try write mapping to logfile
     AutoBuffer buffer;
