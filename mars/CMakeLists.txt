@@ -48,6 +48,11 @@ if(ANDROID)
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/JNI_OnLoad.cc
             libraries/mars_xlog_sdk/jni/import.cc)
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
+    set_target_properties(
+        ${SELF_LIB_NAME}
+        PROPERTIES
+        LINK_FLAGS "-Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384"
+    )
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
     get_filename_component(EXPORT_XLOG_EXP_FILE libraries/mars_android_sdk/jni/export.exp ABSOLUTE)
     set(SELF_XLOG_LINKER_FLAG "-Wl,--gc-sections -Wl,--version-script='${EXPORT_XLOG_EXP_FILE}'") 
@@ -67,6 +72,11 @@ if(ANDROID)
     set(SELF_LIB_NAME marsstn)
     file(GLOB SELF_SRC_FILES libraries/mars_android_sdk/jni/*.cc)
     add_library(${SELF_LIB_NAME} SHARED ${SELF_SRC_FILES})
+    set_target_properties(
+        ${SELF_LIB_NAME}
+        PROPERTIES
+        LINK_FLAGS "-Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384"
+    )
     install(TARGETS ${SELF_LIB_NAME} LIBRARY DESTINATION ${SELF_LIBS_OUT} ARCHIVE DESTINATION ${SELF_LIBS_OUT})
     link_directories(${SELF_LIBS_OUT})
     find_library(CRYPT_LIB crypto PATHS openssl/openssl_lib_android/${ANDROID_ABI} NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
